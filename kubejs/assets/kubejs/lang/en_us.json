@@ -4951,7 +4951,7 @@
 	"atm9.quest.gregtech.mv.desc.aluminium.3": "We can also generate aluminum passively in the clay line process",
 	"atm9.quest.gregtech.mv.subt.aluminium.1": "Aluminium is that you?",
 	"atm9.quest.gregtech.mv.aluminumIngot": "Aluminum Ingot",
-	"atm9.quest.gregtech.mv.desc.glassLensGreen.1": "A Glass Lens (Green) can also make this, but making the colored glass lens is an HV recipe",
+	"atm9.quest.gregtech.mv.desc.glassLensGreen.1": "RAM Wafers are no longer laser engraved. Engrave a Photomask Blank into a RAM Reticle with a green lens, then print wafers in the Photolithography Line.",
 	"atm9.quest.gregtech.mv.desc.glassLensRed.1": "A Glass Lens (Red) can also make this, but making glass lenses is an HV recipe",
 	"atm9.quest.gregtech.mv.desc.ethylene.1": "Ethanol + Sulfuric Acid in a &eChemical Reactor&r makes Ethylene",
 	"atm9.quest.gregtech.mv.desc.ethylene.2": "There are other methods of course, but those involve petrochemistry which we aren't getting into quite yet",

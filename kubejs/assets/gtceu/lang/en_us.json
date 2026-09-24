@@ -53,7 +53,22 @@
     "material.gtceu.vibtronium": "Vibtronium",
     "material.gtceu.unobtronium": "Unobtronium",
     "material.gtceu.molten_piglich_heart": "Molten Piglich Heart",
-    "gtceu.mega_chemical_reactor":"Advanced Large Chemical Reactor"
+    "gtceu.mega_chemical_reactor":"Advanced Large Chemical Reactor",
+    "block.gtceu.photolithography_line": "Photolithography Line",
+    "gtceu.photolithography": "Photolithography",
+    "af9.photolithography_line.tooltip.0": "i-line (365 nm) lithography cell: HMDS prime, resist coat, bake, expose, develop, rinse.",
+    "af9.photolithography_line.tooltip.1": "Built-in fan filter units: no Cleanroom required.",
+    "af9.photolithography_line.tooltip.2": "Draws 4A of MV: requires exactly two Energy Hatches (2x MV = 4A).",
+    "af9.photolithography_line.tooltip.3": "Wafers load and unload at the cassette station next to the controller.",
+    "material.gtceu.extreme_clean_dry_air": "Extreme Clean Dry Air",
+    "material.gtceu.trimethylchlorosilane": "Trimethylchlorosilane",
+    "material.gtceu.hexamethyldisilazane": "Hexamethyldisilazane",
+    "material.gtceu.hmds_vapor": "HMDS Vapor",
+    "material.gtceu.novolac_resin": "Novolac Resin",
+    "material.gtceu.diazonaphthoquinone": "Diazonaphthoquinone",
+    "material.gtceu.photoresist": "Positive Photoresist",
+    "material.gtceu.tetramethylammonium_chloride": "Tetramethylammonium Chloride",
+    "material.gtceu.tmah_developer": "TMAH Developer"
 }
 
 
