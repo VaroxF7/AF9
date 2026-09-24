@@ -1,0 +1,32 @@
+package com.af9.core;
+
+import com.af9.core.machine.PhotolithographyLineMachine;
+
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+/**
+ * AF9 Core: Java-side machine logic for the AF9 modpack.
+ * Machines, materials and recipes are defined in KubeJS; this mod supplies the behaviour KubeJS cannot
+ * (custom controller UI with buttons, module detection, recipe tier gating).
+ */
+@Mod(AF9Core.MOD_ID)
+public class AF9Core {
+
+    public static final String MOD_ID = "af9";
+    public static final Logger LOGGER = LogManager.getLogger();
+
+    @SuppressWarnings("removal")
+    public AF9Core() {
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
+    }
+
+    private void commonSetup(FMLCommonSetupEvent event) {
+        // GT recipe types are registered (by KubeJS) before common setup; touch them on the main thread
+        event.enqueueWork(PhotolithographyLineMachine::registerRecipeInfo);
+    }
+}

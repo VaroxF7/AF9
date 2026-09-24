@@ -1,0 +1,22 @@
+{
+    "af9.litho.tier.1": "Mk I (i-line, 365 nm)",
+    "af9.litho.tier.2": "Mk II (KrF, 248 nm)",
+    "af9.litho.tier.3": "Mk III (KrF, Twin-Stage)",
+    "af9.litho.module.krf": "KrF Excimer Laser Module",
+    "af9.litho.module.twin_stage": "Twin-Stage Scanner Module",
+    "af9.litho.display.config": "Configuration: %s",
+    "af9.litho.display.module_on": " [x] %s",
+    "af9.litho.display.module_off": " [ ] %s",
+    "af9.litho.display.twin_needs_krf": "The Twin-Stage Scanner Module only works together with the KrF Excimer Laser Module.",
+    "af9.litho.display.operating": "Running as:",
+    "af9.litho.button.auto_on": "[Auto tier: ON]",
+    "af9.litho.button.auto_off": "[Auto tier: OFF]",
+    "af9.litho.display.power": "Power: %s / %s EU/t",
+    "af9.litho.display.grade": "Wafer grade: %s",
+    "af9.litho.grade.1": "Standard",
+    "af9.litho.grade.2": "High-Grade (+25%% chips)",
+    "af9.litho.grade.3": "Premium (+50%% chips)",
+    "af9.litho.display.printed": "Printed: %s Std / %s HG / %s Premium",
+    "af9.litho.button.reset": "[Reset counters]",
+    "af9.recipe.litho_tier": "Requires: %s"
+}
