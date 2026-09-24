@@ -6,27 +6,35 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.List;
+
 /**
  * The Photolithography Line's exposure modes. Each is its own GT recipe type (gtceu:lithography_*), defined in
  * kubejs/startup_scripts/gtceu/photolithography.js; the numbers here must match the recipes in
  * kubejs/server_scripts/mods/gtceu/photolithography.js.
  * <p>
- * Every step doubles the energy and uses 1.5x the chemicals. Transistor density follows real scaling, (350 nm / node)^2,
- * and dies per wafer grow with sqrt(350 nm / node).
+ * Every mode draws 4A of its own voltage tier (MV for MUV up to LuV for LUV) and each step uses 1.5x the chemicals.
+ * Transistor density follows real scaling, (350 nm / node)^2, and dies per wafer grow with sqrt(350 nm / node).
  */
 public enum LithoMode {
 
     MUV("muv", 350, ChatFormatting.LIGHT_PURPLE, GTValues.MV, 4),
-    HUV("huv", 250, ChatFormatting.BLUE, GTValues.HV, 2),
-    EUV("euv", 200, ChatFormatting.AQUA, GTValues.HV, 4),
-    XUV("xuv", 100, ChatFormatting.GREEN, GTValues.EV, 2),
-    LUV("luv", 50, ChatFormatting.GOLD, GTValues.EV, 4);
+    HUV("huv", 250, ChatFormatting.BLUE, GTValues.HV, 4),
+    EUV("euv", 200, ChatFormatting.AQUA, GTValues.EV, 4),
+    XUV("xuv", 100, ChatFormatting.GREEN, GTValues.IV, 4),
+    LUV("luv", 50, ChatFormatting.GOLD, GTValues.LuV, 4);
 
     /** NBT compound on wafers and chips: {AF9Litho:{Node:int, Transistors:int}}. */
     public static final String TAG = "AF9Litho";
     public static final String TAG_NODE = "Node";
     public static final String TAG_TRANSISTORS = "Transistors";
     private static final int REFERENCE_NODE = 350;
+
+    /** gtceu: item paths the line prints (with {@link #TAG}) and the chips its cutter recipes make from them. */
+    public static final List<String> WAFERS = List.of(
+            "ilc_wafer", "ram_wafer", "cpu_wafer", "ulpic_wafer", "lpic_wafer", "simple_soc_wafer");
+    public static final List<String> CHIPS = List.of(
+            "ilc_chip", "ram_chip", "cpu_chip", "ulpic_chip", "lpic_chip", "simple_soc");
 
     public final String id;
     public final int nodeNm;
@@ -51,7 +59,7 @@ public enum LithoMode {
         return name();
     }
 
-    /** EU/t the mode's recipes draw: 480 for MUV, doubling each step. */
+    /** EU/t the mode's recipes draw: 4A of its tier, 480 for MUV up to 122,880 for LUV. */
     public long eut() {
         return (long) GTValues.VA[hatchTier] * amperage;
     }

@@ -22,6 +22,10 @@ repositories {
             includeGroup("com.tterrag.registrate")
         }
     }
+    maven { // EMI
+        name = "TerraformersMC"
+        url = "https://maven.terraformersmc.com/"
+    }
 }
 
 version = mod_version
@@ -50,6 +54,9 @@ dependencies {
     modImplementation("com.lowdragmc.ldlib:ldlib-forge-${minecraft_version}:${ldlib_version}") { transitive = false }
     modImplementation("com.tterrag.registrate:Registrate:${registrate_version}")
     modImplementation("dev.toma.configuration:configuration-forge-${minecraft_version}:${configuration_version}")
+
+    // EMI plugin (wafer variants); same version as the pack
+    modCompileOnly("dev.emi:emi-forge:${emi_version}")
 }
 
 tasks.named('processResources', ProcessResources).configure {

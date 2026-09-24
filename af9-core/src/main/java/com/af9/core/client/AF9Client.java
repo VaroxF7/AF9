@@ -19,6 +19,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Stream;
 
 /**
  * Client side of the lithography properties: the af9:litho_mode model predicate (picks the per-mode texture in
@@ -26,11 +27,6 @@ import java.util.Locale;
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
 public final class AF9Client {
-
-    /** Every item the Photolithography Line (or its cutter recipes) puts {@link LithoMode#TAG} on. */
-    public static final List<String> LITHO_ITEMS = List.of(
-            "ilc_wafer", "ram_wafer", "cpu_wafer", "ulpic_wafer", "lpic_wafer", "simple_soc_wafer",
-            "ilc_chip", "ram_chip", "cpu_chip", "ulpic_chip", "lpic_chip", "simple_soc");
 
     private AF9Client() {}
 
@@ -42,7 +38,7 @@ public final class AF9Client {
             // ItemProperties is not thread-safe; register on the main thread
             event.enqueueWork(() -> {
                 ResourceLocation predicate = new ResourceLocation(AF9Core.MOD_ID, "litho_mode");
-                for (String path : LITHO_ITEMS) {
+                for (String path : Stream.concat(LithoMode.WAFERS.stream(), LithoMode.CHIPS.stream()).toList()) {
                     Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation("gtceu", path));
                     if (item == null || item == Items.AIR) {
                         AF9Core.LOGGER.warn("Item gtceu:{} not found, no lithography texture for it", path);

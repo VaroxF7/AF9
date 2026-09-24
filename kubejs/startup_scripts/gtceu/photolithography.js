@@ -102,8 +102,8 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         .rotationState(RotationState.NON_Y_AXIS)
         // machine modes, in order; switch with GT's mode tab or the buttons in the controller display
         .recipeTypes(['muv', 'huv', 'euv', 'xuv', 'luv'].map(mode => GTRecipeTypes.get(`lithography_${mode}`)))
-        // LITHO_GATE: only starts a recipe when the two energy hatches can supply its EU/t
-        .recipeModifiers([$PhotolithographyLineMachine.LITHO_GATE, GTRecipeModifiers.OC_NON_PERFECT])
+        // LITHO_GATE: only starts a recipe when the two energy hatches can supply its EU/t; perfect overclocks above that
+        .recipeModifiers([$PhotolithographyLineMachine.LITHO_GATE, GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(GTBlocks.CASING_STAINLESS_CLEAN)
         ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
             .map(i => Component.translatable(`af9.photolithography_line.tooltip.${i}`)))

@@ -5,6 +5,8 @@ ServerEvents.recipes(allthemods => {
     const EU_MV = GTValues.VA[GTValues.MV]
     const EU_HV = GTValues.VA[GTValues.HV]
     const EU_EV = GTValues.VA[GTValues.EV]
+    const EU_IV = GTValues.VA[GTValues.IV]
+    const EU_LUV = GTValues.VA[GTValues.LuV]
 
     // The MV silicon chips. gtCut / cut / cutEUt / cleanroom mirror GT's own cutter recipes; lens is GT's engraving lens
     // colour. transistors = transistors per die at MUV (350 nm), roughly what such a chip had on a real 350 nm process.
@@ -18,14 +20,14 @@ ServerEvents.recipes(allthemods => {
     ]
 
     // Exposure modes, finest last. Must stay in sync with com.af9.core.litho.LithoMode in af9-core:
-    // each step doubles EU/t (always 2 hatches) and uses 1.5x the chemicals; transistor density is (350 / node)^2 and
-    // dies per wafer grow with sqrt(350 / node).
+    // every mode draws 4A of its own voltage tier (MV .. LuV, always 2 hatches) and each step uses 1.5x the chemicals;
+    // transistor density is (350 / node)^2 and dies per wafer grow with sqrt(350 / node).
     const modes = [
         { id: 'muv', node: 350, voltage: EU_MV, amps: 4 },
-        { id: 'huv', node: 250, voltage: EU_HV, amps: 2 },
-        { id: 'euv', node: 200, voltage: EU_HV, amps: 4 },
-        { id: 'xuv', node: 100, voltage: EU_EV, amps: 2 },
-        { id: 'luv', node: 50, voltage: EU_EV, amps: 4 }
+        { id: 'huv', node: 250, voltage: EU_HV, amps: 4 },
+        { id: 'euv', node: 200, voltage: EU_EV, amps: 4 },
+        { id: 'xuv', node: 100, voltage: EU_IV, amps: 4 },
+        { id: 'luv', node: 50, voltage: EU_LUV, amps: 4 }
     ]
     // NBT the line writes onto wafers (and the cutter copies onto chips): read by AF9 Core for tooltip and texture
     const lithoNbt = (chip, mode) => {

@@ -7,6 +7,8 @@
     "af9.litho.hatch.2": "2x MV Energy Hatches",
     "af9.litho.hatch.3": "2x HV Energy Hatches",
     "af9.litho.hatch.4": "2x EV Energy Hatches",
+    "af9.litho.hatch.5": "2x IV Energy Hatches",
+    "af9.litho.hatch.6": "2x LuV Energy Hatches",
     "af9.litho.display.mode": "Mode:",
     "af9.litho.display.power": "Power: %s / %s EU/t",
     "af9.litho.display.power_hint": "Not enough power for this mode - needs %s",
