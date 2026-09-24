@@ -6,7 +6,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 /**
- * Recipe logic that reports every finished wafer back to the line, so it can count output per quality grade.
+ * Recipe logic that reports every finished wafer back to the line, so it can count output per mode.
  */
 public class LithoRecipeLogic extends RecipeLogic {
 
@@ -27,11 +27,11 @@ public class LithoRecipeLogic extends RecipeLogic {
 
     @Override
     public void onRecipeFinish() {
-        // lastOriginRecipe is the unmodified recipe, which carries the tier data; capture it before it is replaced
+        // capture before super.onRecipeFinish() can replace it with the next recipe
         GTRecipe finished = lastOriginRecipe;
         super.onRecipeFinish();
         if (finished != null) {
-            line.recordPrinted(PhotolithographyLineMachine.getRecipeTier(finished));
+            line.recordPrinted(finished);
         }
     }
 }

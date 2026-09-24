@@ -6,16 +6,32 @@ ServerEvents.recipes(allthemods => {
     const EU_HV = GTValues.VA[GTValues.HV]
     const EU_EV = GTValues.VA[GTValues.EV]
 
-    // The MV silicon chips. cut / cutEUt / cleanroom mirror GT's own cutter recipes; lens is GT's engraving lens colour
+    // The MV silicon chips. gtCut / cut / cutEUt / cleanroom mirror GT's own cutter recipes; lens is GT's engraving lens
+    // colour. transistors = transistors per die at MUV (350 nm), roughly what such a chip had on a real 350 nm process.
     const chips = [
-        { id: 'ilc', wafer: 'gtceu:ilc_wafer', chip: 'gtceu:ilc_chip', lens: 'red', engrave: 'engrave_ilc_silicon', cut: 8, cutEUt: 64, cleanroom: false },
-        { id: 'ram', wafer: 'gtceu:ram_wafer', chip: 'gtceu:ram_chip', lens: 'green', engrave: 'engrave_ram_silicon', cut: 32, cutEUt: 96, cleanroom: false },
-        { id: 'cpu', wafer: 'gtceu:cpu_wafer', chip: 'gtceu:cpu_chip', lens: 'light_blue', engrave: 'engrave_cpu_silicon', cut: 8, cutEUt: 120, cleanroom: false },
-        { id: 'ulpic', wafer: 'gtceu:ulpic_wafer', chip: 'gtceu:ulpic_chip', lens: 'blue', engrave: 'engrave_ulpic_silicon', cut: 6, cutEUt: 120, cleanroom: false },
-        { id: 'lpic', wafer: 'gtceu:lpic_wafer', chip: 'gtceu:lpic_chip', lens: 'orange', engrave: 'engrave_lpic_silicon', cut: 4, cutEUt: 480, cleanroom: true },
-        { id: 'simple_soc', wafer: 'gtceu:simple_soc_wafer', chip: 'gtceu:simple_soc', lens: 'cyan', engrave: 'engrave_ssoc_silicon', cut: 6, cutEUt: 64, cleanroom: false }
+        { id: 'ilc', wafer: 'gtceu:ilc_wafer', chip: 'gtceu:ilc_chip', lens: 'red', engrave: 'engrave_ilc_silicon', gtCut: 'cut_ilc', cut: 8, cutEUt: 64, cleanroom: false, transistors: 50000 },
+        { id: 'ram', wafer: 'gtceu:ram_wafer', chip: 'gtceu:ram_chip', lens: 'green', engrave: 'engrave_ram_silicon', gtCut: 'cut_ram', cut: 32, cutEUt: 96, cleanroom: false, transistors: 16000000 },
+        { id: 'cpu', wafer: 'gtceu:cpu_wafer', chip: 'gtceu:cpu_chip', lens: 'light_blue', engrave: 'engrave_cpu_silicon', gtCut: 'cut_cpu', cut: 8, cutEUt: 120, cleanroom: false, transistors: 5500000 },
+        { id: 'ulpic', wafer: 'gtceu:ulpic_wafer', chip: 'gtceu:ulpic_chip', lens: 'blue', engrave: 'engrave_ulpic_silicon', gtCut: 'cut_ulpic', cut: 6, cutEUt: 120, cleanroom: false, transistors: 2000 },
+        { id: 'lpic', wafer: 'gtceu:lpic_wafer', chip: 'gtceu:lpic_chip', lens: 'orange', engrave: 'engrave_lpic_silicon', gtCut: 'cut_lpic', cut: 4, cutEUt: 480, cleanroom: true, transistors: 5000 },
+        { id: 'simple_soc', wafer: 'gtceu:simple_soc_wafer', chip: 'gtceu:simple_soc', lens: 'cyan', engrave: 'engrave_ssoc_silicon', gtCut: 'cut_ssoc', cut: 6, cutEUt: 64, cleanroom: false, transistors: 1000000 }
     ]
 
+    // Exposure modes, finest last. Must stay in sync with com.af9.core.litho.LithoMode in af9-core:
+    // each step doubles EU/t (always 2 hatches) and uses 1.5x the chemicals; transistor density is (350 / node)^2 and
+    // dies per wafer grow with sqrt(350 / node).
+    const modes = [
+        { id: 'muv', node: 350, voltage: EU_MV, amps: 4 },
+        { id: 'huv', node: 250, voltage: EU_HV, amps: 2 },
+        { id: 'euv', node: 200, voltage: EU_HV, amps: 4 },
+        { id: 'xuv', node: 100, voltage: EU_EV, amps: 2 },
+        { id: 'luv', node: 50, voltage: EU_EV, amps: 4 }
+    ]
+    // NBT the line writes onto wafers (and the cutter copies onto chips): read by AF9 Core for tooltip and texture
+    const lithoNbt = (chip, mode) => {
+        const transistors = Math.round(chip.transistors * Math.pow(350 / mode.node, 2))
+        return `{AF9Litho:{Node:${mode.node},Transistors:${transistors}}}`
+    }
     // Silicon chip wafers are printed by photolithography instead of being laser engraved directly
     chips.forEach(chip => allthemods.remove({ id: `gtceu:laser_engraver/${chip.engrave}` }))
 
@@ -53,35 +69,6 @@ ServerEvents.recipes(allthemods => {
             .duration(1800)
             .EUt(EU_MV)
     })
-
-    // ---- Upgrade modules ----
-    // Mk II: KrF excimer laser source (248 nm) with fused-silica optics, filled with krypton laser gas
-    allthemods.recipes.gtceu.assembler('af9:krf_excimer_laser_module')
-        .itemInputs(
-            'gtceu:hv_machine_hull',
-            '4x gtceu:hv_emitter',
-            '2x #gtceu:circuits/hv',
-            '2x gtceu:hv_electric_pump',
-            '4x gtceu:quartzite_plate',
-            '8x gtceu:stainless_steel_plate')
-        .inputFluids(Fluid.of('gtceu:krypton', 1000))
-        .itemOutputs('kubejs:krf_excimer_laser_module')
-        .duration(1200)
-        .EUt(EU_HV)
-
-    // Mk III: second wafer stage, so one wafer is measured while the other is exposed
-    allthemods.recipes.gtceu.assembler('af9:twin_stage_scanner_module')
-        .itemInputs(
-            'gtceu:ev_machine_hull',
-            '4x gtceu:ev_robot_arm',
-            '4x gtceu:ev_sensor',
-            '4x gtceu:ev_electric_motor',
-            '2x #gtceu:circuits/ev',
-            '8x gtceu:titanium_plate')
-        .inputFluids(Fluid.of('gtceu:soldering_alloy', 1152))
-        .itemOutputs('kubejs:twin_stage_scanner_module')
-        .duration(1600)
-        .EUt(EU_EV)
 
     // ---- Process gases ----
     allthemods.recipes.gtceu.chemical_reactor('af9:extreme_clean_dry_air')
@@ -151,56 +138,60 @@ ServerEvents.recipes(allthemods => {
         .EUt(EU_MV)
 
     // ---- Wafers ----
-    // HMDS prime -> resist coat -> soft bake -> exposure -> PEB -> TMAH develop -> DI rinse -> hard bake
-    // Each Mk halves time and fluids and draws 4A one voltage tier higher. The AF9 Core controller only runs
-    // recipes whose af9_litho_tier matches its operating Mk.
-    const tiers = [
-        { tier: 1, eut: EU_MV, output: chip => chip.wafer },
-        { tier: 2, eut: EU_HV, output: chip => `kubejs:${chip.id}_wafer_high_grade` },
-        { tier: 3, eut: EU_EV, output: chip => `kubejs:${chip.id}_wafer_premium` }
-    ]
+    // HMDS prime -> resist coat -> soft bake -> UV exposure -> PEB -> TMAH develop -> DI rinse -> hard bake
     chips.forEach(chip => {
-        tiers.forEach(t => {
-            const divisor = Math.pow(2, t.tier - 1)
-            allthemods.recipes.gtceu.photolithography(`af9:${chip.id}_wafer_mk${t.tier}`)
+        modes.forEach((mode, index) => {
+            const chemicals = Math.pow(1.5, index)
+            allthemods.recipes.gtceu[`lithography_${mode.id}`](`af9:${chip.id}_wafer_${mode.id}`)
                 .itemInputs('gtceu:silicon_wafer')
                 .notConsumable(`kubejs:${chip.id}_reticle`)
                 .inputFluids(
-                    Fluid.of('gtceu:hmds_vapor', 40 / divisor),
-                    Fluid.of('gtceu:photoresist', 100 / divisor),
-                    Fluid.of('gtceu:tmah_developer', 200 / divisor),
-                    Fluid.of('gtceu:distilled_water', 1000 / divisor),
-                    Fluid.of('gtceu:extreme_clean_dry_air', 1000 / divisor))
-                .itemOutputs(t.output(chip))
-                // NBT tag, not a plain number: addData has int/long/float overloads Rhino cannot choose between
-                .addData('af9_litho_tier', NBT.intTag(t.tier))
-                .duration(900 / divisor)
-                .EUt(t.eut, 4)
+                    Fluid.of('gtceu:hmds_vapor', Math.round(40 * chemicals)),
+                    Fluid.of('gtceu:photoresist', Math.round(100 * chemicals)),
+                    Fluid.of('gtceu:tmah_developer', Math.round(200 * chemicals)),
+                    Fluid.of('gtceu:distilled_water', Math.round(1000 * chemicals)),
+                    Fluid.of('gtceu:extreme_clean_dry_air', Math.round(1000 * chemicals)))
+                .itemOutputs(Item.of(chip.wafer, lithoNbt(chip, mode)))
+                .duration(900)
+                .EUt(mode.voltage, mode.amps)
         })
     })
 
-    // ---- Graded wafer cutting ----
-    // Better wafers yield more chips. Mirrors the three fluid variants GT generates for its own cutter recipes
-    // (KubeJS recipes skip that generator), using GT's formulas.
+    // ---- Wafer cutting ----
+    // Replaces GT's cutter recipes for these wafers. Inputs match NBT exactly, so plain wafers (quest rewards, the other
+    // GT engraving recipes) still cut exactly like GT, while printed wafers cut into more dies that keep the wafer's
+    // node and transistor count. Each gets GT's three fluid variants (KubeJS recipes skip GT's generator), with GT's
+    // formulas.
     const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
-    const grades = [
-        { suffix: 'high_grade', factor: 1.25 },
-        { suffix: 'premium', factor: 1.5 }
-    ]
+    // the single-block cutter has two output slots, so split into stacks of at most 64
+    const chipStacks = (chip, count, nbt) => {
+        const stacks = []
+        for (let left = count; left > 0; left -= 64) {
+            const size = Math.min(left, 64)
+            stacks.push(nbt ? Item.of(chip.chip, size, nbt) : Item.of(chip.chip, size))
+        }
+        return stacks
+    }
     chips.forEach(chip => {
-        grades.forEach(grade => {
-            const count = Math.round(chip.cut * grade.factor)
-            const totalEU = 900 * chip.cutEUt
-            const variants = [
-                { id: '', fluid: Fluid.of('gtceu:lubricant', clamp(Math.floor(totalEU / 1280), 1, 250)), duration: 900 },
-                { id: '_distilled_water', fluid: Fluid.of('gtceu:distilled_water', clamp(Math.floor(totalEU / 426), 3, 750)), duration: 1350 },
-                { id: '_water', fluid: Fluid.of('minecraft:water', clamp(Math.floor(totalEU / 320), 4, 1000)), duration: 1800 }
-            ]
-            variants.forEach(variant => {
-                const recipe = allthemods.recipes.gtceu.cutter(`af9:cut_${chip.id}_${grade.suffix}${variant.id}`)
-                    .itemInputs(`kubejs:${chip.id}_wafer_${grade.suffix}`)
+        ['', '_water', '_distilled_water'].forEach(suffix => allthemods.remove({ id: `gtceu:cutter/${chip.gtCut}${suffix}` }))
+
+        const wafers = [{ id: 'plain', nbt: null, count: chip.cut }].concat(modes.map(mode => ({
+            id: mode.id,
+            nbt: lithoNbt(chip, mode),
+            count: Math.round(chip.cut * Math.sqrt(350 / mode.node))
+        })))
+        const totalEU = 900 * chip.cutEUt
+        const fluids = [
+            { id: '', fluid: Fluid.of('gtceu:lubricant', clamp(Math.floor(totalEU / 1280), 1, 250)), duration: 900 },
+            { id: '_distilled_water', fluid: Fluid.of('gtceu:distilled_water', clamp(Math.floor(totalEU / 426), 3, 750)), duration: 1350 },
+            { id: '_water', fluid: Fluid.of('minecraft:water', clamp(Math.floor(totalEU / 320), 4, 1000)), duration: 1800 }
+        ]
+        wafers.forEach(wafer => {
+            fluids.forEach(variant => {
+                const recipe = allthemods.recipes.gtceu.cutter(`af9:cut_${chip.id}_${wafer.id}${variant.id}`)
+                    .itemInputs((wafer.nbt ? Item.of(chip.wafer, wafer.nbt) : Item.of(chip.wafer)).strongNBT())
                     .inputFluids(variant.fluid)
-                    .itemOutputs(`${count}x ${chip.chip}`)
+                    .itemOutputs(chipStacks(chip, wafer.count, wafer.nbt))
                     .duration(variant.duration)
                     .EUt(chip.cutEUt)
                 if (chip.cleanroom) recipe.cleanroom(CleanroomType.CLEANROOM)
