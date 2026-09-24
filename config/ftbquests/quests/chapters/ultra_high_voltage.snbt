@@ -1266,7 +1266,7 @@
 		}
 		{
 			dependencies: ["0F3DF502872A308E"]
-			description: ["{atm9.quest.gregtech.uv.desc.ultimateVoltage.28}"]
+			description: ["{af9.quest.uv.hasoc}"]
 			id: "5F3BF06A1DA8AB8D"
 			rewards: [{
 				count: 4
@@ -1283,8 +1283,8 @@
 					type: "item"
 				}
 				{
-					id: "6CF65EBE0534FBA6"
-					item: "gtceu:black_glass_lens"
+					id: "281D91661FEA0BB2"
+					item: "kubejs:highly_advanced_soc_reticle"
 					type: "item"
 				}
 			]

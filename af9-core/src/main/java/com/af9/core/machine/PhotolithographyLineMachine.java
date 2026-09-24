@@ -4,6 +4,7 @@ import com.af9.core.AF9Core;
 import com.af9.core.litho.LithoMode;
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMaintenanceMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
@@ -12,27 +13,24 @@ import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
-import com.gregtechceu.gtceu.utils.FormattingUtil;
 
-import com.lowdragmc.lowdraglib.gui.util.ClickData;
-import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
+import com.lowdragmc.lowdraglib.gui.texture.ColorBorderTexture;
+import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
+import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
+import com.lowdragmc.lowdraglib.gui.widget.Widget;
+import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-
-import java.util.List;
-import java.util.Locale;
 
 /**
  * Controller logic for the Photolithography Line (structure and recipes are defined in KubeJS).
  * <p>
- * The line has one recipe type per {@link LithoMode}; the active one is GT's machine mode, switchable with GT's
- * mode tab or the buttons in the controller display. Wafers it prints carry the mode's node and transistor count as
- * NBT (see {@link LithoMode#TAG}).
+ * The line has one recipe type per {@link LithoMode}; the active one is GT's machine mode, switchable with GT's mode
+ * tab or the console's mode tiles ({@link LithoConsoleWidget}). Wafers it prints carry the mode's node and transistor
+ * count as NBT (see {@link LithoMode#TAG}).
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1; GT uses it too
 public class PhotolithographyLineMachine extends WorkableElectricMultiblockMachine {
@@ -42,7 +40,7 @@ public class PhotolithographyLineMachine extends WorkableElectricMultiblockMachi
 
     /**
      * Only starts a recipe when the energy hatches can actually supply its EU/t (GT's own voltage check would let
-     * two MV hatches start an HV-voltage recipe and then starve).
+     * two hatches of the tier below start the recipe and then starve).
      */
     public static final RecipeModifier LITHO_GATE = (machine, recipe) -> {
         if (!(machine instanceof PhotolithographyLineMachine line)) {
@@ -90,6 +88,16 @@ public class PhotolithographyLineMachine extends WorkableElectricMultiblockMachi
         return modeOf(getRecipeType());
     }
 
+    public boolean hasMaintenanceProblems() {
+        return getParts().stream().anyMatch(part -> part instanceof IMaintenanceMachine maintenance &&
+                maintenance.hasMaintenanceProblems());
+    }
+
+    /** Printed wafers per mode, indexed by {@link LithoMode#ordinal()}. */
+    public long[] getPrintedCounts() {
+        return new long[] { printedMuv, printedHuv, printedEuv, printedXuv, printedLuv };
+    }
+
     void recordPrinted(GTRecipe recipe) {
         LithoMode mode = modeOf(recipe.recipeType);
         if (mode == null) return;
@@ -103,78 +111,68 @@ public class PhotolithographyLineMachine extends WorkableElectricMultiblockMachi
         markDirty();
     }
 
-    private void switchMode(int step) {
-        int count = getRecipeTypes().length;
-        int next = Math.floorMod(getActiveRecipeType() + step, count);
-        if (next == getActiveRecipeType()) return;
-        setActiveRecipeType(next);
-        // same as GT's own mode tab, plus dropping the cached recipe of the previous mode
-        recipeLogic.updateTickSubscription();
-        recipeLogic.markLastRecipeDirty();
+    /** Switches to the given mode, the same way GT's mode tab does, and drops the recipe cached for the old one. */
+    public void selectMode(LithoMode mode) {
+        GTRecipeType[] types = getRecipeTypes();
+        for (int i = 0; i < types.length; i++) {
+            if (modeOf(types[i]) != mode) continue;
+            if (i == getActiveRecipeType()) return;
+            setActiveRecipeType(i);
+            recipeLogic.updateTickSubscription();
+            recipeLogic.markLastRecipeDirty();
+            return;
+        }
+    }
+
+    public void resetCounters() {
+        printedMuv = 0;
+        printedHuv = 0;
+        printedEuv = 0;
+        printedXuv = 0;
+        printedLuv = 0;
+        markDirty();
     }
 
     //////////////////////////////////////
     // ************ GUI *************//
     //////////////////////////////////////
 
+    /** Replaces GT's text display with the console; GT's side tabs (power, mode, parts) stay. */
     @Override
-    public void addDisplayText(List<Component> textList) {
-        super.addDisplayText(textList);
-        if (!isFormed()) return;
-        LithoMode mode = getActiveMode();
-        if (mode == null) return;
-
-        MutableComponent modeLine = Component.translatable("af9.litho.display.mode");
-        modeLine.append(ComponentPanelWidget.withButton(Component.literal(" [<] "), "mode_prev"));
-        modeLine.append(Component.translatable("af9.litho.mode." + mode.id).withStyle(mode.color));
-        modeLine.append(ComponentPanelWidget.withButton(Component.literal(" [>]"), "mode_next"));
-        textList.add(modeLine);
-
-        long needed = mode.eut();
-        long available = getAvailableEUt();
-        textList.add(Component.translatable("af9.litho.display.power", FormattingUtil.formatNumbers(available),
-                FormattingUtil.formatNumbers(needed))
-                .withStyle(available >= needed ? ChatFormatting.GREEN : ChatFormatting.RED));
-        if (available < needed) {
-            textList.add(Component.translatable("af9.litho.display.power_hint",
-                    Component.translatable("af9.litho.hatch." + mode.hatchTier)).withStyle(ChatFormatting.RED));
+    public Widget createUIWidget() {
+        var group = new WidgetGroup(0, 0, LithoConsoleWidget.WIDTH, LithoConsoleWidget.HEIGHT);
+        group.addWidget(new LithoConsoleWidget(this, 0, 0));
+        for (LithoMode mode : LithoMode.values()) {
+            // clicks arrive on the client first and are then forwarded; only act on the server copy
+            var tile = new ButtonWidget(LithoConsoleWidget.tileX(mode.ordinal()), LithoConsoleWidget.TILE_Y,
+                    LithoConsoleWidget.TILE_W, LithoConsoleWidget.TILE_H, IGuiTexture.EMPTY,
+                    click -> {
+                        if (!click.isRemote) selectMode(mode);
+                    });
+            tile.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
+            tile.setHoverTooltips(
+                    Component.translatable("af9.litho.mode." + mode.id).withStyle(mode.color),
+                    Component.translatable("af9.litho.console.tile_power",
+                            Component.translatable("af9.litho.hatch." + mode.hatchTier)),
+                    Component.translatable("af9.litho.console.tile_substrate",
+                            Component.translatable("af9.litho.substrate." + mode.substrate)));
+            group.addWidget(tile);
         }
-
-        textList.add(Component.translatable("af9.litho.display.output",
-                Component.literal(mode.nodeNm + " nm").withStyle(mode.color),
-                Component.literal(String.format(Locale.ROOT, "x%.2f", mode.transistorDensity())).withStyle(ChatFormatting.GREEN),
-                Component.literal(String.format(Locale.ROOT, "x%.2f", mode.dieFactor())).withStyle(ChatFormatting.GREEN))
-                .withStyle(ChatFormatting.GRAY));
-
-        textList.add(Component.translatable("af9.litho.display.printed", printedMuv, printedHuv, printedEuv,
-                printedXuv, printedLuv).withStyle(ChatFormatting.GRAY));
-        textList.add(ComponentPanelWidget.withButton(Component.translatable("af9.litho.button.reset"), "reset"));
-    }
-
-    @Override
-    public void handleDisplayClick(String componentData, ClickData clickData) {
-        // clicks arrive on the client first and are then forwarded; only act on the server copy
-        if (clickData.isRemote || !isFormed()) return;
-        switch (componentData) {
-            case "mode_prev" -> switchMode(-1);
-            case "mode_next" -> switchMode(1);
-            case "reset" -> {
-                printedMuv = 0;
-                printedHuv = 0;
-                printedEuv = 0;
-                printedXuv = 0;
-                printedLuv = 0;
-                markDirty();
-            }
-            default -> {}
-        }
+        var reset = new ButtonWidget(LithoConsoleWidget.RESET_X, LithoConsoleWidget.RESET_Y, LithoConsoleWidget.RESET_W,
+                LithoConsoleWidget.RESET_H, IGuiTexture.EMPTY, click -> {
+                    if (!click.isRemote) resetCounters();
+                });
+        reset.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
+        reset.setHoverTooltips(Component.translatable("af9.litho.console.reset_tooltip"));
+        group.addWidget(reset);
+        return group;
     }
 
     //////////////////////////////////////
     // ********* Recipe viewer ********//
     //////////////////////////////////////
 
-    /** Adds the mode's node, density and die factor to its recipes in EMI/JEI. */
+    /** Adds the mode's node to its recipes in EMI/JEI, as one short line (the console shows the rest). */
     public static void registerRecipeInfo() {
         for (LithoMode mode : LithoMode.values()) {
             GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", mode.recipeTypeId()));
@@ -184,11 +182,7 @@ public class PhotolithographyLineMachine extends WorkableElectricMultiblockMachi
                 continue;
             }
             // rendered as a plain label, so the text must not contain '%'
-            type.addDataInfo(data -> Component.translatable("af9.recipe.litho_info", mode.nodeNm,
-                    String.format(Locale.ROOT, "%.2f", mode.transistorDensity()), String.format(Locale.ROOT, "%.2f", mode.dieFactor()))
-                    .getString());
-            type.addDataInfo(data -> Component.translatable("af9.recipe.litho_power",
-                    Component.translatable("af9.litho.hatch." + mode.hatchTier)).getString());
+            type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node", mode.nodeNm).getString());
         }
     }
 }

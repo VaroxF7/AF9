@@ -10,7 +10,11 @@
 	quest_links: [ ]
 	quests: [
 		{
-			description: ["{atm9.quest.gregtech.iv.desc.salsaIncident.1}\\n\\n{atm9.quest.gregtech.iv.desc.salsaIncident.2}"]
+			description: [
+				"{atm9.quest.gregtech.iv.desc.salsaIncident.1}\\n\\n{atm9.quest.gregtech.iv.desc.salsaIncident.2}"
+				""
+				"{af9.quest.iv.mainframe}"
+			]
 			id: "64F77D41B2D057B8"
 			rewards: [
 				{
@@ -59,6 +63,8 @@
 				"{atm9.quest.gregtech.iv.desc.hvCircuits.1}"
 				""
 				"{atm9.quest.gregtech.iv.desc.hvCircuits.2}"
+				""
+				"{af9.quest.iv.nanoProcessor}"
 			]
 			id: "2BE754C8D2C0C76E"
 			rewards: [{
@@ -559,6 +565,8 @@
 				"{atm9.quest.gregtech.iv.desc.moreWafers.1}"
 				""
 				"{atm9.quest.gregtech.iv.desc.moreWafers.2}"
+				""
+				"{af9.quest.iv.phosphorus}"
 			]
 			id: "5F270891C953486E"
 			rewards: [{
@@ -577,9 +585,12 @@
 			y: 4.0d
 		}
 		{
-			dependencies: ["5F270891C953486E"]
+			dependencies: [
+				"5F270891C953486E"
+				"AD8FD756AA394586"
+			]
 			description: [
-				"{atm9.quest.gregtech.iv.desc.anotherLens.1}"
+				"{af9.quest.iv.soc}"
 				""
 				"{atm9.quest.gregtech.iv.desc.anotherLens.2}"
 			]
@@ -592,29 +603,8 @@
 			}]
 			tasks: [
 				{
-					icon: "gtceu:hv_laser_engraver"
-					id: "783B177BEB5F921E"
-					item: {
-						Count: 1
-						id: "itemfilters:or"
-						tag: {
-							items: [
-								{
-									Count: 1b
-									id: "gtceu:hv_laser_engraver"
-								}
-								{
-									Count: 1b
-									id: "gtceu:ev_laser_engraver"
-								}
-								{
-									Count: 1b
-									id: "gtceu:iv_laser_engraver"
-								}
-							]
-						}
-					}
-					title: "{atm9.quest.gregtech.iv.laserEngraver}"
+					id: "1F338C035AC5855E"
+					item: "kubejs:soc_reticle"
 					type: "item"
 				}
 				{
@@ -1725,7 +1715,7 @@
 		}
 		{
 			dependencies: ["4B16C957EADC183B"]
-			description: ["{atm9.quest.gregtech.iv.desc.energyHatchUpgrade.1}"]
+			description: ["{af9.quest.iv.ivHatch}"]
 			id: "2F1DF3971B75E63C"
 			optional: true
 			rewards: [{
@@ -1812,7 +1802,11 @@
 		}
 		{
 			dependencies: ["5F270891C953486E"]
-			description: ["{atm9.quest.gregtech.iv.desc.basisPICWafers.1}"]
+			description: [
+				"{atm9.quest.gregtech.iv.desc.basisPICWafers.1}"
+				""
+				"{af9.quest.iv.mpic}"
+			]
 			id: "4838AD09C9590D2F"
 			rewards: [{
 				exclude_from_claim_all: true
@@ -1827,8 +1821,8 @@
 					type: "item"
 				}
 				{
-					id: "06D2B23E601FD4EA"
-					item: "gtceu:brown_glass_lens"
+					id: "695408A4678EB41C"
+					item: "kubejs:mpic_reticle"
 					type: "item"
 				}
 			]
@@ -1904,7 +1898,7 @@
 				"7E7FAA72581D2186"
 				"6F0AD70D3748D8D2"
 			]
-			description: ["{atm9.quest.gregtech.iv.desc.upgradingMPIC.1}"]
+			description: ["{af9.quest.iv.hpic}"]
 			id: "4F8C6F49F9D7EE4D"
 			rewards: [{
 				exclude_from_claim_all: true
@@ -2088,7 +2082,11 @@
 		}
 		{
 			dependencies: ["5F270891C953486E"]
-			description: ["{atm9.quest.gregtech.iv.desc.logicGates.1}"]
+			description: [
+				"{atm9.quest.gregtech.iv.desc.logicGates.1}"
+				""
+				"{af9.quest.iv.nor}"
+			]
 			hide_dependent_lines: true
 			id: "15A1D6D05A785919"
 			rewards: [{
@@ -2104,8 +2102,8 @@
 					type: "item"
 				}
 				{
-					id: "26A237A47DBC5F09"
-					item: "gtceu:pink_glass_lens"
+					id: "65BE4C99BE10B33C"
+					item: "kubejs:nor_reticle"
 					type: "item"
 				}
 			]
@@ -2114,7 +2112,7 @@
 		}
 		{
 			dependencies: ["5F270891C953486E"]
-			description: ["{atm9.quest.gregtech.iv.desc.laserEngraver.1}"]
+			description: ["{af9.quest.iv.nand}"]
 			hide_dependent_lines: true
 			id: "77AAC2F643E92A88"
 			rewards: [{
@@ -2130,8 +2128,8 @@
 					type: "item"
 				}
 				{
-					id: "0E307E705A9C051A"
-					item: "gtceu:gray_glass_lens"
+					id: "BA0DD0E4AEB21A2A"
+					item: "kubejs:nand_reticle"
 					type: "item"
 				}
 			]
@@ -2161,7 +2159,7 @@
 		{
 			dependencies: ["13BAD4B9C69117C6"]
 			description: [
-				"{atm9.quest.gregtech.iv.desc.nanoCpuWafer.1}"
+				"{af9.quest.iv.nanoCpu}"
 				""
 				"{atm9.quest.gregtech.iv.desc.nanoCpuWafer.2}"
 			]
@@ -2691,6 +2689,67 @@
 				}
 			]
 			x: -7.0d
+			y: 4.5d
+		}
+		{
+			dependencies: ["418DC14B94C9272A"]
+			description: [
+				"{af9.quest.iv.xuv.1}"
+				""
+				"{af9.quest.iv.xuv.2}"
+			]
+			id: "46CAB00FF64D12DE"
+			rewards: [{
+				id: "8348E05C717A0351"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [{
+				id: "F7280EFE9D132187"
+				item: {
+					Count: 1
+					id: "gtceu:ram_wafer"
+					tag: {
+						AF9Litho: {
+							Node: 100
+							Transistors: 196000000
+						}
+					}
+				}
+				match_nbt: true
+				type: "item"
+			}]
+			title: "{af9.quest.title.xuv}"
+			x: 4.5d
+			y: 7.0d
+		}
+		{
+			description: ["{af9.quest.iv.metals}"]
+			id: "30C5810673F9AFE6"
+			rewards: [{
+				id: "36493D816F3F0AFC"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "E0D940E0B5D55F9C"
+					item: "gtceu:fine_tungsten_steel_wire"
+					type: "item"
+				}
+				{
+					id: "A5446D10E3E8886C"
+					item: "gtceu:tungsten_single_wire"
+					type: "item"
+				}
+				{
+					id: "66232B7B0DE7AA8A"
+					item: "gtceu:tungsten_steel_frame"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.ivMetals}"
+			x: -8.0d
 			y: 4.5d
 		}
 	]

@@ -107,6 +107,8 @@
 				"{atm9.quest.gregtech.hv.desc.ulvOnTheCheap.4}"
 				""
 				"{atm9.quest.gregtech.hv.desc.ulvOnTheCheap.5}"
+				""
+				"{af9.quest.hv.microProcessor}"
 			]
 			id: "19DB4970B3D11C1B"
 			rewards: [{
@@ -135,6 +137,8 @@
 				"{atm9.quest.gregtech.hv.desc.ulvOnTheCheap.6}"
 				""
 				"{atm9.quest.gregtech.hv.desc.ulvOnTheCheap.7}"
+				""
+				"{af9.quest.hv.processorAssembly}"
 			]
 			id: "732D201794C228DD"
 			rewards: [{
@@ -158,7 +162,11 @@
 				"5FAA73C52082DC48"
 				"62BBF61C9849CA26"
 			]
-			description: ["{atm9.quest.gregtech.hv.desc.ulvOnTheCheap.8}"]
+			description: [
+				"{atm9.quest.gregtech.hv.desc.ulvOnTheCheap.8}"
+				""
+				"{af9.quest.hv.workstation}"
+			]
 			id: "0DB4226BA23A5C09"
 			rewards: [
 				{
@@ -425,10 +433,11 @@
 			y: 2.8d
 		}
 		{
+			dependencies: ["AD8FD756AA394586"]
 			description: [
-				"{atm9.quest.gregtech.hv.desc.laserEngraverLens.1}"
+				"{af9.quest.hv.cpuChip.1}"
 				""
-				"{atm9.quest.gregtech.hv.desc.laserEngraverLens.2}"
+				"{af9.quest.hv.cpuChip.2}"
 			]
 			id: "3FDC2A2BBAC0EF1B"
 			rewards: [{
@@ -443,6 +452,11 @@
 				{
 					id: "3265E94FDBE6EF04"
 					item: "gtceu:diamond_lens"
+					type: "item"
+				}
+				{
+					id: "43420B787D797A36"
+					item: "kubejs:cpu_reticle"
 					type: "item"
 				}
 				{
@@ -478,13 +492,18 @@
 			y: -1.5d
 		}
 		{
-			dependencies: ["16154B77454631F4"]
+			dependencies: [
+				"16154B77454631F4"
+				"AD8FD756AA394586"
+			]
 			description: [
 				"{atm9.quest.gregtech.hv.desc.ulvCircuit.1}"
 				""
 				"{atm9.quest.gregtech.hv.desc.ulvCircuit.2}"
 				""
 				"{atm9.quest.gregtech.hv.desc.ulvCircuit.3}"
+				""
+				"{af9.quest.hv.simpleSoc}"
 			]
 			id: "0B54990168F9B136"
 			rewards: [{
@@ -494,11 +513,18 @@
 				random_bonus: 2
 				type: "item"
 			}]
-			tasks: [{
-				id: "5DFF6A6EA91263D1"
-				item: "gtceu:simple_soc_wafer"
-				type: "item"
-			}]
+			tasks: [
+				{
+					id: "C3A577DD083BF032"
+					item: "kubejs:simple_soc_reticle"
+					type: "item"
+				}
+				{
+					id: "5DFF6A6EA91263D1"
+					item: "gtceu:simple_soc_wafer"
+					type: "item"
+				}
+			]
 			x: 0.0d
 			y: -2.5d
 		}
@@ -748,9 +774,7 @@
 					id: "gtceu:titanium_wrench"
 					tag: {
 						Damage: 0
-						GT.Tool: {
-							Damage: 0
-						}
+						GT.Tool: { }
 					}
 				}
 				type: "item"
@@ -1218,6 +1242,65 @@
 			]
 			x: 1.0d
 			y: 3.5d
+		}
+		{
+			dependencies: [
+				"AD8FD756AA394586"
+				"0D573979B25FAC48"
+			]
+			description: [
+				"{af9.quest.hv.huv.1}"
+				""
+				"{af9.quest.hv.huv.2}"
+			]
+			id: "F5459779599BE107"
+			rewards: [{
+				id: "857EDA865FD7C5EB"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [{
+				id: "B110272EBFF9AA42"
+				item: {
+					Count: 1
+					id: "gtceu:ram_wafer"
+					tag: {
+						AF9Litho: {
+							Node: 250
+							Transistors: 31360000
+						}
+					}
+				}
+				match_nbt: true
+				type: "item"
+			}]
+			title: "{af9.quest.title.huv}"
+			x: 8.5d
+			y: 3.5d
+		}
+		{
+			description: ["{af9.quest.hv.metals}"]
+			id: "51D7534BBA00287A"
+			rewards: [{
+				id: "11F4669E16147DBD"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "456B76B11803F2BD"
+					item: "gtceu:fine_gold_wire"
+					type: "item"
+				}
+				{
+					id: "43564B1757656337"
+					item: "gtceu:stainless_steel_bolt"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.hvMetals}"
+			x: 6.5d
+			y: 4.0d
 		}
 	]
 	title: "{atm9.chapters.29.title}"

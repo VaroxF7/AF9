@@ -1,6 +1,8 @@
 // AF9 - MV circuits without discrete semiconductors
 // Transistors and diodes are replaced by lithographed chips (Photolithography Line); resistors and capacitors stay as
-// board passives. Any chip works regardless of the mode it was printed in.
+// board passives. Any chip works regardless of the mode it was printed in. The metal parts are MV metals (aluminium,
+// the MV metal of the Circuits quest page): Aluminium-Silicon bond wire and Kovar pins (electronics_metallurgy.js),
+// both from an LV mixer and the EBF, so they can be made before any MV machine.
 //
 // The Good Electronic Circuit must stay chip-free: the Photolithography Line and its MV parts need MV circuits, so at
 // least one MV circuit has to be makeable before the line exists. It uses vacuum tubes (the pre-semiconductor
@@ -48,8 +50,8 @@ ServerEvents.recipes(allthemods => {
             '2x gtceu:basic_integrated_circuit',
             '2x gtceu:ilc_chip',
             '2x #gtceu:resistors',
-            '4x gtceu:fine_gold_wire',
-            '4x gtceu:silver_bolt')
+            '4x gtceu:fine_aluminium_silicon_wire',
+            '4x gtceu:kovar_bolt')
         .itemOutputs('2x gtceu:good_integrated_circuit')
         .duration(400)
         .EUt(24))
@@ -62,7 +64,7 @@ ServerEvents.recipes(allthemods => {
             'gtceu:ram_chip',
             '4x #gtceu:resistors',
             '4x #gtceu:capacitors',
-            '4x gtceu:fine_red_alloy_wire')
+            '4x gtceu:fine_aluminium_silicon_wire')
         .itemOutputs('2x gtceu:micro_processor')
         .duration(200)
         .EUt(60))

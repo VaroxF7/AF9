@@ -46,6 +46,8 @@
 				"{atm9.quest.gregtech.mv.desc.highVoltage.2}"
 				""
 				"{atm9.quest.gregtech.mv.desc.highVoltage.3}"
+				""
+				"{af9.quest.mv.advancedIntegrated}"
 			]
 			icon: "gtceu:advanced_integrated_circuit"
 			id: "2C28217E1131A63A"
@@ -347,9 +349,9 @@
 				"644B16B9618B41BE"
 			]
 			description: [
-				"{atm9.quest.gregtech.mv.desc.engravingPatterns.1}"
+				"{af9.quest.mv.laserEngraver.1}"
 				""
-				"{atm9.quest.gregtech.mv.desc.engravingPatterns.2}"
+				"{af9.quest.mv.laserEngraver.2}"
 			]
 			id: "11F7D3DDF5683EB3"
 			rewards: [{
@@ -567,8 +569,10 @@
 			dependencies: [
 				"11F7D3DDF5683EB3"
 				"688AFF76CF5E599A"
+				"AD8FD756AA394586"
+				"412010740F2B823B"
 			]
-			description: ["{atm9.quest.gregtech.mv.desc.glassLensGreen.1}"]
+			description: ["{af9.quest.mv.ramWafer}"]
 			id: "7EFA4F2C0A895502"
 			rewards: [{
 				id: "096F7065F33494AC"
@@ -588,8 +592,10 @@
 			dependencies: [
 				"11F7D3DDF5683EB3"
 				"688AFF76CF5E599A"
+				"AD8FD756AA394586"
+				"412010740F2B823B"
 			]
-			description: ["{atm9.quest.gregtech.mv.desc.glassLensRed.1}"]
+			description: ["{af9.quest.mv.ilcWafer}"]
 			id: "100ADA8508F6502A"
 			rewards: [{
 				id: "1D619C5D74EE82D7"
@@ -1568,7 +1574,7 @@
 		}
 		{
 			dependencies: ["20A0A574F51EEF74"]
-			description: ["{atm9.quest.gregtech.mv.desc.laserEngraverRecipe.1}"]
+			description: ["{af9.quest.mv.ulpicWafer}"]
 			id: "5B92DA55541B168B"
 			rewards: [{
 				count: 2
@@ -1668,6 +1674,182 @@
 			]
 			x: -7.5d
 			y: 2.0d
+		}
+		{
+			dependencies: [
+				"11F7D3DDF5683EB3"
+				"3DCCEDC5A817EBEB"
+			]
+			description: [
+				"{af9.quest.mv.line.1}"
+				""
+				"{af9.quest.mv.line.2}"
+				""
+				"{af9.quest.mv.line.3}"
+				""
+				"{af9.quest.mv.line.4}"
+			]
+			id: "AD8FD756AA394586"
+			rewards: [{
+				id: "1E236C17B8E7EE4F"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [{
+				id: "EC98E2E9D1A0F2D5"
+				item: "gtceu:photolithography_line"
+				type: "item"
+			}]
+			title: "{af9.quest.title.line}"
+			x: 10.0d
+			y: -2.5d
+		}
+		{
+			dependencies: ["AD8FD756AA394586"]
+			description: [
+				"{af9.quest.mv.chemistry.1}"
+				""
+				"{af9.quest.mv.chemistry.2}"
+			]
+			id: "240C1BFF666269E2"
+			rewards: [{
+				id: "FDD32DDE48926032"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:hmds_vapor"
+					id: "F2A9A22CA0490FD6"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:photoresist"
+					id: "447636C7A6E9ADC3"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:tmah_developer"
+					id: "B2C932FBC2172653"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.title.chemistry}"
+			x: 11.5d
+			y: -2.5d
+		}
+		{
+			dependencies: [
+				"11F7D3DDF5683EB3"
+				"240C1BFF666269E2"
+			]
+			description: [
+				"{af9.quest.mv.reticles.1}"
+				""
+				"{af9.quest.mv.reticles.2}"
+			]
+			id: "412010740F2B823B"
+			rewards: [{
+				id: "CFFDEE54A9C6755B"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "1315DF8523AB6129"
+					item: "kubejs:photomask_blank"
+					type: "item"
+				}
+				{
+					id: "F0FB3415C13DCCC9"
+					item: "kubejs:ilc_reticle"
+					type: "item"
+				}
+				{
+					id: "1352A7BBD6129E58"
+					item: "kubejs:ram_reticle"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.reticles}"
+			x: 10.0d
+			y: -5.0d
+		}
+		{
+			dependencies: ["AD8FD756AA394586"]
+			description: [
+				"{af9.quest.mv.xcda.1}"
+				""
+				"{af9.quest.mv.xcda.2}"
+				""
+				"{af9.quest.mv.xcda.3}"
+			]
+			id: "F01C688974686C8E"
+			rewards: [{
+				id: "B46F0AD21E64F55F"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "5B1A253E2BC0931C"
+					item: "gtceu:hopcalite_dust"
+					type: "item"
+				}
+				{
+					id: "EAF4EC60BF02469F"
+					item: "kubejs:molecular_sieve"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:cryogenic_supercooled_air"
+					id: "DC1D4370E17344AE"
+					type: "fluid"
+				}
+				{
+					amount: 4000L
+					fluid: "gtceu:extreme_clean_dry_air"
+					id: "586915FA9C0CFCB6"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.title.xcda}"
+			x: 11.5d
+			y: -1.0d
+		}
+		{
+			description: [
+				"{af9.quest.mv.metals.1}"
+				""
+				"{af9.quest.mv.metals.2}"
+				""
+				"{af9.quest.mv.metals.3}"
+			]
+			id: "5CF8D8E0B8E0D908"
+			rewards: [{
+				id: "FFC9A4CB0764DD8D"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "99242D1E4433BC0F"
+					item: "gtceu:fine_aluminium_silicon_wire"
+					type: "item"
+				}
+				{
+					id: "5A4C54ED455A70DF"
+					item: "gtceu:kovar_bolt"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.mvMetals}"
+			x: 5.5d
+			y: 3.0d
 		}
 	]
 	title: "{atm9.chapters.28.title}"

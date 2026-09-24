@@ -1,0 +1,38 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "gtceu:item/uhpic_chip"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "af9:litho_mode": 1
+      },
+      "model": "af9:item/litho/uhpic_chip_muv"
+    },
+    {
+      "predicate": {
+        "af9:litho_mode": 2
+      },
+      "model": "af9:item/litho/uhpic_chip_huv"
+    },
+    {
+      "predicate": {
+        "af9:litho_mode": 3
+      },
+      "model": "af9:item/litho/uhpic_chip_euv"
+    },
+    {
+      "predicate": {
+        "af9:litho_mode": 4
+      },
+      "model": "af9:item/litho/uhpic_chip_xuv"
+    },
+    {
+      "predicate": {
+        "af9:litho_mode": 5
+      },
+      "model": "af9:item/litho/uhpic_chip_luv"
+    }
+  ]
+}

@@ -14,6 +14,8 @@
 				"{atm9.quest.gregtech.ev.desc.electricalSafety.1}"
 				""
 				"{atm9.quest.gregtech.ev.desc.electricalSafety.2}"
+				""
+				"{af9.quest.hv.workstation}"
 			]
 			id: "5241693278027FFD"
 			rewards: [
@@ -558,6 +560,8 @@
 				"{atm9.quest.gregtech.ev.desc.energyHatch.1}"
 				""
 				"{atm9.quest.gregtech.ev.desc.energyHatch.2}"
+				""
+				"{af9.quest.ev.hvHatch}"
 			]
 			id: "0D573979B25FAC48"
 			rewards: [{
@@ -575,8 +579,11 @@
 			y: 3.5d
 		}
 		{
-			dependencies: ["7D10AA6EF07087B5"]
-			description: ["{atm9.quest.gregtech.ev.desc.laserEngravers}"]
+			dependencies: [
+				"7D10AA6EF07087B5"
+				"AD8FD756AA394586"
+			]
+			description: ["{af9.quest.ev.lpic}"]
 			id: "5D58E5CB4F4BDAD5"
 			rewards: [{
 				count: 2
@@ -590,6 +597,11 @@
 				{
 					id: "3459093D8C9EAE43"
 					item: "gtceu:orange_glass_lens"
+					type: "item"
+				}
+				{
+					id: "D1DA5606AEA67D08"
+					item: "kubejs:lpic_reticle"
 					type: "item"
 				}
 				{
@@ -1178,6 +1190,65 @@
 			]
 			x: -4.0d
 			y: 1.0d
+		}
+		{
+			dependencies: [
+				"F5459779599BE107"
+				"273DC98BA2785BD6"
+			]
+			description: [
+				"{af9.quest.ev.euv.1}"
+				""
+				"{af9.quest.ev.euv.2}"
+			]
+			id: "418DC14B94C9272A"
+			rewards: [{
+				id: "F3B94AF2AF9AB417"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [{
+				id: "C14FFFD46C36A72D"
+				item: {
+					Count: 1
+					id: "gtceu:ram_wafer"
+					tag: {
+						AF9Litho: {
+							Node: 200
+							Transistors: 49000000
+						}
+					}
+				}
+				match_nbt: true
+				type: "item"
+			}]
+			title: "{af9.quest.title.euv}"
+			x: -1.0d
+			y: 3.5d
+		}
+		{
+			description: ["{af9.quest.ev.metals}"]
+			id: "2EC82E995F48F0D6"
+			rewards: [{
+				id: "8620A8D44E46E1FB"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "57CAB989A6AE9BD3"
+					item: "gtceu:fine_platinum_iridium_wire"
+					type: "item"
+				}
+				{
+					id: "EAB1CE80D5F2E392"
+					item: "gtceu:titanium_bolt"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.evMetals}"
+			x: -2.5d
+			y: -0.5d
 		}
 	]
 	title: "{atm9.chapters.30.title}"

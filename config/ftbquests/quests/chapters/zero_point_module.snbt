@@ -278,6 +278,8 @@
 				"{atm9.quest.gregtech.zpm.desc.uhpic.1}"
 				""
 				"{atm9.quest.gregtech.zpm.desc.uhpic.2}"
+				""
+				"{af9.quest.zpm.uhpic}"
 			]
 			hide_dependency_lines: true
 			id: "53C5CE6433E201BD"
@@ -1544,7 +1546,7 @@
 		}
 		{
 			dependencies: ["2036ED4A823C1456"]
-			description: ["{atm9.quest.gregtech.zpm.desc.naqwafer}"]
+			description: ["{af9.quest.zpm.naqwafer}"]
 			id: "6F82909CD6FFF606"
 			optional: true
 			rewards: [{
