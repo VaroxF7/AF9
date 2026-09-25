@@ -1209,7 +1209,7 @@
 			}]
 			tasks: [{
 				id: "C14FFFD46C36A72D"
-				item: "kubejs:naquadah_ram_wafer"
+				item: "gtceu:naquadah_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.title.euv}"

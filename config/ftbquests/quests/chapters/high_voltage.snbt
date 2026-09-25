@@ -1263,7 +1263,7 @@
 			}]
 			tasks: [{
 				id: "B110272EBFF9AA42"
-				item: "kubejs:phosphorus_ram_wafer"
+				item: "gtceu:phosphorus_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.title.huv}"

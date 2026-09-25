@@ -226,7 +226,10 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         return broke;
     }
 
-    /** The finished run with its printed wafers replaced by as many broken wafers of the mode's substrate. */
+    /**
+     * The finished run with its chip wafers replaced by broken wafers of the mode's substrate: one per substrate wafer
+     * that went in (one per print; a print yields up to 64 chip wafers from one blank).
+     */
     static GTRecipe asBroken(GTRecipe recipe, LithoMode mode) {
         Item brokenItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("kubejs", mode.brokenWafer()));
         if (brokenItem == null || brokenItem == Items.AIR) {
@@ -234,17 +237,10 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
                     mode.brokenWafer());
             return recipe;
         }
-        int count = 0;
-        for (Content content : recipe.outputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
-            if (content.content instanceof SizedIngredient sized) {
-                count += sized.getAmount();
-            } else if (content.content instanceof Ingredient ingredient && ingredient.getItems().length > 0) {
-                count += ingredient.getItems()[0].getCount();
-            }
-        }
+        int count = Math.max(1, recipe.parallels);
         GTRecipe result = recipe.copy();
         List<Content> outputs = new ArrayList<>();
-        outputs.add(new Content(SizedIngredient.create(new ItemStack(brokenItem, Math.max(1, count))),
+        outputs.add(new Content(SizedIngredient.create(new ItemStack(brokenItem, count)),
                 ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0));
         result.outputs.put(ItemRecipeCapability.CAP, outputs);
         return result;

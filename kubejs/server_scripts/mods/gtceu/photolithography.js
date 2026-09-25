@@ -4,19 +4,21 @@
 // Shared with the other server scripts (server scripts share one scope). Must stay in sync with
 // com.af9.core.litho.LithoMode in af9-core and AF9_WAFER_TABLE in startup_scripts/gtceu/wafers.js.
 const AF9_WAFERS = (() => {
-    // The nine substrates, lowest first. blank = the substrate wafer, tier = voltage of its lithography mode
+    // The nine substrates, lowest first. blank = the substrate wafer, tier = voltage of its lithography mode,
+    // yield = silicon-class chip wafers one print gives (GT's laser engraving: 1 / 4 / 8 / 16 on silicon / phosphorus /
+    // naquadah / neutronium; the new substrates fill in and go on)
     const substrates = [
-        { id: 'silicon', blank: 'gtceu:silicon_wafer', tier: GTValues.MV, reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'phosphorus', blank: 'gtceu:phosphorus_wafer', tier: GTValues.HV, reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'naquadah', blank: 'gtceu:naquadah_wafer', tier: GTValues.EV, reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'trinium', blank: 'kubejs:trinium_wafer', tier: GTValues.IV, reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'naquadria', blank: 'kubejs:naquadria_wafer', tier: GTValues.LuV, reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'neutronium', blank: 'gtceu:neutronium_wafer', tier: GTValues.ZPM, reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'transmuted_neutronium', blank: 'kubejs:transmuted_neutronium_wafer', tier: GTValues.UV,
+        { id: 'silicon', yield: 1, blank: 'gtceu:silicon_wafer', tier: GTValues.MV, reclaim: 'gtceu:small_silicon_dust' },
+        { id: 'phosphorus', yield: 4, blank: 'gtceu:phosphorus_wafer', tier: GTValues.HV, reclaim: 'gtceu:small_silicon_dust' },
+        { id: 'naquadah', yield: 8, blank: 'gtceu:naquadah_wafer', tier: GTValues.EV, reclaim: 'gtceu:small_silicon_dust' },
+        { id: 'trinium', yield: 10, blank: 'kubejs:trinium_wafer', tier: GTValues.IV, reclaim: 'gtceu:small_silicon_dust' },
+        { id: 'naquadria', yield: 12, blank: 'kubejs:naquadria_wafer', tier: GTValues.LuV, reclaim: 'gtceu:small_silicon_dust' },
+        { id: 'neutronium', yield: 16, blank: 'gtceu:neutronium_wafer', tier: GTValues.ZPM, reclaim: 'gtceu:small_silicon_dust' },
+        { id: 'transmuted_neutronium', yield: 24, blank: 'kubejs:transmuted_neutronium_wafer', tier: GTValues.UV,
             reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'strange_matter', blank: 'kubejs:strange_matter_wafer', tier: GTValues.UHV,
+        { id: 'strange_matter', yield: 32, blank: 'kubejs:strange_matter_wafer', tier: GTValues.UHV,
             reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'chromodynium', blank: 'kubejs:chromodynium_wafer', tier: GTValues.UHV,
+        { id: 'chromodynium', yield: 64, blank: 'kubejs:chromodynium_wafer', tier: GTValues.UHV,
             reclaim: 'gtceu:small_chromodynium_dust' }
     ]
     substrates.forEach((s, index) => s.index = index)
@@ -41,44 +43,44 @@ const AF9_WAFERS = (() => {
     const orbital = { id: '1nm', substrate: 8, baseBreak: 3500 }
 
     // Every GT chip wafer. native = index of the chip's own substrate (GT's: silicon, phosphorus, naquadah for ASoC,
-    // neutronium for HASoC). reticle: the photomask (derived wafers are made from printed ones instead); lens: the GT
-    // lens colour that engraves the reticle. chip / cut / cutEUt / cleanroom mirror GT's cutter recipes.
+    // neutronium for HASoC). reticle: the photomask (derived wafers come from GT's Chemical Reactor recipes instead);
+    // lens: the GT lens colour that engraves the reticle; chip: the chip GT's cutter makes of the wafer.
     const chips = [
-        { id: 'ilc', native: 0, reticle: 'ilc', lens: 'red', engrave: 'engrave_ilc', chip: 'gtceu:ilc_chip', cut: 8, cutEUt: 64, cleanroom: false },
-        { id: 'ram', native: 0, reticle: 'ram', lens: 'green', engrave: 'engrave_ram', chip: 'gtceu:ram_chip', cut: 32, cutEUt: 96, cleanroom: false },
-        { id: 'cpu', native: 0, reticle: 'cpu', lens: 'light_blue', engrave: 'engrave_cpu', chip: 'gtceu:cpu_chip', cut: 8, cutEUt: 120, cleanroom: false },
-        { id: 'ulpic', native: 0, reticle: 'ulpic', lens: 'blue', engrave: 'engrave_ulpic', chip: 'gtceu:ulpic_chip', cut: 6, cutEUt: 120, cleanroom: false },
-        { id: 'lpic', native: 0, reticle: 'lpic', lens: 'orange', engrave: 'engrave_lpic', chip: 'gtceu:lpic_chip', cut: 4, cutEUt: 480, cleanroom: true },
-        { id: 'simple_soc', native: 0, reticle: 'simple_soc', lens: 'cyan', engrave: 'engrave_ssoc', chip: 'gtceu:simple_soc', cut: 6, cutEUt: 64, cleanroom: false },
-        { id: 'nand_memory', native: 1, reticle: 'nand', lens: 'gray', engrave: 'engrave_nand', chip: 'gtceu:nand_memory_chip', cut: 32, cutEUt: 192, cleanroom: true },
-        { id: 'nor_memory', native: 1, reticle: 'nor', lens: 'pink', engrave: 'engrave_nor', chip: 'gtceu:nor_memory_chip', cut: 16, cutEUt: 192, cleanroom: true },
-        { id: 'mpic', native: 1, reticle: 'mpic', lens: 'brown', engrave: 'engrave_pic', chip: 'gtceu:mpic_chip', cut: 4, cutEUt: 1920, cleanroom: true },
-        { id: 'soc', native: 1, reticle: 'soc', lens: 'yellow', engrave: 'engrave_soc', chip: 'gtceu:soc', cut: 6, cutEUt: 480, cleanroom: true },
-        { id: 'advanced_soc', native: 2, reticle: 'advanced_soc', lens: 'purple', engrave: 'engrave_asoc', chip: 'gtceu:advanced_soc', cut: 6, cutEUt: 1920, cleanroom: true },
-        { id: 'highly_advanced_soc', native: 5, reticle: 'highly_advanced_soc', lens: 'black', engrave: 'engrave_hasoc', chip: 'gtceu:highly_advanced_soc', cut: 6, cutEUt: 7680, cleanroom: true },
-        { id: 'nano_cpu', native: 0, from: 'cpu', chip: 'gtceu:nano_cpu_chip', cut: 8, cutEUt: 480, cleanroom: true },
-        { id: 'qbit_cpu', native: 0, from: 'nano_cpu', chip: 'gtceu:qbit_cpu_chip', cut: 4, cutEUt: 1920, cleanroom: true },
-        { id: 'hpic', native: 1, from: 'mpic', chip: 'gtceu:hpic_chip', cut: 2, cutEUt: 7680, cleanroom: true },
-        { id: 'uhpic', native: 1, from: 'hpic', chip: 'gtceu:uhpic_chip', cut: 2, cutEUt: 30720, cleanroom: true }
+        { id: 'ilc', native: 0, reticle: 'ilc', lens: 'red', engrave: 'engrave_ilc', chip: 'gtceu:ilc_chip' },
+        { id: 'ram', native: 0, reticle: 'ram', lens: 'green', engrave: 'engrave_ram', chip: 'gtceu:ram_chip' },
+        { id: 'cpu', native: 0, reticle: 'cpu', lens: 'light_blue', engrave: 'engrave_cpu', chip: 'gtceu:cpu_chip' },
+        { id: 'ulpic', native: 0, reticle: 'ulpic', lens: 'blue', engrave: 'engrave_ulpic', chip: 'gtceu:ulpic_chip' },
+        { id: 'lpic', native: 0, reticle: 'lpic', lens: 'orange', engrave: 'engrave_lpic', chip: 'gtceu:lpic_chip' },
+        { id: 'simple_soc', native: 0, reticle: 'simple_soc', lens: 'cyan', engrave: 'engrave_ssoc', chip: 'gtceu:simple_soc' },
+        { id: 'nand_memory', native: 1, reticle: 'nand', lens: 'gray', engrave: 'engrave_nand', chip: 'gtceu:nand_memory_chip' },
+        { id: 'nor_memory', native: 1, reticle: 'nor', lens: 'pink', engrave: 'engrave_nor', chip: 'gtceu:nor_memory_chip' },
+        { id: 'mpic', native: 1, reticle: 'mpic', lens: 'brown', engrave: 'engrave_pic', chip: 'gtceu:mpic_chip' },
+        { id: 'soc', native: 1, reticle: 'soc', lens: 'yellow', engrave: 'engrave_soc', chip: 'gtceu:soc' },
+        { id: 'advanced_soc', native: 2, reticle: 'advanced_soc', lens: 'purple', engrave: 'engrave_asoc', chip: 'gtceu:advanced_soc' },
+        { id: 'highly_advanced_soc', native: 5, reticle: 'highly_advanced_soc', lens: 'black', engrave: 'engrave_hasoc', chip: 'gtceu:highly_advanced_soc' },
+        { id: 'nano_cpu', native: 0, from: 'cpu', chip: 'gtceu:nano_cpu_chip' },
+        { id: 'qbit_cpu', native: 0, from: 'nano_cpu', chip: 'gtceu:qbit_cpu_chip' },
+        { id: 'hpic', native: 1, from: 'mpic', chip: 'gtceu:hpic_chip' },
+        { id: 'uhpic', native: 1, from: 'hpic', chip: 'gtceu:uhpic_chip' }
     ]
     const chip = id => {
         const found = chips.filter(c => c.id === id)[0]
         if (!found) throw new Error(`AF9_WAFERS: unknown chip '${id}'`)
         return found
     }
-    // The chip wafer printed on a substrate (index): GT's own wafer on the chip's own substrate, kubejs:<substrate>_
-    // <chip>_wafer on a higher one, null on a lower one
-    const printed = (substrateIndex, c) => {
-        if (substrateIndex < c.native) return null
-        if (substrateIndex === c.native) return `gtceu:${c.id}_wafer`
-        return `kubejs:${substrates[substrateIndex].id}_${c.id}_wafer`
+    // The chip wafer a substrate (index) prints: always GT's own wafer item, null below the chip's own substrate
+    const printed = (substrateIndex, c) => substrateIndex < c.native ? null : `gtceu:${c.id}_wafer`
+    // Chip wafers per print, like GT's engraving: 1 on the chip's own substrate; above it the substrate's yield,
+    // divided by the chip class's divisor (silicon chips 1, phosphorus chips 2, ASoC 8, HASoC 16: GT's numbers)
+    const CLASS_DIVISOR = { 0: 1, 1: 2, 2: 8, 5: 16 }
+    const yieldOf = (substrateIndex, c) => {
+        if (substrateIndex < c.native) return 0
+        if (substrateIndex === c.native) return 1
+        return Math.max(1, Math.floor(substrates[substrateIndex].yield / CLASS_DIVISOR[c.native]))
     }
-    // Chips a wafer cuts into: GT's count, +1x per substrate above the chip's own (smaller dies), at most 128 (the
-    // single-block cutter's two output slots)
-    const dies = (substrateIndex, c) => Math.min(128, c.cut * (1 + substrateIndex - c.native))
-    // Every wafer item of a substrate (blank + printed), for the contamination tags
+    // Every wafer item of a substrate, for the contamination tags: the blank and GT's chip wafers of that substrate
     const wafersOf = substrateIndex => [substrates[substrateIndex].blank]
-        .concat(chips.map(c => printed(substrateIndex, c)).filter(id => id))
+        .concat(chips.filter(c => c.native === substrateIndex).map(c => `gtceu:${c.id}_wafer`))
     // Plain chip stack by chip or old reticle id (the circuit scripts use 'nand', 'nor' ...)
     const chipStack = (id, count) => {
         const found = chips.filter(c => c.id === id || c.reticle === id)[0]
@@ -86,7 +88,7 @@ const AF9_WAFERS = (() => {
         return `${count || 1}x ${found.chip}`
     }
     return { substrates: substrates, modes: modes, orbital: orbital, chips: chips, chip: chip, printed: printed,
-        dies: dies, wafersOf: wafersOf, chipStack: chipStack,
+        yieldOf: yieldOf, wafersOf: wafersOf, chipStack: chipStack,
         reticles: chips.filter(c => c.reticle).map(c => ({ id: c.reticle, lens: c.lens })) }
 })()
 
@@ -108,6 +110,7 @@ ServerEvents.recipes(allthemods => {
     const modes = AF9_WAFERS.modes
     const chips = AF9_WAFERS.chips
     const printed = AF9_WAFERS.printed
+    const yieldOf = AF9_WAFERS.yieldOf
 
     // ---- Removed GT paths: the chip wafers come from the lithography machines ----
     // Except one bootstrap: MV Energy Hatches need a ULPIC chip and the line needs MV Energy Hatches, so GT's plain
@@ -426,9 +429,10 @@ ServerEvents.recipes(allthemods => {
     // mode's tier, each step 1.5x the chemicals. The resist is the one made for the mode's light; the excimer lasers
     // burn their premix; immersion modes expose through ultrapure water; from 50 nm a high-k HfO2 gate is grown from
     // HfCl4 + water (ALD); the EUV modes burn tin droplets in a hydrogen buffer.
-    // Output: the printed wafer, and the broken wafer at the mode's base break chance for the recipe viewers. The
-    // machine takes the chanced broken wafer out and rolls the real break chance (node, vacuum cleanliness, line
-    // version) when the wafer is done (af9-core LithoMachine).
+    // Output: GT's chip wafer (as many as the substrate yields), and the broken wafer at the mode's base break chance
+    // for the recipe viewers. The machine takes the chanced broken wafer out and rolls the real break chance (node,
+    // vacuum cleanliness, line version) when the print is done: a broken print gives one broken wafer and no chip wafers
+    // (af9-core LithoMachine).
     modes.forEach(m => {
         const s = substrates[m.substrate]
         const chemicals = Math.pow(1.5, m.index)
@@ -450,7 +454,7 @@ ServerEvents.recipes(allthemods => {
                 .itemInputs(s.blank)
                 .notConsumable(`kubejs:${c.reticle}_reticle`)
                 .inputFluids(fluids)
-                .itemOutputs(printed(m.substrate, c))
+                .itemOutputs(`${yieldOf(m.substrate, c)}x ${printed(m.substrate, c)}`)
                 .chancedOutput(`kubejs:broken_${s.id}_wafer`, m.baseBreak, 0)
                 .duration(900)
                 .EUt(VA[s.tier], 4)
@@ -466,72 +470,14 @@ ServerEvents.recipes(allthemods => {
             .itemInputs(chromodynium.blank, 'kubejs:dry_resist_cartridge')
             .notConsumable(`kubejs:${c.reticle}_reticle`)
             .inputFluids(Fluid.of('gtceu:supercooled_endion', 500))
-            .itemOutputs(printed(chromodynium.index, c))
+            .itemOutputs(`${yieldOf(chromodynium.index, c)}x ${printed(chromodynium.index, c)}`)
             .chancedOutput(`kubejs:broken_${chromodynium.id}_wafer`, AF9_WAFERS.orbital.baseBreak, 0)
             .duration(7200)
             .EUt(VA[chromodynium.tier], 50)
     })
 
-    // ---- Derived wafers ----
-    // GT's chemical upgrades of printed wafers (GT's own recipes stay for its own wafers); on every higher substrate
-    // the result keeps the substrate of the wafer it was made from. Chemical Reactor and Large Chemical Reactor.
-    const derived = [
-        { id: 'nano_cpu', from: 'cpu', suffix: '', items: ['16x gtceu:carbon_fibers'], fluid: ['gtceu:glowstone', 576], duration: 1200, tier: GTValues.EV },
-        { id: 'qbit_cpu', from: 'nano_cpu', suffix: '_quantum_eye', items: ['2x gtceu:quantum_eye'], fluid: ['gtceu:gallium_arsenide', 288], duration: 900, tier: GTValues.EV },
-        { id: 'qbit_cpu', from: 'nano_cpu', suffix: '_radon', items: ['gtceu:indium_gallium_phosphide_dust'], fluid: ['gtceu:radon', 50], duration: 1200, tier: GTValues.EV },
-        { id: 'hpic', from: 'mpic', suffix: '', items: ['2x gtceu:indium_gallium_phosphide_dust'], fluid: ['gtceu:vanadium_gallium', 288], duration: 1200, tier: GTValues.IV },
-        { id: 'uhpic', from: 'hpic', suffix: '', items: ['8x gtceu:indium_gallium_phosphide_dust'], fluid: ['gtceu:naquadah', 576], duration: 1200, tier: GTValues.LuV }
-    ]
-    derived.forEach(d => {
-        const target = AF9_WAFERS.chip(d.id)
-        const source = AF9_WAFERS.chip(d.from)
-        substrates.forEach(s => {
-            if (s.index <= target.native) return // GT's own recipe
-            const input = printed(s.index, source)
-            const output = printed(s.index, target)
-            if (!input || !output) return
-            ;['chemical_reactor', 'large_chemical_reactor'].forEach(type => {
-                allthemods.recipes.gtceu[type](`af9:${type}/${d.id}_wafer${d.suffix}_${s.id}`)
-                    .itemInputs([input].concat(d.items))
-                    .inputFluids(Fluid.of(d.fluid[0], d.fluid[1]))
-                    .itemOutputs(output)
-                    .duration(d.duration)
-                    .EUt(VA[d.tier])
-                    .cleanroom(CleanroomType.CLEANROOM)
-            })
-        })
-    })
-
-    // ---- Cutting the printed wafers ----
-    // GT's cutter recipes cut GT's own wafers. A wafer on a higher substrate gives more dies (see AF9_WAFERS.dies), in
-    // GT's three fluid variants with GT's formulas.
-    const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
-    const chipStacks = (c, count) => {
-        const stacks = []
-        for (let left = count; left > 0; left -= 64) stacks.push(`${Math.min(left, 64)}x ${c.chip}`)
-        return stacks
-    }
-    chips.forEach(c => {
-        const totalEU = 900 * c.cutEUt
-        const fluids = [
-            { id: '', fluid: Fluid.of('gtceu:lubricant', clamp(Math.floor(totalEU / 1280), 1, 250)), duration: 900 },
-            { id: '_distilled_water', fluid: Fluid.of('gtceu:distilled_water', clamp(Math.floor(totalEU / 426), 3, 750)), duration: 1350 },
-            { id: '_water', fluid: Fluid.of('minecraft:water', clamp(Math.floor(totalEU / 320), 4, 1000)), duration: 1800 }
-        ]
-        substrates.forEach(s => {
-            const wafer = printed(s.index, c)
-            if (!wafer || !wafer.startsWith('kubejs:')) return
-            fluids.forEach(variant => {
-                const recipe = allthemods.recipes.gtceu.cutter(`af9:cut_${c.id}_${s.id}${variant.id}`)
-                    .itemInputs(wafer)
-                    .inputFluids(variant.fluid)
-                    .itemOutputs(chipStacks(c, AF9_WAFERS.dies(s.index, c)))
-                    .duration(variant.duration)
-                    .EUt(c.cutEUt)
-                if (c.cleanroom) recipe.cleanroom(CleanroomType.CLEANROOM)
-            })
-        })
-    })
+    // Derived wafers (Nano CPU, Qubit CPU, HPIC, UHPIC) and cutting: GT's own Chemical Reactor and cutter recipes, since
+    // every print is GT's own wafer.
 
     // ---- Broken and contaminated wafers ----
     // Broken wafers are ground for their material; contaminated ones are stripped and RCA-cleaned back into a blank

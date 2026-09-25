@@ -2276,7 +2276,7 @@
 			}]
 			tasks: [{
 				id: "2CCBC00EAC4FDA46"
-				item: "kubejs:naquadria_ram_wafer"
+				item: "kubejs:naquadria_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.title.luv}"

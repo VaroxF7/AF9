@@ -1,8 +1,7 @@
 // AF9 - Photolithography Line and Orbital Lithography Station
 // Realistic lithography: a coater/developer track feeding a stepper. One exposure mode per wafer substrate (see
-// wafers.js): 350 nm on silicon up to 7 nm on strange matter on the line, 1 nm on chromodynium in orbit. The printed
-// wafers are plain items (GT's own wafer where the chip belongs to the substrate, kubejs:<substrate>_<chip>_wafer
-// otherwise); no NBT.
+// wafers.js): 350 nm on silicon up to 7 nm on strange matter on the line, 1 nm on chromodynium in orbit. A print is
+// always GT's own chip wafer, more of them per blank on a higher substrate; no NBT, no variants.
 // Each mode uses the light source its real node used and the resist made for that light:
 //   350 nm            mercury-lamp i-line 365 nm             DNQ-novolac resist
 //   200 nm            KrF excimer laser 248 nm               chemically amplified PHOST resist
@@ -189,7 +188,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
         allthemods.create(`lithography_${node}`)
             .category('multiblock')
             .setEUIO('in')
-            .setMaxIOSize(2, 2, fluids, 0) // substrate + reticle in; the printed wafer + the chanced broken wafer out
+            .setMaxIOSize(2, 2, fluids, 0) // substrate + reticle in; GT's chip wafers + the chanced broken wafer out
             .setSlotOverlay(false, false, true, GuiTextures.LENS_OVERLAY)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.ELECTROLYZER)

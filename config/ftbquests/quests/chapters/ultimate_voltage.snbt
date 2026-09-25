@@ -1998,7 +1998,7 @@
 			id: "0266685DD6B82444"
 			tasks: [{
 				id: "3CAB80A757E28645"
-				item: "kubejs:transmuted_neutronium_ram_wafer"
+				item: "kubejs:transmuted_neutronium_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.title.nm20}"

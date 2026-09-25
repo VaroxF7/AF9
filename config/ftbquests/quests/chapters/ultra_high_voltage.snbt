@@ -1466,7 +1466,7 @@
 			id: "98866C9F9CF320E9"
 			tasks: [{
 				id: "B19554BEAD252D7A"
-				item: "kubejs:strange_matter_ram_wafer"
+				item: "kubejs:strange_matter_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.title.nm7}"
@@ -1482,7 +1482,7 @@
 			id: "75590392393A5E38"
 			tasks: [{
 				id: "CDDBA0B39543F300"
-				item: "kubejs:chromodynium_ram_wafer"
+				item: "gtceu:orbital_lithography_station"
 				type: "item"
 			}]
 			title: "{af9.quest.title.orbital}"

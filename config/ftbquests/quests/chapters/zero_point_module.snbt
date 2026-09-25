@@ -1958,7 +1958,7 @@
 			id: "E5189FF543B6B1D0"
 			tasks: [{
 				id: "4B8BD8CE0227BAD4"
-				item: "kubejs:neutronium_ram_wafer"
+				item: "gtceu:neutronium_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.title.nm50}"

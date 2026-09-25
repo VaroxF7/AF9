@@ -67,7 +67,7 @@
     "af9.photolithography_line.tooltip.0": "§7Prints §fchip wafers§7 through a §freticle§7 (not consumed), one mode per substrate:",
     "af9.photolithography_line.tooltip.1": " §e350nm§7 Silicon, §e200nm§7 Phosphorus, §e100nm§7 Naquadah, §e80nm§7 Trinium,",
     "af9.photolithography_line.tooltip.2": " §e65nm§7 Naquadria, §e50nm§7 Neutronium, §e20nm§7 Transmuted Nt, §e7nm§7 Strange Matter.",
-    "af9.photolithography_line.tooltip.3": "§7A substrate prints its own chips and all lower ones; higher substrates cut into §fmore chips§7.",
+    "af9.photolithography_line.tooltip.3": "§7A substrate prints its own chips and all lower ones as GT's wafers, §fmore per print§7 the higher it is.",
     "af9.photolithography_line.tooltip.4": "§bPrime §8> §bcoat §8> §bbake §8> §dexpose §8> §bbake §8> §bdevelop §8> §brinse",
     "af9.photolithography_line.tooltip.5": "§bVacuum§7: cleanliness §f0-100§7, pumped up with §fenergy§7 and §fno maintenance problems§7.",
     "af9.photolithography_line.tooltip.6": "§7Every finished wafer drops it by §c10-15§7, and every print can §cbreak§7:",

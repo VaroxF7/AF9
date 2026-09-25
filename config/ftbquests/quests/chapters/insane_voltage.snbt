@@ -2709,7 +2709,7 @@
 			}]
 			tasks: [{
 				id: "F7280EFE9D132187"
-				item: "kubejs:trinium_ram_wafer"
+				item: "kubejs:trinium_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.title.xuv}"
