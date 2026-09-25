@@ -1,33 +1,21 @@
-// AF9 - HV to LuV circuits are built from their own tier: chips printed in the matching lithography mode and the metals
-// of that tier (the ones the Circuits quest page lists per tier).
-//
-// Chips: HV = HUV, EV = EUV, IV = XUV, LuV = LUV. A chip GT only makes at a later tier (e.g. Nano CPU, ASoC in HV
-// circuits) uses its own first mode instead. MV and lower circuits accept chips from any mode (see mv_circuits.js).
-// Bootstrap: HUV/EUV printing needs HV/EV energy hatches, and those need HV/EV circuits. So, like the chip-free Good
-// Electronic Circuit at MV, one entry circuit per tier takes the previous mode's chips: the Advanced Integrated Circuit
-// (HV) uses MUV chips and the Workstation (EV) uses HUV chips. IV and LuV need no bootstrap: two 16A hatches of the
-// tier below power XUV and LUV.
+// AF9 - HV to LuV circuits are built from the metals of their own tier (the ones the Circuits quest page lists per
+// tier). The chips are GT's plain chips: the lithography machines print plain wafer items, and a chip is a chip
+// whatever substrate it was cut from (higher substrates just give more chips per wafer).
 //
 // Metals (all makeable with the previous tier's machines):
 //   HV  gold bond wire, stainless steel bolts
 //   EV  Platinum-Iridium fine wire (bootstrap: plain platinum, iridium is EV-era), titanium bolts
 //   IV  tungstensteel fine wire and frames, tungsten busbars (single wire)
 //   LuV osmiridium fine wire, niobium-titanium superconductor wire (the LuV cable), rhodium-plated palladium bolts
-// The LuV Nano Mainframe is ATM9's Assembly Line recipe (circuits_for_atm.js), which AF9 gives LUV chips.
+// The LuV Nano Mainframe is ATM9's Assembly Line recipe (circuits_for_atm.js).
 //
 // Every recipe below is otherwise GT's own (CircuitRecipes.java, GTCEu 7.2.0, harderCircuitRecipes off).
 
 ServerEvents.recipes(allthemods => {
     const VA = GTValues.VA
-    const TIER_MODE = { hv: 'huv', ev: 'euv', iv: 'xuv', luv: 'luv' }
-
-    // chip printed in the given mode, or in the chip's first mode when GT only makes it later
-    const chipIn = (modeId, chipId, count) => {
-        const modeIndex = Math.max(AF9_LITHO.mode(modeId).index, AF9_LITHO.chip(chipId).minMode)
-        return AF9_LITHO.tagged(chipId, AF9_LITHO.modes[modeIndex].id, count)
-    }
-    // chip of the circuit tier's own mode
-    const chip = (tier, chipId, count) => chipIn(TIER_MODE[tier], chipId, count)
+    // plain GT chips; the tier / mode arguments only document which circuit tier a recipe belongs to
+    const chipIn = (modeId, chipId, count) => AF9_WAFERS.chipStack(chipId, count)
+    const chip = (tier, chipId, count) => AF9_WAFERS.chipStack(chipId, count)
 
     // Replaces GT's recipe and its generated soldering alloy copy with a tin (144 mB x multiplier) and a soldering
     // alloy (72 mB x multiplier) version, the same pair GT's generator makes (KubeJS recipes skip it)
@@ -39,8 +27,7 @@ ServerEvents.recipes(allthemods => {
     }
     const clean = recipe => recipe.cleanroom(CleanroomType.CLEANROOM)
 
-    // ================================= HV (HUV chips, gold + stainless steel) =================================
-    // bootstrap: MUV chips
+    // ================================= HV (gold + stainless steel) =================================
     circuit('integrated_circuit_hv', 1, r => r
         .itemInputs('2x gtceu:good_integrated_circuit', chipIn('muv', 'ilc', 2), chipIn('muv', 'ram', 2), '4x #gtceu:transistors',
             '8x gtceu:fine_gold_wire', '8x gtceu:stainless_steel_bolt')
@@ -70,8 +57,8 @@ ServerEvents.recipes(allthemods => {
         .itemOutputs('4x gtceu:nano_processor')
         .duration(50).EUt(9600)))
 
-    // ================================= EV (EUV chips, platinum + titanium) =================================
-    // bootstrap: HUV chips and plain platinum wire
+    // ================================= EV (platinum + titanium) =================================
+    // bootstrap: plain platinum wire
     circuit('workstation_ev', 2, r => clean(r
         .itemInputs('gtceu:plastic_printed_circuit_board', '2x gtceu:micro_processor_assembly', '4x #gtceu:diodes',
             chipIn('huv', 'ram', 4), '16x gtceu:fine_platinum_wire', '16x gtceu:titanium_bolt')
@@ -108,7 +95,7 @@ ServerEvents.recipes(allthemods => {
         .itemOutputs('4x gtceu:quantum_processor')
         .duration(50).EUt(38400)))
 
-    // ================================= IV (XUV chips, tungstensteel + tungsten) =================================
+    // ================================= IV (tungstensteel + tungsten) =================================
     circuit('mainframe_iv', 4, r => clean(r
         .itemInputs('2x gtceu:tungsten_steel_frame', '2x gtceu:micro_processor_computer', '8x #gtceu:inductors', '16x #gtceu:capacitors',
             chip('iv', 'ram', 16), '16x gtceu:tungsten_single_wire')
@@ -151,7 +138,7 @@ ServerEvents.recipes(allthemods => {
         .itemOutputs('2x gtceu:crystal_processor')
         .duration(200).EUt(9600)))
 
-    // ================================= LuV (LUV chips, osmiridium + NbTi + rhodium-plated palladium) ===============
+    // ================================= LuV (osmiridium + NbTi + rhodium-plated palladium) ===============
     // (Nano Mainframe: ATM9 Assembly Line recipe in circuits_for_atm.js)
     circuit('quantum_computer_luv', 2, r => clean(r
         .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', '2x gtceu:quantum_processor_assembly', '8x gtceu:smd_diode',

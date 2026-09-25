@@ -606,7 +606,7 @@
 				}
 				{
 					id: "48B9848EBF024C1A"
-					item: "kubejs:lpic_wafer_package"
+					item: "gtceu:lpic_wafer"
 					type: "item"
 				}
 				{
@@ -1209,17 +1209,7 @@
 			}]
 			tasks: [{
 				id: "C14FFFD46C36A72D"
-				item: {
-					Count: 1
-					id: "kubejs:ram_wafer_package"
-					tag: {
-						AF9Litho: {
-							Node: 200
-						}
-					}
-				}
-				match_nbt: true
-				weak_nbt_match: true
+				item: "kubejs:naquadah_ram_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.title.euv}"

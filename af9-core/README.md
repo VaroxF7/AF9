@@ -5,13 +5,24 @@ Machines, materials and recipes stay in `../kubejs`; KubeJS plugs the Java class
 
 | Class | Used by | Does |
 |---|---|---|
-| `litho/LithoMode` | everything below | The five UV modes (MUV 350 nm ... LUV 50 nm): power, density and die factors, light source (i-line, KrF, ArF, ArF immersion) with wavelength, NA and resist, the version each needs and the version bonuses, the package list. Must match the KubeJS recipes |
-| `machine/PhotolithographyLineMachine` | `kubejs/startup_scripts/gtceu/photolithography.js` | Line version 1-5 (lens slices + light source), recipe gate `LITHO_GATE` (version + power), `LITHO_VERSION` (faster, better yield, more transistors above a mode's version), one structure preview page per version, controller UI with mode buttons, saved statistics, EMI recipe info (node + light + version) |
-| `machine/LithoRecipeLogic` | the machine above | Counts printed packages per mode |
-| `client/AF9Client` | wafer packages and chips | Chip `af9:litho_mode` model predicate (per-mode textures in `kubejs/assets`), package ribbon tinted per mode, tooltip (mode, line version, transistors per die and wafer) |
+| `litho/LithoMode` | everything below | The nine lithography modes, one per wafer substrate (350 nm silicon ... 7 nm strange matter on the line, 1 nm chromodynium in orbit): tier and power, light source (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV, X-ray FEL) with wavelength, NA and resist, base break chance, the break-chance and speed maths. Must match `AF9_WAFERS` (KubeJS server) and `AF9_WAFER_TABLE` (KubeJS startup) |
+| `machine/LithoMachine` | both lithography machines | Vacuum cleanliness 0-100 (rises with power and no maintenance problems, falls 10-15 per wafer), the break roll, printed/broken counters, recipe gates `LITHO_GATE` (mode allowed + power) and `STRIP_BROKEN` |
+| `machine/PhotolithographyLineMachine` | `kubejs/startup_scripts/gtceu/photolithography.js` | Line version 1-8 (lens slices + light source), `LITHO_VERSION` (faster above a mode's version; fewer breaks in the roll), one structure preview page per version, recipe info (node, light, break chance) |
+| `machine/OrbitalLithographyMachine` | same script | The 1 nm Orbital Lithography Station: prints only in an orbit dimension (Ad Astra `*_orbit`) |
+| `machine/LithoRecipeLogic` | both lithography machines | Rolls the break when a print finishes and hands out the broken wafer instead |
+| `machine/LithoConsoleWidget` | both lithography machines | The lithography console: mode tiles, vacuum bar, break chance, power, what is printing, run-time bar, counters |
+| `machine/ProcessMachine`, `machine/console/*` | the machines below | Console base (`ConsoleWidget`: frame, tiles, run-time bar, sync) and the process console (`ProcessConsoleWidget`: mode buttons, power, coolant, output, readout lines) |
+| `machine/SupercoolerMachine` | `kubejs/startup_scripts/gtceu/cryogenics.js` | Supercooling Cryostat: dense cooling / supercooling, chamber temperature readout down to the -5000 K rating |
+| `machine/part/CoolantHatchPartMachine` | same script | Coolant Hatch (LuV-UHV): fluid input hatch that only accepts `gtceu:supercooled_*`, ability `af9_coolant_input` |
+| `machine/ParticleAcceleratorMachine` | `kubejs/startup_scripts/gtceu/particle_accelerator.js` | Particle Accelerator: beam energy and coolant readout |
+| `common/AF9Modifiers`, `common/IPowerGated` | cryostat, accelerator | `POWER_GATE`: a recipe only starts when the hatches can deliver its full EU/t (the cryostat's 4A HV) |
+| `blast/BouleMelting` | GT's Electric Blast Furnace | Adds the `gtceu:boule_melting` mode to the EBF and the Endion coil bonus (faster, parallels) |
+| `wafer/WaferContamination` | wafer items (`#af9:wafers`) | Wafers a player takes into the inventory turn into contaminated wafers, unless the player wears gloves (`#af9:wafer_gloves`) or stands in a clean Cleanroom |
+| `compat/jade/*` | Jade | Controller tooltip: vacuum bar (lithography), status, mode, product, run-time bar, readout lines |
+| `client/AF9Client` | wafer items | Contamination warning in the wafer tooltip |
 | `fab/FabFamily`, `fab/IFabMachine` | the SMC fab machines | The four fab families (chemistry, separation, electrochemistry, thermal): changeover purge fluid and time, console colour, process steps per mode |
 | `fab/FabModifiers` | `kubejs/startup_scripts/gtceu/fab_machines.js` | Recipe modifiers: changeover `PURGE`, `STRUCTURE_PARALLEL` (trays / membrane cells), `COIL_DISCOUNT`, `TIER_TEMPERATURE` (single furnaces), `THERMAL_OVERCLOCK` (GT's EBF rules) |
-| `fab/FabRecipeLogic`, `fab/FabRecipeInfo` | the fab machines, EMI | Tells the machine which recipe finished (purge bookkeeping); temperature, coil and single-block tier on the thermal modes' EMI pages |
+| `fab/FabRecipeLogic`, `fab/FabRecipeInfo` | the fab machines, EMI/JEI | Tells the machine which recipe finished (purge bookkeeping); temperature, coil and single-block tier on the thermal modes' EMI pages |
 | `machine/fab/FabMultiblockMachine` | the four SMC multiblocks | Built-in clean room from filter casings, PTFE-pipe parallels, coil heat, run and changeover counters, console with clickable mode tiles |
 | `machine/fab/FabTieredMachine` | the SMC single blocks (MV-LuV) | GT's slot page with a console strip above it, furnace temperature per tier, changeover purge |
 | `machine/fab/FabConsoleWidget` | both fab machine classes | The fab console (status, modes, power, progress with purge share, clean class, parallels, heat, process steps) |

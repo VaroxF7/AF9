@@ -147,39 +147,9 @@ ServerEvents.recipes(allthemods => {
         .duration(100)
         .EUt(MV)
 
-    // Czochralski pullers: melt the poly with its dopant in a quartz crucible under flowing argon, dip a seed, pull.
-    // Replaces GT's boules (silicon dust + gallium arsenide, nitrogen). Boron = p-type (the CMOS substrate, ppm-level),
-    // phosphorus = n-type. Naquadah and neutronium keep GT's exotic recipes but start from electronic-grade silicon.
-    const gtBoules = ['silicon_boule', 'phosphorus_boule', 'naquadah_boule', 'neutronium_boule']
-    gtBoules.forEach(boule => allthemods.remove({ id: `gtceu:electric_blast_furnace/${boule}` }))
-    gt.fab_crystal_growth('af9:silicon_boule')
-        .itemInputs('32x gtceu:electronic_grade_silicon_dust', 'gtceu:tiny_boron_dust')
-        .inputFluids(Fluid.of('gtceu:argon', 250))
-        .itemOutputs('gtceu:silicon_boule')
-        .blastFurnaceTemp(1784)
-        .duration(9000)
-        .EUt(MV)
-    gt.fab_crystal_growth('af9:phosphorus_boule')
-        .itemInputs('64x gtceu:electronic_grade_silicon_dust', '8x gtceu:phosphorus_dust')
-        .inputFluids(Fluid.of('gtceu:argon', 1000))
-        .itemOutputs('gtceu:phosphorus_boule')
-        .blastFurnaceTemp(2484)
-        .duration(12000)
-        .EUt(HV)
-    gt.fab_crystal_growth('af9:naquadah_boule')
-        .itemInputs('144x gtceu:electronic_grade_silicon_dust', 'gtceu:naquadah_ingot', 'gtceu:gallium_arsenide_dust')
-        .inputFluids(Fluid.of('gtceu:argon', 8000))
-        .itemOutputs('gtceu:naquadah_boule')
-        .blastFurnaceTemp(5400)
-        .duration(15000)
-        .EUt(EV)
-    gt.fab_crystal_growth('af9:neutronium_boule')
-        .itemInputs('288x gtceu:electronic_grade_silicon_dust', '4x gtceu:neutronium_ingot', '2x gtceu:gallium_arsenide_dust')
-        .inputFluids(Fluid.of('gtceu:xenon', 8000))
-        .itemOutputs('gtceu:neutronium_boule')
-        .blastFurnaceTemp(6484)
-        .duration(18000)
-        .EUt(VA[GTValues.IV])
+    // Czochralski growth: the boules are pulled in the EBF's Boule Melting mode from melt charges (the electronic-grade
+    // silicon above with its dopants, SMC blending), a seed crystal (SMC crystal growth) and a crucible. Boron = p-type
+    // (the CMOS substrate, ppm-level), phosphorus = n-type. All in boule_melting.js.
 
     // =============================================================================================================
     // 2. FLUOROCHEMICALS: fluorspar -> HF (MV) -> fluorine by KF.2HF electrolysis (HV); triflic acid by Simons ECF

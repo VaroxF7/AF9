@@ -461,7 +461,7 @@
 				}
 				{
 					id: "2AF7637FB5C18FF9"
-					item: "kubejs:cpu_wafer_package"
+					item: "gtceu:cpu_wafer"
 					type: "item"
 				}
 				{
@@ -521,7 +521,7 @@
 				}
 				{
 					id: "5DFF6A6EA91263D1"
-					item: "kubejs:simple_soc_wafer_package"
+					item: "gtceu:simple_soc_wafer"
 					type: "item"
 				}
 			]
@@ -1263,17 +1263,7 @@
 			}]
 			tasks: [{
 				id: "B110272EBFF9AA42"
-				item: {
-					Count: 1
-					id: "kubejs:ram_wafer_package"
-					tag: {
-						AF9Litho: {
-							Node: 250
-						}
-					}
-				}
-				match_nbt: true
-				weak_nbt_match: true
+				item: "kubejs:phosphorus_ram_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.title.huv}"
@@ -1506,6 +1496,22 @@
 			title: "{af9.quest.title.smcCells}"
 			x: 13.0d
 			y: 4.0d
+		}
+		{
+			description: [
+				"{af9.quest.hv.cryostat.1}"
+				""
+				"{af9.quest.hv.cryostat.2}"
+			]
+			id: "1E053F71829B698E"
+			tasks: [{
+				id: "90EE677B6E824ED7"
+				item: "gtceu:supercooling_cryostat"
+				type: "item"
+			}]
+			title: "{af9.quest.title.cryostat}"
+			x: -11.5d
+			y: 8.5d
 		}
 	]
 	title: "{atm9.chapters.29.title}"

@@ -286,14 +286,14 @@
 			rewards: [{
 				count: 4
 				id: "303D615EB146BB20"
-				item: "kubejs:uhpic_wafer_package"
+				item: "gtceu:uhpic_wafer"
 				random_bonus: 4
 				type: "item"
 			}]
 			subtitle: "{atm9.quest.gregtech.zpm.subt.uhpic}"
 			tasks: [{
 				id: "12F678374AA282E7"
-				item: "kubejs:uhpic_wafer_package"
+				item: "gtceu:uhpic_wafer"
 				type: "item"
 			}]
 			x: -9.0d
@@ -1920,6 +1920,50 @@
 			]
 			x: 10.0d
 			y: -3.0d
+		}
+		{
+			description: [
+				"{af9.quest.zpm.accelerator.1}"
+				""
+				"{af9.quest.zpm.accelerator.2}"
+			]
+			id: "3C1BAD339D082C68"
+			tasks: [{
+				id: "7C948F35910B8D68"
+				item: "gtceu:particle_accelerator"
+				type: "item"
+			}]
+			title: "{af9.quest.title.accelerator}"
+			x: -14.5d
+			y: 6.0d
+		}
+		{
+			description: [
+				"{af9.quest.zpm.coolantHatch}"
+			]
+			id: "1572142A6483B73B"
+			tasks: [{
+				id: "847338BCF500B70A"
+				item: "gtceu:luv_coolant_hatch"
+				type: "item"
+			}]
+			title: "{af9.quest.title.coolantHatch}"
+			x: -12.5d
+			y: 6.0d
+		}
+		{
+			description: [
+				"{af9.quest.zpm.nm50}"
+			]
+			id: "E5189FF543B6B1D0"
+			tasks: [{
+				id: "4B8BD8CE0227BAD4"
+				item: "kubejs:neutronium_ram_wafer"
+				type: "item"
+			}]
+			title: "{af9.quest.title.nm50}"
+			x: -10.5d
+			y: 6.0d
 		}
 	]
 	title: "{atm9.chapters.33.title}"

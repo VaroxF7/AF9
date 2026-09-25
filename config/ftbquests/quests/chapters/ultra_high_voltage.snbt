@@ -1271,7 +1271,7 @@
 			rewards: [{
 				count: 4
 				id: "3212B54A2EE954FA"
-				item: "kubejs:highly_advanced_soc_wafer_package"
+				item: "gtceu:highly_advanced_soc_wafer"
 				random_bonus: 4
 				type: "item"
 			}]
@@ -1279,7 +1279,7 @@
 			tasks: [
 				{
 					id: "74999972610FD53F"
-					item: "kubejs:highly_advanced_soc_wafer_package"
+					item: "gtceu:highly_advanced_soc_wafer"
 					type: "item"
 				}
 				{
@@ -1458,6 +1458,36 @@
 			]
 			x: -6.0d
 			y: 3.0d
+		}
+		{
+			description: [
+				"{af9.quest.uhv.nm7}"
+			]
+			id: "98866C9F9CF320E9"
+			tasks: [{
+				id: "B19554BEAD252D7A"
+				item: "kubejs:strange_matter_ram_wafer"
+				type: "item"
+			}]
+			title: "{af9.quest.title.nm7}"
+			x: -9.0d
+			y: 8.0d
+		}
+		{
+			description: [
+				"{af9.quest.uhv.orbital.1}"
+				""
+				"{af9.quest.uhv.orbital.2}"
+			]
+			id: "75590392393A5E38"
+			tasks: [{
+				id: "CDDBA0B39543F300"
+				item: "kubejs:chromodynium_ram_wafer"
+				type: "item"
+			}]
+			title: "{af9.quest.title.orbital}"
+			x: -7.0d
+			y: 8.0d
 		}
 	]
 	title: "{atm9.chapters.35.title}"

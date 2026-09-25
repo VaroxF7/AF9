@@ -1,7 +1,7 @@
 ServerEvents.recipes(event => {
-    // AF9: the LuV Nano Mainframe also needs 16 RAM chips printed in LUV mode (AF9_LITHO, mods/gtceu/photolithography.js)
+    // AF9: the LuV Nano Mainframe also needs 16 RAM chips
     event.recipes.gtceu.assembly_line("circuit_1_iv_luv")
-    .itemInputs("gtceu:micro_processor_mainframe","16x gtceu:rtm_alloy_double_cable","16x gtceu:double_osmiridium_plate","64x gtceu:fine_osmiridium_wire","64x gtceu:fine_osmiridium_wire","16x gtceu:nano_processor_computer","mekanism:qio_drive_hyper_dense","16x gtceu:annealed_copper_octal_wire","32x gtceu:microchip_processor","64x gtceu:smd_capacitor","32x gtceu:smd_inductor",AF9_LITHO.tagged('ram', 'luv', 16))
+    .itemInputs("gtceu:micro_processor_mainframe","16x gtceu:rtm_alloy_double_cable","16x gtceu:double_osmiridium_plate","64x gtceu:fine_osmiridium_wire","64x gtceu:fine_osmiridium_wire","16x gtceu:nano_processor_computer","mekanism:qio_drive_hyper_dense","16x gtceu:annealed_copper_octal_wire","32x gtceu:microchip_processor","64x gtceu:smd_capacitor","32x gtceu:smd_inductor","16x gtceu:ram_chip")
     .inputFluids("gtceu:indium 4000")
     .itemOutputs("gtceu:nano_processor_mainframe")
     .duration(1600).EUt(GTValues.VA[GTValues.LuV])

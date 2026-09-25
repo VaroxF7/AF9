@@ -821,14 +821,14 @@
 			rewards: [{
 				count: 2
 				id: "3F3ED676F4B03780"
-				item: "kubejs:qbit_cpu_wafer_package"
+				item: "gtceu:qbit_cpu_wafer"
 				random_bonus: 4
 				type: "item"
 			}]
 			subtitle: "{atm9.quest.gregtech.luv.subt.qubitsCount}"
 			tasks: [{
 				id: "44896397E09AF0C3"
-				item: "kubejs:qbit_cpu_wafer_package"
+				item: "gtceu:qbit_cpu_wafer"
 				type: "item"
 			}]
 			x: 4.6d
@@ -2276,17 +2276,7 @@
 			}]
 			tasks: [{
 				id: "2CCBC00EAC4FDA46"
-				item: {
-					Count: 1
-					id: "kubejs:ram_wafer_package"
-					tag: {
-						AF9Litho: {
-							Node: 50
-						}
-					}
-				}
-				match_nbt: true
-				weak_nbt_match: true
+				item: "kubejs:naquadria_ram_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.title.luv}"

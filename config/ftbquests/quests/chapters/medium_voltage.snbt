@@ -588,7 +588,7 @@
 			}]
 			tasks: [{
 				id: "412F8874629333ED"
-				item: "kubejs:ram_wafer_package"
+				item: "gtceu:ram_wafer"
 				type: "item"
 			}]
 			x: 8.5d
@@ -611,7 +611,7 @@
 			}]
 			tasks: [{
 				id: "0B29B51417A0773F"
-				item: "kubejs:ilc_wafer_package"
+				item: "gtceu:ilc_wafer"
 				type: "item"
 			}]
 			x: 5.5d
@@ -2016,6 +2016,22 @@
 			title: "{af9.quest.title.fabFurnace}"
 			x: 11.5d
 			y: -5.5d
+		}
+		{
+			description: [
+				"{af9.quest.mv.gloves.1}"
+				""
+				"{af9.quest.mv.gloves.2}"
+			]
+			id: "F1D516BB5454D805"
+			tasks: [{
+				id: "C4A001FE21448A7E"
+				item: "gtceu:rubber_gloves"
+				type: "item"
+			}]
+			title: "{af9.quest.title.gloves}"
+			x: -9.7d
+			y: 7.5d
 		}
 	]
 	title: "{atm9.chapters.28.title}"
