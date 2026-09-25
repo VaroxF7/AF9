@@ -16,7 +16,8 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * The Photolithography Line's control console: mode selector, power gauge, process track, output data and counters,
+ * The Photolithography Line's control console: mode selector, power gauge, process track, output data (node, light
+ * source, density, dies, substrate) and counters,
  * drawn on a dark scanline panel. The server samples the machine every tick and syncs only what changed; clicks are
  * handled by invisible {@code ButtonWidget}s placed over the drawn tiles (see
  * {@link PhotolithographyLineMachine#createUIWidget()}).
@@ -220,11 +221,13 @@ public class LithoConsoleWidget extends Widget {
         drawSmall(graphics, font, Component.translatable("af9.litho.console.output").getString(), rx, y0 + 48, MUTED,
                 false);
         graphics.drawString(font, active.nodeNm + " nm node", rx, y0 + 55, active.argb, false);
-        graphics.drawString(font, "Density " + LithoMode.formatFactor(active.transistorDensity()), rx, y0 + 65, TEXT,
+        graphics.drawString(font, Component.translatable("af9.litho.light." + active.light).getString(), rx, y0 + 64,
+                TEXT, false);
+        graphics.drawString(font, "Density " + LithoMode.formatFactor(active.transistorDensity()), rx, y0 + 73, TEXT,
                 false);
-        graphics.drawString(font, "Dies " + LithoMode.formatFactor(active.dieFactor()), rx, y0 + 75, TEXT, false);
+        graphics.drawString(font, "Dies " + LithoMode.formatFactor(active.dieFactor()), rx, y0 + 82, TEXT, false);
         graphics.drawString(font, Component.translatable("af9.litho.substrate." + active.substrate).getString(), rx,
-                y0 + 85, MUTED, false);
+                y0 + 91, MUTED, false);
 
         drawSmall(graphics, font, Component.translatable("af9.litho.console.printed").getString(), rx, y0 + 100, MUTED,
                 false);

@@ -2261,6 +2261,7 @@
 			dependencies: [
 				"46CAB00FF64D12DE"
 				"84516B9D84575F62"
+				"C786A524FDA78C1A"
 			]
 			description: [
 				"{af9.quest.luv.luv.1}"
@@ -2290,6 +2291,25 @@
 			}]
 			title: "{af9.quest.title.luv}"
 			x: 5.0d
+			y: -1.0d
+		}
+		{
+			dependencies: ["1DB07C3B15CDDAAC"]
+			description: ["{af9.quest.luv.immersion}"]
+			id: "C786A524FDA78C1A"
+			rewards: [{
+				id: "382523A28F509088"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:ultrapure_water"
+				id: "FC489176EA49E015"
+				type: "fluid"
+			}]
+			title: "{af9.quest.title.immersion}"
+			x: 7.5d
 			y: -1.0d
 		}
 	]

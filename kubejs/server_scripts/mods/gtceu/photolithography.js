@@ -6,12 +6,21 @@
 const AF9_LITHO = (() => {
     // Exposure modes, finest last. Every mode draws 4A of its own voltage tier (always 2 hatches) and each step uses
     // 1.5x the chemicals. Each mode prints on its own substrate; substrateTier indexes the chips' GT wafer yields.
+    // light / wavelength / na: the exposure tool the real node used (k1 = node x NA / wavelength stays >= 0.35).
+    // resist: the photoresist made for that light; laserGas: the excimer premix the laser burns (none for the mercury
+    // lamp); immersion: water film under the lens; highK: HfO2 gate dielectric from hafnium tetrachloride.
     const modes = [
-        { id: 'muv', index: 0, node: 350, tier: GTValues.MV, substrate: 'gtceu:silicon_wafer', substrateTier: 0 },
-        { id: 'huv', index: 1, node: 250, tier: GTValues.HV, substrate: 'gtceu:phosphorus_wafer', substrateTier: 1 },
-        { id: 'euv', index: 2, node: 200, tier: GTValues.EV, substrate: 'gtceu:naquadah_wafer', substrateTier: 2 },
-        { id: 'xuv', index: 3, node: 100, tier: GTValues.IV, substrate: 'gtceu:neutronium_wafer', substrateTier: 3 },
-        { id: 'luv', index: 4, node: 50, tier: GTValues.LuV, substrate: 'gtceu:neutronium_wafer', substrateTier: 3 }
+        { id: 'muv', index: 0, node: 350, tier: GTValues.MV, substrate: 'gtceu:silicon_wafer', substrateTier: 0,
+            light: 'i_line', wavelength: 365, na: 0.60, resist: 'gtceu:photoresist' },
+        { id: 'huv', index: 1, node: 250, tier: GTValues.HV, substrate: 'gtceu:phosphorus_wafer', substrateTier: 1,
+            light: 'krf', wavelength: 248, na: 0.60, resist: 'gtceu:krf_photoresist', laserGas: 'gtceu:krf_excimer_gas' },
+        { id: 'euv', index: 2, node: 200, tier: GTValues.EV, substrate: 'gtceu:naquadah_wafer', substrateTier: 2,
+            light: 'krf', wavelength: 248, na: 0.70, resist: 'gtceu:krf_photoresist', laserGas: 'gtceu:krf_excimer_gas' },
+        { id: 'xuv', index: 3, node: 100, tier: GTValues.IV, substrate: 'gtceu:neutronium_wafer', substrateTier: 3,
+            light: 'arf', wavelength: 193, na: 0.85, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas' },
+        { id: 'luv', index: 4, node: 50, tier: GTValues.LuV, substrate: 'gtceu:neutronium_wafer', substrateTier: 3,
+            light: 'arf_immersion', wavelength: 193, na: 1.35, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas',
+            immersion: true, highK: true }
     ]
 
     // Printed wafers per substrate wafer (silicon, phosphorus, naquadah, neutronium), as GT's laser engraver gave them
@@ -270,19 +279,136 @@ ServerEvents.recipes(allthemods => {
         .duration(300)
         .EUt(EU_MV)
 
+    // ---- Excimer laser gas (HUV to LUV) ----
+    // GT only gives neon from nether air (EV) and krypton from ender air (IV). An air separation plant recovers both
+    // from ordinary air: krypton adsorbs on cold silica gel, neon stays in the non-condensable head gas. Real air holds
+    // 16x more neon than krypton; the rest of the liquid air is spent.
+    allthemods.recipes.gtceu.chemical_reactor('af9:rare_gas_recovery')
+        .notConsumable('gtceu:silicon_dioxide_dust')
+        .inputFluids(Fluid.of('gtceu:liquid_air', 10000))
+        .outputFluids(Fluid.of('gtceu:neon', 80), Fluid.of('gtceu:krypton', 5))
+        .duration(400)
+        .EUt(EU_HV)
+
+    // Premixes: 5 % rare gas and 1 % fluorine in neon (real ones are leaner, ~1 % and ~0.1 %)
+    const excimerGases = [
+        { id: 'krf_excimer_gas', rareGas: 'gtceu:krypton' },
+        { id: 'arf_excimer_gas', rareGas: 'gtceu:argon' }
+    ]
+    excimerGases.forEach(gas => {
+        allthemods.recipes.gtceu.chemical_reactor(`af9:${gas.id}`)
+            .inputFluids(Fluid.of('gtceu:neon', 940), Fluid.of(gas.rareGas, 50), Fluid.of('gtceu:fluorine', 10))
+            .outputFluids(Fluid.of(`gtceu:${gas.id}`, 1000))
+            .duration(200)
+            .EUt(EU_HV)
+    })
+
+    // ---- Chemically amplified resists (HUV to LUV) ----
+    const EU_EV = GTValues.VA[GTValues.EV]
+
+    // CH4 + SO3 + 3 HF -> CF3SO3H + 3 H2 (sulfonation, then electrochemical fluorination)
+    allthemods.recipes.gtceu.chemical_reactor('af9:trifluoromethanesulfonic_acid')
+        .inputFluids(Fluid.of('gtceu:methane', 1000), Fluid.of('gtceu:sulfur_trioxide', 1000), Fluid.of('gtceu:hydrofluoric_acid', 3000))
+        .outputFluids(Fluid.of('gtceu:trifluoromethanesulfonic_acid', 1000), Fluid.of('gtceu:hydrogen', 3000))
+        .duration(400)
+        .EUt(EU_HV)
+
+    // Photoacid generator: 3 C6H6 + SO2 + CF3SO3H -> (C6H5)3S+ CF3SO3- + 2 H2O
+    allthemods.recipes.gtceu.chemical_reactor('af9:triphenylsulfonium_triflate')
+        .inputFluids(Fluid.of('gtceu:benzene', 3000), Fluid.of('gtceu:sulfur_dioxide', 1000), Fluid.of('gtceu:trifluoromethanesulfonic_acid', 1000))
+        .itemOutputs('gtceu:triphenylsulfonium_triflate_dust')
+        .outputFluids(Fluid.of('minecraft:water', 2000))
+        .duration(600)
+        .EUt(EU_HV)
+
+    // KrF polymer: C6H5OH + CH3COOH (acylation) -> 4-hydroxyacetophenone, + H2 -> 4-vinylphenol + 2 H2O, polymerized
+    allthemods.recipes.gtceu.chemical_reactor('af9:polyhydroxystyrene')
+        .inputFluids(Fluid.of('gtceu:phenol', 1000), Fluid.of('gtceu:acetic_acid', 1000), Fluid.of('gtceu:hydrogen', 2000))
+        .itemOutputs('gtceu:polyhydroxystyrene_dust')
+        .outputFluids(Fluid.of('minecraft:water', 2000))
+        .duration(400)
+        .EUt(EU_HV)
+
+    // Resist solvent. The zeolite stands in for titanium silicalite, the HPPO catalyst.
+    allthemods.recipes.gtceu.chemical_reactor('af9:propylene_glycol_methyl_ether')
+        .notConsumable('gtceu:zeolite_dust')
+        .inputFluids(Fluid.of('gtceu:propene', 1000), Fluid.of('gtceu:hydrogen_peroxide', 1000), Fluid.of('gtceu:methanol', 1000))
+        .outputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether', 1000), Fluid.of('minecraft:water', 1000))
+        .duration(300)
+        .EUt(EU_MV)
+
+    // Esterification over an acidic ion-exchange resin (a sulfuric acid catalyst would clash with GT's ethenone recipe)
+    allthemods.recipes.gtceu.chemical_reactor('af9:propylene_glycol_methyl_ether_acetate')
+        .inputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether', 1000), Fluid.of('gtceu:acetic_acid', 1000))
+        .outputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether_acetate', 1000), Fluid.of('minecraft:water', 1000))
+        .duration(300)
+        .EUt(EU_MV)
+
+    // ArF monomer by the acetone cyanohydrin route. HCN first (Andrussow process over platinum gauze):
+    // CH4 + NH3 + 3/2 O2 -> HCN + 3 H2O
+    allthemods.recipes.gtceu.chemical_reactor('af9:hydrogen_cyanide')
+        .notConsumable('gtceu:platinum_dust')
+        .inputFluids(Fluid.of('gtceu:methane', 1000), Fluid.of('gtceu:ammonia', 1000), Fluid.of('gtceu:oxygen', 3000))
+        .outputFluids(Fluid.of('gtceu:hydrogen_cyanide', 1000), Fluid.of('minecraft:water', 3000))
+        .duration(200)
+        .EUt(EU_EV)
+
+    // (CH3)2CO + HCN -> acetone cyanohydrin, then with sulfuric acid and methanol -> MMA:
+    // C3H6O + HCN + CH3OH -> C5H8O2 + NH3 (the acid step is left out)
+    allthemods.recipes.gtceu.chemical_reactor('af9:methyl_methacrylate')
+        .inputFluids(Fluid.of('gtceu:acetone', 1000), Fluid.of('gtceu:hydrogen_cyanide', 1000), Fluid.of('gtceu:methanol', 1000))
+        .outputFluids(Fluid.of('gtceu:methyl_methacrylate', 1000), Fluid.of('gtceu:ammonia', 1000))
+        .duration(400)
+        .EUt(EU_EV)
+
+    // Radical polymerization; the peroxide is the initiator
+    allthemods.recipes.gtceu.chemical_reactor('af9:methacrylate_resin')
+        .inputFluids(Fluid.of('gtceu:methyl_methacrylate', 1000), Fluid.of('gtceu:hydrogen_peroxide', 50))
+        .itemOutputs('gtceu:methacrylate_resin_dust')
+        .outputFluids(Fluid.of('minecraft:water', 50))
+        .duration(300)
+        .EUt(EU_EV)
+
+    // Polymer + a few percent PAG, dissolved in PGMEA
+    const resists = [
+        { id: 'krf_photoresist', polymer: 'gtceu:polyhydroxystyrene_dust', eut: EU_HV },
+        { id: 'arf_photoresist', polymer: 'gtceu:methacrylate_resin_dust', eut: EU_EV }
+    ]
+    resists.forEach(resist => {
+        allthemods.recipes.gtceu.mixer(`af9:${resist.id}`)
+            .itemInputs(resist.polymer, 'gtceu:small_triphenylsulfonium_triflate_dust')
+            .inputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether_acetate', 3000))
+            .outputFluids(Fluid.of(`gtceu:${resist.id}`, 4000))
+            .duration(400)
+            .EUt(resist.eut)
+    })
+
+    // ---- Immersion water (LUV) ----
+    // Mixed-bed polishing, UV oxidation and membrane degassing of distilled water
+    allthemods.recipes.gtceu.chemical_reactor('af9:ultrapure_water')
+        .notConsumable('gtceu:fluid_filter')
+        .inputFluids(Fluid.of('gtceu:distilled_water', 4000))
+        .outputFluids(Fluid.of('gtceu:ultrapure_water', 4000))
+        .duration(200)
+        .EUt(EU_EV)
+
     // ---- Printed wafers ----
-    // HMDS prime -> resist coat -> soft bake -> UV exposure -> PEB -> TMAH develop -> DI rinse -> hard bake
-    // LUV (50 nm) also grows a high-k HfO2 gate dielectric from HfCl4 + water (ALD), as fabs did from 45 nm on.
+    // HMDS prime -> resist coat -> soft bake -> exposure -> PEB -> TMAH develop -> DI rinse -> hard bake
+    // The resist is the one made for the mode's light, and the excimer lasers (HUV on) burn their premix. LUV exposes
+    // through a film of ultrapure water and grows a high-k HfO2 gate dielectric from HfCl4 + water (ALD), as fabs did
+    // from 45 nm on.
     chips.filter(c => c.lens).forEach(c => {
         modes.filter(m => m.index >= c.minMode).forEach(m => {
             const chemicals = Math.pow(1.5, m.index)
             const fluids = [
                 Fluid.of('gtceu:hmds_vapor', Math.round(40 * chemicals)),
-                Fluid.of('gtceu:photoresist', Math.round(100 * chemicals)),
+                Fluid.of(m.resist, Math.round(100 * chemicals)),
                 Fluid.of('gtceu:tmah_developer', Math.round(200 * chemicals)),
                 Fluid.of('gtceu:distilled_water', Math.round(1000 * chemicals)),
                 Fluid.of('gtceu:extreme_clean_dry_air', Math.round(1000 * chemicals))]
-            if (m.id === 'luv') fluids.push(Fluid.of('gtceu:hafnium_tetrachloride', 100))
+            if (m.laserGas) fluids.push(Fluid.of(m.laserGas, Math.round(10 * chemicals)))
+            if (m.immersion) fluids.push(Fluid.of('gtceu:ultrapure_water', 1000))
+            if (m.highK) fluids.push(Fluid.of('gtceu:hafnium_tetrachloride', 100))
             allthemods.recipes.gtceu[`lithography_${m.id}`](`af9:${c.id}_wafer_${m.id}`)
                 .itemInputs(m.substrate)
                 .notConsumable(`kubejs:${c.id}_reticle`)

@@ -2692,7 +2692,10 @@
 			y: 4.5d
 		}
 		{
-			dependencies: ["418DC14B94C9272A"]
+			dependencies: [
+				"418DC14B94C9272A"
+				"1DB07C3B15CDDAAC"
+			]
 			description: [
 				"{af9.quest.iv.xuv.1}"
 				""
@@ -2751,6 +2754,45 @@
 			title: "{af9.quest.title.ivMetals}"
 			x: -8.0d
 			y: 4.5d
+		}
+		{
+			dependencies: [
+				"72569D77E20C8733"
+				"A9D8D2084CFA2A1F"
+			]
+			description: [
+				"{af9.quest.iv.arf.1}"
+				""
+				"{af9.quest.iv.arf.2}"
+			]
+			id: "1DB07C3B15CDDAAC"
+			rewards: [{
+				id: "BE5542AD7071BF6C"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:arf_excimer_gas"
+					id: "A13248F1AAAFC939"
+					type: "fluid"
+				}
+				{
+					id: "C31B9C492CE2122C"
+					item: "gtceu:methacrylate_resin_dust"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:arf_photoresist"
+					id: "3878879FED6EB1C9"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.title.arf}"
+			x: 6.0d
+			y: 7.0d
 		}
 	]
 	title: "{atm9.chapters.31.title}"

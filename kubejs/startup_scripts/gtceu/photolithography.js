@@ -1,6 +1,11 @@
 // AF9 - Photolithography Line
 // Realistic lithography cluster: a coater/developer track feeding a stepper, with five UV exposure modes (MUV 350 nm
 // down to LUV 50 nm). Wafers it prints carry the mode's node and transistor count as NBT.
+// Each mode uses the light source the real node used, and the resist made for that light:
+//   MUV       mercury-lamp i-line 365 nm             DNQ-novolac resist
+//   HUV, EUV  KrF excimer laser 248 nm               chemically amplified PHOST resist
+//   XUV       ArF excimer laser 193 nm               chemically amplified methacrylate resist
+//   LUV       ArF immersion (water film under lens)  same as XUV
 // Replaces direct laser engraving of chip wafers. Recipes live in server_scripts/mods/gtceu/photolithography.js
 // The controller's behaviour (power gate, UI buttons, statistics, wafer tooltips/textures) comes from AF9 Core (af9-core/).
 
@@ -85,6 +90,85 @@ GTCEuStartupEvents.registry('gtceu:material', allthemods => {
         .liquid()
         .color(0xcfe8f0)
         .formula('(CH3)4NOH(H2O)')
+
+    // ---- Excimer laser gas (HUV to LUV) ----
+    // Premixes as fabs buy them: about 1 % rare gas and 0.1 % fluorine in a neon buffer. The laser's discharge slowly
+    // uses up the fluorine, so the gas is topped up while it runs.
+    allthemods.create('krf_excimer_gas')
+        .gas()
+        .color(0xd6c8f2)
+        .formula('(Ne)(Kr)(F2)')
+
+    allthemods.create('arf_excimer_gas')
+        .gas()
+        .color(0xc6d8f2)
+        .formula('(Ne)(Ar)(F2)')
+
+    // ---- Chemically amplified resists (KrF and ArF) ----
+    // DNQ-novolac stops working below ~300 nm (novolac turns opaque, DNQ barely bleaches), so deep-UV resists work
+    // differently: light frees an acid from a photoacid generator (PAG), and in the post-exposure bake each acid
+    // unblocks hundreds of polymer groups.
+    // CH4 + SO3 -> CH3SO3H (Grillo process), then Simons electrochemical fluorination with HF
+    allthemods.create('trifluoromethanesulfonic_acid')
+        .liquid()
+        .color(0xe9edf0)
+        .formula('CF3SO3H')
+
+    // The PAG: a sulfonium salt that releases triflic acid when a photon hits it
+    allthemods.create('triphenylsulfonium_triflate')
+        .dust()
+        .color(0xf2f0ea)
+        .formula('(C6H5)3S(CF3SO3)')
+
+    // KrF polymer: poly(4-hydroxystyrene), from phenol by the Hoechst Celanese route (acylation, hydrogenation,
+    // dehydration). Transparent at 248 nm, and its phenol groups carry the acid-labile protection.
+    allthemods.create('polyhydroxystyrene')
+        .dust()
+        .color(0xefe6d2)
+        .formula('(C8H8O)n')
+
+    // ArF monomer: aromatic rings absorb 193 nm, so ArF resists are built on methacrylates instead.
+    // Acetone cyanohydrin route: acetone + HCN, then sulfuric acid and methanol
+    allthemods.create('methyl_methacrylate')
+        .liquid()
+        .color(0xe4eef2)
+        .formula('C5H8O2')
+
+    // ArF polymer: a methacrylate copolymer with acid-labile ester side groups (real ones add adamantyl and lactone
+    // groups for etch resistance and adhesion)
+    allthemods.create('methacrylate_resin')
+        .dust()
+        .color(0xdfe8ea)
+        .formula('(C5H8O2)n')
+
+    // The standard resist solvent. C3H6 + H2O2 + CH3OH -> PGME + H2O (propylene oxide by the HPPO process)
+    allthemods.create('propylene_glycol_methyl_ether')
+        .liquid()
+        .color(0xe6f0ea)
+        .formula('C4H10O2')
+
+    // PGME + CH3COOH -> PGMEA + H2O
+    allthemods.create('propylene_glycol_methyl_ether_acetate')
+        .liquid()
+        .color(0xdcebe6)
+        .formula('C6H12O3')
+
+    // Polymer + PAG in PGMEA
+    allthemods.create('krf_photoresist')
+        .liquid()
+        .color(0xd9b45c)
+
+    allthemods.create('arf_photoresist')
+        .liquid()
+        .color(0xe6dcaa)
+
+    // ---- Immersion (LUV) ----
+    // 18 MOhm cm, degassed water: the film between the last lens and the wafer (n = 1.44 at 193 nm) lets the
+    // lens reach NA 1.35
+    allthemods.create('ultrapure_water')
+        .liquid()
+        .color(0x8cc4ff)
+        .formula('H2O')
 })
 
 StartupEvents.registry('item', allthemods => {
@@ -124,13 +208,15 @@ StartupEvents.registry('item', allthemods => {
 
 // One recipe type per exposure mode; GT turns them into the line's machine modes.
 // Must stay in sync with com.af9.core.litho.LithoMode in af9-core.
+// Fluid inputs: the five track chemicals, + excimer laser gas from HUV on, + ultrapure water (immersion) and hafnium
+// tetrachloride (high-k gate) in LUV.
 GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
-    ['muv', 'huv', 'euv', 'xuv', 'luv'].forEach(mode => {
+    const fluidInputs = { muv: 5, huv: 6, euv: 6, xuv: 6, luv: 8 }
+    Object.keys(fluidInputs).forEach(mode => {
         allthemods.create(`lithography_${mode}`)
             .category('multiblock')
             .setEUIO('in')
-            // LUV adds a sixth fluid: hafnium tetrachloride for the high-k gate dielectric
-            .setMaxIOSize(2, 1, mode === 'luv' ? 6 : 5, 0)
+            .setMaxIOSize(2, 1, fluidInputs[mode], 0)
             .setSlotOverlay(false, false, true, GuiTextures.LENS_OVERLAY)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.ELECTROLYZER)
@@ -146,7 +232,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         // LITHO_GATE: only starts a recipe when the two energy hatches can supply its EU/t; perfect overclocks above that
         .recipeModifiers([$PhotolithographyLineMachine.LITHO_GATE, GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(GTBlocks.CASING_STAINLESS_CLEAN)
-        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
             .map(i => Component.translatable(`af9.photolithography_line.tooltip.${i}`)))
         // 3 wide x 3 high x 20 long. Aisles run from the back (light source) to the front (controller);
         // each aisle lists its rows bottom -> middle -> top.

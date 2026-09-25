@@ -1247,6 +1247,8 @@
 			dependencies: [
 				"AD8FD756AA394586"
 				"0D573979B25FAC48"
+				"72569D77E20C8733"
+				"A9D8D2084CFA2A1F"
 			]
 			description: [
 				"{af9.quest.hv.huv.1}"
@@ -1301,6 +1303,72 @@
 			title: "{af9.quest.title.hvMetals}"
 			x: 6.5d
 			y: 4.0d
+		}
+		{
+			dependencies: ["AD8FD756AA394586"]
+			description: [
+				"{af9.quest.hv.excimer.1}"
+				""
+				"{af9.quest.hv.excimer.2}"
+			]
+			id: "72569D77E20C8733"
+			rewards: [{
+				id: "810A0E551D0C5412"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					amount: 50L
+					fluid: "gtceu:krypton"
+					id: "D2FE56CE0E4C39B7"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:krf_excimer_gas"
+					id: "8E5E7A691D47578C"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.title.excimer}"
+			x: 10.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["240C1BFF666269E2"]
+			description: [
+				"{af9.quest.hv.car.1}"
+				""
+				"{af9.quest.hv.car.2}"
+			]
+			id: "A9D8D2084CFA2A1F"
+			rewards: [{
+				id: "423AED6A17292238"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "5858D0994C7DFBAE"
+					item: "gtceu:triphenylsulfonium_triflate_dust"
+					type: "item"
+				}
+				{
+					id: "936AABB9F972A776"
+					item: "gtceu:polyhydroxystyrene_dust"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:krf_photoresist"
+					id: "40D78BE08A1554E8"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.title.car}"
+			x: 10.0d
+			y: 4.25d
 		}
 	]
 	title: "{atm9.chapters.29.title}"

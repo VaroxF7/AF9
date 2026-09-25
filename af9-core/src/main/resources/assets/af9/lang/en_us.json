@@ -13,6 +13,14 @@
     "af9.litho.substrate.phosphorus": "on Phosphorus",
     "af9.litho.substrate.naquadah": "on Naquadah",
     "af9.litho.substrate.neutronium": "on Neutronium",
+    "af9.litho.light.i_line": "i-line 365nm",
+    "af9.litho.light.krf": "KrF 248nm",
+    "af9.litho.light.arf": "ArF 193nm",
+    "af9.litho.light.arf_immersion": "ArFi 193nm",
+    "af9.litho.light.i_line.long": "mercury lamp i-line, 365 nm",
+    "af9.litho.light.krf.long": "KrF excimer laser, 248 nm",
+    "af9.litho.light.arf.long": "ArF excimer laser, 193 nm",
+    "af9.litho.light.arf_immersion.long": "ArF excimer laser in water immersion, 193 nm",
     "af9.litho.console.title": "PHOTOLITHOGRAPHY",
     "af9.litho.console.status.0": "OFFLINE",
     "af9.litho.console.status.1": "IDLE",
@@ -29,7 +37,10 @@
     "af9.litho.console.reset_tooltip": "Reset the printed-wafer counters",
     "af9.litho.console.tile_power": "Power: %s",
     "af9.litho.console.tile_substrate": "Prints %s wafers",
+    "af9.litho.console.tile_light": "Light: %s",
+    "af9.litho.console.tile_optics": "Lens NA %s, k1 %s",
+    "af9.litho.console.tile_resist": "Resist: %s",
     "af9.litho.tooltip.process": "Printed with %s",
     "af9.litho.tooltip.transistors": "Transistors per die: %s",
-    "af9.recipe.litho_node": "Node: %snm"
+    "af9.recipe.litho_node": "Node: %snm, %s"
 }

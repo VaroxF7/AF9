@@ -25,6 +25,8 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
+import java.util.Locale;
+
 /**
  * Controller logic for the Photolithography Line (structure and recipes are defined in KubeJS).
  * <p>
@@ -155,7 +157,14 @@ public class PhotolithographyLineMachine extends WorkableElectricMultiblockMachi
                     Component.translatable("af9.litho.console.tile_power",
                             Component.translatable("af9.litho.hatch." + mode.hatchTier)),
                     Component.translatable("af9.litho.console.tile_substrate",
-                            Component.translatable("af9.litho.substrate." + mode.substrate)));
+                            Component.translatable("af9.litho.substrate." + mode.substrate)),
+                    Component.translatable("af9.litho.console.tile_light",
+                            Component.translatable("af9.litho.light." + mode.light + ".long")),
+                    Component.translatable("af9.litho.console.tile_optics",
+                            String.format(Locale.ROOT, "%.2f", mode.numericalAperture),
+                            String.format(Locale.ROOT, "%.2f", mode.k1())),
+                    Component.translatable("af9.litho.console.tile_resist",
+                            Component.translatable("material.gtceu." + mode.resist)));
             group.addWidget(tile);
         }
         var reset = new ButtonWidget(LithoConsoleWidget.RESET_X, LithoConsoleWidget.RESET_Y, LithoConsoleWidget.RESET_W,
@@ -172,7 +181,7 @@ public class PhotolithographyLineMachine extends WorkableElectricMultiblockMachi
     // ********* Recipe viewer ********//
     //////////////////////////////////////
 
-    /** Adds the mode's node to its recipes in EMI/JEI, as one short line (the console shows the rest). */
+    /** Adds the mode's node and light source to its EMI/JEI recipes, as one short line (the console has the rest). */
     public static void registerRecipeInfo() {
         for (LithoMode mode : LithoMode.values()) {
             GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", mode.recipeTypeId()));
@@ -182,7 +191,8 @@ public class PhotolithographyLineMachine extends WorkableElectricMultiblockMachi
                 continue;
             }
             // rendered as a plain label, so the text must not contain '%'
-            type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node", mode.nodeNm).getString());
+            type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node", mode.nodeNm,
+                    Component.translatable("af9.litho.light." + mode.light)).getString());
         }
     }
 }

@@ -1,14 +1,14 @@
 ---
 title: "AF9 Semiconductor Factory — Agent-Optimized Spec: Wafers, Silicon, SoCs, Chips, Lithography"
 branch: "main"
-head_commit: "see git log (2026-09-24: all GT chip wafers in the line, substrates per mode, tier-tagged HV-LuV circuits, console UI; XCDA chain, electronics metallurgy + zircon ore, LUV high-k)"
+head_commit: "see git log (2026-09-25: real light source + resist per mode (i-line, KrF, ArF, ArF immersion), excimer gas + rare-gas recovery, chemically amplified resists, ultrapure immersion water; 2026-09-24: all GT chip wafers in the line, tier-tagged HV-LuV circuits, XCDA, zircon, LUV high-k)"
 minecraft: "1.20.1"
 forge: "47.4.0"
 gtceu: "7.2.0 (GregTech CEu Modern)"
 kubejs: "2001.6.5-build.16"
 af9_core: "0.1.0 (mod_id `af9`)"
 gtceu_config: "enableCleanroom=true, cleanMultiblocks=false, enableMaintenance=true, highTierContent=false, orderedAssemblyLineItems=true"
-status: "Matches main. Modes 4A own-tier MV to LuV + OC_PERFECT, each mode on its own substrate, all 16 GT chip wafers printed or derived in the line, HV-LuV circuits need tier-matched chips (HV/EV bootstraps one mode lower) and their tier's metals (§6.8), XCDA comes from a 5-step chemical-reactor chain (§6.5), LUV needs HfCl4 from the zircon chain. Older designs (Mk I-III modules, high_grade/premium items, silicon-only line, zeolite one-step XCDA) are superseded."
+status: "Matches main. Modes 4A own-tier MV to LuV + OC_PERFECT, each mode on its own substrate and with its real light source and resist (MUV mercury i-line + DNQ, HUV/EUV KrF + KrF CAR, XUV ArF + ArF CAR, LUV ArF immersion; §5.3), excimer modes burn laser gas (§6.5), all 16 GT chip wafers printed or derived in the line, HV-LuV circuits need tier-matched chips (HV/EV bootstraps one mode lower) and their tier's metals (§6.8), XCDA comes from a 5-step chemical-reactor chain (§6.5), LUV needs HfCl4 from the zircon chain. Older designs (Mk I-III modules, high_grade/premium items, silicon-only line, zeolite one-step XCDA, one DNQ resist for every mode) are superseded."
 agent_hint: "All exact IDs are in backticks. `gtceu:` = base GregTech item/machine/recipe-type. `kubejs:` = AF9 custom item. `af9:` = AF9 custom recipe ID (output namespace varies — see §6). NBT is load-bearing — use strongNBT."
 ---
 
@@ -35,7 +35,7 @@ See Appendix A for the full map. The numbers live in two places that must agree:
 
 ## 0.3 One-paragraph mental model
 
-Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: EBF boule → cutter blank wafer → Photolithography Line (reticle + 5 chemistries) → NBT wafer → cutter dies → circuit assembler. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock, dies-per-wafer scaling is the NBT math.
+Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: EBF boule → cutter blank wafer → Photolithography Line (reticle + 5 track chemistries + the mode's laser gas / immersion water / HfCl4) → NBT wafer → cutter dies → circuit assembler. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock, dies-per-wafer scaling is the NBT math. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion) and the resist chemistry made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate).
 
 ---
 
@@ -124,7 +124,12 @@ No Siemens unit in GTCEuM 1.20.1. AF9 does NOT simulate it — EBF boule recipe 
 | `HCl`, `H2`, `Ar`, `N2` | hydrochlorination, carrier, CZ blanket | `hydrochloric_acid`, `hydrogen`, `nitrogen` (used in HMDS chain), air |
 | `HF`, `HNO3`, `NH4OH`, `H2O2`, `KOH` | etch + RCA + CMP pH | abstracted into `distilled_water` rinse + `tmah_developer` (TMAH is KOH-analogue, metal-ion-free) |
 | HMDS `[(CH3)3Si]2NH` | adhesion promoter | `hexamethyldisilazane` → `hmds_vapor` |
-| Novolac `(C7H6O)n` + DNQ `C10H6N2O` in xylene | positive resist | `novolac_resin` + `diazonaphthoquinone_dust` → `photoresist` |
+| Novolac `(C7H6O)n` + DNQ `C10H6N2O` in xylene | i-line positive resist (g/i-line only, bleaches too weakly below ~300 nm) | `novolac_resin` + `diazonaphthoquinone_dust` → `photoresist` (i-line Photoresist) |
+| KrF CAR: poly(4-hydroxystyrene) (PHOST, partly protected) + PAG in PGMEA | 248 nm chemically amplified resist | `polyhydroxystyrene` + `triphenylsulfonium_triflate` + `propylene_glycol_methyl_ether_acetate` → `krf_photoresist` |
+| ArF CAR: methacrylate copolymer (acid-labile esters; no aromatics, they absorb 193 nm) + PAG in PGMEA | 193 nm chemically amplified resist | `methyl_methacrylate` → `methacrylate_resin` + PAG + PGMEA → `arf_photoresist` |
+| PAG triphenylsulfonium triflate `(C6H5)3S+ CF3SO3-` | photoacid generator (photon → triflic acid, PEB amplifies) | `trifluoromethanesulfonic_acid` → `triphenylsulfonium_triflate` |
+| Excimer premix: ~1 % Kr or Ar + ~0.1 % F2 in Ne | KrF / ArF laser gas | `krf_excimer_gas` / `arf_excimer_gas` (AF9: 5 % + 1 %, §6.5) |
+| Ultrapure water 18.2 MΩ·cm, degassed | immersion film (n = 1.44 at 193 nm) | `ultrapure_water` (LUV) |
 | TMAH `(CH3)4NOH` 2.38% / 0.26N | developer (K+/Na+-free) | `tmah_developer` |
 | CMP slurry colloidal `SiO2`/`CeO2` | planarization | `lubricant` (cutter) + `distilled_water` (rinse) |
 | Clean dry air: catalytic oxidizer (hopcalite / Pt) → CO2 scrubber → 13X molecular sieve → cryogenic cold box → membrane filter | purge | `oxidized_air` → `decarbonated_air` → `dry_air` → `cryogenic_supercooled_air` → `extreme_clean_dry_air` (§6.5) |
@@ -164,7 +169,7 @@ RCA clean + dehydration bake → thermal oxidation (pad/screen oxide, 900-1200C)
 - Developers: TMAH 0.26N (K+/Na+ forbidden — shifts Vt), NTD n-butyl acetate. Dark erosion ~10%.
 - Metrology: overlay ≤1/5 min pitch (7nm: ≤3.6nm, Box-in-Box/AIM/uDBO), CD by CD-SEM/scatterometry. Reworkable before etch.
 
-Minecraft map (AF9, one recipe = one full cycle): `hmds_vapor` prime → `photoresist` coat → soft bake (cupronickel coil) → UV expose (lamp + reticle + lens) → PEB → `tmah_developer` develop → `distilled_water` rinse → hard bake. All five fluids in one recipe, 900t fixed.
+Minecraft map (AF9, one recipe = one full cycle): `hmds_vapor` prime → resist coat (the mode's resist) → soft bake (cupronickel coil) → expose (light source + reticle + lens; excimer modes burn laser gas, LUV through `ultrapure_water`) → PEB (where a CAR's acid amplifies) → `tmah_developer` develop → `distilled_water` rinse → hard bake. All fluids in one recipe (5 for MUV, 6 for HUV-XUV, 8 for LUV), 900t fixed.
 
 ## 2.3 Pattern transfer — etch
 
@@ -209,7 +214,7 @@ Marketing density label, NOT gate length (decoupled since ~22nm; Intel 10nm ≈ 
 
 DUV multi-patterning (LELE overlay-risk, SADP/SAQP pitch-walk, 3-4 masks/layer, +30-40 steps) vs EUV single (replaces 3-4 DUV masks, -20-25% masks, stochastic/tip-to-tip/pellicle/source cost). Production = mix-and-match (EUV critical, DUVi rest). High-NA 0.55 needed <3nm single.
 
-AF9 nodes (350/250/200/100/50nm) are 1990s-2000s real nodes (350nm ≈ Pentium II era) — deliberately pre-EUV. Names MUV/HUV/EUV/XUV/LUV are AF9-internal (real EUV is 13.5nm, not 200nm — see pitfalls §10.5).
+AF9 nodes (350/250/200/100/50nm) are 1990s-2000s real nodes (350nm ≈ Pentium II era) — deliberately pre-EUV. Names MUV/HUV/EUV/XUV/LUV are AF9-internal (real EUV is 13.5nm, not 200nm — see §10). The light sources are the real ones for those nodes: 350 nm = mercury-lamp i-line steppers, 250 nm (1997) and 180-200 nm = KrF 248 nm (sub-wavelength from 180 nm, hence higher NA + OPC), 90-100 nm = ArF 193 nm dry, 45-50 nm = ArF immersion (NA 1.2-1.35). Rayleigh `CD = k1·λ/NA` keeps every AF9 mode at k1 ≥ 0.35 (single exposure limit 0.25).
 
 ---
 
@@ -332,11 +337,11 @@ Lens map (base, kept by AF9): red→ILC, green→RAM, light_blue→CPU, blue→U
 | Type XUV | `gtceu:lithography_xuv` | Lithography XUV (100 nm) |
 | Type LUV | `gtceu:lithography_luv` | Lithography LUV (50 nm) |
 
-Controller tooltip lines 0-11 (`kubejs/assets/gtceu/lang/en_us.json`, `af9.photolithography_line.tooltip.N`, short on purpose so the tooltip stays narrow): what it prints, the process chain, no-cleanroom, the five modes with substrates, scaling per mode, substrate yield, power rule, hatches, HV-LuV chip rule, perfect OC, LUV high-k (HfCl4).
+Controller tooltip lines 0-14 (`kubejs/assets/gtceu/lang/en_us.json`, `af9.photolithography_line.tooltip.N`, short on purpose so the tooltip stays narrow): what it prints, the process chain, no-cleanroom, the five modes with substrates, light source per mode (2 lines), laser gas + matching resist, scaling per mode, substrate yield, power rule, hatches, HV-LuV chip rule, perfect OC, LUV high-k (HfCl4).
 
-Java (AF9 Core, `af9-core/`): `PhotolithographyLineMachine` (`LITHO_GATE` power gate, console UI, mode switching, counters), `LithoConsoleWidget` (the console), `LithoRecipeLogic` (per-mode counters), `LithoMode` (numbers that must match KubeJS), `AF9Client` (texture predicate + tooltip), `AF9EmiPlugin` (wafer variants in EMI). Modifiers: `LITHO_GATE + OC_PERFECT`. Appearance `CASING_STAINLESS_CLEAN` + `gcym/large_engraving_laser` overlay.
+Java (AF9 Core, `af9-core/`): `PhotolithographyLineMachine` (`LITHO_GATE` power gate, console UI, mode switching, counters), `LithoConsoleWidget` (the console), `LithoRecipeLogic` (per-mode counters), `LithoMode` (numbers that must match KubeJS: node, tier, substrate, light, wavelength, NA, resist), `AF9Client` (texture predicate + tooltip), `AF9EmiPlugin` (wafer variants in EMI). Modifiers: `LITHO_GATE + OC_PERFECT`. Appearance `CASING_STAINLESS_CLEAN` + `gcym/large_engraving_laser` overlay.
 
-EMI recipe info per mode: one line, `Node: <nm>nm` (lang `af9.recipe.litho_node`). Substrate, scaling and hatches are on the controller console and tooltip, not in EMI.
+EMI recipe info per mode: one line, `Node: <nm>nm, <light>` e.g. `Node: 250nm, KrF 248nm` (lang `af9.recipe.litho_node` + `af9.litho.light.<light>`). Substrate, scaling, NA/k1 and hatches are on the controller console and tooltip, not in EMI.
 
 ## 5.2 Structure — 3×3×20, back (lamp) → front (controller)
 
@@ -363,17 +368,27 @@ Track:    CCC/CRC/CCC interface | CCC/CRC/CFC robot | CCC/CHC/CFC hard bake | CS
 | `xuv` | 100 | IV | 30720 | `neutronium_wafer` | x12.25 | x1.87 |
 | `luv` | 50 | LuV | 122880 | `neutronium_wafer` | x49 | x2.65 |
 
-Chemicals per printed-wafer recipe (mB):
+Exposure tool per mode: the light source the real node used, the lens NA and the matching resist (`light`, `wavelength`, `na`, `resist`, `laserGas`, `immersion`, `highK` in `AF9_LITHO.modes`; `light`, `wavelengthNm`, `numericalAperture`, `resist` in `LithoMode`). `k1 = node × NA / λ` (Rayleigh) is shown on the console tile tooltips.
 
-| Mode | `hmds_vapor` | `photoresist` | `tmah_developer` | `distilled_water` | `extreme_clean_dry_air` |
-|---|---|---|---|---|---|
-| muv | 40 | 100 | 200 | 1000 | 1000 |
-| huv | 60 | 150 | 300 | 1500 | 1500 |
-| euv | 90 | 225 | 450 | 2250 | 2250 |
-| xuv | 135 | 338 | 675 | 3375 | 3375 |
-| luv | 203 | 506 | 1013 | 5063 | 5063 |
+| Mode | Light (`light`) | λ nm | NA | k1 | Resist `gtceu:` | Laser gas `gtceu:` | Real counterpart |
+|---|---|---|---|---|---|---|---|
+| muv | mercury lamp i-line (`i_line`) | 365 | 0.60 | 0.58 | `photoresist` (DNQ-novolac) | — | 350 nm i-line stepper (1995) |
+| huv | KrF excimer laser (`krf`) | 248 | 0.60 | 0.60 | `krf_photoresist` | `krf_excimer_gas` | 250 nm, first KrF node (1997) |
+| euv | KrF excimer laser (`krf`) | 248 | 0.70 | 0.56 | `krf_photoresist` | `krf_excimer_gas` | 180 nm, sub-wavelength KrF + OPC |
+| xuv | ArF excimer laser (`arf`) | 193 | 0.85 | 0.44 | `arf_photoresist` | `arf_excimer_gas` | 90 nm dry ArF scanner |
+| luv | ArF + water immersion (`arf_immersion`) | 193 | 1.35 | 0.35 | `arf_photoresist` | `arf_excimer_gas` | 45 nm immersion scanner |
 
-LUV printed wafers take a sixth fluid, **100 mB `hafnium_tetrachloride`** (flat, not ×1.5): the HfO2 high-k gate dielectric grown by ALD, which real fabs introduced at 45 nm. `gtceu:lithography_luv` therefore has 6 fluid slots (`setMaxIOSize(2, 1, 6, 0)`), the other modes 5. Derived LUV wafers (nano/qbit CPU, HPIC, UHPIC) do not need it.
+Chemicals per printed-wafer recipe (mB). Track chemicals are `round(base × 1.5^index)`; the resist column is the mode's resist; laser gas is `round(10 × 1.5^index)`:
+
+| Mode | `hmds_vapor` | resist | `tmah_developer` | `distilled_water` | `extreme_clean_dry_air` | laser gas | `ultrapure_water` | `hafnium_tetrachloride` | fluid slots |
+|---|---|---|---|---|---|---|---|---|---|
+| muv | 40 | 100 `photoresist` | 200 | 1000 | 1000 | — | — | — | 5 |
+| huv | 60 | 150 `krf_photoresist` | 300 | 1500 | 1500 | 15 `krf_excimer_gas` | — | — | 6 |
+| euv | 90 | 225 `krf_photoresist` | 450 | 2250 | 2250 | 23 `krf_excimer_gas` | — | — | 6 |
+| xuv | 135 | 338 `arf_photoresist` | 675 | 3375 | 3375 | 34 `arf_excimer_gas` | — | — | 6 |
+| luv | 203 | 506 `arf_photoresist` | 1013 | 5063 | 5063 | 51 `arf_excimer_gas` | 1000 | 100 | 8 |
+
+LUV exposes through **1000 mB `ultrapure_water`** (the immersion film; flat) and grows **100 mB `hafnium_tetrachloride`** (flat, not ×1.5): the HfO2 high-k gate dielectric grown by ALD, which real fabs introduced at 45 nm. Fluid slots per recipe type (`setMaxIOSize(2, 1, n, 0)`, `fluidInputs` in the startup script): muv 5, huv/euv/xuv 6, luv 8. Derived wafers (nano/qbit CPU, HPIC, UHPIC) take only their own fluid, no resist, gas or water.
 
 ## 5.4 Items
 
@@ -384,7 +399,7 @@ LUV printed wafers take a sixth fluid, **100 mB `hafnium_tetrachloride`** (flat,
 | `kubejs:molecular_sieve` | Molecular Sieve 13X | XCDA dryer adsorbent, consumed per dry step; autoclave: 4 zeolite + clay + 500 mB distilled water → 4 |
 | `kubejs:saturated_molecular_sieve` | Saturated Molecular Sieve | output of the dry step; smelt (any furnace) → `molecular_sieve` |
 
-Materials (`gtceu:`, startup `photolithography.js`): `oxidized_air`, `decarbonated_air`, `dry_air` (gases), `cryogenic_supercooled_air` (gas, 95 K = cryogenic, needs cryo-proof pipes like liquid air), `extreme_clean_dry_air` (gas), `hopcalite` (dust, CuMn2O4), `trimethylchlorosilane`, `hexamethyldisilazane`, `hmds_vapor` (gas), `novolac_resin`, `diazonaphthoquinone` (dust), `photoresist`, `tetramethylammonium_chloride` (dust), `tmah_developer`. Metallurgy materials: §6.9.
+Materials (`gtceu:`, startup `photolithography.js`): `oxidized_air`, `decarbonated_air`, `dry_air` (gases), `cryogenic_supercooled_air` (gas, 95 K = cryogenic, needs cryo-proof pipes like liquid air), `extreme_clean_dry_air` (gas), `hopcalite` (dust, CuMn2O4), `trimethylchlorosilane`, `hexamethyldisilazane`, `hmds_vapor` (gas), `novolac_resin`, `diazonaphthoquinone` (dust), `photoresist` (display "i-line Photoresist"), `tetramethylammonium_chloride` (dust), `tmah_developer`; laser modes: `krf_excimer_gas`, `arf_excimer_gas` (gases), `trifluoromethanesulfonic_acid` ("Triflic Acid"), `triphenylsulfonium_triflate` (dust, the PAG), `polyhydroxystyrene` (dust), `methyl_methacrylate`, `methacrylate_resin` (dust), `propylene_glycol_methyl_ether`, `propylene_glycol_methyl_ether_acetate` ("PGMEA"), `krf_photoresist`, `arf_photoresist`, `ultrapure_water`. GT's own `neon`, `krypton`, `argon`, `fluorine`, `hydrogen_cyanide` are used as they are. Metallurgy materials: §6.9.
 
 ## 5.5 Chips — every GT chip wafer (source of truth: `AF9_LITHO` in `server_scripts/mods/gtceu/photolithography.js`)
 
@@ -470,9 +485,10 @@ Derived wafers (made in the line from a printed wafer of the same mode; exact-NB
 
 `PhotolithographyLineMachine#createUIWidget` replaces GT's text display with `LithoConsoleWidget` (190×125, GT's side tabs for power/mode/parts stay):
 - header: title, status word + LED (OFFLINE / IDLE / RUNNING / NO POWER / PAUSED / MAINTENANCE),
-- five clickable mode tiles (colour per mode, dimmed when the hatches can't power it; hover shows hatches + substrate),
+- five clickable mode tiles (colour per mode, dimmed when the hatches can't power it; hover shows hatches, substrate, light, NA/k1, resist),
 - POWER gauge (available vs needed EU/t), PROGRESS bar, TRACK of 8 stations lighting up with progress,
-- OUTPUT (node, density, dies, substrate), PRINTED counters per mode + RESET button.
+- OUTPUT (node, light source e.g. `KrF 248nm` / `ArFi 193nm`, density, dies, substrate), PRINTED counters per mode + RESET button.
+- mode tile tooltips: mode, power, substrate, light (long name), lens NA + k1, resist (its GT material name).
 State is sampled server-side each tick and synced only when it changes.
 
 # 6. Recipe chains
@@ -553,6 +569,50 @@ af9:regenerate_molecular_sieve (smelting) kubejs:saturated_molecular_sieve → k
 Throughput with one reactor per step: MV ≈ 1000 XCDA per 40 s (the expander is the bottleneck; MUV uses 1000 per 45 s
 print), HV ≈ 4000 per 10 s. Liquid air is GT's HV vacuum freezer recipe (4000 air → 4000 liquid air).
 
+### Excimer laser gas (HUV-LUV)
+
+The laser modes expose with an excimer laser: a discharge through rare gas + fluorine forms KrF* / ArF* dimers that flash deep-UV. The fluorine is slowly used up, so the line burns laser gas per print (`round(10 × 1.5^index)` mB, §5.3). GT only has neon from liquid nether air (EV) and krypton from liquid ender air (IV); HUV runs at HV, so AF9 adds the real source: rare-gas recovery at an air separation plant.
+
+```text
+af9:rare_gas_recovery (chemical_reactor) NC silicon_dioxide_dust (cold silica gel) + 10000 liquid_air → 80 neon + 5 krypton | 400t HV
+af9:krf_excimer_gas   (chemical_reactor) 940 neon + 50 krypton + 10 fluorine → 1000 krf_excimer_gas | 200t HV
+af9:arf_excimer_gas   (chemical_reactor) 940 neon + 50 argon   + 10 fluorine → 1000 arf_excimer_gas | 200t HV
+```
+
+Real air holds 16× more neon than krypton (18 vs 1.1 ppm), hence 80:5; the rest of the liquid air is spent, so the recovery can't be looped. Real premixes are ~1 % rare gas and ~0.1 % F2 in neon; AF9 uses 5 % / 1 % for sane mB numbers. Liquid air = GT's HV vacuum freezer recipe; argon = GT's HV liquid-air distillation; fluorine = electrolysis of fluorite. One HUV print (15 mB) needs ~14 mB neon and ~0.75 mB krypton.
+
+### Chemically amplified resists (HUV-LUV)
+
+DNQ-novolac only works for g/i-line. From 248 nm on, fabs use chemically amplified resists (CAR): a photoacid generator (PAG) releases acid, and in the post-exposure bake each acid deprotects hundreds of polymer groups. KrF resists use polyhydroxystyrene (PHOST); at 193 nm aromatic rings absorb too strongly, so ArF resists use methacrylates. All CAR is dissolved in PGMEA, the standard resist solvent.
+
+```text
+PAG
+af9:trifluoromethanesulfonic_acid (chemical_reactor) 1000 methane + 1000 sulfur_trioxide + 3000 hydrofluoric_acid → 1000 trifluoromethanesulfonic_acid + 3000 hydrogen | 400t HV
+                                  (CH4 + SO3 → CH3SO3H, Grillo; + 3 HF → CF3SO3H + 3 H2, Simons electrochemical fluorination)
+af9:triphenylsulfonium_triflate   (chemical_reactor) 3000 benzene + 1000 sulfur_dioxide + 1000 triflic acid → triphenylsulfonium_triflate_dust + 2000 water | 600t HV
+Solvent
+af9:propylene_glycol_methyl_ether         (chemical_reactor) NC zeolite_dust (TS-1 stand-in) + 1000 propene + 1000 hydrogen_peroxide + 1000 methanol → 1000 PGME + 1000 water | 300t MV   (HPPO propylene oxide + methanol)
+af9:propylene_glycol_methyl_ether_acetate (chemical_reactor) 1000 PGME + 1000 acetic_acid → 1000 PGMEA + 1000 water | 300t MV   (no H2SO4 catalyst: GT's ethenone recipe is sulfuric + acetic acid)
+KrF (HUV, EUV)
+af9:polyhydroxystyrene (chemical_reactor) 1000 phenol + 1000 acetic_acid + 2000 hydrogen → polyhydroxystyrene_dust + 2000 water | 400t HV   (Hoechst Celanese route: acylation → hydrogenation → dehydration → polymerization)
+af9:krf_photoresist    (mixer) polyhydroxystyrene_dust + small_triphenylsulfonium_triflate_dust + 3000 PGMEA → 4000 krf_photoresist | 400t HV
+ArF (XUV, LUV)
+af9:hydrogen_cyanide    (chemical_reactor) NC platinum_dust + 1000 methane + 1000 ammonia + 3000 oxygen → 1000 hydrogen_cyanide + 3000 water | 200t EV   (Andrussow)
+af9:methyl_methacrylate (chemical_reactor) 1000 acetone + 1000 hydrogen_cyanide + 1000 methanol → 1000 methyl_methacrylate + 1000 ammonia | 400t EV   (acetone cyanohydrin route, acid step left out)
+af9:methacrylate_resin  (chemical_reactor) 1000 methyl_methacrylate + 50 hydrogen_peroxide → methacrylate_resin_dust + 50 water | 300t EV
+af9:arf_photoresist     (mixer) methacrylate_resin_dust + small_triphenylsulfonium_triflate_dust + 3000 PGMEA → 4000 arf_photoresist | 400t EV
+```
+
+Subset clashes checked against GT's chemical reactor recipes (GT picks any recipe whose inputs are present): no AF9 recipe here contains all inputs of a GT recipe without a circuit. That is why MMA does not use the Alpha process (ethylene + CO + methanol contains GT's circuit-less `acetic_acid_from_methanol`) and PGMEA has no sulfuric acid.
+
+### Ultrapure water (LUV immersion)
+
+```text
+af9:ultrapure_water (chemical_reactor) NC gtceu:fluid_filter + 4000 distilled_water → 4000 ultrapure_water | 200t EV
+```
+
+Stands in for mixed-bed polishing, UV oxidation and membrane degassing. The film between the last lens element and the wafer (n = 1.44 at 193 nm) is what lets the LUV lens reach NA 1.35.
+
 ### Resist, HMDS and developer (unchanged)
 
 ```text
@@ -571,11 +631,14 @@ af9:tmah_developer (chemical_reactor) tetramethylammonium_chloride_dust + 3x pot
 Recipe IDs `af9:<chip>_wafer_<mode>` on `gtceu:lithography_<mode>`, for every printed chip in every mode from its first mode on (63 recipes incl. derived):
 
 ```text
+af9:ram_wafer_muv (gtceu:lithography_muv)
+  gtceu:silicon_wafer + NC kubejs:ram_reticle + 40 hmds_vapor + 100 photoresist + 200 tmah_developer + 1000 distilled_water + 1000 extreme_clean_dry_air
+  → gtceu:ram_wafer{AF9Litho:{Node:350,Transistors:16000000}} | 900t | 480 EU/t (4A MV)
 af9:ram_wafer_huv (gtceu:lithography_huv)
-  gtceu:phosphorus_wafer + NC kubejs:ram_reticle + 60 hmds_vapor + 150 photoresist + 300 tmah_developer + 1500 distilled_water + 1500 extreme_clean_dry_air
+  gtceu:phosphorus_wafer + NC kubejs:ram_reticle + 60 hmds_vapor + 150 krf_photoresist + 300 tmah_developer + 1500 distilled_water + 1500 extreme_clean_dry_air + 15 krf_excimer_gas
   → 4x gtceu:ram_wafer{AF9Litho:{Node:250,Transistors:31360000}} | 900t | 1920 EU/t (4A HV)
 af9:ram_wafer_luv (gtceu:lithography_luv)
-  gtceu:neutronium_wafer + NC kubejs:ram_reticle + 203 hmds_vapor + 506 photoresist + 1013 tmah_developer + 5063 distilled_water + 5063 extreme_clean_dry_air + 100 hafnium_tetrachloride
+  gtceu:neutronium_wafer + NC kubejs:ram_reticle + 203 hmds_vapor + 506 arf_photoresist + 1013 tmah_developer + 5063 distilled_water + 5063 extreme_clean_dry_air + 51 arf_excimer_gas + 1000 ultrapure_water + 100 hafnium_tetrachloride
   → 16x gtceu:ram_wafer{AF9Litho:{Node:50,Transistors:784000000}} | 900t | 122880 EU/t (4A LuV)
 af9:nano_cpu_wafer_euv (gtceu:lithography_euv)
   gtceu:cpu_wafer{AF9Litho:{Node:200,Transistors:16843750}} (exact) + 16x carbon_fibers + 576 glowstone
@@ -650,15 +713,15 @@ MgCl2 goes back to Mg + Cl2 in GT's electrolyzer. Real zircon holds ~2 % hafnium
 
 ## 6.10 Quests (FTB Quests)
 
-Changed chapters (`config/ftbquests/quests/chapters/`): `medium_voltage`, `high_voltage`, `extreme_voltage`, `insane_voltage`, `ludicrous_voltage`, `zero_point_module`, `ultra_high_voltage`, `circuits`. Text lives in `kubejs/assets/kubejs/lang/en_us.json` under `af9.quest.*` (73 keys). Changed quests point at these new keys, so other languages fall back to the new English text instead of the old laser-engraving text.
+Changed chapters (`config/ftbquests/quests/chapters/`): `medium_voltage`, `high_voltage`, `extreme_voltage`, `insane_voltage`, `ludicrous_voltage`, `zero_point_module`, `ultra_high_voltage`, `circuits`. Text lives in `kubejs/assets/kubejs/lang/en_us.json` under `af9.quest.*` (84 keys). Changed quests point at these new keys, so other languages fall back to the new English text instead of the old laser-engraving text.
 
 | Chapter | New quests (ID) | Changed quests |
 |---|---|---|
 | MV | Photolithography Line `AD8FD756AA394586`, Lithography Chemistry `240C1BFF666269E2` (fluid tasks), Reticles `412010740F2B823B`, Extreme Clean Dry Air `F01C688974686C8E`, MV Circuit Metals `5CF8D8E0B8E0D908` | MV Laser Engraver (reticles + ULPIC bootstrap), ILC/RAM wafer (line + reticle deps), ULPIC wafer (bootstrap), Advanced Integrated Circuit (HV bootstrap) |
-| HV | HUV Lithography `F5459779599BE107` (NBT task: HUV RAM wafer), HV Circuit Metals `51D7534BBA00287A` | CPU chip (+ CPU reticle task), Simple SoC wafer (+ reticle task), Microprocessor, Processor Assembly, Workstation |
+| HV | HUV Lithography `F5459779599BE107` (NBT task: HUV RAM wafer; needs the two below), Excimer Lasers `72569D77E20C8733` (krypton + KrF gas), Chemically Amplified Resist `A9D8D2084CFA2A1F` (PAG + PHOST + KrF resist), HV Circuit Metals `51D7534BBA00287A` | CPU chip (+ CPU reticle task), Simple SoC wafer (+ reticle task), Microprocessor, Processor Assembly, Workstation |
 | EV | EUV Lithography `418DC14B94C9272A`, EV Circuit Metals `2EC82E995F48F0D6` | LPIC (+ reticle task), HV Energy Hatch, Workstation |
-| IV | XUV Lithography `46CAB00FF64D12DE`, IV Circuit Metals `30C5810673F9AFE6` | SoC / PIC / NOR / NAND (lens or engraver task → reticle), HPIC, Nano CPU wafer, phosphorus wafers, IV Energy Hatch (EV 16A path), IV mainframe, Nanoprocessor |
-| LuV | Zircon and Hafnium `84516B9D84575F62` (fluid task HfCl4), LUV Lithography `106D52BD58E747F8` | Qubit wafers, LuV Energy Hatch (IV 16A path), Large Engraving Laser, Nano Mainframe, Quantum Computer |
+| IV | XUV Lithography `46CAB00FF64D12DE` (needs ArF chemistry), ArF Lithography Chemistry `1DB07C3B15CDDAAC` (ArF gas + methacrylate resin + ArF resist), IV Circuit Metals `30C5810673F9AFE6` | SoC / PIC / NOR / NAND (lens or engraver task → reticle), HPIC, Nano CPU wafer, phosphorus wafers, IV Energy Hatch (EV 16A path), IV mainframe, Nanoprocessor |
+| LuV | Zircon and Hafnium `84516B9D84575F62` (fluid task HfCl4), Immersion Lithography `C786A524FDA78C1A` (fluid task ultrapure water), LUV Lithography `106D52BD58E747F8` (needs both) | Qubit wafers, LuV Energy Hatch (IV 16A path), Large Engraving Laser, Nano Mainframe, Quantum Computer |
 | ZPM / UHV / Circuits | — | UHPIC wafer, naquadah boule, HASoC (lens → reticle task), circuits page intro |
 
 Mode quests use exact-NBT item tasks (`match_nbt: true`, e.g. `{AF9Litho:{Node:250,Transistors:31360000}}` on `gtceu:ram_wafer`). New quests reward 100 XP. IDs were generated unique across all quest files; positions were checked for overlap. The repo's `circuits.snbt` / `high_voltage.snbt` also carry the newer ATM9 instance's two small fixes (Wetware Mainframe row position, a normalized tool tag).
@@ -669,7 +732,7 @@ Mode quests use exact-NBT item tasks (`match_nbt: true`, e.g. `{AF9Litho:{Node:2
 
 ```text
 [EBF] dusts → silicon / phosphorus / naquadah / neutronium boule → [CUTTER] → blank substrate wafers
-  → [PHOTOLITHOGRAPHY_LINE, mode = substrate, + reticle + 5 fluids] → printed wafer {AF9Litho}
+  → [PHOTOLITHOGRAPHY_LINE, mode = substrate + light, + reticle + track fluids (+ mode's resist, laser gas, UPW, HfCl4)] → printed wafer {AF9Litho}
      → [LINE, same mode: + carbon fibres / quantum eye / IGP …] → derived wafer (nano/qbit CPU, HPIC, UHPIC) {AF9Litho}
      → [CUTTER, exact NBT] → chips {AF9Litho}
         → [CIRCUIT_ASSEMBLER] MV and lower: any chip | HV-LuV: chip of the tier's mode (exact NBT)
@@ -678,7 +741,12 @@ Mode quests use exact-NBT item tasks (`match_nbt: true`, e.g. `{AF9Litho:{Node:2
 Side chains: air → [CR hopcalite/Pt] → [CR lime/NaOH] → [CR molecular sieve] → [CR expander / liquid air] → [CR filter] → XCDA;
              zircon ore → [EBF] zirconia → [EBF +C +Cl2] crude ZrCl4 → [DT] ZrCl4 + HfCl4 (→ LUV) → [EBF Kroll +Mg] Zr → [EBF] ingot;
              DMDCS+CH3Cl+Mg → TMCS → +NH3 → HMDS → +N2 → hmds_vapor;
-             phenol+CH2O → novolac, naphthalene+HNO3+NH3 → DNQ, +xylene → photoresist;
+             phenol+CH2O → novolac, naphthalene+HNO3+NH3 → DNQ, +xylene → photoresist (i-line, MUV);
+             liquid air → [CR silica] neon + krypton → [CR +Kr/Ar +F2] KrF / ArF excimer gas (HUV-LUV);
+             CH4+SO3+HF → triflic acid → +benzene+SO2 → PAG; propene+H2O2+MeOH → PGME → +AcOH → PGMEA;
+             phenol+AcOH+H2 → PHOST → +PAG+PGMEA → KrF resist (HUV, EUV);
+             CH4+NH3+O2 → HCN → +acetone+MeOH → MMA → +H2O2 → methacrylate resin → +PAG+PGMEA → ArF resist (XUV, LUV);
+             distilled water → [CR fluid filter] ultrapure water (LUV immersion);
              dimethylamine+CH3Cl → TMACl → +KOH+DW → tmah_developer;
              quartzite+chromium+resist → photomask blank → laser + lens → reticle
 ```
@@ -707,20 +775,25 @@ Side chains: air → [CR hopcalite/Pt] → [CR lime/NaOH] → [CR molecular siev
 4. Quests are updated (§6.10); non-English quest languages show the new English text for changed quests until translated.
 5. Hafnium metal: only HfCl4 is used (LUV high-k); `GTMaterials.Hafnium` still has no items. Zirconium ingots have no use yet.
 6. The repo still lacks other parts of the newer ATM9 release the test instance runs (only the 4 KubeJS scripts were synced).
+7. Masks: one binary chrome reticle per chip serves every mode. Real sub-wavelength modes (EUV 200 nm with KrF, XUV, LUV) need phase-shift masks with OPC; a PSM reticle tier (MoSi on quartz) would be the next realism step.
+8. BARC/topcoat coats, multi-patterning and real 13.5 nm EUV (tin-plasma source, reflective optics) are not modelled; LUV at k1 0.35 is still single exposure.
 
 ---
 
 # 10. Agent validation checklist
 
 - [ ] IDs: controller `gtceu:photolithography_line`; recipe types `gtceu:lithography_<mode>`; recipe IDs `af9:*`. Chip IDs per §5.5 traps.
-- [ ] Numbers come from `AF9_LITHO` (KubeJS) and `LithoMode` (Java) — change both together. Transistor base × 49 must stay < 2,147,483,647.
+- [ ] Numbers come from `AF9_LITHO` (KubeJS) and `LithoMode` (Java) — change both together (node, tier, substrate, light, wavelength, NA, resist). Transistor base × 49 must stay < 2,147,483,647.
+- [ ] Light/resist: MUV i-line + `photoresist`, HUV/EUV KrF + `krf_photoresist` + `krf_excimer_gas`, XUV ArF + `arf_photoresist` + `arf_excimer_gas`, LUV the same + `ultrapure_water` + `hafnium_tetrachloride`; fluid slots 5/6/6/6/8 (`fluidInputs` in the startup script).
+- [ ] Chemical reactor / mixer recipes: no AF9 recipe may hold every input of a circuit-less GT recipe of the same type (e.g. GT ethenone = sulfuric + acetic acid, acetic acid = CO + methanol); give both circuits or change the route.
+- [ ] Tier check for consumables: HUV chemistry must be makeable with HV machines (rare-gas recovery exists because GT's neon is EV, krypton IV).
 - [ ] Printed wafers: substrate per mode, GT yields (1/4/8/16 silicon class, 1/4/8 phosphorus class, ASoC 1/2, HASoC 1), 900t, `VA[tier]×4`, chemicals `round(base×1.5^i)`.
 - [ ] Derived wafers: exact-NBT input of the same mode, only from their first mode on.
 - [ ] Cutter: `strongNBT` input, plain variant kept, ≤64 per stack, GT fluid formulas with clamps, cleanroom per table.
 - [ ] Circuits: MV and lower untouched by tags; HV-LuV use `AF9_LITHO.tagged(chip, mode, n)` with `max(tier mode, chip first mode)`; bootstraps (HV Advanced IC = MUV, EV Workstation = HUV) stay one mode lower.
 - [ ] Metals: a tier's circuits only use that tier's metals (Circuits quest page), each makeable with the previous tier's machines (mixer/EBF voltage one tier lower; two hatches give +1 tier on an EBF).
 - [ ] Bootstrap check for any change: a tier-T circuit, energy hatch or the line must never need something only tier-T machines make.
-- [ ] Dry run: load the four AF9 server scripts plus `circuits_for_atm.js` with stubs and check no duplicate IDs, every tagged ingredient has a producer, every recipe within its machine's slots (items in incl. circuits/NC, items out, fluids in/out; LUV 6 fluids), EBF recipes have a temperature, ≤64 per stack.
+- [ ] Dry run: load the four AF9 server scripts plus `circuits_for_atm.js` with stubs and check no duplicate IDs, every tagged ingredient has a producer, every AF9 fluid/dust used has a producer, every recipe within its machine's slots (items in incl. NC, items out, fluids in incl. NC/out; LUV 8 fluids), EBF recipes have a temperature, ≤64 per stack.
 - [ ] New mixer alloys: circuit number must not collide with a GT mixer recipe whose inputs are a subset (invar, cupronickel use circuit 1).
 - [ ] New materials need a `material.gtceu.<id>` line in `kubejs/assets/gtceu/lang/en_us.json`; new KubeJS items need a texture in `kubejs/assets/kubejs/textures/item/`.
 - [ ] Energy hatches exactly 2, `LITHO_GATE + OC_PERFECT`; no cleanroom for the line itself.
@@ -732,22 +805,22 @@ Side chains: air → [CR hopcalite/Pt] → [CR lime/NaOH] → [CR molecular siev
 
 ```text
 af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; build: gradlew build, jar → mods/)
-  litho/LithoMode.java                 # 5 modes, substrates, colours, WAFERS/CHIPS lists, NBT tag names
+  litho/LithoMode.java                 # 5 modes, substrates, light sources (λ, NA, k1), resists, colours, WAFERS/CHIPS lists, NBT tag names
   machine/PhotolithographyLineMachine  # LITHO_GATE, console UI, mode switching, counters, EMI info
   machine/LithoConsoleWidget           # the console (drawing + server→client sync)
   machine/LithoRecipeLogic             # per-mode counters
   client/AF9Client                     # af9:litho_mode predicate + wafer/chip tooltip
   compat/emi/AF9EmiPlugin              # each mode's wafer as its own EMI entry
-kubejs/startup_scripts/gtceu/photolithography.js  # litho + XCDA materials, reticles, sieves, 5 recipe types, structure, tooltips
+kubejs/startup_scripts/gtceu/photolithography.js  # litho, XCDA, excimer gas, CAR resist + UPW materials, reticles, sieves, 5 recipe types (fluid slots), structure, tooltips
 kubejs/startup_scripts/gtceu/electronics_metallurgy.js # tier alloys (Al-Si, Kovar, Pt-Ir), zircon/zirconia/chlorides, zirconium properties
-kubejs/server_scripts/mods/gtceu/photolithography.js # AF9_LITHO table + all line/cutter/XCDA/chemistry recipes + removals
+kubejs/server_scripts/mods/gtceu/photolithography.js # AF9_LITHO table (incl. light/resist/laserGas) + all line/cutter/XCDA/excimer/resist/UPW recipes + removals
 kubejs/server_scripts/mods/gtceu/electronics_metallurgy.js # alloy mixers, zircon chain, zircon sands ore vein
 kubejs/server_scripts/mods/gtceu/mv_circuits.js     # MV circuits without transistors/diodes (Al-Si wire, Kovar pins)
 kubejs/server_scripts/mods/gtceu/tiered_circuits.js # HV-LuV circuits: tier-matched chips + tier metals, HV/EV bootstraps
 kubejs/server_scripts/circuits_for_atm.js          # newer ATM9 (synced from the instance): LuV Nano Mainframe on the Assembly Line + LUV RAM (AF9)
 kubejs/server_scripts/ore_syn_recipes.js, updates_ig.js, kubejs/startup_scripts/ore_syn.js  # newer ATM9, synced unchanged
 config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in kubejs/assets/kubejs/lang/en_us.json (af9.quest.*)
-kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type names, tooltips 0-11, AF9 material names
+kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type names, tooltips 0-14, AF9 material names
 kubejs/assets/kubejs/textures/item/                 # photomask blank, 12 reticles, molecular sieve (+ saturated)
 kubejs/assets/gtceu/models/item/*.json              # 32 predicate overrides (16 wafers + 16 chips)
 kubejs/assets/af9/models|textures/item/litho/*      # 160 per-mode models/textures

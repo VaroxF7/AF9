@@ -5,8 +5,8 @@ Machines, materials and recipes stay in `../kubejs`; KubeJS plugs the Java class
 
 | Class | Used by | Does |
 |---|---|---|
-| `litho/LithoMode` | everything below | The five UV modes (MUV 350 nm ... LUV 50 nm): power, density and die factors. Must match the KubeJS recipes |
-| `machine/PhotolithographyLineMachine` | `kubejs/startup_scripts/gtceu/photolithography.js` | Power recipe gate `LITHO_GATE`, controller UI with mode buttons, saved statistics, EMI recipe info |
+| `litho/LithoMode` | everything below | The five UV modes (MUV 350 nm ... LUV 50 nm): power, density and die factors, light source (i-line, KrF, ArF, ArF immersion) with wavelength, NA and resist. Must match the KubeJS recipes |
+| `machine/PhotolithographyLineMachine` | `kubejs/startup_scripts/gtceu/photolithography.js` | Power recipe gate `LITHO_GATE`, controller UI with mode buttons (tooltips: light, NA/k1, resist), saved statistics, EMI recipe info (node + light) |
 | `machine/LithoRecipeLogic` | the machine above | Counts finished wafers per mode |
 | `client/AF9Client` | wafers and chips | `af9:litho_mode` model predicate (per-mode textures in `kubejs/assets`) and the node/transistor tooltip |
 
