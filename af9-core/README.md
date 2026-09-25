@@ -16,6 +16,16 @@ Machines, materials and recipes stay in `../kubejs`; KubeJS plugs the Java class
 | `machine/fab/FabTieredMachine` | the SMC single blocks (MV-LuV) | GT's slot page with a console strip above it, furnace temperature per tier, changeover purge |
 | `machine/fab/FabConsoleWidget` | both fab machine classes | The fab console (status, modes, power, progress with purge share, clean class, parallels, heat, process steps) |
 
+## Get it without building
+
+GitHub Actions (`.github/workflows/build-af9-core.yml`) builds the mod on every push that changes `af9-core/`,
+`kubejs/`, `config/` or `defaultconfigs/`. On GitHub: **Actions → Build AF9 Core → the latest run → Artifacts**:
+
+- **AF9-update**: `mods/af9-core-<version>.jar` + `kubejs/`, `config/`, `defaultconfigs/` of that commit. Extract it
+  into the instance folder (the one that contains `mods/`) and let it overwrite. Delete an older `af9-core-*.jar` in
+  `mods/` if its version differs.
+- **af9-core**: just the jar.
+
 ## Build
 
 Needs JDK 17 (Temurin 17 is installed).

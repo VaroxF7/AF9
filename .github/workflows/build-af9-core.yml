@@ -1,14 +1,16 @@
 name: Build AF9 Core
 
-# Builds the AF9 Core mod (af9-core/) and uploads the jar as the "af9-core" artifact of the run.
+# 1. build:   builds the AF9 Core mod (af9-core/), artifact "af9-core"
+# 2. package: artifact "AF9-update": mods/af9-core-*.jar + kubejs/, config/, defaultconfigs/ from this commit.
+#             Extract it into the instance folder (next to mods/) and let it overwrite.
 on:
   push:
     paths:
       - 'af9-core/**'
+      - 'kubejs/**'
+      - 'config/**'
+      - 'defaultconfigs/**'
       - '.github/workflows/build-af9-core.yml'
-  pull_request:
-    paths:
-      - 'af9-core/**'
   workflow_dispatch:
 
 permissions:
@@ -39,4 +41,27 @@ jobs:
         with:
           name: af9-core
           path: af9-core/build/libs/*.jar
+          if-no-files-found: error
+
+  package:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: af9-core
+          path: jar
+
+      - name: Assemble the instance update
+        run: |
+          mkdir -p update/mods
+          cp "$(ls jar/*.jar | grep -vE -- '-(sources|dev|slim)\.jar$' | head -1)" update/mods/
+          cp -r kubejs config defaultconfigs update/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: AF9-update
+          path: update/
           if-no-files-found: error
