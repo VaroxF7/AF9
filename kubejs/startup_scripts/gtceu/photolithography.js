@@ -6,6 +6,7 @@
 //   HUV, EUV  KrF excimer laser 248 nm               chemically amplified PHOST resist
 //   XUV       ArF excimer laser 193 nm               chemically amplified methacrylate resist
 //   LUV       ArF immersion (water film under lens)  same as XUV
+// The resists, laser gases and immersion water come from the fab chemistry chains (fab_chemistry.js).
 // Replaces direct laser engraving of chip wafers. Recipes live in server_scripts/mods/gtceu/photolithography.js
 // The controller's behaviour (power gate, UI buttons, statistics, wafer tooltips/textures) comes from AF9 Core (af9-core/).
 
@@ -85,90 +86,11 @@ GTCEuStartupEvents.registry('gtceu:material', allthemods => {
         .color(0xf5f5f0)
         .formula('(CH3)4NCl')
 
-    // (CH3)4NCl + KOH -> (CH3)4NOH + KCl, diluted to the industry standard 2.38 %
+    // Electrolysed out of the chloride (membrane cell), diluted to the industry standard 2.38 %
     allthemods.create('tmah_developer')
         .liquid()
         .color(0xcfe8f0)
         .formula('(CH3)4NOH(H2O)')
-
-    // ---- Excimer laser gas (HUV to LUV) ----
-    // Premixes as fabs buy them: about 1 % rare gas and 0.1 % fluorine in a neon buffer. The laser's discharge slowly
-    // uses up the fluorine, so the gas is topped up while it runs.
-    allthemods.create('krf_excimer_gas')
-        .gas()
-        .color(0xd6c8f2)
-        .formula('(Ne)(Kr)(F2)')
-
-    allthemods.create('arf_excimer_gas')
-        .gas()
-        .color(0xc6d8f2)
-        .formula('(Ne)(Ar)(F2)')
-
-    // ---- Chemically amplified resists (KrF and ArF) ----
-    // DNQ-novolac stops working below ~300 nm (novolac turns opaque, DNQ barely bleaches), so deep-UV resists work
-    // differently: light frees an acid from a photoacid generator (PAG), and in the post-exposure bake each acid
-    // unblocks hundreds of polymer groups.
-    // CH4 + SO3 -> CH3SO3H (Grillo process), then Simons electrochemical fluorination with HF
-    allthemods.create('trifluoromethanesulfonic_acid')
-        .liquid()
-        .color(0xe9edf0)
-        .formula('CF3SO3H')
-
-    // The PAG: a sulfonium salt that releases triflic acid when a photon hits it
-    allthemods.create('triphenylsulfonium_triflate')
-        .dust()
-        .color(0xf2f0ea)
-        .formula('(C6H5)3S(CF3SO3)')
-
-    // KrF polymer: poly(4-hydroxystyrene), from phenol by the Hoechst Celanese route (acylation, hydrogenation,
-    // dehydration). Transparent at 248 nm, and its phenol groups carry the acid-labile protection.
-    allthemods.create('polyhydroxystyrene')
-        .dust()
-        .color(0xefe6d2)
-        .formula('(C8H8O)n')
-
-    // ArF monomer: aromatic rings absorb 193 nm, so ArF resists are built on methacrylates instead.
-    // Acetone cyanohydrin route: acetone + HCN, then sulfuric acid and methanol
-    allthemods.create('methyl_methacrylate')
-        .liquid()
-        .color(0xe4eef2)
-        .formula('C5H8O2')
-
-    // ArF polymer: a methacrylate copolymer with acid-labile ester side groups (real ones add adamantyl and lactone
-    // groups for etch resistance and adhesion)
-    allthemods.create('methacrylate_resin')
-        .dust()
-        .color(0xdfe8ea)
-        .formula('(C5H8O2)n')
-
-    // The standard resist solvent. C3H6 + H2O2 + CH3OH -> PGME + H2O (propylene oxide by the HPPO process)
-    allthemods.create('propylene_glycol_methyl_ether')
-        .liquid()
-        .color(0xe6f0ea)
-        .formula('C4H10O2')
-
-    // PGME + CH3COOH -> PGMEA + H2O
-    allthemods.create('propylene_glycol_methyl_ether_acetate')
-        .liquid()
-        .color(0xdcebe6)
-        .formula('C6H12O3')
-
-    // Polymer + PAG in PGMEA
-    allthemods.create('krf_photoresist')
-        .liquid()
-        .color(0xd9b45c)
-
-    allthemods.create('arf_photoresist')
-        .liquid()
-        .color(0xe6dcaa)
-
-    // ---- Immersion (LUV) ----
-    // 18 MOhm cm, degassed water: the film between the last lens and the wafer (n = 1.44 at 193 nm) lets the
-    // lens reach NA 1.35
-    allthemods.create('ultrapure_water')
-        .liquid()
-        .color(0x8cc4ff)
-        .formula('H2O')
 })
 
 StartupEvents.registry('item', allthemods => {

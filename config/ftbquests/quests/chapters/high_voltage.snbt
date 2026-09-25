@@ -1305,7 +1305,11 @@
 			y: 4.0d
 		}
 		{
-			dependencies: ["AD8FD756AA394586"]
+			dependencies: [
+				"AD8FD756AA394586"
+				"75865FF47260C1E7"
+				"885201A0FC63A534"
+			]
 			description: [
 				"{af9.quest.hv.excimer.1}"
 				""
@@ -1336,7 +1340,11 @@
 			y: 3.0d
 		}
 		{
-			dependencies: ["240C1BFF666269E2"]
+			dependencies: [
+				"240C1BFF666269E2"
+				"885201A0FC63A534"
+				"9EF2C24FF660CA97"
+			]
 			description: [
 				"{af9.quest.hv.car.1}"
 				""
@@ -1356,7 +1364,7 @@
 				}
 				{
 					id: "936AABB9F972A776"
-					item: "gtceu:polyhydroxystyrene_dust"
+					item: "gtceu:tboc_polyhydroxystyrene_dust"
 					type: "item"
 				}
 				{
@@ -1369,6 +1377,73 @@
 			title: "{af9.quest.title.car}"
 			x: 10.0d
 			y: 4.25d
+		}
+		{
+			dependencies: ["97A469B25693E8F2"]
+			description: [
+				"{af9.quest.hv.fluorine.1}"
+				""
+				"{af9.quest.hv.fluorine.2}"
+			]
+			id: "885201A0FC63A534"
+			rewards: [{
+				id: "7F0748EE19E92A19"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:fluorine"
+					id: "E7019A0236E42F42"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:trifluoromethanesulfonic_acid"
+					id: "7B8AE97C5FF27140"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.title.fluorine}"
+			x: 11.5d
+			y: 4.0d
+		}
+		{
+			dependencies: ["240C1BFF666269E2"]
+			description: [
+				"{af9.quest.hv.blocks.1}"
+				""
+				"{af9.quest.hv.blocks.2}"
+			]
+			id: "9EF2C24FF660CA97"
+			rewards: [{
+				id: "25A37BB3F65E33B4"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "ED80770A61B55A4A"
+					item: "gtceu:azobisisobutyronitrile_dust"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:propylene_glycol_methyl_ether_acetate"
+					id: "3F5A4A098CF7D723"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:tributylamine"
+					id: "1F782A26D56BD9B4"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.title.blocks}"
+			x: 11.0d
+			y: 5.5d
 		}
 	]
 	title: "{atm9.chapters.29.title}"

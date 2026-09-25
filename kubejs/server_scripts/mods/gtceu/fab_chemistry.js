@@ -1,0 +1,769 @@
+// AF9 - Fab chemistry recipes (materials: startup_scripts/gtceu/fab_chemistry.js)
+// Real industrial routes, one machine step per real unit operation. Spec: docs/semiconductor-factory.md §6.11-6.15
+//
+// Tiers follow what a player can build at that point: the MV chains (silicon, HF, argon) only use single blocks, the
+// EBF and GT's automatic distillery copies of Distillation Tower recipes, because the tower, the Vacuum Freezer and
+// the Large Chemical Reactor need circuits the Photolithography Line has to print first.
+// Recipes were checked against every GT 7.2.0 recipe of the same machine: none holds all inputs of a circuit-less GT
+// recipe (GT would pick that one instead).
+
+ServerEvents.recipes(allthemods => {
+    const VA = GTValues.VA
+    const LV = VA[GTValues.LV], MV = VA[GTValues.MV], HV = VA[GTValues.HV], EV = VA[GTValues.EV]
+    const gt = allthemods.recipes.gtceu
+
+    // =============================================================================================================
+    // 1. ELECTRONIC-GRADE SILICON (MV): quartz -> 99 % MG-Si -> trichlorosilane -> Siemens polysilicon (11N) -> CZ
+    // =============================================================================================================
+
+    // Acid leaching strips iron, aluminium and calcium from the quartz surface
+    gt.chemical_bath('af9:high_purity_quartz')
+        .itemInputs('gtceu:quartzite_dust')
+        .inputFluids(Fluid.of('gtceu:hydrochloric_acid', 250))
+        .itemOutputs('gtceu:high_purity_quartz_dust')
+        .outputFluids(Fluid.of('gtceu:diluted_hydrochloric_acid', 250))
+        .duration(200)
+        .EUt(LV)
+
+    // Submerged arc furnace: SiO2 + 2 C -> Si + 2 CO
+    gt.electric_blast_furnace('af9:metallurgical_grade_silicon')
+        .itemInputs('gtceu:high_purity_quartz_dust', '2x gtceu:coke_dust')
+        .itemOutputs('gtceu:metallurgical_grade_silicon_dust')
+        .outputFluids(Fluid.of('gtceu:carbon_monoxide', 2000))
+        .blastFurnaceTemp(1800)
+        .duration(400)
+        .EUt(MV)
+
+    // Fluidized-bed hydrochlorination at 300 C, copper catalysed: Si + 3 HCl -> SiHCl3 + H2 (plus SiCl4, SiH2Cl2 and
+    // the MG-Si's boron as BCl3)
+    gt.chemical_reactor('af9:crude_chlorosilanes')
+        .itemInputs('gtceu:metallurgical_grade_silicon_dust')
+        .notConsumable('gtceu:copper_dust')
+        .inputFluids(Fluid.of('gtceu:hydrochloric_acid', 3000))
+        .outputFluids(Fluid.of('gtceu:crude_chlorosilanes', 1000), Fluid.of('gtceu:hydrogen', 1000))
+        .duration(300)
+        .EUt(MV)
+
+    // Fractional distillation. At MV, GT's distillery runs each cut on its own (circuit 1-4).
+    gt.distillation_tower('af9:chlorosilane_distillation')
+        .inputFluids(Fluid.of('gtceu:crude_chlorosilanes', 1000))
+        .outputFluids(Fluid.of('gtceu:trichlorosilane', 850), Fluid.of('gtceu:silicon_tetrachloride', 100),
+            Fluid.of('gtceu:dichlorosilane', 40), Fluid.of('gtceu:boron_trichloride', 10))
+        .duration(300)
+        .EUt(MV)
+
+    // Polishing to 9N: the last boron and phosphorus chlorides adsorb on activated carbon
+    gt.chemical_reactor('af9:electronic_grade_trichlorosilane')
+        .notConsumable('gtceu:activated_carbon_dust')
+        .inputFluids(Fluid.of('gtceu:trichlorosilane', 1000))
+        .outputFluids(Fluid.of('gtceu:electronic_grade_trichlorosilane', 1000))
+        .duration(200)
+        .EUt(MV)
+
+    // Redistribution over the carbon bed: SiH2Cl2 + SiCl4 -> 2 SiHCl3
+    gt.chemical_reactor('af9:dichlorosilane_redistribution')
+        .notConsumable('gtceu:activated_carbon_dust')
+        .inputFluids(Fluid.of('gtceu:dichlorosilane', 1000), Fluid.of('gtceu:silicon_tetrachloride', 1000))
+        .outputFluids(Fluid.of('gtceu:trichlorosilane', 2000))
+        .duration(200)
+        .EUt(MV)
+
+    // Hot-wire reduction of the boron cut: 2 BCl3 + 3 H2 -> 2 B + 6 HCl. The CZ puller's p-type dopant.
+    gt.chemical_reactor('af9:boron_from_trichloride')
+        .inputFluids(Fluid.of('gtceu:boron_trichloride', 1000), Fluid.of('gtceu:hydrogen', 3000))
+        .itemOutputs('gtceu:boron_dust')
+        .outputFluids(Fluid.of('gtceu:hydrochloric_acid', 3000))
+        .duration(200)
+        .EUt(MV)
+
+    // Siemens process: TCS vapour in hydrogen over resistively heated silicon rods in a bell jar, 1100 C, for days.
+    // SiHCl3 + H2 -> Si + 3 HCl and 4 SiHCl3 -> Si + 3 SiCl4 + 2 H2. Half the TCS leaves unreacted in the vent gas.
+    gt.mixer('af9:siemens_feed_gas')
+        .inputFluids(Fluid.of('gtceu:electronic_grade_trichlorosilane', 1000), Fluid.of('gtceu:hydrogen', 4000))
+        .outputFluids(Fluid.of('gtceu:siemens_feed_gas', 5000))
+        .duration(100)
+        .EUt(LV)
+
+    gt.electric_blast_furnace('af9:siemens_polysilicon')
+        .inputFluids(Fluid.of('gtceu:siemens_feed_gas', 10000))
+        .itemOutputs('gtceu:polysilicon_ingot')
+        .outputFluids(Fluid.of('gtceu:siemens_vent_gas', 8000))
+        .blastFurnaceTemp(1400)
+        .duration(1600)
+        .EUt(HV)
+
+    // Vent gas recovery (condensation, HCl absorption, carbon adsorption): everything goes back into the loop
+    gt.distillation_tower('af9:siemens_vent_gas_recovery')
+        .inputFluids(Fluid.of('gtceu:siemens_vent_gas', 8000))
+        .outputFluids(Fluid.of('gtceu:hydrogen', 6000), Fluid.of('gtceu:hydrochloric_acid', 1000),
+            Fluid.of('gtceu:trichlorosilane', 600), Fluid.of('gtceu:silicon_tetrachloride', 400))
+        .duration(400)
+        .EUt(MV)
+
+    // STC converter, 1000 C: SiCl4 + H2 -> SiHCl3 + HCl (the closed-loop Siemens plant)
+    gt.chemical_reactor('af9:silicon_tetrachloride_hydroconversion')
+        .circuit(1)
+        .inputFluids(Fluid.of('gtceu:silicon_tetrachloride', 1000), Fluid.of('gtceu:hydrogen', 1000))
+        .outputFluids(Fluid.of('gtceu:trichlorosilane', 1000), Fluid.of('gtceu:hydrochloric_acid', 1000))
+        .duration(300)
+        .EUt(MV)
+
+    // Or burn it in a hydrogen flame into fumed silica: SiCl4 + 2 H2 + O2 -> SiO2 + 4 HCl
+    gt.chemical_reactor('af9:fumed_silica')
+        .circuit(2)
+        .inputFluids(Fluid.of('gtceu:silicon_tetrachloride', 1000), Fluid.of('gtceu:hydrogen', 2000), Fluid.of('gtceu:oxygen', 2000))
+        .itemOutputs('gtceu:silicon_dioxide_dust')
+        .outputFluids(Fluid.of('gtceu:hydrochloric_acid', 4000))
+        .duration(200)
+        .EUt(MV)
+
+    // Crushed rods pick up metal from the hammers; a nitric/hydrofluoric/acetic acid etch takes the surface off
+    gt.mixer('af9:silicon_etchant')
+        .inputFluids(Fluid.of('gtceu:nitric_acid', 1000), Fluid.of('gtceu:hydrofluoric_acid', 1000))
+        .outputFluids(Fluid.of('gtceu:silicon_etchant', 2000))
+        .duration(100)
+        .EUt(LV)
+
+    gt.chemical_bath('af9:electronic_grade_silicon')
+        .itemInputs('gtceu:polysilicon_dust')
+        .inputFluids(Fluid.of('gtceu:silicon_etchant', 100))
+        .itemOutputs('gtceu:electronic_grade_silicon_dust')
+        .duration(100)
+        .EUt(MV)
+
+    // Czochralski pullers: melt the poly with its dopant in a quartz crucible under flowing argon, dip a seed, pull.
+    // Replaces GT's boules (silicon dust + gallium arsenide, nitrogen). Boron = p-type (the CMOS substrate, ppm-level),
+    // phosphorus = n-type. Naquadah and neutronium keep GT's exotic recipes but start from electronic-grade silicon.
+    const gtBoules = ['silicon_boule', 'phosphorus_boule', 'naquadah_boule', 'neutronium_boule']
+    gtBoules.forEach(boule => allthemods.remove({ id: `gtceu:electric_blast_furnace/${boule}` }))
+    gt.electric_blast_furnace('af9:silicon_boule')
+        .itemInputs('32x gtceu:electronic_grade_silicon_dust', 'gtceu:tiny_boron_dust')
+        .inputFluids(Fluid.of('gtceu:argon', 250))
+        .itemOutputs('gtceu:silicon_boule')
+        .blastFurnaceTemp(1784)
+        .duration(9000)
+        .EUt(MV)
+    gt.electric_blast_furnace('af9:phosphorus_boule')
+        .itemInputs('64x gtceu:electronic_grade_silicon_dust', '8x gtceu:phosphorus_dust')
+        .inputFluids(Fluid.of('gtceu:argon', 1000))
+        .itemOutputs('gtceu:phosphorus_boule')
+        .blastFurnaceTemp(2484)
+        .duration(12000)
+        .EUt(HV)
+    gt.electric_blast_furnace('af9:naquadah_boule')
+        .itemInputs('144x gtceu:electronic_grade_silicon_dust', 'gtceu:naquadah_ingot', 'gtceu:gallium_arsenide_dust')
+        .inputFluids(Fluid.of('gtceu:argon', 8000))
+        .itemOutputs('gtceu:naquadah_boule')
+        .blastFurnaceTemp(5400)
+        .duration(15000)
+        .EUt(EV)
+    gt.electric_blast_furnace('af9:neutronium_boule')
+        .itemInputs('288x gtceu:electronic_grade_silicon_dust', '4x gtceu:neutronium_ingot', '2x gtceu:gallium_arsenide_dust')
+        .inputFluids(Fluid.of('gtceu:xenon', 8000))
+        .itemOutputs('gtceu:neutronium_boule')
+        .blastFurnaceTemp(6484)
+        .duration(18000)
+        .EUt(VA[GTValues.IV])
+
+    // =============================================================================================================
+    // 2. FLUOROCHEMICALS: fluorspar -> HF (MV) -> fluorine by KF.2HF electrolysis (HV); triflic acid by Simons ECF
+    // =============================================================================================================
+
+    // Rotary kiln, 250 C: CaF2 + H2SO4 -> CaSO4 + 2 HF
+    gt.chemical_reactor('af9:crude_hydrogen_fluoride')
+        .itemInputs('gtceu:fluorite_dust')
+        .inputFluids(Fluid.of('gtceu:sulfuric_acid', 1000))
+        .itemOutputs('gtceu:gypsum_dust')
+        .outputFluids(Fluid.of('gtceu:crude_hydrogen_fluoride', 2000))
+        .duration(300)
+        .EUt(MV)
+
+    // Scrubbing and distillation to anhydrous HF (bp 19.5 C)
+    gt.distillation_tower('af9:anhydrous_hydrogen_fluoride')
+        .inputFluids(Fluid.of('gtceu:crude_hydrogen_fluoride', 2000))
+        .outputFluids(Fluid.of('gtceu:hydrofluoric_acid', 1800), Fluid.of('gtceu:sulfuric_acid', 150), Fluid.of('minecraft:water', 50))
+        .duration(200)
+        .EUt(MV)
+
+    // KOH + HF -> KF + H2O
+    gt.chemical_reactor('af9:potassium_fluoride')
+        .itemInputs('gtceu:potassium_hydroxide_dust')
+        .inputFluids(Fluid.of('gtceu:hydrofluoric_acid', 1000))
+        .itemOutputs('gtceu:potassium_fluoride_dust')
+        .outputFluids(Fluid.of('minecraft:water', 1000))
+        .duration(100)
+        .EUt(MV)
+
+    // Molten KF.2HF, the electrolyte of every industrial fluorine cell (Moissan's discovery, 1886)
+    gt.mixer('af9:potassium_bifluoride_electrolyte')
+        .itemInputs('gtceu:potassium_fluoride_dust')
+        .inputFluids(Fluid.of('gtceu:hydrofluoric_acid', 2000))
+        .outputFluids(Fluid.of('gtceu:potassium_bifluoride_electrolyte', 1000))
+        .duration(200)
+        .EUt(MV)
+
+    // Carbon anodes (graphite would flake apart), steel cathodes, 90 C: 2 HF -> H2 + F2; the KF stays behind
+    gt.electrolyzer('af9:fluorine_electrolysis')
+        .notConsumable('gtceu:carbon_dust')
+        .inputFluids(Fluid.of('gtceu:potassium_bifluoride_electrolyte', 1000))
+        .itemOutputs('gtceu:potassium_fluoride_dust')
+        .outputFluids(Fluid.of('gtceu:crude_fluorine', 2000), Fluid.of('gtceu:hydrogen', 2000))
+        .duration(400)
+        .EUt(HV)
+
+    // NaF pellets trap the HF: NaF + HF -> NaHF2; heating gives the HF back
+    gt.chemical_reactor('af9:sodium_fluoride')
+        .itemInputs('gtceu:sodium_hydroxide_dust')
+        .inputFluids(Fluid.of('gtceu:hydrofluoric_acid', 1000))
+        .itemOutputs('gtceu:sodium_fluoride_dust')
+        .outputFluids(Fluid.of('minecraft:water', 1000))
+        .duration(100)
+        .EUt(MV)
+
+    gt.chemical_reactor('af9:fluorine_purification')
+        .itemInputs('gtceu:sodium_fluoride_dust')
+        .inputFluids(Fluid.of('gtceu:crude_fluorine', 2000))
+        .itemOutputs('gtceu:sodium_bifluoride_dust')
+        .outputFluids(Fluid.of('gtceu:fluorine', 1800))
+        .duration(100)
+        .EUt(HV)
+
+    gt.electric_blast_furnace('af9:sodium_bifluoride_regeneration')
+        .itemInputs('gtceu:sodium_bifluoride_dust')
+        .itemOutputs('gtceu:sodium_fluoride_dust')
+        .outputFluids(Fluid.of('gtceu:hydrofluoric_acid', 200))
+        .blastFurnaceTemp(700)
+        .duration(100)
+        .EUt(MV)
+
+    // Triflic acid, the acid of the photoacid generator.
+    // Grillo process: CH4 + SO3 -> CH3SO3H, started by a little peroxide
+    gt.chemical_reactor('af9:methanesulfonic_acid')
+        .inputFluids(Fluid.of('gtceu:methane', 1000), Fluid.of('gtceu:sulfur_trioxide', 1000), Fluid.of('gtceu:hydrogen_peroxide', 50))
+        .outputFluids(Fluid.of('gtceu:methanesulfonic_acid', 1000), Fluid.of('minecraft:water', 50))
+        .duration(300)
+        .EUt(HV)
+
+    // S + Cl2 -> SCl2, then SCl2 + SO3 -> SOCl2 + SO2
+    gt.chemical_reactor('af9:sulfur_dichloride')
+        .itemInputs('gtceu:sulfur_dust')
+        .inputFluids(Fluid.of('gtceu:chlorine', 2000))
+        .outputFluids(Fluid.of('gtceu:sulfur_dichloride', 1000))
+        .duration(100)
+        .EUt(MV)
+
+    gt.chemical_reactor('af9:thionyl_chloride')
+        .inputFluids(Fluid.of('gtceu:sulfur_dichloride', 1000), Fluid.of('gtceu:sulfur_trioxide', 1000))
+        .outputFluids(Fluid.of('gtceu:thionyl_chloride', 1000), Fluid.of('gtceu:sulfur_dioxide', 1000))
+        .duration(200)
+        .EUt(MV)
+
+    // CH3SO3H + SOCl2 -> CH3SO2Cl + SO2 + HCl
+    gt.large_chemical_reactor('af9:methanesulfonyl_chloride')
+        .inputFluids(Fluid.of('gtceu:methanesulfonic_acid', 1000), Fluid.of('gtceu:thionyl_chloride', 1000))
+        .outputFluids(Fluid.of('gtceu:methanesulfonyl_chloride', 1000), Fluid.of('gtceu:sulfur_dioxide', 1000),
+            Fluid.of('gtceu:hydrochloric_acid', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // Halogen exchange: CH3SO2Cl + KF -> CH3SO2F + KCl
+    gt.chemical_reactor('af9:methanesulfonyl_fluoride')
+        .itemInputs('gtceu:potassium_fluoride_dust')
+        .inputFluids(Fluid.of('gtceu:methanesulfonyl_chloride', 1000))
+        .itemOutputs('gtceu:rock_salt_dust')
+        .outputFluids(Fluid.of('gtceu:methanesulfonyl_fluoride', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // Simons electrochemical fluorination: the substrate dissolved in anhydrous HF, nickel anodes at 5-6 V.
+    // CH3SO2F + 3 HF -> CF3SO2F + 3 H2
+    gt.mixer('af9:simons_cell_electrolyte')
+        .inputFluids(Fluid.of('gtceu:methanesulfonyl_fluoride', 1000), Fluid.of('gtceu:hydrofluoric_acid', 3000))
+        .outputFluids(Fluid.of('gtceu:simons_cell_electrolyte', 4000))
+        .duration(100)
+        .EUt(HV)
+
+    gt.electrolyzer('af9:electrochemical_fluorination')
+        .notConsumable('gtceu:nickel_plate')
+        .inputFluids(Fluid.of('gtceu:simons_cell_electrolyte', 4000))
+        .outputFluids(Fluid.of('gtceu:trifluoromethanesulfonyl_fluoride', 1000), Fluid.of('gtceu:hydrogen', 6000))
+        .duration(600)
+        .EUt(HV)
+
+    // CF3SO2F + 2 KOH -> CF3SO3K + KF + H2O
+    gt.chemical_reactor('af9:potassium_triflate')
+        .itemInputs('2x gtceu:potassium_hydroxide_dust')
+        .inputFluids(Fluid.of('gtceu:trifluoromethanesulfonyl_fluoride', 1000))
+        .itemOutputs('gtceu:potassium_triflate_dust', 'gtceu:potassium_fluoride_dust')
+        .outputFluids(Fluid.of('minecraft:water', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // 2 CF3SO3K + H2SO4 -> 2 CF3SO3H + K2SO4, then vacuum distillation
+    gt.chemical_reactor('af9:trifluoromethanesulfonic_acid')
+        .itemInputs('2x gtceu:potassium_triflate_dust')
+        .inputFluids(Fluid.of('gtceu:sulfuric_acid', 1000))
+        .itemOutputs('gtceu:potassium_sulfate_dust')
+        .outputFluids(Fluid.of('gtceu:trifluoromethanesulfonic_acid', 2000))
+        .duration(300)
+        .EUt(HV)
+
+    // =============================================================================================================
+    // 3. AIR GASES: the cold box behind the XCDA plant. Argon (MV) for the CZ pullers, neon + krypton (HV) for the
+    //    excimer lasers. Uses Cryogenic Supercooled Air (MV expansion cooler), not GT's liquid air (Vacuum Freezer).
+    // =============================================================================================================
+
+    // Double-column rectification with the side draws real plants take: crude argon from the middle of the low-pressure
+    // column, crude neon from the condenser head, a krypton/xenon concentrate from the oxygen sump.
+    gt.distillation_tower('af9:air_rectification')
+        .inputFluids(Fluid.of('gtceu:cryogenic_supercooled_air', 4000))
+        .outputFluids(Fluid.of('gtceu:nitrogen', 2960), Fluid.of('gtceu:oxygen', 600), Fluid.of('gtceu:crude_argon', 400),
+            Fluid.of('gtceu:crude_neon', 24), Fluid.of('gtceu:krypton_xenon_concentrate', 16))
+        .duration(300)
+        .EUt(MV)
+
+    // Deoxo: the oxygen in crude argon burns with hydrogen over palladium, the water is dried out
+    gt.chemical_reactor('af9:argon_deoxo')
+        .notConsumable('gtceu:palladium_dust')
+        .inputFluids(Fluid.of('gtceu:crude_argon', 1000), Fluid.of('gtceu:hydrogen', 100))
+        .outputFluids(Fluid.of('gtceu:argon', 950), Fluid.of('minecraft:water', 50))
+        .duration(100)
+        .EUt(MV)
+
+    // Crude neon: hydrogen burnt off over platinum, nitrogen frozen onto activated carbon at 77 K
+    gt.chemical_reactor('af9:crude_neon_purification')
+        .notConsumable('gtceu:platinum_dust')
+        .notConsumable('gtceu:activated_carbon_dust')
+        .inputFluids(Fluid.of('gtceu:crude_neon', 1000), Fluid.of('gtceu:oxygen', 50))
+        .outputFluids(Fluid.of('gtceu:neon_helium_mixture', 700), Fluid.of('gtceu:nitrogen', 250))
+        .duration(200)
+        .EUt(HV)
+
+    // Neon (bp 27 K) and helium (bp 4 K) split in a small cryogenic column
+    gt.distillation_tower('af9:neon_helium_separation')
+        .inputFluids(Fluid.of('gtceu:neon_helium_mixture', 1000))
+        .outputFluids(Fluid.of('gtceu:neon', 720), Fluid.of('gtceu:helium', 280))
+        .duration(200)
+        .EUt(HV)
+
+    // Methane and other hydrocarbons would explode in the concentrating oxygen: burnt out over platinum first
+    gt.chemical_reactor('af9:krypton_xenon_catalytic_burner')
+        .notConsumable('gtceu:platinum_dust')
+        .inputFluids(Fluid.of('gtceu:krypton_xenon_concentrate', 1000))
+        .outputFluids(Fluid.of('gtceu:crude_krypton_xenon', 980), Fluid.of('gtceu:carbon_dioxide', 20))
+        .duration(100)
+        .EUt(HV)
+
+    // Molecular sieve takes the CO2, N2O and water
+    gt.chemical_reactor('af9:krypton_xenon_drying')
+        .itemInputs('kubejs:molecular_sieve')
+        .inputFluids(Fluid.of('gtceu:crude_krypton_xenon', 1000))
+        .itemOutputs('kubejs:saturated_molecular_sieve')
+        .outputFluids(Fluid.of('gtceu:purified_krypton_xenon', 1000))
+        .duration(100)
+        .EUt(HV)
+
+    gt.distillation_tower('af9:krypton_xenon_rectification')
+        .inputFluids(Fluid.of('gtceu:purified_krypton_xenon', 1000))
+        .outputFluids(Fluid.of('gtceu:oxygen', 700), Fluid.of('gtceu:krypton', 270), Fluid.of('gtceu:xenon', 30))
+        .duration(300)
+        .EUt(HV)
+
+    // Laser premixes (AF9: 5 % rare gas, 1 % fluorine in neon; real ones are leaner). The fluorine must be HF-free,
+    // HF poisons the discharge.
+    const excimerGases = [
+        { id: 'krf_excimer_gas', rareGas: 'gtceu:krypton' },
+        { id: 'arf_excimer_gas', rareGas: 'gtceu:argon' }
+    ]
+    excimerGases.forEach(gas => {
+        gt.chemical_reactor(`af9:${gas.id}`)
+            .inputFluids(Fluid.of('gtceu:neon', 940), Fluid.of(gas.rareGas, 50), Fluid.of('gtceu:fluorine', 10))
+            .outputFluids(Fluid.of(`gtceu:${gas.id}`, 1000))
+            .duration(200)
+            .EUt(HV)
+    })
+
+    // =============================================================================================================
+    // 4. KrF RESIST (HV): t-BOC polyhydroxystyrene + triphenylsulfonium triflate + tributylamine in PGMEA
+    // =============================================================================================================
+
+    // ---- Shared catalysts and reagents ----
+    // Pd + Cl2 -> PdCl2; impregnated on activated carbon and reduced with hydrogen -> 5 % Pd/C
+    gt.chemical_reactor('af9:palladium_chloride')
+        .itemInputs('gtceu:palladium_dust')
+        .inputFluids(Fluid.of('gtceu:chlorine', 2000))
+        .itemOutputs('gtceu:palladium_chloride_dust')
+        .duration(200)
+        .EUt(MV)
+
+    gt.chemical_reactor('af9:palladium_on_carbon')
+        .itemInputs('gtceu:palladium_chloride_dust', '8x gtceu:activated_carbon_dust')
+        .inputFluids(Fluid.of('gtceu:hydrogen', 2000))
+        .itemOutputs('8x gtceu:palladium_on_carbon_dust')
+        .outputFluids(Fluid.of('gtceu:hydrochloric_acid', 2000))
+        .duration(200)
+        .EUt(MV)
+
+    // Acidic ion-exchange resin (Amberlyst type): styrene polymerized into beads, then sulfonated
+    gt.chemical_reactor('af9:acidic_ion_exchange_resin')
+        .itemInputs('gtceu:tiny_azobisisobutyronitrile_dust')
+        .inputFluids(Fluid.of('gtceu:styrene', 1000), Fluid.of('gtceu:sulfuric_acid', 1000))
+        .itemOutputs('gtceu:acidic_ion_exchange_resin_dust')
+        .outputFluids(Fluid.of('minecraft:water', 1000))
+        .duration(300)
+        .EUt(HV)
+
+    // TS-1 titanium silicalite. Its silica comes from TEOS, made from the Siemens plant's silicon tetrachloride:
+    // SiCl4 + 4 C2H5OH -> Si(OC2H5)4 + 4 HCl, then hydrolysed with a little titania: Si(OC2H5)4 + 2 H2O -> SiO2 + 4 EtOH
+    gt.chemical_reactor('af9:tetraethyl_orthosilicate')
+        .inputFluids(Fluid.of('gtceu:silicon_tetrachloride', 1000), Fluid.of('gtceu:ethanol', 4000))
+        .outputFluids(Fluid.of('gtceu:tetraethyl_orthosilicate', 1000), Fluid.of('gtceu:hydrochloric_acid', 4000))
+        .duration(200)
+        .EUt(MV)
+
+    gt.chemical_reactor('af9:titanium_silicalite')
+        .itemInputs('gtceu:tiny_rutile_dust')
+        .inputFluids(Fluid.of('gtceu:tetraethyl_orthosilicate', 1000), Fluid.of('minecraft:water', 2000))
+        .itemOutputs('gtceu:titanium_silicalite_dust')
+        .outputFluids(Fluid.of('gtceu:ethanol', 4000))
+        .duration(600)
+        .EUt(HV)
+
+    // ---- AIBN radical initiator ----
+    // Olin-Raschig: NH2Cl + NH3 + NaOH -> N2H4 + NaCl + H2O
+    gt.chemical_reactor('af9:hydrazine')
+        .itemInputs('gtceu:sodium_hydroxide_dust')
+        .inputFluids(Fluid.of('gtceu:monochloramine', 1000), Fluid.of('gtceu:ammonia', 1000))
+        .itemOutputs('gtceu:salt_dust')
+        .outputFluids(Fluid.of('gtceu:hydrazine', 1000), Fluid.of('minecraft:water', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // (CH3)2CO + HCN -> (CH3)2C(OH)CN, base catalysed. Also the start of the ArF monomers.
+    gt.chemical_reactor('af9:acetone_cyanohydrin')
+        .notConsumable('gtceu:sodium_hydroxide_dust')
+        .inputFluids(Fluid.of('gtceu:acetone', 1000), Fluid.of('gtceu:hydrogen_cyanide', 1000))
+        .outputFluids(Fluid.of('gtceu:acetone_cyanohydrin', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // 2 ACH + N2H4 -> hydrazobisisobutyronitrile + 2 H2O; chlorine oxidizes it to the azo compound
+    gt.chemical_reactor('af9:hydrazobisisobutyronitrile')
+        .inputFluids(Fluid.of('gtceu:acetone_cyanohydrin', 2000), Fluid.of('gtceu:hydrazine', 1000))
+        .itemOutputs('gtceu:hydrazobisisobutyronitrile_dust')
+        .outputFluids(Fluid.of('minecraft:water', 2000))
+        .duration(200)
+        .EUt(HV)
+
+    gt.chemical_reactor('af9:azobisisobutyronitrile')
+        .itemInputs('gtceu:hydrazobisisobutyronitrile_dust')
+        .inputFluids(Fluid.of('gtceu:chlorine', 2000))
+        .itemOutputs('gtceu:azobisisobutyronitrile_dust')
+        .outputFluids(Fluid.of('gtceu:hydrochloric_acid', 2000))
+        .duration(200)
+        .EUt(HV)
+
+    // ---- Polyhydroxystyrene by the Hoechst Celanese 4-acetoxystyrene route ----
+    // HF-catalysed acylation (Fries): C6H5OH + (CH3CO)2O -> 4-hydroxyacetophenone + CH3COOH
+    gt.chemical_reactor('af9:hydroxyacetophenone')
+        .inputFluids(Fluid.of('gtceu:phenol', 1000), Fluid.of('gtceu:acetic_anhydride', 1000))
+        .notConsumableFluid(Fluid.of('gtceu:hydrofluoric_acid', 1000))
+        .itemOutputs('gtceu:hydroxyacetophenone_dust')
+        .outputFluids(Fluid.of('gtceu:acetic_acid', 1000))
+        .duration(300)
+        .EUt(HV)
+
+    // Acetylation of the phenol group (it has to survive the next steps)
+    gt.chemical_reactor('af9:acetoxyacetophenone')
+        .itemInputs('gtceu:hydroxyacetophenone_dust')
+        .inputFluids(Fluid.of('gtceu:acetic_anhydride', 1000))
+        .itemOutputs('gtceu:acetoxyacetophenone_dust')
+        .outputFluids(Fluid.of('gtceu:acetic_acid', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // Ketone hydrogenation over Pd/C
+    gt.chemical_reactor('af9:acetoxyphenyl_methyl_carbinol')
+        .itemInputs('gtceu:acetoxyacetophenone_dust')
+        .notConsumable('gtceu:palladium_on_carbon_dust')
+        .inputFluids(Fluid.of('gtceu:hydrogen', 2000))
+        .outputFluids(Fluid.of('gtceu:acetoxyphenyl_methyl_carbinol', 1000))
+        .duration(300)
+        .EUt(HV)
+
+    // Vapour-phase dehydration over an acidic bisulfate bed
+    gt.chemical_reactor('af9:acetoxystyrene')
+        .notConsumable('gtceu:sodium_bisulfate_dust')
+        .inputFluids(Fluid.of('gtceu:acetoxyphenyl_methyl_carbinol', 1000))
+        .outputFluids(Fluid.of('gtceu:acetoxystyrene', 1000), Fluid.of('minecraft:water', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // Free-radical polymerization, AIBN started
+    gt.chemical_reactor('af9:poly_acetoxystyrene')
+        .itemInputs('gtceu:tiny_azobisisobutyronitrile_dust')
+        .inputFluids(Fluid.of('gtceu:acetoxystyrene', 1000))
+        .itemOutputs('gtceu:poly_acetoxystyrene_dust')
+        .duration(400)
+        .EUt(HV)
+
+    // Base-catalysed methanolysis frees the phenols: the acetate leaves as methyl acetate
+    gt.chemical_reactor('af9:polyhydroxystyrene')
+        .itemInputs('gtceu:poly_acetoxystyrene_dust')
+        .inputFluids(Fluid.of('gtceu:methanol', 1000))
+        .notConsumableFluid(Fluid.of('gtceu:ammonia', 1000))
+        .itemOutputs('gtceu:polyhydroxystyrene_dust')
+        .outputFluids(Fluid.of('gtceu:methyl_acetate', 1000))
+        .duration(300)
+        .EUt(HV)
+
+    // ---- t-BOC protection (di-tert-butyl dicarbonate) ----
+    // Skeletal isomerization of n-butene over a zeolite (ferrierite)
+    gt.chemical_reactor('af9:isobutylene')
+        .notConsumable('gtceu:zeolite_dust')
+        .inputFluids(Fluid.of('gtceu:butene', 1000))
+        .outputFluids(Fluid.of('gtceu:isobutylene', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // Hydration over the acidic resin: (CH3)2C=CH2 + H2O -> (CH3)3COH
+    gt.chemical_reactor('af9:tert_butanol')
+        .notConsumable('gtceu:acidic_ion_exchange_resin_dust')
+        .inputFluids(Fluid.of('gtceu:isobutylene', 1000), Fluid.of('minecraft:water', 1000))
+        .outputFluids(Fluid.of('gtceu:tert_butanol', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // 2 (CH3)3COH + 2 Na -> 2 (CH3)3CONa + H2
+    gt.chemical_reactor('af9:sodium_tert_butoxide')
+        .itemInputs('gtceu:sodium_dust')
+        .inputFluids(Fluid.of('gtceu:tert_butanol', 1000))
+        .itemOutputs('gtceu:sodium_tert_butoxide_dust')
+        .outputFluids(Fluid.of('gtceu:hydrogen', 1000))
+        .duration(100)
+        .EUt(HV)
+
+    // CO + Cl2 -> COCl2 over activated carbon
+    gt.chemical_reactor('af9:phosgene')
+        .notConsumable('gtceu:activated_carbon_dust')
+        .inputFluids(Fluid.of('gtceu:carbon_monoxide', 1000), Fluid.of('gtceu:chlorine', 2000))
+        .outputFluids(Fluid.of('gtceu:phosgene', 1000))
+        .duration(100)
+        .EUt(HV)
+
+    // 2 NaOtBu + CO2 + COCl2 -> Boc2O + 2 NaCl (via the tert-butyl carbonate)
+    gt.chemical_reactor('af9:di_tert_butyl_dicarbonate')
+        .itemInputs('2x gtceu:sodium_tert_butoxide_dust')
+        .inputFluids(Fluid.of('gtceu:carbon_dioxide', 1000), Fluid.of('gtceu:phosgene', 1000))
+        .itemOutputs('2x gtceu:salt_dust')
+        .outputFluids(Fluid.of('gtceu:di_tert_butyl_dicarbonate', 1000))
+        .duration(300)
+        .EUt(HV)
+
+    // About a third of the phenols get a t-BOC group; the acid from the PAG cuts it off again where light hit
+    gt.chemical_reactor('af9:tboc_polyhydroxystyrene')
+        .itemInputs('gtceu:polyhydroxystyrene_dust')
+        .inputFluids(Fluid.of('gtceu:di_tert_butyl_dicarbonate', 300))
+        .itemOutputs('gtceu:tboc_polyhydroxystyrene_dust')
+        .outputFluids(Fluid.of('gtceu:carbon_dioxide', 300), Fluid.of('gtceu:tert_butanol', 300))
+        .duration(300)
+        .EUt(HV)
+
+    // ---- Photoacid generator: triphenylsulfonium triflate ----
+    // 2 Al + 3 Cl2 -> 2 AlCl3
+    gt.chemical_reactor('af9:aluminium_chloride')
+        .itemInputs('gtceu:aluminium_dust')
+        .inputFluids(Fluid.of('gtceu:chlorine', 3000))
+        .itemOutputs('gtceu:aluminium_chloride_dust')
+        .duration(200)
+        .EUt(MV)
+
+    // Friedel-Crafts: 2 C6H6 + SOCl2 -> (C6H5)2SO + 2 HCl
+    gt.chemical_reactor('af9:diphenyl_sulfoxide')
+        .notConsumable('gtceu:aluminium_chloride_dust')
+        .inputFluids(Fluid.of('gtceu:benzene', 2000), Fluid.of('gtceu:thionyl_chloride', 1000))
+        .itemOutputs('gtceu:diphenyl_sulfoxide_dust')
+        .outputFluids(Fluid.of('gtceu:hydrochloric_acid', 2000))
+        .duration(300)
+        .EUt(HV)
+
+    // THF for the Grignard: n-butane -> maleic anhydride over VPO, hydrogenated to THF (Davy process)
+    gt.chemical_reactor('af9:vanadyl_pyrophosphate')
+        .itemInputs('2x gtceu:vanadium_dust')
+        .inputFluids(Fluid.of('gtceu:phosphoric_acid', 2000), Fluid.of('gtceu:oxygen', 5000))
+        .itemOutputs('gtceu:vanadyl_pyrophosphate_dust')
+        .outputFluids(Fluid.of('minecraft:water', 3000))
+        .duration(400)
+        .EUt(HV)
+
+    // C4H10 + 3.5 O2 -> C4H2O3 + 4 H2O
+    gt.chemical_reactor('af9:maleic_anhydride')
+        .notConsumable('gtceu:vanadyl_pyrophosphate_dust')
+        .inputFluids(Fluid.of('gtceu:butane', 1000), Fluid.of('gtceu:oxygen', 7000))
+        .itemOutputs('gtceu:maleic_anhydride_dust')
+        .outputFluids(Fluid.of('minecraft:water', 4000))
+        .duration(300)
+        .EUt(HV)
+
+    // C4H2O3 + 5 H2 -> C4H8O + 2 H2O
+    gt.chemical_reactor('af9:tetrahydrofuran')
+        .itemInputs('gtceu:maleic_anhydride_dust')
+        .notConsumable('gtceu:palladium_on_carbon_dust')
+        .inputFluids(Fluid.of('gtceu:hydrogen', 10000))
+        .outputFluids(Fluid.of('gtceu:tetrahydrofuran', 1000), Fluid.of('minecraft:water', 2000))
+        .duration(300)
+        .EUt(HV)
+
+    // Grignard reagent: C6H5Cl + Mg -> C6H5MgCl, in THF
+    gt.chemical_reactor('af9:phenylmagnesium_chloride')
+        .itemInputs('gtceu:magnesium_dust')
+        .inputFluids(Fluid.of('gtceu:chlorobenzene', 1000), Fluid.of('gtceu:tetrahydrofuran', 1000))
+        .outputFluids(Fluid.of('gtceu:phenylmagnesium_chloride', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // (C6H5)2SO + C6H5MgCl + 2 HCl -> (C6H5)3S+ Cl- + MgCl2 + H2O; the THF is distilled back
+    gt.chemical_reactor('af9:triphenylsulfonium_chloride')
+        .itemInputs('gtceu:diphenyl_sulfoxide_dust')
+        .inputFluids(Fluid.of('gtceu:phenylmagnesium_chloride', 1000), Fluid.of('gtceu:hydrochloric_acid', 2000))
+        .itemOutputs('gtceu:triphenylsulfonium_chloride_dust', 'gtceu:magnesium_chloride_dust')
+        .outputFluids(Fluid.of('gtceu:tetrahydrofuran', 1000), Fluid.of('minecraft:water', 1000))
+        .duration(300)
+        .EUt(HV)
+
+    // Anion metathesis: Ph3S+ Cl- + CF3SO3H -> Ph3S+ CF3SO3- + HCl
+    gt.chemical_reactor('af9:triphenylsulfonium_triflate')
+        .itemInputs('gtceu:triphenylsulfonium_chloride_dust')
+        .inputFluids(Fluid.of('gtceu:trifluoromethanesulfonic_acid', 1000))
+        .itemOutputs('gtceu:triphenylsulfonium_triflate_dust')
+        .outputFluids(Fluid.of('gtceu:hydrochloric_acid', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // ---- Base quencher: tributylamine ----
+    // Butyraldehyde (GT's oxo process) hydrogenated over nickel
+    gt.chemical_reactor('af9:butanol')
+        .notConsumable('gtceu:nickel_dust')
+        .inputFluids(Fluid.of('gtceu:butyraldehyde', 1000), Fluid.of('gtceu:hydrogen', 2000))
+        .outputFluids(Fluid.of('gtceu:butanol', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // 3 C4H9OH + NH3 -> (C4H9)3N + 3 H2O, amination over nickel
+    gt.chemical_reactor('af9:tributylamine')
+        .notConsumable('gtceu:nickel_dust')
+        .inputFluids(Fluid.of('gtceu:butanol', 3000), Fluid.of('gtceu:ammonia', 1000))
+        .outputFluids(Fluid.of('gtceu:tributylamine', 1000), Fluid.of('minecraft:water', 3000))
+        .duration(300)
+        .EUt(HV)
+
+    // ---- Solvent: PGMEA ----
+    // HPPO process: C3H6 + H2O2 -> propylene oxide + H2O over TS-1
+    gt.chemical_reactor('af9:propylene_oxide')
+        .notConsumable('gtceu:titanium_silicalite_dust')
+        .inputFluids(Fluid.of('gtceu:propene', 1000), Fluid.of('gtceu:hydrogen_peroxide', 1000))
+        .outputFluids(Fluid.of('gtceu:propylene_oxide', 1000), Fluid.of('minecraft:water', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // Base-catalysed ring opening with methanol -> 1-methoxy-2-propanol
+    gt.chemical_reactor('af9:propylene_glycol_methyl_ether')
+        .notConsumable('gtceu:sodium_hydroxide_dust')
+        .inputFluids(Fluid.of('gtceu:propylene_oxide', 1000), Fluid.of('gtceu:methanol', 1000))
+        .outputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // Esterification over the acidic resin (a sulfuric acid catalyst would clash with GT's ethenone recipe)
+    gt.chemical_reactor('af9:propylene_glycol_methyl_ether_acetate')
+        .notConsumable('gtceu:acidic_ion_exchange_resin_dust')
+        .inputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether', 1000), Fluid.of('gtceu:acetic_acid', 1000))
+        .outputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether_acetate', 1000), Fluid.of('minecraft:water', 1000))
+        .duration(200)
+        .EUt(HV)
+
+    // =============================================================================================================
+    // 5. ArF RESIST (EV): MMA / tert-butyl methacrylate / methacrylic acid terpolymer, acetone cyanohydrin route
+    // =============================================================================================================
+
+    // ACH + H2SO4 -> methacrylamide sulfate (140 C)
+    gt.chemical_reactor('af9:methacrylamide_sulfate')
+        .inputFluids(Fluid.of('gtceu:acetone_cyanohydrin', 1000), Fluid.of('gtceu:sulfuric_acid', 1000))
+        .outputFluids(Fluid.of('gtceu:methacrylamide_sulfate', 1000))
+        .duration(200)
+        .EUt(EV)
+
+    // Esterification with methanol -> methyl methacrylate + NH4HSO4
+    gt.chemical_reactor('af9:methyl_methacrylate')
+        .inputFluids(Fluid.of('gtceu:methacrylamide_sulfate', 1000), Fluid.of('gtceu:methanol', 1000))
+        .itemOutputs('gtceu:ammonium_bisulfate_dust')
+        .outputFluids(Fluid.of('gtceu:methyl_methacrylate', 1000))
+        .duration(200)
+        .EUt(EV)
+
+    // Hydrolysis with water -> methacrylic acid + NH4HSO4
+    gt.chemical_reactor('af9:methacrylic_acid')
+        .inputFluids(Fluid.of('gtceu:methacrylamide_sulfate', 1000), Fluid.of('minecraft:water', 1000))
+        .itemOutputs('gtceu:ammonium_bisulfate_dust')
+        .outputFluids(Fluid.of('gtceu:methacrylic_acid', 1000))
+        .duration(200)
+        .EUt(EV)
+
+    // Addition of isobutylene over the acidic resin -> tert-butyl methacrylate, the acid-labile monomer
+    gt.chemical_reactor('af9:tert_butyl_methacrylate')
+        .notConsumable('gtceu:acidic_ion_exchange_resin_dust')
+        .inputFluids(Fluid.of('gtceu:methacrylic_acid', 1000), Fluid.of('gtceu:isobutylene', 1000))
+        .outputFluids(Fluid.of('gtceu:tert_butyl_methacrylate', 1000))
+        .duration(200)
+        .EUt(EV)
+
+    // Spent acid regeneration: the bisulfate is cracked back to SO2 (then SO3 and sulfuric acid in GT's plant)
+    gt.electric_blast_furnace('af9:spent_acid_regeneration')
+        .itemInputs('2x gtceu:ammonium_bisulfate_dust')
+        .inputFluids(Fluid.of('gtceu:oxygen', 1000))
+        .outputFluids(Fluid.of('gtceu:sulfur_dioxide', 2000))
+        .blastFurnaceTemp(1300)
+        .duration(200)
+        .EUt(HV)
+
+    // Radical terpolymerization in PGMEA
+    gt.large_chemical_reactor('af9:methacrylate_resin')
+        .itemInputs('gtceu:tiny_azobisisobutyronitrile_dust')
+        .inputFluids(Fluid.of('gtceu:methyl_methacrylate', 1000), Fluid.of('gtceu:tert_butyl_methacrylate', 1000),
+            Fluid.of('gtceu:methacrylic_acid', 500))
+        .itemOutputs('2x gtceu:methacrylate_resin_dust')
+        .duration(400)
+        .EUt(EV)
+
+    // =============================================================================================================
+    // Resist formulation and point-of-use filtration (20 nm PTFE membrane)
+    // =============================================================================================================
+    const resists = [
+        { id: 'krf_photoresist', polymer: 'gtceu:tboc_polyhydroxystyrene_dust', eut: HV },
+        { id: 'arf_photoresist', polymer: 'gtceu:methacrylate_resin_dust', eut: EV }
+    ]
+    resists.forEach(resist => {
+        gt.mixer(`af9:unfiltered_${resist.id}`)
+            .itemInputs(resist.polymer, 'gtceu:small_triphenylsulfonium_triflate_dust')
+            .inputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether_acetate', 3000), Fluid.of('gtceu:tributylamine', 10))
+            .outputFluids(Fluid.of(`gtceu:unfiltered_${resist.id}`, 4000))
+            .duration(400)
+            .EUt(resist.eut)
+        gt.chemical_reactor(`af9:${resist.id}`)
+            .notConsumable('gtceu:fluid_filter')
+            .inputFluids(Fluid.of(`gtceu:unfiltered_${resist.id}`, 4000))
+            .outputFluids(Fluid.of(`gtceu:${resist.id}`, 4000))
+            .duration(200)
+            .EUt(resist.eut)
+    })
+
+    // =============================================================================================================
+    // Immersion water (LUV): mixed-bed polishing, UV oxidation and membrane degassing of distilled water
+    // =============================================================================================================
+    gt.chemical_reactor('af9:ultrapure_water')
+        .notConsumable('gtceu:fluid_filter')
+        .inputFluids(Fluid.of('gtceu:distilled_water', 4000))
+        .outputFluids(Fluid.of('gtceu:ultrapure_water', 4000))
+        .duration(200)
+        .EUt(EV)
+})

@@ -320,10 +320,16 @@
 			y: -0.9999999999999989d
 		}
 		{
+			dependencies: [
+				"F3C933DD2ADF7BB7"
+				"75865FF47260C1E7"
+			]
 			description: [
 				"{atm9.quest.gregtech.mv.desc.siliconDust.1}"
 				""
 				"{atm9.quest.gregtech.mv.desc.siliconDust.2}"
+				""
+				"{af9.quest.mv.boule}"
 			]
 			id: "26D1F1ECF66194E6"
 			rewards: [{
@@ -1850,6 +1856,97 @@
 			title: "{af9.quest.title.mvMetals}"
 			x: 5.5d
 			y: 3.0d
+		}
+		{
+			description: ["{af9.quest.mv.hf}"]
+			id: "97A469B25693E8F2"
+			rewards: [{
+				id: "861109DE80196581"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:hydrofluoric_acid"
+				id: "CD7E416185DE213F"
+				type: "fluid"
+			}]
+			title: "{af9.quest.title.hf}"
+			x: 13.0d
+			y: -4.0d
+		}
+		{
+			dependencies: ["97A469B25693E8F2"]
+			description: [
+				"{af9.quest.mv.egs.1}"
+				""
+				"{af9.quest.mv.egs.2}"
+				""
+				"{af9.quest.mv.egs.3}"
+			]
+			id: "F3C933DD2ADF7BB7"
+			rewards: [{
+				id: "3F93B08DF7CF0259"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "7B41E9DCA61D0D37"
+					item: "gtceu:metallurgical_grade_silicon_dust"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:electronic_grade_trichlorosilane"
+					id: "6391EC83554871FA"
+					type: "fluid"
+				}
+				{
+					id: "9911E6412E32D974"
+					item: "gtceu:polysilicon_ingot"
+					type: "item"
+				}
+				{
+					id: "E77CA561005E4567"
+					item: "gtceu:electronic_grade_silicon_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.egs}"
+			x: 13.0d
+			y: -2.5d
+		}
+		{
+			dependencies: ["F01C688974686C8E"]
+			description: [
+				"{af9.quest.mv.air.1}"
+				""
+				"{af9.quest.mv.air.2}"
+			]
+			id: "75865FF47260C1E7"
+			rewards: [{
+				id: "608E56EA5F9EBD33"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:crude_argon"
+					id: "84F5FB7A3C468B68"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:argon"
+					id: "ECB58A93F90A0BE9"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.title.air}"
+			x: 13.0d
+			y: -1.0d
 		}
 	]
 	title: "{atm9.chapters.28.title}"

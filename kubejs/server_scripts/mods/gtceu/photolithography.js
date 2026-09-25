@@ -144,9 +144,9 @@ ServerEvents.recipes(allthemods => {
         .duration(400)
         .EUt(EU_MV)
 
-    // zeolite crystallised with a clay binder into sieve beads
+    // zeolite crystallised with a bentonite binder into sieve beads (clay + distilled water is GT's clay recipe)
     allthemods.recipes.gtceu.autoclave('af9:molecular_sieve')
-        .itemInputs('4x gtceu:zeolite_dust', 'gtceu:clay_dust')
+        .itemInputs('4x gtceu:zeolite_dust', 'gtceu:bentonite_dust')
         .inputFluids(Fluid.of('gtceu:distilled_water', 500))
         .itemOutputs('4x kubejs:molecular_sieve')
         .duration(600)
@@ -241,7 +241,33 @@ ServerEvents.recipes(allthemods => {
         .duration(100)
         .EUt(EU_LV)
 
-    // ---- Photoresist ----
+    // ---- Photoresist (i-line, MUV) ----
+    // Formox process: CH3OH + 1/2 O2 -> CH2O + H2O with air over iron molybdate. GT's own formaldehyde recipe (silver
+    // catalyst) is HV, which MUV cannot wait for. The catalyst: molybdenite roasted to MoO3, calcined with hematite.
+    allthemods.recipes.gtceu.electric_blast_furnace('af9:molybdenum_trioxide')
+        .itemInputs('gtceu:molybdenite_dust')
+        .inputFluids(Fluid.of('gtceu:oxygen', 7000))
+        .itemOutputs('gtceu:molybdenum_trioxide_dust')
+        .outputFluids(Fluid.of('gtceu:sulfur_dioxide', 2000))
+        .blastFurnaceTemp(900)
+        .duration(300)
+        .EUt(EU_MV)
+
+    // Fe2O3 + 3 MoO3 -> Fe2(MoO4)3
+    allthemods.recipes.gtceu.electric_blast_furnace('af9:iron_molybdate')
+        .itemInputs('gtceu:hematite_dust', '3x gtceu:molybdenum_trioxide_dust')
+        .itemOutputs('gtceu:iron_molybdate_dust')
+        .blastFurnaceTemp(800)
+        .duration(300)
+        .EUt(EU_MV)
+
+    allthemods.recipes.gtceu.chemical_reactor('af9:formaldehyde_formox')
+        .notConsumable('gtceu:iron_molybdate_dust')
+        .inputFluids(Fluid.of('gtceu:methanol', 1000), Fluid.of('gtceu:air', 3000))
+        .outputFluids(Fluid.of('gtceu:formaldehyde', 1000), Fluid.of('minecraft:water', 1000))
+        .duration(200)
+        .EUt(EU_MV)
+
     allthemods.recipes.gtceu.chemical_reactor('af9:novolac_resin')
         .inputFluids(Fluid.of('gtceu:phenol', 1000), Fluid.of('gtceu:formaldehyde', 1000))
         .notConsumableFluid(Fluid.of('gtceu:hydrochloric_acid', 100))
@@ -271,126 +297,20 @@ ServerEvents.recipes(allthemods => {
         .duration(300)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.chemical_reactor('af9:tmah_developer')
-        .itemInputs('gtceu:tetramethylammonium_chloride_dust', '3x gtceu:potassium_hydroxide_dust')
+    // Membrane electrolysis, as electronic-grade TMAH is made: no potassium or sodium may reach the developer (metal
+    // ions shift transistor thresholds). (CH3)4NCl + H2O -> (CH3)4NOH + 1/2 H2 + 1/2 Cl2
+    allthemods.recipes.gtceu.mixer('af9:tetramethylammonium_chloride_solution')
+        .itemInputs('gtceu:tetramethylammonium_chloride_dust')
         .inputFluids(Fluid.of('gtceu:distilled_water', 5000))
-        .itemOutputs('2x gtceu:rock_salt_dust')
-        .outputFluids(Fluid.of('gtceu:tmah_developer', 5000))
+        .outputFluids(Fluid.of('gtceu:tetramethylammonium_chloride_solution', 5000))
+        .duration(100)
+        .EUt(EU_LV)
+
+    allthemods.recipes.gtceu.electrolyzer('af9:tmah_developer')
+        .inputFluids(Fluid.of('gtceu:tetramethylammonium_chloride_solution', 5000))
+        .outputFluids(Fluid.of('gtceu:tmah_developer', 5000), Fluid.of('gtceu:chlorine', 1000), Fluid.of('gtceu:hydrogen', 1000))
         .duration(300)
         .EUt(EU_MV)
-
-    // ---- Excimer laser gas (HUV to LUV) ----
-    // GT only gives neon from nether air (EV) and krypton from ender air (IV). An air separation plant recovers both
-    // from ordinary air: krypton adsorbs on cold silica gel, neon stays in the non-condensable head gas. Real air holds
-    // 16x more neon than krypton; the rest of the liquid air is spent.
-    allthemods.recipes.gtceu.chemical_reactor('af9:rare_gas_recovery')
-        .notConsumable('gtceu:silicon_dioxide_dust')
-        .inputFluids(Fluid.of('gtceu:liquid_air', 10000))
-        .outputFluids(Fluid.of('gtceu:neon', 80), Fluid.of('gtceu:krypton', 5))
-        .duration(400)
-        .EUt(EU_HV)
-
-    // Premixes: 5 % rare gas and 1 % fluorine in neon (real ones are leaner, ~1 % and ~0.1 %)
-    const excimerGases = [
-        { id: 'krf_excimer_gas', rareGas: 'gtceu:krypton' },
-        { id: 'arf_excimer_gas', rareGas: 'gtceu:argon' }
-    ]
-    excimerGases.forEach(gas => {
-        allthemods.recipes.gtceu.chemical_reactor(`af9:${gas.id}`)
-            .inputFluids(Fluid.of('gtceu:neon', 940), Fluid.of(gas.rareGas, 50), Fluid.of('gtceu:fluorine', 10))
-            .outputFluids(Fluid.of(`gtceu:${gas.id}`, 1000))
-            .duration(200)
-            .EUt(EU_HV)
-    })
-
-    // ---- Chemically amplified resists (HUV to LUV) ----
-    const EU_EV = GTValues.VA[GTValues.EV]
-
-    // CH4 + SO3 + 3 HF -> CF3SO3H + 3 H2 (sulfonation, then electrochemical fluorination)
-    allthemods.recipes.gtceu.chemical_reactor('af9:trifluoromethanesulfonic_acid')
-        .inputFluids(Fluid.of('gtceu:methane', 1000), Fluid.of('gtceu:sulfur_trioxide', 1000), Fluid.of('gtceu:hydrofluoric_acid', 3000))
-        .outputFluids(Fluid.of('gtceu:trifluoromethanesulfonic_acid', 1000), Fluid.of('gtceu:hydrogen', 3000))
-        .duration(400)
-        .EUt(EU_HV)
-
-    // Photoacid generator: 3 C6H6 + SO2 + CF3SO3H -> (C6H5)3S+ CF3SO3- + 2 H2O
-    allthemods.recipes.gtceu.chemical_reactor('af9:triphenylsulfonium_triflate')
-        .inputFluids(Fluid.of('gtceu:benzene', 3000), Fluid.of('gtceu:sulfur_dioxide', 1000), Fluid.of('gtceu:trifluoromethanesulfonic_acid', 1000))
-        .itemOutputs('gtceu:triphenylsulfonium_triflate_dust')
-        .outputFluids(Fluid.of('minecraft:water', 2000))
-        .duration(600)
-        .EUt(EU_HV)
-
-    // KrF polymer: C6H5OH + CH3COOH (acylation) -> 4-hydroxyacetophenone, + H2 -> 4-vinylphenol + 2 H2O, polymerized
-    allthemods.recipes.gtceu.chemical_reactor('af9:polyhydroxystyrene')
-        .inputFluids(Fluid.of('gtceu:phenol', 1000), Fluid.of('gtceu:acetic_acid', 1000), Fluid.of('gtceu:hydrogen', 2000))
-        .itemOutputs('gtceu:polyhydroxystyrene_dust')
-        .outputFluids(Fluid.of('minecraft:water', 2000))
-        .duration(400)
-        .EUt(EU_HV)
-
-    // Resist solvent. The zeolite stands in for titanium silicalite, the HPPO catalyst.
-    allthemods.recipes.gtceu.chemical_reactor('af9:propylene_glycol_methyl_ether')
-        .notConsumable('gtceu:zeolite_dust')
-        .inputFluids(Fluid.of('gtceu:propene', 1000), Fluid.of('gtceu:hydrogen_peroxide', 1000), Fluid.of('gtceu:methanol', 1000))
-        .outputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether', 1000), Fluid.of('minecraft:water', 1000))
-        .duration(300)
-        .EUt(EU_MV)
-
-    // Esterification over an acidic ion-exchange resin (a sulfuric acid catalyst would clash with GT's ethenone recipe)
-    allthemods.recipes.gtceu.chemical_reactor('af9:propylene_glycol_methyl_ether_acetate')
-        .inputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether', 1000), Fluid.of('gtceu:acetic_acid', 1000))
-        .outputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether_acetate', 1000), Fluid.of('minecraft:water', 1000))
-        .duration(300)
-        .EUt(EU_MV)
-
-    // ArF monomer by the acetone cyanohydrin route. HCN first (Andrussow process over platinum gauze):
-    // CH4 + NH3 + 3/2 O2 -> HCN + 3 H2O
-    allthemods.recipes.gtceu.chemical_reactor('af9:hydrogen_cyanide')
-        .notConsumable('gtceu:platinum_dust')
-        .inputFluids(Fluid.of('gtceu:methane', 1000), Fluid.of('gtceu:ammonia', 1000), Fluid.of('gtceu:oxygen', 3000))
-        .outputFluids(Fluid.of('gtceu:hydrogen_cyanide', 1000), Fluid.of('minecraft:water', 3000))
-        .duration(200)
-        .EUt(EU_EV)
-
-    // (CH3)2CO + HCN -> acetone cyanohydrin, then with sulfuric acid and methanol -> MMA:
-    // C3H6O + HCN + CH3OH -> C5H8O2 + NH3 (the acid step is left out)
-    allthemods.recipes.gtceu.chemical_reactor('af9:methyl_methacrylate')
-        .inputFluids(Fluid.of('gtceu:acetone', 1000), Fluid.of('gtceu:hydrogen_cyanide', 1000), Fluid.of('gtceu:methanol', 1000))
-        .outputFluids(Fluid.of('gtceu:methyl_methacrylate', 1000), Fluid.of('gtceu:ammonia', 1000))
-        .duration(400)
-        .EUt(EU_EV)
-
-    // Radical polymerization; the peroxide is the initiator
-    allthemods.recipes.gtceu.chemical_reactor('af9:methacrylate_resin')
-        .inputFluids(Fluid.of('gtceu:methyl_methacrylate', 1000), Fluid.of('gtceu:hydrogen_peroxide', 50))
-        .itemOutputs('gtceu:methacrylate_resin_dust')
-        .outputFluids(Fluid.of('minecraft:water', 50))
-        .duration(300)
-        .EUt(EU_EV)
-
-    // Polymer + a few percent PAG, dissolved in PGMEA
-    const resists = [
-        { id: 'krf_photoresist', polymer: 'gtceu:polyhydroxystyrene_dust', eut: EU_HV },
-        { id: 'arf_photoresist', polymer: 'gtceu:methacrylate_resin_dust', eut: EU_EV }
-    ]
-    resists.forEach(resist => {
-        allthemods.recipes.gtceu.mixer(`af9:${resist.id}`)
-            .itemInputs(resist.polymer, 'gtceu:small_triphenylsulfonium_triflate_dust')
-            .inputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether_acetate', 3000))
-            .outputFluids(Fluid.of(`gtceu:${resist.id}`, 4000))
-            .duration(400)
-            .EUt(resist.eut)
-    })
-
-    // ---- Immersion water (LUV) ----
-    // Mixed-bed polishing, UV oxidation and membrane degassing of distilled water
-    allthemods.recipes.gtceu.chemical_reactor('af9:ultrapure_water')
-        .notConsumable('gtceu:fluid_filter')
-        .inputFluids(Fluid.of('gtceu:distilled_water', 4000))
-        .outputFluids(Fluid.of('gtceu:ultrapure_water', 4000))
-        .duration(200)
-        .EUt(EU_EV)
 
     // ---- Printed wafers ----
     // HMDS prime -> resist coat -> soft bake -> exposure -> PEB -> TMAH develop -> DI rinse -> hard bake
