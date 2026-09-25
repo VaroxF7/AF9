@@ -9,7 +9,8 @@ license = "${mod_license}"
     authors = "${mod_author}"
     description = '''
 Core mod for the AF9 modpack: machine logic that KubeJS cannot provide on its own
-(Photolithography Line module detection, custom controller UI and wafer quality tiers).
+(lithography vacuum and wafer breakage, wafer contamination, machine consoles, the EBF's Boule Melting mode,
+Jade tooltips).
 '''
 
     [[dependencies.${mod_id}]]

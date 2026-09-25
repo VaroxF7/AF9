@@ -1,23 +1,26 @@
 package com.af9.core.machine;
 
+import com.af9.core.litho.LithoMode;
+
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 /**
- * Recipe logic that reports every finished print back to the line, so it can count wafer packages per mode.
+ * Recipe logic of the lithography machines: when a print finishes it rolls the break chance (and the vacuum loses
+ * 10-15 points, see {@link LithoMachine#finishPrint}); a broken print puts out the broken wafer instead.
  */
 public class LithoRecipeLogic extends RecipeLogic {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(LithoRecipeLogic.class,
             RecipeLogic.MANAGED_FIELD_HOLDER);
 
-    private final PhotolithographyLineMachine line;
+    private final LithoMachine litho;
 
-    public LithoRecipeLogic(PhotolithographyLineMachine line) {
-        super(line);
-        this.line = line;
+    public LithoRecipeLogic(LithoMachine litho) {
+        super(litho);
+        this.litho = litho;
     }
 
     @Override
@@ -27,11 +30,15 @@ public class LithoRecipeLogic extends RecipeLogic {
 
     @Override
     public void onRecipeFinish() {
-        // capture before super.onRecipeFinish() can replace it with the next recipe
-        GTRecipe finished = lastOriginRecipe;
-        super.onRecipeFinish();
+        // decide before super.onRecipeFinish() puts out lastRecipe's outputs; the machine re-modifies the next run
+        // from the original recipe (alwaysTryModifyRecipe), so the swap only affects this one
+        GTRecipe finished = lastRecipe;
         if (finished != null) {
-            line.recordPrinted(finished);
+            LithoMode mode = LithoMode.of(finished.recipeType);
+            if (mode != null && litho.finishPrint(mode)) {
+                lastRecipe = LithoMachine.asBroken(finished, mode);
+            }
         }
+        super.onRecipeFinish();
     }
 }

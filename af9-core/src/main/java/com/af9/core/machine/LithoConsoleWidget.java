@@ -1,147 +1,207 @@
 package com.af9.core.machine;
 
 import com.af9.core.litho.LithoMode;
+import com.af9.core.machine.console.ConsoleWidget;
 
-import com.lowdragmc.lowdraglib.gui.widget.Widget;
+import com.lowdragmc.lowdraglib.gui.texture.ColorBorderTexture;
+import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
+import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
+import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
- * The Photolithography Line's control console: line version, mode selector (modes above the version locked), power
- * gauge, process track, output data (node, light source, density, dies, substrate, version bonuses) and counters,
- * drawn on a dark scanline panel. The server samples the machine every tick and syncs only what changed; clicks are
- * handled by invisible {@code ButtonWidget}s placed over the drawn tiles (see
- * {@link PhotolithographyLineMachine#createUIWidget()}).
+ * Console of the lithography machines (line and orbital station): mode tiles (modes above the line version locked),
+ * the vacuum's cleanliness bar, break chance, power gauge, what is being printed, the run-time bar and the print
+ * counters.
  */
-public class LithoConsoleWidget extends Widget {
+public class LithoConsoleWidget extends ConsoleWidget {
 
-    public static final int WIDTH = 190;
-    public static final int HEIGHT = 125;
+    public static final int WIDTH = 230;
+    public static final int HEIGHT = 144;
     public static final int TILE_Y = 18;
-    public static final int TILE_W = 34;
     public static final int TILE_H = 22;
-    public static final int RESET_X = 160;
-    public static final int RESET_Y = 98;
-    public static final int RESET_W = 24;
-    public static final int RESET_H = 10;
+    public static final int TILE_GAP = 2;
+    public static final int RESET_W = 36;
+    public static final int RESET_H = 9;
+    public static final int RESET_X = WIDTH - 4 - RESET_W;
+    public static final int RESET_Y = 132;
 
-    static final int STATUS_OFFLINE = 0, STATUS_IDLE = 1, STATUS_RUNNING = 2, STATUS_NO_POWER = 3, STATUS_PAUSED = 4,
-            STATUS_MAINTENANCE = 5, STATUS_LOCKED = 6;
-
-    private static final int BG = 0xFF0A0E16, PANEL = 0xFF111827, EDGE = 0xFF25324A, TEXT = 0xFFE6EDF7,
-            MUTED = 0xFF7C8AA5, GOOD = 0xFF4ADE80, BAD = 0xFFEF4444, WARN = 0xFFFBBF24;
-    private static final String[] STATION_LETTERS = { "P", "C", "B", "E", "B", "D", "R", "B" };
-
-    private final PhotolithographyLineMachine machine;
+    private final LithoMachine machine;
 
     // last state sent to / received by the client
     private int status = -1;
-    private int mode = 0;
+    private int mode;
     private int version;
     private long available;
-    private int progress; // per mille
-    private final long[] printed = new long[LithoMode.values().length];
+    private int progress;
+    private int duration;
+    private int cleanliness; // x10
+    private int breakChance; // x10000
+    private long printed;
+    private long broken;
+    private boolean pumping;
+    private String product = "";
 
-    public LithoConsoleWidget(PhotolithographyLineMachine machine, int x, int y) {
+    public LithoConsoleWidget(LithoMachine machine, int x, int y) {
         super(x, y, WIDTH, HEIGHT);
         this.machine = machine;
     }
 
-    public static int tileX(int index) {
-        return 6 + index * (TILE_W + 2);
+    /** The console with its click areas: one per mode tile and the counter reset. */
+    public static WidgetGroup create(LithoMachine machine) {
+        var group = new WidgetGroup(0, 0, WIDTH, HEIGHT);
+        group.addWidget(new LithoConsoleWidget(machine, 0, 0));
+        List<LithoMode> modes = machine.getModes();
+        for (int i = 0; i < modes.size(); i++) {
+            LithoMode mode = modes.get(i);
+            // clicks arrive on the client first and are then forwarded; only act on the server copy
+            var tile = new ButtonWidget(tileX(i, modes.size()), TILE_Y, tileWidth(modes.size()), TILE_H,
+                    IGuiTexture.EMPTY, click -> {
+                        if (!click.isRemote) machine.selectMode(mode);
+                    });
+            tile.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
+            tile.setHoverTooltips(tileTooltip(mode));
+            group.addWidget(tile);
+        }
+        var reset = new ButtonWidget(RESET_X, RESET_Y, RESET_W, RESET_H, IGuiTexture.EMPTY, click -> {
+            if (!click.isRemote) machine.resetCounters();
+        });
+        reset.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
+        reset.setHoverTooltips(Component.translatable("af9.litho.console.reset_tooltip"));
+        group.addWidget(reset);
+        return group;
+    }
+
+    public static int tileWidth(int count) {
+        return (WIDTH - 8 - TILE_GAP * (count - 1)) / count;
+    }
+
+    public static int tileX(int index, int count) {
+        return 4 + index * (tileWidth(count) + TILE_GAP);
+    }
+
+    private static Component[] tileTooltip(LithoMode mode) {
+        Component resist = mode.resist.equals("dry_resist") ?
+                Component.translatable("item.kubejs.dry_resist_cartridge") :
+                Component.translatable("material.gtceu." + mode.resist);
+        Component level = mode.isOrbital() ? Component.translatable("af9.litho.console.tile_orbit") :
+                Component.translatable("af9.litho.console.tile_version", mode.level());
+        return new Component[] {
+                Component.translatable("af9.litho.mode." + mode.id).withStyle(mode.color),
+                level,
+                Component.translatable("af9.litho.console.tile_power",
+                        Component.translatable("af9.litho.hatch." + mode.hatchTier), mode.amperage()),
+                Component.translatable("af9.litho.console.tile_substrate",
+                        Component.translatable("af9.litho.substrate." + mode.substrate)),
+                Component.translatable("af9.litho.console.tile_light",
+                        Component.translatable("af9.litho.light." + mode.light + ".long")),
+                Component.translatable("af9.litho.console.tile_optics",
+                        String.format(Locale.ROOT, "%.2f", mode.numericalAperture),
+                        String.format(Locale.ROOT, "%.2f", mode.k1())),
+                Component.translatable("af9.litho.console.tile_resist", resist),
+                Component.translatable("af9.litho.console.tile_break",
+                        LithoMode.formatPercent(mode.baseBreak / 10000.0),
+                        LithoMode.formatPercent(mode.baseBreak / 10000.0 + LithoMode.DIRT_BREAK)) };
     }
 
     //////////////////////////////////////
     // *********** Sync ***********//
     //////////////////////////////////////
 
-    private int sampleStatus() {
+    /** Console status of a lithography machine (also used by the Jade tooltip). */
+    public static int statusOf(LithoMachine machine) {
         if (!machine.isFormed()) return STATUS_OFFLINE;
         if (machine.hasMaintenanceProblems()) return STATUS_MAINTENANCE;
         var logic = machine.getRecipeLogic();
         if (!logic.isWorkingEnabled()) return STATUS_PAUSED;
         if (logic.isWorking()) return STATUS_RUNNING;
         LithoMode active = machine.getActiveMode();
-        if (active != null && active.level() > machine.getVersion()) return STATUS_LOCKED;
-        if (logic.isWaiting() || (active != null && machine.getAvailableEUt() < active.eut())) return STATUS_NO_POWER;
+        int blocked = machine.blockedStatus(active);
+        if (blocked >= 0) return blocked;
+        if (logic.isWaiting() || machine.getAvailableEUt() < active.eut()) return STATUS_NO_POWER;
         return STATUS_IDLE;
     }
 
     @Override
-    public void detectAndSendChanges() {
-        super.detectAndSendChanges();
-        int newStatus = sampleStatus();
+    protected boolean sample() {
         LithoMode active = machine.getActiveMode();
-        int newMode = active == null ? 0 : active.ordinal();
-        long newAvailable = machine.getAvailableEUt();
-        int newProgress = (int) Math.round(machine.getRecipeLogic().getProgressPercent() * 1000);
-        long[] newPrinted = machine.getPrintedCounts();
+        var logic = machine.getRecipeLogic();
+        ResourceLocation current = machine.getCurrentProduct();
+        int newStatus = statusOf(machine);
+        int newMode = active.ordinal();
         int newVersion = machine.getVersion();
-        if (newStatus != status || newMode != mode || newAvailable != available || newProgress != progress ||
-                newVersion != version || !Arrays.equals(newPrinted, printed)) {
-            status = newStatus;
-            mode = newMode;
-            version = newVersion;
-            available = newAvailable;
-            progress = newProgress;
-            System.arraycopy(newPrinted, 0, printed, 0, printed.length);
-            writeUpdateInfo(1, this::writeState);
-        }
+        long newAvailable = machine.getAvailableEUt();
+        int newProgress = logic.isWorking() ? logic.getProgress() : 0;
+        int newDuration = logic.isWorking() ? logic.getDuration() : 0;
+        int newCleanliness = (int) Math.round(machine.getCleanliness() * 10);
+        int newBreak = (int) Math.round(machine.currentBreakChance(active) * 10000);
+        long newPrinted = machine.getPrinted();
+        long newBroken = machine.getBroken();
+        boolean newPumping = machine.isPumping();
+        String newProduct = current == null ? "" : current.toString();
+        boolean changed = newStatus != status || newMode != mode || newVersion != version ||
+                newAvailable != available || newProgress != progress || newDuration != duration ||
+                newCleanliness != cleanliness || newBreak != breakChance || newPrinted != printed ||
+                newBroken != broken || newPumping != pumping || !Objects.equals(newProduct, product);
+        status = newStatus;
+        mode = newMode;
+        version = newVersion;
+        available = newAvailable;
+        progress = newProgress;
+        duration = newDuration;
+        cleanliness = newCleanliness;
+        breakChance = newBreak;
+        printed = newPrinted;
+        broken = newBroken;
+        pumping = newPumping;
+        product = newProduct;
+        return changed;
     }
 
     @Override
-    public void writeInitialData(FriendlyByteBuf buffer) {
-        super.writeInitialData(buffer);
-        status = sampleStatus();
-        LithoMode active = machine.getActiveMode();
-        mode = active == null ? 0 : active.ordinal();
-        version = machine.getVersion();
-        available = machine.getAvailableEUt();
-        progress = (int) Math.round(machine.getRecipeLogic().getProgressPercent() * 1000);
-        System.arraycopy(machine.getPrintedCounts(), 0, printed, 0, printed.length);
-        writeState(buffer);
-    }
-
-    @Override
-    public void readInitialData(FriendlyByteBuf buffer) {
-        super.readInitialData(buffer);
-        readState(buffer);
-    }
-
-    @Override
-    public void readUpdateInfo(int id, FriendlyByteBuf buffer) {
-        if (id == 1) {
-            readState(buffer);
-        } else {
-            super.readUpdateInfo(id, buffer);
-        }
-    }
-
-    private void writeState(FriendlyByteBuf buffer) {
+    protected void writeState(FriendlyByteBuf buffer) {
         buffer.writeVarInt(status);
         buffer.writeVarInt(mode);
         buffer.writeVarInt(version);
         buffer.writeVarLong(available);
         buffer.writeVarInt(progress);
-        for (long count : printed) buffer.writeVarLong(count);
+        buffer.writeVarInt(duration);
+        buffer.writeVarInt(cleanliness);
+        buffer.writeVarInt(breakChance);
+        buffer.writeVarLong(printed);
+        buffer.writeVarLong(broken);
+        buffer.writeBoolean(pumping);
+        buffer.writeUtf(product);
     }
 
-    private void readState(FriendlyByteBuf buffer) {
+    @Override
+    protected void readState(FriendlyByteBuf buffer) {
         status = buffer.readVarInt();
         mode = buffer.readVarInt();
         version = buffer.readVarInt();
         available = buffer.readVarLong();
         progress = buffer.readVarInt();
-        for (int i = 0; i < printed.length; i++) printed[i] = buffer.readVarLong();
+        duration = buffer.readVarInt();
+        cleanliness = buffer.readVarInt();
+        breakChance = buffer.readVarInt();
+        printed = buffer.readVarLong();
+        broken = buffer.readVarLong();
+        pumping = buffer.readBoolean();
+        product = buffer.readUtf();
     }
 
     //////////////////////////////////////
@@ -152,167 +212,113 @@ public class LithoConsoleWidget extends Widget {
     @OnlyIn(Dist.CLIENT)
     public void drawInBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
         super.drawInBackground(graphics, mouseX, mouseY, partialTicks);
-        Font font = Minecraft.getInstance().font;
+        var font = font();
         int x0 = getPosition().x;
         int y0 = getPosition().y;
         LithoMode active = LithoMode.values()[Math.max(0, Math.min(mode, LithoMode.values().length - 1))];
-        long time = System.currentTimeMillis();
+        List<LithoMode> modes = machine.getModes();
 
-        // panel with scanlines and a slow sweep line
-        graphics.fill(x0, y0, x0 + WIDTH, y0 + HEIGHT, BG);
-        for (int y = 15; y < HEIGHT; y += 3) graphics.fill(x0 + 1, y0 + y, x0 + WIDTH - 1, y0 + y + 1, 0x0AFFFFFF);
-        int sweep = (int) (time / 40 % (HEIGHT - 16)) + 15;
-        graphics.fill(x0 + 1, y0 + sweep, x0 + WIDTH - 1, y0 + sweep + 1, withAlpha(active.argb, 0x22));
-        border(graphics, x0, y0, WIDTH, HEIGHT, EDGE);
+        drawFrame(graphics, Component.translatable(machine.titleKey()).getString(),
+                version > 0 ? "V" + version : "", active.argb, status, active.argb);
 
-        // header: title, status word and LED
-        graphics.fill(x0 + 1, y0 + 1, x0 + WIDTH - 1, y0 + 14, PANEL);
-        graphics.fill(x0 + 1, y0 + 14, x0 + WIDTH - 1, y0 + 15, withAlpha(active.argb, 0xAA));
-        String title = Component.translatable("af9.litho.console.title").getString();
-        graphics.drawString(font, title, x0 + 6, y0 + 3, TEXT, false);
-        if (version > 0) {
-            graphics.drawString(font, "V" + version, x0 + 10 + font.width(title), y0 + 3, active.argb, false);
-        }
-        int ledColor = statusColor();
-        boolean ledOn = status != STATUS_RUNNING || (time / 400) % 2 == 0;
-        graphics.fill(x0 + WIDTH - 12, y0 + 4, x0 + WIDTH - 6, y0 + 10, ledOn ? ledColor : withAlpha(ledColor, 0x55));
-        String statusText = Component.translatable("af9.litho.console.status." + status).getString();
-        graphics.drawString(font, statusText, x0 + WIDTH - 16 - font.width(statusText), y0 + 3, ledColor, false);
-
-        // mode tiles
-        for (LithoMode tileMode : LithoMode.values()) {
-            int tx = x0 + tileX(tileMode.ordinal());
-            int ty = y0 + TILE_Y;
-            boolean selected = tileMode == active;
-            boolean locked = tileMode.level() > version;
+        // mode tiles: node on top, substrate symbol (or the version a locked mode needs) below
+        for (int i = 0; i < modes.size(); i++) {
+            LithoMode tileMode = modes.get(i);
+            boolean locked = !tileMode.isOrbital() && tileMode.level() > version;
             boolean powered = status != STATUS_OFFLINE && !locked && available >= tileMode.eut();
-            graphics.fill(tx, ty, tx + TILE_W, ty + TILE_H, selected ? withAlpha(tileMode.argb, 0x55) :
-                    locked ? 0xFF0B0F17 : PANEL);
-            border(graphics, tx, ty, TILE_W, TILE_H, selected ? tileMode.argb :
-                    withAlpha(tileMode.argb, locked ? 0x33 : 0x66));
-            String name = tileMode.name();
-            graphics.drawString(font, name, tx + (TILE_W - font.width(name)) / 2, ty + 3,
-                    powered || selected ? tileMode.argb : withAlpha(tileMode.argb, locked ? 0x55 : 0x88), false);
-            // locked tiles show the version they need instead of the node
-            drawSmall(graphics, font, locked ? "V" + tileMode.level() : tileMode.nodeNm + "nm", tx + TILE_W / 2,
-                    ty + 13, locked ? BAD : powered ? MUTED : 0xFF4B5567, true);
+            String detail = locked ? "V" + tileMode.level() :
+                    Component.translatable("af9.litho.substrate_short." + tileMode.substrate).getString();
+            if (tileMode.isOrbital()) {
+                detail = Component.translatable("af9.litho.substrate." + tileMode.substrate).getString();
+            }
+            drawTile(graphics, x0 + tileX(i, modes.size()), y0 + TILE_Y, tileWidth(modes.size()), TILE_H,
+                    tileMode.nodeNm + "nm", detail, tileMode.argb, tileMode == active, powered, locked);
         }
 
-        // left: power gauge, progress and the process track
+        // left: vacuum, break chance, power
         int lx = x0 + 6;
-        drawSmall(graphics, font, Component.translatable("af9.litho.console.power").getString(), lx, y0 + 48, MUTED,
+        int lw = 108;
+        double clean = cleanliness / 10.0;
+        drawSmall(graphics, Component.translatable("af9.litho.console.vacuum").getString(), lx, y0 + 44, MUTED,
                 false);
+        String cleanText = String.format(Locale.ROOT, "%.1f / 100", clean);
+        drawSmall(graphics, cleanText, lx + lw - font.width(cleanText) * 3 / 4, y0 + 44, levelColor(clean), false);
+        bar(graphics, lx, y0 + 51, lw, 7, clean / 100.0, levelColor(clean));
+        border(graphics, lx - 1, y0 + 50, lw + 2, 9, EDGE);
+        String pumpKey = status == STATUS_OFFLINE ? "af9.litho.console.pump_off" :
+                clean >= 100 ? "af9.litho.console.pump_sealed" :
+                        pumping ? "af9.litho.console.pump_on" : "af9.litho.console.pump_leak";
+        drawSmall(graphics, Component.translatable(pumpKey).getString(), lx, y0 + 61, pumping ? INFO : MUTED, false);
+
+        double chance = breakChance / 10000.0;
+        drawSmall(graphics, Component.translatable("af9.litho.console.break").getString(), lx, y0 + 70, MUTED, false);
+        int chanceColor = chance <= 0.05 ? GOOD : chance <= 0.2 ? WARN : BAD;
+        graphics.drawString(font, LithoMode.formatPercent(chance), lx, y0 + 77, chanceColor, false);
+
         long needed = active.eut();
         boolean enough = available >= needed;
-        bar(graphics, lx, y0 + 55, 88, 5, needed == 0 ? 0 : Math.min(1.0, (double) available / needed),
+        drawSmall(graphics, Component.translatable("af9.litho.console.power").getString(), lx + 54, y0 + 70, MUTED,
+                false);
+        bar(graphics, lx + 54, y0 + 77, lw - 54, 4, needed == 0 ? 0 : Math.min(1.0, (double) available / needed),
                 enough ? GOOD : BAD);
-        graphics.drawString(font, compact(available) + "/" + compact(needed) + " EU/t", lx, y0 + 62,
-                enough ? TEXT : BAD, false);
+        drawSmall(graphics, compact(available) + "/" + compact(needed), lx + 54, y0 + 84, enough ? TEXT : BAD, false);
+        drawSmall(graphics, "EU/t", lx + 54, y0 + 91, MUTED, false);
 
-        drawSmall(graphics, font, Component.translatable("af9.litho.console.progress").getString(), lx, y0 + 75, MUTED,
+        // right: what is printed, substrate, light, version bonus / orbit
+        int rx = x0 + 120;
+        int rw = WIDTH - 126;
+        drawSmall(graphics, Component.translatable("af9.litho.console.output").getString(), rx, y0 + 44, MUTED,
                 false);
-        double fraction = progress / 1000.0;
-        bar(graphics, lx, y0 + 82, 88, 5, fraction, active.argb);
-        String percent = Math.round(fraction * 100) + "%";
-        graphics.drawString(font, percent, lx + 88 - font.width(percent), y0 + 89, TEXT, false);
-
-        int lit = status == STATUS_RUNNING ? Math.min(STATION_LETTERS.length, (int) (fraction * STATION_LETTERS.length) + 1) : 0;
-        for (int i = 0; i < STATION_LETTERS.length; i++) {
-            int sx = lx + i * 11;
-            int sy = y0 + 104;
-            boolean current = i == lit - 1;
-            int fill = i < lit ? withAlpha(active.argb, current && (time / 250) % 2 == 0 ? 0xEE : 0x88) : PANEL;
-            graphics.fill(sx, sy, sx + 9, sy + 9, fill);
-            border(graphics, sx, sy, 9, 9, withAlpha(active.argb, 0x66));
-            graphics.drawString(font, STATION_LETTERS[i], sx + 5 - font.width(STATION_LETTERS[i]) / 2, sy + 1,
-                    i < lit ? 0xFF0A0E16 : MUTED, false);
-        }
-        drawSmall(graphics, font, Component.translatable("af9.litho.console.track").getString(), lx, y0 + 96, MUTED,
-                false);
-
-        // right: output data and counters
-        int rx = x0 + 98;
-        drawSmall(graphics, font, Component.translatable("af9.litho.console.output").getString(), rx, y0 + 48, MUTED,
-                false);
-        graphics.drawString(font, active.nodeNm + " nm node", rx, y0 + 55, active.argb, false);
-        graphics.drawString(font, Component.translatable("af9.litho.light." + active.light).getString(), rx, y0 + 64,
-                TEXT, false);
-        // what the line's version adds on top of this mode (density, dies and substrate are on the tile tooltips)
-        int surplus = version - active.level();
-        if (surplus < 0) {
-            graphics.drawString(font, Component.translatable("af9.litho.console.needs_version", active.level())
-                    .getString(), rx, y0 + 72, BAD, false);
+        ItemStack stack = productStack();
+        if (!stack.isEmpty()) {
+            graphics.renderItem(stack, rx, y0 + 51);
+            graphics.drawString(font, fit(stack.getHoverName().getString(), rw - 20), rx + 19, y0 + 51, TEXT, false);
         } else {
-            int bonusColor = surplus > 0 ? GOOD : MUTED;
-            graphics.drawString(font, Component.translatable("af9.litho.console.bonus_speed",
-                    LithoMode.formatFactor(1 / LithoMode.speedFactor(surplus))).getString(), rx, y0 + 72, bonusColor,
-                    false);
-            graphics.drawString(font, Component.translatable("af9.litho.console.bonus_yield",
-                    LithoMode.yieldBonus(surplus) / 100).getString(), rx, y0 + 81, bonusColor, false);
-            graphics.drawString(font, Component.translatable("af9.litho.console.bonus_shrink",
-                    Math.round(LithoMode.VERSION_SHRINK * 100 * surplus)).getString(), rx, y0 + 90, bonusColor, false);
+            graphics.drawString(font, Component.translatable("af9.litho.console.nothing").getString(), rx + 19,
+                    y0 + 51, MUTED, false);
         }
-
-        drawSmall(graphics, font, Component.translatable("af9.litho.console.printed").getString(), rx, y0 + 100, MUTED,
+        drawSmall(graphics, active.nodeNm + " nm  " +
+                Component.translatable("af9.litho.light." + active.light).getString(), rx + 19, y0 + 61, active.argb,
                 false);
-        graphics.fill(x0 + RESET_X, y0 + RESET_Y, x0 + RESET_X + RESET_W, y0 + RESET_Y + RESET_H, PANEL);
-        border(graphics, x0 + RESET_X, y0 + RESET_Y, RESET_W, RESET_H, EDGE);
-        drawSmall(graphics, font, Component.translatable("af9.litho.console.reset").getString(),
-                x0 + RESET_X + RESET_W / 2, y0 + RESET_Y + 2, TEXT, true);
-        for (LithoMode counterMode : LithoMode.values()) {
-            int cx = rx + counterMode.ordinal() * 17;
-            drawSmall(graphics, font, compact(printed[counterMode.ordinal()]), cx + 8, y0 + 111, counterMode.argb, true);
+        drawSmall(graphics, Component.translatable("af9.litho.console.substrate").getString(), rx, y0 + 71, MUTED,
+                false);
+        graphics.drawString(font, fit(Component.translatable("af9.litho.substrate." + active.substrate).getString(),
+                rw), rx, y0 + 78, TEXT, false);
+        if (active.isOrbital()) {
+            boolean orbit = status != STATUS_NO_ORBIT;
+            drawSmall(graphics, Component.translatable(orbit ? "af9.litho.console.orbit_ok" :
+                    "af9.litho.console.orbit_missing").getString(), rx, y0 + 90, orbit ? GOOD : BAD, false);
+        } else {
+            int surplus = version - active.level();
+            if (surplus < 0) {
+                drawSmall(graphics, Component.translatable("af9.litho.console.needs_version", active.level())
+                        .getString(), rx, y0 + 90, BAD, false);
+            } else {
+                drawSmall(graphics, Component.translatable("af9.litho.console.bonus",
+                        LithoMode.formatFactor(1 / LithoMode.speedFactor(surplus)),
+                        LithoMode.formatFactor(Math.pow(LithoMode.VERSION_BREAK_FACTOR, surplus))).getString(),
+                        rx, y0 + 90, surplus > 0 ? GOOD : MUTED, false);
+            }
         }
+
+        // run time over the whole width
+        drawRuntime(graphics, x0 + 6, y0 + 101, WIDTH - 12, progress, duration, status == STATUS_RUNNING,
+                active.argb);
+
+        // counters and reset
+        long total = printed + broken;
+        String yield = total == 0 ? "-" : Math.round(100.0 * printed / total) + "%";
+        drawSmall(graphics, Component.translatable("af9.litho.console.counters", compact(printed), compact(broken),
+                yield).getString(), x0 + 6, y0 + RESET_Y + 2, MUTED, false);
+        drawButton(graphics, x0 + RESET_X, y0 + RESET_Y, RESET_W, RESET_H,
+                Component.translatable("af9.litho.console.reset").getString());
     }
 
     @OnlyIn(Dist.CLIENT)
-    private int statusColor() {
-        return switch (status) {
-            case STATUS_RUNNING -> GOOD;
-            case STATUS_IDLE -> WARN;
-            case STATUS_NO_POWER, STATUS_MAINTENANCE, STATUS_LOCKED -> BAD;
-            case STATUS_PAUSED -> 0xFF60A5FA;
-            default -> MUTED;
-        };
-    }
-
-    /** Text at 3/4 scale; x is the left edge, or the centre when {@code centered}. */
-    @OnlyIn(Dist.CLIENT)
-    private static void drawSmall(GuiGraphics graphics, Font font, String text, int x, int y, int color,
-                                  boolean centered) {
-        graphics.pose().pushPose();
-        graphics.pose().translate(x, y, 0);
-        graphics.pose().scale(0.75F, 0.75F, 1F);
-        int offset = centered ? -font.width(text) / 2 : 0;
-        graphics.drawString(font, text, offset, 0, color, false);
-        graphics.pose().popPose();
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static void bar(GuiGraphics graphics, int x, int y, int width, int height, double fraction, int color) {
-        graphics.fill(x, y, x + width, y + height, 0xFF1E293B);
-        int filled = (int) Math.round(width * Math.max(0, Math.min(1, fraction)));
-        if (filled > 0) graphics.fill(x, y, x + filled, y + height, color);
-    }
-
-    @OnlyIn(Dist.CLIENT)
-    private static void border(GuiGraphics graphics, int x, int y, int width, int height, int color) {
-        graphics.fill(x, y, x + width, y + 1, color);
-        graphics.fill(x, y + height - 1, x + width, y + height, color);
-        graphics.fill(x, y, x + 1, y + height, color);
-        graphics.fill(x + width - 1, y, x + width, y + height, color);
-    }
-
-    private static int withAlpha(int argb, int alpha) {
-        return (alpha << 24) | (argb & 0xFFFFFF);
-    }
-
-    /** 512, 7.7k, 31k, 123k, 1.2M: short enough for the console columns. */
-    static String compact(long value) {
-        if (value < 1000) return Long.toString(value);
-        if (value < 10_000) return String.format(Locale.ROOT, "%.1fk", value / 1000.0);
-        if (value < 1_000_000) return (value / 1000) + "k";
-        if (value < 10_000_000) return String.format(Locale.ROOT, "%.1fM", value / 1_000_000.0);
-        return (value / 1_000_000) + "M";
+    private ItemStack productStack() {
+        if (product.isEmpty()) return ItemStack.EMPTY;
+        ResourceLocation id = ResourceLocation.tryParse(product);
+        Item item = id == null ? null : ForgeRegistries.ITEMS.getValue(id);
+        return item == null || item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item);
     }
 }

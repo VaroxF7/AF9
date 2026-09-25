@@ -1,0 +1,201 @@
+package com.af9.core.compat.jade;
+
+import com.af9.core.AF9Core;
+import com.af9.core.litho.LithoMode;
+import com.af9.core.machine.LithoConsoleWidget;
+import com.af9.core.machine.LithoMachine;
+import com.af9.core.machine.ProcessMachine;
+import com.af9.core.machine.console.ConsoleWidget;
+
+import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import snownee.jade.api.BlockAccessor;
+import snownee.jade.api.IBlockComponentProvider;
+import snownee.jade.api.IServerDataProvider;
+import snownee.jade.api.ITooltip;
+import snownee.jade.api.TooltipPosition;
+import snownee.jade.api.config.IPluginConfig;
+import snownee.jade.api.ui.BoxStyle;
+import snownee.jade.api.ui.IElementHelper;
+
+import java.util.Locale;
+
+/**
+ * Jade tooltip of the AF9 machines, right under the block name:
+ * <ul>
+ * <li>lithography machines: the vacuum cleanliness bar, what is printed (product, node, substrate), the run-time bar,
+ * the break chance and the line version;</li>
+ * <li>process machines (cryostat, accelerator): status and mode, what is made, the run-time bar and the machine's own
+ * readouts (the same lines as its console).</li>
+ * </ul>
+ */
+@SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
+public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+
+    INSTANCE;
+
+    private static final ResourceLocation UID = new ResourceLocation(AF9Core.MOD_ID, "machine_status");
+    private static final String KEY = "af9Machine";
+    private static final int BORDER = 0xFF555555;
+
+    @Override
+    public ResourceLocation getUid() {
+        return UID;
+    }
+
+    @Override
+    public int getDefaultPriority() {
+        return TooltipPosition.HEAD + 50;
+    }
+
+    //////////////////////////////////////
+    // ********** Server ***********//
+    //////////////////////////////////////
+
+    @Override
+    public void appendServerData(CompoundTag data, BlockAccessor accessor) {
+        if (!(accessor.getBlockEntity() instanceof MetaMachineBlockEntity blockEntity)) return;
+        CompoundTag tag = new CompoundTag();
+        var machine = blockEntity.getMetaMachine();
+        if (machine instanceof LithoMachine litho) {
+            LithoMode mode = litho.getActiveMode();
+            var logic = litho.getRecipeLogic();
+            ResourceLocation product = litho.getCurrentProduct();
+            tag.putString("kind", "litho");
+            tag.putInt("status", LithoConsoleWidget.statusOf(litho));
+            tag.putInt("mode", mode.ordinal());
+            tag.putInt("version", litho.getVersion());
+            tag.putDouble("clean", litho.getCleanliness());
+            tag.putDouble("break", litho.currentBreakChance(mode));
+            tag.putBoolean("pumping", litho.isPumping());
+            tag.putString("product", product == null ? "" : "item:" + product);
+            tag.putInt("progress", logic.isWorking() ? logic.getProgress() : 0);
+            tag.putInt("duration", logic.isWorking() ? logic.getDuration() : 0);
+        } else if (machine instanceof ProcessMachine process) {
+            var logic = process.getRecipeLogic();
+            tag.putString("kind", "process");
+            tag.putInt("status", process.getStatus());
+            tag.putString("modeKey", ProcessMachine.modeKey(process.getRecipeType()));
+            tag.putString("product", process.getCurrentOutput());
+            tag.putInt("progress", logic.isWorking() ? logic.getProgress() : 0);
+            tag.putInt("duration", logic.isWorking() ? logic.getDuration() : 0);
+            ListTag lines = new ListTag();
+            for (Component line : process.infoLines()) lines.add(StringTag.valueOf(Component.Serializer.toJson(line)));
+            tag.put("lines", lines);
+        } else {
+            return;
+        }
+        data.put(KEY, tag);
+    }
+
+    //////////////////////////////////////
+    // ********** Client ***********//
+    //////////////////////////////////////
+
+    @Override
+    public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
+        CompoundTag data = accessor.getServerData();
+        if (!data.contains(KEY, Tag.TAG_COMPOUND)) return;
+        CompoundTag tag = data.getCompound(KEY);
+        IElementHelper helper = tooltip.getElementHelper();
+        int status = tag.getInt("status");
+        boolean running = status == ConsoleWidget.STATUS_RUNNING;
+        int progress = tag.getInt("progress");
+        int duration = tag.getInt("duration");
+
+        if (tag.getString("kind").equals("litho")) {
+            LithoMode[] modes = LithoMode.values();
+            LithoMode mode = modes[Math.max(0, Math.min(modes.length - 1, tag.getInt("mode")))];
+            double clean = tag.getDouble("clean");
+            // vacuum first, right under the name
+            Component vacuum = Component.translatable("af9.jade.vacuum",
+                    String.format(Locale.ROOT, "%.1f", clean),
+                    Component.translatable(tag.getBoolean("pumping") ? "af9.jade.pumping" : clean >= 100 ?
+                            "af9.jade.sealed" : "af9.jade.not_pumping"));
+            tooltip.add(helper.progress((float) (clean / 100.0), vacuum,
+                    helper.progressStyle().color(ConsoleWidget.levelColor(clean)).textColor(-1), box(), true));
+            tooltip.add(statusLine(status, Component.translatable("af9.litho.mode." + mode.id)
+                    .withStyle(mode.color)));
+            if (running) {
+                Component product = productName(tag.getString("product"));
+                if (product != null) {
+                    tooltip.add(Component.translatable("af9.jade.printing", product,
+                            Component.translatable("af9.litho.substrate." + mode.substrate))
+                            .withStyle(ChatFormatting.GRAY));
+                }
+                tooltip.add(runtime(helper, progress, duration, mode.argb));
+            }
+            MutableComponent chance = Component.translatable("af9.jade.break",
+                    LithoMode.formatPercent(tag.getDouble("break"))).withStyle(ChatFormatting.GRAY);
+            if (tag.getInt("version") > 0) {
+                chance.append(Component.translatable("af9.jade.version", tag.getInt("version"))
+                        .withStyle(ChatFormatting.DARK_GRAY));
+            }
+            tooltip.add(chance);
+        } else {
+            tooltip.add(statusLine(status, Component.translatable(tag.getString("modeKey"))
+                    .withStyle(ChatFormatting.AQUA)));
+            if (running) {
+                Component product = productName(tag.getString("product"));
+                if (product != null) {
+                    tooltip.add(Component.translatable("af9.jade.making", product).withStyle(ChatFormatting.GRAY));
+                }
+                tooltip.add(runtime(helper, progress, duration, 0xFF4CBB17));
+            }
+            ListTag lines = tag.getList("lines", Tag.TAG_STRING);
+            for (int i = 0; i < lines.size(); i++) {
+                Component line = Component.Serializer.fromJson(lines.getString(i));
+                if (line != null) tooltip.add(line.copy().withStyle(ChatFormatting.GRAY));
+            }
+        }
+    }
+
+    private static Component statusLine(int status, Component mode) {
+        int color = ConsoleWidget.statusColor(status);
+        return Component.translatable("af9.console.status." + status).withStyle(style -> style.withColor(color))
+                .append(Component.literal(" - ").withStyle(ChatFormatting.DARK_GRAY))
+                .append(mode);
+    }
+
+    private static snownee.jade.api.ui.IElement runtime(IElementHelper helper, int progress, int duration,
+                                                         int color) {
+        float fraction = duration <= 0 ? 0 : Math.min(1F, (float) progress / duration);
+        Component text = Component.translatable("af9.jade.runtime", ConsoleWidget.seconds(progress),
+                ConsoleWidget.seconds(duration));
+        return helper.progress(fraction, text, helper.progressStyle().color(color).textColor(-1), box(), true);
+    }
+
+    private static BoxStyle box() {
+        BoxStyle style = new BoxStyle();
+        style.borderColor = BORDER;
+        return style;
+    }
+
+    /** "item:&lt;id&gt;" / "fluid:&lt;id&gt;" to a display name, or null. */
+    private static Component productName(String product) {
+        int split = product.indexOf(':');
+        if (split < 0) return null;
+        ResourceLocation id = ResourceLocation.tryParse(product.substring(split + 1));
+        if (id == null) return null;
+        if (product.startsWith("item:")) {
+            Item item = ForgeRegistries.ITEMS.getValue(id);
+            return item == null || item == Items.AIR ? null : item.getDescription();
+        }
+        Fluid fluid = ForgeRegistries.FLUIDS.getValue(id);
+        return fluid == null || fluid == Fluids.EMPTY ? null : fluid.getFluidType().getDescription();
+    }
+}

@@ -1,0 +1,87 @@
+package com.af9.core.machine;
+
+import com.af9.core.litho.LithoMode;
+import com.af9.core.machine.console.ConsoleWidget;
+
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+
+import com.lowdragmc.lowdraglib.gui.widget.Widget;
+import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+
+import java.util.List;
+
+/**
+ * Controller logic of the Orbital Lithography Station (structure and recipes in KubeJS): prints the 1 nm mode on
+ * chromodynium wafers with an X-ray free-electron laser fed by laser hatches (50A of UHV).
+ * <p>
+ * It only prints in orbit (a dimension whose path ends in "orbit", e.g. Ad Astra's ad_astra:earth_orbit): the XFEL
+ * needs the vacuum of space, and without gravity the resist goes on dry. Space also helps the vacuum, which recovers
+ * almost twice as fast as the line's. Coolant comes from coolant hatches (supercooled fluids only).
+ */
+public class OrbitalLithographyMachine extends LithoMachine {
+
+    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
+            OrbitalLithographyMachine.class, LithoMachine.MANAGED_FIELD_HOLDER);
+
+    public static final double PUMP_RATE = 0.15;
+    private static final List<LithoMode> MODES = List.of(LithoMode.N1);
+
+    public OrbitalLithographyMachine(IMachineBlockEntity holder) {
+        super(holder);
+    }
+
+    @Override
+    public ManagedFieldHolder getFieldHolder() {
+        return MANAGED_FIELD_HOLDER;
+    }
+
+    @Override
+    public List<LithoMode> getModes() {
+        return MODES;
+    }
+
+    @Override
+    public boolean canPrint(LithoMode mode) {
+        return mode.isOrbital() && isInOrbit();
+    }
+
+    @Override
+    public int blockedStatus(LithoMode mode) {
+        if (!mode.isOrbital()) return ConsoleWidget.STATUS_LOCKED;
+        return isInOrbit() ? -1 : ConsoleWidget.STATUS_NO_ORBIT;
+    }
+
+    @Override
+    public int surplusFor(LithoMode mode) {
+        return 0;
+    }
+
+    @Override
+    protected double pumpRate() {
+        return PUMP_RATE;
+    }
+
+    @Override
+    public String titleKey() {
+        return "af9.orbital_litho.console.title";
+    }
+
+    /** True in an orbit dimension (path "orbit" or ending in "_orbit", any mod). */
+    public boolean isInOrbit() {
+        Level level = getLevel();
+        return level != null && isOrbit(level.dimension().location());
+    }
+
+    public static boolean isOrbit(ResourceLocation dimension) {
+        String path = dimension.getPath();
+        return path.equals("orbit") || path.endsWith("_orbit");
+    }
+
+    @Override
+    public Widget createUIWidget() {
+        return LithoConsoleWidget.create(this);
+    }
+}
