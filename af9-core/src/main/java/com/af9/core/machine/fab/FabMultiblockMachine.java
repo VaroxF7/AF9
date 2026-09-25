@@ -4,6 +4,7 @@ import com.af9.core.fab.FabFamily;
 import com.af9.core.fab.FabRecipeLogic;
 import com.af9.core.fab.IFabMachine;
 
+import com.gregtechceu.gtceu.api.block.ICoilType;
 import com.gregtechceu.gtceu.api.block.IFilterType;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.feature.ICleanroomProvider;
@@ -78,6 +79,8 @@ public class FabMultiblockMachine extends CoilWorkableElectricMultiblockMachine 
     // structure, rebuilt on every form
     private CleanroomType builtInClean;
     private int structureParallel = 1;
+    // the SMC LCR's jacket coil is optional; GT keeps the last coil type when a structure forms without one
+    private boolean hasCoil;
 
     public FabMultiblockMachine(IMachineBlockEntity holder, FabFamily family) {
         super(holder);
@@ -104,6 +107,7 @@ public class FabMultiblockMachine extends CoilWorkableElectricMultiblockMachine 
         super.onStructureFormed();
         Object filter = getMultiblockState().getMatchContext().get("FilterType");
         builtInClean = filter instanceof IFilterType type ? type.getCleanroomType() : null;
+        hasCoil = getMultiblockState().getMatchContext().get("CoilType") instanceof ICoilType;
         int pipes = countBlocks(GTBlocks.CASING_POLYTETRAFLUOROETHYLENE_PIPE.get());
         structureParallel = switch (family) {
             case CHEMISTRY -> builtInClean == CleanroomType.STERILE_CLEANROOM ? 2 : 1;
@@ -117,6 +121,13 @@ public class FabMultiblockMachine extends CoilWorkableElectricMultiblockMachine 
         super.onStructureInvalid();
         builtInClean = null;
         structureParallel = 1;
+        hasCoil = false;
+    }
+
+    /** 0 without a coil in the structure (no coil discount). */
+    @Override
+    public int getCoilTier() {
+        return hasCoil ? super.getCoilTier() : 0;
     }
 
     private int countBlocks(Block block) {
@@ -229,7 +240,7 @@ public class FabMultiblockMachine extends CoilWorkableElectricMultiblockMachine 
             // same as GT's EBF: coil temperature, +100 K per energy hatch tier above MV
             case THERMAL -> getCoilType().getCoilTemperature() + 100 * Math.max(0, getTier() - MV);
             // jacket of the reactor vessel
-            case CHEMISTRY -> getCoilType().getCoilTemperature();
+            case CHEMISTRY -> hasCoil ? getCoilType().getCoilTemperature() : 0;
             default -> 0;
         };
     }

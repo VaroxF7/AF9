@@ -106,13 +106,14 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                 .aisle('BBBBB', 'BGGGB', 'BGTGB', 'BGGGB', 'BBBBB')          // target station
                 .aisle('BBBBB', 'BBBBB', 'BBSBB', 'BBBBB', 'BBBBB')          // shielding wall + controller
                 .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-                .where('B', Predicates.blocks('kubejs:beamline_casing').setMinGlobalLimited(100)
-                    .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4))
-                    .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2))
-                    .or(Predicates.abilities($AccelCoolantHatch.COOLANT_INPUT).setMinGlobalLimited(1))
-                    .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMinGlobalLimited(1))
-                    .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMinGlobalLimited(1))
-                    .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+                // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
+                .where('B', Predicates.blocks('kubejs:beamline_casing')
+                    .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2))
+                    .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0))
+                    .or(Predicates.abilities($AccelCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
+                    .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                    .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                    .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
                 .where('I', Predicates.blocks('gtceu:fusion_coil'))                 // ion source
                 .where('M', Predicates.blocks('gtceu:superconducting_coil'))        // focusing magnets
                 .where('R', Predicates.blocks('kubejs:rf_cavity'))

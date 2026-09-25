@@ -250,14 +250,15 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .aisle('CCC', 'CRC', 'CFC') // transfer robot
             .aisle('III', 'IMI', 'CCC') // cassette station (wafers in and out) + controller
             .where('M', Predicates.controller(Predicates.blocks(definition.get())))
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
             .where('I', Predicates.blocks('gtceu:clean_machine_casing')
-                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMinGlobalLimited(1).setMaxGlobalLimited(2))
-                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMinGlobalLimited(1).setMaxGlobalLimited(2)))
-            .where('C', Predicates.blocks('gtceu:clean_machine_casing').setMinGlobalLimited(100)
-                // two 2A hatches = 4A; their voltage decides which modes have enough power
-                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setExactLimit(2))
-                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMinGlobalLimited(1))
-                .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1)))
+            .where('C', Predicates.blocks('gtceu:clean_machine_casing')
+                // up to two normal 2A hatches = 4A, what every print needs; their voltage decides the modes
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('gtceu:filter_casing'))                // fan filter units
             .where('R', Predicates.blocks('gtceu:stainless_steel_gearbox'))      // robots and stages
             .where('S', Predicates.blocks('gtceu:steel_gearbox'))                // spin motors
@@ -295,12 +296,13 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .aisle('OOOOOOO', 'OGGGGGO', 'OG###GO', 'OG###GO', 'OG###GO', 'OGGGGGO', 'OOOOOOO')
             .aisle('OOOOOOO', 'OOOOOOO', 'OOOOOOO', 'OOOSOOO', 'OOOOOOO', 'OOOOOOO', 'OOOOOOO') // front + controller
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-            .where('O', Predicates.blocks('kubejs:orbital_frame_casing').setMinGlobalLimited(120)
-                .or(Predicates.abilities(PartAbility.INPUT_LASER).setMinGlobalLimited(1).setMaxGlobalLimited(4))
-                .or(Predicates.abilities($LithoCoolantHatch.COOLANT_INPUT).setMinGlobalLimited(1))
-                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMinGlobalLimited(1))
-                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMinGlobalLimited(1))
-                .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
+            .where('O', Predicates.blocks('kubejs:orbital_frame_casing')
+                .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(4, 1))
+                .or(Predicates.abilities($LithoCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('C', Predicates.blocks('gtceu:superconducting_coil'))   // undulator magnets
             .where('U', Predicates.blocks('kubejs:xfel_undulator'))
             .where('G', Predicates.blocks('gtceu:fusion_glass'))

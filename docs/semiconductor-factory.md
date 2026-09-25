@@ -426,7 +426,7 @@ Light sources (assembler): KrF laser HV, ArF laser EV (unchanged); `af9:euv_ligh
 
 ## 5.6 Structures
 
-Line (3×3×20-27, back → front; each aisle bottom/middle/top): unchanged from the previous design except the lens aisle `setRepeatable(3, 10)` and `L` = purple lamp / KrF / ArF / `kubejs:euv_light_source`. `C` = clean casing (min 100) or exactly 2 energy hatches, ≥1 fluid input, exactly 1 maintenance; `I` = 1-2 item input + 1-2 output buses at the controller.
+Line (3×3×20-27, back → front; each aisle bottom/middle/top): unchanged from the previous design except the lens aisle `setRepeatable(3, 10)` and `L` = purple lamp / KrF / ArF / `kubejs:euv_light_source`. `C` = clean casing or up to 2 energy hatches, up to 8 fluid inputs, up to 1 maintenance; `I` = up to 2 item input + 2 output buses at the controller. Every part has a maximum only, never a required count (all AF9 multiblocks, `setMaxGlobalLimited(max, preview count)`); a print needs 4A of its tier, i.e. two normal energy hatches.
 
 Orbital station (7×7×7, back = XFEL → front = controller):
 ```text
@@ -436,7 +436,7 @@ Orbital station (7×7×7, back = XFEL → front = controller):
     'OOOOOOO','OGGGGGO','OG###GO','OG###GO','OG###GO','OGGGGGO','OOOOOOO'
     'OOOOOOO' x7 with the controller S in the centre
 ```
-`O` = `kubejs:orbital_frame_casing` (min 120) or 1-4 **laser** hatches, ≥1 **coolant hatch**, ≥1 item input, ≥1 item output, exactly 1 maintenance. No energy hatches, no normal fluid hatches. Blocks: `kubejs:xfel_undulator`, `kubejs:maglev_wafer_stage`, `kubejs:orbital_frame_casing`, `gtceu:superconducting_coil`, `gtceu:fusion_glass`. Model: orbital frame casing + GCYM engraving-laser overlay.
+`O` = `kubejs:orbital_frame_casing` or up to 4 **laser** hatches, 2 **coolant hatches**, 2 item inputs, 2 item outputs, 1 maintenance (maximums only). No energy hatches, no normal fluid hatches. Blocks: `kubejs:xfel_undulator`, `kubejs:maglev_wafer_stage`, `kubejs:orbital_frame_casing`, `gtceu:superconducting_coil`, `gtceu:fusion_glass`. Model: orbital frame casing + GCYM engraving-laser overlay.
 
 Orbit: `OrbitalLithographyMachine.isOrbit` = dimension path `orbit` or ending in `_orbit` (Ad Astra 1.15: `ad_astra:earth_orbit`, `moon_orbit`, `mars_orbit`, `venus_orbit`, `mercury_orbit`, `glacio_orbit`). Elsewhere it forms but never prints (console NOT IN ORBIT).
 
@@ -901,7 +901,8 @@ Chips are plain GT chips (no mode, no NBT): any substrate's cut gives the same `
 - [ ] Dry run: load the AF9 server scripts (incl. `fab_machines.js`) plus `circuits_for_atm.js` with stubs and check no duplicate IDs, every tagged ingredient has a producer, every AF9 fluid/dust used has a producer, every recipe within its machine's slots (items in incl. NC, items out, fluids in incl. NC/out; 8 fluids at 50-7 nm), EBF recipes have a temperature, ≤64 per stack.
 - [ ] New mixer alloys: circuit number must not collide with a GT mixer recipe whose inputs are a subset (invar, cupronickel use circuit 1).
 - [ ] New materials need a `material.gtceu.<id>` line in `kubejs/assets/gtceu/lang/en_us.json`; new KubeJS items need a texture in `kubejs/assets/kubejs/textures/item/`.
-- [ ] Line: energy hatches exactly 2, `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital: laser hatches 1-4 + ≥1 coolant hatch, `LITHO_GATE + STRIP_BROKEN + OC_NON_PERFECT`; no cleanroom for either.
+- [ ] Multiblock parts (all AF9 multiblocks): a maximum only, never a minimum or exact count — `setMaxGlobalLimited(max, preview count)`, no `setMinGlobalLimited` / `setExactLimit` / GT `autoAbilities` (it forces energy and maintenance), no casing minimums (the dry run flags all of these). Every recipe must run on normal 2A hatches within those maximums (≤ 4A on two energy hatches).
+- [ ] Line: up to 2 energy hatches, `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital: up to 4 laser hatches + 2 coolant hatches, `LITHO_GATE + STRIP_BROKEN + OC_NON_PERFECT`; no cleanroom for either.
 - [ ] Realism wording: node names are gameplay labels; chromodynium, strange-matter and transmuted-neutronium wafers are fiction on real physics names.
 - [ ] Wafers: every new printable/blank wafer is in `#af9:wafers/<substrate>` (server tags) so contamination knows it; broken and contaminated wafers are not. Every substrate has a broken and a contaminated wafer item + texture.
 - [ ] Boules: every boule recipe is 3 items + 1 fluid (the EBF's slots), has `blastFurnaceTemp`, and its temperature is reachable with the coils the tier has (chromodynium 12000 K = Resonant Endion).
@@ -953,7 +954,7 @@ Clean room: every non-thermal recipe from HV power on has `cleanroom(CLEANROOM)`
 SMC Large Chemical Reactor, 5 wide × 5 deep × 4 high (aisles back → front, rows bottom → top)
   XXXXX XGGGX XGGGX XXXXX     X inert PTFE casing or hatches (≥ 30 casings)
   XXXXX GKCKG GKKKG XFFFX     K inert PTFE casing (the vessel)
-  XXXXX GCPCG GKPKG XFFFX     C exactly one heating coil, the rest inert casing (jacket)
+  XXXXX GCPCG GKPKG XFFFX     C up to one heating coil (optional), the rest inert casing (jacket)
   XXXXX GKCKG GKKKG XFFFX     P PTFE pipe casing (stirrer / dip pipe)
   XXXXX XGSGX XGGGX XXXXX     G cleanroom glass, F filter casings (one type), S controller
 SMC Rectification Column, 3 × 3, 3-10 high (layers bottom → top)
@@ -966,14 +967,14 @@ SMC Thermal Processing Furnace, EBF shape without muffler
   XXX/CCC/CCC/XXX | XXX/C#C/C#C/XXX | XSX/CCC/CCC/XXX     C heating coils (one type), # air, X heatproof casing or hatches
 ```
 
-Hatches on any X: GT's auto abilities for the modes (item/fluid in/out, 1-2 energy), one maintenance hatch, optionally one parallel hatch and one laser hatch.
+Hatches on any X, maximums only (nothing is required): 2 energy, 4 item inputs, 4 item outputs, 8 fluid inputs, 8 fluid outputs, 1 maintenance, 1 parallel, 1 laser hatch.
 
 ## 11.4 Behaviour (AF9 Core)
 
 - Changeover purge (`FabModifiers.PURGE`): when a machine starts a recipe other than the last one it finished (recipe ID), that first run also needs the family's purge fluid and takes the purge time on top (not overclocked or multiplied, applied after all other modifiers). The machine then keeps running the same recipe without purge. Counted on the console.
 - Built-in clean room (`FabMultiblockMachine`): the filter casings' type decides it: filter casing = ISO 5 (`CLEANROOM`), sterilizing filter casing = ISO 3 (both types). It is a GT `DummyCleanroom`, not a provider block, so a fab multiblock can still stand inside a GT Cleanroom (the thermal furnace has no filters and uses the surrounding one if any; its recipes need none).
 - Parallels: PTFE pipe casings are trays (column) and membranes (cell hall), each one a parallel (`STRUCTURE_PARALLEL`, limited by inputs, output space and energy like GT's parallel hatch); the SMC LCR gets 2 with sterile filters. A parallel hatch multiplies on top.
-- Overclocks: SMC LCR perfect (like GT's LCR) with the coil discount (1/20 EU/t per coil tier above cupronickel, at most half); column and cell hall non-perfect; thermal furnace GT's EBF rules (coil temperature + 100 K per energy tier above MV, heat discounts and perfect overclocks per 1800 K surplus); all multiblocks batch mode. Single blocks non-perfect.
+- Overclocks: SMC LCR perfect (like GT's LCR) with the coil discount (1/20 EU/t per coil tier above cupronickel, at most half; no coil, no discount); column and cell hall non-perfect; thermal furnace GT's EBF rules (coil temperature + 100 K per energy tier above MV, heat discounts and perfect overclocks per 1800 K surplus); all multiblocks batch mode. Single blocks non-perfect.
 - Single-block furnaces reach the temperature of their tier's coil: MV 1800 K, HV 2700 K, EV 3600 K, IV 4500 K, LuV 5400 K (`TIER_TEMPERATURE`); seed crystals above 5400 K (neutronium 7200 K, strange matter 9000 K, chromodynium 12000 K) need the multiblock with hot enough coils (chromodynium: Resonant Endion). EMI shows temperature, coil and the smallest single block on every thermal recipe (`FabRecipeInfo`).
 
 ## 11.5 Consoles
@@ -1012,20 +1013,20 @@ Files: `startup_scripts/gtceu/boule_melting.js` (recipe type, Endion, Endionite,
 
 **The EBF gets a second machine mode, `gtceu:boule_melting`** (GT's mode tab; `ELECTRIC_BLAST_FURNACE.setRecipeTypes([blast, boule_melting])`, modifier list `COIL_BONUS` + GT's own `ebfOverclock` + batch). The mode keeps GT's EBF rules (coil temperature + 100 K per tier above MV, `ebf_temp` on every recipe). Max IO 3 items in, 1 out, 1 fluid in.
 
-A boule is **ten times the material** of GT's old boule, and so it fits the EBF's three input slots the material comes pre-blended: **10 melt charges + 1 seed crystal + 1 crucible**, under a protective gas. EU/t as the user asked: 2× GT's for silicon, 4× phosphorus, 6× naquadah, 8× neutronium (as amps of the same tier); the new substrates follow on.
+A boule is **ten times the material** of GT's old boule, and so it fits the EBF's three input slots the material comes pre-blended: **10 melt charges + 1 seed crystal + 1 crucible**, under a protective gas. Energy as the user asked: 2× GT's for silicon, 4× phosphorus, 6× naquadah, 8× neutronium; the new substrates follow on. A boule draws at most **4A of its tier** (two normal energy hatches, the most GT's EBF takes; LV-HV have no 4A hatches); above 4× the run is longer instead (`BOULE_MAX_AMPS`), so the total energy keeps the multiplier.
 
-| Boule | Charge (SMC blending, per charge = GT's old boule) | Seed (SMC crystal growth) | Gas | Temp | EU/t | Time | Crucible | → wafers |
+| Boule | Charge (SMC blending, per charge = GT's old boule) | Seed (SMC crystal growth) | Gas | Temp | EU/t (tier × amps) | Time | Crucible | → wafers |
 |---|---|---|---|---|---|---|---|---|
 | `gtceu:silicon_boule` | 32 EGS + tiny boron (MV) | 4 EGS + tiny boron, 100 Ar | 2500 Ar | 1784 K | MV × 2 | 9000t | fused quartz | 16 (GT) |
 | `gtceu:phosphorus_boule` | 64 EGS + 8 phosphorus (HV) | 4 EGS + small P, 200 Ar | 10000 Ar | 2484 K | HV × 4 | 12000t | fused quartz | 32 (GT) |
-| `gtceu:naquadah_boule` | 144 EGS + naquadah + GaAs (EV) | small Nq, 400 Ar | 80000 Ar | 5400 K | EV × 6 | 15000t | fused quartz | 64 (GT) |
-| `kubejs:trinium_boule` | 192 EGS + 2 trinium + GaAs (IV) | small trinium, 400 Ar | 80000 Ar | 6000 K | IV × 6 | 16000t | fused quartz | 64 |
-| `kubejs:naquadria_boule` | 240 EGS + 2 naquadria + 2 GaAs (LuV) | small naquadria, 200 Xe | 80000 Xe | 6800 K | IV × 7 | 17000t | fused quartz | 80 |
-| `gtceu:neutronium_boule` | 288 EGS + 4 neutronium + 2 GaAs (ZPM) | small Nt, 400 Xe | 80000 Xe | 7200 K | IV × 8 | 18000t | fused quartz | 96 (GT) |
-| `kubejs:strange_matter_boule` | 288 EGS + strange matter + 4 neutronium (UV) | small strange, 800 Xe | 160000 Xe | 9000 K | UV × 8 | 20000t | tritanium | 96 |
-| `kubejs:chromodynium_boule` | 4 chromodynium + strange matter (UHV) | 4 small Qc + small strange, 400 Ed | 80000 endion | 12000 K | UHV × 8 | 24000t | tritanium | 128 |
+| `gtceu:naquadah_boule` | 144 EGS + naquadah + GaAs (EV) | small Nq, 400 Ar | 80000 Ar | 5400 K | EV × 4 | 22500t | fused quartz | 64 (GT) |
+| `kubejs:trinium_boule` | 192 EGS + 2 trinium + GaAs (IV) | small trinium, 400 Ar | 80000 Ar | 6000 K | IV × 4 | 24000t | fused quartz | 64 |
+| `kubejs:naquadria_boule` | 240 EGS + 2 naquadria + 2 GaAs (LuV) | small naquadria, 200 Xe | 80000 Xe | 6800 K | IV × 4 | 29750t | fused quartz | 80 |
+| `gtceu:neutronium_boule` | 288 EGS + 4 neutronium + 2 GaAs (ZPM) | small Nt, 400 Xe | 80000 Xe | 7200 K | IV × 4 | 36000t | fused quartz | 96 (GT) |
+| `kubejs:strange_matter_boule` | 288 EGS + strange matter + 4 neutronium (UV) | small strange, 800 Xe | 160000 Xe | 9000 K | UV × 4 | 40000t | tritanium | 96 |
+| `kubejs:chromodynium_boule` | 4 chromodynium + strange matter (UHV) | 4 small Qc + small strange, 400 Ed | 80000 endion | 12000 K | UHV × 4 | 48000t | tritanium | 128 |
 
-Power: GT 7.2 recipes carry real amps (`EUt(VA[tier], amps)`), so the EBF's hatches must deliver voltage × amps every tick: silicon one MV hatch (2A), phosphorus two HV hatches, naquadah and up two 4A hatches of the tier. The recipe's voltage tier stays the listed tier (GT checks the per-amp voltage). The Endion parallels are capped by the EBF's voltage (GT's `ParallelLogic`), so a parallel only happens when the hatches can pay for it.
+Power: GT 7.2 recipes carry real amps (`EUt(VA[tier], amps)`), so the EBF's hatches must deliver voltage × amps every tick: silicon one normal MV hatch (2A), every other boule two normal hatches of its tier (4A). Two hatches of a tier count as the next tier for the EBF (GT's `EnergyContainerList`), which adds its 100 K but gives no overclock (4 × 4A would be needed). The recipe's voltage tier stays the listed tier (GT checks the per-amp voltage). The Endion parallels are capped by the EBF's voltage (GT's `ParallelLogic`), so a parallel only happens when the hatches can pay for it.
 
 Seeds: 1200t at the charge tier and the boule's temperature (SMC thermal single blocks reach MV 1800 K … LuV 5400 K; hotter seeds need the SMC Thermal Processing Furnace with coils). Crucibles: `af9:fused_quartz_crucible` (EBF, 6 quartzite dust, 1800 K, MV), `af9:tritanium_crucible` (assembler, 6 tritanium plates + 500 supercooled argon, UV). New boule cutting `af9:cut_<id>_boule` (lubricant 250, cleanroom).
 
@@ -1044,7 +1045,7 @@ The coils are `gtceu:coil` blocks (KubeJS), so every GT coil multiblock accepts 
 
 Files: `startup_scripts/gtceu/cryogenics.js`, `server_scripts/mods/gtceu/cryogenics.js`, AF9 Core `SupercoolerMachine`, `part/CoolantHatchPartMachine`, `common/AF9Modifiers.POWER_GATE`.
 
-`gtceu:supercooling_cryostat` (HV, crafted at HV): modes `gtceu:dense_cooling` and `gtceu:supercooling` (0/0/1/1 IO). Every recipe is `EUt(VA[HV], 4)` = 1920 EU/t; `POWER_GATE` refuses to start below the recipe's full EU/t, so it needs **4A of HV (two HV energy hatches)**; `OC_PERFECT` above that.
+`gtceu:supercooling_cryostat` (HV, crafted at HV): modes `gtceu:dense_cooling` and `gtceu:supercooling` (0/0/1/1 IO). Every recipe is `EUt(VA[HV], 4)` = 1920 EU/t; `POWER_GATE` refuses to start below the recipe's full EU/t, so it needs **4A of HV (two normal HV energy hatches)**; `OC_PERFECT` above that.
 
 | Gas | Dense cooling (1000 gas → 250 dense) | Supercooling (250 dense → 250 supercooled) |
 |---|---|---|
@@ -1055,7 +1056,7 @@ Files: `startup_scripts/gtceu/cryogenics.js`, `server_scripts/mods/gtceu/cryogen
 
 Supercooled fluids are 1 K fluids (GT refuses temperatures below 0 K); the cryostat's console and Jade show the supercooling target as −5000 K, the rating the user asked for.
 
-Structure 5×5×5: frostproof shell (min 50; 1-2 energy hatches, fluid in/out, 1 maintenance), PTFE pipe heat exchangers, stainless gearboxes (compressors), tempered-glass windows around an air-filled cold chamber. Console (`ProcessConsoleWidget`): mode tiles DENSE / SUPERCOOL, power vs recipe, the fluid being made, the 4A gate, chamber temperature falling from the inlet to the target over the run, run-time bar.
+Structure 5×5×5: frostproof shell (maximums only: 2 energy hatches, 2 fluid inputs, 2 fluid outputs, 1 maintenance), PTFE pipe heat exchangers, stainless gearboxes (compressors), tempered-glass windows around an air-filled cold chamber. Console (`ProcessConsoleWidget`): mode tiles DENSE / SUPERCOOL, power vs recipe, the fluid being made, the 4A gate, chamber temperature falling from the inlet to the target over the run, run-time bar.
 
 **Coolant Hatch** `gtceu:<luv|zpm|uv|uhv>_coolant_hatch`: a 1-slot fluid input hatch (1000 × 2^tier mB: 64 000 at LuV) whose tank only accepts `gtceu:supercooled_*` fluids; abilities `IMPORT_FLUIDS` + `CoolantHatchPartMachine.COOLANT_INPUT`. The Particle Accelerator and the Orbital Lithography Station take fluids only through it. Crafted from the tier's input hatch + 2 pumps + frostproof casing + 4 PTFE plates + 1000 supercooled hydrogen.
 
@@ -1063,7 +1064,7 @@ Structure 5×5×5: frostproof shell (min 50; 1-2 energy hatches, fluid in/out, 1
 
 Files: `startup_scripts/gtceu/particle_accelerator.js`, `server_scripts/mods/gtceu/particle_accelerator.js`, AF9 Core `ParticleAcceleratorMachine`.
 
-`gtceu:particle_accelerator` (crafted at ZPM): a 5×5×11 linac. Ion source (`gtceu:fusion_coil`) → 8 × (`kubejs:rf_cavity` in a ring of `gtceu:superconducting_coil`) → target station (`kubejs:spallation_target_housing` behind laminated glass) → shielding wall with the controller. `B` = `kubejs:beamline_casing` (min 100) or up to 4 energy / 2 laser hatches, ≥1 coolant hatch, ≥1 item in, ≥1 item out, 1 maintenance. `POWER_GATE` + `OC_NON_PERFECT`.
+`gtceu:particle_accelerator` (crafted at ZPM): a 5×5×11 linac. Ion source (`gtceu:fusion_coil`) → 8 × (`kubejs:rf_cavity` in a ring of `gtceu:superconducting_coil`) → target station (`kubejs:spallation_target_housing` behind laminated glass) → shielding wall with the controller. `B` = `kubejs:beamline_casing` or, maximums only, 4 energy / 2 laser hatches, 2 coolant hatches, 2 item inputs, 2 item outputs, 1 maintenance. `POWER_GATE` + `OC_NON_PERFECT`.
 
 | Mode | Recipe | Coolant | EU/t | Time |
 |---|---|---|---|---|

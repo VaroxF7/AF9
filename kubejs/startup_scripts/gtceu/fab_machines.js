@@ -105,12 +105,18 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     })
 
     // ---------------------------------------------------------------------------------------------------------------
-    // Multiblocks. Hatches (and one maintenance hatch, optionally one parallel and one laser hatch) go on any casing.
+    // Multiblocks. Hatches, buses, a maintenance hatch, a parallel hatch and a laser hatch go on any casing; every part
+    // has a maximum only, never a required count (setMaxGlobalLimited(max, preview count)).
     // ---------------------------------------------------------------------------------------------------------------
-    const hatches = (definition, casing, min) => Predicates.blocks(casing).setMinGlobalLimited(min)
-        .or(Predicates.autoAbilities(definition.getRecipeTypes()))
-        .or(Predicates.autoAbilities(true, false, true))
-        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1))
+    const hatches = casing => Predicates.blocks(casing)
+        .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
+        .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(4, 1))
+        .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(4, 1))
+        .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
+        .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(8, 1))
+        .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
+        .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 1))
+        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 0))
 
     // SMC LCR: GT's Large Chemical Reactor core (inert casing, PTFE stirrer, one heating coil in the jacket) sealed in
     // a cleanroom-glass mini-environment with a fan filter unit ceiling. 5 x 5 x 4.
@@ -132,9 +138,9 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .aisle('XXXXX', 'GKCKG', 'GKKKG', 'XFFFX')
             .aisle('XXXXX', 'XGSGX', 'XGGGX', 'XXXXX')
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-            .where('X', hatches(definition, GTBlocks.CASING_PTFE_INERT.get(), 30))
+            .where('X', hatches(GTBlocks.CASING_PTFE_INERT.get()))
             .where('K', Predicates.blocks(GTBlocks.CASING_PTFE_INERT.get()))                   // reactor vessel
-            .where('C', Predicates.heatingCoils().setExactLimit(1)                               // heating jacket
+            .where('C', Predicates.heatingCoils().setMaxGlobalLimited(1, 1)                     // heating jacket (optional)
                 .or(Predicates.blocks(GTBlocks.CASING_PTFE_INERT.get())))
             .where('P', Predicates.blocks(GTBlocks.CASING_POLYTETRAFLUOROETHYLENE_PIPE.get())) // stirrer / dip pipe
             .where('G', Predicates.blocks(GTBlocks.CLEANROOM_GLASS.get()))
@@ -161,7 +167,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .aisle('XXX', 'XPX', 'XXX').setRepeatable(1, 8)      // trays
             .aisle('FFF', 'FFF', 'FFF')                          // filter hood
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-            .where('X', hatches(definition, GTBlocks.CASING_STAINLESS_CLEAN.get(), 8))
+            .where('X', hatches(GTBlocks.CASING_STAINLESS_CLEAN.get()))
             .where('K', Predicates.blocks(GTBlocks.CASING_ALUMINIUM_FROSTPROOF.get()))
             .where('P', Predicates.blocks(GTBlocks.CASING_POLYTETRAFLUOROETHYLENE_PIPE.get()))
             .where('F', Predicates.cleanroomFilters())
@@ -185,7 +191,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .aisle('XXX', 'EPE', 'XXX', 'FFF').setRepeatable(1, 8) // cells: electrode | membrane | electrode
             .aisle('XXX', 'XSX', 'XXX', 'FFF')                   // front end plate
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-            .where('X', hatches(definition, GTBlocks.CASING_TITANIUM_STABLE.get(), 12))
+            .where('X', hatches(GTBlocks.CASING_TITANIUM_STABLE.get()))
             .where('E', Predicates.blocks('gtceu:titanium_frame'))
             .where('P', Predicates.blocks(GTBlocks.CASING_POLYTETRAFLUOROETHYLENE_PIPE.get()))
             .where('F', Predicates.cleanroomFilters())
@@ -209,7 +215,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .aisle('XXX', 'C#C', 'C#C', 'XXX')
             .aisle('XSX', 'CCC', 'CCC', 'XXX')
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-            .where('X', hatches(definition, GTBlocks.CASING_INVAR_HEATPROOF.get(), 9))
+            .where('X', hatches(GTBlocks.CASING_INVAR_HEATPROOF.get()))
             .where('C', Predicates.heatingCoils())
             .where('#', Predicates.air())
             .build())

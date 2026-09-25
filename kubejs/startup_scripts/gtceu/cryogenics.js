@@ -73,11 +73,12 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .aisle('FFFFF', 'FPPPF', 'FPKPF', 'FPPPF', 'FFFFF')
             .aisle('FFFFF', 'FFFFF', 'FFSFF', 'FFFFF', 'FFFFF')
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-            .where('F', Predicates.blocks(GTBlocks.CASING_ALUMINIUM_FROSTPROOF.get()).setMinGlobalLimited(50)
-                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMinGlobalLimited(1).setMaxGlobalLimited(2))
-                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMinGlobalLimited(1))
-                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMinGlobalLimited(1))
-                .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
+            .where('F', Predicates.blocks(GTBlocks.CASING_ALUMINIUM_FROSTPROOF.get())
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('P', Predicates.blocks(GTBlocks.CASING_POLYTETRAFLUOROETHYLENE_PIPE.get())) // heat exchanger
             .where('K', Predicates.blocks('gtceu:stainless_steel_gearbox'))                     // compressors
             .where('T', Predicates.blocks('gtceu:tempered_glass'))

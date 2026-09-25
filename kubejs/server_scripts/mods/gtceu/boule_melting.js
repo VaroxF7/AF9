@@ -70,6 +70,9 @@ ServerEvents.recipes(allthemods => {
 
     // ---- Melt charges (SMC blending), seed crystals (SMC crystal growth) and boules (EBF Boule Melting) ----
     // charge: one of GT's old boule inputs; seed: grown at the boule's temperature; boule: 10 charges + seed + crucible
+    // eu: [voltage tier, energy multiplier] = the boule costs multiplier x (1A of that tier for `duration`). It draws at
+    // most 4A, what two normal energy hatches give the EBF; a bigger multiplier makes the run longer instead.
+    const BOULE_MAX_AMPS = 4
     const boules = [
         { id: 'silicon', charge: [`32x ${EG_SI}`, 'gtceu:tiny_boron_dust'], chargeTier: GTValues.MV,
             seed: [`4x ${EG_SI}`, 'gtceu:tiny_boron_dust'], seedGas: ['gtceu:argon', 100],
@@ -126,8 +129,8 @@ ServerEvents.recipes(allthemods => {
             .inputFluids(Fluid.of(b.gas[0], b.gas[1]))
             .itemOutputs(b.boule)
             .blastFurnaceTemp(b.temp)
-            .duration(b.duration)
-            .EUt(VA[b.eu[0]], b.eu[1])
+            .duration(b.duration * b.eu[1] / Math.min(b.eu[1], BOULE_MAX_AMPS))
+            .EUt(VA[b.eu[0]], Math.min(b.eu[1], BOULE_MAX_AMPS))
     })
 
     // ---- Cutting the new boules (GT cuts its own four) ----
