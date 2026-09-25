@@ -20,7 +20,6 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import com.lowdragmc.lowdraglib.utils.Position;
 
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
-import org.jetbrains.annotations.Nullable;
 
 import static com.gregtechceu.gtceu.api.GTValues.MV;
 
@@ -89,7 +88,7 @@ public class FabTieredMachine extends SimpleTieredMachine implements IFabMachine
     }
 
     @Override
-    public boolean beforeWorking(@Nullable GTRecipe recipe) {
+    public boolean beforeWorking(GTRecipe recipe) {
         if (!super.beforeWorking(recipe)) return false;
         purgeRun = recipe != null && needsPurge(recipe);
         return true;

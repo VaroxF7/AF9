@@ -29,8 +29,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 
-import org.jetbrains.annotations.Nullable;
-
 import java.util.List;
 
 import static com.gregtechceu.gtceu.api.GTValues.MV;
@@ -78,7 +76,6 @@ public class FabMultiblockMachine extends CoilWorkableElectricMultiblockMachine 
     private long count3;
 
     // structure, rebuilt on every form
-    @Nullable
     private CleanroomType builtInClean;
     private int structureParallel = 1;
 
@@ -137,7 +134,6 @@ public class FabMultiblockMachine extends CoilWorkableElectricMultiblockMachine 
     }
 
     @Override
-    @Nullable
     public ICleanroomProvider getCleanroom() {
         if (builtInClean != null && isFormed()) {
             return builtInClean == CleanroomType.STERILE_CLEANROOM ? CLEAN_ISO3 : CLEAN_ISO5;
@@ -156,7 +152,7 @@ public class FabMultiblockMachine extends CoilWorkableElectricMultiblockMachine 
     }
 
     @Override
-    public boolean beforeWorking(@Nullable GTRecipe recipe) {
+    public boolean beforeWorking(GTRecipe recipe) {
         if (!super.beforeWorking(recipe)) return false;
         // the recipe was modified right before this, against the same last product
         purgeRun = recipe != null && needsPurge(recipe);
