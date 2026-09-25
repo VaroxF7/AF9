@@ -92,6 +92,9 @@ public final class BouleMelting {
             RecipeModifier original = ebf.getRecipeModifier();
             ebf.setRecipeModifier(original == null ? COIL_BONUS : new RecipeModifierList(COIL_BONUS, original));
         }
+        // GT gives a recipe type the icon of the machine that registers it; this mode was added afterwards, so without
+        // this its EMI/JEI category shows a barrier
+        if (boule.getIconSupplier() == null) boule.setIconSupplier(ebf::asStack);
         // rendered as plain labels, so the texts must not contain '%'
         boule.addDataInfo(data -> Component.translatable("af9.recipe.boule_temperature", data.getInt("ebf_temp"))
                 .getString());

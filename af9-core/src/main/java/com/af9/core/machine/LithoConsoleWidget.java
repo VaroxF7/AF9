@@ -53,7 +53,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
     private int breakChance; // x10000
     private long printed;
     private long broken;
-    private boolean pumping;
+    private int vacuum;
     private String product = "";
 
     public LithoConsoleWidget(LithoMachine machine, int x, int y) {
@@ -151,12 +151,12 @@ public class LithoConsoleWidget extends ConsoleWidget {
         int newBreak = (int) Math.round(machine.currentBreakChance(active) * 10000);
         long newPrinted = machine.getPrinted();
         long newBroken = machine.getBroken();
-        boolean newPumping = machine.isPumping();
+        int newVacuum = machine.getVacuumState();
         String newProduct = current == null ? "" : current.toString();
         boolean changed = newStatus != status || newMode != mode || newVersion != version ||
                 newAvailable != available || newProgress != progress || newDuration != duration ||
                 newCleanliness != cleanliness || newBreak != breakChance || newPrinted != printed ||
-                newBroken != broken || newPumping != pumping || !Objects.equals(newProduct, product);
+                newBroken != broken || newVacuum != vacuum || !Objects.equals(newProduct, product);
         status = newStatus;
         mode = newMode;
         version = newVersion;
@@ -167,7 +167,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         breakChance = newBreak;
         printed = newPrinted;
         broken = newBroken;
-        pumping = newPumping;
+        vacuum = newVacuum;
         product = newProduct;
         return changed;
     }
@@ -184,7 +184,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         buffer.writeVarInt(breakChance);
         buffer.writeVarLong(printed);
         buffer.writeVarLong(broken);
-        buffer.writeBoolean(pumping);
+        buffer.writeVarInt(vacuum);
         buffer.writeUtf(product);
     }
 
@@ -200,8 +200,27 @@ public class LithoConsoleWidget extends ConsoleWidget {
         breakChance = buffer.readVarInt();
         printed = buffer.readVarLong();
         broken = buffer.readVarLong();
-        pumping = buffer.readBoolean();
+        vacuum = buffer.readVarInt();
         product = buffer.readUtf();
+    }
+
+    /** Console text of a vacuum state ({@link LithoMachine#getVacuumState()}). */
+    public static String vacuumKey(int state) {
+        return switch (state) {
+            case LithoMachine.VACUUM_PUMPING -> "af9.litho.console.pump_on";
+            case LithoMachine.VACUUM_SEALED -> "af9.litho.console.pump_sealed";
+            case LithoMachine.VACUUM_VENTING -> "af9.litho.console.pump_leak";
+            default -> "af9.litho.console.pump_off";
+        };
+    }
+
+    public static int vacuumColor(int state) {
+        return switch (state) {
+            case LithoMachine.VACUUM_PUMPING -> INFO;
+            case LithoMachine.VACUUM_SEALED -> GOOD;
+            case LithoMachine.VACUUM_VENTING -> BAD;
+            default -> MUTED;
+        };
     }
 
     //////////////////////////////////////
@@ -245,10 +264,9 @@ public class LithoConsoleWidget extends ConsoleWidget {
         drawSmall(graphics, cleanText, lx + lw - font.width(cleanText) * 3 / 4, y0 + 44, levelColor(clean), false);
         bar(graphics, lx, y0 + 51, lw, 7, clean / 100.0, levelColor(clean));
         border(graphics, lx - 1, y0 + 50, lw + 2, 9, EDGE);
-        String pumpKey = status == STATUS_OFFLINE ? "af9.litho.console.pump_off" :
-                clean >= 100 ? "af9.litho.console.pump_sealed" :
-                        pumping ? "af9.litho.console.pump_on" : "af9.litho.console.pump_leak";
-        drawSmall(graphics, Component.translatable(pumpKey).getString(), lx, y0 + 61, pumping ? INFO : MUTED, false);
+        int pumpState = status == STATUS_OFFLINE ? LithoMachine.VACUUM_OFF : vacuum;
+        drawSmall(graphics, Component.translatable(vacuumKey(pumpState)).getString(), lx, y0 + 61,
+                vacuumColor(pumpState), false);
 
         double chance = breakChance / 10000.0;
         drawSmall(graphics, Component.translatable("af9.litho.console.break").getString(), lx, y0 + 70, MUTED, false);

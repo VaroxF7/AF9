@@ -1,5 +1,6 @@
 package com.af9.core.wafer;
 
+import com.af9.core.AF9Config;
 import com.af9.core.AF9Core;
 import com.af9.core.litho.LithoMode;
 
@@ -33,22 +34,24 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Wafers belong in a vacuum: when a player takes a wafer (blank, printed or derived) into their inventory, holds it
- * on the cursor or puts it in the inventory crafting grid, it turns into the contaminated wafer of its substrate
- * (kubejs:contaminated_&lt;substrate&gt;_wafer).
+ * Wafers and chips belong in a clean room: when a player takes a wafer (blank, printed or derived) or a chip into
+ * their inventory, holds it on the cursor or puts it in the inventory crafting grid, it turns into its contaminated
+ * version: the contaminated wafer of its substrate (kubejs:contaminated_&lt;substrate&gt;_wafer), or the contaminated
+ * chip (kubejs:contaminated_&lt;chip&gt;, e.g. kubejs:contaminated_ram_chip).
  * <p>
  * Protected are players who wear gloves (an armor piece in {@code #af9:wafer_gloves}: GT's Rubber Gloves or Hazmat
- * chestpiece) or who stand inside a formed, clean GT Cleanroom; creative and spectator players are exempt. Machines,
- * pipes, chests and ME systems never contaminate anything.
+ * chestpiece) or who stand inside a formed, clean GT Cleanroom. Spectators are exempt, creative players only if
+ * {@link AF9Config#CONTAMINATE_IN_CREATIVE} is off. Machines, pipes, chests and ME systems never contaminate anything.
  * <p>
- * The wafers of a substrate are the item tag {@code #af9:wafers/<substrate>}, all of them {@code #af9:wafers}
- * (kubejs/server_scripts/mods/gtceu/photolithography.js).
+ * The wafers of a substrate are the item tag {@code #af9:wafers/<substrate>}, all of them {@code #af9:wafers}; the
+ * chips are {@code #af9:chips} (kubejs/server_scripts/mods/gtceu/photolithography.js).
  */
 @Mod.EventBusSubscriber(modid = AF9Core.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
 public final class WaferContamination {
 
     public static final TagKey<Item> ALL_WAFERS = ItemTags.create(new ResourceLocation(AF9Core.MOD_ID, "wafers"));
+    public static final TagKey<Item> ALL_CHIPS = ItemTags.create(new ResourceLocation(AF9Core.MOD_ID, "chips"));
     public static final TagKey<Item> GLOVES = ItemTags.create(new ResourceLocation(AF9Core.MOD_ID, "wafer_gloves"));
     /** Ticks between two checks of a player's inventory. */
     public static final int CHECK_INTERVAL = 10;
@@ -56,6 +59,7 @@ public final class WaferContamination {
     /** Substrate id -> its wafer tag, in {@link LithoMode} order. */
     private static final Map<String, TagKey<Item>> SUBSTRATE_TAGS = new LinkedHashMap<>();
     private static final Map<String, Item> CONTAMINATED = new LinkedHashMap<>();
+    private static final Map<Item, Item> CONTAMINATED_CHIPS = new LinkedHashMap<>();
 
     static {
         for (LithoMode mode : LithoMode.values()) {
@@ -70,12 +74,13 @@ public final class WaferContamination {
     public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
         if (event.phase != TickEvent.Phase.END || event.side != LogicalSide.SERVER) return;
         if (!(event.player instanceof ServerPlayer player)) return;
-        if (player.tickCount % CHECK_INTERVAL != 0 || player.isCreative() || player.isSpectator()) return;
+        if (player.tickCount % CHECK_INTERVAL != 0 || player.isSpectator()) return;
+        if (player.isCreative() && !AF9Config.CONTAMINATE_IN_CREATIVE.get()) return;
 
         Inventory inventory = player.getInventory();
         Container craft = player.inventoryMenu.getCraftSlots();
         ItemStack carried = player.containerMenu.getCarried();
-        if (!hasWafer(inventory) && !hasWafer(craft) && !carried.is(ALL_WAFERS)) return;
+        if (!hasSensitive(inventory) && !hasSensitive(craft) && !isSensitive(carried)) return;
         if (wearsGloves(player) || inCleanroom(player)) return;
 
         boolean changed = contaminateAll(inventory);
@@ -93,9 +98,14 @@ public final class WaferContamination {
         }
     }
 
-    private static boolean hasWafer(Container container) {
+    /** A wafer or a chip: something that contaminates in a player's hands. */
+    public static boolean isSensitive(ItemStack stack) {
+        return !stack.isEmpty() && (stack.is(ALL_WAFERS) || stack.is(ALL_CHIPS));
+    }
+
+    private static boolean hasSensitive(Container container) {
         for (int i = 0; i < container.getContainerSize(); i++) {
-            if (container.getItem(i).is(ALL_WAFERS)) return true;
+            if (isSensitive(container.getItem(i))) return true;
         }
         return false;
     }
@@ -112,9 +122,16 @@ public final class WaferContamination {
         return changed;
     }
 
-    /** The contaminated wafer for a wafer stack (same count), or null if the stack does not contaminate. */
+    /**
+     * The contaminated wafer / chip for a wafer or chip stack (same count), or null if the stack does not contaminate.
+     */
     public static ItemStack contaminate(ItemStack stack) {
-        if (stack.isEmpty() || !stack.is(ALL_WAFERS)) return null;
+        if (stack.isEmpty()) return null;
+        if (stack.is(ALL_CHIPS)) {
+            Item dirty = contaminatedChip(stack.getItem());
+            return dirty == null ? null : new ItemStack(dirty, stack.getCount());
+        }
+        if (!stack.is(ALL_WAFERS)) return null;
         for (Map.Entry<String, TagKey<Item>> entry : SUBSTRATE_TAGS.entrySet()) {
             if (!stack.is(entry.getValue())) continue;
             Item dirty = contaminatedWafer(entry.getKey());
@@ -130,6 +147,21 @@ public final class WaferContamination {
             if (item == null || item == Items.AIR) {
                 AF9Core.LOGGER.warn("Item kubejs:contaminated_{}_wafer not found - is the AF9 KubeJS startup " +
                         "script loaded?", key);
+                return null;
+            }
+            return item;
+        });
+    }
+
+    /** kubejs:contaminated_&lt;chip's registry path&gt;. */
+    private static Item contaminatedChip(Item chip) {
+        return CONTAMINATED_CHIPS.computeIfAbsent(chip, key -> {
+            ResourceLocation id = ForgeRegistries.ITEMS.getKey(key);
+            Item item = id == null ? null :
+                    ForgeRegistries.ITEMS.getValue(new ResourceLocation("kubejs", "contaminated_" + id.getPath()));
+            if (item == null || item == Items.AIR) {
+                AF9Core.LOGGER.warn("No contaminated item kubejs:contaminated_{} - is the AF9 KubeJS startup " +
+                        "script loaded?", id == null ? "?" : id.getPath());
                 return null;
             }
             return item;

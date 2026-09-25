@@ -7,7 +7,12 @@
 	id: "489F28A71282B3E7"
 	order_index: 5
 	progression_mode: "flexible"
-	quest_links: [ ]
+	quest_links: [{
+		id: "52E7D4ABDFD2A627"
+		linked_quest: "418DC14B94C9272A"
+		x: -1.0d
+		y: 3.5d
+	}]
 	quests: [
 		{
 			description: [
@@ -581,7 +586,7 @@
 		{
 			dependencies: [
 				"7D10AA6EF07087B5"
-				"AD8FD756AA394586"
+				"35B1F5439640C0EA"
 			]
 			description: ["{af9.quest.ev.lpic}"]
 			id: "5D58E5CB4F4BDAD5"
@@ -600,7 +605,7 @@
 					type: "item"
 				}
 				{
-					id: "D1DA5606AEA67D08"
+					id: "4350E3C74DD603B9"
 					item: "kubejs:lpic_reticle"
 					type: "item"
 				}
@@ -1192,35 +1197,10 @@
 			y: 1.0d
 		}
 		{
-			dependencies: [
-				"F5459779599BE107"
-				"273DC98BA2785BD6"
-			]
-			description: [
-				"{af9.quest.ev.euv.1}"
-				""
-				"{af9.quest.ev.euv.2}"
-			]
-			id: "418DC14B94C9272A"
-			rewards: [{
-				id: "F3B94AF2AF9AB417"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [{
-				id: "C14FFFD46C36A72D"
-				item: "gtceu:naquadah_wafer"
-				type: "item"
-			}]
-			title: "{af9.quest.title.euv}"
-			x: -1.0d
-			y: 3.5d
-		}
-		{
 			description: ["{af9.quest.ev.metals}"]
 			id: "2EC82E995F48F0D6"
 			rewards: [{
-				id: "8620A8D44E46E1FB"
+				id: "50DD868CE7D33D10"
 				type: "xp"
 				xp: 100
 			}]
@@ -1231,7 +1211,7 @@
 					type: "item"
 				}
 				{
-					id: "EAB1CE80D5F2E392"
+					id: "78400D0643C6E18A"
 					item: "gtceu:titanium_bolt"
 					type: "item"
 				}

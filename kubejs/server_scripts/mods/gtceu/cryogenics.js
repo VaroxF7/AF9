@@ -18,7 +18,9 @@ ServerEvents.recipes(allthemods => {
         .EUt(VA[GTValues.HV])
 
     // an input hatch of the tier, pre-chilled and lined for the supercooled fluids
-    const hatchTiers = [['luv', 'luv'], ['zpm', 'zpm'], ['uv', 'uv'], ['uhv', 'uv']]
+    // HV-UHV (UHV takes UV pumps: GT has no UHV pump without its high-tier content)
+    const hatchTiers = [['hv', 'hv'], ['ev', 'ev'], ['iv', 'iv'], ['luv', 'luv'], ['zpm', 'zpm'], ['uv', 'uv'],
+        ['uhv', 'uv']]
     hatchTiers.forEach(([tier, parts], index) => {
         allthemods.recipes.gtceu.assembler(`af9:${tier}_coolant_hatch`)
             .itemInputs(`gtceu:${tier}_input_hatch`, `2x gtceu:${parts}_electric_pump`,
@@ -26,7 +28,7 @@ ServerEvents.recipes(allthemods => {
             .inputFluids(Fluid.of('gtceu:supercooled_hydrogen', 1000))
             .itemOutputs(`gtceu:${tier}_coolant_hatch`)
             .duration(400)
-            .EUt(VA[GTValues.LuV + index])
+            .EUt(VA[GTValues.HV + index])
     })
 
     // ---- Dense cooling and supercooling ----

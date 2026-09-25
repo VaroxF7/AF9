@@ -222,7 +222,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             $PhotolithographyLineMachine.LITHO_VERSION, GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(GTBlocks.CASING_STAINLESS_CLEAN)
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_line.tooltip', 16))
-        // 3 wide x 3 high x 20-27 long. Aisles run from the back (light source) to the front (controller);
+        // 3 wide x 3 high x 10-17 long. Aisles run from the back (light source) to the front (controller);
         // each aisle lists its rows bottom -> middle -> top.
         // Versions 1-8 like the Assembly Line's length: 3-10 projection-lens slices, and the light source must allow the
         // version (mercury lamp V1, KrF excimer laser V2, ArF excimer laser up to V6, EUV source up to V8). One preview
@@ -234,20 +234,10 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .aisle('CCC', 'WTW', 'CCC').setRepeatable(3, 10) // projection lens: one slice per version + 2
             .aisle('CRC', 'WRW', 'CCC') // wafer XY stage
             // --- Coater / developer track ---
-            .aisle('CCC', 'CRC', 'CCC') // track <-> stepper interface
-            .aisle('CCC', 'CRC', 'CFC') // transfer robot
-            .aisle('CCC', 'CHC', 'CFC') // hard bake
-            .aisle('CSC', 'WXW', 'CPC') // developer: rinse
-            .aisle('CSC', 'WXW', 'CPC') // developer: TMAH puddle
-            .aisle('CCC', 'CKC', 'CFC') // chill plate
-            .aisle('CCC', 'CHC', 'CFC') // post-exposure bake
-            .aisle('CCC', 'CHC', 'CFC') // soft bake
-            .aisle('CSC', 'WXW', 'CPC') // spin coater
-            .aisle('CSC', 'WXW', 'CPC') // spin coater: resist dispense
-            .aisle('CCC', 'CKC', 'CFC') // chill plate
-            .aisle('CPC', 'WHW', 'CFC') // HMDS vapour prime oven
-            .aisle('CCC', 'CRC', 'CFC') // transfer robot
-            .aisle('III', 'IMI', 'CCC') // cassette station (wafers in and out) + controller
+            .aisle('CSC', 'WXW', 'FPF') // developer: TMAH puddle and rinse
+            .aisle('CKC', 'CHC', 'FFF') // bake plates (soft bake, post-exposure bake, hard bake) and chill plate
+            .aisle('CSC', 'WXW', 'FPF') // HMDS prime and spin coater
+            .aisle('III', 'IMI', 'CFC') // cassette station (wafers in and out) + controller
             .where('M', Predicates.controller(Predicates.blocks(definition.get())))
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
             .where('I', Predicates.blocks('gtceu:clean_machine_casing')

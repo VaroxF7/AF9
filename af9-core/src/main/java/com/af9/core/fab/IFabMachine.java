@@ -25,7 +25,7 @@ public interface IFabMachine extends IRecipeLogicMachine {
 
     long getFabAvailableEUt();
 
-    /** Parallel the structure (or last run) gives, 1 for single blocks. */
+    /** Most parallels the machine runs (structure x parallel hatch setting), 1 for single blocks. */
     int getFabParallel();
 
     /** 0 = no clean environment, 1 = cleanroom (ISO 5), 2 = sterile / ULPA filters (ISO 3). */

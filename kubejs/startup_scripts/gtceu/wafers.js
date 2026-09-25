@@ -19,7 +19,8 @@
 // (gtceu:ram_wafer ...); a better substrate gives more of them per blank (AF9_WAFERS.yieldOf in the server script).
 //
 // Every substrate also has a broken wafer (a failed print) and a contaminated wafer (handled without gloves outside a
-// clean room, see af9-core WaferContamination).
+// clean room, see af9-core WaferContamination). Chips contaminate the same way: every chip GT's cutter makes of a
+// printed wafer has a contaminated chip (kubejs:contaminated_<chip>).
 
 const AF9_WAFER_TABLE = (() => {
     // id, blank wafer, blank wafer name (GT's names for GT's four)
@@ -34,7 +35,15 @@ const AF9_WAFER_TABLE = (() => {
         { id: 'strange_matter', blank: 'kubejs:strange_matter_wafer', name: 'Strange Matter-doped Wafer' },
         { id: 'chromodynium', blank: 'kubejs:chromodynium_wafer', name: 'Chromodynium Wafer' }
     ]
-    return { substrates: substrates }
+    // GT's chips (item id, English name): the dies the cutter makes of the printed wafers
+    const chips = [
+        ['ilc_chip', 'IC Chip'], ['ram_chip', 'RAM Chip'], ['cpu_chip', 'CPU Chip'], ['ulpic_chip', 'ULPIC Chip'],
+        ['lpic_chip', 'LPIC Chip'], ['simple_soc', 'Simple SoC'], ['nand_memory_chip', 'NAND Memory Chip'],
+        ['nor_memory_chip', 'NOR Memory Chip'], ['mpic_chip', 'MPIC Chip'], ['soc', 'SoC'], ['advanced_soc', 'ASoC'],
+        ['highly_advanced_soc', 'HASoC'], ['nano_cpu_chip', 'Nano CPU Chip'], ['qbit_cpu_chip', 'Qubit CPU Chip'],
+        ['hpic_chip', 'HPIC Chip'], ['uhpic_chip', 'UHPIC Chip']
+    ]
+    return { substrates: substrates, chips: chips }
 })()
 
 StartupEvents.registry('item', allthemods => {
@@ -56,5 +65,13 @@ StartupEvents.registry('item', allthemods => {
             .displayName(`Contaminated ${s.name}`)
             .texture(`kubejs:item/wafers/contaminated_${s.id}_wafer`)
             .tooltip('Touched by bare hands. Strip and clean it (SMC wet processing) to get a blank wafer back.')
+    })
+
+    // chips handled without gloves outside a clean room
+    table.chips.forEach(([id, name]) => {
+        allthemods.create(`contaminated_${id}`)
+            .displayName(`Contaminated ${name}`)
+            .texture(`kubejs:item/chips/contaminated_${id}`)
+            .tooltip('Touched by bare hands. Rinse it (SMC wet processing) to get the chip back.')
     })
 })

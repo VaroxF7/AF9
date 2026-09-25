@@ -7,7 +7,68 @@
 	id: "574AC3A76DC03364"
 	order_index: 3
 	progression_mode: "flexible"
-	quest_links: [ ]
+	quest_links: [
+		{
+			id: "18EE2D04A47A8521"
+			linked_quest: "35B1F5439640C0EA"
+			x: 10.0d
+			y: -2.5d
+		}
+		{
+			id: "2DDA8A7AD1964589"
+			linked_quest: "240C1BFF666269E2"
+			x: 11.5d
+			y: -2.5d
+		}
+		{
+			id: "23D0D654A7A9199D"
+			linked_quest: "412010740F2B823B"
+			x: 10.0d
+			y: -5.0d
+		}
+		{
+			id: "1C1F029ACD11C612"
+			linked_quest: "3588AD6ACFF346F1"
+			x: 11.5d
+			y: -1.0d
+		}
+		{
+			id: "0994B0550DACDAD9"
+			linked_quest: "51A5F6CE614BD186"
+			x: 13.0d
+			y: -4.0d
+		}
+		{
+			id: "78EC4279A33218FA"
+			linked_quest: "20D20F14D2F5D916"
+			x: 13.0d
+			y: -2.5d
+		}
+		{
+			id: "6881169ED35379D8"
+			linked_quest: "75865FF47260C1E7"
+			x: 13.0d
+			y: -1.0d
+		}
+		{
+			id: "02E6B461C4A16934"
+			linked_quest: "5655F19FA33BD62B"
+			x: 11.5d
+			y: -4.0d
+		}
+		{
+			id: "70D15441226DBA75"
+			linked_quest: "01B10745D9CCECA1"
+			x: 11.5d
+			y: -5.5d
+		}
+		{
+			id: "609F4187309E9D4C"
+			linked_quest: "3820A788D384105B"
+			x: -9.7d
+			y: 7.5d
+		}
+	]
 	quests: [
 		{
 			description: [
@@ -321,8 +382,9 @@
 		}
 		{
 			dependencies: [
-				"F3C933DD2ADF7BB7"
-				"75865FF47260C1E7"
+				"42F0F9B19A85765F"
+				"58621E0A4F8A298B"
+				"3523E88C2F7834D1"
 			]
 			description: [
 				"{atm9.quest.gregtech.mv.desc.siliconDust.1}"
@@ -572,12 +634,7 @@
 			y: -3.0d
 		}
 		{
-			dependencies: [
-				"11F7D3DDF5683EB3"
-				"688AFF76CF5E599A"
-				"AD8FD756AA394586"
-				"412010740F2B823B"
-			]
+			dependencies: ["35B1F5439640C0EA"]
 			description: ["{af9.quest.mv.ramWafer}"]
 			id: "7EFA4F2C0A895502"
 			rewards: [{
@@ -595,12 +652,7 @@
 			y: -2.4999999999999973d
 		}
 		{
-			dependencies: [
-				"11F7D3DDF5683EB3"
-				"688AFF76CF5E599A"
-				"AD8FD756AA394586"
-				"412010740F2B823B"
-			]
+			dependencies: ["35B1F5439640C0EA"]
 			description: ["{af9.quest.mv.ilcWafer}"]
 			id: "100ADA8508F6502A"
 			rewards: [{
@@ -1682,160 +1734,6 @@
 			y: 2.0d
 		}
 		{
-			dependencies: [
-				"11F7D3DDF5683EB3"
-				"3DCCEDC5A817EBEB"
-			]
-			description: [
-				"{af9.quest.mv.line.1}"
-				""
-				"{af9.quest.mv.line.2}"
-				""
-				"{af9.quest.mv.line.3}"
-				""
-				"{af9.quest.mv.line.4}"
-				""
-				"{af9.quest.mv.line.5}"
-			]
-			id: "AD8FD756AA394586"
-			rewards: [{
-				id: "1E236C17B8E7EE4F"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [{
-				id: "EC98E2E9D1A0F2D5"
-				item: "gtceu:photolithography_line"
-				type: "item"
-			}]
-			title: "{af9.quest.title.line}"
-			x: 10.0d
-			y: -2.5d
-		}
-		{
-			dependencies: [
-				"AD8FD756AA394586"
-				"AE2076353F8220B1"
-			]
-			description: [
-				"{af9.quest.mv.chemistry.1}"
-				""
-				"{af9.quest.mv.chemistry.2}"
-			]
-			id: "240C1BFF666269E2"
-			rewards: [{
-				id: "FDD32DDE48926032"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [
-				{
-					amount: 1000L
-					fluid: "gtceu:hmds_vapor"
-					id: "F2A9A22CA0490FD6"
-					type: "fluid"
-				}
-				{
-					amount: 1000L
-					fluid: "gtceu:photoresist"
-					id: "447636C7A6E9ADC3"
-					type: "fluid"
-				}
-				{
-					amount: 1000L
-					fluid: "gtceu:tmah_developer"
-					id: "B2C932FBC2172653"
-					type: "fluid"
-				}
-			]
-			title: "{af9.quest.title.chemistry}"
-			x: 11.5d
-			y: -2.5d
-		}
-		{
-			dependencies: [
-				"11F7D3DDF5683EB3"
-				"240C1BFF666269E2"
-			]
-			description: [
-				"{af9.quest.mv.reticles.1}"
-				""
-				"{af9.quest.mv.reticles.2}"
-			]
-			id: "412010740F2B823B"
-			rewards: [{
-				id: "CFFDEE54A9C6755B"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [
-				{
-					id: "1315DF8523AB6129"
-					item: "kubejs:photomask_blank"
-					type: "item"
-				}
-				{
-					id: "F0FB3415C13DCCC9"
-					item: "kubejs:ilc_reticle"
-					type: "item"
-				}
-				{
-					id: "1352A7BBD6129E58"
-					item: "kubejs:ram_reticle"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.title.reticles}"
-			x: 10.0d
-			y: -5.0d
-		}
-		{
-			dependencies: [
-				"AD8FD756AA394586"
-				"AE2076353F8220B1"
-			]
-			description: [
-				"{af9.quest.mv.xcda.1}"
-				""
-				"{af9.quest.mv.xcda.2}"
-				""
-				"{af9.quest.mv.xcda.3}"
-			]
-			id: "F01C688974686C8E"
-			rewards: [{
-				id: "B46F0AD21E64F55F"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [
-				{
-					id: "5B1A253E2BC0931C"
-					item: "gtceu:hopcalite_dust"
-					type: "item"
-				}
-				{
-					id: "EAF4EC60BF02469F"
-					item: "kubejs:molecular_sieve"
-					type: "item"
-				}
-				{
-					amount: 1000L
-					fluid: "gtceu:cryogenic_supercooled_air"
-					id: "DC1D4370E17344AE"
-					type: "fluid"
-				}
-				{
-					amount: 4000L
-					fluid: "gtceu:extreme_clean_dry_air"
-					id: "586915FA9C0CFCB6"
-					type: "fluid"
-				}
-			]
-			title: "{af9.quest.title.xcda}"
-			x: 11.5d
-			y: -1.0d
-		}
-		{
 			description: [
 				"{af9.quest.mv.metals.1}"
 				""
@@ -1845,13 +1743,13 @@
 			]
 			id: "5CF8D8E0B8E0D908"
 			rewards: [{
-				id: "FFC9A4CB0764DD8D"
+				id: "72CC78D5EE2C21A3"
 				type: "xp"
 				xp: 100
 			}]
 			tasks: [
 				{
-					id: "99242D1E4433BC0F"
+					id: "6D293EEC6475D9C2"
 					item: "gtceu:fine_aluminium_silicon_wire"
 					type: "item"
 				}
@@ -1864,174 +1762,6 @@
 			title: "{af9.quest.title.mvMetals}"
 			x: 5.5d
 			y: 3.0d
-		}
-		{
-			dependencies: ["AE2076353F8220B1"]
-			description: ["{af9.quest.mv.hf}"]
-			id: "97A469B25693E8F2"
-			rewards: [{
-				id: "861109DE80196581"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [{
-				amount: 1000L
-				fluid: "gtceu:hydrofluoric_acid"
-				id: "CD7E416185DE213F"
-				type: "fluid"
-			}]
-			title: "{af9.quest.title.hf}"
-			x: 13.0d
-			y: -4.0d
-		}
-		{
-			dependencies: ["97A469B25693E8F2"]
-			description: [
-				"{af9.quest.mv.egs.1}"
-				""
-				"{af9.quest.mv.egs.2}"
-				""
-				"{af9.quest.mv.egs.3}"
-			]
-			id: "F3C933DD2ADF7BB7"
-			rewards: [{
-				id: "3F93B08DF7CF0259"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [
-				{
-					id: "7B41E9DCA61D0D37"
-					item: "gtceu:metallurgical_grade_silicon_dust"
-					type: "item"
-				}
-				{
-					amount: 1000L
-					fluid: "gtceu:electronic_grade_trichlorosilane"
-					id: "6391EC83554871FA"
-					type: "fluid"
-				}
-				{
-					id: "9911E6412E32D974"
-					item: "gtceu:polysilicon_ingot"
-					type: "item"
-				}
-				{
-					id: "E77CA561005E4567"
-					item: "gtceu:electronic_grade_silicon_dust"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.title.egs}"
-			x: 13.0d
-			y: -2.5d
-		}
-		{
-			dependencies: ["F01C688974686C8E"]
-			description: [
-				"{af9.quest.mv.air.1}"
-				""
-				"{af9.quest.mv.air.2}"
-			]
-			id: "75865FF47260C1E7"
-			rewards: [{
-				id: "608E56EA5F9EBD33"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [
-				{
-					amount: 1000L
-					fluid: "gtceu:crude_argon"
-					id: "84F5FB7A3C468B68"
-					type: "fluid"
-				}
-				{
-					amount: 1000L
-					fluid: "gtceu:argon"
-					id: "ECB58A93F90A0BE9"
-					type: "fluid"
-				}
-			]
-			title: "{af9.quest.title.air}"
-			x: 13.0d
-			y: -1.0d
-		}
-		{
-			description: [
-				"{af9.quest.mv.fabPlant.1}"
-				""
-				"{af9.quest.mv.fabPlant.2}"
-				""
-				"{af9.quest.mv.fabPlant.3}"
-			]
-			id: "AE2076353F8220B1"
-			rewards: [{
-				id: "627D23524A03734B"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [
-				{
-					id: "135CF7E043DCA675"
-					item: "gtceu:mv_smc_chemical_reactor"
-					type: "item"
-				}
-				{
-					id: "B769B74C106B71CC"
-					item: "gtceu:mv_smc_fractionating_still"
-					type: "item"
-				}
-				{
-					id: "4F8486CBF50117BC"
-					item: "gtceu:mv_smc_electrolytic_cell"
-					type: "item"
-				}
-				{
-					id: "A75837BED994DF47"
-					item: "gtceu:mv_smc_thermal_furnace"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.title.fabPlant}"
-			x: 11.5d
-			y: -4.0d
-		}
-		{
-			dependencies: ["AE2076353F8220B1"]
-			description: [
-				"{af9.quest.mv.fabFurnace}"
-			]
-			id: "01B10745D9CCECA1"
-			rewards: [{
-				id: "3B79BAC20E273BAF"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [{
-				id: "D098D87F0A5A92D9"
-				item: "gtceu:smc_thermal_processing_furnace"
-				type: "item"
-			}]
-			title: "{af9.quest.title.fabFurnace}"
-			x: 11.5d
-			y: -5.5d
-		}
-		{
-			description: [
-				"{af9.quest.mv.gloves.1}"
-				""
-				"{af9.quest.mv.gloves.2}"
-			]
-			id: "F1D516BB5454D805"
-			tasks: [{
-				id: "C4A001FE21448A7E"
-				item: "gtceu:rubber_gloves"
-				type: "item"
-			}]
-			title: "{af9.quest.title.gloves}"
-			x: -9.7d
-			y: 7.5d
 		}
 	]
 	title: "{atm9.chapters.28.title}"

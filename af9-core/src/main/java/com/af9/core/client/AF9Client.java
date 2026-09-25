@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.List;
 
 /**
- * Client side of the wafers: every wafer that contaminates in a player's inventory says so in its tooltip.
+ * Client side of the wafers and chips: everything that contaminates in a player's inventory says so in its tooltip.
  */
 public final class AF9Client {
 
@@ -24,7 +24,7 @@ public final class AF9Client {
 
         @SubscribeEvent
         public static void onTooltip(ItemTooltipEvent event) {
-            if (!event.getItemStack().is(WaferContamination.ALL_WAFERS)) return;
+            if (!WaferContamination.isSensitive(event.getItemStack())) return;
             List<Component> tooltip = event.getToolTip();
             // right below the item name
             tooltip.add(Math.min(1, tooltip.size()),

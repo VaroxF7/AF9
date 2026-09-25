@@ -18,15 +18,16 @@ import java.util.List;
  * chromodynium wafers with an X-ray free-electron laser fed by laser hatches (50A of UHV).
  * <p>
  * It only prints in orbit (a dimension whose path ends in "orbit", e.g. Ad Astra's ad_astra:earth_orbit): the XFEL
- * needs the vacuum of space, and without gravity the resist goes on dry. Space also helps the vacuum, which recovers
- * almost twice as fast as the line's. Coolant comes from coolant hatches (supercooled fluids only).
+ * needs the vacuum of space, and without gravity the resist goes on dry. Its vacuum counts as level 9 (90 s from 0 to
+ * 100, see {@link LithoMachine}). Coolant comes from coolant hatches (supercooled fluids only).
  */
 public class OrbitalLithographyMachine extends LithoMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             OrbitalLithographyMachine.class, LithoMachine.MANAGED_FIELD_HOLDER);
 
-    public static final double PUMP_RATE = 0.15;
+    /** One level above the line's last version: 90 s from 0 to 100. */
+    public static final int VACUUM_LEVEL = LithoMode.MAX_VERSION + 1;
     private static final List<LithoMode> MODES = List.of(LithoMode.N1);
 
     public OrbitalLithographyMachine(IMachineBlockEntity holder) {
@@ -60,8 +61,8 @@ public class OrbitalLithographyMachine extends LithoMachine {
     }
 
     @Override
-    protected double pumpRate() {
-        return PUMP_RATE;
+    protected int vacuumLevel() {
+        return VACUUM_LEVEL;
     }
 
     @Override

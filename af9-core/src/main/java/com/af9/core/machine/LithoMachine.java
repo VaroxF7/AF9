@@ -37,10 +37,11 @@ import java.util.List;
  * What the Photolithography Line and the Orbital Lithography Station share: the exposure vacuum, the break roll and
  * the print counters.
  * <p>
- * Vacuum: a cleanliness score of 0-100. While the structure is formed, has energy and no maintenance problems, the
- * pumps raise it every second by a share of what is missing ({@link #pumpRate()}, at least 0.5) and draw 1/8 A of the
- * hatch voltage for it; without energy (or with maintenance problems) it leaks 0.5 per second. Every finished wafer
- * drops it by 10-15 points.
+ * Vacuum: a cleanliness score of 0-100. It starts at 0 when the structure forms (breaking the structure vents it).
+ * While the pumps have power (1/8 A of the hatch voltage, drawn all the time to hold the vacuum) it rises linearly to
+ * 100 in {@link #pumpDownSeconds()} (10 s per machine level: line version 1 = 10 s ... version 8 = 80 s) and stays
+ * there; finished wafers do not lower it. Without power it vents linearly from 100 to 0 in {@link #VENT_SECONDS},
+ * after a short grace ({@link #POWER_GRACE_TICKS}) so that a brief dip does not flip the state back and forth.
  * <p>
  * Every finished print rolls the mode's break chance ({@link LithoMode#breakChance}, from the cleanliness at that
  * moment): a broken print puts out the substrate's broken wafer instead. The recipes list the broken wafer as a
@@ -53,10 +54,19 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(LithoMachine.class,
             WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
 
-    public static final double MIN_PUMP_STEP = 0.5;
-    public static final double LEAK_PER_SECOND = 0.5;
-    public static final int CLEAN_DROP_MIN = 10;
-    public static final int CLEAN_DROP_MAX = 15;
+    /** Vacuum states, as the console and Jade show them. */
+    public static final int VACUUM_OFF = 0;
+    public static final int VACUUM_PUMPING = 1;
+    public static final int VACUUM_SEALED = 2;
+    public static final int VACUUM_VENTING = 3;
+    /** Pump-down time from 0 to 100 per machine level (line version; the orbital station counts as level 9). */
+    public static final int PUMP_DOWN_SECONDS_PER_LEVEL = 10;
+    /** Time a full vacuum takes to vent to 0 without power. */
+    public static final int VENT_SECONDS = 60;
+    /** Ticks between two vacuum updates. */
+    public static final int VACUUM_INTERVAL = 10;
+    /** Ticks the pumps may go without power before the vacuum starts venting. */
+    public static final int POWER_GRACE_TICKS = 60;
 
     /**
      * Only starts a print the machine can do right now (line version / orbit, see {@link #canPrint}) and whose EU/t
@@ -92,11 +102,14 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     @Persisted
     private double cleanliness;
     @Persisted
+    private int vacuumState;
+    @Persisted
     private long printed;
     @Persisted
     private long broken;
 
     private TickableSubscription vacuumSubs;
+    private int unpoweredTicks;
 
     protected LithoMachine(IMachineBlockEntity holder) {
         super(holder);
@@ -131,8 +144,8 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     /** Line versions above the mode's own (0 for the orbital station). */
     public abstract int surplusFor(LithoMode mode);
 
-    /** Share of the missing cleanliness the pumps recover per second. */
-    protected abstract double pumpRate();
+    /** Machine level for the pump-down time: the line version, 9 for the orbital station. */
+    protected abstract int vacuumLevel();
 
     /** Console title key. */
     public abstract String titleKey();
@@ -157,10 +170,15 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         vacuumSubs = subscribeServerTick(vacuumSubs, this::updateVacuum);
     }
 
+    /** A broken structure loses its vacuum: the next time it forms it pumps down from 0. */
     @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
         unsubscribeVacuum();
+        cleanliness = 0;
+        vacuumState = VACUUM_OFF;
+        unpoweredTicks = 0;
+        markDirty();
     }
 
     @Override
@@ -177,31 +195,47 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     }
 
     protected void updateVacuum() {
-        if (getOffsetTimer() % 20 != 0 || !isFormed()) return;
+        if (getOffsetTimer() % VACUUM_INTERVAL != 0 || !isFormed()) return;
         double before = cleanliness;
-        long drain = pumpDrainPerSecond();
-        boolean powered = energyContainer != null && energyContainer.getEnergyStored() >= Math.max(1, drain);
-        if (!powered || hasMaintenanceProblems()) {
-            cleanliness = Math.max(0, cleanliness - LEAK_PER_SECOND);
-        } else if (cleanliness < 100) {
+        int stateBefore = vacuumState;
+        long drain = pumpDrainPerInterval();
+        if (energyContainer != null && drain > 0 && energyContainer.getEnergyStored() >= drain) {
+            // the pumps run all the time: they pump down, then hold the vacuum
             energyContainer.removeEnergy(drain);
-            cleanliness = Math.min(100, cleanliness + Math.max(MIN_PUMP_STEP, (100 - cleanliness) * pumpRate()));
+            unpoweredTicks = 0;
+            cleanliness = Math.min(100, cleanliness + 100.0 * VACUUM_INTERVAL / (20.0 * pumpDownSeconds()));
+            vacuumState = cleanliness >= 100 ? VACUUM_SEALED : VACUUM_PUMPING;
+        } else {
+            unpoweredTicks = Math.min(POWER_GRACE_TICKS, unpoweredTicks + VACUUM_INTERVAL);
+            if (unpoweredTicks >= POWER_GRACE_TICKS) {
+                cleanliness = Math.max(0, cleanliness - 100.0 * VACUUM_INTERVAL / (20.0 * VENT_SECONDS));
+                vacuumState = cleanliness > 0 ? VACUUM_VENTING : VACUUM_OFF;
+            }
         }
-        if (cleanliness != before) markDirty();
+        if (cleanliness != before || vacuumState != stateBefore) markDirty();
     }
 
-    /** The pumps draw 1/8 A of the hatch voltage while they work (checked once a second, so x20). */
-    public long pumpDrainPerSecond() {
-        return energyContainer == null ? 0 : energyContainer.getInputVoltage() / 8 * 20;
+    /** The pumps draw 1/8 A of the hatch voltage (checked every {@link #VACUUM_INTERVAL} ticks). */
+    public long pumpDrainPerInterval() {
+        return energyContainer == null ? 0 : energyContainer.getInputVoltage() / 8 * VACUUM_INTERVAL;
+    }
+
+    /** Seconds from 0 to 100 at this machine's level. */
+    public int pumpDownSeconds() {
+        return PUMP_DOWN_SECONDS_PER_LEVEL * Math.max(1, vacuumLevel());
     }
 
     public double getCleanliness() {
         return cleanliness;
     }
 
+    /** One of {@link #VACUUM_OFF}, {@link #VACUUM_PUMPING}, {@link #VACUUM_SEALED}, {@link #VACUUM_VENTING}. */
+    public int getVacuumState() {
+        return isFormed() ? vacuumState : VACUUM_OFF;
+    }
+
     public boolean isPumping() {
-        return isFormed() && cleanliness < 100 && energyContainer != null &&
-                energyContainer.getEnergyStored() >= Math.max(1, pumpDrainPerSecond()) && !hasMaintenanceProblems();
+        return getVacuumState() == VACUUM_PUMPING;
     }
 
     //////////////////////////////////////
@@ -209,14 +243,12 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     //////////////////////////////////////
 
     /**
-     * A print of the mode finished: rolls the break chance against the current cleanliness, then the vacuum loses
-     * 10-15 points. Returns whether the print broke.
+     * A print of the mode finished: rolls the break chance against the current cleanliness (the vacuum itself is not
+     * changed by a print). Returns whether the print broke.
      */
     boolean finishPrint(LithoMode mode) {
         RandomSource random = getLevel() != null ? getLevel().getRandom() : RandomSource.create();
         boolean broke = random.nextDouble() < mode.breakChance(cleanliness, surplusFor(mode));
-        int drop = CLEAN_DROP_MIN + random.nextInt(CLEAN_DROP_MAX - CLEAN_DROP_MIN + 1);
-        cleanliness = Math.max(0, cleanliness - drop);
         if (broke) {
             broken++;
         } else {

@@ -92,13 +92,14 @@ const AF9_WAFERS = (() => {
         reticles: chips.filter(c => c.reticle).map(c => ({ id: c.reticle, lens: c.lens })) }
 })()
 
-// Contamination (af9-core WaferContamination): every wafer of a substrate, the gloves that protect
+// Contamination (af9-core WaferContamination): every wafer of a substrate, every chip, the gloves that protect
 ServerEvents.tags('item', allthemods => {
     AF9_WAFERS.substrates.forEach(s => {
         const wafers = AF9_WAFERS.wafersOf(s.index)
         allthemods.add(`af9:wafers/${s.id}`, wafers)
         allthemods.add('af9:wafers', wafers)
     })
+    allthemods.add('af9:chips', AF9_WAFERS.chips.map(c => c.chip))
     allthemods.add('af9:wafer_gloves', ['gtceu:rubber_gloves', 'gtceu:hazmat_chestpiece'])
 })
 
@@ -495,5 +496,15 @@ ServerEvents.recipes(allthemods => {
             .duration(200)
             .EUt(VA[Math.min(s.tier, GTValues.LuV)])
             .cleanroom(CleanroomType.CLEANROOM)
+    })
+    // Contaminated chips: a dilute HF dip and a rinse gives the chip back (MV, no clean room: an MV recipe)
+    chips.forEach(c => {
+        const path = c.chip.substring('gtceu:'.length)
+        allthemods.recipes.gtceu.fab_wet_processing(`af9:clean_contaminated_${path}`)
+            .itemInputs(`kubejs:contaminated_${path}`)
+            .inputFluids(Fluid.of('gtceu:hydrofluoric_acid', 10), Fluid.of('gtceu:distilled_water', 250))
+            .itemOutputs(c.chip)
+            .duration(60)
+            .EUt(EU_MV)
     })
 })

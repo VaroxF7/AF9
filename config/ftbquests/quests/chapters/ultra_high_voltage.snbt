@@ -7,7 +7,20 @@
 	id: "60A9BBC993EB2FD2"
 	order_index: 10
 	progression_mode: "flexible"
-	quest_links: [ ]
+	quest_links: [
+		{
+			id: "495874C5F26465B5"
+			linked_quest: "23C7AC818504BEB9"
+			x: -9.0d
+			y: 8.0d
+		}
+		{
+			id: "647BF9B7A2D56079"
+			linked_quest: "75590392393A5E38"
+			x: -7.0d
+			y: 8.0d
+		}
+	]
 	quests: [
 		{
 			description: [
@@ -1213,11 +1226,16 @@
 			y: 1.5d
 		}
 		{
-			dependencies: ["695E846B663EC185"]
+			dependencies: [
+				"695E846B663EC185"
+				"12D0EFDF809F3DBD"
+			]
 			description: [
 				"{atm9.quest.gregtech.uv.desc.ultimateVoltage.29}"
 				""
 				"{atm9.quest.gregtech.uv.desc.ultimateVoltage.30}"
+				""
+				"{af9.quest.litho.gtNeutroniumBoule}"
 			]
 			id: "142D12B41C36D68A"
 			rewards: [{
@@ -1265,7 +1283,10 @@
 			y: -1.6999999999999997d
 		}
 		{
-			dependencies: ["0F3DF502872A308E"]
+			dependencies: [
+				"0F3DF502872A308E"
+				"37C6FB7A87A3E12F"
+			]
 			description: ["{af9.quest.uv.hasoc}"]
 			id: "5F3BF06A1DA8AB8D"
 			rewards: [{
@@ -1458,36 +1479,6 @@
 			]
 			x: -6.0d
 			y: 3.0d
-		}
-		{
-			description: [
-				"{af9.quest.uhv.nm7}"
-			]
-			id: "98866C9F9CF320E9"
-			tasks: [{
-				id: "B19554BEAD252D7A"
-				item: "kubejs:strange_matter_wafer"
-				type: "item"
-			}]
-			title: "{af9.quest.title.nm7}"
-			x: -9.0d
-			y: 8.0d
-		}
-		{
-			description: [
-				"{af9.quest.uhv.orbital.1}"
-				""
-				"{af9.quest.uhv.orbital.2}"
-			]
-			id: "75590392393A5E38"
-			tasks: [{
-				id: "CDDBA0B39543F300"
-				item: "gtceu:orbital_lithography_station"
-				type: "item"
-			}]
-			title: "{af9.quest.title.orbital}"
-			x: -7.0d
-			y: 8.0d
 		}
 	]
 	title: "{atm9.chapters.35.title}"

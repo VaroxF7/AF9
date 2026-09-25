@@ -11,6 +11,7 @@
 //                                                                                   purification  (* column only)
 //   Electrochemistry  SMC Membrane Cell Hall          | SMC Electrolytic Cell      electrolysis, electrofluorination
 //   Thermal           SMC Thermal Processing Furnace  | SMC Thermal Furnace        calcination, CVD, crystal growth
+//                     (horizontal tube furnace)
 //
 // Behaviour from AF9 Core (af9-core/, com.af9.core.fab and com.af9.core.machine.fab):
 // - product changeover: the first run of a different recipe also takes the family's purge fluid and extra time
@@ -199,7 +200,9 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_stable_titanium',
             'gtceu:block/multiblock/gcym/large_electrolyzer')
 
-    // Thermal processing furnace: blast-furnace shell (two coil rings) around an inert-gas process chamber.
+    // Thermal processing furnace: a horizontal tube furnace, 5 x 5 x 5. A gas cabinet at the back feeds the quartz
+    // process tube, two heater zones (a ring of coils around the tube, behind tempered-glass windows) heat it, and the
+    // wafer-boat load station sits in front of the controller. Aisles back -> front, rows bottom -> top.
     // Works like GT's EBF: coil temperature + 100 K per energy tier above MV, EBF overclocks.
     allthemods.create('smc_thermal_processing_furnace', 'multiblock')
         .machine(holder => new $FabMultiblockMachine(holder, $FabFamily.THERMAL))
@@ -211,14 +214,19 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         .appearanceBlock(GTBlocks.CASING_INVAR_HEATPROOF)
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.smc_thermal_processing_furnace.tooltip', 5))
         .pattern(definition => FactoryBlockPattern.start()
-            .aisle('XXX', 'CCC', 'CCC', 'XXX')
-            .aisle('XXX', 'C#C', 'C#C', 'XXX')
-            .aisle('XSX', 'CCC', 'CCC', 'XXX')
+            .aisle('XXXXX', 'XPPPX', 'XPPPX', 'XPPPX', 'XXXXX') // gas cabinet
+            .aisle('XXXXX', 'GCCCG', 'GCTCG', 'GCCCG', 'XXXXX') // heater zone 1: coils around the tube
+            .aisle('XXXXX', 'GCCCG', 'GCTCG', 'GCCCG', 'XXXXX') // heater zone 2
+            .aisle('XXXXX', 'XRRRX', 'XRTRX', 'XRRRX', 'XXXXX') // wafer-boat load station
+            .aisle('XXXXX', 'XXXXX', 'XXSXX', 'XXXXX', 'XXXXX') // front
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             .where('X', hatches(GTBlocks.CASING_INVAR_HEATPROOF.get()))
             .where('C', Predicates.heatingCoils())
-            .where('#', Predicates.air())
+            .where('T', Predicates.blocks('gtceu:tempered_glass'))                              // quartz process tube
+            .where('G', Predicates.blocks('gtceu:tempered_glass'))                              // windows
+            .where('P', Predicates.blocks(GTBlocks.CASING_POLYTETRAFLUOROETHYLENE_PIPE.get())) // gas lines
+            .where('R', Predicates.blocks('gtceu:steel_gearbox'))                               // boat elevator
             .build())
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_heatproof',
-            'gtceu:block/multiblock/electric_blast_furnace')
+            'gtceu:block/multiblock/multi_furnace')
 })

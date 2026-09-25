@@ -54,8 +54,6 @@ public class PhotolithographyLineMachine extends LithoMachine {
             new ResourceLocation("kubejs", "arf_excimer_laser"),
             new ResourceLocation("kubejs", "euv_light_source") };
     private static final int[] LIGHT_CAPS = { 1, 2, 6, 8 };
-    /** Share of the missing cleanliness the line's pumps recover per second. */
-    public static final double PUMP_RATE = 0.08;
 
     /**
      * A line above the mode's level runs it faster ({@link LithoMode#speedFactor}); the lower break chance is part of
@@ -99,9 +97,10 @@ public class PhotolithographyLineMachine extends LithoMachine {
         return Math.max(0, getVersion() - mode.level());
     }
 
+    /** The bigger the line, the longer the pump-down: 10 s per version. */
     @Override
-    protected double pumpRate() {
-        return PUMP_RATE;
+    protected int vacuumLevel() {
+        return getVersion();
     }
 
     @Override

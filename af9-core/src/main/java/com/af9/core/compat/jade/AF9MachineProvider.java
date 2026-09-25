@@ -38,7 +38,7 @@ import java.util.Locale;
  * Jade tooltip of the AF9 machines, right under the block name:
  * <ul>
  * <li>lithography machines: the vacuum cleanliness bar, what is printed (product, node, substrate), the run-time bar,
- * the break chance and the line version;</li>
+ * the break chance and the line version; GT's own run-time bar is left out for them;</li>
  * <li>process machines (cryostat, accelerator): status and mode, what is made, the run-time bar and the machine's own
  * readouts (the same lines as its console).</li>
  * </ul>
@@ -50,6 +50,8 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
 
     private static final ResourceLocation UID = new ResourceLocation(AF9Core.MOD_ID, "machine_status");
     private static final String KEY = "af9Machine";
+    /** Server data of GT's run-time bar; the lithography machines show their own (see {@link #appendTooltip}). */
+    private static final String GT_WORKABLE_DATA = "gtceu:workable_provider";
     private static final int BORDER = 0xFF555555;
 
     @Override
@@ -81,7 +83,7 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             tag.putInt("version", litho.getVersion());
             tag.putDouble("clean", litho.getCleanliness());
             tag.putDouble("break", litho.currentBreakChance(mode));
-            tag.putBoolean("pumping", litho.isPumping());
+            tag.putInt("vacuum", litho.getVacuumState());
             tag.putString("product", product == null ? "" : "item:" + product);
             tag.putInt("progress", logic.isWorking() ? logic.getProgress() : 0);
             tag.putInt("duration", logic.isWorking() ? logic.getDuration() : 0);
@@ -118,14 +120,16 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
         int duration = tag.getInt("duration");
 
         if (tag.getString("kind").equals("litho")) {
+            // GT's run-time bar would repeat ours: this provider runs first (HEAD), so its data can go before GT reads it
+            data.remove(GT_WORKABLE_DATA);
             LithoMode[] modes = LithoMode.values();
             LithoMode mode = modes[Math.max(0, Math.min(modes.length - 1, tag.getInt("mode")))];
             double clean = tag.getDouble("clean");
             // vacuum first, right under the name
             Component vacuum = Component.translatable("af9.jade.vacuum",
                     String.format(Locale.ROOT, "%.1f", clean),
-                    Component.translatable(tag.getBoolean("pumping") ? "af9.jade.pumping" : clean >= 100 ?
-                            "af9.jade.sealed" : "af9.jade.not_pumping"));
+                    Component.translatable(vacuumKey(status == ConsoleWidget.STATUS_OFFLINE ?
+                            LithoMachine.VACUUM_OFF : tag.getInt("vacuum"))));
             tooltip.add(helper.progress((float) (clean / 100.0), vacuum,
                     helper.progressStyle().color(ConsoleWidget.levelColor(clean)).textColor(-1), box(), true));
             tooltip.add(statusLine(status, Component.translatable("af9.litho.mode." + mode.id)
@@ -162,6 +166,15 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
                 if (line != null) tooltip.add(line.copy().withStyle(ChatFormatting.GRAY));
             }
         }
+    }
+
+    private static String vacuumKey(int state) {
+        return switch (state) {
+            case LithoMachine.VACUUM_PUMPING -> "af9.jade.pumping";
+            case LithoMachine.VACUUM_SEALED -> "af9.jade.sealed";
+            case LithoMachine.VACUUM_VENTING -> "af9.jade.venting";
+            default -> "af9.jade.off";
+        };
     }
 
     private static Component statusLine(int status, Component mode) {

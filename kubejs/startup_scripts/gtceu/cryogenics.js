@@ -87,9 +87,9 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_frost_proof',
             'gtceu:block/multiblock/vacuum_freezer')
 
-    // Coolant Hatch: an input hatch for supercooled fluids only. Tank: 1000 mB x 2^tier (64,000 mB at LuV).
+    // Coolant Hatch: an input hatch for supercooled fluids only, HV-UHV. Tank: 1000 mB x 2^tier (8,000 mB at HV).
     allthemods.create('coolant_hatch', 'custom')
-        .tiers(GTValues.LuV, GTValues.ZPM, GTValues.UV, GTValues.UHV)
+        .tiers(GTValues.HV, GTValues.EV, GTValues.IV, GTValues.LuV, GTValues.ZPM, GTValues.UV, GTValues.UHV)
         .machine((holder, tier, tankScaling) => new $CryoCoolantHatch(holder, tier))
         .definition((tier, builder) => {
             builder

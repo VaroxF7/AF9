@@ -7,7 +7,26 @@
 	id: "00E59A3B38CB7EEA"
 	order_index: 6
 	progression_mode: "flexible"
-	quest_links: [ ]
+	quest_links: [
+		{
+			id: "76D439C67215CD98"
+			linked_quest: "46CAB00FF64D12DE"
+			x: 4.5d
+			y: 7.0d
+		}
+		{
+			id: "4C5F87A85891534E"
+			linked_quest: "1DB07C3B15CDDAAC"
+			x: 6.0d
+			y: 7.0d
+		}
+		{
+			id: "524745A0115FC878"
+			linked_quest: "252CAC018BD24ABB"
+			x: -11.3d
+			y: 10.0d
+		}
+	]
 	quests: [
 		{
 			description: [
@@ -532,8 +551,15 @@
 			y: -5.0d
 		}
 		{
-			dependencies: ["64F77D41B2D057B8"]
-			description: ["{atm9.quest.gregtech.iv.desc.checkEBF.1}"]
+			dependencies: [
+				"64F77D41B2D057B8"
+				"09B6830E2F95ACA9"
+			]
+			description: [
+				"{atm9.quest.gregtech.iv.desc.checkEBF.1}"
+				""
+				"{af9.quest.litho.gtPhosphorusBoule}"
+			]
 			id: "2CC82170BCE61940"
 			rewards: [
 				{
@@ -587,7 +613,7 @@
 		{
 			dependencies: [
 				"5F270891C953486E"
-				"AD8FD756AA394586"
+				"4669A10F9AAFBF39"
 			]
 			description: [
 				"{af9.quest.iv.soc}"
@@ -1801,7 +1827,10 @@
 			y: -4.0d
 		}
 		{
-			dependencies: ["5F270891C953486E"]
+			dependencies: [
+				"5F270891C953486E"
+				"4669A10F9AAFBF39"
+			]
 			description: [
 				"{atm9.quest.gregtech.iv.desc.basisPICWafers.1}"
 				""
@@ -2081,7 +2110,10 @@
 			y: 7.0d
 		}
 		{
-			dependencies: ["5F270891C953486E"]
+			dependencies: [
+				"5F270891C953486E"
+				"4669A10F9AAFBF39"
+			]
 			description: [
 				"{atm9.quest.gregtech.iv.desc.logicGates.1}"
 				""
@@ -2111,7 +2143,10 @@
 			y: 5.5d
 		}
 		{
-			dependencies: ["5F270891C953486E"]
+			dependencies: [
+				"5F270891C953486E"
+				"4669A10F9AAFBF39"
+			]
 			description: ["{af9.quest.iv.nand}"]
 			hide_dependent_lines: true
 			id: "77AAC2F643E92A88"
@@ -2128,7 +2163,7 @@
 					type: "item"
 				}
 				{
-					id: "BA0DD0E4AEB21A2A"
+					id: "5C9C3C4C095270F5"
 					item: "kubejs:nand_reticle"
 					type: "item"
 				}
@@ -2157,7 +2192,10 @@
 			y: 7.0d
 		}
 		{
-			dependencies: ["13BAD4B9C69117C6"]
+			dependencies: [
+				"13BAD4B9C69117C6"
+				"418DC14B94C9272A"
+			]
 			description: [
 				"{af9.quest.iv.nanoCpu}"
 				""
@@ -2692,31 +2730,6 @@
 			y: 4.5d
 		}
 		{
-			dependencies: [
-				"418DC14B94C9272A"
-				"1DB07C3B15CDDAAC"
-			]
-			description: [
-				"{af9.quest.iv.xuv.1}"
-				""
-				"{af9.quest.iv.xuv.2}"
-			]
-			id: "46CAB00FF64D12DE"
-			rewards: [{
-				id: "8348E05C717A0351"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [{
-				id: "F7280EFE9D132187"
-				item: "kubejs:trinium_wafer"
-				type: "item"
-			}]
-			title: "{af9.quest.title.xuv}"
-			x: 4.5d
-			y: 7.0d
-		}
-		{
 			description: ["{af9.quest.iv.metals}"]
 			id: "30C5810673F9AFE6"
 			rewards: [{
@@ -2726,12 +2739,12 @@
 			}]
 			tasks: [
 				{
-					id: "E0D940E0B5D55F9C"
+					id: "3D810FF734FB70ED"
 					item: "gtceu:fine_tungsten_steel_wire"
 					type: "item"
 				}
 				{
-					id: "A5446D10E3E8886C"
+					id: "5AE579E46FCCC22D"
 					item: "gtceu:tungsten_single_wire"
 					type: "item"
 				}
@@ -2744,61 +2757,6 @@
 			title: "{af9.quest.title.ivMetals}"
 			x: -8.0d
 			y: 4.5d
-		}
-		{
-			dependencies: [
-				"72569D77E20C8733"
-				"A9D8D2084CFA2A1F"
-			]
-			description: [
-				"{af9.quest.iv.arf.1}"
-				""
-				"{af9.quest.iv.arf.2}"
-			]
-			id: "1DB07C3B15CDDAAC"
-			rewards: [{
-				id: "BE5542AD7071BF6C"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [
-				{
-					amount: 1000L
-					fluid: "gtceu:arf_excimer_gas"
-					id: "A13248F1AAAFC939"
-					type: "fluid"
-				}
-				{
-					id: "C31B9C492CE2122C"
-					item: "gtceu:methacrylate_resin_dust"
-					type: "item"
-				}
-				{
-					amount: 1000L
-					fluid: "gtceu:arf_photoresist"
-					id: "3878879FED6EB1C9"
-					type: "fluid"
-				}
-			]
-			title: "{af9.quest.title.arf}"
-			x: 6.0d
-			y: 7.0d
-		}
-		{
-			description: [
-				"{af9.quest.iv.endionCoil.1}"
-				""
-				"{af9.quest.iv.endionCoil.2}"
-			]
-			id: "BDB79CD1F24693AD"
-			tasks: [{
-				id: "A9D2E7A0CBF14DCD"
-				item: "kubejs:endion_coil_block"
-				type: "item"
-			}]
-			title: "{af9.quest.title.endionCoil}"
-			x: -11.3d
-			y: 10.0d
 		}
 	]
 	title: "{atm9.chapters.31.title}"

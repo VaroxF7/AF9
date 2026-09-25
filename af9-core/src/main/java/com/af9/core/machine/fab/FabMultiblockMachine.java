@@ -6,6 +6,7 @@ import com.af9.core.fab.IFabMachine;
 
 import com.gregtechceu.gtceu.api.block.ICoilType;
 import com.gregtechceu.gtceu.api.block.IFilterType;
+import com.gregtechceu.gtceu.api.capability.IParallelHatch;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.feature.ICleanroomProvider;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMaintenanceMachine;
@@ -218,11 +219,14 @@ public class FabMultiblockMachine extends CoilWorkableElectricMultiblockMachine 
         return energyContainer == null ? 0 : energyContainer.getInputVoltage() * energyContainer.getInputAmperage();
     }
 
+    /**
+     * The parallels the machine runs at most: the structure's (trays, cells, sterile filters) times the parallel
+     * hatch's current setting, so the console follows the hatch as soon as it is changed.
+     */
     @Override
     public int getFabParallel() {
-        GTRecipe running = recipeLogic.getLastRecipe();
-        if (recipeLogic.isActive() && running != null) return Math.max(1, running.parallels);
-        return getStructureParallel();
+        int hatch = getParallelHatch().map(IParallelHatch::getCurrentParallel).orElse(1);
+        return getStructureParallel() * Math.max(1, hatch);
     }
 
     @Override

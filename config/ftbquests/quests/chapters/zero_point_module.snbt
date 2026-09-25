@@ -58,7 +58,26 @@
 	]
 	order_index: 8
 	progression_mode: "flexible"
-	quest_links: [ ]
+	quest_links: [
+		{
+			id: "64AFED709C5A8B4C"
+			linked_quest: "3C1BAD339D082C68"
+			x: -14.5d
+			y: 6.0d
+		}
+		{
+			id: "68575436C332619F"
+			linked_quest: "1572142A6483B73B"
+			x: -12.5d
+			y: 6.0d
+		}
+		{
+			id: "5910143056FDC347"
+			linked_quest: "37C6FB7A87A3E12F"
+			x: -10.5d
+			y: 6.0d
+		}
+	]
 	quests: [
 		{
 			description: [
@@ -273,7 +292,10 @@
 			y: -1.0d
 		}
 		{
-			dependencies: ["2036ED4A823C1456"]
+			dependencies: [
+				"2036ED4A823C1456"
+				"4F8C6F49F9D7EE4D"
+			]
 			description: [
 				"{atm9.quest.gregtech.zpm.desc.uhpic.1}"
 				""
@@ -1545,7 +1567,10 @@
 			y: -2.0d
 		}
 		{
-			dependencies: ["2036ED4A823C1456"]
+			dependencies: [
+				"2036ED4A823C1456"
+				"15BC2E581E1DC277"
+			]
 			description: ["{af9.quest.zpm.naqwafer}"]
 			id: "6F82909CD6FFF606"
 			optional: true
@@ -1920,50 +1945,6 @@
 			]
 			x: 10.0d
 			y: -3.0d
-		}
-		{
-			description: [
-				"{af9.quest.zpm.accelerator.1}"
-				""
-				"{af9.quest.zpm.accelerator.2}"
-			]
-			id: "3C1BAD339D082C68"
-			tasks: [{
-				id: "7C948F35910B8D68"
-				item: "gtceu:particle_accelerator"
-				type: "item"
-			}]
-			title: "{af9.quest.title.accelerator}"
-			x: -14.5d
-			y: 6.0d
-		}
-		{
-			description: [
-				"{af9.quest.zpm.coolantHatch}"
-			]
-			id: "1572142A6483B73B"
-			tasks: [{
-				id: "847338BCF500B70A"
-				item: "gtceu:luv_coolant_hatch"
-				type: "item"
-			}]
-			title: "{af9.quest.title.coolantHatch}"
-			x: -12.5d
-			y: 6.0d
-		}
-		{
-			description: [
-				"{af9.quest.zpm.nm50}"
-			]
-			id: "E5189FF543B6B1D0"
-			tasks: [{
-				id: "4B8BD8CE0227BAD4"
-				item: "gtceu:neutronium_wafer"
-				type: "item"
-			}]
-			title: "{af9.quest.title.nm50}"
-			x: -10.5d
-			y: 6.0d
 		}
 	]
 	title: "{atm9.chapters.33.title}"

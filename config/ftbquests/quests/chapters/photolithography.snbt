@@ -1,0 +1,2428 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "photolithography"
+	group: "1DA67E79B40AB130"
+	icon: "gtceu:photolithography_line"
+	id: "1A062E018E974C9F"
+	order_index: 13
+	progression_mode: "flexible"
+	quest_links: [
+		{
+			id: "7CF3ECAF1DFF76C1"
+			linked_quest: "11F7D3DDF5683EB3"
+			x: 9.0d
+			y: -9.0d
+		}
+		{
+			id: "0783E617B3994630"
+			linked_quest: "26D1F1ECF66194E6"
+			x: 9.0d
+			y: 6.0d
+		}
+		{
+			id: "6983D583CFBAB3AB"
+			linked_quest: "0D1A6B32FEB51FAD"
+			x: 9.0d
+			y: 1.5d
+		}
+		{
+			id: "28217AE69C30429F"
+			linked_quest: "688AFF76CF5E599A"
+			x: 10.5d
+			y: 1.5d
+		}
+		{
+			id: "5ED3062C39C637B0"
+			linked_quest: "5B92DA55541B168B"
+			x: 9.0d
+			y: -1.5d
+		}
+		{
+			id: "2047BE7091DC9F59"
+			linked_quest: "4E5FE40373675AED"
+			x: 10.5d
+			y: -1.5d
+		}
+		{
+			id: "6B560A426840786C"
+			linked_quest: "3DCCEDC5A817EBEB"
+			x: 12.0d
+			y: -1.5d
+		}
+		{
+			id: "002E5253302F1C6B"
+			linked_quest: "100ADA8508F6502A"
+			x: 12.0d
+			y: 3.0d
+		}
+		{
+			id: "5C5B4E631DBA5D05"
+			linked_quest: "7EFA4F2C0A895502"
+			x: 13.5d
+			y: 3.0d
+		}
+		{
+			id: "69D37B34C4DB3546"
+			linked_quest: "3FDC2A2BBAC0EF1B"
+			x: 15.0d
+			y: 3.0d
+		}
+		{
+			id: "62E4BBEDC947CDD6"
+			linked_quest: "0B54990168F9B136"
+			x: 16.5d
+			y: 3.0d
+		}
+		{
+			id: "2F3E7E69D785E886"
+			linked_quest: "5D58E5CB4F4BDAD5"
+			x: 18.0d
+			y: 3.0d
+		}
+		{
+			id: "1618656B6C65F4E3"
+			linked_quest: "2CC82170BCE61940"
+			x: 25.5d
+			y: 9.0d
+		}
+		{
+			id: "3A18116FF850ECA6"
+			linked_quest: "5F270891C953486E"
+			x: 27.0d
+			y: 6.0d
+		}
+		{
+			id: "5F3A316AF0986368"
+			linked_quest: "77AAC2F643E92A88"
+			x: 24.0d
+			y: 3.0d
+		}
+		{
+			id: "6A92C28EF990AEE8"
+			linked_quest: "15A1D6D05A785919"
+			x: 25.5d
+			y: 3.0d
+		}
+		{
+			id: "489CE88F2B4CE1C7"
+			linked_quest: "4838AD09C9590D2F"
+			x: 30.0d
+			y: 3.0d
+		}
+		{
+			id: "1CE81CF3430A7B76"
+			linked_quest: "3CA2D15D1EC4D852"
+			x: 28.5d
+			y: 3.0d
+		}
+		{
+			id: "49A1FEFD822A99AE"
+			linked_quest: "6F82909CD6FFF606"
+			x: 34.5d
+			y: 9.0d
+		}
+		{
+			id: "7707F124553F8DDD"
+			linked_quest: "1896B90F5FD66AFA"
+			x: 37.5d
+			y: 3.0d
+		}
+		{
+			id: "6D45F1009D766C50"
+			linked_quest: "4F8C6F49F9D7EE4D"
+			x: 39.0d
+			y: 4.5d
+		}
+		{
+			id: "24B206DFD6148259"
+			linked_quest: "17671346C7940CA8"
+			x: 49.5d
+			y: 3.0d
+		}
+		{
+			id: "38DD23597A0F1B00"
+			linked_quest: "142D12B41C36D68A"
+			x: 54.0d
+			y: 9.0d
+		}
+		{
+			id: "5A7A45D675073FE8"
+			linked_quest: "5F3BF06A1DA8AB8D"
+			x: 55.5d
+			y: 3.0d
+		}
+		{
+			id: "276B5BB47A15CB32"
+			linked_quest: "53C5CE6433E201BD"
+			x: 55.5d
+			y: 4.5d
+		}
+		{
+			id: "494EA96D1EAB5929"
+			linked_quest: "62BBF61C9849CA26"
+			x: 16.5d
+			y: -1.5d
+		}
+	]
+	quests: [
+		{
+			description: [
+				"{af9.quest.litho.intro.1}"
+				""
+				"{af9.quest.litho.intro.2}"
+				""
+				"{af9.quest.litho.intro.3}"
+				""
+				"{af9.quest.litho.intro.4}"
+				""
+				"{af9.quest.litho.intro.5}"
+			]
+			icon: "gtceu:photolithography_line"
+			id: "4ABB101ED98AC19F"
+			rewards: [{
+				id: "586E1415B5F87EE9"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "gear"
+			size: 2.5d
+			subtitle: "{af9.quest.litho.intro.subtitle}"
+			tasks: [{
+				id: "12B32C15E6A4BEBF"
+				type: "checkmark"
+			}]
+			title: "{af9.quest.litho.intro.title}"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["4ABB101ED98AC19F"]
+			description: [
+				"{af9.quest.litho.fabPlant.1}"
+				""
+				"{af9.quest.litho.fabPlant.2}"
+				""
+				"{af9.quest.litho.fabPlant.3}"
+				""
+				"{af9.quest.litho.fabPlant.4}"
+			]
+			icon: "gtceu:mv_smc_chemical_reactor"
+			id: "5655F19FA33BD62B"
+			rewards: [{
+				id: "422892223682EED7"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.litho.fabPlant.subtitle}"
+			tasks: [
+				{
+					id: "33489DCEB1DB24C3"
+					item: "gtceu:mv_smc_chemical_reactor"
+					type: "item"
+				}
+				{
+					id: "1678743E04E68BE3"
+					item: "gtceu:mv_smc_fractionating_still"
+					type: "item"
+				}
+				{
+					id: "6E855B1E0E33C038"
+					item: "gtceu:mv_smc_electrolytic_cell"
+					type: "item"
+				}
+				{
+					id: "443596D176155DAD"
+					item: "gtceu:mv_smc_thermal_furnace"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.fabPlant.title}"
+			x: 3.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["5655F19FA33BD62B"]
+			description: [
+				"{af9.quest.litho.fabFurnace.1}"
+				""
+				"{af9.quest.litho.fabFurnace.2}"
+				""
+				"{af9.quest.litho.fabFurnace.3}"
+			]
+			id: "01B10745D9CCECA1"
+			optional: true
+			rewards: [{
+				id: "5A01A9F9AE85B0D8"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.fabFurnace.subtitle}"
+			tasks: [{
+				id: "1842A7A360529878"
+				item: "gtceu:smc_thermal_processing_furnace"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.fabFurnace.title}"
+			x: 1.5d
+			y: -1.5d
+		}
+		{
+			dependencies: ["5655F19FA33BD62B"]
+			description: [
+				"{af9.quest.litho.hf.1}"
+				""
+				"{af9.quest.litho.hf.2}"
+			]
+			id: "51A5F6CE614BD186"
+			rewards: [{
+				id: "2B9B9B040ED03DE3"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.hf.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:crude_hydrogen_fluoride"
+					id: "252CD05910277C41"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:hydrofluoric_acid"
+					id: "074514A9070D5DBA"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.hf.title}"
+			x: 3.0d
+			y: 7.5d
+		}
+		{
+			dependencies: ["5655F19FA33BD62B"]
+			description: [
+				"{af9.quest.litho.xcda.1}"
+				""
+				"{af9.quest.litho.xcda.2}"
+				""
+				"{af9.quest.litho.xcda.3}"
+			]
+			id: "3588AD6ACFF346F1"
+			rewards: [{
+				id: "1E0C72DAF5634C16"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.xcda.subtitle}"
+			tasks: [
+				{
+					id: "2DD738C3F957B0B2"
+					item: "gtceu:hopcalite_dust"
+					type: "item"
+				}
+				{
+					id: "70E1C186873716B8"
+					item: "kubejs:molecular_sieve"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:cryogenic_supercooled_air"
+					id: "1D92F19F849B093F"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:extreme_clean_dry_air"
+					id: "792862CA775424C9"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.xcda.title}"
+			x: 6.0d
+			y: -1.5d
+		}
+		{
+			dependencies: ["3588AD6ACFF346F1"]
+			description: [
+				"{af9.quest.litho.air.1}"
+				""
+				"{af9.quest.litho.air.2}"
+			]
+			id: "75865FF47260C1E7"
+			rewards: [{
+				id: "7B18735EB609127C"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.air.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:crude_argon"
+					id: "72B7176DD0B97926"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:argon"
+					id: "34C6CBC710E5009A"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.air.title}"
+			x: 7.5d
+			y: 0.0d
+		}
+		{
+			dependencies: ["5655F19FA33BD62B"]
+			description: ["{af9.quest.litho.hmds.1}"]
+			id: "54F036F389D2120C"
+			rewards: [{
+				id: "5A1E416FB0973814"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.hmds.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:hexamethyldisilazane"
+					id: "7ECB6DEC3F737E73"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:hmds_vapor"
+					id: "58E306CFF505F18A"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.hmds.title}"
+			x: 6.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["5655F19FA33BD62B"]
+			description: [
+				"{af9.quest.litho.tmah.1}"
+				""
+				"{af9.quest.litho.tmah.2}"
+			]
+			id: "139C98A6C6B6937E"
+			rewards: [{
+				id: "3478C6A5D0F4A82E"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.tmah.subtitle}"
+			tasks: [
+				{
+					id: "42A65640D106B1C7"
+					item: "gtceu:tetramethylammonium_chloride_dust"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:tmah_developer"
+					id: "58131EA3B0353CCE"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.tmah.title}"
+			x: 6.0d
+			y: -4.5d
+		}
+		{
+			dependencies: ["5655F19FA33BD62B"]
+			description: ["{af9.quest.litho.formox.1}"]
+			id: "4748CD23BEDB72A4"
+			rewards: [{
+				id: "64FB3022CC53CAD0"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.formox.subtitle}"
+			tasks: [
+				{
+					id: "7289C34FF209AAE9"
+					item: "gtceu:molybdenum_trioxide_dust"
+					type: "item"
+				}
+				{
+					id: "5803716F94FDB899"
+					item: "gtceu:iron_molybdate_dust"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:formaldehyde"
+					id: "7C9ADA46A231AB6F"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.formox.title}"
+			x: 4.5d
+			y: -6.0d
+		}
+		{
+			dependencies: ["4748CD23BEDB72A4"]
+			description: [
+				"{af9.quest.litho.iline.1}"
+				""
+				"{af9.quest.litho.iline.2}"
+			]
+			id: "240C1BFF666269E2"
+			rewards: [{
+				id: "14ABDC8A5ED12E4E"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.iline.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:novolac_resin"
+					id: "30CA0445AAA674E8"
+					type: "fluid"
+				}
+				{
+					id: "7E50A2F74938A78C"
+					item: "gtceu:diazonaphthoquinone_dust"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:photoresist"
+					id: "501D5F994F8D365F"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.iline.title}"
+			x: 7.5d
+			y: -6.0d
+		}
+		{
+			dependencies: ["240C1BFF666269E2"]
+			description: ["{af9.quest.litho.photomask.1}"]
+			id: "0D38A04D59E6CFA0"
+			rewards: [{
+				id: "325D97DC3959BA73"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.photomask.subtitle}"
+			tasks: [{
+				id: "1EE2EEEF4DD3B959"
+				item: "kubejs:photomask_blank"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.photomask.title}"
+			x: 7.5d
+			y: -7.5d
+		}
+		{
+			dependencies: [
+				"0D38A04D59E6CFA0"
+				"11F7D3DDF5683EB3"
+			]
+			description: [
+				"{af9.quest.litho.reticles.1}"
+				""
+				"{af9.quest.litho.reticles.2}"
+				""
+				"{af9.quest.litho.reticles.3}"
+			]
+			id: "412010740F2B823B"
+			rewards: [{
+				id: "712E7F6F02B85CB2"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.reticles.subtitle}"
+			tasks: [
+				{
+					id: "68968FD1482649A5"
+					item: "kubejs:ilc_reticle"
+					type: "item"
+				}
+				{
+					id: "7F0C774311A0ED41"
+					item: "kubejs:ram_reticle"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.reticles.title}"
+			x: 9.0d
+			y: -7.5d
+		}
+		{
+			dependencies: [
+				"54F036F389D2120C"
+				"240C1BFF666269E2"
+				"139C98A6C6B6937E"
+				"3588AD6ACFF346F1"
+			]
+			description: [
+				"{af9.quest.litho.track.1}"
+				""
+				"{af9.quest.litho.track.2}"
+			]
+			id: "5D896A31EC1C125F"
+			rewards: [{
+				id: "1C6B4FCD8E4D783A"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.track.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:hmds_vapor"
+					id: "4C18443D67E1874B"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:photoresist"
+					id: "6BA034E130D21017"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:tmah_developer"
+					id: "3CFC476661A98438"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:extreme_clean_dry_air"
+					id: "5B03F1F451DB7774"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.track.title}"
+			x: 10.5d
+			y: -3.75d
+		}
+		{
+			dependencies: ["5655F19FA33BD62B"]
+			description: ["{af9.quest.litho.mgsi.1}"]
+			id: "4BF09A484164B974"
+			rewards: [{
+				id: "3044CEC469F6612A"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.mgsi.subtitle}"
+			tasks: [
+				{
+					id: "59DF99A41B232E16"
+					item: "gtceu:high_purity_quartz_dust"
+					type: "item"
+				}
+				{
+					id: "310A641837C9DE4F"
+					item: "gtceu:metallurgical_grade_silicon_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.mgsi.title}"
+			x: 4.5d
+			y: 1.5d
+		}
+		{
+			dependencies: ["4BF09A484164B974"]
+			description: [
+				"{af9.quest.litho.chlorosilanes.1}"
+				""
+				"{af9.quest.litho.chlorosilanes.2}"
+				""
+				"{af9.quest.litho.chlorosilanes.3}"
+			]
+			id: "537954CC8B44A7F2"
+			rewards: [{
+				id: "16A83133FCEF4513"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.chlorosilanes.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:crude_chlorosilanes"
+					id: "79906218CB9FB359"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:trichlorosilane"
+					id: "12670CFC4D5CD1C7"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:boron_trichloride"
+					id: "68BFE9378B10A036"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.chlorosilanes.title}"
+			x: 4.5d
+			y: 3.0d
+		}
+		{
+			dependencies: ["537954CC8B44A7F2"]
+			description: [
+				"{af9.quest.litho.siemens.1}"
+				""
+				"{af9.quest.litho.siemens.2}"
+				""
+				"{af9.quest.litho.siemens.3}"
+			]
+			id: "59BCAC9DD7CB7325"
+			rewards: [{
+				id: "10837438C5BD54D9"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.siemens.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:electronic_grade_trichlorosilane"
+					id: "0B79206E63D9F4FD"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:siemens_feed_gas"
+					id: "567E07357075A5D7"
+					type: "fluid"
+				}
+				{
+					id: "6084F5E71F0F89EE"
+					item: "gtceu:polysilicon_ingot"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.siemens.title}"
+			x: 4.5d
+			y: 4.5d
+		}
+		{
+			dependencies: [
+				"59BCAC9DD7CB7325"
+				"51A5F6CE614BD186"
+			]
+			description: ["{af9.quest.litho.egs.1}"]
+			id: "20D20F14D2F5D916"
+			rewards: [{
+				id: "1B01A9C29ACCBDE1"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.egs.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:silicon_etchant"
+					id: "436D18180C7D1528"
+					type: "fluid"
+				}
+				{
+					id: "6476A4EC79B9307E"
+					item: "gtceu:electronic_grade_silicon_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.egs.title}"
+			x: 6.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["20D20F14D2F5D916"]
+			description: ["{af9.quest.litho.crucible.1}"]
+			id: "3523E88C2F7834D1"
+			rewards: [{
+				id: "44FFAC2B6E42F5F5"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.crucible.subtitle}"
+			tasks: [{
+				id: "0D573866F166849C"
+				item: "kubejs:fused_quartz_crucible"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.crucible.title}"
+			x: 7.5d
+			y: 7.5d
+		}
+		{
+			dependencies: ["20D20F14D2F5D916"]
+			description: ["{af9.quest.litho.siCharge.1}"]
+			id: "42F0F9B19A85765F"
+			rewards: [{
+				id: "06C76EF267822AFC"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.siCharge.subtitle}"
+			tasks: [{
+				id: "4617E72FDD6C496F"
+				item: "kubejs:silicon_melt_charge"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.siCharge.title}"
+			x: 7.5d
+			y: 4.5d
+		}
+		{
+			dependencies: ["20D20F14D2F5D916"]
+			description: ["{af9.quest.litho.siSeed.1}"]
+			id: "58621E0A4F8A298B"
+			rewards: [{
+				id: "7F16CDFACE2565D6"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.siSeed.subtitle}"
+			tasks: [{
+				id: "1E9E15A392CEF723"
+				item: "kubejs:silicon_seed_crystal"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.siSeed.title}"
+			x: 7.5d
+			y: 6.0d
+		}
+		{
+			dependencies: ["688AFF76CF5E599A"]
+			description: [
+				"{af9.quest.litho.gloves.1}"
+				""
+				"{af9.quest.litho.gloves.2}"
+				""
+				"{af9.quest.litho.gloves.3}"
+			]
+			id: "3820A788D384105B"
+			rewards: [{
+				id: "7C6DCA247CA03B8D"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "diamond"
+			subtitle: "{af9.quest.litho.gloves.subtitle}"
+			tasks: [{
+				id: "2D14F4420BBF0A26"
+				item: "gtceu:rubber_gloves"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.gloves.title}"
+			x: 9.0d
+			y: 3.0d
+		}
+		{
+			dependencies: [
+				"5D896A31EC1C125F"
+				"412010740F2B823B"
+				"3DCCEDC5A817EBEB"
+				"688AFF76CF5E599A"
+			]
+			description: [
+				"{af9.quest.litho.line.1}"
+				""
+				"{af9.quest.litho.line.2}"
+				""
+				"{af9.quest.litho.line.3}"
+				""
+				"{af9.quest.litho.line.4}"
+				""
+				"{af9.quest.litho.line.5}"
+			]
+			icon: "gtceu:photolithography_line"
+			id: "35B1F5439640C0EA"
+			rewards: [{
+				id: "3E2F9C944EDE2D30"
+				type: "xp"
+				xp: 250
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.litho.line.subtitle}"
+			tasks: [{
+				id: "1AB02F00CADDCD6A"
+				item: "gtceu:photolithography_line"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.line.title}"
+			x: 15.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["35B1F5439640C0EA"]
+			description: [
+				"{af9.quest.litho.vacuum.1}"
+				""
+				"{af9.quest.litho.vacuum.2}"
+				""
+				"{af9.quest.litho.vacuum.3}"
+				""
+				"{af9.quest.litho.vacuum.4}"
+			]
+			id: "7818551FF1F61D06"
+			rewards: [{
+				id: "246EB28084C69799"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "diamond"
+			subtitle: "{af9.quest.litho.vacuum.subtitle}"
+			tasks: [{
+				id: "476390CFA1AA4AF0"
+				type: "checkmark"
+			}]
+			title: "{af9.quest.litho.vacuum.title}"
+			x: 15.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["7818551FF1F61D06"]
+			description: [
+				"{af9.quest.litho.versions.1}"
+				""
+				"{af9.quest.litho.versions.2}"
+				""
+				"{af9.quest.litho.versions.3}"
+				""
+				"{af9.quest.litho.versions.4}"
+			]
+			id: "5488898F3A93C009"
+			rewards: [{
+				id: "7BCAD1A41307E50F"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "diamond"
+			subtitle: "{af9.quest.litho.versions.subtitle}"
+			tasks: [{
+				id: "6D28B5170C469DDE"
+				type: "checkmark"
+			}]
+			title: "{af9.quest.litho.versions.title}"
+			x: 15.0d
+			y: -4.5d
+		}
+		{
+			dependencies: [
+				"100ADA8508F6502A"
+				"7EFA4F2C0A895502"
+			]
+			description: [
+				"{af9.quest.litho.dicing.1}"
+				""
+				"{af9.quest.litho.dicing.2}"
+				""
+				"{af9.quest.litho.dicing.3}"
+			]
+			id: "78776BAC28AE1DAD"
+			rewards: [{
+				id: "7363F52E4F3EB7D2"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.dicing.subtitle}"
+			tasks: [
+				{
+					id: "63B78ED81A7B211B"
+					item: "gtceu:ilc_chip"
+					type: "item"
+				}
+				{
+					id: "5ED05ABFE20EB227"
+					item: "gtceu:ram_chip"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.dicing.title}"
+			x: 12.75d
+			y: 4.5d
+		}
+		{
+			dependencies: ["62BBF61C9849CA26"]
+			description: [
+				"{af9.quest.litho.smcLcr.1}"
+				""
+				"{af9.quest.litho.smcLcr.2}"
+			]
+			id: "369DD864C99DCCEB"
+			rewards: [{
+				id: "27DFCCBB11A259DA"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			subtitle: "{af9.quest.litho.smcLcr.subtitle}"
+			tasks: [{
+				id: "2B8FEE97CE9FA437"
+				item: "gtceu:smc_large_chemical_reactor"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.smcLcr.title}"
+			x: 16.5d
+			y: -4.5d
+		}
+		{
+			dependencies: ["369DD864C99DCCEB"]
+			description: [
+				"{af9.quest.litho.smcColumn.1}"
+				""
+				"{af9.quest.litho.smcColumn.2}"
+			]
+			id: "6EC67EC0823F6BA7"
+			rewards: [{
+				id: "4DB56FF534408C09"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			subtitle: "{af9.quest.litho.smcColumn.subtitle}"
+			tasks: [{
+				id: "3BBB5DD5D5D5413C"
+				item: "gtceu:smc_rectification_column"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.smcColumn.title}"
+			x: 16.5d
+			y: -6.0d
+		}
+		{
+			dependencies: ["6EC67EC0823F6BA7"]
+			description: ["{af9.quest.litho.smcCells.1}"]
+			id: "5D823D017C7CE01F"
+			rewards: [{
+				id: "053E84C842987BC0"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			subtitle: "{af9.quest.litho.smcCells.subtitle}"
+			tasks: [{
+				id: "17AD2B6B31E4E914"
+				item: "gtceu:smc_membrane_cell_hall"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.smcCells.title}"
+			x: 16.5d
+			y: -7.5d
+		}
+		{
+			dependencies: ["62BBF61C9849CA26"]
+			description: [
+				"{af9.quest.litho.fluorine.1}"
+				""
+				"{af9.quest.litho.fluorine.2}"
+				""
+				"{af9.quest.litho.fluorine.3}"
+			]
+			id: "6369E339EBE7EE5D"
+			rewards: [{
+				id: "0C2C8E2EB37D0E67"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.fluorine.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:potassium_bifluoride_electrolyte"
+					id: "2C0FF52144368EA1"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:fluorine"
+					id: "65FBC322DB68731C"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.fluorine.title}"
+			x: 19.5d
+			y: -4.5d
+		}
+		{
+			dependencies: ["6369E339EBE7EE5D"]
+			description: [
+				"{af9.quest.litho.triflic.1}"
+				""
+				"{af9.quest.litho.triflic.2}"
+			]
+			id: "2E56E6C0ED7559CF"
+			rewards: [{
+				id: "2C52E35DD2C2326D"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.triflic.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:simons_cell_electrolyte"
+					id: "3EDD868028EF565D"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:trifluoromethanesulfonic_acid"
+					id: "37BE9A6FA50274FD"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.triflic.title}"
+			x: 21.0d
+			y: -4.5d
+		}
+		{
+			dependencies: ["62BBF61C9849CA26"]
+			description: [
+				"{af9.quest.litho.rareGases.1}"
+				""
+				"{af9.quest.litho.rareGases.2}"
+				""
+				"{af9.quest.litho.rareGases.3}"
+			]
+			id: "77433AD935185101"
+			rewards: [{
+				id: "7BC58AC33D4811E8"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.rareGases.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:neon"
+					id: "2C5BF02983E3F204"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:krypton"
+					id: "6A11B2444E83155E"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:xenon"
+					id: "4E007968D082050C"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.rareGases.title}"
+			x: 19.5d
+			y: -3.0d
+		}
+		{
+			dependencies: [
+				"6369E339EBE7EE5D"
+				"77433AD935185101"
+			]
+			description: [
+				"{af9.quest.litho.krfGas.1}"
+				""
+				"{af9.quest.litho.krfGas.2}"
+			]
+			id: "72569D77E20C8733"
+			rewards: [{
+				id: "6538EB3FD9399EC7"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.krfGas.subtitle}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:krf_excimer_gas"
+				id: "71AED708C39D305D"
+				type: "fluid"
+			}]
+			title: "{af9.quest.litho.krfGas.title}"
+			x: 22.5d
+			y: -1.5d
+		}
+		{
+			dependencies: ["72569D77E20C8733"]
+			description: [
+				"{af9.quest.litho.krfLaser.1}"
+				""
+				"{af9.quest.litho.krfLaser.2}"
+			]
+			id: "558F11ECDE97A0CD"
+			rewards: [{
+				id: "28592E27611B98C3"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.krfLaser.subtitle}"
+			tasks: [{
+				id: "6B3341C358E8F64C"
+				item: "kubejs:krf_excimer_laser"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.krfLaser.title}"
+			x: 24.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["62BBF61C9849CA26"]
+			description: [
+				"{af9.quest.litho.resistBlocks.1}"
+				""
+				"{af9.quest.litho.resistBlocks.2}"
+				""
+				"{af9.quest.litho.resistBlocks.3}"
+			]
+			id: "176624F41BEF77C6"
+			rewards: [{
+				id: "3B621060836D1C46"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.resistBlocks.subtitle}"
+			tasks: [
+				{
+					id: "78C35D4774D122B9"
+					item: "gtceu:azobisisobutyronitrile_dust"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:tributylamine"
+					id: "5FD32ADC2D1ACC16"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:propylene_glycol_methyl_ether_acetate"
+					id: "2823E3A170E1F344"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.resistBlocks.title}"
+			x: 19.5d
+			y: -6.0d
+		}
+		{
+			dependencies: ["176624F41BEF77C6"]
+			description: [
+				"{af9.quest.litho.phost.1}"
+				""
+				"{af9.quest.litho.phost.2}"
+			]
+			id: "30677AF8429992D7"
+			rewards: [{
+				id: "429ADC76407A8070"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.phost.subtitle}"
+			tasks: [
+				{
+					id: "020B75F70F4541D2"
+					item: "gtceu:polyhydroxystyrene_dust"
+					type: "item"
+				}
+				{
+					id: "42BBFB3F0FC2BAA6"
+					item: "gtceu:tboc_polyhydroxystyrene_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.phost.title}"
+			x: 21.0d
+			y: -6.0d
+		}
+		{
+			dependencies: ["2E56E6C0ED7559CF"]
+			description: [
+				"{af9.quest.litho.pag.1}"
+				""
+				"{af9.quest.litho.pag.2}"
+			]
+			id: "53182D89FAE0DCB0"
+			rewards: [{
+				id: "5B35A7CD09910B7E"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.pag.subtitle}"
+			tasks: [{
+				id: "0B632E2E4CDA995F"
+				item: "gtceu:triphenylsulfonium_triflate_dust"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.pag.title}"
+			x: 22.5d
+			y: -4.5d
+		}
+		{
+			dependencies: [
+				"30677AF8429992D7"
+				"53182D89FAE0DCB0"
+			]
+			description: [
+				"{af9.quest.litho.krfResist.1}"
+				""
+				"{af9.quest.litho.krfResist.2}"
+			]
+			id: "53E1C2576CF9BE8C"
+			rewards: [{
+				id: "16E4AC65F003C3FE"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.krfResist.subtitle}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:krf_photoresist"
+				id: "51F05E77543040F4"
+				type: "fluid"
+			}]
+			title: "{af9.quest.litho.krfResist.title}"
+			x: 24.0d
+			y: -6.0d
+		}
+		{
+			dependencies: ["26D1F1ECF66194E6"]
+			description: [
+				"{af9.quest.litho.pCharge.1}"
+				""
+				"{af9.quest.litho.pCharge.2}"
+			]
+			id: "09B6830E2F95ACA9"
+			rewards: [{
+				id: "20E7D2B368D9F0D3"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.pCharge.subtitle}"
+			tasks: [
+				{
+					id: "1481DE4736156A40"
+					item: "kubejs:phosphorus_melt_charge"
+					type: "item"
+				}
+				{
+					id: "09B2D405F794B1CB"
+					item: "kubejs:phosphorus_seed_crystal"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.pCharge.title}"
+			x: 24.0d
+			y: 7.5d
+		}
+		{
+			dependencies: [
+				"35B1F5439640C0EA"
+				"558F11ECDE97A0CD"
+				"53E1C2576CF9BE8C"
+				"5F270891C953486E"
+			]
+			description: [
+				"{af9.quest.litho.n200.1}"
+				""
+				"{af9.quest.litho.n200.2}"
+				""
+				"{af9.quest.litho.n200.3}"
+				""
+				"{af9.quest.litho.n200.4}"
+			]
+			icon: "kubejs:krf_excimer_laser"
+			id: "4669A10F9AAFBF39"
+			rewards: [{
+				id: "432DB3DD030862C5"
+				type: "xp"
+				xp: 250
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.litho.n200.subtitle}"
+			tasks: [
+				{
+					id: "07714610CCE46BBF"
+					item: "gtceu:phosphorus_wafer"
+					type: "item"
+				}
+				{
+					id: "30E767515A42808A"
+					item: "kubejs:krf_excimer_laser"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.n200.title}"
+			x: 27.0d
+			y: 0.0d
+		}
+		{
+			description: [
+				"{af9.quest.litho.cryostat.1}"
+				""
+				"{af9.quest.litho.cryostat.2}"
+				""
+				"{af9.quest.litho.cryostat.3}"
+			]
+			id: "1E053F71829B698E"
+			rewards: [{
+				id: "5DF5A558BA9E6CE5"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			subtitle: "{af9.quest.litho.cryostat.subtitle}"
+			tasks: [{
+				id: "29D05D142A6E5A19"
+				item: "gtceu:supercooling_cryostat"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.cryostat.title}"
+			x: 30.0d
+			y: 10.5d
+		}
+		{
+			dependencies: ["53E1C2576CF9BE8C"]
+			description: [
+				"{af9.quest.litho.methacrylates.1}"
+				""
+				"{af9.quest.litho.methacrylates.2}"
+				""
+				"{af9.quest.litho.methacrylates.3}"
+			]
+			id: "4E06D4C60E960591"
+			rewards: [{
+				id: "7823922DA3923129"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.methacrylates.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:methyl_methacrylate"
+					id: "66A540D7DA3FD854"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:methacrylic_acid"
+					id: "49595D8A294FBE6A"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:tert_butyl_methacrylate"
+					id: "7C7AEFF5A20D5FC0"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.methacrylates.title}"
+			x: 28.5d
+			y: -7.5d
+		}
+		{
+			dependencies: [
+				"4E06D4C60E960591"
+				"53E1C2576CF9BE8C"
+			]
+			description: [
+				"{af9.quest.litho.arfResist.1}"
+				""
+				"{af9.quest.litho.arfResist.2}"
+			]
+			id: "1DB07C3B15CDDAAC"
+			rewards: [{
+				id: "2228183BF30D1870"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.arfResist.subtitle}"
+			tasks: [
+				{
+					id: "7F661829AE138943"
+					item: "gtceu:methacrylate_resin_dust"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:arf_photoresist"
+					id: "10F72804D0099359"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.arfResist.title}"
+			x: 30.0d
+			y: -6.0d
+		}
+		{
+			dependencies: ["72569D77E20C8733"]
+			description: ["{af9.quest.litho.arfGas.1}"]
+			id: "52185B88A5BF343F"
+			rewards: [{
+				id: "00584EB9BECA566B"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.arfGas.subtitle}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:arf_excimer_gas"
+				id: "2B6FE175A9BCF57F"
+				type: "fluid"
+			}]
+			title: "{af9.quest.litho.arfGas.title}"
+			x: 28.5d
+			y: -3.0d
+		}
+		{
+			dependencies: ["52185B88A5BF343F"]
+			description: [
+				"{af9.quest.litho.arfLaser.1}"
+				""
+				"{af9.quest.litho.arfLaser.2}"
+			]
+			id: "3AFB0AA71A96E8B7"
+			rewards: [{
+				id: "29480ABCF687BF2A"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.arfLaser.subtitle}"
+			tasks: [{
+				id: "09A0B7223027A0B1"
+				item: "kubejs:arf_excimer_laser"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.arfLaser.title}"
+			x: 30.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["1DB07C3B15CDDAAC"]
+			description: [
+				"{af9.quest.litho.upw.1}"
+				""
+				"{af9.quest.litho.upw.2}"
+			]
+			id: "68A3ECCA3F0F64F6"
+			rewards: [{
+				id: "62F4E7615E3D8F8C"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.upw.subtitle}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:ultrapure_water"
+				id: "4276A0A738BC451F"
+				type: "fluid"
+			}]
+			title: "{af9.quest.litho.upw.title}"
+			x: 33.0d
+			y: -4.5d
+		}
+		{
+			dependencies: ["09B6830E2F95ACA9"]
+			description: [
+				"{af9.quest.litho.nqCharge.1}"
+				""
+				"{af9.quest.litho.nqCharge.2}"
+			]
+			id: "15BC2E581E1DC277"
+			rewards: [{
+				id: "064FCF7803647F81"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.nqCharge.subtitle}"
+			tasks: [
+				{
+					id: "15A5D3D17BB3856E"
+					item: "kubejs:naquadah_melt_charge"
+					type: "item"
+				}
+				{
+					id: "6A9708A163F5F3B8"
+					item: "kubejs:naquadah_seed_crystal"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.nqCharge.title}"
+			x: 33.0d
+			y: 7.5d
+		}
+		{
+			dependencies: [
+				"4669A10F9AAFBF39"
+				"3AFB0AA71A96E8B7"
+				"1DB07C3B15CDDAAC"
+				"6F82909CD6FFF606"
+			]
+			description: [
+				"{af9.quest.litho.n100.1}"
+				""
+				"{af9.quest.litho.n100.2}"
+				""
+				"{af9.quest.litho.n100.3}"
+				""
+				"{af9.quest.litho.n100.4}"
+			]
+			icon: "kubejs:arf_excimer_laser"
+			id: "418DC14B94C9272A"
+			rewards: [{
+				id: "374326AB8DD5FDEB"
+				type: "xp"
+				xp: 250
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.litho.n100.subtitle}"
+			tasks: [
+				{
+					id: "5AFA048A4D66A93D"
+					item: "gtceu:naquadah_wafer"
+					type: "item"
+				}
+				{
+					id: "752062D59EB660AF"
+					item: "kubejs:arf_excimer_laser"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.n100.title}"
+			x: 36.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["418DC14B94C9272A"]
+			description: ["{af9.quest.litho.endion.1}"]
+			id: "64B16A050B80159C"
+			rewards: [{
+				id: "1E62BCD704D13B08"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.endion.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:ender_air"
+					id: "1620A2FFFA57A7A2"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:endion"
+					id: "1AC5856508592640"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.endion.title}"
+			x: 37.5d
+			y: 13.5d
+		}
+		{
+			dependencies: ["64B16A050B80159C"]
+			description: [
+				"{af9.quest.litho.endionCoil.1}"
+				""
+				"{af9.quest.litho.endionCoil.2}"
+			]
+			id: "252CAC018BD24ABB"
+			rewards: [{
+				id: "22AD5E327C4619C6"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.endionCoil.subtitle}"
+			tasks: [
+				{
+					id: "652C992B33E4A822"
+					item: "gtceu:endionite_ingot"
+					type: "item"
+				}
+				{
+					id: "114A91B92827B7C9"
+					item: "kubejs:endion_coil_block"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.endionCoil.title}"
+			x: 39.0d
+			y: 13.5d
+		}
+		{
+			dependencies: ["15BC2E581E1DC277"]
+			description: [
+				"{af9.quest.litho.trCharge.1}"
+				""
+				"{af9.quest.litho.trCharge.2}"
+				""
+				"{af9.quest.litho.trCharge.3}"
+			]
+			id: "0AF739290E9385FE"
+			rewards: [{
+				id: "5965A24A94CFD78A"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.trCharge.subtitle}"
+			tasks: [
+				{
+					id: "2A3F059A59C338BC"
+					item: "kubejs:trinium_melt_charge"
+					type: "item"
+				}
+				{
+					id: "1AF38E974956A10B"
+					item: "kubejs:trinium_seed_crystal"
+					type: "item"
+				}
+				{
+					id: "136EEFDD5A1D1AC2"
+					item: "kubejs:trinium_boule"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.trCharge.title}"
+			x: 40.5d
+			y: 7.5d
+		}
+		{
+			dependencies: [
+				"418DC14B94C9272A"
+				"0AF739290E9385FE"
+			]
+			description: [
+				"{af9.quest.litho.n80.1}"
+				""
+				"{af9.quest.litho.n80.2}"
+				""
+				"{af9.quest.litho.n80.3}"
+				""
+				"{af9.quest.litho.n80.4}"
+			]
+			icon: "kubejs:trinium_wafer"
+			id: "46CAB00FF64D12DE"
+			rewards: [{
+				id: "5A07D7FC81CB9BC5"
+				type: "xp"
+				xp: 250
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.litho.n80.subtitle}"
+			tasks: [{
+				id: "754FBE42CD74404B"
+				item: "kubejs:trinium_wafer"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.n80.title}"
+			x: 42.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["46CAB00FF64D12DE"]
+			description: [
+				"{af9.quest.litho.zircon.1}"
+				""
+				"{af9.quest.litho.zircon.2}"
+				""
+				"{af9.quest.litho.zircon.3}"
+			]
+			id: "366BC95EF3EB2F45"
+			rewards: [{
+				id: "76FBE5FA60C86561"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.zircon.subtitle}"
+			tasks: [
+				{
+					id: "7A9432BB9419A8A7"
+					item: "gtceu:zircon_dust"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:hafnium_tetrachloride"
+					id: "55D678BDA82FE730"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.zircon.title}"
+			x: 45.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["0AF739290E9385FE"]
+			description: [
+				"{af9.quest.litho.naCharge.1}"
+				""
+				"{af9.quest.litho.naCharge.2}"
+			]
+			id: "0ED18196AA85EC11"
+			rewards: [{
+				id: "7A495BC0C4904217"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.naCharge.subtitle}"
+			tasks: [
+				{
+					id: "520A8784F5B849B7"
+					item: "kubejs:naquadria_melt_charge"
+					type: "item"
+				}
+				{
+					id: "23F9D223C4FA1F86"
+					item: "kubejs:naquadria_seed_crystal"
+					type: "item"
+				}
+				{
+					id: "71BB2B85858FAA48"
+					item: "kubejs:naquadria_boule"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.naCharge.title}"
+			x: 46.5d
+			y: 7.5d
+		}
+		{
+			dependencies: ["1E053F71829B698E"]
+			description: [
+				"{af9.quest.litho.coolantHatch.1}"
+				""
+				"{af9.quest.litho.coolantHatch.2}"
+			]
+			id: "1572142A6483B73B"
+			rewards: [{
+				id: "7027F89D7B11B855"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			subtitle: "{af9.quest.litho.coolantHatch.subtitle}"
+			tasks: [{
+				id: "5BF036DC9D8F4D3F"
+				item: "gtceu:hv_coolant_hatch"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.coolantHatch.title}"
+			x: 31.5d
+			y: 10.5d
+		}
+		{
+			dependencies: [
+				"46CAB00FF64D12DE"
+				"0ED18196AA85EC11"
+				"68A3ECCA3F0F64F6"
+			]
+			description: [
+				"{af9.quest.litho.n65.1}"
+				""
+				"{af9.quest.litho.n65.2}"
+				""
+				"{af9.quest.litho.n65.3}"
+				""
+				"{af9.quest.litho.n65.4}"
+			]
+			icon: "kubejs:naquadria_wafer"
+			id: "106D52BD58E747F8"
+			rewards: [{
+				id: "5C83488733112B68"
+				type: "xp"
+				xp: 250
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.litho.n65.subtitle}"
+			tasks: [
+				{
+					id: "3A1D1C1784EC2138"
+					item: "kubejs:naquadria_wafer"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:ultrapure_water"
+					id: "6995EB003BA9C353"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.n65.title}"
+			x: 48.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["0ED18196AA85EC11"]
+			description: [
+				"{af9.quest.litho.ntCharge.1}"
+				""
+				"{af9.quest.litho.ntCharge.2}"
+			]
+			id: "12D0EFDF809F3DBD"
+			rewards: [{
+				id: "19509DD8AEFB4A0F"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.ntCharge.subtitle}"
+			tasks: [
+				{
+					id: "180461A0311736EF"
+					item: "kubejs:neutronium_melt_charge"
+					type: "item"
+				}
+				{
+					id: "0F891B3BDE4F0DE3"
+					item: "kubejs:neutronium_seed_crystal"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.ntCharge.title}"
+			x: 52.5d
+			y: 7.5d
+		}
+		{
+			dependencies: [
+				"1572142A6483B73B"
+				"106D52BD58E747F8"
+			]
+			description: [
+				"{af9.quest.litho.accelerator.1}"
+				""
+				"{af9.quest.litho.accelerator.2}"
+				""
+				"{af9.quest.litho.accelerator.3}"
+			]
+			id: "3C1BAD339D082C68"
+			rewards: [{
+				id: "05973CA314407680"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			subtitle: "{af9.quest.litho.accelerator.subtitle}"
+			tasks: [{
+				id: "3499B768C85D249D"
+				item: "gtceu:particle_accelerator"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.accelerator.title}"
+			x: 49.5d
+			y: 10.5d
+		}
+		{
+			dependencies: [
+				"106D52BD58E747F8"
+				"142D12B41C36D68A"
+				"366BC95EF3EB2F45"
+			]
+			description: [
+				"{af9.quest.litho.n50.1}"
+				""
+				"{af9.quest.litho.n50.2}"
+				""
+				"{af9.quest.litho.n50.3}"
+				""
+				"{af9.quest.litho.n50.4}"
+			]
+			icon: "gtceu:neutronium_wafer"
+			id: "37C6FB7A87A3E12F"
+			rewards: [{
+				id: "4F24EED4186754C0"
+				type: "xp"
+				xp: 250
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.litho.n50.subtitle}"
+			tasks: [
+				{
+					id: "66D9040528854532"
+					item: "gtceu:neutronium_wafer"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:hafnium_tetrachloride"
+					id: "2F2178A9740E2ECA"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.n50.title}"
+			x: 54.0d
+			y: 0.0d
+		}
+		{
+			dependencies: [
+				"3C1BAD339D082C68"
+				"142D12B41C36D68A"
+			]
+			description: [
+				"{af9.quest.litho.transmuted.1}"
+				""
+				"{af9.quest.litho.transmuted.2}"
+			]
+			id: "1EA3E40E07A76AA6"
+			rewards: [{
+				id: "60ECF297DC31D471"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.transmuted.subtitle}"
+			tasks: [
+				{
+					id: "4C76F1867B662460"
+					item: "kubejs:beryllium_spallation_target"
+					type: "item"
+				}
+				{
+					id: "5A12EB60D1879A3E"
+					item: "kubejs:transmuted_neutronium_wafer"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.transmuted.title}"
+			x: 57.0d
+			y: 10.5d
+		}
+		{
+			dependencies: ["37C6FB7A87A3E12F"]
+			description: ["{af9.quest.litho.tinChloride.1}"]
+			id: "0E4EEAFD462F2124"
+			rewards: [{
+				id: "175B8C7C2E15B55D"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.tinChloride.subtitle}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:tin_tetrachloride"
+				id: "79A2AAC187E56E9F"
+				type: "fluid"
+			}]
+			title: "{af9.quest.litho.tinChloride.title}"
+			x: 57.0d
+			y: -6.0d
+		}
+		{
+			dependencies: ["0E4EEAFD462F2124"]
+			description: [
+				"{af9.quest.litho.euvResist.1}"
+				""
+				"{af9.quest.litho.euvResist.2}"
+			]
+			id: "0A7EB273ED631834"
+			rewards: [{
+				id: "7BC42677667BD0EF"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.euvResist.subtitle}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:euv_photoresist"
+				id: "249A5DDBE3C16852"
+				type: "fluid"
+			}]
+			title: "{af9.quest.litho.euvResist.title}"
+			x: 58.5d
+			y: -4.5d
+		}
+		{
+			dependencies: ["37C6FB7A87A3E12F"]
+			description: [
+				"{af9.quest.litho.euvSource.1}"
+				""
+				"{af9.quest.litho.euvSource.2}"
+			]
+			id: "695E65C37B10C6FF"
+			rewards: [{
+				id: "6A2F1934E3F4FC8C"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.euvSource.subtitle}"
+			tasks: [{
+				id: "415DACF7047C636D"
+				item: "kubejs:euv_light_source"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.euvSource.title}"
+			x: 60.0d
+			y: -3.0d
+		}
+		{
+			dependencies: [
+				"37C6FB7A87A3E12F"
+				"1EA3E40E07A76AA6"
+				"0A7EB273ED631834"
+				"695E65C37B10C6FF"
+			]
+			description: [
+				"{af9.quest.litho.n20.1}"
+				""
+				"{af9.quest.litho.n20.2}"
+				""
+				"{af9.quest.litho.n20.3}"
+				""
+				"{af9.quest.litho.n20.4}"
+			]
+			icon: "kubejs:euv_light_source"
+			id: "0266685DD6B82444"
+			rewards: [{
+				id: "1A0ABE1848928DBD"
+				type: "xp"
+				xp: 500
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.litho.n20.subtitle}"
+			tasks: [
+				{
+					id: "521E4C493690F2A1"
+					item: "kubejs:transmuted_neutronium_wafer"
+					type: "item"
+				}
+				{
+					id: "7982B063336532E3"
+					item: "kubejs:euv_light_source"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.n20.title}"
+			x: 60.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3C1BAD339D082C68"]
+			description: ["{af9.quest.litho.qgp.1}"]
+			id: "4D2D8ADB3C93601C"
+			rewards: [{
+				id: "40CD9AAA12D7E535"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.qgp.subtitle}"
+			tasks: [
+				{
+					id: "52EDB33254504AB9"
+					item: "kubejs:magnetic_trap"
+					type: "item"
+				}
+				{
+					id: "2865AF19C964A950"
+					item: "kubejs:qgp_trap"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.qgp.title}"
+			x: 52.5d
+			y: 12.0d
+		}
+		{
+			dependencies: ["4D2D8ADB3C93601C"]
+			description: ["{af9.quest.litho.strangeMatter.1}"]
+			id: "098C3692B8FF765F"
+			rewards: [{
+				id: "12A12A78C8471443"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.strangeMatter.subtitle}"
+			tasks: [{
+				id: "4380622C8CBEB51F"
+				item: "gtceu:strange_matter_dust"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.strangeMatter.title}"
+			x: 57.0d
+			y: 12.0d
+		}
+		{
+			dependencies: ["0266685DD6B82444"]
+			description: ["{af9.quest.litho.tritaniumCrucible.1}"]
+			id: "0C39756FEE90C8B2"
+			rewards: [{
+				id: "2032A615DC36A867"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.tritaniumCrucible.subtitle}"
+			tasks: [{
+				id: "12EEB1E855B175B9"
+				item: "kubejs:tritanium_crucible"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.tritaniumCrucible.title}"
+			x: 60.0d
+			y: 10.5d
+		}
+		{
+			dependencies: ["252CAC018BD24ABB"]
+			description: [
+				"{af9.quest.litho.resonantCoil.1}"
+				""
+				"{af9.quest.litho.resonantCoil.2}"
+			]
+			id: "23219210ABCE71C8"
+			rewards: [{
+				id: "5B145FB345DBBAD8"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.resonantCoil.subtitle}"
+			tasks: [{
+				id: "18D577CB70B8822A"
+				item: "kubejs:resonant_endion_coil_block"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.resonantCoil.title}"
+			x: 63.0d
+			y: 13.5d
+		}
+		{
+			dependencies: [
+				"12D0EFDF809F3DBD"
+				"098C3692B8FF765F"
+				"0C39756FEE90C8B2"
+			]
+			description: [
+				"{af9.quest.litho.smBoule.1}"
+				""
+				"{af9.quest.litho.smBoule.2}"
+			]
+			id: "792D926F549B11A8"
+			rewards: [{
+				id: "65535D33DE97034E"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.smBoule.subtitle}"
+			tasks: [
+				{
+					id: "7728CF35F8CF2783"
+					item: "kubejs:strange_matter_melt_charge"
+					type: "item"
+				}
+				{
+					id: "35E2D183346D68F9"
+					item: "kubejs:strange_matter_seed_crystal"
+					type: "item"
+				}
+				{
+					id: "29E6DACE1319D382"
+					item: "kubejs:strange_matter_boule"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.smBoule.title}"
+			x: 61.5d
+			y: 7.5d
+		}
+		{
+			dependencies: [
+				"0266685DD6B82444"
+				"792D926F549B11A8"
+			]
+			description: [
+				"{af9.quest.litho.n7.1}"
+				""
+				"{af9.quest.litho.n7.2}"
+				""
+				"{af9.quest.litho.n7.3}"
+				""
+				"{af9.quest.litho.n7.4}"
+			]
+			icon: "kubejs:strange_matter_wafer"
+			id: "23C7AC818504BEB9"
+			rewards: [{
+				id: "7AD3E21512ECFDE6"
+				type: "xp"
+				xp: 500
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.litho.n7.subtitle}"
+			tasks: [{
+				id: "4C1D63E7D1E8BED0"
+				item: "kubejs:strange_matter_wafer"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.n7.title}"
+			x: 66.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["098C3692B8FF765F"]
+			description: ["{af9.quest.litho.chromodynium.1}"]
+			id: "51A5ADF9BC5163D5"
+			rewards: [{
+				id: "0BC576287F68B365"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.chromodynium.subtitle}"
+			tasks: [{
+				id: "500F7FAA55603377"
+				item: "gtceu:chromodynium_dust"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.chromodynium.title}"
+			x: 63.0d
+			y: 12.0d
+		}
+		{
+			dependencies: [
+				"792D926F549B11A8"
+				"51A5ADF9BC5163D5"
+				"23219210ABCE71C8"
+			]
+			description: [
+				"{af9.quest.litho.qcBoule.1}"
+				""
+				"{af9.quest.litho.qcBoule.2}"
+			]
+			id: "3E318EF257668484"
+			rewards: [{
+				id: "7A96B7424F1A905B"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.qcBoule.subtitle}"
+			tasks: [
+				{
+					id: "5E38ACA8D4F58437"
+					item: "kubejs:chromodynium_melt_charge"
+					type: "item"
+				}
+				{
+					id: "4A2DEFAA294602E6"
+					item: "kubejs:chromodynium_seed_crystal"
+					type: "item"
+				}
+				{
+					id: "079E873801CD732F"
+					item: "kubejs:chromodynium_boule"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.qcBoule.title}"
+			x: 67.5d
+			y: 7.5d
+		}
+		{
+			dependencies: [
+				"0A7EB273ED631834"
+				"23C7AC818504BEB9"
+			]
+			description: ["{af9.quest.litho.dryResist.1}"]
+			id: "18D89DD79199927E"
+			rewards: [{
+				id: "2126EE2EB87663C0"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.dryResist.subtitle}"
+			tasks: [{
+				id: "280A7304A5D5CF91"
+				item: "kubejs:dry_resist_cartridge"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.dryResist.title}"
+			x: 66.0d
+			y: -4.5d
+		}
+		{
+			dependencies: ["23C7AC818504BEB9"]
+			description: ["{af9.quest.litho.orbitalParts.1}"]
+			id: "24ABE0333646E550"
+			rewards: [{
+				id: "43F1EA53A6E43ECC"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.orbitalParts.subtitle}"
+			tasks: [
+				{
+					id: "070F504325AC3629"
+					item: "kubejs:orbital_frame_casing"
+					type: "item"
+				}
+				{
+					id: "6B652D08252CDFB3"
+					item: "kubejs:xfel_undulator"
+					type: "item"
+				}
+				{
+					id: "3E597341B36411D1"
+					item: "kubejs:maglev_wafer_stage"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.orbitalParts.title}"
+			x: 70.5d
+			y: -3.0d
+		}
+		{
+			dependencies: [
+				"23C7AC818504BEB9"
+				"3E318EF257668484"
+				"18D89DD79199927E"
+				"24ABE0333646E550"
+			]
+			description: [
+				"{af9.quest.litho.n1.1}"
+				""
+				"{af9.quest.litho.n1.2}"
+				""
+				"{af9.quest.litho.n1.3}"
+				""
+				"{af9.quest.litho.n1.4}"
+			]
+			icon: "gtceu:orbital_lithography_station"
+			id: "75590392393A5E38"
+			rewards: [{
+				id: "00815BC04784BB54"
+				type: "xp"
+				xp: 1000
+			}]
+			shape: "hexagon"
+			size: 2.5d
+			subtitle: "{af9.quest.litho.n1.subtitle}"
+			tasks: [
+				{
+					id: "1E56217E2FB379BF"
+					item: "gtceu:orbital_lithography_station"
+					type: "item"
+				}
+				{
+					id: "49C1334F32BB6E2F"
+					item: "kubejs:chromodynium_wafer"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.n1.title}"
+			x: 72.0d
+			y: 0.0d
+		}
+	]
+	subtitle: ["{af9.quest.litho.chapter.subtitle}"]
+	title: "{af9.quest.litho.chapter.title}"
+}

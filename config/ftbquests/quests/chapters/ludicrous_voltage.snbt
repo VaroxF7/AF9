@@ -57,7 +57,26 @@
 	]
 	order_index: 7
 	progression_mode: "flexible"
-	quest_links: [ ]
+	quest_links: [
+		{
+			id: "5AAA69A57785E884"
+			linked_quest: "366BC95EF3EB2F45"
+			x: 5.0d
+			y: -2.5d
+		}
+		{
+			id: "36553E413AE13083"
+			linked_quest: "106D52BD58E747F8"
+			x: 5.0d
+			y: -1.0d
+		}
+		{
+			id: "1EA57D624332EC80"
+			linked_quest: "68A3ECCA3F0F64F6"
+			x: 7.5d
+			y: -1.0d
+		}
+	]
 	quests: [
 		{
 			description: ["{af9.quest.luv.nanoMainframe}"]
@@ -816,6 +835,7 @@
 			y: 3.0d
 		}
 		{
+			dependencies: ["1896B90F5FD66AFA"]
 			description: ["{af9.quest.luv.qbit}"]
 			id: "17671346C7940CA8"
 			rewards: [{
@@ -2222,85 +2242,6 @@
 			}]
 			x: 7.9d
 			y: -1.7999999999999998d
-		}
-		{
-			description: [
-				"{af9.quest.luv.zircon.1}"
-				""
-				"{af9.quest.luv.zircon.2}"
-			]
-			id: "84516B9D84575F62"
-			rewards: [{
-				id: "63A345F618306AEA"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [
-				{
-					id: "3BE7E505864E6170"
-					item: "gtceu:zircon_dust"
-					type: "item"
-				}
-				{
-					id: "AC9A2ABAFCE42BE4"
-					item: "gtceu:zirconium_ingot"
-					type: "item"
-				}
-				{
-					amount: 100L
-					fluid: "gtceu:hafnium_tetrachloride"
-					id: "8DFEA0BDF97B020A"
-					type: "fluid"
-				}
-			]
-			title: "{af9.quest.title.zircon}"
-			x: 5.0d
-			y: -2.5d
-		}
-		{
-			dependencies: [
-				"46CAB00FF64D12DE"
-				"84516B9D84575F62"
-				"C786A524FDA78C1A"
-			]
-			description: [
-				"{af9.quest.luv.luv.1}"
-				""
-				"{af9.quest.luv.luv.2}"
-			]
-			id: "106D52BD58E747F8"
-			rewards: [{
-				id: "CBB212336C78550A"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [{
-				id: "2CCBC00EAC4FDA46"
-				item: "kubejs:naquadria_wafer"
-				type: "item"
-			}]
-			title: "{af9.quest.title.luv}"
-			x: 5.0d
-			y: -1.0d
-		}
-		{
-			dependencies: ["1DB07C3B15CDDAAC"]
-			description: ["{af9.quest.luv.immersion}"]
-			id: "C786A524FDA78C1A"
-			rewards: [{
-				id: "382523A28F509088"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [{
-				amount: 1000L
-				fluid: "gtceu:ultrapure_water"
-				id: "FC489176EA49E015"
-				type: "fluid"
-			}]
-			title: "{af9.quest.title.immersion}"
-			x: 7.5d
-			y: -1.0d
 		}
 	]
 	title: "{atm9.chapters.32.title}"

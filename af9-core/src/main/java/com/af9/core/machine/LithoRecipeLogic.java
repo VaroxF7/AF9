@@ -8,8 +8,8 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 /**
- * Recipe logic of the lithography machines: when a print finishes it rolls the break chance (and the vacuum loses
- * 10-15 points, see {@link LithoMachine#finishPrint}); a broken print puts out the broken wafer instead.
+ * Recipe logic of the lithography machines: when a print finishes it rolls the break chance (see
+ * {@link LithoMachine#finishPrint}); a broken print puts out the broken wafer instead.
  */
 public class LithoRecipeLogic extends RecipeLogic {
 
