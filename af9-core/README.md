@@ -9,6 +9,12 @@ Machines, materials and recipes stay in `../kubejs`; KubeJS plugs the Java class
 | `machine/PhotolithographyLineMachine` | `kubejs/startup_scripts/gtceu/photolithography.js` | Power recipe gate `LITHO_GATE`, controller UI with mode buttons (tooltips: light, NA/k1, resist), saved statistics, EMI recipe info (node + light) |
 | `machine/LithoRecipeLogic` | the machine above | Counts finished wafers per mode |
 | `client/AF9Client` | wafers and chips | `af9:litho_mode` model predicate (per-mode textures in `kubejs/assets`) and the node/transistor tooltip |
+| `fab/FabFamily`, `fab/IFabMachine` | the SMC fab machines | The four fab families (chemistry, separation, electrochemistry, thermal): changeover purge fluid and time, console colour, process steps per mode |
+| `fab/FabModifiers` | `kubejs/startup_scripts/gtceu/fab_machines.js` | Recipe modifiers: changeover `PURGE`, `STRUCTURE_PARALLEL` (trays / membrane cells), `COIL_DISCOUNT`, `TIER_TEMPERATURE` (single furnaces), `THERMAL_OVERCLOCK` (GT's EBF rules) |
+| `fab/FabRecipeLogic`, `fab/FabRecipeInfo` | the fab machines, EMI | Tells the machine which recipe finished (purge bookkeeping); temperature, coil and single-block tier on the thermal modes' EMI pages |
+| `machine/fab/FabMultiblockMachine` | the four SMC multiblocks | Built-in clean room from filter casings, PTFE-pipe parallels, coil heat, run and changeover counters, console with clickable mode tiles |
+| `machine/fab/FabTieredMachine` | the SMC single blocks (MV-LuV) | GT's slot page with a console strip above it, furnace temperature per tier, changeover purge |
+| `machine/fab/FabConsoleWidget` | both fab machine classes | The fab console (status, modes, power, progress with purge share, clean class, parallels, heat, process steps) |
 
 ## Build
 

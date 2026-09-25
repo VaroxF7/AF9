@@ -1445,6 +1445,68 @@
 			x: 11.0d
 			y: 5.5d
 		}
+		{
+			dependencies: ["AE2076353F8220B1"]
+			description: [
+				"{af9.quest.hv.smcLcr.1}"
+				""
+				"{af9.quest.hv.smcLcr.2}"
+			]
+			id: "DA794521237FF495"
+			rewards: [{
+				id: "69B00E00B1BD82D9"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [{
+				id: "15F1852C5AE907D9"
+				item: "gtceu:smc_large_chemical_reactor"
+				type: "item"
+			}]
+			title: "{af9.quest.title.smcLcr}"
+			x: 11.5d
+			y: 2.5d
+		}
+		{
+			dependencies: ["AE2076353F8220B1"]
+			description: [
+				"{af9.quest.hv.smcColumn}"
+			]
+			id: "ED124BD4285F0055"
+			rewards: [{
+				id: "597987F389938960"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [{
+				id: "C92AB4F3F00A3E9B"
+				item: "gtceu:smc_rectification_column"
+				type: "item"
+			}]
+			title: "{af9.quest.title.smcColumn}"
+			x: 13.0d
+			y: 2.5d
+		}
+		{
+			dependencies: ["AE2076353F8220B1"]
+			description: [
+				"{af9.quest.hv.smcCells}"
+			]
+			id: "5D823D017C7CE01F"
+			rewards: [{
+				id: "9658BE97D8E56F55"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [{
+				id: "ECFF74F67BD5DE34"
+				item: "gtceu:smc_membrane_cell_hall"
+				type: "item"
+			}]
+			title: "{af9.quest.title.smcCells}"
+			x: 13.0d
+			y: 4.0d
+		}
 	]
 	title: "{atm9.chapters.29.title}"
 }

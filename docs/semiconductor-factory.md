@@ -35,7 +35,7 @@ See Appendix A for the full map. The numbers live in two places that must agree:
 
 ## 0.3 One-paragraph mental model
 
-Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Siemens polysilicon → CZ boule (EBF) → cutter blank wafer → Photolithography Line (reticle + 5 track chemistries + the mode's laser gas / immersion water / HfCl4) → NBT wafer → cutter dies → circuit assembler. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock, dies-per-wafer scaling is the NBT math. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion) and the resist chemistry made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate).
+Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Siemens polysilicon → CZ boule (SMC thermal furnace) → cutter blank wafer → Photolithography Line (reticle + 5 track chemistries + the mode's laser gas / immersion water / HfCl4) → NBT wafer → cutter dies → circuit assembler. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock, dies-per-wafer scaling is the NBT math. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion) and the resist chemistry made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate).
 
 ---
 
@@ -64,7 +64,7 @@ Net: SiO2 + 2C -> Si(l) + 2CO(g)
 - Refine: O2 lancing, slagging (CaO-Al2O3-SiO2), ladle treatment.
 - Byproducts: CO, CO2, SiO → microsilica fume, SiC dross, slag.
 - Failures: SiO loss (poor permeability), SiC inclusions, Al/Ca/Fe inclusions, CO hazard.
-- Minecraft map (AF9, §6.12): quartzite leached in HCl → `high_purity_quartz`, EBF 1800 K with coke → `metallurgical_grade_silicon` + CO.
+- Minecraft map (AF9, §6.12): quartzite leached in HCl → `high_purity_quartz`, SMC thermal furnace (calcination & reduction) at 1800 K with coke → `metallurgical_grade_silicon` + CO.
 
 ## 1.3 Stage 2 — Purification to electronic-grade polysilicon (9N-11N)
 
@@ -80,7 +80,7 @@ Net: SiO2 + 2C -> Si(l) + 2CO(g)
 
 ### Minecraft map
 
-No Siemens unit in GTCEuM 1.20.1; AF9 simulates it (§6.12): hydrochlorination → `crude_chlorosilanes` → distillation (TCS/STC/DCS/BCl3) → carbon polishing → `siemens_feed_gas` → EBF bell jar → `polysilicon` + vent gas → recovery and STC conversion (closed loop), STC also to fumed silica or TEOS. FBR is not modelled.
+No Siemens unit in GTCEuM 1.20.1; AF9 simulates it (§6.12): hydrochlorination → `crude_chlorosilanes` → distillation (TCS/STC/DCS/BCl3) → carbon polishing → `siemens_feed_gas` → CVD bell jar (SMC thermal furnace) → `polysilicon` + vent gas → recovery and STC conversion (closed loop), STC also to fumed silica or TEOS. FBR is not modelled.
 
 ## 1.4 Stage 3 — Crystal growth (Czochralski CZ, >90% wafers)
 
@@ -93,7 +93,7 @@ No Siemens unit in GTCEuM 1.20.1; AF9 simulates it (§6.12): hydrochlorination �
 - Alternative: Float Zone (FZ) — no crucible, RF coil, Oi 10-100× lower, resistivity to >5000 ohm-cm, limited to ~75-200mm, for power/RF/detectors. No B-O LID.
 - Anatomy: seed (Dash neck) → shoulder → body (prime) → tail (dislocated, high dopant) → heel residue. Yield target >80%.
 - Failures: loss of zero-dislocation (twinning/slip), swirl/COPs/voids (V/G control), O/dopant striations, crucible devitrification particles.
-- Minecraft map: AF9 CZ recipes in the EBF (§6.1): `electronic_grade_silicon` (etched poly chunks) + boron (p-type, from the BCl3 cut) or phosphorus (n-type) under argon from the AF9 cold box. `gtceu:silicon_boule` = p-type CZ boule, `gtceu:phosphorus_boule` = n-type.
+- Minecraft map: AF9 CZ recipes in the crystal-growth mode of the SMC thermal furnaces (§6.1, §11): `electronic_grade_silicon` (etched poly chunks) + boron (p-type, from the BCl3 cut) or phosphorus (n-type) under argon from the AF9 cold box. `gtceu:silicon_boule` = p-type CZ boule, `gtceu:phosphorus_boule` = n-type.
 
 ## 1.5 Stage 4 — Wafering (ingot → wafer)
 
@@ -495,13 +495,13 @@ State is sampled server-side each tick and synced only when it changes.
 
 ## 6.1 Step 0 — Boule (Czochralski, AF9)
 
-GT's boule recipes (silicon dust + gallium arsenide, nitrogen) are removed. All four boules are pulled from `gtceu:electronic_grade_silicon_dust` (the Siemens line, §6.12) under argon; silicon takes a boron dopant (p-type, the CMOS substrate), phosphorus boules stay n-type. Naquadah and neutronium keep GT's exotic extras.
+GT's boule recipes (silicon dust + gallium arsenide, nitrogen) are removed. All four boules are pulled from `gtceu:electronic_grade_silicon_dust` (the Siemens line, §6.12) under argon; silicon takes a boron dopant (p-type, the CMOS substrate), phosphorus boules stay n-type. Naquadah and neutronium keep GT's exotic extras. They are pulled in the crystal-growth mode of the SMC thermal furnaces (§11): a single block reaches its tier's coil temperature (MV 1800 K is enough for silicon, LuV 5400 K for naquadah), the neutronium boule (6484 K) needs the SMC Thermal Processing Furnace.
 
 ```text
-af9:silicon_boule (EBF) 32x electronic_grade_silicon_dust + tiny_boron_dust + 250 argon → silicon_boule | 9000t MV | 1784K
-af9:phosphorus_boule (EBF) 64x electronic_grade_silicon_dust + 8x phosphorus_dust + 1000 argon → phosphorus_boule | 12000t HV | 2484K
-af9:naquadah_boule (EBF) 144x electronic_grade_silicon_dust + naquadah_ingot + gallium_arsenide_dust + 8000 argon → naquadah_boule | 15000t EV | 5400K
-af9:neutronium_boule (EBF) 288x electronic_grade_silicon_dust + 4x neutronium_ingot + 2x gallium_arsenide_dust + 8000 xenon → neutronium_boule | 18000t IV | 6484K
+af9:silicon_boule (CZ) 32x electronic_grade_silicon_dust + tiny_boron_dust + 250 argon → silicon_boule | 9000t MV | 1784K
+af9:phosphorus_boule (CZ) 64x electronic_grade_silicon_dust + 8x phosphorus_dust + 1000 argon → phosphorus_boule | 12000t HV | 2484K
+af9:naquadah_boule (CZ) 144x electronic_grade_silicon_dust + naquadah_ingot + gallium_arsenide_dust + 8000 argon → naquadah_boule | 15000t EV | 5400K
+af9:neutronium_boule (CZ) 288x electronic_grade_silicon_dust + 4x neutronium_ingot + 2x gallium_arsenide_dust + 8000 xenon → neutronium_boule | 18000t IV | 6484K
 ```
 
 ## 6.2 Step 1 — Blank wafer (cutter, base GT, unchanged)
@@ -546,24 +546,24 @@ Removed base (all substrates): `gtceu:laser_engraver/engrave_<ilc|ram|cpu|ulpic|
 
 ### Extreme clean dry air (XCDA)
 
-A fab's clean-dry-air plant, all five steps in chemical reactors (single or large). The whole chain runs at MV but
+A fab's clean-dry-air plant, all five steps in the purification mode of the SMC Fractionating Still or Rectification Column (§11). The whole chain runs at MV but
 slowly: the MV cold step is a Joule-Thomson expander that only chills a quarter of its air per pass (the rest comes back
 as `dry_air`). HV adds a platinum oxidizer, a caustic scrubber and liquid-air cooling, which are 4× faster each and turn
 all of the air cold. Circuits 1/2 keep the two cold steps apart.
 
 ```text
 support
-af9:hopcalite (chemical_reactor) copper_dust + 6x pyrolusite_dust + 1000 oxygen → 7x hopcalite_dust | 400t MV   (Cu + 2 MnO2 + O → CuMn2O4)
-af9:molecular_sieve (autoclave) 4x zeolite_dust + bentonite_dust + 500 distilled_water → 4x kubejs:molecular_sieve | 600t MV   (bentonite binder: clay + distilled water is GT's clay recipe)
+af9:hopcalite (synthesis) copper_dust + 6x pyrolusite_dust + 1000 oxygen → 7x hopcalite_dust | 400t MV   (Cu + 2 MnO2 + O → CuMn2O4)
+af9:molecular_sieve (wet) 4x zeolite_dust + bentonite_dust + 500 distilled_water → 4x kubejs:molecular_sieve | 600t MV   (bentonite binder: clay + distilled water is GT's clay recipe)
 af9:regenerate_molecular_sieve (smelting) kubejs:saturated_molecular_sieve → kubejs:molecular_sieve
 
 1 oxidize   af9:xcda_oxidize_hopcalite  NC hopcalite_dust + 4000 air → 4000 oxidized_air | 600t MV
-            af9:xcda_oxidize_platinum   NC platinum_dust  + 4000 air → 4000 oxidized_air | 150t HV
+            af9:xcda_oxidize_platinum   NC platinum_dust  + 4000 air → 4000 oxidized_air | 150t HV | cleanroom
 2 scrub CO2 af9:xcda_scrub_lime         small_calcium_hydroxide_dust + 4000 oxidized_air → small_calcite_dust + 4000 decarbonated_air | 400t MV
-            af9:xcda_scrub_caustic      small_sodium_hydroxide_dust  + 4000 oxidized_air → small_soda_ash_dust + 4000 decarbonated_air | 100t HV
+            af9:xcda_scrub_caustic      small_sodium_hydroxide_dust  + 4000 oxidized_air → small_soda_ash_dust + 4000 decarbonated_air | 100t HV | cleanroom
 3 dry       af9:xcda_dry                kubejs:molecular_sieve + 4000 decarbonated_air → kubejs:saturated_molecular_sieve + 4000 dry_air | 400t MV
 4 cool      af9:xcda_cool_expansion     circuit 1, 4000 dry_air → 1000 cryogenic_supercooled_air + 3000 dry_air | 800t MV
-            af9:xcda_cool_liquid_air    circuit 2, 4000 dry_air + 1000 liquid_air → 4000 cryogenic_supercooled_air + 1000 air | 200t HV
+            af9:xcda_cool_liquid_air    circuit 2, 4000 dry_air + 1000 liquid_air → 4000 cryogenic_supercooled_air + 1000 air | 200t HV | cleanroom
 5 filter    af9:xcda_filter             NC gtceu:fluid_filter + 4000 cryogenic_supercooled_air → 4000 extreme_clean_dry_air | 200t MV
 ```
 
@@ -579,19 +579,19 @@ Moved to the fab chemistry lines: excimer premix §6.14, KrF resist §6.15, ArF 
 GT's formaldehyde (methanol + O2 over silver) is an HV recipe, and HV circuits need MUV chips, so the i-line resist used to be unreachable at MV. AF9 adds the Formox process at MV. TMAH is made the electronic-grade way, by membrane electrolysis of the chloride (a KOH metathesis would leave potassium in the developer, which shifts transistor thresholds); the chloride is dissolved first because GT's circuit-less distilled-water electrolysis would otherwise take the cell.
 
 ```text
-af9:molybdenum_trioxide (EBF) molybdenite_dust + 7000 oxygen → molybdenum_trioxide_dust + 2000 sulfur_dioxide | 300t MV | 900K
-af9:iron_molybdate (EBF) hematite_dust + 3x molybdenum_trioxide_dust → iron_molybdate_dust | 300t MV | 800K
-af9:formaldehyde_formox (CR) NC iron_molybdate_dust + 1000 methanol + 3000 air → 1000 formaldehyde + 1000 water | 200t MV
-af9:novolac_resin (CR) NC 100 hydrochloric_acid + 1000 phenol + 1000 formaldehyde → 1000 novolac_resin + 1000 water | 400t MV
-af9:diazonaphthoquinone (CR) 1000 naphthalene + 1000 nitric_acid + 1000 ammonia → diazonaphthoquinone_dust + 2000 water + 1000 hydrogen | 600t MV
-af9:photoresist (mixer) diazonaphthoquinone_dust + 1000 novolac_resin + 3000 dimethylbenzene → 4000 photoresist | 400t MV
-af9:trimethylchlorosilane (CR) magnesium_dust + 1000 dimethyldichlorosilane + 1000 chloromethane → 3x magnesium_chloride_dust + 1000 trimethylchlorosilane | 300t MV
-af9:hexamethyldisilazane (CR) 2000 trimethylchlorosilane + 3000 ammonia → 4x ammonium_chloride_dust + 1000 hexamethyldisilazane | 400t MV
-af9:hmds_vapor (mixer) 100 hexamethyldisilazane + 900 nitrogen → 1000 hmds_vapor | 100t LV
-af9:tetramethylammonium_chloride (CR) 1000 dimethylamine + 2000 chloromethane → tetramethylammonium_chloride_dust + 1000 hydrochloric_acid | 300t MV
-af9:tetramethylammonium_chloride_solution (mixer) tetramethylammonium_chloride_dust + 5000 distilled_water → 5000 tetramethylammonium_chloride_solution | 100t LV
-af9:tmah_developer (electrolyzer) 5000 tetramethylammonium_chloride_solution → 5000 tmah_developer + 1000 chlorine + 1000 hydrogen | 300t MV
-af9:molecular_sieve (autoclave) 4x zeolite_dust + bentonite_dust + 500 distilled_water → 4x kubejs:molecular_sieve | 600t MV
+af9:molybdenum_trioxide (calcination) molybdenite_dust + 7000 oxygen → molybdenum_trioxide_dust + 2000 sulfur_dioxide | 300t MV | 900K
+af9:iron_molybdate (calcination) hematite_dust + 3x molybdenum_trioxide_dust → iron_molybdate_dust | 300t MV | 800K
+af9:formaldehyde_formox (synthesis) NC iron_molybdate_dust + 1000 methanol + 3000 air → 1000 formaldehyde + 1000 water | 200t MV
+af9:novolac_resin (synthesis) NC 100 hydrochloric_acid + 1000 phenol + 1000 formaldehyde → 1000 novolac_resin + 1000 water | 400t MV
+af9:diazonaphthoquinone (synthesis) 1000 naphthalene + 1000 nitric_acid + 1000 ammonia → diazonaphthoquinone_dust + 2000 water + 1000 hydrogen | 600t MV
+af9:photoresist (blending) diazonaphthoquinone_dust + 1000 novolac_resin + 3000 dimethylbenzene → 4000 photoresist | 400t MV
+af9:trimethylchlorosilane (synthesis) magnesium_dust + 1000 dimethyldichlorosilane + 1000 chloromethane → 3x magnesium_chloride_dust + 1000 trimethylchlorosilane | 300t MV
+af9:hexamethyldisilazane (synthesis) 2000 trimethylchlorosilane + 3000 ammonia → 4x ammonium_chloride_dust + 1000 hexamethyldisilazane | 400t MV
+af9:hmds_vapor (blending) 100 hexamethyldisilazane + 900 nitrogen → 1000 hmds_vapor | 100t LV
+af9:tetramethylammonium_chloride (synthesis) 1000 dimethylamine + 2000 chloromethane → tetramethylammonium_chloride_dust + 1000 hydrochloric_acid | 300t MV
+af9:tetramethylammonium_chloride_solution (blending) tetramethylammonium_chloride_dust + 5000 distilled_water → 5000 tetramethylammonium_chloride_solution | 100t LV
+af9:tmah_developer (electrolysis) 5000 tetramethylammonium_chloride_solution → 5000 tmah_developer + 1000 chlorine + 1000 hydrogen | 300t MV
+af9:molecular_sieve (wet) 4x zeolite_dust + bentonite_dust + 500 distilled_water → 4x kubejs:molecular_sieve | 600t MV
 ```
 
 ## 6.6 Step 3 — Print wafers (Photolithography Line)
@@ -672,21 +672,21 @@ ore       af9:zircon_sands_vein — Mining Dimension, stone layer y129-248, dike
           (weight 30, cluster 35, density 0.6). Zircon ore byproducts: ilmenite, rutile, monazite.
 1 EBF     af9:zircon_dissociation        6x zircon_dust + 100 argon → 3x zirconia_dust + 3x silicon_dioxide_dust | 2300 K, 600t
 2 EBF     af9:zirconia_carbochlorination 3x zirconia_dust + 2x carbon_dust + 4000 chlorine → 1000 crude_zirconium_tetrachloride | 1300 K, 400t (CO flared)
-3 DT      af9:zirconium_hafnium_separation 1000 crude_zirconium_tetrachloride → 900 zirconium_tetrachloride + 100 hafnium_tetrachloride | 600t (no distillery)
+3 column  af9:zirconium_hafnium_separation 1000 crude_zirconium_tetrachloride → 900 zirconium_tetrachloride + 100 hafnium_tetrachloride | 600t HV | cleanroom (SMC Rectification Column only, no still cuts)
 4 EBF     af9:zirconium_kroll            2x magnesium_dust + 1000 zirconium_tetrachloride → zirconium_dust + 6x magnesium_chloride_dust | 1150 K, 400t
 5 EBF     GT blast_zirconium             zirconium_dust → hot_zirconium_ingot → vacuum freezer → zirconium_ingot
 ```
 
-MgCl2 goes back to Mg + Cl2 in GT's electrolyzer. Real zircon holds ~2 % hafnium; AF9 gives 10 % so LUV has enough (100 mB HfCl4 per LUV print run = one DT batch = 6 zircon dust). Zircon, zirconia and the chlorides have formulas but no components, so GT adds no electrolyzer shortcut.
+MgCl2 goes back to Mg + Cl2 in GT's electrolyzer. Real zircon holds ~2 % hafnium; AF9 gives 10 % so LUV has enough (100 mB HfCl4 per LUV print run = one column batch = 6 zircon dust). Zircon, zirconia and the chlorides have formulas but no components, so GT adds no electrolyzer shortcut.
 
 ## 6.10 Quests (FTB Quests)
 
-Changed chapters (`config/ftbquests/quests/chapters/`): `medium_voltage`, `high_voltage`, `extreme_voltage`, `insane_voltage`, `ludicrous_voltage`, `zero_point_module`, `ultra_high_voltage`, `circuits`. Text lives in `kubejs/assets/kubejs/lang/en_us.json` under `af9.quest.*` (101 keys). Changed quests point at these new keys, so other languages fall back to the new English text instead of the old laser-engraving text.
+Changed chapters (`config/ftbquests/quests/chapters/`): `medium_voltage`, `high_voltage`, `extreme_voltage`, `insane_voltage`, `ludicrous_voltage`, `zero_point_module`, `ultra_high_voltage`, `circuits`. Text lives in `kubejs/assets/kubejs/lang/en_us.json` under `af9.quest.*` (113 keys). Changed quests point at these new keys, so other languages fall back to the new English text instead of the old laser-engraving text.
 
 | Chapter | New quests (ID) | Changed quests |
 |---|---|---|
-| MV | Photolithography Line `AD8FD756AA394586`, Lithography Chemistry `240C1BFF666269E2` (fluid tasks), Reticles `412010740F2B823B`, Extreme Clean Dry Air `F01C688974686C8E`, MV Circuit Metals `5CF8D8E0B8E0D908`, Hydrogen Fluoride `97A469B25693E8F2`, Electronic-Grade Silicon `F3C933DD2ADF7BB7` (MG-Si, EG-TCS, polysilicon, EGS), Air Separation `75865FF47260C1E7` (crude argon, argon) — the last three in a column at x = 13 | Silicon Boule `26D1F1ECF66194E6` (needs EGS + Air Separation, AF9 text line), MV Laser Engraver (reticles + ULPIC bootstrap), ILC/RAM wafer (line + reticle deps), ULPIC wafer (bootstrap), Advanced Integrated Circuit (HV bootstrap) |
-| HV | HUV Lithography `F5459779599BE107` (NBT task: HUV RAM wafer; needs the two below), Excimer Lasers `72569D77E20C8733` (krypton + KrF gas; needs Air Separation + Fluorine), Chemically Amplified Resist `A9D8D2084CFA2A1F` (PAG + t-BOC PHOST + KrF resist; needs Fluorine + Building Blocks), Fluorine and Triflic Acid `885201A0FC63A534`, Resist Building Blocks `9EF2C24FF660CA97` (AIBN, PGMEA, tributylamine), HV Circuit Metals `51D7534BBA00287A` | CPU chip (+ CPU reticle task), Simple SoC wafer (+ reticle task), Microprocessor, Processor Assembly, Workstation |
+| MV | Photolithography Line `AD8FD756AA394586`, Lithography Chemistry `240C1BFF666269E2` (fluid tasks), Reticles `412010740F2B823B`, Extreme Clean Dry Air `F01C688974686C8E`, MV Circuit Metals `5CF8D8E0B8E0D908`, Hydrogen Fluoride `97A469B25693E8F2`, Electronic-Grade Silicon `F3C933DD2ADF7BB7` (MG-Si, EG-TCS, polysilicon, EGS), Air Separation `75865FF47260C1E7` (crude argon, argon) — the last three in a column at x = 13, The Fab Plant `AE2076353F8220B1` (the four MV SMC single blocks; HF, XCDA and Lithography Chemistry need it), Thermal Processing Furnace `01B10745D9CCECA1` (§11) | Silicon Boule `26D1F1ECF66194E6` (needs EGS + Air Separation, AF9 text line), MV Laser Engraver (reticles + ULPIC bootstrap), ILC/RAM wafer (line + reticle deps), ULPIC wafer (bootstrap), Advanced Integrated Circuit (HV bootstrap) |
+| HV | HUV Lithography `F5459779599BE107` (NBT task: HUV RAM wafer; needs the two below), Excimer Lasers `72569D77E20C8733` (krypton + KrF gas; needs Air Separation + Fluorine), Chemically Amplified Resist `A9D8D2084CFA2A1F` (PAG + t-BOC PHOST + KrF resist; needs Fluorine + Building Blocks), Fluorine and Triflic Acid `885201A0FC63A534`, Resist Building Blocks `9EF2C24FF660CA97` (AIBN, PGMEA, tributylamine), HV Circuit Metals `51D7534BBA00287A`, SMC Large Chemical Reactor `DA794521237FF495`, Rectification Column `ED124BD4285F0055`, Membrane Cell Hall `5D823D017C7CE01F` (§11, optional) | CPU chip (+ CPU reticle task), Simple SoC wafer (+ reticle task), Microprocessor, Processor Assembly, Workstation |
 | EV | EUV Lithography `418DC14B94C9272A`, EV Circuit Metals `2EC82E995F48F0D6` | LPIC (+ reticle task), HV Energy Hatch, Workstation |
 | IV | XUV Lithography `46CAB00FF64D12DE` (needs ArF chemistry), ArF Lithography Chemistry `1DB07C3B15CDDAAC` (ArF gas + methacrylate resin + ArF resist), IV Circuit Metals `30C5810673F9AFE6` | SoC / PIC / NOR / NAND (lens or engraver task → reticle), HPIC, Nano CPU wafer, phosphorus wafers, IV Energy Hatch (EV 16A path), IV mainframe, Nanoprocessor |
 | LuV | Zircon and Hafnium `84516B9D84575F62` (fluid task HfCl4), Immersion Lithography `C786A524FDA78C1A` (fluid task ultrapure water), LUV Lithography `106D52BD58E747F8` (needs both) | Qubit wafers, LuV Energy Hatch (IV 16A path), Large Engraving Laser, Nano Mainframe, Quantum Computer |
@@ -700,69 +700,71 @@ Mode quests use exact-NBT item tasks (`match_nbt: true`, e.g. `{AF9Litho:{Node:2
 
 Files: `startup_scripts/gtceu/fab_chemistry.js` (72 materials, formulas only, so GT generates no electrolyzer/centrifuge shortcut), `server_scripts/mods/gtceu/fab_chemistry.js` (recipes). Five lines, each 10-20 unit operations with real chemistry, inspired by Nomifactory / Cosmic Frontiers style chains.
 
-Tier gating (GT 7.2.0 defaults, ATM9 does not change them): EBF needs LV circuits, Pyrolyse Oven MV, Large Chemical Reactor and Cracker HV circuits, **Distillation Tower and Vacuum Freezer EV circuits**. AF9 circuits: HV needs MUV chips, EV needs HUV chips. So:
+All of these recipes run only in the SMC fab machines (§11): GT's Chemical Reactor, Large Chemical Reactor, mixer, bath, autoclave, blast furnace, electrolyzer and distillation tower have none of them. Non-thermal recipes from HV power on need a clean room (single blocks: a GT Cleanroom; the fab multiblocks bring their own filter ceiling).
+
+Tier gating (GT 7.2.0 defaults, ATM9 does not change them): EBF needs LV circuits, Pyrolyse Oven MV, Large Chemical Reactor and Cracker HV circuits, **Distillation Tower and Vacuum Freezer EV circuits**; the SMC single blocks need their tier's circuits, the SMC Thermal Processing Furnace MV circuits, the other SMC multiblocks HV circuits. AF9 circuits: HV needs MUV chips, EV needs HUV chips. So:
 
 | Phase | Machines | Must supply |
 |---|---|---|
-| MV0 (before MUV prints) | LV/MV single blocks, EBF (2 MV hatches reach HV voltage), pyrolyse oven, GT's distillery copies of Distillation Tower recipes (EUt/4, one output per circuit) | silicon boule, i-line resist, HMDS, TMAH, XCDA, argon, HF |
-| HV0 (MUV runs) | + HV single blocks, LCR, cracker | KrF resist, KrF gas (neon, krypton, fluorine), phosphorus boule |
-| EV0 (HUV runs) | + EV single blocks, Distillation Tower, Vacuum Freezer | ArF resist, ArF gas, ultrapure water |
+| MV0 (before MUV prints) | LV/MV single blocks incl. the MV SMC single blocks (the Fractionating Still takes column recipes one cut per circuit, EUt/4, twice the time), SMC Thermal Processing Furnace (2 MV hatches reach HV voltage), pyrolyse oven | silicon boule, i-line resist, HMDS, TMAH, XCDA, argon, HF |
+| HV0 (MUV runs) | + HV single blocks (in a Cleanroom), SMC LCR, SMC Rectification Column, SMC Membrane Cell Hall, cracker | KrF resist, KrF gas (neon, krypton, fluorine), phosphorus boule, HfCl4 |
+| EV0 (HUV runs) | + EV single blocks, Vacuum Freezer | ArF resist, ArF gas, ultrapure water |
 
 Earlier designs broke this: GT's formaldehyde is HV (i-line resist needed it at MV), krypton came from liquid air (Vacuum Freezer = EV circuits = HUV chips = krypton), fluorine had no source at all (AF9's fluorite has no decomposition flag; GT's only fluorine is uranium hexafluoride electrolysis), boron neither (GT 7.2.0 has no borax source). All fixed below.
 
-Verification done for this design (re-run on every change, see §10): a reachability analysis over all GT 7.2.0 recipes (parsed from the v.7.2.0 tag) plus the AF9 scripts gives every lithography input at the phase above; a subset-conflict check in both directions against every GT 7.2.0 recipe of the same machine and against AF9's own recipes finds no recipe that could be hijacked (GT picks any recipe whose inputs are all present, circuits aside).
+Verification done for this design (re-run on every change, see §10): a reachability analysis over all GT 7.2.0 recipes (parsed from the v.7.2.0 tag) plus the AF9 scripts gives every lithography input at the phase above; a subset-conflict check in both directions within every fab recipe type finds no recipe that could be hijacked (GT picks any recipe whose inputs are all present, circuits aside; the fab types hold only AF9 recipes, so GT's own recipes cannot interfere).
 
 ## 6.12 Line 1 — Electronic-grade silicon (MV)
 
 Real route: quartz → submerged-arc MG-Si (98-99 %) → fluidized-bed hydrochlorination → chlorosilane distillation → Siemens bell-jar CVD (1100 °C, closed loop with vent-gas recovery and STC conversion) → etched poly chunks → Czochralski. The boron that MG-Si carries ends up as BCl3 in the light ends, which is where AF9 takes its p-type dopant from.
 
 ```text
-af9:high_purity_quartz (bath) quartzite_dust + 250 hydrochloric_acid → high_purity_quartz_dust + 250 diluted_hydrochloric_acid | 200t LV
-af9:metallurgical_grade_silicon (EBF) high_purity_quartz_dust + 2x coke_dust → metallurgical_grade_silicon_dust + 2000 carbon_monoxide | 400t MV | 1800K
-af9:crude_chlorosilanes (CR) NC copper_dust + metallurgical_grade_silicon_dust + 3000 hydrochloric_acid → 1000 crude_chlorosilanes + 1000 hydrogen | 300t MV
-af9:chlorosilane_distillation (DT) 1000 crude_chlorosilanes → 850 trichlorosilane + 100 silicon_tetrachloride + 40 dichlorosilane + 10 boron_trichloride | 300t MV
-af9:electronic_grade_trichlorosilane (CR) NC activated_carbon_dust + 1000 trichlorosilane → 1000 electronic_grade_trichlorosilane | 200t MV
-af9:dichlorosilane_redistribution (CR) NC activated_carbon_dust + 1000 dichlorosilane + 1000 silicon_tetrachloride → 2000 trichlorosilane | 200t MV
-af9:boron_from_trichloride (CR) 1000 boron_trichloride + 3000 hydrogen → boron_dust + 3000 hydrochloric_acid | 200t MV
-af9:siemens_feed_gas (mixer) 1000 electronic_grade_trichlorosilane + 4000 hydrogen → 5000 siemens_feed_gas | 100t LV
-af9:siemens_polysilicon (EBF) 10000 siemens_feed_gas → polysilicon_ingot + 8000 siemens_vent_gas | 1600t HV | 1400K
-af9:siemens_vent_gas_recovery (DT) 8000 siemens_vent_gas → 6000 hydrogen + 1000 hydrochloric_acid + 600 trichlorosilane + 400 silicon_tetrachloride | 400t MV
-af9:silicon_tetrachloride_hydroconversion (CR) circuit 1 + 1000 silicon_tetrachloride + 1000 hydrogen → 1000 trichlorosilane + 1000 hydrochloric_acid | 300t MV
-af9:fumed_silica (CR) circuit 2 + 1000 silicon_tetrachloride + 2000 hydrogen + 2000 oxygen → silicon_dioxide_dust + 4000 hydrochloric_acid | 200t MV
-af9:silicon_etchant (mixer) 1000 nitric_acid + 1000 hydrofluoric_acid → 2000 silicon_etchant | 100t LV
-af9:electronic_grade_silicon (bath) polysilicon_dust + 100 silicon_etchant → electronic_grade_silicon_dust | 100t MV
-af9:silicon_boule (EBF) 32x electronic_grade_silicon_dust + tiny_boron_dust + 250 argon → silicon_boule | 9000t MV | 1784K
-af9:phosphorus_boule (EBF) 64x electronic_grade_silicon_dust + 8x phosphorus_dust + 1000 argon → phosphorus_boule | 12000t HV | 2484K
-af9:naquadah_boule (EBF) 144x electronic_grade_silicon_dust + naquadah_ingot + gallium_arsenide_dust + 8000 argon → naquadah_boule | 15000t EV | 5400K
-af9:neutronium_boule (EBF) 288x electronic_grade_silicon_dust + 4x neutronium_ingot + 2x gallium_arsenide_dust + 8000 xenon → neutronium_boule | 18000t IV | 6484K
+af9:high_purity_quartz (wet) quartzite_dust + 250 hydrochloric_acid → high_purity_quartz_dust + 250 diluted_hydrochloric_acid | 200t LV
+af9:metallurgical_grade_silicon (calcination) high_purity_quartz_dust + 2x coke_dust → metallurgical_grade_silicon_dust + 2000 carbon_monoxide | 400t MV | 1800K
+af9:crude_chlorosilanes (synthesis) NC copper_dust + metallurgical_grade_silicon_dust + 3000 hydrochloric_acid → 1000 crude_chlorosilanes + 1000 hydrogen | 300t MV
+af9:chlorosilane_distillation (column) 1000 crude_chlorosilanes → 850 trichlorosilane + 100 silicon_tetrachloride + 40 dichlorosilane + 10 boron_trichloride | 300t MV
+af9:electronic_grade_trichlorosilane (purify) NC activated_carbon_dust + 1000 trichlorosilane → 1000 electronic_grade_trichlorosilane | 200t MV
+af9:dichlorosilane_redistribution (synthesis) NC activated_carbon_dust + 1000 dichlorosilane + 1000 silicon_tetrachloride → 2000 trichlorosilane | 200t MV
+af9:boron_from_trichloride (synthesis) 1000 boron_trichloride + 3000 hydrogen → boron_dust + 3000 hydrochloric_acid | 200t MV
+af9:siemens_feed_gas (blending) 1000 electronic_grade_trichlorosilane + 4000 hydrogen → 5000 siemens_feed_gas | 100t LV
+af9:siemens_polysilicon (CVD) 10000 siemens_feed_gas → polysilicon_ingot + 8000 siemens_vent_gas | 1600t HV | 1400K
+af9:siemens_vent_gas_recovery (column) 8000 siemens_vent_gas → 6000 hydrogen + 1000 hydrochloric_acid + 600 trichlorosilane + 400 silicon_tetrachloride | 400t MV
+af9:silicon_tetrachloride_hydroconversion (synthesis) circuit 1 + 1000 silicon_tetrachloride + 1000 hydrogen → 1000 trichlorosilane + 1000 hydrochloric_acid | 300t MV
+af9:fumed_silica (synthesis) circuit 2 + 1000 silicon_tetrachloride + 2000 hydrogen + 2000 oxygen → silicon_dioxide_dust + 4000 hydrochloric_acid | 200t MV
+af9:silicon_etchant (blending) 1000 nitric_acid + 1000 hydrofluoric_acid → 2000 silicon_etchant | 100t LV
+af9:electronic_grade_silicon (wet) polysilicon_dust + 100 silicon_etchant → electronic_grade_silicon_dust | 100t MV
+af9:silicon_boule (CZ) 32x electronic_grade_silicon_dust + tiny_boron_dust + 250 argon → silicon_boule | 9000t MV | 1784K
+af9:phosphorus_boule (CZ) 64x electronic_grade_silicon_dust + 8x phosphorus_dust + 1000 argon → phosphorus_boule | 12000t HV | 2484K
+af9:naquadah_boule (CZ) 144x electronic_grade_silicon_dust + naquadah_ingot + gallium_arsenide_dust + 8000 argon → naquadah_boule | 15000t EV | 5400K
+af9:neutronium_boule (CZ) 288x electronic_grade_silicon_dust + 4x neutronium_ingot + 2x gallium_arsenide_dust + 8000 xenon → neutronium_boule | 18000t IV | 6484K
 ```
 
-Mass balance: per polysilicon ingot the Siemens reactor takes 2000 TCS; the vent gas returns 600 TCS + 400 STC (→ TCS), so one ingot costs ~1000 TCS ≈ 1 MG-Si. STC can instead become fumed silica (circuit 2) or TEOS (§6.15). At MV the two distillations run in GT's distillery, one cut per circuit.
+Mass balance: per polysilicon ingot the Siemens reactor takes 2000 TCS; the vent gas returns 600 TCS + 400 STC (→ TCS), so one ingot costs ~1000 TCS ≈ 1 MG-Si. STC can instead become fumed silica (circuit 2) or TEOS (§6.15). At MV the two distillations run in the SMC Fractionating Still, one cut per circuit; the SMC Rectification Column (HV) runs them whole.
 
 ## 6.13 Line 2 — Fluorochemicals (HF at MV, fluorine and triflic acid at HV)
 
 Real route: acid-grade fluorspar + H2SO4 in a rotary kiln → crude HF → anhydrous HF; Moissan-type medium-temperature cells (molten KF·2HF, carbon anodes, 90 °C) → F2, HF stripped over NaF (regenerated by heating). Triflic acid: Grillo methanesulfonic acid → sulfonyl chloride (thionyl chloride from SCl2 + SO3) → halogen exchange with KF → Simons electrochemical fluorination in anhydrous HF over nickel → CF3SO2F → potassium triflate → H2SO4 → vacuum distillation.
 
 ```text
-af9:crude_hydrogen_fluoride (CR) fluorite_dust + 1000 sulfuric_acid → gypsum_dust + 2000 crude_hydrogen_fluoride | 300t MV
-af9:anhydrous_hydrogen_fluoride (DT) 2000 crude_hydrogen_fluoride → 1800 hydrofluoric_acid + 150 sulfuric_acid + 50 water | 200t MV
-af9:potassium_fluoride (CR) potassium_hydroxide_dust + 1000 hydrofluoric_acid → potassium_fluoride_dust + 1000 water | 100t MV
-af9:potassium_bifluoride_electrolyte (mixer) potassium_fluoride_dust + 2000 hydrofluoric_acid → 1000 potassium_bifluoride_electrolyte | 200t MV
-af9:fluorine_electrolysis (electrolyzer) NC carbon_dust + 1000 potassium_bifluoride_electrolyte → potassium_fluoride_dust + 2000 crude_fluorine + 2000 hydrogen | 400t HV
-af9:sodium_fluoride (CR) sodium_hydroxide_dust + 1000 hydrofluoric_acid → sodium_fluoride_dust + 1000 water | 100t MV
-af9:fluorine_purification (CR) sodium_fluoride_dust + 2000 crude_fluorine → sodium_bifluoride_dust + 1800 fluorine | 100t HV
-af9:sodium_bifluoride_regeneration (EBF) sodium_bifluoride_dust → sodium_fluoride_dust + 200 hydrofluoric_acid | 100t MV | 700K
+af9:crude_hydrogen_fluoride (synthesis) fluorite_dust + 1000 sulfuric_acid → gypsum_dust + 2000 crude_hydrogen_fluoride | 300t MV
+af9:anhydrous_hydrogen_fluoride (column) 2000 crude_hydrogen_fluoride → 1800 hydrofluoric_acid + 150 sulfuric_acid + 50 water | 200t MV
+af9:potassium_fluoride (synthesis) potassium_hydroxide_dust + 1000 hydrofluoric_acid → potassium_fluoride_dust + 1000 water | 100t MV
+af9:potassium_bifluoride_electrolyte (blending) potassium_fluoride_dust + 2000 hydrofluoric_acid → 1000 potassium_bifluoride_electrolyte | 200t MV
+af9:fluorine_electrolysis (electrolysis) NC carbon_dust + 1000 potassium_bifluoride_electrolyte → potassium_fluoride_dust + 2000 crude_fluorine + 2000 hydrogen | 400t HV | cleanroom
+af9:sodium_fluoride (synthesis) sodium_hydroxide_dust + 1000 hydrofluoric_acid → sodium_fluoride_dust + 1000 water | 100t MV
+af9:fluorine_purification (purify) sodium_fluoride_dust + 2000 crude_fluorine → sodium_bifluoride_dust + 1800 fluorine | 100t HV | cleanroom
+af9:sodium_bifluoride_regeneration (calcination) sodium_bifluoride_dust → sodium_fluoride_dust + 200 hydrofluoric_acid | 100t MV | 700K
 
 
-af9:methanesulfonic_acid (CR) 1000 methane + 1000 sulfur_trioxide + 50 hydrogen_peroxide → 1000 methanesulfonic_acid + 50 water | 300t HV
-af9:sulfur_dichloride (CR) sulfur_dust + 2000 chlorine → 1000 sulfur_dichloride | 100t MV
-af9:thionyl_chloride (CR) 1000 sulfur_dichloride + 1000 sulfur_trioxide → 1000 thionyl_chloride + 1000 sulfur_dioxide | 200t MV
-af9:methanesulfonyl_chloride (LCR) 1000 methanesulfonic_acid + 1000 thionyl_chloride → 1000 methanesulfonyl_chloride + 1000 sulfur_dioxide + 1000 hydrochloric_acid | 200t HV
-af9:methanesulfonyl_fluoride (CR) potassium_fluoride_dust + 1000 methanesulfonyl_chloride → rock_salt_dust + 1000 methanesulfonyl_fluoride | 200t HV
-af9:simons_cell_electrolyte (mixer) 1000 methanesulfonyl_fluoride + 3000 hydrofluoric_acid → 4000 simons_cell_electrolyte | 100t HV
-af9:electrochemical_fluorination (electrolyzer) NC nickel_plate + 4000 simons_cell_electrolyte → 1000 trifluoromethanesulfonyl_fluoride + 6000 hydrogen | 600t HV
-af9:potassium_triflate (CR) 2x potassium_hydroxide_dust + 1000 trifluoromethanesulfonyl_fluoride → potassium_triflate_dust + potassium_fluoride_dust + 1000 water | 200t HV
-af9:trifluoromethanesulfonic_acid (CR) 2x potassium_triflate_dust + 1000 sulfuric_acid → potassium_sulfate_dust + 2000 trifluoromethanesulfonic_acid | 300t HV
+af9:methanesulfonic_acid (synthesis) 1000 methane + 1000 sulfur_trioxide + 50 hydrogen_peroxide → 1000 methanesulfonic_acid + 50 water | 300t HV | cleanroom
+af9:sulfur_dichloride (synthesis) sulfur_dust + 2000 chlorine → 1000 sulfur_dichloride | 100t MV
+af9:thionyl_chloride (synthesis) 1000 sulfur_dichloride + 1000 sulfur_trioxide → 1000 thionyl_chloride + 1000 sulfur_dioxide | 200t MV
+af9:methanesulfonyl_chloride (synthesis) 1000 methanesulfonic_acid + 1000 thionyl_chloride → 1000 methanesulfonyl_chloride + 1000 sulfur_dioxide + 1000 hydrochloric_acid | 200t HV | cleanroom
+af9:methanesulfonyl_fluoride (synthesis) potassium_fluoride_dust + 1000 methanesulfonyl_chloride → rock_salt_dust + 1000 methanesulfonyl_fluoride | 200t HV | cleanroom
+af9:simons_cell_electrolyte (blending) 1000 methanesulfonyl_fluoride + 3000 hydrofluoric_acid → 4000 simons_cell_electrolyte | 100t HV | cleanroom
+af9:electrochemical_fluorination (ECF) NC nickel_plate + 4000 simons_cell_electrolyte → 1000 trifluoromethanesulfonyl_fluoride + 6000 hydrogen | 600t HV | cleanroom
+af9:potassium_triflate (synthesis) 2x potassium_hydroxide_dust + 1000 trifluoromethanesulfonyl_fluoride → potassium_triflate_dust + potassium_fluoride_dust + 1000 water | 200t HV | cleanroom
+af9:trifluoromethanesulfonic_acid (synthesis) 2x potassium_triflate_dust + 1000 sulfuric_acid → potassium_sulfate_dust + 2000 trifluoromethanesulfonic_acid | 300t HV | cleanroom
 ```
 
 ## 6.14 Line 3 — Air gases and excimer premix (argon at MV, Ne/Kr/Xe at HV)
@@ -770,15 +772,15 @@ af9:trifluoromethanesulfonic_acid (CR) 2x potassium_triflate_dust + 1000 sulfuri
 Real route: the double-column cold box takes side draws: crude argon (deoxo with H2 over Pd), crude neon from the condenser head (H2 burnt off, N2 adsorbed on cold charcoal, He split off), krypton-xenon concentrate from the oxygen sump (catalytic hydrocarbon burner, molecular-sieve drying, rectification). Feed is AF9's Cryogenic Supercooled Air (MV expansion cooler, §6.5), not GT's liquid air (EV-gated Vacuum Freezer). Premix = 5 % rare gas + 1 % purified fluorine in neon (real ~1 % / 0.1 %).
 
 ```text
-af9:air_rectification (DT) 4000 cryogenic_supercooled_air → 2960 nitrogen + 600 oxygen + 400 crude_argon + 24 crude_neon + 16 krypton_xenon_concentrate | 300t MV
-af9:argon_deoxo (CR) NC palladium_dust + 1000 crude_argon + 100 hydrogen → 950 argon + 50 water | 100t MV
-af9:crude_neon_purification (CR) NC platinum_dust + NC activated_carbon_dust + 1000 crude_neon + 50 oxygen → 700 neon_helium_mixture + 250 nitrogen | 200t HV
-af9:neon_helium_separation (DT) 1000 neon_helium_mixture → 720 neon + 280 helium | 200t HV
-af9:krypton_xenon_catalytic_burner (CR) NC platinum_dust + 1000 krypton_xenon_concentrate → 980 crude_krypton_xenon + 20 carbon_dioxide | 100t HV
-af9:krypton_xenon_drying (CR) kubejs:molecular_sieve + 1000 crude_krypton_xenon → kubejs:saturated_molecular_sieve + 1000 purified_krypton_xenon | 100t HV
-af9:krypton_xenon_rectification (DT) 1000 purified_krypton_xenon → 700 oxygen + 270 krypton + 30 xenon | 300t HV
-af9:krf_excimer_gas (CR) 940 neon + 50 krypton + 10 fluorine → 1000 krf_excimer_gas | 200t HV
-af9:arf_excimer_gas (CR) 940 neon + 50 argon + 10 fluorine → 1000 arf_excimer_gas | 200t HV
+af9:air_rectification (cryo column) 4000 cryogenic_supercooled_air → 2960 nitrogen + 600 oxygen + 400 crude_argon + 24 crude_neon + 16 krypton_xenon_concentrate | 300t MV
+af9:argon_deoxo (purify) NC palladium_dust + 1000 crude_argon + 100 hydrogen → 950 argon + 50 water | 100t MV
+af9:crude_neon_purification (purify) NC platinum_dust + NC activated_carbon_dust + 1000 crude_neon + 50 oxygen → 700 neon_helium_mixture + 250 nitrogen | 200t HV | cleanroom
+af9:neon_helium_separation (cryo column) 1000 neon_helium_mixture → 720 neon + 280 helium | 200t HV | cleanroom
+af9:krypton_xenon_catalytic_burner (purify) NC platinum_dust + 1000 krypton_xenon_concentrate → 980 crude_krypton_xenon + 20 carbon_dioxide | 100t HV | cleanroom
+af9:krypton_xenon_drying (purify) kubejs:molecular_sieve + 1000 crude_krypton_xenon → kubejs:saturated_molecular_sieve + 1000 purified_krypton_xenon | 100t HV | cleanroom
+af9:krypton_xenon_rectification (cryo column) 1000 purified_krypton_xenon → 700 oxygen + 270 krypton + 30 xenon | 300t HV | cleanroom
+af9:krf_excimer_gas (blending) 940 neon + 50 krypton + 10 fluorine → 1000 krf_excimer_gas | 200t HV | cleanroom
+af9:arf_excimer_gas (blending) 940 neon + 50 argon + 10 fluorine → 1000 arf_excimer_gas | 200t HV | cleanroom
 ```
 
 Real air: 0.93 % Ar, 18 ppm Ne, 1.1 ppm Kr, 0.09 ppm Xe; AF9 boosts all of them (as GT boosts helium) but keeps Ne:Kr ≈ 16:1 in the cold box and Kr:Xe ≈ 9:1. Xenon becomes available at HV (GT: IV).
@@ -789,56 +791,56 @@ The real KrF chemically amplified resist: poly(4-hydroxystyrene) made by the Hoe
 
 ```text
 catalysts and reagents
-af9:palladium_chloride (CR) palladium_dust + 2000 chlorine → palladium_chloride_dust | 200t MV
-af9:palladium_on_carbon (CR) palladium_chloride_dust + 8x activated_carbon_dust + 2000 hydrogen → 8x palladium_on_carbon_dust + 2000 hydrochloric_acid | 200t MV
-af9:acidic_ion_exchange_resin (CR) tiny_azobisisobutyronitrile_dust + 1000 styrene + 1000 sulfuric_acid → acidic_ion_exchange_resin_dust + 1000 water | 300t HV
-af9:tetraethyl_orthosilicate (CR) 1000 silicon_tetrachloride + 4000 ethanol → 1000 tetraethyl_orthosilicate + 4000 hydrochloric_acid | 200t MV
-af9:titanium_silicalite (CR) tiny_rutile_dust + 1000 tetraethyl_orthosilicate + 2000 water → titanium_silicalite_dust + 4000 ethanol | 600t HV
+af9:palladium_chloride (synthesis) palladium_dust + 2000 chlorine → palladium_chloride_dust | 200t MV
+af9:palladium_on_carbon (synthesis) palladium_chloride_dust + 8x activated_carbon_dust + 2000 hydrogen → 8x palladium_on_carbon_dust + 2000 hydrochloric_acid | 200t MV
+af9:acidic_ion_exchange_resin (synthesis) tiny_azobisisobutyronitrile_dust + 1000 styrene + 1000 sulfuric_acid → acidic_ion_exchange_resin_dust + 1000 water | 300t HV | cleanroom
+af9:tetraethyl_orthosilicate (synthesis) 1000 silicon_tetrachloride + 4000 ethanol → 1000 tetraethyl_orthosilicate + 4000 hydrochloric_acid | 200t MV
+af9:titanium_silicalite (synthesis) tiny_rutile_dust + 1000 tetraethyl_orthosilicate + 2000 water → titanium_silicalite_dust + 4000 ethanol | 600t HV | cleanroom
 
 AIBN
-af9:hydrazine (CR) sodium_hydroxide_dust + 1000 monochloramine + 1000 ammonia → salt_dust + 1000 hydrazine + 1000 water | 200t HV
-af9:acetone_cyanohydrin (CR) NC sodium_hydroxide_dust + 1000 acetone + 1000 hydrogen_cyanide → 1000 acetone_cyanohydrin | 200t HV
-af9:hydrazobisisobutyronitrile (CR) 2000 acetone_cyanohydrin + 1000 hydrazine → hydrazobisisobutyronitrile_dust + 2000 water | 200t HV
-af9:azobisisobutyronitrile (CR) hydrazobisisobutyronitrile_dust + 2000 chlorine → azobisisobutyronitrile_dust + 2000 hydrochloric_acid | 200t HV
+af9:hydrazine (synthesis) sodium_hydroxide_dust + 1000 monochloramine + 1000 ammonia → salt_dust + 1000 hydrazine + 1000 water | 200t HV | cleanroom
+af9:acetone_cyanohydrin (synthesis) NC sodium_hydroxide_dust + 1000 acetone + 1000 hydrogen_cyanide → 1000 acetone_cyanohydrin | 200t HV | cleanroom
+af9:hydrazobisisobutyronitrile (synthesis) 2000 acetone_cyanohydrin + 1000 hydrazine → hydrazobisisobutyronitrile_dust + 2000 water | 200t HV | cleanroom
+af9:azobisisobutyronitrile (synthesis) hydrazobisisobutyronitrile_dust + 2000 chlorine → azobisisobutyronitrile_dust + 2000 hydrochloric_acid | 200t HV | cleanroom
 
 resin (4-acetoxystyrene route)
-af9:hydroxyacetophenone (CR) NC 1000 hydrofluoric_acid + 1000 phenol + 1000 acetic_anhydride → hydroxyacetophenone_dust + 1000 acetic_acid | 300t HV
-af9:acetoxyacetophenone (CR) hydroxyacetophenone_dust + 1000 acetic_anhydride → acetoxyacetophenone_dust + 1000 acetic_acid | 200t HV
-af9:acetoxyphenyl_methyl_carbinol (CR) NC palladium_on_carbon_dust + acetoxyacetophenone_dust + 2000 hydrogen → 1000 acetoxyphenyl_methyl_carbinol | 300t HV
-af9:acetoxystyrene (CR) NC sodium_bisulfate_dust + 1000 acetoxyphenyl_methyl_carbinol → 1000 acetoxystyrene + 1000 water | 200t HV
-af9:poly_acetoxystyrene (CR) tiny_azobisisobutyronitrile_dust + 1000 acetoxystyrene → poly_acetoxystyrene_dust | 400t HV
-af9:polyhydroxystyrene (CR) poly_acetoxystyrene_dust + NC 1000 ammonia + 1000 methanol → polyhydroxystyrene_dust + 1000 methyl_acetate | 300t HV
+af9:hydroxyacetophenone (synthesis) NC 1000 hydrofluoric_acid + 1000 phenol + 1000 acetic_anhydride → hydroxyacetophenone_dust + 1000 acetic_acid | 300t HV | cleanroom
+af9:acetoxyacetophenone (synthesis) hydroxyacetophenone_dust + 1000 acetic_anhydride → acetoxyacetophenone_dust + 1000 acetic_acid | 200t HV | cleanroom
+af9:acetoxyphenyl_methyl_carbinol (synthesis) NC palladium_on_carbon_dust + acetoxyacetophenone_dust + 2000 hydrogen → 1000 acetoxyphenyl_methyl_carbinol | 300t HV | cleanroom
+af9:acetoxystyrene (synthesis) NC sodium_bisulfate_dust + 1000 acetoxyphenyl_methyl_carbinol → 1000 acetoxystyrene + 1000 water | 200t HV | cleanroom
+af9:poly_acetoxystyrene (synthesis) tiny_azobisisobutyronitrile_dust + 1000 acetoxystyrene → poly_acetoxystyrene_dust | 400t HV | cleanroom
+af9:polyhydroxystyrene (synthesis) poly_acetoxystyrene_dust + NC 1000 ammonia + 1000 methanol → polyhydroxystyrene_dust + 1000 methyl_acetate | 300t HV | cleanroom
 
 t-BOC protection
-af9:isobutylene (CR) NC zeolite_dust + 1000 butene → 1000 isobutylene | 200t HV
-af9:tert_butanol (CR) NC acidic_ion_exchange_resin_dust + 1000 isobutylene + 1000 water → 1000 tert_butanol | 200t HV
-af9:sodium_tert_butoxide (CR) sodium_dust + 1000 tert_butanol → sodium_tert_butoxide_dust + 1000 hydrogen | 100t HV
-af9:phosgene (CR) NC activated_carbon_dust + 1000 carbon_monoxide + 2000 chlorine → 1000 phosgene | 100t HV
-af9:di_tert_butyl_dicarbonate (CR) 2x sodium_tert_butoxide_dust + 1000 carbon_dioxide + 1000 phosgene → 2x salt_dust + 1000 di_tert_butyl_dicarbonate | 300t HV
-af9:tboc_polyhydroxystyrene (CR) polyhydroxystyrene_dust + 300 di_tert_butyl_dicarbonate → tboc_polyhydroxystyrene_dust + 300 carbon_dioxide + 300 tert_butanol | 300t HV
+af9:isobutylene (synthesis) NC zeolite_dust + 1000 butene → 1000 isobutylene | 200t HV | cleanroom
+af9:tert_butanol (synthesis) NC acidic_ion_exchange_resin_dust + 1000 isobutylene + 1000 water → 1000 tert_butanol | 200t HV | cleanroom
+af9:sodium_tert_butoxide (synthesis) sodium_dust + 1000 tert_butanol → sodium_tert_butoxide_dust + 1000 hydrogen | 100t HV | cleanroom
+af9:phosgene (synthesis) NC activated_carbon_dust + 1000 carbon_monoxide + 2000 chlorine → 1000 phosgene | 100t HV | cleanroom
+af9:di_tert_butyl_dicarbonate (synthesis) 2x sodium_tert_butoxide_dust + 1000 carbon_dioxide + 1000 phosgene → 2x salt_dust + 1000 di_tert_butyl_dicarbonate | 300t HV | cleanroom
+af9:tboc_polyhydroxystyrene (synthesis) polyhydroxystyrene_dust + 300 di_tert_butyl_dicarbonate → tboc_polyhydroxystyrene_dust + 300 carbon_dioxide + 300 tert_butanol | 300t HV | cleanroom
 
 PAG
-af9:aluminium_chloride (CR) aluminium_dust + 3000 chlorine → aluminium_chloride_dust | 200t MV
-af9:diphenyl_sulfoxide (CR) NC aluminium_chloride_dust + 2000 benzene + 1000 thionyl_chloride → diphenyl_sulfoxide_dust + 2000 hydrochloric_acid | 300t HV
-af9:vanadyl_pyrophosphate (CR) 2x vanadium_dust + 2000 phosphoric_acid + 5000 oxygen → vanadyl_pyrophosphate_dust + 3000 water | 400t HV
-af9:maleic_anhydride (CR) NC vanadyl_pyrophosphate_dust + 1000 butane + 7000 oxygen → maleic_anhydride_dust + 4000 water | 300t HV
-af9:tetrahydrofuran (CR) NC palladium_on_carbon_dust + maleic_anhydride_dust + 10000 hydrogen → 1000 tetrahydrofuran + 2000 water | 300t HV
-af9:phenylmagnesium_chloride (CR) magnesium_dust + 1000 chlorobenzene + 1000 tetrahydrofuran → 1000 phenylmagnesium_chloride | 200t HV
-af9:triphenylsulfonium_chloride (CR) diphenyl_sulfoxide_dust + 1000 phenylmagnesium_chloride + 2000 hydrochloric_acid → triphenylsulfonium_chloride_dust + magnesium_chloride_dust + 1000 tetrahydrofuran + 1000 water | 300t HV
-af9:triphenylsulfonium_triflate (CR) triphenylsulfonium_chloride_dust + 1000 trifluoromethanesulfonic_acid → triphenylsulfonium_triflate_dust + 1000 hydrochloric_acid | 200t HV
+af9:aluminium_chloride (synthesis) aluminium_dust + 3000 chlorine → aluminium_chloride_dust | 200t MV
+af9:diphenyl_sulfoxide (synthesis) NC aluminium_chloride_dust + 2000 benzene + 1000 thionyl_chloride → diphenyl_sulfoxide_dust + 2000 hydrochloric_acid | 300t HV | cleanroom
+af9:vanadyl_pyrophosphate (synthesis) 2x vanadium_dust + 2000 phosphoric_acid + 5000 oxygen → vanadyl_pyrophosphate_dust + 3000 water | 400t HV | cleanroom
+af9:maleic_anhydride (synthesis) NC vanadyl_pyrophosphate_dust + 1000 butane + 7000 oxygen → maleic_anhydride_dust + 4000 water | 300t HV | cleanroom
+af9:tetrahydrofuran (synthesis) NC palladium_on_carbon_dust + maleic_anhydride_dust + 10000 hydrogen → 1000 tetrahydrofuran + 2000 water | 300t HV | cleanroom
+af9:phenylmagnesium_chloride (synthesis) magnesium_dust + 1000 chlorobenzene + 1000 tetrahydrofuran → 1000 phenylmagnesium_chloride | 200t HV | cleanroom
+af9:triphenylsulfonium_chloride (synthesis) diphenyl_sulfoxide_dust + 1000 phenylmagnesium_chloride + 2000 hydrochloric_acid → triphenylsulfonium_chloride_dust + magnesium_chloride_dust + 1000 tetrahydrofuran + 1000 water | 300t HV | cleanroom
+af9:triphenylsulfonium_triflate (synthesis) triphenylsulfonium_chloride_dust + 1000 trifluoromethanesulfonic_acid → triphenylsulfonium_triflate_dust + 1000 hydrochloric_acid | 200t HV | cleanroom
 
 quencher
-af9:butanol (CR) NC nickel_dust + 1000 butyraldehyde + 2000 hydrogen → 1000 butanol | 200t HV
-af9:tributylamine (CR) NC nickel_dust + 3000 butanol + 1000 ammonia → 1000 tributylamine + 3000 water | 300t HV
+af9:butanol (synthesis) NC nickel_dust + 1000 butyraldehyde + 2000 hydrogen → 1000 butanol | 200t HV | cleanroom
+af9:tributylamine (synthesis) NC nickel_dust + 3000 butanol + 1000 ammonia → 1000 tributylamine + 3000 water | 300t HV | cleanroom
 
 solvent
-af9:propylene_oxide (CR) NC titanium_silicalite_dust + 1000 propene + 1000 hydrogen_peroxide → 1000 propylene_oxide + 1000 water | 200t HV
-af9:propylene_glycol_methyl_ether (CR) NC sodium_hydroxide_dust + 1000 propylene_oxide + 1000 methanol → 1000 propylene_glycol_methyl_ether | 200t HV
-af9:propylene_glycol_methyl_ether_acetate (CR) NC acidic_ion_exchange_resin_dust + 1000 propylene_glycol_methyl_ether + 1000 acetic_acid → 1000 propylene_glycol_methyl_ether_acetate + 1000 water | 200t HV
+af9:propylene_oxide (synthesis) NC titanium_silicalite_dust + 1000 propene + 1000 hydrogen_peroxide → 1000 propylene_oxide + 1000 water | 200t HV | cleanroom
+af9:propylene_glycol_methyl_ether (synthesis) NC sodium_hydroxide_dust + 1000 propylene_oxide + 1000 methanol → 1000 propylene_glycol_methyl_ether | 200t HV | cleanroom
+af9:propylene_glycol_methyl_ether_acetate (synthesis) NC acidic_ion_exchange_resin_dust + 1000 propylene_glycol_methyl_ether + 1000 acetic_acid → 1000 propylene_glycol_methyl_ether_acetate + 1000 water | 200t HV | cleanroom
 
 formulation
-af9:unfiltered_krf_photoresist (mixer) tboc_polyhydroxystyrene_dust + small_triphenylsulfonium_triflate_dust + 3000 propylene_glycol_methyl_ether_acetate + 10 tributylamine → 4000 unfiltered_krf_photoresist | 400t HV
-af9:krf_photoresist (CR) NC fluid_filter + 4000 unfiltered_krf_photoresist → 4000 krf_photoresist | 200t HV
+af9:unfiltered_krf_photoresist (blending) tboc_polyhydroxystyrene_dust + small_triphenylsulfonium_triflate_dust + 3000 propylene_glycol_methyl_ether_acetate + 10 tributylamine → 4000 unfiltered_krf_photoresist | 400t HV | cleanroom
+af9:krf_photoresist (purify) NC fluid_filter + 4000 unfiltered_krf_photoresist → 4000 krf_photoresist | 200t HV | cleanroom
 ```
 
 ## 6.16 Line 5 — ArF resist and immersion water (EV)
@@ -846,45 +848,45 @@ af9:krf_photoresist (CR) NC fluid_filter + 4000 unfiltered_krf_photoresist → 4
 ArF resists cannot use aromatic rings (they absorb 193 nm). AF9 uses the first industrial 193 nm platform, a methacrylate terpolymer (methyl methacrylate / tert-butyl methacrylate as the acid-labile unit / methacrylic acid for development), from the acetone cyanohydrin route. Its ammonium bisulfate waste goes back to SO2 (spent-acid regeneration), as in real ACH plants. Modern ArF resins add adamantyl and lactone monomers (§9).
 
 ```text
-af9:methacrylamide_sulfate (CR) 1000 acetone_cyanohydrin + 1000 sulfuric_acid → 1000 methacrylamide_sulfate | 200t EV
-af9:methyl_methacrylate (CR) 1000 methacrylamide_sulfate + 1000 methanol → ammonium_bisulfate_dust + 1000 methyl_methacrylate | 200t EV
-af9:methacrylic_acid (CR) 1000 methacrylamide_sulfate + 1000 water → ammonium_bisulfate_dust + 1000 methacrylic_acid | 200t EV
-af9:tert_butyl_methacrylate (CR) NC acidic_ion_exchange_resin_dust + 1000 methacrylic_acid + 1000 isobutylene → 1000 tert_butyl_methacrylate | 200t EV
-af9:spent_acid_regeneration (EBF) 2x ammonium_bisulfate_dust + 1000 oxygen → 2000 sulfur_dioxide | 200t HV | 1300K
-af9:methacrylate_resin (LCR) tiny_azobisisobutyronitrile_dust + 1000 methyl_methacrylate + 1000 tert_butyl_methacrylate + 500 methacrylic_acid → 2x methacrylate_resin_dust | 400t EV
-af9:unfiltered_arf_photoresist (mixer) methacrylate_resin_dust + small_triphenylsulfonium_triflate_dust + 3000 propylene_glycol_methyl_ether_acetate + 10 tributylamine → 4000 unfiltered_arf_photoresist | 400t EV
-af9:arf_photoresist (CR) NC fluid_filter + 4000 unfiltered_arf_photoresist → 4000 arf_photoresist | 200t EV
-af9:ultrapure_water (CR) NC fluid_filter + 4000 distilled_water → 4000 ultrapure_water | 200t EV
+af9:methacrylamide_sulfate (synthesis) 1000 acetone_cyanohydrin + 1000 sulfuric_acid → 1000 methacrylamide_sulfate | 200t EV | cleanroom
+af9:methyl_methacrylate (synthesis) 1000 methacrylamide_sulfate + 1000 methanol → ammonium_bisulfate_dust + 1000 methyl_methacrylate | 200t EV | cleanroom
+af9:methacrylic_acid (synthesis) 1000 methacrylamide_sulfate + 1000 water → ammonium_bisulfate_dust + 1000 methacrylic_acid | 200t EV | cleanroom
+af9:tert_butyl_methacrylate (synthesis) NC acidic_ion_exchange_resin_dust + 1000 methacrylic_acid + 1000 isobutylene → 1000 tert_butyl_methacrylate | 200t EV | cleanroom
+af9:spent_acid_regeneration (calcination) 2x ammonium_bisulfate_dust + 1000 oxygen → 2000 sulfur_dioxide | 200t HV | 1300K
+af9:methacrylate_resin (synthesis) tiny_azobisisobutyronitrile_dust + 1000 methyl_methacrylate + 1000 tert_butyl_methacrylate + 500 methacrylic_acid → 2x methacrylate_resin_dust | 400t EV | cleanroom
+af9:unfiltered_arf_photoresist (blending) methacrylate_resin_dust + small_triphenylsulfonium_triflate_dust + 3000 propylene_glycol_methyl_ether_acetate + 10 tributylamine → 4000 unfiltered_arf_photoresist | 400t EV | cleanroom
+af9:arf_photoresist (purify) NC fluid_filter + 4000 unfiltered_arf_photoresist → 4000 arf_photoresist | 200t EV | cleanroom
+af9:ultrapure_water (purify) NC fluid_filter + 4000 distilled_water → 4000 ultrapure_water | 200t EV | cleanroom
 ```
 
 # 7. Connection graph
 
 ```text
-[EBF CZ] electronic-grade silicon (+ dopant, argon) → silicon / phosphorus / naquadah / neutronium boule → [CUTTER] → blank substrate wafers
+[CZ] electronic-grade silicon (+ dopant, argon) → silicon / phosphorus / naquadah / neutronium boule → [CUTTER] → blank substrate wafers
   → [PHOTOLITHOGRAPHY_LINE, mode = substrate + light, + reticle + track fluids (+ mode's resist, laser gas, UPW, HfCl4)] → printed wafer {AF9Litho}
      → [LINE, same mode: + carbon fibres / quantum eye / IGP …] → derived wafer (nano/qbit CPU, HPIC, UHPIC) {AF9Litho}
      → [CUTTER, exact NBT] → chips {AF9Litho}
         → [CIRCUIT_ASSEMBLER] MV and lower: any chip | HV-LuV: chip of the tier's mode (exact NBT)
                               + that tier's metals (MV Al-Si + Kovar, HV gold + stainless, EV Pt-Ir + titanium,
                                 IV tungstensteel + tungsten, LuV osmiridium + NbTi + rhodium-plated palladium)
-Side chains: air → [CR hopcalite/Pt] → [CR lime/NaOH] → [CR molecular sieve] → [CR expander / liquid air] → [CR filter] → XCDA;
-             zircon ore → [EBF] zirconia → [EBF +C +Cl2] crude ZrCl4 → [DT] ZrCl4 + HfCl4 (→ LUV) → [EBF Kroll +Mg] Zr → [EBF] ingot;
+Side chains (fab modes of §11 in brackets, GT machines in capitals): air → [purify hopcalite/Pt] → [purify lime/NaOH] → [purify molecular sieve] → [purify expander / liquid air] → [purify filter] → XCDA;
+             zircon ore → [EBF] zirconia → [EBF +C +Cl2] crude ZrCl4 → [column] ZrCl4 + HfCl4 (→ LUV) → [EBF Kroll +Mg] Zr → [EBF] ingot;
              DMDCS+CH3Cl+Mg → TMCS → +NH3 → HMDS → +N2 → hmds_vapor;
              phenol+CH2O → novolac, naphthalene+HNO3+NH3 → DNQ, +xylene → photoresist (i-line, MUV);
-             quartzite → [bath HCl] HPQ → [EBF +coke] MG-Si → [CR +HCl, Cu] crude chlorosilanes → [DT] TCS / STC / DCS / BCl3
-               → [CR carbon] EG-TCS → [mixer +H2] feed → [EBF Siemens] polysilicon + vent gas → [DT] H2, HCl, TCS, STC (loop)
-               → [macerator] → [bath HNA etch] EGS → [EBF CZ + boron (from BCl3) + argon] silicon boule;
-             fluorite + H2SO4 → crude HF → [DT] AHF → KF → KF·2HF → [electrolyzer, carbon] crude F2 → [NaF] F2;
-             CH4+SO3 → MSA → [+SOCl2] MsCl → [+KF] MsF → [+HF, electrolyzer Ni] CF3SO2F → [+KOH] KOTf → [+H2SO4] triflic acid;
-             cryogenic supercooled air → [DT cold box] N2, O2, crude Ar (→ deoxo → Ar), crude Ne (→ Pt/charcoal → [DT] Ne + He),
-               Kr/Xe concentrate (→ Pt burner → sieve → [DT] O2, Kr, Xe) → [CR +F2] KrF / ArF excimer gas;
+             quartzite → [wet HCl] HPQ → [calcination +coke] MG-Si → [synthesis +HCl, Cu] crude chlorosilanes → [column/still] TCS / STC / DCS / BCl3
+               → [purify carbon] EG-TCS → [blending +H2] feed → [CVD Siemens] polysilicon + vent gas → [column/still] H2, HCl, TCS, STC (loop)
+               → [macerator] → [wet HNA etch] EGS → [CZ + boron (from BCl3) + argon] silicon boule;
+             fluorite + H2SO4 → crude HF → [column/still] AHF → KF → KF·2HF → [electrolysis, carbon] crude F2 → [purify NaF] F2;
+             CH4+SO3 → MSA → [+SOCl2] MsCl → [+KF] MsF → [+HF, ECF Ni] CF3SO2F → [+KOH] KOTf → [+H2SO4] triflic acid;
+             cryogenic supercooled air → [cryo column / still] N2, O2, crude Ar (→ deoxo → Ar), crude Ne (→ Pt/charcoal → [cryo column] Ne + He),
+               Kr/Xe concentrate (→ Pt burner → sieve → [cryo column] O2, Kr, Xe) → [blending +F2] KrF / ArF excimer gas;
              phenol → 4-HAP → 4-AAP → [Pd/C] carbinol → 4-acetoxystyrene → [AIBN] PAS → PHOST → [+Boc2O] t-BOC PHOST;
              butene → isobutylene → tBuOH → NaOtBu → [+CO2 +COCl2] Boc2O; MgCl/THF Grignard + Ph2SO → TPS-Cl → [+TfOH] PAG;
              butane → [VPO] maleic anhydride → THF; butyraldehyde → n-butanol → tributylamine; propene + H2O2 [TS-1] → PO → PGME → PGMEA;
-             acetone + HCN → ACH → [+H2SO4] methacrylamide sulfate → MMA / MAA → [+isobutylene] tBMA → [AIBN, LCR] methacrylate resin;
-             resin + PAG + PGMEA + tributylamine → [mixer] → [filter] KrF / ArF resist; distilled water → [filter] ultrapure water;
+             acetone + HCN → ACH → [+H2SO4] methacrylamide sulfate → MMA / MAA → [+isobutylene] tBMA → [AIBN, synthesis] methacrylate resin;
+             resin + PAG + PGMEA + tributylamine → [blending] → [purify filter] KrF / ArF resist; distilled water → [purify filter] ultrapure water;
              molybdenite → MoO3 → [+hematite] iron molybdate → Formox formaldehyde (MV) → novolac;
-             dimethylamine+CH3Cl → TMACl → [+DW] solution → [electrolyzer] tmah_developer;
+             dimethylamine+CH3Cl → TMACl → [+DW] solution → [electrolysis] tmah_developer;
              quartzite+chromium+resist → photomask blank → laser + lens → reticle
 ```
 
@@ -924,9 +926,9 @@ Side chains: air → [CR hopcalite/Pt] → [CR lime/NaOH] → [CR molecular siev
 - [ ] IDs: controller `gtceu:photolithography_line`; recipe types `gtceu:lithography_<mode>`; recipe IDs `af9:*`. Chip IDs per §5.5 traps.
 - [ ] Numbers come from `AF9_LITHO` (KubeJS) and `LithoMode` (Java) — change both together (node, tier, substrate, light, wavelength, NA, resist). Transistor base × 49 must stay < 2,147,483,647.
 - [ ] Light/resist: MUV i-line + `photoresist`, HUV/EUV KrF + `krf_photoresist` + `krf_excimer_gas`, XUV ArF + `arf_photoresist` + `arf_excimer_gas`, LUV the same + `ultrapure_water` + `hafnium_tetrachloride`; fluid slots 5/6/6/6/8 (`fluidInputs` in the startup script).
-- [ ] Chemical reactor / mixer recipes: no AF9 recipe may hold every input of a circuit-less GT recipe of the same type (e.g. GT ethenone = sulfuric + acetic acid, acetic acid = CO + methanol); give both circuits or change the route.
-- [ ] Tier check for consumables (§6.11): MUV inputs at MV0 (single blocks ≤ MV, EBF, pyrolyse, distillery copies of DT recipes), HUV inputs at HV0 (+ HV single blocks, LCR, cracker), no Distillation Tower / Vacuum Freezer before HUV chips. Run the reachability analysis over GT 7.2.0 + AF9 recipes after every chain change.
-- [ ] Subset conflicts in both directions against every GT 7.2.0 recipe of the same machine (CR recipes also run in the LCR) and against AF9's own recipes; circuit-gated recipes only clash with the same circuit. Watch GT's generic ones: distilled-water electrolysis, clay/quartzite autoclave, graphite electrolysis, ethenone (sulfuric + acetic acid), acetic acid (CO + methanol), steel (iron + oxygen).
+- [ ] Fab chemistry goes on the `fab_*` recipe types only (§11), never on GT's chemical machines; within a fab type no recipe may hold every input of a circuit-less other one. Recipes AF9 still puts on GT machines (alloy mixers, zircon cracking, Kroll) must not hold every input of a circuit-less GT recipe of the same type (e.g. GT ethenone = sulfuric + acetic acid, acetic acid = CO + methanol); give both circuits or change the route.
+- [ ] Tier check for consumables (§6.11): MUV inputs at MV0 (single blocks ≤ MV incl. MV SMC single blocks and still cuts, SMC Thermal Processing Furnace, pyrolyse), HUV inputs at HV0 (+ HV single blocks, SMC multiblocks, cracker), no Distillation Tower / Vacuum Freezer before HUV chips. Run the reachability analysis over GT 7.2.0 + AF9 recipes after every chain change.
+- [ ] Subset conflicts in both directions within each fab type and, for AF9 recipes on GT machines, against every GT 7.2.0 recipe of the same machine (CR recipes also run in the LCR); circuit-gated recipes only clash with the same circuit. Watch GT's generic ones: distilled-water electrolysis, clay/quartzite autoclave, graphite electrolysis, ethenone (sulfuric + acetic acid), acetic acid (CO + methanol), steel (iron + oxygen).
 - [ ] New fab materials: formula only, no components (no GT decomposition shortcut); ID must not exist in GT 7.2.0.
 - [ ] Printed wafers: substrate per mode, GT yields (1/4/8/16 silicon class, 1/4/8 phosphorus class, ASoC 1/2, HASoC 1), 900t, `VA[tier]×4`, chemicals `round(base×1.5^i)`.
 - [ ] Derived wafers: exact-NBT input of the same mode, only from their first mode on.
@@ -934,11 +936,109 @@ Side chains: air → [CR hopcalite/Pt] → [CR lime/NaOH] → [CR molecular siev
 - [ ] Circuits: MV and lower untouched by tags; HV-LuV use `AF9_LITHO.tagged(chip, mode, n)` with `max(tier mode, chip first mode)`; bootstraps (HV Advanced IC = MUV, EV Workstation = HUV) stay one mode lower.
 - [ ] Metals: a tier's circuits only use that tier's metals (Circuits quest page), each makeable with the previous tier's machines (mixer/EBF voltage one tier lower; two hatches give +1 tier on an EBF).
 - [ ] Bootstrap check for any change: a tier-T circuit, energy hatch or the line must never need something only tier-T machines make.
-- [ ] Dry run: load the four AF9 server scripts plus `circuits_for_atm.js` with stubs and check no duplicate IDs, every tagged ingredient has a producer, every AF9 fluid/dust used has a producer, every recipe within its machine's slots (items in incl. NC, items out, fluids in incl. NC/out; LUV 8 fluids), EBF recipes have a temperature, ≤64 per stack.
+- [ ] Fab recipes (§11): a free fluid input left for the changeover purge; circuits count as item inputs; thermal modes carry `blastFurnaceTemp`, the others none; `cleanroom(CLEANROOM)` exactly on the non-thermal recipes from HV power on; single-block modes of one family share one slot layout; single-block fluid amounts ≤ 16000 mB (MV tanks).
+- [ ] Dry run: load the AF9 server scripts (incl. `fab_machines.js`) plus `circuits_for_atm.js` with stubs and check no duplicate IDs, every tagged ingredient has a producer, every AF9 fluid/dust used has a producer, every recipe within its machine's slots (items in incl. NC, items out, fluids in incl. NC/out; LUV 8 fluids), EBF recipes have a temperature, ≤64 per stack.
 - [ ] New mixer alloys: circuit number must not collide with a GT mixer recipe whose inputs are a subset (invar, cupronickel use circuit 1).
 - [ ] New materials need a `material.gtceu.<id>` line in `kubejs/assets/gtceu/lang/en_us.json`; new KubeJS items need a texture in `kubejs/assets/kubejs/textures/item/`.
 - [ ] Energy hatches exactly 2, `LITHO_GATE + OC_PERFECT`; no cleanroom for the line itself.
 - [ ] Realism wording: AF9 node names are gameplay labels (real EUV is 13.5 nm).
+
+---
+
+# 11. SMC fab machines (the semiconductor chemistry plant)
+
+Fab chemistry is its own plant. None of GT's chemical machines (Chemical Reactor, Large Chemical Reactor, mixer, chemical bath, autoclave, electrolyzer, blast furnace, distillation tower) has any AF9 fab recipe: the 133 recipes of §6.5, §6.9 (Zr/Hf split) and §6.12-6.16 (21 of them still cuts) are on twelve `fab_*` recipe types, and only the SMC ("semiconductor") machines run those. Every family has a multiblock and tiered single blocks, and they share the family's modes (GT recipe types; GT's mode tab, or the console's mode tiles on multiblocks).
+
+Files: `kubejs/startup_scripts/gtceu/fab_machines.js` (types, machines, structures), `kubejs/server_scripts/mods/gtceu/fab_machines.js` (crafting), `af9-core/.../fab/` and `af9-core/.../machine/fab/` (behaviour, consoles).
+
+## 11.1 Families
+
+| Family | Multiblock | Single blocks (MV-LuV) | Modes (`gtceu:` recipe types) | Changeover purge |
+|---|---|---|---|---|
+| Chemistry | `smc_large_chemical_reactor` (HV) | `<tier>_smc_chemical_reactor` | `fab_synthesis`, `fab_blending`, `fab_wet_processing` | 1000 mB N2 or Ar, +100 t |
+| Separation | `smc_rectification_column` (HV) | `<tier>_smc_fractionating_still` | column: `fab_distillation`, `fab_cryogenic_rectification`, `fab_fractionation`, `fab_purification`; still: `fab_fractionation`, `fab_purification` | 2000 mB N2, +100 t |
+| Electrochemistry | `smc_membrane_cell_hall` (HV) | `<tier>_smc_electrolytic_cell` | `fab_electrolysis`, `fab_electrofluorination` | 1000 mB distilled water, +100 t |
+| Thermal | `smc_thermal_processing_furnace` (MV) | `<tier>_smc_thermal_furnace` | `fab_calcination`, `fab_cvd`, `fab_crystal_growth` | 1000 mB Ar or N2, +200 t |
+
+The multiblock tier is the circuit tier of its crafting recipe. The thermal multiblock is MV because the MV silicon line (MG-Si, CZ boules) needs it or the MV single furnace.
+
+## 11.2 Modes (recipe types)
+
+Slot layout = items in, items out, fluids in, fluids out. A single block's slots come from its first mode, so a single block's modes share one layout; every layout leaves one fluid input free for the purge (checked by the dry run, circuits count as item inputs).
+
+| Type | Layout | Recipes (by EU/t tier) | What runs there |
+|---|---|---|---|
+| `fab_synthesis` | 3/2/4/3 | 61 (21 MV, 35 HV, 5 EV) | every reaction step: chlorosilanes, HF, KF, MSA → triflic acid, Pd/C, TEOS, TS-1, hydrazine → AIBN, PHOST route, Boc2O, PAG, THF, tributylamine, PO → PGMEA, MMA/MAA/tBMA, methacrylate resin, hopcalite, Formox, novolac, DNQ, HMDS, TMACl |
+| `fab_blending` | 3/2/4/3 | 11 (4 LV, 2 MV, 4 HV, 1 EV) | Siemens feed gas, HNA etchant, KF·2HF and Simons electrolytes, excimer premixes, unfiltered resists, i-line resist, HMDS vapour, TMACl solution |
+| `fab_wet_processing` | 3/2/4/3 | 3 | HCl quartz leach, HNA poly etch, molecular sieve (hydrothermal) |
+| `fab_distillation` | 1/1/2/6 | 4 | chlorosilanes, Siemens vent gas, anhydrous HF, Zr/Hf split (column only) |
+| `fab_cryogenic_rectification` | 1/1/2/6 | 3 | air (N2, O2, crude Ar, crude Ne, Kr/Xe), Ne/He, Kr/Xe |
+| `fab_fractionation` | 2/1/3/2 | 21 (16 LV, 5 MV) | one cut per run of each distillation / cryogenic recipe except the Zr/Hf split: circuit = cut number, EU/t ÷ 4, time × 2, the other cuts are lost (GT's distillery rule) |
+| `fab_purification` | 2/1/3/2 | 17 | XCDA (8 steps), carbon-bed TCS polish, NaF scrub of F2, argon deoxo, neon purification, Kr/Xe burner and drier, resist filtration, ultrapure water |
+| `fab_electrolysis` | 2/2/3/4 | 2 | KF·2HF → F2, TMACl → TMAH developer |
+| `fab_electrofluorination` | 2/2/3/4 | 1 | Simons ECF → CF3SO2F |
+| `fab_calcination` | 3/2/2/2 | 5 | MG-Si (carbothermic reduction), NaHF2 and spent-acid regeneration, MoO3 roast, iron molybdate |
+| `fab_cvd` | 3/2/2/2 | 1 | Siemens polysilicon |
+| `fab_crystal_growth` | 3/2/2/2 | 4 | silicon / phosphorus / naquadah / neutronium boules |
+
+Clean room: every non-thermal recipe from HV power on has `cleanroom(CLEANROOM)` (60 recipes). Single blocks need a GT Cleanroom for them; the four multiblocks with filter casings bring their own. Thermal recipes carry `blastFurnaceTemp` and never need a clean room.
+
+## 11.3 Structures
+
+```text
+SMC Large Chemical Reactor, 5 wide × 5 deep × 4 high (aisles back → front, rows bottom → top)
+  XXXXX XGGGX XGGGX XXXXX     X inert PTFE casing or hatches (≥ 30 casings)
+  XXXXX GKCKG GKKKG XFFFX     K inert PTFE casing (the vessel)
+  XXXXX GCPCG GKPKG XFFFX     C exactly one heating coil, the rest inert casing (jacket)
+  XXXXX GKCKG GKKKG XFFFX     P PTFE pipe casing (stirrer / dip pipe)
+  XXXXX XGSGX XGGGX XXXXX     G cleanroom glass, F filter casings (one type), S controller
+SMC Rectification Column, 3 × 3, 3-10 high (layers bottom → top)
+  XSX/XKX/XXX sump + cold box (K frostproof casing) | XXX/XPX/XXX × 1-8 trays (P PTFE pipe casing) | FFF/FFF/FFF filter hood
+  X clean stainless casing or hatches
+SMC Membrane Cell Hall, 3 wide × 4 high × 3-10 deep (aisles back → front)
+  back plate XXX/XXX/XXX/FFF | cells XXX/EPE/XXX/FFF × 1-8 (E titanium frame electrodes, P PTFE pipe casing membrane) | front XXX/XSX/XXX/FFF
+  X stable titanium casing or hatches
+SMC Thermal Processing Furnace, EBF shape without muffler
+  XXX/CCC/CCC/XXX | XXX/C#C/C#C/XXX | XSX/CCC/CCC/XXX     C heating coils (one type), # air, X heatproof casing or hatches
+```
+
+Hatches on any X: GT's auto abilities for the modes (item/fluid in/out, 1-2 energy), one maintenance hatch, optionally one parallel hatch and one laser hatch.
+
+## 11.4 Behaviour (AF9 Core)
+
+- Changeover purge (`FabModifiers.PURGE`): when a machine starts a recipe other than the last one it finished (recipe ID), that first run also needs the family's purge fluid and takes the purge time on top (not overclocked or multiplied, applied after all other modifiers). The machine then keeps running the same recipe without purge. Counted on the console.
+- Built-in clean room (`FabMultiblockMachine`): the filter casings' type decides it: filter casing = ISO 5 (`CLEANROOM`), sterilizing filter casing = ISO 3 (both types). It is a GT `DummyCleanroom`, not a provider block, so a fab multiblock can still stand inside a GT Cleanroom (the thermal furnace has no filters and uses the surrounding one if any; its recipes need none).
+- Parallels: PTFE pipe casings are trays (column) and membranes (cell hall), each one a parallel (`STRUCTURE_PARALLEL`, limited by inputs, output space and energy like GT's parallel hatch); the SMC LCR gets 2 with sterile filters. A parallel hatch multiplies on top.
+- Overclocks: SMC LCR perfect (like GT's LCR) with the coil discount (1/20 EU/t per coil tier above cupronickel, at most half); column and cell hall non-perfect; thermal furnace GT's EBF rules (coil temperature + 100 K per energy tier above MV, heat discounts and perfect overclocks per 1800 K surplus); all multiblocks batch mode. Single blocks non-perfect.
+- Single-block furnaces reach the temperature of their tier's coil: MV 1800 K, HV 2700 K, EV 3600 K, IV 4500 K, LuV 5400 K (`TIER_TEMPERATURE`); the neutronium boule (6484 K) needs the multiblock. EMI shows temperature, coil and the smallest single block on every thermal recipe (`FabRecipeInfo`).
+
+## 11.5 Consoles
+
+Multiblocks replace GT's text display with the fab console (190 × 125): header with family and status LED (offline, idle, running, no power, paused, maintenance, purging), one tile per mode with its run counter (click to switch; tooltip lists the mode's process steps), power bar (needed vs available EU/t), progress with the purge share of the run, plant panel (clean-room class, parallels, heat, the family's purge), and the process-step track of the active mode (purge cell first on a changeover). Clicking the changeover counter resets the counters. Single blocks keep GT's slot page for the active mode with a console strip above it (mode, steps, progress, clean class, heat, purge).
+
+Process steps per mode: synthesis CHRG HEAT REAC QNCH SEPR DSCH; blending DOSE MIX DGAS DSCH; wet LOAD SOAK RNSE DRY; purification FEED ADSB FILT PROD; distillation FEED BOIL RFLX DRAW; cryogenic COOL LIQF RECT DRAW; fractionation FEED BOIL CNDS DRAW; electrolysis FILL POL ELEC STRP; electrofluorination FILL POL FLUR STRP; calcination LOAD RAMP SOAK COOL; CVD PURG RAMP DEPO COOL; crystal growth MELT DIP NECK BODY TAIL COOL.
+
+## 11.6 Crafting (`af9:` shaped)
+
+```text
+<tier>_smc_chemical_reactor      FPF / UXU / CPC   X <tier>_chemical_reactor, U <tier> pump
+<tier>_smc_fractionating_still   FPF / UXU / CPC   X <tier>_distillery, U <tier> pump
+<tier>_smc_electrolytic_cell     FPF / WXW / CPC   X <tier>_electrolyzer, W <tier> single cable (Cu, Au, Al, Pt, NbTi)
+<tier>_smc_thermal_furnace       FPF / WXW / CWC   X <tier>_arc_furnace, W <tier> heating wire, double (cupronickel … HSS-G)
+  F fluid filter, P PTFE fluid pipe, C circuit of the tier
+smc_large_chemical_reactor       CRC / PMP / FXF   X GT Large Chemical Reactor + everything its recipe takes (HV circuits, stainless rotor, large PTFE pipes, HV motor), F filter casings
+smc_rectification_column         CPC / FHF / UPU   HV hull, HV pumps, large PTFE pipes, filter casings, HV circuits
+smc_membrane_cell_hall           CWC / EHE / FPF   HV electrolyzers, gold quadruple cable, HV hull, filter casings, large PTFE pipe, HV circuits
+smc_thermal_processing_furnace   CKC / PXP / WCW   X Electric Blast Furnace, K cupronickel coil block, PTFE pipes, copper cable, MV circuits
+```
+
+## 11.7 Quests
+
+MV chapter: "The Fab Plant" (the four MV single blocks) before HF, XCDA and the MUV chemistry quests; "Thermal Processing Furnace" (optional). HV chapter: "SMC Large Chemical Reactor", "Rectification Column", "Membrane Cell Hall" (optional, after the fab plant). Texts `af9.quest.*.fabPlant|fabFurnace|smcLcr|smcColumn|smcCells`.
+
+## 11.8 Verification (re-run on every change)
+
+Dry run of the startup and server scripts with stubs (slots incl. circuits and purge headroom, temperatures, clean-room rule, single-block tank sizes, one layout per single block), subset conflicts within every fab type (0), tier reachability with the SMC machines (MUV inputs MV0, KrF HV0, ArF / ultrapure water EV0, HfCl4 HV0), Java checked against the GT 7.2.0 and LDLib sources plus a `javac` syntax pass (no Gradle build is possible offline: the GT/Forge Maven repositories are not reachable).
 
 ---
 
@@ -952,12 +1052,20 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; build: gradlew build, jar → mod
   machine/LithoRecipeLogic             # per-mode counters
   client/AF9Client                     # af9:litho_mode predicate + wafer/chip tooltip
   compat/emi/AF9EmiPlugin              # each mode's wafer as its own EMI entry
+  fab/FabFamily, IFabMachine           # §11: the four families (purge fluid/time, console colour, process steps per mode)
+  fab/FabModifiers, FabRecipeLogic     # PURGE, STRUCTURE_PARALLEL, COIL_DISCOUNT, TIER_TEMPERATURE, THERMAL_OVERCLOCK; changeover bookkeeping
+  fab/FabRecipeInfo                    # temperature, coil and single-block tier on the thermal modes' EMI pages
+  machine/fab/FabMultiblockMachine     # SMC multiblocks: built-in clean room from filter casings, PTFE-pipe parallels, counters, console
+  machine/fab/FabTieredMachine         # SMC single blocks: GT slot page + console strip, furnace temperature per tier
+  machine/fab/FabConsoleWidget         # the fab console (full for multiblocks, strip for single blocks)
 kubejs/startup_scripts/gtceu/photolithography.js  # litho, XCDA and MUV chemistry materials, reticles, sieves, 5 recipe types (fluid slots), structure, tooltips
 kubejs/startup_scripts/gtceu/electronics_metallurgy.js # tier alloys (Al-Si, Kovar, Pt-Ir), zircon/zirconia/chlorides, zirconium properties
 kubejs/server_scripts/mods/gtceu/photolithography.js # AF9_LITHO table (incl. light/resist/laserGas) + line/cutter/XCDA/MUV chemistry (Formox, DNQ, HMDS, TMAH) recipes + removals
 kubejs/server_scripts/mods/gtceu/electronics_metallurgy.js # alloy mixers, zircon chain, zircon sands ore vein
 kubejs/startup_scripts/gtceu/fab_chemistry.js      # 72 fab-chemistry materials + the resists, laser gases, ultrapure water the line uses
-kubejs/server_scripts/mods/gtceu/fab_chemistry.js  # lines 1-5 (§6.12-6.16): Siemens + CZ boules, fluorochemicals, air gases, KrF / ArF resist, ultrapure water
+kubejs/server_scripts/mods/gtceu/fab_chemistry.js  # lines 1-5 (§6.12-6.16): Siemens + CZ boules, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
+kubejs/startup_scripts/gtceu/fab_machines.js       # §11: 12 fab recipe types (slot layouts), 4 SMC single-block families (MV-LuV), 4 SMC multiblocks (structures, modifiers)
+kubejs/server_scripts/mods/gtceu/fab_machines.js   # §11: crafting of the SMC machines
 kubejs/server_scripts/mods/gtceu/mv_circuits.js     # MV circuits without transistors/diodes (Al-Si wire, Kovar pins)
 kubejs/server_scripts/mods/gtceu/tiered_circuits.js # HV-LuV circuits: tier-matched chips + tier metals, HV/EV bootstraps
 kubejs/server_scripts/circuits_for_atm.js          # newer ATM9 (synced from the instance): LuV Nano Mainframe on the Assembly Line + LUV RAM (AF9)

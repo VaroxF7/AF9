@@ -1,5 +1,6 @@
 package com.af9.core;
 
+import com.af9.core.fab.FabRecipeInfo;
 import com.af9.core.machine.PhotolithographyLineMachine;
 
 import net.minecraftforge.fml.common.Mod;
@@ -28,5 +29,6 @@ public class AF9Core {
     private void commonSetup(FMLCommonSetupEvent event) {
         // GT recipe types are registered (by KubeJS) before common setup; touch them on the main thread
         event.enqueueWork(PhotolithographyLineMachine::registerRecipeInfo);
+        event.enqueueWork(FabRecipeInfo::register);
     }
 }

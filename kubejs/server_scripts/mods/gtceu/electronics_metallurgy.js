@@ -42,13 +42,14 @@ ServerEvents.recipes(allthemods => {
         .EUt(VA[GTValues.HV])
 
     // 3. Extractive distillation, the only practical way to split zirconium from hafnium. Real zircon holds ~2 % Hf;
-    // this is richer so LUV lithography has enough.
-    allthemods.recipes.gtceu.distillation_tower('af9:zirconium_hafnium_separation')
+    // this is richer so LUV lithography has enough. The hafnium tetrachloride is a fab precursor (high-k gate), so
+    // this runs in the SMC Rectification Column (fab_machines.js), whole: no single-block cuts.
+    allthemods.recipes.gtceu.fab_distillation('af9:zirconium_hafnium_separation')
         .inputFluids(Fluid.of('gtceu:crude_zirconium_tetrachloride', 1000))
         .outputFluids(Fluid.of('gtceu:zirconium_tetrachloride', 900), Fluid.of('gtceu:hafnium_tetrachloride', 100))
-        .disableDistilleryRecipes(true)
         .duration(600)
         .EUt(VA[GTValues.HV])
+        .cleanroom(CleanroomType.CLEANROOM)
 
     // 4. Kroll process: ZrCl4 + 2 Mg -> Zr (sponge) + 2 MgCl2. GT's electrolyzer turns the MgCl2 back into Mg + Cl2.
     allthemods.recipes.gtceu.electric_blast_furnace('af9:zirconium_kroll')

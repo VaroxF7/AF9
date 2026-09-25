@@ -131,13 +131,14 @@ ServerEvents.recipes(allthemods => {
     })
 
     // ---- Extreme clean dry air (XCDA) ----
-    // A fab's clean-dry-air plant, all in chemical reactors: oxidize -> scrub CO2 -> dry -> cryo-cool -> filter.
+    // A fab's clean-dry-air plant, the purification mode of the SMC fab machines: oxidize -> scrub CO2 -> dry ->
+    // cryo-cool -> filter.
     // Everything runs at MV, slowly (the expansion cooler recycles 3/4 of its air). HV adds a platinum oxidizer, a
     // caustic scrubber and liquid-air cooling, which together are much faster.
     const EU_HV = GTValues.VA[GTValues.HV]
 
     // Cu + 2 MnO2 + O -> CuMn2O4
-    allthemods.recipes.gtceu.chemical_reactor('af9:hopcalite')
+    allthemods.recipes.gtceu.fab_synthesis('af9:hopcalite')
         .itemInputs('gtceu:copper_dust', '6x gtceu:pyrolusite_dust')
         .inputFluids(Fluid.of('gtceu:oxygen', 1000))
         .itemOutputs('7x gtceu:hopcalite_dust')
@@ -145,7 +146,7 @@ ServerEvents.recipes(allthemods => {
         .EUt(EU_MV)
 
     // zeolite crystallised with a bentonite binder into sieve beads (clay + distilled water is GT's clay recipe)
-    allthemods.recipes.gtceu.autoclave('af9:molecular_sieve')
+    allthemods.recipes.gtceu.fab_wet_processing('af9:molecular_sieve')
         .itemInputs('4x gtceu:zeolite_dust', 'gtceu:bentonite_dust')
         .inputFluids(Fluid.of('gtceu:distilled_water', 500))
         .itemOutputs('4x kubejs:molecular_sieve')
@@ -156,22 +157,23 @@ ServerEvents.recipes(allthemods => {
     allthemods.smelting('kubejs:molecular_sieve', 'kubejs:saturated_molecular_sieve').id('af9:regenerate_molecular_sieve')
 
     // 1. catalytic oxidation: CO, H2 and hydrocarbons -> CO2 + H2O
-    allthemods.recipes.gtceu.chemical_reactor('af9:xcda_oxidize_hopcalite')
+    allthemods.recipes.gtceu.fab_purification('af9:xcda_oxidize_hopcalite')
         .notConsumable('gtceu:hopcalite_dust')
         .inputFluids(Fluid.of('gtceu:air', 4000))
         .outputFluids(Fluid.of('gtceu:oxidized_air', 4000))
         .duration(600)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.chemical_reactor('af9:xcda_oxidize_platinum')
+    allthemods.recipes.gtceu.fab_purification('af9:xcda_oxidize_platinum')
         .notConsumable('gtceu:platinum_dust')
         .inputFluids(Fluid.of('gtceu:air', 4000))
         .outputFluids(Fluid.of('gtceu:oxidized_air', 4000))
         .duration(150)
         .EUt(EU_HV)
+        .cleanroom(CleanroomType.CLEANROOM)
 
     // 2. CO2 scrubbing: Ca(OH)2 + CO2 -> CaCO3 + H2O, or 2 NaOH + CO2 -> Na2CO3 + H2O
-    allthemods.recipes.gtceu.chemical_reactor('af9:xcda_scrub_lime')
+    allthemods.recipes.gtceu.fab_purification('af9:xcda_scrub_lime')
         .itemInputs('gtceu:small_calcium_hydroxide_dust')
         .inputFluids(Fluid.of('gtceu:oxidized_air', 4000))
         .itemOutputs('gtceu:small_calcite_dust')
@@ -179,16 +181,17 @@ ServerEvents.recipes(allthemods => {
         .duration(400)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.chemical_reactor('af9:xcda_scrub_caustic')
+    allthemods.recipes.gtceu.fab_purification('af9:xcda_scrub_caustic')
         .itemInputs('gtceu:small_sodium_hydroxide_dust')
         .inputFluids(Fluid.of('gtceu:oxidized_air', 4000))
         .itemOutputs('gtceu:small_soda_ash_dust')
         .outputFluids(Fluid.of('gtceu:decarbonated_air', 4000))
         .duration(100)
         .EUt(EU_HV)
+        .cleanroom(CleanroomType.CLEANROOM)
 
     // 3. drying: the sieve adsorbs the water
-    allthemods.recipes.gtceu.chemical_reactor('af9:xcda_dry')
+    allthemods.recipes.gtceu.fab_purification('af9:xcda_dry')
         .itemInputs('kubejs:molecular_sieve')
         .inputFluids(Fluid.of('gtceu:decarbonated_air', 4000))
         .itemOutputs('kubejs:saturated_molecular_sieve')
@@ -198,29 +201,30 @@ ServerEvents.recipes(allthemods => {
 
     // 4. cryogenic cooling. MV: Joule-Thomson expansion, only a quarter gets cold enough, the rest goes round again.
     // HV: pre-cooled with liquid air, which boils back into ordinary air.
-    allthemods.recipes.gtceu.chemical_reactor('af9:xcda_cool_expansion')
+    allthemods.recipes.gtceu.fab_purification('af9:xcda_cool_expansion')
         .circuit(1)
         .inputFluids(Fluid.of('gtceu:dry_air', 4000))
         .outputFluids(Fluid.of('gtceu:cryogenic_supercooled_air', 1000), Fluid.of('gtceu:dry_air', 3000))
         .duration(800)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.chemical_reactor('af9:xcda_cool_liquid_air')
+    allthemods.recipes.gtceu.fab_purification('af9:xcda_cool_liquid_air')
         .circuit(2)
         .inputFluids(Fluid.of('gtceu:dry_air', 4000), Fluid.of('gtceu:liquid_air', 1000))
         .outputFluids(Fluid.of('gtceu:cryogenic_supercooled_air', 4000), Fluid.of('gtceu:air', 1000))
         .duration(200)
         .EUt(EU_HV)
+        .cleanroom(CleanroomType.CLEANROOM)
 
     // 5. re-warmed through a membrane filter; the last traces stayed frozen in the cold box
-    allthemods.recipes.gtceu.chemical_reactor('af9:xcda_filter')
+    allthemods.recipes.gtceu.fab_purification('af9:xcda_filter')
         .notConsumable('gtceu:fluid_filter')
         .inputFluids(Fluid.of('gtceu:cryogenic_supercooled_air', 4000))
         .outputFluids(Fluid.of('gtceu:extreme_clean_dry_air', 4000))
         .duration(200)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.chemical_reactor('af9:trimethylchlorosilane')
+    allthemods.recipes.gtceu.fab_synthesis('af9:trimethylchlorosilane')
         .itemInputs('gtceu:magnesium_dust')
         .inputFluids(Fluid.of('gtceu:dimethyldichlorosilane', 1000), Fluid.of('gtceu:chloromethane', 1000))
         .itemOutputs('3x gtceu:magnesium_chloride_dust')
@@ -228,14 +232,14 @@ ServerEvents.recipes(allthemods => {
         .duration(300)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.chemical_reactor('af9:hexamethyldisilazane')
+    allthemods.recipes.gtceu.fab_synthesis('af9:hexamethyldisilazane')
         .inputFluids(Fluid.of('gtceu:trimethylchlorosilane', 2000), Fluid.of('gtceu:ammonia', 3000))
         .itemOutputs('4x gtceu:ammonium_chloride_dust')
         .outputFluids(Fluid.of('gtceu:hexamethyldisilazane', 1000))
         .duration(400)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.mixer('af9:hmds_vapor')
+    allthemods.recipes.gtceu.fab_blending('af9:hmds_vapor')
         .inputFluids(Fluid.of('gtceu:hexamethyldisilazane', 100), Fluid.of('gtceu:nitrogen', 900))
         .outputFluids(Fluid.of('gtceu:hmds_vapor', 1000))
         .duration(100)
@@ -244,7 +248,7 @@ ServerEvents.recipes(allthemods => {
     // ---- Photoresist (i-line, MUV) ----
     // Formox process: CH3OH + 1/2 O2 -> CH2O + H2O with air over iron molybdate. GT's own formaldehyde recipe (silver
     // catalyst) is HV, which MUV cannot wait for. The catalyst: molybdenite roasted to MoO3, calcined with hematite.
-    allthemods.recipes.gtceu.electric_blast_furnace('af9:molybdenum_trioxide')
+    allthemods.recipes.gtceu.fab_calcination('af9:molybdenum_trioxide')
         .itemInputs('gtceu:molybdenite_dust')
         .inputFluids(Fluid.of('gtceu:oxygen', 7000))
         .itemOutputs('gtceu:molybdenum_trioxide_dust')
@@ -254,35 +258,35 @@ ServerEvents.recipes(allthemods => {
         .EUt(EU_MV)
 
     // Fe2O3 + 3 MoO3 -> Fe2(MoO4)3
-    allthemods.recipes.gtceu.electric_blast_furnace('af9:iron_molybdate')
+    allthemods.recipes.gtceu.fab_calcination('af9:iron_molybdate')
         .itemInputs('gtceu:hematite_dust', '3x gtceu:molybdenum_trioxide_dust')
         .itemOutputs('gtceu:iron_molybdate_dust')
         .blastFurnaceTemp(800)
         .duration(300)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.chemical_reactor('af9:formaldehyde_formox')
+    allthemods.recipes.gtceu.fab_synthesis('af9:formaldehyde_formox')
         .notConsumable('gtceu:iron_molybdate_dust')
         .inputFluids(Fluid.of('gtceu:methanol', 1000), Fluid.of('gtceu:air', 3000))
         .outputFluids(Fluid.of('gtceu:formaldehyde', 1000), Fluid.of('minecraft:water', 1000))
         .duration(200)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.chemical_reactor('af9:novolac_resin')
+    allthemods.recipes.gtceu.fab_synthesis('af9:novolac_resin')
         .inputFluids(Fluid.of('gtceu:phenol', 1000), Fluid.of('gtceu:formaldehyde', 1000))
         .notConsumableFluid(Fluid.of('gtceu:hydrochloric_acid', 100))
         .outputFluids(Fluid.of('gtceu:novolac_resin', 1000), Fluid.of('minecraft:water', 1000))
         .duration(400)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.chemical_reactor('af9:diazonaphthoquinone')
+    allthemods.recipes.gtceu.fab_synthesis('af9:diazonaphthoquinone')
         .inputFluids(Fluid.of('gtceu:naphthalene', 1000), Fluid.of('gtceu:nitric_acid', 1000), Fluid.of('gtceu:ammonia', 1000))
         .itemOutputs('gtceu:diazonaphthoquinone_dust')
         .outputFluids(Fluid.of('minecraft:water', 2000), Fluid.of('gtceu:hydrogen', 1000))
         .duration(600)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.mixer('af9:photoresist')
+    allthemods.recipes.gtceu.fab_blending('af9:photoresist')
         .itemInputs('gtceu:diazonaphthoquinone_dust')
         .inputFluids(Fluid.of('gtceu:novolac_resin', 1000), Fluid.of('gtceu:dimethylbenzene', 3000))
         .outputFluids(Fluid.of('gtceu:photoresist', 4000))
@@ -290,7 +294,7 @@ ServerEvents.recipes(allthemods => {
         .EUt(EU_MV)
 
     // ---- Developer ----
-    allthemods.recipes.gtceu.chemical_reactor('af9:tetramethylammonium_chloride')
+    allthemods.recipes.gtceu.fab_synthesis('af9:tetramethylammonium_chloride')
         .inputFluids(Fluid.of('gtceu:dimethylamine', 1000), Fluid.of('gtceu:chloromethane', 2000))
         .itemOutputs('gtceu:tetramethylammonium_chloride_dust')
         .outputFluids(Fluid.of('gtceu:hydrochloric_acid', 1000))
@@ -299,14 +303,14 @@ ServerEvents.recipes(allthemods => {
 
     // Membrane electrolysis, as electronic-grade TMAH is made: no potassium or sodium may reach the developer (metal
     // ions shift transistor thresholds). (CH3)4NCl + H2O -> (CH3)4NOH + 1/2 H2 + 1/2 Cl2
-    allthemods.recipes.gtceu.mixer('af9:tetramethylammonium_chloride_solution')
+    allthemods.recipes.gtceu.fab_blending('af9:tetramethylammonium_chloride_solution')
         .itemInputs('gtceu:tetramethylammonium_chloride_dust')
         .inputFluids(Fluid.of('gtceu:distilled_water', 5000))
         .outputFluids(Fluid.of('gtceu:tetramethylammonium_chloride_solution', 5000))
         .duration(100)
         .EUt(EU_LV)
 
-    allthemods.recipes.gtceu.electrolyzer('af9:tmah_developer')
+    allthemods.recipes.gtceu.fab_electrolysis('af9:tmah_developer')
         .inputFluids(Fluid.of('gtceu:tetramethylammonium_chloride_solution', 5000))
         .outputFluids(Fluid.of('gtceu:tmah_developer', 5000), Fluid.of('gtceu:chlorine', 1000), Fluid.of('gtceu:hydrogen', 1000))
         .duration(300)

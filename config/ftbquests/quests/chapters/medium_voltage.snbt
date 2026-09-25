@@ -1711,7 +1711,10 @@
 			y: -2.5d
 		}
 		{
-			dependencies: ["AD8FD756AA394586"]
+			dependencies: [
+				"AD8FD756AA394586"
+				"AE2076353F8220B1"
+			]
 			description: [
 				"{af9.quest.mv.chemistry.1}"
 				""
@@ -1785,7 +1788,10 @@
 			y: -5.0d
 		}
 		{
-			dependencies: ["AD8FD756AA394586"]
+			dependencies: [
+				"AD8FD756AA394586"
+				"AE2076353F8220B1"
+			]
 			description: [
 				"{af9.quest.mv.xcda.1}"
 				""
@@ -1858,6 +1864,7 @@
 			y: 3.0d
 		}
 		{
+			dependencies: ["AE2076353F8220B1"]
 			description: ["{af9.quest.mv.hf}"]
 			id: "97A469B25693E8F2"
 			rewards: [{
@@ -1947,6 +1954,66 @@
 			title: "{af9.quest.title.air}"
 			x: 13.0d
 			y: -1.0d
+		}
+		{
+			description: [
+				"{af9.quest.mv.fabPlant.1}"
+				""
+				"{af9.quest.mv.fabPlant.2}"
+				""
+				"{af9.quest.mv.fabPlant.3}"
+			]
+			id: "AE2076353F8220B1"
+			rewards: [{
+				id: "627D23524A03734B"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "135CF7E043DCA675"
+					item: "gtceu:mv_smc_chemical_reactor"
+					type: "item"
+				}
+				{
+					id: "B769B74C106B71CC"
+					item: "gtceu:mv_smc_fractionating_still"
+					type: "item"
+				}
+				{
+					id: "4F8486CBF50117BC"
+					item: "gtceu:mv_smc_electrolytic_cell"
+					type: "item"
+				}
+				{
+					id: "A75837BED994DF47"
+					item: "gtceu:mv_smc_thermal_furnace"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.fabPlant}"
+			x: 11.5d
+			y: -4.0d
+		}
+		{
+			dependencies: ["AE2076353F8220B1"]
+			description: [
+				"{af9.quest.mv.fabFurnace}"
+			]
+			id: "01B10745D9CCECA1"
+			rewards: [{
+				id: "3B79BAC20E273BAF"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [{
+				id: "D098D87F0A5A92D9"
+				item: "gtceu:smc_thermal_processing_furnace"
+				type: "item"
+			}]
+			title: "{af9.quest.title.fabFurnace}"
+			x: 11.5d
+			y: -5.5d
 		}
 	]
 	title: "{atm9.chapters.28.title}"
