@@ -154,7 +154,7 @@ StartupEvents.registry('block', allthemods => {
     [['krf_excimer_laser', 'KrF Excimer Laser'], ['arf_excimer_laser', 'ArF Excimer Laser']].forEach(([id, name]) => {
         allthemods.create(id)
             .displayName(name)
-            .metalSoundType()
+            .soundType('metal')
             .hardness(5)
             .resistance(6)
             .requiresTool(true)
