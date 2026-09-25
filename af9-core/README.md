@@ -5,10 +5,10 @@ Machines, materials and recipes stay in `../kubejs`; KubeJS plugs the Java class
 
 | Class | Used by | Does |
 |---|---|---|
-| `litho/LithoMode` | everything below | The five UV modes (MUV 350 nm ... LUV 50 nm): power, density and die factors, light source (i-line, KrF, ArF, ArF immersion) with wavelength, NA and resist. Must match the KubeJS recipes |
-| `machine/PhotolithographyLineMachine` | `kubejs/startup_scripts/gtceu/photolithography.js` | Power recipe gate `LITHO_GATE`, controller UI with mode buttons (tooltips: light, NA/k1, resist), saved statistics, EMI recipe info (node + light) |
-| `machine/LithoRecipeLogic` | the machine above | Counts finished wafers per mode |
-| `client/AF9Client` | wafers and chips | `af9:litho_mode` model predicate (per-mode textures in `kubejs/assets`) and the node/transistor tooltip |
+| `litho/LithoMode` | everything below | The five UV modes (MUV 350 nm ... LUV 50 nm): power, density and die factors, light source (i-line, KrF, ArF, ArF immersion) with wavelength, NA and resist, the version each needs and the version bonuses, the package list. Must match the KubeJS recipes |
+| `machine/PhotolithographyLineMachine` | `kubejs/startup_scripts/gtceu/photolithography.js` | Line version 1-5 (lens slices + light source), recipe gate `LITHO_GATE` (version + power), `LITHO_VERSION` (faster, better yield, more transistors above a mode's version), one structure preview page per version, controller UI with mode buttons, saved statistics, EMI recipe info (node + light + version) |
+| `machine/LithoRecipeLogic` | the machine above | Counts printed packages per mode |
+| `client/AF9Client` | wafer packages and chips | Chip `af9:litho_mode` model predicate (per-mode textures in `kubejs/assets`), package ribbon tinted per mode, tooltip (mode, line version, transistors per die and wafer) |
 | `fab/FabFamily`, `fab/IFabMachine` | the SMC fab machines | The four fab families (chemistry, separation, electrochemistry, thermal): changeover purge fluid and time, console colour, process steps per mode |
 | `fab/FabModifiers` | `kubejs/startup_scripts/gtceu/fab_machines.js` | Recipe modifiers: changeover `PURGE`, `STRUCTURE_PARALLEL` (trays / membrane cells), `COIL_DISCOUNT`, `TIER_TEMPERATURE` (single furnaces), `THERMAL_OVERCLOCK` (GT's EBF rules) |
 | `fab/FabRecipeLogic`, `fab/FabRecipeInfo` | the fab machines, EMI | Tells the machine which recipe finished (purge bookkeeping); temperature, coil and single-block tier on the thermal modes' EMI pages |

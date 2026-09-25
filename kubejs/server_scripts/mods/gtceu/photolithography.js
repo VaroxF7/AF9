@@ -23,13 +23,16 @@ const AF9_LITHO = (() => {
             immersion: true, highK: true }
     ]
 
-    // Printed wafers per substrate wafer (silicon, phosphorus, naquadah, neutronium), as GT's laser engraver gave them
+    // Printed packages per substrate wafer (silicon, phosphorus, naquadah, neutronium), as many as GT's laser engraver
+    // gave wafers
     const SILICON_CLASS = [1, 4, 8, 16]
     const PHOSPHORUS_CLASS = [0, 1, 4, 8]
 
-    // Every GT chip wafer. lens = GT engraving lens (reticle colour); derived wafers are made from another printed
-    // wafer instead. minMode = first mode that can make it (its GT tier). gtCut / cut / cutEUt / cleanroom mirror
-    // GT's cutter recipes. transistors = per die at 350 nm; must stay below 2^31 / 49 (LUV density) to fit the int tag.
+    // Every GT chip wafer; the line prints a package of each (kubejs:<id>_wafer_package, texture = 3x3 of the GT wafer).
+    // lens = GT engraving lens (reticle colour); derived wafers are made from another printed package instead.
+    // minMode = first mode that can make it (its GT tier). gtCut / cut / cutEUt / cleanroom mirror GT's cutter recipes
+    // (which stay for GT's plain wafers). transistors = per die at 350 nm; must stay below 2^31 / 49 (LUV density) to
+    // fit the int tag (a higher line version shrinks lower modes by at most x1.4, far below that).
     const chips = [
         { id: 'ilc', wafer: 'gtceu:ilc_wafer', chip: 'gtceu:ilc_chip', lens: 'red', engrave: 'engrave_ilc', yields: SILICON_CLASS, minMode: 0, gtCut: 'cut_ilc', cut: 8, cutEUt: 64, cleanroom: false, transistors: 50000 },
         { id: 'ram', wafer: 'gtceu:ram_wafer', chip: 'gtceu:ram_chip', lens: 'green', engrave: 'engrave_ram', yields: SILICON_CLASS, minMode: 0, gtCut: 'cut_ram', cut: 32, cutEUt: 96, cleanroom: false, transistors: 16000000 },
@@ -58,17 +61,25 @@ const AF9_LITHO = (() => {
         if (!found) throw new Error(`AF9_LITHO: unknown mode '${id}'`)
         return found
     }
-    // NBT the line writes onto wafers (and the cutter copies onto chips): read by AF9 Core for tooltip and texture
+    // The line prints wafer packages (GT's wafers stay unchanged); the cutter opens them into chips.
+    const packageOf = c => `kubejs:${c.id}_wafer_package`
+    // Dies per wafer: GT's count, x sqrt(350 / node)
+    const dies = (c, m) => Math.round(c.cut * Math.sqrt(350 / m.node))
+    // Package NBT as the recipe writes it, for a line of exactly the mode's version; AF9 Core raises Version and
+    // Transistors on a higher line (LithoMode.shrinkFactor). Read by AF9 Core for tooltip and ribbon colour.
     const nbt = (c, m) => {
         const transistors = Math.round(c.transistors * Math.pow(350 / m.node, 2))
-        return `{AF9Litho:{Node:${m.node},Transistors:${transistors}}}`
+        return `{AF9Litho:{Node:${m.node},Version:${m.index + 1},Transistors:${transistors},Dies:${dies(c, m)}}}`
     }
+    // What packages and chips of a mode have in common: the node. Packages are matched on it only (weak NBT),
+    // chips carry nothing else (exact NBT).
+    const nodeNbt = m => `{AF9Litho:{Node:${m.node}}}`
+    // Any package printed in a given mode, whatever line version printed it
+    const printedPackage = (c, m, count) => Item.of(packageOf(c), count || 1, nodeNbt(m)).weakNBT()
     // Exact-NBT ingredient of a chip printed in a given mode, e.g. tagged('ram', 'huv', 4)
-    const tagged = (chipId, modeId, count) => {
-        const c = chip(chipId)
-        return Item.of(c.chip, count || 1, nbt(c, mode(modeId))).strongNBT()
-    }
-    return { modes: modes, chips: chips, chip: chip, mode: mode, nbt: nbt, tagged: tagged }
+    const tagged = (chipId, modeId, count) => Item.of(chip(chipId).chip, count || 1, nodeNbt(mode(modeId))).strongNBT()
+    return { modes: modes, chips: chips, chip: chip, mode: mode, nbt: nbt, nodeNbt: nodeNbt, dies: dies,
+        packageOf: packageOf, printedPackage: printedPackage, tagged: tagged }
 })()
 
 ServerEvents.recipes(allthemods => {
@@ -78,10 +89,12 @@ ServerEvents.recipes(allthemods => {
     const chips = AF9_LITHO.chips
     const chip = AF9_LITHO.chip
     const nbt = AF9_LITHO.nbt
+    const packageOf = AF9_LITHO.packageOf
 
     // ---- Removed GT paths: everything now comes from the Photolithography Line ----
     // Except one bootstrap: MV Energy Hatches need a ULPIC chip and the line needs MV Energy Hatches, so GT's plain
-    // ULPIC engraving on silicon stays (like the chip-free Good Electronic Circuit). Its wafers have no mode.
+    // ULPIC engraving on silicon stays (like the chip-free Good Electronic Circuit). Its wafers have no mode. GT's
+    // wafers and their cutter recipes stay as they are; the line prints wafer packages instead.
     const substrates = ['silicon', 'phosphorus', 'naquadah', 'neutronium']
     chips.filter(c => c.engrave).forEach(c => substrates.forEach(s => {
         if (c.id === 'ulpic' && s === 'silicon') return
@@ -92,8 +105,6 @@ ServerEvents.recipes(allthemods => {
         allthemods.remove({ id: `gtceu:chemical_reactor/${id}` })
         allthemods.remove({ id: `gtceu:large_chemical_reactor/${id}` })
     })
-    chips.forEach(c => ['', '_water', '_distilled_water'].forEach(suffix =>
-        allthemods.remove({ id: `gtceu:cutter/${c.gtCut}${suffix}` })))
 
     // ---- Machine ----
     allthemods.recipes.gtceu.assembler('af9:photolithography_line')
@@ -111,6 +122,24 @@ ServerEvents.recipes(allthemods => {
         .itemOutputs('gtceu:photolithography_line')
         .duration(1200)
         .EUt(EU_MV)
+
+    // ---- Light sources of the line's versions (version 1 uses GT's purple lamp as its mercury lamp) ----
+    // An excimer laser: a discharge chamber filled with the gas premix, a pulsed power supply, UV optics and a gas
+    // circulation pump. KrF allows line versions up to 3, ArF up to 5 (plus the lens slices).
+    allthemods.recipes.gtceu.assembler('af9:krf_excimer_laser')
+        .itemInputs('gtceu:hv_machine_hull', '2x gtceu:hv_emitter', '4x #gtceu:circuits/hv', '2x gtceu:glass_lens',
+            '4x gtceu:stainless_steel_plate', 'gtceu:hv_electric_pump')
+        .inputFluids(Fluid.of('gtceu:krf_excimer_gas', 4000))
+        .itemOutputs('kubejs:krf_excimer_laser')
+        .duration(1200)
+        .EUt(GTValues.VA[GTValues.HV])
+    allthemods.recipes.gtceu.assembler('af9:arf_excimer_laser')
+        .itemInputs('gtceu:ev_machine_hull', '2x gtceu:ev_emitter', '4x #gtceu:circuits/ev', '4x gtceu:glass_lens',
+            '4x gtceu:titanium_plate', 'gtceu:ev_electric_pump')
+        .inputFluids(Fluid.of('gtceu:arf_excimer_gas', 4000))
+        .itemOutputs('kubejs:arf_excimer_laser')
+        .duration(1200)
+        .EUt(GTValues.VA[GTValues.EV])
 
     // ---- Photomasks ----
     // Mask blanks ship pre-coated with resist; the pattern is then written by a laser mask writer
@@ -333,11 +362,15 @@ ServerEvents.recipes(allthemods => {
             if (m.laserGas) fluids.push(Fluid.of(m.laserGas, Math.round(10 * chemicals)))
             if (m.immersion) fluids.push(Fluid.of('gtceu:ultrapure_water', 1000))
             if (m.highK) fluids.push(Fluid.of('gtceu:hafnium_tetrachloride', 100))
+            // Yield: a quarter of the batch more (at least one package) at 10 %; AF9 Core adds 20 points per line
+            // version above the mode
+            const printed = c.yields[m.substrateTier]
             allthemods.recipes.gtceu[`lithography_${m.id}`](`af9:${c.id}_wafer_${m.id}`)
                 .itemInputs(m.substrate)
                 .notConsumable(`kubejs:${c.id}_reticle`)
                 .inputFluids(fluids)
-                .itemOutputs(Item.of(c.wafer, c.yields[m.substrateTier], nbt(c, m)))
+                .itemOutputs(Item.of(packageOf(c), printed, nbt(c, m)))
+                .chancedOutput(Item.of(packageOf(c), Math.max(1, Math.round(printed / 4)), nbt(c, m)), 1000, 0)
                 .duration(900)
                 .EUt(GTValues.VA[m.tier], 4)
         })
@@ -345,7 +378,7 @@ ServerEvents.recipes(allthemods => {
 
     // ---- Derived wafers ----
     // GT's chemical upgrades of printed wafers, done in the line so the result keeps the mode it was printed in.
-    // One recipe per mode; the input must come from that mode (exact NBT).
+    // One recipe per mode; the input package must come from that mode (its node; any line version).
     const derived = [
         { id: 'nano_cpu', from: 'cpu', items: ['16x gtceu:carbon_fibers'], fluid: ['gtceu:glowstone', 576], duration: 1200 },
         { id: 'qbit_cpu', from: 'nano_cpu', items: ['2x gtceu:quantum_eye'], fluid: ['gtceu:gallium_arsenide', 288], duration: 900 },
@@ -358,46 +391,38 @@ ServerEvents.recipes(allthemods => {
         const source = chip(d.from)
         modes.filter(m => m.index >= target.minMode).forEach(m => {
             allthemods.recipes.gtceu[`lithography_${m.id}`](`af9:${d.id}_wafer_${m.id}${d.suffix || ''}`)
-                .itemInputs([Item.of(source.wafer, nbt(source, m)).strongNBT()].concat(d.items))
+                .itemInputs([AF9_LITHO.printedPackage(source, m)].concat(d.items))
                 .inputFluids(Fluid.of(d.fluid[0], d.fluid[1]))
-                .itemOutputs(Item.of(target.wafer, nbt(target, m)))
+                .itemOutputs(Item.of(packageOf(target), nbt(target, m)))
                 .duration(d.duration)
                 .EUt(GTValues.VA[m.tier], 4)
         })
     })
 
-    // ---- Wafer cutting ----
-    // Replaces GT's cutter recipes. Inputs match NBT exactly, so a plain wafer (quest rewards, loot) cuts exactly like
-    // GT, while a printed wafer cuts into more dies (sqrt(350 / node)) that keep its node and transistor count. Each gets
-    // GT's three fluid variants (KubeJS recipes skip GT's generator), with GT's formulas.
+    // ---- Package cutting ----
+    // The cutter opens a package into chips: sqrt(350 / node) more dies than GT's plain wafer (whose own cutter recipe
+    // stays), and the chips keep the node (exact NBT {AF9Litho:{Node}}, what the HV-LuV circuits ask for). Packages
+    // match on the node only, so every line version cuts the same. GT's three fluid variants with GT's formulas.
     const clamp = (value, min, max) => Math.min(Math.max(value, min), max)
     // the single-block cutter has two output slots, so split into stacks of at most 64
     const chipStacks = (c, count, tag) => {
         const stacks = []
-        for (let left = count; left > 0; left -= 64) {
-            const size = Math.min(left, 64)
-            stacks.push(tag ? Item.of(c.chip, size, tag) : Item.of(c.chip, size))
-        }
+        for (let left = count; left > 0; left -= 64) stacks.push(Item.of(c.chip, Math.min(left, 64), tag))
         return stacks
     }
     chips.forEach(c => {
-        const wafers = [{ id: 'plain', tag: null, count: c.cut }].concat(modes.filter(m => m.index >= c.minMode).map(m => ({
-            id: m.id,
-            tag: nbt(c, m),
-            count: Math.round(c.cut * Math.sqrt(350 / m.node))
-        })))
         const totalEU = 900 * c.cutEUt
         const fluids = [
             { id: '', fluid: Fluid.of('gtceu:lubricant', clamp(Math.floor(totalEU / 1280), 1, 250)), duration: 900 },
             { id: '_distilled_water', fluid: Fluid.of('gtceu:distilled_water', clamp(Math.floor(totalEU / 426), 3, 750)), duration: 1350 },
             { id: '_water', fluid: Fluid.of('minecraft:water', clamp(Math.floor(totalEU / 320), 4, 1000)), duration: 1800 }
         ]
-        wafers.forEach(wafer => {
+        modes.filter(m => m.index >= c.minMode).forEach(m => {
             fluids.forEach(variant => {
-                const recipe = allthemods.recipes.gtceu.cutter(`af9:cut_${c.id}_${wafer.id}${variant.id}`)
-                    .itemInputs((wafer.tag ? Item.of(c.wafer, wafer.tag) : Item.of(c.wafer)).strongNBT())
+                const recipe = allthemods.recipes.gtceu.cutter(`af9:cut_${c.id}_${m.id}${variant.id}`)
+                    .itemInputs(AF9_LITHO.printedPackage(c, m))
                     .inputFluids(variant.fluid)
-                    .itemOutputs(chipStacks(c, wafer.count, wafer.tag))
+                    .itemOutputs(chipStacks(c, AF9_LITHO.dies(c, m), AF9_LITHO.nodeNbt(m)))
                     .duration(variant.duration)
                     .EUt(c.cutEUt)
                 if (c.cleanroom) recipe.cleanroom(CleanroomType.CLEANROOM)

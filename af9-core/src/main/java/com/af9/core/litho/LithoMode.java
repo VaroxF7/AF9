@@ -20,6 +20,11 @@ import java.util.Locale;
  * <p>
  * Each mode exposes with the light source its real node used (mercury i-line, KrF, ArF, ArF immersion) through a lens
  * of the given numerical aperture, and needs the photoresist made for that light.
+ * <p>
+ * The line itself comes in five versions (longer projection lens, better light source); a version runs the modes up to
+ * its own level ({@link #level()}), and runs lower modes faster, with better yield and a finer optical shrink (more
+ * transistors per die). The line prints into wafer packages (kubejs:&lt;chip&gt;_wafer_package), GT's wafers stay as
+ * they are.
  */
 public enum LithoMode {
 
@@ -31,19 +36,33 @@ public enum LithoMode {
     LUV("luv", 50, ChatFormatting.GOLD, 0xFFFFBE3C, GTValues.LuV, "neutronium", "arf_immersion", 193, 1.35,
             "arf_photoresist");
 
-    /** NBT compound on wafers and chips: {AF9Litho:{Node:int, Transistors:int}}. */
+    /**
+     * NBT compound: packages {AF9Litho:{Node, Version, Transistors (per die), Dies (per wafer)}}, chips
+     * {AF9Litho:{Node}}.
+     */
     public static final String TAG = "AF9Litho";
     public static final String TAG_NODE = "Node";
+    public static final String TAG_VERSION = "Version";
     public static final String TAG_TRANSISTORS = "Transistors";
+    public static final String TAG_DIES = "Dies";
+    /** Highest line version (one per mode). */
+    public static final int MAX_VERSION = 5;
+    /** Per version above a mode's own: run time x0.8, bonus-package chance +20 points, +10 % transistors per die. */
+    public static final double VERSION_SPEEDUP = 0.8;
+    public static final int VERSION_YIELD_BONUS = 2000;
+    public static final double VERSION_SHRINK = 0.10;
     /** Amps every mode draws: two 2A energy hatches. */
     public static final int AMPERAGE = 4;
     private static final int REFERENCE_NODE = 350;
 
-    /** gtceu: item paths the line prints (with {@link #TAG}) and the chips its cutter recipes make from them. */
-    public static final List<String> WAFERS = List.of(
-            "ilc_wafer", "ram_wafer", "cpu_wafer", "ulpic_wafer", "lpic_wafer", "simple_soc_wafer",
-            "nand_memory_wafer", "nor_memory_wafer", "mpic_wafer", "soc_wafer", "advanced_soc_wafer",
-            "highly_advanced_soc_wafer", "nano_cpu_wafer", "qbit_cpu_wafer", "hpic_wafer", "uhpic_wafer");
+    /** kubejs: item paths of the wafer packages the line prints (with {@link #TAG}). */
+    public static final List<String> PACKAGES = List.of(
+            "ilc_wafer_package", "ram_wafer_package", "cpu_wafer_package", "ulpic_wafer_package",
+            "lpic_wafer_package", "simple_soc_wafer_package", "nand_wafer_package", "nor_wafer_package",
+            "mpic_wafer_package", "soc_wafer_package", "advanced_soc_wafer_package",
+            "highly_advanced_soc_wafer_package", "nano_cpu_wafer_package", "qbit_cpu_wafer_package",
+            "hpic_wafer_package", "uhpic_wafer_package");
+    /** gtceu: item paths of the chips the cutter makes from the packages (with {Node}). */
     public static final List<String> CHIPS = List.of(
             "ilc_chip", "ram_chip", "cpu_chip", "ulpic_chip", "lpic_chip", "simple_soc",
             "nand_memory_chip", "nor_memory_chip", "mpic_chip", "soc", "advanced_soc",
@@ -106,6 +125,26 @@ public enum LithoMode {
     /** 1-based index used by the af9:litho_mode item model predicate (0 = not lithographed). */
     public int modelIndex() {
         return ordinal() + 1;
+    }
+
+    /** Line version this mode needs: MUV 1 ... LUV 5. */
+    public int level() {
+        return ordinal() + 1;
+    }
+
+    /** Run-time factor of a line {@code surplus} versions above this mode (0.8 per version). */
+    public static double speedFactor(int surplus) {
+        return Math.pow(VERSION_SPEEDUP, Math.max(0, surplus));
+    }
+
+    /** Transistors-per-die factor of a line {@code surplus} versions above the mode (optical shrink, +10 % each). */
+    public static double shrinkFactor(int surplus) {
+        return 1 + VERSION_SHRINK * Math.max(0, surplus);
+    }
+
+    /** Added chance (of 10000) of the bonus packages for a line {@code surplus} versions above the mode. */
+    public static int yieldBonus(int surplus) {
+        return VERSION_YIELD_BONUS * Math.max(0, surplus);
     }
 
     /** "x49", "x1.96", "x12.25": up to two decimals, no trailing zeros, always with a '.' separator. */

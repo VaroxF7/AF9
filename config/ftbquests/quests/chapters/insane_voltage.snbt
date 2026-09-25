@@ -614,7 +614,7 @@
 				}
 				{
 					id: "57C79A6CB61B5A7E"
-					item: "gtceu:soc_wafer"
+					item: "kubejs:soc_wafer_package"
 					type: "item"
 				}
 				{
@@ -1817,7 +1817,7 @@
 			tasks: [
 				{
 					id: "37417147A0F312A1"
-					item: "gtceu:mpic_wafer"
+					item: "kubejs:mpic_wafer_package"
 					type: "item"
 				}
 				{
@@ -1908,7 +1908,7 @@
 			}]
 			tasks: [{
 				id: "6F81ED6B43252DC6"
-				item: "gtceu:hpic_wafer"
+				item: "kubejs:hpic_wafer_package"
 				type: "item"
 			}]
 			x: 0.5d
@@ -2098,7 +2098,7 @@
 			tasks: [
 				{
 					id: "610265C7A4A5EF5F"
-					item: "gtceu:nor_memory_wafer"
+					item: "kubejs:nor_wafer_package"
 					type: "item"
 				}
 				{
@@ -2124,7 +2124,7 @@
 			tasks: [
 				{
 					id: "024376E20D2E1DA1"
-					item: "gtceu:nand_memory_wafer"
+					item: "kubejs:nand_wafer_package"
 					type: "item"
 				}
 				{
@@ -2168,7 +2168,7 @@
 				{
 					count: 2
 					id: "23B211F5E5B530B7"
-					item: "gtceu:cpu_wafer"
+					item: "kubejs:cpu_wafer_package"
 					random_bonus: 2
 					type: "item"
 				}
@@ -2182,7 +2182,7 @@
 			]
 			tasks: [{
 				id: "75671C8E193FB933"
-				item: "gtceu:nano_cpu_wafer"
+				item: "kubejs:nano_cpu_wafer_package"
 				type: "item"
 			}]
 			x: 3.0d
@@ -2711,15 +2711,15 @@
 				id: "F7280EFE9D132187"
 				item: {
 					Count: 1
-					id: "gtceu:ram_wafer"
+					id: "kubejs:ram_wafer_package"
 					tag: {
 						AF9Litho: {
 							Node: 100
-							Transistors: 196000000
 						}
 					}
 				}
 				match_nbt: true
+				weak_nbt_match: true
 				type: "item"
 			}]
 			title: "{af9.quest.title.xuv}"

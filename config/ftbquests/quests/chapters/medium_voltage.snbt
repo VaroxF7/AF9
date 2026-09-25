@@ -588,7 +588,7 @@
 			}]
 			tasks: [{
 				id: "412F8874629333ED"
-				item: "gtceu:ram_wafer"
+				item: "kubejs:ram_wafer_package"
 				type: "item"
 			}]
 			x: 8.5d
@@ -611,7 +611,7 @@
 			}]
 			tasks: [{
 				id: "0B29B51417A0773F"
-				item: "gtceu:ilc_wafer"
+				item: "kubejs:ilc_wafer_package"
 				type: "item"
 			}]
 			x: 5.5d
@@ -1694,6 +1694,8 @@
 				"{af9.quest.mv.line.3}"
 				""
 				"{af9.quest.mv.line.4}"
+				""
+				"{af9.quest.mv.line.5}"
 			]
 			id: "AD8FD756AA394586"
 			rewards: [{

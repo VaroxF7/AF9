@@ -22,7 +22,7 @@ agent_hint: "All exact IDs are in backticks. `gtceu:` = base GregTech item/machi
 - `TYPE` = recipe-type ID, e.g. `gtceu:lithography_muv`.
 - EU/t = GregTech volts × amps. `VA[LV]=30, VA[MV]=120, VA[HV]=480, VA[EV]=1920, VA[IV]=7680, VA[LuV]=30720`.
 - Duration: `t` = ticks, 20t = 1s. `900t = 45s`.
-- NBT wafers/chips: `{AF9Litho:{Node:<int>,Transistors:<int>}}`. Predicate `af9:litho_mode` = 0 plain, 1 MUV, 2 HUV, 3 EUV, 4 XUV, 5 LUV.
+- NBT: wafer packages `{AF9Litho:{Node:<int>,Version:<1-5>,Transistors:<int>,Dies:<int>}}`, chips `{AF9Litho:{Node:<int>}}` (§5.6). GT's wafers carry no NBT. Chip predicate `af9:litho_mode` = 0 plain, 1 MUV, 2 HUV, 3 EUV, 4 XUV, 5 LUV.
 - `notConsumable` = catalyst / reticle / lens, not used up.
 - `cleanroom(CLEANROOM)` = recipe only runs when cutter is inside a formed + powered `gtceu:cleanroom`. AF9 litho line itself needs NO cleanroom.
 
@@ -35,7 +35,7 @@ See Appendix A for the full map. The numbers live in two places that must agree:
 
 ## 0.3 One-paragraph mental model
 
-Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Siemens polysilicon → CZ boule (SMC thermal furnace) → cutter blank wafer → Photolithography Line (reticle + 5 track chemistries + the mode's laser gas / immersion water / HfCl4) → NBT wafer → cutter dies → circuit assembler. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock, dies-per-wafer scaling is the NBT math. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion) and the resist chemistry made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate).
+Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Siemens polysilicon → CZ boule (SMC thermal furnace) → cutter blank wafer → Photolithography Line (built in 5 versions like the Assembly Line's lengths; reticle + 5 track chemistries + the mode's laser gas / immersion water / HfCl4) → wafer package (NBT: node, line version, transistors) → cutter dies → circuit assembler. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock, dies-per-wafer scaling is the package NBT math. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion) and the resist chemistry made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate).
 
 ---
 
@@ -337,26 +337,28 @@ Lens map (base, kept by AF9): red→ILC, green→RAM, light_blue→CPU, blue→U
 | Type XUV | `gtceu:lithography_xuv` | Lithography XUV (100 nm) |
 | Type LUV | `gtceu:lithography_luv` | Lithography LUV (50 nm) |
 
-Controller tooltip lines 0-14 (`kubejs/assets/gtceu/lang/en_us.json`, `af9.photolithography_line.tooltip.N`, short on purpose so the tooltip stays narrow): what it prints, the process chain, no-cleanroom, the five modes with substrates, light source per mode (2 lines), laser gas + matching resist, scaling per mode, substrate yield, power rule, hatches, HV-LuV chip rule, perfect OC, LUV high-k (HfCl4).
+Controller tooltip lines 0-18 (`kubejs/assets/gtceu/lang/en_us.json`, `af9.photolithography_line.tooltip.N`, short on purpose so the tooltip stays narrow): what it prints, the process chain, no-cleanroom, the five modes with substrates, light source per mode (2 lines), laser gas + matching resist, scaling per mode, substrate yield, power rule, hatches, HV-LuV chip rule, perfect OC, LUV high-k (HfCl4), versions (lens slices, light sources, bonuses).
 
-Java (AF9 Core, `af9-core/`): `PhotolithographyLineMachine` (`LITHO_GATE` power gate, console UI, mode switching, counters), `LithoConsoleWidget` (the console), `LithoRecipeLogic` (per-mode counters), `LithoMode` (numbers that must match KubeJS: node, tier, substrate, light, wavelength, NA, resist), `AF9Client` (texture predicate + tooltip), `AF9EmiPlugin` (wafer variants in EMI). Modifiers: `LITHO_GATE + OC_PERFECT`. Appearance `CASING_STAINLESS_CLEAN` + `gcym/large_engraving_laser` overlay.
+Java (AF9 Core, `af9-core/`): `PhotolithographyLineMachine` (line version, `LITHO_GATE` version + power gate, `LITHO_VERSION` bonuses, version preview pages, console UI, mode switching, counters), `LithoConsoleWidget` (the console), `LithoRecipeLogic` (per-mode counters), `LithoMode` (numbers that must match KubeJS: node, tier, substrate, light, wavelength, NA, resist, version rules, package list), `AF9Client` (chip texture predicate, package ribbon colour, tooltip), `AF9EmiPlugin` (package variants in EMI). Modifiers: `LITHO_GATE + LITHO_VERSION + OC_PERFECT`. Appearance `CASING_STAINLESS_CLEAN` + `gcym/large_engraving_laser` overlay.
 
-EMI recipe info per mode: one line, `Node: <nm>nm, <light>` e.g. `Node: 250nm, KrF 248nm` (lang `af9.recipe.litho_node` + `af9.litho.light.<light>`). Substrate, scaling, NA/k1 and hatches are on the controller console and tooltip, not in EMI.
+EMI recipe info per mode: one line, `Node: <nm>nm, <light>, line V<n>+` e.g. `Node: 250nm, KrF 248nm, line V2+` (lang `af9.recipe.litho_node` + `af9.litho.light.<light>`). Substrate, scaling, NA/k1 and hatches are on the controller console and tooltip, not in EMI.
 
-## 5.2 Structure — 3×3×20, back (lamp) → front (controller)
+## 5.2 Structure — 3×3×20-24, back (light source) → front (controller)
 
-Unchanged. Each aisle = bottom → middle → top rows:
+Each aisle = bottom → middle → top rows. The lens aisle repeats 3-7 times: that count and the light source set the line version (§5.8).
 
 ```text
-Stepper:  CCC/CLC/CCC lamp | CCC/CRC/CCC reticle stage | CCC/WTW/CCC lens x3 | CRC/WRW/CCC wafer stage
+Stepper:  CCC/CLC/CCC light source | CCC/CRC/CCC reticle stage | CCC/WTW/CCC lens x3-7 | CRC/WRW/CCC wafer stage
 Track:    CCC/CRC/CCC interface | CCC/CRC/CFC robot | CCC/CHC/CFC hard bake | CSC/WXW/CPC rinse | CSC/WXW/CPC develop
           CCC/CKC/CFC chill | CCC/CHC/CFC PEB | CCC/CHC/CFC soft bake | CSC/WXW/CPC coat x2 | CCC/CKC/CFC chill
           CPC/WHW/CFC HMDS prime | CCC/CRC/CFC robot | III/IMI/CCC cassette + controller
 ```
 
-`C` = `clean_machine_casing` min 100 OR exactly 2 `INPUT_ENERGY` OR ≥1 `IMPORT_FLUIDS` OR exactly 1 `MAINTENANCE`. `I` = casing OR 1-2 item import + 1-2 export. `F` filter_casing, `R` stainless gearbox, `S` steel gearbox, `X` inert casing, `P` ptfe pipe casing, `H` cupronickel coil, `K` frostproof casing, `T` tempered glass, `W` cleanroom glass, `L` purple lamp, `M` controller.
+`C` = `clean_machine_casing` min 100 OR exactly 2 `INPUT_ENERGY` OR ≥1 `IMPORT_FLUIDS` OR exactly 1 `MAINTENANCE`. `I` = casing OR 1-2 item import + 1-2 export. `F` filter_casing, `R` stainless gearbox, `S` steel gearbox, `X` inert casing, `P` ptfe pipe casing, `H` cupronickel coil, `K` frostproof casing, `T` tempered glass, `W` cleanroom glass, `L` purple lamp (mercury lamp) or `kubejs:krf_excimer_laser` or `kubejs:arf_excimer_laser`, `M` controller. EMI shows one structure page per version (like the Assembly Line's lengths), each with its lens slices and light source (`PhotolithographyLineMachine.versionShapes`).
 
 ## 5.3 Five UV modes (load-bearing numbers)
+
+Each mode needs a line of at least its version (MUV 1, HUV 2, EUV 3, XUV 4, LUV 5); what a higher version adds is in §5.8.
 
 `EUt = VA[tier] × 4` (exactly 2 energy hatches; they must supply 4A of the mode's tier: two hatches of that tier, or for XUV/LUV two 16A hatches of the tier below, since 4A/16A hatches only exist from EV and two hatches let the line use the next voltage tier). `LITHO_GATE` only checks total EU/t; GT checks the voltage. Duration `900t` for printed wafers. Chemicals `round(base × 1.5^index)`. Perfect overclock with stronger hatches. Each mode prints on its own substrate; better substrates give more printed wafers per run (GT's laser-engraver amounts).
 
@@ -403,7 +405,7 @@ Materials (`gtceu:`, startup `photolithography.js`): `oxidized_air`, `decarbonat
 
 ## 5.5 Chips — every GT chip wafer (source of truth: `AF9_LITHO` in `server_scripts/mods/gtceu/photolithography.js`)
 
-Printed wafers per run (from 1 substrate wafer):
+Printed packages per run (from 1 substrate wafer; the chanced bonus of §6.6 comes on top):
 
 | chip | wafer `gtceu:` | chip `gtceu:` | source | first mode | muv | huv | euv | xuv | luv |
 |---|---|---|---|---|---|---|---|---|---|
@@ -424,7 +426,7 @@ Printed wafers per run (from 1 substrate wafer):
 | hpic | `hpic_wafer` | `hpic_chip` | derived | xuv | — | — | — | 1 wafer | 1 wafer |
 | uhpic | `uhpic_wafer` | `uhpic_chip` | derived | luv | — | — | — | — | 1 wafer |
 
-Dies per wafer (plain = GT count):
+Dies per package (plain = GT count for GT's own wafer, which keeps GT's cutter recipe; NBT `Dies`):
 
 | chip | plain | muv | huv | euv | xuv | luv | cutEUt | cleanroom |
 |---|---|---|---|---|---|---|---|---|
@@ -445,7 +447,7 @@ Dies per wafer (plain = GT count):
 | hpic | 2 | — | — | — | 4 | 5 | 7680 | yes |
 | uhpic | 2 | — | — | — | — | 5 | 30720 | yes |
 
-Transistors per die (NBT `Transistors`):
+Transistors per die (NBT `Transistors` of a package from a line of the mode's own version; each version above adds 10 %):
 
 | chip | base (350 nm) | muv | huv | euv | xuv | luv |
 |---|---|---|---|---|---|---|
@@ -466,7 +468,7 @@ Transistors per die (NBT `Transistors`):
 | hpic | 50,000 | — | — | — | 612,500 | 2,450,000 |
 | uhpic | 100,000 | — | — | — | — | 4,900,000 |
 
-Derived wafers (made in the line from a printed wafer of the same mode; exact-NBT input, 1 wafer out, no reticle):
+Derived wafers (made in the line from a printed package of the same mode; weak-NBT input on the node, 1 package out, no reticle):
 
 | Wafer | From | Extra inputs | Duration | Modes |
 |---|---|---|---|---|
@@ -477,19 +479,36 @@ Derived wafers (made in the line from a printed wafer of the same mode; exact-NB
 
 > TRAPS: chip IDs without `_chip`: `simple_soc`, `soc`, `advanced_soc`, `highly_advanced_soc`. PIC is `mpic_wafer`/`mpic_chip` but GT's recipe names say `pic` (`engrave_pic_*`, `cut_pic`). GT engraving prefixes: `engrave_ssoc`, `engrave_asoc`, `engrave_hasoc`.
 
-## 5.6 NBT
+## 5.6 Items and NBT
 
-`{AF9Litho:{Node:<350|250|200|100|50>,Transistors:<int>}}`, `Transistors = round(base × (350/node)²)` (base per die at 350 nm, table above; all values fit an int). Cutting copies the tag to every die. Model predicate `af9:litho_mode` = 0 plain, 1 MUV … 5 LUV picks the per-mode tinted texture (violet, blue, cyan, green, gold) for all 16 wafers and 16 chips. Tooltip: `Printed with Lithography <MODE> (<nm>)` + `Transistors per die: <n>`.
+The line prints `kubejs:<chip>_wafer_package` (16 items: `ilc`, `ram`, `cpu`, `ulpic`, `lpic`, `simple_soc`, `nand`, `nor`, `mpic`, `soc`, `advanced_soc`, `highly_advanced_soc`, `nano_cpu`, `qbit_cpu`, `hpic`, `uhpic`; names after GT's wafers, e.g. "RAM Wafer Package"). GT's wafer items are untouched (no NBT variants, GT textures). Texture: 48×48, a 3×3 of the GT wafer texture (layer 0) under a ribbon with a bow (layer 1, `kubejs:item/litho/wafer_package_ribbon`, greyscale), which AF9 Core tints in the printing mode's colour (violet, blue, cyan, green, gold).
+
+- Package: `{AF9Litho:{Node:<350|250|200|100|50>,Version:<1-5>,Transistors:<int, per die>,Dies:<int, per wafer>}}`. The recipe writes `Version` = the mode's level and `Transistors = round(base × (350/node)²)`; `LITHO_VERSION` rewrites both for a higher line (§5.8). Tooltip: mode, line version, transistors per die, dies and transistors per wafer.
+- Chip: `{AF9Litho:{Node}}` (exact; what HV-LuV circuits ask for). Model predicate `af9:litho_mode` = 0 plain, 1 MUV … 5 LUV picks the per-mode tinted chip texture (16 chips). Tooltip: mode.
+- Packages are matched with weak NBT on `Node` (cutter, derived recipes, quests: `weak_nbt_match`), so every line version's packages are interchangeable; chips with strong NBT.
 
 ## 5.7 Controller console (custom UI)
 
 `PhotolithographyLineMachine#createUIWidget` replaces GT's text display with `LithoConsoleWidget` (190×125, GT's side tabs for power/mode/parts stay):
-- header: title, status word + LED (OFFLINE / IDLE / RUNNING / NO POWER / PAUSED / MAINTENANCE),
-- five clickable mode tiles (colour per mode, dimmed when the hatches can't power it; hover shows hatches, substrate, light, NA/k1, resist),
+- header: `LITHO LINE` + line version (`V3`), status word + LED (OFFLINE / IDLE / RUNNING / NO POWER / PAUSED / MAINTENANCE / LOCKED = mode above the version),
+- five clickable mode tiles (colour per mode, dimmed when the hatches can't power it, dark with `V<n>` in red when the version is too low; hover shows the version needed, hatches, substrate, density/dies, light, NA/k1, resist),
 - POWER gauge (available vs needed EU/t), PROGRESS bar, TRACK of 8 stations lighting up with progress,
-- OUTPUT (node, light source e.g. `KrF 248nm` / `ArFi 193nm`, density, dies, substrate), PRINTED counters per mode + RESET button.
-- mode tile tooltips: mode, power, substrate, light (long name), lens NA + k1, resist (its GT material name).
+- OUTPUT: node, light source (e.g. `KrF 248nm` / `ArFi 193nm`), the version bonuses for the active mode (`Speed x1.56`, `Yield +40%`, `Shrink +20%`, green when above the mode) or `Needs line version <n>`; PRINTED package counters per mode + RESET button.
 State is sampled server-side each tick and synced only when it changes.
+
+## 5.8 Line versions (like the Assembly Line's length)
+
+| Version | Lens slices | Light source (must allow the version) | Runs modes | Line length |
+|---|---|---|---|---|
+| 1 | 3 | purple lamp (mercury i-line) | MUV | 20 |
+| 2 | 4 | `kubejs:krf_excimer_laser` | + HUV | 21 |
+| 3 | 5 | `kubejs:krf_excimer_laser` | + EUV | 22 |
+| 4 | 6 | `kubejs:arf_excimer_laser` | + XUV | 23 |
+| 5 | 7 | `kubejs:arf_excimer_laser` | + LUV | 24 |
+
+Version = min(lens slices − 2, light cap: lamp 1, KrF 3, ArF 5), read on structure formation (tempered-glass lens blocks counted in the structure cache). `LITHO_GATE` refuses modes above the version (console status LOCKED, tile shows the version it needs). For each version above a mode (`surplus`), `LITHO_VERSION` (before the perfect OC): run time × 0.8^surplus, bonus-package chance + 20 points (10 % → 90 % at +4), transistors per die × (1 + 0.1 × surplus), `Version` in the package set to the line's. Constants in `LithoMode` (`VERSION_SPEEDUP`, `VERSION_YIELD_BONUS`, `VERSION_SHRINK`).
+
+Light sources (assembler, `af9:`): `krf_excimer_laser` = HV hull + 2 HV emitters + 4 HV circuits + 2 glass lenses + 4 stainless plates + HV pump + 4000 mB `krf_excimer_gas`, 1200t HV; `arf_excimer_laser` = EV hull + 2 EV emitters + 4 EV circuits + 4 glass lenses + 4 titanium plates + EV pump + 4000 mB `arf_excimer_gas`, 1200t EV. Textures: clean stainless casing with a blue (KrF) / violet (ArF) aperture.
 
 # 6. Recipe chains
 
@@ -594,30 +613,30 @@ af9:tmah_developer (electrolysis) 5000 tetramethylammonium_chloride_solution →
 af9:molecular_sieve (wet) 4x zeolite_dust + bentonite_dust + 500 distilled_water → 4x kubejs:molecular_sieve | 600t MV
 ```
 
-## 6.6 Step 3 — Print wafers (Photolithography Line)
+## 6.6 Step 3 — Print wafer packages (Photolithography Line)
 
-Recipe IDs `af9:<chip>_wafer_<mode>` on `gtceu:lithography_<mode>`, for every printed chip in every mode from its first mode on (63 recipes incl. derived):
+Recipe IDs `af9:<chip>_wafer_<mode>` on `gtceu:lithography_<mode>`, for every printed chip in every mode from its first mode on (63 recipes incl. derived). Output: `kubejs:<chip>_wafer_package` with the package NBT (§5.6) as a line of exactly the mode's version writes it, plus a chanced bonus of a quarter of the batch (at least 1) at 10 %; a higher line version raises chance, speed and transistors (§5.8). GT's wafers are never printed.
 
 ```text
 af9:ram_wafer_muv (gtceu:lithography_muv)
   gtceu:silicon_wafer + NC kubejs:ram_reticle + 40 hmds_vapor + 100 photoresist + 200 tmah_developer + 1000 distilled_water + 1000 extreme_clean_dry_air
-  → gtceu:ram_wafer{AF9Litho:{Node:350,Transistors:16000000}} | 900t | 480 EU/t (4A MV)
+  → kubejs:ram_wafer_package{AF9Litho:{Node:350,Version:1,Transistors:16000000,Dies:32}} + 10 % 1 more | 900t | 480 EU/t (4A MV)
 af9:ram_wafer_huv (gtceu:lithography_huv)
   gtceu:phosphorus_wafer + NC kubejs:ram_reticle + 60 hmds_vapor + 150 krf_photoresist + 300 tmah_developer + 1500 distilled_water + 1500 extreme_clean_dry_air + 15 krf_excimer_gas
-  → 4x gtceu:ram_wafer{AF9Litho:{Node:250,Transistors:31360000}} | 900t | 1920 EU/t (4A HV)
+  → 4x kubejs:ram_wafer_package{AF9Litho:{Node:250,Version:2,Transistors:31360000,Dies:38}} + 10 % 1 more | 900t | 1920 EU/t (4A HV)
 af9:ram_wafer_luv (gtceu:lithography_luv)
   gtceu:neutronium_wafer + NC kubejs:ram_reticle + 203 hmds_vapor + 506 arf_photoresist + 1013 tmah_developer + 5063 distilled_water + 5063 extreme_clean_dry_air + 51 arf_excimer_gas + 1000 ultrapure_water + 100 hafnium_tetrachloride
-  → 16x gtceu:ram_wafer{AF9Litho:{Node:50,Transistors:784000000}} | 900t | 122880 EU/t (4A LuV)
+  → 16x kubejs:ram_wafer_package{AF9Litho:{Node:50,Version:5,Transistors:784000000,Dies:85}} + 10 % 4 more | 900t | 122880 EU/t (4A LuV)
 af9:nano_cpu_wafer_euv (gtceu:lithography_euv)
-  gtceu:cpu_wafer{AF9Litho:{Node:200,Transistors:16843750}} (exact) + 16x carbon_fibers + 576 glowstone
-  → gtceu:nano_cpu_wafer{AF9Litho:{Node:200,Transistors:36750000}} | 1200t | 7680 EU/t
+  kubejs:cpu_wafer_package{AF9Litho:{Node:200}} (weak NBT: any version) + 16x carbon_fibers + 576 glowstone
+  → kubejs:nano_cpu_wafer_package{AF9Litho:{Node:200,Version:3,Transistors:36750000,Dies:11}} | 1200t | 7680 EU/t
 ```
 
-Removed base: `gtceu:chemical_reactor/` and `gtceu:large_chemical_reactor/` `nano_cpu_wafer`, `qbit_cpu_wafer_quantum_eye`, `qbit_cpu_wafer_radon`, `hpic_wafer`, `uhpic_wafer`.
+Removed base: `gtceu:chemical_reactor/` and `gtceu:large_chemical_reactor/` `nano_cpu_wafer`, `qbit_cpu_wafer_quantum_eye`, `qbit_cpu_wafer_radon`, `hpic_wafer`, `uhpic_wafer`; GT's engraving of all chip wafers except ULPIC on silicon (§6.4).
 
-## 6.7 Step 4 — Dice wafers (cutter, replaces base)
+## 6.7 Step 4 — Open packages (cutter)
 
-`af9:cut_<chip>_<plain|muv|huv|euv|xuv|luv>[|_distilled_water|_water]` (228 recipes). Input `strongNBT` (plain = no tag). Output = dies from §5.5 with the wafer's tag, split into stacks of ≤64 (2 output slots). Fluids: lubricant `clamp(totalEU/1280,1,250)` 900t, distilled `clamp(totalEU/426,3,750)` 1350t, water `clamp(totalEU/320,4,1000)` 1800t, `totalEU = 900 × cutEUt`. Cleanroom per §5.5. Removed base: `gtceu:cutter/<gtCut>[|_water|_distilled_water]` for all 16 chips.
+`af9:cut_<chip>_<muv|huv|euv|xuv|luv>[|_distilled_water|_water]` (180 recipes). Input: the package with weak NBT `{AF9Litho:{Node}}` (any line version cuts the same). Output: the dies of §5.5 as chips with exact NBT `{AF9Litho:{Node}}`, split into stacks of ≤64 (2 output slots). Fluids: lubricant `clamp(totalEU/1280,1,250)` 900t, distilled `clamp(totalEU/426,3,750)` 1350t, water `clamp(totalEU/320,4,1000)` 1800t, `totalEU = 900 × cutEUt`. Cleanroom per §5.5. GT's own cutter recipes stay: plain GT wafers (ULPIC bootstrap, quest rewards) cut exactly like in GT into plain chips.
 
 ## 6.8 Step 5 — Circuits
 
@@ -692,7 +711,7 @@ Changed chapters (`config/ftbquests/quests/chapters/`): `medium_voltage`, `high_
 | LuV | Zircon and Hafnium `84516B9D84575F62` (fluid task HfCl4), Immersion Lithography `C786A524FDA78C1A` (fluid task ultrapure water), LUV Lithography `106D52BD58E747F8` (needs both) | Qubit wafers, LuV Energy Hatch (IV 16A path), Large Engraving Laser, Nano Mainframe, Quantum Computer |
 | ZPM / UHV / Circuits | — | UHPIC wafer, naquadah boule, HASoC (lens → reticle task), circuits page intro |
 
-Mode quests use exact-NBT item tasks (`match_nbt: true`, e.g. `{AF9Litho:{Node:250,Transistors:31360000}}` on `gtceu:ram_wafer`). New quests reward 100 XP. IDs were generated unique across all quest files; positions were checked for overlap. The repo's `circuits.snbt` / `high_voltage.snbt` also carry the newer ATM9 instance's two small fixes (Wetware Mainframe row position, a normalized tool tag).
+Mode quests use NBT item tasks on the package's node (`match_nbt: true` + `weak_nbt_match: true`, e.g. `{AF9Litho:{Node:250}}` on `kubejs:ram_wafer_package`), so any line version counts; quests on line-made wafers ask for the package (`kubejs:<chip>_wafer_package`), the ULPIC bootstrap quest keeps GT's `ulpic_wafer`. New quests reward 100 XP. IDs were generated unique across all quest files; positions were checked for overlap. The repo's `circuits.snbt` / `high_voltage.snbt` also carry the newer ATM9 instance's two small fixes (Wetware Mainframe row position, a normalized tool tag).
 
 ---
 
@@ -863,9 +882,9 @@ af9:ultrapure_water (purify) NC fluid_filter + 4000 distilled_water → 4000 ult
 
 ```text
 [CZ] electronic-grade silicon (+ dopant, argon) → silicon / phosphorus / naquadah / neutronium boule → [CUTTER] → blank substrate wafers
-  → [PHOTOLITHOGRAPHY_LINE, mode = substrate + light, + reticle + track fluids (+ mode's resist, laser gas, UPW, HfCl4)] → printed wafer {AF9Litho}
-     → [LINE, same mode: + carbon fibres / quantum eye / IGP …] → derived wafer (nano/qbit CPU, HPIC, UHPIC) {AF9Litho}
-     → [CUTTER, exact NBT] → chips {AF9Litho}
+  → [PHOTOLITHOGRAPHY_LINE version 1-5, mode = substrate + light, + reticle + track fluids (+ mode's resist, laser gas, UPW, HfCl4)] → wafer package {AF9Litho} (+ chanced bonus)
+     → [LINE, same mode: + carbon fibres / quantum eye / IGP …] → derived package (nano/qbit CPU, HPIC, UHPIC) {AF9Litho}
+     → [CUTTER, weak NBT on the node] → chips {AF9Litho:{Node}}
         → [CIRCUIT_ASSEMBLER] MV and lower: any chip | HV-LuV: chip of the tier's mode (exact NBT)
                               + that tier's metals (MV Al-Si + Kovar, HV gold + stainless, EV Pt-Ir + titanium,
                                 IV tungstensteel + tungsten, LuV osmiridium + NbTi + rhodium-plated palladium)
@@ -930,9 +949,9 @@ Side chains (fab modes of §11 in brackets, GT machines in capitals): air → [p
 - [ ] Tier check for consumables (§6.11): MUV inputs at MV0 (single blocks ≤ MV incl. MV SMC single blocks and still cuts, SMC Thermal Processing Furnace, pyrolyse), HUV inputs at HV0 (+ HV single blocks, SMC multiblocks, cracker), no Distillation Tower / Vacuum Freezer before HUV chips. Run the reachability analysis over GT 7.2.0 + AF9 recipes after every chain change.
 - [ ] Subset conflicts in both directions within each fab type and, for AF9 recipes on GT machines, against every GT 7.2.0 recipe of the same machine (CR recipes also run in the LCR); circuit-gated recipes only clash with the same circuit. Watch GT's generic ones: distilled-water electrolysis, clay/quartzite autoclave, graphite electrolysis, ethenone (sulfuric + acetic acid), acetic acid (CO + methanol), steel (iron + oxygen).
 - [ ] New fab materials: formula only, no components (no GT decomposition shortcut); ID must not exist in GT 7.2.0.
-- [ ] Printed wafers: substrate per mode, GT yields (1/4/8/16 silicon class, 1/4/8 phosphorus class, ASoC 1/2, HASoC 1), 900t, `VA[tier]×4`, chemicals `round(base×1.5^i)`.
-- [ ] Derived wafers: exact-NBT input of the same mode, only from their first mode on.
-- [ ] Cutter: `strongNBT` input, plain variant kept, ≤64 per stack, GT fluid formulas with clamps, cleanroom per table.
+- [ ] Printed packages: substrate per mode, GT yields (1/4/8/16 silicon class, 1/4/8 phosphorus class, ASoC 1/2, HASoC 1) + chanced bonus (a quarter, ≥1, 10 %), 900t, `VA[tier]×4`, chemicals `round(base×1.5^i)`; the recipe types have 2 item outputs. Line versions (§5.8): `LithoMode` constants and `PhotolithographyLineMachine` light sources match the startup structure (lens aisle `setRepeatable(3, 7)`, `L` = lamp / KrF / ArF).
+- [ ] Derived packages: weak-NBT (node) input of the same mode, only from their first mode on.
+- [ ] Cutter: package with `weakNBT` on the node → chips with exact `{AF9Litho:{Node}}`; GT's own cutter recipes stay for plain wafers; ≤64 per stack, GT fluid formulas with clamps, cleanroom per table.
 - [ ] Circuits: MV and lower untouched by tags; HV-LuV use `AF9_LITHO.tagged(chip, mode, n)` with `max(tier mode, chip first mode)`; bootstraps (HV Advanced IC = MUV, EV Workstation = HUV) stay one mode lower.
 - [ ] Metals: a tier's circuits only use that tier's metals (Circuits quest page), each makeable with the previous tier's machines (mixer/EBF voltage one tier lower; two hatches give +1 tier on an EBF).
 - [ ] Bootstrap check for any change: a tier-T circuit, energy hatch or the line must never need something only tier-T machines make.
@@ -1047,11 +1066,11 @@ Dry run of the startup and server scripts with stubs (slots incl. circuits and p
 ```text
 af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; build: gradlew build, jar → mods/)
   litho/LithoMode.java                 # 5 modes, substrates, light sources (λ, NA, k1), resists, colours, WAFERS/CHIPS lists, NBT tag names
-  machine/PhotolithographyLineMachine  # LITHO_GATE, console UI, mode switching, counters, EMI info
+  machine/PhotolithographyLineMachine  # line version, LITHO_GATE, LITHO_VERSION, version preview pages, console UI, mode switching, counters, EMI info
   machine/LithoConsoleWidget           # the console (drawing + server→client sync)
   machine/LithoRecipeLogic             # per-mode counters
-  client/AF9Client                     # af9:litho_mode predicate + wafer/chip tooltip
-  compat/emi/AF9EmiPlugin              # each mode's wafer as its own EMI entry
+  client/AF9Client                     # chip af9:litho_mode predicate, package ribbon colour, package/chip tooltip
+  compat/emi/AF9EmiPlugin              # each mode's wafer package as its own EMI entry
   fab/FabFamily, IFabMachine           # §11: the four families (purge fluid/time, console colour, process steps per mode)
   fab/FabModifiers, FabRecipeLogic     # PURGE, STRUCTURE_PARALLEL, COIL_DISCOUNT, TIER_TEMPERATURE, THERMAL_OVERCLOCK; changeover bookkeeping
   fab/FabRecipeInfo                    # temperature, coil and single-block tier on the thermal modes' EMI pages
@@ -1073,16 +1092,20 @@ kubejs/server_scripts/ore_syn_recipes.js, updates_ig.js, kubejs/startup_scripts/
 config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in kubejs/assets/kubejs/lang/en_us.json (af9.quest.*)
 kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type names, tooltips 0-14, AF9 material names
 kubejs/assets/kubejs/textures/item/                 # photomask blank, 12 reticles, molecular sieve (+ saturated)
-kubejs/assets/gtceu/models/item/*.json              # 32 predicate overrides (16 wafers + 16 chips)
-kubejs/assets/af9/models|textures/item/litho/*      # 160 per-mode models/textures
+kubejs/assets/gtceu/models/item/*.json              # 16 chip predicate overrides (GT's wafers keep GT's models)
+kubejs/assets/af9/models|textures/item/litho/*      # 80 per-mode chip models/textures
+kubejs/assets/kubejs/textures/item/litho/*          # 16 wafer packages (48x48, 3x3 GT wafers) + the ribbon layer
+kubejs/assets/kubejs/textures/block/*_excimer_laser.png  # the line's KrF / ArF light sources
 ```
 
 # Appendix B. Copy-paste snippets (KubeJS)
 
 ```js
 // chip of a mode as an exact-NBT ingredient (server scripts share AF9_LITHO)
-AF9_LITHO.tagged('ram', 'euv', 8)            // 8x EUV RAM chips
-AF9_LITHO.nbt(AF9_LITHO.chip('nor'), AF9_LITHO.mode('xuv'))  // '{AF9Litho:{Node:100,Transistors:196000000}}'
+AF9_LITHO.tagged('ram', 'euv', 8)            // 8x EUV RAM chips, {AF9Litho:{Node:200}}
+// package of a mode from any line version (weak NBT on the node)
+AF9_LITHO.printedPackage(AF9_LITHO.chip('cpu'), AF9_LITHO.mode('euv'))
+AF9_LITHO.nbt(AF9_LITHO.chip('nor'), AF9_LITHO.mode('xuv'))  // '{AF9Litho:{Node:100,Version:4,Transistors:196000000,Dies:30}}'
 ```
 
 # Appendix C. Research provenance (5 parallel agents)

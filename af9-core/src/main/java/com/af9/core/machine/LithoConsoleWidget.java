@@ -16,8 +16,8 @@ import java.util.Arrays;
 import java.util.Locale;
 
 /**
- * The Photolithography Line's control console: mode selector, power gauge, process track, output data (node, light
- * source, density, dies, substrate) and counters,
+ * The Photolithography Line's control console: line version, mode selector (modes above the version locked), power
+ * gauge, process track, output data (node, light source, density, dies, substrate, version bonuses) and counters,
  * drawn on a dark scanline panel. The server samples the machine every tick and syncs only what changed; clicks are
  * handled by invisible {@code ButtonWidget}s placed over the drawn tiles (see
  * {@link PhotolithographyLineMachine#createUIWidget()}).
@@ -35,7 +35,7 @@ public class LithoConsoleWidget extends Widget {
     public static final int RESET_H = 10;
 
     static final int STATUS_OFFLINE = 0, STATUS_IDLE = 1, STATUS_RUNNING = 2, STATUS_NO_POWER = 3, STATUS_PAUSED = 4,
-            STATUS_MAINTENANCE = 5;
+            STATUS_MAINTENANCE = 5, STATUS_LOCKED = 6;
 
     private static final int BG = 0xFF0A0E16, PANEL = 0xFF111827, EDGE = 0xFF25324A, TEXT = 0xFFE6EDF7,
             MUTED = 0xFF7C8AA5, GOOD = 0xFF4ADE80, BAD = 0xFFEF4444, WARN = 0xFFFBBF24;
@@ -46,6 +46,7 @@ public class LithoConsoleWidget extends Widget {
     // last state sent to / received by the client
     private int status = -1;
     private int mode = 0;
+    private int version;
     private long available;
     private int progress; // per mille
     private final long[] printed = new long[LithoMode.values().length];
@@ -70,6 +71,7 @@ public class LithoConsoleWidget extends Widget {
         if (!logic.isWorkingEnabled()) return STATUS_PAUSED;
         if (logic.isWorking()) return STATUS_RUNNING;
         LithoMode active = machine.getActiveMode();
+        if (active != null && active.level() > machine.getVersion()) return STATUS_LOCKED;
         if (logic.isWaiting() || (active != null && machine.getAvailableEUt() < active.eut())) return STATUS_NO_POWER;
         return STATUS_IDLE;
     }
@@ -83,10 +85,12 @@ public class LithoConsoleWidget extends Widget {
         long newAvailable = machine.getAvailableEUt();
         int newProgress = (int) Math.round(machine.getRecipeLogic().getProgressPercent() * 1000);
         long[] newPrinted = machine.getPrintedCounts();
+        int newVersion = machine.getVersion();
         if (newStatus != status || newMode != mode || newAvailable != available || newProgress != progress ||
-                !Arrays.equals(newPrinted, printed)) {
+                newVersion != version || !Arrays.equals(newPrinted, printed)) {
             status = newStatus;
             mode = newMode;
+            version = newVersion;
             available = newAvailable;
             progress = newProgress;
             System.arraycopy(newPrinted, 0, printed, 0, printed.length);
@@ -100,6 +104,7 @@ public class LithoConsoleWidget extends Widget {
         status = sampleStatus();
         LithoMode active = machine.getActiveMode();
         mode = active == null ? 0 : active.ordinal();
+        version = machine.getVersion();
         available = machine.getAvailableEUt();
         progress = (int) Math.round(machine.getRecipeLogic().getProgressPercent() * 1000);
         System.arraycopy(machine.getPrintedCounts(), 0, printed, 0, printed.length);
@@ -124,6 +129,7 @@ public class LithoConsoleWidget extends Widget {
     private void writeState(FriendlyByteBuf buffer) {
         buffer.writeVarInt(status);
         buffer.writeVarInt(mode);
+        buffer.writeVarInt(version);
         buffer.writeVarLong(available);
         buffer.writeVarInt(progress);
         for (long count : printed) buffer.writeVarLong(count);
@@ -132,6 +138,7 @@ public class LithoConsoleWidget extends Widget {
     private void readState(FriendlyByteBuf buffer) {
         status = buffer.readVarInt();
         mode = buffer.readVarInt();
+        version = buffer.readVarInt();
         available = buffer.readVarLong();
         progress = buffer.readVarInt();
         for (int i = 0; i < printed.length; i++) printed[i] = buffer.readVarLong();
@@ -161,8 +168,11 @@ public class LithoConsoleWidget extends Widget {
         // header: title, status word and LED
         graphics.fill(x0 + 1, y0 + 1, x0 + WIDTH - 1, y0 + 14, PANEL);
         graphics.fill(x0 + 1, y0 + 14, x0 + WIDTH - 1, y0 + 15, withAlpha(active.argb, 0xAA));
-        graphics.drawString(font, Component.translatable("af9.litho.console.title").getString(), x0 + 6, y0 + 3, TEXT,
-                false);
+        String title = Component.translatable("af9.litho.console.title").getString();
+        graphics.drawString(font, title, x0 + 6, y0 + 3, TEXT, false);
+        if (version > 0) {
+            graphics.drawString(font, "V" + version, x0 + 10 + font.width(title), y0 + 3, active.argb, false);
+        }
         int ledColor = statusColor();
         boolean ledOn = status != STATUS_RUNNING || (time / 400) % 2 == 0;
         graphics.fill(x0 + WIDTH - 12, y0 + 4, x0 + WIDTH - 6, y0 + 10, ledOn ? ledColor : withAlpha(ledColor, 0x55));
@@ -174,14 +184,18 @@ public class LithoConsoleWidget extends Widget {
             int tx = x0 + tileX(tileMode.ordinal());
             int ty = y0 + TILE_Y;
             boolean selected = tileMode == active;
-            boolean powered = status != STATUS_OFFLINE && available >= tileMode.eut();
-            graphics.fill(tx, ty, tx + TILE_W, ty + TILE_H, selected ? withAlpha(tileMode.argb, 0x55) : PANEL);
-            border(graphics, tx, ty, TILE_W, TILE_H, selected ? tileMode.argb : withAlpha(tileMode.argb, 0x66));
+            boolean locked = tileMode.level() > version;
+            boolean powered = status != STATUS_OFFLINE && !locked && available >= tileMode.eut();
+            graphics.fill(tx, ty, tx + TILE_W, ty + TILE_H, selected ? withAlpha(tileMode.argb, 0x55) :
+                    locked ? 0xFF0B0F17 : PANEL);
+            border(graphics, tx, ty, TILE_W, TILE_H, selected ? tileMode.argb :
+                    withAlpha(tileMode.argb, locked ? 0x33 : 0x66));
             String name = tileMode.name();
             graphics.drawString(font, name, tx + (TILE_W - font.width(name)) / 2, ty + 3,
-                    powered || selected ? tileMode.argb : withAlpha(tileMode.argb, 0x88), false);
-            drawSmall(graphics, font, tileMode.nodeNm + "nm", tx + TILE_W / 2, ty + 13, powered ? MUTED : 0xFF4B5567,
-                    true);
+                    powered || selected ? tileMode.argb : withAlpha(tileMode.argb, locked ? 0x55 : 0x88), false);
+            // locked tiles show the version they need instead of the node
+            drawSmall(graphics, font, locked ? "V" + tileMode.level() : tileMode.nodeNm + "nm", tx + TILE_W / 2,
+                    ty + 13, locked ? BAD : powered ? MUTED : 0xFF4B5567, true);
         }
 
         // left: power gauge, progress and the process track
@@ -223,11 +237,21 @@ public class LithoConsoleWidget extends Widget {
         graphics.drawString(font, active.nodeNm + " nm node", rx, y0 + 55, active.argb, false);
         graphics.drawString(font, Component.translatable("af9.litho.light." + active.light).getString(), rx, y0 + 64,
                 TEXT, false);
-        graphics.drawString(font, "Density " + LithoMode.formatFactor(active.transistorDensity()), rx, y0 + 73, TEXT,
-                false);
-        graphics.drawString(font, "Dies " + LithoMode.formatFactor(active.dieFactor()), rx, y0 + 82, TEXT, false);
-        graphics.drawString(font, Component.translatable("af9.litho.substrate." + active.substrate).getString(), rx,
-                y0 + 91, MUTED, false);
+        // what the line's version adds on top of this mode (density, dies and substrate are on the tile tooltips)
+        int surplus = version - active.level();
+        if (surplus < 0) {
+            graphics.drawString(font, Component.translatable("af9.litho.console.needs_version", active.level())
+                    .getString(), rx, y0 + 72, BAD, false);
+        } else {
+            int bonusColor = surplus > 0 ? GOOD : MUTED;
+            graphics.drawString(font, Component.translatable("af9.litho.console.bonus_speed",
+                    LithoMode.formatFactor(1 / LithoMode.speedFactor(surplus))).getString(), rx, y0 + 72, bonusColor,
+                    false);
+            graphics.drawString(font, Component.translatable("af9.litho.console.bonus_yield",
+                    LithoMode.yieldBonus(surplus) / 100).getString(), rx, y0 + 81, bonusColor, false);
+            graphics.drawString(font, Component.translatable("af9.litho.console.bonus_shrink",
+                    Math.round(LithoMode.VERSION_SHRINK * 100 * surplus)).getString(), rx, y0 + 90, bonusColor, false);
+        }
 
         drawSmall(graphics, font, Component.translatable("af9.litho.console.printed").getString(), rx, y0 + 100, MUTED,
                 false);
@@ -246,7 +270,7 @@ public class LithoConsoleWidget extends Widget {
         return switch (status) {
             case STATUS_RUNNING -> GOOD;
             case STATUS_IDLE -> WARN;
-            case STATUS_NO_POWER, STATUS_MAINTENANCE -> BAD;
+            case STATUS_NO_POWER, STATUS_MAINTENANCE, STATUS_LOCKED -> BAD;
             case STATUS_PAUSED -> 0xFF60A5FA;
             default -> MUTED;
         };

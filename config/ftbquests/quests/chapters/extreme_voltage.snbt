@@ -606,7 +606,7 @@
 				}
 				{
 					id: "48B9848EBF024C1A"
-					item: "gtceu:lpic_wafer"
+					item: "kubejs:lpic_wafer_package"
 					type: "item"
 				}
 				{
@@ -1211,15 +1211,15 @@
 				id: "C14FFFD46C36A72D"
 				item: {
 					Count: 1
-					id: "gtceu:ram_wafer"
+					id: "kubejs:ram_wafer_package"
 					tag: {
 						AF9Litho: {
 							Node: 200
-							Transistors: 49000000
 						}
 					}
 				}
 				match_nbt: true
+				weak_nbt_match: true
 				type: "item"
 			}]
 			title: "{af9.quest.title.euv}"

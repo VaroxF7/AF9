@@ -1,6 +1,8 @@
 // AF9 - Photolithography Line
 // Realistic lithography cluster: a coater/developer track feeding a stepper, with five UV exposure modes (MUV 350 nm
-// down to LUV 50 nm). Wafers it prints carry the mode's node and transistor count as NBT.
+// down to LUV 50 nm). It prints wafer packages (GT's wafers stay unchanged) that carry the mode's node, the line
+// version and the transistor count as NBT. The line is built in five versions (longer lens, better light source); a
+// version runs the modes up to its own and runs lower ones faster, with better yield and more transistors.
 // Each mode uses the light source the real node used, and the resist made for that light:
 //   MUV       mercury-lamp i-line 365 nm             DNQ-novolac resist
 //   HUV, EUV  KrF excimer laser 248 nm               chemically amplified PHOST resist
@@ -8,7 +10,8 @@
 //   LUV       ArF immersion (water film under lens)  same as XUV
 // The resists, laser gases and immersion water come from the fab chemistry chains (fab_chemistry.js).
 // Replaces direct laser engraving of chip wafers. Recipes live in server_scripts/mods/gtceu/photolithography.js
-// The controller's behaviour (power gate, UI buttons, statistics, wafer tooltips/textures) comes from AF9 Core (af9-core/).
+// The controller's behaviour (version, power gate, UI buttons, statistics, package tooltips/colours) comes from AF9
+// Core (af9-core/).
 
 const $PhotolithographyLineMachine = Java.loadClass('com.af9.core.machine.PhotolithographyLineMachine')
 
@@ -104,8 +107,8 @@ StartupEvents.registry('item', allthemods => {
         .displayName('Saturated Molecular Sieve')
         .tooltip('Smelt it to drive the water out and reuse it.')
 
-    // One reticle per printed chip (derived wafers like Nano CPU need none). The wafers themselves are GT's own items;
-    // the line adds the mode's node and transistor count to them as NBT (read by AF9 Core for tooltip and texture).
+    // One reticle per printed chip (derived wafers like Nano CPU need none). The line prints into wafer packages
+    // (below); GT's wafers stay as they are.
     const chips = [
         { id: 'ilc', name: 'ILC' },
         { id: 'ram', name: 'RAM' },
@@ -126,6 +129,37 @@ StartupEvents.registry('item', allthemods => {
             .maxStackSize(1)
             .tooltip('Photomask for the Photolithography Line. Not consumed.')
     })
+
+    // Wafer packages: what the line prints, one per chip wafer (names after GT's wafers). NBT {AF9Litho:{Node, Version,
+    // Transistors (per die), Dies (per wafer)}}; AF9 Core tints the ribbon (layer 1) in the printing mode's colour and
+    // shows the numbers. The cutter opens them into chips. Must match LithoMode.PACKAGES in af9-core.
+    const packages = [
+        ['ilc', 'ILC'], ['ram', 'RAM'], ['cpu', 'CPU'], ['ulpic', 'ULPIC'], ['lpic', 'LPIC'],
+        ['simple_soc', 'Simple SoC'], ['nand', 'NAND Memory'], ['nor', 'NOR Memory'], ['mpic', 'MPIC'], ['soc', 'SoC'],
+        ['advanced_soc', 'ASoC'], ['highly_advanced_soc', 'HASoC'], ['nano_cpu', 'Nano CPU'], ['qbit_cpu', 'Qubit CPU'],
+        ['hpic', 'HPIC'], ['uhpic', 'UHPIC']
+    ]
+    packages.forEach(([id, name]) => {
+        allthemods.create(`${id}_wafer_package`)
+            .displayName(`${name} Wafer Package`)
+            .texture('layer0', `kubejs:item/litho/${id}_wafer_package`)
+            .texture('layer1', 'kubejs:item/litho/wafer_package_ribbon')
+            .tooltip('Printed wafers, packed for the cutter.')
+    })
+})
+
+// Light sources of the line's versions (the purple lamp is the mercury lamp of version 1): KrF allows versions up to 3,
+// ArF up to 5. See PhotolithographyLineMachine in af9-core.
+StartupEvents.registry('block', allthemods => {
+    [['krf_excimer_laser', 'KrF Excimer Laser'], ['arf_excimer_laser', 'ArF Excimer Laser']].forEach(([id, name]) => {
+        allthemods.create(id)
+            .displayName(name)
+            .metalSoundType()
+            .hardness(5)
+            .resistance(6)
+            .requiresTool(true)
+            .tagBlock('minecraft:mineable/pickaxe')
+    })
 })
 
 // One recipe type per exposure mode; GT turns them into the line's machine modes.
@@ -138,7 +172,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
         allthemods.create(`lithography_${mode}`)
             .category('multiblock')
             .setEUIO('in')
-            .setMaxIOSize(2, 1, fluidInputs[mode], 0)
+            .setMaxIOSize(2, 2, fluidInputs[mode], 0) // outputs: the packages + the chanced bonus packages
             .setSlotOverlay(false, false, true, GuiTextures.LENS_OVERLAY)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
             .setSound(GTSoundEntries.ELECTROLYZER)
@@ -151,20 +185,23 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         .rotationState(RotationState.NON_Y_AXIS)
         // machine modes, in order; switch with GT's mode tab or the buttons in the controller display
         .recipeTypes(['muv', 'huv', 'euv', 'xuv', 'luv'].map(mode => GTRecipeTypes.get(`lithography_${mode}`)))
-        // LITHO_GATE: only starts a recipe when the two energy hatches can supply its EU/t; perfect overclocks above that
-        .recipeModifiers([$PhotolithographyLineMachine.LITHO_GATE, GTRecipeModifiers.OC_PERFECT])
+        // LITHO_GATE: only starts a recipe the line's version allows and the two energy hatches can supply the EU/t
+        // for; perfect overclocks above that
+        // LITHO_VERSION: faster, better yield and more transistors per version above the mode
+        .recipeModifiers([$PhotolithographyLineMachine.LITHO_GATE, $PhotolithographyLineMachine.LITHO_VERSION,
+            GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(GTBlocks.CASING_STAINLESS_CLEAN)
-        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-            .map(i => Component.translatable(`af9.photolithography_line.tooltip.${i}`)))
-        // 3 wide x 3 high x 20 long. Aisles run from the back (light source) to the front (controller);
+        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+            17, 18].map(i => Component.translatable(`af9.photolithography_line.tooltip.${i}`)))
+        // 3 wide x 3 high x 20-24 long. Aisles run from the back (light source) to the front (controller);
         // each aisle lists its rows bottom -> middle -> top.
+        // Versions 1-5 like the Assembly Line's length: 3-7 projection-lens slices, and the light source must allow the
+        // version (mercury lamp V1, KrF excimer laser up to V3, ArF excimer laser up to V5). One preview page each.
         .pattern(definition => FactoryBlockPattern.start()
             // --- Stepper (exposure tool) ---
             .aisle('CCC', 'CLC', 'CCC') // UV light source / illuminator
             .aisle('CCC', 'CRC', 'CCC') // reticle stage
-            .aisle('CCC', 'WTW', 'CCC') // projection lens
-            .aisle('CCC', 'WTW', 'CCC') // projection lens
-            .aisle('CCC', 'WTW', 'CCC') // projection lens
+            .aisle('CCC', 'WTW', 'CCC').setRepeatable(3, 7) // projection lens: one slice per version + 2
             .aisle('CRC', 'WRW', 'CCC') // wafer XY stage
             // --- Coater / developer track ---
             .aisle('CCC', 'CRC', 'CCC') // track <-> stepper interface
@@ -199,8 +236,11 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .where('K', Predicates.blocks('gtceu:frostproof_machine_casing'))    // aluminium chill plates
             .where('T', Predicates.blocks('gtceu:tempered_glass'))               // lens elements
             .where('W', Predicates.blocks('gtceu:cleanroom_glass'))
-            .where('L', Predicates.blocks('gtceu:purple_lamp'))
+            .where('L', Predicates.blocks('gtceu:purple_lamp')                   // mercury i-line lamp (V1)
+                .or(Predicates.blocks('kubejs:krf_excimer_laser'))                 // up to V3
+                .or(Predicates.blocks('kubejs:arf_excimer_laser')))                // up to V5
             .build())
+        .shapeInfos(definition => $PhotolithographyLineMachine.versionShapes(definition))
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_clean_stainless_steel',
             'gtceu:block/multiblock/gcym/large_engraving_laser')
 })

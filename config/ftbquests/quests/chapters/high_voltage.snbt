@@ -461,7 +461,7 @@
 				}
 				{
 					id: "2AF7637FB5C18FF9"
-					item: "gtceu:cpu_wafer"
+					item: "kubejs:cpu_wafer_package"
 					type: "item"
 				}
 				{
@@ -521,7 +521,7 @@
 				}
 				{
 					id: "5DFF6A6EA91263D1"
-					item: "gtceu:simple_soc_wafer"
+					item: "kubejs:simple_soc_wafer_package"
 					type: "item"
 				}
 			]
@@ -1265,15 +1265,15 @@
 				id: "B110272EBFF9AA42"
 				item: {
 					Count: 1
-					id: "gtceu:ram_wafer"
+					id: "kubejs:ram_wafer_package"
 					tag: {
 						AF9Litho: {
 							Node: 250
-							Transistors: 31360000
 						}
 					}
 				}
 				match_nbt: true
+				weak_nbt_match: true
 				type: "item"
 			}]
 			title: "{af9.quest.title.huv}"

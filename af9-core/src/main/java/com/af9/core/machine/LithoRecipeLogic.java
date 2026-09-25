@@ -6,7 +6,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 /**
- * Recipe logic that reports every finished wafer back to the line, so it can count output per mode.
+ * Recipe logic that reports every finished print back to the line, so it can count wafer packages per mode.
  */
 public class LithoRecipeLogic extends RecipeLogic {
 

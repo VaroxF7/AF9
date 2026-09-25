@@ -286,14 +286,14 @@
 			rewards: [{
 				count: 4
 				id: "303D615EB146BB20"
-				item: "gtceu:uhpic_wafer"
+				item: "kubejs:uhpic_wafer_package"
 				random_bonus: 4
 				type: "item"
 			}]
 			subtitle: "{atm9.quest.gregtech.zpm.subt.uhpic}"
 			tasks: [{
 				id: "12F678374AA282E7"
-				item: "gtceu:uhpic_wafer"
+				item: "kubejs:uhpic_wafer_package"
 				type: "item"
 			}]
 			x: -9.0d

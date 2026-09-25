@@ -24,14 +24,17 @@ import dev.emi.emi.api.stack.Comparison;
 import dev.emi.emi.api.stack.EmiStack;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * Lists every lithographed wafer variant in EMI, right after its plain GT wafer, so players can click it and see the
+ * Lists every mode's wafer package in EMI, right after the plain package item, so players can click it and see the
  * mode recipe that prints it and the cutter recipe that dices it.
  * <p>
- * Only wafers: EMI compares them by the {@link LithoMode#TAG} tag. Chips keep EMI's default (NBT ignored), because
- * GT's circuit recipes take plain chips and a tag-aware comparison would hide those usages for printed chips.
+ * Only packages: EMI compares them by the printing node (the version and transistor count differ with the line that
+ * printed them). Chips keep EMI's default (NBT ignored), because GT's circuit recipes take plain chips and a
+ * tag-aware comparison would hide those usages for printed chips.
  */
 @EmiEntrypoint
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
@@ -39,24 +42,26 @@ public class AF9EmiPlugin implements EmiPlugin {
 
     @Override
     public void register(EmiRegistry registry) {
-        // each mode's wafer becomes its own entry; any other NBT is still ignored, like EMI's default
-        Comparison byLithoTag = Comparison.compareData(stack -> {
+        // each mode's package becomes its own entry; version, transistors and any other NBT are ignored
+        Comparison byNode = Comparison.compareData(stack -> {
             CompoundTag tag = stack.getNbt();
-            return tag != null && tag.contains(LithoMode.TAG, CompoundTag.TAG_COMPOUND) ? tag.getCompound(LithoMode.TAG) :
-                    null;
+            return tag != null && tag.contains(LithoMode.TAG, CompoundTag.TAG_COMPOUND) ?
+                    Integer.valueOf(tag.getCompound(LithoMode.TAG).getInt(LithoMode.TAG_NODE)) : null;
         });
 
-        // per wafer item, the entry the next variant goes after (starts at the plain wafer)
+        // per package item, the entry the next variant goes after (starts at the plain package)
         Map<Item, EmiStack> insertAfter = new HashMap<>();
-        for (String path : LithoMode.WAFERS) {
-            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation("gtceu", path));
+        for (String path : LithoMode.PACKAGES) {
+            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation("kubejs", path));
             if (item == null || item == Items.AIR) continue;
-            registry.setDefaultComparison(item, byLithoTag);
+            registry.setDefaultComparison(item, byNode);
             insertAfter.put(item, EmiStack.of(item));
         }
 
         // take the variants from the recipes that print them, so they always match exactly; modes in order
         RecipeManager recipes = registry.getRecipeManager();
+        // a recipe lists its package twice (guaranteed + bonus), add each item/mode once
+        Set<String> added = new HashSet<>();
         for (LithoMode mode : LithoMode.values()) {
             GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", mode.recipeTypeId()));
             if (type == null) continue;
@@ -65,7 +70,9 @@ public class AF9EmiPlugin implements EmiPlugin {
                     if (!(content.content instanceof Ingredient ingredient)) continue;
                     for (ItemStack stack : ingredient.getItems()) {
                         EmiStack previous = insertAfter.get(stack.getItem());
-                        if (previous == null || LithoMode.getLithoTag(stack) == null) continue;
+                        LithoMode printed = LithoMode.fromStack(stack);
+                        if (previous == null || printed == null) continue;
+                        if (!added.add(ForgeRegistries.ITEMS.getKey(stack.getItem()) + "/" + printed.id)) continue;
                         EmiStack variant = EmiStack.of(stack.copyWithCount(1));
                         registry.addEmiStackAfter(variant, previous);
                         insertAfter.put(stack.getItem(), variant);
