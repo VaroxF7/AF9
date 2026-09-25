@@ -18,8 +18,8 @@ Machines, materials and recipes stay in `../kubejs`; KubeJS plugs the Java class
 
 ## Get it without building
 
-GitHub Actions (`.github/workflows/build-af9-core.yml`) builds the mod on every push that changes `af9-core/`,
-`kubejs/`, `config/` or `defaultconfigs/`. On GitHub: **Actions → Build AF9 Core → the latest run → Artifacts**:
+GitHub Actions (`.github/workflows/build-af9-core.yml`) builds the mod on every push to `main` that changes
+`af9-core/`, `kubejs/`, `config/` or `defaultconfigs/` (or by hand: Actions → Build AF9 Core → Run workflow). On GitHub: **Actions → Build AF9 Core → the latest run → Artifacts**:
 
 - **AF9-update**: `mods/af9-core-<version>.jar` + `kubejs/`, `config/`, `defaultconfigs/` of that commit. Extract it
   into the instance folder (the one that contains `mods/`) and let it overwrite. Delete an older `af9-core-*.jar` in

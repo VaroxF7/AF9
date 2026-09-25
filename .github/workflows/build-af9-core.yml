@@ -1,10 +1,13 @@
 name: Build AF9 Core
 
+# Runs on pushes to main (and by hand from the Actions tab).
 # 1. build:   builds the AF9 Core mod (af9-core/), artifact "af9-core"
 # 2. package: artifact "AF9-update": mods/af9-core-*.jar + kubejs/, config/, defaultconfigs/ from this commit.
 #             Extract it into the instance folder (next to mods/) and let it overwrite.
 on:
   push:
+    branches:
+      - main
     paths:
       - 'af9-core/**'
       - 'kubejs/**'
