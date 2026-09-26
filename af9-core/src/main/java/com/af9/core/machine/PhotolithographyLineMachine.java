@@ -256,7 +256,9 @@ public class PhotolithographyLineMachine extends LithoMachine {
     //////////////////////////////////////
 
     /**
-     * Adds node, light source, machine version, break chances and the coolant to the lithography recipes in EMI/JEI,
+     * Gives the lithography recipes their own EMI/JEI page ({@link com.af9.core.litho.LithoRecipeUI}: items and track
+     * chemicals piped into the machine, like an assembly line) and adds node, light source, machine version, break
+     * chances and the coolant to it,
      * short enough for the page's width. The recipes with computation also get GT's "Min. Computation" line and (1 nm)
      * its "Requires Research" line: the page is made one line taller for each, and {@link #respaceTexts} fixes GT
      * putting both on the same row.
@@ -269,6 +271,8 @@ public class PhotolithographyLineMachine extends LithoMachine {
                         mode.recipeTypeId());
                 continue;
             }
+            // first: the settings below go to the page's UI
+            com.af9.core.litho.LithoRecipeUI.install(type, mode);
             // rendered as plain labels, so the texts must not contain '%'
             Component light = Component.translatable("af9.litho.light." + mode.light);
             switch (mode.machine) {
