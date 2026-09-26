@@ -8,7 +8,7 @@
 	order_index: 5
 	progression_mode: "flexible"
 	quest_links: [{
-		id: "52E7D4ABDFD2A627"
+		id: "5AAA69A57785E884"
 		linked_quest: "418DC14B94C9272A"
 		x: -1.0d
 		y: 3.5d
@@ -605,7 +605,7 @@
 					type: "item"
 				}
 				{
-					id: "4350E3C74DD603B9"
+					id: "5C9C3C4C095270F5"
 					item: "kubejs:lpic_reticle"
 					type: "item"
 				}
@@ -1200,7 +1200,7 @@
 			description: ["{af9.quest.ev.metals}"]
 			id: "2EC82E995F48F0D6"
 			rewards: [{
-				id: "50DD868CE7D33D10"
+				id: "3D810FF734FB70ED"
 				type: "xp"
 				xp: 100
 			}]
@@ -1211,7 +1211,7 @@
 					type: "item"
 				}
 				{
-					id: "78400D0643C6E18A"
+					id: "5AE579E46FCCC22D"
 					item: "gtceu:titanium_bolt"
 					type: "item"
 				}

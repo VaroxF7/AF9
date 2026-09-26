@@ -15,7 +15,7 @@ import java.util.Locale;
  * kubejs/server_scripts/mods/gtceu/photolithography.js (spec: docs/semiconductor-factory.md).
  * <p>
  * A mode prints on its own substrate (the 350 nm mode on silicon wafers, 200 nm on phosphorus wafers, ...) and draws
- * 4A of its voltage tier; the orbital mode draws 50A of UHV through laser hatches. A print is always GT's own chip
+ * 4A of its voltage tier; the orbital mode draws 50A of UHV (laser hatch). A print is always GT's own chip
  * wafer; a higher substrate gives more of them per blank (GT's engraving yields, extended).
  * <p>
  * Finer nodes break more wafers: every print can come out as the substrate's broken wafer, with the mode's base chance

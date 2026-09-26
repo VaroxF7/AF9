@@ -9,55 +9,55 @@
 	progression_mode: "flexible"
 	quest_links: [
 		{
-			id: "20C983DD7C84496D"
+			id: "11970F9DA6CA7247"
 			linked_quest: "4669A10F9AAFBF39"
 			x: 8.5d
 			y: 3.5d
 		}
 		{
-			id: "47A4A751A7AAE1FE"
+			id: "6B68560CDC3C4B06"
 			linked_quest: "72569D77E20C8733"
 			x: 10.0d
 			y: 3.0d
 		}
 		{
-			id: "41065F44B16E952F"
+			id: "2E810402CB2168DD"
 			linked_quest: "53E1C2576CF9BE8C"
 			x: 10.0d
 			y: 4.25d
 		}
 		{
-			id: "35142F7A50D2C719"
+			id: "68CB05C8D0CDEE08"
 			linked_quest: "6369E339EBE7EE5D"
 			x: 11.5d
 			y: 4.0d
 		}
 		{
-			id: "11970F9DA6CA7247"
+			id: "6A499EABE2B5AEEE"
 			linked_quest: "176624F41BEF77C6"
 			x: 11.0d
 			y: 5.5d
 		}
 		{
-			id: "6B68560CDC3C4B06"
+			id: "52E7D4ABDFD2A627"
 			linked_quest: "369DD864C99DCCEB"
 			x: 11.5d
 			y: 2.5d
 		}
 		{
-			id: "2E810402CB2168DD"
+			id: "76D439C67215CD98"
 			linked_quest: "6EC67EC0823F6BA7"
 			x: 13.0d
 			y: 2.5d
 		}
 		{
-			id: "68CB05C8D0CDEE08"
+			id: "4C5F87A85891534E"
 			linked_quest: "5D823D017C7CE01F"
 			x: 13.0d
 			y: 4.0d
 		}
 		{
-			id: "6A499EABE2B5AEEE"
+			id: "524745A0115FC878"
 			linked_quest: "1E053F71829B698E"
 			x: -11.5d
 			y: 8.5d
@@ -571,7 +571,7 @@
 			}]
 			tasks: [
 				{
-					id: "73E97296778CC3E0"
+					id: "72CC78D5EE2C21A3"
 					item: "kubejs:simple_soc_reticle"
 					type: "item"
 				}

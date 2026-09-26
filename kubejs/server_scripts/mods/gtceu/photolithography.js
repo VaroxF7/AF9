@@ -167,7 +167,7 @@ ServerEvents.recipes(allthemods => {
         .duration(2400)
         .EUt(VA[GTValues.UV])
 
-    // Orbital Lithography Station and its casings (built on the ground, runs only in orbit)
+    // Orbital Lithography Station (built on the ground, runs only in orbit; its structure is GT and GCYM blocks)
     allthemods.recipes.gtceu.assembler('af9:orbital_lithography_station')
         .itemInputs('gtceu:uhv_machine_hull', '4x gtceu:uv_emitter', '4x gtceu:uv_field_generator',
             '4x #gtceu:circuits/uhv', '4x gtceu:uv_sensor', '4x gtceu:uv_robot_arm', '16x gtceu:chromodynium_plate')
@@ -175,22 +175,6 @@ ServerEvents.recipes(allthemods => {
         .itemOutputs('gtceu:orbital_lithography_station')
         .duration(4000)
         .EUt(VA[GTValues.UHV])
-    allthemods.recipes.gtceu.assembler('af9:orbital_frame_casing')
-        .itemInputs('4x gtceu:neutronium_plate', 'gtceu:neutronium_frame')
-        .itemOutputs('2x kubejs:orbital_frame_casing')
-        .duration(100)
-        .EUt(VA[GTValues.UV])
-    allthemods.recipes.gtceu.assembler('af9:xfel_undulator')
-        .itemInputs('gtceu:uv_emitter', '2x gtceu:uv_field_generator', '4x gtceu:neutronium_plate')
-        .inputFluids(Fluid.of('gtceu:supercooled_hydrogen', 1000))
-        .itemOutputs('kubejs:xfel_undulator')
-        .duration(600)
-        .EUt(VA[GTValues.UV])
-    allthemods.recipes.gtceu.assembler('af9:maglev_wafer_stage')
-        .itemInputs('gtceu:uv_robot_arm', '2x gtceu:uv_electric_motor', '4x gtceu:neutronium_plate', 'gtceu:uv_sensor')
-        .itemOutputs('kubejs:maglev_wafer_stage')
-        .duration(600)
-        .EUt(VA[GTValues.UV])
 
     // ---- Photomasks ----
     // Mask blanks ship pre-coated with resist; the pattern is then written by a laser mask writer

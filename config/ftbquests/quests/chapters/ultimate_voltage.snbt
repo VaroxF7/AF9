@@ -50,7 +50,7 @@
 	order_index: 9
 	progression_mode: "flexible"
 	quest_links: [{
-		id: "26007DE4C633ED65"
+		id: "50DD868CE7D33D10"
 		linked_quest: "0266685DD6B82444"
 		x: -10.5d
 		y: 5.0d

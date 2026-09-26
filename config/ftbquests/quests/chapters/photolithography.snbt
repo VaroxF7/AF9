@@ -4,162 +4,162 @@
 	filename: "photolithography"
 	group: "1DA67E79B40AB130"
 	icon: "gtceu:photolithography_line"
-	id: "1A062E018E974C9F"
+	id: "1C1F029ACD11C612"
 	order_index: 13
 	progression_mode: "flexible"
 	quest_links: [
 		{
-			id: "7CF3ECAF1DFF76C1"
+			id: "5ED3062C39C637B0"
 			linked_quest: "11F7D3DDF5683EB3"
 			x: 9.0d
 			y: -9.0d
 		}
 		{
-			id: "0783E617B3994630"
+			id: "2047BE7091DC9F59"
 			linked_quest: "26D1F1ECF66194E6"
 			x: 9.0d
 			y: 6.0d
 		}
 		{
-			id: "6983D583CFBAB3AB"
+			id: "6B560A426840786C"
 			linked_quest: "0D1A6B32FEB51FAD"
 			x: 9.0d
 			y: 1.5d
 		}
 		{
-			id: "28217AE69C30429F"
+			id: "002E5253302F1C6B"
 			linked_quest: "688AFF76CF5E599A"
 			x: 10.5d
 			y: 1.5d
 		}
 		{
-			id: "5ED3062C39C637B0"
+			id: "5C5B4E631DBA5D05"
 			linked_quest: "5B92DA55541B168B"
 			x: 9.0d
 			y: -1.5d
 		}
 		{
-			id: "2047BE7091DC9F59"
+			id: "69D37B34C4DB3546"
 			linked_quest: "4E5FE40373675AED"
 			x: 10.5d
 			y: -1.5d
 		}
 		{
-			id: "6B560A426840786C"
+			id: "62E4BBEDC947CDD6"
 			linked_quest: "3DCCEDC5A817EBEB"
 			x: 12.0d
 			y: -1.5d
 		}
 		{
-			id: "002E5253302F1C6B"
+			id: "2F3E7E69D785E886"
 			linked_quest: "100ADA8508F6502A"
 			x: 12.0d
 			y: 3.0d
 		}
 		{
-			id: "5C5B4E631DBA5D05"
+			id: "1618656B6C65F4E3"
 			linked_quest: "7EFA4F2C0A895502"
 			x: 13.5d
 			y: 3.0d
 		}
 		{
-			id: "69D37B34C4DB3546"
+			id: "3A18116FF850ECA6"
 			linked_quest: "3FDC2A2BBAC0EF1B"
 			x: 15.0d
 			y: 3.0d
 		}
 		{
-			id: "62E4BBEDC947CDD6"
+			id: "5F3A316AF0986368"
 			linked_quest: "0B54990168F9B136"
 			x: 16.5d
 			y: 3.0d
 		}
 		{
-			id: "2F3E7E69D785E886"
+			id: "6A92C28EF990AEE8"
 			linked_quest: "5D58E5CB4F4BDAD5"
 			x: 18.0d
 			y: 3.0d
 		}
 		{
-			id: "1618656B6C65F4E3"
+			id: "489CE88F2B4CE1C7"
 			linked_quest: "2CC82170BCE61940"
 			x: 25.5d
 			y: 9.0d
 		}
 		{
-			id: "3A18116FF850ECA6"
+			id: "1CE81CF3430A7B76"
 			linked_quest: "5F270891C953486E"
 			x: 27.0d
 			y: 6.0d
 		}
 		{
-			id: "5F3A316AF0986368"
+			id: "49A1FEFD822A99AE"
 			linked_quest: "77AAC2F643E92A88"
 			x: 24.0d
 			y: 3.0d
 		}
 		{
-			id: "6A92C28EF990AEE8"
+			id: "7707F124553F8DDD"
 			linked_quest: "15A1D6D05A785919"
 			x: 25.5d
 			y: 3.0d
 		}
 		{
-			id: "489CE88F2B4CE1C7"
+			id: "6D45F1009D766C50"
 			linked_quest: "4838AD09C9590D2F"
 			x: 30.0d
 			y: 3.0d
 		}
 		{
-			id: "1CE81CF3430A7B76"
+			id: "24B206DFD6148259"
 			linked_quest: "3CA2D15D1EC4D852"
 			x: 28.5d
 			y: 3.0d
 		}
 		{
-			id: "49A1FEFD822A99AE"
+			id: "38DD23597A0F1B00"
 			linked_quest: "6F82909CD6FFF606"
 			x: 34.5d
 			y: 9.0d
 		}
 		{
-			id: "7707F124553F8DDD"
+			id: "5A7A45D675073FE8"
 			linked_quest: "1896B90F5FD66AFA"
 			x: 37.5d
 			y: 3.0d
 		}
 		{
-			id: "6D45F1009D766C50"
+			id: "276B5BB47A15CB32"
 			linked_quest: "4F8C6F49F9D7EE4D"
 			x: 39.0d
 			y: 4.5d
 		}
 		{
-			id: "24B206DFD6148259"
+			id: "494EA96D1EAB5929"
 			linked_quest: "17671346C7940CA8"
 			x: 49.5d
 			y: 3.0d
 		}
 		{
-			id: "38DD23597A0F1B00"
+			id: "1A062E018E974C9F"
 			linked_quest: "142D12B41C36D68A"
 			x: 54.0d
 			y: 9.0d
 		}
 		{
-			id: "5A7A45D675073FE8"
+			id: "18EE2D04A47A8521"
 			linked_quest: "5F3BF06A1DA8AB8D"
 			x: 55.5d
 			y: 3.0d
 		}
 		{
-			id: "276B5BB47A15CB32"
+			id: "2DDA8A7AD1964589"
 			linked_quest: "53C5CE6433E201BD"
 			x: 55.5d
 			y: 4.5d
 		}
 		{
-			id: "494EA96D1EAB5929"
+			id: "23D0D654A7A9199D"
 			linked_quest: "62BBF61C9849CA26"
 			x: 16.5d
 			y: -1.5d
@@ -2351,28 +2351,61 @@
 		}
 		{
 			dependencies: ["23C7AC818504BEB9"]
-			description: ["{af9.quest.litho.orbitalParts.1}"]
+			description: [
+				"{af9.quest.litho.orbitalParts.1}"
+				""
+				"{af9.quest.litho.orbitalParts.2}"
+				""
+				"{af9.quest.litho.orbitalParts.3}"
+			]
 			id: "24ABE0333646E550"
 			rewards: [{
-				id: "43F1EA53A6E43ECC"
+				id: "7CF3ECAF1DFF76C1"
 				type: "xp"
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.orbitalParts.subtitle}"
 			tasks: [
 				{
+					count: 288L
 					id: "070F504325AC3629"
-					item: "kubejs:orbital_frame_casing"
+					item: "gtceu:nonconducting_casing"
 					type: "item"
 				}
 				{
+					count: 101L
 					id: "6B652D08252CDFB3"
-					item: "kubejs:xfel_undulator"
+					item: "gtceu:stress_proof_casing"
 					type: "item"
 				}
 				{
+					count: 96L
 					id: "3E597341B36411D1"
-					item: "kubejs:maglev_wafer_stage"
+					item: "gtceu:sturdy_machine_casing"
+					type: "item"
+				}
+				{
+					count: 88L
+					id: "43F1EA53A6E43ECC"
+					item: "gtceu:hsss_frame"
+					type: "item"
+				}
+				{
+					count: 73L
+					id: "1E56217E2FB379BF"
+					item: "gtceu:shock_proof_cutting_casing"
+					type: "item"
+				}
+				{
+					count: 54L
+					id: "49C1334F32BB6E2F"
+					item: "gtceu:hsse_frame"
+					type: "item"
+				}
+				{
+					count: 26L
+					id: "00815BC04784BB54"
+					item: "gtceu:hssg_coil_block"
 					type: "item"
 				}
 			]
@@ -2399,7 +2432,7 @@
 			icon: "gtceu:orbital_lithography_station"
 			id: "75590392393A5E38"
 			rewards: [{
-				id: "00815BC04784BB54"
+				id: "28217AE69C30429F"
 				type: "xp"
 				xp: 1000
 			}]
@@ -2408,12 +2441,12 @@
 			subtitle: "{af9.quest.litho.n1.subtitle}"
 			tasks: [
 				{
-					id: "1E56217E2FB379BF"
+					id: "0783E617B3994630"
 					item: "gtceu:orbital_lithography_station"
 					type: "item"
 				}
 				{
-					id: "49C1334F32BB6E2F"
+					id: "6983D583CFBAB3AB"
 					item: "kubejs:chromodynium_wafer"
 					type: "item"
 				}

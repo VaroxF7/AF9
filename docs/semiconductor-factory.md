@@ -339,7 +339,7 @@ Two machines print chip wafers: the **Photolithography Line** (8 modes, 350 nm t
 | Orbital mode | `gtceu:orbital_lithography` | Orbital Lithography 1 nm (Chromodynium) |
 
 Java (AF9 Core): `LithoMode` (the 9 modes: substrate, node, tier, light, λ, NA, resist, base break chance), `LithoMachine` (shared by both: vacuum cleanliness, break roll, counters, `LITHO_GATE`, `STRIP_BROKEN`), `PhotolithographyLineMachine` (versions 1-8, `LITHO_VERSION`, version preview pages, EMI info), `OrbitalLithographyMachine` (orbit check), `LithoRecipeLogic` (break roll when a print finishes), `LithoConsoleWidget` (console), `compat/jade/AF9MachineProvider` (Jade).
-Modifiers: line `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital `LITHO_GATE + STRIP_BROKEN + OC_NON_PERFECT`.
+Modifiers: line `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital `LITHO_GATE + STRIP_BROKEN + PARALLEL_HATCH + OC_PERFECT`.
 Tooltips: `af9.photolithography_line.tooltip.0-15`, `af9.orbital_lithography_station.tooltip.0-9` (`kubejs/assets/gtceu/lang/en_us.json`).
 
 ## 5.2 The nine substrates (load-bearing numbers)
@@ -429,15 +429,21 @@ Light sources (assembler): KrF laser HV, ArF laser EV (unchanged); `af9:euv_ligh
 
 Line (3×3×10-17, back → front; each aisle bottom/middle/top): `CCC/CLC/CCC` light source, `CCC/CRC/CCC` reticle stage, `CCC/WTW/CCC` × 3-10 projection lens (`setRepeatable(3, 10)`), `CRC/WRW/CCC` wafer stage, `CSC/WXW/FPF` developer, `CKC/CHC/FFF` bake + chill plates, `CSC/WXW/FPF` prime + spin coater, `III/IMI/CFC` cassette station + controller; `L` = purple lamp / KrF / ArF / `kubejs:euv_light_source`. `C` = clean casing or up to 2 energy hatches, up to 8 fluid inputs, up to 1 maintenance; `I` = up to 2 item input + 2 output buses at the controller. Every part has a maximum only, never a required count (all AF9 multiblocks, `setMaxGlobalLimited(max, preview count)`); a print needs 4A of its tier, i.e. two normal energy hatches.
 
-Orbital station (7×7×7, back = XFEL → front = controller):
-```text
-3x  '       ',' OOOOO ',' OCCCO ',' OCUCO ',' OCCCO ',' OOOOO ','       '   electron gun + undulator (U in a ring of superconducting coils C)
-    'OOOOOOO' x7 with U in the centre                                         beam port
-    'OOOOOOO','OGGGGGO','OG###GO','OG#W#GO','OG###GO','OGGGGGO','OOOOOOO'   exposure chamber (fusion glass G, air #, maglev stage W)
-    'OOOOOOO','OGGGGGO','OG###GO','OG###GO','OG###GO','OGGGGGO','OOOOOOO'
-    'OOOOOOO' x7 with the controller S in the centre
-```
-`O` = `kubejs:orbital_frame_casing` or up to 4 **laser** hatches, 2 **coolant hatches**, 2 item inputs, 2 item outputs, 1 maintenance (maximums only). No energy hatches, no normal fluid hatches. Blocks: `kubejs:xfel_undulator`, `kubejs:maglev_wafer_stage`, `kubejs:orbital_frame_casing`, `gtceu:superconducting_coil`, `gtceu:fusion_glass`. Model: orbital frame casing + GCYM engraving-laser overlay.
+Orbital station (Mk2 lithography), 25 × 25 × 18: the user's `sol_array` pattern, taken over unchanged (25 aisles of 18 rows, rows bottom → top; `FactoryBlockPattern.start()` = LEFT, UP, FRONT). The controller `K` is in the middle of the top deck (aisle 12, row 17).
+
+| Letter | Block | Count | Part of the station |
+|---|---|---|---|
+| `O` | `gtceu:inert_machine_casing` or parts | 32 | top deck: controller and all hatches |
+| `L` | `gtceu:stress_proof_casing` | 101 | deck plate |
+| `H` | `gtceu:shock_proof_cutting_casing` | 73 | exposure deck, cross beams |
+| `D` | `gtceu:sturdy_machine_casing` | 96 | outer ring |
+| `C` | `gtceu:nonconducting_casing` | 288 | spokes and rims |
+| `F` | `gtceu:hsss_frame` | 88 | trusses |
+| `A` | `gtceu:hsse_frame` | 54 | undulator mast (12 blocks below the platform) |
+| `B` | `gtceu:hssg_coil_block` | 26 | undulator magnets (the mast's core) |
+| ` ` | anything | | |
+
+`O` parts, maximums only: up to 1 **laser** hatch and 3 energy hatches (together 50A of UHV), up to 2 **coolant hatches** (the only fluid input), item input and output buses, 1 parallel hatch, 1 maintenance. No normal fluid hatches. Modifiers `LITHO_GATE + STRIP_BROKEN + PARALLEL_HATCH + OC_PERFECT`. Model: inert PTFE casing + GT fusion-reactor overlay. Adapted from the old project: `workableCasingRenderer` → `workableCasingModel`, `ELECTRIC_OVERCLOCK.apply(PERFECT_OVERCLOCK)` → `OC_PERFECT`, the `sol_array` recipe type → `orbital_lithography`, `autoAbilities`/normal fluid hatches → coolant hatches + item output buses, exact 3 energy hatches → up to 3.
 
 Orbit: `OrbitalLithographyMachine.isOrbit` = dimension path `orbit` or ending in `_orbit` (Ad Astra 1.15: `ad_astra:earth_orbit`, `moon_orbit`, `mars_orbit`, `venus_orbit`, `mercury_orbit`, `glacio_orbit`). Elsewhere it forms but never prints (console NOT IN ORBIT).
 
@@ -917,7 +923,7 @@ Chips are plain GT chips (no mode, no NBT): any substrate's cut gives the same `
 - [ ] New mixer alloys: circuit number must not collide with a GT mixer recipe whose inputs are a subset (invar, cupronickel use circuit 1).
 - [ ] New materials need a `material.gtceu.<id>` line in `kubejs/assets/gtceu/lang/en_us.json`; new KubeJS items need a texture in `kubejs/assets/kubejs/textures/item/`.
 - [ ] Multiblock parts (all AF9 multiblocks): a maximum only, never a minimum or exact count — `setMaxGlobalLimited(max, preview count)`, no `setMinGlobalLimited` / `setExactLimit` / GT `autoAbilities` (it forces energy and maintenance), no casing minimums (the dry run flags all of these). Every recipe must run on normal 2A hatches within those maximums (≤ 4A on two energy hatches).
-- [ ] Line: up to 2 energy hatches, `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital: up to 4 laser hatches + 2 coolant hatches, `LITHO_GATE + STRIP_BROKEN + OC_NON_PERFECT`; no cleanroom for either.
+- [ ] Line: up to 2 energy hatches, `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital: up to 1 laser + 3 energy hatches, 2 coolant hatches, 1 parallel hatch, `LITHO_GATE + STRIP_BROKEN + PARALLEL_HATCH + OC_PERFECT`, pattern unchanged from the `sol_array` design; no cleanroom for either.
 - [ ] Quests: IDs are 16 hex digits starting with 0-7 (FTB Quests parses them as signed longs), unique across all quest files; new lithography quests go into `photolithography.snbt`, text into `af9.quest.litho.*`.
 - [ ] Realism wording: node names are gameplay labels; chromodynium, strange-matter and transmuted-neutronium wafers are fiction on real physics names.
 - [ ] Wafers: every new printable/blank wafer is in `#af9:wafers/<substrate>` (server tags) so contamination knows it; broken and contaminated wafers are not. Every substrate has a broken and a contaminated wafer item + texture.
@@ -1135,7 +1141,7 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → 
   machine/fab/FabTieredMachine         # SMC single blocks: GT slot page + console strip, furnace temperature per tier
   machine/fab/FabConsoleWidget         # the fab console (full for multiblocks, strip for single blocks)
 kubejs/startup_scripts/gtceu/wafers.js             # AF9_WAFER_TABLE: new blank substrates, printed/derived wafers on higher substrates, broken + contaminated wafers
-kubejs/startup_scripts/gtceu/photolithography.js   # litho, XCDA, i-line and EUV resist materials, reticles, sieves, light sources, orbital blocks, 9 recipe types, both litho structures, tooltips
+kubejs/startup_scripts/gtceu/photolithography.js   # litho, XCDA, i-line and EUV resist materials, reticles, sieves, light sources, 9 recipe types, both litho structures, tooltips
 kubejs/startup_scripts/gtceu/boule_melting.js      # endion, endionite, charges, seeds, crucibles, new boules, Endion coils, recipe type boule_melting
 kubejs/startup_scripts/gtceu/cryogenics.js         # dense/supercooled fluids, dense_cooling + supercooling, Supercooling Cryostat, coolant hatches LuV-UHV
 kubejs/startup_scripts/gtceu/particle_accelerator.js # strange matter, chromodynium, traps, beamline blocks, 3 recipe types, Particle Accelerator
@@ -1160,7 +1166,7 @@ kubejs/assets/kubejs/textures/item/wafers/*         # 5 new blanks, 115 printed/
 kubejs/assets/kubejs/textures/item/boules/*         # melt charges, seed crystals, 4 new boules, 2 crucibles
 kubejs/assets/kubejs/textures/item/accelerator/*    # spallation target, magnetic trap, QGP trap
 kubejs/assets/kubejs/textures/item/                 # photomask blank, 12 reticles, molecular sieve (+ saturated), dry resist cartridge
-kubejs/assets/kubejs/textures/block/*               # KrF / ArF lasers, EUV source, orbital frame casing, XFEL undulator, maglev stage, beamline casing, RF cavity, spallation housing
+kubejs/assets/kubejs/textures/block/*               # KrF / ArF lasers, EUV source, beamline casing, RF cavity, spallation housing
 kubejs/assets/kubejs/textures/block/coils/*         # Endion + Resonant Endion coils (+ _bloom active layers)
 ```
 

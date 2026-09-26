@@ -15,7 +15,7 @@ import java.util.List;
 
 /**
  * Controller logic of the Orbital Lithography Station (structure and recipes in KubeJS): prints the 1 nm mode on
- * chromodynium wafers with an X-ray free-electron laser fed by laser hatches (50A of UHV).
+ * chromodynium wafers with an X-ray free-electron laser (50A of UHV from a laser hatch and energy hatches).
  * <p>
  * It only prints in orbit (a dimension whose path ends in "orbit", e.g. Ad Astra's ad_astra:earth_orbit): the XFEL
  * needs the vacuum of space, and without gravity the resist goes on dry. Its vacuum counts as level 9 (90 s from 0 to
