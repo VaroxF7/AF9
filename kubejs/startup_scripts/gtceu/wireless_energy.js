@@ -34,7 +34,8 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                 .langValue(`Wireless Energy Receiver (${variants[tier][0]}A)`)
                 .rotationState(RotationState.ALL)
                 .abilities(PartAbility.INPUT_ENERGY)
-                .overlayTieredHullModel(variants[tier][1])
+                // GT has a String and a ResourceLocation version: name the String one (a GT part model)
+                ['overlayTieredHullModel(java.lang.String)'](variants[tier][1])
                 ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.wireless_receiver.tooltip',
                     variants[tier][0]))
         })
@@ -47,7 +48,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                 .langValue(`Wireless Energy Transmitter (${variants[tier][0]}A)`)
                 .rotationState(RotationState.ALL)
                 .abilities(PartAbility.OUTPUT_ENERGY)
-                .overlayTieredHullModel(variants[tier][2])
+                ['overlayTieredHullModel(java.lang.String)'](variants[tier][2])
                 ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.wireless_transmitter.tooltip',
                     variants[tier][0]))
         })
