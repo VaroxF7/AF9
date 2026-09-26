@@ -436,6 +436,8 @@ Mk1 line (3×3×10-12, built from plascrete; aisles **front → back**, `Factory
 
 Mk2 scanner (5 wide × 4 high × 11-12, plascrete under Plascrete Filter Casings; aisles front → back like the line; rows bottom → top): `CCCCC/IIMII/CIIIC/CFFFC` load port + controller, `CCCCC/WXPXW/WSHSW/FFFFF` and `CCCCC/WXPXW/WKHKW/FFFFF` track, `CCCCC/WRWRW/CRCRC/CFFFC` twin wafer stages, `CCCCC/CPTPC/CPTPC/CCCCC` immersion hood, `CCCCC/CQQQC/CQQQC/CCCCC` × 4-5 projection lens, `CCCCC/CRRRC/CCRCC/CCCCC` reticle stage, `CCCCC/CCLCC/CCCCC/CCCCC` ArF laser. `C` plascrete or up to 2 energy, 8 fluid inputs, 1 maintenance; `I` plascrete or 2 + 2 item buses; `X` inert PTFE casing, `P` PTFE pipe casing (IV: PTFE is fine), `S` steel gearbox, `H` cupronickel coil, `K` frostproof casing, `R` titanium gearbox, `T` tempered glass, `Q` laminated glass, `W` cleanroom glass, `F` Plascrete Filter Casing, `L` ArF excimer laser.
 
+Light ring (`LightRingRender`, GT's fusion ring for any `ILightRingMachine`): while the orbital station prints, a glowing torus lies just inside the rim at the exposure deck (centre 3 below the controller, radius 9.6, tube 0.25: clear of the rim everywhere, it only crosses the four cross beams), pulsing between the node's colour (`LithoMode.argb`) and white and fading out when the print stops; with Shimmer it blooms like GT's. Set in the startup script: `AF9MachineModels.workableCasingWithLightRing(casing, overlay, up, back, radius, thickness)` + `.hasBER(true)`.
+
 Orbital station (the orbital array), 25 × 25 × 18: the user's `sol_array` pattern, taken over unchanged (25 aisles of 18 rows, rows bottom → top; `FactoryBlockPattern.start()` = LEFT, UP, FRONT). The controller `K` is in the middle of the top deck (aisle 12, row 17).
 
 | Letter | Block | Count | Part of the station |
@@ -1149,7 +1151,8 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → 
   compat/jade/AF9JadePlugin, AF9MachineProvider  # Jade: vacuum bar, status, product, run time, info lines
   client/AF9Client                     # wafer tooltip (contamination warning), registers the dynamic renders
   client/render/ModeFluidRender        # GT dynamic render: a fluid per machine mode inside a running multiblock
-  machine/AF9MachineModels             # workable casing model + ModeFluidRender, for KubeJS .model(...)
+  client/render/LightRingRender        # GT's fusion ring for ILightRingMachine (the orbital station's ring)
+  machine/AF9MachineModels             # workable casing model + ModeFluidRender or LightRingRender, for KubeJS .model(...)
   machine/fab/SmcReactorMachine        # SMC LCR: FabMultiblockMachine + IFluidRenderMulti (the open vessel's blocks)
   pattern/AF9Filters                   # Plascrete Filter Casing as a GT cleanroom filter; ordered filter predicate
   compat/curios/CuriosCompat           # gloves in a Curios slot

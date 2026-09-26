@@ -1,6 +1,7 @@
 package com.af9.core.client;
 
 import com.af9.core.AF9Core;
+import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.ModeFluidRender;
 import com.af9.core.wafer.WaferContamination;
 
@@ -23,6 +24,7 @@ public final class AF9Client {
     /** Mod construction: the render types must exist before the machine models are built. */
     public static void init() {
         ModeFluidRender.register();
+        LightRingRender.register();
     }
 
     @Mod.EventBusSubscriber(modid = AF9Core.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)

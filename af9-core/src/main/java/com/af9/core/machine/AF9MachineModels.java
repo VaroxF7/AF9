@@ -1,5 +1,6 @@
 package com.af9.core.machine;
 
+import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.ModeFluidRender;
 
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
@@ -11,8 +12,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
- * Machine models for KubeJS machine definitions ({@code .model(...)}). Models are only built on the client; the
- * render classes are touched only then.
+ * Machine models for KubeJS machine definitions ({@code .model(...)}): GT's workable casing model plus an AF9 dynamic
+ * render. Models are only built on the client; the render classes are touched only then.
  */
 @SuppressWarnings("removal") // new ResourceLocation(String) is the only constructor on 1.20.1
 public final class AF9MachineModels {
@@ -34,5 +35,23 @@ public final class AF9MachineModels {
                 new ResourceLocation(String.valueOf(fluid))));
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(() -> ModeFluidRender.create(fluids)));
+    }
+
+    /**
+     * GT's workable casing model plus a glowing light ring while the machine works, like GT's Fusion Reactor
+     * ({@link LightRingRender}). The machine must implement {@link ILightRingMachine} and have a block entity renderer
+     * ({@code .hasBER(true)}).
+     *
+     * @param up        ring centre along the controller's up (negative: below it)
+     * @param back      ring centre behind the controller
+     * @param radius    ring radius in blocks
+     * @param thickness tube radius in blocks
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithLightRing(ResourceLocation casing,
+                                                                               ResourceLocation overlay, float up,
+                                                                               float back, float radius,
+                                                                               float thickness) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(() -> LightRingRender.create(up, back, radius, thickness)));
     }
 }

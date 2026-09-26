@@ -21,6 +21,7 @@ const $OrbitalLithographyMachine = Java.loadClass('com.af9.core.machine.OrbitalL
 const $LithoMachine = Java.loadClass('com.af9.core.machine.LithoMachine')
 const $LithoCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $LithoRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
+const $LithoMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 
 GTCEuStartupEvents.registry('gtceu:material', allthemods => {
     // ---- Extreme clean dry air (XCDA) chain, as in a fab's clean-dry-air plant ----
@@ -322,6 +323,8 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     // (cross beams) in a ring of sturdy casing, non-conducting spokes and rims, HSS-S trusses, and the X-ray undulator
     // mast: an HSS-G coil column in HSS-E frames reaching 12 blocks down. Prints 50, 20, 7 and 1 nm, only in orbit
     // (af9-core OrbitalLithographyMachine). Pattern from the sol_array design, unchanged; rows bottom -> top.
+    // While it prints, a light ring like GT's fusion ring glows just inside the rim, at the level of the exposure deck
+    // (3 below the controller, radius 9.6: clear of the rim, it only crosses the four beams), in the node's colour.
     allthemods.create('orbital_lithography_station', 'multiblock')
         .machine(holder => new $OrbitalLithographyMachine(holder))
         .rotationState(RotationState.NON_Y_AXIS)
@@ -382,4 +385,8 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .build())
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',
             'gtceu:block/multiblock/fusion_reactor')
+        // the same model plus the light ring: centre 3 below the controller, radius 9.6, tube 0.25
+        .model($LithoMachineModels.workableCasingWithLightRing('gtceu:block/casings/solid/machine_casing_inert_ptfe',
+            'gtceu:block/multiblock/fusion_reactor', -3, 0, 9.6, 0.25))
+        .hasBER(true)
 })

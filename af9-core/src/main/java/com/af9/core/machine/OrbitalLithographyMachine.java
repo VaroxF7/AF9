@@ -4,6 +4,7 @@ import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.console.ConsoleWidget;
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
@@ -21,8 +22,10 @@ import java.util.List;
  * It only prints in orbit (a dimension whose path ends in "orbit", e.g. Ad Astra's ad_astra:earth_orbit): the XFEL
  * needs the vacuum of space, and without gravity the resist goes on dry. Its vacuum counts as level 6 (60 s from 0 to
  * 100, after the scanner's 5, see {@link LithoMachine}). Coolant comes from coolant hatches (supercooled fluids only).
+ * While it prints, a light ring glows inside the station's rim in the colour of the node
+ * ({@link com.af9.core.client.render.LightRingRender}, placed in kubejs/startup_scripts/gtceu/photolithography.js).
  */
-public class OrbitalLithographyMachine extends LithoMachine {
+public class OrbitalLithographyMachine extends LithoMachine implements ILightRingMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             OrbitalLithographyMachine.class, LithoMachine.MANAGED_FIELD_HOLDER);
@@ -68,6 +71,19 @@ public class OrbitalLithographyMachine extends LithoMachine {
     @Override
     public String titleKey() {
         return "af9.orbital_litho.console.title";
+    }
+
+    @Override
+    public boolean isRingLit() {
+        return getRecipeLogic().isWorking();
+    }
+
+    /** The colour of the node being printed (the console's mode colour). */
+    @Override
+    public int getRingColor() {
+        GTRecipe recipe = getRecipeLogic().getLastRecipe();
+        LithoMode mode = recipe == null ? null : LithoMode.of(recipe.recipeType);
+        return (mode != null ? mode : getActiveMode()).argb;
     }
 
     /** True in an orbit dimension (path "orbit" or ending in "_orbit", any mod). */
