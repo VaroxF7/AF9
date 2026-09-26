@@ -1,5 +1,6 @@
 package com.af9.core.machine;
 
+import com.af9.core.AF9Core;
 import com.af9.core.machine.console.AcceleratorConsoleWidget;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.SidePanelsUIWidget;
@@ -11,6 +12,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
+import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.utils.GTUtil;
 
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
@@ -53,6 +55,11 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
             ParticleAcceleratorMachine.class, ProcessMachine.MANAGED_FIELD_HOLDER);
 
     private static final int[] COLORS = { 0xFF4ADE80, 0xFFF59E0B, 0xFFF472B6 };
+    /** The accelerator's recipe types, in mode order (gtceu namespace). */
+    public static final String[] RECIPE_TYPES = { "neutron_irradiation", "ion_collision", "quark_synthesis" };
+    /** Their lang keys ("gtceu.&lt;type&gt;"; "+ .short" is the short name, "+ .desc" the description). */
+    public static final String[] RECIPE_TYPE_KEYS = { "gtceu.neutron_irradiation", "gtceu.ion_collision",
+            "gtceu.quark_synthesis" };
 
     /**
      * The light ring (the model's, particle_accelerator.js reads these): at the controller's height, {@code RING_BACK}
@@ -84,7 +91,29 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
 
     @Override
     public int modeColor(int index) {
+        return modeColorOf(index);
+    }
+
+    /** ARGB colour of a mode (recipe type index): neutrons green, collisions amber, quarks pink. */
+    public static int modeColorOf(int index) {
         return COLORS[Math.max(0, Math.min(COLORS.length - 1, index))];
+    }
+
+    /**
+     * Common setup: the accelerator's recipe types get their own EMI / JEI page ({@link AcceleratorRecipeUI}: the items
+     * and the coolant piped into the ring, the mode's particles running round it).
+     */
+    @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
+    public static void registerRecipeInfo() {
+        for (int i = 0; i < RECIPE_TYPES.length; i++) {
+            GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", RECIPE_TYPES[i]));
+            if (type == null) {
+                AF9Core.LOGGER.warn("Recipe type gtceu:{} not found - is the AF9 KubeJS startup script loaded?",
+                        RECIPE_TYPES[i]);
+                continue;
+            }
+            AcceleratorRecipeUI.install(type, i);
+        }
     }
 
     @Override

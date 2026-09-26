@@ -143,9 +143,12 @@ public class LithoFlowWidget extends Widget {
         super.drawInBackground(graphics, mouseX, mouseY, partialTicks);
     }
 
-    /** A pipe from xa to xb at y, dashes flowing right, coloured in turn by the colours given. */
+    /**
+     * A pipe from xa to xb at y, dashes flowing right, coloured in turn by the colours given (the accelerator's page
+     * draws with these too).
+     */
     @OnlyIn(Dist.CLIENT)
-    private static void hPipe(GuiGraphics graphics, int xa, int xb, int y, long time, int[] colors) {
+    public static void hPipe(GuiGraphics graphics, int xa, int xb, int y, long time, int[] colors) {
         if (xb <= xa) return;
         graphics.fill(xa, y - 2, xb, y + 2, PIPE_EDGE);
         graphics.fill(xa, y - 1, xb, y + 1, PIPE);
@@ -159,7 +162,7 @@ public class LithoFlowWidget extends Widget {
 
     /** A vertical pipe from ya to yb at x, dashes flowing down (or up) towards the machine. */
     @OnlyIn(Dist.CLIENT)
-    private static void vPipe(GuiGraphics graphics, int x, int ya, int yb, long time, int color, boolean down) {
+    public static void vPipe(GuiGraphics graphics, int x, int ya, int yb, long time, int color, boolean down) {
         if (yb <= ya) return;
         graphics.fill(x - 1, ya, x + 3, yb, PIPE_EDGE);
         graphics.fill(x, ya, x + 2, yb, PIPE);

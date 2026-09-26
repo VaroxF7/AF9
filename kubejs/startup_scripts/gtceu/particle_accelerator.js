@@ -2,8 +2,8 @@
 //
 // A ring 47 blocks across and 7 high, built after GTNH's Compact Fusion Computer (its layout, GT5-Unofficial
 // MTELargeFusionComputer): superconducting bending magnets inside a clean-steel shell, four glass gates at the compass
-// points with the hatches, energy hatches along the ring. The magnets are cooled from Coolant Hatches only (supercooled
-// fluids, cryogenics.js). Three modes:
+// points; the hatches go anywhere on the clean-steel casing (and in the gates' glass spots). The magnets are cooled from
+// Coolant Hatches only (supercooled fluids, cryogenics.js). Three modes:
 //   neutron irradiation   protons on a beryllium spallation target; the neutron flux transmutes neutronium-doped
 //                         wafers into transmuted neutronium wafers (the 20 nm substrate)
 //   heavy-ion collision   lead ions collide; the quark-gluon plasma is caught in magnetic (Penning) traps
@@ -77,8 +77,9 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
 
     // The ring, top views of its layers (GTNH's Compact Fusion Computer): rows north -> south, the controller in the
     // south gate's outer wall facing out. C clean stainless steel casing, H superconducting coil (the bending magnets),
-    // B fusion glass, F naquadah alloy frame; I a gate's hatch spot (fusion glass or a part), E an energy spot (casing
-    // or an energy / laser hatch). The shell is a diamond around the magnets: 3 wide at y 1 and 5, 5 wide in between.
+    // B fusion glass, F naquadah alloy frame; I a gate's glass spot and E a casing spot (GTNH's hatch and energy spots:
+    // here, like every C, they take any part). The shell is a diamond around the magnets: 3 wide at y 1 and 5, 5 wide in
+    // between.
     // y = 0 and 6
     const RING_L0 = [
         '                                               ',
@@ -292,23 +293,23 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                 pattern = pattern.aisle(RING_L0[row], RING_L1[row], RING_L2[row], RING_L3[row], RING_L2[row],
                     RING_L1[row], RING_L0[row])
             }
-            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)). One set of
+            // them for the whole ring, so the maximums count across it: on any clean-steel casing, and in the gates'
+            // glass hatch spots
+            const parts = Predicates.abilities($AccelCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1)
+                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2))
+                .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0))
             return pattern
                 .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-                .where('C', Predicates.blocks('gtceu:clean_machine_casing'))
+                .where('C', Predicates.blocks('gtceu:clean_machine_casing').or(parts))
                 .where('H', Predicates.blocks('gtceu:superconducting_coil'))
                 .where('B', Predicates.blocks('gtceu:fusion_glass'))
                 .where('F', Predicates.blocks('gtceu:naquadah_alloy_frame'))
-                // the gates: item buses, coolant hatches and the maintenance hatch
-                .where('I', Predicates.blocks('gtceu:fusion_glass')
-                    .or(Predicates.abilities($AccelCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
-                    .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
-                    .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
-                    .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
-                // along the ring: the power
-                .where('E', Predicates.blocks('gtceu:clean_machine_casing')
-                    .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2))
-                    .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0)))
+                .where('I', Predicates.blocks('gtceu:fusion_glass').or(parts))
+                .where('E', Predicates.blocks('gtceu:clean_machine_casing').or(parts))
                 .where(' ', Predicates.any())
                 .build()
         })

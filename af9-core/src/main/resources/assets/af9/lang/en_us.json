@@ -190,6 +190,7 @@
     "af9.recipe.litho_node_orbital": "%snm %s, in orbit",
     "af9.recipe.litho_break": "Breaks %s pct (vented: %s)",
     "af9.recipe.litho_page.node": "%s nm node, %s",
+    "af9.recipe.accelerator_page.machine": "PARTICLE ACCELERATOR",
     "af9.recipe.litho_page.dry": "DRY PROCESS",
     "af9.recipe.litho_page.dry_detail": "no track: a dry resist cartridge",
     "af9.recipe.litho_page.machine.line": "MK1 LINE",
