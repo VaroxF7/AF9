@@ -22,6 +22,7 @@ const $LithoMachine = Java.loadClass('com.af9.core.machine.LithoMachine')
 const $LithoCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $LithoRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 const $LithoMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
+const $LithoSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
 
 GTCEuStartupEvents.registry('gtceu:material', allthemods => {
     // ---- Extreme clean dry air (XCDA) chain, as in a fab's clean-dry-air plant ----
@@ -188,6 +189,8 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
     // [node, fluid inputs, item inputs]: substrate + reticle, + the EUV Light Source (not consumed) for 20 and 7 nm
     const lineModes = [['350nm', 5, 2], ['200nm', 6, 2], ['100nm', 6, 2], ['80nm', 6, 2], ['65nm', 7, 2],
         ['50nm', 8, 2], ['20nm', 8, 3], ['7nm', 8, 3]]
+    // the orbital station's modes sound like it: a deep hum (af9-core AF9Sounds, vanilla sounds pitched down)
+    const orbitalNodes = ['50nm', '20nm', '7nm']
     lineModes.forEach(([node, fluids, items]) => {
         allthemods.create(`lithography_${node}`)
             .category('multiblock')
@@ -195,15 +198,15 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
             .setMaxIOSize(items, 2, fluids, 0) // GT's chip wafers + the chanced broken wafer out
             .setSlotOverlay(false, false, true, GuiTextures.LENS_OVERLAY)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-            .setSound(GTSoundEntries.ELECTROLYZER)
+            .setSound(orbitalNodes.includes(node) ? $LithoSounds.ORBITAL_STATION : GTSoundEntries.ELECTROLYZER)
     })
-    // chromodynium wafer, reticle, dry resist cartridge; supercooled endion from the coolant hatches
+    // chromodynium wafer, reticle, dry resist cartridge; the coolant comes from the station (af9-core)
     allthemods.create('orbital_lithography')
         .category('multiblock')
         .setEUIO('in')
-        .setMaxIOSize(3, 2, 1, 0)
+        .setMaxIOSize(3, 2, 0, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ARC)
+        .setSound($LithoSounds.ORBITAL_STATION)
 })
 
 GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
@@ -220,9 +223,10 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         .recipeTypes(['350nm', '200nm', '100nm'].map(node => GTRecipeTypes.get(`lithography_${node}`)))
         // LITHO_GATE: only prints a mode the line's version allows, when the two energy hatches can supply its EU/t
         // STRIP_BROKEN: the chanced broken wafer is only for the recipe viewers, the break roll decides
-        // LITHO_VERSION: faster per version above the mode; perfect overclocks above that
+        // LITHO_VERSION: faster per version above the mode; perfect overclocks above that; batch mode (GT's: once
+        // overclocked below 5 s, several prints in one run, each rolling its own break). No parallel hatch.
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN,
-            $PhotolithographyLineMachine.LITHO_VERSION, GTRecipeModifiers.OC_PERFECT])
+            $PhotolithographyLineMachine.LITHO_VERSION, GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:plascrete'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_line.tooltip', 16))
         // 3 wide x 3 high x 10-12 long, built from plascrete like a clean room. Aisles run from the front (controller)
@@ -278,8 +282,9 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         .langValue('Photolithography Scanner Mk2')
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes(['80nm', '65nm'].map(node => GTRecipeTypes.get(`lithography_${node}`)))
+        // the line's modifiers, batch mode included
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN,
-            $PhotolithographyLineMachine.LITHO_VERSION, GTRecipeModifiers.OC_PERFECT])
+            $PhotolithographyLineMachine.LITHO_VERSION, GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:plascrete'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_scanner.tooltip', 9))
         .pattern(definition => FactoryBlockPattern.start($LithoRelativeDirection.LEFT, $LithoRelativeDirection.UP,
@@ -325,18 +330,28 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     // (af9-core OrbitalLithographyMachine). Pattern from the sol_array design, unchanged; rows bottom -> top.
     // While it prints, a light ring like GT's fusion ring glows just inside the rim, at the level of the exposure deck
     // (3 below the controller, radius 9.6: clear of the rim, it only crosses the four beams), in the node's colour.
+    // The controller faces up out of the top deck (look down when you place it); the station turns with it in any
+    // direction. The pattern is laid out for that: rows along the controller's front (up), aisles along its up; with
+    // the controller facing up the blocks sit exactly where the old horizontal controller had them. Coolant: every
+    // print draws a supercooled fluid through the coolant hatches (af9-core OrbitalLithographyMachine.COOLANT);
+    // 7 and 1 nm draw computation (computation hatch) and need their research (data hatch). While switched on and
+    // powered its magnetic field gives the space around it normal gravity (Ad Astra; af9-core OrbitalField).
     allthemods.create('orbital_lithography_station', 'multiblock')
         .machine(holder => new $OrbitalLithographyMachine(holder))
-        .rotationState(RotationState.NON_Y_AXIS)
+        .rotationState(RotationState.ALL)
+        .allowExtendedFacing(true)
         .recipeTypes(['lithography_50nm', 'lithography_20nm', 'lithography_7nm', 'orbital_lithography']
             .map(id => GTRecipeTypes.get(id)))
-        // LITHO_GATE: only in orbit and with the recipe's full EU/t; STRIP_BROKEN: the break roll decides;
-        // then the parallel hatch and perfect overclocks
-        .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN, GTRecipeModifiers.PARALLEL_HATCH,
-            GTRecipeModifiers.OC_PERFECT])
+        // LITHO_GATE: only in orbit, with the recipe's full EU/t, a sealed vacuum and (researched prints) a data hatch;
+        // STRIP_BROKEN: the break roll decides; COOLANT: adds the coolant (faster with a better one); perfect
+        // overclocks; then batch mode (GT's: once overclocked below 5 s, several prints in one run, the coolant too).
+        // No parallel hatch.
+        .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN, $OrbitalLithographyMachine.COOLANT,
+            GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:inert_machine_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 10))
-        .pattern(definition => FactoryBlockPattern.start()
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 13))
+        .pattern(definition => FactoryBlockPattern.start($LithoRelativeDirection.RIGHT, $LithoRelativeDirection.FRONT,
+            $LithoRelativeDirection.UP)
             .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ')
             .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         ')
             .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','       CC   C   CC       ','    DDDCC  FHF  CCDDD    ','       CC   C   CC       ','            C            ','                         ')
@@ -371,22 +386,28 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .where('L', Predicates.blocks('gtceu:stress_proof_casing'))
             .where('C', Predicates.blocks('gtceu:nonconducting_casing'))
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)): the track
-            // chemicals through fluid input hatches, supercooled endion (1 nm) through coolant hatches
+            // chemicals through fluid input hatches, the supercooled coolant through coolant hatches, computation and
+            // research data (7 and 1 nm) through a computation hatch and a data hatch
             .where('O', Predicates.blocks('gtceu:inert_machine_casing')
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(3, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities($LithoCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.DATA_ACCESS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.OPTICAL_DATA_RECEPTION).setMaxGlobalLimited(1, 0))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
-                .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where(' ', Predicates.any())
             .build())
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',
             'gtceu:block/multiblock/fusion_reactor')
-        // the same model plus the light ring: centre 3 below the controller, radius 9.6, tube 0.25
+        // the same model plus the light ring: centre 3 behind the controller (below, as it faces up), radius 9.6,
+        // tube 0.25, lying across the controller's front axis
         .model($LithoMachineModels.workableCasingWithLightRing('gtceu:block/casings/solid/machine_casing_inert_ptfe',
-            'gtceu:block/multiblock/fusion_reactor', -3, 0, 9.6, 0.25))
+            'gtceu:block/multiblock/fusion_reactor', 0, 3, 9.6, 0.25, 'front'))
         .hasBER(true)
+        // GT would draw the preview for a controller facing north (the platform on its edge): show it facing up
+        .shapeInfos(definition => $OrbitalLithographyMachine.previewShapes(definition))
 })

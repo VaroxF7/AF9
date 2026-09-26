@@ -441,7 +441,19 @@ ServerEvents.recipes(allthemods => {
     // Output: GT's chip wafer (as many as the substrate yields), and the broken wafer at the mode's base break chance
     // for the recipe viewers. The machine takes the chanced broken wafer out and rolls the real break chance (node,
     // vacuum cleanliness, line version) when the print is done: a broken print gives one broken wafer and no chip wafers
-    // (af9-core LithoMachine).
+    // (af9-core LithoMachine). The orbital station adds its coolant itself (af9-core OrbitalLithographyMachine).
+    // Computation and research (7 nm here, 1 nm below): the prints draw CWU/t from a computation hatch, and one
+    // Research Station run per node (a data orb for the station's data hatch) unlocks all of that node's prints.
+    const researched = {}
+    const research = (recipe, node, stack, eut, cwut, total) => {
+        const id = `af9_litho_${node}`
+        if (researched[id]) {
+            recipe.researchWithoutRecipe(id, Item.of('gtceu:data_orb'))
+        } else {
+            researched[id] = true
+            recipe.stationResearch(b => b.researchStack(Item.of(stack)).researchId(id).EUt(eut).CWUt(cwut, total))
+        }
+    }
     modes.forEach(m => {
         const s = substrates[m.substrate]
         const chemicals = Math.pow(1.5, m.index)
@@ -470,22 +482,29 @@ ServerEvents.recipes(allthemods => {
                 .chancedOutput(`kubejs:broken_${s.id}_wafer`, m.baseBreak, 0)
                 .duration(900)
                 .EUt(VA[s.tier], 4)
+            // 7 nm: 32 CWU/t, researched on the strange matter wafer
+            if (m.id == '7nm') {
+                recipe.CWUt(32)
+                research(recipe, m.id, s.blank, VA[GTValues.UV], 32, 128000)
+            }
         })
     })
 
     // ---- Printed wafers (Orbital Lithography Station, 1 nm) ----
-    // X-ray FEL, dry resist, supercooled endion for the undulator and the stage; 50A of UHV for eight times the line's
-    // run time: a hundred times the energy of a 7 nm print
+    // X-ray FEL, dry resist; 50A of UHV for eight times the line's run time: a hundred times the energy of a 7 nm print.
+    // The coolant (500 mB supercooled endion per print) is added by the station; 96 CWU/t, researched on the
+    // chromodynium wafer.
     const chromodynium = substrates[AF9_WAFERS.orbital.substrate]
     chips.filter(c => c.reticle).forEach(c => {
-        allthemods.recipes.gtceu.orbital_lithography(`af9:print_${c.id}_1nm`)
+        const recipe = allthemods.recipes.gtceu.orbital_lithography(`af9:print_${c.id}_1nm`)
             .itemInputs(chromodynium.blank, 'kubejs:dry_resist_cartridge')
             .notConsumable(`kubejs:${c.reticle}_reticle`)
-            .inputFluids(Fluid.of('gtceu:supercooled_endion', 500))
             .itemOutputs(`${yieldOf(chromodynium.index, c)}x ${printed(chromodynium.index, c)}`)
             .chancedOutput(`kubejs:broken_${chromodynium.id}_wafer`, AF9_WAFERS.orbital.baseBreak, 0)
             .duration(7200)
             .EUt(VA[chromodynium.tier], 50)
+            .CWUt(96)
+        research(recipe, '1nm', chromodynium.blank, VA[GTValues.UHV], 96, 384000)
     })
 
     // Derived wafers (Nano CPU, Qubit CPU, HPIC, UHPIC) and cutting: GT's own Chemical Reactor and cutter recipes, since

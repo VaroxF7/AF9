@@ -2,6 +2,8 @@ package com.af9.core;
 
 import com.af9.core.blast.BouleMelting;
 import com.af9.core.client.AF9Client;
+import com.af9.core.common.AF9Sounds;
+import com.af9.core.compat.adastra.AdAstraCompat;
 import com.af9.core.fab.FabRecipeInfo;
 import com.af9.core.machine.PhotolithographyLineMachine;
 import com.af9.core.pattern.AF9Filters;
@@ -33,6 +35,7 @@ public class AF9Core {
     @SuppressWarnings("removal")
     public AF9Core() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
+        AF9Sounds.register(FMLJavaModLoadingContext.get().getModEventBus());
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AF9Config.SPEC);
         if (FMLEnvironment.dist == Dist.CLIENT) AF9Client.init();
     }
@@ -45,5 +48,7 @@ public class AF9Core {
         event.enqueueWork(BouleMelting::install);
         // the KubeJS block exists now; structures are only checked later
         event.enqueueWork(AF9Filters::register);
+        // the orbital station's magnetic field sets gravity through Ad Astra
+        event.enqueueWork(AdAstraCompat::init);
     }
 }

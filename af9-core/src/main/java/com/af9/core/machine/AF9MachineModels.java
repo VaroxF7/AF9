@@ -3,12 +3,14 @@ package com.af9.core.machine;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.ModeFluidRender;
 
+import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 import com.gregtechceu.gtceu.common.data.models.GTMachineModels;
 
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -51,7 +53,21 @@ public final class AF9MachineModels {
                                                                                ResourceLocation overlay, float up,
                                                                                float back, float radius,
                                                                                float thickness) {
+        return workableCasingWithLightRing(casing, overlay, up, back, radius, thickness, "up");
+    }
+
+    /**
+     * As {@link #workableCasingWithLightRing(ResourceLocation, ResourceLocation, float, float, float, float)}, the ring
+     * lying across the given axis of the controller ("up", "front", "left", ...): "front" for a controller that faces
+     * the ring's axis, like the orbital station's facing up out of its deck.
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithLightRing(ResourceLocation casing,
+                                                                               ResourceLocation overlay, float up,
+                                                                               float back, float radius,
+                                                                               float thickness, String normal) {
+        RelativeDirection axis = RelativeDirection.valueOf(normal.toUpperCase(Locale.ROOT));
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
-                .andThen(model -> model.addDynamicRenderer(() -> LightRingRender.create(up, back, radius, thickness)));
+                .andThen(model -> model.addDynamicRenderer(
+                        () -> LightRingRender.create(up, back, radius, thickness, axis)));
     }
 }

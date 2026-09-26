@@ -29,6 +29,13 @@ repositories {
             includeGroup 'top.theillusivec4.curios'
         }
     }
+    maven { // Ad Astra (the orbital station's magnetic field sets gravity through its API)
+        name = 'Resourceful'
+        url = 'https://maven.teamresourceful.com/repository/maven-public/'
+        content {
+            includeGroup 'earth.terrarium.adastra'
+        }
+    }
     maven { // Jade (the same coordinates GTCEu builds against)
         name = 'Modrinth'
         url = 'https://api.modrinth.com/maven'
@@ -69,6 +76,8 @@ dependencies {
     modCompileOnly("maven.modrinth:jade:${jade_version}")
     // gloves worn in a Curios slot protect wafers too (optional at runtime)
     modCompileOnly("top.theillusivec4.curios:curios-forge:${curios_version}:api")
+    // the orbital station's magnetic field (optional at runtime)
+    modCompileOnly("earth.terrarium.adastra:ad_astra-forge-${minecraft_version}:${ad_astra_version}") { transitive = false }
 }
 
 tasks.named('processResources', ProcessResources).configure {

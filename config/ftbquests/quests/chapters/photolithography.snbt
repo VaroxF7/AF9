@@ -2253,6 +2253,8 @@
 				"{af9.quest.litho.n7.3}"
 				""
 				"{af9.quest.litho.n7.4}"
+				""
+				"{af9.quest.litho.n7.5}"
 			]
 			icon: "kubejs:strange_matter_wafer"
 			id: "23C7AC818504BEB9"
@@ -2429,6 +2431,8 @@
 				"{af9.quest.litho.n1.2}"
 				""
 				"{af9.quest.litho.n1.3}"
+				""
+				"{af9.quest.litho.n1.4}"
 			]
 			icon: "gtceu:orbital_lithography_station"
 			id: "75590392393A5E38"
@@ -2491,6 +2495,14 @@
 				"{af9.quest.litho.orbitalStation.3}"
 				""
 				"{af9.quest.litho.orbitalStation.4}"
+				""
+				"{af9.quest.litho.orbitalStation.5}"
+				""
+				"{af9.quest.litho.orbitalStation.6}"
+				""
+				"{af9.quest.litho.orbitalStation.7}"
+				""
+				"{af9.quest.litho.orbitalStation.8}"
 			]
 			icon: "gtceu:orbital_lithography_station"
 			id: "586E1415B5F87EE9"

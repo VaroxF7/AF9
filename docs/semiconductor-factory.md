@@ -341,7 +341,7 @@ Three machines print chip wafers: the **Photolithography Line** (Mk1: 350, 200, 
 | Orbital modes | `gtceu:lithography_50nm`, `_20nm`, `_7nm`, `gtceu:orbital_lithography` | 50 nm (Neutronium) … 1 nm (Chromodynium) |
 
 Java (AF9 Core): `LithoMode` (the 9 modes: substrate, node, tier, light, λ, NA, resist, base break chance), `LithoMachine` (shared by both: vacuum cleanliness, break roll, counters, `LITHO_GATE`, `STRIP_BROKEN`), `PhotolithographyLineMachine` (Mk1 and Mk2 from a `Spec`: modes, lens block and slices, light sources, vacuum level, title; versions, `LITHO_VERSION`, version preview pages, EMI info), `OrbitalLithographyMachine` (orbit check), `LithoRecipeLogic` (break roll when a print finishes), `LithoConsoleWidget` (console), `compat/jade/AF9MachineProvider` (Jade).
-Modifiers: line and scanner `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital `LITHO_GATE + STRIP_BROKEN + PARALLEL_HATCH + OC_PERFECT`.
+Modifiers: line and scanner `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT + BATCH_MODE` (no parallel hatch); orbital `LITHO_GATE + STRIP_BROKEN + COOLANT + OC_PERFECT + BATCH_MODE`.
 Tooltips: `af9.photolithography_line.tooltip.0-15`, `af9.photolithography_scanner.tooltip.0-8`, `af9.orbital_lithography_station.tooltip.0-9` (`kubejs/assets/gtceu/lang/en_us.json`).
 
 ## 5.2 The nine substrates (load-bearing numbers)
@@ -422,7 +422,7 @@ Mk1 line and Mk2 scanner grow by projection-lens slices; the light source must a
 | Mk1 line | 3 | 5 | `kubejs:arf_excimer_laser` | + 100 nm | 12 | 30 s |
 | Mk2 scanner | 1 | 4 × 6 laminated glass | `kubejs:arf_excimer_laser` | 80 nm | 11 | 40 s |
 | Mk2 scanner | 2 | 5 × 6 | ArF | + 65 nm | 12 | 50 s |
-| Orbital station | — | — | (X-ray FEL; EUV Light Source in the input bus for 20 / 7 nm) | 50, 20, 7, 1 nm | 25 × 25 × 18 | 60 s |
+| Orbital station | — | — | (X-ray FEL; EUV Light Source in the controller's EUV slot or an input bus for 20 / 7 nm) | 50, 20, 7, 1 nm | 25 × 25 × 18 | 60 s |
 
 Version = min(lens slices − (V1 slices − 1), light cap), read on structure formation (`PhotolithographyLineMachine.Spec`: `MK1` lamp 1, KrF 2, ArF 3; `MK2` ArF 2). `LITHO_GATE` refuses modes above the version (console LOCKED, the tile shows `V<n>` in red). Per version above a mode: run time ×0.8 (`LITHO_VERSION`, before the overclock) and break chance ×0.75 (in the roll). EMI shows one structure page per version (`versionShapes(definition, spec)`).
 
@@ -436,9 +436,23 @@ Mk1 line (3×3×10-12, built from plascrete; aisles **front → back**, `Factory
 
 Mk2 scanner (5 wide × 4 high × 11-12, plascrete under Plascrete Filter Casings; aisles front → back like the line; rows bottom → top): `CCCCC/IIMII/CIIIC/CFFFC` load port + controller, `CCCCC/WXPXW/WSHSW/FFFFF` and `CCCCC/WXPXW/WKHKW/FFFFF` track, `CCCCC/WRWRW/CRCRC/CFFFC` twin wafer stages, `CCCCC/CPTPC/CPTPC/CCCCC` immersion hood, `CCCCC/CQQQC/CQQQC/CCCCC` × 4-5 projection lens, `CCCCC/CRRRC/CCRCC/CCCCC` reticle stage, `CCCCC/CCLCC/CCCCC/CCCCC` ArF laser. `C` plascrete or up to 2 energy, 8 fluid inputs, 1 maintenance; `I` plascrete or 2 + 2 item buses; `X` inert PTFE casing, `P` PTFE pipe casing (IV: PTFE is fine), `S` steel gearbox, `H` cupronickel coil, `K` frostproof casing, `R` titanium gearbox, `T` tempered glass, `Q` laminated glass, `W` cleanroom glass, `F` Plascrete Filter Casing, `L` ArF excimer laser.
 
-Light ring (`LightRingRender`, GT's fusion ring for any `ILightRingMachine`): while the orbital station prints, a glowing torus lies just inside the rim at the exposure deck (centre 3 below the controller, radius 9.6, tube 0.25: clear of the rim everywhere, it only crosses the four cross beams), pulsing between the node's colour (`LithoMode.argb`) and white and fading out when the print stops; with Shimmer it blooms like GT's. Set in the startup script: `AF9MachineModels.workableCasingWithLightRing(casing, overlay, up, back, radius, thickness)` + `.hasBER(true)`.
+Light ring (`LightRingRender`, GT's fusion ring for any `ILightRingMachine`): while the orbital station prints, a glowing torus lies just inside the rim at the exposure deck (centre 3 behind = below the controller, radius 9.6, tube 0.25, across the controller's front axis: clear of the rim everywhere, it only crosses the four cross beams), pulsing between the node's colour (`LithoMode.argb`) and white every 50 ticks and fading out when the print stops; with Shimmer it blooms like GT's. Around it a soft halo in the node's colour (two wider, fainter tori breathing with the pulse) and 2-4 particles a tick along the ring (electric sparks, dust in the node's colour, end-rod glints). Set in the startup script: `AF9MachineModels.workableCasingWithLightRing(casing, overlay, up, back, radius, thickness, normal)` + `.hasBER(true)`.
 
-Orbital station (the orbital array), 25 × 25 × 18: the user's `sol_array` pattern, taken over unchanged (25 aisles of 18 rows, rows bottom → top; `FactoryBlockPattern.start()` = LEFT, UP, FRONT). The controller `K` is in the middle of the top deck (aisle 12, row 17).
+Sound (`common/AF9Sounds`, `assets/af9/sounds.json`, vanilla sounds pitched down, attenuation 40-64): `af9:orbital_station` is the working sound of the four orbital recipe types (GT loops it while a print runs: the beacon hum or the nether portal an octave down); the ring adds `af9:orbital_station_pulse` (warden heartbeat, half pitch) on every white flash and `af9:orbital_station_ignite` (the end portal opening at 0.6 pitch) when it lights up.
+
+Batch mode instead of a parallel hatch: modifiers `LITHO_GATE, STRIP_BROKEN, COOLANT, OC_PERFECT, BATCH_MODE`; GT's batch runs several prints as one once overclocks bring a print under `batchDuration` (100 ticks), multiplying inputs (coolant included), outputs and time. Every print of a run rolls its own break (`LithoMachine.finishPrints`: parallels × batch rolls; the broken ones give a broken wafer each, the rest their chip wafers).
+
+Coolant (`OrbitalLithographyMachine.COOLANT`, a recipe modifier after `STRIP_BROKEN` and before `BATCH_MODE`): every orbital print draws a supercooled fluid from the coolant hatches (`litho/Coolant`, grades hydrogen 1 < argon 2 < xenon 3 < endion 4). Per node: minimum / best / mB per print: 50 nm hydrogen / xenon / 100, 20 nm argon / endion / 150, 7 nm xenon / endion / 250, 1 nm endion / endion / 500. The station takes the best useful coolant in its hatches (best grade down to the minimum, then colder ones), adds it as a fluid input (batch mode multiplies it), shortens the run ×0.9 per grade above the minimum (up to the best) and stores the coolant in the recipe data (`af9_coolant`); the break roll multiplies the chance by ×0.8 per such grade. No usable coolant: console / Jade status NO COOLANT. The 1 nm recipes no longer list supercooled endion; EMI shows the coolant line per mode.
+
+Computation and research (7 and 1 nm): the prints draw 32 / 96 CWU/t (`.CWUt`, GT's computation capability, through a Computation Hatch), and carry a research condition: `af9_litho_7nm` (Research Station on a Strange Matter Wafer, UV, 32 CWU/t, 128000 CWU) and `af9_litho_1nm` (Chromodynium Wafer, UHV, 96 CWU/t, 384000 CWU); the first print recipe of the node generates the research, the rest share it (`researchWithoutRecipe`), so one data orb unlocks the node. `LITHO_GATE` refuses researched prints on a machine without a data hatch (GT's data hatches only block what they do not hold). Statuses NO COMPUTATION / NO DATA when the hatch is missing.
+
+Magnetic field (`OrbitalField`, Ad Astra's `EntityGravityEvent`, `compat/adastra/AdAstraCompat`): while the station is formed, switched on (GT's work toggle) and its pumps powered, every entity inside its field (the station's box, 12 to each side and 17 below the controller, grown by `orbitalField.range` = 8 on every side and 4 more above the deck) falls with `orbitalField.gravity` = 1.0 (Earth) instead of Ad Astra's orbit gravity 0: you stand on the deck and jump about 1.25 blocks. Gravity is only raised, never lowered. Both sides keep their loaded stations (the player moves client-side); `fieldActive` is synced.
+
+Screen (`OrbitalStationUIWidget` = GT's `FancyMachineUIWidget` + two panels beside the player inventory, page `OrbitalConsoleWidget` 384 × 148, one synced state): left the exposure field (the four node tiles; the wafer being printed, a disc with its die grid exposed die by die in serpentine order in the node's colour, a scan slit on the current die and a beam from the optics, a progress ring with a running glint; the state and the run-time bar), right the exposure panel (node and light, the product, the EUV Light Source slot, the ONLINE / OFFLINE switch = GT's work toggle, break chance, counters + reset, a hint for the current state). Beside the inventory: PROCESS (vacuum, coolant, computation, magnetic field, orbit) and SYSTEM (status, power available / needed, energy tier, batch, switch). A BATCH switch sits next to ONLINE / OFFLINE (GT's batch toggle, also on GT's button panel). The panels only show on the station's own page. EUV slot: `euvSlot`, a 1-slot `NotifiableItemStackHandler` (IO.IN, only `kubejs:euv_light_source`) on the controller: GT attaches a controller's own recipe handlers, so the prints' not-consumed EUV source is found there like in an input bus; it drops when the controller is broken.
+
+Facing: `RotationState.ALL` + extended facing; the controller faces up out of the middle of the top deck (placed looking down). The pattern is `start(RIGHT, FRONT, UP)`: rows along the controller's front, aisles along its up; with the controller facing up (upwards north) every block sits where the old horizontal controller (facing north) had it, so an existing station only needs its controller turned up. GT draws previews for a controller facing north, which would stand the platform on its edge: `OrbitalLithographyMachine.previewShapes` turns GT's preview into the controller-up orientation (the linear map of GT's `setActualRelativeOffset` for (north, up) and (up, north)) and faces the controller up.
+
+Orbital station (the orbital array), 25 × 25 × 18: the user's `sol_array` pattern, taken over unchanged (25 aisles of 18 rows, rows bottom → top; `FactoryBlockPattern.start(RIGHT, FRONT, UP)` for the controller facing up, see above). The controller `K` is in the middle of the top deck (aisle 12, row 17). `O` also takes 1 Computation Hatch, 1 Data Access Hatch and 1 Optical Data Hatch (maximums).
 
 | Letter | Block | Count | Part of the station |
 |---|---|---|---|
@@ -452,7 +466,7 @@ Orbital station (the orbital array), 25 × 25 × 18: the user's `sol_array` patt
 | `B` | `gtceu:hssg_coil_block` | 26 | undulator magnets (the mast's core) |
 | ` ` | anything | | |
 
-`O` parts, maximums only: up to 1 **laser** hatch and 3 energy hatches (together 50A of UHV), up to 2 **coolant hatches** (the only fluid input), item input and output buses, 1 parallel hatch, 1 maintenance. No normal fluid hatches. Modifiers `LITHO_GATE + STRIP_BROKEN + PARALLEL_HATCH + OC_PERFECT`. Model: inert PTFE casing + GT fusion-reactor overlay. Adapted from the old project: `workableCasingRenderer` → `workableCasingModel`, `ELECTRIC_OVERCLOCK.apply(PERFECT_OVERCLOCK)` → `OC_PERFECT`, the `sol_array` recipe type → `orbital_lithography`, `autoAbilities`/normal fluid hatches → coolant hatches + item output buses, exact 3 energy hatches → up to 3.
+`O` parts, maximums only: up to 1 **laser** hatch and 3 energy hatches (together 50A of UHV), up to 2 **coolant hatches**, up to 8 fluid input hatches (the track chemicals), 1 computation hatch, 1 data hatch, item input and output buses, 1 maintenance; no parallel hatch (batch mode instead). Modifiers `LITHO_GATE + STRIP_BROKEN + COOLANT + OC_PERFECT + BATCH_MODE`. Model: inert PTFE casing + GT fusion-reactor overlay. Adapted from the old project: `workableCasingRenderer` → `workableCasingModel`, `ELECTRIC_OVERCLOCK.apply(PERFECT_OVERCLOCK)` → `OC_PERFECT`, the `sol_array` recipe type → `orbital_lithography`, `autoAbilities`/normal fluid hatches → coolant hatches + item output buses, exact 3 energy hatches → up to 3.
 
 Orbit: `OrbitalLithographyMachine.isOrbit` = dimension path `orbit` or ending in `_orbit` (Ad Astra 1.15: `ad_astra:earth_orbit`, `moon_orbit`, `mars_orbit`, `venus_orbit`, `mercury_orbit`, `glacio_orbit`). Elsewhere it forms but never prints (console NOT IN ORBIT).
 
@@ -932,7 +946,7 @@ Chips are plain GT chips (no mode, no NBT): any substrate's cut gives the same `
 - [ ] New mixer alloys: circuit number must not collide with a GT mixer recipe whose inputs are a subset (invar, cupronickel use circuit 1).
 - [ ] New materials need a `material.gtceu.<id>` line in `kubejs/assets/gtceu/lang/en_us.json`; new KubeJS items need a texture in `kubejs/assets/kubejs/textures/item/`.
 - [ ] Multiblock parts (all AF9 multiblocks): a maximum only, never a minimum or exact count — `setMaxGlobalLimited(max, preview count)`, no `setMinGlobalLimited` / `setExactLimit` / GT `autoAbilities` (it forces energy and maintenance), no casing minimums (the dry run flags all of these). Every recipe must run on normal 2A hatches within those maximums (≤ 4A on two energy hatches).
-- [ ] Line: up to 2 energy hatches, `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital: up to 1 laser + 3 energy hatches, 2 coolant hatches, 1 parallel hatch, `LITHO_GATE + STRIP_BROKEN + PARALLEL_HATCH + OC_PERFECT`, pattern unchanged from the `sol_array` design; no cleanroom for either.
+- [ ] Line: up to 2 energy hatches, `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital: up to 1 laser + 3 energy hatches, 2 coolant hatches, computation + data hatch, batch mode, `LITHO_GATE + STRIP_BROKEN + COOLANT + OC_PERFECT + BATCH_MODE`, pattern unchanged from the `sol_array` design; no cleanroom for either.
 - [ ] Quests: IDs are 16 hex digits starting with 0-7 (FTB Quests parses them as signed longs), unique across all quest files; new lithography quests go into `photolithography.snbt`, text into `af9.quest.litho.*`.
 - [ ] Realism wording: node names are gameplay labels; chromodynium, strange-matter and transmuted-neutronium wafers are fiction on real physics names.
 - [ ] Wafers: every new printable/blank wafer is in `#af9:wafers/<substrate>` (server tags) so contamination knows it; broken and contaminated wafers are not. Every substrate has a broken and a contaminated wafer item + texture.
@@ -1130,6 +1144,27 @@ Spectators are exempt; creative players too only when `includeCreative = false` 
 
 ---
 
+# 17. Wireless energy hatches
+
+AF9 Core `wireless/*`, startup `kubejs/startup_scripts/gtceu/wireless_energy.js`, recipes `server_scripts/mods/gtceu/wireless_energy.js`. Point-to-point, GT:NH-style links through a data stick, any distance and any dimension.
+
+| Hull tier (look, crafting) | Max amps | Receiver id | Transmitter id | Built on |
+|---|---|---|---|---|
+| EV | 2 | `gtceu:ev_wireless_energy_receiver` | `gtceu:ev_wireless_energy_transmitter` | EV energy / dynamo hatch |
+| IV | 4 | `gtceu:iv_wireless_energy_receiver` | `…transmitter` | IV 4A hatches |
+| LuV | 16 | `gtceu:luv_…` | | LuV 16A hatches |
+| ZPM | 100 | `gtceu:zpm_…` | | 4 ZPM 16A hatches |
+| UV | 256 | `gtceu:uv_…` | | UV 256A laser target / source hatch |
+| UHV | 1000 | `gtceu:uhv_…` | | UHV 1024A laser target / source hatch |
+
+Assembler at the hull tier: the base hatch + 2 sensors (receiver) or emitters (transmitter) + a field generator + 2 circuits of the tier + 576 mB soldering alloy, 30 s.
+
+- **Transmitter** (`WirelessTransmitterHatch`, ability `OUTPUT_ENERGY`): a dynamo-type part for the Power Substation (or any multiblock that puts energy into its output hatches). It never emits into cables. Every tick it moves up to amps × voltage from its buffer (20 ticks of full throughput) into its own channel. **Voltage**: the highest input voltage of its multiblock's energy inputs (a PSS fed by UV hatches sends UV), re-read every second; a multiblock without energy inputs uses the tier set on the hatch's screen ([-] / [+], default EV). Breaking it deletes the channel.
+- **Receiver** (`WirelessReceiverHatch`, ability `INPUT_ENERGY`): an energy input hatch for any multiblock, no cables. It works at its channel's voltage and pulls up to its amps × voltage per tick into its buffer (16 ticks of full input). GT reads a multiblock's hatch voltages when it forms, so a voltage change (the first link, a new substation input) makes the receiver re-form its multiblock (`onPartUnload` → async re-check). Unlinked or without a transmitter it reports 0 V and 0 A, so it does not lower the multiblock's voltage.
+- **Channels** (`WirelessChannels`, overworld saved data `af9_wireless`): one per transmitter (UUID), with its buffer, voltage, amperage and position. The two ends only need their own chunks loaded.
+- **Data stick** (GT's `IDataStickInteractable`): right-click a transmitter to write its link to the stick (`af9_wireless` tag, shown in the stick's tooltip); right-click a receiver to link it; shift-right-click a receiver to copy its link onto the stick.
+- The hatches' energy role is fixed (GT caches a part's handler IO the first time a multiblock asks, and an energy container reports none at 0 V). Overlay tint: cyan receivers, orange transmitters.
+
 # Appendix A. File map
 
 ```text
@@ -1151,11 +1186,19 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → 
   compat/jade/AF9JadePlugin, AF9MachineProvider  # Jade: vacuum bar, status, product, run time, info lines
   client/AF9Client                     # wafer tooltip (contamination warning), registers the dynamic renders
   client/render/ModeFluidRender        # GT dynamic render: a fluid per machine mode inside a running multiblock
-  client/render/LightRingRender        # GT's fusion ring for ILightRingMachine (the orbital station's ring)
+  client/render/LightRingRender        # GT's fusion ring for ILightRingMachine: halo, sparks, pulse and ignition sounds
+  litho/Coolant                        # the orbital station's coolant grades (supercooled H2 < Ar < Xe < endion)
+  machine/OrbitalField                 # the orbital station's magnetic field (gravity through Ad Astra)
+  compat/adastra/AdAstraCompat         # registers the field's gravity listener when Ad Astra is loaded
+  common/AF9Sounds                     # sound events (assets/af9/sounds.json: vanilla sounds pitched down)
   machine/AF9MachineModels             # workable casing model + ModeFluidRender or LightRingRender, for KubeJS .model(...)
   machine/fab/SmcReactorMachine        # SMC LCR: FabMultiblockMachine + IFluidRenderMulti (the open vessel's blocks)
   pattern/AF9Filters                   # Plascrete Filter Casing as a GT cleanroom filter; ordered filter predicate
   compat/curios/CuriosCompat           # gloves in a Curios slot
+  wireless/WirelessEnergyHatch         # §17: shared part of the wireless hatches (run-time voltage, channel, screen)
+  wireless/WirelessTransmitterHatch    # dynamo side: substation -> channel, voltage from the multiblock's inputs
+  wireless/WirelessReceiverHatch       # energy input side: channel -> multiblock, re-forms it on a new voltage
+  wireless/WirelessChannels, WirelessLink  # saved channels; the data stick's link
   fab/FabFamily, IFabMachine           # §11: the four families (purge fluid/time, console colour, process steps per mode)
   fab/FabModifiers, FabRecipeLogic     # PURGE, STRUCTURE_PARALLEL, COIL_DISCOUNT, TIER_TEMPERATURE, THERMAL_OVERCLOCK; changeover bookkeeping
   fab/FabRecipeInfo                    # temperature, coil and single-block tier on the thermal modes' EMI pages

@@ -126,6 +126,49 @@ public enum LithoMode {
         return isXfel() ? "orbital_lithography" : "lithography_" + id;
     }
 
+    /**
+     * Weakest coolant the orbital station prints this node with (null: no coolant, the line and the scanner). 50 nm
+     * hydrogen, 20 nm argon, 7 nm xenon, 1 nm endion.
+     */
+    public Coolant minCoolant() {
+        return switch (this) {
+            case N50 -> Coolant.HYDROGEN;
+            case N20 -> Coolant.ARGON;
+            case N7 -> Coolant.XENON;
+            case N1 -> Coolant.ENDION;
+            default -> null;
+        };
+    }
+
+    /** Coolant above which a colder one gains nothing more: 50 nm xenon, 20, 7 and 1 nm endion. */
+    public Coolant bestCoolant() {
+        return switch (this) {
+            case N50 -> Coolant.XENON;
+            case N20, N7, N1 -> Coolant.ENDION;
+            default -> null;
+        };
+    }
+
+    /** Coolant per print (per parallel), in mB. */
+    public int coolantPerPrint() {
+        return switch (this) {
+            case N50 -> 100;
+            case N20 -> 150;
+            case N7 -> 250;
+            case N1 -> 500;
+            default -> 0;
+        };
+    }
+
+    /** Computation a print draws from a computation hatch, CWU/t (0: none): 7 nm 32, 1 nm 96. */
+    public int computation() {
+        return switch (this) {
+            case N7 -> 32;
+            case N1 -> 96;
+            default -> 0;
+        };
+    }
+
     /** Version of its machine this mode needs: line 350 nm 1 ... 100 nm 3, scanner 80 nm 1, 65 nm 2; orbital 0. */
     public int level() {
         return level;

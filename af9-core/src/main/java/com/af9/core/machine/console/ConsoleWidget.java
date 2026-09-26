@@ -28,7 +28,7 @@ public abstract class ConsoleWidget extends Widget {
     /** Status codes shared by all consoles and the Jade tooltip (lang: af9.console.status.&lt;code&gt;). */
     public static final int STATUS_OFFLINE = 0, STATUS_IDLE = 1, STATUS_RUNNING = 2, STATUS_NO_POWER = 3,
             STATUS_PAUSED = 4, STATUS_MAINTENANCE = 5, STATUS_LOCKED = 6, STATUS_NO_ORBIT = 7, STATUS_NO_COOLANT = 8,
-            STATUS_PUMPING_DOWN = 9;
+            STATUS_PUMPING_DOWN = 9, STATUS_NO_COMPUTATION = 10, STATUS_NO_DATA = 11;
 
     protected ConsoleWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -207,7 +207,8 @@ public abstract class ConsoleWidget extends Widget {
         return switch (status) {
             case STATUS_RUNNING -> GOOD;
             case STATUS_IDLE -> WARN;
-            case STATUS_NO_POWER, STATUS_MAINTENANCE, STATUS_LOCKED, STATUS_NO_ORBIT, STATUS_NO_COOLANT -> BAD;
+            case STATUS_NO_POWER, STATUS_MAINTENANCE, STATUS_LOCKED, STATUS_NO_ORBIT, STATUS_NO_COOLANT,
+                    STATUS_NO_COMPUTATION, STATUS_NO_DATA -> BAD;
             case STATUS_PAUSED, STATUS_PUMPING_DOWN -> INFO;
             default -> MUTED;
         };

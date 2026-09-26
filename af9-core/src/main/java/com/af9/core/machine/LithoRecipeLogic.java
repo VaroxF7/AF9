@@ -35,9 +35,7 @@ public class LithoRecipeLogic extends RecipeLogic {
         GTRecipe finished = lastRecipe;
         if (finished != null) {
             LithoMode mode = LithoMode.of(finished.recipeType);
-            if (mode != null && litho.finishPrint(mode)) {
-                lastRecipe = LithoMachine.asBroken(finished, mode);
-            }
+            if (mode != null) lastRecipe = litho.finishPrints(mode, finished);
         }
         super.onRecipeFinish();
     }

@@ -277,6 +277,15 @@ public class PhotolithographyLineMachine extends LithoMachine {
                     String.format(java.util.Locale.ROOT, "%.0f", mode.baseBreak / 100.0),
                     String.format(java.util.Locale.ROOT, "%.0f", (mode.baseBreak / 10000.0 + LithoMode.DIRT_BREAK) *
                             100)).getString());
+            if (mode.minCoolant() != null) {
+                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_coolant", mode.coolantPerPrint(),
+                        Component.translatable("af9.litho.coolant." + mode.minCoolant().id),
+                        Component.translatable("af9.litho.coolant." + mode.bestCoolant().id)).getString());
+            }
+            if (mode.computation() > 0) {
+                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_computation",
+                        mode.computation()).getString());
+            }
         }
     }
 }

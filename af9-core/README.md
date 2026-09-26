@@ -19,6 +19,7 @@ Machines, materials and recipes stay in `../kubejs`; KubeJS plugs the Java class
 | `common/AF9Modifiers`, `common/IPowerGated` | cryostat, accelerator | `POWER_GATE`: a recipe only starts when the hatches can deliver its full EU/t (the cryostat's 4A HV) |
 | `blast/BouleMelting` | GT's Electric Blast Furnace | Adds the `gtceu:boule_melting` mode to the EBF and the Endion coil bonus (faster, parallels) |
 | `wafer/WaferContamination` | wafer items (`#af9:wafers`) | Wafers a player takes into the inventory turn into contaminated wafers, unless the player wears gloves (`#af9:wafer_gloves`, in an armor or Curios slot) or stands in a clean Cleanroom |
+| `wireless/*` | `kubejs/startup_scripts/gtceu/wireless_energy.js` | Wireless Energy Transmitter (substation output) and Receiver (any multiblock's input), 2-1000A, voltage from the substation's inputs; linked by data stick through channels saved with the world, any distance and dimension |
 | `compat/curios/CuriosCompat` | `WaferContamination` | Gloves in a Curios slot (GT's Rubber Gloves go in `hands`); does nothing without Curios |
 | `compat/jade/*` | Jade | Controller tooltip: vacuum bar (lithography), status, mode, product, run-time bar, readout lines |
 | `client/AF9Client` | wafer items, machine models | Contamination warning in the wafer tooltip; registers the dynamic renders |

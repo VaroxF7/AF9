@@ -40,9 +40,10 @@ import java.util.Map;
  * version: the contaminated wafer of its substrate (kubejs:contaminated_&lt;substrate&gt;_wafer), or the contaminated
  * chip (kubejs:contaminated_&lt;chip&gt;, e.g. kubejs:contaminated_ram_chip).
  * <p>
- * Protected are players who wear gloves (an item of {@code #af9:wafer_gloves}, GT's Rubber Gloves or Hazmat chestpiece,
- * in an armor slot or a Curios slot) or who stand inside a formed, clean GT Cleanroom. Spectators are exempt, creative players only if
- * {@link AF9Config#CONTAMINATE_IN_CREATIVE} is off. Machines, pipes, chests and ME systems never contaminate anything.
+ * Protected are players who wear gloves (an item of {@code #af9:wafer_gloves}, GT's Rubber Gloves or Hazmat
+ * chestpiece, in an armor slot or a Curios slot) or who stand inside a formed, clean GT Cleanroom. Spectators are
+ * exempt, creative players only if {@link AF9Config#CONTAMINATE_IN_CREATIVE} is off. Machines, pipes, chests and ME
+ * systems never contaminate anything.
  * <p>
  * The wafers of a substrate are the item tag {@code #af9:wafers/<substrate>}, all of them {@code #af9:wafers}; the
  * chips are {@code #af9:chips} (kubejs/server_scripts/mods/gtceu/photolithography.js).

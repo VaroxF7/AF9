@@ -5,6 +5,7 @@ import com.af9.core.common.IPowerGated;
 import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.console.ConsoleWidget;
 
+import com.gregtechceu.gtceu.api.capability.IDataAccessHatch;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
@@ -18,6 +19,7 @@ import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
+import com.gregtechceu.gtceu.common.recipe.condition.ResearchCondition;
 
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
@@ -73,7 +75,8 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     /**
      * Only starts a print the machine can do right now (line version / orbit, see {@link #canPrint}), whose EU/t the
      * hatches can supply, and only on a sealed vacuum. GT keeps retrying a gated recipe, so the machine starts by
-     * itself once the vacuum seals.
+     * itself once the vacuum seals. A researched print also needs a data hatch: GT's data hatches only block recipes
+     * they do not hold, a machine without one would run them all.
      */
     public static final RecipeModifier LITHO_GATE = (machine, recipe) -> {
         if (!(machine instanceof LithoMachine litho)) {
@@ -83,6 +86,9 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         if (mode != null && !litho.canPrint(mode)) return ModifierFunction.NULL;
         if (litho.getAvailableEUt() < RecipeHelper.getRealEUt(recipe).getTotalEU()) return ModifierFunction.NULL;
         if (!litho.isVacuumSealed()) return ModifierFunction.NULL;
+        if (recipe.conditions.stream().anyMatch(ResearchCondition.class::isInstance) && !litho.hasDataHatch()) {
+            return ModifierFunction.NULL;
+        }
         return ModifierFunction.IDENTITY;
     };
 
@@ -273,36 +279,54 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     }
 
     /**
-     * A print of the mode finished: rolls the break chance against the lowest vacuum the print went through (the
-     * vacuum itself is not changed by a print). Returns whether the print broke.
+     * A run of the mode finished: every print in it (parallels x batch) rolls the break chance on its own, against the
+     * lowest vacuum the run went through (the vacuum itself is not changed by a print), times the machine's own factor
+     * for that run ({@link #breakFactor}). Returns the run to put out: unchanged if nothing broke, else with a broken
+     * wafer for each broken print and the chip wafers of the others.
      */
-    boolean finishPrint(LithoMode mode) {
+    GTRecipe finishPrints(LithoMode mode, GTRecipe recipe) {
         RandomSource random = getLevel() != null ? getLevel().getRandom() : RandomSource.create();
-        boolean broke = random.nextDouble() < mode.breakChance(Math.min(printLow, cleanliness), surplusFor(mode));
-        if (broke) {
-            broken++;
-        } else {
-            printed++;
+        double chance = mode.breakChance(Math.min(printLow, cleanliness), surplusFor(mode)) * breakFactor(mode, recipe);
+        int prints = printsIn(recipe);
+        int brokenNow = 0;
+        for (int i = 0; i < prints; i++) {
+            if (random.nextDouble() < chance) brokenNow++;
         }
+        printed += prints - brokenNow;
+        broken += brokenNow;
         markDirty();
-        return broke;
+        return brokenNow == 0 ? recipe : withBroken(recipe, mode, prints, brokenNow);
+    }
+
+    /** Prints in a run: its parallels times its batch. */
+    public static int printsIn(GTRecipe recipe) {
+        return Math.max(1, recipe.parallels) * Math.max(1, recipe.batchParallels);
     }
 
     /**
-     * The finished run with its chip wafers replaced by broken wafers of the mode's substrate: one per substrate wafer
-     * that went in (one per print; a print yields up to 64 chip wafers from one blank).
+     * The finished run with some of its prints broken: the chip wafers of the others (each print's share of the run's
+     * outputs) and one broken wafer of the mode's substrate per broken print (a print is one blank wafer).
      */
-    static GTRecipe asBroken(GTRecipe recipe, LithoMode mode) {
+    static GTRecipe withBroken(GTRecipe recipe, LithoMode mode, int prints, int brokenCount) {
         Item brokenItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("kubejs", mode.brokenWafer()));
         if (brokenItem == null || brokenItem == Items.AIR) {
             AF9Core.LOGGER.warn("Item kubejs:{} not found - is the AF9 KubeJS startup script loaded?",
                     mode.brokenWafer());
             return recipe;
         }
-        int count = Math.max(1, recipe.parallels);
+        int kept = prints - brokenCount;
         GTRecipe result = recipe.copy();
         List<Content> outputs = new ArrayList<>();
-        outputs.add(new Content(SizedIngredient.create(new ItemStack(brokenItem, count)),
+        for (Content content : recipe.outputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
+            if (kept <= 0 || isBrokenWafer(content)) continue;
+            if (!(content.content instanceof Ingredient ingredient) || ingredient.getItems().length == 0) continue;
+            ItemStack stack = ingredient.getItems()[0].copy();
+            stack.setCount(stack.getCount() / prints * kept);
+            if (stack.isEmpty()) continue;
+            outputs.add(new Content(SizedIngredient.create(stack), ChanceLogic.getMaxChancedValue(),
+                    ChanceLogic.getMaxChancedValue(), 0));
+        }
+        outputs.add(new Content(SizedIngredient.create(new ItemStack(brokenItem, brokenCount)),
                 ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0));
         result.outputs.put(ItemRecipeCapability.CAP, outputs);
         return result;
@@ -353,7 +377,21 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
 
     /** Break chance of the running print (from its lowest vacuum), or of the next one (on a sealed vacuum). */
     public double currentBreakChance(LithoMode mode) {
-        return mode.breakChance(getPrintVacuum(), surplusFor(mode));
+        GTRecipe running = getRecipeLogic().isActive() ? getRecipeLogic().getLastRecipe() : null;
+        return mode.breakChance(getPrintVacuum(), surplusFor(mode)) * breakFactor(mode, running);
+    }
+
+    /**
+     * Factor on a print's break chance besides the vacuum and the version (the orbital station's coolant). The recipe
+     * is the run (as modified for this machine), or null for the next print. 1 by default.
+     */
+    protected double breakFactor(LithoMode mode, GTRecipe recipe) {
+        return 1;
+    }
+
+    /** A data access hatch or an optical data hatch in the structure (for researched prints). */
+    public boolean hasDataHatch() {
+        return getParts().stream().anyMatch(part -> part instanceof IDataAccessHatch);
     }
 
     /** Registry id of the first item the running print puts out (before the break roll), or null. */

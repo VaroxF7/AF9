@@ -1,5 +1,6 @@
 package com.af9.core.machine;
 
+import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.console.ConsoleWidget;
 
@@ -57,6 +58,8 @@ public class LithoConsoleWidget extends ConsoleWidget {
     private long printed;
     private long broken;
     private int vacuum;
+    /** Orbital station: coolant of the running / next print (grade, 0 none), -1 on machines without coolant. */
+    private int coolant = -1;
     private String product = "";
 
     public LithoConsoleWidget(LithoMachine machine, int x, int y) {
@@ -91,7 +94,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         return 4 + index * (tileWidth(count) + TILE_GAP);
     }
 
-    private static Component[] tileTooltip(LithoMode mode) {
+    public static Component[] tileTooltip(LithoMode mode) {
         Component resist = mode.resist.equals("dry_resist") ?
                 Component.translatable("item.kubejs.dry_resist_cartridge") :
                 Component.translatable("material.gtceu." + mode.resist);
@@ -155,10 +158,17 @@ public class LithoConsoleWidget extends ConsoleWidget {
         long newBroken = machine.getBroken();
         int newVacuum = machine.getVacuumState();
         String newProduct = current == null ? "" : current.toString();
+        int newCoolant = -1;
+        if (machine instanceof OrbitalLithographyMachine station && active.minCoolant() != null) {
+            Coolant used = station.currentCoolant(active);
+            newCoolant = used == null ? 0 : used.grade();
+        }
         boolean changed = newStatus != status || newMode != mode || newVersion != version ||
                 newAvailable != available || newProgress != progress || newDuration != duration ||
-                newCleanliness != cleanliness || newPrintVacuum != printVacuum || newBreak != breakChance || newPrinted != printed ||
-                newBroken != broken || newVacuum != vacuum || !Objects.equals(newProduct, product);
+                newCleanliness != cleanliness || newPrintVacuum != printVacuum || newBreak != breakChance ||
+                newPrinted != printed ||
+                newBroken != broken || newVacuum != vacuum || newCoolant != coolant ||
+                !Objects.equals(newProduct, product);
         status = newStatus;
         mode = newMode;
         version = newVersion;
@@ -171,6 +181,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         printed = newPrinted;
         broken = newBroken;
         vacuum = newVacuum;
+        coolant = newCoolant;
         product = newProduct;
         return changed;
     }
@@ -189,6 +200,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         buffer.writeVarLong(printed);
         buffer.writeVarLong(broken);
         buffer.writeVarInt(vacuum);
+        buffer.writeVarInt(coolant);
         buffer.writeUtf(product);
     }
 
@@ -206,6 +218,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         printed = buffer.readVarLong();
         broken = buffer.readVarLong();
         vacuum = buffer.readVarInt();
+        coolant = buffer.readVarInt();
         product = buffer.readUtf();
     }
 
@@ -284,6 +297,25 @@ public class LithoConsoleWidget extends ConsoleWidget {
         } else if (status == STATUS_PUMPING_DOWN) {
             drawSmall(graphics, Component.translatable("af9.litho.console.wait_seal").getString(), lx, y0 + 84, INFO,
                     false);
+        }
+        // orbital station: the coolant of the running (or next) print and how many grades it gains
+        if (coolant >= 0 && active.minCoolant() != null) {
+            drawSmall(graphics, Component.translatable("af9.litho.console.coolant").getString(), lx, y0 + 92, MUTED,
+                    false);
+            String text;
+            int color;
+            if (coolant == 0) {
+                text = Component.translatable("af9.litho.console.coolant_none",
+                        Component.translatable("af9.litho.coolant." + active.minCoolant().id)).getString();
+                color = BAD;
+            } else {
+                Coolant used = Coolant.values()[coolant - 1];
+                int steps = used.steps(active);
+                text = Component.translatable("af9.litho.coolant." + used.id).getString() +
+                        (steps > 0 ? " +" + steps : "");
+                color = steps > 0 ? GOOD : TEXT;
+            }
+            drawSmall(graphics, text, lx + lw - font.width(text) * 3 / 4, y0 + 92, color, false);
         }
 
         // right: what is printed, substrate, light, version bonus / orbit
