@@ -27,7 +27,8 @@ public abstract class ConsoleWidget extends Widget {
 
     /** Status codes shared by all consoles and the Jade tooltip (lang: af9.console.status.&lt;code&gt;). */
     public static final int STATUS_OFFLINE = 0, STATUS_IDLE = 1, STATUS_RUNNING = 2, STATUS_NO_POWER = 3,
-            STATUS_PAUSED = 4, STATUS_MAINTENANCE = 5, STATUS_LOCKED = 6, STATUS_NO_ORBIT = 7, STATUS_NO_COOLANT = 8;
+            STATUS_PAUSED = 4, STATUS_MAINTENANCE = 5, STATUS_LOCKED = 6, STATUS_NO_ORBIT = 7, STATUS_NO_COOLANT = 8,
+            STATUS_PUMPING_DOWN = 9;
 
     protected ConsoleWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -103,6 +104,32 @@ public abstract class ConsoleWidget extends Widget {
         graphics.fill(x0 + width - 12, y0 + 4, x0 + width - 6, y0 + 10, ledOn ? ledColor : withAlpha(ledColor, 0x55));
         String statusText = Component.translatable("af9.console.status." + status).getString();
         graphics.drawString(font, statusText, x0 + width - 16 - font.width(statusText), y0 + 3, ledColor, false);
+    }
+
+    /**
+     * Power in the header, right before the status word: "available/needed EU/t" in small type over a thin bar (green
+     * when the hatches can supply it). Drops the unit, then the whole gauge, if the title leaves too little room.
+     */
+    @OnlyIn(Dist.CLIENT)
+    protected void drawHeaderPower(GuiGraphics graphics, String title, String suffix, int status, long available,
+                                   long needed) {
+        Font font = font();
+        int x0 = getPosition().x;
+        int y0 = getPosition().y;
+        int titleWidth = font.width(title) + (suffix == null || suffix.isEmpty() ? 0 : 4 + font.width(suffix));
+        int left = x0 + 6 + titleWidth + 8;
+        String statusText = Component.translatable("af9.console.status." + status).getString();
+        int right = x0 + getSize().width - 16 - font.width(statusText) - 8;
+        String amounts = compact(available) + "/" + compact(needed);
+        String text = amounts + " EU/t";
+        if (font.width(text) * 3 / 4 > right - left) text = amounts;
+        int width = font.width(text) * 3 / 4;
+        if (width > right - left) return;
+        boolean enough = available >= needed;
+        int x = right - width;
+        drawSmall(graphics, text, x, y0 + 3, enough ? TEXT : BAD, false);
+        bar(graphics, x, y0 + 10, width, 2, needed <= 0 ? 0 : Math.min(1.0, (double) available / needed),
+                enough ? GOOD : BAD);
     }
 
     /** A mode tile: two centred lines (name, detail); selected tiles are filled in the mode colour. */
@@ -181,7 +208,7 @@ public abstract class ConsoleWidget extends Widget {
             case STATUS_RUNNING -> GOOD;
             case STATUS_IDLE -> WARN;
             case STATUS_NO_POWER, STATUS_MAINTENANCE, STATUS_LOCKED, STATUS_NO_ORBIT, STATUS_NO_COOLANT -> BAD;
-            case STATUS_PAUSED -> INFO;
+            case STATUS_PAUSED, STATUS_PUMPING_DOWN -> INFO;
             default -> MUTED;
         };
     }

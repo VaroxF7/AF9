@@ -399,15 +399,16 @@ Bold = GT's own wafer, cut by GT's own cutter recipes (unchanged).
 
 ## 5.4 Vacuum cleanliness and broken wafers
 
-Both machines keep an exposure vacuum, a **cleanliness score 0-100** (`LithoMachine`, persisted):
+Every lithography machine keeps an exposure vacuum, a **cleanliness score 0-100** (`LithoMachine`, persisted):
 
 - **Starts at 0** when the structure forms: `onStructureInvalid` (a broken or changed structure) sets `c = 0`; a normal unload keeps it.
-- Every 10 ticks while formed, the pumps draw 1/8 A of the hatch voltage (×10 ticks) **all the time** (pumping down or holding). Paid: `c` rises **linearly to 100 in 10 s × level** (line version 1-8 = 10-80 s, orbital station level 9 = 90 s) and stays at 100.
+- Every 10 ticks while formed, the pumps draw 1/8 A of the hatch voltage (×10 ticks) **all the time** (pumping down or holding). Paid: `c` rises **linearly to 100 in 10 s × level** (Mk1 line V1-V3 = 10-30 s, Mk2 scanner V1-V2 = 40-50 s, orbital station 60 s) and stays at 100.
 - Not paid for 3 s (`POWER_GRACE_TICKS`, so a short dip does not flicker): it **vents linearly, 100 → 0 in 60 s**.
 - State (persisted, shown on the console and in Jade): pumping down / sealed / venting / off. Finished wafers do **not** lower `c`; maintenance problems do not touch the vacuum.
-- **Break roll** when a print finishes (`LithoRecipeLogic.onRecipeFinish`, before the outputs are handed out): `p = (base + (100 − c)/100 × 0.5) × 0.75^surplus`, at most 0.95; `surplus` = line versions above the mode (0 on the orbital station). A broken print puts out `kubejs:broken_<substrate>_wafer` (same count) instead of the printed wafer.
+- **Prints only start on a sealed vacuum** (`c` = 100): `LITHO_GATE` refuses the recipe until then and GT keeps retrying it, so the machine starts by itself once sealed. Console and Jade status `PUMPING` (code 9) meanwhile.
+- **Break roll** when a print finishes (`LithoRecipeLogic.onRecipeFinish`, before the outputs are handed out), from the **lowest `c` the print went through** (`printLow`, persisted: set when the print starts, lowered every vacuum update while the recipe logic is active, so also while it waits for power): `p = (base + (100 − low)/100 × 0.5) × 0.75^surplus`, at most 0.95; `surplus` = line versions above the mode (0 on the orbital station). A broken print puts out `kubejs:broken_<substrate>_wafer` (same count) instead of the printed wafer.
 - The recipes list the broken wafer as a chanced output at the base chance (for EMI); `STRIP_BROKEN` removes it before the run, so only the roll decides. `alwaysTryModifyRecipe` = true, so every run starts from the original recipe.
-- Printing during the pump-down (or while venting) breaks more wafers: wait for "sealed". Jade leaves GT's own run-time bar out for these machines (they have their own).
+- A power cut mid-print vents the chamber after 3 s: a 30 s cut leaves the print at about 55, +22 % break chance; the console shows "this print dipped to …". Jade leaves GT's own run-time bar out for these machines (they have their own).
 - Broken wafers: macerator → 2 small silicon dust (chromodynium: small chromodynium dust), `af9:reclaim_broken_<substrate>_wafer`.
 
 ## 5.5 Versions (like the Assembly Line's length)
@@ -456,10 +457,10 @@ Orbit: `OrbitalLithographyMachine.isOrbit` = dimension path `orbit` or ending in
 ## 5.7 Consoles (custom UI)
 
 `LithoConsoleWidget` (230×144; GT's side tabs stay), no scanlines or sweep line:
-- header: title (`LITHO LINE` / `LITHO SCANNER` / `ORBITAL LITHO`) + line version, status word + LED (OFFLINE, IDLE, RUNNING, NO POWER, PAUSED, MAINTENANCE, LOCKED, NOT IN ORBIT),
+- header: title (`LITHO LINE` / `LITHO SCANNER` / `ORBITAL LITHO`) + line version, the power gauge (`available/needed EU/t` over a thin bar, right before the status; `ConsoleWidget.drawHeaderPower` drops the unit, then the gauge, when the title leaves no room), status word + LED (OFFLINE, IDLE, RUNNING, NO POWER, PAUSED, MAINTENANCE, LOCKED, NOT IN ORBIT, PUMPING),
 - mode tiles (node + substrate symbol Si, P, Nq, Ke, Nq*, Nt, Nt*, Sq, Qc; `V<n>` in red when locked; hover: mode, version needed, power, substrate, light, NA/k1, resist, break chances),
 - VACUUM bar (0-100, green ≥80, yellow ≥50, red) with pump state (pumping down / sealed / leaking / off),
-- BREAK CHANCE now (from the current cleanliness and version), POWER gauge (available vs the mode's EU/t),
+- BREAK CHANCE of the running print (from its lowest vacuum) or of the next one (sealed), with "this print dipped to …" or "prints start once sealed" under it,
 - PRINTING: the item icon + name of the running print, node + light, substrate, version bonus (`Speed x1.56, breaks x0.56`) or orbit state,
 - RUNTIME: full-width progress bar with `12.3 s / 45.0 s` and percent,
 - counters PRINTED / BROKEN / YIELD + RESET.

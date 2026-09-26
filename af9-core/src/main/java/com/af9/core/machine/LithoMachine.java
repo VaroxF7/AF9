@@ -39,12 +39,14 @@ import java.util.List;
  * <p>
  * Vacuum: a cleanliness score of 0-100. It starts at 0 when the structure forms (breaking the structure vents it).
  * While the pumps have power (1/8 A of the hatch voltage, drawn all the time to hold the vacuum) it rises linearly to
- * 100 in {@link #pumpDownSeconds()} (10 s per machine level: line version 1 = 10 s ... version 8 = 80 s) and stays
- * there; finished wafers do not lower it. Without power it vents linearly from 100 to 0 in {@link #VENT_SECONDS},
- * after a short grace ({@link #POWER_GRACE_TICKS}) so that a brief dip does not flip the state back and forth.
+ * 100 in {@link #pumpDownSeconds()} (10 s per machine level) and stays there; finished wafers do not lower it. Without
+ * power it vents linearly from 100 to 0 in {@link #VENT_SECONDS}, after a short grace ({@link #POWER_GRACE_TICKS}) so
+ * that a brief dip does not flip the state back and forth.
  * <p>
- * Every finished print rolls the mode's break chance ({@link LithoMode#breakChance}, from the cleanliness at that
- * moment): a broken print puts out the substrate's broken wafer instead. The recipes list the broken wafer as a
+ * A print only starts on a sealed vacuum ({@link #LITHO_GATE}), so a freshly formed machine first pumps down. Every
+ * finished print rolls the mode's break chance ({@link LithoMode#breakChance}) from the lowest vacuum the print went
+ * through: a power loss that vents the chamber mid-print is likely to ruin the wafer. A broken print puts out the
+ * substrate's broken wafer instead. The recipes list the broken wafer as a
  * chanced output (the base chance) for the recipe viewers; {@link #STRIP_BROKEN} takes it out before a run, so only
  * this roll decides.
  */
@@ -59,7 +61,7 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     public static final int VACUUM_PUMPING = 1;
     public static final int VACUUM_SEALED = 2;
     public static final int VACUUM_VENTING = 3;
-    /** Pump-down time from 0 to 100 per machine level (line version; the orbital station counts as level 9). */
+    /** Pump-down time from 0 to 100 per machine level ({@link #vacuumLevel()}). */
     public static final int PUMP_DOWN_SECONDS_PER_LEVEL = 10;
     /** Time a full vacuum takes to vent to 0 without power. */
     public static final int VENT_SECONDS = 60;
@@ -69,8 +71,9 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     public static final int POWER_GRACE_TICKS = 60;
 
     /**
-     * Only starts a print the machine can do right now (line version / orbit, see {@link #canPrint}) and whose EU/t
-     * the hatches can supply.
+     * Only starts a print the machine can do right now (line version / orbit, see {@link #canPrint}), whose EU/t the
+     * hatches can supply, and only on a sealed vacuum. GT keeps retrying a gated recipe, so the machine starts by
+     * itself once the vacuum seals.
      */
     public static final RecipeModifier LITHO_GATE = (machine, recipe) -> {
         if (!(machine instanceof LithoMachine litho)) {
@@ -79,6 +82,7 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         LithoMode mode = LithoMode.of(recipe.recipeType);
         if (mode != null && !litho.canPrint(mode)) return ModifierFunction.NULL;
         if (litho.getAvailableEUt() < RecipeHelper.getRealEUt(recipe).getTotalEU()) return ModifierFunction.NULL;
+        if (!litho.isVacuumSealed()) return ModifierFunction.NULL;
         return ModifierFunction.IDENTITY;
     };
 
@@ -103,6 +107,9 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     private double cleanliness;
     @Persisted
     private int vacuumState;
+    /** Lowest cleanliness of the running print (its break roll uses this). */
+    @Persisted
+    private double printLow = 100;
     @Persisted
     private long printed;
     @Persisted
@@ -144,7 +151,7 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     /** Line versions above the mode's own (0 for the orbital station). */
     public abstract int surplusFor(LithoMode mode);
 
-    /** Machine level for the pump-down time: the line version, 9 for the orbital station. */
+    /** Machine level for the pump-down time: Mk1 line 1-3, Mk2 scanner 4-5, orbital station 6. */
     protected abstract int vacuumLevel();
 
     /** Console title key. */
@@ -177,6 +184,7 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         unsubscribeVacuum();
         cleanliness = 0;
         vacuumState = VACUUM_OFF;
+        printLow = 0;
         unpoweredTicks = 0;
         markDirty();
     }
@@ -212,6 +220,11 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
                 vacuumState = cleanliness > 0 ? VACUUM_VENTING : VACUUM_OFF;
             }
         }
+        if (getRecipeLogic().isActive() && cleanliness < printLow) {
+            // a print in progress (running or starved of power) remembers the worst vacuum it went through
+            printLow = cleanliness;
+            markDirty();
+        }
         if (cleanliness != before || vacuumState != stateBefore) markDirty();
     }
 
@@ -238,17 +251,34 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         return getVacuumState() == VACUUM_PUMPING;
     }
 
+    /** Pumped down to 100: prints may start. */
+    public boolean isVacuumSealed() {
+        return getVacuumState() == VACUUM_SEALED;
+    }
+
+    /** Lowest vacuum of the running print, 100 while nothing is printing. */
+    public double getPrintVacuum() {
+        return getRecipeLogic().isActive() ? Math.min(printLow, cleanliness) : 100;
+    }
+
     //////////////////////////////////////
     // ********** Prints ***********//
     //////////////////////////////////////
 
+    @Override
+    public boolean beforeWorking(GTRecipe recipe) {
+        if (!super.beforeWorking(recipe)) return false;
+        printLow = cleanliness;
+        return true;
+    }
+
     /**
-     * A print of the mode finished: rolls the break chance against the current cleanliness (the vacuum itself is not
-     * changed by a print). Returns whether the print broke.
+     * A print of the mode finished: rolls the break chance against the lowest vacuum the print went through (the
+     * vacuum itself is not changed by a print). Returns whether the print broke.
      */
     boolean finishPrint(LithoMode mode) {
         RandomSource random = getLevel() != null ? getLevel().getRandom() : RandomSource.create();
-        boolean broke = random.nextDouble() < mode.breakChance(cleanliness, surplusFor(mode));
+        boolean broke = random.nextDouble() < mode.breakChance(Math.min(printLow, cleanliness), surplusFor(mode));
         if (broke) {
             broken++;
         } else {
@@ -321,9 +351,9 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
                 maintenance.hasMaintenanceProblems());
     }
 
-    /** Break chance of the mode at the current cleanliness. */
+    /** Break chance of the running print (from its lowest vacuum), or of the next one (on a sealed vacuum). */
     public double currentBreakChance(LithoMode mode) {
-        return mode.breakChance(cleanliness, surplusFor(mode));
+        return mode.breakChance(getPrintVacuum(), surplusFor(mode));
     }
 
     /** Registry id of the first item the running print puts out (before the break roll), or null. */

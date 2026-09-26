@@ -25,9 +25,10 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Console of the lithography machines (line, scanner, orbital station): mode tiles as a status indicator (the
- * active mode lit, modes above the machine's version locked; the mode is switched in GT's side tab), the vacuum's
- * cleanliness bar, break chance, power gauge, what is being printed, the run-time bar and the print counters.
+ * Console of the lithography machines (line, scanner, orbital station): the power gauge in the header next to the
+ * status, mode tiles as a status indicator (the active mode lit, modes above the machine's version locked; the mode
+ * is switched in GT's side tab), the vacuum's cleanliness bar and pump state, the break chance, what is being printed,
+ * the run-time bar and the print counters.
  */
 public class LithoConsoleWidget extends ConsoleWidget {
 
@@ -51,6 +52,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
     private int progress;
     private int duration;
     private int cleanliness; // x10
+    private int printVacuum; // x10: lowest vacuum of the running print
     private int breakChance; // x10000
     private long printed;
     private long broken;
@@ -131,6 +133,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         int blocked = machine.blockedStatus(active);
         if (blocked >= 0) return blocked;
         if (logic.isWaiting() || machine.getAvailableEUt() < active.eut()) return STATUS_NO_POWER;
+        if (!machine.isVacuumSealed()) return STATUS_PUMPING_DOWN;
         return STATUS_IDLE;
     }
 
@@ -146,6 +149,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         int newProgress = logic.isWorking() ? logic.getProgress() : 0;
         int newDuration = logic.isWorking() ? logic.getDuration() : 0;
         int newCleanliness = (int) Math.round(machine.getCleanliness() * 10);
+        int newPrintVacuum = (int) Math.round(machine.getPrintVacuum() * 10);
         int newBreak = (int) Math.round(machine.currentBreakChance(active) * 10000);
         long newPrinted = machine.getPrinted();
         long newBroken = machine.getBroken();
@@ -153,7 +157,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         String newProduct = current == null ? "" : current.toString();
         boolean changed = newStatus != status || newMode != mode || newVersion != version ||
                 newAvailable != available || newProgress != progress || newDuration != duration ||
-                newCleanliness != cleanliness || newBreak != breakChance || newPrinted != printed ||
+                newCleanliness != cleanliness || newPrintVacuum != printVacuum || newBreak != breakChance || newPrinted != printed ||
                 newBroken != broken || newVacuum != vacuum || !Objects.equals(newProduct, product);
         status = newStatus;
         mode = newMode;
@@ -162,6 +166,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         progress = newProgress;
         duration = newDuration;
         cleanliness = newCleanliness;
+        printVacuum = newPrintVacuum;
         breakChance = newBreak;
         printed = newPrinted;
         broken = newBroken;
@@ -179,6 +184,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         buffer.writeVarInt(progress);
         buffer.writeVarInt(duration);
         buffer.writeVarInt(cleanliness);
+        buffer.writeVarInt(printVacuum);
         buffer.writeVarInt(breakChance);
         buffer.writeVarLong(printed);
         buffer.writeVarLong(broken);
@@ -195,6 +201,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         progress = buffer.readVarInt();
         duration = buffer.readVarInt();
         cleanliness = buffer.readVarInt();
+        printVacuum = buffer.readVarInt();
         breakChance = buffer.readVarInt();
         printed = buffer.readVarLong();
         broken = buffer.readVarLong();
@@ -235,8 +242,10 @@ public class LithoConsoleWidget extends ConsoleWidget {
         LithoMode active = LithoMode.values()[Math.max(0, Math.min(mode, LithoMode.values().length - 1))];
         List<LithoMode> modes = machine.getModes();
 
-        drawFrame(graphics, Component.translatable(machine.titleKey()).getString(),
-                version > 0 ? "V" + version : "", active.argb, status, active.argb);
+        String title = Component.translatable(machine.titleKey()).getString();
+        String suffix = version > 0 ? "V" + version : "";
+        drawFrame(graphics, title, suffix, active.argb, status, active.argb);
+        drawHeaderPower(graphics, title, suffix, status, available, active.eut());
 
         // mode tiles: node on top, substrate symbol (or the version a locked mode needs) below
         for (int i = 0; i < modes.size(); i++) {
@@ -249,7 +258,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
                     tileMode.nodeNm + "nm", detail, tileMode.argb, tileMode == active, powered, locked);
         }
 
-        // left: vacuum, break chance, power
+        // left: vacuum and pump state, break chance (from the lowest vacuum of the running print)
         int lx = x0 + 6;
         int lw = 108;
         double clean = cleanliness / 10.0;
@@ -264,18 +273,18 @@ public class LithoConsoleWidget extends ConsoleWidget {
                 vacuumColor(pumpState), false);
 
         double chance = breakChance / 10000.0;
-        drawSmall(graphics, Component.translatable("af9.litho.console.break").getString(), lx, y0 + 70, MUTED, false);
+        drawSmall(graphics, Component.translatable("af9.litho.console.break").getString(), lx, y0 + 73, MUTED, false);
         int chanceColor = chance <= 0.05 ? GOOD : chance <= 0.2 ? WARN : BAD;
-        graphics.drawString(font, LithoMode.formatPercent(chance), lx, y0 + 77, chanceColor, false);
-
-        long needed = active.eut();
-        boolean enough = available >= needed;
-        drawSmall(graphics, Component.translatable("af9.litho.console.power").getString(), lx + 54, y0 + 70, MUTED,
-                false);
-        bar(graphics, lx + 54, y0 + 77, lw - 54, 4, needed == 0 ? 0 : Math.min(1.0, (double) available / needed),
-                enough ? GOOD : BAD);
-        drawSmall(graphics, compact(available) + "/" + compact(needed), lx + 54, y0 + 84, enough ? TEXT : BAD, false);
-        drawSmall(graphics, "EU/t", lx + 54, y0 + 91, MUTED, false);
+        String chanceText = LithoMode.formatPercent(chance);
+        graphics.drawString(font, chanceText, lx + lw - font.width(chanceText), y0 + 71, chanceColor, false);
+        double low = printVacuum / 10.0;
+        if (status == STATUS_RUNNING && low < 99.95) {
+            drawSmall(graphics, Component.translatable("af9.litho.console.print_vacuum",
+                    String.format(Locale.ROOT, "%.1f", low)).getString(), lx, y0 + 84, BAD, false);
+        } else if (status == STATUS_PUMPING_DOWN) {
+            drawSmall(graphics, Component.translatable("af9.litho.console.wait_seal").getString(), lx, y0 + 84, INFO,
+                    false);
+        }
 
         // right: what is printed, substrate, light, version bonus / orbit
         int rx = x0 + 120;
