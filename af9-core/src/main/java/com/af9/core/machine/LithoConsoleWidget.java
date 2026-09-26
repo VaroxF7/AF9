@@ -6,6 +6,7 @@ import com.af9.core.machine.console.ConsoleWidget;
 import com.lowdragmc.lowdraglib.gui.texture.ColorBorderTexture;
 import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
+import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,9 +25,9 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Console of the lithography machines (line and orbital station): mode tiles (modes above the line version locked),
- * the vacuum's cleanliness bar, break chance, power gauge, what is being printed, the run-time bar and the print
- * counters.
+ * Console of the lithography machines (line, scanner, orbital station): mode tiles as a status indicator (the
+ * active mode lit, modes above the machine's version locked; the mode is switched in GT's side tab), the vacuum's
+ * cleanliness bar, break chance, power gauge, what is being printed, the run-time bar and the print counters.
  */
 public class LithoConsoleWidget extends ConsoleWidget {
 
@@ -61,20 +62,14 @@ public class LithoConsoleWidget extends ConsoleWidget {
         this.machine = machine;
     }
 
-    /** The console with its click areas: one per mode tile and the counter reset. */
+    /** The console, a hover area per mode tile (tooltip only: the tiles show the mode) and the counter reset. */
     public static WidgetGroup create(LithoMachine machine) {
         var group = new WidgetGroup(0, 0, WIDTH, HEIGHT);
         group.addWidget(new LithoConsoleWidget(machine, 0, 0));
         List<LithoMode> modes = machine.getModes();
         for (int i = 0; i < modes.size(); i++) {
-            LithoMode mode = modes.get(i);
-            // clicks arrive on the client first and are then forwarded; only act on the server copy
-            var tile = new ButtonWidget(tileX(i, modes.size()), TILE_Y, tileWidth(modes.size()), TILE_H,
-                    IGuiTexture.EMPTY, click -> {
-                        if (!click.isRemote) machine.selectMode(mode);
-                    });
-            tile.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
-            tile.setHoverTooltips(tileTooltip(mode));
+            var tile = new Widget(tileX(i, modes.size()), TILE_Y, tileWidth(modes.size()), TILE_H);
+            tile.setHoverTooltips(tileTooltip(modes.get(i)));
             group.addWidget(tile);
         }
         var reset = new ButtonWidget(RESET_X, RESET_Y, RESET_W, RESET_H, IGuiTexture.EMPTY, click -> {
@@ -98,8 +93,11 @@ public class LithoConsoleWidget extends ConsoleWidget {
         Component resist = mode.resist.equals("dry_resist") ?
                 Component.translatable("item.kubejs.dry_resist_cartridge") :
                 Component.translatable("material.gtceu." + mode.resist);
-        Component level = mode.isOrbital() ? Component.translatable("af9.litho.console.tile_orbit") :
-                Component.translatable("af9.litho.console.tile_version", mode.level());
+        Component level = switch (mode.machine) {
+            case ORBITAL -> Component.translatable("af9.litho.console.tile_orbit");
+            case SCANNER -> Component.translatable("af9.litho.console.tile_version_scanner", mode.level());
+            default -> Component.translatable("af9.litho.console.tile_version", mode.level());
+        };
         return new Component[] {
                 Component.translatable("af9.litho.mode." + mode.id).withStyle(mode.color),
                 level,
@@ -243,13 +241,10 @@ public class LithoConsoleWidget extends ConsoleWidget {
         // mode tiles: node on top, substrate symbol (or the version a locked mode needs) below
         for (int i = 0; i < modes.size(); i++) {
             LithoMode tileMode = modes.get(i);
-            boolean locked = !tileMode.isOrbital() && tileMode.level() > version;
+            boolean locked = !tileMode.onOrbitalStation() && tileMode.level() > version;
             boolean powered = status != STATUS_OFFLINE && !locked && available >= tileMode.eut();
             String detail = locked ? "V" + tileMode.level() :
                     Component.translatable("af9.litho.substrate_short." + tileMode.substrate).getString();
-            if (tileMode.isOrbital()) {
-                detail = Component.translatable("af9.litho.substrate." + tileMode.substrate).getString();
-            }
             drawTile(graphics, x0 + tileX(i, modes.size()), y0 + TILE_Y, tileWidth(modes.size()), TILE_H,
                     tileMode.nodeNm + "nm", detail, tileMode.argb, tileMode == active, powered, locked);
         }
@@ -302,7 +297,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
                 false);
         graphics.drawString(font, fit(Component.translatable("af9.litho.substrate." + active.substrate).getString(),
                 rw), rx, y0 + 78, TEXT, false);
-        if (active.isOrbital()) {
+        if (active.onOrbitalStation()) {
             boolean orbit = status != STATUS_NO_ORBIT;
             drawSmall(graphics, Component.translatable(orbit ? "af9.litho.console.orbit_ok" :
                     "af9.litho.console.orbit_missing").getString(), rx, y0 + 90, orbit ? GOOD : BAD, false);

@@ -22,6 +22,13 @@ repositories {
             includeGroup("com.tterrag.registrate")
         }
     }
+    maven { // Curios (GT's Rubber Gloves go in its hands slot)
+        name = 'Curios'
+        url = 'https://maven.theillusivec4.top/'
+        content {
+            includeGroup 'top.theillusivec4.curios'
+        }
+    }
     maven { // Jade (the same coordinates GTCEu builds against)
         name = 'Modrinth'
         url = 'https://api.modrinth.com/maven'
@@ -60,6 +67,8 @@ dependencies {
 
     // Jade tooltips of the AF9 machines (the pack runs a newer 11.x; the API used here is unchanged)
     modCompileOnly("maven.modrinth:jade:${jade_version}")
+    // gloves worn in a Curios slot protect wafers too (optional at runtime)
+    modCompileOnly("top.theillusivec4.curios:curios-forge:${curios_version}:api")
 }
 
 tasks.named('processResources', ProcessResources).configure {

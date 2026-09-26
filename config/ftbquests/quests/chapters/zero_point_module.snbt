@@ -60,19 +60,19 @@
 	progression_mode: "flexible"
 	quest_links: [
 		{
-			id: "495874C5F26465B5"
+			id: "73E97296778CC3E0"
 			linked_quest: "3C1BAD339D082C68"
 			x: -14.5d
 			y: 6.0d
 		}
 		{
-			id: "647BF9B7A2D56079"
+			id: "5C9C3C4C095270F5"
 			linked_quest: "1572142A6483B73B"
 			x: -12.5d
 			y: 6.0d
 		}
 		{
-			id: "4350E3C74DD603B9"
+			id: "3D810FF734FB70ED"
 			linked_quest: "37C6FB7A87A3E12F"
 			x: -10.5d
 			y: 6.0d

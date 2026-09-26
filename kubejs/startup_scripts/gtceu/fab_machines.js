@@ -15,7 +15,9 @@
 //
 // Behaviour from AF9 Core (af9-core/, com.af9.core.fab and com.af9.core.machine.fab):
 // - product changeover: the first run of a different recipe also takes the family's purge fluid and extra time
-// - multiblocks with a roof of filter casings are their own clean room (sterile filters: ISO 3, both cleanroom types)
+// - multiblocks with a roof of filter casings are their own clean room (sterile filters: ISO 3, both cleanroom types);
+//   the MV Plascrete Filter Casing (photolithography.js) is the first choice of the preview and the auto-build
+// - the SMC LCR's vessel shows its mode's fluid while it runs (SmcReactorMachine, AF9MachineModels)
 // - PTFE Pipe Casings in the column (trays) and the cell hall (membranes) are parallels
 // - consoles instead of GT's text display; single-block furnaces reach a fixed temperature per tier
 
@@ -25,6 +27,9 @@ const $FabMultiblockMachine = Java.loadClass('com.af9.core.machine.fab.FabMultib
 const $FabTieredMachine = Java.loadClass('com.af9.core.machine.fab.FabTieredMachine')
 const $FabSimpleTieredMachine = Java.loadClass('com.gregtechceu.gtceu.api.machine.SimpleTieredMachine')
 const $FabRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
+const $SmcReactorMachine = Java.loadClass('com.af9.core.machine.fab.SmcReactorMachine')
+const $AF9MachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
+const $AF9Filters = Java.loadClass('com.af9.core.pattern.AF9Filters')
 
 // Slot layouts [items in, items out, fluids in, fluids out]. A single block's slots come from its first mode, so the
 // modes a single block has share one layout. Every layout keeps one fluid input free for the changeover purge.
@@ -119,10 +124,11 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 1))
         .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 0))
 
-    // SMC LCR: GT's Large Chemical Reactor core (inert casing, PTFE stirrer, one heating coil in the jacket) sealed in
-    // a cleanroom-glass mini-environment with a fan filter unit ceiling. 5 x 5 x 4.
+    // SMC LCR: GT's Large Chemical Reactor core (PTFE stirrer, one heating coil in the jacket) sealed in a
+    // cleanroom-glass mini-environment with a fan filter unit ceiling. 5 x 5 x 4. The 3 x 3 x 2 vessel inside is open:
+    // while the reactor runs, its mode's fluid shows there through the glass.
     allthemods.create('smc_large_chemical_reactor', 'multiblock')
-        .machine(holder => new $FabMultiblockMachine(holder, $FabFamily.CHEMISTRY))
+        .machine(holder => new $SmcReactorMachine(holder))
         .langValue('SMC Large Chemical Reactor')
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes(types(['fab_synthesis', 'fab_blending', 'fab_wet_processing']))
@@ -130,25 +136,34 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             $FabModifiers.COIL_DISCOUNT, GTRecipeModifiers.OC_PERFECT_SUBTICK, GTRecipeModifiers.BATCH_MODE,
             $FabModifiers.PURGE])
         .appearanceBlock(GTBlocks.CASING_PTFE_INERT)
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.smc_large_chemical_reactor.tooltip', 6))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.smc_large_chemical_reactor.tooltip', 7))
         // aisles back -> front, rows bottom -> top
         .pattern(definition => FactoryBlockPattern.start()
             .aisle('XXXXX', 'XGGGX', 'XGGGX', 'XXXXX')
-            .aisle('XXXXX', 'GKCKG', 'GKKKG', 'XFFFX')
-            .aisle('XXXXX', 'GCPCG', 'GKPKG', 'XFFFX')
-            .aisle('XXXXX', 'GKCKG', 'GKKKG', 'XFFFX')
+            .aisle('XXXXX', 'GACAG', 'GAAAG', 'XFFFX')
+            .aisle('XXXXX', 'GCPCG', 'GAPAG', 'XFFFX')
+            .aisle('XXXXX', 'GACAG', 'GAAAG', 'XFFFX')
             .aisle('XXXXX', 'XGSGX', 'XGGGX', 'XXXXX')
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             .where('X', hatches(GTBlocks.CASING_PTFE_INERT.get()))
-            .where('K', Predicates.blocks(GTBlocks.CASING_PTFE_INERT.get()))                   // reactor vessel
+            .where('A', Predicates.air())                                                        // reactor vessel
             .where('C', Predicates.heatingCoils().setMaxGlobalLimited(1, 1)                     // heating jacket (optional)
-                .or(Predicates.blocks(GTBlocks.CASING_PTFE_INERT.get())))
+                .or(Predicates.air()))
             .where('P', Predicates.blocks(GTBlocks.CASING_POLYTETRAFLUOROETHYLENE_PIPE.get())) // stirrer / dip pipe
             .where('G', Predicates.blocks(GTBlocks.CLEANROOM_GLASS.get()))
-            .where('F', Predicates.cleanroomFilters())                                           // fan filter units
+            .where('F', $AF9Filters.cleanroomFilters())                                          // fan filter units
             .build())
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',
             'gtceu:block/multiblock/large_chemical_reactor')
+        // the same model plus the vessel's fluid while it runs, per mode
+        .model($AF9MachineModels.workableCasingWithModeFluids('gtceu:block/casings/solid/machine_casing_inert_ptfe',
+            'gtceu:block/multiblock/large_chemical_reactor', {
+                'gtceu:fab_wet_processing': 'minecraft:water',
+                'gtceu:fab_blending': 'gtceu:distilled_water',
+                // Thermal's Destabilized Redstone; GT's molten redstone without Thermal
+                'gtceu:fab_synthesis': Platform.isLoaded('thermal') ? 'thermal:redstone' : 'gtceu:redstone'
+            }))
+        .hasBER(true)
 
     // Rectification column: reboiler sump over a cold box, 1-8 packed trays (PTFE structured packing), clean
     // draw-off hood. 3 x 3, 3-10 high. Aisles bottom -> top, rows front -> back.
@@ -171,13 +186,14 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .where('X', hatches(GTBlocks.CASING_STAINLESS_CLEAN.get()))
             .where('K', Predicates.blocks(GTBlocks.CASING_ALUMINIUM_FROSTPROOF.get()))
             .where('P', Predicates.blocks(GTBlocks.CASING_POLYTETRAFLUOROETHYLENE_PIPE.get()))
-            .where('F', Predicates.cleanroomFilters())
+            .where('F', $AF9Filters.cleanroomFilters())
             .build())
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_clean_stainless_steel',
             'gtceu:block/multiblock/distillation_tower')
 
     // Membrane cell hall: a filter-press stack of 1-8 cells, each a perfluorinated membrane (PTFE Pipe Casing)
-    // between two titanium electrodes, under a filter ceiling. 3 wide, 4 high, 3-10 deep.
+    // between two titanium electrodes, under a filter ceiling. 3 wide, 4 high, 3-10 deep. Aisles front (controller) ->
+    // back: the controller comes before the repeatable cells, so GT's auto-build places it right.
     allthemods.create('smc_membrane_cell_hall', 'multiblock')
         .machine(holder => new $FabMultiblockMachine(holder, $FabFamily.ELECTROCHEMISTRY))
         .langValue('SMC Membrane Cell Hall')
@@ -187,22 +203,24 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             GTRecipeModifiers.OC_NON_PERFECT_SUBTICK, GTRecipeModifiers.BATCH_MODE, $FabModifiers.PURGE])
         .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.smc_membrane_cell_hall.tooltip', 6))
-        .pattern(definition => FactoryBlockPattern.start()
-            .aisle('XXX', 'XXX', 'XXX', 'FFF')                   // back end plate
-            .aisle('XXX', 'EPE', 'XXX', 'FFF').setRepeatable(1, 8) // cells: electrode | membrane | electrode
+        .pattern(definition => FactoryBlockPattern.start($FabRelativeDirection.LEFT, $FabRelativeDirection.UP,
+            $FabRelativeDirection.BACK)
             .aisle('XXX', 'XSX', 'XXX', 'FFF')                   // front end plate
+            .aisle('XXX', 'EPE', 'XXX', 'FFF').setRepeatable(1, 8) // cells: electrode | membrane | electrode
+            .aisle('XXX', 'XXX', 'XXX', 'FFF')                   // back end plate
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             .where('X', hatches(GTBlocks.CASING_TITANIUM_STABLE.get()))
             .where('E', Predicates.blocks('gtceu:titanium_frame'))
             .where('P', Predicates.blocks(GTBlocks.CASING_POLYTETRAFLUOROETHYLENE_PIPE.get()))
-            .where('F', Predicates.cleanroomFilters())
+            .where('F', $AF9Filters.cleanroomFilters())
             .build())
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_stable_titanium',
             'gtceu:block/multiblock/gcym/large_electrolyzer')
 
     // Thermal processing furnace: a horizontal tube furnace, 5 x 5 x 5. A gas cabinet at the back feeds the quartz
     // process tube, two heater zones (a ring of coils around the tube, behind tempered-glass windows) heat it, and the
-    // wafer-boat load station sits in front of the controller. Aisles back -> front, rows bottom -> top.
+    // wafer-boat load station sits behind the front, which has a window on each side of the controller. Aisles back ->
+    // front, rows bottom -> top. MV machine: nothing in it needs PTFE (that comes at HV).
     // Works like GT's EBF: coil temperature + 100 K per energy tier above MV, EBF overclocks.
     allthemods.create('smc_thermal_processing_furnace', 'multiblock')
         .machine(holder => new $FabMultiblockMachine(holder, $FabFamily.THERMAL))
@@ -218,13 +236,13 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .aisle('XXXXX', 'GCCCG', 'GCTCG', 'GCCCG', 'XXXXX') // heater zone 1: coils around the tube
             .aisle('XXXXX', 'GCCCG', 'GCTCG', 'GCCCG', 'XXXXX') // heater zone 2
             .aisle('XXXXX', 'XRRRX', 'XRTRX', 'XRRRX', 'XXXXX') // wafer-boat load station
-            .aisle('XXXXX', 'XXXXX', 'XXSXX', 'XXXXX', 'XXXXX') // front
+            .aisle('XXXXX', 'XGXGX', 'XGSGX', 'XGXGX', 'XXXXX') // front: windows beside the controller
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             .where('X', hatches(GTBlocks.CASING_INVAR_HEATPROOF.get()))
             .where('C', Predicates.heatingCoils())
             .where('T', Predicates.blocks('gtceu:tempered_glass'))                              // quartz process tube
             .where('G', Predicates.blocks('gtceu:tempered_glass'))                              // windows
-            .where('P', Predicates.blocks(GTBlocks.CASING_POLYTETRAFLUOROETHYLENE_PIPE.get())) // gas lines
+            .where('P', Predicates.blocks('kubejs:plascrete_pipe_casing'))                      // gas lines
             .where('R', Predicates.blocks('gtceu:steel_gearbox'))                               // boat elevator
             .build())
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_heatproof',

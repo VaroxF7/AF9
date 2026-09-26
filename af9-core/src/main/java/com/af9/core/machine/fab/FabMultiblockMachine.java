@@ -39,7 +39,7 @@ import static com.gregtechceu.gtceu.api.GTValues.MV;
  * Controller of the AF9 fab multiblocks (SMC Chemical Reactor, Rectification Column, Membrane Cell Hall, Thermal
  * Processing Furnace; structures and recipe types are defined in kubejs/startup_scripts/gtceu/fab_machines.js).
  * <ul>
- * <li>Machine modes are GT recipe types, switchable with GT's mode tab or the console's mode tiles.</li>
+ * <li>Machine modes are GT recipe types, switched with GT's mode tab; the console's tiles show the active one.</li>
  * <li>A roof of cleanroom filter casings makes the machine its own clean environment (ISO 5, sterile filters ISO 3,
  * which covers both cleanroom types); without one it needs a GT cleanroom around it like any machine. The
  * provider is a GT {@link DummyCleanroom}, so the machine itself can still stand inside a GT cleanroom.</li>
@@ -286,20 +286,15 @@ public class FabMultiblockMachine extends CoilWorkableElectricMultiblockMachine 
         GTRecipeType[] types = getRecipeTypes();
         int count = Math.min(types.length, MAX_MODES);
         for (int i = 0; i < count; i++) {
-            final int index = i;
             GTRecipeType type = types[i];
             String path = type.registryName.getPath();
-            // clicks arrive on the client first and are then forwarded; only act on the server copy
-            var tile = new ButtonWidget(FabConsoleWidget.tileX(i, count), FabConsoleWidget.TILE_Y,
-                    FabConsoleWidget.tileW(count), FabConsoleWidget.TILE_H, IGuiTexture.EMPTY, click -> {
-                        if (!click.isRemote) selectFabMode(index);
-                    });
-            tile.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
+            // tooltip only: the tiles show the active mode, GT's side tab switches it
+            var tile = new Widget(FabConsoleWidget.tileX(i, count), FabConsoleWidget.TILE_Y,
+                    FabConsoleWidget.tileW(count), FabConsoleWidget.TILE_H);
             tile.setHoverTooltips(
                     Component.translatable("gtceu." + path),
                     Component.translatable("af9.fab.console.tile_stages",
-                            String.join(" > ", FabFamily.stagesOf(type))),
-                    Component.translatable("af9.fab.console.tile_select"));
+                            String.join(" > ", FabFamily.stagesOf(type))));
             group.addWidget(tile);
         }
         var reset = new ButtonWidget(FabConsoleWidget.RESET_X, FabConsoleWidget.RESET_Y, FabConsoleWidget.RESET_W,

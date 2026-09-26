@@ -10,9 +10,12 @@ import java.util.Locale;
 
 /**
  * The lithography modes, one per wafer substrate. Each is its own GT recipe type (gtceu:lithography_&lt;node&gt; on the
- * Photolithography Line, gtceu:orbital_lithography on the Orbital Lithography Station), defined in
+ * lithography machines; the 1 nm X-ray FEL mode is gtceu:orbital_lithography), defined in
  * kubejs/startup_scripts/gtceu/photolithography.js; the numbers here must match AF9_WAFERS in
  * kubejs/server_scripts/mods/gtceu/photolithography.js (spec: docs/semiconductor-factory.md).
+ * <p>
+ * Three machines share the modes ({@link Machine}): the Photolithography Line (Mk1) prints 350-100 nm, the
+ * Photolithography Scanner (Mk2) 80 and 65 nm, the Orbital Lithography Station 50 nm down to 1 nm (in orbit only).
  * <p>
  * A mode prints on its own substrate (the 350 nm mode on silicon wafers, 200 nm on phosphorus wafers, ...) and draws
  * 4A of its voltage tier; the orbital mode draws 50A of UHV (laser hatch). A print is always GT's own chip
@@ -23,37 +26,48 @@ import java.util.Locale;
  */
 public enum LithoMode {
 
-    // id, substrate, node, tier, console colour, text colour, light, wavelength nm, NA, resist, base break chance (1/10000)
+    // id, substrate, node, tier, console colour, text colour, light, wavelength nm, NA, resist, base break chance
+    // (1/10000), machine, version of that machine the mode needs (0: none)
     N350("350nm", "silicon", 350, GTValues.MV, 0xFFB978FF, ChatFormatting.LIGHT_PURPLE, "i_line", 365, 0.60,
-            "photoresist", 200),
+            "photoresist", 200, Machine.LINE, 1),
     N200("200nm", "phosphorus", 200, GTValues.HV, 0xFF5A8CFF, ChatFormatting.BLUE, "krf", 248, 0.70,
-            "krf_photoresist", 300),
+            "krf_photoresist", 300, Machine.LINE, 2),
     N100("100nm", "naquadah", 100, GTValues.EV, 0xFF46D7EB, ChatFormatting.AQUA, "arf", 193, 0.75,
-            "arf_photoresist", 500),
+            "arf_photoresist", 500, Machine.LINE, 3),
     N80("80nm", "trinium", 80, GTValues.IV, 0xFF6EEB6E, ChatFormatting.GREEN, "arf", 193, 0.93,
-            "arf_photoresist", 700),
+            "arf_photoresist", 700, Machine.SCANNER, 1),
     N65("65nm", "naquadria", 65, GTValues.LuV, 0xFFD4EB46, ChatFormatting.YELLOW, "arf_immersion", 193, 1.20,
-            "arf_photoresist", 900),
+            "arf_photoresist", 900, Machine.SCANNER, 2),
     N50("50nm", "neutronium", 50, GTValues.ZPM, 0xFFFFBE3C, ChatFormatting.GOLD, "arf_immersion", 193, 1.35,
-            "arf_photoresist", 1200),
+            "arf_photoresist", 1200, Machine.ORBITAL, 0),
     N20("20nm", "transmuted_neutronium", 20, GTValues.UV, 0xFFFF7A3C, ChatFormatting.RED, "euv", 13.5, 0.33,
-            "euv_photoresist", 1800),
+            "euv_photoresist", 1800, Machine.ORBITAL, 0),
     N7("7nm", "strange_matter", 7, GTValues.UHV, 0xFFFF5AA0, ChatFormatting.DARK_PURPLE, "euv_high_na", 13.5, 0.55,
-            "euv_photoresist", 2500),
+            "euv_photoresist", 2500, Machine.ORBITAL, 0),
     N1("1nm", "chromodynium", 1, GTValues.UHV, 0xFFE6F0FF, ChatFormatting.WHITE, "xfel", 1.0, 0.50,
-            "dry_resist", 3500);
+            "dry_resist", 3500, Machine.ORBITAL, 0);
 
-    /** The Photolithography Line's modes, in version order; {@link #N1} is the Orbital Lithography Station's. */
-    public static final List<LithoMode> LINE_MODES = List.of(N350, N200, N100, N80, N65, N50, N20, N7);
-    /** Highest line version (one per line mode). */
-    public static final int MAX_VERSION = 8;
-    /** Per line version above a mode's own: run time x0.8 and break chance x0.75. */
+    /** Which lithography machine runs a mode. */
+    public enum Machine {
+        /** Photolithography Line (Mk1): 350-100 nm, versions 1-3. */
+        LINE,
+        /** Photolithography Scanner (Mk2): 80 and 65 nm, versions 1-2. */
+        SCANNER,
+        /** Orbital Lithography Station: 50 nm down to 1 nm, in orbit only, no versions. */
+        ORBITAL
+    }
+
+    /** Each machine's modes, in version order. */
+    public static final List<LithoMode> LINE_MODES = List.of(N350, N200, N100);
+    public static final List<LithoMode> SCANNER_MODES = List.of(N80, N65);
+    public static final List<LithoMode> ORBITAL_MODES = List.of(N50, N20, N7, N1);
+    /** Per machine version above a mode's own: run time x0.8 and break chance x0.75. */
     public static final double VERSION_SPEEDUP = 0.8;
     public static final double VERSION_BREAK_FACTOR = 0.75;
     /** Break chance a completely dirty vacuum (cleanliness 0) adds on top of the mode's base chance. */
     public static final double DIRT_BREAK = 0.5;
     public static final double MAX_BREAK = 0.95;
-    /** Amps every line mode draws (two 2A energy hatches); the orbital mode draws {@link #ORBITAL_AMPERAGE}. */
+    /** Amps every mode draws (two 2A energy hatches); the X-ray FEL mode draws {@link #ORBITAL_AMPERAGE}. */
     public static final int AMPERAGE = 4;
     public static final int ORBITAL_AMPERAGE = 50;
 
@@ -75,9 +89,14 @@ public enum LithoMode {
     public final String resist;
     /** Break chance at a perfectly clean vacuum, out of 10000 (the chanced broken wafer the recipes show). */
     public final int baseBreak;
+    /** The machine that prints this mode. */
+    public final Machine machine;
+    /** Version of that machine the mode needs (line: 1-3, scanner: 1-2, orbital station: 0). */
+    private final int level;
 
     LithoMode(String id, String substrate, int nodeNm, int hatchTier, int argb, ChatFormatting color, String light,
-              double wavelengthNm, double numericalAperture, String resist, int baseBreak) {
+              double wavelengthNm, double numericalAperture, String resist, int baseBreak, Machine machine,
+              int level) {
         this.id = id;
         this.substrate = substrate;
         this.nodeNm = nodeNm;
@@ -89,23 +108,31 @@ public enum LithoMode {
         this.numericalAperture = numericalAperture;
         this.resist = resist;
         this.baseBreak = baseBreak;
+        this.machine = machine;
+        this.level = level;
     }
 
-    public boolean isOrbital() {
+    /** The 1 nm X-ray FEL mode: its own recipe type (gtceu:orbital_lithography), 50A of UHV, dry resist. */
+    public boolean isXfel() {
         return this == N1;
     }
 
-    public String recipeTypeId() {
-        return isOrbital() ? "orbital_lithography" : "lithography_" + id;
+    /** Printed by the Orbital Lithography Station (in orbit only). */
+    public boolean onOrbitalStation() {
+        return machine == Machine.ORBITAL;
     }
 
-    /** Line version this mode needs: 350 nm 1 ... 7 nm 8. The orbital mode has none (0). */
+    public String recipeTypeId() {
+        return isXfel() ? "orbital_lithography" : "lithography_" + id;
+    }
+
+    /** Version of its machine this mode needs: line 350 nm 1 ... 100 nm 3, scanner 80 nm 1, 65 nm 2; orbital 0. */
     public int level() {
-        return isOrbital() ? 0 : ordinal() + 1;
+        return level;
     }
 
     public int amperage() {
-        return isOrbital() ? ORBITAL_AMPERAGE : AMPERAGE;
+        return isXfel() ? ORBITAL_AMPERAGE : AMPERAGE;
     }
 
     /** EU/t the mode's recipes draw: 4A of its tier (480 for 350 nm), 50A of UHV for the orbital mode. */
@@ -128,7 +155,7 @@ public enum LithoMode {
      * version above the mode, at most {@link #MAX_BREAK}.
      *
      * @param cleanliness vacuum cleanliness, 0-100
-     * @param surplus     line versions above the mode's own (0 for the orbital mode)
+     * @param surplus     machine versions above the mode's own (0 on the orbital station)
      */
     public double breakChance(double cleanliness, int surplus) {
         double clean = Math.max(0, Math.min(100, cleanliness));

@@ -2,6 +2,7 @@ package com.af9.core.wafer;
 
 import com.af9.core.AF9Config;
 import com.af9.core.AF9Core;
+import com.af9.core.compat.curios.CuriosCompat;
 import com.af9.core.litho.LithoMode;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
@@ -39,8 +40,8 @@ import java.util.Map;
  * version: the contaminated wafer of its substrate (kubejs:contaminated_&lt;substrate&gt;_wafer), or the contaminated
  * chip (kubejs:contaminated_&lt;chip&gt;, e.g. kubejs:contaminated_ram_chip).
  * <p>
- * Protected are players who wear gloves (an armor piece in {@code #af9:wafer_gloves}: GT's Rubber Gloves or Hazmat
- * chestpiece) or who stand inside a formed, clean GT Cleanroom. Spectators are exempt, creative players only if
+ * Protected are players who wear gloves (an item of {@code #af9:wafer_gloves}, GT's Rubber Gloves or Hazmat chestpiece,
+ * in an armor slot or a Curios slot) or who stand inside a formed, clean GT Cleanroom. Spectators are exempt, creative players only if
  * {@link AF9Config#CONTAMINATE_IN_CREATIVE} is off. Machines, pipes, chests and ME systems never contaminate anything.
  * <p>
  * The wafers of a substrate are the item tag {@code #af9:wafers/<substrate>}, all of them {@code #af9:wafers}; the
@@ -168,11 +169,12 @@ public final class WaferContamination {
         });
     }
 
+    /** In an armor slot or a Curios slot (GT puts its Rubber Gloves in the hands slot). */
     public static boolean wearsGloves(ServerPlayer player) {
         for (ItemStack armor : player.getInventory().armor) {
             if (armor.is(GLOVES)) return true;
         }
-        return false;
+        return CuriosCompat.isEquipped(player, GLOVES);
     }
 
     /** Inside the walls of a formed, clean GT Cleanroom whose controller is at most one chunk away. */

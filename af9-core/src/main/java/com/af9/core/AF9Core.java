@@ -1,14 +1,18 @@
 package com.af9.core;
 
 import com.af9.core.blast.BouleMelting;
+import com.af9.core.client.AF9Client;
 import com.af9.core.fab.FabRecipeInfo;
 import com.af9.core.machine.PhotolithographyLineMachine;
+import com.af9.core.pattern.AF9Filters;
 
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +21,8 @@ import org.apache.logging.log4j.Logger;
  * AF9 Core: Java-side machine logic for the AF9 modpack.
  * Machines, materials and recipes are defined in KubeJS; this mod supplies the behaviour KubeJS cannot
  * (consoles, module detection, recipe gating, the lithography vacuum and break roll, wafer and chip contamination,
- * the EBF's Boule Melting mode, Jade tooltips). Settings: {@link AF9Config}.
+ * the EBF's Boule Melting mode, the Plascrete Filter Casing as a cleanroom filter, fluids inside running machines, Jade
+ * tooltips). Settings: {@link AF9Config}.
  */
 @Mod(AF9Core.MOD_ID)
 public class AF9Core {
@@ -29,6 +34,7 @@ public class AF9Core {
     public AF9Core() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AF9Config.SPEC);
+        if (FMLEnvironment.dist == Dist.CLIENT) AF9Client.init();
     }
 
     private void commonSetup(FMLCommonSetupEvent event) {
@@ -37,5 +43,7 @@ public class AF9Core {
         event.enqueueWork(FabRecipeInfo::register);
         // Boule Melting: second mode of GT's Electric Blast Furnace (before any machine is created)
         event.enqueueWork(BouleMelting::install);
+        // the KubeJS block exists now; structures are only checked later
+        event.enqueueWork(AF9Filters::register);
     }
 }

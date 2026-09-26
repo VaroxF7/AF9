@@ -9,61 +9,61 @@
 	progression_mode: "flexible"
 	quest_links: [
 		{
-			id: "0994B0550DACDAD9"
+			id: "609F4187309E9D4C"
 			linked_quest: "35B1F5439640C0EA"
 			x: 10.0d
 			y: -2.5d
 		}
 		{
-			id: "78EC4279A33218FA"
+			id: "20C983DD7C84496D"
 			linked_quest: "240C1BFF666269E2"
 			x: 11.5d
 			y: -2.5d
 		}
 		{
-			id: "6881169ED35379D8"
+			id: "47A4A751A7AAE1FE"
 			linked_quest: "412010740F2B823B"
 			x: 10.0d
 			y: -5.0d
 		}
 		{
-			id: "02E6B461C4A16934"
+			id: "41065F44B16E952F"
 			linked_quest: "3588AD6ACFF346F1"
 			x: 11.5d
 			y: -1.0d
 		}
 		{
-			id: "70D15441226DBA75"
+			id: "35142F7A50D2C719"
 			linked_quest: "51A5F6CE614BD186"
 			x: 13.0d
 			y: -4.0d
 		}
 		{
-			id: "609F4187309E9D4C"
+			id: "11970F9DA6CA7247"
 			linked_quest: "20D20F14D2F5D916"
 			x: 13.0d
 			y: -2.5d
 		}
 		{
-			id: "20C983DD7C84496D"
+			id: "6B68560CDC3C4B06"
 			linked_quest: "75865FF47260C1E7"
 			x: 13.0d
 			y: -1.0d
 		}
 		{
-			id: "47A4A751A7AAE1FE"
+			id: "2E810402CB2168DD"
 			linked_quest: "5655F19FA33BD62B"
 			x: 11.5d
 			y: -4.0d
 		}
 		{
-			id: "41065F44B16E952F"
+			id: "68CB05C8D0CDEE08"
 			linked_quest: "01B10745D9CCECA1"
 			x: 11.5d
 			y: -5.5d
 		}
 		{
-			id: "35142F7A50D2C719"
+			id: "6A499EABE2B5AEEE"
 			linked_quest: "3820A788D384105B"
 			x: -9.7d
 			y: 7.5d
@@ -1743,13 +1743,13 @@
 			]
 			id: "5CF8D8E0B8E0D908"
 			rewards: [{
-				id: "0DD425E8C9D1E46B"
+				id: "5B1A9686ED286E97"
 				type: "xp"
 				xp: 100
 			}]
 			tasks: [
 				{
-					id: "7E42CB16C1433CAA"
+					id: "28156307F13E593D"
 					item: "gtceu:fine_aluminium_silicon_wire"
 					type: "item"
 				}

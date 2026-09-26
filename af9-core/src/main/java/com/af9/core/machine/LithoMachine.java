@@ -337,17 +337,4 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         }
         return null;
     }
-
-    /** Switches to the given mode, the same way GT's mode tab does, and drops the recipe cached for the old one. */
-    public void selectMode(LithoMode mode) {
-        var types = getRecipeTypes();
-        for (int i = 0; i < types.length; i++) {
-            if (LithoMode.of(types[i]) != mode) continue;
-            if (i == getActiveRecipeType()) return;
-            setActiveRecipeType(i);
-            recipeLogic.updateTickSubscription();
-            recipeLogic.markLastRecipeDirty();
-            return;
-        }
-    }
 }

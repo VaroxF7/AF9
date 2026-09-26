@@ -1,10 +1,11 @@
 // AF9 - Crafting of the SMC fab machines (machines: startup_scripts/gtceu/fab_machines.js, spec: docs §11)
-// Each single block upgrades GT's machine of the same tier: PTFE-lined lines, filtered feeds, the tier's pumps or
-// heating wire. The SMC Large Chemical Reactor is GT's Large Chemical Reactor with everything its own recipe takes
+// Each single block upgrades GT's machine of the same tier: chemically resistant lines (polyethylene at MV, PTFE from
+// HV on: GT's PTFE only comes at HV), filtered feeds, the tier's pumps or heating wire. The SMC Large Chemical Reactor is GT's Large Chemical Reactor with everything its own recipe takes
 // (HV circuits, stainless rotor, PTFE pipes, HV motor) plus filter casings.
 
 ServerEvents.recipes(allthemods => {
     const PTFE_PIPE = 'gtceu:polytetrafluoroethylene_normal_fluid_pipe'
+    const PE_PIPE = 'gtceu:polyethylene_normal_fluid_pipe'
     const PTFE_LARGE_PIPE = 'gtceu:polytetrafluoroethylene_large_fluid_pipe'
     const FLUID_FILTER = 'gtceu:fluid_filter'
     const FILTER_CASING = 'gtceu:filter_casing'
@@ -21,21 +22,22 @@ ServerEvents.recipes(allthemods => {
     tiers.forEach(([t, cable, coil]) => {
         const circuit = `#gtceu:circuits/${t}`
         const pump = `gtceu:${t}_electric_pump`
+        const pipe = t === 'mv' ? PE_PIPE : PTFE_PIPE
 
         allthemods.shaped(`gtceu:${t}_smc_chemical_reactor`, ['FPF', 'UXU', 'CPC'], {
-            F: FLUID_FILTER, P: PTFE_PIPE, U: pump, X: `gtceu:${t}_chemical_reactor`, C: circuit
+            F: FLUID_FILTER, P: pipe, U: pump, X: `gtceu:${t}_chemical_reactor`, C: circuit
         }).id(`af9:${t}_smc_chemical_reactor`)
 
         allthemods.shaped(`gtceu:${t}_smc_fractionating_still`, ['FPF', 'UXU', 'CPC'], {
-            F: FLUID_FILTER, P: PTFE_PIPE, U: pump, X: `gtceu:${t}_distillery`, C: circuit
+            F: FLUID_FILTER, P: pipe, U: pump, X: `gtceu:${t}_distillery`, C: circuit
         }).id(`af9:${t}_smc_fractionating_still`)
 
         allthemods.shaped(`gtceu:${t}_smc_electrolytic_cell`, ['FPF', 'WXW', 'CPC'], {
-            F: FLUID_FILTER, P: PTFE_PIPE, W: `gtceu:${cable}_single_cable`, X: `gtceu:${t}_electrolyzer`, C: circuit
+            F: FLUID_FILTER, P: pipe, W: `gtceu:${cable}_single_cable`, X: `gtceu:${t}_electrolyzer`, C: circuit
         }).id(`af9:${t}_smc_electrolytic_cell`)
 
         allthemods.shaped(`gtceu:${t}_smc_thermal_furnace`, ['FPF', 'WXW', 'CWC'], {
-            F: FLUID_FILTER, P: PTFE_PIPE, W: `gtceu:${coil}_double_wire`, X: `gtceu:${t}_arc_furnace`, C: circuit
+            F: FLUID_FILTER, P: pipe, W: `gtceu:${coil}_double_wire`, X: `gtceu:${t}_arc_furnace`, C: circuit
         }).id(`af9:${t}_smc_thermal_furnace`)
     })
 
@@ -57,7 +59,7 @@ ServerEvents.recipes(allthemods => {
 
     // MV: the furnaces carry the MV silicon line (MG-Si, CZ boules)
     allthemods.shaped('gtceu:smc_thermal_processing_furnace', ['CKC', 'PXP', 'WCW'], {
-        C: '#gtceu:circuits/mv', K: 'gtceu:cupronickel_coil_block', P: PTFE_PIPE,
+        C: '#gtceu:circuits/mv', K: 'gtceu:cupronickel_coil_block', P: PE_PIPE,
         X: 'gtceu:electric_blast_furnace', W: 'gtceu:copper_single_cable'
     }).id('af9:smc_thermal_processing_furnace')
 })

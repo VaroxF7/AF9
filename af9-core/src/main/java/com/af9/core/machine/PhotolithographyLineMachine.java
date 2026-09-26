@@ -28,15 +28,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Controller logic of the Photolithography Line (structure and recipes are defined in KubeJS).
+ * Controller logic of the versioned lithography machines (structures and recipes are defined in KubeJS): the
+ * Photolithography Line (Mk1, {@link #MK1}) and the Photolithography Scanner (Mk2, {@link #MK2}).
  * <p>
- * One recipe type per line {@link LithoMode} (350 nm on silicon ... 7 nm on strange matter); the active one is GT's
- * machine mode, switchable with GT's mode tab or the console's mode tiles. Vacuum, break roll and counters come from
- * {@link LithoMachine}.
+ * One recipe type per {@link LithoMode}; the active one is GT's machine mode (GT's mode tab). Vacuum, break roll and
+ * counters come from {@link LithoMachine}.
  * <p>
- * Versions 1-8, like the Assembly Line's length: every version has one more projection-lens slice (3 to 10) and needs
- * a light source that allows it (mercury lamp V1, KrF excimer laser V2, ArF excimer laser up to V6, EUV source up to
- * V8). A version runs the modes up to its own level; lower modes run faster and break less.
+ * Versions, like the Assembly Line's length: every version has one more projection-lens slice and needs a light source
+ * that allows it. A version runs the modes up to its own level; lower modes run faster and break less.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1; GT uses it too
 public class PhotolithographyLineMachine extends LithoMachine {
@@ -44,20 +43,56 @@ public class PhotolithographyLineMachine extends LithoMachine {
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             PhotolithographyLineMachine.class, LithoMachine.MANAGED_FIELD_HOLDER);
 
-    /** One lens slice more per version: version 1 has 3. */
-    public static final int LENS_SLICES_V1 = 3;
-    private static final ResourceLocation LENS_BLOCK = new ResourceLocation("gtceu", "tempered_glass");
-    /** Light sources in version order; each allows versions up to its {@link #LIGHT_CAPS} entry. */
-    private static final ResourceLocation[] LIGHT_SOURCES = {
-            new ResourceLocation("gtceu", "purple_lamp"),
-            new ResourceLocation("kubejs", "krf_excimer_laser"),
-            new ResourceLocation("kubejs", "arf_excimer_laser"),
-            new ResourceLocation("kubejs", "euv_light_source") };
-    private static final int[] LIGHT_CAPS = { 1, 2, 6, 8 };
+    /**
+     * What makes a versioned lithography machine.
+     *
+     * @param modes           the modes, in version order (version n runs the first n)
+     * @param lensBlock       the projection-lens block; only the lens aisles hold it
+     * @param lensPerSlice    lens blocks in one lens slice
+     * @param lensSlicesV1    lens slices of version 1 (one more per version)
+     * @param lights          light sources, lowest first
+     * @param lightCaps       highest version each light source allows
+     * @param vacuumLevelBase vacuum level of "version 0": the pump-down takes 10 s x (base + version)
+     * @param titleKey        console title
+     */
+    public record Spec(List<LithoMode> modes, ResourceLocation lensBlock, int lensPerSlice, int lensSlicesV1,
+                       ResourceLocation[] lights, int[] lightCaps, int vacuumLevelBase, String titleKey) {
+
+        public int maxVersion() {
+            return modes.size();
+        }
+
+        /** Light source a version needs at least (the preview pages show it). */
+        public ResourceLocation lightSourceFor(int version) {
+            for (int i = 0; i < lightCaps.length; i++) {
+                if (version <= lightCaps[i]) return lights[i];
+            }
+            return lights[lights.length - 1];
+        }
+    }
+
+    private static final ResourceLocation PURPLE_LAMP = new ResourceLocation("gtceu", "purple_lamp");
+    private static final ResourceLocation KRF_LASER = new ResourceLocation("kubejs", "krf_excimer_laser");
+    private static final ResourceLocation ARF_LASER = new ResourceLocation("kubejs", "arf_excimer_laser");
 
     /**
-     * A line above the mode's level runs it faster ({@link LithoMode#speedFactor}); the lower break chance is part of
-     * the break roll. Before the overclock.
+     * Mk1, the Photolithography Line: 350, 200 and 100 nm. 3-5 tempered-glass lens slices; mercury lamp (GT's purple
+     * lamp) V1, KrF excimer laser V2, ArF excimer laser V3. Vacuum levels 1-3.
+     */
+    public static final Spec MK1 = new Spec(LithoMode.LINE_MODES, new ResourceLocation("gtceu", "tempered_glass"), 1,
+            3, new ResourceLocation[] { PURPLE_LAMP, KRF_LASER, ARF_LASER }, new int[] { 1, 2, 3 }, 0,
+            "af9.litho.console.title");
+    /**
+     * Mk2, the Photolithography Scanner: 80 and 65 nm. 4-5 lens slices of 6 laminated glass each; ArF excimer laser.
+     * Vacuum levels 4-5 (it continues after the line's 3).
+     */
+    public static final Spec MK2 = new Spec(LithoMode.SCANNER_MODES,
+            new ResourceLocation("gtceu", "laminated_glass"), 6, 4, new ResourceLocation[] { ARF_LASER },
+            new int[] { 2 }, 3, "af9.scanner.console.title");
+
+    /**
+     * A machine above the mode's level runs it faster ({@link LithoMode#speedFactor}); the lower break chance is part
+     * of the break roll. Before the overclock.
      */
     public static final RecipeModifier LITHO_VERSION = (machine, recipe) -> {
         if (!(machine instanceof PhotolithographyLineMachine line)) {
@@ -70,11 +105,18 @@ public class PhotolithographyLineMachine extends LithoMachine {
         return ModifierFunction.builder().durationMultiplier(LithoMode.speedFactor(surplus)).build();
     };
 
+    private final Spec spec;
     // rebuilt on every structure check
     private int version;
 
+    /** The Mk1 line (the KubeJS definition of photolithography_line). */
     public PhotolithographyLineMachine(IMachineBlockEntity holder) {
+        this(holder, MK1);
+    }
+
+    public PhotolithographyLineMachine(IMachineBlockEntity holder, Spec spec) {
         super(holder);
+        this.spec = spec;
     }
 
     @Override
@@ -82,14 +124,18 @@ public class PhotolithographyLineMachine extends LithoMachine {
         return MANAGED_FIELD_HOLDER;
     }
 
+    public Spec getSpec() {
+        return spec;
+    }
+
     @Override
     public List<LithoMode> getModes() {
-        return LithoMode.LINE_MODES;
+        return spec.modes();
     }
 
     @Override
     public boolean canPrint(LithoMode mode) {
-        return !mode.isOrbital() && mode.level() <= getVersion();
+        return spec.modes().contains(mode) && mode.level() <= getVersion();
     }
 
     @Override
@@ -97,15 +143,15 @@ public class PhotolithographyLineMachine extends LithoMachine {
         return Math.max(0, getVersion() - mode.level());
     }
 
-    /** The bigger the line, the longer the pump-down: 10 s per version. */
+    /** The bigger the machine, the longer the pump-down: 10 s per level. */
     @Override
     protected int vacuumLevel() {
-        return getVersion();
+        return spec.vacuumLevelBase() + getVersion();
     }
 
     @Override
     public String titleKey() {
-        return "af9.litho.console.title";
+        return spec.titleKey();
     }
 
     //////////////////////////////////////
@@ -124,7 +170,7 @@ public class PhotolithographyLineMachine extends LithoMachine {
         version = 0;
     }
 
-    /** min(lens slices - 2, light source cap), 1-8; 0 while not formed. */
+    /** min(lens slices - (V1 slices - 1), light source cap), 1 to the last version; 0 while not formed. */
     @Override
     public int getVersion() {
         return isFormed() ? version : 0;
@@ -133,46 +179,44 @@ public class PhotolithographyLineMachine extends LithoMachine {
     private int detectVersion() {
         Level level = getLevel();
         if (level == null) return 1;
-        Block lens = ForgeRegistries.BLOCKS.getValue(LENS_BLOCK);
-        int lensSlices = 0;
+        Block lens = ForgeRegistries.BLOCKS.getValue(spec.lensBlock());
+        int lensBlocks = 0;
         int lightCap = 1;
         for (BlockPos pos : getMultiblockState().getCache()) {
             Block block = level.getBlockState(pos).getBlock();
             if (block == lens) {
-                lensSlices++;
+                lensBlocks++;
                 continue;
             }
             ResourceLocation id = ForgeRegistries.BLOCKS.getKey(block);
-            for (int i = 0; i < LIGHT_SOURCES.length; i++) {
-                if (LIGHT_SOURCES[i].equals(id)) lightCap = LIGHT_CAPS[i];
+            for (int i = 0; i < spec.lights().length; i++) {
+                if (spec.lights()[i].equals(id)) lightCap = Math.max(lightCap, spec.lightCaps()[i]);
             }
         }
-        int byLens = lensSlices - LENS_SLICES_V1 + 1;
-        return Math.max(1, Math.min(LithoMode.MAX_VERSION, Math.min(byLens, lightCap)));
+        int slices = lensBlocks / Math.max(1, spec.lensPerSlice());
+        int byLens = slices - spec.lensSlicesV1() + 1;
+        return Math.max(1, Math.min(spec.maxVersion(), Math.min(byLens, lightCap)));
     }
 
-    /** Light source a version needs at least (the preview pages show it). */
-    public static ResourceLocation lightSourceFor(int version) {
-        for (int i = 0; i < LIGHT_CAPS.length; i++) {
-            if (version <= LIGHT_CAPS[i]) return LIGHT_SOURCES[i];
-        }
-        return LIGHT_SOURCES[LIGHT_SOURCES.length - 1];
+    /** Structure preview pages of the Mk1 line. */
+    public static List<MultiblockShapeInfo> versionShapes(MultiblockMachineDefinition definition) {
+        return versionShapes(definition, MK1);
     }
 
     /**
      * Structure preview pages, one per version like the Assembly Line's lengths: the lens slices GT would draw for that
-     * repeat count, with the version's light source in place of the lamp.
+     * repeat count, with the version's light source in place of the first one.
      */
-    public static List<MultiblockShapeInfo> versionShapes(MultiblockMachineDefinition definition) {
+    public static List<MultiblockShapeInfo> versionShapes(MultiblockMachineDefinition definition, Spec spec) {
         BlockPattern pattern = definition.getPatternFactory().get();
         int[][] repetitions = pattern.aisleRepetitions;
         int lensAisle = -1;
         for (int i = 0; i < repetitions.length; i++) {
             if (repetitions[i][1] > repetitions[i][0]) lensAisle = i;
         }
-        Block lamp = ForgeRegistries.BLOCKS.getValue(LIGHT_SOURCES[0]);
+        Block firstLight = ForgeRegistries.BLOCKS.getValue(spec.lights()[0]);
         List<MultiblockShapeInfo> pages = new ArrayList<>();
-        for (int version = 1; version <= LithoMode.MAX_VERSION; version++) {
+        for (int version = 1; version <= spec.maxVersion(); version++) {
             int[] repetition = new int[repetitions.length];
             for (int i = 0; i < repetitions.length; i++) repetition[i] = repetitions[i][0];
             if (lensAisle >= 0) {
@@ -180,13 +224,13 @@ public class PhotolithographyLineMachine extends LithoMachine {
                         repetitions[lensAisle][0] + version - 1);
             }
             BlockInfo[][][] blocks = pattern.getPreview(repetition);
-            Block light = ForgeRegistries.BLOCKS.getValue(lightSourceFor(version));
-            if (light != null && light != Blocks.AIR && light != lamp) {
+            Block light = ForgeRegistries.BLOCKS.getValue(spec.lightSourceFor(version));
+            if (light != null && light != Blocks.AIR && light != firstLight) {
                 BlockInfo lightInfo = BlockInfo.fromBlockState(light.defaultBlockState());
                 for (BlockInfo[][] slice : blocks) {
                     for (BlockInfo[] row : slice) {
                         for (int k = 0; k < row.length; k++) {
-                            if (row[k] != null && row[k].getBlockState().getBlock() == lamp) row[k] = lightInfo;
+                            if (row[k] != null && row[k].getBlockState().getBlock() == firstLight) row[k] = lightInfo;
                         }
                     }
                 }
@@ -210,7 +254,7 @@ public class PhotolithographyLineMachine extends LithoMachine {
     // ********* Recipe viewer ********//
     //////////////////////////////////////
 
-    /** Adds node, light source, line version and break chances to the lithography recipes in EMI/JEI. */
+    /** Adds node, light source, machine version and break chances to the lithography recipes in EMI/JEI. */
     public static void registerRecipeInfo() {
         for (LithoMode mode : LithoMode.values()) {
             GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", mode.recipeTypeId()));
@@ -220,12 +264,14 @@ public class PhotolithographyLineMachine extends LithoMachine {
                 continue;
             }
             // rendered as plain labels, so the texts must not contain '%'
-            if (mode.isOrbital()) {
-                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node_orbital", mode.nodeNm,
-                        Component.translatable("af9.litho.light." + mode.light)).getString());
-            } else {
-                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node", mode.nodeNm,
-                        Component.translatable("af9.litho.light." + mode.light), mode.level()).getString());
+            Component light = Component.translatable("af9.litho.light." + mode.light);
+            switch (mode.machine) {
+                case ORBITAL -> type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node_orbital",
+                        mode.nodeNm, light).getString());
+                case SCANNER -> type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node_scanner",
+                        mode.nodeNm, light, mode.level()).getString());
+                default -> type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node", mode.nodeNm,
+                        light, mode.level()).getString());
             }
             type.addDataInfo(data -> Component.translatable("af9.recipe.litho_break",
                     String.format(java.util.Locale.ROOT, "%.0f", mode.baseBreak / 100.0),

@@ -4,9 +4,7 @@ import com.af9.core.machine.ProcessMachine;
 
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 
-import com.lowdragmc.lowdraglib.gui.texture.ColorBorderTexture;
-import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
-import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
+import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 
 import net.minecraft.client.gui.GuiGraphics;
@@ -58,19 +56,13 @@ public class ProcessConsoleWidget extends ConsoleWidget {
         this.machine = machine;
     }
 
-    /** The console with one click area per mode tile. */
+    /** The console with a hover area per mode tile (tooltip only: the tiles show the mode, GT's side tab sets it). */
     public static WidgetGroup create(ProcessMachine machine) {
         var group = new WidgetGroup(0, 0, WIDTH, HEIGHT);
         group.addWidget(new ProcessConsoleWidget(machine, 0, 0));
         GTRecipeType[] types = machine.getRecipeTypes();
         for (int i = 0; i < types.length; i++) {
-            final int index = i;
-            // clicks arrive on the client first and are then forwarded; only act on the server copy
-            var tile = new ButtonWidget(tileX(i, types.length), TILE_Y, tileWidth(types.length), TILE_H,
-                    IGuiTexture.EMPTY, click -> {
-                        if (!click.isRemote) machine.selectMode(index);
-                    });
-            tile.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
+            var tile = new Widget(tileX(i, types.length), TILE_Y, tileWidth(types.length), TILE_H);
             tile.setHoverTooltips(Component.translatable(ProcessMachine.modeKey(types[i])),
                     Component.translatable(ProcessMachine.modeKey(types[i]) + ".desc"));
             group.addWidget(tile);

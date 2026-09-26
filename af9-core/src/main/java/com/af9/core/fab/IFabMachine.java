@@ -45,12 +45,4 @@ public interface IFabMachine extends IRecipeLogicMachine {
         String last = getLastProduct();
         return recipe.id != null && !last.isEmpty() && !last.equals(recipe.id.toString());
     }
-
-    /** Switches machine mode the way GT's mode tab does and drops the recipe cached for the old one. */
-    default void selectFabMode(int index) {
-        if (index < 0 || index >= getRecipeTypes().length || index == getActiveRecipeType()) return;
-        setActiveRecipeType(index);
-        getRecipeLogic().updateTickSubscription();
-        getRecipeLogic().markLastRecipeDirty();
-    }
 }

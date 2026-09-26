@@ -15,7 +15,8 @@ import java.util.Locale;
 /**
  * Base of the AF9 machine consoles (lithography, accelerator, cryostat): a dark panel with a status header, drawn
  * entirely in {@link #drawInBackground}. The server samples the machine every tick ({@link #sample()}) and sends the
- * state only when something changed; clicks go to invisible {@code ButtonWidget}s the machine places over the drawn
+ * state only when something changed; hover tooltips and the counter-reset click come from widgets the machine places
+ * over the drawn
  * tiles.
  */
 public abstract class ConsoleWidget extends Widget {

@@ -14,21 +14,21 @@ import net.minecraft.world.level.Level;
 import java.util.List;
 
 /**
- * Controller logic of the Orbital Lithography Station (structure and recipes in KubeJS): prints the 1 nm mode on
- * chromodynium wafers with an X-ray free-electron laser (50A of UHV from a laser hatch and energy hatches).
+ * Controller logic of the Orbital Lithography Station (structure and recipes in KubeJS): prints the orbital modes,
+ * 50 nm (ArF immersion), 20 and 7 nm (EUV) and 1 nm on chromodynium wafers with an X-ray free-electron laser (50A of
+ * UHV from a laser hatch and energy hatches).
  * <p>
  * It only prints in orbit (a dimension whose path ends in "orbit", e.g. Ad Astra's ad_astra:earth_orbit): the XFEL
- * needs the vacuum of space, and without gravity the resist goes on dry. Its vacuum counts as level 9 (90 s from 0 to
- * 100, see {@link LithoMachine}). Coolant comes from coolant hatches (supercooled fluids only).
+ * needs the vacuum of space, and without gravity the resist goes on dry. Its vacuum counts as level 6 (60 s from 0 to
+ * 100, after the scanner's 5, see {@link LithoMachine}). Coolant comes from coolant hatches (supercooled fluids only).
  */
 public class OrbitalLithographyMachine extends LithoMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             OrbitalLithographyMachine.class, LithoMachine.MANAGED_FIELD_HOLDER);
 
-    /** One level above the line's last version: 90 s from 0 to 100. */
-    public static final int VACUUM_LEVEL = LithoMode.MAX_VERSION + 1;
-    private static final List<LithoMode> MODES = List.of(LithoMode.N1);
+    /** One level above the Mk2 scanner's last version: 60 s from 0 to 100. */
+    public static final int VACUUM_LEVEL = 6;
 
     public OrbitalLithographyMachine(IMachineBlockEntity holder) {
         super(holder);
@@ -41,17 +41,17 @@ public class OrbitalLithographyMachine extends LithoMachine {
 
     @Override
     public List<LithoMode> getModes() {
-        return MODES;
+        return LithoMode.ORBITAL_MODES;
     }
 
     @Override
     public boolean canPrint(LithoMode mode) {
-        return mode.isOrbital() && isInOrbit();
+        return mode.onOrbitalStation() && isInOrbit();
     }
 
     @Override
     public int blockedStatus(LithoMode mode) {
-        if (!mode.isOrbital()) return ConsoleWidget.STATUS_LOCKED;
+        if (!mode.onOrbitalStation()) return ConsoleWidget.STATUS_LOCKED;
         return isInOrbit() ? -1 : ConsoleWidget.STATUS_NO_ORBIT;
     }
 

@@ -151,12 +151,4 @@ public abstract class ProcessMachine extends WorkableElectricMultiblockMachine i
         }
         return FluidStack.EMPTY;
     }
-
-    /** Switches to the recipe type at the index, the same way GT's mode tab does. */
-    public void selectMode(int index) {
-        if (index < 0 || index >= getRecipeTypes().length || index == getActiveRecipeType()) return;
-        setActiveRecipeType(index);
-        recipeLogic.updateTickSubscription();
-        recipeLogic.markLastRecipeDirty();
-    }
 }

@@ -167,14 +167,38 @@ ServerEvents.recipes(allthemods => {
         .duration(2400)
         .EUt(VA[GTValues.UV])
 
-    // Orbital Lithography Station (built on the ground, runs only in orbit; its structure is GT and GCYM blocks)
+    // Photolithography Scanner (Mk2): 80 and 65 nm, crafted at IV
+    allthemods.recipes.gtceu.assembler('af9:photolithography_scanner')
+        .itemInputs('gtceu:iv_machine_hull', '4x #gtceu:circuits/iv', '2x gtceu:iv_emitter', '2x gtceu:iv_sensor',
+            '2x gtceu:iv_robot_arm', '4x gtceu:iv_electric_motor', '2x gtceu:iv_electric_pump', '8x gtceu:glass_lens',
+            '8x gtceu:tungsten_steel_plate')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 1152))
+        .itemOutputs('gtceu:photolithography_scanner')
+        .duration(1200)
+        .EUt(VA[GTValues.IV])
+
+    // Orbital Lithography Station (built on the ground, runs only in orbit; its structure is GT and GCYM blocks).
+    // It prints from 50 nm (ZPM) on, so it is crafted at ZPM.
     allthemods.recipes.gtceu.assembler('af9:orbital_lithography_station')
-        .itemInputs('gtceu:uhv_machine_hull', '4x gtceu:uv_emitter', '4x gtceu:uv_field_generator',
-            '4x #gtceu:circuits/uhv', '4x gtceu:uv_sensor', '4x gtceu:uv_robot_arm', '16x gtceu:chromodynium_plate')
+        .itemInputs('gtceu:zpm_machine_hull', '4x gtceu:zpm_emitter', '4x gtceu:zpm_field_generator',
+            '4x #gtceu:circuits/zpm', '4x gtceu:zpm_sensor', '4x gtceu:zpm_robot_arm', '16x gtceu:naquadah_alloy_plate')
         .inputFluids(Fluid.of('gtceu:supercooled_endion', 4000))
         .itemOutputs('gtceu:orbital_lithography_station')
         .duration(4000)
-        .EUt(VA[GTValues.UHV])
+        .EUt(VA[GTValues.ZPM])
+
+    // Plascrete Pipe Casing: the chemical lines of the MV machines (Photolithography Line, SMC Thermal Processing
+    // Furnace); GT's PTFE Pipe Casing only comes at HV. Like GT's pipe casings: plates, pipes, a frame.
+    allthemods.shaped('2x kubejs:plascrete_pipe_casing', ['PIP', 'IFI', 'PIP'], {
+        P: 'gtceu:plascrete', I: 'gtceu:polyethylene_normal_fluid_pipe', F: 'gtceu:steel_frame'
+    }).id('af9:plascrete_pipe_casing')
+
+    // Plascrete Filter Casing: the ceiling of the lithography machines, and a GT cleanroom filter (ISO 5). GT's Filter
+    // Casing parts (item filters behind a grille, an MV fan motor, a steel rotor) in a plascrete frame.
+    allthemods.shaped('2x kubejs:plascrete_filter_casing', ['PBP', 'IMI', 'PRP'], {
+        P: 'gtceu:plascrete', B: 'minecraft:iron_bars', I: 'gtceu:item_filter', M: 'gtceu:mv_electric_motor',
+        R: 'gtceu:steel_rotor'
+    }).id('af9:plascrete_filter_casing')
 
     // ---- Photomasks ----
     // Mask blanks ship pre-coated with resist; the pattern is then written by a laser mask writer
@@ -435,9 +459,12 @@ ServerEvents.recipes(allthemods => {
         }
         if (m.highK) fluids.push(Fluid.of('gtceu:hafnium_tetrachloride', 100))
         chips.filter(c => c.reticle && c.native <= m.substrate).forEach(c => {
-            allthemods.recipes.gtceu[`lithography_${m.id}`](`af9:print_${c.id}_${m.id}`)
+            const recipe = allthemods.recipes.gtceu[`lithography_${m.id}`](`af9:print_${c.id}_${m.id}`)
                 .itemInputs(s.blank)
                 .notConsumable(`kubejs:${c.reticle}_reticle`)
+            // the orbital station's EUV source, in its input bus
+            if (m.euv) recipe.notConsumable('kubejs:euv_light_source')
+            recipe
                 .inputFluids(fluids)
                 .itemOutputs(`${yieldOf(m.substrate, c)}x ${printed(m.substrate, c)}`)
                 .chancedOutput(`kubejs:broken_${s.id}_wafer`, m.baseBreak, 0)

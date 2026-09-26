@@ -1,6 +1,7 @@
 package com.af9.core.client;
 
 import com.af9.core.AF9Core;
+import com.af9.core.client.render.ModeFluidRender;
 import com.af9.core.wafer.WaferContamination;
 
 import net.minecraft.ChatFormatting;
@@ -13,11 +14,16 @@ import net.minecraftforge.fml.common.Mod;
 import java.util.List;
 
 /**
- * Client side of the wafers and chips: everything that contaminates in a player's inventory says so in its tooltip.
+ * Client side: the dynamic machine renders, and the tooltip of everything that contaminates in a player's inventory.
  */
 public final class AF9Client {
 
     private AF9Client() {}
+
+    /** Mod construction: the render types must exist before the machine models are built. */
+    public static void init() {
+        ModeFluidRender.register();
+    }
 
     @Mod.EventBusSubscriber(modid = AF9Core.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
     public static final class ForgeBusEvents {

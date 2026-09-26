@@ -327,36 +327,38 @@ Lens map (base, kept by AF9): red→ILC, green→RAM, light_blue→CPU, blue→U
 
 # 5. AF9 lithography — current implementation
 
-Two machines print chip wafers: the **Photolithography Line** (8 modes, 350 nm to 7 nm) and the **Orbital Lithography Station** (1 nm, only in orbit). There is **one mode per wafer substrate**, and what comes out is a plain item: GT's own wafer when the chip belongs to the substrate, otherwise `kubejs:<substrate>_<chip>_wafer`. No NBT, no packages, no per-mode chips (all removed).
+Three machines print chip wafers: the **Photolithography Line** (Mk1: 350, 200, 100 nm), the **Photolithography Scanner** (Mk2: 80, 65 nm) and the **Orbital Lithography Station** (50, 20, 7, 1 nm, only in orbit). There is **one mode per wafer substrate**, and what comes out is a plain item: GT's own wafer when the chip belongs to the substrate, otherwise `kubejs:<substrate>_<chip>_wafer`. No NBT, no packages, no per-mode chips (all removed).
 
 ## 5.1 Machines + recipe types
 
 | Thing | ID | Display name |
 |---|---|---|
-| Line controller | `gtceu:photolithography_line` | Photolithography Line |
+| Mk1 controller | `gtceu:photolithography_line` | Photolithography Line |
+| Mk2 controller | `gtceu:photolithography_scanner` | Photolithography Scanner Mk2 |
 | Orbital controller | `gtceu:orbital_lithography_station` | Orbital Lithography Station |
-| Line modes | `gtceu:lithography_350nm`, `_200nm`, `_100nm`, `_80nm`, `_65nm`, `_50nm`, `_20nm`, `_7nm` | Lithography 350 nm (Silicon) … 7 nm (Strange Matter) |
-| Orbital mode | `gtceu:orbital_lithography` | Orbital Lithography 1 nm (Chromodynium) |
+| Mk1 modes | `gtceu:lithography_350nm`, `_200nm`, `_100nm` | Lithography 350 nm (Silicon) … 100 nm (Naquadah) |
+| Mk2 modes | `gtceu:lithography_80nm`, `_65nm` | 80 nm (Trinium), 65 nm (Naquadria) |
+| Orbital modes | `gtceu:lithography_50nm`, `_20nm`, `_7nm`, `gtceu:orbital_lithography` | 50 nm (Neutronium) … 1 nm (Chromodynium) |
 
-Java (AF9 Core): `LithoMode` (the 9 modes: substrate, node, tier, light, λ, NA, resist, base break chance), `LithoMachine` (shared by both: vacuum cleanliness, break roll, counters, `LITHO_GATE`, `STRIP_BROKEN`), `PhotolithographyLineMachine` (versions 1-8, `LITHO_VERSION`, version preview pages, EMI info), `OrbitalLithographyMachine` (orbit check), `LithoRecipeLogic` (break roll when a print finishes), `LithoConsoleWidget` (console), `compat/jade/AF9MachineProvider` (Jade).
-Modifiers: line `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital `LITHO_GATE + STRIP_BROKEN + PARALLEL_HATCH + OC_PERFECT`.
-Tooltips: `af9.photolithography_line.tooltip.0-15`, `af9.orbital_lithography_station.tooltip.0-9` (`kubejs/assets/gtceu/lang/en_us.json`).
+Java (AF9 Core): `LithoMode` (the 9 modes: substrate, node, tier, light, λ, NA, resist, base break chance), `LithoMachine` (shared by both: vacuum cleanliness, break roll, counters, `LITHO_GATE`, `STRIP_BROKEN`), `PhotolithographyLineMachine` (Mk1 and Mk2 from a `Spec`: modes, lens block and slices, light sources, vacuum level, title; versions, `LITHO_VERSION`, version preview pages, EMI info), `OrbitalLithographyMachine` (orbit check), `LithoRecipeLogic` (break roll when a print finishes), `LithoConsoleWidget` (console), `compat/jade/AF9MachineProvider` (Jade).
+Modifiers: line and scanner `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital `LITHO_GATE + STRIP_BROKEN + PARALLEL_HATCH + OC_PERFECT`.
+Tooltips: `af9.photolithography_line.tooltip.0-15`, `af9.photolithography_scanner.tooltip.0-8`, `af9.orbital_lithography_station.tooltip.0-9` (`kubejs/assets/gtceu/lang/en_us.json`).
 
 ## 5.2 The nine substrates (load-bearing numbers)
 
 `LithoMode` (Java) = `AF9_WAFERS` (server `photolithography.js`) = `AF9_WAFER_TABLE` (startup `wafers.js`). Change them together.
 
-| # | Substrate id | Blank wafer | Mode | Tier | EU/t | Light | λ nm | NA | k1 | Resist | Base break | Line version |
+| # | Substrate id | Blank wafer | Mode | Tier | EU/t | Light | λ nm | NA | k1 | Resist | Base break | Machine (version) |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|
-| 0 | `silicon` | `gtceu:silicon_wafer` | 350 nm | MV | 4A = 480 | mercury i-line | 365 | 0.60 | 0.58 | `photoresist` | 2 % | 1 |
-| 1 | `phosphorus` | `gtceu:phosphorus_wafer` | 200 nm | HV | 1920 | KrF excimer | 248 | 0.70 | 0.56 | `krf_photoresist` | 3 % | 2 |
-| 2 | `naquadah` | `gtceu:naquadah_wafer` | 100 nm | EV | 7680 | ArF excimer (dry) | 193 | 0.75 | 0.39 | `arf_photoresist` | 5 % | 3 |
-| 3 | `trinium` | `kubejs:trinium_wafer` | 80 nm | IV | 30720 | ArF (dry) | 193 | 0.93 | 0.39 | `arf_photoresist` | 7 % | 4 |
-| 4 | `naquadria` | `kubejs:naquadria_wafer` | 65 nm | LuV | 122880 | ArF immersion | 193 | 1.20 | 0.40 | `arf_photoresist` | 9 % | 5 |
-| 5 | `neutronium` | `gtceu:neutronium_wafer` | 50 nm | ZPM | 491520 | ArF immersion | 193 | 1.35 | 0.35 | `arf_photoresist` | 12 % | 6 |
-| 6 | `transmuted_neutronium` | `kubejs:transmuted_neutronium_wafer` | 20 nm | UV | 1966080 | EUV (tin plasma) | 13.5 | 0.33 | 0.49 | `euv_photoresist` | 18 % | 7 |
-| 7 | `strange_matter` | `kubejs:strange_matter_wafer` | 7 nm | UHV | 7864320 | high-NA EUV | 13.5 | 0.55 | 0.29 | `euv_photoresist` | 25 % | 8 |
-| 8 | `chromodynium` | `kubejs:chromodynium_wafer` | 1 nm | UHV | 50A = 98304000 | X-ray FEL (orbit) | 1.0 | 0.50 | 0.50 | `kubejs:dry_resist_cartridge` | 35 % | orbital |
+| 0 | `silicon` | `gtceu:silicon_wafer` | 350 nm | MV | 4A = 480 | mercury i-line | 365 | 0.60 | 0.58 | `photoresist` | 2 % | Mk1 line (V1) |
+| 1 | `phosphorus` | `gtceu:phosphorus_wafer` | 200 nm | HV | 1920 | KrF excimer | 248 | 0.70 | 0.56 | `krf_photoresist` | 3 % | Mk1 line (V2) |
+| 2 | `naquadah` | `gtceu:naquadah_wafer` | 100 nm | EV | 7680 | ArF excimer (dry) | 193 | 0.75 | 0.39 | `arf_photoresist` | 5 % | Mk1 line (V3) |
+| 3 | `trinium` | `kubejs:trinium_wafer` | 80 nm | IV | 30720 | ArF (dry) | 193 | 0.93 | 0.39 | `arf_photoresist` | 7 % | Mk2 scanner (V1) |
+| 4 | `naquadria` | `kubejs:naquadria_wafer` | 65 nm | LuV | 122880 | ArF immersion | 193 | 1.20 | 0.40 | `arf_photoresist` | 9 % | Mk2 scanner (V2) |
+| 5 | `neutronium` | `gtceu:neutronium_wafer` | 50 nm | ZPM | 491520 | ArF immersion | 193 | 1.35 | 0.35 | `arf_photoresist` | 12 % | orbital station |
+| 6 | `transmuted_neutronium` | `kubejs:transmuted_neutronium_wafer` | 20 nm | UV | 1966080 | EUV (tin plasma) | 13.5 | 0.33 | 0.49 | `euv_photoresist` | 18 % | orbital station (+ EUV source) |
+| 7 | `strange_matter` | `kubejs:strange_matter_wafer` | 7 nm | UHV | 7864320 | high-NA EUV | 13.5 | 0.55 | 0.29 | `euv_photoresist` | 25 % | orbital station (+ EUV source) |
+| 8 | `chromodynium` | `kubejs:chromodynium_wafer` | 1 nm | UHV | 50A = 98304000 | X-ray FEL (orbit) | 1.0 | 0.50 | 0.50 | `kubejs:dry_resist_cartridge` | 35 % | orbital station |
 
 Order note: trinium comes before naquadria because GT smelts trinium at LuV and naquadria only at ZPM (trinium dust also comes from AF9's trinium ore). The user-facing "placeholder" wafers are Trinium (4th), Naquadria (5th), Transmuted Neutronium (7th), Strange Matter (8th) and Chromodynium (9th).
 
@@ -408,28 +410,32 @@ Both machines keep an exposure vacuum, a **cleanliness score 0-100** (`LithoMach
 - Printing during the pump-down (or while venting) breaks more wafers: wait for "sealed". Jade leaves GT's own run-time bar out for these machines (they have their own).
 - Broken wafers: macerator → 2 small silicon dust (chromodynium: small chromodynium dust), `af9:reclaim_broken_<substrate>_wafer`.
 
-## 5.5 Line versions (like the Assembly Line's length)
+## 5.5 Versions (like the Assembly Line's length)
 
-| Version | Lens slices | Light source (must allow it) | Runs modes | Line length |
-|---|---|---|---|---|
-| 1 | 3 | purple lamp (mercury i-line) | 350 nm | 10 |
-| 2 | 4 | `kubejs:krf_excimer_laser` | + 200 nm | 11 |
-| 3 | 5 | `kubejs:arf_excimer_laser` | + 100 nm | 12 |
-| 4 | 6 | ArF | + 80 nm | 13 |
-| 5 | 7 | ArF | + 65 nm | 14 |
-| 6 | 8 | ArF | + 50 nm | 15 |
-| 7 | 9 | `kubejs:euv_light_source` | + 20 nm | 16 |
-| 8 | 10 | EUV | + 7 nm | 17 |
+Mk1 line and Mk2 scanner grow by projection-lens slices; the light source must allow the version.
 
-Version = min(lens slices − 2, light cap: lamp 1, KrF 2, ArF 6, EUV 8), read on structure formation. `LITHO_GATE` refuses modes above the version (console LOCKED, the tile shows `V<n>` in red). Per version above a mode: run time ×0.8 (`LITHO_VERSION`, before the overclock) and break chance ×0.75 (in the roll). EMI shows one structure page per version (`versionShapes`).
+| Machine | Version | Lens slices | Light source (must allow it) | Runs modes | Length | Vacuum pump-down |
+|---|---|---|---|---|---|---|
+| Mk1 line | 1 | 3 tempered glass | purple lamp (mercury i-line) | 350 nm | 10 | 10 s |
+| Mk1 line | 2 | 4 | `kubejs:krf_excimer_laser` | + 200 nm | 11 | 20 s |
+| Mk1 line | 3 | 5 | `kubejs:arf_excimer_laser` | + 100 nm | 12 | 30 s |
+| Mk2 scanner | 1 | 4 × 6 laminated glass | `kubejs:arf_excimer_laser` | 80 nm | 11 | 40 s |
+| Mk2 scanner | 2 | 5 × 6 | ArF | + 65 nm | 12 | 50 s |
+| Orbital station | — | — | (X-ray FEL; EUV Light Source in the input bus for 20 / 7 nm) | 50, 20, 7, 1 nm | 25 × 25 × 18 | 60 s |
 
-Light sources (assembler): KrF laser HV, ArF laser EV (unchanged); `af9:euv_light_source` = UV hull + 4 UV emitters + 4 UV circuits + 8 glass lenses + 2 UV pumps + 8 neutronium plates + 2304 mB molten tin, 2400t UV.
+Version = min(lens slices − (V1 slices − 1), light cap), read on structure formation (`PhotolithographyLineMachine.Spec`: `MK1` lamp 1, KrF 2, ArF 3; `MK2` ArF 2). `LITHO_GATE` refuses modes above the version (console LOCKED, the tile shows `V<n>` in red). Per version above a mode: run time ×0.8 (`LITHO_VERSION`, before the overclock) and break chance ×0.75 (in the roll). EMI shows one structure page per version (`versionShapes(definition, spec)`).
+
+Light sources (assembler): KrF laser HV, ArF laser EV; `af9:euv_light_source` = UV hull + 4 UV emitters + 4 UV circuits + 8 glass lenses + 2 UV pumps + 8 neutronium plates + 2304 mB molten tin, 2400t UV: not a structure block any more but a not-consumed input of the 20 and 7 nm prints (the station's EUV source). Mk2: `af9:photolithography_scanner`, IV assembler (IV hull, 4 IV circuits, 2 emitters, 2 sensors, 2 robot arms, 4 motors, 2 pumps, 8 glass lenses, 8 tungstensteel plates, 1152 soldering alloy). Orbital station: ZPM assembler (it prints from 50 nm on): ZPM hull, 4 ZPM emitters, 4 ZPM field generators, 4 ZPM circuits, 4 ZPM sensors, 4 ZPM robot arms, 16 naquadah alloy plates, 4000 supercooled endion.
+
+Consoles: the mode tiles are a status indicator (active mode lit, locked modes with their version), not buttons; GT's side tab switches the mode. The same for the fab and process consoles.
 
 ## 5.6 Structures
 
-Line (3×3×10-17, back → front; each aisle bottom/middle/top): `CCC/CLC/CCC` light source, `CCC/CRC/CCC` reticle stage, `CCC/WTW/CCC` × 3-10 projection lens (`setRepeatable(3, 10)`), `CRC/WRW/CCC` wafer stage, `CSC/WXW/FPF` developer, `CKC/CHC/FFF` bake + chill plates, `CSC/WXW/FPF` prime + spin coater, `III/IMI/CFC` cassette station + controller; `L` = purple lamp / KrF / ArF / `kubejs:euv_light_source`. `C` = clean casing or up to 2 energy hatches, up to 8 fluid inputs, up to 1 maintenance; `I` = up to 2 item input + 2 output buses at the controller. Every part has a maximum only, never a required count (all AF9 multiblocks, `setMaxGlobalLimited(max, preview count)`); a print needs 4A of its tier, i.e. two normal energy hatches.
+Mk1 line (3×3×10-12, built from plascrete; aisles **front → back**, `FactoryBlockPattern.start(LEFT, UP, BACK)`, so the controller comes before the repeatable lens aisle and GT's auto-build places it right; each aisle bottom/middle/top): `III/IMI/CFC` cassette station + controller, `CSC/WXW/FPF` prime + spin coater, `CKC/CHC/FFF` bake + chill plates, `CSC/WXW/FPF` developer, `CRC/WRW/CCC` wafer stage, `CCC/WTW/CCC` × 3-5 projection lens (`setRepeatable(3, 5)`), `CCC/CRC/CCC` reticle stage, `CCC/CLC/CCC` light source; `L` = purple lamp / KrF / ArF, `C`/`I` = `gtceu:plascrete` (or hatches/buses), `X` = solid steel casing, `P` = `kubejs:plascrete_pipe_casing` (an MV machine: no PTFE blocks, GT's PTFE only comes at HV), `F` = `kubejs:plascrete_filter_casing` (MV fan filter units, see §11.3). Plascrete Pipe Casing: shaped `PIP/IFI/PIP` (plascrete, polyethylene fluid pipe, steel frame) → 2, `af9:plascrete_pipe_casing`. `C` = plascrete or up to 2 energy hatches, up to 8 fluid inputs, up to 1 maintenance; `I` = up to 2 item input + 2 output buses at the controller. Every part has a maximum only, never a required count (all AF9 multiblocks, `setMaxGlobalLimited(max, preview count)`); a print needs 4A of its tier, i.e. two normal energy hatches.
 
-Orbital station (Mk2 lithography), 25 × 25 × 18: the user's `sol_array` pattern, taken over unchanged (25 aisles of 18 rows, rows bottom → top; `FactoryBlockPattern.start()` = LEFT, UP, FRONT). The controller `K` is in the middle of the top deck (aisle 12, row 17).
+Mk2 scanner (5 wide × 4 high × 11-12, plascrete under Plascrete Filter Casings; aisles front → back like the line; rows bottom → top): `CCCCC/IIMII/CIIIC/CFFFC` load port + controller, `CCCCC/WXPXW/WSHSW/FFFFF` and `CCCCC/WXPXW/WKHKW/FFFFF` track, `CCCCC/WRWRW/CRCRC/CFFFC` twin wafer stages, `CCCCC/CPTPC/CPTPC/CCCCC` immersion hood, `CCCCC/CQQQC/CQQQC/CCCCC` × 4-5 projection lens, `CCCCC/CRRRC/CCRCC/CCCCC` reticle stage, `CCCCC/CCLCC/CCCCC/CCCCC` ArF laser. `C` plascrete or up to 2 energy, 8 fluid inputs, 1 maintenance; `I` plascrete or 2 + 2 item buses; `X` inert PTFE casing, `P` PTFE pipe casing (IV: PTFE is fine), `S` steel gearbox, `H` cupronickel coil, `K` frostproof casing, `R` titanium gearbox, `T` tempered glass, `Q` laminated glass, `W` cleanroom glass, `F` Plascrete Filter Casing, `L` ArF excimer laser.
+
+Orbital station (the orbital array), 25 × 25 × 18: the user's `sol_array` pattern, taken over unchanged (25 aisles of 18 rows, rows bottom → top; `FactoryBlockPattern.start()` = LEFT, UP, FRONT). The controller `K` is in the middle of the top deck (aisle 12, row 17).
 
 | Letter | Block | Count | Part of the station |
 |---|---|---|---|
@@ -450,7 +456,7 @@ Orbit: `OrbitalLithographyMachine.isOrbit` = dimension path `orbit` or ending in
 ## 5.7 Consoles (custom UI)
 
 `LithoConsoleWidget` (230×144; GT's side tabs stay), no scanlines or sweep line:
-- header: title (`LITHO LINE` / `ORBITAL LITHO`) + line version, status word + LED (OFFLINE, IDLE, RUNNING, NO POWER, PAUSED, MAINTENANCE, LOCKED, NOT IN ORBIT),
+- header: title (`LITHO LINE` / `LITHO SCANNER` / `ORBITAL LITHO`) + line version, status word + LED (OFFLINE, IDLE, RUNNING, NO POWER, PAUSED, MAINTENANCE, LOCKED, NOT IN ORBIT),
 - mode tiles (node + substrate symbol Si, P, Nq, Ke, Nq*, Nt, Nt*, Sq, Qc; `V<n>` in red when locked; hover: mode, version needed, power, substrate, light, NA/k1, resist, break chances),
 - VACUUM bar (0-100, green ≥80, yellow ≥50, red) with pump state (pumping down / sealed / leaking / off),
 - BREAK CHANCE now (from the current cleanliness and version), POWER gauge (available vs the mode's EU/t),
@@ -974,31 +980,38 @@ Clean room: every non-thermal recipe from HV power on has `cleanroom(CLEANROOM)`
 
 ```text
 SMC Large Chemical Reactor, 5 wide × 5 deep × 4 high (aisles back → front, rows bottom → top)
-  XXXXX XGGGX XGGGX XXXXX     X inert PTFE casing or hatches (≥ 30 casings)
-  XXXXX GKCKG GKKKG XFFFX     K inert PTFE casing (the vessel)
-  XXXXX GCPCG GKPKG XFFFX     C up to one heating coil (optional), the rest inert casing (jacket)
-  XXXXX GKCKG GKKKG XFFFX     P PTFE pipe casing (stirrer / dip pipe)
+  XXXXX XGGGX XGGGX XXXXX     X inert PTFE casing or hatches
+  XXXXX GACAG GAAAG XFFFX     A air: the open vessel (its mode's fluid shows here while it runs)
+  XXXXX GCPCG GAPAG XFFFX     C up to one heating coil (optional), else air (jacket)
+  XXXXX GACAG GAAAG XFFFX     P PTFE pipe casing (stirrer / dip pipe)
   XXXXX XGSGX XGGGX XXXXX     G cleanroom glass, F filter casings (one type), S controller
 SMC Rectification Column, 3 × 3, 3-10 high (layers bottom → top)
   XSX/XKX/XXX sump + cold box (K frostproof casing) | XXX/XPX/XXX × 1-8 trays (P PTFE pipe casing) | FFF/FFF/FFF filter hood
   X clean stainless casing or hatches
-SMC Membrane Cell Hall, 3 wide × 4 high × 3-10 deep (aisles back → front)
-  back plate XXX/XXX/XXX/FFF | cells XXX/EPE/XXX/FFF × 1-8 (E titanium frame electrodes, P PTFE pipe casing membrane) | front XXX/XSX/XXX/FFF
+SMC Membrane Cell Hall, 3 wide × 4 high × 3-10 deep (aisles front → back: controller before the repeatable cells, for GT's auto-build)
+  front XXX/XSX/XXX/FFF | cells XXX/EPE/XXX/FFF × 1-8 (E titanium frame electrodes, P PTFE pipe casing membrane) | back plate XXX/XXX/XXX/FFF
   X stable titanium casing or hatches
 SMC Thermal Processing Furnace, horizontal tube furnace, 5 × 5 × 5 (aisles back → front, rows bottom → top)
-  XXXXX XPPPX XPPPX XPPPX XXXXX     gas cabinet (P PTFE pipe casing)
+  XXXXX XPPPX XPPPX XPPPX XXXXX     gas cabinet (P plascrete pipe casing: an MV machine, no PTFE)
   XXXXX GCCCG GCTCG GCCCG XXXXX     heater zone 1: C heating coils (one type) around T, the process tube (tempered glass)
   XXXXX GCCCG GCTCG GCCCG XXXXX     heater zone 2; G tempered-glass windows
   XXXXX XRRRX XRTRX XRRRX XXXXX     wafer-boat load station (R steel gearbox)
-  XXXXX XXXXX XXSXX XXXXX XXXXX     front, S controller (GT's multi_furnace face); X heatproof casing or hatches
+  XXXXX XGXGX XGSGX XGXGX XXXXX     front: S controller (GT's multi_furnace face) between two 3-high windows G;
+                                    X heatproof casing or hatches
 ```
 
 Hatches on any X, maximums only (nothing is required): 2 energy, 4 item inputs, 4 item outputs, 8 fluid inputs, 8 fluid outputs, 1 maintenance, 1 parallel, 1 laser hatch.
 
+Filter roofs (`F`) take any GT cleanroom filter, all of one type, through `AF9Filters.cleanroomFilters()`: GT's own predicate with a fixed candidate order (GT's comes from a hash map, so its preview and the terminal's auto-build could pick the UV-tier sterilizing filter). First the MV `kubejs:plascrete_filter_casing` (below), then GT's Filter Casing, sterilizing filters last.
+
+Plascrete Filter Casing (`kubejs:plascrete_filter_casing`, block in `photolithography.js` startup): shaped `PBP/IMI/PRP` (plascrete, iron bars, item filter, MV motor, steel rotor) → 2, `af9:plascrete_filter_casing`. AF9 Core registers it in `GTCEuAPI.CLEANROOM_FILTERS` (`AF9Filters.FilterType.PLASCRETE`, ISO 5 like GT's Filter Casing) at common setup, so it also works in GT's Cleanroom. The lithography machines (Mk1 line, Mk2 scanner) take only this one in their ceilings.
+
+SMC LCR vessel fluid (`SmcReactorMachine` + `ModeFluidRender`): while the reactor is active, the air blocks of the 3 × 3 × 2 vessel (1-3 blocks behind the controller, its row and the one above, turned with the controller) are drawn as one fluid volume on every outer face, 1/16 inside the blocks: `fab_wet_processing` water, `fab_blending` distilled water, `fab_synthesis` Thermal's destabilized redstone (`thermal:redstone`; `gtceu:redstone` without Thermal). The mode is the running recipe's type (the selected mode is not synced to clients). The map lives in the startup script (`AF9MachineModels.workableCasingWithModeFluids(casing, overlay, {recipe type: fluid})` + `.hasBER(true)`); GT's "render fluids" client option turns it off.
+
 ## 11.4 Behaviour (AF9 Core)
 
 - Changeover purge (`FabModifiers.PURGE`): when a machine starts a recipe other than the last one it finished (recipe ID), that first run also needs the family's purge fluid and takes the purge time on top (not overclocked or multiplied, applied after all other modifiers). The machine then keeps running the same recipe without purge. Counted on the console.
-- Built-in clean room (`FabMultiblockMachine`): the filter casings' type decides it: filter casing = ISO 5 (`CLEANROOM`), sterilizing filter casing = ISO 3 (both types). It is a GT `DummyCleanroom`, not a provider block, so a fab multiblock can still stand inside a GT Cleanroom (the thermal furnace has no filters and uses the surrounding one if any; its recipes need none).
+- Built-in clean room (`FabMultiblockMachine`): the filter casings' type decides it: plascrete or GT filter casing = ISO 5 (`CLEANROOM`), sterilizing filter casing = ISO 3 (both types). It is a GT `DummyCleanroom`, not a provider block, so a fab multiblock can still stand inside a GT Cleanroom (the thermal furnace has no filters and uses the surrounding one if any; its recipes need none).
 - Parallels: PTFE pipe casings are trays (column) and membranes (cell hall), each one a parallel (`STRUCTURE_PARALLEL`, limited by inputs, output space and energy like GT's parallel hatch); the SMC LCR gets 2 with sterile filters. A parallel hatch multiplies on top.
 - Overclocks: SMC LCR perfect (like GT's LCR) with the coil discount (1/20 EU/t per coil tier above cupronickel, at most half; no coil, no discount); column and cell hall non-perfect; thermal furnace GT's EBF rules (coil temperature + 100 K per energy tier above MV, heat discounts and perfect overclocks per 1800 K surplus); all multiblocks batch mode. Single blocks non-perfect.
 - Single-block furnaces reach the temperature of their tier's coil: MV 1800 K, HV 2700 K, EV 3600 K, IV 4500 K, LuV 5400 K (`TIER_TEMPERATURE`); seed crystals above 5400 K (neutronium 7200 K, strange matter 9000 K, chromodynium 12000 K) need the multiblock with hot enough coils (chromodynium: Resonant Endion). EMI shows temperature, coil and the smallest single block on every thermal recipe (`FabRecipeInfo`).
@@ -1016,11 +1029,11 @@ Process steps per mode: synthesis CHRG HEAT REAC QNCH SEPR DSCH; blending DOSE M
 <tier>_smc_fractionating_still   FPF / UXU / CPC   X <tier>_distillery, U <tier> pump
 <tier>_smc_electrolytic_cell     FPF / WXW / CPC   X <tier>_electrolyzer, W <tier> single cable (Cu, Au, Al, Pt, NbTi)
 <tier>_smc_thermal_furnace       FPF / WXW / CWC   X <tier>_arc_furnace, W <tier> heating wire, double (cupronickel … HSS-G)
-  F fluid filter, P PTFE fluid pipe, C circuit of the tier
+  F fluid filter, P fluid pipe (polyethylene at MV, PTFE from HV: GT's PTFE only comes at HV), C circuit of the tier
 smc_large_chemical_reactor       CRC / PMP / FXF   X GT Large Chemical Reactor + everything its recipe takes (HV circuits, stainless rotor, large PTFE pipes, HV motor), F filter casings
 smc_rectification_column         CPC / FHF / UPU   HV hull, HV pumps, large PTFE pipes, filter casings, HV circuits
 smc_membrane_cell_hall           CWC / EHE / FPF   HV electrolyzers, gold quadruple cable, HV hull, filter casings, large PTFE pipe, HV circuits
-smc_thermal_processing_furnace   CKC / PXP / WCW   X Electric Blast Furnace, K cupronickel coil block, PTFE pipes, copper cable, MV circuits
+smc_thermal_processing_furnace   CKC / PXP / WCW   X Electric Blast Furnace, K cupronickel coil block, polyethylene pipes, copper cable, MV circuits
 ```
 
 ## 11.7 Quests
@@ -1104,7 +1117,7 @@ Materials: `strange_matter` (dust, "(uds)n"), `chromodynium` (ingot, 12000 K EBF
 # 15. Wafer and chip contamination
 
 AF9 Core `wafer/WaferContamination` (server player tick, every 10 ticks): when a player has a wafer or a chip in the inventory (incl. armor/offhand slots), on the cursor or in the 2×2 crafting grid, it becomes `kubejs:contaminated_<substrate>_wafer` / `kubejs:contaminated_<chip>` (same count), unless the player
-- wears an armor piece in `#af9:wafer_gloves` (`gtceu:rubber_gloves`, `gtceu:hazmat_chestpiece`), or
+- wears an item of `#af9:wafer_gloves` (`gtceu:rubber_gloves`, `gtceu:hazmat_chestpiece`) in an armor slot or a Curios slot (GT tags its Rubber Gloves for the Curios `hands` slot; `compat/curios/CuriosCompat`, only when Curios is loaded), or
 - stands strictly inside the walls of a formed, clean GT Cleanroom whose controller is within one chunk.
 Spectators are exempt; creative players too only when `includeCreative = false` in `config/af9-common.toml` (default true, so testing in creative shows it). Machines, pipes, chests and ME systems never contaminate. Wafers = item tag `#af9:wafers` (all), `#af9:wafers/<substrate>` decides the contaminated item (server tags in `photolithography.js`: the blank wafer + every printed/derived wafer of the substrate; contaminated and broken wafers are not in them). Chips = `#af9:chips`, GT's 16 chips (`AF9_WAFERS.chips[].chip`); `kubejs:contaminated_<chip path>` items and textures (`textures/item/chips/`, GT's chip texture with grime, generated offline like the wafers) in `wafers.js`. Tooltip on every wafer and chip (`AF9Client`). Recovery: `af9:clean_contaminated_<substrate>_wafer` (SMC wet processing, 100 HF + 1000 distilled water, cleanroom) → the blank wafer (the print is lost); `af9:clean_contaminated_<chip>` (SMC wet processing, 10 HF + 250 distilled water, MV, no clean room) → the chip.
 
@@ -1120,7 +1133,7 @@ Spectators are exempt; creative players too only when `includeCreative = false` 
 af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → mods/)
   litho/LithoMode.java                 # the 9 modes: substrate, node, tier, light (λ, NA, k1), resist, colour, base break chance, break/speed maths
   machine/LithoMachine                 # shared by both litho machines: vacuum cleanliness, break roll, counters, LITHO_GATE, STRIP_BROKEN
-  machine/PhotolithographyLineMachine  # line version 1-8, LITHO_VERSION, version preview pages, recipe info
+  machine/PhotolithographyLineMachine  # Mk1 line + Mk2 scanner (Spec), versions, LITHO_VERSION, preview pages, recipe info
   machine/OrbitalLithographyMachine    # the 1 nm station: orbit check
   machine/LithoRecipeLogic             # break roll when a print finishes (swaps the output for the broken wafer)
   machine/LithoConsoleWidget           # the litho console (tiles, vacuum, break chance, power, printing, run time, counters)
@@ -1133,7 +1146,12 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → 
   blast/BouleMelting                   # EBF second mode gtceu:boule_melting + Endion coil bonus
   wafer/WaferContamination             # player inventory → contaminated wafers (gloves / clean Cleanroom protect)
   compat/jade/AF9JadePlugin, AF9MachineProvider  # Jade: vacuum bar, status, product, run time, info lines
-  client/AF9Client                     # wafer tooltip (contamination warning)
+  client/AF9Client                     # wafer tooltip (contamination warning), registers the dynamic renders
+  client/render/ModeFluidRender        # GT dynamic render: a fluid per machine mode inside a running multiblock
+  machine/AF9MachineModels             # workable casing model + ModeFluidRender, for KubeJS .model(...)
+  machine/fab/SmcReactorMachine        # SMC LCR: FabMultiblockMachine + IFluidRenderMulti (the open vessel's blocks)
+  pattern/AF9Filters                   # Plascrete Filter Casing as a GT cleanroom filter; ordered filter predicate
+  compat/curios/CuriosCompat           # gloves in a Curios slot
   fab/FabFamily, IFabMachine           # §11: the four families (purge fluid/time, console colour, process steps per mode)
   fab/FabModifiers, FabRecipeLogic     # PURGE, STRUCTURE_PARALLEL, COIL_DISCOUNT, TIER_TEMPERATURE, THERMAL_OVERCLOCK; changeover bookkeeping
   fab/FabRecipeInfo                    # temperature, coil and single-block tier on the thermal modes' EMI pages

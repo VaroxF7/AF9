@@ -9,19 +9,19 @@
 	progression_mode: "flexible"
 	quest_links: [
 		{
-			id: "36553E413AE13083"
+			id: "26007DE4C633ED65"
 			linked_quest: "46CAB00FF64D12DE"
 			x: 4.5d
 			y: 7.0d
 		}
 		{
-			id: "1EA57D624332EC80"
+			id: "495874C5F26465B5"
 			linked_quest: "1DB07C3B15CDDAAC"
 			x: 6.0d
 			y: 7.0d
 		}
 		{
-			id: "64AFED709C5A8B4C"
+			id: "647BF9B7A2D56079"
 			linked_quest: "252CAC018BD24ABB"
 			x: -11.3d
 			y: 10.0d
@@ -2163,7 +2163,7 @@
 					type: "item"
 				}
 				{
-					id: "6D293EEC6475D9C2"
+					id: "187EBBDFD23265FC"
 					item: "kubejs:nand_reticle"
 					type: "item"
 				}
@@ -2739,12 +2739,12 @@
 			}]
 			tasks: [
 				{
-					id: "047BC73ED325E7BD"
+					id: "44EB749C2F0FE5E7"
 					item: "gtceu:fine_tungsten_steel_wire"
 					type: "item"
 				}
 				{
-					id: "2EE858BADC128601"
+					id: "449964B3C76CC2A3"
 					item: "gtceu:tungsten_single_wire"
 					type: "item"
 				}
