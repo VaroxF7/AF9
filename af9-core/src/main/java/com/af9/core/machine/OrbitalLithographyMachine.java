@@ -11,6 +11,7 @@ import com.af9.core.machine.part.CoolantHatchPartMachine;
 
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
@@ -38,6 +39,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -69,6 +71,10 @@ import java.util.Map;
  * <li>The controller faces up out of the top deck; the station turns with it (any facing).</li>
  * <li>The EUV Light Source of the 20 and 7 nm prints sits in the controller's own slot ({@link #euvSlot}, a recipe
  * input GT reads like an input bus; it is never used up), or in an input bus.</li>
+ * <li>The reticle of the chip to print sits in the controller's reticle slot ({@link #reticleSlot}) and only there: the
+ * prints still name their reticle (not consumed, so every chip is its own recipe and EMI shows which reticle), but the
+ * station only runs the print whose reticle is in the slot ({@link #canRun}); a reticle in an input bus does not
+ * count.</li>
  * <li>Its own screen: {@link OrbitalStationUIWidget} with {@link OrbitalConsoleWidget}.</li>
  * <li>While it prints, a light ring glows inside the rim in the colour of the node
  * ({@link com.af9.core.client.render.LightRingRender}, placed in
@@ -122,9 +128,17 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
     public static final ResourceLocation EUV_SOURCE = new ResourceLocation("kubejs", "euv_light_source");
 
-    /** The EUV Light Source slot of the station's screen: a recipe input (GT reads the controller's own handlers). */
+    /**
+     * The EUV Light Source slot of the station's screen: a recipe input (GT reads the controller's own handlers). No
+     * pipe access (capability IO NONE), which also makes the handler itself refuse inserts: the screen's slot works on
+     * its {@code storage}.
+     */
     @Persisted
     public final NotifiableItemStackHandler euvSlot;
+
+    /** The reticle slot of the station's screen: the photomask of the chip to print, kept. Same access as the EUV slot. */
+    @Persisted
+    public final NotifiableItemStackHandler reticleSlot;
 
     /** Magnetic field on (formed, switched on, pumps powered); synced for the client's gravity. */
     @DescSynced
@@ -139,16 +153,43 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         super(holder);
         euvSlot = new NotifiableItemStackHandler(this, 1, IO.IN, IO.NONE)
                 .setFilter(OrbitalLithographyMachine::isEuvSource);
+        reticleSlot = new NotifiableItemStackHandler(this, 1, IO.IN, IO.NONE)
+                .setFilter(OrbitalLithographyMachine::isReticle);
     }
 
     public static boolean isEuvSource(ItemStack stack) {
         return !stack.isEmpty() && EUV_SOURCE.equals(ForgeRegistries.ITEMS.getKey(stack.getItem()));
     }
 
-    /** Broken controller: the EUV Light Source drops. */
+    /** kubejs:&lt;chip&gt;_reticle. */
+    public static boolean isReticle(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
+        return id != null && id.getNamespace().equals("kubejs") && id.getPath().endsWith("_reticle");
+    }
+
+    /** The reticle a print names (its not-consumed input), or null. */
+    public static Item reticleOf(GTRecipe recipe) {
+        for (Content content : recipe.inputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
+            for (ItemStack stack : ItemRecipeCapability.CAP.of(content.content).getItems()) {
+                if (isReticle(stack)) return stack.getItem();
+            }
+        }
+        return null;
+    }
+
+    /** A print runs only with its reticle in the reticle slot (GT would also take one from an input bus). */
+    @Override
+    public boolean canRun(GTRecipe recipe) {
+        Item reticle = reticleOf(recipe);
+        return reticle == null || reticleSlot.getStackInSlot(0).is(reticle);
+    }
+
+    /** Broken controller: the EUV Light Source and the reticle drop. */
     @Override
     public void onMachineRemoved() {
         clearInventory(euvSlot.storage);
+        clearInventory(reticleSlot.storage);
     }
 
     @Override
@@ -170,6 +211,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public int blockedStatus(LithoMode mode) {
         if (!mode.onOrbitalStation()) return ConsoleWidget.STATUS_LOCKED;
         if (!isInOrbit()) return ConsoleWidget.STATUS_NO_ORBIT;
+        if (reticleSlot.getStackInSlot(0).isEmpty()) return ConsoleWidget.STATUS_NO_RETICLE;
         if (mode.computation() > 0 && !hasComputationHatch()) return ConsoleWidget.STATUS_NO_COMPUTATION;
         if (mode.needsResearch() && !hasDataHatch()) return ConsoleWidget.STATUS_NO_DATA;
         if (mode.minCoolant() != null && chooseCoolant(mode) == null) return ConsoleWidget.STATUS_NO_COOLANT;

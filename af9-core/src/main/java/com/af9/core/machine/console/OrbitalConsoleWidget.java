@@ -41,8 +41,9 @@ import java.util.Objects;
  * <ul>
  * <li>left, the exposure field: the station's four nodes, the wafer being printed, exposed die by die in the node's
  * colour under the X-ray / EUV beam, a progress ring around it, the state and the run-time bar;</li>
- * <li>right, the exposure panel: the node, what is printing, the EUV Light Source slot (kept, never used up), the
- * on/off switch and the batch mode switch, the break chance, the counters and a hint for the current state;</li>
+ * <li>right, the exposure panel: the node, what is printing, the reticle slot and the EUV Light Source slot (both
+ * kept, never used up), the on/off switch and the batch mode switch, the break chance, the counters and a hint for the
+ * current state;</li>
  * <li>beside the player inventory ({@link SidePanel}): left the process (vacuum, coolant, computation, magnetic field,
  * orbit), right the system (status, power, tier, batch).</li>
  * </ul>
@@ -56,7 +57,8 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
     public static final int FIELD_X = 4, FIELD_Y = 4, FIELD_W = 240, FIELD_H = 140;
     public static final int PANEL_X = 250, PANEL_Y = 4, PANEL_W = 130, PANEL_H = 140;
     public static final int TILE_Y = 8, TILE_H = 20;
-    public static final int SLOT_X = PANEL_X + 5, SLOT_Y = 58;
+    /** Reticle slot, EUV Light Source slot. */
+    public static final int SLOT_X = PANEL_X + 5, EUV_X = PANEL_X + 67, SLOT_Y = 58;
     public static final int SWITCH_X = PANEL_X + 5, SWITCH_Y = 80, SWITCH_W = 80, SWITCH_H = 16;
     public static final int BATCH_X = SWITCH_X + SWITCH_W + 4, BATCH_W = PANEL_W - 10 - SWITCH_W - 4;
     public static final int RESET_W = 30, RESET_H = 9, RESET_X = PANEL_X + PANEL_W - 5 - RESET_W, RESET_Y = 110;
@@ -87,6 +89,8 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
     private int batch;
     /** EUV Light Source: 0 the node does not use one, 1 in the slot, 2 missing. */
     private int euv;
+    /** Reticle slot: 1 loaded, 0 empty. */
+    private int reticle;
     private boolean field;
     private boolean orbit;
     private String product = "";
@@ -96,7 +100,10 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         this.machine = machine;
     }
 
-    /** The page: this console, the node tiles' tooltips, the EUV slot, the on/off switch and the counter reset. */
+    /**
+     * The page: this console, the node tiles' tooltips, the reticle and EUV slots, the on/off switch and the counter
+     * reset. The slots work on the handlers' storage: the handlers refuse inserts (no pipe access).
+     */
     public static WidgetGroup createPage(OrbitalLithographyMachine machine) {
         var page = new WidgetGroup(0, 0, WIDTH, HEIGHT);
         var console = new OrbitalConsoleWidget(machine, 0, 0);
@@ -107,7 +114,10 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
             tile.setHoverTooltips(LithoConsoleWidget.tileTooltip(modes.get(i)));
             page.addWidget(tile);
         }
-        page.addWidget(new SlotWidget(machine.euvSlot, 0, SLOT_X, SLOT_Y, true, true)
+        page.addWidget(new SlotWidget(machine.reticleSlot.storage, 0, SLOT_X, SLOT_Y, true, true)
+                .setBackgroundTexture(GuiTextures.SLOT)
+                .setHoverTooltips(Component.translatable("af9.orbital.console.reticle_tooltip")));
+        page.addWidget(new SlotWidget(machine.euvSlot.storage, 0, EUV_X, SLOT_Y, true, true)
                 .setBackgroundTexture(GuiTextures.SLOT)
                 .setHoverTooltips(Component.translatable("af9.orbital.console.euv_tooltip")));
         var power = new ButtonWidget(SWITCH_X, SWITCH_Y, SWITCH_W, SWITCH_H, IGuiTexture.EMPTY, click -> {
@@ -160,11 +170,13 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
                 machine.isWorkingEnabled() ? 1 : 0, machine.isBatchEnabled() ? 1 : 0,
                 running == null ? 0 : LithoMachine.printsIn(running),
                 !euvNeeded ? 0 : machine.euvSlot.getStackInSlot(0).isEmpty() ? 2 : 1,
-                machine.isFieldActive() ? 1 : 0, machine.isInOrbit() ? 1 : 0 };
+                machine.isFieldActive() ? 1 : 0, machine.isInOrbit() ? 1 : 0,
+                machine.reticleSlot.getStackInSlot(0).isEmpty() ? 0 : 1 };
         long newAvailable = machine.getAvailableEUt();
         String newProduct = current == null ? "" : current.toString();
         int[] before = { status, mode, tier, progress, duration, cleanliness, vacuum, printVacuum, breakChance,
-                coolant, workingEnabled ? 1 : 0, batchEnabled ? 1 : 0, batch, euv, field ? 1 : 0, orbit ? 1 : 0 };
+                coolant, workingEnabled ? 1 : 0, batchEnabled ? 1 : 0, batch, euv, field ? 1 : 0, orbit ? 1 : 0,
+                reticle };
         boolean changed = !java.util.Arrays.equals(now, before) || newAvailable != available ||
                 machine.getPrinted() != printed || machine.getBroken() != broken ||
                 !Objects.equals(newProduct, product);
@@ -184,6 +196,7 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         euv = now[13];
         field = now[14] == 1;
         orbit = now[15] == 1;
+        reticle = now[16];
         available = newAvailable;
         printed = machine.getPrinted();
         broken = machine.getBroken();
@@ -194,7 +207,7 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
     @Override
     protected void writeState(FriendlyByteBuf buffer) {
         for (int value : new int[] { status, mode, tier, progress, duration, cleanliness, vacuum, printVacuum,
-                breakChance, coolant, batch, euv }) {
+                breakChance, coolant, batch, euv, reticle }) {
             buffer.writeVarInt(value);
         }
         buffer.writeBoolean(workingEnabled);
@@ -221,6 +234,7 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         coolant = buffer.readVarInt();
         batch = buffer.readVarInt();
         euv = buffer.readVarInt();
+        reticle = buffer.readVarInt();
         workingEnabled = buffer.readBoolean();
         batchEnabled = buffer.readBoolean();
         field = buffer.readBoolean();
@@ -344,7 +358,7 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         }
     }
 
-    /** The exposure panel: node, product, EUV slot, switch, break chance, counters, hint. */
+    /** The exposure panel: node, product, reticle and EUV slots, switch, break chance, counters, hint. */
     @OnlyIn(Dist.CLIENT)
     private void drawPanel(GuiGraphics graphics, int x, int y, LithoMode active) {
         Font font = font();
@@ -369,15 +383,22 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
                     MUTED, false);
         }
 
-        drawSmall(graphics, Component.translatable("af9.orbital.console.euv").getString(), x + 5, y + 46, MUTED,
+        // reticle slot (left) and EUV Light Source slot (right), each with its state beside it
+        int stateWidth = (EUV_X - SLOT_X - 24) * 4 / 3;
+        drawSmall(graphics, Component.translatable("af9.orbital.console.reticle").getString(), x0 + SLOT_X, y + 46,
+                MUTED, false);
+        drawSmall(graphics, fit(Component.translatable(reticle == 1 ? "af9.orbital.console.reticle_in" :
+                "af9.orbital.console.reticle_empty").getString(), stateWidth), x0 + SLOT_X + 21, y0 + SLOT_Y + 6,
+                reticle == 1 ? GOOD : BAD, false);
+        drawSmall(graphics, Component.translatable("af9.orbital.console.euv").getString(), x0 + EUV_X, y + 46, MUTED,
                 false);
         String euvKey = switch (euv) {
             case 1 -> "af9.orbital.console.euv_in";
             case 2 -> "af9.orbital.console.euv_missing";
             default -> "af9.orbital.console.euv_unused";
         };
-        drawSmall(graphics, Component.translatable(euvKey).getString(), x0 + SLOT_X + 22, y0 + SLOT_Y + 6,
-                euv == 1 ? GOOD : euv == 2 ? BAD : MUTED, false);
+        drawSmall(graphics, fit(Component.translatable(euvKey).getString(), (PANEL_X + PANEL_W - EUV_X - 25) * 4 / 3),
+                x0 + EUV_X + 21, y0 + SLOT_Y + 6, euv == 1 ? GOOD : euv == 2 ? BAD : MUTED, false);
 
         // the on/off switch
         int sx = x0 + SWITCH_X, sy = y0 + SWITCH_Y;
@@ -507,31 +528,39 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
             drawSmall(graphics, Component.translatable(LithoConsoleWidget.vacuumKey(pump)).getString(), x, y + 13,
                     LithoConsoleWidget.vacuumColor(pump), false);
 
-            String coolantText;
+            // coolant: its state on the row (needed / the minimum / grades colder), the fluid in full below it
+            String coolantState;
+            String coolantFluid = null;
             int coolantColor;
             if (active.minCoolant() == null) {
-                coolantText = "-";
+                coolantState = "-";
                 coolantColor = MUTED;
             } else if (console.coolant == 0) {
-                coolantText = Component.translatable("af9.litho.console.coolant_none",
+                coolantState = Component.translatable("af9.orbital.console.coolant_needs").getString();
+                coolantFluid = Component.translatable("af9.orbital.console.coolant_or_colder",
                         Component.translatable("af9.litho.coolant." + active.minCoolant().id)).getString();
                 coolantColor = BAD;
             } else {
                 Coolant used = Coolant.values()[console.coolant - 1];
                 int steps = used.steps(active);
-                coolantText = Component.translatable("af9.litho.coolant." + used.id).getString() +
-                        (steps > 0 ? " +" + steps : "");
+                coolantState = steps > 0 ?
+                        Component.translatable("af9.orbital.console.coolant_colder", steps).getString() :
+                        Component.translatable("af9.orbital.console.coolant_min").getString();
+                coolantFluid = Component.translatable("af9.litho.coolant." + used.id).getString();
                 coolantColor = steps > 0 ? GOOD : TEXT;
             }
-            row(graphics, x, y + 23, w, "af9.litho.console.coolant", coolantText, coolantColor);
-            row(graphics, x, y + 33, w, "af9.orbital.console.compute",
+            row(graphics, x, y + 22, w, "af9.litho.console.coolant", coolantState, coolantColor);
+            if (coolantFluid != null) {
+                drawSmall(graphics, fit(coolantFluid, w * 4 / 3), x, y + 29, coolantColor, false);
+            }
+            row(graphics, x, y + 38, w, "af9.orbital.console.compute",
                     active.computation() > 0 ? active.computation() + " CWU/t" : "-",
                     active.computation() > 0 ? INFO : MUTED);
-            row(graphics, x, y + 43, w, "af9.orbital.console.field",
+            row(graphics, x, y + 47, w, "af9.orbital.console.field",
                     Component.translatable(console.field ? "af9.orbital.console.field_on" :
                             "af9.orbital.console.field_off").getString(),
                     console.field ? GOOD : MUTED);
-            row(graphics, x, y + 53, w, "af9.orbital.console.orbit",
+            row(graphics, x, y + 56, w, "af9.orbital.console.orbit",
                     Component.translatable(console.orbit ? "af9.orbital.console.orbit_yes" :
                             "af9.orbital.console.orbit_no").getString(),
                     console.orbit ? GOOD : BAD);

@@ -10,6 +10,7 @@
 // Machine behaviour: AF9 Core (ParticleAcceleratorMachine). Recipes: server_scripts/mods/gtceu/particle_accelerator.js
 
 const $ParticleAcceleratorMachine = Java.loadClass('com.af9.core.machine.ParticleAcceleratorMachine')
+const $AccelCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $AccelModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 
 GTCEuStartupEvents.registry('gtceu:material', allthemods => {
@@ -109,12 +110,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                 .where('B', Predicates.blocks('kubejs:beamline_casing')
                     .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2))
                     .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0))
-                    // the coolant hatches by id (cryogenics.js, HV-UHV)
-                    .or(Predicates.blocks(Block.getBlock('gtceu:hv_coolant_hatch'),
-                        Block.getBlock('gtceu:ev_coolant_hatch'), Block.getBlock('gtceu:iv_coolant_hatch'),
-                        Block.getBlock('gtceu:luv_coolant_hatch'), Block.getBlock('gtceu:zpm_coolant_hatch'),
-                        Block.getBlock('gtceu:uv_coolant_hatch'), Block.getBlock('gtceu:uhv_coolant_hatch'))
-                        .setMaxGlobalLimited(2, 1))
+                    .or(Predicates.abilities($AccelCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
                     .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
                     .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
                     .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))

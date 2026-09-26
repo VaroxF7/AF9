@@ -284,7 +284,10 @@ public class PhotolithographyLineMachine extends LithoMachine {
                     String.format(java.util.Locale.ROOT, "%.0f", (mode.baseBreak / 10000.0 + LithoMode.DIRT_BREAK) *
                             100)).getString());
             if (mode.minCoolant() != null) {
-                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_coolant", mode.coolantPerPrint(),
+                // the fluids by their full names (Supercooled Argon ...), not just the gas
+                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_coolant",
+                        mode.coolantPerPrint()).getString());
+                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_coolant_min",
                         Component.translatable("af9.litho.coolant." + mode.minCoolant().id)).getString());
                 type.addDataInfo(data -> Component.translatable("af9.recipe.litho_coolant_best",
                         Component.translatable("af9.litho.coolant." + mode.bestCoolant().id)).getString());

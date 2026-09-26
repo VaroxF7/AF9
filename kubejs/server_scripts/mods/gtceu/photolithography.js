@@ -441,7 +441,8 @@ ServerEvents.recipes(allthemods => {
     // Output: GT's chip wafer (as many as the substrate yields), and the broken wafer at the mode's base break chance
     // for the recipe viewers. The machine takes the chanced broken wafer out and rolls the real break chance (node,
     // vacuum cleanliness, line version) when the print is done: a broken print gives one broken wafer and no chip wafers
-    // (af9-core LithoMachine). The orbital station adds its coolant itself (af9-core OrbitalLithographyMachine).
+    // (af9-core LithoMachine). The orbital station adds its coolant itself (af9-core OrbitalLithographyMachine), and
+    // only takes the reticle from its reticle slot (a reticle in an input bus does not count there).
     // Computation: the 7 nm prints (here) and the 1 nm prints (below) draw CWU/t from a computation hatch.
     modes.forEach(m => {
         const s = substrates[m.substrate]
@@ -463,7 +464,7 @@ ServerEvents.recipes(allthemods => {
             const recipe = allthemods.recipes.gtceu[`lithography_${m.id}`](`af9:print_${c.id}_${m.id}`)
                 .itemInputs(s.blank)
                 .notConsumable(`kubejs:${c.reticle}_reticle`)
-            // the orbital station's EUV source, in its input bus
+            // the orbital station's EUV source, in its EUV slot (or an input bus)
             if (m.euv) recipe.notConsumable('kubejs:euv_light_source')
             recipe
                 .inputFluids(fluids)

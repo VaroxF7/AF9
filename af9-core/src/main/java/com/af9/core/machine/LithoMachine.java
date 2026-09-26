@@ -76,7 +76,8 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
      * Only starts a print the machine can do right now (line version / orbit, see {@link #canPrint}), whose EU/t the
      * hatches can supply, and only on a sealed vacuum. GT keeps retrying a gated recipe, so the machine starts by
      * itself once the vacuum seals. A researched print also needs a data hatch: GT's data hatches only block recipes
-     * they do not hold, a machine without one would run them all.
+     * they do not hold, a machine without one would run them all. Last, the machine's own check of the recipe
+     * ({@link #canRun}).
      */
     public static final RecipeModifier LITHO_GATE = (machine, recipe) -> {
         if (!(machine instanceof LithoMachine litho)) {
@@ -89,6 +90,7 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         if (recipe.conditions.stream().anyMatch(ResearchCondition.class::isInstance) && !litho.hasDataHatch()) {
             return ModifierFunction.NULL;
         }
+        if (!litho.canRun(recipe)) return ModifierFunction.NULL;
         return ModifierFunction.IDENTITY;
     };
 
@@ -166,6 +168,11 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     /** Line version, 0 where there are none. */
     public int getVersion() {
         return 0;
+    }
+
+    /** Whether this machine may start the recipe, beyond its mode ({@link #LITHO_GATE}). */
+    public boolean canRun(GTRecipe recipe) {
+        return true;
     }
 
     /** Why the active mode cannot run, as a console status code, or -1 if it can. */
