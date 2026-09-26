@@ -2363,6 +2363,8 @@
 				"{af9.quest.litho.orbitalParts.2}"
 				""
 				"{af9.quest.litho.orbitalParts.3}"
+				""
+				"{af9.quest.litho.orbitalParts.4}"
 			]
 			id: "24ABE0333646E550"
 			rewards: [{
@@ -2433,6 +2435,8 @@
 				"{af9.quest.litho.n1.3}"
 				""
 				"{af9.quest.litho.n1.4}"
+				""
+				"{af9.quest.litho.n1.5}"
 			]
 			icon: "gtceu:orbital_lithography_station"
 			id: "75590392393A5E38"

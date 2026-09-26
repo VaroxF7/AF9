@@ -544,7 +544,7 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
                     statusColor(console.status));
             long needed = active.eut();
             boolean enough = console.available >= needed;
-            row(graphics, x, y + 10, w, "af9.litho.console.power",
+            row(graphics, x, y + 10, w, "af9.console.power",
                     compact(console.available) + "/" + compact(needed), enough ? TEXT : BAD);
             bar(graphics, x, y + 18, w, 3, needed <= 0 ? 0 : Math.min(1.0, (double) console.available / needed),
                     enough ? GOOD : BAD);

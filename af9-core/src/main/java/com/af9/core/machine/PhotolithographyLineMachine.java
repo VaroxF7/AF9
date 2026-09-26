@@ -12,6 +12,7 @@ import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 
+import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import com.lowdragmc.lowdraglib.utils.BlockInfo;
@@ -254,7 +255,12 @@ public class PhotolithographyLineMachine extends LithoMachine {
     // ********* Recipe viewer ********//
     //////////////////////////////////////
 
-    /** Adds node, light source, machine version and break chances to the lithography recipes in EMI/JEI. */
+    /**
+     * Adds node, light source, machine version, break chances and the coolant to the lithography recipes in EMI/JEI,
+     * short enough for the page's width. The recipes with computation also get GT's "Min. Computation" line and (1 nm)
+     * its "Requires Research" line: the page is made one line taller for each, and {@link #respaceTexts} fixes GT
+     * putting both on the same row.
+     */
     public static void registerRecipeInfo() {
         for (LithoMode mode : LithoMode.values()) {
             GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", mode.recipeTypeId()));
@@ -279,13 +285,35 @@ public class PhotolithographyLineMachine extends LithoMachine {
                             100)).getString());
             if (mode.minCoolant() != null) {
                 type.addDataInfo(data -> Component.translatable("af9.recipe.litho_coolant", mode.coolantPerPrint(),
-                        Component.translatable("af9.litho.coolant." + mode.minCoolant().id),
+                        Component.translatable("af9.litho.coolant." + mode.minCoolant().id)).getString());
+                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_coolant_best",
                         Component.translatable("af9.litho.coolant." + mode.bestCoolant().id)).getString());
             }
             if (mode.computation() > 0) {
-                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_computation",
-                        mode.computation()).getString());
+                // Duration, Total and Usage are GT's 3 default lines; + Min. Computation
+                type.setMaxTooltips(4);
+                if (mode.needsResearch()) type.setMinRecipeConditions(1);
+                type.setUiBuilder(PhotolithographyLineMachine::respaceTexts);
             }
         }
+    }
+
+    /**
+     * GT's recipe page writes the computation line and the first condition line on the same row (two counters for one
+     * column). GT (re)builds the recipe's content (on opening, and again on every overclock-tier click) as a widget
+     * group followed by the computation, condition and data lines: stack the lines after the last group one per row
+     * again, in the order GT added them.
+     */
+    private static void respaceTexts(com.gregtechceu.gtceu.api.recipe.GTRecipe recipe,
+                                     com.lowdragmc.lowdraglib.gui.widget.WidgetGroup page) {
+        List<LabelWidget> labels = new ArrayList<>();
+        for (Widget widget : page.widgets) {
+            if (widget instanceof com.lowdragmc.lowdraglib.gui.widget.WidgetGroup) labels.clear();
+            else if (widget instanceof LabelWidget label) labels.add(label);
+        }
+        if (labels.isEmpty()) return;
+        int top = Integer.MAX_VALUE;
+        for (LabelWidget label : labels) top = Math.min(top, label.getSelfPosition().y);
+        for (int i = 0; i < labels.size(); i++) labels.get(i).setSelfPositionY(top + i * 10);
     }
 }

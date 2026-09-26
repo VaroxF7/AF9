@@ -19,7 +19,6 @@
 const $PhotolithographyLineMachine = Java.loadClass('com.af9.core.machine.PhotolithographyLineMachine')
 const $OrbitalLithographyMachine = Java.loadClass('com.af9.core.machine.OrbitalLithographyMachine')
 const $LithoMachine = Java.loadClass('com.af9.core.machine.LithoMachine')
-const $LithoCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $LithoRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 const $LithoMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $LithoSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
@@ -350,7 +349,15 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:inert_machine_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 13))
-        .pattern(definition => FactoryBlockPattern.start($LithoRelativeDirection.RIGHT, $LithoRelativeDirection.FRONT,
+        .pattern(definition => {
+            // coolant hatches (at most 2) on any solid casing of the station: one predicate, so one count. The hatch
+            // blocks by id (cryogenics.js, HV-UHV), so they match however GT's ability lists were filled
+            const coolant = Predicates.blocks(Block.getBlock('gtceu:hv_coolant_hatch'),
+                Block.getBlock('gtceu:ev_coolant_hatch'), Block.getBlock('gtceu:iv_coolant_hatch'),
+                Block.getBlock('gtceu:luv_coolant_hatch'), Block.getBlock('gtceu:zpm_coolant_hatch'),
+                Block.getBlock('gtceu:uv_coolant_hatch'), Block.getBlock('gtceu:uhv_coolant_hatch'))
+                .setMaxGlobalLimited(2, 1)
+            return FactoryBlockPattern.start($LithoRelativeDirection.RIGHT, $LithoRelativeDirection.FRONT,
             $LithoRelativeDirection.UP)
             .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ')
             .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         ')
@@ -380,18 +387,18 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .where('K', Predicates.controller(Predicates.blocks(definition.get())))
             .where('A', Predicates.blocks('gtceu:hsse_frame'))
             .where('B', Predicates.blocks('gtceu:hssg_coil_block'))
-            .where('D', Predicates.blocks('gtceu:sturdy_machine_casing'))
+            .where('D', Predicates.blocks('gtceu:sturdy_machine_casing').or(coolant))
             .where('F', Predicates.blocks('gtceu:hsss_frame'))
-            .where('H', Predicates.blocks('gtceu:shock_proof_cutting_casing'))
-            .where('L', Predicates.blocks('gtceu:stress_proof_casing'))
-            .where('C', Predicates.blocks('gtceu:nonconducting_casing'))
+            .where('H', Predicates.blocks('gtceu:shock_proof_cutting_casing').or(coolant))
+            .where('L', Predicates.blocks('gtceu:stress_proof_casing').or(coolant))
+            .where('C', Predicates.blocks('gtceu:nonconducting_casing').or(coolant))
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)): the track
-            // chemicals through fluid input hatches, the supercooled coolant through coolant hatches, computation and
-            // research data (7 and 1 nm) through a computation hatch and a data hatch
+            // chemicals through fluid input hatches, computation (7 and 1 nm) through a computation hatch and the 1 nm
+            // research through a data hatch, all on the top deck; the coolant hatches go on any casing (above)
             .where('O', Predicates.blocks('gtceu:inert_machine_casing')
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(3, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities($LithoCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
+                .or(coolant)
                 .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.DATA_ACCESS).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.OPTICAL_DATA_RECEPTION).setMaxGlobalLimited(1, 0))
@@ -400,7 +407,8 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where(' ', Predicates.any())
-            .build())
+            .build()
+        })
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',
             'gtceu:block/multiblock/fusion_reactor')
         // the same model plus the light ring: centre 3 behind the controller (below, as it faces up), radius 9.6,

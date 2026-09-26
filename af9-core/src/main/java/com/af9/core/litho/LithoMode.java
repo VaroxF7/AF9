@@ -160,6 +160,11 @@ public enum LithoMode {
         };
     }
 
+    /** 1 nm: every print needs its own research (GT's Research Station, the data orb in a data hatch). */
+    public boolean needsResearch() {
+        return this == N1;
+    }
+
     /** Computation a print draws from a computation hatch, CWU/t (0: none): 7 nm 32, 1 nm 96. */
     public int computation() {
         return switch (this) {

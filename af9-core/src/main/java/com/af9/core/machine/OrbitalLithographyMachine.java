@@ -62,7 +62,8 @@ import java.util.Map;
  * 100, after the scanner's 5, see {@link LithoMachine}).</li>
  * <li>Coolant: every print draws a supercooled fluid from the coolant hatches ({@link #COOLANT}): at least the node's
  * minimum grade; each grade above it, up to the node's best, cuts the break chance (x0.8) and the run time (x0.9).</li>
- * <li>7 and 1 nm prints draw computation (CWU/t) from a computation hatch and need their research on a data hatch.</li>
+ * <li>7 and 1 nm prints draw computation (CWU/t) from a computation hatch; every 1 nm print needs its own research
+ * (like GT's assembly line: the Research Station scans the chip's reticle, the data orb goes in a data hatch).</li>
  * <li>While it is switched on and powered, its magnetic field gives the space around the station normal gravity
  * ({@link OrbitalField}).</li>
  * <li>The controller faces up out of the top deck; the station turns with it (any facing).</li>
@@ -169,10 +170,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public int blockedStatus(LithoMode mode) {
         if (!mode.onOrbitalStation()) return ConsoleWidget.STATUS_LOCKED;
         if (!isInOrbit()) return ConsoleWidget.STATUS_NO_ORBIT;
-        if (mode.computation() > 0) {
-            if (!hasComputationHatch()) return ConsoleWidget.STATUS_NO_COMPUTATION;
-            if (!hasDataHatch()) return ConsoleWidget.STATUS_NO_DATA;
-        }
+        if (mode.computation() > 0 && !hasComputationHatch()) return ConsoleWidget.STATUS_NO_COMPUTATION;
+        if (mode.needsResearch() && !hasDataHatch()) return ConsoleWidget.STATUS_NO_DATA;
         if (mode.minCoolant() != null && chooseCoolant(mode) == null) return ConsoleWidget.STATUS_NO_COOLANT;
         return -1;
     }
