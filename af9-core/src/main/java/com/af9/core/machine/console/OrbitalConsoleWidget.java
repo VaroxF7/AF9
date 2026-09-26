@@ -44,7 +44,7 @@ import java.util.Objects;
  * <li>right, the exposure panel: the node, what is printing, the reticle slot and the EUV Light Source slot (both
  * kept, never used up), the on/off switch and the batch mode switch, the break chance, the counters and a hint for the
  * current state;</li>
- * <li>beside the player inventory ({@link SidePanel}): left the process (vacuum, coolant, computation, magnetic field,
+ * <li>beside the player inventory ({@link SidePanel}): left the process (start-up, coolant, computation, magnetic field,
  * orbit), right the system (status, power, tier, batch).</li>
  * </ul>
  * The server samples the machine every tick and sends the state only when something changed.
@@ -75,7 +75,7 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
     private int tier;
     private int progress;
     private int duration;
-    private int cleanliness; // x10
+    private int startup; // percent x10
     private int vacuum;
     private int printVacuum; // x10
     private int breakChance; // x10000
@@ -91,6 +91,8 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
     private int euv;
     /** Reticle slot: 1 loaded, 0 empty. */
     private int reticle;
+    /** Computation the network behind the computation hatches supplies at most, CWU/t. */
+    private int compute;
     private boolean field;
     private boolean orbit;
     private String product = "";
@@ -164,19 +166,20 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         int[] now = {
                 LithoConsoleWidget.statusOf(machine), active.ordinal(), machine.isFormed() ? machine.getTier() : -1,
                 logic.isWorking() ? logic.getProgress() : 0, logic.isWorking() ? logic.getDuration() : 0,
-                (int) Math.round(machine.getCleanliness() * 10), machine.getVacuumState(),
+                (int) Math.round(machine.getStartupPercent() * 10), machine.getVacuumState(),
                 (int) Math.round(machine.getPrintVacuum() * 10),
                 (int) Math.round(machine.currentBreakChance(active) * 10000), used == null ? 0 : used.grade(),
                 machine.isWorkingEnabled() ? 1 : 0, machine.isBatchEnabled() ? 1 : 0,
                 running == null ? 0 : LithoMachine.printsIn(running),
                 !euvNeeded ? 0 : machine.euvSlot.getStackInSlot(0).isEmpty() ? 2 : 1,
                 machine.isFieldActive() ? 1 : 0, machine.isInOrbit() ? 1 : 0,
-                machine.reticleSlot.getStackInSlot(0).isEmpty() ? 0 : 1 };
+                machine.reticleSlot.getStackInSlot(0).isEmpty() ? 0 : 1,
+                active.computation() > 0 ? machine.availableComputation() : 0 };
         long newAvailable = machine.getAvailableEUt();
         String newProduct = current == null ? "" : current.toString();
-        int[] before = { status, mode, tier, progress, duration, cleanliness, vacuum, printVacuum, breakChance,
+        int[] before = { status, mode, tier, progress, duration, startup, vacuum, printVacuum, breakChance,
                 coolant, workingEnabled ? 1 : 0, batchEnabled ? 1 : 0, batch, euv, field ? 1 : 0, orbit ? 1 : 0,
-                reticle };
+                reticle, compute };
         boolean changed = !java.util.Arrays.equals(now, before) || newAvailable != available ||
                 machine.getPrinted() != printed || machine.getBroken() != broken ||
                 !Objects.equals(newProduct, product);
@@ -185,7 +188,7 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         tier = now[2];
         progress = now[3];
         duration = now[4];
-        cleanliness = now[5];
+        startup = now[5];
         vacuum = now[6];
         printVacuum = now[7];
         breakChance = now[8];
@@ -197,6 +200,7 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         field = now[14] == 1;
         orbit = now[15] == 1;
         reticle = now[16];
+        compute = now[17];
         available = newAvailable;
         printed = machine.getPrinted();
         broken = machine.getBroken();
@@ -206,8 +210,8 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
 
     @Override
     protected void writeState(FriendlyByteBuf buffer) {
-        for (int value : new int[] { status, mode, tier, progress, duration, cleanliness, vacuum, printVacuum,
-                breakChance, coolant, batch, euv, reticle }) {
+        for (int value : new int[] { status, mode, tier, progress, duration, startup, vacuum, printVacuum,
+                breakChance, coolant, batch, euv, reticle, compute }) {
             buffer.writeVarInt(value);
         }
         buffer.writeBoolean(workingEnabled);
@@ -227,7 +231,7 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         tier = buffer.readVarInt();
         progress = buffer.readVarInt();
         duration = buffer.readVarInt();
-        cleanliness = buffer.readVarInt();
+        startup = buffer.readVarInt();
         vacuum = buffer.readVarInt();
         printVacuum = buffer.readVarInt();
         breakChance = buffer.readVarInt();
@@ -235,6 +239,7 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         batch = buffer.readVarInt();
         euv = buffer.readVarInt();
         reticle = buffer.readVarInt();
+        compute = buffer.readVarInt();
         workingEnabled = buffer.readBoolean();
         batchEnabled = buffer.readBoolean();
         field = buffer.readBoolean();
@@ -486,7 +491,7 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
     //////////////////////////////////////
 
     /**
-     * A panel beside the player inventory, drawn from the console's synced state: left the process (vacuum, coolant,
+     * A panel beside the player inventory, drawn from the console's synced state: left the process (start-up, coolant,
      * computation, magnetic field, orbit), right the system (status, power, tier, batch).
      */
     public static class SidePanel extends Widget {
@@ -520,13 +525,22 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
 
         @OnlyIn(Dist.CLIENT)
         private void drawProcess(GuiGraphics graphics, int x, int y, int w, LithoMode active) {
-            double clean = console.cleanliness / 10.0;
-            row(graphics, x, y, w, "af9.litho.console.vacuum", String.format(Locale.ROOT, "%.1f", clean),
-                    levelColor(clean));
-            bar(graphics, x, y + 8, w, 3, clean / 100.0, levelColor(clean));
-            int pump = console.status == STATUS_OFFLINE ? LithoMachine.VACUUM_OFF : console.vacuum;
-            drawSmall(graphics, Component.translatable(LithoConsoleWidget.vacuumKey(pump)).getString(), x, y + 13,
-                    LithoConsoleWidget.vacuumColor(pump), false);
+            // start-up: off / starting (the seconds left) / ready; in orbit there is no vacuum to pump
+            double percent = console.startup / 10.0;
+            int state = console.status == STATUS_OFFLINE ? LithoMachine.VACUUM_OFF : console.vacuum;
+            boolean ready = state == LithoMachine.VACUUM_SEALED;
+            boolean starting = state == LithoMachine.VACUUM_PUMPING;
+            int startColor = ready ? GOOD : starting ? INFO : MUTED;
+            row(graphics, x, y, w, "af9.orbital.console.startup", ready ?
+                    Component.translatable("af9.orbital.console.startup_ready").getString() :
+                    starting ? Math.round(percent) + "%" :
+                            Component.translatable("af9.orbital.console.startup_off").getString(), startColor);
+            bar(graphics, x, y + 8, w, 3, percent / 100.0, startColor);
+            int left = (int) Math.ceil(OrbitalLithographyMachine.STARTUP_SECONDS * (100 - percent) / 100.0);
+            String startText = ready ? Component.translatable("af9.orbital.console.startup_online").getString() :
+                    starting ? Component.translatable("af9.orbital.console.startup_left", left).getString() :
+                            Component.translatable("af9.orbital.console.startup_waiting").getString();
+            drawSmall(graphics, startText, x, y + 13, startColor, false);
 
             // coolant: its state on the row (needed / the minimum / grades colder), the fluid in full below it
             String coolantState;
@@ -553,9 +567,11 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
             if (coolantFluid != null) {
                 drawSmall(graphics, fit(coolantFluid, w * 4 / 3), x, y + 29, coolantColor, false);
             }
+            // computation: what the hatches' network supplies at most / what the node needs
+            int needed = active.computation();
             row(graphics, x, y + 38, w, "af9.orbital.console.compute",
-                    active.computation() > 0 ? active.computation() + " CWU/t" : "-",
-                    active.computation() > 0 ? INFO : MUTED);
+                    needed > 0 ? compact(console.compute) + "/" + needed + " CWU/t" : "-",
+                    needed <= 0 ? MUTED : console.compute >= needed ? GOOD : BAD);
             row(graphics, x, y + 47, w, "af9.orbital.console.field",
                     Component.translatable(console.field ? "af9.orbital.console.field_on" :
                             "af9.orbital.console.field_off").getString(),

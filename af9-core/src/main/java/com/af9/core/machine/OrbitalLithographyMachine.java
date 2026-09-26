@@ -1,16 +1,20 @@
 package com.af9.core.machine;
 
-import com.af9.core.AF9Config;
 import com.af9.core.AF9Core;
+import com.af9.core.common.AF9DamageTypes;
 import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.OrbitalConsoleWidget;
 import com.af9.core.machine.console.OrbitalStationUIWidget;
 import com.af9.core.machine.part.CoolantHatchPartMachine;
+import com.af9.core.network.AF9Network;
 
+import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider;
+import com.gregtechceu.gtceu.api.capability.recipe.CWURecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.capability.recipe.IRecipeHandler;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
@@ -37,7 +41,13 @@ import com.lowdragmc.lowdraglib.utils.BlockInfo;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -45,6 +55,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -60,14 +71,16 @@ import java.util.Map;
  * UHV from a laser hatch and energy hatches).
  * <ul>
  * <li>It only prints in orbit (a dimension whose path ends in "orbit", e.g. Ad Astra's ad_astra:earth_orbit): the XFEL
- * needs the vacuum of space, and without gravity the resist goes on dry. Its vacuum counts as level 6 (60 s from 0 to
- * 100, after the scanner's 5, see {@link LithoMachine}).</li>
+ * needs the vacuum of space, and without gravity the resist goes on dry. Space is the vacuum, so there is nothing to
+ * pump: instead the station starts up, {@link #STARTUP_SECONDS} after it is switched on and powered (its systems
+ * draw the lines' pump power, 1/8 A); it shuts down when switched off or after 3 s without power. Its prints roll the
+ * node's base break chance (times the coolant's factor).</li>
  * <li>Coolant: every print draws a supercooled fluid from the coolant hatches ({@link #COOLANT}): at least the node's
  * minimum grade; each grade above it, up to the node's best, cuts the break chance (x0.8) and the run time (x0.9).</li>
  * <li>7 and 1 nm prints draw computation (CWU/t) from a computation hatch; every 1 nm print needs its own research
  * (like GT's assembly line: the Research Station scans the chip's reticle, the data orb goes in a data hatch).</li>
- * <li>While it is switched on and powered, its magnetic field gives the space around the station normal gravity
- * ({@link OrbitalField}).</li>
+ * <li>While it is switched on and powered, its magnetic field gives the station itself normal gravity, the deck and
+ * 4 blocks above it, nothing around it ({@link OrbitalField}).</li>
  * <li>The controller faces up out of the top deck; the station turns with it (any facing).</li>
  * <li>The EUV Light Source of the 20 and 7 nm prints sits in the controller's own slot ({@link #euvSlot}, a recipe
  * input GT reads like an input bus; it is never used up), or in an input bus.</li>
@@ -77,8 +90,9 @@ import java.util.Map;
  * count.</li>
  * <li>Its own screen: {@link OrbitalStationUIWidget} with {@link OrbitalConsoleWidget}.</li>
  * <li>While it prints, a light ring glows inside the rim in the colour of the node
- * ({@link com.af9.core.client.render.LightRingRender}, placed in
- * kubejs/startup_scripts/gtceu/photolithography.js).</li>
+ * ({@link com.af9.core.client.render.LightRingRender}, placed by photolithography.js with {@link #RING_UP} ...).
+ * Touching it is deadly: it burns anything living that comes within {@link #RING_BURN} of its core
+ * ({@link AF9DamageTypes#ORBITAL_RING}, a death screen of its own for players).</li>
  * </ul>
  */
 public class OrbitalLithographyMachine extends LithoMachine implements ILightRingMachine, IMachineLife {
@@ -86,8 +100,19 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             OrbitalLithographyMachine.class, LithoMachine.MANAGED_FIELD_HOLDER);
 
-    /** One level above the Mk2 scanner's last version: 60 s from 0 to 100. */
-    public static final int VACUUM_LEVEL = 6;
+    /** Seconds from switched on and powered to ready: the station starts up instead of pumping a vacuum. */
+    public static final int STARTUP_SECONDS = 10;
+    public static final int STARTUP_TICKS = STARTUP_SECONDS * 20;
+    /**
+     * The light ring (the model's, photolithography.js reads these): centre {@code RING_UP} along the controller's up and
+     * {@code RING_BACK} behind it (below the deck, as it faces up), radius and tube radius; it lies across the
+     * controller's front axis.
+     */
+    public static final float RING_UP = 0, RING_BACK = 3, RING_RADIUS = 9.6F, RING_THICKNESS = 0.25F;
+    /** Distance from the ring's core line within which it burns: the tube and its hottest glow. */
+    public static final double RING_BURN = RING_THICKNESS * 2.5;
+    /** Damage of the ring: nothing survives it (totems aside). */
+    public static final float RING_DAMAGE = 1.0E6F;
     /** The station's extent: 12 blocks to each side of the controller, 17 behind it (below, when it faces up). */
     public static final int HALF_WIDTH = 12;
     public static final int DEPTH = 17;
@@ -140,14 +165,18 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     @Persisted
     public final NotifiableItemStackHandler reticleSlot;
 
-    /** Magnetic field on (formed, switched on, pumps powered); synced for the client's gravity. */
+    /** Magnetic field on (formed, switched on, powered); synced for the client's gravity. */
     @DescSynced
     private boolean fieldActive;
+
+    /** Start-up progress, ticks: 0 off, {@link #STARTUP_TICKS} ready. */
+    @Persisted
+    private int startupTicks;
+    private int unpoweredTicks;
 
     private AABB fieldBox;
     private Direction fieldFront;
     private Direction fieldUp;
-    private int fieldRange = -1;
 
     public OrbitalLithographyMachine(IMachineBlockEntity holder) {
         super(holder);
@@ -212,7 +241,10 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         if (!mode.onOrbitalStation()) return ConsoleWidget.STATUS_LOCKED;
         if (!isInOrbit()) return ConsoleWidget.STATUS_NO_ORBIT;
         if (reticleSlot.getStackInSlot(0).isEmpty()) return ConsoleWidget.STATUS_NO_RETICLE;
-        if (mode.computation() > 0 && !hasComputationHatch()) return ConsoleWidget.STATUS_NO_COMPUTATION;
+        // a computation hatch alone is not enough: something (an HPCA) has to supply the node's CWU/t through it
+        if (mode.computation() > 0 && availableComputation() < mode.computation()) {
+            return ConsoleWidget.STATUS_NO_COMPUTATION;
+        }
         if (mode.needsResearch() && !hasDataHatch()) return ConsoleWidget.STATUS_NO_DATA;
         if (mode.minCoolant() != null && chooseCoolant(mode) == null) return ConsoleWidget.STATUS_NO_COOLANT;
         return -1;
@@ -223,9 +255,10 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return 0;
     }
 
+    /** No vacuum to pump in orbit (see {@link #updateVacuum()}); unused. */
     @Override
     protected int vacuumLevel() {
-        return VACUUM_LEVEL;
+        return 0;
     }
 
     @Override
@@ -242,6 +275,20 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public static boolean isOrbit(ResourceLocation dimension) {
         String path = dimension.getPath();
         return path.equals("orbit") || path.endsWith("_orbit");
+    }
+
+    /**
+     * The most computation the computation hatches can supply, CWU/t: what the optical network behind them (an HPCA)
+     * provides at most, 0 without a hatch or with nothing linked to it. GT's own check when a print starts / runs asks
+     * the same network, so a print never runs on less.
+     */
+    public int availableComputation() {
+        if (!isFormed()) return 0;
+        int max = 0;
+        for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, CWURecipeCapability.CAP)) {
+            if (handler instanceof IOpticalComputationProvider provider) max += provider.getMaxCWUt();
+        }
+        return max;
     }
 
     public boolean hasComputationHatch() {
@@ -330,38 +377,97 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public void onStructureInvalid() {
         super.onStructureInvalid();
         fieldActive = false;
+        startupTicks = 0;
+        unpoweredTicks = 0;
+    }
+
+    //////////////////////////////////////
+    // ********** Start-up ***********//
+    //////////////////////////////////////
+
+    /**
+     * Every tick while formed (the lines' vacuum tick): the light ring burns what touches it; every
+     * {@link #VACUUM_INTERVAL} ticks the start-up instead of a pump-down. Switched on and powered, the systems draw
+     * the lines' pump power and start up in {@link #STARTUP_SECONDS}; switched off, or {@link #POWER_GRACE_TICKS}
+     * without power, the station shuts down and starts from 0 again. The magnetic field is on from the first second.
+     */
+    @Override
+    protected void updateVacuum() {
+        if (!isFormed()) return;
+        if (getOffsetTimer() % 2 == 0 && isRingLit()) burnRingTouchers();
+        if (getOffsetTimer() % VACUUM_INTERVAL != 0) return;
+        int before = startupTicks;
+        boolean on = getRecipeLogic().isWorkingEnabled();
+        long drain = pumpDrainPerInterval();
+        if (on && energyContainer != null && drain > 0 && energyContainer.getEnergyStored() >= drain) {
+            energyContainer.removeEnergy(drain);
+            unpoweredTicks = 0;
+            startupTicks = Math.min(STARTUP_TICKS, startupTicks + VACUUM_INTERVAL);
+        } else {
+            unpoweredTicks = Math.min(POWER_GRACE_TICKS, unpoweredTicks + VACUUM_INTERVAL);
+            if (!on || unpoweredTicks >= POWER_GRACE_TICKS) startupTicks = 0;
+        }
+        fieldActive = on && startupTicks > 0;
+        if (startupTicks != before) markDirty();
+    }
+
+    /** Start-up progress, 0 to 100. */
+    public double getStartupPercent() {
+        return isFormed() ? 100.0 * startupTicks / STARTUP_TICKS : 0;
+    }
+
+    /** The start-up as the lines' vacuum states: off, starting ({@link #VACUUM_PUMPING}), ready ({@link #VACUUM_SEALED}). */
+    @Override
+    public int getVacuumState() {
+        if (!isFormed() || startupTicks <= 0) return VACUUM_OFF;
+        return startupTicks >= STARTUP_TICKS ? VACUUM_SEALED : VACUUM_PUMPING;
+    }
+
+    /** Space: always a perfect vacuum, so the break roll uses the node's base chance. */
+    @Override
+    public double getCleanliness() {
+        return 100;
     }
 
     @Override
-    protected void updateVacuum() {
-        super.updateVacuum();
-        int vacuum = getVacuumState();
-        fieldActive = isFormed() && getRecipeLogic().isWorkingEnabled() &&
-                (vacuum == VACUUM_PUMPING || vacuum == VACUUM_SEALED);
+    public double getPrintVacuum() {
+        return 100;
     }
+
+    @Override
+    protected double rollVacuum() {
+        return 100;
+    }
+
+    @Override
+    public int notReadyStatus() {
+        return ConsoleWidget.STATUS_STARTING_UP;
+    }
+
+    //////////////////////////////////////
+    // ******* Magnetic field ********//
+    //////////////////////////////////////
 
     public boolean isFieldActive() {
         return fieldActive && isFormed();
     }
 
     /**
-     * The field: the station's box ({@link #HALF_WIDTH} to the sides, {@link #DEPTH} behind the controller) grown by
-     * the configured range on every side, and by 4 more in front (above the deck, when it faces up).
+     * The field: the station's own box ({@link #HALF_WIDTH} to the sides, {@link #DEPTH} behind the controller) and 4
+     * blocks in front of it (above the deck, when it faces up), so players stand and hop on the deck; nothing around it.
      */
     public AABB fieldBox() {
         Direction front = getFrontFacing();
         Direction up = RelativeDirection.UP.getRelative(front, getUpwardsFacing(), isFlipped());
-        int range = AF9Config.FIELD_RANGE.get();
-        if (fieldBox == null || front != fieldFront || up != fieldUp || range != fieldRange) {
+        if (fieldBox == null || front != fieldFront || up != fieldUp) {
             Direction left = RelativeDirection.LEFT.getRelative(front, getUpwardsFacing(), isFlipped());
             BlockPos controller = getPos();
             BlockPos a = controller.relative(left, HALF_WIDTH).relative(up, HALF_WIDTH).relative(front, -DEPTH);
             BlockPos b = controller.relative(left, -HALF_WIDTH).relative(up, -HALF_WIDTH);
-            AABB box = new AABB(a).minmax(new AABB(b)).inflate(range);
+            AABB box = new AABB(a).minmax(new AABB(b));
             fieldBox = box.expandTowards(front.getStepX() * 4, front.getStepY() * 4, front.getStepZ() * 4);
             fieldFront = front;
             fieldUp = up;
-            fieldRange = range;
         }
         return fieldBox;
     }
@@ -373,6 +479,63 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     @Override
     public boolean isRingLit() {
         return getRecipeLogic().isWorking();
+    }
+
+    /** The ring's centre, world coordinates. */
+    public Vec3 ringCentre() {
+        Direction front = getFrontFacing();
+        Direction up = RelativeDirection.UP.getRelative(front, getUpwardsFacing(), isFlipped());
+        Direction back = RelativeDirection.BACK.getRelative(front, getUpwardsFacing(), isFlipped());
+        return Vec3.atCenterOf(getPos()).add(
+                up.getStepX() * RING_UP + back.getStepX() * RING_BACK,
+                up.getStepY() * RING_UP + back.getStepY() * RING_BACK,
+                up.getStepZ() * RING_UP + back.getStepZ() * RING_BACK);
+    }
+
+    /** The lit ring burns every living thing touching it (players in creative or spectator mode aside). */
+    private void burnRingTouchers() {
+        if (!(getLevel() instanceof ServerLevel level)) return;
+        Vec3 centre = ringCentre();
+        Vec3 axis = Vec3.atLowerCornerOf(getFrontFacing().getNormal());
+        AABB near = new AABB(centre, centre).inflate(RING_RADIUS + RING_BURN + 2);
+        for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, near,
+                OrbitalLithographyMachine::canBurn)) {
+            if (touchesRing(entity.getBoundingBox(), centre, axis)) burn(level, entity);
+        }
+    }
+
+    private static boolean canBurn(LivingEntity entity) {
+        if (!entity.isAlive() || entity.isSpectator()) return false;
+        return !(entity instanceof Player player) || !player.getAbilities().invulnerable;
+    }
+
+    /**
+     * Whether the box comes within {@link #RING_BURN} of the ring's core circle: checked at five heights of the box's
+     * middle line, the box's half width added.
+     */
+    public static boolean touchesRing(AABB box, Vec3 centre, Vec3 axis) {
+        double reach = RING_BURN + Math.max(box.getXsize(), box.getZsize()) / 2;
+        Vec3 middle = box.getCenter();
+        for (int i = 0; i <= 4; i++) {
+            Vec3 point = new Vec3(middle.x, box.minY + box.getYsize() * i / 4, middle.z);
+            Vec3 offset = point.subtract(centre);
+            double along = offset.dot(axis);
+            double fromCircle = offset.subtract(axis.scale(along)).length() - RING_RADIUS;
+            if (fromCircle * fromCircle + along * along < reach * reach) return true;
+        }
+        return false;
+    }
+
+    /** Sets it alight and kills it with the ring's damage; a player it kills gets the ring's death screen. */
+    private static void burn(ServerLevel level, LivingEntity entity) {
+        double y = entity.getY() + entity.getBbHeight() / 2;
+        entity.setSecondsOnFire(10);
+        level.sendParticles(ParticleTypes.FLAME, entity.getX(), y, entity.getZ(), 30, 0.3, 0.6, 0.3, 0.03);
+        level.sendParticles(ParticleTypes.LAVA, entity.getX(), y, entity.getZ(), 8, 0.3, 0.5, 0.3, 0);
+        level.playSound(null, entity.getX(), y, entity.getZ(), SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.2F,
+                0.6F);
+        boolean killed = entity.hurt(AF9DamageTypes.orbitalRing(level), RING_DAMAGE) && entity.isDeadOrDying();
+        if (killed && entity instanceof ServerPlayer player) AF9Network.sendRingDeath(player);
     }
 
     /** The colour of the node being printed (the console's mode colour). */

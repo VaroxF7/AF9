@@ -4,6 +4,7 @@ import com.af9.core.AF9Core;
 import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.LithoConsoleWidget;
 import com.af9.core.machine.LithoMachine;
+import com.af9.core.machine.OrbitalLithographyMachine;
 import com.af9.core.machine.ProcessMachine;
 import com.af9.core.machine.console.ConsoleWidget;
 
@@ -81,7 +82,11 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             tag.putInt("status", LithoConsoleWidget.statusOf(litho));
             tag.putInt("mode", mode.ordinal());
             tag.putInt("version", litho.getVersion());
-            tag.putDouble("clean", litho.getCleanliness());
+            // the orbital station has no vacuum: its start-up instead
+            boolean startup = litho instanceof OrbitalLithographyMachine;
+            tag.putBoolean("startup", startup);
+            tag.putDouble("clean", startup ? ((OrbitalLithographyMachine) litho).getStartupPercent() :
+                    litho.getCleanliness());
             tag.putDouble("break", litho.currentBreakChance(mode));
             tag.putInt("vacuum", litho.getVacuumState());
             tag.putString("product", product == null ? "" : "item:" + product);
@@ -125,11 +130,13 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             LithoMode[] modes = LithoMode.values();
             LithoMode mode = modes[Math.max(0, Math.min(modes.length - 1, tag.getInt("mode")))];
             double clean = tag.getDouble("clean");
-            // vacuum first, right under the name
-            Component vacuum = Component.translatable("af9.jade.vacuum",
-                    String.format(Locale.ROOT, "%.1f", clean),
-                    Component.translatable(vacuumKey(status == ConsoleWidget.STATUS_OFFLINE ?
-                            LithoMachine.VACUUM_OFF : tag.getInt("vacuum"))));
+            // vacuum (the station: its start-up) first, right under the name
+            int vacuumState = status == ConsoleWidget.STATUS_OFFLINE ? LithoMachine.VACUUM_OFF : tag.getInt("vacuum");
+            Component vacuum = tag.getBoolean("startup") ?
+                    Component.translatable("af9.jade.startup", String.format(Locale.ROOT, "%.0f", clean),
+                            Component.translatable(startupKey(vacuumState))) :
+                    Component.translatable("af9.jade.vacuum", String.format(Locale.ROOT, "%.1f", clean),
+                            Component.translatable(vacuumKey(vacuumState)));
             tooltip.add(helper.progress((float) (clean / 100.0), vacuum,
                     helper.progressStyle().color(ConsoleWidget.levelColor(clean)).textColor(-1), box(), true));
             tooltip.add(statusLine(status, Component.translatable("af9.litho.mode." + mode.id)
@@ -166,6 +173,14 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
                 if (line != null) tooltip.add(line.copy().withStyle(ChatFormatting.GRAY));
             }
         }
+    }
+
+    private static String startupKey(int state) {
+        return switch (state) {
+            case LithoMachine.VACUUM_PUMPING -> "af9.jade.starting";
+            case LithoMachine.VACUUM_SEALED -> "af9.jade.ready";
+            default -> "af9.jade.shut_down";
+        };
     }
 
     private static String vacuumKey(int state) {

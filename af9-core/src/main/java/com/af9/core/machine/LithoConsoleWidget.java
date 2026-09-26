@@ -136,7 +136,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         int blocked = machine.blockedStatus(active);
         if (blocked >= 0) return blocked;
         if (logic.isWaiting() || machine.getAvailableEUt() < active.eut()) return STATUS_NO_POWER;
-        if (!machine.isVacuumSealed()) return STATUS_PUMPING_DOWN;
+        if (!machine.isVacuumSealed()) return machine.notReadyStatus();
         return STATUS_IDLE;
     }
 

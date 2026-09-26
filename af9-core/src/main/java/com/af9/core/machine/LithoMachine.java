@@ -175,6 +175,11 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         return true;
     }
 
+    /** Status while the machine is not ready to print yet ({@link #isVacuumSealed()} false): pumping down. */
+    public int notReadyStatus() {
+        return ConsoleWidget.STATUS_PUMPING_DOWN;
+    }
+
     /** Why the active mode cannot run, as a console status code, or -1 if it can. */
     public int blockedStatus(LithoMode mode) {
         return canPrint(mode) ? -1 : ConsoleWidget.STATUS_LOCKED;
@@ -281,7 +286,7 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     @Override
     public boolean beforeWorking(GTRecipe recipe) {
         if (!super.beforeWorking(recipe)) return false;
-        printLow = cleanliness;
+        printLow = getCleanliness();
         return true;
     }
 
@@ -293,7 +298,7 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
      */
     GTRecipe finishPrints(LithoMode mode, GTRecipe recipe) {
         RandomSource random = getLevel() != null ? getLevel().getRandom() : RandomSource.create();
-        double chance = mode.breakChance(Math.min(printLow, cleanliness), surplusFor(mode)) * breakFactor(mode, recipe);
+        double chance = mode.breakChance(rollVacuum(), surplusFor(mode)) * breakFactor(mode, recipe);
         int prints = printsIn(recipe);
         int brokenNow = 0;
         for (int i = 0; i < prints; i++) {
@@ -303,6 +308,11 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         broken += brokenNow;
         markDirty();
         return brokenNow == 0 ? recipe : withBroken(recipe, mode, prints, brokenNow);
+    }
+
+    /** The vacuum a finished run's break roll uses: the lowest the run went through. */
+    protected double rollVacuum() {
+        return Math.min(printLow, cleanliness);
     }
 
     /** Prints in a run: its parallels times its batch. */

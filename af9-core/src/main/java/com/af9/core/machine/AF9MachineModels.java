@@ -65,9 +65,21 @@ public final class AF9MachineModels {
                                                                                ResourceLocation overlay, float up,
                                                                                float back, float radius,
                                                                                float thickness, String normal) {
+        return workableCasingWithLightRing(casing, overlay, up, back, radius, thickness, normal, false);
+    }
+
+    /**
+     * As above, with lightning: while the ring glows, bolts leap from it into its middle, branching into arms, and
+     * short darts crackle off it (the Particle Accelerator's ring).
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithLightRing(ResourceLocation casing,
+                                                                               ResourceLocation overlay, float up,
+                                                                               float back, float radius,
+                                                                               float thickness, String normal,
+                                                                               boolean arcs) {
         RelativeDirection axis = RelativeDirection.valueOf(normal.toUpperCase(Locale.ROOT));
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(
-                        () -> LightRingRender.create(up, back, radius, thickness, axis)));
+                        () -> LightRingRender.create(up, back, radius, thickness, axis, arcs)));
     }
 }

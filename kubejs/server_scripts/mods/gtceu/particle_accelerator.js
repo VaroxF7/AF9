@@ -14,22 +14,8 @@ ServerEvents.recipes(allthemods => {
         .itemOutputs('gtceu:particle_accelerator')
         .duration(3000)
         .EUt(VA[GTValues.ZPM])
-    allthemods.recipes.gtceu.assembler('af9:beamline_casing')
-        .itemInputs('4x gtceu:naquadah_alloy_plate', 'gtceu:tungsten_steel_frame')
-        .itemOutputs('2x kubejs:beamline_casing')
-        .duration(100)
-        .EUt(VA[GTValues.LuV])
-    allthemods.recipes.gtceu.assembler('af9:rf_cavity')
-        .itemInputs('4x gtceu:niobium_titanium_plate', 'gtceu:zpm_field_generator', '2x gtceu:zpm_emitter')
-        .inputFluids(Fluid.of('gtceu:supercooled_hydrogen', 500))
-        .itemOutputs('kubejs:rf_cavity')
-        .duration(400)
-        .EUt(VA[GTValues.ZPM])
-    allthemods.recipes.gtceu.assembler('af9:spallation_target_housing')
-        .itemInputs('gtceu:tungsten_steel_frame', '4x gtceu:beryllium_plate', '8x gtceu:lead_plate', 'gtceu:zpm_sensor')
-        .itemOutputs('kubejs:spallation_target_housing')
-        .duration(400)
-        .EUt(VA[GTValues.ZPM])
+    // the ring itself is GT's blocks: clean stainless steel casings, superconducting coils, fusion glass and
+    // naquadah alloy frames
 
     // consumables: the spallation target (four wafers each) and the reusable magnetic traps
     allthemods.recipes.gtceu.assembler('af9:beryllium_spallation_target')

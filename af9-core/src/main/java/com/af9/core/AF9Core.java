@@ -6,6 +6,7 @@ import com.af9.core.common.AF9Sounds;
 import com.af9.core.compat.adastra.AdAstraCompat;
 import com.af9.core.fab.FabRecipeInfo;
 import com.af9.core.machine.PhotolithographyLineMachine;
+import com.af9.core.network.AF9Network;
 import com.af9.core.pattern.AF9Filters;
 
 import net.minecraftforge.api.distmarker.Dist;
@@ -50,5 +51,7 @@ public class AF9Core {
         event.enqueueWork(AF9Filters::register);
         // the orbital station's magnetic field sets gravity through Ad Astra
         event.enqueueWork(AdAstraCompat::init);
+        // the orbital ring's death screen
+        event.enqueueWork(AF9Network::register);
     }
 }

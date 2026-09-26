@@ -405,9 +405,12 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',
             'gtceu:block/multiblock/fusion_reactor')
         // the same model plus the light ring: centre 3 behind the controller (below, as it faces up), radius 9.6,
-        // tube 0.25, lying across the controller's front axis
+        // tube 0.25, lying across the controller's front axis. The numbers live in af9-core (RING_*), which also burns
+        // whatever touches the lit ring
         .model($LithoMachineModels.workableCasingWithLightRing('gtceu:block/casings/solid/machine_casing_inert_ptfe',
-            'gtceu:block/multiblock/fusion_reactor', 0, 3, 9.6, 0.25, 'front'))
+            'gtceu:block/multiblock/fusion_reactor', $OrbitalLithographyMachine.RING_UP,
+            $OrbitalLithographyMachine.RING_BACK, $OrbitalLithographyMachine.RING_RADIUS,
+            $OrbitalLithographyMachine.RING_THICKNESS, 'front'))
         .hasBER(true)
         // GT would draw the preview for a controller facing north (the platform on its edge): show it facing up
         .shapeInfos(definition => $OrbitalLithographyMachine.previewShapes(definition))
