@@ -42,6 +42,10 @@ const AF9_WAFERS = (() => {
     modes.forEach((m, index) => m.index = index)
     const orbital = { id: '1nm', substrate: 8, baseBreak: 3500 }
 
+    function own(id, native, lens, dies, blank) {
+        return { id: id, native: native, reticle: id, lens: lens, blank: blank, chip: `kubejs:${id}_chip`,
+            wafer: `kubejs:${id}_wafer`, dies: dies }
+    }
     // Every GT chip wafer. native = index of the chip's own substrate (GT's: silicon, phosphorus, naquadah for ASoC,
     // neutronium for HASoC). reticle: the photomask (derived wafers come from GT's Chemical Reactor recipes instead);
     // lens: the GT lens colour that engraves the reticle; chip: the chip GT's cutter makes of the wafer.
@@ -61,18 +65,33 @@ const AF9_WAFERS = (() => {
         { id: 'nano_cpu', native: 0, from: 'cpu', chip: 'gtceu:nano_cpu_chip' },
         { id: 'qbit_cpu', native: 0, from: 'nano_cpu', chip: 'gtceu:qbit_cpu_chip' },
         { id: 'hpic', native: 1, from: 'mpic', chip: 'gtceu:hpic_chip' },
-        { id: 'uhpic', native: 1, from: 'hpic', chip: 'gtceu:uhpic_chip' }
+        { id: 'uhpic', native: 1, from: 'hpic', chip: 'gtceu:uhpic_chip' },
+        // AF9's own chips (startup_scripts/gtceu/chips.js), kubejs items: wafer = their chip wafer, dies = chips the
+        // Cutter makes of one, blank = the mask blank of their reticle (the chrome-on-quartz one when none: the
+        // 80 nm and finer chips need a phase-shift or an EUV blank)
+        own('rf_transceiver', 0, 'lime', 8),
+        own('apu', 0, 'magenta', 6),
+        own('mcu', 0, 'white', 16),
+        own('asic', 1, 'light_gray', 8),
+        own('edram', 3, 'green', 16, 'phase_shift'),
+        own('mram', 3, 'blue', 16, 'phase_shift'),
+        own('feram', 3, 'yellow', 16, 'phase_shift'),
+        own('vpu', 4, 'purple', 6, 'phase_shift'),
+        own('tpu', 6, 'orange', 4, 'euv')
     ]
     const chip = id => {
         const found = chips.filter(c => c.id === id)[0]
         if (!found) throw new Error(`AF9_WAFERS: unknown chip '${id}'`)
         return found
     }
-    // The chip wafer a substrate (index) prints: always GT's own wafer item, null below the chip's own substrate
-    const printed = (substrateIndex, c) => substrateIndex < c.native ? null : `gtceu:${c.id}_wafer`
+    // The chip wafer a substrate (index) prints: GT's own wafer item (AF9's for its own chips), null below the chip's
+    // own substrate
+    const waferOf = c => c.wafer || `gtceu:${c.id}_wafer`
+    const printed = (substrateIndex, c) => substrateIndex < c.native ? null : waferOf(c)
     // Chip wafers per print, like GT's engraving: 1 on the chip's own substrate; above it the substrate's yield,
-    // divided by the chip class's divisor (silicon chips 1, phosphorus chips 2, ASoC 8, HASoC 16: GT's numbers)
-    const CLASS_DIVISOR = { 0: 1, 1: 2, 2: 8, 5: 16 }
+    // divided by the chip class's divisor (silicon chips 1, phosphorus chips 2, ASoC 8, HASoC 16: GT's numbers;
+    // AF9's trinium, naquadria and transmuted neutronium chips: their substrate's yield)
+    const CLASS_DIVISOR = { 0: 1, 1: 2, 2: 8, 3: 10, 4: 12, 5: 16, 6: 24 }
     const yieldOf = (substrateIndex, c) => {
         if (substrateIndex < c.native) return 0
         if (substrateIndex === c.native) return 1
@@ -80,7 +99,7 @@ const AF9_WAFERS = (() => {
     }
     // Every wafer item of a substrate, for the contamination tags: the blank and GT's chip wafers of that substrate
     const wafersOf = substrateIndex => [substrates[substrateIndex].blank]
-        .concat(chips.filter(c => c.native === substrateIndex).map(c => `gtceu:${c.id}_wafer`))
+        .concat(chips.filter(c => c.native === substrateIndex).map(waferOf))
     // Plain chip stack by chip or old reticle id (the circuit scripts use 'nand', 'nor' ...)
     const chipStack = (id, count) => {
         const found = chips.filter(c => c.id === id || c.reticle === id)[0]
@@ -89,7 +108,8 @@ const AF9_WAFERS = (() => {
     }
     return { substrates: substrates, modes: modes, orbital: orbital, chips: chips, chip: chip, printed: printed,
         yieldOf: yieldOf, wafersOf: wafersOf, chipStack: chipStack,
-        reticles: chips.filter(c => c.reticle).map(c => ({ id: c.reticle, lens: c.lens })) }
+        reticles: chips.filter(c => c.reticle).map(c => ({ id: c.reticle, lens: c.lens, blank: c.blank,
+            native: c.native })) }
 })()
 
 // Contamination (af9-core WaferContamination): every wafer of a substrate, every chip, the gloves that protect
@@ -209,13 +229,60 @@ ServerEvents.recipes(allthemods => {
         .duration(400)
         .EUt(EU_MV)
 
+    // The finer chips' masks: an attenuated phase-shift blank, a MoSi film that shifts the light half a wave for sharper
+    // edges (80 and 65 nm), and an EUV blank, Mo/Si bilayers that reflect 13.5 nm light (EUV masks are mirrors),
+    // sputtered in argon; both coated with the resist their writer needs
+    allthemods.recipes.gtceu.fab_cvd('af9:phase_shift_mask_blank')
+        .itemInputs('gtceu:quartzite_plate', 'gtceu:small_molybdenum_dust', 'gtceu:small_silicon_dust')
+        .inputFluids(Fluid.of('gtceu:arf_photoresist', 100))
+        .itemOutputs('kubejs:phase_shift_mask_blank')
+        .blastFurnaceTemp(900)
+        .duration(600)
+        .EUt(VA[GTValues.EV])
+        .cleanroom(CleanroomType.CLEANROOM)
+    allthemods.recipes.gtceu.fab_cvd('af9:euv_mask_blank')
+        .itemInputs('gtceu:quartzite_plate', '2x gtceu:molybdenum_dust', '2x gtceu:silicon_dust')
+        .inputFluids(Fluid.of('gtceu:euv_photoresist', 100), Fluid.of('gtceu:argon', 1000))
+        .itemOutputs('kubejs:euv_mask_blank')
+        .blastFurnaceTemp(1200)
+        .duration(1200)
+        .EUt(VA[GTValues.LuV])
+        .cleanroom(CleanroomType.CLEANROOM)
+
+    // A reticle: its blank written through the chip's lens (the finer chips' at their substrate's voltage). Every chip
+    // has its own lens on the chrome blank; on the other blanks the lens colours come round again.
     AF9_WAFERS.reticles.forEach(c => {
         allthemods.recipes.gtceu.laser_engraver(`af9:${c.id}_reticle`)
-            .itemInputs('kubejs:photomask_blank')
+            .itemInputs(c.blank ? `kubejs:${c.blank}_mask_blank` : 'kubejs:photomask_blank')
             .notConsumable(`#forge:lenses/${c.lens}`)
             .itemOutputs(`kubejs:${c.id}_reticle`)
             .duration(1800)
-            .EUt(EU_MV)
+            .EUt(c.blank ? VA[substrates[c.native].tier] : EU_MV)
+    })
+
+    // ---- AF9's own chips: dicing and packaging ----
+    // Their chip wafers into dies (GT's Cutter, dicing-saw water); the silicon chips cut anywhere, the rest in a clean
+    // room, at their substrate's voltage
+    chips.filter(c => c.wafer).forEach(c => {
+        const cut = allthemods.recipes.gtceu.cutter(`af9:cut_${c.id}_wafer`)
+            .itemInputs(c.wafer)
+            .inputFluids(Fluid.of('gtceu:distilled_water', 100))
+            .itemOutputs(`${c.dies}x ${c.chip}`)
+            .duration(900)
+            .EUt(VA[substrates[c.native].tier])
+        if (c.native > 0) cut.cleanroom(CleanroomType.CLEANROOM)
+    })
+    // eDRAM beside the processor on one package, the cache chiplet (as on the Xbox 360's GPU): the CPU or SoC die and
+    // two eDRAM dies flip-chip bonded to an epoxy laminate, gold wire for the rest
+    const packages = [['cpu', 'gtceu:cpu_chip'], ['soc', 'gtceu:soc']]
+    packages.forEach(([id, die]) => {
+        allthemods.recipes.gtceu.assembler(`af9:edram_${id}_package`)
+            .itemInputs(die, '2x kubejs:edram_chip', 'gtceu:epoxy_plate', '4x gtceu:fine_gold_wire')
+            .inputFluids(Fluid.of('gtceu:soldering_alloy', 72))
+            .itemOutputs(`kubejs:edram_${id}_package`)
+            .duration(400)
+            .EUt(VA[GTValues.IV])
+            .cleanroom(CleanroomType.CLEANROOM)
     })
 
     // ---- Extreme clean dry air (XCDA) ----
@@ -519,7 +586,7 @@ ServerEvents.recipes(allthemods => {
     })
     // Contaminated chips: a dilute HF dip and a rinse gives the chip back (MV, no clean room: an MV recipe)
     chips.forEach(c => {
-        const path = c.chip.substring('gtceu:'.length)
+        const path = c.chip.split(':')[1]
         allthemods.recipes.gtceu.fab_wet_processing(`af9:clean_contaminated_${path}`)
             .itemInputs(`kubejs:contaminated_${path}`)
             .inputFluids(Fluid.of('gtceu:hydrofluoric_acid', 10), Fluid.of('gtceu:distilled_water', 250))

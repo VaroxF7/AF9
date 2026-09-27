@@ -397,6 +397,24 @@ Bold = GT's own wafer, cut by GT's own cutter recipes (unchanged).
 
 > TRAPS: chip items without `_chip`: `simple_soc`, `soc`, `advanced_soc`, `highly_advanced_soc`. Reticle ids use the old short names (`nand_reticle`, `nor_reticle`, `mpic_reticle` "PIC Reticle"). GT's engraving prefixes: `engrave_ssoc`, `engrave_asoc`, `engrave_hasoc`, `engrave_pic`.
 
+## 5.3b AF9's own chips
+
+Nine chips beyond GT's (items: `kubejs/startup_scripts/gtceu/chips.js`; recipes: `AF9_WAFERS.chips` `own(...)` in `server_scripts/mods/gtceu/photolithography.js`). Printed like GT's (a substrate prints every chip whose own substrate is the same or lower), but their chip wafers are AF9's: `kubejs:<chip>_wafer` → Cutter → `kubejs:<chip>_chip`; `kubejs:contaminated_<chip>_chip` for the contamination, `kubejs:<chip>_reticle`. Chip wafers per print: 1 on the chip's own substrate, above it the substrate's yield ÷ the class divisor (`CLASS_DIVISOR`: trinium 10, naquadria 12, transmuted neutronium 24, like GT's 1 / 2 / 8 / 16).
+
+| chip | what | own substrate | reticle: lens / mask blank | dies / wafer | cut |
+|---|---|---|---|---|---|
+| `rf_transceiver` | RF transceiver: a radio on a chip | silicon (350 nm) | lime / chrome | 8 | MV |
+| `apu` | APU: CPU and GPU on one die | silicon | magenta / chrome | 6 | MV |
+| `mcu` | microcontroller | silicon | white (GT's Glass Lens) / chrome | 16 | MV |
+| `asic` | application-specific IC | phosphorus (200 nm) | light gray / chrome | 8 | HV, clean room |
+| `edram` | embedded DRAM (cache) | trinium (80 nm) | green / MoSi phase-shift | 16 | IV, clean room |
+| `mram` | magnetoresistive RAM | trinium | blue / MoSi phase-shift | 16 | IV, clean room |
+| `feram` | ferroelectric RAM | trinium | yellow / MoSi phase-shift | 16 | IV, clean room |
+| `vpu` | video processing unit | naquadria (65 nm) | purple / MoSi phase-shift | 6 | LuV, clean room |
+| `tpu` | tensor processing unit (AI) | transmuted neutronium (20 nm) | orange / EUV multilayer | 4 | UV, clean room |
+
+The 16 dye lens colours: GT's 12 chips have 12 of them on the chrome blank; the four left (white, lime, magenta, light gray) go to the four silicon / phosphorus chips. The finer chips' reticles are written on other blanks (`kubejs:phase_shift_mask_blank`, `kubejs:euv_mask_blank`), so their lens colours can repeat without two laser-engraver recipes matching the same inputs. Packages: `kubejs:edram_cpu_package` / `kubejs:edram_soc_package` (§6.4). Their uses are not decided yet (§8). Textures: `kubejs/assets/kubejs/textures/item` (`chips/`, `wafers/`, `<chip>_reticle`, the blanks, the packages), made on GT's own templates: GT's blank die recoloured to the substrate's class (grey silicon, GT's SoC copper for phosphorus, the substrate wafer's tones above) with the chip's 6×6 glyph in the die's two darkest tones, lit from the top left like GT's; the chip wafer is the substrate wafer with the glyph; the contaminated chip carries the smudges of GT's contaminated CPU chip; reticles: the chrome reticle frame, lens-coloured corners, the glyph in the blank's absorber (chrome, MoSi, TaBN on the Mo/Si multilayer).
+
 ## 5.4 Vacuum cleanliness and broken wafers
 
 Every lithography machine keeps an exposure vacuum, a **cleanliness score 0-100** (`LithoMachine`, persisted):
@@ -499,6 +517,9 @@ Jade (§16) shows the same: the vacuum bar at the top, then status + mode, what 
 | `kubejs:broken_<substrate>_wafer` (9) | failed prints (§5.4) |
 | `kubejs:contaminated_<substrate>_wafer` (9) | handled without protection (§15) |
 | `kubejs:dry_resist_cartridge` | orbital resist, one per wafer |
+| `kubejs:<chip>_wafer`, `<chip>_chip`, `contaminated_<chip>_chip`, `<chip>_reticle` for `rf_transceiver apu mcu asic edram mram feram vpu tpu` | AF9's own chips (§5.3b) |
+| `kubejs:phase_shift_mask_blank`, `kubejs:euv_mask_blank` | the finer chips' mask blanks (§6.3) |
+| `kubejs:edram_cpu_package`, `kubejs:edram_soc_package` | a CPU / SoC die with two eDRAM dies (§6.4) |
 
 Materials (startup `photolithography.js`): the XCDA / HMDS / i-line / TMAH set as before, plus `tin_tetrachloride` and `euv_photoresist` (tin-oxo methacrylate clusters in PGMEA).
 
@@ -540,7 +561,16 @@ af9:photomask_blank (gtceu:assembler)
   → kubejs:photomask_blank | 400t | 120 EU/t (MV)
 ```
 
-Real analogue: stepper build + chrome-on-quartz mask blank (pre-coated resist). Glass lenses = projection optics, steel = stages, emitter/sensor/arms/motors/pumps = robots + focus + dispense.
+```text
+af9:phase_shift_mask_blank (gtceu:fab_cvd, clean room, 900 K)
+  gtceu:quartzite_plate + gtceu:small_molybdenum_dust + gtceu:small_silicon_dust + 100mB gtceu:arf_photoresist
+  → kubejs:phase_shift_mask_blank | 600t | EV
+af9:euv_mask_blank (gtceu:fab_cvd, clean room, 1200 K)
+  gtceu:quartzite_plate + 2x gtceu:molybdenum_dust + 2x gtceu:silicon_dust + 100mB gtceu:euv_photoresist + 1000mB gtceu:argon
+  → kubejs:euv_mask_blank | 1200t | LuV
+```
+
+Real analogue: stepper build + chrome-on-quartz mask blank (pre-coated resist); an attenuated phase-shift blank (MoSi film, 6 % transmission, 180° shift) for 80 and 65 nm; an EUV blank (40 Mo/Si bilayers on low-expansion glass, sputtered; the Ru cap and the TaBN absorber are not modelled). Glass lenses = projection optics, steel = stages, emitter/sensor/arms/motors/pumps = robots + focus + dispense.
 
 ## 6.4 Step 2b — Reticles (laser_engraver)
 
@@ -550,7 +580,13 @@ af9:<chip>_reticle (gtceu:laser_engraver)
 
 ilc red, ram green, cpu light_blue, ulpic blue, lpic orange, simple_soc cyan,
 nand gray, nor pink, mpic brown, soc yellow, advanced_soc purple, highly_advanced_soc black
+rf_transceiver lime, apu magenta, mcu white, asic light_gray (chrome blank, 120 EU/t)
+
+kubejs:phase_shift_mask_blank + lens → edram green, mram blue, feram yellow (IV), vpu purple (LuV)
+kubejs:euv_mask_blank + lens → tpu orange (UV)
 ```
+
+eDRAM packages (gtceu:assembler, IV, clean room): `gtceu:cpu_chip` or `gtceu:soc` + 2x `kubejs:edram_chip` + `gtceu:epoxy_plate` + 4x `gtceu:fine_gold_wire` + 72mB `gtceu:soldering_alloy` → `kubejs:edram_cpu_package` / `kubejs:edram_soc_package` | 400t.
 
 Removed base (all substrates): `gtceu:laser_engraver/engrave_<ilc|ram|cpu|ulpic|lpic|ssoc|nand|nor|pic|soc|asoc|hasoc>_<silicon|phosphorus|naquadah|neutronium>`, **except** `engrave_ulpic_silicon` (MV bootstrap, §6.8: MV Energy Hatches need ULPIC before the line can run).
 
@@ -634,6 +670,8 @@ Removed base: GT's engraving of every chip wafer on every substrate except `engr
 ## 6.7 Step 4 — Cutting (cutter)
 
 `af9:cut_<chip>_<substrate>[|_distilled_water|_water]` for every `kubejs:` printed wafer (345 recipes): the dies of §5.3 as plain GT chips, split into stacks of ≤64. Fluids: lubricant `clamp(totalEU/1280,1,250)` 900t, distilled `clamp(totalEU/426,3,750)` 1350t, water `clamp(totalEU/320,4,1000)` 1800t, `totalEU = 900 × cutEUt`; cleanroom per §5.3. GT's own wafers keep GT's cutter recipes.
+
+AF9's own chip wafers: `af9:cut_<chip>_wafer`, `kubejs:<chip>_wafer` + 100mB distilled water → the dies of §5.3b | 900t | the chip substrate's voltage; a clean room from phosphorus up.
 
 ## 6.8 Step 5 — Circuits
 
@@ -915,6 +953,7 @@ Chips are plain GT chips (no mode, no NBT): any substrate's cut gives the same `
 | highly_advanced_soc | LuV wetware SoC processor |
 | nano_cpu | HV nano, EV quantum, IV crystal and LuV wetware processors |
 | qbit_cpu | EV quantum processors |
+| rf_transceiver, apu, mcu, asic, edram (+ packages), mram, feram, vpu, tpu | AF9's own chips (§5.3b): uses not decided yet |
 
 # 9. Extension points (not done yet)
 
@@ -924,7 +963,7 @@ Chips are plain GT chips (no mode, no NBT): any substrate's cut gives the same `
 4. Quests are updated (§6.10); non-English quest languages show the new English text for changed quests until translated.
 5. Hafnium metal: only HfCl4 is used (high-k); `GTMaterials.Hafnium` still has no items. Zirconium ingots have no use yet.
 6. The repo still lacks other parts of the newer ATM9 release the test instance runs (only the 4 KubeJS scripts were synced).
-7. Masks: one binary chrome reticle per chip serves every mode. Real sub-wavelength and EUV modes need phase-shift masks with OPC, EUV reflective Mo/Si masks; a PSM / reflective reticle tier would be the next realism step.
+7. Masks: one reticle per chip serves every mode; GT's chips are binary chrome, AF9's 80 nm and finer chips have phase-shift or EUV reticles (§5.3b), GT's own chips do not. Real sub-wavelength and EUV modes need phase-shift masks with OPC, EUV reflective Mo/Si masks; a PSM / reflective reticle tier would be the next realism step.
 8. BARC/topcoat coats and multi-patterning are not modelled; every AF9 mode is single exposure (k1 ≥ 0.29).
 9. ArF resin is the first-generation methacrylate terpolymer. Modern ArF monomers (2-methyl-2-adamantyl methacrylate from dicyclopentadiene → adamantane → adamantanone; α-methacryloyloxy-γ-butyrolactone from 1,4-butanediol) would extend Line 5. The i-line DNQ chain (§6.5) is still the short 3-step version (real PAC: DNQ-5-sulfonyl chloride esterified onto a trihydroxybenzophenone).
 10. Pd/C, VPO, TS-1, iron molybdate, acidic resin and the other catalysts are not consumed; catalyst deactivation is not modelled.
