@@ -2546,6 +2546,8 @@
 				"{af9.quest.litho.rfChip.1}"
 				""
 				"{af9.quest.litho.rfChip.2}"
+				""
+				"{af9.quest.litho.rfChip.3}"
 			]
 			id: "73817E031CA0E223"
 			rewards: [{
@@ -2572,6 +2574,8 @@
 				"{af9.quest.litho.mcuChip.1}"
 				""
 				"{af9.quest.litho.mcuChip.2}"
+				""
+				"{af9.quest.litho.mcuChip.3}"
 			]
 			id: "2C5C8DED708F54E3"
 			rewards: [{
@@ -2598,6 +2602,8 @@
 				"{af9.quest.litho.apuChip.1}"
 				""
 				"{af9.quest.litho.apuChip.2}"
+				""
+				"{af9.quest.litho.apuChip.3}"
 			]
 			id: "2A27F807D8FE7162"
 			rewards: [{
@@ -2621,6 +2627,8 @@
 				"{af9.quest.litho.asicChip.1}"
 				""
 				"{af9.quest.litho.asicChip.2}"
+				""
+				"{af9.quest.litho.asicChip.3}"
 			]
 			id: "3B057C1F6A69CFAB"
 			rewards: [{
@@ -2698,6 +2706,8 @@
 				"{af9.quest.litho.edramPackage.1}"
 				""
 				"{af9.quest.litho.edramPackage.2}"
+				""
+				"{af9.quest.litho.edramPackage.3}"
 			]
 			id: "0B7B89D10B334206"
 			rewards: [{
@@ -2731,6 +2741,8 @@
 				"{af9.quest.litho.mramChip.1}"
 				""
 				"{af9.quest.litho.mramChip.2}"
+				""
+				"{af9.quest.litho.mramChip.3}"
 			]
 			id: "6F11AAD84AA05072"
 			rewards: [{
@@ -2783,6 +2795,8 @@
 				"{af9.quest.litho.vpuChip.1}"
 				""
 				"{af9.quest.litho.vpuChip.2}"
+				""
+				"{af9.quest.litho.vpuChip.3}"
 			]
 			id: "2090C276A3C3B4F4"
 			rewards: [{
@@ -2834,6 +2848,8 @@
 				"{af9.quest.litho.tpuChip.1}"
 				""
 				"{af9.quest.litho.tpuChip.2}"
+				""
+				"{af9.quest.litho.tpuChip.3}"
 			]
 			id: "5F8A206185332A8D"
 			rewards: [{

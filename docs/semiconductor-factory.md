@@ -413,7 +413,7 @@ Nine chips beyond GT's (items: `kubejs/startup_scripts/gtceu/chips.js`; recipes:
 | `vpu` | video processing unit | naquadria (65 nm) | purple / MoSi phase-shift | 6 | LuV, clean room |
 | `tpu` | tensor processing unit (AI) | transmuted neutronium (20 nm) | orange / EUV multilayer | 4 | UV, clean room |
 
-The 16 dye lens colours: GT's 12 chips have 12 of them on the chrome blank; the four left (white, lime, magenta, light gray) go to the four silicon / phosphorus chips. The finer chips' reticles are written on other blanks (`kubejs:phase_shift_mask_blank`, `kubejs:euv_mask_blank`), so their lens colours can repeat without two laser-engraver recipes matching the same inputs. Packages: `kubejs:edram_cpu_package` / `kubejs:edram_soc_package` (§6.4). Their uses are not decided yet (§8). Textures: `kubejs/assets/kubejs/textures/item` (`chips/`, `wafers/`, `<chip>_reticle`, the blanks, the packages), made on GT's own templates: GT's blank die recoloured to the substrate's class (grey silicon, GT's SoC copper for phosphorus, the substrate wafer's tones above) with the chip's 6×6 glyph in the die's two darkest tones, lit from the top left like GT's; the chip wafer is the substrate wafer with the glyph; the contaminated chip carries the smudges of GT's contaminated CPU chip; reticles: the chrome reticle frame, lens-coloured corners, the glyph in the blank's absorber (chrome, MoSi, TaBN on the Mo/Si multilayer).
+The 16 dye lens colours: GT's 12 chips have 12 of them on the chrome blank; the four left (white, lime, magenta, light gray) go to the four silicon / phosphorus chips. The finer chips' reticles are written on other blanks (`kubejs:phase_shift_mask_blank`, `kubejs:euv_mask_blank`), so their lens colours can repeat without two laser-engraver recipes matching the same inputs. Packages: `kubejs:edram_cpu_package` / `kubejs:edram_soc_package` (§6.4). Their uses: §8 (`server_scripts/mods/gtceu/chip_uses.js` and the scripts it names). Textures: `kubejs/assets/kubejs/textures/item` (`chips/`, `wafers/`, `<chip>_reticle`, the blanks, the packages), made on GT's own templates: GT's blank die recoloured to the substrate's class (grey silicon, GT's SoC copper for phosphorus, the substrate wafer's tones above) with the chip's 6×6 glyph in the die's two darkest tones, lit from the top left like GT's; the chip wafer is the substrate wafer with the glyph; the contaminated chip carries the smudges of GT's contaminated CPU chip; reticles: the chrome reticle frame, lens-coloured corners, the glyph in the blank's absorber (chrome, MoSi, TaBN on the Mo/Si multilayer).
 
 ## 5.4 Vacuum cleanliness and broken wafers
 
@@ -953,7 +953,20 @@ Chips are plain GT chips (no mode, no NBT): any substrate's cut gives the same `
 | highly_advanced_soc | LuV wetware SoC processor |
 | nano_cpu | HV nano, EV quantum, IV crystal and LuV wetware processors |
 | qbit_cpu | EV quantum processors |
-| rf_transceiver, apu, mcu, asic, edram (+ packages), mram, feram, vpu, tpu | AF9's own chips (§5.3b): uses not decided yet |
+
+AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything else; "extra": a second recipe beside the original, which stays.
+
+| Chip | Where | Script |
+|---|---|---|
+| rf_transceiver | wireless energy hatches, EV-UHV: 2 on top of each receiver / transmitter; AE2 Wireless Receiver (so the Wireless Access Point and every wireless terminal): 1, in the shape `F / IQI / IRI` | wireless_energy.js, chip_uses.js |
+| apu | extra MV Microprocessor: 1 APU in place of the CPU chip + RAM, 3 out instead of 2 | mv_circuits.js |
+| mcu | GT Machine Controller, Activity / Item / Fluid Detector covers: 1 on top (they had no circuit); extra LV / MV Robot Arm and Sensor Assembler recipes: 1 MCU in place of the circuit | chip_uses.js |
+| asic | on top: GT Large Miners EV 2 / IV 4 / LuV 8, Fluid Drilling Rigs HV 2 / EV 4 (not MV: before phosphorus), Void Miner 4; extra SMC fab multiblock controller recipes with ASICs in place of the circuits | chip_uses.js, miner.js, fab_machines.js |
+| edram packages | extra, half the time, 1 package in place of 4 RAM: Quantum Computer (and ASMD) 4 CPU packages, Crystal Processor Assembly 6 SoC packages, ATM9's Nano Mainframe (Assembly Line, 800 t) 4 CPU packages | tiered_circuits.js, circuits_for_atm.js |
+| mram | extra, half GT's time, no research, clean room: Data Orb (Circuit Assembler: epoxy board, CPU chip, 4 MRAM, 16 fine Pt wire), Data Bank (Assembler: computer casing, 16 MRAM, 2 CPU chips, 32 fine NbTi wire, 4 optical pipes), Advanced Data Access Hatch (Assembler: LuV input bus, 8 MRAM, 2 CPU chips, 32 fine NbTi wire) | chip_uses.js |
+| feram | none yet (kept for later features) | |
+| vpu | GT LuV Sensor (Assembly Line): 2 on top; LuV Scanner: GT's shape with 2 VPUs in place of the bottom two ZPM circuits (`CEC / WHW / VSV`); Orbital Lithography Station: 8 on top | chip_uses.js, photolithography.js |
+| tpu | GT HPCA Advanced Computation Component: 4 on top; ATM9's UHV Wetware Mainframe: 16 on top | chip_uses.js, circuits_for_atm.js |
 
 # 9. Extension points (not done yet)
 
@@ -1210,7 +1223,7 @@ AF9 Core `wireless/*`, startup `kubejs/startup_scripts/gtceu/wireless_energy.js`
 | UV | 256 | `gtceu:uv_…` | | UV 256A laser target / source hatch |
 | UHV | 1000 | `gtceu:uhv_…` | | UHV 1024A laser target / source hatch |
 
-Assembler at the hull tier: the base hatch + 2 sensors (receiver) or emitters (transmitter) + a field generator + 2 circuits of the tier + 576 mB soldering alloy, 30 s.
+Assembler at the hull tier: the base hatch + 2 sensors (receiver) or emitters (transmitter) + a field generator + 2 circuits of the tier + 2 RF Transceiver chips + 576 mB soldering alloy, 30 s.
 
 - **Transmitter** (`WirelessTransmitterHatch`, ability `OUTPUT_ENERGY`): a dynamo-type part for the Power Substation (or any multiblock that puts energy into its output hatches). It never emits into cables. Every tick it moves up to amps × voltage from its buffer (20 ticks of full throughput) into its own channel. **Voltage**: the highest input voltage of its multiblock's energy inputs (a PSS fed by UV hatches sends UV), re-read every second; a multiblock without energy inputs uses the tier set on the hatch's screen ([-] / [+], default EV). Breaking it deletes the channel.
 - **Receiver** (`WirelessReceiverHatch`, ability `INPUT_ENERGY`): an energy input hatch for any multiblock, no cables. Every AF9 and ATM9 multiblock takes it where it takes energy hatches (their patterns use `INPUT_ENERGY` or `autoAbilities`; GT's fusion reactors by tier). The Micro Universe Orb, which only takes laser hatches, also takes the receivers by id (`micro_universe_orb.js`, `I`). Single-block machines have no hatches. It works at its channel's voltage and pulls up to its amps × voltage per tick into its buffer (16 ticks of full input). GT reads a multiblock's hatch voltages when it forms, so a voltage change (the first link, a new substation input) makes the receiver re-form its multiblock (`onPartUnload` → async re-check). Unlinked or without a transmitter it reports 0 V and 0 A, so it does not lower the multiblock's voltage.
