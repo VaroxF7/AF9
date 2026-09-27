@@ -102,8 +102,6 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     public static final int PULSE_TICKS = 50;
     /** Glow layers around the ring: tube radius and opacity relative to the ring's. */
     private static final float[][] HALO = { { 1.7F, 0.45F }, { 2.8F, 0.26F }, { 4.5F, 0.14F }, { 7F, 0.06F } };
-    /** A hot ring's ({@link ILightRingMachine#ringGlow()} above 1) wide outer glow, reaching past its machine. */
-    private static final float[][] HALO_OUTER = { { 10F, 0.05F }, { 14F, 0.035F }, { 19F, 0.022F } };
     /** The white-hot core inside the tube: radius and opacity relative to the ring's (a hot ring's: fatter, opaque). */
     private static final float CORE = 0.45F, CORE_ALPHA = 0.85F, HOT_CORE = 0.6F;
     /** All the glow layers; a hot ring's inner layers that also bloom (with Shimmer). */
@@ -230,8 +228,8 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
      * The ring's tori as quads (so they can share a batch with anything): the tube and its white-hot core in
      * {@code tubeType}, then up to {@code layers} glow layers in {@code glowType}, breathing with the pulse (the buffers
      * are taken one after the other, so they may share one builder). A hot ring ({@link ILightRingMachine#ringGlow()}
-     * above 1) has a fatter, opaque core, its glow that many times stronger (at most {@link #MAX_GLOW_ALPHA} a layer)
-     * and the wide outer layers too.
+     * above 1) has a fatter, opaque core and its glow that many times stronger (at most {@link #MAX_GLOW_ALPHA} a
+     * layer).
      */
     private void renderRing(ILightRingMachine machine, Effects state, float alpha, float partialTick,
                             PoseStack poseStack, MultiBufferSource source, RenderType tubeType, RenderType glowType,
@@ -259,12 +257,10 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         float cr = red(lastColor) / 255f, cg = green(lastColor) / 255f, cb = blue(lastColor) / 255f;
         float breath = (0.6F + 0.4F * pulse) * boost;
         int drawn = 0;
-        for (float[][] halo : hot ? new float[][][] { HALO, HALO_OUTER } : new float[][][] { HALO }) {
-            for (float[] layer : halo) {
-                if (drawn++ >= layers) return;
-                torus(glow, mat, frame, radius, thickness * layer[0], 10, segments, cr, cg, cb,
-                        Math.min(MAX_GLOW_ALPHA, alpha * layer[1] * breath));
-            }
+        for (float[] layer : HALO) {
+            if (drawn++ >= layers) return;
+            torus(glow, mat, frame, radius, thickness * layer[0], 10, segments, cr, cg, cb,
+                    Math.min(MAX_GLOW_ALPHA, alpha * layer[1] * breath));
         }
     }
 
@@ -608,8 +604,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     @Override
     public AABB getRenderBoundingBox(ILightRingMachine machine) {
         BlockPos pos = machine.self().getPos();
-        float[][] halo = machine.ringGlow() > 1 ? HALO_OUTER : HALO;
-        float reach = Math.abs(up) + Math.abs(back) + radius + thickness * halo[halo.length - 1][0] + 1;
+        float reach = Math.abs(up) + Math.abs(back) + radius + thickness * HALO[HALO.length - 1][0] + 1;
         return new AABB(pos).inflate(reach);
     }
 }

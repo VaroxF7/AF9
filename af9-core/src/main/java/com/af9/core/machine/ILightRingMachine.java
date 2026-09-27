@@ -30,7 +30,7 @@ public interface ILightRingMachine extends IMachineFeature {
 
     /**
      * How hard the ring glows: 1 as GT's fusion ring; above 1 its glow is added light, that many times stronger, with
-     * a fatter white-hot core and wide outer layers reaching past the machine (and, with Shimmer, blooming).
+     * a fatter white-hot core (and, with Shimmer, blooming).
      */
     default float ringGlow() {
         return 1F;
