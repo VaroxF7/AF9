@@ -1,5 +1,7 @@
 package com.af9.core.litho;
 
+import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.capability.recipe.CWURecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
@@ -10,11 +12,17 @@ import com.gregtechceu.gtceu.api.gui.widget.SlotWidget;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.RecipeCondition;
+import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.ResearchData;
+import com.gregtechceu.gtceu.api.recipe.content.Content;
+import com.gregtechceu.gtceu.api.recipe.ingredient.EnergyStack;
 import com.gregtechceu.gtceu.api.recipe.ui.GTRecipeTypeUI;
+import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import com.gregtechceu.gtceu.common.recipe.condition.ResearchCondition;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.integration.xei.handlers.item.CycleItemStackHandler;
+import com.gregtechceu.gtceu.utils.FormattingUtil;
+import com.gregtechceu.gtceu.utils.GTUtil;
 import com.gregtechceu.gtceu.utils.ResearchManager;
 
 import com.lowdragmc.lowdraglib.gui.texture.ColorBorderTexture;
@@ -27,11 +35,17 @@ import com.lowdragmc.lowdraglib.jei.IngredientIO;
 import com.lowdragmc.lowdraglib.utils.Position;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+
+import com.google.common.base.Suppliers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * The lithography recipes' page in EMI / JEI, laid out like an assembly line: the items on top (blank wafer, reticle,
@@ -158,10 +172,21 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
 
     /**
      * The research slot shows the recipe's data orbs, written with its research the way GT's research slot writes them
-     * (a catalyst: EMI lists the recipe under the orb's uses); hidden for a recipe without research.
+     * (a catalyst: EMI lists the recipe under the orb's uses); hidden for a recipe without research. Its hover names the
+     * research as its Research Station recipe does it: the item scanned and the data item, both in the Object Holder,
+     * the power, the computation and the time.
      */
     private void bindResearch(WidgetGroup group, RecipeHolder holder) {
-        List<ItemStack> orbs = researchOrbs(holder.conditions());
+        List<ResearchData.ResearchEntry> entries = researchEntries(holder.conditions());
+        List<ItemStack> orbs = new ArrayList<>();
+        for (ResearchData.ResearchEntry entry : entries) {
+            ItemStack orb = entry.getDataItem().copy();
+            ResearchManager.writeResearchToNBT(orb.getOrCreateTag(), entry.getResearchId(), type);
+            orbs.add(orb);
+        }
+        // looked up on the first hover (the recipes the client has)
+        Supplier<ResearchInfo> info = Suppliers.memoize(() -> entries.isEmpty() ? null :
+                ResearchInfo.find(entries.get(0)));
         WidgetUtils.widgetByIdForEach(group, "^" + RESEARCH_ID + "$", SlotWidget.class, slot -> {
             if (orbs.isEmpty()) {
                 slot.setVisible(false);
@@ -176,27 +201,98 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
                 tooltips.add(Component.literal("\u25C8 ").append(
                         Component.translatable("af9.recipe.litho_page.research"))
                         .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
-                tooltips.add(Component.translatable("af9.recipe.litho_page.research_scan")
-                        .withStyle(ChatFormatting.GRAY));
+                ResearchInfo research = info.get();
+                if (research != null) {
+                    tooltips.add(Component.translatable("af9.recipe.litho_page.research_station",
+                            Component.translatable("block.gtceu.research_station").withStyle(ChatFormatting.WHITE),
+                            research.scanned().getHoverName().copy().withStyle(ChatFormatting.WHITE),
+                            research.data().getHoverName().copy().withStyle(ChatFormatting.WHITE),
+                            Component.translatable("block.gtceu.object_holder")).withStyle(ChatFormatting.GRAY));
+                    tooltips.add(Component.translatable("af9.recipe.litho_page.research_cost",
+                            FormattingUtil.formatNumbers(research.eut()), GTValues.VNF[research.tier()],
+                            FormattingUtil.formatNumbers(research.cwut()),
+                            FormattingUtil.formatNumbers(research.totalCwu()),
+                            FormattingUtil.formatNumbers(research.seconds())).withStyle(ChatFormatting.GRAY));
+                } else {
+                    tooltips.add(Component.translatable("af9.recipe.litho_page.research_scan")
+                            .withStyle(ChatFormatting.GRAY));
+                }
                 tooltips.add(Component.translatable("af9.recipe.litho_page.research_hatch")
                         .withStyle(ChatFormatting.DARK_AQUA));
             });
         });
     }
 
-    /** The data orbs carrying the recipe's research (none when GT's research is off). */
-    private List<ItemStack> researchOrbs(List<RecipeCondition> conditions) {
+    /** The recipe's research entries (none when GT's research is off). */
+    private static List<ResearchData.ResearchEntry> researchEntries(List<RecipeCondition> conditions) {
         if (conditions == null || !ConfigHolder.INSTANCE.machines.enableResearch) return List.of();
-        List<ItemStack> orbs = new ArrayList<>();
+        List<ResearchData.ResearchEntry> entries = new ArrayList<>();
         for (RecipeCondition condition : conditions) {
             if (!(condition instanceof ResearchCondition research) || research.data == null) continue;
-            for (ResearchData.ResearchEntry entry : research.data) {
-                ItemStack orb = entry.getDataItem().copy();
-                ResearchManager.writeResearchToNBT(orb.getOrCreateTag(), entry.getResearchId(), type);
-                orbs.add(orb);
-            }
+            for (ResearchData.ResearchEntry entry : research.data) entries.add(entry);
         }
-        return orbs;
+        return entries;
+    }
+
+    /**
+     * A research as its Research Station recipe does it: the item scanned, the data item written, the voltage and EU/t,
+     * the computation per tick and in all.
+     */
+    private record ResearchInfo(ItemStack scanned, ItemStack data, long voltage, long eut, int cwut, int totalCwu) {
+
+        int tier() {
+            return Math.min(GTUtil.getTierByVoltage(voltage), GTValues.VNF.length - 1);
+        }
+
+        /** Seconds at exactly the recipe's CWU/t. */
+        long seconds() {
+            return (long) Math.ceil(totalCwu / (double) Math.max(1, cwut) / 20.0);
+        }
+
+        /**
+         * The Research Station recipe that writes the research (client: the recipes it has; found by the research on its
+         * output data item, or by its id, research_station/&lt;research id&gt;), or null.
+         */
+        @OnlyIn(Dist.CLIENT)
+        static ResearchInfo find(ResearchData.ResearchEntry entry) {
+            var level = Minecraft.getInstance().level;
+            if (level == null) return null;
+            String researchId = entry.getResearchId();
+            for (GTRecipe recipe : level.getRecipeManager().getAllRecipesFor(GTRecipeTypes.RESEARCH_STATION_RECIPES)) {
+                if (!recipe.getId().getPath().endsWith("/" + researchId) && !writes(recipe, researchId)) continue;
+                ItemStack scanned = ItemStack.EMPTY;
+                for (Content content : recipe.inputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
+                    for (ItemStack stack : ItemRecipeCapability.CAP.of(content.content).getItems()) {
+                        if (!stack.is(entry.getDataItem().getItem())) {
+                            scanned = stack;
+                            break;
+                        }
+                    }
+                    if (!scanned.isEmpty()) break;
+                }
+                EnergyStack energy = RecipeHelper.getRealEUt(recipe);
+                int cwut = 0;
+                for (Content content : recipe.tickInputs.getOrDefault(CWURecipeCapability.CAP, List.of())) {
+                    cwut += CWURecipeCapability.CAP.of(content.content);
+                }
+                // a research's duration is its total computation (GT's totalCWU)
+                int total = recipe.data.getBoolean("duration_is_total_cwu") ? recipe.duration : recipe.duration * cwut;
+                return new ResearchInfo(scanned, entry.getDataItem(), energy.voltage(),
+                        energy.voltage() * energy.amperage(), cwut, total);
+            }
+            return null;
+        }
+
+        /** Whether the recipe's output data item carries the research. */
+        private static boolean writes(GTRecipe recipe, String researchId) {
+            for (Content content : recipe.outputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
+                for (ItemStack stack : ItemRecipeCapability.CAP.of(content.content).getItems()) {
+                    ResearchManager.ResearchItem research = ResearchManager.readResearchId(stack);
+                    if (research != null && researchId.equals(research.researchId())) return true;
+                }
+            }
+            return false;
+        }
     }
 
     /** The recipe to the pipes (its fluids' colours, whether it is researched), then the type's own page builder. */
