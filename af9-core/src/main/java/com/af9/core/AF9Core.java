@@ -1,6 +1,7 @@
 package com.af9.core;
 
 import com.af9.core.blast.BouleMelting;
+import com.af9.core.bus.AF9Bus;
 import com.af9.core.client.AF9Client;
 import com.af9.core.common.AF9Sounds;
 import com.af9.core.compat.adastra.AdAstraCompat;
@@ -26,7 +27,7 @@ import org.apache.logging.log4j.Logger;
  * Machines, materials and recipes are defined in KubeJS; this mod supplies the behaviour KubeJS cannot
  * (consoles, module detection, recipe gating, the lithography vacuum and break roll, wafer and chip contamination,
  * the EBF's Boule Melting mode, the Plascrete Filter Casing as a cleanroom filter, fluids inside running machines, Jade
- * tooltips). Settings: {@link AF9Config}.
+ * tooltips, the machine bus). Settings: {@link AF9Config}.
  */
 @Mod(AF9Core.MOD_ID)
 public class AF9Core {
@@ -38,6 +39,7 @@ public class AF9Core {
     public AF9Core() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         AF9Sounds.register(FMLJavaModLoadingContext.get().getModEventBus());
+        AF9Bus.register(FMLJavaModLoadingContext.get().getModEventBus());
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AF9Config.SPEC);
         if (FMLEnvironment.dist == Dist.CLIENT) AF9Client.init();
     }
@@ -55,5 +57,7 @@ public class AF9Core {
         event.enqueueWork(AdAstraCompat::init);
         // the orbital ring's death screen
         event.enqueueWork(AF9Network::register);
+        // the Central Monitor's wall takes a Bus Connector (the connector's ability is registered by now)
+        event.enqueueWork(AF9Bus::installMonitorWall);
     }
 }

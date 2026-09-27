@@ -21,6 +21,7 @@ const $PhotolithographyScannerMachine = Java.loadClass('com.af9.core.machine.Pho
 const $OrbitalLithographyMachine = Java.loadClass('com.af9.core.machine.OrbitalLithographyMachine')
 const $LithoMachine = Java.loadClass('com.af9.core.machine.LithoMachine')
 const $LithoCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
+const $LithoBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $LithoRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 const $LithoMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $LithoSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
@@ -256,6 +257,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .where('C', Predicates.blocks('gtceu:plascrete')
                 // up to two normal 2A hatches = 4A, what every print needs; their voltage decides the modes
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
+                .or(Predicates.abilities($LithoBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units
@@ -310,6 +312,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
+                .or(Predicates.abilities($LithoBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units
@@ -396,6 +399,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                 .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.DATA_ACCESS).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.OPTICAL_DATA_RECEPTION).setMaxGlobalLimited(1, 0))
+                .or(Predicates.abilities($LithoBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
