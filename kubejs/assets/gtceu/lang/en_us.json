@@ -117,7 +117,7 @@
     "af9.particle_accelerator.tooltip.5": "§7Fluids: §fCoolant Hatches only§7 (supercooled hydrogen, argon, xenon, endion). A recipe takes its coolant §for any colder one§7.",
     "af9.particle_accelerator.tooltip.6": "§7Power: up to §f4§7 Energy Hatches or §f2§7 Laser Hatches, with the recipe's full EU/t.",
     "af9.particle_accelerator.tooltip.7": "§7Parts go §fanywhere on the clean-steel casing§7, optional with a maximum: §f2§7 coolant hatches, §f2+2§7 item buses, §f1§7 maintenance.",
-    "af9.particle_accelerator.tooltip.8": "§7A light ring glows inside while it runs, §blightning§7 leaping off it. Beam energy grows with the voltage tier.",
+    "af9.particle_accelerator.tooltip.8": "§7While it runs, its beam glows inside the magnets (see it through the gates' glass), §blightning§7 breaking out of the inner wall. Beam energy grows with the voltage tier.",
     "af9.coolant_hatch.tooltip.0": "§7Takes §bsupercooled fluids§7 only.",
     "af9.coolant_hatch.tooltip.1": "§7The only fluid input of the Particle Accelerator and the Orbital Lithography Station.",
     "af9.wireless_receiver.tooltip.0": "§7Energy input hatch for any multiblock, fed by a linked §bWireless Energy Transmitter§7: any distance, any dimension.",

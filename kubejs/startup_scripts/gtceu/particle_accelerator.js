@@ -315,11 +315,13 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         })
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_clean_stainless_steel',
             'gtceu:block/multiblock/fusion_reactor')
-        // the same model plus the light ring inside the storage ring, with lightning leaping into the middle; the
-        // numbers live in af9-core (RING_*): 23 behind the controller, radius 15.5, lying flat
+        // the same model plus the light ring, the beam: inside the storage ring's tube along the magnets (it glows out
+        // through the gates' glass), with lightning breaking out of the inner wall into the middle; the numbers live in
+        // af9-core (RING_*): 23 behind the controller, radius 20, lying flat, 2.5 out from the tube's inner face
         .model($AccelMachineModels.workableCasingWithLightRing(
             'gtceu:block/casings/solid/machine_casing_clean_stainless_steel', 'gtceu:block/multiblock/fusion_reactor',
             $ParticleAcceleratorMachine.RING_UP, $ParticleAcceleratorMachine.RING_BACK,
-            $ParticleAcceleratorMachine.RING_RADIUS, $ParticleAcceleratorMachine.RING_THICKNESS, 'up', true))
+            $ParticleAcceleratorMachine.RING_RADIUS, $ParticleAcceleratorMachine.RING_THICKNESS, 'up', true,
+            $ParticleAcceleratorMachine.RING_WALL))
         .hasBER(true)
 })

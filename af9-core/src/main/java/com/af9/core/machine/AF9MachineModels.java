@@ -77,9 +77,22 @@ public final class AF9MachineModels {
                                                                                float back, float radius,
                                                                                float thickness, String normal,
                                                                                boolean arcs) {
+        return workableCasingWithLightRing(casing, overlay, up, back, radius, thickness, normal, arcs, 0);
+    }
+
+    /**
+     * As above, the ring running inside the machine: {@code wall} blocks out from the housing's inner face (the Particle
+     * Accelerator's, through its magnets). The blocks hide it, it glows out through the glass; the lightning leaps off
+     * the inner face into the middle and the sparks spit off it.
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithLightRing(ResourceLocation casing,
+                                                                               ResourceLocation overlay, float up,
+                                                                               float back, float radius,
+                                                                               float thickness, String normal,
+                                                                               boolean arcs, float wall) {
         RelativeDirection axis = RelativeDirection.valueOf(normal.toUpperCase(Locale.ROOT));
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(
-                        () -> LightRingRender.create(up, back, radius, thickness, axis, arcs)));
+                        () -> LightRingRender.create(up, back, radius, thickness, axis, arcs, wall)));
     }
 }

@@ -62,6 +62,10 @@ import static net.minecraft.util.FastColor.ARGB32.*;
  * <p>
  * Placed relative to the controller: the centre {@code up} along the controller's up and {@code back} behind it, the
  * ring lying across the {@code normal} axis (a relative direction), so it turns with the controller.
+ * <p>
+ * A ring can run inside its machine ({@code wall}: how far in from the housing's inner face, 0 for a ring in the open):
+ * the blocks hide it and it glows out through the machine's glass; the lightning then leaps off that inner face into
+ * the middle and the sparks spit off it, where they can be seen.
  * Model side: {@link com.af9.core.machine.AF9MachineModels#workableCasingWithLightRing}.
  * <p>
  * One render serves every machine of the model: whether a ring shows, and its fade-out and colour, are kept per
@@ -82,7 +86,8 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
             Codec.FLOAT.fieldOf("radius").forGetter(render -> render.radius),
             Codec.FLOAT.fieldOf("thickness").forGetter(render -> render.thickness),
             RelativeDirection.CODEC.optionalFieldOf("normal", RelativeDirection.UP).forGetter(render -> render.normal),
-            Codec.BOOL.optionalFieldOf("arcs", false).forGetter(render -> render.arcs)
+            Codec.BOOL.optionalFieldOf("arcs", false).forGetter(render -> render.arcs),
+            Codec.FLOAT.optionalFieldOf("wall", 0F).forGetter(render -> render.wall)
     ).apply(instance, LightRingRender::new));
     // spotless:on
     public static final DynamicRenderType<ILightRingMachine, LightRingRender> TYPE = new DynamicRenderType<>(CODEC);
@@ -103,24 +108,27 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     private final RelativeDirection normal;
     /** Lightning from the ring into its middle. */
     private final boolean arcs;
+    /** How far the ring runs inside its housing: from the housing's inner face out to the ring (0: in the open). */
+    private final float wall;
 
     /** Per machine: fade-out, last colour, effects already done this tick, lit last tick, last pulse (client thread). */
     private final Map<MetaMachine, Effects> effects = new WeakHashMap<>();
 
     public LightRingRender(float up, float back, float radius, float thickness, RelativeDirection normal,
-                           boolean arcs) {
+                           boolean arcs, float wall) {
         this.up = up;
         this.back = back;
         this.radius = radius;
         this.thickness = thickness;
         this.normal = normal;
         this.arcs = arcs;
+        this.wall = wall;
     }
 
     /** Typed as GT's base class, so common code that builds a model never loads this client class. */
     public static DynamicRender<?, ?> create(float up, float back, float radius, float thickness,
-                                             RelativeDirection normal, boolean arcs) {
-        return new LightRingRender(up, back, radius, thickness, normal, arcs);
+                                             RelativeDirection normal, boolean arcs, float wall) {
+        return new LightRingRender(up, back, radius, thickness, normal, arcs, wall);
     }
 
     /** Client, before the models are built (mod construction). */
@@ -297,8 +305,11 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         int count = 2 + random.nextInt(3);
         for (int i = 0; i < count; i++) {
             float angle = random.nextFloat() * Mth.TWO_PI;
-            float dist = radius + (random.nextFloat() - 0.5F) * thickness * 6;
-            Vec3 at = frame.onRing(angle, dist, (random.nextFloat() - 0.5F) * thickness * 4);
+            // on the ring; a ring inside its housing spits them off the housing's inner face instead
+            float dist = wall > 0 ? radius - wall - random.nextFloat() * 0.6F :
+                    radius + (random.nextFloat() - 0.5F) * thickness * 6;
+            float along = wall > 0 ? (random.nextFloat() - 0.5F) * 3F : (random.nextFloat() - 0.5F) * thickness * 4;
+            Vec3 at = frame.onRing(angle, dist, along);
             double x = pos.getX() + at.x, y = pos.getY() + at.y, z = pos.getZ() + at.z;
             float kind = random.nextFloat();
             ParticleOptions particle = kind < 0.55F ? ParticleTypes.ELECTRIC_SPARK :
@@ -315,14 +326,15 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
 
     /**
      * Once a tick: the bolts age and die; new ones leap off the ring (a big bolt every few ticks, darts more often), a
-     * spark where each lands. At most 12 at a time.
+     * spark where each lands. At most 12 at a time. Their lengths count from where they come out in the open (the
+     * housing's inner face, for a ring inside its machine).
      */
     private void tickBolts(Effects state, RandomSource random, Frame frame, ClientLevel level, BlockPos pos) {
         state.bolts.removeIf(bolt -> ++bolt.age >= bolt.life);
         if (state.bolts.size() >= 12) return;
         List<Bolt> born = new ArrayList<>(2);
         if (random.nextFloat() < 0.4F) {
-            born.add(new Bolt(random.nextFloat() * Mth.TWO_PI, radius * (0.25F + random.nextFloat() * 0.45F),
+            born.add(new Bolt(random.nextFloat() * Mth.TWO_PI, (radius - wall) * (0.25F + random.nextFloat() * 0.45F),
                     (random.nextFloat() - 0.5F) * 3F, (random.nextFloat() - 0.5F) * 0.4F, random.nextLong(),
                     4 + random.nextInt(4), false));
         }
@@ -333,7 +345,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         }
         for (Bolt bolt : born) {
             state.bolts.add(bolt);
-            Vec3 end = bolt.end(frame, radius);
+            Vec3 end = bolt.end(frame, radius - wall);
             level.addParticle(ParticleTypes.ELECTRIC_SPARK, pos.getX() + end.x, pos.getY() + end.y,
                     pos.getZ() + end.z, (random.nextDouble() - 0.5) * 0.2, (random.nextDouble() - 0.5) * 0.2,
                     (random.nextDouble() - 0.5) * 0.2);
@@ -343,7 +355,9 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     /**
      * The bolts, re-forked every other tick so they crackle: a jagged path from the ring towards its middle (midpoint
      * displacement) with a few arms off it, each segment a camera-facing ribbon, a glow in the machine's colour under a
-     * white-hot core, fading with the bolt's age. Added light ({@link AF9RenderTypes#LIGHTNING}).
+     * white-hot core, fading with the bolt's age. Added light ({@link AF9RenderTypes#LIGHTNING}). A ring inside its
+     * machine: the bolts start at the ring all the same, so they break out of the housing's inner face, and fork only
+     * out in the open.
      */
     private void renderBolts(ILightRingMachine machine, Effects state, PoseStack poseStack, VertexConsumer consumer) {
         MetaMachine self = machine.self();
@@ -359,16 +373,18 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
             float fade = 1 - (float) bolt.age / bolt.life;
             RandomSource random = RandomSource.create(bolt.seed ^ tick * 0x9E3779B97F4A7C15L);
             Vec3 from = frame.onRing(bolt.angle, radius - thickness, 0);
-            Vec3 to = bolt.end(frame, radius);
+            Vec3 to = bolt.end(frame, radius - wall);
             List<Vec3> path = jagged(from, to, random, bolt.dart ? 3 : 5, bolt.length * 0.16F);
             float width = bolt.dart ? 0.55F : 1F;
             drawPath(consumer, mat, eye, path, width, cr, cg, cb, fade);
             if (bolt.dart) continue;
-            // arms: off a point of the bolt, on towards the middle but swerving
+            // arms: off a point of the bolt (its outer half, for a ring inside its machine), on towards the middle
+            // but swerving
             int arms = 1 + random.nextInt(3);
             Vec3 ahead = to.subtract(from).normalize();
+            int first = wall > 0 ? path.size() / 2 : 1;
             for (int i = 0; i < arms; i++) {
-                Vec3 start = path.get(1 + random.nextInt(path.size() - 2));
+                Vec3 start = path.get(first + random.nextInt(path.size() - 1 - first));
                 Vec3 swerve = new Vec3(random.nextFloat() - 0.5, random.nextFloat() - 0.5, random.nextFloat() - 0.5)
                         .normalize();
                 float armLength = bolt.length * (0.2F + random.nextFloat() * 0.3F);
@@ -420,7 +436,10 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         }
     }
 
-    /** A bolt: where it leaves the ring, how far in it reaches, how far off the ring's plane and sideways it ends. */
+    /**
+     * A bolt: where it leaves the ring, how far in it reaches (from where it comes out), how far off the ring's plane
+     * and sideways it ends.
+     */
     private static final class Bolt {
 
         final float angle, length, lift, twist;
@@ -439,8 +458,9 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
             this.dart = dart;
         }
 
-        Vec3 end(Frame frame, float radius) {
-            return frame.onRing(angle + twist, radius - length, lift);
+        /** Its end, {@code length} in from {@code out} (the radius where it comes out in the open). */
+        Vec3 end(Frame frame, float out) {
+            return frame.onRing(angle + twist, out - length, lift);
         }
     }
 

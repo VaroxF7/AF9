@@ -41,9 +41,10 @@ import java.util.StringJoiner;
  * neutron beam turns neutronium wafers into transmuted neutronium wafers), heavy-ion collision (quark-gluon plasma in
  * magnetic traps) and quark synthesis (strange matter, chromodynium).
  * <ul>
- * <li>While it runs, a light ring glows inside the ring in the mode's colour, with lightning leaping from it into the
- * middle ({@link com.af9.core.client.render.LightRingRender}, placed by particle_accelerator.js with
- * {@link #RING_BACK} ...).</li>
+ * <li>While it runs, its beam, a light ring in the mode's colour, runs round inside the ring along the magnets: the
+ * blocks hide it, it glows out through the gates' glass, and lightning breaks out of the inner wall into the middle
+ * ({@link com.af9.core.client.render.LightRingRender}, placed by particle_accelerator.js with {@link #RING_BACK}
+ * ...).</li>
  * <li>Its own screen, the orbital station's layout: {@link AcceleratorConsoleWidget} in a
  * {@link SidePanelsUIWidget}.</li>
  * <li>The beam energy grows with the voltage tier: 1 GeV at ZPM, doubling per tier.</li>
@@ -63,9 +64,12 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
 
     /**
      * The light ring (the model's, particle_accelerator.js reads these): at the controller's height, {@code RING_BACK}
-     * behind it in the middle of the storage ring, lying flat, just inside the ring's inner wall.
+     * behind it in the middle of the storage ring, lying flat, inside the ring's tube along the middle of the
+     * superconducting magnets (radius 20), {@code RING_WALL} out from the tube's inner face, where the lightning comes
+     * out.
      */
-    public static final float RING_UP = 0, RING_BACK = 23, RING_RADIUS = 15.5F, RING_THICKNESS = 0.3F;
+    public static final float RING_UP = 0, RING_BACK = 23, RING_RADIUS = 20F, RING_THICKNESS = 0.3F,
+            RING_WALL = 2.5F;
 
     /** Colour of the ring: the mode of the run it lit up for (synced; GT does not sync the active recipe type). */
     @Persisted
