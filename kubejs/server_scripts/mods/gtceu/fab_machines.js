@@ -42,24 +42,30 @@ ServerEvents.recipes(allthemods => {
     })
 
     // ---- Multiblocks ----
-    allthemods.shaped('gtceu:smc_large_chemical_reactor', ['CRC', 'PMP', 'FXF'], {
-        C: '#gtceu:circuits/hv', R: 'gtceu:stainless_steel_rotor', P: PTFE_LARGE_PIPE, M: 'gtceu:hv_electric_motor',
+    // Every controller also has an ASIC version: one ASIC chip (phosphorus wafers, HV) wherever it takes a circuit
+    const controller = (id, pattern, circuit, keyOf) => {
+        allthemods.shaped(`gtceu:${id}`, pattern, keyOf(circuit)).id(`af9:${id}`)
+        allthemods.shaped(`gtceu:${id}`, pattern, keyOf('kubejs:asic_chip')).id(`af9:${id}_asic`)
+    }
+
+    controller('smc_large_chemical_reactor', ['CRC', 'PMP', 'FXF'], '#gtceu:circuits/hv', C => ({
+        C: C, R: 'gtceu:stainless_steel_rotor', P: PTFE_LARGE_PIPE, M: 'gtceu:hv_electric_motor',
         F: FILTER_CASING, X: 'gtceu:large_chemical_reactor'
-    }).id('af9:smc_large_chemical_reactor')
+    }))
 
-    allthemods.shaped('gtceu:smc_rectification_column', ['CPC', 'FHF', 'UPU'], {
-        C: '#gtceu:circuits/hv', P: PTFE_LARGE_PIPE, F: FILTER_CASING, H: 'gtceu:hv_machine_hull',
+    controller('smc_rectification_column', ['CPC', 'FHF', 'UPU'], '#gtceu:circuits/hv', C => ({
+        C: C, P: PTFE_LARGE_PIPE, F: FILTER_CASING, H: 'gtceu:hv_machine_hull',
         U: 'gtceu:hv_electric_pump'
-    }).id('af9:smc_rectification_column')
+    }))
 
-    allthemods.shaped('gtceu:smc_membrane_cell_hall', ['CWC', 'EHE', 'FPF'], {
-        C: '#gtceu:circuits/hv', W: 'gtceu:gold_quadruple_cable', E: 'gtceu:hv_electrolyzer',
+    controller('smc_membrane_cell_hall', ['CWC', 'EHE', 'FPF'], '#gtceu:circuits/hv', C => ({
+        C: C, W: 'gtceu:gold_quadruple_cable', E: 'gtceu:hv_electrolyzer',
         H: 'gtceu:hv_machine_hull', F: FILTER_CASING, P: PTFE_LARGE_PIPE
-    }).id('af9:smc_membrane_cell_hall')
+    }))
 
     // MV: the furnaces carry the MV silicon line (MG-Si, CZ boules)
-    allthemods.shaped('gtceu:smc_thermal_processing_furnace', ['CKC', 'PXP', 'WCW'], {
-        C: '#gtceu:circuits/mv', K: 'gtceu:cupronickel_coil_block', P: PE_PIPE,
+    controller('smc_thermal_processing_furnace', ['CKC', 'PXP', 'WCW'], '#gtceu:circuits/mv', C => ({
+        C: C, K: 'gtceu:cupronickel_coil_block', P: PE_PIPE,
         X: 'gtceu:electric_blast_furnace', W: 'gtceu:copper_single_cable'
-    }).id('af9:smc_thermal_processing_furnace')
+    }))
 })

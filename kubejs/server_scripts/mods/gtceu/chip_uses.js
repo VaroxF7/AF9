@@ -41,4 +41,11 @@ ServerEvents.recipes(allthemods => {
             .duration(100)
             .EUt(VA[GTValues.LV])
     })
+
+    // ---- ASIC: the mining ASIC ----
+    // GT's Large Miners and Fluid Drilling Rigs (HV and up: the MV rig comes before phosphorus wafers, it stays as it
+    // is); the Void Miner takes them in miner.js
+    const miningAsics = [['ev_large_miner', 2], ['iv_large_miner', 4], ['luv_large_miner', 8],
+        ['hv_fluid_drilling_rig', 2], ['ev_fluid_drilling_rig', 4]]
+    miningAsics.forEach(([id, count]) => addInputs(`gtceu:assembler/${id}`, [`${count}x kubejs:asic_chip`]))
 })

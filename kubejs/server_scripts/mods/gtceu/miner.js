@@ -9,6 +9,7 @@ ServerEvents.recipes((event) => {
             "4x gtceu:mv_field_generator",
             "4x gtceu:hv_field_generator",
             "4x #gtceu:circuits/ev",
+            "4x kubejs:asic_chip", // AF9: the mining ASIC (chip_uses.js)
             "gtceu:long_titanium_rod",
             "4x gtceu:titanium_plate")
         .inputFluids("gtceu:soldering_alloy 1440")
