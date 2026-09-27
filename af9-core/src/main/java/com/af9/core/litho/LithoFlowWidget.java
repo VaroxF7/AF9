@@ -11,7 +11,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -32,11 +34,14 @@ import static com.af9.core.litho.LithoRecipeUI.*;
  * rows) into a manifold, the manifold into the machine's frame (the controller drawn large, the node's colour, the node
  * above and the machine's name below), and dashes flowing along all of it to the machine: in the node's colour from
  * the items, in the colours of each row's fluids from the track. The 1 nm station's dry process has no track: a note
- * stands where the fluids would be.
+ * stands where the fluids would be, clear of the manifold.
  */
 public class LithoFlowWidget extends Widget {
 
     private static final int PIPE = 0xFF4B5563, PIPE_EDGE = 0xFF2A313C, LABEL = 0xFFB8C2D6;
+    /** Labels are drawn at this scale; line height of wrapped text. */
+    private static final float SMALL = 0.75F;
+    private static final int LINE = 7;
     /** Dash length and spacing along the pipes, and how fast they flow (ms per pixel). */
     private static final int DASH = 3, PERIOD = 8, SPEED = 60;
 
@@ -107,11 +112,12 @@ public class LithoFlowWidget extends Widget {
             bottom = Math.max(bottom, y);
         }
         if (fluids == 0) {
-            // the dry process: no track chemicals
+            // the dry process: no track chemicals. The note stays clear of the manifold (its hover says the rest)
+            int width = MANIFOLD_X - 3 - (SLOTS_X + 2);
             drawSmall(graphics, Component.translatable("af9.recipe.litho_page.dry").getString(),
-                    x0 + SLOTS_X + 2, y0 + FLUIDS_Y + 6, LABEL);
-            drawSmall(graphics, Component.translatable("af9.recipe.litho_page.dry_detail").getString(),
-                    x0 + SLOTS_X + 2, y0 + FLUIDS_Y + 14, 0xFF8A94A8);
+                    x0 + SLOTS_X + 2, y0 + FLUIDS_Y + 1, LABEL);
+            drawWrapped(graphics, Component.translatable("af9.recipe.litho_page.dry_detail").getString(),
+                    x0 + SLOTS_X + 2, y0 + FLUIDS_Y + 9, width, 2, 0xFF8A94A8);
         }
         // the manifold: down from the top row, up from the bottom one, into the machine
         vPipe(graphics, manifold, top - 1, centre, time, node, true);
@@ -136,10 +142,10 @@ public class LithoFlowWidget extends Widget {
             graphics.renderItem(stack, 0, 0);
             graphics.pose().popPose();
         }
-        // the node above it, the machine below it
-        drawSmallCentered(graphics, mode.nodeNm + " nm", bx + BOX_SIZE / 2, by - 8, node);
+        // the node above it, the machine below it (under the frame's glow and the manifold's end)
+        drawSmallCentered(graphics, mode.nodeNm + " nm", bx + BOX_SIZE / 2, by - 9, node);
         drawSmallCentered(graphics, Component.translatable("af9.recipe.litho_page.machine." +
-                mode.machine.name().toLowerCase(Locale.ROOT)).getString(), bx + BOX_SIZE / 2, by + BOX_SIZE + 3, LABEL);
+                mode.machine.name().toLowerCase(Locale.ROOT)).getString(), bx + BOX_SIZE / 2, by + BOX_SIZE + 5, LABEL);
         super.drawInBackground(graphics, mouseX, mouseY, partialTicks);
     }
 
@@ -211,7 +217,7 @@ public class LithoFlowWidget extends Widget {
         Font font = Minecraft.getInstance().font;
         graphics.pose().pushPose();
         graphics.pose().translate(x, y, 0);
-        graphics.pose().scale(0.75F, 0.75F, 1F);
+        graphics.pose().scale(SMALL, SMALL, 1F);
         graphics.drawString(font, text, 0, 0, color, true);
         graphics.pose().popPose();
     }
@@ -219,7 +225,22 @@ public class LithoFlowWidget extends Widget {
     @OnlyIn(Dist.CLIENT)
     private static void drawSmallCentered(GuiGraphics graphics, String text, int x, int y, int color) {
         Font font = Minecraft.getInstance().font;
-        drawSmall(graphics, text, x - font.width(text) * 3 / 8, y, color);
+        drawSmall(graphics, text, x - Math.round(font.width(text) * SMALL / 2), y, color);
+    }
+
+    /** Small text wrapped to {@code width} (on screen), at most {@code maxLines} lines. */
+    @OnlyIn(Dist.CLIENT)
+    private static void drawWrapped(GuiGraphics graphics, String text, int x, int y, int width, int maxLines,
+                                    int color) {
+        Font font = Minecraft.getInstance().font;
+        List<FormattedCharSequence> lines = font.split(FormattedText.of(text), (int) (width / SMALL));
+        graphics.pose().pushPose();
+        graphics.pose().translate(x, y, 0);
+        graphics.pose().scale(SMALL, SMALL, 1F);
+        for (int i = 0; i < Math.min(maxLines, lines.size()); i++) {
+            graphics.drawString(font, lines.get(i), 0, Math.round(i * LINE / SMALL), color, true);
+        }
+        graphics.pose().popPose();
     }
 
     private static int withAlpha(int argb, int alpha) {

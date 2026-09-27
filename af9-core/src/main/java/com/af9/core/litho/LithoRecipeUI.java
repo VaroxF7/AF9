@@ -22,7 +22,9 @@ import net.minecraft.network.chat.Component;
  * light source or resist cartridge) and the track chemicals below in rows of four, every row piped into a manifold that
  * feeds the machine (its controller, drawn large in a frame of the node's colour, the node above it and the machine
  * below), then GT's arrow and the outputs stacked (the printed wafers, the chanced broken wafer). The pipes carry
- * dashes flowing to the machine, each fluid row's in the colours of its fluids ({@link LithoFlowWidget}).
+ * dashes flowing to the machine, each fluid row's in the colours of its fluids ({@link LithoFlowWidget}). The machine
+ * sits level with the first track row, so that row's pipe runs straight on into it; its name has the room under it,
+ * clear of the slots.
  * <p>
  * The slots are GT's own (same ids, so GT binds the recipe to them and EMI shows, looks up and moves them as usual);
  * only the template around them is ours. Replaces the recipe types' UI in common setup
@@ -33,8 +35,12 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
     public static final int WIDTH = 176, HEIGHT = 66;
     /** Layout: slot columns and rows, the manifold, the machine frame, the arrow, the outputs. */
     public static final int SLOTS_X = 4, ITEMS_Y = 4, FLUIDS_Y = 26, PER_ROW = 4, FLUID_ROWS = 2;
-    public static final int MANIFOLD_X = 80, BOX_X = 88, BOX_SIZE = 34, ARROW_X = 126, OUT_X = 152;
-    public static final int CENTER_Y = HEIGHT / 2;
+    public static final int MANIFOLD_X = 82, BOX_X = 94, BOX_SIZE = 34, ARROW_X = 131, OUT_X = 155;
+    /**
+     * The machine's line: the frame, the arrow and the outputs centre on it, level with the first track row's pipe, so
+     * that pipe runs straight on through the manifold into the machine.
+     */
+    public static final int CENTER_Y = FLUIDS_Y + 9;
     public static final String FLOW_ID = "af9_litho_flow";
 
     private final GTRecipeType type;
@@ -78,6 +84,12 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
         for (int i = 0; i < fluids; i++) {
             slot(group, FluidRecipeCapability.CAP, IO.IN, i, fluids, SLOTS_X + 18 * (i % PER_ROW),
                     FLUIDS_Y + 18 * (i / PER_ROW));
+        }
+        if (fluids == 0) {
+            // the dry process note's hover (the flow draws the note)
+            var dry = new Widget(SLOTS_X, FLUIDS_Y, MANIFOLD_X - 2 - SLOTS_X, 16);
+            dry.setHoverTooltips(Component.translatable("af9.recipe.litho_page.dry_hover"));
+            group.addWidget(dry);
         }
         for (int i = 0; i < outputs; i++) {
             slot(group, ItemRecipeCapability.CAP, IO.OUT, i, outputs, OUT_X,
