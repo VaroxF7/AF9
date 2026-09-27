@@ -188,7 +188,6 @@
     "af9.recipe.litho_node": "%snm %s, Mk1 V%s+",
     "af9.recipe.litho_node_scanner": "%snm %s, Mk2 V%s+",
     "af9.recipe.litho_node_orbital": "%snm %s, in orbit",
-    "af9.recipe.litho_break": "Breaks %s pct (vented: %s)",
     "af9.recipe.litho_page.node": "%s nm node, %s",
     "af9.recipe.accelerator_page.machine": "PARTICLE ACCELERATOR",
     "af9.recipe.accelerator_page.coolant_label": "COOLANT",

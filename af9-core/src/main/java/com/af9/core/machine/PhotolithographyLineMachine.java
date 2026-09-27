@@ -257,11 +257,10 @@ public class PhotolithographyLineMachine extends LithoMachine {
 
     /**
      * Gives the lithography recipes their own EMI/JEI page ({@link com.af9.core.litho.LithoRecipeUI}: items and track
-     * chemicals piped into the machine, like an assembly line) and adds node, light source, machine version, break
-     * chances and the coolant to it,
-     * short enough for the page's width. The recipes with computation also get GT's "Min. Computation" line and (1 nm)
-     * its "Requires Research" line: the page is made one line taller for each, and {@link #respaceTexts} fixes GT
-     * putting both on the same row.
+     * chemicals piped into the machine, like an assembly line) and adds node, light source, machine version and the
+     * coolant to it, short enough for the page's width (no break chance: the chanced broken wafer shows it). The
+     * recipes with computation also get GT's "Min. Computation" line and (1 nm) its "Requires Research" line: the page
+     * is made one line taller for each, and {@link #respaceTexts} fixes GT putting both on the same row.
      */
     public static void registerRecipeInfo() {
         for (LithoMode mode : LithoMode.values()) {
@@ -283,10 +282,6 @@ public class PhotolithographyLineMachine extends LithoMachine {
                 default -> type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node", mode.nodeNm,
                         light, mode.level()).getString());
             }
-            type.addDataInfo(data -> Component.translatable("af9.recipe.litho_break",
-                    String.format(java.util.Locale.ROOT, "%.0f", mode.baseBreak / 100.0),
-                    String.format(java.util.Locale.ROOT, "%.0f", (mode.baseBreak / 10000.0 + LithoMode.DIRT_BREAK) *
-                            100)).getString());
             if (mode.minCoolant() != null) {
                 // the fluids by their full names (Supercooled Argon ...), not just the gas
                 type.addDataInfo(data -> Component.translatable("af9.recipe.litho_coolant",
