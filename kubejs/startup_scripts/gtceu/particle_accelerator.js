@@ -1,7 +1,7 @@
 // AF9 - Particle Accelerator: a storage ring for the wafers beyond neutronium. Spec: docs/semiconductor-factory.md
 //
 // A ring 47 blocks across and 7 high, built after GTNH's Compact Fusion Computer (its layout, GT5-Unofficial
-// MTELargeFusionComputer): superconducting bending magnets inside a clean-steel shell, four glass gates at the compass
+// MTELargeFusionComputer): an empty beam tube inside a clean-steel shell (the bending magnets), four glass gates at the compass
 // points; the hatches go anywhere on the clean-steel casing (and in the gates' glass spots). The magnets are cooled from
 // Coolant Hatches only (supercooled fluids, cryogenics.js). Three modes:
 //   neutron irradiation   protons on a beryllium spallation target; the neutron flux transmutes neutronium-doped
@@ -78,7 +78,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     }
 
     // The ring, top views of its layers (GTNH's Compact Fusion Computer): rows north -> south, the controller in the
-    // south gate's outer wall facing out. C clean stainless steel casing, H superconducting coil (the bending magnets),
+    // south gate's outer wall facing out. C clean stainless steel casing (the bending magnets), H the beam tube (air),
     // B fusion glass, F naquadah alloy frame; I a gate's glass spot and E a casing spot (GTNH's hatch and energy spots:
     // here, like every C, they take any part). The shell is a diamond around the magnets: 3 wide at y 1 and 5, 5 wide in
     // between.
@@ -307,7 +307,8 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             return pattern
                 .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                 .where('C', Predicates.blocks('gtceu:clean_machine_casing').or(parts))
-                .where('H', Predicates.blocks('gtceu:superconducting_coil'))
+                // the beam tube: empty, so the beam (the light ring) runs through it, seen through the gates' glass
+                .where('H', Predicates.air())
                 .where('B', Predicates.blocks('gtceu:fusion_glass'))
                 .where('F', Predicates.blocks('gtceu:naquadah_alloy_frame'))
                 .where('I', Predicates.blocks('gtceu:fusion_glass').or(parts))
