@@ -27,4 +27,9 @@ public interface ILightRingMachine extends IMachineFeature {
     default SoundEvent ringPulseSound() {
         return AF9Sounds.ORBITAL_PULSE;
     }
+
+    /** Played where each big lightning bolt lands (a ring with lightning); null for none. */
+    default SoundEvent ringArcSound() {
+        return null;
+    }
 }

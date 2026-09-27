@@ -350,7 +350,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
             if (pulse != null) level.playLocalSound(cx, cy, cz, pulse, SoundSource.BLOCKS, 1F, 1F, false);
         }
         RandomSource random = level.getRandom();
-        if (arcs) tickBolts(state, random, frame, level, pos);
+        if (arcs) tickBolts(state, random, frame, level, pos, machine.ringArcSound());
         int color = machine.getRingColor();
         Vector3f tint = new Vector3f(red(color) / 255f, green(color) / 255f, blue(color) / 255f);
         int count = 2 + random.nextInt(3);
@@ -377,10 +377,11 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
 
     /**
      * Once a tick: the bolts age and die; new ones leap off the ring (a big bolt every few ticks, darts more often), a
-     * spark where each lands. At most 12 at a time. Their lengths count from where they come out in the open (the
-     * housing's inner face, for a ring inside its machine).
+     * spark where each lands (and the machine's {@code arc} sound where a big one does). At most 12 at a time. Their
+     * lengths count from where they come out in the open (the housing's inner face, for a ring inside its machine).
      */
-    private void tickBolts(Effects state, RandomSource random, Frame frame, ClientLevel level, BlockPos pos) {
+    private void tickBolts(Effects state, RandomSource random, Frame frame, ClientLevel level, BlockPos pos,
+                           SoundEvent arc) {
         state.bolts.removeIf(bolt -> ++bolt.age >= bolt.life);
         if (state.bolts.size() >= 12) return;
         List<Bolt> born = new ArrayList<>(2);
@@ -397,6 +398,10 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         for (Bolt bolt : born) {
             state.bolts.add(bolt);
             Vec3 end = bolt.end(frame, radius - wall);
+            if (arc != null && !bolt.dart) {
+                level.playLocalSound(pos.getX() + end.x, pos.getY() + end.y, pos.getZ() + end.z, arc,
+                        SoundSource.BLOCKS, 1F, 0.85F + random.nextFloat() * 0.3F, false);
+            }
             level.addParticle(ParticleTypes.ELECTRIC_SPARK, pos.getX() + end.x, pos.getY() + end.y,
                     pos.getZ() + end.z, (random.nextDouble() - 0.5) * 0.2, (random.nextDouble() - 0.5) * 0.2,
                     (random.nextDouble() - 0.5) * 0.2);

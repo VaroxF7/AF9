@@ -1,6 +1,7 @@
 package com.af9.core.machine;
 
 import com.af9.core.AF9Core;
+import com.af9.core.common.AF9Sounds;
 import com.af9.core.machine.console.AcceleratorConsoleWidget;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.SidePanelsUIWidget;
@@ -203,10 +204,20 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
         return ringColor;
     }
 
-    /** No throb on each flash (the orbital station's); the lightning crackles instead. */
+    /** Its own sounds ({@link AF9Sounds}): a charge-up when the ring lights, a whoosh on each flash, a zap per bolt. */
+    @Override
+    public SoundEvent ringIgniteSound() {
+        return AF9Sounds.ACCELERATOR_IGNITE;
+    }
+
     @Override
     public SoundEvent ringPulseSound() {
-        return null;
+        return AF9Sounds.ACCELERATOR_PASS;
+    }
+
+    @Override
+    public SoundEvent ringArcSound() {
+        return AF9Sounds.ACCELERATOR_ZAP;
     }
 
     //////////////////////////////////////

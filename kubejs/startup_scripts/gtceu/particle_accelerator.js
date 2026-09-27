@@ -15,6 +15,7 @@ const $ParticleAcceleratorMachine = Java.loadClass('com.af9.core.machine.Particl
 const $AccelCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $AccelModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 const $AccelMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
+const $AccelSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
 
 GTCEuStartupEvents.registry('gtceu:material', allthemods => {
     // stable strangelets: up, down and strange quarks in one bag
@@ -52,11 +53,12 @@ StartupEvents.registry('item', allthemods => {
 })
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
-    // [id, items in, items out, progress bar, sound]; one fluid input each: the coolant
+    // [id, items in, items out, progress bar, sound]; one fluid input each: the coolant. All three sound like the
+    // accelerator: its own hum (af9-core AF9Sounds, the beacon hum pitched up)
     const types = [
-        ['neutron_irradiation', 2, 1, GuiTextures.PROGRESS_BAR_MASS_FAB, GTSoundEntries.SCIENCE],
-        ['ion_collision', 2, 1, GuiTextures.PROGRESS_BAR_FUSION, GTSoundEntries.ARC],
-        ['quark_synthesis', 2, 2, GuiTextures.PROGRESS_BAR_REPLICATOR, GTSoundEntries.REPLICATOR]
+        ['neutron_irradiation', 2, 1, GuiTextures.PROGRESS_BAR_MASS_FAB, $AccelSounds.PARTICLE_ACCELERATOR],
+        ['ion_collision', 2, 1, GuiTextures.PROGRESS_BAR_FUSION, $AccelSounds.PARTICLE_ACCELERATOR],
+        ['quark_synthesis', 2, 2, GuiTextures.PROGRESS_BAR_REPLICATOR, $AccelSounds.PARTICLE_ACCELERATOR]
     ]
     types.forEach(([id, itemsIn, itemsOut, bar, sound]) => {
         allthemods.create(id)
