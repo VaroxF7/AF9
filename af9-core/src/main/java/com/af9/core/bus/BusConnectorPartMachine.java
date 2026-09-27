@@ -66,7 +66,8 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     private long runs;
 
     private List<BusConnectorPartMachine> bus = List.of();
-    private long busTime = Long.MIN_VALUE;
+    /** Game time of the last walk, -1 before the first. */
+    private long busTime = -1;
     private TickableSubscription touchSubs;
 
     public BusConnectorPartMachine(IMachineBlockEntity holder) {
@@ -129,7 +130,7 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     /** Every connector on this one's bus, this one first (walked at most once a second). */
     public List<BusConnectorPartMachine> getBus() {
         long now = getLevel() == null ? 0 : getLevel().getGameTime();
-        if (now - busTime >= BUS_CACHE_TICKS || now < busTime) {
+        if (busTime < 0 || now < busTime || now - busTime >= BUS_CACHE_TICKS) {
             bus = BusNetwork.walk(this);
             busTime = now;
         }
