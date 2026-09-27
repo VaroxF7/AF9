@@ -246,9 +246,13 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         if (cleanliness != before || vacuumState != stateBefore) markDirty();
     }
 
-    /** The pumps draw 1/8 A of the hatch voltage (checked every {@link #VACUUM_INTERVAL} ticks). */
+    /**
+     * The pumps draw 1/8 A of the hatch voltage (checked every {@link #VACUUM_INTERVAL} ticks): of one hatch. GT's
+     * combined input voltage is the whole supply as one amp (two 2A LuV hatches: 4A LuV = 1A of ZPM), 1/8 of that
+     * on top of a print overclocked to the hatches' tier (15/16 of the supply) drained the hatches.
+     */
     public long pumpDrainPerInterval() {
-        return energyContainer == null ? 0 : energyContainer.getInputVoltage() / 8 * VACUUM_INTERVAL;
+        return energyContainer == null ? 0 : energyContainer.getHighestInputVoltage() / 8 * VACUUM_INTERVAL;
     }
 
     /** Seconds from 0 to 100 at this machine's level. */
