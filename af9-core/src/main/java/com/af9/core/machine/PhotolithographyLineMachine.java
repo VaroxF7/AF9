@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
+import com.gregtechceu.gtceu.utils.ResearchManager;
 
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
@@ -262,6 +263,11 @@ public class PhotolithographyLineMachine extends LithoMachine {
      * chanced broken wafer shows it). The recipes with computation also get GT's "Min. Computation" line and (1 nm)
      * its "Requires Research" line: the page is made one line taller for each, and {@link #respaceTexts} fixes GT
      * putting both on the same row.
+     * <p>
+     * A researched node's type (1 nm) also makes the Research Station recipes: a recipe's {@code stationResearch} only
+     * becomes a Research Station recipe (reticle + empty data orb into the orb with the research) through its type's
+     * build hook, which GT sets on its own assembly line type only. Before the recipes load (common setup), so the
+     * KubeJS recipes, built from the type's builder, carry it.
      */
     public static void registerRecipeInfo() {
         for (LithoMode mode : LithoMode.values()) {
@@ -271,6 +277,7 @@ public class PhotolithographyLineMachine extends LithoMachine {
                         mode.recipeTypeId());
                 continue;
             }
+            if (mode.needsResearch()) type.onRecipeBuild(ResearchManager::createDefaultResearchRecipe);
             // first: the settings below go to the page's UI
             com.af9.core.litho.LithoRecipeUI.install(type, mode);
             // rendered as plain labels, so the texts must not contain '%'
