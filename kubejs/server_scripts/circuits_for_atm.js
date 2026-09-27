@@ -27,8 +27,9 @@ ServerEvents.recipes(event => {
     .duration(1600).EUt(GTValues.VA[GTValues.UV])
     .stationResearch(b => b.researchStack('gtceu:crystal_processor_computer').CWUt(10,384000).EUt(12200))
 
+    // AF9: the UHV Wetware Mainframe also needs 16 TPUs (the AI accelerator, chip_uses.js)
     event.recipes.gtceu.assembly_line("circuit_4_uv")
-    .itemInputs("gtceu:crystal_processor_mainframe","8x gtceu:uranium_rhodium_dinaquadide_hex_wire","16x gtceu:tritanium_frame","64x gtceu:uhpic_chip","64x gtceu:uhpic_chip","16x gtceu:wetware_processor_computer","mekanism:qio_drive_supermassive","64x gtceu:polybenzimidazole_foil","64x gtceu:advanced_smd_diode","32x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire","64x gtceu:advanced_smd_diode","64x gtceu:advanced_smd_resistor","64x gtceu:normal_optical_pipe","64x gtceu:normal_laser_pipe")
+    .itemInputs("gtceu:crystal_processor_mainframe","8x gtceu:uranium_rhodium_dinaquadide_hex_wire","16x gtceu:tritanium_frame","64x gtceu:uhpic_chip","64x gtceu:uhpic_chip","16x gtceu:wetware_processor_computer","mekanism:qio_drive_supermassive","64x gtceu:polybenzimidazole_foil","64x gtceu:advanced_smd_diode","32x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire","64x gtceu:advanced_smd_diode","64x gtceu:advanced_smd_resistor","64x gtceu:normal_optical_pipe","64x gtceu:normal_laser_pipe","16x kubejs:tpu_chip")
     .inputFluids("gtceu:europium 80000","gtceu:soldering_alloy 40000")
     .itemOutputs("gtceu:wetware_processor_mainframe")
     .duration(1600).EUt(GTValues.VA[GTValues.UV])

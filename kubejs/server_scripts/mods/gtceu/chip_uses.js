@@ -91,4 +91,8 @@ ServerEvents.recipes(allthemods => {
         C: '#gtceu:circuits/zpm', E: 'gtceu:luv_emitter', W: 'gtceu:niobium_titanium_single_cable',
         H: 'gtceu:luv_machine_hull', S: 'gtceu:luv_sensor', V: 'kubejs:vpu_chip'
     }).id('af9:luv_scanner')
+
+    // ---- TPU: the AI accelerator (ATM9's UHV Wetware Mainframe takes them in circuits_for_atm.js) ----
+    // The HPCA's Advanced Computation Component: the computation of the 7 nm and 1 nm prints and of the research
+    addInputs('gtceu:assembler/hpca_advanced_computation_component', ['4x kubejs:tpu_chip'])
 })
