@@ -11,8 +11,8 @@
 		{
 			id: "69D37B34C4DB3546"
 			linked_quest: "11F7D3DDF5683EB3"
-			x: 9.0d
-			y: -9.0d
+			x: 12.5d
+			y: -8.0d
 		}
 		{
 			id: "62E4BBEDC947CDD6"
@@ -299,7 +299,7 @@
 			]
 			title: "{af9.quest.litho.hf.title}"
 			x: 3.0d
-			y: 7.5d
+			y: 6.0d
 		}
 		{
 			dependencies: ["5655F19FA33BD62B"]
@@ -465,7 +465,7 @@
 				}
 			]
 			title: "{af9.quest.litho.formox.title}"
-			x: 4.5d
+			x: 3.0d
 			y: -6.0d
 		}
 		{
@@ -502,7 +502,7 @@
 				}
 			]
 			title: "{af9.quest.litho.iline.title}"
-			x: 7.5d
+			x: 8.0d
 			y: -6.0d
 		}
 		{
@@ -521,7 +521,7 @@
 				type: "item"
 			}]
 			title: "{af9.quest.litho.photomask.title}"
-			x: 7.5d
+			x: 8.0d
 			y: -7.5d
 		}
 		{
@@ -556,8 +556,8 @@
 				}
 			]
 			title: "{af9.quest.litho.reticles.title}"
-			x: 9.0d
-			y: -7.5d
+			x: 12.5d
+			y: -7.0d
 		}
 		{
 			dependencies: [
@@ -605,8 +605,8 @@
 				}
 			]
 			title: "{af9.quest.litho.track.title}"
-			x: 10.5d
-			y: -3.75d
+			x: 8.0d
+			y: -3.0d
 		}
 		{
 			dependencies: ["5655F19FA33BD62B"]
@@ -2837,7 +2837,7 @@
 			}]
 			title: "{af9.quest.litho.euvBlank.title}"
 			x: 61.5d
-			y: -4.5d
+			y: -3.0d
 		}
 		{
 			dependencies: [
