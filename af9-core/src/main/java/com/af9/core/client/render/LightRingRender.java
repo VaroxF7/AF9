@@ -12,12 +12,10 @@ import com.gregtechceu.gtceu.client.renderer.machine.DynamicRender;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderManager;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderType;
 import com.gregtechceu.gtceu.client.util.BloomUtils;
-import com.gregtechceu.gtceu.client.util.RenderBufferHelper;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -73,9 +71,13 @@ import static net.minecraft.util.FastColor.ARGB32.*;
  * Drawn after the translucent blocks ({@link Deferred}), in {@link AF9RenderTypes} that test depth but never write it:
  * a block in front hides the ring, while see-through blocks behind its glow (GT's frames, which are translucent, and
  * glass) stay visible. Drawn in the block entity pass with GT's light ring type, the glow wrote depth before those
- * blocks were drawn and they vanished behind it. Each torus is its own strip. With Shimmer the tube and its core also
- * bloom, in the same depth-less type: Shimmer draws into the world's own depth buffer (before the translucent blocks),
- * so GT's light ring type made the frames vanish there too.
+ * blocks were drawn and they vanished behind it. The tori are quads (they can share any batch). With Shimmer the tube
+ * and its core also bloom, in the same depth-less type: Shimmer draws into the world's own depth buffer (before the
+ * translucent blocks), so GT's light ring type made the frames vanish there too.
+ * <p>
+ * With a shader pack (Oculus, {@link IrisCompat}) the pack draws the world, and anything drawn after the translucent
+ * blocks or through Shimmer is lost: the ring and its lightning then go through the pack with the block entities, in
+ * lightning's shader ({@link AF9RenderTypes#SHADER_RING}), which the packs light up; not into the shadow map.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
 public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingRender> {
@@ -162,18 +164,29 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
                        int packedLight, int packedOverlay) {
         tickEffects(machine);
         Effects state = effects.computeIfAbsent(machine.self(), key -> new Effects());
-        // once a frame (a shader's shadow pass renders block entities again)
-        if (!machine.isRingLit() && state.delta <= 0 || Deferred.pending(machine)) return;
+        if (!machine.isRingLit() && state.delta <= 0) return;
+        if (IrisCompat.shaderPackInUse()) {
+            // a shader pack draws the world itself (whatever is drawn past it is lost): the ring goes through it with
+            // the block entities, in lightning's shader, which the packs light up; not into the shadows
+            if (IrisCompat.renderingShadowPass()) return;
+            float alpha = fade(machine, state);
+            renderRing(machine, state, alpha, partialTick, poseStack, buffer.getBuffer(AF9RenderTypes.SHADER_RING),
+                    true);
+            if (arcs && machine.isRingLit() && !state.bolts.isEmpty()) {
+                renderBolts(machine, state, poseStack, buffer.getBuffer(AF9RenderTypes.LIGHTNING));
+            }
+            return;
+        }
+        // once a frame
+        if (Deferred.pending(machine)) return;
         float alpha = fade(machine, state);
         if (GTCEu.Mods.isShimmerLoaded()) {
             // the bloom: tube and core; it draws later, so it needs its own copy of the pose
             PoseStack copy = new PoseStack();
             copy.last().pose().set(poseStack.last().pose());
             copy.last().normal().set(poseStack.last().normal());
-            BloomUtils.entityBloom(source -> renderRing(machine, state, alpha, partialTick, copy, source,
-                    source instanceof MultiBufferSource.BufferSource buffers ?
-                            () -> buffers.endBatch(AF9RenderTypes.LIGHT_RING) : () -> {},
-                    false));
+            BloomUtils.entityBloom(source -> renderRing(machine, state, alpha, partialTick, copy,
+                    source.getBuffer(AF9RenderTypes.LIGHT_RING), false));
         }
         // the ring and its lightning, drawn after the translucent blocks, see Deferred
         Deferred.add(this, machine, state, alpha, partialTick);
@@ -191,11 +204,11 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         return alpha;
     }
 
-    /** The ring and its lightning, from {@link Deferred}: the pose at the machine's block, each torus flushed apart. */
+    /** The ring and its lightning, from {@link Deferred}: the pose at the machine's block. */
     private void renderDeferred(ILightRingMachine machine, Effects state, float alpha, float partialTick,
                                 PoseStack poseStack, MultiBufferSource.BufferSource buffers) {
-        renderRing(machine, state, alpha, partialTick, poseStack, buffers,
-                () -> buffers.endBatch(AF9RenderTypes.LIGHT_RING), true);
+        renderRing(machine, state, alpha, partialTick, poseStack, buffers.getBuffer(AF9RenderTypes.LIGHT_RING), true);
+        buffers.endBatch(AF9RenderTypes.LIGHT_RING);
         if (arcs && machine.isRingLit() && !state.bolts.isEmpty()) {
             renderBolts(machine, state, poseStack, buffers.getBuffer(AF9RenderTypes.LIGHTNING));
             buffers.endBatch(AF9RenderTypes.LIGHTNING);
@@ -203,12 +216,12 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     }
 
     /**
-     * The ring's tori (tube, white-hot core and, with {@code glow}, the four glow layers) in
-     * {@link AF9RenderTypes#LIGHT_RING}, {@code flush} after each: one strip per torus, never joined to the next.
+     * The ring's tori (tube, white-hot core and, with {@code glow}, the four glow layers), as quads into the consumer
+     * (so they can share a batch with anything).
      */
     private void renderRing(ILightRingMachine machine, Effects state, float alpha, float partialTick,
-                            PoseStack poseStack, MultiBufferSource source, Runnable flush, boolean glow) {
-        RenderType type = AF9RenderTypes.LIGHT_RING;
+                            PoseStack poseStack, VertexConsumer consumer, boolean glow) {
+        Matrix4f mat = poseStack.last().pose();
         int lastColor = state.lastColor;
         // pulse to white and back, like GT's fusion ring (white on every multiple of PULSE_TICKS)
         float half = PULSE_TICKS / 2F;
@@ -218,21 +231,43 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         float b = Mth.lerp(pulse, blue(lastColor), 255) / 255f;
         Frame frame = frame(machine.self());
         int segments = Math.max(20, Math.round(radius * 5));
-        RenderBufferHelper.renderRing(poseStack, source.getBuffer(type), frame.x, frame.y, frame.z, radius, thickness,
-                10, segments, r, g, b, alpha, frame.axis);
-        flush.run();
+        torus(consumer, mat, frame, radius, thickness, 10, segments, r, g, b, alpha);
         // the white-hot core inside it
-        RenderBufferHelper.renderRing(poseStack, source.getBuffer(type), frame.x, frame.y, frame.z, radius,
-                thickness * CORE, 8, segments, 1F, 1F, 1F, alpha * CORE_ALPHA, frame.axis);
-        flush.run();
+        torus(consumer, mat, frame, radius, thickness * CORE, 8, segments, 1F, 1F, 1F, alpha * CORE_ALPHA);
         if (!glow) return;
         // the glow in the plain colour, breathing with the pulse
         float cr = red(lastColor) / 255f, cg = green(lastColor) / 255f, cb = blue(lastColor) / 255f;
         for (float[] layer : HALO) {
-            RenderBufferHelper.renderRing(poseStack, source.getBuffer(type), frame.x, frame.y, frame.z, radius,
-                    thickness * layer[0], 10, segments, cr, cg, cb, alpha * layer[1] * (0.6F + 0.4F * pulse),
-                    frame.axis);
-            flush.run();
+            torus(consumer, mat, frame, radius, thickness * layer[0], 10, segments, cr, cg, cb,
+                    alpha * layer[1] * (0.6F + 0.4F * pulse));
+        }
+    }
+
+    /**
+     * A torus as quads, GT's ring parametrisation ({@link Frame#onRing}): the ring's circle in {@code segments}, the
+     * tube's in {@code sides} (the render types draw both faces).
+     */
+    private static void torus(VertexConsumer consumer, Matrix4f mat, Frame frame, float radius, float tube, int sides,
+                              int segments, float r, float g, float b, float alpha) {
+        float[] ringSin = new float[segments + 1], ringCos = new float[segments + 1];
+        for (int i = 0; i <= segments; i++) {
+            float angle = Mth.TWO_PI * i / segments;
+            ringSin[i] = Mth.sin(angle);
+            ringCos[i] = Mth.cos(angle);
+        }
+        float[] dist = new float[sides + 1], along = new float[sides + 1];
+        for (int j = 0; j <= sides; j++) {
+            float angle = Mth.TWO_PI * j / sides;
+            dist[j] = radius + tube * Mth.cos(angle);
+            along[j] = tube * Mth.sin(angle);
+        }
+        for (int i = 0; i < segments; i++) {
+            for (int j = 0; j < sides; j++) {
+                frame.vertex(consumer, mat, ringSin[i], ringCos[i], dist[j], along[j], r, g, b, alpha);
+                frame.vertex(consumer, mat, ringSin[i + 1], ringCos[i + 1], dist[j], along[j], r, g, b, alpha);
+                frame.vertex(consumer, mat, ringSin[i + 1], ringCos[i + 1], dist[j + 1], along[j + 1], r, g, b, alpha);
+                frame.vertex(consumer, mat, ringSin[i], ringCos[i], dist[j + 1], along[j + 1], r, g, b, alpha);
+            }
         }
     }
 
@@ -504,6 +539,18 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
                 case X -> new Vec3(x + along, y + sin, z + cos);
                 case Z -> new Vec3(x + cos, y + sin, z + along);
             };
+        }
+
+        /** {@link #onRing} as a vertex, from the angle's sine and cosine. */
+        void vertex(VertexConsumer consumer, Matrix4f mat, float sin, float cos, float dist, float along, float r,
+                    float g, float b, float alpha) {
+            float s = sin * dist, c = cos * dist;
+            VertexConsumer vertex = switch (axis) {
+                case Y -> consumer.vertex(mat, x + s, y + along, z + c);
+                case X -> consumer.vertex(mat, x + along, y + s, z + c);
+                case Z -> consumer.vertex(mat, x + c, y + s, z + along);
+            };
+            vertex.color(r, g, b, alpha).endVertex();
         }
     }
 
