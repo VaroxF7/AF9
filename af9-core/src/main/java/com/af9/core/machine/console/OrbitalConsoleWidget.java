@@ -23,7 +23,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -31,7 +30,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -62,9 +60,9 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
     public static final int SWITCH_X = PANEL_X + 5, SWITCH_Y = 80, SWITCH_W = 80, SWITCH_H = 16;
     public static final int BATCH_X = SWITCH_X + SWITCH_W + 4, BATCH_W = PANEL_W - 10 - SWITCH_W - 4;
     public static final int RESET_W = 30, RESET_H = 9, RESET_X = PANEL_X + PANEL_W - 5 - RESET_W, RESET_Y = 110;
-    /** Wafer drawing: centre, radius, die size. */
-    private static final int WAFER_X = FIELD_X + FIELD_W / 2, WAFER_Y = 76, WAFER_R = 36, DIE = 8;
-    private static final int[][] DIES = dieOrder();
+    /** Wafer drawing: centre; the wafer (radius, die size). */
+    private static final int WAFER_X = FIELD_X + FIELD_W / 2, WAFER_Y = 76;
+    private static final WaferView WAFER = new WaferView(36, 8);
 
     private final OrbitalLithographyMachine machine;
 
@@ -296,44 +294,9 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         long time = System.currentTimeMillis();
         int color = active.argb;
 
-        // the wafer: a silicon disc with its flat, the die grid, exposed dies in the node's colour
-        for (int dy = -WAFER_R; dy <= WAFER_R - 3; dy++) {
-            int half = (int) Math.sqrt((double) WAFER_R * WAFER_R - dy * dy);
-            int shade = 0x1A2233 + ((WAFER_R - dy) / 12) * 0x020202;
-            graphics.fill(cx - half, cy + dy, cx + half, cy + dy + 1, 0xFF000000 | shade);
-        }
-        int exposed = running ? (int) (fraction * DIES.length) : 0;
-        for (int i = 0; i < DIES.length; i++) {
-            int dx = cx + DIES[i][0], dy = cy + DIES[i][1];
-            int fill;
-            if (i < exposed) fill = withAlpha(color, 0x70);
-            else if (i == exposed && running) fill = withAlpha(color, 0x90 + (int) (0x60 * pulse(time, 300)));
-            else fill = status == STATUS_OFFLINE ? 0x10FFFFFF : 0x18FFFFFF;
-            graphics.fill(dx + 1, dy + 1, dx + DIE, dy + DIE, fill);
-        }
-        if (running && exposed < DIES.length) {
-            // the scan slit crossing the die being exposed, and the beam from the optics above
-            int dx = cx + DIES[exposed][0], dy = cy + DIES[exposed][1];
-            double within = fraction * DIES.length - exposed;
-            int slit = dy + 1 + (int) (within * (DIE - 1));
-            graphics.fill(dx, slit, dx + DIE + 1, slit + 1, 0xFFFFFFFF);
-            drawBeam(graphics, cx, y + TILE_Y + TILE_H + 2, dx + DIE / 2, dy + DIE / 2, color, time);
-        }
-        // progress ring
-        int ring = WAFER_R + 6;
-        int dots = 96;
-        for (int i = 0; i < dots; i++) {
-            double angle = -Math.PI / 2 + i * 2 * Math.PI / dots;
-            int px = cx + (int) Math.round(Math.cos(angle) * ring), py = cy + (int) Math.round(Math.sin(angle) * ring);
-            boolean lit = running && i < fraction * dots;
-            graphics.fill(px - 1, py - 1, px + 1, py + 1, lit ? color : TRACK);
-        }
-        if (running) {
-            // a glint running round the ring
-            double angle = (time % 2000) / 2000.0 * 2 * Math.PI;
-            int px = cx + (int) Math.round(Math.cos(angle) * ring), py = cy + (int) Math.round(Math.sin(angle) * ring);
-            graphics.fill(px - 2, py - 2, px + 2, py + 2, withAlpha(0xFFFFFF, 0xC0));
-        }
+        // the wafer, exposed die by die, and the beam from the optics above to the die being exposed
+        int[] die = WAFER.draw(graphics, cx, cy, fraction, running, status == STATUS_OFFLINE, color, time);
+        if (die != null) WaferView.drawBeam(graphics, cx, y + TILE_Y + TILE_H + 2, die[0], die[1], color, time);
 
         // state and run time
         String state = running ?
@@ -346,21 +309,6 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         String timeText = running ? seconds(progress) + " / " + seconds(duration) :
                 Component.translatable("af9.console.no_run").getString();
         drawSmall(graphics, timeText, cx, y + 133, running ? TEXT : MUTED, true);
-    }
-
-    /** A soft beam of the node's colour from the optics down to the die being exposed. */
-    @OnlyIn(Dist.CLIENT)
-    private static void drawBeam(GuiGraphics graphics, int fromX, int fromY, int toX, int toY, int color,
-                                 long time) {
-        graphics.fill(fromX - 6, fromY - 2, fromX + 6, fromY, withAlpha(color, 0xD0));
-        int steps = Math.max(1, toY - fromY);
-        for (int i = 0; i <= steps; i++) {
-            float t = (float) i / steps;
-            int bx = Math.round(Mth.lerp(t, fromX, toX)), by = Math.round(Mth.lerp(t, fromY, toY));
-            int alpha = (int) (0x30 + 0x40 * pulse(time + i * 20L, 400));
-            graphics.fill(bx - 1, by, bx + 2, by + 1, withAlpha(color, alpha));
-            graphics.fill(bx, by, bx + 1, by + 1, withAlpha(0xFFFFFF, alpha));
-        }
     }
 
     /** The exposure panel: node, product, reticle and EUV slots, switch, break chance, counters, hint. */
@@ -457,33 +405,6 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         ResourceLocation id = ResourceLocation.tryParse(product);
         Item item = id == null ? null : ForgeRegistries.ITEMS.getValue(id);
         return item == null || item == Items.AIR ? ItemStack.EMPTY : new ItemStack(item);
-    }
-
-    /** 0 ... 1 ... 0 over the period. */
-    private static float pulse(long time, int period) {
-        return (float) (0.5 + 0.5 * Math.sin(time * 2 * Math.PI / period));
-    }
-
-    /** Die offsets from the wafer centre inside the disc (clear of the flat), in serpentine exposure order. */
-    private static int[][] dieOrder() {
-        List<int[]> dies = new ArrayList<>();
-        int cells = WAFER_R / DIE + 1;
-        for (int row = -cells; row < cells; row++) {
-            List<int[]> line = new ArrayList<>();
-            for (int col = -cells; col < cells; col++) {
-                int dx = col * DIE, dy = row * DIE;
-                boolean inside = true;
-                for (int[] corner : new int[][] { { dx, dy }, { dx + DIE, dy }, { dx, dy + DIE },
-                        { dx + DIE, dy + DIE } }) {
-                    if (corner[0] * corner[0] + corner[1] * corner[1] > (WAFER_R - 1) * (WAFER_R - 1)) inside = false;
-                }
-                if (dy + DIE > WAFER_R - 3) inside = false;
-                if (inside) line.add(new int[] { dx, dy });
-            }
-            if ((row & 1) == 1) java.util.Collections.reverse(line);
-            dies.addAll(line);
-        }
-        return dies.toArray(new int[0][]);
     }
 
     //////////////////////////////////////

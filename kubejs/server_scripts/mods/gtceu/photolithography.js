@@ -31,9 +31,10 @@ const AF9_WAFERS = (() => {
         { id: '350nm', substrate: 0, resist: 'gtceu:photoresist', baseBreak: 200 },
         { id: '200nm', substrate: 1, resist: 'gtceu:krf_photoresist', laserGas: 'gtceu:krf_excimer_gas', baseBreak: 300 },
         { id: '100nm', substrate: 2, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', baseBreak: 500 },
-        { id: '80nm', substrate: 3, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', baseBreak: 700 },
+        { id: '80nm', substrate: 3, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas',
+            laser: 'kubejs:arf_excimer_laser', baseBreak: 700 },
         { id: '65nm', substrate: 4, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', immersion: true,
-            baseBreak: 900 },
+            laser: 'kubejs:arf_excimer_laser', baseBreak: 900 },
         { id: '50nm', substrate: 5, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', immersion: true,
             highK: true, baseBreak: 1200 },
         { id: '20nm', substrate: 6, resist: 'gtceu:euv_photoresist', euv: true, highK: true, baseBreak: 1800 },
@@ -531,7 +532,9 @@ ServerEvents.recipes(allthemods => {
             const recipe = allthemods.recipes.gtceu[`lithography_${m.id}`](`af9:print_${c.id}_${m.id}`)
                 .itemInputs(s.blank)
                 .notConsumable(`kubejs:${c.reticle}_reticle`)
-            // the orbital station's EUV source, in its EUV slot (or an input bus)
+            // the scanner's ArF laser in its laser slot, the orbital station's EUV source in its EUV slot (or either in
+            // an input bus)
+            if (m.laser) recipe.notConsumable(m.laser)
             if (m.euv) recipe.notConsumable('kubejs:euv_light_source')
             recipe
                 .inputFluids(fluids)

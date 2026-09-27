@@ -36,8 +36,10 @@ import java.util.List;
  * One recipe type per {@link LithoMode}; the active one is GT's machine mode (GT's mode tab). Vacuum, break roll and
  * counters come from {@link LithoMachine}.
  * <p>
- * Versions, like the Assembly Line's length: every version has one more projection-lens slice and needs a light source
- * that allows it. A version runs the modes up to its own level; lower modes run faster and break less.
+ * Versions, like the Assembly Line's length: every version has one more lens slice (Mk1: a tempered-glass lens
+ * element; Mk2: a window section of cleanroom glass) and, on the Mk1, a light source block that allows it. A version
+ * runs the modes up to its own level; lower modes run faster and break less. The Mk2 keeps its ArF laser in a slot of
+ * its screen instead ({@link PhotolithographyScannerMachine}).
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1; GT uses it too
 public class PhotolithographyLineMachine extends LithoMachine {
@@ -49,22 +51,29 @@ public class PhotolithographyLineMachine extends LithoMachine {
      * What makes a versioned lithography machine.
      *
      * @param modes           the modes, in version order (version n runs the first n)
-     * @param lensBlock       the projection-lens block; only the lens aisles hold it
+     * @param lensBlock       the lens block the version is counted by
      * @param lensPerSlice    lens blocks in one lens slice
      * @param lensSlicesV1    lens slices of version 1 (one more per version)
-     * @param lights          light sources, lowest first
+     * @param aislesPerSlice  aisles of the repeatable lens aisle one slice takes (the preview pages' length step)
+     * @param lights          light source blocks, lowest first; none: the light source is not part of the structure
      * @param lightCaps       highest version each light source allows
      * @param vacuumLevelBase vacuum level of "version 0": the pump-down takes 10 s x (base + version)
      * @param titleKey        console title
      */
     public record Spec(List<LithoMode> modes, ResourceLocation lensBlock, int lensPerSlice, int lensSlicesV1,
-                       ResourceLocation[] lights, int[] lightCaps, int vacuumLevelBase, String titleKey) {
+                       int aislesPerSlice, ResourceLocation[] lights, int[] lightCaps, int vacuumLevelBase,
+                       String titleKey) {
 
         public int maxVersion() {
             return modes.size();
         }
 
-        /** Light source a version needs at least (the preview pages show it). */
+        /** Whether the light source is a block of the structure (and caps the version). */
+        public boolean hasLightBlocks() {
+            return lights.length > 0;
+        }
+
+        /** Light source a version needs at least (the preview pages show it); only with light blocks. */
         public ResourceLocation lightSourceFor(int version) {
             for (int i = 0; i < lightCaps.length; i++) {
                 if (version <= lightCaps[i]) return lights[i];
@@ -82,15 +91,17 @@ public class PhotolithographyLineMachine extends LithoMachine {
      * lamp) V1, KrF excimer laser V2, ArF excimer laser V3. Vacuum levels 1-3.
      */
     public static final Spec MK1 = new Spec(LithoMode.LINE_MODES, new ResourceLocation("gtceu", "tempered_glass"), 1,
-            3, new ResourceLocation[] { PURPLE_LAMP, KRF_LASER, ARF_LASER }, new int[] { 1, 2, 3 }, 0,
+            3, 1, new ResourceLocation[] { PURPLE_LAMP, KRF_LASER, ARF_LASER }, new int[] { 1, 2, 3 }, 0,
             "af9.litho.console.title");
     /**
-     * Mk2, the Photolithography Scanner: 80 and 65 nm. 4-5 lens slices of 6 laminated glass each; ArF excimer laser.
-     * Vacuum levels 4-5 (it continues after the line's 3).
+     * Mk2, the Photolithography Scanner: 80 and 65 nm. A cleanroom tube 3 x 3, 10 long at version 1 and 12 at version
+     * 2: its window sections (2 aisles of cleanroom glass, 4 blocks) are the slices, 2 at version 1 and one more per
+     * version, the back window run repeating 2 aisles a version. Its ArF excimer laser sits in its screen's slot, not in
+     * the structure. Vacuum levels 4-5 (it continues after the line's 3).
      */
     public static final Spec MK2 = new Spec(LithoMode.SCANNER_MODES,
-            new ResourceLocation("gtceu", "laminated_glass"), 6, 4, new ResourceLocation[] { ARF_LASER },
-            new int[] { 2 }, 3, "af9.scanner.console.title");
+            new ResourceLocation("gtceu", "cleanroom_glass"), 4, 2, 2, new ResourceLocation[0], new int[0], 3,
+            "af9.scanner.console.title");
 
     /**
      * A machine above the mode's level runs it faster ({@link LithoMode#speedFactor}); the lower break chance is part
@@ -172,7 +183,8 @@ public class PhotolithographyLineMachine extends LithoMachine {
         version = 0;
     }
 
-    /** min(lens slices - (V1 slices - 1), light source cap), 1 to the last version; 0 while not formed. */
+    /** min(lens slices - (V1 slices - 1), light source cap), 1 to the last version; 0 while not formed. Without light
+     * blocks the lens slices alone. */
     @Override
     public int getVersion() {
         return isFormed() ? version : 0;
@@ -183,7 +195,7 @@ public class PhotolithographyLineMachine extends LithoMachine {
         if (level == null) return 1;
         Block lens = ForgeRegistries.BLOCKS.getValue(spec.lensBlock());
         int lensBlocks = 0;
-        int lightCap = 1;
+        int lightCap = spec.hasLightBlocks() ? 1 : spec.maxVersion();
         for (BlockPos pos : getMultiblockState().getCache()) {
             Block block = level.getBlockState(pos).getBlock();
             if (block == lens) {
@@ -207,7 +219,8 @@ public class PhotolithographyLineMachine extends LithoMachine {
 
     /**
      * Structure preview pages, one per version like the Assembly Line's lengths: the lens slices GT would draw for that
-     * repeat count, with the version's light source in place of the first one.
+     * repeat count ({@link Spec#aislesPerSlice()} aisles a version), with the version's light source in place of the
+     * first one (machines with light blocks).
      */
     public static List<MultiblockShapeInfo> versionShapes(MultiblockMachineDefinition definition, Spec spec) {
         BlockPattern pattern = definition.getPatternFactory().get();
@@ -216,17 +229,17 @@ public class PhotolithographyLineMachine extends LithoMachine {
         for (int i = 0; i < repetitions.length; i++) {
             if (repetitions[i][1] > repetitions[i][0]) lensAisle = i;
         }
-        Block firstLight = ForgeRegistries.BLOCKS.getValue(spec.lights()[0]);
+        Block firstLight = spec.hasLightBlocks() ? ForgeRegistries.BLOCKS.getValue(spec.lights()[0]) : null;
         List<MultiblockShapeInfo> pages = new ArrayList<>();
         for (int version = 1; version <= spec.maxVersion(); version++) {
             int[] repetition = new int[repetitions.length];
             for (int i = 0; i < repetitions.length; i++) repetition[i] = repetitions[i][0];
             if (lensAisle >= 0) {
                 repetition[lensAisle] = Math.min(repetitions[lensAisle][1],
-                        repetitions[lensAisle][0] + version - 1);
+                        repetitions[lensAisle][0] + (version - 1) * spec.aislesPerSlice());
             }
             BlockInfo[][][] blocks = pattern.getPreview(repetition);
-            Block light = ForgeRegistries.BLOCKS.getValue(spec.lightSourceFor(version));
+            Block light = firstLight == null ? null : ForgeRegistries.BLOCKS.getValue(spec.lightSourceFor(version));
             if (light != null && light != Blocks.AIR && light != firstLight) {
                 BlockInfo lightInfo = BlockInfo.fromBlockState(light.defaultBlockState());
                 for (BlockInfo[][] slice : blocks) {

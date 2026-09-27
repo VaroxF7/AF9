@@ -17,6 +17,7 @@
 // Recipes: server_scripts/mods/gtceu/photolithography.js. Controller behaviour: AF9 Core (af9-core/).
 
 const $PhotolithographyLineMachine = Java.loadClass('com.af9.core.machine.PhotolithographyLineMachine')
+const $PhotolithographyScannerMachine = Java.loadClass('com.af9.core.machine.PhotolithographyScannerMachine')
 const $OrbitalLithographyMachine = Java.loadClass('com.af9.core.machine.OrbitalLithographyMachine')
 const $LithoMachine = Java.loadClass('com.af9.core.machine.LithoMachine')
 const $LithoCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
@@ -186,8 +187,9 @@ StartupEvents.registry('block', allthemods => {
 // + hafnium tetrachloride (high-k gate) from 50 nm. EUV (20 and 7 nm) needs no laser gas but molten tin and hydrogen
 // for the plasma source.
 GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
-    // [node, fluid inputs, item inputs]: substrate + reticle, + the EUV Light Source (not consumed) for 20 and 7 nm
-    const lineModes = [['350nm', 5, 2], ['200nm', 6, 2], ['100nm', 6, 2], ['80nm', 6, 2], ['65nm', 7, 2],
+    // [node, fluid inputs, item inputs]: substrate + reticle, + the ArF Excimer Laser for 80 and 65 nm (the scanner's
+    // laser slot) or the EUV Light Source for 20 and 7 nm (both not consumed)
+    const lineModes = [['350nm', 5, 2], ['200nm', 6, 2], ['100nm', 6, 2], ['80nm', 6, 3], ['65nm', 7, 3],
         ['50nm', 8, 2], ['20nm', 8, 3], ['7nm', 8, 3]]
     // the orbital station's modes sound like it: a deep hum (af9-core AF9Sounds, vanilla sounds pitched down)
     const orbitalNodes = ['50nm', '20nm', '7nm']
@@ -273,12 +275,15 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         .workableCasingModel('gtceu:block/casings/cleanroom/plascrete',
             'gtceu:block/multiblock/gcym/large_engraving_laser')
 
-    // Photolithography Scanner (Mk2): a step-and-scan tool for 80 and 65 nm, 5 wide x 4 high x 11-12 long, built from
-    // plascrete under filter casings. Aisles front (controller) -> back (light source), rows bottom -> top; the
-    // controller comes before the repeatable lens aisle, so GT's auto-build places it right. Versions 1-2: 4-5
-    // projection-lens slices (6 Laminated Glass each), ArF excimer laser. AF9 Core: PhotolithographyLineMachine.MK2.
+    // Photolithography Scanner (Mk2): a step-and-scan tool for 80 and 65 nm, a cleanroom tube 3 x 3 of plascrete, 10
+    // long at version 1 and 12 at version 2. Aisles front (controller) -> back, rows bottom -> top: the front with the
+    // controller, a cap (a Plascrete Filter Casing over the tube), a window section (cleanroom glass on both sides,
+    // stainless steel gearboxes over and under the tube: the wafer stages), the track (Plascrete Pipe Casings under the
+    // tube, filter casings over it), the back window run (2 aisles a version: the lens slices), a cap and the back. The
+    // tube stays empty. Its ArF excimer laser sits in a slot of its screen, not in the structure. Versions 1-2: 2-3
+    // window sections of 4 cleanroom glass. Hatches go on any plascrete. AF9 Core: PhotolithographyScannerMachine.
     allthemods.create('photolithography_scanner', 'multiblock')
-        .machine(holder => new $PhotolithographyLineMachine(holder, $PhotolithographyLineMachine.MK2))
+        .machine(holder => new $PhotolithographyScannerMachine(holder))
         .langValue('Photolithography Scanner Mk2')
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes(['80nm', '65nm'].map(node => GTRecipeTypes.get(`lithography_${node}`)))
@@ -289,34 +294,29 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_scanner.tooltip', 9))
         .pattern(definition => FactoryBlockPattern.start($LithoRelativeDirection.LEFT, $LithoRelativeDirection.UP,
             $LithoRelativeDirection.BACK)
-            .aisle('CCCCC', 'IIMII', 'CIIIC', 'CFFFC') // load port (wafer cassettes) + controller
-            .aisle('CCCCC', 'WXPXW', 'WSHSW', 'FFFFF') // track: prime, coat, soft bake
-            .aisle('CCCCC', 'WXPXW', 'WKHKW', 'FFFFF') // track: post-exposure bake, chill, develop
-            .aisle('CCCCC', 'WRWRW', 'CRCRC', 'CFFFC') // twin wafer stages (measure + expose)
-            .aisle('CCCCC', 'CPTPC', 'CPTPC', 'CCCCC') // immersion hood: ultrapure-water lines around the last element
-            .aisle('CCCCC', 'CQQQC', 'CQQQC', 'CCCCC').setRepeatable(4, 5) // projection lens: one slice per version + 3
-            .aisle('CCCCC', 'CRRRC', 'CCRCC', 'CCCCC') // reticle stage
-            .aisle('CCCCC', 'CCLCC', 'CCCCC', 'CCCCC') // ArF excimer laser
+            .aisle('CCC', 'CMC', 'CCC') // front with the controller
+            .aisle('CCC', 'C#C', 'CFC') // cap
+            .aisle('CGC', 'W#W', 'CGC') // front window section: the wafer stages
+            .aisle('CGC', 'W#W', 'CGC')
+            .aisle('CPC', 'C#C', 'CFC') // track: resist and developer lines under the tube
+            .aisle('CPC', 'C#C', 'CFC')
+            .aisle('CGC', 'W#W', 'CGC').setRepeatable(2, 4) // back window run: 2 aisles a version (the lens slices)
+            .aisle('CCC', 'C#C', 'CFC') // cap
+            .aisle('CCC', 'CCC', 'CCC') // back
             .where('M', Predicates.controller(Predicates.blocks(definition.get())))
-            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
-            .where('I', Predicates.blocks('gtceu:plascrete')
-                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
-                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1)))
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)); any
+            // plascrete of the shell may be one
             .where('C', Predicates.blocks('gtceu:plascrete')
+                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units
-            .where('W', Predicates.blocks('gtceu:cleanroom_glass'))
-            .where('X', Predicates.blocks('gtceu:inert_machine_casing'))         // PTFE-lined process cups (IV: PTFE)
-            .where('P', Predicates.blocks('gtceu:ptfe_pipe_casing'))             // chemical and water lines
-            .where('S', Predicates.blocks('gtceu:steel_gearbox'))                // spin motors
-            .where('H', Predicates.blocks('gtceu:cupronickel_coil_block'))       // hot plates
-            .where('K', Predicates.blocks('gtceu:frostproof_machine_casing'))    // chill plates
-            .where('R', Predicates.blocks('gtceu:titanium_gearbox'))             // wafer and reticle stages
-            .where('T', Predicates.blocks('gtceu:tempered_glass'))               // last lens element, in water
-            .where('Q', Predicates.blocks('gtceu:laminated_glass'))              // projection lens
-            .where('L', Predicates.blocks('kubejs:arf_excimer_laser'))
+            .where('G', Predicates.blocks('gtceu:stainless_steel_gearbox'))      // wafer stages
+            .where('P', Predicates.blocks('kubejs:plascrete_pipe_casing'))       // track lines
+            .where('W', Predicates.blocks('gtceu:cleanroom_glass'))              // windows: the lens slices
+            .where('#', Predicates.air())                                        // the tube
             .build())
         .shapeInfos(definition => $PhotolithographyLineMachine.versionShapes(definition,
             $PhotolithographyLineMachine.MK2))

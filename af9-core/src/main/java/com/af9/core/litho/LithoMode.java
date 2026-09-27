@@ -179,6 +179,11 @@ public enum LithoMode {
         return level;
     }
 
+    /** Exposed through a water film under the last lens element (the ArF immersion nodes). */
+    public boolean immersion() {
+        return light.endsWith("immersion");
+    }
+
     public int amperage() {
         return isXfel() ? ORBITAL_AMPERAGE : AMPERAGE;
     }
