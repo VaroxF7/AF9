@@ -70,6 +70,8 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
      */
     public static final float RING_UP = 0, RING_BACK = 23, RING_RADIUS = 20F, RING_THICKNESS = 0.3F,
             RING_WALL = 2.5F;
+    /** How hard its ring glows ({@link ILightRingMachine#ringGlow()}): four times GT's, burning out to the colour. */
+    public static final float RING_GLOW = 4F;
 
     /** Colour of the ring: the mode of the run it lit up for (synced; GT does not sync the active recipe type). */
     @Persisted
@@ -217,6 +219,11 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
     @Override
     public SoundEvent ringArcSound() {
         return AF9Sounds.ACCELERATOR_ZAP;
+    }
+
+    @Override
+    public float ringGlow() {
+        return RING_GLOW;
     }
 
     //////////////////////////////////////

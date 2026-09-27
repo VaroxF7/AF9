@@ -33,6 +33,19 @@ public final class AF9RenderTypes extends RenderType {
                     .createCompositeState(false));
 
     /**
+     * A hot ring's glow ({@link com.af9.core.machine.ILightRingMachine#ringGlow()} above 1): as {@link #LIGHT_RING}
+     * but added light, so the layers add up and burn out to the colour.
+     */
+    public static final RenderType LIGHT_RING_GLOW = create("af9_light_ring_glow", DefaultVertexFormat.POSITION_COLOR,
+            VertexFormat.Mode.QUADS, 4096, false, false,
+            CompositeState.builder()
+                    .setShaderState(POSITION_COLOR_SHADER)
+                    .setTransparencyState(LIGHTNING_TRANSPARENCY)
+                    .setCullState(NO_CULL)
+                    .setWriteMaskState(COLOR_WRITE)
+                    .createCompositeState(false));
+
+    /**
      * The ring's tori with a shader pack: in lightning's shader, which a pack replaces with its lightning program and
      * lights up (with vanilla's colour shader, a pack draws it as plain unlit geometry); added light, both sides,
      * colour only; white bound ({@link #WHITE}). Photon draws all lightning white, so there the ring is white.

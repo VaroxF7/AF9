@@ -28,6 +28,14 @@ public interface ILightRingMachine extends IMachineFeature {
         return AF9Sounds.ORBITAL_PULSE;
     }
 
+    /**
+     * How hard the ring glows: 1 as GT's fusion ring; above 1 its glow is added light, that many times stronger, with
+     * a fatter white-hot core and wide outer layers reaching past the machine (and, with Shimmer, blooming).
+     */
+    default float ringGlow() {
+        return 1F;
+    }
+
     /** Played where each big lightning bolt lands (a ring with lightning); null for none. */
     default SoundEvent ringArcSound() {
         return null;

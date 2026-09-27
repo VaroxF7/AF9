@@ -16,6 +16,7 @@ import com.gregtechceu.gtceu.client.util.BloomUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -101,8 +102,14 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     public static final int PULSE_TICKS = 50;
     /** Glow layers around the ring: tube radius and opacity relative to the ring's. */
     private static final float[][] HALO = { { 1.7F, 0.45F }, { 2.8F, 0.26F }, { 4.5F, 0.14F }, { 7F, 0.06F } };
-    /** The white-hot core inside the tube: radius and opacity relative to the ring's. */
-    private static final float CORE = 0.45F, CORE_ALPHA = 0.85F;
+    /** A hot ring's ({@link ILightRingMachine#ringGlow()} above 1) wide outer glow, reaching past its machine. */
+    private static final float[][] HALO_OUTER = { { 10F, 0.05F }, { 14F, 0.035F }, { 19F, 0.022F } };
+    /** The white-hot core inside the tube: radius and opacity relative to the ring's (a hot ring's: fatter, opaque). */
+    private static final float CORE = 0.45F, CORE_ALPHA = 0.85F, HOT_CORE = 0.6F;
+    /** All the glow layers; a hot ring's inner layers that also bloom (with Shimmer). */
+    private static final int ALL_LAYERS = Integer.MAX_VALUE, HOT_BLOOM_LAYERS = 2;
+    /** Most a glow layer adds (a hot ring's inner layers get there). */
+    private static final float MAX_GLOW_ALPHA = 0.9F;
 
     private final float up;
     private final float back;
@@ -170,8 +177,8 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
             // the block entities, in lightning's shader, which the packs light up; not into the shadows
             if (IrisCompat.renderingShadowPass()) return;
             float alpha = fade(machine, state);
-            renderRing(machine, state, alpha, partialTick, poseStack, buffer.getBuffer(AF9RenderTypes.SHADER_RING),
-                    true);
+            renderRing(machine, state, alpha, partialTick, poseStack, buffer, AF9RenderTypes.SHADER_RING,
+                    AF9RenderTypes.SHADER_RING, ALL_LAYERS);
             if (arcs && machine.isRingLit() && !state.bolts.isEmpty()) {
                 renderBolts(machine, state, poseStack, buffer.getBuffer(AF9RenderTypes.LIGHTNING));
             }
@@ -181,12 +188,14 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         if (Deferred.pending(machine)) return;
         float alpha = fade(machine, state);
         if (GTCEu.Mods.isShimmerLoaded()) {
-            // the bloom: tube and core; it draws later, so it needs its own copy of the pose
+            // the bloom: tube and core (a hot ring's inner glow too); it draws later, so it needs its own copy of the
+            // pose
             PoseStack copy = new PoseStack();
             copy.last().pose().set(poseStack.last().pose());
             copy.last().normal().set(poseStack.last().normal());
-            BloomUtils.entityBloom(source -> renderRing(machine, state, alpha, partialTick, copy,
-                    source.getBuffer(AF9RenderTypes.LIGHT_RING), false));
+            int layers = machine.ringGlow() > 1 ? HOT_BLOOM_LAYERS : 0;
+            BloomUtils.entityBloom(source -> renderRing(machine, state, alpha, partialTick, copy, source,
+                    AF9RenderTypes.LIGHT_RING, AF9RenderTypes.LIGHT_RING_GLOW, layers));
         }
         // the ring and its lightning, drawn after the translucent blocks, see Deferred
         Deferred.add(this, machine, state, alpha, partialTick);
@@ -207,8 +216,10 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     /** The ring and its lightning, from {@link Deferred}: the pose at the machine's block. */
     private void renderDeferred(ILightRingMachine machine, Effects state, float alpha, float partialTick,
                                 PoseStack poseStack, MultiBufferSource.BufferSource buffers) {
-        renderRing(machine, state, alpha, partialTick, poseStack, buffers.getBuffer(AF9RenderTypes.LIGHT_RING), true);
+        renderRing(machine, state, alpha, partialTick, poseStack, buffers, AF9RenderTypes.LIGHT_RING,
+                machine.ringGlow() > 1 ? AF9RenderTypes.LIGHT_RING_GLOW : AF9RenderTypes.LIGHT_RING, ALL_LAYERS);
         buffers.endBatch(AF9RenderTypes.LIGHT_RING);
+        buffers.endBatch(AF9RenderTypes.LIGHT_RING_GLOW);
         if (arcs && machine.isRingLit() && !state.bolts.isEmpty()) {
             renderBolts(machine, state, poseStack, buffers.getBuffer(AF9RenderTypes.LIGHTNING));
             buffers.endBatch(AF9RenderTypes.LIGHTNING);
@@ -216,12 +227,18 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     }
 
     /**
-     * The ring's tori (tube, white-hot core and, with {@code glow}, the four glow layers), as quads into the consumer
-     * (so they can share a batch with anything).
+     * The ring's tori as quads (so they can share a batch with anything): the tube and its white-hot core in
+     * {@code tubeType}, then up to {@code layers} glow layers in {@code glowType}, breathing with the pulse (the buffers
+     * are taken one after the other, so they may share one builder). A hot ring ({@link ILightRingMachine#ringGlow()}
+     * above 1) has a fatter, opaque core, its glow that many times stronger (at most {@link #MAX_GLOW_ALPHA} a layer)
+     * and the wide outer layers too.
      */
     private void renderRing(ILightRingMachine machine, Effects state, float alpha, float partialTick,
-                            PoseStack poseStack, VertexConsumer consumer, boolean glow) {
+                            PoseStack poseStack, MultiBufferSource source, RenderType tubeType, RenderType glowType,
+                            int layers) {
         Matrix4f mat = poseStack.last().pose();
+        float boost = machine.ringGlow();
+        boolean hot = boost > 1;
         int lastColor = state.lastColor;
         // pulse to white and back, like GT's fusion ring (white on every multiple of PULSE_TICKS)
         float half = PULSE_TICKS / 2F;
@@ -231,15 +248,23 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         float b = Mth.lerp(pulse, blue(lastColor), 255) / 255f;
         Frame frame = frame(machine.self());
         int segments = Math.max(20, Math.round(radius * 5));
-        torus(consumer, mat, frame, radius, thickness, 10, segments, r, g, b, alpha);
+        VertexConsumer tube = source.getBuffer(tubeType);
+        torus(tube, mat, frame, radius, thickness, 10, segments, r, g, b, alpha);
         // the white-hot core inside it
-        torus(consumer, mat, frame, radius, thickness * CORE, 8, segments, 1F, 1F, 1F, alpha * CORE_ALPHA);
-        if (!glow) return;
+        torus(tube, mat, frame, radius, thickness * (hot ? HOT_CORE : CORE), 8, segments, 1F, 1F, 1F,
+                alpha * (hot ? 1F : CORE_ALPHA));
+        if (layers <= 0) return;
         // the glow in the plain colour, breathing with the pulse
+        VertexConsumer glow = source.getBuffer(glowType);
         float cr = red(lastColor) / 255f, cg = green(lastColor) / 255f, cb = blue(lastColor) / 255f;
-        for (float[] layer : HALO) {
-            torus(consumer, mat, frame, radius, thickness * layer[0], 10, segments, cr, cg, cb,
-                    alpha * layer[1] * (0.6F + 0.4F * pulse));
+        float breath = (0.6F + 0.4F * pulse) * boost;
+        int drawn = 0;
+        for (float[][] halo : hot ? new float[][][] { HALO, HALO_OUTER } : new float[][][] { HALO }) {
+            for (float[] layer : halo) {
+                if (drawn++ >= layers) return;
+                torus(glow, mat, frame, radius, thickness * layer[0], 10, segments, cr, cg, cb,
+                        Math.min(MAX_GLOW_ALPHA, alpha * layer[1] * breath));
+            }
         }
     }
 
@@ -583,7 +608,8 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     @Override
     public AABB getRenderBoundingBox(ILightRingMachine machine) {
         BlockPos pos = machine.self().getPos();
-        float reach = Math.abs(up) + Math.abs(back) + radius + thickness * HALO[HALO.length - 1][0] + 1;
+        float[][] halo = machine.ringGlow() > 1 ? HALO_OUTER : HALO;
+        float reach = Math.abs(up) + Math.abs(back) + radius + thickness * halo[halo.length - 1][0] + 1;
         return new AABB(pos).inflate(reach);
     }
 }
