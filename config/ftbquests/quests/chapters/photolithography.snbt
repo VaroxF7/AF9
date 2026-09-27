@@ -877,6 +877,8 @@
 				"{af9.quest.litho.vacuum.4}"
 				""
 				"{af9.quest.litho.vacuum.5}"
+				""
+				"{af9.quest.litho.vacuum.6}"
 			]
 			id: "7818551FF1F61D06"
 			rewards: [{
@@ -2509,6 +2511,10 @@
 				"{af9.quest.litho.orbitalStation.7}"
 				""
 				"{af9.quest.litho.orbitalStation.8}"
+				""
+				"{af9.quest.litho.orbitalStation.9}"
+				""
+				"{af9.quest.litho.orbitalStation.10}"
 			]
 			icon: "gtceu:orbital_lithography_station"
 			id: "586E1415B5F87EE9"

@@ -149,9 +149,16 @@ public class LithoFlowWidget extends Widget {
      */
     @OnlyIn(Dist.CLIENT)
     public static void hPipe(GuiGraphics graphics, int xa, int xb, int y, long time, int[] colors) {
+        hPipe(graphics, xa, xb, y, time, colors, PIPE, PIPE_EDGE);
+    }
+
+    /** The same pipe in other colours: its body and its edge. */
+    @OnlyIn(Dist.CLIENT)
+    public static void hPipe(GuiGraphics graphics, int xa, int xb, int y, long time, int[] colors, int body,
+                             int edge) {
         if (xb <= xa) return;
-        graphics.fill(xa, y - 2, xb, y + 2, PIPE_EDGE);
-        graphics.fill(xa, y - 1, xb, y + 1, PIPE);
+        graphics.fill(xa, y - 2, xb, y + 2, edge);
+        graphics.fill(xa, y - 1, xb, y + 1, body);
         int offset = (int) (time / SPEED % PERIOD);
         int index = 0;
         for (int d = xa - PERIOD + offset; d < xb; d += PERIOD, index++) {
@@ -163,9 +170,16 @@ public class LithoFlowWidget extends Widget {
     /** A vertical pipe from ya to yb at x, dashes flowing down (or up) towards the machine. */
     @OnlyIn(Dist.CLIENT)
     public static void vPipe(GuiGraphics graphics, int x, int ya, int yb, long time, int color, boolean down) {
+        vPipe(graphics, x, ya, yb, time, color, down, PIPE, PIPE_EDGE);
+    }
+
+    /** The same pipe in other colours: its body and its edge. */
+    @OnlyIn(Dist.CLIENT)
+    public static void vPipe(GuiGraphics graphics, int x, int ya, int yb, long time, int color, boolean down,
+                             int body, int edge) {
         if (yb <= ya) return;
-        graphics.fill(x - 1, ya, x + 3, yb, PIPE_EDGE);
-        graphics.fill(x, ya, x + 2, yb, PIPE);
+        graphics.fill(x - 1, ya, x + 3, yb, edge);
+        graphics.fill(x, ya, x + 2, yb, body);
         int offset = (int) (time / SPEED % PERIOD);
         for (int d = ya - PERIOD + (down ? offset : PERIOD - offset); d < yb; d += PERIOD) {
             int s = Math.max(d, ya), e = Math.min(d + DASH, yb);

@@ -1,7 +1,16 @@
 // AF9 - Particle Accelerator recipes (startup_scripts/gtceu/particle_accelerator.js). Spec: docs/semiconductor-factory.md
 //
 // Fluids come only through Coolant Hatches, so every recipe's only fluid is its supercooled coolant: hydrogen for the
-// neutron source, argon for heavy-ion collisions, xenon for strange matter, endion for chromodynium.
+// neutron source, argon for heavy-ion collisions, xenon for strange matter, endion for chromodynium. A recipe takes its
+// coolant or any colder one (like the orbital station): it asks for the grade's fluid tag, af9:coolant/<grade>, which
+// holds that supercooled fluid and every colder one (hydrogen < argon < xenon < endion).
+
+ServerEvents.tags('fluid', allthemods => {
+    const grades = ['hydrogen', 'argon', 'xenon', 'endion']
+    grades.forEach((grade, index) => {
+        allthemods.add(`af9:coolant/${grade}`, grades.slice(index).map(colder => `gtceu:supercooled_${colder}`))
+    })
+})
 
 ServerEvents.recipes(allthemods => {
     const VA = GTValues.VA
@@ -32,7 +41,7 @@ ServerEvents.recipes(allthemods => {
     // ---- Neutron irradiation: neutron transmutation doping, the 20 nm substrate ----
     allthemods.recipes.gtceu.neutron_irradiation('af9:transmuted_neutronium_wafer')
         .itemInputs('4x gtceu:neutronium_wafer', 'kubejs:beryllium_spallation_target')
-        .inputFluids(Fluid.of('gtceu:supercooled_hydrogen', 1000))
+        .inputFluids('#af9:coolant/hydrogen 1000')
         .itemOutputs('4x kubejs:transmuted_neutronium_wafer')
         .duration(1200)
         .EUt(VA[GTValues.UV], 2)
@@ -40,7 +49,7 @@ ServerEvents.recipes(allthemods => {
     // ---- Heavy-ion collision: quark-gluon plasma, caught in a magnetic trap ----
     allthemods.recipes.gtceu.ion_collision('af9:qgp_trap')
         .itemInputs('kubejs:magnetic_trap', '16x gtceu:lead_ingot')
-        .inputFluids(Fluid.of('gtceu:supercooled_argon', 2000))
+        .inputFluids('#af9:coolant/argon 2000')
         .itemOutputs('kubejs:qgp_trap')
         .duration(600)
         .EUt(VA[GTValues.UV], 4)
@@ -48,13 +57,13 @@ ServerEvents.recipes(allthemods => {
     // ---- Quark synthesis: strange matter, then chromodynium; the traps come back empty ----
     allthemods.recipes.gtceu.quark_synthesis('af9:strange_matter_dust')
         .itemInputs('4x kubejs:qgp_trap', 'gtceu:neutronium_dust')
-        .inputFluids(Fluid.of('gtceu:supercooled_xenon', 4000))
+        .inputFluids('#af9:coolant/xenon 4000')
         .itemOutputs('gtceu:strange_matter_dust', '4x kubejs:magnetic_trap')
         .duration(1200)
         .EUt(VA[GTValues.UHV], 2)
     allthemods.recipes.gtceu.quark_synthesis('af9:chromodynium_dust')
         .itemInputs('8x kubejs:qgp_trap', 'gtceu:strange_matter_dust')
-        .inputFluids(Fluid.of('gtceu:supercooled_endion', 4000))
+        .inputFluids('#af9:coolant/endion 4000')
         .itemOutputs('gtceu:chromodynium_dust', '8x kubejs:magnetic_trap')
         .duration(2400)
         .EUt(VA[GTValues.UHV], 4)

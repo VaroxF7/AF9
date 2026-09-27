@@ -20,7 +20,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -29,9 +28,9 @@ import java.util.List;
 import static com.af9.core.machine.AcceleratorRecipeUI.*;
 
 /**
- * The drawing behind a Particle Accelerator recipe's slots ({@link AcceleratorRecipeUI}): the items' pipe and the
- * coolant's pipe (dashes in the mode's colour and in the coolant's) meeting in a manifold that runs into the ring's west
- * gate; the ring from above (a beam pipe of dots, four gates, the machine in the middle); particle bunches racing round
+ * The drawing behind a Particle Accelerator recipe's slots ({@link AcceleratorRecipeUI}): the items' pipe (dashes in
+ * the mode's colour) and the coolant apart from it, marked as coolant whatever the fluid (an icy glow round its slot,
+ * "COOLANT" over it, its own cryo line in ice and frost), meeting in a manifold that runs into the ring's west gate; the ring from above (a beam pipe of dots, four gates, the machine in the middle); particle bunches racing round
  * it in the mode's colour. Neutron irradiation: one bunch, a neutron spray off the target at the south gate on every
  * lap. Heavy-ion collision: two bunches against each other, a flash where they meet. Quark synthesis: the same, and
  * three colour charges circling the machine. The mode's name above the ring, the machine's below.
@@ -39,6 +38,8 @@ import static com.af9.core.machine.AcceleratorRecipeUI.*;
 public class AcceleratorFlowWidget extends Widget {
 
     private static final int STEEL = 0xFF9AA5B4, GATE = 0xFF1B2433, LABEL = 0xFFB8C2D6;
+    /** The coolant's own colours, whatever the fluid: ice, frost, the cryo line's body and edge. */
+    public static final int ICE = 0xFF7FE7FF, FROST = 0xFFD6FAFF, CRYO_BODY = 0xFF2B5E6E, CRYO_EDGE = 0xFF10323C;
 
     private final int mode;
     private int items;
@@ -74,7 +75,7 @@ public class AcceleratorFlowWidget extends Widget {
         int y0 = getPosition().y;
         long time = System.currentTimeMillis();
         int color = ParticleAcceleratorMachine.modeColorOf(mode);
-        int cold = coolantColor();
+        int cold = ICE;
         int manifold = x0 + MANIFOLD_X;
         int cx = x0 + RING_X, cy = y0 + CENTER_Y;
 
@@ -86,12 +87,19 @@ public class AcceleratorFlowWidget extends Widget {
             top = y;
         }
         if (fluids > 0) {
-            int y = y0 + COOLANT_Y + 9;
-            LithoFlowWidget.hPipe(graphics, x0 + COOLANT_X + 18, manifold + 2, y, time, new int[] { cold });
+            // the coolant apart from everything else: an icy glow round its slot, its label, its own cryo line
+            int sx = x0 + COOLANT_X, sy = y0 + COOLANT_Y;
+            float pulse = 0.5F + 0.5F * (float) Math.sin(time / 500.0);
+            graphics.fill(sx - 3, sy - 3, sx + 21, sy + 21, withAlpha(ICE, (int) (0x30 + 0x30 * pulse)));
+            drawSmall(graphics, "\u2744 " + Component.translatable("af9.recipe.accelerator_page.coolant_label")
+                    .getString(), sx - 1, sy - 10, ICE);
+            int y = sy + 9;
+            LithoFlowWidget.hPipe(graphics, sx + 18, manifold + 2, y, time, new int[] { FROST, ICE }, CRYO_BODY,
+                    CRYO_EDGE);
             bottom = y;
         }
         LithoFlowWidget.vPipe(graphics, manifold, top - 1, cy, time, color, true);
-        LithoFlowWidget.vPipe(graphics, manifold, cy, bottom + 1, time, cold, false);
+        LithoFlowWidget.vPipe(graphics, manifold, cy, bottom + 1, time, FROST, false, CRYO_BODY, CRYO_EDGE);
         LithoFlowWidget.hPipe(graphics, manifold, cx - RING_R - 3, cy, time, new int[] { color, cold });
 
         // the ring: a beam pipe of dots and four gates, glowing faintly in the mode's colour
@@ -173,13 +181,6 @@ public class AcceleratorFlowWidget extends Widget {
         }
     }
 
-    /** The coolant's colour (its tint); ice blue while unknown. */
-    @OnlyIn(Dist.CLIENT)
-    private int coolantColor() {
-        if (coolant.isEmpty()) return 0xFF9FEFFF;
-        return 0xFF000000 | IClientFluidTypeExtensions.of(coolant.getFluid()).getTintColor(coolant);
-    }
-
     @OnlyIn(Dist.CLIENT)
     private ItemStack machineStack() {
         if (machine == null) {
@@ -193,8 +194,14 @@ public class AcceleratorFlowWidget extends Widget {
     @OnlyIn(Dist.CLIENT)
     private static void drawSmallCentered(GuiGraphics graphics, String text, int x, int y, int color) {
         Font font = Minecraft.getInstance().font;
+        drawSmall(graphics, text, Math.round(x - font.width(text) * 3 / 8F), y, color);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static void drawSmall(GuiGraphics graphics, String text, int x, int y, int color) {
+        Font font = Minecraft.getInstance().font;
         graphics.pose().pushPose();
-        graphics.pose().translate(x - font.width(text) * 3 / 8F, y, 0);
+        graphics.pose().translate(x, y, 0);
         graphics.pose().scale(0.75F, 0.75F, 1F);
         graphics.drawString(font, text, 0, 0, color, true);
         graphics.pose().popPose();

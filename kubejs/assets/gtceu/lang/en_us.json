@@ -114,7 +114,7 @@
     "af9.particle_accelerator.tooltip.2": " §7into §fTransmuted Neutronium Wafers§7 (the 20 nm substrate).",
     "af9.particle_accelerator.tooltip.3": "§6Heavy-Ion Collision§7: lead ions collide, the §fquark-gluon plasma§7 goes into magnetic traps.",
     "af9.particle_accelerator.tooltip.4": "§dQuark Synthesis§7: quark-gluon plasma condenses into §fStrange Matter§7, then §fChromodynium§7.",
-    "af9.particle_accelerator.tooltip.5": "§7Fluids: §fCoolant Hatches only§7 (supercooled hydrogen, argon, xenon, endion).",
+    "af9.particle_accelerator.tooltip.5": "§7Fluids: §fCoolant Hatches only§7 (supercooled hydrogen, argon, xenon, endion). A recipe takes its coolant §for any colder one§7.",
     "af9.particle_accelerator.tooltip.6": "§7Power: up to §f4§7 Energy Hatches or §f2§7 Laser Hatches, with the recipe's full EU/t.",
     "af9.particle_accelerator.tooltip.7": "§7Parts go §fanywhere on the clean-steel casing§7, optional with a maximum: §f2§7 coolant hatches, §f2+2§7 item buses, §f1§7 maintenance.",
     "af9.particle_accelerator.tooltip.8": "§7A light ring glows inside while it runs, §blightning§7 leaping off it. Beam energy grows with the voltage tier.",

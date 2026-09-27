@@ -1,5 +1,7 @@
 package com.af9.core.machine;
 
+import com.af9.core.litho.Coolant;
+
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
@@ -8,19 +10,31 @@ import com.gregtechceu.gtceu.api.gui.WidgetUtils;
 import com.gregtechceu.gtceu.api.gui.editor.IEditableUI;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
+import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.ui.GTRecipeTypeUI;
 
+import com.lowdragmc.lowdraglib.gui.texture.ColorBorderTexture;
+import com.lowdragmc.lowdraglib.gui.texture.ColorRectTexture;
+import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup;
 import com.lowdragmc.lowdraglib.gui.widget.ProgressWidget;
+import com.lowdragmc.lowdraglib.gui.widget.TankWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.utils.Position;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraftforge.fluids.FluidStack;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * The Particle Accelerator's recipes in EMI / JEI, in the lithography page's style
- * ({@link com.af9.core.litho.LithoRecipeUI}): the items top left and the coolant tank bottom left, both piped through a
- * manifold into the ring's west gate; the ring drawn from above in the middle (beam pipe, four gates, the machine in
+ * ({@link com.af9.core.litho.LithoRecipeUI}): the items top left and, apart from them, the coolant bottom left, marked
+ * as coolant (its slot in ice, "COOLANT" over it, its own cryo line, a hover text saying what it is), both piped
+ * through a manifold into the ring's west gate; the ring drawn from above in the middle (beam pipe, four gates, the machine in
  * the middle) with the mode's particles running round it; then GT's arrow and the outputs stacked
  * ({@link AcceleratorFlowWidget}). GT's own slots (same ids), so EMI shows and looks them up as usual.
  */
@@ -72,7 +86,13 @@ public class AcceleratorRecipeUI extends GTRecipeTypeUI {
             slot(group, ItemRecipeCapability.CAP, IO.IN, i, items, ITEMS_X + 18 * i, ITEMS_Y);
         }
         for (int i = 0; i < fluids; i++) {
-            slot(group, FluidRecipeCapability.CAP, IO.IN, i, fluids, COOLANT_X, COOLANT_Y);
+            // the coolant, not a fluid like the others: its slot in ice on dark frost
+            Widget tank = FluidRecipeCapability.CAP.createWidget();
+            tank.setSelfPosition(new Position(COOLANT_X, COOLANT_Y));
+            tank.setBackground(new GuiTextureGroup(new ColorRectTexture(0xFF0B2530),
+                    new ColorBorderTexture(1, AcceleratorFlowWidget.ICE)));
+            tank.setId(FluidRecipeCapability.CAP.slotName(IO.IN, i));
+            group.addWidget(tank);
         }
         for (int i = 0; i < outputs; i++) {
             slot(group, ItemRecipeCapability.CAP, IO.OUT, i, outputs, OUT_X,
@@ -98,11 +118,57 @@ public class AcceleratorRecipeUI extends GTRecipeTypeUI {
         group.addWidget(slot);
     }
 
-    /** The recipe to the pipes (its coolant's colour), then the type's own page builder. */
+    /**
+     * The recipe to the pipes; the coolant's hover text says what it is (after GT's own lines for the slot); then the
+     * type's own page builder.
+     */
     @Override
     public void appendJEIUI(GTRecipe recipe, WidgetGroup widgetGroup) {
         WidgetUtils.widgetByIdForEach(widgetGroup, "^" + FLOW_ID + "$", AcceleratorFlowWidget.class,
                 flow -> flow.setRecipe(recipe));
+        Coolant least = leastCoolant(recipe);
+        WidgetUtils.widgetByIdForEach(widgetGroup, "^" + FluidRecipeCapability.CAP.slotName(IO.IN) + "_[0-9]+$",
+                TankWidget.class, tank -> markCoolant(tank, least));
         super.appendJEIUI(recipe, widgetGroup);
+    }
+
+    /** The weakest coolant the recipe's fluid takes (its grade: the tag holds it and the colder ones), or null. */
+    private static Coolant leastCoolant(GTRecipe recipe) {
+        Coolant least = null;
+        for (Content content : recipe.inputs.getOrDefault(FluidRecipeCapability.CAP, List.of())) {
+            for (FluidStack stack : FluidRecipeCapability.CAP.of(content.content).getStacks()) {
+                Coolant coolant = Coolant.of(stack);
+                if (coolant != null && (least == null || coolant.ordinal() < least.ordinal())) least = coolant;
+            }
+        }
+        return least;
+    }
+
+    /** Adds the coolant's lines to the tank's tooltip, after the ones GT gave it (its chance and such). */
+    @SuppressWarnings("unchecked")
+    private static void markCoolant(TankWidget tank, Coolant least) {
+        BiConsumer<TankWidget, List<Component>> gt = null;
+        try {
+            Field field = TankWidget.class.getDeclaredField("onAddedTooltips");
+            field.setAccessible(true);
+            gt = (BiConsumer<TankWidget, List<Component>>) field.get(tank);
+        } catch (ReflectiveOperationException | RuntimeException ignored) {
+            // no GT lines to keep
+        }
+        BiConsumer<TankWidget, List<Component>> before = gt;
+        tank.setOnAddedTooltips((widget, tooltips) -> {
+            if (before != null) before.accept(widget, tooltips);
+            tooltips.add(Component.literal("\u2744 ").append(
+                    Component.translatable("af9.recipe.accelerator_page.coolant"))
+                    .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+            if (least != null) {
+                tooltips.add(Component.translatable("af9.recipe.accelerator_page.coolant_grade",
+                        Component.translatable("af9.litho.coolant." + least.id)).withStyle(ChatFormatting.AQUA));
+            }
+            tooltips.add(Component.translatable("af9.recipe.accelerator_page.coolant_hatch")
+                    .withStyle(ChatFormatting.GRAY));
+            tooltips.add(Component.translatable("af9.recipe.accelerator_page.coolant_magnets")
+                    .withStyle(ChatFormatting.DARK_AQUA));
+        });
     }
 }

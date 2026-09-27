@@ -31,6 +31,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -62,6 +66,11 @@ import static net.minecraft.util.FastColor.ARGB32.*;
  * <p>
  * One render serves every machine of the model: whether a ring shows, and its fade-out and colour, are kept per
  * machine, so a station only glows while it works itself.
+ * <p>
+ * Drawn after the translucent blocks ({@link Deferred}), in {@link AF9RenderTypes} that test depth but never write it:
+ * a block in front hides the ring, while see-through blocks behind its glow (GT's frames, glass) stay visible. Drawn in
+ * the block entity pass with GT's light ring type, the glow wrote depth before those blocks were drawn and they
+ * vanished behind it. Each torus is its own strip. With Shimmer the ring still blooms through GT, as before.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
 public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingRender> {
@@ -150,18 +159,34 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
             PoseStack copy = new PoseStack();
             copy.last().pose().set(poseStack.last().pose());
             copy.last().normal().set(poseStack.last().normal());
-            BloomUtils.entityBloom(source -> renderRing(machine, state, partialTick, copy,
-                    source.getBuffer(GTRenderTypes.getLightRing())));
+            BloomUtils.entityBloom(source -> renderRing(machine, state, partialTick, copy, source,
+                    GTRenderTypes.getLightRing(), () -> {}));
+            if (arcs && machine.isRingLit() && !state.bolts.isEmpty()) {
+                renderBolts(machine, state, poseStack, buffer.getBuffer(AF9RenderTypes.LIGHTNING));
+            }
         } else {
-            renderRing(machine, state, partialTick, poseStack, buffer.getBuffer(GTRenderTypes.getLightRing()));
-        }
-        if (arcs && machine.isRingLit() && !state.bolts.isEmpty()) {
-            renderBolts(machine, state, poseStack, buffer.getBuffer(RenderType.lightning()));
+            // drawn after the translucent blocks, see Deferred
+            Deferred.add(this, machine, state, partialTick);
         }
     }
 
+    /** The ring and its lightning, from {@link Deferred}: the pose at the machine's block, each torus flushed apart. */
+    private void renderDeferred(ILightRingMachine machine, Effects state, float partialTick, PoseStack poseStack,
+                                MultiBufferSource.BufferSource buffers) {
+        renderRing(machine, state, partialTick, poseStack, buffers, AF9RenderTypes.LIGHT_RING,
+                () -> buffers.endBatch(AF9RenderTypes.LIGHT_RING));
+        if (arcs && machine.isRingLit() && !state.bolts.isEmpty()) {
+            renderBolts(machine, state, poseStack, buffers.getBuffer(AF9RenderTypes.LIGHTNING));
+            buffers.endBatch(AF9RenderTypes.LIGHTNING);
+        }
+    }
+
+    /**
+     * The ring's tori (tube, white-hot core, four glow layers) in the render type, {@code flush} after each: one strip
+     * per torus, never joined to the next.
+     */
     private void renderRing(ILightRingMachine machine, Effects state, float partialTick, PoseStack poseStack,
-                            VertexConsumer consumer) {
+                            MultiBufferSource source, RenderType type, Runnable flush) {
         float alpha = 1;
         if (machine.isRingLit()) {
             state.lastColor = machine.getRingColor();
@@ -179,18 +204,62 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         float b = Mth.lerp(pulse, blue(lastColor), 255) / 255f;
         Frame frame = frame(machine.self());
         int segments = Math.max(20, Math.round(radius * 5));
-        RenderBufferHelper.renderRing(poseStack, consumer, frame.x, frame.y, frame.z, radius, thickness, 10,
-                segments, r, g, b, alpha, frame.axis);
+        RenderBufferHelper.renderRing(poseStack, source.getBuffer(type), frame.x, frame.y, frame.z, radius, thickness,
+                10, segments, r, g, b, alpha, frame.axis);
+        flush.run();
         // the white-hot core inside it
-        RenderBufferHelper.renderRing(poseStack, consumer, frame.x, frame.y, frame.z, radius, thickness * CORE, 8,
-                segments, 1F, 1F, 1F, alpha * CORE_ALPHA, frame.axis);
+        RenderBufferHelper.renderRing(poseStack, source.getBuffer(type), frame.x, frame.y, frame.z, radius,
+                thickness * CORE, 8, segments, 1F, 1F, 1F, alpha * CORE_ALPHA, frame.axis);
+        flush.run();
         // the glow in the plain colour, breathing with the pulse
         float cr = red(lastColor) / 255f, cg = green(lastColor) / 255f, cb = blue(lastColor) / 255f;
         for (float[] layer : HALO) {
-            RenderBufferHelper.renderRing(poseStack, consumer, frame.x, frame.y, frame.z, radius,
+            RenderBufferHelper.renderRing(poseStack, source.getBuffer(type), frame.x, frame.y, frame.z, radius,
                     thickness * layer[0], 10, segments, cr, cg, cb, alpha * layer[1] * (0.6F + 0.4F * pulse),
                     frame.axis);
+            flush.run();
         }
+    }
+
+    /**
+     * Rings to draw this frame, gathered in the block entity pass and drawn after the translucent blocks (client
+     * thread). Cleared at the start of every frame, so nothing piles up if a frame skips the later stage.
+     */
+    @Mod.EventBusSubscriber(modid = AF9Core.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
+    public static final class Deferred {
+
+        private static final int MAX = 64;
+        private static final List<Pending> PENDING = new ArrayList<>();
+
+        private Deferred() {}
+
+        static void add(LightRingRender render, ILightRingMachine machine, Effects state, float partialTick) {
+            if (PENDING.size() < MAX) PENDING.add(new Pending(render, machine, state, partialTick));
+        }
+
+        @SubscribeEvent
+        public static void onRenderLevelStage(RenderLevelStageEvent event) {
+            if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_SKY) {
+                PENDING.clear();
+                return;
+            }
+            if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS || PENDING.isEmpty()) return;
+            Vec3 camera = event.getCamera().getPosition();
+            PoseStack poseStack = event.getPoseStack();
+            MultiBufferSource.BufferSource buffers = Minecraft.getInstance().renderBuffers().bufferSource();
+            for (Pending pending : PENDING) {
+                BlockPos pos = pending.machine.self().getPos();
+                poseStack.pushPose();
+                poseStack.translate(pos.getX() - camera.x, pos.getY() - camera.y, pos.getZ() - camera.z);
+                pending.render.renderDeferred(pending.machine, pending.state, pending.partialTick, poseStack,
+                        buffers);
+                poseStack.popPose();
+            }
+            PENDING.clear();
+        }
+
+        private record Pending(LightRingRender render, ILightRingMachine machine, Effects state,
+                               float partialTick) {}
     }
 
     /** Once per tick and machine: sparks and glints on the ring, the ignition roar and the throb on each flash. */
@@ -274,7 +343,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     /**
      * The bolts, re-forked every other tick so they crackle: a jagged path from the ring towards its middle (midpoint
      * displacement) with a few arms off it, each segment a camera-facing ribbon, a glow in the machine's colour under a
-     * white-hot core, fading with the bolt's age. Vanilla's lightning render type (additive).
+     * white-hot core, fading with the bolt's age. Added light ({@link AF9RenderTypes#LIGHTNING}).
      */
     private void renderBolts(ILightRingMachine machine, Effects state, PoseStack poseStack, VertexConsumer consumer) {
         MetaMachine self = machine.self();
@@ -342,11 +411,11 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         }
     }
 
-    /** One quad from a to c, side wide each way, both windings (the lightning render type culls). */
+    /** One quad from a to c, side wide each way (the render type draws both sides). */
     private static void ribbon(VertexConsumer consumer, Matrix4f mat, Vec3 a, Vec3 c, Vec3 side, float r, float g,
                                float b, float alpha) {
         Vec3 a1 = a.add(side), a2 = a.subtract(side), c1 = c.add(side), c2 = c.subtract(side);
-        for (Vec3 v : new Vec3[] { a1, a2, c2, c1, c1, c2, a2, a1 }) {
+        for (Vec3 v : new Vec3[] { a1, a2, c2, c1 }) {
             consumer.vertex(mat, (float) v.x, (float) v.y, (float) v.z).color(r, g, b, alpha).endVertex();
         }
     }
