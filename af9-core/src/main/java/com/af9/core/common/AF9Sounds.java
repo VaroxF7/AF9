@@ -23,8 +23,7 @@ import net.minecraftforge.registries.ForgeRegistries;
  * kubejs/startup_scripts/gtceu/particle_accelerator.js): the beacon hum pitched up, the magnets' electric whine;</li>
  * <li>{@link #ACCELERATOR_IGNITE}: a respawn anchor charging, pitched down, when its ring lights up;</li>
  * <li>{@link #ACCELERATOR_PASS}: a soft whoosh (a trident's riptide, pitched up) on every white flash of the ring, a
- * bunch of particles going round;</li>
- * <li>{@link #ACCELERATOR_ZAP}: a sharp fizz, pitched up, for every big lightning bolt.</li>
+ * bunch of particles going round.</li>
  * </ul>
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
@@ -39,7 +38,6 @@ public final class AF9Sounds {
     public static final SoundEvent PARTICLE_ACCELERATOR_EVENT = event("particle_accelerator");
     public static final SoundEvent ACCELERATOR_IGNITE = event("particle_accelerator_ignite");
     public static final SoundEvent ACCELERATOR_PASS = event("particle_accelerator_pass");
-    public static final SoundEvent ACCELERATOR_ZAP = event("particle_accelerator_zap");
 
     /** GT's wrappers of the working sounds, for {@code GTRecipeType.setSound}. */
     public static final SoundEntry ORBITAL_STATION = new ExistingSoundEntry(ORBITAL_STATION_EVENT, SoundSource.BLOCKS);

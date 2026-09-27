@@ -38,12 +38,12 @@ import java.util.StringJoiner;
 /**
  * Particle Accelerator (structure and recipes in KubeJS): a storage ring built like GTNH's Compact Fusion Computer, 47
  * blocks across and 7 high, an empty beam tube inside a clean-steel shell (the superconducting bending magnets) with
- * four glass gates. Its magnets are cooled from coolant hatches only (supercooled fluids). Modes: neutron irradiation (a spallation
- * neutron beam turns neutronium wafers into transmuted neutronium wafers), heavy-ion collision (quark-gluon plasma in
- * magnetic traps) and quark synthesis (strange matter, chromodynium).
+ * four glass gates. Its magnets are cooled from coolant hatches only (supercooled fluids). Modes: neutron irradiation
+ * (a spallation neutron beam turns neutronium wafers into transmuted neutronium wafers), heavy-ion collision
+ * (quark-gluon plasma in magnetic traps) and quark synthesis (strange matter, chromodynium).
  * <ul>
  * <li>While it runs, its beam, a light ring in the mode's colour, runs round the empty tube: the shell hides it, it
- * shows through the gates' glass, and lightning breaks out of the inner wall into the middle
+ * shows through the gates' glass, sparks spitting off the inner wall
  * ({@link com.af9.core.client.render.LightRingRender}, placed by particle_accelerator.js with {@link #RING_BACK}
  * ...).</li>
  * <li>Its own screen, the orbital station's layout: {@link AcceleratorConsoleWidget} in a
@@ -66,7 +66,7 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
     /**
      * The light ring (the model's, particle_accelerator.js reads these): at the controller's height, {@code RING_BACK}
      * behind it in the middle of the storage ring, lying flat, along the middle of the empty beam tube (radius 20),
-     * {@code RING_WALL} out from the tube's inner face, where the lightning comes out.
+     * {@code RING_WALL} out from the tube's inner face, where its sparks spit off.
      */
     public static final float RING_UP = 0, RING_BACK = 23, RING_RADIUS = 20F, RING_THICKNESS = 0.3F,
             RING_WALL = 2.5F;
@@ -205,7 +205,7 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
         return ringColor;
     }
 
-    /** Its own sounds ({@link AF9Sounds}): a charge-up when the ring lights, a whoosh on each flash, a zap per bolt. */
+    /** Its own sounds ({@link AF9Sounds}): a charge-up when the ring lights, a whoosh on each flash. */
     @Override
     public SoundEvent ringIgniteSound() {
         return AF9Sounds.ACCELERATOR_IGNITE;
@@ -214,11 +214,6 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
     @Override
     public SoundEvent ringPulseSound() {
         return AF9Sounds.ACCELERATOR_PASS;
-    }
-
-    @Override
-    public SoundEvent ringArcSound() {
-        return AF9Sounds.ACCELERATOR_ZAP;
     }
 
     @Override
