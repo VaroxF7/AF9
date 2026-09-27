@@ -48,4 +48,38 @@ ServerEvents.recipes(allthemods => {
     const miningAsics = [['ev_large_miner', 2], ['iv_large_miner', 4], ['luv_large_miner', 8],
         ['hv_fluid_drilling_rig', 2], ['ev_fluid_drilling_rig', 4]]
     miningAsics.forEach(([id, count]) => addInputs(`gtceu:assembler/${id}`, [`${count}x kubejs:asic_chip`]))
+
+    // ---- MRAM: data storage that keeps its data without power ----
+    // Faster recipes beside GT's for its research data parts: MRAM for the memory chips, a CPU chip, wire and the
+    // part's body (no research: they are made from the MRAM, not researched)
+    const solders = [['', 'gtceu:tin', 288], ['_soldering_alloy', 'gtceu:soldering_alloy', 144]]
+    solders.forEach(([suffix, fluid, mb]) => {
+        // GT: 2 HV circuits, 4 RAM, 32 NOR, 64 NAND, 32 platinum wire, 400 ticks
+        allthemods.recipes.gtceu.circuit_assembler(`af9:data_orb_mram${suffix}`)
+            .itemInputs('gtceu:epoxy_printed_circuit_board', 'gtceu:cpu_chip', '4x kubejs:mram_chip',
+                '16x gtceu:fine_platinum_wire')
+            .inputFluids(Fluid.of(fluid, mb))
+            .itemOutputs('gtceu:data_orb')
+            .cleanroom(CleanroomType.CLEANROOM)
+            .duration(200)
+            .EUt(1200)
+    })
+    // GT: an assembly line (8 LuV circuits, a Data Orb, 128 fine wire, 4 optical pipes, 16 ITBTC wire), 1200 ticks
+    allthemods.recipes.gtceu.assembler('af9:data_bank_mram')
+        .itemInputs('gtceu:computer_casing', '16x kubejs:mram_chip', '2x gtceu:cpu_chip',
+            '32x gtceu:fine_niobium_titanium_wire', '4x gtceu:normal_optical_pipe')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
+        .itemOutputs('gtceu:data_bank')
+        .cleanroom(CleanroomType.CLEANROOM)
+        .duration(600)
+        .EUt(6000)
+    // GT: an assembly line (LuV input bus, 4 Data Orbs, 4 ZPM circuits), 400 ticks
+    allthemods.recipes.gtceu.assembler('af9:advanced_data_access_hatch_mram')
+        .itemInputs('gtceu:luv_input_bus', '8x kubejs:mram_chip', '2x gtceu:cpu_chip',
+            '32x gtceu:fine_niobium_titanium_wire')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 576))
+        .itemOutputs('gtceu:advanced_data_access_hatch')
+        .cleanroom(CleanroomType.CLEANROOM)
+        .duration(200)
+        .EUt(6000)
 })
