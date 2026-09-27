@@ -19,7 +19,7 @@ earlyWindowSkipGLVersions = []
 #Should we control the window. Disabling this disables new GL features and can be bad for mods that rely on them.
 earlyWindowControl = true
 #Max threads for early initialization parallelism,  -1 is based on processor count
-maxThreads = -1
+maxThreads = 1
 #Squir?
 earlyWindowSquir = false
 
