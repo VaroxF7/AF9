@@ -6,6 +6,14 @@ ServerEvents.recipes(event => {
     .itemOutputs("gtceu:nano_processor_mainframe")
     .duration(1600).EUt(GTValues.VA[GTValues.LuV])
 
+    // AF9: an extra, faster Nano Mainframe with 4 eDRAM CPU Packages (a CPU die with its eDRAM cache) instead of the
+    // 16 RAM chips (tiered_circuits.js: the other eDRAM recipes)
+    event.recipes.gtceu.assembly_line("af9:nano_processor_mainframe_edram")
+    .itemInputs("gtceu:micro_processor_mainframe","16x gtceu:rtm_alloy_double_cable","16x gtceu:double_osmiridium_plate","64x gtceu:fine_osmiridium_wire","64x gtceu:fine_osmiridium_wire","16x gtceu:nano_processor_computer","mekanism:qio_drive_hyper_dense","16x gtceu:annealed_copper_octal_wire","32x gtceu:microchip_processor","64x gtceu:smd_capacitor","32x gtceu:smd_inductor","4x kubejs:edram_cpu_package")
+    .inputFluids("gtceu:indium 4000")
+    .itemOutputs("gtceu:nano_processor_mainframe")
+    .duration(800).EUt(GTValues.VA[GTValues.LuV])
+
     event.recipes.gtceu.assembly_line("circuit_2_luv_zpm")
     .itemInputs("gtceu:nano_processor_mainframe","16x gtceu:samarium_iron_arsenic_oxide_hex_wire","64x gtceu:data_stick","64x gtceu:data_stick","64x gtceu:fine_rhodium_wire","16x gtceu:quantum_processor_computer","mekanism:qio_drive_time_dilating","32x gtceu:microchip_processor","64x gtceu:smd_capacitor","64x gtceu:smd_inductor","64x gtceu:normal_optical_pipe","64x gtceu:normal_optical_pipe")
     .inputFluids("gtceu:stellite_100 10000","mekanismgenerators:fusion_fuel 10000")
