@@ -68,4 +68,17 @@ ServerEvents.recipes(allthemods => {
         .itemOutputs('2x gtceu:micro_processor')
         .duration(200)
         .EUt(60))
+
+    // ---- Microprocessor (MV), APU version: CPU and graphics on one die, with their cache; one chip does the work of
+    // the CPU and its RAM, so the board takes more of them ----
+    circuitAssembler('micro_processor_apu', recipe => recipe
+        .itemInputs(
+            'gtceu:plastic_printed_circuit_board',
+            'kubejs:apu_chip',
+            '4x #gtceu:resistors',
+            '4x #gtceu:capacitors',
+            '4x gtceu:fine_aluminium_silicon_wire')
+        .itemOutputs('3x gtceu:micro_processor')
+        .duration(200)
+        .EUt(60))
 })
