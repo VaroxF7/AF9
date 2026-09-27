@@ -199,10 +199,11 @@ ServerEvents.recipes(allthemods => {
         .EUt(VA[GTValues.IV])
 
     // Orbital Lithography Station (built on the ground, runs only in orbit; its structure is GT and GCYM blocks).
-    // It prints from 50 nm (ZPM) on, so it is crafted at ZPM.
+    // It prints from 50 nm (ZPM) on, so it is crafted at ZPM; its VPUs watch the wafer die by die.
     allthemods.recipes.gtceu.assembler('af9:orbital_lithography_station')
         .itemInputs('gtceu:zpm_machine_hull', '4x gtceu:zpm_emitter', '4x gtceu:zpm_field_generator',
-            '4x #gtceu:circuits/zpm', '4x gtceu:zpm_sensor', '4x gtceu:zpm_robot_arm', '16x gtceu:naquadah_alloy_plate')
+            '4x #gtceu:circuits/zpm', '4x gtceu:zpm_sensor', '4x gtceu:zpm_robot_arm', '16x gtceu:naquadah_alloy_plate',
+            '8x kubejs:vpu_chip')
         .inputFluids(Fluid.of('gtceu:supercooled_endion', 4000))
         .itemOutputs('gtceu:orbital_lithography_station')
         .duration(4000)

@@ -82,4 +82,13 @@ ServerEvents.recipes(allthemods => {
         .cleanroom(CleanroomType.CLEANROOM)
         .duration(200)
         .EUt(6000)
+
+    // ---- VPU: image processing of GT's LuV sensing parts (the Orbital Lithography Station: photolithography.js) ----
+    addInputs('gtceu:assembly_line/sensor_luv', ['2x kubejs:vpu_chip'])
+    // LuV Scanner: GT's shape, two VPUs in place of the bottom two of its four ZPM circuits
+    allthemods.remove({ output: 'gtceu:luv_scanner' })
+    allthemods.shaped('gtceu:luv_scanner', ['CEC', 'WHW', 'VSV'], {
+        C: '#gtceu:circuits/zpm', E: 'gtceu:luv_emitter', W: 'gtceu:niobium_titanium_single_cable',
+        H: 'gtceu:luv_machine_hull', S: 'gtceu:luv_sensor', V: 'kubejs:vpu_chip'
+    }).id('af9:luv_scanner')
 })
