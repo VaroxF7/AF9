@@ -481,7 +481,8 @@ ServerEvents.recipes(allthemods => {
     // X-ray FEL, dry resist; 50A of UHV for eight times the line's run time: a hundred times the energy of a 7 nm print.
     // The coolant (500 mB supercooled endion per print) is added by the station; 96 CWU/t.
     // Research, like GT's assembly line: every 1 nm print is unlocked on its own. The Research Station scans the chip's
-    // reticle (UHV, 64 CWU/t, 256000 CWU) into a data orb, which goes in the station's data hatch (or a data bank).
+    // reticle (2A of ZPM, 48 CWU/t, 256000 CWU) into a data orb, which goes in the station's data hatch (or a data
+    // bank).
     const chromodynium = substrates[AF9_WAFERS.orbital.substrate]
     chips.filter(c => c.reticle).forEach(c => {
         allthemods.recipes.gtceu.orbital_lithography(`af9:print_${c.id}_1nm`)
@@ -493,7 +494,7 @@ ServerEvents.recipes(allthemods => {
             .EUt(VA[chromodynium.tier], 50)
             .CWUt(96)
             .stationResearch(b => b.researchStack(Item.of(`kubejs:${c.reticle}_reticle`))
-                .researchId(`af9_litho_1nm_${c.id}`).EUt(VA[GTValues.UHV]).CWUt(64, 256000))
+                .researchId(`af9_litho_1nm_${c.id}`).EUt(VA[GTValues.ZPM], 2).CWUt(48, 256000))
     })
 
     // Derived wafers (Nano CPU, Qubit CPU, HPIC, UHPIC) and cutting: GT's own Chemical Reactor and cutter recipes, since

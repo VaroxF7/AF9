@@ -206,7 +206,7 @@
     "af9.recipe.litho_page.research": "Research",
     "af9.recipe.litho_page.research_scan": "Scan the recipe's reticle in a Research Station",
     "af9.recipe.litho_page.research_station": "%s: %s + an empty %s, both in its %s",
-    "af9.recipe.litho_page.research_cost": "%s EU/t (%s) and %s CWU/t, %s CWU in all: %s s",
+    "af9.recipe.litho_page.research_cost": "%sA of %s (%s EU/t) and %s CWU/t, %s CWU in all: %s s",
     "af9.recipe.litho_page.research_hatch": "The data orb goes in the station's data hatch (or a data bank)",
     "af9.recipe.litho_page.machine.line": "MK1 LINE",
     "af9.recipe.litho_page.machine.scanner": "MK2 SCANNER",

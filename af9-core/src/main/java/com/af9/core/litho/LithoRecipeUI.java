@@ -209,7 +209,8 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
                             research.data().getHoverName().copy().withStyle(ChatFormatting.WHITE),
                             Component.translatable("block.gtceu.object_holder")).withStyle(ChatFormatting.GRAY));
                     tooltips.add(Component.translatable("af9.recipe.litho_page.research_cost",
-                            FormattingUtil.formatNumbers(research.eut()), GTValues.VNF[research.tier()],
+                            FormattingUtil.formatNumbers(research.amperage()), GTValues.VNF[research.tier()],
+                            FormattingUtil.formatNumbers(research.eut()),
                             FormattingUtil.formatNumbers(research.cwut()),
                             FormattingUtil.formatNumbers(research.totalCwu()),
                             FormattingUtil.formatNumbers(research.seconds())).withStyle(ChatFormatting.GRAY));
@@ -235,10 +236,15 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
     }
 
     /**
-     * A research as its Research Station recipe does it: the item scanned, the data item written, the voltage and EU/t,
+     * A research as its Research Station recipe does it: the item scanned, the data item written, the voltage and amps,
      * the computation per tick and in all.
      */
-    private record ResearchInfo(ItemStack scanned, ItemStack data, long voltage, long eut, int cwut, int totalCwu) {
+    private record ResearchInfo(ItemStack scanned, ItemStack data, long voltage, long amperage, int cwut,
+                                int totalCwu) {
+
+        long eut() {
+            return voltage * amperage;
+        }
 
         int tier() {
             return Math.min(GTUtil.getTierByVoltage(voltage), GTValues.VNF.length - 1);
@@ -277,8 +283,8 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
                 }
                 // a research's duration is its total computation (GT's totalCWU)
                 int total = recipe.data.getBoolean("duration_is_total_cwu") ? recipe.duration : recipe.duration * cwut;
-                return new ResearchInfo(scanned, entry.getDataItem(), energy.voltage(),
-                        energy.voltage() * energy.amperage(), cwut, total);
+                return new ResearchInfo(scanned, entry.getDataItem(), energy.voltage(), energy.amperage(), cwut,
+                        total);
             }
             return null;
         }

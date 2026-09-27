@@ -7789,7 +7789,7 @@
 	"af9.quest.litho.n1.1": "The last node needs an &eX-ray free-electron laser&r (1 nm) and the vacuum of space: the Orbital Lithography Station's own mode, in orbit.",
 	"af9.quest.litho.n1.2": "A print: a &dChromodynium Wafer&r + a &eDry Resist Cartridge&r (input bus), the chip's reticle in the station's &ereticle slot&r, and 500 mB &bSupercooled Endion&r (nothing else is cold enough) through a Coolant Hatch. Power: a &eLaser Hatch&r and up to three energy hatches, together &c50A of UHV&r; 360 s per print, a hundred times the energy of a 7 nm print.",
 	"af9.quest.litho.n1.3": "&dComputation:&r &e96 CWU/t&r through a Computation Hatch.",
-	"af9.quest.litho.n1.4": "&dResearch:&r like the Assembly Line, every 1 nm print has to be researched before the station runs it: the &eResearch Station&r scans the chip's &eReticle&r (UHV, 64 CWU/t) into a &eData Orb&r, which goes in the station's &eData Hatch&r (or a Data Bank through an optical data hatch). EMI shows \"Requires Research\" on those recipes.",
+	"af9.quest.litho.n1.4": "&dResearch:&r like the Assembly Line, every 1 nm print has to be researched before the station runs it: the &eResearch Station&r scans the chip's &eReticle&r (2A of ZPM, 48 CWU/t) into a &eData Orb&r, which goes in the station's &eData Hatch&r (or a Data Bank through an optical data hatch). EMI shows \"Requires Research\" on those recipes.",
 	"af9.quest.litho.n1.5": "&e64&r silicon-class chip wafers per blank, every chip. Base break chance &c35 %&r.",
 	"af9.quest.litho.scanner.title": "Photolithography Scanner Mk2",
 	"af9.quest.litho.scanner.subtitle": "80 and 65 nm",
