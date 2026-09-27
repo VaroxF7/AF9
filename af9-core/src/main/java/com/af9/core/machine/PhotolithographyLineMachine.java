@@ -257,10 +257,11 @@ public class PhotolithographyLineMachine extends LithoMachine {
 
     /**
      * Gives the lithography recipes their own EMI/JEI page ({@link com.af9.core.litho.LithoRecipeUI}: items and track
-     * chemicals piped into the machine, like an assembly line) and adds node, light source, machine version and the
-     * coolant to it, short enough for the page's width (no break chance: the chanced broken wafer shows it). The
-     * recipes with computation also get GT's "Min. Computation" line and (1 nm) its "Requires Research" line: the page
-     * is made one line taller for each, and {@link #respaceTexts} fixes GT putting both on the same row.
+     * chemicals piped into the machine, like an assembly line; a 1 nm print's research in its own slot) and adds node,
+     * light source, machine version and the coolant to it, short enough for the page's width (no break chance: the
+     * chanced broken wafer shows it). The recipes with computation also get GT's "Min. Computation" line and (1 nm)
+     * its "Requires Research" line: the page is made one line taller for each, and {@link #respaceTexts} fixes GT
+     * putting both on the same row.
      */
     public static void registerRecipeInfo() {
         for (LithoMode mode : LithoMode.values()) {

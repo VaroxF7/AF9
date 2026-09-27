@@ -6,16 +6,32 @@ import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
 import com.gregtechceu.gtceu.api.gui.WidgetUtils;
 import com.gregtechceu.gtceu.api.gui.editor.IEditableUI;
+import com.gregtechceu.gtceu.api.gui.widget.SlotWidget;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
+import com.gregtechceu.gtceu.api.recipe.RecipeCondition;
+import com.gregtechceu.gtceu.api.recipe.ResearchData;
 import com.gregtechceu.gtceu.api.recipe.ui.GTRecipeTypeUI;
+import com.gregtechceu.gtceu.common.recipe.condition.ResearchCondition;
+import com.gregtechceu.gtceu.config.ConfigHolder;
+import com.gregtechceu.gtceu.integration.xei.handlers.item.CycleItemStackHandler;
+import com.gregtechceu.gtceu.utils.ResearchManager;
 
+import com.lowdragmc.lowdraglib.gui.texture.ColorBorderTexture;
+import com.lowdragmc.lowdraglib.gui.texture.ColorRectTexture;
+import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup;
 import com.lowdragmc.lowdraglib.gui.widget.ProgressWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
+import com.lowdragmc.lowdraglib.jei.IngredientIO;
 import com.lowdragmc.lowdraglib.utils.Position;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * The lithography recipes' page in EMI / JEI, laid out like an assembly line: the items on top (blank wafer, reticle,
@@ -25,6 +41,10 @@ import net.minecraft.network.chat.Component;
  * dashes flowing to the machine, each fluid row's in the colours of its fluids ({@link LithoFlowWidget}). The machine
  * sits level with the first track row, so that row's pipe runs straight on into it; its name has the room under it,
  * clear of the slots.
+ * <p>
+ * A researched print (1 nm) shows its research: the data orb the Research Station writes (GT's own, with the recipe's
+ * research on it, as GT's assembly line shows it), in a row of its own with a data line into the machine; its hover
+ * says how to get it.
  * <p>
  * The slots are GT's own (same ids, so GT binds the recipe to them and EMI shows, looks up and moves them as usual);
  * only the template around them is ours. Replaces the recipe types' UI in common setup
@@ -41,7 +61,9 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
      * that pipe runs straight on through the manifold into the machine.
      */
     public static final int CENTER_Y = FLUIDS_Y + 9;
-    public static final String FLOW_ID = "af9_litho_flow";
+    public static final String FLOW_ID = "af9_litho_flow", RESEARCH_ID = "af9_litho_research";
+    /** The research: its slot's frame and data line. */
+    public static final int DATA = 0xFF38BDF8, DATA_DARK = 0xFF0B1E2E;
 
     private final GTRecipeType type;
     private final LithoMode mode;
@@ -62,20 +84,30 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
         type.setRecipeUI(ui);
     }
 
-    /** Our layout; GT's binding of the recipe to the slots (by their ids) and the arrow. */
+    /** The research row's top: under the track's rows (on the dry 1 nm page, the second track row). */
+    public static int researchY(int fluids) {
+        return FLUIDS_Y + 18 * Math.max(1, (fluids + PER_ROW - 1) / PER_ROW);
+    }
+
+    /** Our layout; GT's binding of the recipe to the slots (by their ids) and the arrow, then the research. */
     @Override
     public IEditableUI<WidgetGroup, RecipeHolder> createEditableUITemplate(boolean isSteam, boolean isHighPressure) {
         IEditableUI<WidgetGroup, RecipeHolder> gt = super.createEditableUITemplate(isSteam, isHighPressure);
-        return new IEditableUI.Normal<>(this::layout, gt::setupUI);
+        return new IEditableUI.Normal<>(this::layout, (group, holder) -> {
+            gt.setupUI(group, holder);
+            bindResearch(group, holder);
+        });
     }
 
     private WidgetGroup layout() {
         int items = Math.min(PER_ROW, type.maxInputs.getInt(ItemRecipeCapability.CAP));
         int fluids = Math.min(PER_ROW * FLUID_ROWS, type.maxInputs.getInt(FluidRecipeCapability.CAP));
         int outputs = Math.min(2, type.maxOutputs.getInt(ItemRecipeCapability.CAP));
-        WidgetGroup group = new WidgetGroup(0, 0, WIDTH, HEIGHT);
+        int research = mode.needsResearch() ? researchY(fluids) : -1;
+        int height = research < 0 ? HEIGHT : Math.max(HEIGHT, research + 22);
+        WidgetGroup group = new WidgetGroup(0, 0, WIDTH, height);
         // the pipes and the machine first: the slots draw over them
-        LithoFlowWidget flow = new LithoFlowWidget(mode, items, fluids);
+        LithoFlowWidget flow = new LithoFlowWidget(mode, items, fluids, research, height);
         flow.setId(FLOW_ID);
         group.addWidget(flow);
         for (int i = 0; i < items; i++) {
@@ -90,6 +122,14 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
             var dry = new Widget(SLOTS_X, FLUIDS_Y, MANIFOLD_X - 2 - SLOTS_X, 16);
             dry.setHoverTooltips(Component.translatable("af9.recipe.litho_page.dry_hover"));
             group.addWidget(dry);
+        }
+        if (research >= 0) {
+            // the data orb: its own id, so GT's binding leaves it to bindResearch
+            SlotWidget orb = (SlotWidget) ItemRecipeCapability.CAP.createWidget();
+            orb.setSelfPosition(new Position(SLOTS_X, research));
+            orb.setBackground(new GuiTextureGroup(new ColorRectTexture(DATA_DARK), new ColorBorderTexture(1, DATA)));
+            orb.setId(RESEARCH_ID);
+            group.addWidget(orb);
         }
         for (int i = 0; i < outputs; i++) {
             slot(group, ItemRecipeCapability.CAP, IO.OUT, i, outputs, OUT_X,
@@ -116,7 +156,50 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
         group.addWidget(slot);
     }
 
-    /** The recipe to the pipes (its fluids' colours), then the type's own page builder. */
+    /**
+     * The research slot shows the recipe's data orbs, written with its research the way GT's research slot writes them
+     * (a catalyst: EMI lists the recipe under the orb's uses); hidden for a recipe without research.
+     */
+    private void bindResearch(WidgetGroup group, RecipeHolder holder) {
+        List<ItemStack> orbs = researchOrbs(holder.conditions());
+        WidgetUtils.widgetByIdForEach(group, "^" + RESEARCH_ID + "$", SlotWidget.class, slot -> {
+            if (orbs.isEmpty()) {
+                slot.setVisible(false);
+                slot.setActive(false);
+                return;
+            }
+            slot.setHandlerSlot(new CycleItemStackHandler(List.of(orbs)), 0);
+            slot.setIngredientIO(IngredientIO.CATALYST);
+            slot.setCanTakeItems(false);
+            slot.setCanPutItems(false);
+            slot.setOnAddedTooltips((widget, tooltips) -> {
+                tooltips.add(Component.literal("\u25C8 ").append(
+                        Component.translatable("af9.recipe.litho_page.research"))
+                        .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+                tooltips.add(Component.translatable("af9.recipe.litho_page.research_scan")
+                        .withStyle(ChatFormatting.GRAY));
+                tooltips.add(Component.translatable("af9.recipe.litho_page.research_hatch")
+                        .withStyle(ChatFormatting.DARK_AQUA));
+            });
+        });
+    }
+
+    /** The data orbs carrying the recipe's research (none when GT's research is off). */
+    private List<ItemStack> researchOrbs(List<RecipeCondition> conditions) {
+        if (conditions == null || !ConfigHolder.INSTANCE.machines.enableResearch) return List.of();
+        List<ItemStack> orbs = new ArrayList<>();
+        for (RecipeCondition condition : conditions) {
+            if (!(condition instanceof ResearchCondition research) || research.data == null) continue;
+            for (ResearchData.ResearchEntry entry : research.data) {
+                ItemStack orb = entry.getDataItem().copy();
+                ResearchManager.writeResearchToNBT(orb.getOrCreateTag(), entry.getResearchId(), type);
+                orbs.add(orb);
+            }
+        }
+        return orbs;
+    }
+
+    /** The recipe to the pipes (its fluids' colours, whether it is researched), then the type's own page builder. */
     @Override
     public void appendJEIUI(GTRecipe recipe, WidgetGroup widgetGroup) {
         WidgetUtils.widgetByIdForEach(widgetGroup, "^" + FLOW_ID + "$", LithoFlowWidget.class,

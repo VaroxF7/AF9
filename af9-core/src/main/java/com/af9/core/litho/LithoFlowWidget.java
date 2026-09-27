@@ -4,6 +4,8 @@ import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
+import com.gregtechceu.gtceu.common.recipe.condition.ResearchCondition;
+import com.gregtechceu.gtceu.config.ConfigHolder;
 
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 
@@ -34,11 +36,14 @@ import static com.af9.core.litho.LithoRecipeUI.*;
  * rows) into a manifold, the manifold into the machine's frame (the controller drawn large, the node's colour, the node
  * above and the machine's name below), and dashes flowing along all of it to the machine: in the node's colour from
  * the items, in the colours of each row's fluids from the track. The 1 nm station's dry process has no track: a note
- * stands where the fluids would be, clear of the manifold.
+ * stands where the fluids would be, clear of the manifold. A researched print's data orb has a row of its own:
+ * "RESEARCH" beside it and a data line into the manifold, bits flowing along it in the data colour.
  */
 public class LithoFlowWidget extends Widget {
 
     private static final int PIPE = 0xFF4B5563, PIPE_EDGE = 0xFF2A313C, LABEL = 0xFFB8C2D6;
+    /** The research's data line: body and edge (its bits in {@link LithoRecipeUI#DATA}). */
+    private static final int DATA_PIPE = 0xFF12344A, DATA_EDGE = 0xFF0A1826;
     /** Labels are drawn at this scale; line height of wrapped text. */
     private static final float SMALL = 0.75F;
     private static final int LINE = 7;
@@ -46,16 +51,21 @@ public class LithoFlowWidget extends Widget {
     private static final int DASH = 3, PERIOD = 8, SPEED = 60;
 
     private final LithoMode mode;
+    /** Top of the research row, -1 without one. */
+    private final int researchY;
     private int items;
     private int fluids;
+    private boolean research;
     private List<FluidStack> fluidStacks = List.of();
     private ItemStack machine;
 
-    public LithoFlowWidget(LithoMode mode, int items, int fluids) {
-        super(0, 0, WIDTH, HEIGHT);
+    public LithoFlowWidget(LithoMode mode, int items, int fluids, int researchY, int height) {
+        super(0, 0, WIDTH, height);
         this.mode = mode;
         this.items = items;
         this.fluids = fluids;
+        this.researchY = researchY;
+        this.research = researchY >= 0;
     }
 
     /** The machine that prints the node: its controller's id (gtceu namespace). */
@@ -67,8 +77,13 @@ public class LithoFlowWidget extends Widget {
         };
     }
 
-    /** The recipe shown: how many items and which fluids it really has (the pipes start after its last slot). */
+    /**
+     * The recipe shown: how many items and which fluids it really has (the pipes start after its last slot), and
+     * whether it needs research (GT's research on).
+     */
     public void setRecipe(GTRecipe recipe) {
+        research = researchY >= 0 && ConfigHolder.INSTANCE.machines.enableResearch &&
+                recipe.conditions.stream().anyMatch(ResearchCondition.class::isInstance);
         int itemCount = 0;
         for (Content content : recipe.inputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
             if (itemCount < PER_ROW) itemCount++;
@@ -112,12 +127,25 @@ public class LithoFlowWidget extends Widget {
             bottom = Math.max(bottom, y);
         }
         if (fluids == 0) {
-            // the dry process: no track chemicals. The note stays clear of the manifold (its hover says the rest)
+            // the dry process: no track chemicals. The note stays clear of the manifold, and of the research row
+            // under it (one line then; its hover says the rest)
             int width = MANIFOLD_X - 3 - (SLOTS_X + 2);
             drawSmall(graphics, Component.translatable("af9.recipe.litho_page.dry").getString(),
                     x0 + SLOTS_X + 2, y0 + FLUIDS_Y + 1, LABEL);
             drawWrapped(graphics, Component.translatable("af9.recipe.litho_page.dry_detail").getString(),
-                    x0 + SLOTS_X + 2, y0 + FLUIDS_Y + 9, width, 2, 0xFF8A94A8);
+                    x0 + SLOTS_X + 2, y0 + FLUIDS_Y + 9, width, researchY >= 0 ? 1 : 2, 0xFF8A94A8);
+        }
+        if (research) {
+            // the data orb's row: its label beside the slot, then the data line on into the manifold
+            int y = y0 + researchY + 9;
+            String label = Component.translatable("af9.recipe.litho_page.research_label").getString();
+            int labelX = x0 + SLOTS_X + 22;
+            drawSmall(graphics, label, labelX, y - 3, LithoRecipeUI.DATA);
+            int from = labelX + Math.round(Minecraft.getInstance().font.width(label) * SMALL) + 3;
+            hPipe(graphics, from, manifold + 2, y, time, new int[] { LithoRecipeUI.DATA, 0xFFE0F2FE },
+                    DATA_PIPE, DATA_EDGE);
+            top = Math.min(top, y);
+            bottom = Math.max(bottom, y);
         }
         // the manifold: down from the top row, up from the bottom one, into the machine
         vPipe(graphics, manifold, top - 1, centre, time, node, true);
