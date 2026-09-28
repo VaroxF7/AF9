@@ -12,6 +12,10 @@ public final class AF9Config {
     public static final ForgeConfigSpec.BooleanValue CONTAMINATE_IN_CREATIVE;
     /** Gravity (1 = Earth) inside the magnetic field of a running Orbital Lithography Station. */
     public static final ForgeConfigSpec.DoubleValue FIELD_GRAVITY;
+    /** Whether AE2 networks with an ME Controller need computation for their channels. */
+    public static final ForgeConfigSpec.BooleanValue ME_NEEDS_COMPUTATION;
+    /** Channels one CWU/t pays for. */
+    public static final ForgeConfigSpec.IntValue ME_CHANNELS_PER_CWUT;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -29,6 +33,18 @@ public final class AF9Config {
                 .comment("Gravity inside the field, 1.0 = Earth (jumps about 1.25 blocks high).",
                         "It only raises gravity, never lowers it.")
                 .defineInRange("gravity", 1.0, 0.0, 4.0);
+        builder.pop();
+        builder.comment("AE2: a network with an ME Controller needs computation (CWU/t) for its channels, brought in",
+                "by ME Computation Links (Optical Bus Cable, a GT Computation Transmitter Hatch or GT Optical Fiber",
+                "Cable on their back). Short of it, the network gets only the channels its computation pays for (the",
+                "devices farthest from the controller lose theirs first). Networks without a controller need none.")
+                .push("meComputation");
+        ME_NEEDS_COMPUTATION = builder
+                .comment("Networks with an ME Controller need computation.")
+                .define("enabled", true);
+        ME_CHANNELS_PER_CWUT = builder
+                .comment("Channels one CWU/t pays for (a network of 128 channels needs 32 CWU/t at 4).")
+                .defineInRange("channelsPerCwut", 4, 1, 1024);
         builder.pop();
         SPEC = builder.build();
     }

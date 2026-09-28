@@ -39,6 +39,15 @@ ServerEvents.recipes(allthemods => {
         .duration(200)
         .EUt(VA[GTValues.MV])
 
+    // ME Computation Link: AE2's calculation processors on the network side, an optical port on the back
+    allthemods.recipes.gtceu.assembler('af9:me_computation_link')
+        .itemInputs('2x ae2:calculation_processor', 'ae2:fluix_glass_cable', 'ae2:quartz_fiber', 'kubejs:mcu_chip',
+            '4x af9:optical_bus_cable')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 144))
+        .itemOutputs('af9:me_computation_link')
+        .duration(200)
+        .EUt(VA[GTValues.MV])
+
     // Bus Controller: a PLC in an MV hull; the robot arm is what moves the ingredients
     allthemods.recipes.gtceu.assembler('af9:bus_controller')
         .itemInputs('gtceu:mv_machine_hull', '4x kubejs:mcu_chip', '2x #gtceu:circuits/mv', 'gtceu:mv_robot_arm',

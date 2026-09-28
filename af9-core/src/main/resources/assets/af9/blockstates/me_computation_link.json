@@ -1,0 +1,27 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "af9:block/me_computation_link"
+    },
+    "facing=east": {
+      "model": "af9:block/me_computation_link",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "af9:block/me_computation_link",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "af9:block/me_computation_link",
+      "y": 270
+    },
+    "facing=up": {
+      "model": "af9:block/me_computation_link",
+      "x": 270
+    },
+    "facing=down": {
+      "model": "af9:block/me_computation_link",
+      "x": 90
+    }
+  }
+}

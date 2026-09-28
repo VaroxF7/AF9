@@ -32,7 +32,8 @@ import java.util.function.BiConsumer;
  * connector in a Data Bank gives that bank's research ({@link BusConnectorPartMachine#getDataSource}).
  * <p>
  * Limits: a bus carries at most {@link #MAX_CWUT} CWU/t (counted each tick, {@link BusLoad}) and research without
- * limit, for at most {@link #MAX_MACHINES} machines; with more it is overloaded and carries nothing.
+ * limit, for at most {@link #MAX_MACHINES} machines (machines' ports and {@link BusConsumer}s such as the ME
+ * Computation Link); with more it is overloaded and carries nothing.
  * <p>
  * A Bus Controller ties up to four buses together (a Bus Connector on each), and Interconnect Hatches on one run of
  * cable tie Bus Controllers together: the {@link Net network}, over which computation, research and supplies flow.
@@ -51,13 +52,14 @@ public final class BusNetwork {
     /**
      * One walk of a bus.
      *
-     * @param id          the bus's identity: its lowest connector position (the same whichever connector walks it)
+     * @param id          the bus's identity: its lowest connector or consumer position (the same whichever walks it)
      * @param connectors  every connector on it, the walking one first
-     * @param machines    how many of them are machines' ports
+     * @param consumers   the other blocks drawing from it ({@link BusConsumer}: ME Computation Links)
+     * @param machines    how many machines it serves: machines' ports and consumers
      * @param computation CWU/t sources (the transmitter hatches' computation containers)
      * @param data        research sources (Data Banks' transmitter hatches, connectors in Data Banks)
      */
-    public record Bus(long id, List<BusConnectorPartMachine> connectors, int machines,
+    public record Bus(long id, List<BusConnectorPartMachine> connectors, List<BusConsumer> consumers, int machines,
                       List<IOpticalComputationProvider> computation, List<IDataAccessHatch> data) {
 
         /** More machines than a bus serves: it carries no computation, research or supplies. */
@@ -78,14 +80,29 @@ public final class BusNetwork {
     // ************ A bus *************//
     //////////////////////////////////////
 
-    /** The bus of {@code origin}. */
+    /** The bus of a connector. */
     public static Bus walk(BusConnectorPartMachine origin) {
+        return walk(origin.getLevel(), origin.getPos(), origin.getFrontFacing(), origin, null);
+    }
+
+    /** The bus of a consumer (an ME Computation Link). */
+    public static Bus walk(BusConsumer origin) {
+        return walk(origin.getLevel(), origin.getBlockPos(), origin.getPortSide(), null, origin);
+    }
+
+    private static Bus walk(Level level, BlockPos originPos, Direction originPort,
+                            BusConnectorPartMachine originConnector, BusConsumer originConsumer) {
         Map<BlockPos, BusConnectorPartMachine> found = new LinkedHashMap<>();
+        Set<BusConsumer> consumers = new LinkedHashSet<>();
         Set<MetaMachine> transmitters = new LinkedHashSet<>();
-        found.put(origin.getPos(), origin);
-        Level level = origin.getLevel();
+        if (originConnector != null) found.put(originPos, originConnector);
+        if (originConsumer != null) consumers.add(originConsumer);
         if (level != null) {
-            walkCables(level, origin.getPos(), origin.getFrontFacing(), (pos, side) -> {
+            walkCables(level, originPos, originPort, (pos, side) -> {
+                if (level.getBlockEntity(pos) instanceof BusConsumer consumer) {
+                    if (consumer.getPortSide() == side) consumers.add(consumer);
+                    return;
+                }
                 MetaMachine machine = MetaMachine.getMachine(level, pos);
                 if (machine == null || machine.getFrontFacing() != side) return;
                 if (machine instanceof BusConnectorPartMachine connector) {
@@ -111,14 +128,71 @@ public final class BusNetwork {
             }
         }
         long id = Long.MAX_VALUE;
-        int machines = 0;
+        int machines = consumers.size();
         for (BusConnectorPartMachine connector : connectors) {
             id = Math.min(id, connector.getPos().asLong());
             if (connector.getMachineController() != null) machines++;
             IDataAccessHatch source = connector.getDataSource();
             if (source != null) data.add(source);
         }
-        return new Bus(id, List.copyOf(connectors), machines, List.copyOf(computation), List.copyOf(data));
+        for (BusConsumer consumer : consumers) id = Math.min(id, consumer.getBlockPos().asLong());
+        return new Bus(id, List.copyOf(connectors), List.copyOf(consumers), machines, List.copyOf(computation),
+                List.copyOf(data));
+    }
+
+    //////////////////////////////////////
+    // ********** Computation **********//
+    //////////////////////////////////////
+
+    /**
+     * Draws up to {@code cwut} CWU/t for something on {@code own}: from the sources on that bus first, then from those
+     * on the other buses of {@code net}. A bus gives at most what is left of its {@link #MAX_CWUT} this tick
+     * ({@link BusLoad}); computation from another bus counts on both. An overloaded bus gives and passes none.
+     *
+     * @return the CWU/t drawn (or that could be, when simulating)
+     */
+    public static int requestCWUt(Level level, Bus own, Net net, int cwut, boolean simulate,
+                                  Collection<IOpticalComputationProvider> seen) {
+        if (level == null || cwut <= 0 || own.overloaded()) return 0;
+        int want = Math.min(cwut, BusLoad.remaining(level, own.id()));
+        int got = draw(own.computation(), want, simulate, seen);
+        for (Bus bus : net.buses()) {
+            if (got >= want) break;
+            if (bus.id() == own.id() || bus.overloaded()) continue;
+            int drawn = draw(bus.computation(), Math.min(want - got, BusLoad.remaining(level, bus.id())), simulate,
+                    seen);
+            if (!simulate) BusLoad.use(level, bus.id(), drawn);
+            got += drawn;
+        }
+        if (!simulate) BusLoad.use(level, own.id(), got);
+        return got;
+    }
+
+    /** Up to {@code cwut} from the sources, in order. */
+    private static int draw(List<IOpticalComputationProvider> sources, int cwut, boolean simulate,
+                            Collection<IOpticalComputationProvider> seen) {
+        int got = 0;
+        for (IOpticalComputationProvider source : sources) {
+            if (got >= cwut) break;
+            if (seen.contains(source)) continue;
+            got += Math.max(0, source.requestCWUt(cwut - got, simulate, seen));
+        }
+        return got;
+    }
+
+    /** What {@code own} and its network could give at most: each bus's sources, each bus and the whole at most 1024. */
+    public static int maxCWUt(Bus own, Net net, Collection<IOpticalComputationProvider> seen) {
+        if (own.overloaded()) return 0;
+        long sum = 0;
+        for (Bus bus : net.buses()) {
+            if (bus.overloaded()) continue;
+            long onBus = 0;
+            for (IOpticalComputationProvider source : bus.computation()) {
+                if (!seen.contains(source)) onBus += Math.max(0, source.getMaxCWUt(seen));
+            }
+            sum += Math.min(MAX_CWUT, onBus);
+        }
+        return (int) Math.min(MAX_CWUT, sum);
     }
 
     /** The Interconnect Hatches on the cable run of {@code origin}'s port, {@code origin} left out. */

@@ -7,8 +7,6 @@ import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableComputationContainer;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 
-import net.minecraft.world.level.Level;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -33,51 +31,15 @@ public class BusComputationContainer extends NotifiableComputationContainer {
     @Override
     public int requestCWUt(int cwut, boolean simulate, Collection<IOpticalComputationProvider> seen) {
         seen.add(this);
-        Level level = connector.getLevel();
-        BusNetwork.Bus own = connector.getBus();
-        if (level == null || cwut <= 0 || own.overloaded()) return 0;
-        int want = Math.min(cwut, BusLoad.remaining(level, own.id()));
-        int got = draw(own.computation(), want, simulate, seen);
-        for (BusNetwork.Bus bus : connector.getNetwork().buses()) {
-            if (got >= want) break;
-            if (bus.id() == own.id() || bus.overloaded()) continue;
-            int drawn = draw(bus.computation(), Math.min(want - got, BusLoad.remaining(level, bus.id())), simulate,
-                    seen);
-            if (!simulate) BusLoad.use(level, bus.id(), drawn);
-            got += drawn;
-        }
-        if (!simulate) BusLoad.use(level, own.id(), got);
-        return got;
-    }
-
-    /** Up to {@code cwut} from the sources, in order. */
-    private static int draw(List<IOpticalComputationProvider> sources, int cwut, boolean simulate,
-                            Collection<IOpticalComputationProvider> seen) {
-        int got = 0;
-        for (IOpticalComputationProvider source : sources) {
-            if (got >= cwut) break;
-            if (seen.contains(source)) continue;
-            got += Math.max(0, source.requestCWUt(cwut - got, simulate, seen));
-        }
-        return got;
+        return BusNetwork.requestCWUt(connector.getLevel(), connector.getBus(), connector.getNetwork(), cwut, simulate,
+                seen);
     }
 
     /** What the bus and its network could give at most: each bus's sources, each bus at most its limit. */
     @Override
     public int getMaxCWUt(Collection<IOpticalComputationProvider> seen) {
         seen.add(this);
-        BusNetwork.Bus own = connector.getBus();
-        if (own.overloaded()) return 0;
-        long sum = 0;
-        for (BusNetwork.Bus bus : connector.getNetwork().buses()) {
-            if (bus.overloaded()) continue;
-            long onBus = 0;
-            for (IOpticalComputationProvider source : bus.computation()) {
-                if (!seen.contains(source)) onBus += Math.max(0, source.getMaxCWUt(seen));
-            }
-            sum += Math.min(BusNetwork.MAX_CWUT, onBus);
-        }
-        return (int) Math.min(BusNetwork.MAX_CWUT, sum);
+        return BusNetwork.maxCWUt(connector.getBus(), connector.getNetwork(), seen);
     }
 
     /** Bridgeable (for a Network Switch) if every source on the network is; none passes quietly, as GT's cable. */

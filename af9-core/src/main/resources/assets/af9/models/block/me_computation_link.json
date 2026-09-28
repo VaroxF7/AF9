@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "particle": "af9:block/me_computation_link_side",
+    "north": "af9:block/me_computation_link_back",
+    "south": "af9:block/me_computation_link_side",
+    "east": "af9:block/me_computation_link_side",
+    "west": "af9:block/me_computation_link_side",
+    "up": "af9:block/me_computation_link_side",
+    "down": "af9:block/me_computation_link_side"
+  }
+}
