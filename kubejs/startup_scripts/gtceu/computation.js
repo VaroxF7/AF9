@@ -13,6 +13,7 @@ const $ComputationArrayMachine = Java.loadClass('com.af9.core.compute.Computatio
 const $ComputerRack = Java.loadClass('com.af9.core.compute.ComputerRackPartMachine')
 const $ComputeBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $ComputeCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
+const $ComputeRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 
 // Server Casing: the MV computer's shell (N1 Computation Array)
 StartupEvents.registry('block', allthemods => {
@@ -82,17 +83,20 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
 
     // N1 Supercomputer Array: 2 wide, 4 high, 7 to 30 long. Every slice between the two end slices holds four racks
     // (the two middle rows, left and right) between heat vents (the bottom and top rows); the end slices are computer
-    // casings, where the hatches go, the controller second from the bottom.
+    // casings, where the hatches go, the controller second from the bottom. Aisles front (controller) -> back: the
+    // controller comes before the repeatable slices, so GT's auto-build places the structure right behind it (with the
+    // controller after them GT started the build 29 blocks back, at their longest).
     allthemods.create('n1_supercomputer_array', 'multiblock')
         .machine(holder => new $ComputationArrayMachine(holder, $ComputationArrayMachine.SUPERCOMPUTER))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.DUMMY_RECIPES])
         .appearanceBlock(GTBlocks.COMPUTER_CASING)
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.n1_supercomputer_array.tooltip', 5))
-        .pattern(definition => FactoryBlockPattern.start()
-            .aisle('CC', 'CC', 'CC', 'CC')
-            .aisle('VV', 'RR', 'RR', 'VV').setRepeatable(5, 28)
-            .aisle('CC', 'SC', 'CC', 'CC')
+        .pattern(definition => FactoryBlockPattern.start($ComputeRelativeDirection.LEFT, $ComputeRelativeDirection.UP,
+            $ComputeRelativeDirection.BACK)
+            .aisle('CC', 'SC', 'CC', 'CC')                           // front end: the controller
+            .aisle('VV', 'RR', 'RR', 'VV').setRepeatable(5, 28)      // vents, two rows of racks, vents
+            .aisle('CC', 'CC', 'CC', 'CC')                           // back end
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             .where('R', $ComputerRack.racks(false))                // MV or LuV racks
             .where('V', Predicates.blocks('gtceu:computer_heat_vent'))
