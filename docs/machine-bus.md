@@ -81,6 +81,7 @@ A command only reaches a machine on the port's bus, through a connector that tak
 | Computation Transmitter Hatch (an HPCA, a Network Switch) facing the cable | its CWU/t (the hatch's `NotifiableComputationContainer`) |
 | Optical Data Transmitter Hatch (a Data Bank) facing the cable | its research, while the bank runs (GT's own check) |
 | A Bus Connector in a Data Bank | that bank's research: its data access and optical reception parts, while it runs (`BusConnectorPartMachine.getDataSource`) |
+| A Bus Connector in a computation array | the array's CWU/t (`BusConnectorPartMachine.getComputationSource`, §9) |
 
 **The connector is its machine's optical reception hatch.** It carries a `BusComputationContainer` (GT's
 `NotifiableComputationContainer`, IO in, drawing from the bus instead of one Optical Fiber Cable): the machine's CWU/t
@@ -261,3 +262,57 @@ gave last tick, the EU per CWU and its energy.
 | HV CWU Server | Assembler, HV, 10 s | 2 HV circuits, 4 APU, 8 RAM, 2 ASIC chips, 2 Optical Bus Cable, 288 mB soldering alloy |
 | EV CWU Server | Assembler, EV, 10 s | 2 EV circuits, 8 APU, 16 RAM, 4 ASIC chips, 4 Optical Bus Cable, 432 mB soldering alloy |
 | IV CWU Server | Assembler, IV, 10 s | 2 IV circuits, 8 APU, 4 eDRAM, 4 MRAM, 8 ASIC chips, 4 Optical Bus Cable, 576 mB soldering alloy |
+
+## 9. Computation arrays
+
+Code: af9-core `com.af9.core.compute` (`ComputationArrayMachine`, `ComputerRackPartMachine`, the cards `ComputeCard`,
+the coolants `ComputeCoolant`); definitions `kubejs/startup_scripts/gtceu/computation.js`, recipes
+`kubejs/server_scripts/mods/gtceu/computation.js`. Computers built from racks of cards: computation that grows with
+the factory, as the CWU Server's (§8) stops at IV.
+
+**Structures.** No recipes: switched on and formed, an array draws its energy every tick (the cards', the racks', its
+own) and its coolant every second, and puts out its cards' computation scaled down by the share of the heat the
+coolant took. Out of energy it puts out nothing; nothing burns, nothing breaks.
+
+| Array | Id | Structure | Own draw, heat |
+|---|---|---|---|
+| N1 Computation Array | `gtceu:n1_computation_array` | MV, 3 x 3 x 6 of Server Casing (`kubejs:server_casing`); eight MV Computer Racks in the middle row of the four inner slices, a steel pipe casing between them | 32 EU/t, 2 heat/t |
+| N1 Supercomputer Array | `gtceu:n1_supercomputer_array` | LuV, 2 wide, 4 high, 7 to 30 long of GT computer casing; every slice between the end slices holds two racks (MV or LuV) under two computer heat vents: 10 to 56 racks | 512 EU/t, 8 heat/t |
+
+Parts on the casings, maxima only: energy hatches (2 / 4; the supercomputer one laser hatch), Coolant Hatches (2 / 4),
+one Bus Connector, one Computation Transmitter Hatch.
+
+**Computer Rack** (`gtceu:mv_computer_rack`, `gtceu:luv_computer_rack`): four card slots. The MV rack takes Tube and
+Silicon cards (its own fans 4 EU/t, 1 heat/t), the LuV rack every card (128 EU/t, 2 heat/t).
+
+**Cards** (`af9:<tier>_<kind>_card`): processors (CPU, GPU) compute; RAM feeds them. A processor needs a RAM card of
+its tier or higher in the same rack, one RAM card a processor; without one it runs at a quarter (full energy and heat
+still).
+
+| Tier | CPU CWU/t, heat, EU/t | GPU | RAM heat, EU/t |
+|---|---|---|---|
+| Tube (MV) | 1, 1, 8 | 2, 3, 16 | 1, 4 |
+| Silicon (HV) | 2, 2, 32 | 4, 5, 64 | 1, 16 |
+| Nano (IV) | 4, 3, 512 | 8, 8, 1024 | 2, 256 |
+| Quantum (LuV) | 8, 5, 2048 | 16, 12, 4096 | 3, 1024 |
+| Tensor (UV) | 16, 8, 32768 | 32, 18, 65536 | 4, 16384 |
+
+**Coolant** (through Coolant Hatches, heat taken per mB): distilled water 8 (only while the hatch is part of an array:
+the MV Coolant Hatch comes before the Supercooling Cryostat), supercooled hydrogen 64, argon 96, xenon 160, endion 256.
+
+**Where the computation goes.** An array is a GT computation source (`IOpticalComputationProvider`, as GT's HPCA): each
+tick it gives what is asked of it up to its output. A Bus Connector in it puts it on the machine bus (§2b), one of the
+bus's 16 machines, still at most 1024 CWU/t a bus; a Computation Transmitter Hatch in it feeds GT's Optical Fiber
+Cable (a Research Station, the Orbital Station) or an ME Computation Link (§7). Bridging (for a Network Switch) always
+allowed. Its screen shows racks and cards, the computation (put out / fully cooled), what it gave last tick, the draw,
+the heat and the cooling; the monitor module's detail view the computation, cooling, racks and heat.
+
+| Output | Machine | Inputs |
+|---|---|---|
+| 2 Server Casing | Assembler, 16 EU/t, 2.5 s (or crafted) | 6 aluminium plates, a steel frame |
+| MV Coolant Hatch | Assembler, MV, 20 s | MV input hatch, 2 MV pumps, a frostproof casing, 4 polyethylene plates, 1000 mB distilled water |
+| MV Computer Rack | Assembler, MV, 10 s | MV hull, 2 MV circuits, 2 MV motors, 4 Optical Bus Cable, 4 aluminium plates, 144 mB soldering alloy |
+| LuV Computer Rack | Assembler, LuV, 20 s, cleanroom | LuV hull, 2 LuV circuits, 2 LuV motors, 4 Optical Bus Cable, 4 rhodium-plated palladium plates, 576 mB soldering alloy |
+| N1 Computation Array | Assembler, MV, 30 s | MV hull, 4 MV circuits, 4 Server Casing, 4 MV pumps, 2 MV motors, 8 Optical Bus Cable, 288 mB soldering alloy |
+| N1 Supercomputer Array | Assembler, LuV, 60 s, cleanroom | LuV hull, 4 LuV circuits, 8 computer casings, 4 heat vents, 4 LuV pumps, 2 LuV field generators, 16 Optical Bus Cable, 1152 mB soldering alloy |
+| Cards | Circuit Assembler, the tier's voltage, 20 s (cleanroom from Nano) | the tier's board, its chips (Tube: vacuum tubes, magnetic iron rods for RAM), fine wire, 144 mB soldering alloy |
