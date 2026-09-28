@@ -119,12 +119,19 @@ else through the wall's first connector.
 
 **Screen** (`MachineBusRenderer`, layout `BusScreenLayout`, the same on both sides). The group's bounding box in blocks,
 drawn in canvas units (the font is 9 units high), as many units per block as the view needs to fit (detail 200 x 124,
-table 200 x rows). Two views:
+table 200 x rows, console its own size). Three views (the settings' view button goes round them):
 
 - **Detail**, one machine: a status light, the name, the node / recipe chip; the state, the version (`V2/3 x0.80`) and
   batch; the progress bar with percent and time left; energy and draw, the product, runs (or printed / broken), vacuum
   and break chance (or beam energy); the touch buttons.
 - **Table**, the whole bus: a row per machine (light, name, chip, a small progress bar, runs or printed wafers).
+- **Console**, one machine: its console as on its own screen (the lithography line's, the scanner's, the orbital
+  station's, the accelerator's, the cryostat's, an SMC fab multiblock's), centred, view only. Each monitor tick the
+  server makes the machine's console (`BusConsoles.create`), takes its whole state (`BusConsole.snapshot`: the bytes
+  the console sends its own screen) into the module (`con`, with its position and size); the client makes the same
+  console for its copy of the machine, takes the state and draws it onto the wall (`WorldGuiGraphics`: GUI drawing
+  into the world's buffers with depth, each call a step, 0.0003 blocks, nearer than the one before). The machine must
+  be loaded on the client ("not loaded here" otherwise); a machine without a console (GT's) shows the detail view.
 
 The bar runs on from the snapshot while the machine works (`progress + ticks since the snapshot`, wrapping into the
 next run), so it moves every frame whatever the monitor's tier.

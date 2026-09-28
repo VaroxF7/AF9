@@ -426,6 +426,8 @@
     "af9.bus.machine_id.none": "none (name it on its Bus Connector)",
     "af9.bus.placard.hint": "Run it from the Central Monitor: Machine Bus Module",
     "af9.bus.module.open": "[Open its console]",
+    "af9.bus.module.view.console": "console",
+    "af9.bus.screen.console_unloaded": "The machine is not loaded here",
     "af9.bus.module.open_far": "That machine is too far away: its chunk is not loaded for you",
     "af9.bus.controller.server": "%s: %s",
     "af9.bus.controller.server_unnamed": "No name yet: give it one on its own screen, its address on the bus",

@@ -4,21 +4,28 @@ import com.af9.core.bus.BusData;
 import com.af9.core.bus.BusNetwork;
 import com.af9.core.bus.BusScreenLayout;
 import com.af9.core.bus.MachineBusModule;
+import com.af9.core.machine.console.BusConsole;
+import com.af9.core.machine.console.BusConsoles;
 
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.client.renderer.monitor.IMonitorRenderer;
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.CentralMonitorMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.monitor.MonitorGroup;
+
+import com.lowdragmc.lowdraglib.gui.widget.Widget;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -28,8 +35,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * The Machine Bus Module's screen on the Central Monitor ({@link MachineBusModule}): one machine in detail or a table of
@@ -45,6 +54,8 @@ public class MachineBusRenderer implements IMonitorRenderer {
             SELECTED_ROW = 0x402F6DB5, ALT_ROW = 0x14FFFFFF, WARN = 0xFFE05050;
     /** Depths in blocks (GT puts the screen 0.01 in front of the monitors): background, fills, text at 0. */
     private static final float Z_BACK = -0.006f, Z_FILL = -0.003f;
+    /** Console view: depth between two of the console's drawing calls, in blocks. */
+    private static final float CONSOLE_STEP = 0.0003f;
 
     private final CompoundTag tag;
 
@@ -73,6 +84,8 @@ public class MachineBusRenderer implements IMonitorRenderer {
                     "af9.bus.screen.no_machines"), w / 2, h / 2 - 4, DIM);
         } else if (BusScreenLayout.view(tag) == BusScreenLayout.VIEW_TABLE) {
             drawTable(c, devices, w, h);
+        } else if (BusScreenLayout.view(tag) == BusScreenLayout.VIEW_CONSOLE) {
+            drawConsole(c, poseStack, buffer, units, w, h, partialTick);
         } else {
             drawDetail(c, BusScreenLayout.selected(tag), devices.size(), w, h);
         }
@@ -179,6 +192,59 @@ public class MachineBusRenderer implements IMonitorRenderer {
         }
         if (count > 1 && BusScreenLayout.buttons(tag, w, h).isEmpty()) {
             c.text(Component.translatable("af9.bus.screen.more", count - 1).getString(), pad, buttonsY + 4, DIM);
+        }
+    }
+
+    /**
+     * The selected machine's console, as on its own screen, centred: the client's copy of the console (made for the
+     * client's copy of the machine, which must be loaded) with the state the module brought ({@link BusConsole}).
+     */
+    private void drawConsole(Canvas c, PoseStack poseStack, MultiBufferSource buffer, float units, float w, float h,
+                             float partialTick) {
+        Level level = Minecraft.getInstance().level;
+        MetaMachine machine = level == null ? null :
+                MetaMachine.getMachine(level, BlockPos.of(tag.getLong(MachineBusModule.CONSOLE_POS)));
+        Widget console = machine == null ? null : ClientConsoles.get(machine, tag.getByteArray(MachineBusModule.CONSOLE));
+        if (console == null) {
+            c.center(Component.translatable("af9.bus.screen.console_unloaded"), w / 2, h / 2 - 4, DIM);
+            return;
+        }
+        poseStack.pushPose();
+        poseStack.translate((w - console.getSize().width) / 2f, (h - console.getSize().height) / 2f, Z_FILL * units);
+        WorldGuiGraphics graphics = new WorldGuiGraphics(poseStack.last().pose(), buffer, CONSOLE_STEP * units);
+        console.drawInBackground(graphics, Integer.MIN_VALUE / 2, Integer.MIN_VALUE / 2, partialTick);
+        poseStack.popPose();
+    }
+
+    /** The consoles the monitors draw, one per machine, fed the state each time the module brings a new one. */
+    private static final class ClientConsoles {
+
+        private record Entry(MetaMachine machine, Widget console, byte[] applied) {}
+
+        private static final Map<Long, Entry> CONSOLES = new HashMap<>();
+
+        /** The machine's console with the state; null if it has none or the state does not read. */
+        static Widget get(MetaMachine machine, byte[] state) {
+            if (state.length == 0) return null;
+            long key = machine.getPos().asLong();
+            Entry entry = CONSOLES.get(key);
+            if (entry == null || entry.machine() != machine) {
+                Widget created = BusConsoles.create(machine);
+                if (!(created instanceof BusConsole)) return null;
+                if (CONSOLES.size() >= 32) CONSOLES.clear();
+                entry = new Entry(machine, created, null);
+            }
+            if (entry.applied() != state) {
+                try {
+                    ((BusConsole) entry.console()).applySnapshot(state);
+                } catch (RuntimeException e) {
+                    CONSOLES.remove(key);
+                    return null;
+                }
+                entry = new Entry(machine, entry.console(), state);
+            }
+            CONSOLES.put(key, entry);
+            return entry.console();
         }
     }
 

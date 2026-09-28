@@ -10,6 +10,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import io.netty.buffer.Unpooled;
+
 import java.util.Locale;
 
 /**
@@ -19,7 +21,7 @@ import java.util.Locale;
  * over the drawn
  * tiles.
  */
-public abstract class ConsoleWidget extends Widget {
+public abstract class ConsoleWidget extends Widget implements BusConsole {
 
     public static final int BG = 0xFF0A0E16, PANEL = 0xFF111827, EDGE = 0xFF25324A, TEXT = 0xFFE6EDF7,
             MUTED = 0xFF7C8AA5, DIM = 0xFF4B5567, GOOD = 0xFF4ADE80, BAD = 0xFFEF4444, WARN = 0xFFFBBF24,
@@ -72,6 +74,25 @@ public abstract class ConsoleWidget extends Widget {
         } else {
             super.readUpdateInfo(id, buffer);
         }
+    }
+
+    @Override
+    public byte[] snapshot() {
+        sample();
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        try {
+            writeState(buffer);
+            byte[] bytes = new byte[buffer.readableBytes()];
+            buffer.readBytes(bytes);
+            return bytes;
+        } finally {
+            buffer.release();
+        }
+    }
+
+    @Override
+    public void applySnapshot(byte[] bytes) {
+        readState(new FriendlyByteBuf(Unpooled.wrappedBuffer(bytes)));
     }
 
     //////////////////////////////////////

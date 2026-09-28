@@ -1,6 +1,8 @@
 package com.af9.core.bus;
 
 import com.af9.core.client.render.MachineBusRenderer;
+import com.af9.core.machine.console.BusConsole;
+import com.af9.core.machine.console.BusConsoles;
 
 import com.gregtechceu.gtceu.api.item.IComponentItem;
 import com.gregtechceu.gtceu.api.item.component.IAddInformation;
@@ -49,6 +51,8 @@ public class MachineBusModule implements IMonitorModuleItem, IAddInformation {
     public static final String VIEW = "view", SELECTED = "sel", SHOW = "show", NO_TOUCH = "notouch";
     // data
     public static final String TIME = "t", PORT = "port", DEVICES = "dev", OVERLOADED = "ovl";
+    /** Console view: the selected machine's console state ({@link BusConsole#snapshot}), whose, and its size. */
+    public static final String CONSOLE = "con", CONSOLE_POS = "conp", CONSOLE_W = "conw", CONSOLE_H = "conh";
     public static final int PORT_NONE = 0, PORT_EMPTY = 1, PORT_OK = 2;
 
     //////////////////////////////////////
@@ -112,6 +116,29 @@ public class MachineBusModule implements IMonitorModuleItem, IAddInformation {
         tag.putInt(PORT, port == null ? PORT_NONE : devices.isEmpty() ? PORT_EMPTY : PORT_OK);
         CompoundTag selected = BusScreenLayout.selected(tag);
         if (selected != null) tag.putLong(SELECTED, selected.getLong(BusData.POS));
+        snapshotConsole(tag, port, selected);
+    }
+
+    /**
+     * Console view: the selected machine's console state into the module (only that machine's, only in that view);
+     * a machine without a console (GT's) shows the detail view.
+     */
+    private static void snapshotConsole(CompoundTag tag, BusConnectorPartMachine port, CompoundTag selected) {
+        tag.remove(CONSOLE);
+        if (port == null || selected == null || tag.getInt(VIEW) != BusScreenLayout.VIEW_CONSOLE) return;
+        long pos = selected.getLong(BusData.POS);
+        for (BusConnectorPartMachine connector : port.getMachinesOnBus()) {
+            if (connector.getPos().asLong() != pos || connector.getMachineController() == null) continue;
+            MetaMachine machine = connector.getMachineController().self();
+            if (BusConsoles.create(machine) instanceof BusConsole console) {
+                Widget widget = (Widget) console;
+                tag.putByteArray(CONSOLE, console.snapshot());
+                tag.putLong(CONSOLE_POS, machine.getPos().asLong());
+                tag.putInt(CONSOLE_W, widget.getSize().width);
+                tag.putInt(CONSOLE_H, widget.getSize().height);
+            }
+            return;
+        }
     }
 
     /** Sends the module to the players at once (as GT's monitor tick does). */
@@ -145,8 +172,7 @@ public class MachineBusModule implements IMonitorModuleItem, IAddInformation {
                 index = Math.floorMod(index + (id.equals("next") ? 1 : -1), devices.size());
                 tag.putLong(SELECTED, devices.getCompound(index).getLong(BusData.POS));
             }
-            case "view" -> tag.putInt(VIEW, BusScreenLayout.view(tag) == BusScreenLayout.VIEW_TABLE ?
-                    BusScreenLayout.VIEW_DETAIL : BusScreenLayout.VIEW_TABLE);
+            case "view" -> tag.putInt(VIEW, Math.floorMod(tag.getInt(VIEW) + 1, BusScreenLayout.VIEWS));
             case "list" -> tag.putInt(VIEW, BusScreenLayout.VIEW_TABLE);
             case "touch" -> tag.putBoolean(NO_TOUCH, touchEnabled(tag));
             case "power" -> {
@@ -317,10 +343,12 @@ public class MachineBusModule implements IMonitorModuleItem, IAddInformation {
             text.add(ComponentPanelWidget.withButton(Component.translatable("af9.bus.module.open")
                     .withStyle(ChatFormatting.GREEN), "open"));
         }
-        boolean table = BusScreenLayout.view(tag) == BusScreenLayout.VIEW_TABLE;
+        int view = tag.getInt(VIEW);
+        String viewKey = view == BusScreenLayout.VIEW_TABLE ? "af9.bus.module.view.table" :
+                view == BusScreenLayout.VIEW_CONSOLE ? "af9.bus.module.view.console" : "af9.bus.module.view.detail";
         text.add(Component.translatable("af9.bus.module.view").append(" ")
-                .append(ComponentPanelWidget.withButton(Component.translatable(table ? "af9.bus.module.view.table" :
-                        "af9.bus.module.view.detail").withStyle(ChatFormatting.AQUA), "view"))
+                .append(ComponentPanelWidget.withButton(Component.translatable(viewKey)
+                        .withStyle(ChatFormatting.AQUA), "view"))
                 .append("  ").append(Component.translatable("af9.bus.module.touch")).append(" ")
                 .append(ComponentPanelWidget.withButton(Component.translatable(touchEnabled(tag) ?
                         "af9.bus.module.on" : "af9.bus.module.off").withStyle(touchEnabled(tag) ?

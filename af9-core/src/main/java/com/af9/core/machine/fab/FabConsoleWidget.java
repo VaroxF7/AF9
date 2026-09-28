@@ -2,6 +2,7 @@ package com.af9.core.machine.fab;
 
 import com.af9.core.fab.FabFamily;
 import com.af9.core.fab.IFabMachine;
+import com.af9.core.machine.console.BusConsole;
 
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
@@ -17,6 +18,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import io.netty.buffer.Unpooled;
+
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -26,7 +29,7 @@ import java.util.Locale;
  * blocks) sits above GT's slot layout. The server samples the machine every tick and syncs only what changed; mode
  * tiles are made clickable by invisible buttons (see {@link FabMultiblockMachine#createUIWidget()}).
  */
-public class FabConsoleWidget extends Widget {
+public class FabConsoleWidget extends Widget implements BusConsole {
 
     public static final int WIDTH = 190;
     public static final int HEIGHT = 125;
@@ -170,6 +173,25 @@ public class FabConsoleWidget extends Widget {
         } else {
             super.readUpdateInfo(id, buffer);
         }
+    }
+
+    @Override
+    public byte[] snapshot() {
+        sample();
+        FriendlyByteBuf buffer = new FriendlyByteBuf(Unpooled.buffer());
+        try {
+            writeState(buffer);
+            byte[] bytes = new byte[buffer.readableBytes()];
+            buffer.readBytes(bytes);
+            return bytes;
+        } finally {
+            buffer.release();
+        }
+    }
+
+    @Override
+    public void applySnapshot(byte[] bytes) {
+        readState(new FriendlyByteBuf(Unpooled.wrappedBuffer(bytes)));
     }
 
     private void writeState(FriendlyByteBuf buffer) {

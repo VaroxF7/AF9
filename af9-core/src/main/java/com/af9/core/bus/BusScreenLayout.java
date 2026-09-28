@@ -23,7 +23,8 @@ import java.util.List;
  */
 public final class BusScreenLayout {
 
-    public static final int VIEW_DETAIL = 0, VIEW_TABLE = 1;
+    /** The views; the console view only while the module holds a console's state (else the detail view). */
+    public static final int VIEW_DETAIL = 0, VIEW_TABLE = 1, VIEW_CONSOLE = 2, VIEWS = 3;
     public static final float PAD = 6, DETAIL_W = 200, DETAIL_H = 124, TABLE_W = 200, HEADER_H = 18, ROW_H = 14;
     public static final float BUTTON_H = 16, BUTTON_GAP = 4;
     /** Detail view: the bar and the stat lines. */
@@ -57,8 +58,11 @@ public final class BusScreenLayout {
         return new Screen(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
+    /** The view the screen shows. */
     public static int view(CompoundTag tag) {
-        return tag.getInt(MachineBusModule.VIEW) == VIEW_TABLE ? VIEW_TABLE : VIEW_DETAIL;
+        int view = tag.getInt(MachineBusModule.VIEW);
+        if (view == VIEW_CONSOLE) return tag.contains(MachineBusModule.CONSOLE) ? VIEW_CONSOLE : VIEW_DETAIL;
+        return view == VIEW_TABLE ? VIEW_TABLE : VIEW_DETAIL;
     }
 
     public static ListTag devices(CompoundTag tag) {
@@ -77,8 +81,21 @@ public final class BusScreenLayout {
 
     /** Units per block: the view's design size fits into the screen either way. */
     public static float unitsPerBlock(Screen screen, CompoundTag tag) {
-        float w = view(tag) == VIEW_TABLE ? TABLE_W : DETAIL_W;
-        float h = view(tag) == VIEW_TABLE ? HEADER_H + ROW_H * Math.max(3, devices(tag).size()) + PAD : DETAIL_H;
+        float w, h;
+        switch (view(tag)) {
+            case VIEW_TABLE -> {
+                w = TABLE_W;
+                h = HEADER_H + ROW_H * Math.max(3, devices(tag).size()) + PAD;
+            }
+            case VIEW_CONSOLE -> {
+                w = Math.max(1, tag.getInt(MachineBusModule.CONSOLE_W));
+                h = Math.max(1, tag.getInt(MachineBusModule.CONSOLE_H));
+            }
+            default -> {
+                w = DETAIL_W;
+                h = DETAIL_H;
+            }
+        }
         return Math.max(w / screen.cols(), h / screen.rows());
     }
 
@@ -95,6 +112,7 @@ public final class BusScreenLayout {
     public static List<Button> buttons(CompoundTag tag, float w, float h) {
         List<Button> buttons = new ArrayList<>();
         ListTag devices = devices(tag);
+        if (view(tag) == VIEW_CONSOLE) return buttons;
         if (view(tag) == VIEW_TABLE) {
             int rows = Math.min(devices.size(), tableRows(h));
             for (int i = 0; i < rows; i++) buttons.add(new Button("row:" + i, row(i, w)));
