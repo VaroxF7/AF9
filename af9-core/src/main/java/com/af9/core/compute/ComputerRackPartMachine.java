@@ -1,5 +1,7 @@
 package com.af9.core.compute;
 
+import com.af9.core.bus.BusConnectorPartMachine;
+
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.widget.SlotWidget;
@@ -135,17 +137,19 @@ public class ComputerRackPartMachine extends TieredPartMachine implements IMachi
     //////////////////////////////////////
 
     @Override
+    /** The card slots on top, the rack's numbers under them in a box that scrolls when they run longer. */
     public Widget createUIWidget() {
-        var group = new WidgetGroup(0, 0, 150, 72);
-        int x0 = (150 - SLOTS * 18) / 2;
+        var group = new WidgetGroup(0, 0, 176, 96);
+        int x0 = (176 - SLOTS * 18) / 2;
         for (int i = 0; i < SLOTS; i++) {
             group.addWidget(new SlotWidget(cards, i, x0 + i * 18, 4, true, true)
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         boolean client = getLevel() != null && getLevel().isClientSide;
-        group.addWidget(new ComponentPanelWidget(4, 28, this::addDisplayText)
+        group.addWidget(BusConnectorPartMachine.scrolling(0, 26, 176, 70, new ComponentPanelWidget(4, 0,
+                this::addDisplayText)
                 .textSupplier(client ? null : this::addDisplayText)
-                .setMaxWidthLimit(142));
+                .setMaxWidthLimit(166)));
         return group;
     }
 
