@@ -1,11 +1,15 @@
 package com.af9.core.bus;
 
+import com.af9.core.machine.CWUServerMachine;
+
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.widget.PhantomSlotWidget;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
@@ -49,7 +53,8 @@ import java.util.List;
  * Bus Controllers). Its buses, and every bus and controller linked to it, are one network ({@link BusNetwork.Net}):
  * computation and research flow between the buses, and its screen lists every machine of the network; for each it
  * picks a recipe (put the product, or a bucket or cell of a fluid product, into the slot, then choose among the
- * machine's recipes that make it). While it runs it supplies the machines of its own buses once a second
+ * machine's recipes that make it). After the machines it lists the network's CWU Servers by their names (their
+ * addresses on the bus): their state, output and energy, and a switch. While it runs it supplies the machines of its own buses once a second
  * ({@link BusSupply}): one run of ingredients into the machine's own input bus whenever it holds none, from its own
  * inputs first, then from the linked controllers'. The recipe is kept on the machine's connector
  * ({@link BusConnectorPartMachine#getRecipeId}); a connector can refuse the controller.
@@ -154,6 +159,26 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
             }
         }
         return machines;
+    }
+
+    /** The CWU Servers on the network's buses, each once. */
+    public List<CWUServerMachine> getServers() {
+        List<CWUServerMachine> servers = new ArrayList<>();
+        for (BusNetwork.Bus bus : getNetwork().buses()) {
+            for (IOpticalComputationProvider source : bus.computation()) {
+                if (source instanceof CWUServerMachine server && !server.isInValid() && !servers.contains(server)) {
+                    servers.add(server);
+                }
+            }
+        }
+        return servers;
+    }
+
+    /** What the screen's selector goes through: the machines (their connectors), then the CWU Servers. */
+    private List<MetaMachine> entries(List<BusConnectorPartMachine> machines) {
+        List<MetaMachine> entries = new ArrayList<>(machines);
+        entries.addAll(getServers());
+        return entries;
     }
 
     /** The bus of the network a machine's connector is on, or null. */
@@ -278,12 +303,12 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
     // ******** The recipe picker ******//
     //////////////////////////////////////
 
-    /** The machine the screen shows (the first one if the selection is gone), or null. */
-    private BusConnectorPartMachine selectedMachine(List<BusConnectorPartMachine> machines) {
-        for (BusConnectorPartMachine connector : machines) {
-            if (connector.getPos().asLong() == selected) return connector;
+    /** The machine or server the screen shows (the first one if the selection is gone), or null. */
+    private MetaMachine selectedEntry(List<MetaMachine> entries) {
+        for (MetaMachine entry : entries) {
+            if (entry.getPos().asLong() == selected) return entry;
         }
-        return machines.isEmpty() ? null : machines.get(0);
+        return entries.isEmpty() ? null : entries.get(0);
     }
 
     /** The selected machine's recipes that make the product (found again when either changes). */
@@ -373,33 +398,41 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
         }
         BusNetwork.Net net = getNetwork();
         List<BusConnectorPartMachine> machines = getMachines();
+        List<MetaMachine> entries = entries(machines);
         int overloaded = 0, research = 0;
         for (BusNetwork.Bus bus : net.buses()) {
             if (bus.overloaded()) overloaded++;
             else research += bus.data().size();
         }
         text.add(Component.translatable("af9.bus.controller.network", ports.size(), MAX_PORTS, net.buses().size(),
-                net.controllers().size(), machines.size()).withStyle(ChatFormatting.GRAY));
+                net.controllers().size(), machines.size(), entries.size() - machines.size())
+                .withStyle(ChatFormatting.GRAY));
         text.add(Component.translatable("af9.bus.controller.sources", ports.get(0).getComputation().getMaxCWUt(),
                 BusNetwork.MAX_CWUT, research).withStyle(ChatFormatting.GRAY));
         if (overloaded > 0) {
             text.add(Component.translatable("af9.bus.controller.overloaded", overloaded, BusNetwork.MAX_MACHINES)
                     .withStyle(ChatFormatting.RED));
         }
-        BusConnectorPartMachine machine = selectedMachine(machines);
-        if (machine == null) {
+        MetaMachine entry = selectedEntry(entries);
+        if (entry == null) {
             text.add(Component.translatable("af9.bus.controller.no_machines").withStyle(ChatFormatting.YELLOW));
             return;
         }
 
-        // the machine
+        // the machine or server
+        Component name = entry instanceof CWUServerMachine server ? server.getDisplayName() :
+                MachineBusModule.deviceName(BusData.snapshot((BusConnectorPartMachine) entry));
         text.add(Component.empty()
                 .append(ComponentPanelWidget.withButton(Component.literal("◀ "), "machine_prev"))
-                .append(MachineBusModule.deviceName(BusData.snapshot(machine)).copy()
-                        .withStyle(ChatFormatting.WHITE))
+                .append(name.copy().withStyle(ChatFormatting.WHITE))
                 .append(ComponentPanelWidget.withButton(Component.literal(" ▶"), "machine_next"))
-                .append(Component.literal("  " + (machines.indexOf(machine) + 1) + "/" + machines.size())
+                .append(Component.literal("  " + (entries.indexOf(entry) + 1) + "/" + entries.size())
                         .withStyle(ChatFormatting.DARK_GRAY)));
+        if (entry instanceof CWUServerMachine server) {
+            server.addBusText(text);
+            return;
+        }
+        BusConnectorPartMachine machine = (BusConnectorPartMachine) entry;
         Level level = getLevel();
         ResourceLocation id = machine.getRecipeId();
         GTRecipe set = id == null || level == null ? null : recipe(level, id);
@@ -450,16 +483,22 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
     @Override
     public void handleDisplayClick(String id, ClickData click) {
         if (click.isRemote) return;
-        List<BusConnectorPartMachine> machines = getMachines();
-        BusConnectorPartMachine machine = selectedMachine(machines);
-        if (machine == null) return;
+        List<MetaMachine> entries = entries(getMachines());
+        MetaMachine entry = selectedEntry(entries);
+        if (entry == null) return;
+        if (id.equals("machine_prev") || id.equals("machine_next")) {
+            int index = Math.floorMod(entries.indexOf(entry) + (id.equals("machine_next") ? 1 : -1), entries.size());
+            selected = entries.get(index).getPos().asLong();
+            candidate = 0;
+            markDirty();
+            return;
+        }
+        if (entry instanceof CWUServerMachine server) {
+            if (id.equals("server_power")) server.setWorkingEnabled(!server.isWorkingEnabled());
+            return;
+        }
+        BusConnectorPartMachine machine = (BusConnectorPartMachine) entry;
         switch (id) {
-            case "machine_prev", "machine_next" -> {
-                int index = Math.floorMod(machines.indexOf(machine) + (id.equals("machine_next") ? 1 : -1),
-                        machines.size());
-                selected = machines.get(index).getPos().asLong();
-                candidate = 0;
-            }
             case "recipe_prev" -> candidate--;
             case "recipe_next" -> candidate++;
             case "assign" -> {

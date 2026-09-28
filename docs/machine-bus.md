@@ -151,10 +151,11 @@ ME: GT's ME input / stocking buses and hatches count, so AE2 sends it the ingred
 Connectors (its ports: one on each bus it runs, so up to 4 buses and 64 machines), 1 Interconnect Hatch (§6). Recipe type `dummy`, its own logic (`BusControllerMachine.SupplyLogic`): while formed and switched on it
 draws 120 EU/t; without the power it waits.
 
-**The recipe of a machine.** Its screen shows its ports (of 4), the network's buses, controllers and machines, the
+**The recipe of a machine.** Its screen (a fixed head with the name and the ghost slot, the text under it wrapped to
+the screen and scrolling) shows its ports (of 4), the network's buses, controllers, machines and CWU Servers, the
 CWU/t and research sources, and how many buses are overloaded; it lists every machine of the network that runs
-recipes (`◀ name ▶`). The ghost slot in
-the top right corner takes the product (a bucket or cell of a fluid product matches fluid outputs); the screen offers
+recipes, then the network's CWU Servers (`◀ name ▶`; a server by the name set on its screen: its state, output and
+energy, and a switch). The ghost slot in the top right corner takes the product (a bucket or cell of a fluid product matches fluid outputs); the screen offers
 the selected machine's recipes that make it (at most 64, over the recipe types the machine may run: a line's only up
 to its built version), `◀ n/N ▶`, with what one run takes, and `[Set this recipe]`. The recipe is kept on the machine's
 connector (`recipe`, persisted), `[Clear]` removes it. The connector's screen can refuse the controller
@@ -256,7 +257,8 @@ amp). It is a GT computation source (`IOpticalComputationProvider`, every side),
   source like a transmitter hatch (`BusNetwork.isTransmitter`), each bus still at most 1024 CWU/t.
 
 Bridging (for a Network Switch) always allowed. A soft mallet or its screen switches it off; its screen shows what it
-gave last tick, the EU per CWU and its energy.
+gave last tick, the EU per CWU and its energy, and takes a **name** (max 32 characters): its address on the bus. A Bus
+Controller lists the CWU Servers of its network after the machines, by name (§5).
 
 **Front lights** (model properties `cwu_lights`, `cwu_alt_lights`, set every 10 ticks; models
 `af9:block/machine/cwu_server_<state>`): a steady red dot while **offline**: switched off, out of energy, or nothing next

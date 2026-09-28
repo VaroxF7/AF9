@@ -20,6 +20,8 @@ import com.gregtechceu.gtceu.common.data.models.GTMachineModels;
 import com.gregtechceu.gtceu.data.model.builder.MachineModelBuilder;
 
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
+import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
+import com.lowdragmc.lowdraglib.gui.widget.TextFieldWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
@@ -73,6 +75,10 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
     @Persisted
     @DescSynced
     private boolean workingEnabled = true;
+    /** Its name, its address on the bus ("" none): the Bus Controller lists it by it. */
+    @Persisted
+    @DescSynced
+    private String label = "";
     /** CWU/t given this tick, and last tick's. */
     private int given, lastGiven;
     private long givenTick = -1;
@@ -292,11 +298,33 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
     // ************ Screen *************//
     //////////////////////////////////////
 
+    public String getLabel() {
+        return label;
+    }
+
+    private void setLabel(String text) {
+        String trimmed = text == null ? "" : text.strip();
+        if (trimmed.length() > BusConnectorPartMachine.MAX_LABEL) {
+            trimmed = trimmed.substring(0, BusConnectorPartMachine.MAX_LABEL);
+        }
+        if (trimmed.equals(label)) return;
+        label = trimmed;
+        markDirty();
+    }
+
+    /** Its name, else its machine name. */
+    public Component getDisplayName() {
+        return label.isEmpty() ? Component.translatable(getDefinition().getDescriptionId()) : Component.literal(label);
+    }
+
     @Override
     public Widget createUIWidget() {
-        var group = new WidgetGroup(0, 0, 182, 80);
+        var group = new WidgetGroup(0, 0, 182, 96);
+        group.addWidget(new LabelWidget(4, 5, Component.translatable("af9.bus.connector.label")));
+        group.addWidget(new TextFieldWidget(52, 3, 126, 12, () -> label, this::setLabel)
+                .setMaxStringLength(BusConnectorPartMachine.MAX_LABEL));
         boolean client = getLevel() != null && getLevel().isClientSide;
-        group.addWidget(BusConnectorPartMachine.scrolling(0, 0, 182, 80, new ComponentPanelWidget(4, 5,
+        group.addWidget(BusConnectorPartMachine.scrolling(0, 19, 182, 77, new ComponentPanelWidget(4, 1,
                 this::addDisplayText)
                 .textSupplier(client ? null : this::addDisplayText)
                 .setMaxWidthLimit(172)
@@ -304,6 +332,30 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
                     if (!click.isRemote && id.equals("power")) setWorkingEnabled(!workingEnabled);
                 })));
         return group;
+    }
+
+    /**
+     * What a Bus Controller shows when this server is picked: the model and its state, its output, its energy, and a
+     * switch (click id {@code server_power}).
+     */
+    public void addBusText(List<Component> text) {
+        Lights lights = lights();
+        text.add(Component.translatable("af9.bus.controller.server",
+                Component.translatable(getDefinition().getDescriptionId()),
+                Component.translatable("af9.cwu_server.state." + lights.getSerializedName()).withStyle(
+                        lights == Lights.OFFLINE ? ChatFormatting.RED : lights == Lights.BUSY ? ChatFormatting.AQUA :
+                                ChatFormatting.GREEN))
+                .withStyle(ChatFormatting.GRAY));
+        text.add(Component.translatable("af9.cwu_server.giving", getLastGiven(), getMaxOutput())
+                .withStyle(ChatFormatting.AQUA));
+        text.add(Component.translatable("af9.cwu_server.stored", energyContainer.getEnergyStored(),
+                energyContainer.getEnergyCapacity()).withStyle(ChatFormatting.GRAY));
+        text.add(ComponentPanelWidget.withButton(Component.translatable(workingEnabled ? "af9.cwu_server.on" :
+                "af9.cwu_server.off").withStyle(workingEnabled ? ChatFormatting.GREEN : ChatFormatting.RED),
+                "server_power"));
+        if (label.isEmpty()) {
+            text.add(Component.translatable("af9.bus.controller.server_unnamed").withStyle(ChatFormatting.DARK_GRAY));
+        }
     }
 
     private void addDisplayText(List<Component> text) {
