@@ -275,6 +275,35 @@ public class BusConnectorPartMachine extends MultiblockPartMachine
         return IOpticalDataAccessHatch.super.modifyRecipe(recipe);
     }
 
+    /** Whether its machine is part of a bus: the cable joins this port to another connector or an ME Computation Link. */
+    public boolean isOnBus() {
+        BusNetwork.Bus bus = getBus();
+        return bus.connectors().size() > 1 || !bus.consumers().isEmpty();
+    }
+
+    /** The Bus Connector in a machine's structure, or null. */
+    public static BusConnectorPartMachine of(IMultiController machine) {
+        if (machine == null || !machine.isFormed()) return null;
+        for (IMultiPart part : machine.getParts()) {
+            if (part instanceof BusConnectorPartMachine connector) return connector;
+        }
+        return null;
+    }
+
+    /**
+     * Under the machine's own text on GT's multiblock screen (AF9's consoles show it in their strip,
+     * {@link com.af9.core.machine.console.BusBannerWidget}): while its machine is on a bus, "This Machine is Part of a
+     * BUS" and its BUS MACHINE ID, this connector's name.
+     */
+    @Override
+    public void addMultiText(List<Component> text) {
+        if (getMachineController() == null || !isOnBus()) return;
+        text.add(Component.translatable("af9.bus.part_of_bus").withStyle(ChatFormatting.AQUA));
+        text.add(Component.translatable("af9.bus.machine_id", label.isEmpty() ?
+                Component.translatable("af9.bus.machine_id.none").withStyle(ChatFormatting.GRAY) :
+                Component.literal(label).withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.AQUA));
+    }
+
     /** The research this connector puts on the bus: its Data Bank's, if it sits in one; else null. */
     public IDataAccessHatch getDataSource() {
         return getMachineController() instanceof DataBankMachine ? dataSource : null;

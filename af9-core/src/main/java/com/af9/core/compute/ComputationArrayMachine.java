@@ -309,6 +309,7 @@ public class ComputationArrayMachine extends WorkableElectricMultiblockMachine i
                 Component.translatable("af9.compute.array.given", getLastGiven(), getOutputCWUt())
                         .withStyle(ChatFormatting.GRAY) :
                 Component.translatable("af9.compute.array.no_outlet").withStyle(ChatFormatting.DARK_GRAY));
+        for (IMultiPart part : getParts()) part.addMultiText(text);
     }
 
     /** Runs the array every tick instead of looking for recipes (as GT's Central Monitor does). */

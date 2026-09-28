@@ -3,6 +3,7 @@ package com.af9.core.machine;
 import com.af9.core.AF9Core;
 import com.af9.core.common.AF9Sounds;
 import com.af9.core.machine.console.AcceleratorConsoleWidget;
+import com.af9.core.machine.console.BusBannerWidget;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.SidePanelsUIWidget;
 
@@ -227,7 +228,7 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
 
     @Override
     public Widget createUIWidget() {
-        return AcceleratorConsoleWidget.createPage(this);
+        return BusBannerWidget.wrap(AcceleratorConsoleWidget.createPage(this), this);
     }
 
     /** GT's machine screen with the accelerator's page and a panel on each side of the player inventory. */

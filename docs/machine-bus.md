@@ -40,6 +40,13 @@ reception hatch goes: the Assembly Line (its data hatch position), the Research 
 Data Bank and the Network Switch. GT counts a part against every limit it matches, so the orbital station allows two
 computation and two optical data reception parts (the connector and a hatch of its own).
 
+**On the machine's own screen.** Without a connector (or with one on no bus) a machine is an ordinary multiblock:
+its own inputs, outputs and screen. With a connector on a bus (the cable joins it to another connector or an ME
+Computation Link, `BusConnectorPartMachine.isOnBus`) its controller's screen says **"This Machine is Part of a BUS"**
+and, under it, **"BUS MACHINE ID: <name>"**, the connector's name: GT's multiblock screens (Assembly Line, Research
+Station, the computation arrays) at the end of their text (`addMultiText`), AF9's consoles in a strip under the console
+(`BusBannerWidget`, only on machines with a connector; "on no bus" while the cable joins nothing).
+
 **The Central Monitor's wall** takes a connector too. GT builds the wall's block predicate once into the private static
 `CentralMonitorMachine.MULTI_PREDICATE`; at common setup `AF9Bus.installMonitorWall` puts back that predicate `.or()`
 the connector's ability (reflection; if GT renames the field, an error is logged and the wall does not take one). It is
