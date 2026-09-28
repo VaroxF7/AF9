@@ -5,7 +5,7 @@ import com.af9.core.bus.BusConnectorPartMachine;
 import com.af9.core.common.AF9DamageTypes;
 import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
-import com.af9.core.machine.console.BusBannerWidget;
+import com.af9.core.machine.console.BusPlacardWidget;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.OrbitalConsoleWidget;
 import com.af9.core.machine.console.OrbitalStationUIWidget;
@@ -664,7 +664,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
 
     @Override
     public Widget createUIWidget() {
-        return BusBannerWidget.wrap(OrbitalConsoleWidget.createPage(this), this);
+        return BusPlacardWidget.wrap(OrbitalConsoleWidget.createPage(this), this);
     }
 
     /** GT's machine screen with the station's page and a panel on each side of the player inventory. */

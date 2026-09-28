@@ -1,7 +1,7 @@
 package com.af9.core.machine;
 
 import com.af9.core.common.IPowerGated;
-import com.af9.core.machine.console.BusBannerWidget;
+import com.af9.core.machine.console.BusPlacardWidget;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.ProcessConsoleWidget;
 import com.af9.core.machine.part.CoolantHatchPartMachine;
@@ -68,7 +68,7 @@ public abstract class ProcessMachine extends WorkableElectricMultiblockMachine i
 
     @Override
     public Widget createUIWidget() {
-        return BusBannerWidget.wrap(ProcessConsoleWidget.create(this), this);
+        return BusPlacardWidget.wrap(ProcessConsoleWidget.create(this), this);
     }
 
     //////////////////////////////////////

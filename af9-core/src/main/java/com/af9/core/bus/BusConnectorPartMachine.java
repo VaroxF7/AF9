@@ -342,9 +342,10 @@ public class BusConnectorPartMachine extends MultiblockPartMachine
     }
 
     /**
-     * Under the machine's own text on GT's multiblock screen (AF9's consoles show it in their strip,
-     * {@link com.af9.core.machine.console.BusBannerWidget}): while its machine is on a bus, "This Machine is Part of a
-     * BUS" and its BUS MACHINE ID, this connector's name.
+     * Under the machine's own text on GT's multiblock screen while its machine is on a bus: "This Machine is Part of a
+     * BUS" and its BUS MACHINE ID, this connector's name. The machine's screen is covered by that card then
+     * ({@link com.af9.core.machine.console.BusPlacardWidget}); these lines show when it is opened from the Central
+     * Monitor.
      */
     @Override
     public void addMultiText(List<Component> text) {

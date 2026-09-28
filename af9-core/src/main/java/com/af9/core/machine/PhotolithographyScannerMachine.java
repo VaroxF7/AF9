@@ -1,7 +1,7 @@
 package com.af9.core.machine;
 
 import com.af9.core.litho.LithoMode;
-import com.af9.core.machine.console.BusBannerWidget;
+import com.af9.core.machine.console.BusPlacardWidget;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.ScannerConsoleWidget;
 import com.af9.core.machine.console.ScannerUIWidget;
@@ -87,7 +87,7 @@ public class PhotolithographyScannerMachine extends PhotolithographyLineMachine 
 
     @Override
     public Widget createUIWidget() {
-        return BusBannerWidget.wrap(ScannerConsoleWidget.createPage(this), this);
+        return BusPlacardWidget.wrap(ScannerConsoleWidget.createPage(this), this);
     }
 
     /** GT's machine screen with the scanner's page and a panel on each side of the player inventory. */
