@@ -1,7 +1,11 @@
 package com.af9.core.machine.part;
 
+import com.af9.core.compute.ComputationArrayMachine;
+import com.af9.core.compute.ComputeCoolant;
+
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.FluidHatchPartMachine;
@@ -14,8 +18,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Coolant Hatch: a fluid input hatch that only takes the supercooled fluids (gtceu:supercooled_*, made in the
- * Supercooling Cryostat). The machines that need cooling (Particle Accelerator, Orbital Lithography Station) take
- * their fluids only through these ({@link #COOLANT_INPUT}); in other multiblocks it works as a filtered input hatch.
+ * Supercooling Cryostat). The machines that need cooling (Particle Accelerator, Orbital Lithography Station, the
+ * computation arrays) take their fluids only through these ({@link #COOLANT_INPUT}); in other multiblocks it works as a
+ * filtered input hatch. In a computation array it also takes distilled water (the MV array's coolant: the MV hatch
+ * comes before the cryostat).
  */
 public class CoolantHatchPartMachine extends FluidHatchPartMachine {
 
@@ -38,7 +44,17 @@ public class CoolantHatchPartMachine extends FluidHatchPartMachine {
 
     @Override
     protected NotifiableFluidTank createTank(int initialCapacity, int slots, Object... args) {
-        return super.createTank(initialCapacity, slots, args).setFilter(CoolantHatchPartMachine::isCoolant);
+        return super.createTank(initialCapacity, slots, args).setFilter(this::accepts);
+    }
+
+    /** Supercooled fluids; distilled water too while the hatch is part of a computation array. */
+    private boolean accepts(FluidStack stack) {
+        if (isCoolant(stack)) return true;
+        if (ComputeCoolant.of(stack) != ComputeCoolant.DISTILLED_WATER) return false;
+        for (IMultiController controller : getControllers()) {
+            if (controller instanceof ComputationArrayMachine) return true;
+        }
+        return false;
     }
 
     /** gtceu:supercooled_&lt;anything&gt;. */

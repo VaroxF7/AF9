@@ -4,6 +4,7 @@ import com.af9.core.ae2.AF9AE2;
 import com.af9.core.blast.BouleMelting;
 import com.af9.core.bus.AF9Bus;
 import com.af9.core.client.AF9Client;
+import com.af9.core.compute.AF9Compute;
 import com.af9.core.common.AF9Sounds;
 import com.af9.core.compat.adastra.AdAstraCompat;
 import com.af9.core.fab.FabRecipeInfo;
@@ -42,6 +43,7 @@ public class AF9Core {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         AF9Sounds.register(FMLJavaModLoadingContext.get().getModEventBus());
         AF9Bus.register(FMLJavaModLoadingContext.get().getModEventBus());
+        AF9Compute.register(FMLJavaModLoadingContext.get().getModEventBus());
         // AE2: ME networks need computation (only with AE2 loaded; nothing of it loads without)
         if (ModList.get().isLoaded("ae2")) AF9AE2.init(FMLJavaModLoadingContext.get().getModEventBus());
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AF9Config.SPEC);

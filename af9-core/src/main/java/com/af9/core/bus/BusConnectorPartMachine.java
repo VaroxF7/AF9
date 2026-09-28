@@ -1,7 +1,10 @@
 package com.af9.core.bus;
 
+import com.af9.core.compute.ComputationArrayMachine;
+
 import com.gregtechceu.gtceu.api.capability.IDataAccessHatch;
 import com.gregtechceu.gtceu.api.capability.IMonitorComponent;
+import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider;
 import com.gregtechceu.gtceu.api.capability.IOpticalDataAccessHatch;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
@@ -48,7 +51,8 @@ import java.util.List;
  * its screen allows ({@link #acceptedCommands}): the Central Monitor's Machine Bus Module reads and sends them. It
  * counts the machine's finished runs. It is the machine's optical reception hatch too: the machine draws its CWU/t from
  * the bus's computation ({@link BusComputationContainer}) and its research from the bus's Data Banks
- * ({@link #isRecipeAvailable}); in a Data Bank it puts that bank's research on the bus ({@link #getDataSource}). A Bus
+ * ({@link #isRecipeAvailable}); in a Data Bank it puts that bank's research on the bus ({@link #getDataSource}), in a
+ * computation array that array's computation ({@link #getComputationSource}). A Bus
  * Controller sets the machine's recipe ({@link #getRecipeId}) and supplies it, unless the screen refuses that.
  * In a Central Monitor it is the monitor's port: it answers the taps on the Advanced Monitors of the module's screens
  * ({@link MachineBusModule#handleTouches}).
@@ -272,6 +276,11 @@ public class BusConnectorPartMachine extends MultiblockPartMachine
     /** The research this connector puts on the bus: its Data Bank's, if it sits in one; else null. */
     public IDataAccessHatch getDataSource() {
         return getMachineController() instanceof DataBankMachine ? dataSource : null;
+    }
+
+    /** The computation this connector puts on the bus: its computation array's, if it sits in one; else null. */
+    public IOpticalComputationProvider getComputationSource() {
+        return getMachineController() instanceof ComputationArrayMachine array ? array : null;
     }
 
     /** A Data Bank's research, as its Optical Data Transmitter Hatch gives it: only while the bank runs. */

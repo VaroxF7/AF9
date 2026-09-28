@@ -58,7 +58,8 @@ public final class BusNetwork {
      * @param connectors  every connector on it, the walking one first
      * @param consumers   the other blocks drawing from it ({@link BusConsumer}: ME Computation Links)
      * @param machines    how many machines it serves: machines' ports and consumers
-     * @param computation CWU/t sources (the transmitter hatches' computation containers)
+     * @param computation CWU/t sources (the transmitter hatches' computation containers, CWU Servers, computation
+     *                    arrays with a connector)
      * @param data        research sources (Data Banks' transmitter hatches, connectors in Data Banks)
      */
     public record Bus(long id, List<BusConnectorPartMachine> connectors, List<BusConsumer> consumers, int machines,
@@ -138,6 +139,8 @@ public final class BusNetwork {
             if (connector.getMachineController() != null) machines++;
             IDataAccessHatch source = connector.getDataSource();
             if (source != null) data.add(source);
+            IOpticalComputationProvider array = connector.getComputationSource();
+            if (array != null) computation.add(array);
         }
         for (BusConsumer consumer : consumers) id = Math.min(id, consumer.getBlockPos().asLong());
         return new Bus(id, List.copyOf(connectors), List.copyOf(consumers), machines, List.copyOf(computation),
