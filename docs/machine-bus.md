@@ -2,7 +2,8 @@
 
 A data center's backplane for the factory: machines share their state over a cable, GT's Central Monitor shows it and
 sends commands back; the cable carries computation (CWU/t) and research from HPCAs and Data Banks to every machine on
-it; a Bus Controller sets each machine's recipe and keeps it supplied, and Bus Controllers link into one network. Code: af9-core `com.af9.core.bus`; the Bus
+it; a Bus Controller sets each machine's recipe and keeps it supplied, and Bus Controllers link into one network. AE2
+networks with an ME Controller need its computation too (§7). Code: af9-core `com.af9.core.bus`; the Bus
 Connector's and the Bus Controller's definitions `kubejs/startup_scripts/gtceu/machine_bus.js`; recipes
 `kubejs/server_scripts/mods/gtceu/machine_bus.js`; quests in the Photolithography chapter (under the MCU chip).
 
@@ -197,3 +198,41 @@ ports' buses and itself (kept 20 ticks). Over it:
 | Output | Machine | Inputs |
 |---|---|---|
 | Interconnect Hatch | Assembler, MV, 10 s | MV hull, 2 MCU chips, an MV emitter, an MV sensor, 4 Optical Bus Cable, 144 mB soldering alloy |
+
+## 7. ME networks need computation (AE2)
+
+Code: af9-core `com.af9.core.ae2` (only set up when AE2 is loaded), the Mixin
+`com.af9.core.mixin.ae2.PathingCalculationMixin` (`af9.mixins.json`, not required); settings `af9-common.toml`,
+`[meComputation]`: `enabled` (true), `channelsPerCwut` (4). Built against AE2 15.4.9 (compile only, modmaven).
+
+**The rule.** An AE2 network with an ME Controller (controller state online) needs computation for its channels:
+1 CWU/t per `channelsPerCwut` channels, every tick. The channels it wants are its devices that need a channel (a
+multiblock such as a crafting CPU counts once, as AE2 gives it one channel), counted each second. Networks without a
+controller (ad-hoc, 8 channels) need none.
+
+**Short of it** (`MEComputationService`, an AE2 grid service, one per network): the network draws its CWU/t every
+tick through its ME Computation Links, in turn. Averaged over a second: if it got all it asked for, its channels are
+not limited; else it may use `supplied × channelsPerCwut` channels. The cap is applied inside AE2's channel assignment
+(`PathingCalculation.tryUseChannel`, a BFS out from the controllers, dense cables first): once the cap is reached no
+more channels are granted, so the devices farthest from the controller go without. Channels are only reassigned
+(`IPathingService.repath`, the network reboots briefly) when the cap really changes: at once when the network gets all
+it needs again or first falls short, else at most every 5 s and only for a change of at least a tenth (or of
+`channelsPerCwut`). A new network starts with all its channels for its first second.
+
+**ME Computation Link** (`af9:me_computation_link`, `MEComputationLinkBlock` / `MEComputationLinkBlockEntity`): an
+AE2 in-world grid node on five sides (it needs no channel itself, 1 AE/t); its back (`facing`, placed against the
+block clicked) takes the computation:
+
+| On its back | It draws |
+|---|---|
+| Optical Bus Cable | from the bus (`BusNetwork.requestCWUt`): the link is a `BusConsumer`, one of the bus's 16 machines, drawing from its 1024 CWU/t and its network |
+| a GT Computation Transmitter Hatch (HPCA, Network Switch) | from the hatch's computation |
+| GT Optical Fiber Cable | from what the fibre leads to (the link shows GT's fibre a receiving port, so the fibre connects) |
+
+Any number per network. Right-click: what it draws from, how much, and the network's channels, needs, supply and cap.
+The ME Controller's tooltip names the rule. Quests: the link under the Optical Bus Cable (Photolithography chapter),
+and a paragraph on ATM9's ME Controller quest.
+
+| Output | Machine | Inputs |
+|---|---|---|
+| ME Computation Link | Assembler, MV, 10 s | 2 calculation processors, fluix glass cable, quartz fiber, an MCU chip, 4 Optical Bus Cable, 144 mB soldering alloy |

@@ -579,7 +579,11 @@
 				"22C4318523A43B49"
 				"78311531069807DE"
 			]
-			description: ["{atm9.quest.ae2.desc.ME_controller}"]
+			description: [
+				"{atm9.quest.ae2.desc.ME_controller}"
+				""
+				"{af9.quest.ae2.controllerComputation}"
+			]
 			id: "2F16B6A173525277"
 			rewards: [
 				{

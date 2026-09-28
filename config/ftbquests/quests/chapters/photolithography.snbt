@@ -2894,6 +2894,33 @@
 			y: 7.5d
 		}
 		{
+			dependencies: ["0714377A4FED8A42"]
+			description: [
+				"{af9.quest.litho.meComputationLink.1}"
+				""
+				"{af9.quest.litho.meComputationLink.2}"
+				""
+				"{af9.quest.litho.meComputationLink.3}"
+				""
+				"{af9.quest.litho.meComputationLink.4}"
+			]
+			id: "6B9B7D24C1E29E42"
+			rewards: [{
+				id: "4903B364C6683F74"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.meComputationLink.subtitle}"
+			tasks: [{
+				id: "624E7261AD478E51"
+				item: "af9:me_computation_link"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.meComputationLink.title}"
+			x: 13.5d
+			y: 9.0d
+		}
+		{
 			dependencies: [
 				"0714377A4FED8A42"
 				"2C5C8DED708F54E3"
