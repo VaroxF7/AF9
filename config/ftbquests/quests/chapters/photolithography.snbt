@@ -2921,6 +2921,31 @@
 			y: 9.0d
 		}
 		{
+			dependencies: ["6B9B7D24C1E29E42"]
+			description: [
+				"{af9.quest.litho.cwuServer.1}"
+				""
+				"{af9.quest.litho.cwuServer.2}"
+				""
+				"{af9.quest.litho.cwuServer.3}"
+			]
+			id: "341A40FA3B77164A"
+			rewards: [{
+				id: "785DA84E56C42F13"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.cwuServer.subtitle}"
+			tasks: [{
+				id: "6DF0D88D3FCC9C57"
+				item: "gtceu:lv_cwu_server"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.cwuServer.title}"
+			x: 13.5d
+			y: 10.5d
+		}
+		{
 			dependencies: [
 				"0714377A4FED8A42"
 				"2C5C8DED708F54E3"

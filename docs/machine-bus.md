@@ -236,3 +236,28 @@ and a paragraph on ATM9's ME Controller quest.
 | Output | Machine | Inputs |
 |---|---|---|
 | ME Computation Link | Assembler, MV, 10 s | 2 calculation processors, fluix glass cable, quartz fiber, an MCU chip, 4 Optical Bus Cable, 144 mB soldering alloy |
+
+## 8. CWU Server
+
+`gtceu:<tier>_cwu_server`, LV to IV (`CWUServerMachine`, a GT `TieredEnergyMachine`; definition in
+`startup_scripts/gtceu/machine_bus.js`): a single block that turns EU into computation. It gives what is asked of it
+each tick, up to **LV 4, MV 8, HV 16, EV 32, IV 64 CWU/t** (`cwutFor`: 4 doubling each tier), and pays from its buffer
+(64 A of its voltage) `VA[tier] / max` EU per CWU: one amp of its tier at full output (MV 120 EU/t for 8 CWU/t), less
+when less is drawn; without the energy it gives what the energy covers. Power goes in on any side but the front (one
+amp). It is a GT computation source (`IOpticalComputationProvider`, every side), so it feeds everything:
+
+- an ME Computation Link against it (§7): one LV server runs a 16-channel ME network at the default rate;
+- GT's Optical Fiber Cable to a reception hatch (a Research Station, the Orbital Station);
+- the machine bus, its front on Optical Bus Cable: a source like a transmitter hatch (`BusNetwork.isTransmitter`), each
+  bus still at most 1024 CWU/t.
+
+Bridging (for a Network Switch) always allowed. A soft mallet or its screen switches it off; its screen shows what it
+gave last tick, the EU per CWU and its energy.
+
+| Output | Machine | Inputs (plus the tier's machine hull) |
+|---|---|---|
+| LV CWU Server | Assembler, LV, 10 s | 4 LV circuits, 2 tin cable, 144 mB tin |
+| MV CWU Server | Assembler, MV, 10 s | 2 MV circuits, 2 APU chips, 4 RAM chips, 2 Optical Bus Cable, 144 mB soldering alloy |
+| HV CWU Server | Assembler, HV, 10 s | 2 HV circuits, 4 APU, 8 RAM, 2 ASIC chips, 2 Optical Bus Cable, 288 mB soldering alloy |
+| EV CWU Server | Assembler, EV, 10 s | 2 EV circuits, 8 APU, 16 RAM, 4 ASIC chips, 4 Optical Bus Cable, 432 mB soldering alloy |
+| IV CWU Server | Assembler, IV, 10 s | 2 IV circuits, 8 APU, 4 eDRAM, 4 MRAM, 8 ASIC chips, 4 Optical Bus Cable, 576 mB soldering alloy |

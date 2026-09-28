@@ -1,5 +1,7 @@
 package com.af9.core.bus;
 
+import com.af9.core.machine.CWUServerMachine;
+
 import com.gregtechceu.gtceu.api.capability.IDataAccessHatch;
 import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
@@ -28,8 +30,8 @@ import java.util.function.BiConsumer;
  * the bus there, it never loads chunks). Two connectors whose ports touch are on one bus without cable.
  * <p>
  * Sources: GT's transmitter hatches whose front faces a cable of the run (or the port itself): an HPCA's or Network
- * Switch's Computation Transmitter Hatch gives CWU/t, a Data Bank's Optical Data Transmitter Hatch its research; and a
- * connector in a Data Bank gives that bank's research ({@link BusConnectorPartMachine#getDataSource}).
+ * Switch's Computation Transmitter Hatch and a CWU Server give CWU/t, a Data Bank's Optical Data Transmitter Hatch its
+ * research; and a connector in a Data Bank gives that bank's research ({@link BusConnectorPartMachine#getDataSource}).
  * <p>
  * Limits: a bus carries at most {@link #MAX_CWUT} CWU/t (counted each tick, {@link BusLoad}) and research without
  * limit, for at most {@link #MAX_MACHINES} machines (machines' ports and {@link BusConsumer}s such as the ME
@@ -118,6 +120,8 @@ public final class BusNetwork {
         for (MetaMachine transmitter : transmitters) {
             if (transmitter instanceof OpticalDataHatchMachine hatch) {
                 data.add(hatch);
+            } else if (transmitter instanceof CWUServerMachine server) {
+                computation.add(server);
             } else {
                 for (MachineTrait trait : transmitter.getTraits()) {
                     if (trait instanceof IOpticalComputationProvider provider) {
@@ -241,10 +245,14 @@ public final class BusNetwork {
         }
     }
 
-    /** GT's Computation Transmitter Hatch or Optical Data Transmitter Hatch (not the reception hatches). */
+    /**
+     * A source whose front may face the bus: GT's Computation Transmitter Hatch or Optical Data Transmitter Hatch (not
+     * the reception hatches), or a CWU Server.
+     */
     public static boolean isTransmitter(MetaMachine machine) {
         return machine instanceof OpticalComputationHatchMachine computation && computation.isTransmitter() ||
-                machine instanceof OpticalDataHatchMachine data && data.isTransmitter();
+                machine instanceof OpticalDataHatchMachine data && data.isTransmitter() ||
+                machine instanceof CWUServerMachine;
     }
 
     //////////////////////////////////////

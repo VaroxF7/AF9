@@ -17,6 +17,7 @@
 const $BusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $BusController = Java.loadClass('com.af9.core.bus.BusControllerMachine')
 const $BusInterconnect = Java.loadClass('com.af9.core.bus.BusInterconnectPartMachine')
+const $CWUServer = Java.loadClass('com.af9.core.machine.CWUServerMachine')
 
 GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     allthemods.create('bus_connector', 'custom')
@@ -47,6 +48,23 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                     'af9:block/machine/part/bus_interconnect')
                 ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2].map(i =>
                     Component.translatable(`af9.interconnect_hatch.tooltip.${i}`)))
+        })
+
+    // CWU Server (LV-IV): turns EU into computation, 4 CWU/t at LV doubling to 64 at IV, one amp of its tier at full
+    // output. A GT computation source: an ME Computation Link against it, GT Optical Fiber Cable, or the bus (its front
+    // on Optical Bus Cable)
+    allthemods.create('cwu_server', 'custom')
+        .tiers(GTValues.LV, GTValues.MV, GTValues.HV, GTValues.EV, GTValues.IV)
+        .machine((holder, tier) => new $CWUServer(holder, tier))
+        .definition((tier, builder) => {
+            builder
+                .langValue(`${GTValues.VLVH[tier]} CWU Server ${GTValues.VLVT[tier]}`)
+                .rotationState(RotationState.ALL)
+                ['overlayTieredHullModel(net.minecraft.resources.ResourceLocation)']('af9:block/machine/cwu_server')
+                ['tooltips(net.minecraft.network.chat.Component[])']([
+                    Component.translatable('af9.cwu_server.tooltip.0', `${$CWUServer.cwutFor(tier)}`),
+                    Component.translatable('af9.cwu_server.tooltip.1', `${GTValues.VA[tier]}`),
+                    Component.translatable('af9.cwu_server.tooltip.2')])
         })
 
     // Bus Controller (MV): the bus's PLC. It takes items and fluids (plain or ME buses and hatches), picks a recipe
