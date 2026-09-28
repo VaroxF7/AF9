@@ -8,9 +8,15 @@
 // Assembly Line, Research Station, Data Bank and Network Switch take it where their reception hatch goes: the machine
 // then draws its CWU/t and research over the bus. Optical Bus Cable joins their front faces, and GT's transmitter
 // hatches (HPCA / Network Switch computation, Data Bank research) facing the cable put their CWU/t and research on it.
+// A bus serves at most 16 machines and carries at most 1024 CWU/t (research without limit).
+//
+// The Bus Controller runs up to 4 buses (a Bus Connector on each); its Interconnect Hatch links it, over Optical Bus
+// Cable, to the other controllers' Interconnect Hatches on the same run: one network sharing computation, research,
+// machines and inputs.
 
 const $BusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $BusController = Java.loadClass('com.af9.core.bus.BusControllerMachine')
+const $BusInterconnect = Java.loadClass('com.af9.core.bus.BusInterconnectPartMachine')
 
 GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     allthemods.create('bus_connector', 'custom')
@@ -28,9 +34,25 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                     Component.translatable(`af9.bus_connector.tooltip.${i}`)))
         })
 
+    // Interconnect Hatch: a Bus Controller's link to other Bus Controllers (Optical Bus Cable from its front face)
+    allthemods.create('interconnect_hatch', 'custom')
+        .tiers(GTValues.MV)
+        .machine((holder, tier) => new $BusInterconnect(holder))
+        .definition((tier, builder) => {
+            builder
+                .langValue('Interconnect Hatch')
+                .rotationState(RotationState.ALL)
+                .abilities($BusInterconnect.BUS_INTERCONNECT)
+                ['overlayTieredHullModel(net.minecraft.resources.ResourceLocation)'](
+                    'af9:block/machine/part/bus_interconnect')
+                ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2].map(i =>
+                    Component.translatable(`af9.interconnect_hatch.tooltip.${i}`)))
+        })
+
     // Bus Controller (MV): the bus's PLC. It takes items and fluids (plain or ME buses and hatches), picks a recipe
-    // for each machine on its bus and keeps each one supplied with a run of ingredients. 3 x 3 x 3 of solid steel
-    // casing, aisles back -> front (controller), rows bottom -> top; parts anywhere on the shell.
+    // for each machine on its buses and keeps each one supplied with a run of ingredients. Up to 4 Bus Connectors (4
+    // buses) and 1 Interconnect Hatch. 3 x 3 x 3 of solid steel casing, aisles back -> front (controller), rows
+    // bottom -> top; parts anywhere on the shell.
     allthemods.create('bus_controller', 'multiblock')
         .machine(holder => new $BusController(holder))
         .rotationState(RotationState.NON_Y_AXIS)
@@ -48,7 +70,8 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(4, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
-                .or(Predicates.abilities($BusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 1)))
+                .or(Predicates.abilities($BusConnector.BUS_CONNECTOR).setMaxGlobalLimited(4, 1))
+                .or(Predicates.abilities($BusInterconnect.BUS_INTERCONNECT).setMaxGlobalLimited(1, 1)))
             .where('#', Predicates.any())
             .build())
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_solid_steel',

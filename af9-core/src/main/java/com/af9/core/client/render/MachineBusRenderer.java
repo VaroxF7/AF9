@@ -1,6 +1,7 @@
 package com.af9.core.client.render;
 
 import com.af9.core.bus.BusData;
+import com.af9.core.bus.BusNetwork;
 import com.af9.core.bus.BusScreenLayout;
 import com.af9.core.bus.MachineBusModule;
 
@@ -41,7 +42,7 @@ public class MachineBusRenderer implements IMonitorRenderer {
 
     private static final int BACKGROUND = 0xF20E151C, EDGE = 0xFF2C3A48, TEXT = 0xFFFFFFFF, DIM = 0xFF8A96A3,
             BAR = 0xFF1C2630, BUTTON = 0xFF263442, GREEN = 0xFF2F7A3E, RED = 0xFF7A2F2F, WORK = 0xFF40C060,
-            SELECTED_ROW = 0x402F6DB5, ALT_ROW = 0x14FFFFFF;
+            SELECTED_ROW = 0x402F6DB5, ALT_ROW = 0x14FFFFFF, WARN = 0xFFE05050;
     /** Depths in blocks (GT puts the screen 0.01 in front of the monitors): background, fills, text at 0. */
     private static final float Z_BACK = -0.006f, Z_FILL = -0.003f;
 
@@ -108,7 +109,13 @@ public class MachineBusRenderer implements IMonitorRenderer {
                 status.append(Component.translatable("af9.bus.screen.batch").getString());
             }
         }
-        c.text(c.fit(status.toString(), w - 2 * pad), pad, BusScreenLayout.STATUS_Y, formed ? DIM : RED);
+        boolean overloaded = tag.getBoolean(MachineBusModule.OVERLOADED);
+        if (overloaded) {
+            status.insert(0, Component.translatable("af9.bus.screen.overloaded").getString() +
+                    (status.isEmpty() ? "" : "  ·  "));
+        }
+        c.text(c.fit(status.toString(), w - 2 * pad), pad, BusScreenLayout.STATUS_Y,
+                overloaded ? WARN : formed ? DIM : RED);
 
         // progress
         if ((shown & BusData.PROGRESS) != 0 && formed) {
@@ -177,7 +184,9 @@ public class MachineBusRenderer implements IMonitorRenderer {
 
     private void drawTable(Canvas c, ListTag devices, float w, float h) {
         float pad = BusScreenLayout.PAD;
-        c.text(Component.translatable("af9.bus.screen.table", devices.size()).getString(), pad, 5, TEXT);
+        boolean overloaded = tag.getBoolean(MachineBusModule.OVERLOADED);
+        c.text(Component.translatable(overloaded ? "af9.bus.screen.table_overloaded" : "af9.bus.screen.table",
+                devices.size(), BusNetwork.MAX_MACHINES).getString(), pad, 5, overloaded ? WARN : TEXT);
         c.rect(pad, BusScreenLayout.HEADER_H - 3, w - 2 * pad, 1, EDGE, Z_FILL);
         int rows = Math.min(devices.size(), BusScreenLayout.tableRows(h));
         long selected = tag.getLong(MachineBusModule.SELECTED);

@@ -14,10 +14,10 @@ import net.minecraft.world.level.block.state.StateDefinition;
 
 /**
  * Optical Bus Cable: the machine bus's cable (multimode glass fibre in an aqua jacket, a data center's OM4 fibre). A
- * thin pipe-shaped block that joins the cables next to it, the Bus Connectors whose port (front face) points at it and
- * GT's optical transmitter hatches (an HPCA's or Network Switch's computation, a Data Bank's research) that face it;
- * {@link BusNetwork} walks it. Unlike GT's Optical Fiber Cable it branches. No block entity: the six connection
- * properties are all it has.
+ * thin pipe-shaped block that joins the cables next to it, the Bus Connectors and Interconnect Hatches whose port
+ * (front face) points at it and GT's optical transmitter hatches (an HPCA's or Network Switch's computation, a Data
+ * Bank's research) that face it; {@link BusNetwork} walks it. Unlike GT's Optical Fiber Cable it branches. No block
+ * entity: the six connection properties are all it has.
  */
 public class OpticalBusCableBlock extends PipeBlock {
 
@@ -57,12 +57,13 @@ public class OpticalBusCableBlock extends PipeBlock {
         return state;
     }
 
-    /** Another cable, a Bus Connector with its port towards this cable, or a GT transmitter hatch facing it. */
+    /** Another cable, a Bus Connector or Interconnect Hatch whose port faces this cable, or a GT transmitter hatch. */
     public static boolean connectsTo(BlockGetter level, BlockPos pos, Direction direction) {
         BlockPos other = pos.relative(direction);
         if (level.getBlockState(other).getBlock() instanceof OpticalBusCableBlock) return true;
         MetaMachine machine = MetaMachine.getMachine(level, other);
         if (machine == null || machine.getFrontFacing() != direction.getOpposite()) return false;
-        return machine instanceof BusConnectorPartMachine || BusNetwork.isTransmitter(machine);
+        return machine instanceof BusConnectorPartMachine || machine instanceof BusInterconnectPartMachine ||
+                BusNetwork.isTransmitter(machine);
     }
 }

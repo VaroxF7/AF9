@@ -48,7 +48,7 @@ public class MachineBusModule implements IMonitorModuleItem, IAddInformation {
     // settings
     public static final String VIEW = "view", SELECTED = "sel", SHOW = "show", NO_TOUCH = "notouch";
     // data
-    public static final String TIME = "t", PORT = "port", DEVICES = "dev";
+    public static final String TIME = "t", PORT = "port", DEVICES = "dev", OVERLOADED = "ovl";
     public static final int PORT_NONE = 0, PORT_EMPTY = 1, PORT_OK = 2;
 
     //////////////////////////////////////
@@ -108,6 +108,7 @@ public class MachineBusModule implements IMonitorModuleItem, IAddInformation {
             }
         }
         tag.put(DEVICES, devices);
+        tag.putBoolean(OVERLOADED, port != null && port.getBus().overloaded());
         tag.putInt(PORT, port == null ? PORT_NONE : devices.isEmpty() ? PORT_EMPTY : PORT_OK);
         CompoundTag selected = BusScreenLayout.selected(tag);
         if (selected != null) tag.putLong(SELECTED, selected.getLong(BusData.POS));
@@ -273,6 +274,10 @@ public class MachineBusModule implements IMonitorModuleItem, IAddInformation {
                         .withStyle(ChatFormatting.YELLOW) :
                         Component.translatable("af9.bus.module.machines", devices.size())
                                 .withStyle(ChatFormatting.GRAY));
+        if (tag.getBoolean(OVERLOADED)) {
+            text.add(Component.translatable("af9.bus.connector.overloaded", BusNetwork.MAX_MACHINES)
+                    .withStyle(ChatFormatting.RED));
+        }
         CompoundTag selected = BusScreenLayout.selected(tag);
         if (selected != null) {
             text.add(Component.empty()

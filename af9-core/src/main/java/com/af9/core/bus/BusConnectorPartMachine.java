@@ -54,7 +54,8 @@ import java.util.List;
  * ({@link MachineBusModule#handleTouches}).
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
-public class BusConnectorPartMachine extends MultiblockPartMachine implements IMonitorComponent, IOpticalDataAccessHatch {
+public class BusConnectorPartMachine extends MultiblockPartMachine
+                                     implements IMonitorComponent, IOpticalDataAccessHatch {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             BusConnectorPartMachine.class, MultiblockPartMachine.MANAGED_FIELD_HOLDER);
@@ -86,9 +87,12 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
 
     private final BusComputationContainer computation;
     private final IDataAccessHatch dataSource = new BankData();
-    private BusNetwork.Bus bus = new BusNetwork.Bus(List.of(this), List.of(), List.of());
+    private BusNetwork.Bus bus;
+    private BusNetwork.Net network;
     /** Game time of the last walk, -1 before the first. */
     private long busTime = -1;
+    /** What the Bus Controller that supplies this machine did last (not kept). */
+    private Component supplyStatus;
     private TickableSubscription touchSubs;
 
     public BusConnectorPartMachine(IMachineBlockEntity holder) {
@@ -183,11 +187,27 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     /** This connector's bus (walked at most once a second). */
     public BusNetwork.Bus getBus() {
         long now = getLevel() == null ? 0 : getLevel().getGameTime();
-        if (busTime < 0 || now < busTime || now - busTime >= BUS_CACHE_TICKS) {
+        if (bus == null || busTime < 0 || now < busTime || now - busTime >= BUS_CACHE_TICKS) {
             bus = BusNetwork.walk(this);
+            network = null;
             busTime = now;
         }
         return bus;
+    }
+
+    /** The network this connector's bus belongs to (its own bus alone without a Bus Controller on it). */
+    public BusNetwork.Net getNetwork() {
+        BusNetwork.Bus own = getBus();
+        if (network == null) network = BusNetwork.network(List.of(own), List.of());
+        return network;
+    }
+
+    public Component getSupplyStatus() {
+        return supplyStatus;
+    }
+
+    public void setSupplyStatus(Component status) {
+        supplyStatus = status;
     }
 
     /** The machine ports on this one's bus (Central Monitors', Bus Controllers' and empty connectors left out). */
@@ -217,15 +237,21 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     }
 
     /**
-     * Research for this machine: a recipe without research always; else if a Data Bank on the bus has it, or one of
-     * the machine's own data hatches (the connector never blocks what they hold).
+     * Research for this machine: a recipe without research always; else if a Data Bank on the bus or on another bus
+     * of its network has it (not over an overloaded bus), or one of the machine's own data hatches (the connector
+     * never blocks what they hold).
      */
     @Override
     public boolean isRecipeAvailable(GTRecipe recipe, Collection<IDataAccessHatch> seen) {
         seen.add(this);
         if (recipe.conditions.stream().noneMatch(ResearchCondition.class::isInstance)) return true;
-        for (IDataAccessHatch source : getBus().data()) {
-            if (!seen.contains(source) && source.isRecipeAvailable(recipe, seen)) return true;
+        if (!getBus().overloaded()) {
+            for (BusNetwork.Bus bus : getNetwork().buses()) {
+                if (bus.overloaded()) continue;
+                for (IDataAccessHatch source : bus.data()) {
+                    if (!seen.contains(source) && source.isRecipeAvailable(recipe, seen)) return true;
+                }
+            }
         }
         for (IMultiController controller : getControllers()) {
             for (IMultiPart part : controller.getParts()) {
@@ -264,10 +290,9 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
                     continue;
                 }
                 var block = part.self().getBlockState().getBlock();
-                if ((PartAbility.DATA_ACCESS.isApplicable(block) ||
-                        PartAbility.OPTICAL_DATA_RECEPTION.isApplicable(block)) && hatch.isRecipeAvailable(recipe, seen)) {
-                    return true;
-                }
+                boolean data = PartAbility.DATA_ACCESS.isApplicable(block) ||
+                        PartAbility.OPTICAL_DATA_RECEPTION.isApplicable(block);
+                if (data && hatch.isRecipeAvailable(recipe, seen)) return true;
             }
             return false;
         }
@@ -368,12 +393,26 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
             text.add(Component.translatable("af9.bus.connector.no_machine").withStyle(ChatFormatting.GRAY));
         }
         BusNetwork.Bus bus = getBus();
-        int machines = getMachinesOnBus().size();
+        BusNetwork.Net net = getNetwork();
         int all = bus.connectors().size() - 1;
         text.add(all <= 0 ? Component.translatable("af9.bus.connector.alone").withStyle(ChatFormatting.GRAY) :
-                Component.translatable("af9.bus.connector.bus", all, machines));
-        text.add(Component.translatable("af9.bus.connector.sources", computation.getMaxCWUt(),
-                bus.computation().size(), bus.data().size()).withStyle(ChatFormatting.GRAY));
+                Component.translatable("af9.bus.connector.bus", all, bus.machines(), BusNetwork.MAX_MACHINES));
+        if (bus.overloaded()) {
+            text.add(Component.translatable("af9.bus.connector.overloaded", BusNetwork.MAX_MACHINES)
+                    .withStyle(ChatFormatting.RED));
+        }
+        int hatches = 0, research = 0;
+        for (BusNetwork.Bus other : net.buses()) {
+            if (other.overloaded()) continue;
+            hatches += other.computation().size();
+            research += other.data().size();
+        }
+        text.add(Component.translatable("af9.bus.connector.sources", computation.getMaxCWUt(), BusNetwork.MAX_CWUT,
+                hatches, research).withStyle(ChatFormatting.GRAY));
+        if (!net.controllers().isEmpty()) {
+            text.add(Component.translatable("af9.bus.connector.network", net.buses().size(),
+                    net.controllers().size()).withStyle(ChatFormatting.GRAY));
+        }
         if (monitor != null) {
             text.add(Component.translatable("af9.bus.connector.monitor_hint").withStyle(ChatFormatting.DARK_GRAY));
             return;
@@ -389,6 +428,10 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
         ResourceLocation id = getRecipeId();
         if (id != null) {
             text.add(Component.translatable("af9.bus.connector.recipe", id.toString()).withStyle(ChatFormatting.GRAY));
+            if (supplyStatus != null) {
+                text.add(Component.translatable("af9.bus.controller.supply").withStyle(ChatFormatting.GOLD)
+                        .append(" ").append(supplyStatus));
+            }
         }
         text.add(Component.translatable("af9.bus.connector.hint").withStyle(ChatFormatting.DARK_GRAY));
     }

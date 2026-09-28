@@ -33,11 +33,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * How a Bus Controller supplies a machine: one run of the machine's set recipe, taken from the controller's input
- * buses and hatches (plain or ME) and put into the machine's own input buses and hatches (plain ones, never an ME
- * bus), whenever the machine does not already hold a run. Not-consumed inputs (reticles, lenses, molds) go in once; a
- * programmed circuit is set in the receiving bus's circuit slot. An Assembly Line with ordered inputs gets its i-th
- * item in its i-th input bus, as GT checks it. The products stay in the machine.
+ * How a Bus Controller supplies a machine: one run of the machine's set recipe, taken from the input buses and hatches
+ * (plain or ME) of the controller and then of the controllers linked to it, and put into the machine's own input buses
+ * and hatches (plain ones, never an ME bus), whenever the machine does not already hold a run. Not-consumed inputs
+ * (reticles, lenses, molds) go in once; a programmed circuit is set in the receiving bus's circuit slot. An Assembly
+ * Line with ordered inputs gets its i-th item in its i-th input bus, as GT checks it. The products stay in the machine.
  */
 public final class BusSupply {
 
@@ -60,9 +60,10 @@ public final class BusSupply {
     /**
      * Supplies the connector's machine with one run of {@code recipe} if it needs one.
      *
-     * @return what happened, for the controller's screen
+     * @param sources the controllers whose inputs it comes from, in order (the supplying one first)
+     * @return what happened, for the screens
      */
-    public static Component supply(BusControllerMachine controller, BusConnectorPartMachine connector,
+    public static Component supply(List<BusControllerMachine> sources, BusConnectorPartMachine connector,
                                    GTRecipe recipe) {
         IMultiController target = connector.getMachineController();
         if (target == null || !target.isFormed()) return status("unformed", ChatFormatting.RED);
@@ -95,8 +96,8 @@ public final class BusSupply {
         }
 
         // take them from the controller (simulated first)
-        List<NotifiableItemStackHandler> itemSources = itemSources(controller);
-        List<NotifiableFluidTank> fluidSources = fluidSources(controller);
+        List<NotifiableItemStackHandler> itemSources = itemSources(sources);
+        List<NotifiableFluidTank> fluidSources = fluidSources(sources);
         Map<NotifiableItemStackHandler, int[]> reserved = new IdentityHashMap<>();
         List<Taken> takenItems = new ArrayList<>();
         List<FluidStack> takenFluids = new ArrayList<>();
@@ -273,22 +274,31 @@ public final class BusSupply {
     // **** The controller's inputs ****//
     //////////////////////////////////////
 
-    /** The controller's item input buses, plain or ME. */
-    private static List<NotifiableItemStackHandler> itemSources(BusControllerMachine controller) {
+    /** The controllers' item input buses, plain or ME, controller by controller. */
+    private static List<NotifiableItemStackHandler> itemSources(List<BusControllerMachine> controllers) {
         List<NotifiableItemStackHandler> sources = new ArrayList<>();
-        for (IRecipeHandler<?> handler : controller.getCapabilitiesFlat(IO.IN, ItemRecipeCapability.CAP)) {
-            if (handler instanceof NotifiableItemStackHandler items && items.getHandlerIO() == IO.IN &&
-                    items.shouldSearchContent()) {
-                sources.add(items);
+        for (BusControllerMachine controller : controllers) {
+            if (!controller.isFormed()) continue;
+            for (IRecipeHandler<?> handler : controller.getCapabilitiesFlat(IO.IN, ItemRecipeCapability.CAP)) {
+                if (handler instanceof NotifiableItemStackHandler items && items.getHandlerIO() == IO.IN &&
+                        items.shouldSearchContent() && !sources.contains(items)) {
+                    sources.add(items);
+                }
             }
         }
         return sources;
     }
 
-    private static List<NotifiableFluidTank> fluidSources(BusControllerMachine controller) {
+    private static List<NotifiableFluidTank> fluidSources(List<BusControllerMachine> controllers) {
         List<NotifiableFluidTank> sources = new ArrayList<>();
-        for (IRecipeHandler<?> handler : controller.getCapabilitiesFlat(IO.IN, FluidRecipeCapability.CAP)) {
-            if (handler instanceof NotifiableFluidTank tank && tank.getHandlerIO() == IO.IN) sources.add(tank);
+        for (BusControllerMachine controller : controllers) {
+            if (!controller.isFormed()) continue;
+            for (IRecipeHandler<?> handler : controller.getCapabilitiesFlat(IO.IN, FluidRecipeCapability.CAP)) {
+                if (handler instanceof NotifiableFluidTank tank && tank.getHandlerIO() == IO.IN &&
+                        !sources.contains(tank)) {
+                    sources.add(tank);
+                }
+            }
         }
         return sources;
     }

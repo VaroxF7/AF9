@@ -38,16 +38,17 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Bus Controller: the machine bus's PLC. A small multiblock with input buses and hatches (plain or ME, so AE2 can send
- * it items), energy and a Bus Connector. Its screen lists the machines on its bus; for each it picks a recipe (put the
- * product, or a bucket or cell of a fluid product, into the slot, then choose among the machine's recipes that make it).
- * While it runs it supplies every machine with a set recipe once a second ({@link BusSupply}): one run of ingredients
- * into the machine's own input bus whenever it holds none. The recipe is kept on the machine's connector
+ * it items), energy, up to four Bus Connectors (one on each bus it runs) and an Interconnect Hatch (the link to other
+ * Bus Controllers). Its buses, and every bus and controller linked to it, are one network ({@link BusNetwork.Net}):
+ * computation and research flow between the buses, and its screen lists every machine of the network; for each it
+ * picks a recipe (put the product, or a bucket or cell of a fluid product, into the slot, then choose among the
+ * machine's recipes that make it). While it runs it supplies the machines of its own buses once a second
+ * ({@link BusSupply}): one run of ingredients into the machine's own input bus whenever it holds none, from its own
+ * inputs first, then from the linked controllers'. The recipe is kept on the machine's connector
  * ({@link BusConnectorPartMachine#getRecipeId}); a connector can refuse the controller.
  */
 public class BusControllerMachine extends WorkableElectricMultiblockMachine {
@@ -61,6 +62,10 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
     public static final long EUT = GTValues.VA[GTValues.MV];
     /** Recipes the picker offers at most. */
     private static final int MAX_CANDIDATES = 64;
+    /** Bus Connectors (buses) one controller takes. */
+    public static final int MAX_PORTS = 4;
+    /** Ticks the network is kept. */
+    private static final int NETWORK_CACHE_TICKS = 20;
 
     /** The machine the screen shows: its connector's position. */
     @Persisted
@@ -72,7 +77,9 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
     @Persisted
     private final CustomItemStackHandler product = new CustomItemStackHandler(1);
 
-    private final Map<Long, Component> supplyStatus = new HashMap<>();
+    private BusNetwork.Net network;
+    /** Game time the network was found, -1 before. */
+    private long networkTime = -1;
     private List<GTRecipe> candidates = List.of();
     /** What {@link #candidates} were found for: the product and the machine. */
     private ItemStack candidatesProduct = ItemStack.EMPTY;
@@ -100,24 +107,77 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
     // ************ The bus ************//
     //////////////////////////////////////
 
-    /** This controller's Bus Connector, or null. */
-    public BusConnectorPartMachine getPort() {
+    /** This controller's Bus Connectors: its ports, one on each bus it runs. */
+    public List<BusConnectorPartMachine> getPorts() {
+        List<BusConnectorPartMachine> ports = new ArrayList<>();
         for (IMultiPart part : getParts()) {
-            if (part instanceof BusConnectorPartMachine connector) return connector;
+            if (part instanceof BusConnectorPartMachine connector) ports.add(connector);
+        }
+        return ports;
+    }
+
+    /** The Bus Controllers linked to this one through Interconnect Hatches. */
+    public List<BusControllerMachine> getLinkedControllers() {
+        List<BusControllerMachine> linked = new ArrayList<>();
+        for (IMultiPart part : getParts()) {
+            if (!(part instanceof BusInterconnectPartMachine hatch)) continue;
+            for (BusControllerMachine controller : hatch.getLinkedControllers()) {
+                if (controller != this && !linked.contains(controller)) linked.add(controller);
+            }
+        }
+        return linked;
+    }
+
+    /** This controller's network: its buses and every bus and controller linked to it (found at most once a second). */
+    public BusNetwork.Net getNetwork() {
+        long now = getLevel() == null ? 0 : getLevel().getGameTime();
+        if (network == null || networkTime < 0 || now < networkTime || now - networkTime >= NETWORK_CACHE_TICKS) {
+            List<BusNetwork.Bus> buses = new ArrayList<>();
+            for (BusConnectorPartMachine port : getPorts()) buses.add(port.getBus());
+            network = BusNetwork.network(buses, List.of(this));
+            networkTime = now;
+        }
+        return network;
+    }
+
+    /** The machines of the network that run recipes, each once. */
+    public List<BusConnectorPartMachine> getMachines() {
+        List<BusConnectorPartMachine> machines = new ArrayList<>();
+        for (BusNetwork.Bus bus : getNetwork().buses()) {
+            for (BusConnectorPartMachine connector : bus.connectors()) {
+                if (machines.contains(connector) || connector.isInValid()) continue;
+                IMultiController controller = connector.getMachineController();
+                if (controller instanceof IRecipeLogicMachine rlm && runsRecipes(rlm)) machines.add(connector);
+            }
+        }
+        return machines;
+    }
+
+    /** The bus of the network a machine's connector is on, or null. */
+    private BusNetwork.Bus busOf(BusConnectorPartMachine connector) {
+        for (BusNetwork.Bus bus : getNetwork().buses()) {
+            if (bus.connectors().contains(connector)) return bus;
         }
         return null;
     }
 
-    /** The machines on the bus that run recipes. */
-    public List<BusConnectorPartMachine> getMachines() {
-        BusConnectorPartMachine port = getPort();
-        if (port == null) return List.of();
-        List<BusConnectorPartMachine> machines = new ArrayList<>();
-        for (BusConnectorPartMachine connector : port.getMachinesOnBus()) {
-            IMultiController controller = connector.getMachineController();
-            if (controller instanceof IRecipeLogicMachine rlm && runsRecipes(rlm)) machines.add(connector);
+    /**
+     * Whether this controller supplies the machines of a bus: it has a port on it, and of the controllers with a port
+     * on it, it is the one at the lowest position (one supplier per bus).
+     */
+    private boolean supplies(BusNetwork.Bus bus) {
+        long self = getPos().asLong();
+        boolean port = false;
+        for (BusConnectorPartMachine connector : bus.connectors()) {
+            BusControllerMachine controller = connector.getBusController();
+            if (controller == null || !controller.isFormed()) continue;
+            if (controller == this) {
+                port = true;
+            } else if (controller.getPos().asLong() < self) {
+                return false;
+            }
         }
-        return machines;
+        return port;
     }
 
     private static boolean runsRecipes(IRecipeLogicMachine rlm) {
@@ -133,26 +193,39 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
         return true;
     }
 
-    /** One supply round: every machine with a set recipe that takes the controller. */
+    /**
+     * One supply round: every machine with a set recipe on the buses this controller supplies, from its own inputs
+     * first, then the linked controllers'. Each machine's connector keeps what happened.
+     */
     private void supply() {
         Level level = getLevel();
         if (level == null) return;
-        supplyStatus.clear();
-        for (BusConnectorPartMachine connector : getMachines()) {
-            ResourceLocation id = connector.getRecipeId();
-            if (id == null) continue;
-            long pos = connector.getPos().asLong();
-            if (!connector.acceptsController()) {
-                supplyStatus.put(pos, Component.translatable("af9.bus.supply.refused").withStyle(ChatFormatting.RED));
-                continue;
+        BusNetwork.Net net = getNetwork();
+        List<BusControllerMachine> sources = new ArrayList<>(net.controllers());
+        sources.remove(this);
+        sources.add(0, this);
+        for (BusNetwork.Bus bus : net.buses()) {
+            if (!supplies(bus)) continue;
+            for (BusConnectorPartMachine connector : bus.connectors()) {
+                ResourceLocation id = connector.getRecipeId();
+                if (id == null || connector.getMachineController() == null) continue;
+                connector.setSupplyStatus(supplyOne(level, bus, connector, id, sources));
             }
-            GTRecipe recipe = recipe(level, id);
-            if (recipe == null) {
-                supplyStatus.put(pos, Component.translatable("af9.bus.supply.unknown").withStyle(ChatFormatting.RED));
-                continue;
-            }
-            supplyStatus.put(pos, BusSupply.supply(this, connector, recipe));
         }
+    }
+
+    private static Component supplyOne(Level level, BusNetwork.Bus bus, BusConnectorPartMachine connector,
+                                       ResourceLocation id, List<BusControllerMachine> sources) {
+        if (bus.overloaded()) {
+            return Component.translatable("af9.bus.supply.overloaded", BusNetwork.MAX_MACHINES)
+                    .withStyle(ChatFormatting.RED);
+        }
+        if (!connector.acceptsController()) {
+            return Component.translatable("af9.bus.supply.refused").withStyle(ChatFormatting.RED);
+        }
+        GTRecipe recipe = recipe(level, id);
+        if (recipe == null) return Component.translatable("af9.bus.supply.unknown").withStyle(ChatFormatting.RED);
+        return BusSupply.supply(sources, connector, recipe);
     }
 
     static GTRecipe recipe(Level level, ResourceLocation id) {
@@ -279,15 +352,26 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
                 .addEnergyUsageLine(energyContainer)
                 .addWorkingStatusLine();
         if (!isFormed()) return;
-        BusConnectorPartMachine port = getPort();
-        if (port == null) {
+        List<BusConnectorPartMachine> ports = getPorts();
+        if (ports.isEmpty()) {
             text.add(Component.translatable("af9.bus.controller.no_port").withStyle(ChatFormatting.RED));
             return;
         }
+        BusNetwork.Net net = getNetwork();
         List<BusConnectorPartMachine> machines = getMachines();
-        BusNetwork.Bus bus = port.getBus();
-        text.add(Component.translatable("af9.bus.controller.bus", machines.size(),
-                port.getComputation().getMaxCWUt(), bus.data().size()).withStyle(ChatFormatting.GRAY));
+        int overloaded = 0, research = 0;
+        for (BusNetwork.Bus bus : net.buses()) {
+            if (bus.overloaded()) overloaded++;
+            else research += bus.data().size();
+        }
+        text.add(Component.translatable("af9.bus.controller.network", ports.size(), MAX_PORTS, net.buses().size(),
+                net.controllers().size(), machines.size()).withStyle(ChatFormatting.GRAY));
+        text.add(Component.translatable("af9.bus.controller.sources", ports.get(0).getComputation().getMaxCWUt(),
+                BusNetwork.MAX_CWUT, research).withStyle(ChatFormatting.GRAY));
+        if (overloaded > 0) {
+            text.add(Component.translatable("af9.bus.controller.overloaded", overloaded, BusNetwork.MAX_MACHINES)
+                    .withStyle(ChatFormatting.RED));
+        }
         BusConnectorPartMachine machine = selectedMachine(machines);
         if (machine == null) {
             text.add(Component.translatable("af9.bus.controller.no_machines").withStyle(ChatFormatting.YELLOW));
@@ -315,7 +399,11 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
                 .append(id == null ? Component.empty() : Component.literal("  ").append(
                         ComponentPanelWidget.withButton(Component.translatable("af9.bus.controller.clear")
                                 .withStyle(ChatFormatting.RED), "clear"))));
-        Component status = supplyStatus.get(machine.getPos().asLong());
+        BusNetwork.Bus bus = busOf(machine);
+        Component status = bus != null && bus.overloaded() ?
+                Component.translatable("af9.bus.supply.overloaded", BusNetwork.MAX_MACHINES)
+                        .withStyle(ChatFormatting.RED) :
+                machine.getSupplyStatus();
         if (id != null && status != null) {
             text.add(Component.translatable("af9.bus.controller.supply").withStyle(ChatFormatting.GOLD).append(" ")
                     .append(status));

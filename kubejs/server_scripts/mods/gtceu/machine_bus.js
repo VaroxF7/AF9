@@ -30,6 +30,15 @@ ServerEvents.recipes(allthemods => {
         .duration(400)
         .EUt(VA[GTValues.MV])
 
+    // Interconnect Hatch: a duplex optical transceiver (an emitter and a sensor) behind two MCUs
+    allthemods.recipes.gtceu.assembler('af9:interconnect_hatch')
+        .itemInputs('gtceu:mv_machine_hull', '2x kubejs:mcu_chip', 'gtceu:mv_emitter', 'gtceu:mv_sensor',
+            '4x af9:optical_bus_cable')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 144))
+        .itemOutputs('gtceu:mv_interconnect_hatch')
+        .duration(200)
+        .EUt(VA[GTValues.MV])
+
     // Bus Controller: a PLC in an MV hull; the robot arm is what moves the ingredients
     allthemods.recipes.gtceu.assembler('af9:bus_controller')
         .itemInputs('gtceu:mv_machine_hull', '4x kubejs:mcu_chip', '2x #gtceu:circuits/mv', 'gtceu:mv_robot_arm',
