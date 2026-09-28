@@ -133,6 +133,9 @@ table 200 x rows, console its own size). Three views (the settings' view button 
   into the world's buffers with depth, each call a step, 0.0003 blocks, nearer than the one before). The machine must
   be loaded on the client ("not loaded here" otherwise); a machine without a console (GT's) shows the detail view.
 
+The screen is drawn only while the player looks at it: in front of the wall, within 48 blocks, and some of the
+screen within 60° of where they look (its size counted). Else nothing is drawn (`MachineBusRenderer.inView`).
+
 The bar runs on from the snapshot while the machine works (`progress + ticks since the snapshot`, wrapping into the
 next run), so it moves every frame whatever the monitor's tier.
 

@@ -14,6 +14,7 @@ import com.gregtechceu.gtceu.common.machine.multiblock.electric.monitor.MonitorG
 
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.LightTexture;
@@ -26,6 +27,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -56,6 +58,8 @@ public class MachineBusRenderer implements IMonitorRenderer {
     private static final float Z_BACK = -0.006f, Z_FILL = -0.003f;
     /** Console view: depth between two of the console's drawing calls, in blocks. */
     private static final float CONSOLE_STEP = 0.0003f;
+    /** The screen is drawn only while the player is this near (blocks) and looks this close to it (radians). */
+    private static final double VIEW_DISTANCE = 48, VIEW_ANGLE = Math.toRadians(60);
 
     private final CompoundTag tag;
 
@@ -67,7 +71,7 @@ public class MachineBusRenderer implements IMonitorRenderer {
     public void render(CentralMonitorMachine machine, MonitorGroup group, float partialTick, PoseStack poseStack,
                        MultiBufferSource buffer, int packedLight, int packedOverlay) {
         BusScreenLayout.Screen screen = BusScreenLayout.screen(machine, group);
-        if (screen == null) return;
+        if (screen == null || !inView(machine, group)) return;
         float units = BusScreenLayout.unitsPerBlock(screen, tag);
         float w = screen.cols() * units, h = screen.rows() * units;
         poseStack.pushPose();
@@ -90,6 +94,39 @@ public class MachineBusRenderer implements IMonitorRenderer {
             drawDetail(c, BusScreenLayout.selected(tag), devices.size(), w, h);
         }
         poseStack.popPose();
+    }
+
+    /**
+     * Whether the player looks at the screen: in front of the wall, within {@link #VIEW_DISTANCE} blocks, and some of
+     * the screen within {@link #VIEW_ANGLE} of where they look (its size counts, so a big wall does not vanish while
+     * its corner is in view). Else nothing is drawn: no one reads it, and the console view is the most drawing.
+     */
+    private static boolean inView(CentralMonitorMachine monitor, MonitorGroup group) {
+        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
+        Vec3 eye = camera.getPosition();
+        double x = 0, y = 0, z = 0;
+        int count = 0;
+        for (BlockPos pos : group.getRelativePositions()) {
+            x += pos.getX() + 0.5;
+            y += pos.getY() + 0.5;
+            z += pos.getZ() + 0.5;
+            count++;
+        }
+        if (count == 0) return false;
+        Vec3 center = new Vec3(x / count, y / count, z / count);
+        Vec3 toScreen = center.subtract(eye);
+        double distance = toScreen.length();
+        if (distance > VIEW_DISTANCE) return false;
+        Vec3 front = Vec3.atLowerCornerOf(monitor.getFrontFacing().getNormal());
+        if (toScreen.dot(front) > 0.5) return false;          // behind the wall
+        double radius = 0;
+        for (BlockPos pos : group.getRelativePositions()) {
+            radius = Math.max(radius, center.distanceTo(Vec3.atCenterOf(pos)) + 0.71);
+        }
+        if (distance <= radius) return true;
+        double toCenter = Math.acos(Math.max(-1, Math.min(1, new Vec3(camera.getLookVector()).dot(toScreen) /
+                distance)));
+        return toCenter - Math.atan(radius / distance) < VIEW_ANGLE;
     }
 
     //////////////////////////////////////
