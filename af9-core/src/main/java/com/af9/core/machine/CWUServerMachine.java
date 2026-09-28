@@ -294,12 +294,13 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
     public Widget createUIWidget() {
         var group = new WidgetGroup(0, 0, 182, 80);
         boolean client = getLevel() != null && getLevel().isClientSide;
-        group.addWidget(new ComponentPanelWidget(4, 5, this::addDisplayText)
+        group.addWidget(BusConnectorPartMachine.scrolling(0, 0, 182, 80, new ComponentPanelWidget(4, 5,
+                this::addDisplayText)
                 .textSupplier(client ? null : this::addDisplayText)
-                .setMaxWidthLimit(174)
+                .setMaxWidthLimit(172)
                 .clickHandler((id, click) -> {
                     if (!click.isRemote && id.equals("power")) setWorkingEnabled(!workingEnabled);
-                }));
+                })));
         return group;
     }
 

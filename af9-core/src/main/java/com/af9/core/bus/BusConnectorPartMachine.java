@@ -19,10 +19,12 @@ import com.gregtechceu.gtceu.common.machine.multiblock.electric.CentralMonitorMa
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.research.DataBankMachine;
 import com.gregtechceu.gtceu.common.recipe.condition.ResearchCondition;
 
+import com.lowdragmc.lowdraglib.gui.texture.ColorRectTexture;
 import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
 import com.lowdragmc.lowdraglib.gui.util.ClickData;
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
+import com.lowdragmc.lowdraglib.gui.widget.DraggableScrollableWidgetGroup;
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.TextFieldWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
@@ -371,11 +373,23 @@ public class BusConnectorPartMachine extends MultiblockPartMachine
         group.addWidget(new TextFieldWidget(52, 3, 126, 12, () -> label, this::setLabel)
                 .setMaxStringLength(MAX_LABEL));
         boolean client = getLevel() != null && getLevel().isClientSide;
-        group.addWidget(new ComponentPanelWidget(4, 20, this::addDisplayText)
+        group.addWidget(scrolling(0, 19, 182, 141, new ComponentPanelWidget(4, 1, this::addDisplayText)
                 .textSupplier(client ? null : this::addDisplayText)
-                .setMaxWidthLimit(174)
-                .clickHandler(this::handleDisplayClick));
+                .setMaxWidthLimit(172)
+                .clickHandler(this::handleDisplayClick)));
         return group;
+    }
+
+    /**
+     * A text panel in a box of its own size that scrolls (mouse wheel, or drag the bar) when the text runs longer; the
+     * bus screens' text grows with the bus.
+     */
+    public static DraggableScrollableWidgetGroup scrolling(int x, int y, int width, int height, Widget text) {
+        DraggableScrollableWidgetGroup box = new DraggableScrollableWidgetGroup(x, y, width, height)
+                .setYScrollBarWidth(3)
+                .setYBarStyle(null, new ColorRectTexture(0x80FFFFFF).setRadius(1));
+        box.addWidget(text);
+        return box;
     }
 
     private void setLabel(String text) {
