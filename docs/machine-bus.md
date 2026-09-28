@@ -184,8 +184,40 @@ overloaded bus), taking inputs from its own buses and hatches first, then from t
 4. The products stay in the machine's output buses and hatches.
 
 The last supply is kept on the machine's connector (not saved): stocked, supplied, waiting for (what the controllers
-lack), no room, not formed, the mode is locked, refused, unknown recipe, the bus is overloaded. The controller's
-screen and the connector's show it.
+lack), no room, not formed, the mode is locked, refused, unknown recipe, the bus is overloaded, on an ME craft. The
+controller's screen and the connector's show it.
+
+## 5b. ME autocrafting (AE2)
+
+Code: af9-core `com.af9.core.ae2.BusPatterns` (only loaded with AE2), `BusSupply.send` / `collectProducts`.
+
+**The patterns** go into GT's **ME Pattern Buffer** (`gtceu:me_pattern_buffer`) in the Bus Controller's shell (it
+counts as an item input bus there). The buffer joins the ME network as usual: the network sees its patterns (processing
+patterns: the ingredients of a run, the product), and a crafting request pushes a pattern's ingredients into the
+buffer's slot for it. Keep not-consumed inputs (reticles, lenses, molds) out of the pattern: they stay in the machine.
+
+**Once a second**, while the controller runs (formed, switched on, powered), for every pattern buffer of it:
+
+1. **Products back.** For each machine it sent an ME craft: every stack of an item or fluid the craft's recipe makes
+   (chanced ones too) in the machine's plain output buses and hatches goes into the buffer's ME network, as far as it
+   takes it (an ME output bus of the machine sends its own). The craft is done once the machine idles and no longer
+   holds a whole run of it; the machine is free again. The controller that sent a craft returns it; if it is gone,
+   another controller of the network takes it over.
+2. **Sending on.** For each buffer slot holding ingredients: the pattern's primary output; a machine of the network
+   (every bus that is not overloaded; formed, not refusing the controller) with a recipe that makes it (over the
+   recipe types the machine may run: a line's only up to its built version; at most 64 per type, cached per recipe
+   type and output) out of what the slot holds, and free:
+   - no ME craft, idle, its plain input buses empty; or
+   - already on this recipe with fewer than 2 runs out and no whole run waiting in it (the next run queued).
+
+   The machine's mode is switched, one run goes into one plain input bus (an Assembly Line's in order) and its
+   hatches, the programmed circuit into the bus's circuit slot (`BusSupply.send`). Again while the slot holds runs
+   and machines are free: several machines share one pattern's crafts.
+
+The machine's connector keeps the craft (`meRecipe`, `meRuns`, `meController`, persisted); a manually set recipe
+(§5) waits meanwhile. The controller's screen lists the pattern buffers and the crafts waiting in them, and for the
+selected machine its ME craft, the runs out and `[Forget]` (frees the machine if a craft got stuck, e.g. a machine
+that cannot run the recipe). Without a Bus Connector (or on no bus) a machine is an ordinary multiblock.
 
 ## 6. The network: Interconnect Hatch
 

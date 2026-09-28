@@ -90,6 +90,13 @@ public class BusConnectorPartMachine extends MultiblockPartMachine
     /** Whether this machine refuses a Bus Controller (its recipe and its supply). */
     @Persisted
     private boolean controllerRefused;
+    /** The ME craft a Bus Controller sent: its recipe ("" none), runs not finished yet, the controller's position. */
+    @Persisted
+    private String meRecipe = "";
+    @Persisted
+    private int meRuns;
+    @Persisted
+    private long meController;
 
     private final BusComputationContainer computation;
     private final IDataAccessHatch dataSource = new BankData();
@@ -161,8 +168,52 @@ public class BusConnectorPartMachine extends MultiblockPartMachine
     @Override
     public boolean afterWorking(IWorkableMultiController controller) {
         runs++;
+        if (meRuns > 0) meRuns--;
         markDirty();
         return super.afterWorking(controller);
+    }
+
+    //////////////////////////////////////
+    // ******** An ME craft *********//
+    //////////////////////////////////////
+
+    /** The recipe of the ME craft a Bus Controller sent this machine, or null (com.af9.core.ae2.BusPatterns). */
+    public ResourceLocation getMeRecipe() {
+        return meRecipe.isEmpty() ? null : ResourceLocation.tryParse(meRecipe);
+    }
+
+    public boolean hasMeCraft() {
+        return !meRecipe.isEmpty();
+    }
+
+    /** Runs of the ME craft sent and not finished yet. */
+    public int getMeRuns() {
+        return meRuns;
+    }
+
+    /** The Bus Controller that returns the ME craft's products (its position). */
+    public long getMeController() {
+        return meController;
+    }
+
+    /** One more run of an ME craft sent, by {@code controller}. */
+    public void addMeRun(ResourceLocation recipe, long controller) {
+        meRecipe = recipe.toString();
+        meRuns++;
+        meController = controller;
+        markDirty();
+    }
+
+    public void setMeController(long controller) {
+        meController = controller;
+        markDirty();
+    }
+
+    /** The ME craft is done (or forgotten): the machine is free again. */
+    public void clearMeCraft() {
+        meRecipe = "";
+        meRuns = 0;
+        markDirty();
     }
 
     //////////////////////////////////////

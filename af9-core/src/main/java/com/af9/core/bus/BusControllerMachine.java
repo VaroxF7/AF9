@@ -1,5 +1,6 @@
 package com.af9.core.bus;
 
+import com.af9.core.ae2.BusPatterns;
 import com.af9.core.machine.CWUServerMachine;
 
 import com.gregtechceu.gtceu.api.GTValues;
@@ -43,6 +44,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fml.ModList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,10 @@ import java.util.List;
  * ({@link BusSupply}): one run of ingredients into the machine's own input bus whenever it holds none, from its own
  * inputs first, then from the linked controllers'. The recipe is kept on the machine's connector
  * ({@link BusConnectorPartMachine#getRecipeId}); a connector can refuse the controller.
+ * <p>
+ * With AE2, GT's ME Pattern Buffer in its shell makes it the ME network's crafter for the machines of its network
+ * ({@link BusPatterns}): what a crafting request pushes into the buffer goes to a free machine that makes it, mode
+ * switched, and the products come back into the network. A machine on an ME craft is left out of the supply above.
  */
 public class BusControllerMachine extends WorkableElectricMultiblockMachine {
 
@@ -74,6 +80,8 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
     public static final int MAX_PORTS = 4;
     /** Ticks the network is kept. */
     private static final int NETWORK_CACHE_TICKS = 20;
+    /** AE2 loaded: ME crafts through the pattern buffers ({@link BusPatterns} only loads then). */
+    private static final boolean AE2 = ModList.get().isLoaded("ae2");
 
     /** The machine the screen shows: its connector's position. */
     @Persisted
@@ -229,6 +237,7 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
         Level level = getLevel();
         if (level == null) return;
         BusNetwork.Net net = getNetwork();
+        if (AE2) BusPatterns.run(this);
         List<BusControllerMachine> sources = new ArrayList<>(net.controllers());
         sources.remove(this);
         sources.add(0, this);
@@ -237,7 +246,9 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
             for (BusConnectorPartMachine connector : bus.connectors()) {
                 ResourceLocation id = connector.getRecipeId();
                 if (id == null || connector.getMachineController() == null) continue;
-                connector.setSupplyStatus(supplyOne(level, bus, connector, id, sources));
+                connector.setSupplyStatus(connector.hasMeCraft() ?
+                        Component.translatable("af9.bus.supply.me_craft").withStyle(ChatFormatting.AQUA) :
+                        supplyOne(level, bus, connector, id, sources));
             }
         }
     }
@@ -342,7 +353,8 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
         return candidates;
     }
 
-    private static boolean makes(GTRecipe recipe, ItemStack wanted, FluidStack fluid) {
+    /** Whether the recipe makes the item, or (a fluid given) the fluid. */
+    public static boolean makes(GTRecipe recipe, ItemStack wanted, FluidStack fluid) {
         for (Content content : recipe.outputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
             for (ItemStack stack : ItemRecipeCapability.CAP.of(content.content).getItems()) {
                 if (ItemStack.isSameItem(stack, wanted)) return true;
@@ -409,6 +421,7 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
                 .withStyle(ChatFormatting.GRAY));
         text.add(Component.translatable("af9.bus.controller.sources", ports.get(0).getComputation().getMaxCWUt(),
                 BusNetwork.MAX_CWUT, research).withStyle(ChatFormatting.GRAY));
+        if (AE2) BusPatterns.addText(this, text);
         if (overloaded > 0) {
             text.add(Component.translatable("af9.bus.controller.overloaded", overloaded, BusNetwork.MAX_MACHINES)
                     .withStyle(ChatFormatting.RED));
@@ -438,6 +451,20 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
         GTRecipe set = id == null || level == null ? null : recipe(level, id);
         if (!machine.acceptsController()) {
             text.add(Component.translatable("af9.bus.supply.refused").withStyle(ChatFormatting.RED));
+        }
+        ResourceLocation meId = machine.getMeRecipe();
+        if (meId != null) {
+            GTRecipe me = level == null ? null : recipe(level, meId);
+            text.add(Component.translatable("af9.bus.controller.me_craft").withStyle(ChatFormatting.GOLD)
+                    .append(" ")
+                    .append(me == null ? Component.literal(meId.toString()).withStyle(ChatFormatting.GRAY) :
+                            describe(me))
+                    .append(Component.literal("  "))
+                    .append(Component.translatable("af9.bus.controller.me_runs", machine.getMeRuns())
+                            .withStyle(ChatFormatting.GRAY))
+                    .append(Component.literal("  "))
+                    .append(ComponentPanelWidget.withButton(Component.translatable("af9.bus.controller.me_forget")
+                            .withStyle(ChatFormatting.RED), "me_forget")));
         }
         text.add(Component.translatable("af9.bus.controller.recipe").withStyle(ChatFormatting.GOLD)
                 .append(" ")
@@ -507,6 +534,7 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
                 machine.setRecipeId(found.get(Math.floorMod(candidate, found.size())).getId());
             }
             case "clear" -> machine.setRecipeId(null);
+            case "me_forget" -> machine.clearMeCraft();
             default -> {
                 return;
             }

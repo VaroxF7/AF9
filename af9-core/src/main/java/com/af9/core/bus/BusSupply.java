@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.ToIntFunction;
 
 /**
  * How a Bus Controller supplies a machine: one run of the machine's set recipe, taken from the input buses and hatches
@@ -38,6 +39,10 @@ import java.util.Map;
  * and hatches (plain ones, never an ME bus), whenever the machine does not already hold a run. Not-consumed inputs
  * (reticles, lenses, molds) go in once; a programmed circuit is set in the receiving bus's circuit slot. An Assembly
  * Line with ordered inputs gets its i-th item in its i-th input bus, as GT checks it. The products stay in the machine.
+ * <p>
+ * An ME craft ({@code com.af9.core.ae2.BusPatterns}) takes the other way in: one run out of an ME Pattern Buffer's slot
+ * ({@link RunSource}, {@link #send}), and its products go back out of the machine's plain output buses and hatches
+ * ({@link #collectProducts}).
  */
 public final class BusSupply {
 
@@ -45,9 +50,9 @@ public final class BusSupply {
 
     /**
      * One input of a recipe: an item or a fluid and how much (a not-consumed one, a reticle or a lens, only has to be
-     * there); an item's place among the recipe's items (an Assembly Line's bus), -1 for a fluid.
+     * there: {@code consumed} false); an item's place among the recipe's items (an Assembly Line's bus), -1 for a fluid.
      */
-    private record Need(Ingredient item, FluidIngredient fluid, int amount, int index) {
+    private record Need(Ingredient item, FluidIngredient fluid, int amount, int index, boolean consumed) {
 
         boolean isItem() {
             return item != null;
@@ -165,11 +170,11 @@ public final class BusSupply {
         for (Content content : recipe.inputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
             Ingredient ingredient = ItemRecipeCapability.CAP.of(content.content);
             if (SizedIngredient.getInner(ingredient) instanceof IntCircuitIngredient) continue;
-            needs.add(new Need(ingredient, null, itemAmount(ingredient), index++));
+            needs.add(new Need(ingredient, null, itemAmount(ingredient), index++, content.chance > 0));
         }
         for (Content content : recipe.inputs.getOrDefault(FluidRecipeCapability.CAP, List.of())) {
             FluidIngredient fluid = FluidRecipeCapability.CAP.of(content.content);
-            needs.add(new Need(null, fluid, Math.max(1, fluid.getAmount()), -1));
+            needs.add(new Need(null, fluid, Math.max(1, fluid.getAmount()), -1, content.chance > 0));
         }
         return needs;
     }
@@ -493,6 +498,185 @@ public final class BusSupply {
             if (!tank.getFluidInTank(i).isEmpty()) return false;
         }
         return true;
+    }
+
+    //////////////////////////////////////
+    // *********** ME crafts ***********//
+    //////////////////////////////////////
+
+    /**
+     * Where an ME craft's ingredients are: an ME Pattern Buffer's slot, what AE2 pushed for one or more runs of a
+     * pattern.
+     */
+    public interface RunSource {
+
+        /** What it holds (copies). */
+        List<ItemStack> items();
+
+        List<FluidStack> fluids();
+
+        /** Takes exactly these out; false, and nothing taken, if it does not hold them all. */
+        boolean take(List<ItemStack> items, List<FluidStack> fluids);
+    }
+
+    /** One run out of a source: the items (with their ingredient's index) and the fluids. */
+    private record Run(List<Taken> items, List<FluidStack> fluids) {
+
+        List<ItemStack> stacks() {
+            return items.stream().map(Taken::stack).toList();
+        }
+    }
+
+    /** Whether the source holds one run of the recipe for the connector's machine ({@link #send} would find it). */
+    public static boolean holdsRun(RunSource source, BusConnectorPartMachine connector, GTRecipe recipe) {
+        IMultiController target = connector.getMachineController();
+        if (target == null || !(target.self() instanceof IRecipeCapabilityHolder holder)) return false;
+        return runFrom(source, recipe, itemTargets(holder), fluidTargets(holder)) != null;
+    }
+
+    /**
+     * Whether the connector's machine holds a whole run of the recipe in its plain input buses and hatches (sent and
+     * not started yet).
+     */
+    public static boolean machineHoldsRun(BusConnectorPartMachine connector, GTRecipe recipe) {
+        IMultiController target = connector.getMachineController();
+        if (target == null || !(target.self() instanceof IRecipeCapabilityHolder holder)) return false;
+        List<NotifiableItemStackHandler> items = itemTargets(holder);
+        List<NotifiableFluidTank> fluids = fluidTargets(holder);
+        for (Need need : needs(recipe)) {
+            long have = need.isItem() ? count(items, need) : countFluid(fluids, need);
+            if (have < need.amount) return false;
+        }
+        return true;
+    }
+
+    /** Whether the machine's plain input buses hold no items at all (the circuit slots aside). */
+    public static boolean inputsEmpty(BusConnectorPartMachine connector) {
+        IMultiController target = connector.getMachineController();
+        if (target == null || !(target.self() instanceof IRecipeCapabilityHolder holder)) return false;
+        for (NotifiableItemStackHandler bus : itemTargets(holder)) {
+            for (int slot = 0; slot < bus.getSlots(); slot++) {
+                if (!bus.getStackInSlot(slot).isEmpty()) return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * One run of the recipe out of the source: every consumed input, and each not-consumed one (a reticle, a lens) the
+     * machine does not hold yet; null if the source lacks any.
+     */
+    private static Run runFrom(RunSource source, GTRecipe recipe, List<NotifiableItemStackHandler> machineItems,
+                               List<NotifiableFluidTank> machineFluids) {
+        List<ItemStack> items = new ArrayList<>(source.items());
+        List<FluidStack> fluids = new ArrayList<>(source.fluids());
+        List<Taken> takenItems = new ArrayList<>();
+        List<FluidStack> takenFluids = new ArrayList<>();
+        for (Need need : needs(recipe)) {
+            if (!need.consumed) {
+                long have = need.isItem() ? count(machineItems, need) : countFluid(machineFluids, need);
+                if (have >= need.amount) continue;
+            }
+            if (need.isItem()) {
+                int left = need.amount;
+                for (int i = 0; i < items.size() && left > 0; i++) {
+                    ItemStack stack = items.get(i);
+                    if (!matches(need, stack)) continue;
+                    int take = Math.min(left, stack.getCount());
+                    takenItems.add(new Taken(stack.copyWithCount(take), need.index));
+                    items.set(i, stack.copyWithCount(stack.getCount() - take));
+                    left -= take;
+                }
+                if (left > 0) return null;
+            } else {
+                boolean found = false;
+                for (int i = 0; i < fluids.size() && !found; i++) {
+                    FluidStack fluid = fluids.get(i);
+                    if (fluid.isEmpty() || !need.fluid.test(fluid) || fluid.getAmount() < need.amount) continue;
+                    takenFluids.add(new FluidStack(fluid, need.amount));
+                    fluids.set(i, new FluidStack(fluid, fluid.getAmount() - need.amount));
+                    found = true;
+                }
+                if (!found) return null;
+            }
+        }
+        return new Run(takenItems, takenFluids);
+    }
+
+    /**
+     * Sends one run of {@code recipe} out of the source into the connector's machine: switches its mode, puts the
+     * items into one plain input bus (an Assembly Line's in order) and the fluids into its hatches, sets the circuit.
+     *
+     * @return null if it went in; else why not, for the screens
+     */
+    public static Component send(RunSource source, BusConnectorPartMachine connector, GTRecipe recipe) {
+        IMultiController target = connector.getMachineController();
+        if (target == null || !target.isFormed()) return status("unformed", ChatFormatting.RED);
+        MetaMachine machine = target.self();
+        if (!(machine instanceof IRecipeLogicMachine rlm) || !(machine instanceof IRecipeCapabilityHolder holder)) {
+            return status("no_recipes", ChatFormatting.RED);
+        }
+        int type = indexOf(rlm, recipe);
+        if (type < 0) return status("wrong_machine", ChatFormatting.RED);
+        List<NotifiableItemStackHandler> itemTargets = itemTargets(holder);
+        List<NotifiableFluidTank> fluidTargets = fluidTargets(holder);
+        Run run = runFrom(source, recipe, itemTargets, fluidTargets);
+        if (run == null) return status("me_missing", ChatFormatting.YELLOW);
+        boolean ordered = machine instanceof AssemblyLineMachine &&
+                ConfigHolder.INSTANCE.machines.orderedAssemblyLineItems;
+        List<NotifiableItemStackHandler> itemPlan = planItems(itemTargets, run.items(), ordered);
+        List<NotifiableFluidTank> fluidPlan = planFluids(fluidTargets, run.fluids());
+        if (itemPlan == null || fluidPlan == null) return status("no_room", ChatFormatting.YELLOW);
+        if (!BusData.selectMode(machine, type)) return status("mode_locked", ChatFormatting.RED);
+        if (!source.take(run.stacks(), run.fluids())) return status("me_missing", ChatFormatting.YELLOW);
+        for (int i = 0; i < run.items().size(); i++) insert(itemPlan.get(i), run.items().get(i).stack());
+        for (int i = 0; i < run.fluids().size(); i++) {
+            fluidPlan.get(i).fillInternal(run.fluids().get(i), IFluidHandler.FluidAction.EXECUTE);
+        }
+        setCircuit(itemTargets, circuit(recipe));
+        return null;
+    }
+
+    /**
+     * Takes the recipe's products out of the connector's machine's plain output buses and hatches: every stack of an
+     * item or fluid the recipe makes (its chanced ones too) is offered, and as much as {@code acceptItem} /
+     * {@code acceptFluid} take (they return that) leaves the machine. An ME output bus or hatch of the machine sends
+     * its products on by itself.
+     */
+    public static void collectProducts(BusConnectorPartMachine connector, GTRecipe recipe,
+                                       ToIntFunction<ItemStack> acceptItem, ToIntFunction<FluidStack> acceptFluid) {
+        IMultiController target = connector.getMachineController();
+        if (target == null || !(target.self() instanceof IRecipeCapabilityHolder holder)) return;
+        List<Ingredient> itemProducts = new ArrayList<>();
+        for (Content content : recipe.outputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
+            itemProducts.add(ItemRecipeCapability.CAP.of(content.content));
+        }
+        List<FluidIngredient> fluidProducts = new ArrayList<>();
+        for (Content content : recipe.outputs.getOrDefault(FluidRecipeCapability.CAP, List.of())) {
+            fluidProducts.add(FluidRecipeCapability.CAP.of(content.content));
+        }
+        if (!itemProducts.isEmpty()) {
+            for (IRecipeHandler<?> handler : holder.getCapabilitiesFlat(IO.OUT, ItemRecipeCapability.CAP)) {
+                if (!(handler instanceof NotifiableItemStackHandler bus) || bus.getHandlerIO() != IO.OUT) continue;
+                for (int slot = 0; slot < bus.getSlots(); slot++) {
+                    ItemStack stack = bus.getStackInSlot(slot);
+                    if (stack.isEmpty() || itemProducts.stream().noneMatch(product -> product.test(stack))) continue;
+                    int taken = acceptItem.applyAsInt(stack.copy());
+                    if (taken > 0) bus.extractItemInternal(slot, taken, false);
+                }
+            }
+        }
+        if (!fluidProducts.isEmpty()) {
+            for (IRecipeHandler<?> handler : holder.getCapabilitiesFlat(IO.OUT, FluidRecipeCapability.CAP)) {
+                if (!(handler instanceof NotifiableFluidTank tank) || tank.getHandlerIO() != IO.OUT) continue;
+                for (int i = 0; i < tank.getTanks(); i++) {
+                    FluidStack fluid = tank.getFluidInTank(i);
+                    if (fluid.isEmpty() || fluidProducts.stream().noneMatch(product -> product.test(fluid))) continue;
+                    int taken = acceptFluid.applyAsInt(fluid.copy());
+                    if (taken > 0) tank.drainInternal(new FluidStack(fluid, taken), IFluidHandler.FluidAction.EXECUTE);
+                }
+            }
+        }
     }
 
     //////////////////////////////////////
