@@ -1,34 +1,41 @@
 # The machine bus
 
 A data center's backplane for the factory: machines share their state over a cable, GT's Central Monitor shows it and
-sends commands back. Code: af9-core `com.af9.core.bus`; the Bus Connector's definition
-`kubejs/startup_scripts/gtceu/machine_bus.js`; recipes `kubejs/server_scripts/mods/gtceu/machine_bus.js`; quests in the
-Photolithography chapter (under the MCU chip).
+sends commands back; the cable carries computation (CWU/t) and research from HPCAs and Data Banks to every machine on
+it; a Bus Controller sets each machine's recipe and keeps it supplied. Code: af9-core `com.af9.core.bus`; the Bus
+Connector's and the Bus Controller's definitions `kubejs/startup_scripts/gtceu/machine_bus.js`; recipes
+`kubejs/server_scripts/mods/gtceu/machine_bus.js`; quests in the Photolithography chapter (under the MCU chip).
 
 ## 1. Parts
 
 | Part | Id | What |
 |---|---|---|
-| Polycat Cable | `af9:polycat_cable` | The bus: a thin pipe-shaped block (`PolycatCableBlock`, no block entity). It joins the cables next to it and a Bus Connector whose front face points at it. |
-| Bus Connector | `gtceu:mv_bus_connector` | A multiblock part (`BusConnectorPartMachine`, ability `af9_bus_connector`). A machine's port, or a Central Monitor's port in its wall. The cable plugs into its front face. |
+| Optical Bus Cable | `af9:optical_bus_cable` | The bus: a thin pipe-shaped block (`OpticalBusCableBlock`, no block entity), glass fibre in an aqua jacket. It joins the cables next to it, a Bus Connector whose front face points at it and GT's transmitter hatches facing it. It branches (GT's Optical Fiber Cable takes two connections per block and is IV). The old `af9:polycat_cable` (block and item) is remapped to it on load (`AF9Bus.remapOldCable`). |
+| Bus Connector | `gtceu:mv_bus_connector` | A multiblock part (`BusConnectorPartMachine`, abilities `af9_bus_connector`, GT's `optical_data_reception` and `computation_data_reception`). A machine's port, a Central Monitor's port in its wall or a Bus Controller's port. The cable plugs into its front face. |
 | Machine Bus Module | `af9:machine_bus_module` | A GT monitor module (`MachineBusModule`, a GT `ComponentItem`): one goes into a monitor group of the Central Monitor. |
+| Bus Controller | `gtceu:bus_controller` | An MV multiblock (`BusControllerMachine`): the bus's PLC (§5). |
 
 **The bus** (`BusNetwork.walk`): from a connector's front face through the cable, breadth first, up to 4096 cable blocks,
 in loaded chunks only (never loads a chunk: an unloaded stretch cuts the bus there). Every connector whose port touches
-a cable of the run is on the bus; two connectors whose ports touch are on one bus without cable. A connector keeps its
-walk for 20 ticks.
+a cable of the run is on the bus; two connectors whose ports touch are on one bus without cable. GT's transmitter
+hatches whose front faces a cable of the run (or the port) are the bus's sources (§2b). A connector keeps its walk for
+20 ticks.
 
 **Where connectors go.** At most one per machine, wherever the machine takes hatches: Photolithography Line and Scanner
 (plascrete), the Orbital Lithography Station (the top deck's PTFE casings, with its other hatches), the four SMC fab
 multiblocks (any casing), the Particle Accelerator (the ring's clean casings), the Supercooling Cryostat (frostproof
-casings). The patterns take `Predicates.abilities(BusConnectorPartMachine.BUS_CONNECTOR).setMaxGlobalLimited(1, 0)`.
-GT's multiblocks do not take one.
+casings), the Bus Controller (its shell). The patterns take
+`Predicates.abilities(BusConnectorPartMachine.BUS_CONNECTOR).setMaxGlobalLimited(1, 0)`. Because the connector also
+carries GT's `OPTICAL_DATA_RECEPTION` and `COMPUTATION_DATA_RECEPTION` abilities, GT's multiblocks take it where their
+reception hatch goes: the Assembly Line (its data hatch position), the Research Station (its computation hatch), the
+Data Bank and the Network Switch. GT counts a part against every limit it matches, so the orbital station allows two
+computation and two optical data reception parts (the connector and a hatch of its own).
 
 **The Central Monitor's wall** takes a connector too. GT builds the wall's block predicate once into the private static
 `CentralMonitorMachine.MULTI_PREDICATE`; at common setup `AF9Bus.installMonitorWall` puts back that predicate `.or()`
 the connector's ability (reflection; if GT renames the field, an error is logged and the wall does not take one). It is
 not given GT's `DATA_ACCESS` ability on purpose: the orbital station allows exactly one data access part (its 1 nm
-research), a connector counted as one would block the data hatch.
+research), a connector counted as one would block the data hatch; the wall's data access limit would count it too.
 
 ## 2. What a machine shares, what it takes
 
@@ -55,6 +62,27 @@ Always in the snapshot (the buttons need them): the connector's position `p`, na
 | mode | the next / previous recipe type. A Photolithography Line or Scanner only switches to the nodes its built version prints; the orbital station to any of its nodes (it prints only in orbit anyway). As GT's mode button: `setActiveRecipeType`, then `updateTickSubscription`. |
 
 A command only reaches a machine on the port's bus, through a connector that takes it.
+
+## 2b. Computation and research
+
+**Sources** (`BusNetwork.Bus`: `computation`, `data`):
+
+| Source | Gives |
+|---|---|
+| Computation Transmitter Hatch (an HPCA, a Network Switch) facing the cable | its CWU/t (the hatch's `NotifiableComputationContainer`) |
+| Optical Data Transmitter Hatch (a Data Bank) facing the cable | its research, while the bank runs (GT's own check) |
+| A Bus Connector in a Data Bank | that bank's research: its data access and optical reception parts, while it runs (`BusConnectorPartMachine.getDataSource`) |
+
+**The connector is its machine's optical reception hatch.** It carries a `BusComputationContainer` (GT's
+`NotifiableComputationContainer`, IO in, drawing from the bus instead of one Optical Fiber Cable): the machine's CWU/t
+recipes draw through it (`duration_is_total_cwu` recipes, the Research Station's, advance by the CWU drawn, as GT's);
+requests go to the sources in order until met, the maximum is their sum, bridging (for a Network Switch) needs every
+source to bridge. It is an `IOpticalDataAccessHatch` (receiver): a research recipe passes if a source on the bus holds
+it, or one of the machine's own data hatches does (the connector never blocks what they hold; a data hatch of the
+machine's own still blocks what only the bus holds, as GT checks every data part). All calls carry GT's `seen` set, so
+a Network Switch or a Data Bank on the bus that also takes from it does not loop.
+
+The connector's screen shows the bus's CWU/t, the computation hatches and the research sources on it.
 
 ## 3. The module and its screen
 
@@ -91,9 +119,42 @@ only if the machine shares it too), and the same commands.
 
 | Output | Machine | Inputs |
 |---|---|---|
-| 8 Polycat Cable | Assembler, LV, 5 s | 8 fine annealed copper wire, 2 polyethylene foil |
-| Bus Connector | Assembler, MV, 10 s | MV hull, 2 MCU chips, 4 Polycat Cable, an MV circuit, 144 mB soldering alloy |
-| Machine Bus Module | Assembler, MV, 20 s | plastic circuit board, an MCU chip, 2 Polycat Cable, 4 fine red alloy wire, an MV circuit, 144 mB soldering alloy |
+| 8 Optical Bus Cable | Assembler, LV, 5 s | 8 fine borosilicate glass wire (MV extruder), 2 polyethylene foil |
+| Bus Connector | Assembler, MV, 10 s | MV hull, 2 MCU chips, 4 Optical Bus Cable, an MV circuit, 144 mB soldering alloy |
+| Machine Bus Module | Assembler, MV, 20 s | plastic circuit board, an MCU chip, 2 Optical Bus Cable, 4 fine red alloy wire, an MV circuit, 144 mB soldering alloy |
+| Bus Controller | Assembler, MV, 20 s | MV hull, 4 MCU chips, 2 MV circuits, an MV robot arm, 8 Optical Bus Cable, 288 mB soldering alloy |
 
 The MCU is AF9's silicon chip (350 nm, `docs/semiconductor-factory.md` §5.3b): the bus comes with the Photolithography
-Line, like GT's Central Monitor at MV.
+Line, like GT's Central Monitor at MV. The computation and research it carries come later, with the HPCA and the Data
+Bank.
+
+## 5. The Bus Controller
+
+**Structure.** 3 x 3 x 3 of solid steel casing (`gtceu:solid_machine_casing`), the centre free, the controller in the
+middle of the front face. Parts anywhere on the shell, maxima only: 8 item input buses, 4 fluid input hatches (plain or
+ME: GT's ME input / stocking buses and hatches count, so AE2 sends it the ingredients), 2 energy hatches, 1 Bus
+Connector. Recipe type `dummy`, its own logic (`BusControllerMachine.SupplyLogic`): while formed and switched on it
+draws 120 EU/t; without the power it waits.
+
+**The recipe of a machine.** Its screen lists the machines on its bus that run recipes (`◀ name ▶`). The ghost slot in
+the top right corner takes the product (a bucket or cell of a fluid product matches fluid outputs); the screen offers
+the selected machine's recipes that make it (at most 64, over the recipe types the machine may run: a line's only up
+to its built version), `◀ n/N ▶`, with what one run takes, and `[Set this recipe]`. The recipe is kept on the machine's
+connector (`recipe`, persisted), `[Clear]` removes it. The connector's screen can refuse the controller
+("A Bus Controller may set this machine's recipe", on until clicked off).
+
+**Supply** (`BusSupply`, once a second while running, for each machine with a set recipe that takes the controller):
+
+1. The machine must be formed and run the recipe's type: it is switched to it (`BusData.selectMode`, as the monitor's
+   mode button; a line only to a node its built version prints).
+2. If the machine's own plain input buses and hatches already hold one run (every input at its amount; a not-consumed
+   one, a reticle or a lens, once) nothing moves; the programmed circuit is set.
+3. Else the missing inputs are taken from the controller's input buses and hatches (plain or ME; simulated first, all
+   or nothing) and put into the machine: all items into the first plain input bus that takes them all, each fluid into
+   a hatch that holds it or an empty one. An Assembly Line with ordered inputs gets its i-th item in its i-th bus (the
+   bus empty or holding that item), as GT checks it. The recipe's programmed circuit goes into the receiving buses'
+   circuit slot. ME buses of the machine are never filled.
+4. The products stay in the machine's output buses and hatches.
+
+The screen shows each machine's last supply: stocked, supplied, waiting for (what the controller lacks), no room,
+not formed, the mode is locked, refused, unknown recipe.

@@ -2870,11 +2870,11 @@
 		{
 			dependencies: ["2C5C8DED708F54E3"]
 			description: [
-				"{af9.quest.litho.polycatCable.1}"
+				"{af9.quest.litho.opticalBusCable.1}"
 				""
-				"{af9.quest.litho.polycatCable.2}"
+				"{af9.quest.litho.opticalBusCable.2}"
 				""
-				"{af9.quest.litho.polycatCable.3}"
+				"{af9.quest.litho.opticalBusCable.3}"
 			]
 			id: "0714377A4FED8A42"
 			rewards: [{
@@ -2882,14 +2882,14 @@
 				type: "xp"
 				xp: 100
 			}]
-			subtitle: "{af9.quest.litho.polycatCable.subtitle}"
+			subtitle: "{af9.quest.litho.opticalBusCable.subtitle}"
 			tasks: [{
 				count: 8L
 				id: "51E6B4B186B906E9"
-				item: "af9:polycat_cable"
+				item: "af9:optical_bus_cable"
 				type: "item"
 			}]
-			title: "{af9.quest.litho.polycatCable.title}"
+			title: "{af9.quest.litho.opticalBusCable.title}"
 			x: 13.5d
 			y: 7.5d
 		}
@@ -2902,6 +2902,8 @@
 				"{af9.quest.litho.busConnector.1}"
 				""
 				"{af9.quest.litho.busConnector.2}"
+				""
+				"{af9.quest.litho.busConnector.4}"
 				""
 				"{af9.quest.litho.busConnector.3}"
 			]
@@ -2947,6 +2949,33 @@
 			title: "{af9.quest.litho.machineBusModule.title}"
 			x: 19.5d
 			y: 7.5d
+		}
+		{
+			dependencies: ["0432E9477BA17293"]
+			description: [
+				"{af9.quest.litho.busController.1}"
+				""
+				"{af9.quest.litho.busController.2}"
+				""
+				"{af9.quest.litho.busController.3}"
+				""
+				"{af9.quest.litho.busController.4}"
+			]
+			id: "0E286EF54FED8A42"
+			rewards: [{
+				id: "0865D28F7BA17293"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.busController.subtitle}"
+			tasks: [{
+				id: "109191EAA3496975"
+				item: "gtceu:bus_controller"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.busController.title}"
+			x: 16.5d
+			y: 9.0d
 		}
 	]
 	subtitle: ["{af9.quest.litho.chapter.subtitle}"]
