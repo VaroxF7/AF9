@@ -86,7 +86,7 @@ public final class BusSupply {
         for (Need need : needs) {
             long have = need.isItem() ?
                     (ordered ? orderedCount(itemTargets, need.index, need) : count(itemTargets, need)) :
-                    count(fluidTargets, need);
+                    countFluid(fluidTargets, need);
             if (have < need.amount) missing.add(need);
         }
         if (missing.isEmpty()) {
@@ -232,7 +232,7 @@ public final class BusSupply {
         return count;
     }
 
-    private static long count(List<NotifiableFluidTank> tanks, Need need) {
+    private static long countFluid(List<NotifiableFluidTank> tanks, Need need) {
         long count = 0;
         for (NotifiableFluidTank tank : tanks) {
             for (int i = 0; i < tank.getTanks(); i++) {

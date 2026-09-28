@@ -7,8 +7,6 @@ import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableComputationContainer;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -28,7 +26,7 @@ public class BusComputationContainer extends NotifiableComputationContainer {
     }
 
     @Override
-    public int requestCWUt(int cwut, boolean simulate, @NotNull Collection<IOpticalComputationProvider> seen) {
+    public int requestCWUt(int cwut, boolean simulate, Collection<IOpticalComputationProvider> seen) {
         seen.add(this);
         int left = cwut;
         for (IOpticalComputationProvider provider : connector.getBus().computation()) {
@@ -40,7 +38,7 @@ public class BusComputationContainer extends NotifiableComputationContainer {
     }
 
     @Override
-    public int getMaxCWUt(@NotNull Collection<IOpticalComputationProvider> seen) {
+    public int getMaxCWUt(Collection<IOpticalComputationProvider> seen) {
         seen.add(this);
         long sum = 0;
         for (IOpticalComputationProvider provider : connector.getBus().computation()) {
@@ -51,7 +49,7 @@ public class BusComputationContainer extends NotifiableComputationContainer {
 
     /** Bridgeable (for a Network Switch) if every source on the bus is; an empty bus passes quietly, as GT's cable. */
     @Override
-    public boolean canBridge(@NotNull Collection<IOpticalComputationProvider> seen) {
+    public boolean canBridge(Collection<IOpticalComputationProvider> seen) {
         seen.add(this);
         for (IOpticalComputationProvider provider : connector.getBus().computation()) {
             if (!seen.contains(provider) && !provider.canBridge(seen)) return false;

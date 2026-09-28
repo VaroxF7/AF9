@@ -34,9 +34,6 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 import java.util.Collection;
 import java.util.List;
 
@@ -163,12 +160,11 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     //////////////////////////////////////
 
     /** The recipe a Bus Controller set for this machine, or null. */
-    @Nullable
     public ResourceLocation getRecipeId() {
         return recipe.isEmpty() ? null : ResourceLocation.tryParse(recipe);
     }
 
-    public void setRecipeId(@Nullable ResourceLocation id) {
+    public void setRecipeId(ResourceLocation id) {
         String value = id == null ? "" : id.toString();
         if (value.equals(recipe)) return;
         recipe = value;
@@ -225,7 +221,7 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
      * the machine's own data hatches (the connector never blocks what they hold).
      */
     @Override
-    public boolean isRecipeAvailable(@NotNull GTRecipe recipe, @NotNull Collection<IDataAccessHatch> seen) {
+    public boolean isRecipeAvailable(GTRecipe recipe, Collection<IDataAccessHatch> seen) {
         seen.add(this);
         if (recipe.conditions.stream().noneMatch(ResearchCondition.class::isInstance)) return true;
         for (IDataAccessHatch source : getBus().data()) {
@@ -248,7 +244,6 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     }
 
     /** The research this connector puts on the bus: its Data Bank's, if it sits in one; else null. */
-    @Nullable
     public IDataAccessHatch getDataSource() {
         return getMachineController() instanceof DataBankMachine ? dataSource : null;
     }
@@ -257,7 +252,7 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     private final class BankData implements IDataAccessHatch {
 
         @Override
-        public boolean isRecipeAvailable(@NotNull GTRecipe recipe, @NotNull Collection<IDataAccessHatch> seen) {
+        public boolean isRecipeAvailable(GTRecipe recipe, Collection<IDataAccessHatch> seen) {
             seen.add(this);
             if (!(getMachineController() instanceof DataBankMachine bank) || !bank.isFormed() ||
                     !bank.getRecipeLogic().isWorking()) {
