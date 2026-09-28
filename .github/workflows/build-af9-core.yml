@@ -2,7 +2,7 @@ name: Build AF9 Core
 
 # Runs on pushes to main (and by hand from the Actions tab).
 # 1. build:   builds the AF9 Core mod (af9-core/), artifact "af9-core"
-# 2. package: artifact "AF9-update": mods/af9-core-*.jar + kubejs/, config/, defaultconfigs/ from this commit.
+# 2. package: artifact "AF9-update": mods/af9-core-*.jar + kubejs/ and config/ from this commit.
 #             Extract it into the instance folder (next to mods/) and let it overwrite.
 on:
   push:
@@ -12,7 +12,6 @@ on:
       - 'af9-core/**'
       - 'kubejs/**'
       - 'config/**'
-      - 'defaultconfigs/**'
       - '.github/workflows/build-af9-core.yml'
   workflow_dispatch:
 
@@ -61,7 +60,7 @@ jobs:
         run: |
           mkdir -p update/mods
           cp "$(ls jar/*.jar | grep -vE -- '-(sources|dev|slim)\.jar$' | head -1)" update/mods/
-          cp -r kubejs config defaultconfigs update/
+          cp -r kubejs config update/
 
       - uses: actions/upload-artifact@v4
         with:

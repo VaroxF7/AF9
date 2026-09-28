@@ -1,40 +1,48 @@
-All The Mods 9
-======
-This is the official repository and issue-tracker for All The Mods 9 1.20
+# AF9
 
-Does "All The Mods" *really* contain ALL THE MODS? No, of course not.
+AF9 turns a GregTech CEu Modern (7.2.0) pack on Minecraft 1.20.1 Forge into a semiconductor factory: silicon from
+quartz to wafers, a real fab chemistry, lithography from 350 nm down to 1 nm, AF9's own chips and circuits, a machine
+bus that runs the factory, and computation to feed it.
 
-Need Help?
-======
-When reporting an issue put the version number before the issue title! Such as [FULL][1.37] My game is broken! Also include any added mods you may have put in, into the description of the issue.
+This repository holds AF9's layer on top of the pack: the AF9 Core mod, the KubeJS scripts and assets, the quests and
+the configs AF9 changes. Everything else comes from the pack itself.
 
-|You can also find us on Discord for help<br>or just to chat as well as Reddit|
-|:------------:|
-|<a href="https://discord.gg/3paFjuRfz9"><img src="https://discordapp.com/assets/fc0b01fe10a0b8c602fb0106d8189d9b.png" alt="Join us on Discord!"  width="200" height="68"></a>|
-|<a href="https://www.reddit.com/r/allthemods"><img src="https://www.redditstatic.com/about/assets/reddit-logo.png" alt="/r/AllTheMods on Reddit"  width="200" height="67"></a>|
-<br>
+## What's in it
 
-#### Modpacks:
-+ [![All the Mods 9](http://cf.way2muchnoise.eu/372309.svg "ATM9") All The Mods 0 - ATM0](https://www.curseforge.com/minecraft/modpacks/all-the-mods-0)
-+ [![All the Mods 1](http://cf.way2muchnoise.eu/242462.svg "ATM1") All The Mods 1 - ATM1](https://www.curseforge.com/minecraft/modpacks/all-the-mods)
-+ [![All the Mods 2](http://cf.way2muchnoise.eu/253707.svg "ATM2") All The Mods 2 - ATM2](https://www.curseforge.com/minecraft/modpacks/all-the-mods-2)
-+ [![All the Mods 3](http://cf.way2muchnoise.eu/269708.svg "ATM3") All The Mods 3 - ATM3](https://www.curseforge.com/minecraft/modpacks/all-the-mods-3)
-+ [![All the Mods 3](http://cf.way2muchnoise.eu/301845.svg "ATM3R") All the Mods 3 - Remix - ATM3R](https://www.curseforge.com/minecraft/modpacks/all-the-mods-3-remix)
-+ [![All the Mods 3 Expert](http://cf.way2muchnoise.eu/325396.svg "ATM3E") All The Mods 3 - Expert - ATM3E](https://www.curseforge.com/minecraft/modpacks/all-the-mods-3-expert)
-+ [![All the Mods 4](http://cf.way2muchnoise.eu/316059.svg "ATM4") All The Mods 4 - ATM4](https://www.curseforge.com/minecraft/modpacks/all-the-mods-4)
-+ [![All the Mods 5](http://cf.way2muchnoise.eu/357494.svg "ATM5") All The Mods 5 - ATM5](https://www.curseforge.com/minecraft/modpacks/all-the-mods-5)
-+ [![All the Mods 6](http://cf.way2muchnoise.eu/381671.svg "ATM6") All The Mods 6 - ATM6](https://www.curseforge.com/minecraft/modpacks/all-the-mods-6)
-+ [![All the Mods SLOP2](http://cf.way2muchnoise.eu/432480.svg "ATMSLOP2") All the Mods - Slice of Pi2](https://www.curseforge.com/minecraft/modpacks/all-the-mods-slice-of-pi2-atm-slop2)
-+ [![All the Mods 6S](http://cf.way2muchnoise.eu/442246.svg "ATM6S") All the Mods 6 - To the Sky](https://www.curseforge.com/minecraft/modpacks/all-the-mods-6-to-the-sky-atm6s)
-+ [![All the Magic Spellbound](http://cf.way2muchnoise.eu/500199.svg "ATMSpell") All the Magic Spellbound](https://www.curseforge.com/minecraft/modpacks/all-the-magic-spellbound)
-+ [![All the Mods 7](http://cf.way2muchnoise.eu/426926.svg "ATM7") All The Mods 7 - ATM7](https://www.curseforge.com/minecraft/modpacks/all-the-mods-7)
-+ [![All the Mods 7Sky](http://cf.way2muchnoise.eu/655739.svg "ATM7S") All the Mods 7 - To the Sky](https://www.curseforge.com/minecraft/modpacks/all-the-mods-7-to-the-sky)
-+ [![All the Mods 8](http://cf.way2muchnoise.eu/520914.svg "ATM8") All The Mods 8 - ATM8](https://www.curseforge.com/minecraft/modpacks/all-the-mods-8)
-+ [![All the Mods Gravitas](http://cf.way2muchnoise.eu/807446.svg "ATMG") All The Mods - Gravitas- ATMG](https://www.curseforge.com/minecraft/modpacks/all-the-mods-gravitas)
-+ [![All the Mods 9](http://cf.way2muchnoise.eu/715572.svg "ATM9") All The Mods 9 - ATM9](https://www.curseforge.com/minecraft/modpacks/all-the-mods-9)
-+ [![All the Mods 9 - No Frills](http://cf.way2muchnoise.eu/959010.svg "ATM9-NF") All The Mods 9 - ATM9 - No Frills](https://www.curseforge.com/minecraft/modpacks/all-the-mods-9-no-frills)
-+ [![All the Mods Gravitas²](http://cf.way2muchnoise.eu/949996.svg "ATMG²") All The Mods Gravitas²- ATMG²](https://www.curseforge.com/minecraft/modpacks/all-the-mods-gravitas2)
-+ [![Maul The Odds](http://cf.way2muchnoise.eu/987792.svg "MTO") Maul The Odds - MTO](https://www.curseforge.com/minecraft/modpacks/maul-the-odds)
-+ [![All the Mods 9Sky](http://cf.way2muchnoise.eu/967745.svg "ATM9Sky") All The Mods 9 - To The Sky- ATM9Sky](https://www.curseforge.com/minecraft/modpacks/all-the-mods-9-to-the-sky)
-+ [![All the Mods 10](http://cf.way2muchnoise.eu/925200.svg "ATM9Sky") All The Mods 10 - ATM10](https://www.curseforge.com/minecraft/modpacks/all-the-mods-10)
-+ [![All the Magic Arcana](http://cf.way2muchnoise.eu/1190911.svg "ATMA") All The Magic - Arcana - ATMA](https://www.curseforge.com/minecraft/modpacks/all-the-magic-arcana)
+| Path | What |
+|---|---|
+| `af9-core/` | AF9 Core, a small Forge mod with the machine logic KubeJS can't provide on its own (see `af9-core/README.md`) |
+| `kubejs/startup_scripts/gtceu/` | AF9's machines, materials, parts and recipe types |
+| `kubejs/server_scripts/mods/gtceu/` | AF9's recipes |
+| `kubejs/assets/` | textures, models and lang for the KubeJS side |
+| `config/ftbquests/` | the quest chapters AF9 adds or extends |
+| `config/` | the other configs AF9 changes |
+| `docs/` | the design documents |
+
+## Features
+
+- **Semiconductor factory** (`docs/semiconductor-factory.md`): quartz to electronic-grade polysilicon, Czochralski
+  boules and wafers; the SMC fab machines (chemistry, separation, electrochemistry, thermal) with changeover purges and
+  built-in clean rooms; the Photolithography Line and Scanner and the Orbital Lithography Station, nine lithography
+  modes with vacuum, break chance and real light sources; AF9's chips, GT's circuits on plain chips and tier metals;
+  the Supercooling Cryostat, the Particle Accelerator and wireless energy.
+- **Machine bus** (`docs/machine-bus.md`): Optical Bus Cable and Bus Connectors join the machines; the Central
+  Monitor shows, runs and opens them; the Bus Controller picks their recipes, supplies them and crafts for the ME
+  network through GT's ME Pattern Buffer; computation and research flow over the bus.
+- **Computation**: CWU Servers (LV-IV), the N1 Computation Array and the N1 Supercomputer Array with Computer Racks
+  and cards, and the ME Computation Link: an ME network needs computation for its channels.
+
+## Install
+
+Build AF9 Core (or take the jar from GitHub Actions, see `af9-core/README.md`), put it into the instance's `mods/`
+folder, and copy `kubejs/` and `config/` over the instance's own. Every client and server needs the jar: the KubeJS
+scripts load its classes.
+
+## Build
+
+```
+cd af9-core
+gradlew build
+```
+
+Needs JDK 17. The jar lands in `af9-core/build/libs/`.
