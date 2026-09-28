@@ -58,15 +58,13 @@ public class OpticalBusCableBlock extends PipeBlock {
     }
 
     /**
-     * Another cable, a Bus Connector, Interconnect Hatch or {@link BusConsumer} whose port faces this cable, a GT
-     * transmitter hatch facing it, or a CWU Server on any side but its front.
+     * Another cable, a Bus Connector or Interconnect Hatch whose port faces this cable, a {@link BusConsumer} (any
+     * face), a GT transmitter hatch facing it, or a CWU Server on any side but its front.
      */
     public static boolean connectsTo(BlockGetter level, BlockPos pos, Direction direction) {
         BlockPos other = pos.relative(direction);
         if (level.getBlockState(other).getBlock() instanceof OpticalBusCableBlock) return true;
-        if (level.getBlockEntity(other) instanceof BusConsumer consumer) {
-            return consumer.getPortSide() == direction.getOpposite();
-        }
+        if (level.getBlockEntity(other) instanceof BusConsumer) return true;
         MetaMachine machine = MetaMachine.getMachine(level, other);
         if (machine == null || !BusNetwork.facesBus(machine, direction.getOpposite())) return false;
         return machine instanceof BusConnectorPartMachine || machine instanceof BusInterconnectPartMachine ||

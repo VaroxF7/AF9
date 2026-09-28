@@ -34,14 +34,16 @@ import java.util.List;
 
 /**
  * ME Computation Link: an AE2 network device (it needs no channel itself, only a trickle of AE) that draws computation
- * for its ME network ({@link MEComputationService}) from what is on its back:
+ * for its ME network ({@link MEComputationService}) from what is against any of its faces:
  * <ul>
  * <li>Optical Bus Cable: the machine bus, where it counts as one of the bus's machines ({@link BusConsumer}) and draws
- * from the bus's 1024 CWU/t and its network;</li>
- * <li>a GT Computation Transmitter Hatch (an HPCA's, a Network Switch's), or GT's Optical Fiber Cable to one: GT's
- * computation directly.</li>
+ * from the bus's 1024 CWU/t and its network. One bus a link: with cable on several faces, the first
+ * ({@link #getPortSide}: down, up, north, south, west, east);</li>
+ * <li>anything that gives GT computation on that face, directly, no cable needed: a CWU Server, a Computation
+ * Transmitter Hatch (an HPCA's, a Network Switch's, a computation array's), GT's Optical Fiber Cable to one.</li>
  * </ul>
- * The AE2 cable connects on its other five sides. Any number per network; the network draws through them in turn.
+ * The bus first, then the other faces in that order, until the request is met. The AE2 cable connects on any face.
+ * Any number per network; the network draws through them in turn.
  */
 public class MEComputationLinkBlockEntity extends BlockEntity implements IInWorldGridNodeHost, BusConsumer {
 
@@ -49,7 +51,7 @@ public class MEComputationLinkBlockEntity extends BlockEntity implements IInWorl
     private static final int BUS_CACHE_TICKS = 20;
 
     private final IManagedGridNode node;
-    /** What GT's Optical Fiber Cable sees on the back: a receiver, it gives nothing. */
+    /** What GT's Optical Fiber Cable sees on each face: a receiver, it gives nothing. */
     private final IOpticalComputationProvider port = new Port();
     private final LazyOptional<IOpticalComputationProvider> portCap = LazyOptional.of(() -> port);
     private BusNetwork.Bus bus;
@@ -68,9 +70,15 @@ public class MEComputationLinkBlockEntity extends BlockEntity implements IInWorl
                 .setVisualRepresentation(AF9AE2.LINK.get());
     }
 
+    /** Its bus's side: the first face with Optical Bus Cable against it, or null. */
     @Override
     public Direction getPortSide() {
-        return getBlockState().getValue(MEComputationLinkBlock.FACING);
+        if (level == null) return null;
+        for (Direction side : Direction.values()) {
+            BlockPos at = worldPosition.relative(side);
+            if (level.isLoaded(at) && level.getBlockState(at).getBlock() instanceof OpticalBusCableBlock) return side;
+        }
+        return null;
     }
 
     //////////////////////////////////////
@@ -85,7 +93,7 @@ public class MEComputationLinkBlockEntity extends BlockEntity implements IInWorl
     @Override
     public void onLoad() {
         super.onLoad();
-        node.setExposedOnSides(EnumSet.complementOf(EnumSet.of(getPortSide())));
+        node.setExposedOnSides(EnumSet.allOf(Direction.class));
         if (level != null && !level.isClientSide) {
             GridHelper.onFirstTick(this, link -> link.node.create(link.level, link.worldPosition));
         }
@@ -129,22 +137,18 @@ public class MEComputationLinkBlockEntity extends BlockEntity implements IInWorl
     // ********** Computation **********//
     //////////////////////////////////////
 
-    /** Draws up to {@code cwut} CWU/t for the ME network from the back. */
+    /** Draws up to {@code cwut} CWU/t for the ME network: from its bus, then from the GT sources against it. */
     public int draw(int cwut) {
         Level level = getLevel();
         if (level == null || cwut <= 0) return 0;
-        Direction back = getPortSide();
-        BlockPos at = worldPosition.relative(back);
         List<IOpticalComputationProvider> seen = new ArrayList<>();
         seen.add(port);
-        int got;
-        if (level.getBlockState(at).getBlock() instanceof OpticalBusCableBlock) {
-            got = BusNetwork.requestCWUt(level, getBus(), getNetwork(), cwut, false, seen);
-        } else {
-            BlockEntity behind = level.getBlockEntity(at);
-            IOpticalComputationProvider provider = behind == null ? null :
-                    behind.getCapability(GTCapability.CAPABILITY_COMPUTATION_PROVIDER, back.getOpposite()).orElse(null);
-            got = provider == null ? 0 : Math.max(0, provider.requestCWUt(cwut, false, seen));
+        int got = 0;
+        if (getPortSide() != null) got = BusNetwork.requestCWUt(level, getBus(), getNetwork(), cwut, false, seen);
+        for (IOpticalComputationProvider provider : getDirectSources()) {
+            if (got >= cwut) break;
+            if (seen.contains(provider)) continue;
+            got += Math.max(0, provider.requestCWUt(cwut - got, false, seen));
         }
         long now = level.getGameTime();
         if (now != drawTick) {
@@ -156,7 +160,7 @@ public class MEComputationLinkBlockEntity extends BlockEntity implements IInWorl
         return got;
     }
 
-    /** The bus on the back (walked at most once a second). */
+    /** The bus on its port side (walked at most once a second); without cable, a bus of itself alone. */
     public BusNetwork.Bus getBus() {
         long now = level == null ? 0 : level.getGameTime();
         if (bus == null || busTime < 0 || now < busTime || now - busTime >= BUS_CACHE_TICKS) {
@@ -173,9 +177,28 @@ public class MEComputationLinkBlockEntity extends BlockEntity implements IInWorl
         return network;
     }
 
+    /**
+     * What gives GT computation against its faces, the bus's side and other ME Computation Links left out: a CWU
+     * Server, a transmitter hatch, a computation array's or HPCA's controller, GT's Optical Fiber Cable.
+     */
+    public List<IOpticalComputationProvider> getDirectSources() {
+        List<IOpticalComputationProvider> sources = new ArrayList<>();
+        if (level == null) return sources;
+        Direction bus = getPortSide();
+        for (Direction side : Direction.values()) {
+            BlockPos at = worldPosition.relative(side);
+            if (side == bus || !level.isLoaded(at)) continue;
+            BlockEntity next = level.getBlockEntity(at);
+            if (next == null || next instanceof MEComputationLinkBlockEntity) continue;
+            next.getCapability(GTCapability.CAPABILITY_COMPUTATION_PROVIDER, side.getOpposite())
+                    .ifPresent(sources::add);
+        }
+        return sources;
+    }
+
     @Override
     public <T> LazyOptional<T> getCapability(Capability<T> capability, Direction side) {
-        if (capability == GTCapability.CAPABILITY_COMPUTATION_PROVIDER && (side == null || side == getPortSide())) {
+        if (capability == GTCapability.CAPABILITY_COMPUTATION_PROVIDER) {
             return portCap.cast();
         }
         return super.getCapability(capability, side);
@@ -187,7 +210,7 @@ public class MEComputationLinkBlockEntity extends BlockEntity implements IInWorl
         portCap.invalidate();
     }
 
-    /** The back as GT's fibre sees it: a receiving end, never a source. */
+    /** A face as GT's fibre sees it: a receiving end, never a source. */
     private static final class Port implements IOpticalComputationProvider {
 
         @Override
@@ -216,18 +239,18 @@ public class MEComputationLinkBlockEntity extends BlockEntity implements IInWorl
         if (level == null) return;
         player.sendSystemMessage(
                 Component.translatable("block.af9.me_computation_link").withStyle(ChatFormatting.AQUA));
-        Direction back = getPortSide();
-        BlockPos at = worldPosition.relative(back);
-        BlockEntity behind = level.getBlockEntity(at);
-        if (level.getBlockState(at).getBlock() instanceof OpticalBusCableBlock) {
+        boolean onBus = getPortSide() != null;
+        if (onBus) {
             BusNetwork.Bus own = getBus();
             player.sendSystemMessage(Component.translatable("af9.me_link.from_bus", own.machines(),
                     BusNetwork.MAX_MACHINES, BusNetwork.maxCWUt(own, getNetwork(), new ArrayList<>()))
                     .withStyle(own.overloaded() ? ChatFormatting.RED : ChatFormatting.GRAY));
-        } else if (behind != null &&
-                behind.getCapability(GTCapability.CAPABILITY_COMPUTATION_PROVIDER, back.getOpposite()).isPresent()) {
-            player.sendSystemMessage(Component.translatable("af9.me_link.from_gt").withStyle(ChatFormatting.GRAY));
-        } else {
+        }
+        List<IOpticalComputationProvider> direct = getDirectSources();
+        if (!direct.isEmpty()) {
+            player.sendSystemMessage(Component.translatable("af9.me_link.from_gt", direct.size())
+                    .withStyle(ChatFormatting.GRAY));
+        } else if (!onBus) {
             player.sendSystemMessage(Component.translatable("af9.me_link.from_nothing").withStyle(ChatFormatting.RED));
         }
         player.sendSystemMessage(Component.translatable("af9.me_link.drawn", level.getGameTime() - drawTick <= 1 ?

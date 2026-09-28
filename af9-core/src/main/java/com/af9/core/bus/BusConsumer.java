@@ -6,8 +6,9 @@ import net.minecraft.world.level.Level;
 
 /**
  * A block (not a GT machine) that draws computation from the machine bus through a port: the ME Computation Link.
- * Optical Bus Cable plugs into its port; on the bus it counts as one machine ({@link BusNetwork#MAX_MACHINES}) and
- * draws from the bus's budget ({@link BusNetwork#requestCWUt}).
+ * Optical Bus Cable plugs into any of its faces (the cable joins it there); its port is the first face with cable, and
+ * on that bus it counts as one machine ({@link BusNetwork#MAX_MACHINES}) and draws from the bus's budget
+ * ({@link BusNetwork#requestCWUt}).
  */
 public interface BusConsumer {
 
@@ -15,6 +16,6 @@ public interface BusConsumer {
 
     BlockPos getBlockPos();
 
-    /** The side the bus's cable plugs into. */
+    /** The side its bus's cable plugs into, or null without cable. */
     Direction getPortSide();
 }

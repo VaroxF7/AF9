@@ -222,14 +222,16 @@ it needs again or first falls short, else at most every 5 s and only for a chang
 `channelsPerCwut`). A new network starts with all its channels for its first second.
 
 **ME Computation Link** (`af9:me_computation_link`, `MEComputationLinkBlock` / `MEComputationLinkBlockEntity`): an
-AE2 in-world grid node on five sides (it needs no channel itself, 1 AE/t); its back (`facing`, placed against the
-block clicked) takes the computation:
+AE2 in-world grid node on all six faces (it needs no channel itself, 1 AE/t); every face takes computation too
+(`facing`, placed against the block clicked, only turns the model):
 
-| On its back | It draws |
+| Against a face | It draws |
 |---|---|
-| Optical Bus Cable | from the bus (`BusNetwork.requestCWUt`): the link is a `BusConsumer`, one of the bus's 16 machines, drawing from its 1024 CWU/t and its network |
-| a GT Computation Transmitter Hatch (HPCA, Network Switch) | from the hatch's computation |
-| GT Optical Fiber Cable | from what the fibre leads to (the link shows GT's fibre a receiving port, so the fibre connects) |
+| Optical Bus Cable | from the bus (`BusNetwork.requestCWUt`): the link is a `BusConsumer`, one of the bus's 16 machines, drawing from its 1024 CWU/t and its network. One bus a link: with cable on several faces, the first (down, up, north, south, west, east; `getPortSide`); the cable joins it on any face |
+| a CWU Server, a GT Computation Transmitter Hatch (HPCA, Network Switch, computation array), an HPCA's or array's controller | straight from it, no cable (GT's computation capability on that face; `getDirectSources`) |
+| GT Optical Fiber Cable | from what the fibre leads to (the link shows GT's fibre a receiving port on every face, so the fibre connects) |
+
+The bus first, then the other faces in that order, until the request is met; other ME Computation Links are left out.
 
 Any number per network. Right-click: what it draws from, how much, and the network's channels, needs, supply and cap.
 The ME Controller's tooltip names the rule. Quests: the link under the Optical Bus Cable (Photolithography chapter),
@@ -259,7 +261,7 @@ gave last tick, the EU per CWU and its energy.
 **Front lights** (model properties `cwu_lights`, `cwu_alt_lights`, set every 10 ticks; models
 `af9:block/machine/cwu_server_<state>`): a steady red dot while **offline**: switched off, out of energy, or nothing next
 to it that could draw from it (Optical Bus Cable or a Bus Connector facing it on any side but its front, an ME
-Computation Link with its back against it or GT Optical Fiber Cable joined to it on any side); the power LEDs steady
+Computation Link against it or GT Optical Fiber Cable joined to it on any side); the power LEDs steady
 green while **idle**; blinking while **busy** (it gave computation within the last second). Two blinking patterns of different lengths (8
 frames at 2 ticks, 11 at 3), picked by the block position (`Mth.getSeed`), so servers side by side do not blink in step.
 

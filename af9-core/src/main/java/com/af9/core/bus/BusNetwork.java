@@ -100,7 +100,7 @@ public final class BusNetwork {
         Set<MetaMachine> transmitters = new LinkedHashSet<>();
         if (originConnector != null) found.put(originPos, originConnector);
         if (originConsumer != null) consumers.add(originConsumer);
-        if (level != null) {
+        if (level != null && originPort != null) {
             walkCables(level, originPos, originPort, (pos, side) -> {
                 if (level.getBlockEntity(pos) instanceof BusConsumer consumer) {
                     if (consumer.getPortSide() == side) consumers.add(consumer);

@@ -255,8 +255,8 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
 
     /**
      * Whether something next to it could draw its computation: Optical Bus Cable or a Bus Connector facing it on any
-     * side but its front, an ME Computation Link with its back against it or GT Optical Fiber Cable joined to it on
-     * any side.
+     * side but its front, an ME Computation Link against it (any face of either) or GT Optical Fiber Cable joined to
+     * it on any side.
      */
     public boolean isConnected() {
         Level level = getLevel();
@@ -274,7 +274,7 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
                 }
             }
             BlockEntity entity = level.getBlockEntity(next);
-            if (entity instanceof BusConsumer consumer && consumer.getPortSide() == side.getOpposite()) return true;
+            if (entity instanceof BusConsumer) return true;
             if (entity instanceof OpticalPipeBlockEntity pipe &&
                     PipeBlockEntity.isConnected(pipe.getConnections(), side.getOpposite())) {
                 return true;

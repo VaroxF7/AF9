@@ -20,13 +20,13 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * ME Computation Link: brings computation into an ME network ({@link MEComputationLinkBlockEntity}). Its back
- * ({@link #FACING}) takes the computation; it is placed with its back against the block clicked (the Optical Bus
- * Cable, the transmitter hatch or the fibre). Right-click: what it brings and what the network needs.
+ * ME Computation Link: brings computation into an ME network ({@link MEComputationLinkBlockEntity}) from what is
+ * against any of its faces. {@link #FACING} only turns the model (its port face is placed against the block clicked).
+ * Right-click: what it brings and what the network needs.
  */
 public class MEComputationLinkBlock extends BaseEntityBlock {
 
-    /** The back: where the computation comes in. */
+    /** The port face of the model: placed against the block clicked. */
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
 
     public MEComputationLinkBlock(Properties properties) {
