@@ -1,5 +1,6 @@
 package com.af9.core.bus;
 
+import com.af9.core.compute.ComputationArrayMachine;
 import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.LithoMachine;
 import com.af9.core.machine.ParticleAcceleratorMachine;
@@ -58,7 +59,8 @@ public final class BusData {
             FORMED = "f", STATUS_ID = "s", ENABLED = "on", PROGRESS_TICKS = "pr", MAX_PROGRESS = "mx",
             RECIPE_KEY = "rt", MODE = "mode", MODE_COLOR = "mc", MODES = "mn", PRODUCT = "out", STORED = "eu",
             CAPACITY = "ec", EUT = "et", RUNS = "runs", PRINTED = "pt", BROKEN = "bk", BATCH = "b", VERSION = "v",
-            MAX_VERSION = "vm", SPEED = "sp", CLEANLINESS = "cl", VACUUM = "vs", BREAK = "bc", BEAM_GEV = "gev";
+            MAX_VERSION = "vm", SPEED = "sp", CLEANLINESS = "cl", VACUUM = "vs", BREAK = "bc", BEAM_GEV = "gev",
+            ARRAY_CWUT = "cwu", ARRAY_RAW = "cwur", ARRAY_COOLING = "cool", ARRAY_HEAT = "heat", RACKS = "racks";
 
     /** Machine status, as {@link RecipeLogic.Status} (the ordinal) plus "not formed". */
     public static final int STATE_IDLE = 0, STATE_WORKING = 1, STATE_WAITING = 2, STATE_SUSPEND = 3,
@@ -135,6 +137,12 @@ public final class BusData {
                 tag.putDouble(BREAK, litho.currentBreakChance(litho.getActiveMode()));
             } else if (machine instanceof ParticleAcceleratorMachine accelerator) {
                 tag.putDouble(BEAM_GEV, accelerator.getBeamEnergyGeV());
+            } else if (machine instanceof ComputationArrayMachine array) {
+                tag.putInt(ARRAY_CWUT, array.getOutputCWUt());
+                tag.putInt(ARRAY_RAW, array.getRawCWUt());
+                tag.putDouble(ARRAY_COOLING, array.getCooling());
+                tag.putInt(ARRAY_HEAT, array.getHeat());
+                tag.putInt(RACKS, array.getRacks());
             }
         }
         return tag;

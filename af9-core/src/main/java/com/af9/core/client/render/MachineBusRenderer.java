@@ -278,6 +278,17 @@ public class MachineBusRenderer implements IMonitorRenderer {
             } else if (d.contains(BusData.BEAM_GEV)) {
                 lines.add(new Component[] { Component.translatable("af9.bus.screen.beam"),
                         Component.literal(String.format(Locale.ROOT, "%.0f GeV", d.getDouble(BusData.BEAM_GEV))) });
+            } else if (d.contains(BusData.ARRAY_CWUT)) {
+                lines.add(new Component[] { Component.translatable("af9.bus.screen.computation"),
+                        Component.literal(d.getInt(BusData.ARRAY_CWUT) + " / " + d.getInt(BusData.ARRAY_RAW) +
+                                " CWU/t"),
+                        Component.translatable("af9.bus.screen.cooling"),
+                        Component.literal(String.format(Locale.ROOT, "%.0f %%",
+                                100 * d.getDouble(BusData.ARRAY_COOLING))) });
+                lines.add(new Component[] { Component.translatable("af9.bus.screen.racks"),
+                        Component.literal(String.valueOf(d.getInt(BusData.RACKS))),
+                        Component.translatable("af9.bus.screen.heat"),
+                        Component.literal(d.getInt(BusData.ARRAY_HEAT) + "/t") });
             }
         }
         return lines.toArray(new Component[0][]);
