@@ -255,6 +255,13 @@ amp). It is a GT computation source (`IOpticalComputationProvider`, every side),
 Bridging (for a Network Switch) always allowed. A soft mallet or its screen switches it off; its screen shows what it
 gave last tick, the EU per CWU and its energy.
 
+**Front lights** (model properties `cwu_lights`, `cwu_alt_lights`, set every 10 ticks; models
+`af9:block/machine/cwu_server_<state>`): a steady red dot while **offline**: switched off, out of energy, or nothing next
+to it that could draw from it (Optical Bus Cable or a Bus Connector facing it at its front, an ME Computation Link with
+its back against it or GT Optical Fiber Cable joined to it on any side); the power LEDs steady green while **idle**;
+blinking while **busy** (it gave computation within the last second). Two blinking patterns of different lengths (8
+frames at 2 ticks, 11 at 3), picked by the block position (`Mth.getSeed`), so servers side by side do not blink in step.
+
 | Output | Machine | Inputs (plus the tier's machine hull) |
 |---|---|---|
 | LV CWU Server | Assembler, LV, 10 s | 4 LV circuits, 2 tin cable, 144 mB tin |

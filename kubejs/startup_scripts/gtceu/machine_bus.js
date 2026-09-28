@@ -52,15 +52,16 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
 
     // CWU Server (LV-IV): turns EU into computation, 4 CWU/t at LV doubling to 64 at IV, one amp of its tier at full
     // output. A GT computation source: an ME Computation Link against it, GT Optical Fiber Cable, or the bus (its front
-    // on Optical Bus Cable)
+    // on Optical Bus Cable). Its front lights: a steady red dot offline (off, unpowered or nothing to give to), steady
+    // green idle, blinking while it gives (two patterns, scattered by position); the models come from af9-core
     allthemods.create('cwu_server', 'custom')
         .tiers(GTValues.LV, GTValues.MV, GTValues.HV, GTValues.EV, GTValues.IV)
         .machine((holder, tier) => new $CWUServer(holder, tier))
         .definition((tier, builder) => {
+            $CWUServer.lightsModel(builder)
             builder
                 .langValue(`${GTValues.VLVH[tier]} CWU Server ${GTValues.VLVT[tier]}`)
                 .rotationState(RotationState.ALL)
-                ['overlayTieredHullModel(net.minecraft.resources.ResourceLocation)']('af9:block/machine/cwu_server')
                 ['tooltips(net.minecraft.network.chat.Component[])']([
                     Component.translatable('af9.cwu_server.tooltip.0', `${$CWUServer.cwutFor(tier)}`),
                     Component.translatable('af9.cwu_server.tooltip.1', `${GTValues.VA[tier]}`),
