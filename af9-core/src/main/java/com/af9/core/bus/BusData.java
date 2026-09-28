@@ -181,11 +181,7 @@ public final class BusData {
                 int current = rlm.getActiveRecipeType();
                 for (int i = 1; i < count; i++) {
                     int next = Math.floorMod(current + i * Integer.signum(step == 0 ? 1 : step), count);
-                    if (!modeAllowed(machine, next)) continue;
-                    // as GT's mode button: switch, then let the recipe logic look again
-                    rlm.setActiveRecipeType(next);
-                    rlm.getRecipeLogic().updateTickSubscription();
-                    return true;
+                    if (selectMode(machine, next)) return true;
                 }
                 return false;
             }
@@ -195,8 +191,25 @@ public final class BusData {
         }
     }
 
+    /**
+     * Switches a machine to one of its recipe types, if it may run it ({@link #modeAllowed}); as GT's mode button:
+     * switch, then let the recipe logic look again.
+     *
+     * @return whether the machine runs that type now
+     */
+    public static boolean selectMode(MetaMachine machine, int index) {
+        if (!(machine instanceof IRecipeLogicMachine rlm) || index < 0 || index >= rlm.getRecipeTypes().length ||
+                !modeAllowed(machine, index)) {
+            return false;
+        }
+        if (rlm.getActiveRecipeType() == index) return true;
+        rlm.setActiveRecipeType(index);
+        rlm.getRecipeLogic().updateTickSubscription();
+        return true;
+    }
+
     /** A line may only switch to the modes its built version prints; other machines to any of their recipe types. */
-    private static boolean modeAllowed(MetaMachine machine, int index) {
+    public static boolean modeAllowed(MetaMachine machine, int index) {
         if (machine instanceof PhotolithographyLineMachine line) {
             List<LithoMode> modes = line.getModes();
             return index < modes.size() && line.canPrint(modes.get(index));

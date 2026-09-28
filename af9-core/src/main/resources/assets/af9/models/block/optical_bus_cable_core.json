@@ -1,20 +1,19 @@
 {
-  "parent": "minecraft:block/block",
   "textures": {
-    "cable": "af9:block/polycat_cable",
-    "particle": "af9:block/polycat_cable"
+    "cable": "af9:block/optical_bus_cable",
+    "particle": "af9:block/optical_bus_cable"
   },
   "elements": [
     {
       "from": [
         6,
         6,
-        0
+        6
       ],
       "to": [
         10,
         10,
-        16
+        10
       ],
       "faces": {
         "north": {
@@ -35,43 +34,41 @@
           ],
           "texture": "#cable"
         },
+        "east": {
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "texture": "#cable"
+        },
+        "west": {
+          "uv": [
+            6,
+            6,
+            10,
+            10
+          ],
+          "texture": "#cable"
+        },
         "up": {
           "uv": [
             6,
-            0,
+            6,
             10,
-            16
+            10
           ],
           "texture": "#cable"
         },
         "down": {
           "uv": [
             6,
-            0,
+            6,
             10,
-            16
+            10
           ],
           "texture": "#cable"
-        },
-        "east": {
-          "uv": [
-            6,
-            0,
-            10,
-            16
-          ],
-          "texture": "#cable",
-          "rotation": 90
-        },
-        "west": {
-          "uv": [
-            6,
-            0,
-            10,
-            16
-          ],
-          "texture": "#cable",
-          "rotation": 90
         }
       }
     }

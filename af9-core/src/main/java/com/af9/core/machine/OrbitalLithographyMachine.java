@@ -1,6 +1,7 @@
 package com.af9.core.machine;
 
 import com.af9.core.AF9Core;
+import com.af9.core.bus.BusConnectorPartMachine;
 import com.af9.core.common.AF9DamageTypes;
 import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
@@ -291,9 +292,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return max;
     }
 
+    /** A computation hatch, or a Bus Connector (computation over the machine bus). */
     public boolean hasComputationHatch() {
         return getParts().stream()
-                .anyMatch(part -> part instanceof OpticalComputationHatchMachine hatch && !hatch.isTransmitter());
+                .anyMatch(part -> part instanceof OpticalComputationHatchMachine hatch && !hatch.isTransmitter() ||
+                        part instanceof BusConnectorPartMachine);
     }
 
     //////////////////////////////////////

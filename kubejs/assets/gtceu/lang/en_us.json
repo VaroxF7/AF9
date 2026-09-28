@@ -128,6 +128,7 @@
     "af9.wireless_transmitter.tooltip.2": "§7Right-click it with a §fData Stick§7 to take the link to the receivers.",
     "block.gtceu.orbital_lithography_station": "Orbital Lithography Station",
     "block.gtceu.supercooling_cryostat": "Supercooling Cryostat",
+    "block.gtceu.bus_controller": "Bus Controller",
     "block.gtceu.particle_accelerator": "Particle Accelerator",
     "block.gtceu.hv_coolant_hatch": "HV Coolant Hatch",
     "block.gtceu.ev_coolant_hatch": "EV Coolant Hatch",

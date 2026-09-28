@@ -6,7 +6,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "af9:polycat_cable"
+          "name": "af9:optical_bus_cable"
         }
       ],
       "conditions": [

@@ -2,7 +2,7 @@
   "multipart": [
     {
       "apply": {
-        "model": "af9:block/polycat_cable_core"
+        "model": "af9:block/optical_bus_cable_core"
       }
     },
     {
@@ -10,7 +10,7 @@
         "north": "true"
       },
       "apply": {
-        "model": "af9:block/polycat_cable_side"
+        "model": "af9:block/optical_bus_cable_side"
       }
     },
     {
@@ -18,7 +18,7 @@
         "east": "true"
       },
       "apply": {
-        "model": "af9:block/polycat_cable_side",
+        "model": "af9:block/optical_bus_cable_side",
         "y": 90
       }
     },
@@ -27,7 +27,7 @@
         "south": "true"
       },
       "apply": {
-        "model": "af9:block/polycat_cable_side",
+        "model": "af9:block/optical_bus_cable_side",
         "y": 180
       }
     },
@@ -36,7 +36,7 @@
         "west": "true"
       },
       "apply": {
-        "model": "af9:block/polycat_cable_side",
+        "model": "af9:block/optical_bus_cable_side",
         "y": 270
       }
     },
@@ -45,7 +45,7 @@
         "up": "true"
       },
       "apply": {
-        "model": "af9:block/polycat_cable_side",
+        "model": "af9:block/optical_bus_cable_side",
         "x": 270
       }
     },
@@ -54,7 +54,7 @@
         "down": "true"
       },
       "apply": {
-        "model": "af9:block/polycat_cable_side",
+        "model": "af9:block/optical_bus_cable_side",
         "x": 90
       }
     }

@@ -13,16 +13,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 
 /**
- * Polycat Cable: the machine bus's cable (a Cat cable in a polyethylene jacket). A thin pipe-shaped block that joins
- * the cables next to it and the Bus Connectors whose port (front face) points at it; {@link BusNetwork} walks it. No
- * block entity: the six connection properties are all it has.
+ * Optical Bus Cable: the machine bus's cable (multimode glass fibre in an aqua jacket, a data center's OM4 fibre). A
+ * thin pipe-shaped block that joins the cables next to it, the Bus Connectors whose port (front face) points at it and
+ * GT's optical transmitter hatches (an HPCA's or Network Switch's computation, a Data Bank's research) that face it;
+ * {@link BusNetwork} walks it. Unlike GT's Optical Fiber Cable it branches. No block entity: the six connection
+ * properties are all it has.
  */
-public class PolycatCableBlock extends PipeBlock {
+public class OpticalBusCableBlock extends PipeBlock {
 
     /** Half the cable's thickness: 4 px. */
     private static final float APOTHEM = 2 / 16f;
 
-    public PolycatCableBlock(Properties properties) {
+    public OpticalBusCableBlock(Properties properties) {
         super(APOTHEM, properties);
         BlockState state = stateDefinition.any();
         for (Direction direction : Direction.values()) {
@@ -55,11 +57,12 @@ public class PolycatCableBlock extends PipeBlock {
         return state;
     }
 
-    /** Another cable, or a Bus Connector with its port towards this cable. */
+    /** Another cable, a Bus Connector with its port towards this cable, or a GT transmitter hatch facing it. */
     public static boolean connectsTo(BlockGetter level, BlockPos pos, Direction direction) {
         BlockPos other = pos.relative(direction);
-        if (level.getBlockState(other).getBlock() instanceof PolycatCableBlock) return true;
-        return MetaMachine.getMachine(level, other) instanceof BusConnectorPartMachine connector &&
-                connector.getFrontFacing() == direction.getOpposite();
+        if (level.getBlockState(other).getBlock() instanceof OpticalBusCableBlock) return true;
+        MetaMachine machine = MetaMachine.getMachine(level, other);
+        if (machine == null || machine.getFrontFacing() != direction.getOpposite()) return false;
+        return machine instanceof BusConnectorPartMachine || BusNetwork.isTransmitter(machine);
     }
 }

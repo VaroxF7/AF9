@@ -1,14 +1,20 @@
 package com.af9.core.bus;
 
+import com.gregtechceu.gtceu.api.capability.IDataAccessHatch;
 import com.gregtechceu.gtceu.api.capability.IMonitorComponent;
+import com.gregtechceu.gtceu.api.capability.IOpticalDataAccessHatch;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IWorkableMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.MultiblockPartMachine;
+import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.common.machine.multiblock.electric.CentralMonitorMachine;
+import com.gregtechceu.gtceu.common.machine.multiblock.electric.research.DataBankMachine;
+import com.gregtechceu.gtceu.common.recipe.condition.ResearchCondition;
 
 import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib.gui.texture.ResourceTexture;
@@ -28,20 +34,30 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.Collection;
 import java.util.List;
 
 /**
  * Bus Connector: the port of a machine on the machine bus (a data center's bus connector). One sits in a machine's
- * structure (the AF9 multiblocks take one: {@link #BUS_CONNECTOR}) or in the wall of GT's Central Monitor
- * ({@link AF9Bus#installMonitorWall}); Polycat Cable from its front face joins it to the others ({@link BusNetwork}).
+ * structure (the AF9 multiblocks take one: {@link #BUS_CONNECTOR}; GT's Assembly Line, Research Station, Data Bank and
+ * Network Switch take it where their optical reception hatch goes), in the wall of GT's Central Monitor
+ * ({@link AF9Bus#installMonitorWall}) or in a Bus Controller; Optical Bus Cable from its front face joins it to the
+ * others ({@link BusNetwork}).
  * <p>
  * On a machine it shares what its screen allows ({@link #sharedData}, bits of {@link BusData}) and takes the commands
  * its screen allows ({@link #acceptedCommands}): the Central Monitor's Machine Bus Module reads and sends them. It
- * counts the machine's finished runs. In a Central Monitor it is the monitor's port: it answers the taps on the
- * Advanced Monitors of the module's screens ({@link MachineBusModule#handleTouches}).
+ * counts the machine's finished runs. It is the machine's optical reception hatch too: the machine draws its CWU/t from
+ * the bus's computation ({@link BusComputationContainer}) and its research from the bus's Data Banks
+ * ({@link #isRecipeAvailable}); in a Data Bank it puts that bank's research on the bus ({@link #getDataSource}). A Bus
+ * Controller sets the machine's recipe ({@link #getRecipeId}) and supplies it, unless the screen refuses that.
+ * In a Central Monitor it is the monitor's port: it answers the taps on the Advanced Monitors of the module's screens
+ * ({@link MachineBusModule#handleTouches}).
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
-public class BusConnectorPartMachine extends MultiblockPartMachine implements IMonitorComponent {
+public class BusConnectorPartMachine extends MultiblockPartMachine implements IMonitorComponent, IOpticalDataAccessHatch {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             BusConnectorPartMachine.class, MultiblockPartMachine.MANAGED_FIELD_HOLDER);
@@ -64,14 +80,23 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     private int acceptedCommands = BusData.ALL_COMMANDS;
     @Persisted
     private long runs;
+    /** The recipe a Bus Controller set for this machine ("" none). */
+    @Persisted
+    private String recipe = "";
+    /** Whether this machine refuses a Bus Controller (its recipe and its supply). */
+    @Persisted
+    private boolean controllerRefused;
 
-    private List<BusConnectorPartMachine> bus = List.of();
+    private final BusComputationContainer computation;
+    private final IDataAccessHatch dataSource = new BankData();
+    private BusNetwork.Bus bus = new BusNetwork.Bus(List.of(this), List.of(), List.of());
     /** Game time of the last walk, -1 before the first. */
     private long busTime = -1;
     private TickableSubscription touchSubs;
 
     public BusConnectorPartMachine(IMachineBlockEntity holder) {
         super(holder);
+        this.computation = new BusComputationContainer(this);
     }
 
     @Override
@@ -83,10 +108,12 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     // ********** The machine **********//
     //////////////////////////////////////
 
-    /** The machine this connector is the port of (not a Central Monitor), or null. */
+    /** The machine this connector is the port of (not a Central Monitor or a Bus Controller), or null. */
     public IMultiController getMachineController() {
         for (IMultiController controller : getControllers()) {
-            if (!(controller instanceof CentralMonitorMachine)) return controller;
+            if (!(controller instanceof CentralMonitorMachine) && !(controller instanceof BusControllerMachine)) {
+                return controller;
+            }
         }
         return null;
     }
@@ -95,6 +122,14 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     public CentralMonitorMachine getMonitor() {
         for (IMultiController controller : getControllers()) {
             if (controller instanceof CentralMonitorMachine monitor) return monitor;
+        }
+        return null;
+    }
+
+    /** The Bus Controller this connector is the port of, or null. */
+    public BusControllerMachine getBusController() {
+        for (IMultiController controller : getControllers()) {
+            if (controller instanceof BusControllerMachine busController) return busController;
         }
         return null;
     }
@@ -124,11 +159,33 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     }
 
     //////////////////////////////////////
+    // ****** The Bus Controller *******//
+    //////////////////////////////////////
+
+    /** The recipe a Bus Controller set for this machine, or null. */
+    @Nullable
+    public ResourceLocation getRecipeId() {
+        return recipe.isEmpty() ? null : ResourceLocation.tryParse(recipe);
+    }
+
+    public void setRecipeId(@Nullable ResourceLocation id) {
+        String value = id == null ? "" : id.toString();
+        if (value.equals(recipe)) return;
+        recipe = value;
+        markDirty();
+    }
+
+    /** Whether a Bus Controller may set this machine's recipe and supply it. */
+    public boolean acceptsController() {
+        return !controllerRefused;
+    }
+
+    //////////////////////////////////////
     // ************ The bus ************//
     //////////////////////////////////////
 
-    /** Every connector on this one's bus, this one first (walked at most once a second). */
-    public List<BusConnectorPartMachine> getBus() {
+    /** This connector's bus (walked at most once a second). */
+    public BusNetwork.Bus getBus() {
         long now = getLevel() == null ? 0 : getLevel().getGameTime();
         if (busTime < 0 || now < busTime || now - busTime >= BUS_CACHE_TICKS) {
             bus = BusNetwork.walk(this);
@@ -137,11 +194,93 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
         return bus;
     }
 
-    /** The machine ports on this one's bus (other monitors' ports and empty connectors left out). */
+    /** The machine ports on this one's bus (Central Monitors', Bus Controllers' and empty connectors left out). */
     public List<BusConnectorPartMachine> getMachinesOnBus() {
-        return getBus().stream()
+        return getBus().connectors().stream()
                 .filter(c -> c != this && !c.isInValid() && c.getMachineController() != null)
                 .toList();
+    }
+
+    //////////////////////////////////////
+    // ***** Computation, research *****//
+    //////////////////////////////////////
+
+    public BusComputationContainer getComputation() {
+        return computation;
+    }
+
+    /** The receiving side: never a transmitter hatch. */
+    @Override
+    public boolean isTransmitter() {
+        return false;
+    }
+
+    @Override
+    public boolean isCreative() {
+        return false;
+    }
+
+    /**
+     * Research for this machine: a recipe without research always; else if a Data Bank on the bus has it, or one of
+     * the machine's own data hatches (the connector never blocks what they hold).
+     */
+    @Override
+    public boolean isRecipeAvailable(@NotNull GTRecipe recipe, @NotNull Collection<IDataAccessHatch> seen) {
+        seen.add(this);
+        if (recipe.conditions.stream().noneMatch(ResearchCondition.class::isInstance)) return true;
+        for (IDataAccessHatch source : getBus().data()) {
+            if (!seen.contains(source) && source.isRecipeAvailable(recipe, seen)) return true;
+        }
+        for (IMultiController controller : getControllers()) {
+            for (IMultiPart part : controller.getParts()) {
+                if (part != this && part instanceof IDataAccessHatch hatch && !seen.contains(hatch) &&
+                        hatch.isRecipeAvailable(recipe, seen)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public GTRecipe modifyRecipe(GTRecipe recipe) {
+        return IOpticalDataAccessHatch.super.modifyRecipe(recipe);
+    }
+
+    /** The research this connector puts on the bus: its Data Bank's, if it sits in one; else null. */
+    @Nullable
+    public IDataAccessHatch getDataSource() {
+        return getMachineController() instanceof DataBankMachine ? dataSource : null;
+    }
+
+    /** A Data Bank's research, as its Optical Data Transmitter Hatch gives it: only while the bank runs. */
+    private final class BankData implements IDataAccessHatch {
+
+        @Override
+        public boolean isRecipeAvailable(@NotNull GTRecipe recipe, @NotNull Collection<IDataAccessHatch> seen) {
+            seen.add(this);
+            if (!(getMachineController() instanceof DataBankMachine bank) || !bank.isFormed() ||
+                    !bank.getRecipeLogic().isWorking()) {
+                return false;
+            }
+            for (IMultiPart part : bank.getParts()) {
+                if (part == BusConnectorPartMachine.this || !(part instanceof IDataAccessHatch hatch) ||
+                        seen.contains(hatch)) {
+                    continue;
+                }
+                var block = part.self().getBlockState().getBlock();
+                if ((PartAbility.DATA_ACCESS.isApplicable(block) ||
+                        PartAbility.OPTICAL_DATA_RECEPTION.isApplicable(block)) && hatch.isRecipeAvailable(recipe, seen)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public boolean isCreative() {
+            return false;
+        }
     }
 
     //////////////////////////////////////
@@ -220,9 +359,12 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
 
     private void addDisplayText(List<Component> text) {
         CentralMonitorMachine monitor = getMonitor();
+        BusControllerMachine busController = getBusController();
         IMultiController machine = getMachineController();
         if (monitor != null) {
             text.add(Component.translatable("af9.bus.connector.monitor_port").withStyle(ChatFormatting.AQUA));
+        } else if (busController != null) {
+            text.add(Component.translatable("af9.bus.connector.controller_port").withStyle(ChatFormatting.AQUA));
         } else if (machine != null) {
             text.add(Component.translatable("af9.bus.connector.machine_port",
                     Component.translatable(machine.self().getDefinition().getDescriptionId()))
@@ -230,18 +372,29 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
         } else {
             text.add(Component.translatable("af9.bus.connector.no_machine").withStyle(ChatFormatting.GRAY));
         }
+        BusNetwork.Bus bus = getBus();
         int machines = getMachinesOnBus().size();
-        int all = getBus().size() - 1;
+        int all = bus.connectors().size() - 1;
         text.add(all <= 0 ? Component.translatable("af9.bus.connector.alone").withStyle(ChatFormatting.GRAY) :
                 Component.translatable("af9.bus.connector.bus", all, machines));
+        text.add(Component.translatable("af9.bus.connector.sources", computation.getMaxCWUt(),
+                bus.computation().size(), bus.data().size()).withStyle(ChatFormatting.GRAY));
         if (monitor != null) {
             text.add(Component.translatable("af9.bus.connector.monitor_hint").withStyle(ChatFormatting.DARK_GRAY));
             return;
         }
+        if (busController != null) return;
         text.add(Component.translatable("af9.bus.connector.shares").withStyle(ChatFormatting.GOLD));
         text.add(toggles(BusData.DATA_KEYS, "af9.bus.data.", sharedData, "d"));
         text.add(Component.translatable("af9.bus.connector.accepts").withStyle(ChatFormatting.GOLD));
         text.add(toggles(BusData.COMMAND_KEYS, "af9.bus.command.", acceptedCommands, "c"));
+        text.add(ComponentPanelWidget.withButton(Component.literal(controllerRefused ? "□ " : "■ ")
+                .append(Component.translatable("af9.bus.connector.controller"))
+                .withStyle(controllerRefused ? ChatFormatting.DARK_GRAY : ChatFormatting.GREEN), "controller"));
+        ResourceLocation id = getRecipeId();
+        if (id != null) {
+            text.add(Component.translatable("af9.bus.connector.recipe", id.toString()).withStyle(ChatFormatting.GRAY));
+        }
         text.add(Component.translatable("af9.bus.connector.hint").withStyle(ChatFormatting.DARK_GRAY));
     }
 
@@ -259,7 +412,13 @@ public class BusConnectorPartMachine extends MultiblockPartMachine implements IM
     }
 
     private void handleDisplayClick(String id, ClickData click) {
-        if (click.isRemote || id.length() < 2) return;
+        if (click.isRemote) return;
+        if (id.equals("controller")) {
+            controllerRefused = !controllerRefused;
+            markDirty();
+            return;
+        }
+        if (id.length() < 2) return;
         int bit;
         try {
             bit = 1 << Integer.parseInt(id.substring(1));
