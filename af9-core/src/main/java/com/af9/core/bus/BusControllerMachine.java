@@ -3,6 +3,7 @@ package com.af9.core.bus;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
+import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.widget.PhantomSlotWidget;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
@@ -22,6 +23,8 @@ import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 
 import com.lowdragmc.lowdraglib.gui.util.ClickData;
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
+import com.lowdragmc.lowdraglib.gui.widget.ImageWidget;
+import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
@@ -332,15 +335,26 @@ public class BusControllerMachine extends WorkableElectricMultiblockMachine {
     // ************ Screen *************//
     //////////////////////////////////////
 
-    /** GT's multiblock screen, with the product slot in its top right corner. */
+    /**
+     * GT's multiblock screen, laid out for this text: a fixed head (the name, the product slot in the top right
+     * corner) and under it the text, wrapped to the screen's width, scrolling (GT's own wraps wider than its screen,
+     * so the lines were cut off at the right, and the text ran under the slot).
+     */
     @Override
     public Widget createUIWidget() {
-        Widget widget = super.createUIWidget();
-        if (widget instanceof WidgetGroup group) {
-            group.addWidget(new PhantomSlotWidget(product, 0, 166, 6).setClearSlotOnRightClick(true)
-                    .setMaxStackSize(1));
-        }
-        return widget;
+        var group = new WidgetGroup(0, 0, 190, 125);
+        group.addWidget(new ImageWidget(4, 4, 182, 117, GuiTextures.DISPLAY));
+        group.addWidget(new LabelWidget(8, 10, getBlockState().getBlock().getDescriptionId()));
+        group.addWidget(new PhantomSlotWidget(product, 0, 166, 6).setClearSlotOnRightClick(true)
+                .setMaxStackSize(1));
+        boolean client = getLevel() != null && getLevel().isClientSide;
+        group.addWidget(BusConnectorPartMachine.scrolling(4, 26, 182, 94, new ComponentPanelWidget(4, 0,
+                this::addDisplayText)
+                .textSupplier(client ? null : this::addDisplayText)
+                .setMaxWidthLimit(170)
+                .clickHandler(this::handleDisplayClick)));
+        group.setBackground(GuiTextures.BACKGROUND_INVERSE);
+        return group;
     }
 
     @Override
