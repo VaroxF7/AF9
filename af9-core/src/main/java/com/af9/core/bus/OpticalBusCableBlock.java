@@ -15,8 +15,8 @@ import net.minecraft.world.level.block.state.StateDefinition;
 /**
  * Optical Bus Cable: the machine bus's cable (multimode glass fibre in an aqua jacket, a data center's OM4 fibre). A
  * thin pipe-shaped block that joins the cables next to it, the Bus Connectors and Interconnect Hatches whose port
- * (front face) points at it and GT's optical transmitter hatches (an HPCA's or Network Switch's computation, a Data
- * Bank's research) that face it; {@link BusNetwork} walks it. Unlike GT's Optical Fiber Cable it branches. No block
+ * (front face) points at it, GT's optical transmitter hatches (an HPCA's or Network Switch's computation, a Data
+ * Bank's research) that face it and CWU Servers on any side but their front; {@link BusNetwork} walks it. Unlike GT's Optical Fiber Cable it branches. No block
  * entity: the six connection properties are all it has.
  */
 public class OpticalBusCableBlock extends PipeBlock {
@@ -58,8 +58,8 @@ public class OpticalBusCableBlock extends PipeBlock {
     }
 
     /**
-     * Another cable, a Bus Connector, Interconnect Hatch or {@link BusConsumer} whose port faces this cable, or a GT
-     * transmitter hatch.
+     * Another cable, a Bus Connector, Interconnect Hatch or {@link BusConsumer} whose port faces this cable, a GT
+     * transmitter hatch facing it, or a CWU Server on any side but its front.
      */
     public static boolean connectsTo(BlockGetter level, BlockPos pos, Direction direction) {
         BlockPos other = pos.relative(direction);
@@ -68,7 +68,7 @@ public class OpticalBusCableBlock extends PipeBlock {
             return consumer.getPortSide() == direction.getOpposite();
         }
         MetaMachine machine = MetaMachine.getMachine(level, other);
-        if (machine == null || machine.getFrontFacing() != direction.getOpposite()) return false;
+        if (machine == null || !BusNetwork.facesBus(machine, direction.getOpposite())) return false;
         return machine instanceof BusConnectorPartMachine || machine instanceof BusInterconnectPartMachine ||
                 BusNetwork.isTransmitter(machine);
     }

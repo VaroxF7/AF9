@@ -107,7 +107,7 @@ public final class BusNetwork {
                     return;
                 }
                 MetaMachine machine = MetaMachine.getMachine(level, pos);
-                if (machine == null || machine.getFrontFacing() != side) return;
+                if (machine == null || !facesBus(machine, side)) return;
                 if (machine instanceof BusConnectorPartMachine connector) {
                     found.putIfAbsent(pos, connector);
                 } else if (isTransmitter(machine)) {
@@ -249,8 +249,17 @@ public final class BusNetwork {
     }
 
     /**
-     * A source whose front may face the bus: GT's Computation Transmitter Hatch or Optical Data Transmitter Hatch (not
-     * the reception hatches), or a CWU Server.
+     * Whether a machine takes the bus on its face {@code side}: a CWU Server on any side but its front (its lights),
+     * the ports and GT's transmitter hatches on their front only.
+     */
+    public static boolean facesBus(MetaMachine machine, Direction side) {
+        return machine instanceof CWUServerMachine ? machine.getFrontFacing() != side :
+                machine.getFrontFacing() == side;
+    }
+
+    /**
+     * A source that may face the bus ({@link #facesBus}): GT's Computation Transmitter Hatch or Optical Data
+     * Transmitter Hatch (not the reception hatches), or a CWU Server.
      */
     public static boolean isTransmitter(MetaMachine machine) {
         return machine instanceof OpticalComputationHatchMachine computation && computation.isTransmitter() ||

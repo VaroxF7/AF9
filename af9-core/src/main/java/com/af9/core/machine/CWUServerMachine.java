@@ -53,14 +53,15 @@ import java.util.Map;
  * 32, IV 64 CWU/t). It gives what is asked of it each tick up to that, and pays for it from its buffer: at full output
  * one amp of its tier ({@code VA[tier]} EU/t), less when less is drawn. It is a GT computation source
  * ({@link IOpticalComputationProvider}, on every side): an ME Computation Link against it takes it directly, GT's
- * Optical Fiber Cable leads it to a reception hatch, and with its front on Optical Bus Cable it is a source on the
- * machine bus. Power goes in on any side but the front. A soft mallet (or the screen) switches it off.
+ * Optical Fiber Cable leads it to a reception hatch, and Optical Bus Cable on any side but its front makes it a source
+ * on the machine bus ({@link com.af9.core.bus.BusNetwork#facesBus}). Power goes in on any side but the front, which
+ * is its lights. A soft mallet (or the screen) switches it off.
  * <p>
  * Its front lights ({@link #LIGHTS}, {@link #lightsModel}): a red dot, steady, while it is offline (switched off, out
- * of energy, or nothing next to it that could draw from it: Optical Bus Cable or a Bus Connector at its front, an ME
- * Computation Link or GT Optical Fiber Cable on any side); steady green while online and idle; blinking while it gives
- * computation. The blinking has two patterns of different lengths ({@link #ALT_LIGHTS}, chosen by the position), so
- * servers side by side do not blink in step.
+ * of energy, or nothing next to it that could draw from it: Optical Bus Cable or a Bus Connector facing it on any side
+ * but its front, an ME Computation Link or GT Optical Fiber Cable on any side); steady green while online and idle;
+ * blinking while it gives computation. The blinking has two patterns of different lengths ({@link #ALT_LIGHTS}, chosen
+ * by the position), so servers side by side do not blink in step.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
 public class CWUServerMachine extends TieredEnergyMachine implements IOpticalComputationProvider, IControllable,
@@ -253,8 +254,9 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
     }
 
     /**
-     * Whether something next to it could draw its computation: Optical Bus Cable or a Bus Connector facing it at its
-     * front, an ME Computation Link with its back against it or GT Optical Fiber Cable joined to it on any side.
+     * Whether something next to it could draw its computation: Optical Bus Cable or a Bus Connector facing it on any
+     * side but its front, an ME Computation Link with its back against it or GT Optical Fiber Cable joined to it on
+     * any side.
      */
     public boolean isConnected() {
         Level level = getLevel();
@@ -264,7 +266,7 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
         for (Direction side : Direction.values()) {
             BlockPos next = pos.relative(side);
             if (!level.isLoaded(next)) continue;
-            if (side == front) {
+            if (side != front) {
                 if (level.getBlockState(next).getBlock() instanceof OpticalBusCableBlock) return true;
                 if (MetaMachine.getMachine(level, next) instanceof BusConnectorPartMachine connector &&
                         connector.getFrontFacing() == side.getOpposite()) {

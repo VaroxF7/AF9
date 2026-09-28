@@ -11,7 +11,7 @@ Connector's and the Bus Controller's definitions `kubejs/startup_scripts/gtceu/m
 
 | Part | Id | What |
 |---|---|---|
-| Optical Bus Cable | `af9:optical_bus_cable` | The bus: a thin pipe-shaped block (`OpticalBusCableBlock`, no block entity), glass fibre in an aqua jacket. It joins the cables next to it, a Bus Connector whose front face points at it and GT's transmitter hatches facing it. It branches (GT's Optical Fiber Cable takes two connections per block and is IV). The old `af9:polycat_cable` (block and item) is remapped to it on load (`AF9Bus.remapOldCable`). |
+| Optical Bus Cable | `af9:optical_bus_cable` | The bus: a thin pipe-shaped block (`OpticalBusCableBlock`, no block entity), glass fibre in an aqua jacket. It joins the cables next to it, a Bus Connector whose front face points at it, GT's transmitter hatches facing it and a CWU Server on any side but its front. It branches (GT's Optical Fiber Cable takes two connections per block and is IV). The old `af9:polycat_cable` (block and item) is remapped to it on load (`AF9Bus.remapOldCable`). |
 | Bus Connector | `gtceu:mv_bus_connector` | A multiblock part (`BusConnectorPartMachine`, abilities `af9_bus_connector`, GT's `optical_data_reception` and `computation_data_reception`). A machine's port, a Central Monitor's port in its wall or a Bus Controller's port. The cable plugs into its front face. |
 | Machine Bus Module | `af9:machine_bus_module` | A GT monitor module (`MachineBusModule`, a GT `ComponentItem`): one goes into a monitor group of the Central Monitor. |
 | Bus Controller | `gtceu:bus_controller` | An MV multiblock (`BusControllerMachine`): the bus's PLC, up to four buses (§5). |
@@ -82,6 +82,7 @@ A command only reaches a machine on the port's bus, through a connector that tak
 | Optical Data Transmitter Hatch (a Data Bank) facing the cable | its research, while the bank runs (GT's own check) |
 | A Bus Connector in a Data Bank | that bank's research: its data access and optical reception parts, while it runs (`BusConnectorPartMachine.getDataSource`) |
 | A Bus Connector in a computation array | the array's CWU/t (`BusConnectorPartMachine.getComputationSource`, §9) |
+| A CWU Server, the cable on any side but its front | its CWU/t (§8) |
 
 **The connector is its machine's optical reception hatch.** It carries a `BusComputationContainer` (GT's
 `NotifiableComputationContainer`, IO in, drawing from the bus instead of one Optical Fiber Cable): the machine's CWU/t
@@ -249,17 +250,17 @@ amp). It is a GT computation source (`IOpticalComputationProvider`, every side),
 
 - an ME Computation Link against it (§7): one LV server runs a 16-channel ME network at the default rate;
 - GT's Optical Fiber Cable to a reception hatch (a Research Station, the Orbital Station);
-- the machine bus, its front on Optical Bus Cable: a source like a transmitter hatch (`BusNetwork.isTransmitter`), each
-  bus still at most 1024 CWU/t.
+- the machine bus, Optical Bus Cable on any side but its front (the front is its lights; `BusNetwork.facesBus`): a
+  source like a transmitter hatch (`BusNetwork.isTransmitter`), each bus still at most 1024 CWU/t.
 
 Bridging (for a Network Switch) always allowed. A soft mallet or its screen switches it off; its screen shows what it
 gave last tick, the EU per CWU and its energy.
 
 **Front lights** (model properties `cwu_lights`, `cwu_alt_lights`, set every 10 ticks; models
 `af9:block/machine/cwu_server_<state>`): a steady red dot while **offline**: switched off, out of energy, or nothing next
-to it that could draw from it (Optical Bus Cable or a Bus Connector facing it at its front, an ME Computation Link with
-its back against it or GT Optical Fiber Cable joined to it on any side); the power LEDs steady green while **idle**;
-blinking while **busy** (it gave computation within the last second). Two blinking patterns of different lengths (8
+to it that could draw from it (Optical Bus Cable or a Bus Connector facing it on any side but its front, an ME
+Computation Link with its back against it or GT Optical Fiber Cable joined to it on any side); the power LEDs steady
+green while **idle**; blinking while **busy** (it gave computation within the last second). Two blinking patterns of different lengths (8
 frames at 2 ticks, 11 at 3), picked by the block position (`Mth.getSeed`), so servers side by side do not blink in step.
 
 | Output | Machine | Inputs (plus the tier's machine hull) |
