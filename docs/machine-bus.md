@@ -293,7 +293,7 @@ The bus first, then the other faces in that order, until the request is met; oth
 
 Any number per network. Right-click: what it draws from, how much, and the network's channels, needs, supply and cap.
 The ME Controller's tooltip names the rule. Quests: the link under the Optical Bus Cable (Photolithography chapter),
-and a paragraph on ATM9's ME Controller quest.
+and a paragraph on the ME Controller quest.
 
 | Output | Machine | Inputs |
 |---|---|---|

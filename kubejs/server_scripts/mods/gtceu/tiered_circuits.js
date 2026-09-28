@@ -7,11 +7,11 @@
 //   EV  Platinum-Iridium fine wire (bootstrap: plain platinum, iridium is EV-era), titanium bolts
 //   IV  tungstensteel fine wire and frames, tungsten busbars (single wire)
 //   LuV osmiridium fine wire, niobium-titanium superconductor wire (the LuV cable), rhodium-plated palladium bolts
-// The LuV Nano Mainframe is ATM9's Assembly Line recipe (circuits_for_atm.js).
+// The LuV Nano Mainframe is the pack's own Assembly Line recipe.
 //
 // Every recipe below is otherwise GT's own (CircuitRecipes.java, GTCEu 7.2.0, harderCircuitRecipes off).
 
-ServerEvents.recipes(allthemods => {
+ServerEvents.recipes(event => {
     const VA = GTValues.VA
     // plain GT chips; the tier / mode arguments only document which circuit tier a recipe belongs to
     const chipIn = (modeId, chipId, count) => AF9_WAFERS.chipStack(chipId, count)
@@ -20,13 +20,13 @@ ServerEvents.recipes(allthemods => {
     // A tin (144 mB x multiplier) and a soldering alloy (72 mB x multiplier) version, the same pair GT's generator
     // makes (KubeJS recipes skip it)
     const newCircuit = (id, solder, build) => {
-        build(allthemods.recipes.gtceu.circuit_assembler(`af9:${id}`)).inputFluids(Fluid.of('gtceu:tin', 144 * solder))
-        build(allthemods.recipes.gtceu.circuit_assembler(`af9:${id}_soldering_alloy`)).inputFluids(Fluid.of('gtceu:soldering_alloy', 72 * solder))
+        build(event.recipes.gtceu.circuit_assembler(`af9:${id}`)).inputFluids(Fluid.of('gtceu:tin', 144 * solder))
+        build(event.recipes.gtceu.circuit_assembler(`af9:${id}_soldering_alloy`)).inputFluids(Fluid.of('gtceu:soldering_alloy', 72 * solder))
     }
     // Replaces GT's recipe and its generated soldering alloy copy with that pair
     const circuit = (id, solder, build) => {
-        allthemods.remove({ id: `gtceu:circuit_assembler/${id}` })
-        allthemods.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
+        event.remove({ id: `gtceu:circuit_assembler/${id}` })
+        event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
         newCircuit(id, solder, build)
     }
     const clean = recipe => recipe.cleanroom(CleanroomType.CLEANROOM)
@@ -143,7 +143,7 @@ ServerEvents.recipes(allthemods => {
         .duration(200).EUt(9600)))
 
     // ================================= LuV (osmiridium + NbTi + rhodium-plated palladium) ===============
-    // (Nano Mainframe: ATM9 Assembly Line recipe in circuits_for_atm.js)
+    // (Nano Mainframe: the pack's own Assembly Line recipe)
     circuit('quantum_computer_luv', 2, r => clean(r
         .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', '2x gtceu:quantum_processor_assembly', '8x gtceu:smd_diode',
             chip('luv', 'nor', 4), chip('luv', 'ram', 16), '32x gtceu:fine_osmiridium_wire')
@@ -193,5 +193,5 @@ ServerEvents.recipes(allthemods => {
             '8x gtceu:advanced_smd_capacitor', '6x kubejs:edram_soc_package', '16x gtceu:fine_niobium_titanium_wire')
         .itemOutputs('2x gtceu:crystal_processor_assembly')
         .duration(200).EUt(9600)))
-    // (the Nano Mainframe's eDRAM version: circuits_for_atm.js)
+    // (the Nano Mainframe's eDRAM version: the pack's own Assembly Line recipe)
 })

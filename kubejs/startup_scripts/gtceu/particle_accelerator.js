@@ -18,16 +18,16 @@ const $AccelModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 const $AccelMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $AccelSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
 
-GTCEuStartupEvents.registry('gtceu:material', allthemods => {
+GTCEuStartupEvents.registry('gtceu:material', event => {
     // stable strangelets: up, down and strange quarks in one bag
-    allthemods.create('strange_matter')
+    event.create('strange_matter')
         .dust()
         .color(0x8a1e6a).secondaryColor(0x2a0033)
         .iconSet(GTMaterialIconSet.SHINY)
         .formula('(uds)n')
 
     // colour-charged quark matter held in a lattice: the metal of the 1 nm wafers
-    allthemods.create('chromodynium')
+    event.create('chromodynium')
         .ingot()
         .fluid()
         .color(0xff3c78).secondaryColor(0x3cffb4)
@@ -38,22 +38,22 @@ GTCEuStartupEvents.registry('gtceu:material', allthemods => {
         .formula('Qc')
 })
 
-StartupEvents.registry('item', allthemods => {
-    allthemods.create('beryllium_spallation_target')
+StartupEvents.registry('item', event => {
+    event.create('beryllium_spallation_target')
         .displayName('Beryllium Spallation Target')
         .texture('kubejs:item/accelerator/beryllium_spallation_target')
         .tooltip('Proton beam in, neutrons out. Wears out after four wafers.')
-    allthemods.create('magnetic_trap')
+    event.create('magnetic_trap')
         .displayName('Magnetic Penning Trap')
         .texture('kubejs:item/accelerator/magnetic_trap')
         .tooltip('An empty superconducting trap for quark-gluon plasma.')
-    allthemods.create('qgp_trap')
+    event.create('qgp_trap')
         .displayName('Quark-Gluon Plasma Trap')
         .texture('kubejs:item/accelerator/qgp_trap')
         .tooltip('Quark-gluon plasma from a heavy-ion collision, held in a magnetic trap.')
 })
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
+GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // [id, items in, items out, progress bar, sound]; one fluid input each: the coolant. All three sound like the
     // accelerator: its own hum (af9-core AF9Sounds, the beacon hum pitched up)
     const types = [
@@ -62,7 +62,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
         ['quark_synthesis', 2, 2, GuiTextures.PROGRESS_BAR_REPLICATOR, $AccelSounds.PARTICLE_ACCELERATOR]
     ]
     types.forEach(([id, itemsIn, itemsOut, bar, sound]) => {
-        allthemods.create(id)
+        event.create(id)
             .category('multiblock')
             .setEUIO('in')
             .setMaxIOSize(itemsIn, itemsOut, 1, 0)
@@ -71,7 +71,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
     })
 })
 
-GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
+GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []
         for (let i = 0; i < count; i++) lines.push(Component.translatable(`${key}.${i}`))
@@ -280,7 +280,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         '                   CC     CC                   ',
         '                    FCISICF                    ']
 
-    allthemods.create('particle_accelerator', 'multiblock')
+    event.create('particle_accelerator', 'multiblock')
         .machine(holder => new $ParticleAcceleratorMachine(holder))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('neutron_irradiation'), GTRecipeTypes.get('ion_collision'),

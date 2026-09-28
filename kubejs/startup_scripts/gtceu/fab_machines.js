@@ -34,7 +34,7 @@ const $AF9Filters = Java.loadClass('com.af9.core.pattern.AF9Filters')
 
 // Slot layouts [items in, items out, fluids in, fluids out]. A single block's slots come from its first mode, so the
 // modes a single block has share one layout. Every layout keeps one fluid input free for the changeover purge.
-GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
+GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     const fabTypes = [
         ['fab_synthesis', [3, 2, 4, 3], GuiTextures.PROGRESS_BAR_ARROW_MULTIPLE, GTSoundEntries.CHEMICAL],
         ['fab_blending', [3, 2, 4, 3], GuiTextures.PROGRESS_BAR_MIXER, GTSoundEntries.MIXER],
@@ -50,7 +50,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
         ['fab_crystal_growth', [3, 2, 2, 2], GuiTextures.PROGRESS_BAR_CRYSTALLIZATION, GTSoundEntries.FURNACE],
     ]
     fabTypes.forEach(([id, io, bar, sound]) => {
-        allthemods.create(id)
+        event.create(id)
             .category('af9_fab')
             .setEUIO('in')
             .setMaxIOSize(io[0], io[1], io[2], io[3])
@@ -59,7 +59,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
     })
 })
 
-GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
+GTCEuStartupEvents.registry('gtceu:machine', event => {
     const types = ids => ids.map(id => GTRecipeTypes.get(id))
     const tooltips = (key, count) => {
         const lines = []
@@ -88,7 +88,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         const modifiers = thermal
             ? [$FabModifiers.TIER_TEMPERATURE, GTRecipeModifiers.OC_NON_PERFECT, $FabModifiers.PURGE]
             : [GTRecipeModifiers.OC_NON_PERFECT, $FabModifiers.PURGE]
-        allthemods.create(id, 'custom')
+        event.create(id, 'custom')
             .tiers(GTValues.MV, GTValues.HV, GTValues.EV, GTValues.IV, GTValues.LuV)
             .tankScalingFunction(tanks)
             .addDefaultTooltips(true)
@@ -129,7 +129,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     // SMC LCR: GT's Large Chemical Reactor core (PTFE stirrer, one heating coil in the jacket) sealed in a
     // cleanroom-glass mini-environment with a fan filter unit ceiling. 5 x 5 x 4. The 3 x 3 x 2 vessel inside is open:
     // while the reactor runs, its mode's fluid shows there through the glass.
-    allthemods.create('smc_large_chemical_reactor', 'multiblock')
+    event.create('smc_large_chemical_reactor', 'multiblock')
         .machine(holder => new $SmcReactorMachine(holder))
         .langValue('SMC Large Chemical Reactor')
         .rotationState(RotationState.NON_Y_AXIS)
@@ -169,7 +169,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
 
     // Rectification column: reboiler sump over a cold box, 1-8 packed trays (PTFE structured packing), clean
     // draw-off hood. 3 x 3, 3-10 high. Aisles bottom -> top, rows front -> back.
-    allthemods.create('smc_rectification_column', 'multiblock')
+    event.create('smc_rectification_column', 'multiblock')
         .machine(holder => new $FabMultiblockMachine(holder, $FabFamily.SEPARATION))
         .langValue('SMC Rectification Column')
         .rotationState(RotationState.NON_Y_AXIS)
@@ -196,7 +196,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     // Membrane cell hall: a filter-press stack of 1-8 cells, each a perfluorinated membrane (PTFE Pipe Casing)
     // between two titanium electrodes, under a filter ceiling. 3 wide, 4 high, 3-10 deep. Aisles front (controller) ->
     // back: the controller comes before the repeatable cells, so GT's auto-build places it right.
-    allthemods.create('smc_membrane_cell_hall', 'multiblock')
+    event.create('smc_membrane_cell_hall', 'multiblock')
         .machine(holder => new $FabMultiblockMachine(holder, $FabFamily.ELECTROCHEMISTRY))
         .langValue('SMC Membrane Cell Hall')
         .rotationState(RotationState.NON_Y_AXIS)
@@ -224,7 +224,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     // wafer-boat load station sits behind the front, which has a window on each side of the controller. Aisles back ->
     // front, rows bottom -> top. MV machine: nothing in it needs PTFE (that comes at HV).
     // Works like GT's EBF: coil temperature + 100 K per energy tier above MV, EBF overclocks.
-    allthemods.create('smc_thermal_processing_furnace', 'multiblock')
+    event.create('smc_thermal_processing_furnace', 'multiblock')
         .machine(holder => new $FabMultiblockMachine(holder, $FabFamily.THERMAL))
         .langValue('SMC Thermal Processing Furnace')
         .rotationState(RotationState.NON_Y_AXIS)

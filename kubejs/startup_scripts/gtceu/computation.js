@@ -16,8 +16,8 @@ const $ComputeCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHa
 const $ComputeRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 
 // Server Casing: the MV computer's shell (N1 Computation Array)
-StartupEvents.registry('block', allthemods => {
-    allthemods.create('server_casing')
+StartupEvents.registry('block', event => {
+    event.create('server_casing')
         .displayName('Server Casing')
         .soundType('metal')
         .hardness(5)
@@ -26,7 +26,7 @@ StartupEvents.registry('block', allthemods => {
         .tagBlock('minecraft:mineable/pickaxe')
 })
 
-GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
+GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []
         for (let i = 0; i < count; i++) lines.push(Component.translatable(`${key}.${i}`))
@@ -36,7 +36,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     // Computer Rack: four card slots. MV takes Tube and Silicon cards, LuV every card. The MV rack is a machine hull
     // with a rack front; the LuV rack is GT's computer casing with a panel on all four sides (GT's HPCA component
     // face), no front, so the supercomputer's walls show the panels however the racks were placed.
-    allthemods.create('computer_rack', 'custom')
+    event.create('computer_rack', 'custom')
         .tiers(GTValues.MV, GTValues.LuV)
         .machine((holder, tier) => new $ComputerRack(holder, tier))
         .definition((tier, builder) => {
@@ -57,7 +57,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
 
     // N1 Computation Array: 3x3x6. The racks sit in the middle row of the four inner slices, left and right, a cooling
     // pipe between them; hatches on any casing.
-    allthemods.create('n1_computation_array', 'multiblock')
+    event.create('n1_computation_array', 'multiblock')
         .machine(holder => new $ComputationArrayMachine(holder, $ComputationArrayMachine.ARRAY))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.DUMMY_RECIPES])
@@ -86,7 +86,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     // casings, where the hatches go, the controller second from the bottom. Aisles front (controller) -> back: the
     // controller comes before the repeatable slices, so GT's auto-build places the structure right behind it (with the
     // controller after them GT started the build 29 blocks back, at their longest).
-    allthemods.create('n1_supercomputer_array', 'multiblock')
+    event.create('n1_supercomputer_array', 'multiblock')
         .machine(holder => new $ComputationArrayMachine(holder, $ComputationArrayMachine.SUPERCOMPUTER))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.DUMMY_RECIPES])

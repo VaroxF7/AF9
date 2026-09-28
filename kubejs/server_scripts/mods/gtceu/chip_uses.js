@@ -3,17 +3,17 @@
 // (wireless energy hatches, MV circuits, tiered circuits, fab machines, void miner, Orbital Lithography Station).
 // Spec: docs/semiconductor-factory.md §8.
 
-ServerEvents.recipes(allthemods => {
+ServerEvents.recipes(event => {
     const VA = GTValues.VA
     // Appends items to a recipe of another mod (GT's recipes keep their id, research and everything else)
-    const addInputs = (id, items) => allthemods.forEachRecipe({ id: id }, recipe => {
+    const addInputs = (id, items) => event.forEachRecipe({ id: id }, recipe => {
         items.forEach(item => recipe.itemInputs(item))
     })
 
     // ---- RF Transceiver: the radio of every wireless link ----
     // AE2's Wireless Receiver, the part of the Wireless Access Point and of every wireless terminal
-    allthemods.remove({ id: 'ae2:network/wireless_part' })
-    allthemods.shaped('ae2:wireless_receiver', ['F', 'IQI', 'IRI'], {
+    event.remove({ id: 'ae2:network/wireless_part' })
+    event.shaped('ae2:wireless_receiver', ['F', 'IQI', 'IRI'], {
         F: 'ae2:fluix_pearl', I: '#forge:ingots/iron', Q: 'ae2:quartz_fiber', R: 'kubejs:rf_transceiver_chip'
     }).id('af9:ae2/wireless_receiver')
 
@@ -29,13 +29,13 @@ ServerEvents.recipes(allthemods => {
         ['lv', 'tin', 'steel', 'steel', 'brass', '#forge:gems/quartzite'],
         ['mv', 'copper', 'aluminium', 'aluminium', 'electrum', '#forge:flawless_gems/emerald']]
     mcuParts.forEach(([t, cable, rod, plate, sensorRod, gem]) => {
-        allthemods.recipes.gtceu.assembler(`af9:${t}_robot_arm_mcu`)
+        event.recipes.gtceu.assembler(`af9:${t}_robot_arm_mcu`)
             .itemInputs(`3x gtceu:${cable}_single_cable`, `2x gtceu:${rod}_rod`, `2x gtceu:${t}_electric_motor`,
                 `gtceu:${t}_electric_piston`, 'kubejs:mcu_chip')
             .itemOutputs(`gtceu:${t}_robot_arm`)
             .duration(100)
             .EUt(VA[GTValues.LV])
-        allthemods.recipes.gtceu.assembler(`af9:${t}_sensor_mcu`)
+        event.recipes.gtceu.assembler(`af9:${t}_sensor_mcu`)
             .itemInputs(`gtceu:${sensorRod}_rod`, `4x gtceu:${plate}_plate`, 'kubejs:mcu_chip', gem)
             .itemOutputs(`gtceu:${t}_sensor`)
             .duration(100)
@@ -55,7 +55,7 @@ ServerEvents.recipes(allthemods => {
     const solders = [['', 'gtceu:tin', 288], ['_soldering_alloy', 'gtceu:soldering_alloy', 144]]
     solders.forEach(([suffix, fluid, mb]) => {
         // GT: 2 HV circuits, 4 RAM, 32 NOR, 64 NAND, 32 platinum wire, 400 ticks
-        allthemods.recipes.gtceu.circuit_assembler(`af9:data_orb_mram${suffix}`)
+        event.recipes.gtceu.circuit_assembler(`af9:data_orb_mram${suffix}`)
             .itemInputs('gtceu:epoxy_printed_circuit_board', 'gtceu:cpu_chip', '4x kubejs:mram_chip',
                 '16x gtceu:fine_platinum_wire')
             .inputFluids(Fluid.of(fluid, mb))
@@ -65,7 +65,7 @@ ServerEvents.recipes(allthemods => {
             .EUt(1200)
     })
     // GT: an assembly line (8 LuV circuits, a Data Orb, 128 fine wire, 4 optical pipes, 16 ITBTC wire), 1200 ticks
-    allthemods.recipes.gtceu.assembler('af9:data_bank_mram')
+    event.recipes.gtceu.assembler('af9:data_bank_mram')
         .itemInputs('gtceu:computer_casing', '16x kubejs:mram_chip', '2x gtceu:cpu_chip',
             '32x gtceu:fine_niobium_titanium_wire', '4x gtceu:normal_optical_pipe')
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
@@ -74,7 +74,7 @@ ServerEvents.recipes(allthemods => {
         .duration(600)
         .EUt(6000)
     // GT: an assembly line (LuV input bus, 4 Data Orbs, 4 ZPM circuits), 400 ticks
-    allthemods.recipes.gtceu.assembler('af9:advanced_data_access_hatch_mram')
+    event.recipes.gtceu.assembler('af9:advanced_data_access_hatch_mram')
         .itemInputs('gtceu:luv_input_bus', '8x kubejs:mram_chip', '2x gtceu:cpu_chip',
             '32x gtceu:fine_niobium_titanium_wire')
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 576))
@@ -86,13 +86,13 @@ ServerEvents.recipes(allthemods => {
     // ---- VPU: image processing of GT's LuV sensing parts (the Orbital Lithography Station: photolithography.js) ----
     addInputs('gtceu:assembly_line/sensor_luv', ['2x kubejs:vpu_chip'])
     // LuV Scanner: GT's shape, two VPUs in place of the bottom two of its four ZPM circuits
-    allthemods.remove({ output: 'gtceu:luv_scanner' })
-    allthemods.shaped('gtceu:luv_scanner', ['CEC', 'WHW', 'VSV'], {
+    event.remove({ output: 'gtceu:luv_scanner' })
+    event.shaped('gtceu:luv_scanner', ['CEC', 'WHW', 'VSV'], {
         C: '#gtceu:circuits/zpm', E: 'gtceu:luv_emitter', W: 'gtceu:niobium_titanium_single_cable',
         H: 'gtceu:luv_machine_hull', S: 'gtceu:luv_sensor', V: 'kubejs:vpu_chip'
     }).id('af9:luv_scanner')
 
-    // ---- TPU: the AI accelerator (ATM9's UHV Wetware Mainframe takes them in circuits_for_atm.js) ----
+    // ---- TPU: the AI accelerator (the pack's UHV Wetware Mainframe recipe takes them too) ----
     // The HPCA's Advanced Computation Component: the computation of the 7 nm and 1 nm prints and of the research
     addInputs('gtceu:assembler/hpca_advanced_computation_component', ['4x kubejs:tpu_chip'])
 })

@@ -14,7 +14,7 @@
 const $WirelessTransmitterHatch = Java.loadClass('com.af9.core.wireless.WirelessTransmitterHatch')
 const $WirelessReceiverHatch = Java.loadClass('com.af9.core.wireless.WirelessReceiverHatch')
 
-GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
+GTCEuStartupEvents.registry('gtceu:machine', event => {
     // hull tier -> [maximum amps, GT model of the receiver, GT model of the transmitter]
     const variants = {}
     variants[GTValues.EV] = [2, 'energy_input_hatch', 'energy_output_hatch']
@@ -26,7 +26,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     const tiers = [GTValues.EV, GTValues.IV, GTValues.LuV, GTValues.ZPM, GTValues.UV, GTValues.UHV]
     const tooltips = (key, amps) => [0, 1, 2].map(i => Component.translatable(`${key}.${i}`, `${amps}`))
 
-    allthemods.create('wireless_energy_receiver', 'custom')
+    event.create('wireless_energy_receiver', 'custom')
         .tiers(tiers[0], tiers[1], tiers[2], tiers[3], tiers[4], tiers[5])
         .machine((holder, tier) => new $WirelessReceiverHatch(holder, tier, variants[tier][0]))
         .definition((tier, builder) => {
@@ -40,7 +40,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
                     variants[tier][0]))
         })
 
-    allthemods.create('wireless_energy_transmitter', 'custom')
+    event.create('wireless_energy_transmitter', 'custom')
         .tiers(tiers[0], tiers[1], tiers[2], tiers[3], tiers[4], tiers[5])
         .machine((holder, tier) => new $WirelessTransmitterHatch(holder, tier, variants[tier][0]))
         .definition((tier, builder) => {

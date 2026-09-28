@@ -46,22 +46,22 @@ const AF9_WAFER_TABLE = (() => {
     return { substrates: substrates, chips: chips }
 })()
 
-StartupEvents.registry('item', allthemods => {
+StartupEvents.registry('item', event => {
     const table = AF9_WAFER_TABLE
     // new blank wafers (GT has silicon, phosphorus, naquadah and neutronium)
     table.substrates.filter(s => s.blank.startsWith('kubejs:')).forEach(s => {
-        allthemods.create(s.blank.substring('kubejs:'.length))
+        event.create(s.blank.substring('kubejs:'.length))
             .displayName(s.name)
             .texture(`kubejs:item/wafers/${s.id}_wafer`)
     })
 
     // failed prints and handled wafers, one of each per substrate
     table.substrates.forEach(s => {
-        allthemods.create(`broken_${s.id}_wafer`)
+        event.create(`broken_${s.id}_wafer`)
             .displayName(`Broken ${s.name}`)
             .texture(`kubejs:item/wafers/broken_${s.id}_wafer`)
             .tooltip('A print that failed in the vacuum. Macerate it to reclaim the material.')
-        allthemods.create(`contaminated_${s.id}_wafer`)
+        event.create(`contaminated_${s.id}_wafer`)
             .displayName(`Contaminated ${s.name}`)
             .texture(`kubejs:item/wafers/contaminated_${s.id}_wafer`)
             .tooltip('Touched by bare hands. Strip and clean it (SMC wet processing) to get a blank wafer back.')
@@ -69,7 +69,7 @@ StartupEvents.registry('item', allthemods => {
 
     // chips handled without gloves outside a clean room
     table.chips.forEach(([id, name]) => {
-        allthemods.create(`contaminated_${id}`)
+        event.create(`contaminated_${id}`)
             .displayName(`Contaminated ${name}`)
             .texture(`kubejs:item/chips/contaminated_${id}`)
             .tooltip('Touched by bare hands. Rinse it (SMC wet processing) to get the chip back.')

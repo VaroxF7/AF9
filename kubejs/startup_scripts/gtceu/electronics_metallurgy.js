@@ -13,7 +13,7 @@ const $AF9IngotProperty = Java.loadClass('com.gregtechceu.gtceu.api.data.chemica
 const $AF9BlastProperty = Java.loadClass('com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty')
 const $AF9GasTier = Java.loadClass('com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty$GasTier')
 
-GTCEuStartupEvents.registry('gtceu:material', allthemods => {
+GTCEuStartupEvents.registry('gtceu:material', event => {
     // GT defines zirconium as a bare element with no items. Give it dust and ingots; the Kroll process makes the dust
     // (sponge), GT's EBF recipe melts it (2128 K = hot ingot, cooled in the vacuum freezer). It is the zircon chain's
     // main metal next to the hafnium tetrachloride; no circuit uses it (not a tier metal).
@@ -28,7 +28,7 @@ GTCEuStartupEvents.registry('gtceu:material', allthemods => {
     // ---- Circuit alloys (mixed in server_scripts, melted in the EBF) ----
     // MV: aluminium wedge-bonding wire (the silicon keeps it from work-softening). Aluminium is the MV metal.
     // EBF at MV voltage, which two LV hatches can supply.
-    allthemods.create('aluminium_silicon')
+    event.create('aluminium_silicon')
         .ingot()
         .color(0xc8ccd2).iconSet(GTMaterialIconSet.METALLIC)
         .components('16x aluminium', '1x silicon')
@@ -36,7 +36,7 @@ GTCEuStartupEvents.registry('gtceu:material', allthemods => {
         .blastTemp(1700, 'low', GTValues.VA[GTValues.MV], 400)
 
     // MV: expands like glass, so it seals into IC packages; used for the pins
-    allthemods.create('kovar')
+    event.create('kovar')
         .ingot()
         .color(0x8e9ba6).iconSet(GTMaterialIconSet.METALLIC)
         .components('6x iron', '3x nickel', '2x cobalt')
@@ -45,7 +45,7 @@ GTCEuStartupEvents.registry('gtceu:material', allthemods => {
 
     // EV: hard, inert platinum wire (probe tips, electrodes). Platinum is the EV metal; iridium comes from the EV-era
     // platinum group chain, so the EV bootstrap circuit uses plain platinum wire instead.
-    allthemods.create('platinum_iridium')
+    event.create('platinum_iridium')
         .ingot()
         .color(0xe6e6dc).iconSet(GTMaterialIconSet.SHINY)
         .components('9x platinum', '1x iridium')
@@ -55,29 +55,29 @@ GTCEuStartupEvents.registry('gtceu:material', allthemods => {
     // ---- Zircon ----
     // Heavy mineral sand with ilmenite, rutile and monazite. Formulas only (no components), so GT adds no
     // electrolyzer shortcut past the refining chain.
-    allthemods.create('zircon')
+    event.create('zircon')
         .dust().ore()
         .color(0xb77f4f).iconSet('rough')
         .formula('ZrSiO4')
         .addOreByproducts(GTMaterials.Ilmenite, GTMaterials.Rutile, GTMaterials.Monazite)
 
-    allthemods.create('zirconia')
+    event.create('zirconia')
         .dust()
         .color(0xebe4d4)
         .formula('ZrO2')
 
     // Zirconium tetrachloride still carrying the hafnium (the two are chemically almost identical)
-    allthemods.create('crude_zirconium_tetrachloride')
+    event.create('crude_zirconium_tetrachloride')
         .gas()
         .color(0xd9d4c4)
         .formula('(Zr,Hf)Cl4')
 
-    allthemods.create('zirconium_tetrachloride')
+    event.create('zirconium_tetrachloride')
         .gas()
         .color(0xe6e2d6)
         .formula('ZrCl4')
 
-    allthemods.create('hafnium_tetrachloride')
+    event.create('hafnium_tetrachloride')
         .gas()
         .color(0xc8d0c8)
         .formula('HfCl4')

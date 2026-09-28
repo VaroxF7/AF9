@@ -3,15 +3,15 @@
 // array comes before the Photolithography Line (no chips): the Tube cards run on vacuum tubes and magnetic core memory.
 // Spec: docs/machine-bus.md §9
 
-ServerEvents.recipes(allthemods => {
+ServerEvents.recipes(event => {
     const VA = GTValues.VA
     const solder = mb => Fluid.of('gtceu:soldering_alloy', mb)
 
     // ---- Server Casing: aluminium panels on a steel frame ----
-    allthemods.shaped('2x kubejs:server_casing', ['PHP', 'PFP', 'PWP'], {
+    event.shaped('2x kubejs:server_casing', ['PHP', 'PFP', 'PWP'], {
         P: 'gtceu:aluminium_plate', F: 'gtceu:steel_frame', H: '#forge:tools/hammers', W: '#forge:tools/wrenches'
     }).id('af9:shaped/server_casing')
-    allthemods.recipes.gtceu.assembler('af9:server_casing')
+    event.recipes.gtceu.assembler('af9:server_casing')
         .itemInputs('6x gtceu:aluminium_plate', 'gtceu:steel_frame')
         .circuit(6)
         .itemOutputs('2x kubejs:server_casing')
@@ -20,7 +20,7 @@ ServerEvents.recipes(allthemods => {
 
     // ---- MV Coolant Hatch: the MV array's, before the cryostat (lined with polyethylene, filled with distilled
     // water instead of supercooled hydrogen) ----
-    allthemods.recipes.gtceu.assembler('af9:mv_coolant_hatch')
+    event.recipes.gtceu.assembler('af9:mv_coolant_hatch')
         .itemInputs('gtceu:mv_input_hatch', '2x gtceu:mv_electric_pump', 'gtceu:frostproof_machine_casing',
             '4x gtceu:polyethylene_plate')
         .inputFluids(Fluid.of('gtceu:distilled_water', 1000))
@@ -29,14 +29,14 @@ ServerEvents.recipes(allthemods => {
         .EUt(VA[GTValues.MV])
 
     // ---- Computer Racks ----
-    allthemods.recipes.gtceu.assembler('af9:mv_computer_rack')
+    event.recipes.gtceu.assembler('af9:mv_computer_rack')
         .itemInputs('gtceu:mv_machine_hull', '2x #gtceu:circuits/mv', '2x gtceu:mv_electric_motor',
             '4x af9:optical_bus_cable', '4x gtceu:aluminium_plate')
         .inputFluids(solder(144))
         .itemOutputs('gtceu:mv_computer_rack')
         .duration(200)
         .EUt(VA[GTValues.MV])
-    allthemods.recipes.gtceu.assembler('af9:luv_computer_rack')
+    event.recipes.gtceu.assembler('af9:luv_computer_rack')
         .itemInputs('gtceu:luv_machine_hull', '2x #gtceu:circuits/luv', '2x gtceu:luv_electric_motor',
             '4x af9:optical_bus_cable', '4x gtceu:rhodium_plated_palladium_plate')
         .inputFluids(solder(576))
@@ -46,14 +46,14 @@ ServerEvents.recipes(allthemods => {
         .cleanroom(CleanroomType.CLEANROOM)
 
     // ---- The arrays ----
-    allthemods.recipes.gtceu.assembler('af9:n1_computation_array')
+    event.recipes.gtceu.assembler('af9:n1_computation_array')
         .itemInputs('gtceu:mv_machine_hull', '4x #gtceu:circuits/mv', '4x kubejs:server_casing',
             '4x gtceu:mv_electric_pump', '2x gtceu:mv_electric_motor', '8x af9:optical_bus_cable')
         .inputFluids(solder(288))
         .itemOutputs('gtceu:n1_computation_array')
         .duration(600)
         .EUt(VA[GTValues.MV])
-    allthemods.recipes.gtceu.assembler('af9:n1_supercomputer_array')
+    event.recipes.gtceu.assembler('af9:n1_supercomputer_array')
         .itemInputs('gtceu:luv_machine_hull', '4x #gtceu:circuits/luv', '8x gtceu:computer_casing',
             '4x gtceu:computer_heat_vent', '4x gtceu:luv_electric_pump', '2x gtceu:luv_field_generator',
             '16x af9:optical_bus_cable')
@@ -108,7 +108,7 @@ ServerEvents.recipes(allthemods => {
             ['4x kubejs:feram_chip', '8x gtceu:fine_yttrium_barium_cuprate_wire'], GTValues.UV, true]
     ]
     cards.forEach(([id, board, inputs, tier, clean]) => {
-        const recipe = allthemods.recipes.gtceu.circuit_assembler(`af9:${id}_card`)
+        const recipe = event.recipes.gtceu.circuit_assembler(`af9:${id}_card`)
             .itemInputs([board].concat(inputs))
             .inputFluids(solder(144))
             .itemOutputs(`af9:${id}_card`)

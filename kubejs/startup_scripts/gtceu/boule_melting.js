@@ -9,14 +9,14 @@
 // Endion: a heavy noble gas found only in the End's air; the centrifuge and the distillation tower separate it
 // from Ender Air (server_scripts/mods/gtceu/boule_melting.js).
 
-GTCEuStartupEvents.registry('gtceu:material', allthemods => {
-    allthemods.create('endion')
+GTCEuStartupEvents.registry('gtceu:material', event => {
+    event.create('endion')
         .gas()
         .color(0x9b6bff)
         .formula('Ed')
 
     // Tungstensteel and naquadah soaked in endion: the wire of the Endion coils
-    allthemods.create('endionite')
+    event.create('endionite')
         .ingot()
         .fluid()
         .color(0x5e2a9e).secondaryColor(0x1a0b33)
@@ -27,7 +27,7 @@ GTCEuStartupEvents.registry('gtceu:material', allthemods => {
         .formula('(W2Fe2Nq)Ed')
 })
 
-StartupEvents.registry('item', allthemods => {
+StartupEvents.registry('item', event => {
     // substrate id, name used in the items; the boules of silicon, phosphorus, naquadah and neutronium are GT's
     const substrates = [
         ['silicon', 'Silicon'], ['phosphorus', 'Phosphorus-doped Silicon'], ['naquadah', 'Naquadah-doped Silicon'],
@@ -36,11 +36,11 @@ StartupEvents.registry('item', allthemods => {
         ['chromodynium', 'Chromodynium']
     ]
     substrates.forEach(([id, name]) => {
-        allthemods.create(`${id}_melt_charge`)
+        event.create(`${id}_melt_charge`)
             .displayName(`${name} Melt Charge`)
             .texture(`kubejs:item/boules/${id}_melt_charge`)
             .tooltip('Polysilicon and dopants blended for one Czochralski pull. A boule takes ten.')
-        allthemods.create(`${id}_seed_crystal`)
+        event.create(`${id}_seed_crystal`)
             .displayName(`${name} Seed Crystal`)
             .texture(`kubejs:item/boules/${id}_seed_crystal`)
             .tooltip('Dipped into the melt and pulled; grows into the boule. Grown in SMC crystal growth.')
@@ -52,13 +52,13 @@ StartupEvents.registry('item', allthemods => {
         ['chromodynium_boule', 'Monocrystalline Chromodynium Boule']
     ]
     boules.forEach(([id, name]) => {
-        allthemods.create(id).displayName(name).texture(`kubejs:item/boules/${id}`)
+        event.create(id).displayName(name).texture(`kubejs:item/boules/${id}`)
     })
-    allthemods.create('fused_quartz_crucible')
+    event.create('fused_quartz_crucible')
         .displayName('Fused Quartz Crucible')
         .texture('kubejs:item/boules/fused_quartz_crucible')
         .tooltip('Holds the melt of one boule; it cracks when the melt cools.')
-    allthemods.create('tritanium_crucible')
+    event.create('tritanium_crucible')
         .displayName('Tritanium Crucible')
         .texture('kubejs:item/boules/tritanium_crucible')
         .tooltip('For the exotic melts that would boil a quartz crucible away. One per boule.')
@@ -66,8 +66,8 @@ StartupEvents.registry('item', allthemods => {
 
 // The Endion coils: usable wherever GT takes heating coils; Boule Melting gets its bonus from them (af9-core
 // BouleMelting reads the coil by these block ids).
-StartupEvents.registry('block', allthemods => {
-    allthemods.create('endion_coil_block', 'gtceu:coil')
+StartupEvents.registry('block', event => {
+    event.create('endion_coil_block', 'gtceu:coil')
         .temperature(8100)
         .level(8)
         .energyDiscount(6)
@@ -80,7 +80,7 @@ StartupEvents.registry('block', allthemods => {
         .soundType('metal')
         .requiresTool(true)
         .tagBlock('minecraft:mineable/pickaxe')
-    allthemods.create('resonant_endion_coil_block', 'gtceu:coil')
+    event.create('resonant_endion_coil_block', 'gtceu:coil')
         .temperature(12600)
         .level(16)
         .energyDiscount(16)
@@ -95,9 +95,9 @@ StartupEvents.registry('block', allthemods => {
         .tagBlock('minecraft:mineable/pickaxe')
 })
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
+GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // melt charges, seed crystal, crucible + protective gas -> boule
-    allthemods.create('boule_melting')
+    event.create('boule_melting')
         .category('multiblock')
         .setEUIO('in')
         .setMaxIOSize(3, 1, 1, 0)

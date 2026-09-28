@@ -3,7 +3,7 @@
 // HV on: GT's PTFE only comes at HV), filtered feeds, the tier's pumps or heating wire. The SMC Large Chemical Reactor is GT's Large Chemical Reactor with everything its own recipe takes
 // (HV circuits, stainless rotor, PTFE pipes, HV motor) plus filter casings.
 
-ServerEvents.recipes(allthemods => {
+ServerEvents.recipes(event => {
     const PTFE_PIPE = 'gtceu:polytetrafluoroethylene_normal_fluid_pipe'
     const PE_PIPE = 'gtceu:polyethylene_normal_fluid_pipe'
     const PTFE_LARGE_PIPE = 'gtceu:polytetrafluoroethylene_large_fluid_pipe'
@@ -24,19 +24,19 @@ ServerEvents.recipes(allthemods => {
         const pump = `gtceu:${t}_electric_pump`
         const pipe = t === 'mv' ? PE_PIPE : PTFE_PIPE
 
-        allthemods.shaped(`gtceu:${t}_smc_chemical_reactor`, ['FPF', 'UXU', 'CPC'], {
+        event.shaped(`gtceu:${t}_smc_chemical_reactor`, ['FPF', 'UXU', 'CPC'], {
             F: FLUID_FILTER, P: pipe, U: pump, X: `gtceu:${t}_chemical_reactor`, C: circuit
         }).id(`af9:${t}_smc_chemical_reactor`)
 
-        allthemods.shaped(`gtceu:${t}_smc_fractionating_still`, ['FPF', 'UXU', 'CPC'], {
+        event.shaped(`gtceu:${t}_smc_fractionating_still`, ['FPF', 'UXU', 'CPC'], {
             F: FLUID_FILTER, P: pipe, U: pump, X: `gtceu:${t}_distillery`, C: circuit
         }).id(`af9:${t}_smc_fractionating_still`)
 
-        allthemods.shaped(`gtceu:${t}_smc_electrolytic_cell`, ['FPF', 'WXW', 'CPC'], {
+        event.shaped(`gtceu:${t}_smc_electrolytic_cell`, ['FPF', 'WXW', 'CPC'], {
             F: FLUID_FILTER, P: pipe, W: `gtceu:${cable}_single_cable`, X: `gtceu:${t}_electrolyzer`, C: circuit
         }).id(`af9:${t}_smc_electrolytic_cell`)
 
-        allthemods.shaped(`gtceu:${t}_smc_thermal_furnace`, ['FPF', 'WXW', 'CWC'], {
+        event.shaped(`gtceu:${t}_smc_thermal_furnace`, ['FPF', 'WXW', 'CWC'], {
             F: FLUID_FILTER, P: pipe, W: `gtceu:${coil}_double_wire`, X: `gtceu:${t}_arc_furnace`, C: circuit
         }).id(`af9:${t}_smc_thermal_furnace`)
     })
@@ -44,8 +44,8 @@ ServerEvents.recipes(allthemods => {
     // ---- Multiblocks ----
     // Every controller also has an ASIC version: one ASIC chip (phosphorus wafers, HV) wherever it takes a circuit
     const controller = (id, pattern, circuit, keyOf) => {
-        allthemods.shaped(`gtceu:${id}`, pattern, keyOf(circuit)).id(`af9:${id}`)
-        allthemods.shaped(`gtceu:${id}`, pattern, keyOf('kubejs:asic_chip')).id(`af9:${id}_asic`)
+        event.shaped(`gtceu:${id}`, pattern, keyOf(circuit)).id(`af9:${id}`)
+        event.shaped(`gtceu:${id}`, pattern, keyOf('kubejs:asic_chip')).id(`af9:${id}_asic`)
     }
 
     controller('smc_large_chemical_reactor', ['CRC', 'PMP', 'FXF'], '#gtceu:circuits/hv', C => ({

@@ -19,8 +19,8 @@ const $BusController = Java.loadClass('com.af9.core.bus.BusControllerMachine')
 const $BusInterconnect = Java.loadClass('com.af9.core.bus.BusInterconnectPartMachine')
 const $CWUServer = Java.loadClass('com.af9.core.machine.CWUServerMachine')
 
-GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
-    allthemods.create('bus_connector', 'custom')
+GTCEuStartupEvents.registry('gtceu:machine', event => {
+    event.create('bus_connector', 'custom')
         .tiers(GTValues.MV)
         .machine((holder, tier) => new $BusConnector(holder))
         .definition((tier, builder) => {
@@ -36,7 +36,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         })
 
     // Interconnect Hatch: a Bus Controller's link to other Bus Controllers (Optical Bus Cable from its front face)
-    allthemods.create('interconnect_hatch', 'custom')
+    event.create('interconnect_hatch', 'custom')
         .tiers(GTValues.MV)
         .machine((holder, tier) => new $BusInterconnect(holder))
         .definition((tier, builder) => {
@@ -54,7 +54,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     // output. A GT computation source: an ME Computation Link against it, GT Optical Fiber Cable, or the bus (its front
     // on Optical Bus Cable). Its front lights: a steady red dot offline (off, unpowered or nothing to give to), steady
     // green idle, blinking while it gives (two patterns, scattered by position); the models come from af9-core
-    allthemods.create('cwu_server', 'custom')
+    event.create('cwu_server', 'custom')
         .tiers(GTValues.LV, GTValues.MV, GTValues.HV, GTValues.EV, GTValues.IV)
         .machine((holder, tier) => new $CWUServer(holder, tier))
         .definition((tier, builder) => {
@@ -72,7 +72,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
     // for each machine on its buses and keeps each one supplied with a run of ingredients. Up to 4 Bus Connectors (4
     // buses) and 1 Interconnect Hatch. 3 x 3 x 3 of solid steel casing, aisles back -> front (controller), rows
     // bottom -> top; parts anywhere on the shell.
-    allthemods.create('bus_controller', 'multiblock')
+    event.create('bus_controller', 'multiblock')
         .machine(holder => new $BusController(holder))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeType(GTRecipeTypes.DUMMY_RECIPES)

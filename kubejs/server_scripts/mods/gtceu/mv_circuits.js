@@ -8,24 +8,24 @@
 // least one MV circuit has to be makeable before the line exists. It uses vacuum tubes (the pre-semiconductor
 // rectifier) where GT used diodes. The SoC Microprocessor recipe is GT's own and stays: it has no discrete parts.
 
-ServerEvents.recipes(allthemods => {
+ServerEvents.recipes(event => {
     // GT circuit assembler recipes get a tin and a soldering alloy version from GT's recipe generator, which KubeJS
     // recipes skip; this adds both the same way (144 mB tin / 72 mB soldering alloy).
     const circuitAssembler = (id, build) => {
-        build(allthemods.recipes.gtceu.circuit_assembler(`af9:${id}`)).inputFluids(Fluid.of('gtceu:tin', 144))
-        build(allthemods.recipes.gtceu.circuit_assembler(`af9:${id}_soldering_alloy`)).inputFluids(Fluid.of('gtceu:soldering_alloy', 72))
+        build(event.recipes.gtceu.circuit_assembler(`af9:${id}`)).inputFluids(Fluid.of('gtceu:tin', 144))
+        build(event.recipes.gtceu.circuit_assembler(`af9:${id}_soldering_alloy`)).inputFluids(Fluid.of('gtceu:soldering_alloy', 72))
     }
 
     // GT's versions (with diodes / transistors) and their generated solder variants
     const replacedGtRecipes = ['electronic_circuit_mv', 'integrated_circuit_mv', 'processor_mv']
-    allthemods.remove({ id: 'gtceu:shaped/electronic_circuit_mv' })
+    event.remove({ id: 'gtceu:shaped/electronic_circuit_mv' })
     replacedGtRecipes.forEach(id => {
-        allthemods.remove({ id: `gtceu:circuit_assembler/${id}` })
-        allthemods.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
+        event.remove({ id: `gtceu:circuit_assembler/${id}` })
+        event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
     })
 
     // ---- Good Electronic Circuit (MV, bootstrap) ----
-    allthemods.shaped('gtceu:good_electronic_circuit', ['VPV', 'CBC', 'WCW'], {
+    event.shaped('gtceu:good_electronic_circuit', ['VPV', 'CBC', 'WCW'], {
         V: 'gtceu:vacuum_tube',
         P: 'gtceu:steel_plate',
         C: 'gtceu:basic_electronic_circuit',

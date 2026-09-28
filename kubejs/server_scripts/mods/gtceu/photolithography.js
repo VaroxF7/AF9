@@ -114,17 +114,17 @@ const AF9_WAFERS = (() => {
 })()
 
 // Contamination (af9-core WaferContamination): every wafer of a substrate, every chip, the gloves that protect
-ServerEvents.tags('item', allthemods => {
+ServerEvents.tags('item', event => {
     AF9_WAFERS.substrates.forEach(s => {
         const wafers = AF9_WAFERS.wafersOf(s.index)
-        allthemods.add(`af9:wafers/${s.id}`, wafers)
-        allthemods.add('af9:wafers', wafers)
+        event.add(`af9:wafers/${s.id}`, wafers)
+        event.add('af9:wafers', wafers)
     })
-    allthemods.add('af9:chips', AF9_WAFERS.chips.map(c => c.chip))
-    allthemods.add('af9:wafer_gloves', ['gtceu:rubber_gloves', 'gtceu:hazmat_chestpiece'])
+    event.add('af9:chips', AF9_WAFERS.chips.map(c => c.chip))
+    event.add('af9:wafer_gloves', ['gtceu:rubber_gloves', 'gtceu:hazmat_chestpiece'])
 })
 
-ServerEvents.recipes(allthemods => {
+ServerEvents.recipes(event => {
     const EU_LV = GTValues.VA[GTValues.LV]
     const EU_MV = GTValues.VA[GTValues.MV]
     const VA = GTValues.VA
@@ -141,11 +141,11 @@ ServerEvents.recipes(allthemods => {
     const gtSubstrates = ['silicon', 'phosphorus', 'naquadah', 'neutronium']
     chips.filter(c => c.engrave).forEach(c => gtSubstrates.forEach(s => {
         if (c.id === 'ulpic' && s === 'silicon') return
-        allthemods.remove({ id: `gtceu:laser_engraver/${c.engrave}_${s}` })
+        event.remove({ id: `gtceu:laser_engraver/${c.engrave}_${s}` })
     }))
 
     // ---- Machines ----
-    allthemods.recipes.gtceu.assembler('af9:photolithography_line')
+    event.recipes.gtceu.assembler('af9:photolithography_line')
         .itemInputs(
             'gtceu:mv_machine_hull',
             '4x #gtceu:circuits/mv',
@@ -164,14 +164,14 @@ ServerEvents.recipes(allthemods => {
     // Light sources of the line's versions (version 1 uses GT's purple lamp as its mercury lamp). An excimer laser: a
     // discharge chamber filled with the gas premix, a pulsed power supply, UV optics and a gas circulation pump. KrF
     // allows line version 2, ArF up to 6, the EUV source up to 8 (plus the lens slices).
-    allthemods.recipes.gtceu.assembler('af9:krf_excimer_laser')
+    event.recipes.gtceu.assembler('af9:krf_excimer_laser')
         .itemInputs('gtceu:hv_machine_hull', '2x gtceu:hv_emitter', '4x #gtceu:circuits/hv', '2x gtceu:glass_lens',
             '4x gtceu:stainless_steel_plate', 'gtceu:hv_electric_pump')
         .inputFluids(Fluid.of('gtceu:krf_excimer_gas', 4000))
         .itemOutputs('kubejs:krf_excimer_laser')
         .duration(1200)
         .EUt(VA[GTValues.HV])
-    allthemods.recipes.gtceu.assembler('af9:arf_excimer_laser')
+    event.recipes.gtceu.assembler('af9:arf_excimer_laser')
         .itemInputs('gtceu:ev_machine_hull', '2x gtceu:ev_emitter', '4x #gtceu:circuits/ev', '4x gtceu:glass_lens',
             '4x gtceu:titanium_plate', 'gtceu:ev_electric_pump')
         .inputFluids(Fluid.of('gtceu:arf_excimer_gas', 4000))
@@ -180,7 +180,7 @@ ServerEvents.recipes(allthemods => {
         .EUt(VA[GTValues.EV])
     // Laser-produced plasma: a CO2 drive laser hits tin droplets 50,000 times a second; a multilayer collector mirror
     // gathers the 13.5 nm light
-    allthemods.recipes.gtceu.assembler('af9:euv_light_source')
+    event.recipes.gtceu.assembler('af9:euv_light_source')
         .itemInputs('gtceu:uv_machine_hull', '4x gtceu:uv_emitter', '4x #gtceu:circuits/uv', '8x gtceu:glass_lens',
             '2x gtceu:uv_electric_pump', '8x gtceu:neutronium_plate')
         .inputFluids(Fluid.of('gtceu:tin', 2304))
@@ -189,7 +189,7 @@ ServerEvents.recipes(allthemods => {
         .EUt(VA[GTValues.UV])
 
     // Photolithography Scanner (Mk2): 80 and 65 nm, crafted at IV
-    allthemods.recipes.gtceu.assembler('af9:photolithography_scanner')
+    event.recipes.gtceu.assembler('af9:photolithography_scanner')
         .itemInputs('gtceu:iv_machine_hull', '4x #gtceu:circuits/iv', '2x gtceu:iv_emitter', '2x gtceu:iv_sensor',
             '2x gtceu:iv_robot_arm', '4x gtceu:iv_electric_motor', '2x gtceu:iv_electric_pump', '8x gtceu:glass_lens',
             '8x gtceu:tungsten_steel_plate')
@@ -200,7 +200,7 @@ ServerEvents.recipes(allthemods => {
 
     // Orbital Lithography Station (built on the ground, runs only in orbit; its structure is GT and GCYM blocks).
     // It prints from 50 nm (ZPM) on, so it is crafted at ZPM; its VPUs watch the wafer die by die.
-    allthemods.recipes.gtceu.assembler('af9:orbital_lithography_station')
+    event.recipes.gtceu.assembler('af9:orbital_lithography_station')
         .itemInputs('gtceu:zpm_machine_hull', '4x gtceu:zpm_emitter', '4x gtceu:zpm_field_generator',
             '4x #gtceu:circuits/zpm', '4x gtceu:zpm_sensor', '4x gtceu:zpm_robot_arm', '16x gtceu:naquadah_alloy_plate',
             '8x kubejs:vpu_chip')
@@ -211,20 +211,20 @@ ServerEvents.recipes(allthemods => {
 
     // Plascrete Pipe Casing: the chemical lines of the MV machines (Photolithography Line, SMC Thermal Processing
     // Furnace); GT's PTFE Pipe Casing only comes at HV. Like GT's pipe casings: plates, pipes, a frame.
-    allthemods.shaped('2x kubejs:plascrete_pipe_casing', ['PIP', 'IFI', 'PIP'], {
+    event.shaped('2x kubejs:plascrete_pipe_casing', ['PIP', 'IFI', 'PIP'], {
         P: 'gtceu:plascrete', I: 'gtceu:polyethylene_normal_fluid_pipe', F: 'gtceu:steel_frame'
     }).id('af9:plascrete_pipe_casing')
 
     // Plascrete Filter Casing: the ceiling of the lithography machines, and a GT cleanroom filter (ISO 5). GT's Filter
     // Casing parts (item filters behind a grille, an MV fan motor, a steel rotor) in a plascrete frame.
-    allthemods.shaped('2x kubejs:plascrete_filter_casing', ['PBP', 'IMI', 'PRP'], {
+    event.shaped('2x kubejs:plascrete_filter_casing', ['PBP', 'IMI', 'PRP'], {
         P: 'gtceu:plascrete', B: 'minecraft:iron_bars', I: 'gtceu:item_filter', M: 'gtceu:mv_electric_motor',
         R: 'gtceu:steel_rotor'
     }).id('af9:plascrete_filter_casing')
 
     // ---- Photomasks ----
     // Mask blanks ship pre-coated with resist; the pattern is then written by a laser mask writer
-    allthemods.recipes.gtceu.assembler('af9:photomask_blank')
+    event.recipes.gtceu.assembler('af9:photomask_blank')
         .itemInputs('gtceu:quartzite_plate', 'gtceu:chromium_plate')
         .inputFluids(Fluid.of('gtceu:photoresist', 100))
         .itemOutputs('kubejs:photomask_blank')
@@ -234,7 +234,7 @@ ServerEvents.recipes(allthemods => {
     // The finer chips' masks: an attenuated phase-shift blank, a MoSi film that shifts the light half a wave for sharper
     // edges (80 and 65 nm), and an EUV blank, Mo/Si bilayers that reflect 13.5 nm light (EUV masks are mirrors),
     // sputtered in argon; both coated with the resist their writer needs
-    allthemods.recipes.gtceu.fab_cvd('af9:phase_shift_mask_blank')
+    event.recipes.gtceu.fab_cvd('af9:phase_shift_mask_blank')
         .itemInputs('gtceu:quartzite_plate', 'gtceu:small_molybdenum_dust', 'gtceu:small_silicon_dust')
         .inputFluids(Fluid.of('gtceu:arf_photoresist', 100))
         .itemOutputs('kubejs:phase_shift_mask_blank')
@@ -242,7 +242,7 @@ ServerEvents.recipes(allthemods => {
         .duration(600)
         .EUt(VA[GTValues.EV])
         .cleanroom(CleanroomType.CLEANROOM)
-    allthemods.recipes.gtceu.fab_cvd('af9:euv_mask_blank')
+    event.recipes.gtceu.fab_cvd('af9:euv_mask_blank')
         .itemInputs('gtceu:quartzite_plate', '2x gtceu:molybdenum_dust', '2x gtceu:silicon_dust')
         .inputFluids(Fluid.of('gtceu:euv_photoresist', 100), Fluid.of('gtceu:argon', 1000))
         .itemOutputs('kubejs:euv_mask_blank')
@@ -254,7 +254,7 @@ ServerEvents.recipes(allthemods => {
     // A reticle: its blank written through the chip's lens (the finer chips' at their substrate's voltage). Every chip
     // has its own lens on the chrome blank; on the other blanks the lens colours come round again.
     AF9_WAFERS.reticles.forEach(c => {
-        allthemods.recipes.gtceu.laser_engraver(`af9:${c.id}_reticle`)
+        event.recipes.gtceu.laser_engraver(`af9:${c.id}_reticle`)
             .itemInputs(c.blank ? `kubejs:${c.blank}_mask_blank` : 'kubejs:photomask_blank')
             .notConsumable(`#forge:lenses/${c.lens}`)
             .itemOutputs(`kubejs:${c.id}_reticle`)
@@ -266,7 +266,7 @@ ServerEvents.recipes(allthemods => {
     // Their chip wafers into dies (GT's Cutter, dicing-saw water); the silicon chips cut anywhere, the rest in a clean
     // room, at their substrate's voltage
     chips.filter(c => c.wafer).forEach(c => {
-        const cut = allthemods.recipes.gtceu.cutter(`af9:cut_${c.id}_wafer`)
+        const cut = event.recipes.gtceu.cutter(`af9:cut_${c.id}_wafer`)
             .itemInputs(c.wafer)
             .inputFluids(Fluid.of('gtceu:distilled_water', 100))
             .itemOutputs(`${c.dies}x ${c.chip}`)
@@ -278,7 +278,7 @@ ServerEvents.recipes(allthemods => {
     // two eDRAM dies flip-chip bonded to an epoxy laminate, gold wire for the rest
     const packages = [['cpu', 'gtceu:cpu_chip'], ['soc', 'gtceu:soc']]
     packages.forEach(([id, die]) => {
-        allthemods.recipes.gtceu.assembler(`af9:edram_${id}_package`)
+        event.recipes.gtceu.assembler(`af9:edram_${id}_package`)
             .itemInputs(die, '2x kubejs:edram_chip', 'gtceu:epoxy_plate', '4x gtceu:fine_gold_wire')
             .inputFluids(Fluid.of('gtceu:soldering_alloy', 72))
             .itemOutputs(`kubejs:edram_${id}_package`)
@@ -295,7 +295,7 @@ ServerEvents.recipes(allthemods => {
     const EU_HV = GTValues.VA[GTValues.HV]
 
     // Cu + 2 MnO2 + O -> CuMn2O4
-    allthemods.recipes.gtceu.fab_synthesis('af9:hopcalite')
+    event.recipes.gtceu.fab_synthesis('af9:hopcalite')
         .itemInputs('gtceu:copper_dust', '6x gtceu:pyrolusite_dust')
         .inputFluids(Fluid.of('gtceu:oxygen', 1000))
         .itemOutputs('7x gtceu:hopcalite_dust')
@@ -303,7 +303,7 @@ ServerEvents.recipes(allthemods => {
         .EUt(EU_MV)
 
     // zeolite crystallised with a bentonite binder into sieve beads (clay + distilled water is GT's clay recipe)
-    allthemods.recipes.gtceu.fab_wet_processing('af9:molecular_sieve')
+    event.recipes.gtceu.fab_wet_processing('af9:molecular_sieve')
         .itemInputs('4x gtceu:zeolite_dust', 'gtceu:bentonite_dust')
         .inputFluids(Fluid.of('gtceu:distilled_water', 500))
         .itemOutputs('4x kubejs:molecular_sieve')
@@ -311,17 +311,17 @@ ServerEvents.recipes(allthemods => {
         .EUt(EU_MV)
 
     // temperature-swing regeneration
-    allthemods.smelting('kubejs:molecular_sieve', 'kubejs:saturated_molecular_sieve').id('af9:regenerate_molecular_sieve')
+    event.smelting('kubejs:molecular_sieve', 'kubejs:saturated_molecular_sieve').id('af9:regenerate_molecular_sieve')
 
     // 1. catalytic oxidation: CO, H2 and hydrocarbons -> CO2 + H2O
-    allthemods.recipes.gtceu.fab_purification('af9:xcda_oxidize_hopcalite')
+    event.recipes.gtceu.fab_purification('af9:xcda_oxidize_hopcalite')
         .notConsumable('gtceu:hopcalite_dust')
         .inputFluids(Fluid.of('gtceu:air', 4000))
         .outputFluids(Fluid.of('gtceu:oxidized_air', 4000))
         .duration(600)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.fab_purification('af9:xcda_oxidize_platinum')
+    event.recipes.gtceu.fab_purification('af9:xcda_oxidize_platinum')
         .notConsumable('gtceu:platinum_dust')
         .inputFluids(Fluid.of('gtceu:air', 4000))
         .outputFluids(Fluid.of('gtceu:oxidized_air', 4000))
@@ -330,7 +330,7 @@ ServerEvents.recipes(allthemods => {
         .cleanroom(CleanroomType.CLEANROOM)
 
     // 2. CO2 scrubbing: Ca(OH)2 + CO2 -> CaCO3 + H2O, or 2 NaOH + CO2 -> Na2CO3 + H2O
-    allthemods.recipes.gtceu.fab_purification('af9:xcda_scrub_lime')
+    event.recipes.gtceu.fab_purification('af9:xcda_scrub_lime')
         .itemInputs('gtceu:small_calcium_hydroxide_dust')
         .inputFluids(Fluid.of('gtceu:oxidized_air', 4000))
         .itemOutputs('gtceu:small_calcite_dust')
@@ -338,7 +338,7 @@ ServerEvents.recipes(allthemods => {
         .duration(400)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.fab_purification('af9:xcda_scrub_caustic')
+    event.recipes.gtceu.fab_purification('af9:xcda_scrub_caustic')
         .itemInputs('gtceu:small_sodium_hydroxide_dust')
         .inputFluids(Fluid.of('gtceu:oxidized_air', 4000))
         .itemOutputs('gtceu:small_soda_ash_dust')
@@ -348,7 +348,7 @@ ServerEvents.recipes(allthemods => {
         .cleanroom(CleanroomType.CLEANROOM)
 
     // 3. drying: the sieve adsorbs the water
-    allthemods.recipes.gtceu.fab_purification('af9:xcda_dry')
+    event.recipes.gtceu.fab_purification('af9:xcda_dry')
         .itemInputs('kubejs:molecular_sieve')
         .inputFluids(Fluid.of('gtceu:decarbonated_air', 4000))
         .itemOutputs('kubejs:saturated_molecular_sieve')
@@ -358,14 +358,14 @@ ServerEvents.recipes(allthemods => {
 
     // 4. cryogenic cooling. MV: Joule-Thomson expansion, only a quarter gets cold enough, the rest goes round again.
     // HV: pre-cooled with liquid air, which boils back into ordinary air.
-    allthemods.recipes.gtceu.fab_purification('af9:xcda_cool_expansion')
+    event.recipes.gtceu.fab_purification('af9:xcda_cool_expansion')
         .circuit(1)
         .inputFluids(Fluid.of('gtceu:dry_air', 4000))
         .outputFluids(Fluid.of('gtceu:cryogenic_supercooled_air', 1000), Fluid.of('gtceu:dry_air', 3000))
         .duration(800)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.fab_purification('af9:xcda_cool_liquid_air')
+    event.recipes.gtceu.fab_purification('af9:xcda_cool_liquid_air')
         .circuit(2)
         .inputFluids(Fluid.of('gtceu:dry_air', 4000), Fluid.of('gtceu:liquid_air', 1000))
         .outputFluids(Fluid.of('gtceu:cryogenic_supercooled_air', 4000), Fluid.of('gtceu:air', 1000))
@@ -374,14 +374,14 @@ ServerEvents.recipes(allthemods => {
         .cleanroom(CleanroomType.CLEANROOM)
 
     // 5. re-warmed through a membrane filter; the last traces stayed frozen in the cold box
-    allthemods.recipes.gtceu.fab_purification('af9:xcda_filter')
+    event.recipes.gtceu.fab_purification('af9:xcda_filter')
         .notConsumable('gtceu:fluid_filter')
         .inputFluids(Fluid.of('gtceu:cryogenic_supercooled_air', 4000))
         .outputFluids(Fluid.of('gtceu:extreme_clean_dry_air', 4000))
         .duration(200)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.fab_synthesis('af9:trimethylchlorosilane')
+    event.recipes.gtceu.fab_synthesis('af9:trimethylchlorosilane')
         .itemInputs('gtceu:magnesium_dust')
         .inputFluids(Fluid.of('gtceu:dimethyldichlorosilane', 1000), Fluid.of('gtceu:chloromethane', 1000))
         .itemOutputs('3x gtceu:magnesium_chloride_dust')
@@ -389,14 +389,14 @@ ServerEvents.recipes(allthemods => {
         .duration(300)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.fab_synthesis('af9:hexamethyldisilazane')
+    event.recipes.gtceu.fab_synthesis('af9:hexamethyldisilazane')
         .inputFluids(Fluid.of('gtceu:trimethylchlorosilane', 2000), Fluid.of('gtceu:ammonia', 3000))
         .itemOutputs('4x gtceu:ammonium_chloride_dust')
         .outputFluids(Fluid.of('gtceu:hexamethyldisilazane', 1000))
         .duration(400)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.fab_blending('af9:hmds_vapor')
+    event.recipes.gtceu.fab_blending('af9:hmds_vapor')
         .inputFluids(Fluid.of('gtceu:hexamethyldisilazane', 100), Fluid.of('gtceu:nitrogen', 900))
         .outputFluids(Fluid.of('gtceu:hmds_vapor', 1000))
         .duration(100)
@@ -405,7 +405,7 @@ ServerEvents.recipes(allthemods => {
     // ---- Photoresist (i-line, MUV) ----
     // Formox process: CH3OH + 1/2 O2 -> CH2O + H2O with air over iron molybdate. GT's own formaldehyde recipe (silver
     // catalyst) is HV, which MUV cannot wait for. The catalyst: molybdenite roasted to MoO3, calcined with hematite.
-    allthemods.recipes.gtceu.fab_calcination('af9:molybdenum_trioxide')
+    event.recipes.gtceu.fab_calcination('af9:molybdenum_trioxide')
         .itemInputs('gtceu:molybdenite_dust')
         .inputFluids(Fluid.of('gtceu:oxygen', 7000))
         .itemOutputs('gtceu:molybdenum_trioxide_dust')
@@ -415,35 +415,35 @@ ServerEvents.recipes(allthemods => {
         .EUt(EU_MV)
 
     // Fe2O3 + 3 MoO3 -> Fe2(MoO4)3
-    allthemods.recipes.gtceu.fab_calcination('af9:iron_molybdate')
+    event.recipes.gtceu.fab_calcination('af9:iron_molybdate')
         .itemInputs('gtceu:hematite_dust', '3x gtceu:molybdenum_trioxide_dust')
         .itemOutputs('gtceu:iron_molybdate_dust')
         .blastFurnaceTemp(800)
         .duration(300)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.fab_synthesis('af9:formaldehyde_formox')
+    event.recipes.gtceu.fab_synthesis('af9:formaldehyde_formox')
         .notConsumable('gtceu:iron_molybdate_dust')
         .inputFluids(Fluid.of('gtceu:methanol', 1000), Fluid.of('gtceu:air', 3000))
         .outputFluids(Fluid.of('gtceu:formaldehyde', 1000), Fluid.of('minecraft:water', 1000))
         .duration(200)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.fab_synthesis('af9:novolac_resin')
+    event.recipes.gtceu.fab_synthesis('af9:novolac_resin')
         .inputFluids(Fluid.of('gtceu:phenol', 1000), Fluid.of('gtceu:formaldehyde', 1000))
         .notConsumableFluid(Fluid.of('gtceu:hydrochloric_acid', 100))
         .outputFluids(Fluid.of('gtceu:novolac_resin', 1000), Fluid.of('minecraft:water', 1000))
         .duration(400)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.fab_synthesis('af9:diazonaphthoquinone')
+    event.recipes.gtceu.fab_synthesis('af9:diazonaphthoquinone')
         .inputFluids(Fluid.of('gtceu:naphthalene', 1000), Fluid.of('gtceu:nitric_acid', 1000), Fluid.of('gtceu:ammonia', 1000))
         .itemOutputs('gtceu:diazonaphthoquinone_dust')
         .outputFluids(Fluid.of('minecraft:water', 2000), Fluid.of('gtceu:hydrogen', 1000))
         .duration(600)
         .EUt(EU_MV)
 
-    allthemods.recipes.gtceu.fab_blending('af9:photoresist')
+    event.recipes.gtceu.fab_blending('af9:photoresist')
         .itemInputs('gtceu:diazonaphthoquinone_dust')
         .inputFluids(Fluid.of('gtceu:novolac_resin', 1000), Fluid.of('gtceu:dimethylbenzene', 3000))
         .outputFluids(Fluid.of('gtceu:photoresist', 4000))
@@ -451,7 +451,7 @@ ServerEvents.recipes(allthemods => {
         .EUt(EU_MV)
 
     // ---- Developer ----
-    allthemods.recipes.gtceu.fab_synthesis('af9:tetramethylammonium_chloride')
+    event.recipes.gtceu.fab_synthesis('af9:tetramethylammonium_chloride')
         .inputFluids(Fluid.of('gtceu:dimethylamine', 1000), Fluid.of('gtceu:chloromethane', 2000))
         .itemOutputs('gtceu:tetramethylammonium_chloride_dust')
         .outputFluids(Fluid.of('gtceu:hydrochloric_acid', 1000))
@@ -460,14 +460,14 @@ ServerEvents.recipes(allthemods => {
 
     // Membrane electrolysis, as electronic-grade TMAH is made: no potassium or sodium may reach the developer (metal
     // ions shift transistor thresholds). (CH3)4NCl + H2O -> (CH3)4NOH + 1/2 H2 + 1/2 Cl2
-    allthemods.recipes.gtceu.fab_blending('af9:tetramethylammonium_chloride_solution')
+    event.recipes.gtceu.fab_blending('af9:tetramethylammonium_chloride_solution')
         .itemInputs('gtceu:tetramethylammonium_chloride_dust')
         .inputFluids(Fluid.of('gtceu:distilled_water', 5000))
         .outputFluids(Fluid.of('gtceu:tetramethylammonium_chloride_solution', 5000))
         .duration(100)
         .EUt(EU_LV)
 
-    allthemods.recipes.gtceu.fab_electrolysis('af9:tmah_developer')
+    event.recipes.gtceu.fab_electrolysis('af9:tmah_developer')
         .inputFluids(Fluid.of('gtceu:tetramethylammonium_chloride_solution', 5000))
         .outputFluids(Fluid.of('gtceu:tmah_developer', 5000), Fluid.of('gtceu:chlorine', 1000), Fluid.of('gtceu:hydrogen', 1000))
         .duration(300)
@@ -476,7 +476,7 @@ ServerEvents.recipes(allthemods => {
 
     // ---- Metal-oxide EUV resist (20 nm, 7 nm) and the orbital station's dry resist ----
     // Sn + 2 Cl2 -> SnCl4
-    allthemods.recipes.gtceu.fab_synthesis('af9:tin_tetrachloride')
+    event.recipes.gtceu.fab_synthesis('af9:tin_tetrachloride')
         .itemInputs('gtceu:tin_dust')
         .inputFluids(Fluid.of('gtceu:chlorine', 4000))
         .outputFluids(Fluid.of('gtceu:tin_tetrachloride', 1000))
@@ -484,7 +484,7 @@ ServerEvents.recipes(allthemods => {
         .EUt(VA[GTValues.EV])
 
     // Hydrolysed with methacrylic acid into tin-oxo methacrylate clusters, dissolved in PGMEA
-    allthemods.recipes.gtceu.fab_synthesis('af9:euv_photoresist')
+    event.recipes.gtceu.fab_synthesis('af9:euv_photoresist')
         .inputFluids(Fluid.of('gtceu:tin_tetrachloride', 1000), Fluid.of('gtceu:methacrylic_acid', 2000),
             Fluid.of('gtceu:propylene_glycol_methyl_ether_acetate', 4000), Fluid.of('gtceu:ultrapure_water', 1000))
         .outputFluids(Fluid.of('gtceu:euv_photoresist', 4000), Fluid.of('gtceu:hydrochloric_acid', 2000))
@@ -493,7 +493,7 @@ ServerEvents.recipes(allthemods => {
         .cleanroom(CleanroomType.CLEANROOM)
 
     // The same clusters as a vapour-deposition source (no spin coating without gravity)
-    allthemods.recipes.gtceu.fab_cvd('af9:dry_resist_cartridge')
+    event.recipes.gtceu.fab_cvd('af9:dry_resist_cartridge')
         .itemInputs('gtceu:tungsten_steel_plate')
         .inputFluids(Fluid.of('gtceu:euv_photoresist', 1000))
         .itemOutputs('kubejs:dry_resist_cartridge')
@@ -530,7 +530,7 @@ ServerEvents.recipes(allthemods => {
         }
         if (m.highK) fluids.push(Fluid.of('gtceu:hafnium_tetrachloride', 100))
         chips.filter(c => c.reticle && c.native <= m.substrate).forEach(c => {
-            const recipe = allthemods.recipes.gtceu[`lithography_${m.id}`](`af9:print_${c.id}_${m.id}`)
+            const recipe = event.recipes.gtceu[`lithography_${m.id}`](`af9:print_${c.id}_${m.id}`)
                 .itemInputs(s.blank)
                 .notConsumable(`kubejs:${c.reticle}_reticle`)
             // the scanner's ArF laser in its laser slot, the orbital station's EUV source in its EUV slot (or either in
@@ -556,7 +556,7 @@ ServerEvents.recipes(allthemods => {
     // bank).
     const chromodynium = substrates[AF9_WAFERS.orbital.substrate]
     chips.filter(c => c.reticle).forEach(c => {
-        allthemods.recipes.gtceu.orbital_lithography(`af9:print_${c.id}_1nm`)
+        event.recipes.gtceu.orbital_lithography(`af9:print_${c.id}_1nm`)
             .itemInputs(chromodynium.blank, 'kubejs:dry_resist_cartridge')
             .notConsumable(`kubejs:${c.reticle}_reticle`)
             .itemOutputs(`${yieldOf(chromodynium.index, c)}x ${printed(chromodynium.index, c)}`)
@@ -575,12 +575,12 @@ ServerEvents.recipes(allthemods => {
     // Broken wafers are ground for their material; contaminated ones are stripped and RCA-cleaned back into a blank
     // wafer of their substrate (the print is lost).
     substrates.forEach(s => {
-        allthemods.recipes.gtceu.macerator(`af9:reclaim_broken_${s.id}_wafer`)
+        event.recipes.gtceu.macerator(`af9:reclaim_broken_${s.id}_wafer`)
             .itemInputs(`kubejs:broken_${s.id}_wafer`)
             .itemOutputs(`2x ${s.reclaim}`)
             .duration(100)
             .EUt(EU_LV)
-        allthemods.recipes.gtceu.fab_wet_processing(`af9:clean_contaminated_${s.id}_wafer`)
+        event.recipes.gtceu.fab_wet_processing(`af9:clean_contaminated_${s.id}_wafer`)
             .itemInputs(`kubejs:contaminated_${s.id}_wafer`)
             .inputFluids(Fluid.of('gtceu:hydrofluoric_acid', 100), Fluid.of('gtceu:distilled_water', 1000))
             .itemOutputs(s.blank)
@@ -591,7 +591,7 @@ ServerEvents.recipes(allthemods => {
     // Contaminated chips: a dilute HF dip and a rinse gives the chip back (MV, no clean room: an MV recipe)
     chips.forEach(c => {
         const path = c.chip.split(':')[1]
-        allthemods.recipes.gtceu.fab_wet_processing(`af9:clean_contaminated_${path}`)
+        event.recipes.gtceu.fab_wet_processing(`af9:clean_contaminated_${path}`)
             .itemInputs(`kubejs:contaminated_${path}`)
             .inputFluids(Fluid.of('gtceu:hydrofluoric_acid', 10), Fluid.of('gtceu:distilled_water', 250))
             .itemOutputs(c.chip)

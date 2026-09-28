@@ -2,7 +2,7 @@
 // hatch of that size (the laser hatch from 256A), two sensors (receiver) or emitters (transmitter), a field generator
 // for the link, two circuits of the tier and soldering alloy, plus two RF Transceiver chips (the radio link).
 
-ServerEvents.recipes(allthemods => {
+ServerEvents.recipes(event => {
     const VA = GTValues.VA
     // tier, receiver base, transmitter base (the hatch the wireless one is built on)
     const variants = [
@@ -14,14 +14,14 @@ ServerEvents.recipes(allthemods => {
         ['uhv', 'gtceu:uhv_1024a_laser_target_hatch', 'gtceu:uhv_1024a_laser_source_hatch']]
     variants.forEach(([tier, receiverBase, transmitterBase], index) => {
         const voltage = VA[GTValues.EV + index]
-        allthemods.recipes.gtceu.assembler(`af9:${tier}_wireless_energy_receiver`)
+        event.recipes.gtceu.assembler(`af9:${tier}_wireless_energy_receiver`)
             .itemInputs(receiverBase, `2x gtceu:${tier}_sensor`, `gtceu:${tier}_field_generator`,
                 `2x #gtceu:circuits/${tier}`, '2x kubejs:rf_transceiver_chip')
             .inputFluids(Fluid.of('gtceu:soldering_alloy', 576))
             .itemOutputs(`gtceu:${tier}_wireless_energy_receiver`)
             .duration(600)
             .EUt(voltage)
-        allthemods.recipes.gtceu.assembler(`af9:${tier}_wireless_energy_transmitter`)
+        event.recipes.gtceu.assembler(`af9:${tier}_wireless_energy_transmitter`)
             .itemInputs(transmitterBase, `2x gtceu:${tier}_emitter`, `gtceu:${tier}_field_generator`,
                 `2x #gtceu:circuits/${tier}`, '2x kubejs:rf_transceiver_chip')
             .inputFluids(Fluid.of('gtceu:soldering_alloy', 576))

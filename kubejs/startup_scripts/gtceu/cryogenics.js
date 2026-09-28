@@ -15,7 +15,7 @@ const $CryoCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatch
 const $CryoBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $CryoModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 
-GTCEuStartupEvents.registry('gtceu:material', allthemods => {
+GTCEuStartupEvents.registry('gtceu:material', event => {
     // gas, dense colour, supercooled colour, formula, dense liquid temperature (K)
     const gases = [
         ['hydrogen', 0x7fb2e6, 0xc8e6ff, 'H2', 14],
@@ -24,25 +24,25 @@ GTCEuStartupEvents.registry('gtceu:material', allthemods => {
         ['endion', 0x4a22b0, 0x8f6bff, 'Ed', 40]
     ]
     gases.forEach(([id, dense, supercooled, formula, kelvin]) => {
-        allthemods.create(`dense_${id}`)
+        event.create(`dense_${id}`)
             .liquid(kelvin)
             .color(dense)
             .formula(formula)
-        allthemods.create(`supercooled_${id}`)
+        event.create(`supercooled_${id}`)
             .liquid(1)
             .color(supercooled)
             .formula(formula)
     })
 })
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
-    allthemods.create('dense_cooling')
+GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
+    event.create('dense_cooling')
         .category('multiblock')
         .setEUIO('in')
         .setMaxIOSize(0, 0, 1, 1)
         .setProgressBar(GuiTextures.PROGRESS_BAR_COMPRESS, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.COOLING)
-    allthemods.create('supercooling')
+    event.create('supercooling')
         .category('multiblock')
         .setEUIO('in')
         .setMaxIOSize(0, 0, 1, 1)
@@ -50,7 +50,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
         .setSound(GTSoundEntries.COOLING)
 })
 
-GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
+GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []
         for (let i = 0; i < count; i++) lines.push(Component.translatable(`${key}.${i}`))
@@ -59,7 +59,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
 
     // Cold box: frostproof shell, PTFE heat-exchanger coils, two-stage compressors, a cold chamber behind windows.
     // 5 x 5 x 5, aisles back -> front (controller), rows bottom -> top.
-    allthemods.create('supercooling_cryostat', 'multiblock')
+    event.create('supercooling_cryostat', 'multiblock')
         .machine(holder => new $SupercoolerMachine(holder))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('dense_cooling'), GTRecipeTypes.get('supercooling')])
@@ -91,7 +91,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
 
     // Coolant Hatch: an input hatch for supercooled fluids only, MV-UHV. Tank: 1000 mB x 2^tier (4,000 mB at MV).
     // In a computation array it also takes distilled water (the MV array comes before the cryostat).
-    allthemods.create('coolant_hatch', 'custom')
+    event.create('coolant_hatch', 'custom')
         .tiers(GTValues.MV, GTValues.HV, GTValues.EV, GTValues.IV, GTValues.LuV, GTValues.ZPM, GTValues.UV,
             GTValues.UHV)
         .machine((holder, tier, tankScaling) => new $CryoCoolantHatch(holder, tier))

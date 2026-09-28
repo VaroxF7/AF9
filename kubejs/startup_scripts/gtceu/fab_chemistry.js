@@ -10,7 +10,7 @@
 // Every material is a real compound or a real process stream. Only formulas are given (no components), so GT adds
 // no electrolyzer or centrifuge shortcut that would skip a chain.
 
-GTCEuStartupEvents.registry('gtceu:material', allthemods => {
+GTCEuStartupEvents.registry('gtceu:material', event => {
     // [id, form, colour, formula]; form: dust, liquid, gas or ingot
     const materials = [
         // ---- 1. Electronic-grade silicon ----
@@ -99,7 +99,7 @@ GTCEuStartupEvents.registry('gtceu:material', allthemods => {
     ]
     materials.forEach(entry => {
         const [id, form, color, formula] = entry
-        const material = allthemods.create(id)
+        const material = event.create(id)
         if (form === 'dust') material.dust()
         else if (form === 'ingot') material.ingot().iconSet(GTMaterialIconSet.METALLIC)
         else if (form === 'gas') material.gas()
@@ -111,25 +111,25 @@ GTCEuStartupEvents.registry('gtceu:material', allthemods => {
     // ---- Materials the Photolithography Line consumes directly ----
     // Excimer laser premixes: about 1 % rare gas and 0.1 % fluorine in a neon buffer. The discharge slowly uses up
     // the fluorine, so the gas is topped up while the laser runs.
-    allthemods.create('krf_excimer_gas').gas().color(0xd6c8f2).formula('(Ne)(Kr)(F2)')
-    allthemods.create('arf_excimer_gas').gas().color(0xc6d8f2).formula('(Ne)(Ar)(F2)')
+    event.create('krf_excimer_gas').gas().color(0xd6c8f2).formula('(Ne)(Kr)(F2)')
+    event.create('arf_excimer_gas').gas().color(0xc6d8f2).formula('(Ne)(Ar)(F2)')
 
     // Chemically amplified resists. DNQ-novolac stops working below ~300 nm (novolac turns opaque, DNQ barely
     // bleaches); here light frees an acid from the photoacid generator (PAG) and in the post-exposure bake each acid
     // unblocks hundreds of polymer groups. The amine quencher stops the acid from wandering into dark areas.
-    allthemods.create('trifluoromethanesulfonic_acid').liquid().color(0xe9edf0).formula('CF3SO3H')
-    allthemods.create('triphenylsulfonium_triflate').dust().color(0xf2f0ea).formula('(C6H5)3S(CF3SO3)')
+    event.create('trifluoromethanesulfonic_acid').liquid().color(0xe9edf0).formula('CF3SO3H')
+    event.create('triphenylsulfonium_triflate').dust().color(0xf2f0ea).formula('(C6H5)3S(CF3SO3)')
     // KrF polymer backbone: transparent at 248 nm; its phenol groups carry the t-BOC protection
-    allthemods.create('polyhydroxystyrene').dust().color(0xefe6d2).formula('(C8H8O)n')
+    event.create('polyhydroxystyrene').dust().color(0xefe6d2).formula('(C8H8O)n')
     // ArF: aromatic rings absorb 193 nm, so ArF resists are built on methacrylates instead
-    allthemods.create('methyl_methacrylate').liquid().color(0xe4eef2).formula('C5H8O2')
+    event.create('methyl_methacrylate').liquid().color(0xe4eef2).formula('C5H8O2')
     // ArF resin: MMA / tert-butyl methacrylate / methacrylic acid terpolymer (IBM's first 193 nm resist platform)
-    allthemods.create('methacrylate_resin').dust().color(0xdfe8ea).formula('(C5H8O2)n(C8H14O2)m(C4H6O2)k')
-    allthemods.create('propylene_glycol_methyl_ether').liquid().color(0xe6f0ea).formula('C4H10O2')
-    allthemods.create('propylene_glycol_methyl_ether_acetate').liquid().color(0xdcebe6).formula('C6H12O3')
-    allthemods.create('krf_photoresist').liquid().color(0xd9b45c)
-    allthemods.create('arf_photoresist').liquid().color(0xe6dcaa)
+    event.create('methacrylate_resin').dust().color(0xdfe8ea).formula('(C5H8O2)n(C8H14O2)m(C4H6O2)k')
+    event.create('propylene_glycol_methyl_ether').liquid().color(0xe6f0ea).formula('C4H10O2')
+    event.create('propylene_glycol_methyl_ether_acetate').liquid().color(0xdcebe6).formula('C6H12O3')
+    event.create('krf_photoresist').liquid().color(0xd9b45c)
+    event.create('arf_photoresist').liquid().color(0xe6dcaa)
 
     // Immersion film for LUV: 18 MOhm cm, degassed. Water (n = 1.44 at 193 nm) lets the lens reach NA 1.35.
-    allthemods.create('ultrapure_water').liquid().color(0x8cc4ff).formula('H2O')
+    event.create('ultrapure_water').liquid().color(0x8cc4ff).formula('H2O')
 })

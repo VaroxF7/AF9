@@ -4,22 +4,22 @@
 const $EnergyHatchPartMachine = Java.loadClass('com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine')
 const $IO = Java.loadClass('com.gregtechceu.gtceu.api.capability.recipe.IO')
 
-StartupEvents.registry('block', allthemods => {
-    allthemods.create('micro_universe_energy_transmitter')
+StartupEvents.registry('block', event => {
+    event.create('micro_universe_energy_transmitter')
         .displayName('Micro Universe Energy Transmitter')
-    allthemods.create('micro_universe_focus_lens')
+    event.create('micro_universe_focus_lens')
         .displayName('Micro Universe Focus Lens')
 })
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
-    allthemods.create('micro_universe_reactor')
+GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
+    event.create('micro_universe_reactor')
         .category('gregstar')
         .setEUIO('out')
         .setMaxIOSize(12, 0, 6, 0)
         .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC);
-    allthemods.create('micro_universe_collector')
+    event.create('micro_universe_collector')
         .category('gregstar')
         .setEUIO('in')
         .setMaxIOSize(12, 12, 6, 6)
@@ -28,8 +28,8 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', allthemods => {
         .setSound(GTSoundEntries.ARC);
 })
 
-GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
-    allthemods.create('micro_universe_orb', 'multiblock')
+GTCEuStartupEvents.registry('gtceu:machine', event => {
+    event.create('micro_universe_orb', 'multiblock')
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('micro_universe_collector'), GTRecipeTypes.get('micro_universe_reactor')])
         .recipeModifiers([GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.OC_NON_PERFECT])
@@ -115,7 +115,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         .workableCasingModel("gtceu:block/casings/gcym/atomic_casing",
             "gtceu:block/multiblock/assembly_line")
 
-        allthemods.create('energy_input_hatch', 'custom').tiers(GTValues.MAX)
+        event.create('energy_input_hatch', 'custom').tiers(GTValues.MAX)
             .definition((tier, builder) => {
                 builder.rotationState(RotationState.ALL)
                     .abilities(PartAbility.INPUT_ENERGY)

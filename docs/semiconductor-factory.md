@@ -675,7 +675,7 @@ AF9's own chip wafers: `af9:cut_<chip>_wafer`, `kubejs:<chip>_wafer` + 100mB dis
 
 ## 6.8 Step 5 — Circuits
 
-Chips are plain GT chips; a chip is a chip whatever substrate it came from. `tiered_circuits.js` keeps GT's HV-LuV circuit recipes with each tier's own metals (the Circuits quest page): HV gold fine wire + stainless steel bolts, EV platinum-iridium fine wire (bootstrap Workstation: plain platinum) + titanium bolts, IV tungstensteel fine wire and frames + tungsten wire, LuV osmiridium fine wire + niobium-titanium wire + rhodium-plated palladium bolts. `AF9_WAFERS.chipStack(id, count)` gives `"<count>x gtceu:<chip>"`. MV and lower: `mv_circuits.js` (Al-Si wire, Kovar), unchanged. ATM9's LuV Nano Mainframe (`circuits_for_atm.js`) takes 16 plain RAM chips.
+Chips are plain GT chips; a chip is a chip whatever substrate it came from. `tiered_circuits.js` keeps GT's HV-LuV circuit recipes with each tier's own metals (the Circuits quest page): HV gold fine wire + stainless steel bolts, EV platinum-iridium fine wire (bootstrap Workstation: plain platinum) + titanium bolts, IV tungstensteel fine wire and frames + tungsten wire, LuV osmiridium fine wire + niobium-titanium wire + rhodium-plated palladium bolts. `AF9_WAFERS.chipStack(id, count)` gives `"<count>x gtceu:<chip>"`. MV and lower: `mv_circuits.js` (Al-Si wire, Kovar), unchanged. The pack's LuV Nano Mainframe (its own Assembly Line recipe) takes 16 plain RAM chips.
 
 ## 6.9 Electronics metallurgy (alloys + zircon)
 
@@ -745,7 +745,7 @@ Files: `startup_scripts/gtceu/fab_chemistry.js` (72 materials, formulas only, so
 
 All of these recipes run only in the SMC fab machines (§11): GT's Chemical Reactor, Large Chemical Reactor, mixer, bath, autoclave, blast furnace, electrolyzer and distillation tower have none of them. Non-thermal recipes from HV power on need a clean room (single blocks: a GT Cleanroom; the fab multiblocks bring their own filter ceiling).
 
-Tier gating (GT 7.2.0 defaults, ATM9 does not change them): EBF needs LV circuits, Pyrolyse Oven MV, Large Chemical Reactor and Cracker HV circuits, **Distillation Tower and Vacuum Freezer EV circuits**; the SMC single blocks need their tier's circuits, the SMC Thermal Processing Furnace MV circuits, the other SMC multiblocks HV circuits. AF9 circuits need printed chips (GT's laser engraving is removed except the ULPIC bootstrap): HV circuits need the 350 nm mode running. Each mode's consumables must be reachable at the mode's own tier. So:
+Tier gating (GT 7.2.0 defaults, the pack does not change them): EBF needs LV circuits, Pyrolyse Oven MV, Large Chemical Reactor and Cracker HV circuits, **Distillation Tower and Vacuum Freezer EV circuits**; the SMC single blocks need their tier's circuits, the SMC Thermal Processing Furnace MV circuits, the other SMC multiblocks HV circuits. AF9 circuits need printed chips (GT's laser engraving is removed except the ULPIC bootstrap): HV circuits need the 350 nm mode running. Each mode's consumables must be reachable at the mode's own tier. So:
 
 | Phase | Machines | Must supply |
 |---|---|---|
@@ -944,7 +944,7 @@ Chips are plain GT chips (no mode, no NBT): any substrate's cut gives the same `
 | Chip | Where (AF9) |
 |---|---|
 | ilc | LV/MV integrated circuits; HV Advanced Integrated Circuit |
-| ram | MV Microprocessor; HV-LuV processors, assemblies, computers, mainframes, incl. ATM9's LuV Nano Mainframe (16 RAM chips) |
+| ram | MV Microprocessor; HV-LuV processors, assemblies, computers, mainframes, incl. the pack's LuV Nano Mainframe (16 RAM chips) |
 | cpu | LV/MV microprocessors; source for nano_cpu wafers |
 | ulpic, lpic, mpic, hpic, uhpic | GT energy parts (hatches, batteries, …): unchanged ingredients |
 | simple_soc, soc | GT NAND chip / SoC processor recipes: unchanged |
@@ -962,11 +962,11 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 | apu | extra MV Microprocessor: 1 APU in place of the CPU chip + RAM, 3 out instead of 2 | mv_circuits.js |
 | mcu | GT Machine Controller, Activity / Item / Fluid Detector covers: 1 on top (they had no circuit); extra LV / MV Robot Arm and Sensor Assembler recipes: 1 MCU in place of the circuit; the machine bus (`docs/machine-bus.md`): 2 per Bus Connector, 1 per Machine Bus Module | chip_uses.js, machine_bus.js |
 | asic | on top: GT Large Miners EV 2 / IV 4 / LuV 8, Fluid Drilling Rigs HV 2 / EV 4 (not MV: before phosphorus), Void Miner 4; extra SMC fab multiblock controller recipes with ASICs in place of the circuits | chip_uses.js, miner.js, fab_machines.js |
-| edram packages | extra, half the time, 1 package in place of 4 RAM: Quantum Computer (and ASMD) 4 CPU packages, Crystal Processor Assembly 6 SoC packages, ATM9's Nano Mainframe (Assembly Line, 800 t) 4 CPU packages | tiered_circuits.js, circuits_for_atm.js |
+| edram packages | extra, half the time, 1 package in place of 4 RAM: Quantum Computer (and ASMD) 4 CPU packages, Crystal Processor Assembly 6 SoC packages, the pack's Nano Mainframe (Assembly Line, 800 t) 4 CPU packages | tiered_circuits.js |
 | mram | extra, half GT's time, no research, clean room: Data Orb (Circuit Assembler: epoxy board, CPU chip, 4 MRAM, 16 fine Pt wire), Data Bank (Assembler: computer casing, 16 MRAM, 2 CPU chips, 32 fine NbTi wire, 4 optical pipes), Advanced Data Access Hatch (Assembler: LuV input bus, 8 MRAM, 2 CPU chips, 32 fine NbTi wire) | chip_uses.js |
 | feram | none yet (kept for later features) | |
 | vpu | GT LuV Sensor (Assembly Line): 2 on top; LuV Scanner: GT's shape with 2 VPUs in place of the bottom two ZPM circuits (`CEC / WHW / VSV`); Orbital Lithography Station: 8 on top | chip_uses.js, photolithography.js |
-| tpu | GT HPCA Advanced Computation Component: 4 on top; ATM9's UHV Wetware Mainframe: 16 on top | chip_uses.js, circuits_for_atm.js |
+| tpu | GT HPCA Advanced Computation Component: 4 on top; the pack's UHV Wetware Mainframe: 16 on top | chip_uses.js |
 
 # 9. Extension points (not done yet)
 
@@ -975,12 +975,11 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 3. Wet etch (HF/BOE) step, sterile cleanroom wafers, crystal chips (autoclave path) — untouched.
 4. Quests are updated (§6.10); non-English quest languages show the new English text for changed quests until translated.
 5. Hafnium metal: only HfCl4 is used (high-k); `GTMaterials.Hafnium` still has no items. Zirconium ingots have no use yet.
-6. The repo still lacks other parts of the newer ATM9 release the test instance runs (only the 4 KubeJS scripts were synced).
-7. Masks: one reticle per chip serves every mode; GT's chips are binary chrome, AF9's 80 nm and finer chips have phase-shift or EUV reticles (§5.3b), GT's own chips do not. Real sub-wavelength and EUV modes need phase-shift masks with OPC, EUV reflective Mo/Si masks; a PSM / reflective reticle tier would be the next realism step.
-8. BARC/topcoat coats and multi-patterning are not modelled; every AF9 mode is single exposure (k1 ≥ 0.29).
-9. ArF resin is the first-generation methacrylate terpolymer. Modern ArF monomers (2-methyl-2-adamantyl methacrylate from dicyclopentadiene → adamantane → adamantanone; α-methacryloyloxy-γ-butyrolactone from 1,4-butanediol) would extend Line 5. The i-line DNQ chain (§6.5) is still the short 3-step version (real PAC: DNQ-5-sulfonyl chloride esterified onto a trihydroxybenzophenone).
-10. Pd/C, VPO, TS-1, iron molybdate, acidic resin and the other catalysts are not consumed; catalyst deactivation is not modelled.
-11. The orbital station's orbit test is by dimension name (`orbit` / `*_orbit`); a new space mod's orbit dimension with another name needs a line in `OrbitalLithographyMachine.isOrbit`.
+6. Masks: one reticle per chip serves every mode; GT's chips are binary chrome, AF9's 80 nm and finer chips have phase-shift or EUV reticles (§5.3b), GT's own chips do not. Real sub-wavelength and EUV modes need phase-shift masks with OPC, EUV reflective Mo/Si masks; a PSM / reflective reticle tier would be the next realism step.
+7. BARC/topcoat coats and multi-patterning are not modelled; every AF9 mode is single exposure (k1 ≥ 0.29).
+8. ArF resin is the first-generation methacrylate terpolymer. Modern ArF monomers (2-methyl-2-adamantyl methacrylate from dicyclopentadiene → adamantane → adamantanone; α-methacryloyloxy-γ-butyrolactone from 1,4-butanediol) would extend Line 5. The i-line DNQ chain (§6.5) is still the short 3-step version (real PAC: DNQ-5-sulfonyl chloride esterified onto a trihydroxybenzophenone).
+9. Pd/C, VPO, TS-1, iron molybdate, acidic resin and the other catalysts are not consumed; catalyst deactivation is not modelled.
+10. The orbital station's orbit test is by dimension name (`orbit` / `*_orbit`); a new space mod's orbit dimension with another name needs a line in `OrbitalLithographyMachine.isOrbit`.
 
 ---
 
@@ -1000,7 +999,7 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 - [ ] Metals: a tier's circuits only use that tier's metals (Circuits quest page), each makeable with the previous tier's machines (mixer/EBF voltage one tier lower; two hatches give +1 tier on an EBF).
 - [ ] Bootstrap check for any change: a tier-T circuit, energy hatch or the line must never need something only tier-T machines make.
 - [ ] Fab recipes (§11): a free fluid input left for the changeover purge; circuits count as item inputs; thermal modes carry `blastFurnaceTemp`, the others none; `cleanroom(CLEANROOM)` exactly on the non-thermal recipes from HV power on; single-block modes of one family share one slot layout; single-block fluid amounts ≤ 16000 mB (MV tanks).
-- [ ] Dry run: load the AF9 server scripts (incl. `fab_machines.js`) plus `circuits_for_atm.js` with stubs and check no duplicate IDs, every tagged ingredient has a producer, every AF9 fluid/dust used has a producer, every recipe within its machine's slots (items in incl. NC, items out, fluids in incl. NC/out; 8 fluids at 50-7 nm), EBF recipes have a temperature, ≤64 per stack.
+- [ ] Dry run: load the AF9 server scripts (incl. `fab_machines.js`) with stubs and check no duplicate IDs, every tagged ingredient has a producer, every AF9 fluid/dust used has a producer, every recipe within its machine's slots (items in incl. NC, items out, fluids in incl. NC/out; 8 fluids at 50-7 nm), EBF recipes have a temperature, ≤64 per stack.
 - [ ] New mixer alloys: circuit number must not collide with a GT mixer recipe whose inputs are a subset (invar, cupronickel use circuit 1).
 - [ ] New materials need a `material.gtceu.<id>` line in `kubejs/assets/gtceu/lang/en_us.json`; new KubeJS items need a texture in `kubejs/assets/kubejs/textures/item/`.
 - [ ] Multiblock parts (all AF9 multiblocks): a maximum only, never a minimum or exact count — `setMaxGlobalLimited(max, preview count)`, no `setMinGlobalLimited` / `setExactLimit` / GT `autoAbilities` (it forces energy and maintenance), no casing minimums (the dry run flags all of these). Every recipe must run on normal 2A hatches within those maximums (≤ 4A on two energy hatches).
@@ -1226,7 +1225,7 @@ AF9 Core `wireless/*`, startup `kubejs/startup_scripts/gtceu/wireless_energy.js`
 Assembler at the hull tier: the base hatch + 2 sensors (receiver) or emitters (transmitter) + a field generator + 2 circuits of the tier + 2 RF Transceiver chips + 576 mB soldering alloy, 30 s.
 
 - **Transmitter** (`WirelessTransmitterHatch`, ability `OUTPUT_ENERGY`): a dynamo-type part for the Power Substation (or any multiblock that puts energy into its output hatches). It never emits into cables. Every tick it moves up to amps × voltage from its buffer (20 ticks of full throughput) into its own channel. **Voltage**: the highest input voltage of its multiblock's energy inputs (a PSS fed by UV hatches sends UV), re-read every second; a multiblock without energy inputs uses the tier set on the hatch's screen ([-] / [+], default EV). Breaking it deletes the channel.
-- **Receiver** (`WirelessReceiverHatch`, ability `INPUT_ENERGY`): an energy input hatch for any multiblock, no cables. Every AF9 and ATM9 multiblock takes it where it takes energy hatches (their patterns use `INPUT_ENERGY` or `autoAbilities`; GT's fusion reactors by tier). The Micro Universe Orb, which only takes laser hatches, also takes the receivers by id (`micro_universe_orb.js`, `I`). Single-block machines have no hatches. It works at its channel's voltage and pulls up to its amps × voltage per tick into its buffer (16 ticks of full input). GT reads a multiblock's hatch voltages when it forms, so a voltage change (the first link, a new substation input) makes the receiver re-form its multiblock (`onPartUnload` → async re-check). Unlinked or without a transmitter it reports 0 V and 0 A, so it does not lower the multiblock's voltage.
+- **Receiver** (`WirelessReceiverHatch`, ability `INPUT_ENERGY`): an energy input hatch for any multiblock, no cables. Every AF9 multiblock and every other multiblock of the pack takes it where it takes energy hatches (their patterns use `INPUT_ENERGY` or `autoAbilities`; GT's fusion reactors by tier). The Micro Universe Orb, which only takes laser hatches, also takes the receivers by id (`micro_universe_orb.js`, `I`). Single-block machines have no hatches. It works at its channel's voltage and pulls up to its amps × voltage per tick into its buffer (16 ticks of full input). GT reads a multiblock's hatch voltages when it forms, so a voltage change (the first link, a new substation input) makes the receiver re-form its multiblock (`onPartUnload` → async re-check). Unlinked or without a transmitter it reports 0 V and 0 A, so it does not lower the multiblock's voltage.
 - **Channels** (`WirelessChannels`, overworld saved data `af9_wireless`): one per transmitter (UUID), with its buffer, voltage, amperage and position. The two ends only need their own chunks loaded.
 - **Data stick** (GT's `IDataStickInteractable`): right-click a transmitter to write its link to the stick (`af9_wireless` tag, shown in the stick's tooltip); right-click a receiver to link it; shift-right-click a receiver to copy its link onto the stick.
 - The hatches' energy role is fixed (GT caches a part's handler IO the first time a multiblock asks, and an energy container reports none at 0 V). Overlay tint: cyan receivers, orange transmitters.
@@ -1291,8 +1290,6 @@ kubejs/startup_scripts/gtceu/fab_machines.js       # §11: 12 fab recipe types (
 kubejs/server_scripts/mods/gtceu/fab_machines.js   # §11: crafting of the SMC machines
 kubejs/server_scripts/mods/gtceu/mv_circuits.js     # MV circuits without transistors/diodes (Al-Si wire, Kovar pins)
 kubejs/server_scripts/mods/gtceu/tiered_circuits.js # HV-LuV circuits: plain chips + tier metals
-kubejs/server_scripts/circuits_for_atm.js          # newer ATM9 (synced from the instance): LuV Nano Mainframe on the Assembly Line (16 RAM chips)
-kubejs/server_scripts/ore_syn_recipes.js, updates_ig.js, kubejs/startup_scripts/ore_syn.js  # newer ATM9, synced unchanged
 config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in kubejs/assets/kubejs/lang/en_us.json (af9.quest.*)
 kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type/block names, tooltips, mode descriptions, AF9 material names
 af9-core/src/main/resources/assets/af9/lang/en_us.json # consoles, Jade, recipe info, substrate/light names, wafer messages

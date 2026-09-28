@@ -9,10 +9,10 @@
 // the Photolithography Line has to print first.
 // Within each fab recipe type no recipe holds all inputs of a circuit-less other one (the lookup could pick it).
 
-ServerEvents.recipes(allthemods => {
+ServerEvents.recipes(event => {
     const VA = GTValues.VA
     const LV = VA[GTValues.LV], MV = VA[GTValues.MV], HV = VA[GTValues.HV], EV = VA[GTValues.EV]
-    const gt = allthemods.recipes.gtceu
+    const gt = event.recipes.gtceu
 
     // Column recipes run whole in the SMC Rectification Column. The SMC Fractionating Still (single block) takes one
     // cut per run instead: circuit = cut number, a quarter of the power, twice the time, the other cuts are lost (as
