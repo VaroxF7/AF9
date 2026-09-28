@@ -328,13 +328,16 @@ coolant took. Out of energy it puts out nothing; nothing burns, nothing breaks.
 | Array | Id | Structure | Own draw, heat |
 |---|---|---|---|
 | N1 Computation Array | `gtceu:n1_computation_array` | MV, 3 x 3 x 6 of Server Casing (`kubejs:server_casing`); eight MV Computer Racks in the middle row of the four inner slices, a steel pipe casing between them | 32 EU/t, 2 heat/t |
-| N1 Supercomputer Array | `gtceu:n1_supercomputer_array` | LuV, 2 wide, 4 high, 7 to 30 long of GT computer casing; every slice between the end slices holds two racks (MV or LuV) under two computer heat vents: 10 to 56 racks | 512 EU/t, 8 heat/t |
+| N1 Supercomputer Array | `gtceu:n1_supercomputer_array` | LuV, 2 wide, 4 high, 7 to 30 long; every slice between the end slices holds four racks (MV or LuV; the two middle rows) between GT computer heat vents (the bottom and top rows): 20 to 112 racks; the end slices are GT computer casing, the controller second from the bottom | 512 EU/t, 8 heat/t |
 
-Parts on the casings, maxima only: energy hatches (2 / 4; the supercomputer one laser hatch), Coolant Hatches (2 / 4),
+Parts on the casings (the supercomputer's: its end slices), maxima only: energy hatches (2 / 4; the supercomputer one laser hatch), Coolant Hatches (2 / 4),
 one Bus Connector, one Computation Transmitter Hatch.
 
 **Computer Rack** (`gtceu:mv_computer_rack`, `gtceu:luv_computer_rack`): four card slots. The MV rack takes Tube and
-Silicon cards (its own fans 4 EU/t, 1 heat/t), the LuV rack every card (128 EU/t, 2 heat/t).
+Silicon cards (its own fans 4 EU/t, 1 heat/t), the LuV rack every card (128 EU/t, 2 heat/t). The MV rack is a machine
+hull with a rack front; the LuV rack is GT's computer casing with a panel (GT's HPCA component face) on all four
+sides and no front (`af9:block/machine/part/computer_rack_luv`), so a supercomputer's walls show a panel wherever a
+rack is, however it was placed.
 
 **Cards** (`af9:<tier>_<kind>_card`): processors (CPU, GPU) compute; RAM feeds them. A processor needs a RAM card of
 its tier or higher in the same rack, one RAM card a processor; without one it runs at a quarter (full energy and heat

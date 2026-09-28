@@ -3,7 +3,8 @@
 // server_scripts/mods/gtceu/computation.js. Spec: docs/machine-bus.md §9
 //
 // N1 Computation Array (MV, 3x3x6): eight MV Computer Racks (Tube and Silicon cards).
-// N1 Supercomputer Array (LuV, 2x4 across, 7 to 30 long): two racks in each slice between the end slices.
+// N1 Supercomputer Array (LuV, 2x4 across, 7 to 30 long): four racks in each slice between the end slices, heat
+// vents over and under them.
 // The arrays run while switched on and fed: energy for their cards, coolant (Coolant Hatches) for the heat. No recipes.
 // Their computation leaves through a Bus Connector (onto the machine bus) or a Computation Transmitter Hatch (GT's
 // Optical Fiber Cable, an ME Computation Link).
@@ -31,19 +32,26 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         return lines
     }
 
-    // Computer Rack: four card slots. MV takes Tube and Silicon cards, LuV every card.
+    // Computer Rack: four card slots. MV takes Tube and Silicon cards, LuV every card. The MV rack is a machine hull
+    // with a rack front; the LuV rack is GT's computer casing with a panel on all four sides (GT's HPCA component
+    // face), no front, so the supercomputer's walls show the panels however the racks were placed.
     allthemods.create('computer_rack', 'custom')
         .tiers(GTValues.MV, GTValues.LuV)
         .machine((holder, tier) => new $ComputerRack(holder, tier))
         .definition((tier, builder) => {
             builder
                 .langValue(`${GTValues.VN[tier]} Computer Rack`)
-                .rotationState(RotationState.ALL)
                 .abilities($ComputerRack.COMPUTER_RACK)
-                ['overlayTieredHullModel(net.minecraft.resources.ResourceLocation)'](
-                    'af9:block/machine/part/computer_rack')
                 ['tooltips(net.minecraft.network.chat.Component[])'](tooltips(
                     tier >= GTValues.LuV ? 'af9.computer_rack.luv.tooltip' : 'af9.computer_rack.mv.tooltip', 2))
+            if (tier >= GTValues.LuV) {
+                builder.rotationState(RotationState.NONE)
+                    ['simpleModel(net.minecraft.resources.ResourceLocation)']('af9:block/machine/part/computer_rack_luv')
+            } else {
+                builder.rotationState(RotationState.ALL)
+                    ['overlayTieredHullModel(net.minecraft.resources.ResourceLocation)'](
+                        'af9:block/machine/part/computer_rack')
+            }
         })
 
     // N1 Computation Array: 3x3x6. The racks sit in the middle row of the four inner slices, left and right, a cooling
@@ -72,9 +80,9 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
             .build())
         .workableCasingModel('kubejs:block/server_casing', 'gtceu:block/multiblock/data_bank')
 
-    // N1 Supercomputer Array: 2 wide, 4 high, 7 to 30 long. Every slice between the two end slices holds two racks
-    // (second row, left and right) under two heat vents; the end slices and the top and bottom rows are computer
-    // casings, where the hatches go.
+    // N1 Supercomputer Array: 2 wide, 4 high, 7 to 30 long. Every slice between the two end slices holds four racks
+    // (the two middle rows, left and right) between heat vents (the bottom and top rows); the end slices are computer
+    // casings, where the hatches go, the controller second from the bottom.
     allthemods.create('n1_supercomputer_array', 'multiblock')
         .machine(holder => new $ComputationArrayMachine(holder, $ComputationArrayMachine.SUPERCOMPUTER))
         .rotationState(RotationState.NON_Y_AXIS)
@@ -83,7 +91,7 @@ GTCEuStartupEvents.registry('gtceu:machine', allthemods => {
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.n1_supercomputer_array.tooltip', 5))
         .pattern(definition => FactoryBlockPattern.start()
             .aisle('CC', 'CC', 'CC', 'CC')
-            .aisle('CC', 'RR', 'VV', 'CC').setRepeatable(5, 28)
+            .aisle('VV', 'RR', 'RR', 'VV').setRepeatable(5, 28)
             .aisle('CC', 'SC', 'CC', 'CC')
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             .where('R', $ComputerRack.racks(false))                // MV or LuV racks
