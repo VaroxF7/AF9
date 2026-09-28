@@ -2977,6 +2977,31 @@
 			x: 16.5d
 			y: 9.0d
 		}
+		{
+			dependencies: ["0E286EF54FED8A42"]
+			description: [
+				"{af9.quest.litho.interconnectHatch.1}"
+				""
+				"{af9.quest.litho.interconnectHatch.2}"
+				""
+				"{af9.quest.litho.interconnectHatch.3}"
+			]
+			id: "27D7A2D3D7D2193F"
+			rewards: [{
+				id: "215FC6BB431950EF"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.interconnectHatch.subtitle}"
+			tasks: [{
+				id: "78ACB4095BD43C5D"
+				item: "gtceu:mv_interconnect_hatch"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.interconnectHatch.title}"
+			x: 19.5d
+			y: 9.0d
+		}
 	]
 	subtitle: ["{af9.quest.litho.chapter.subtitle}"]
 	title: "{af9.quest.litho.chapter.title}"
