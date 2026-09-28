@@ -15,7 +15,6 @@ import com.gregtechceu.gtceu.common.machine.multiblock.part.monitor.AdvancedMoni
 import com.gregtechceu.gtceu.common.network.GTNetwork;
 import com.gregtechceu.gtceu.common.network.packets.SCPacketMonitorGroupNBTChange;
 
-import com.lowdragmc.lowdraglib.gui.util.ClickData;
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
@@ -26,6 +25,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -250,16 +250,46 @@ public class MachineBusModule implements IMonitorModuleItem, IAddInformation {
         return new MachineBusRenderer(stack.getOrCreateTag());
     }
 
-    /** The module's page in the Central Monitor's screen: clickable lines, run on the server. */
+    /**
+     * The module's page in the Central Monitor's screen: clickable lines, run on the server. "Open its console" opens
+     * the selected machine's own screen for the player ({@link BusRemote}): while it is on the bus that is the only
+     * way to its console.
+     */
     @Override
     public Widget createUIWidget(ItemStack stack, CentralMonitorMachine machine, MonitorGroup group) {
         var page = new WidgetGroup(0, 0, 140, 110);
         boolean client = machine.getLevel() != null && machine.getLevel().isClientSide;
-        page.addWidget(new ComponentPanelWidget(0, 0, text -> settingsText(text, machine, group))
+        var panel = new ComponentPanelWidget(0, 0, text -> settingsText(text, machine, group))
                 .textSupplier(client ? null : text -> settingsText(text, machine, group))
-                .setMaxWidthLimit(140)
-                .clickHandler((id, click) -> handleSettingsClick(id, click, machine, group)));
+                .setMaxWidthLimit(140);
+        panel.clickHandler((id, click) -> {
+            if (click.isRemote) return;
+            if (id.equals("open")) {
+                if (panel.getGui() != null && panel.getGui().entityPlayer instanceof ServerPlayer player) {
+                    openConsole(player, machine, group);
+                }
+            } else {
+                run(id, machine, group);
+            }
+        });
+        page.addWidget(BusConnectorPartMachine.scrolling(0, 0, 140, 110, panel));
         return page;
+    }
+
+    /** Opens the selected machine's screen for the player, if it is on the port's bus and near enough. */
+    private static void openConsole(ServerPlayer player, CentralMonitorMachine monitor, MonitorGroup group) {
+        ItemStack stack = group.getItemStackHandler().getStackInSlot(0);
+        BusConnectorPartMachine port = findPort(monitor, group);
+        if (!isModule(stack) || port == null) return;
+        long selected = stack.getOrCreateTag().getLong(SELECTED);
+        for (BusConnectorPartMachine connector : port.getMachinesOnBus()) {
+            if (connector.getPos().asLong() != selected || connector.getMachineController() == null) continue;
+            if (!BusRemote.open(player, connector.getMachineController().self())) {
+                player.displayClientMessage(Component.translatable("af9.bus.module.open_far")
+                        .withStyle(ChatFormatting.RED), true);
+            }
+            return;
+        }
     }
 
     private static void settingsText(List<Component> text, CentralMonitorMachine monitor, MonitorGroup group) {
@@ -284,6 +314,8 @@ public class MachineBusModule implements IMonitorModuleItem, IAddInformation {
                     .append(ComponentPanelWidget.withButton(Component.literal("◀ "), "prev"))
                     .append(deviceName(selected).copy().withStyle(ChatFormatting.WHITE))
                     .append(ComponentPanelWidget.withButton(Component.literal(" ▶"), "next")));
+            text.add(ComponentPanelWidget.withButton(Component.translatable("af9.bus.module.open")
+                    .withStyle(ChatFormatting.GREEN), "open"));
         }
         boolean table = BusScreenLayout.view(tag) == BusScreenLayout.VIEW_TABLE;
         text.add(Component.translatable("af9.bus.module.view").append(" ")
@@ -318,12 +350,6 @@ public class MachineBusModule implements IMonitorModuleItem, IAddInformation {
                     .withStyle(ChatFormatting.DARK_GRAY));
             text.add(commands);
         }
-    }
-
-    private static void handleSettingsClick(String id, ClickData click, CentralMonitorMachine monitor,
-                                            MonitorGroup group) {
-        if (click.isRemote) return;
-        run(id, monitor, group);
     }
 
     /** A machine's name on the bus: its connector's label, or the machine's own name. */

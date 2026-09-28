@@ -1,6 +1,7 @@
 package com.af9.core.machine.console;
 
 import com.af9.core.bus.BusConnectorPartMachine;
+import com.af9.core.bus.BusRemote;
 
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 
@@ -11,6 +12,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -25,7 +27,7 @@ public class BusPlacardWidget extends ConsoleWidget {
 
     private final IMultiController machine;
     private final Widget page;
-    private boolean onBus;
+    private boolean locked;
     private String id = "";
 
     public BusPlacardWidget(IMultiController machine, Widget page) {
@@ -46,38 +48,40 @@ public class BusPlacardWidget extends ConsoleWidget {
 
     /** Whether the card covers the page now. */
     public boolean isLocked() {
-        return onBus;
+        return locked;
     }
 
+    /** Server: on the bus, and not opened from a Central Monitor ({@link BusRemote}): then the card covers the page. */
     @Override
     protected boolean sample() {
         BusConnectorPartMachine port = BusConnectorPartMachine.of(machine);
-        boolean bus = port != null && port.isOnBus();
+        Player player = getGui() == null ? null : getGui().entityPlayer;
+        boolean lock = port != null && port.isOnBus() && !BusRemote.isOpenedRemotely(player, machine.self().getPos());
         String name = port == null ? "" : port.getLabel();
-        boolean changed = bus != onBus || !name.equals(id);
-        onBus = bus;
+        boolean changed = lock != locked || !name.equals(id);
+        locked = lock;
         id = name;
         return changed;
     }
 
     @Override
     protected void writeState(FriendlyByteBuf buffer) {
-        buffer.writeBoolean(onBus);
+        buffer.writeBoolean(locked);
         buffer.writeUtf(id);
     }
 
     @Override
     protected void readState(FriendlyByteBuf buffer) {
-        onBus = buffer.readBoolean();
+        locked = buffer.readBoolean();
         id = buffer.readUtf();
     }
 
     @Override
     public void updateScreen() {
         super.updateScreen();
-        boolean locked = isLocked();
-        page.setVisible(!locked);
-        page.setActive(!locked);
+        boolean hide = isLocked();
+        page.setVisible(!hide);
+        page.setActive(!hide);
     }
 
     @Override

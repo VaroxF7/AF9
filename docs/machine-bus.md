@@ -136,9 +136,14 @@ it and clears the tap; the monitor answers at once, whatever its tier. Only whil
 view, if "touch" is on): START / STOP, BATCH, the mode (`<`, the node, `>`), LIST (to the table, with more than one
 machine). A tap on a table row opens that machine.
 
-**Settings** (the module's page in the Central Monitor's screen, clickable lines run on the server): the machine
-(`<` name `>`), the view, touch buttons on / off, the fields to show (the same bits as the connector's; a field shows
-only if the machine shares it too), and the same commands.
+**Settings** (the module's page in the Central Monitor's screen, clickable lines run on the server; it scrolls): the
+machine (`<` name `>`), the view, touch buttons on / off, the fields to show (the same bits as the connector's; a field
+shows only if the machine shares it too), and the same commands.
+
+**Open its console.** Under the machine's name, `[Open its console]` opens the machine's own screen for the player,
+unlocked (`BusRemote`: the server remembers who opened which machine from a monitor until that screen closes; the bus
+card lets that player through). A tick later, so the monitor's screen closes first. Only if the machine's chunk is loaded
+for that player (the client builds the screen from its copy of the machine); else the action bar says it is too far.
 
 ## 4. Recipes (MV)
 

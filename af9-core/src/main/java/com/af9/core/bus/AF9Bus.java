@@ -59,6 +59,7 @@ public final class AF9Bus {
         ITEMS.register(modBus);
         modBus.addListener(AF9Bus::fillCreativeTabs);
         MinecraftForge.EVENT_BUS.addListener(AF9Bus::remapOldCable);
+        BusRemote.register();
     }
 
     private static void remapOldCable(MissingMappingsEvent event) {
