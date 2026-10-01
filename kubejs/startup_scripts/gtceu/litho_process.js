@@ -1,15 +1,14 @@
-// AF9 - The lithography process around the print: calibration, wafer clean-up, the finer coatings, the Metrology
+// AF9 - The lithography process around the print: wafer clean-up, the finer coatings, the Metrology
 // Station. Items and materials here; behaviour: AF9 Core (LithoMachine); recipes: server_scripts/mods/gtceu/
 // litho_process.js. Spec: docs/semiconductor-factory.md §18
 
 StartupEvents.registry('item', event => {
-    // The reference wafer of a calibration run: a Line, Scanner or Orbital Station that has drifted takes one from an
-    // input bus (or a Metrology Station for the machines on its bus) and aligns its optics and stages on its marks.
-    event.create('calibration_wafer')
-        .displayName('Calibration Wafer')
-        .texture('kubejs:item/wafers/calibration_wafer')
-        .tooltip('A reference wafer with alignment marks. Put it in the input bus of a lithography machine that has')
-        .tooltip('drifted (below 70% calibration) and it calibrates itself, or feed a Metrology Station.')
+    // The reference wafer of a Metrology Station's run: the station measures the machines' prints against its marks.
+    event.create('monitor_wafer')
+        .displayName('Monitor Wafer')
+        .texture('kubejs:item/wafers/monitor_wafer')
+        .tooltip('A reference wafer with alignment marks: a Metrology Station measures the prints of the lithography')
+        .tooltip('machines on its bus against it.')
 })
 
 // ---- Chemistry the process needs beside the track fluids ----
@@ -72,15 +71,15 @@ GTCEuStartupEvents.registry('gtceu:material', event => {
 })
 
 // ---- Metrology Station ----
-// The fab's measuring tool (af9-core MetrologyStationMachine): on the machine bus, a run (a calibration wafer and 24
-// CWU/t of computation) calibrates every lithography machine on its bus network and, for ten minutes after, feeds the
-// measurements back into their alignment and dose: 15% fewer broken wafers.
+// The fab's measuring tool (af9-core MetrologyStationMachine): on the machine bus, a run (a monitor wafer and 24
+// CWU/t of computation) measures the prints of every lithography machine on its bus network and, for ten minutes
+// after, feeds the measurements back into their alignment and dose: 15% fewer broken wafers.
 const $MetrologyStation = Java.loadClass('com.af9.core.machine.MetrologyStationMachine')
 const $MetrologyBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $MetrologyDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // a calibration wafer in (and, mostly, back out), distilled water for the stage
+    // a monitor wafer in (and, mostly, back out), distilled water for the stage
     event.create('metrology')
         .category('multiblock')
         .setEUIO('in')

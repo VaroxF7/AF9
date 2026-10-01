@@ -35,7 +35,7 @@ t = t.replace('dependencies: [', 'dependencies: [\n\t\t\t\t"DEADBEEFDEADBEEF"', 
 # Q5: a text that is in no lang file
 t = t.replace('"{af9.quest.litho.busConnector.1}"', '"{af9.quest.litho.busConnector.99}"', 1)
 # Q6: an item nobody defines
-t = t.replace('kubejs:calibration_wafer', 'kubejs:selftest_no_such_item', 1)
+t = t.replace('kubejs:photomask_blank', 'kubejs:selftest_no_such_item', 1)
 # Q2: an id that is not hex
 t = t.replace(f'id: "{ids[5]}"', 'id: "NOTHEXNOTHEXNOTH"', 1)
 p.write_text(t, encoding='utf-8')
@@ -57,8 +57,8 @@ lm.write_text(lm.read_text(encoding='utf-8').replace('"photoresist", 200, Machin
 af = root / 'af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java'
 af.write_text(af.read_text(encoding='utf-8').replace('Blocks.TUFF.defaultBlockState()', 'Blocks.SMOOTH_BASALT.defaultBlockState()', 1), encoding='utf-8')   # X4: a rock the ore layer does not know
 # --- J3: Java names a KubeJS item that nobody registers
-lmm = root / 'af9-core/src/main/java/com/af9/core/machine/LithoMachine.java'
-lmm.write_text(lmm.read_text(encoding='utf-8').replace('new ResourceLocation("kubejs", "calibration_wafer")', 'new ResourceLocation("kubejs", "selftest_no_such_item")', 1), encoding='utf-8')
+lmm = root / 'af9-core/src/main/java/com/af9/core/machine/OrbitalLithographyMachine.java'
+lmm.write_text(lmm.read_text(encoding='utf-8').replace('new ResourceLocation("kubejs", "euv_light_source")', 'new ResourceLocation("kubejs", "selftest_no_such_item")', 1), encoding='utf-8')
 # --- docs: a path that is gone, a section that does not exist
 readme = root / 'README.md'
 readme.write_text(readme.read_text(encoding='utf-8') + '\nSee `kubejs/startup_scripts/gtceu/selftest_gone.js` and §99.1.\n', encoding='utf-8')

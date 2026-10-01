@@ -25,12 +25,12 @@ ServerEvents.recipes(event => {
             .EUt(VA[voltage])
     })
 
-    // ---- Calibration Wafer ----
+    // ---- Monitor Wafer (the Metrology Station's reference) ----
     // A blank silicon wafer with chrome alignment marks: resist it, expose the marks, etch the chrome. Four from one.
-    event.recipes.gtceu.assembler('af9:calibration_wafer')
+    event.recipes.gtceu.assembler('af9:monitor_wafer')
         .itemInputs('gtceu:silicon_wafer', 'gtceu:chromium_plate')
         .inputFluids(Fluid.of('gtceu:photoresist', 100))
-        .itemOutputs('4x kubejs:calibration_wafer')
+        .itemOutputs('4x kubejs:monitor_wafer')
         .duration(300)
         .EUt(VA[GTValues.MV])
 })
@@ -327,9 +327,9 @@ ServerEvents.recipes(event => {
     // A run: the reference wafer goes under the microscope (and comes back nine times in ten), the measurements are
     // evaluated with 24 CWU/t of computation over the machine bus
     event.recipes.gtceu.metrology('af9:metrology_run')
-        .itemInputs('kubejs:calibration_wafer')
+        .itemInputs('kubejs:monitor_wafer')
         .inputFluids(Fluid.of('gtceu:distilled_water', 100))
-        .chancedOutput('kubejs:calibration_wafer', 9000, 0)
+        .chancedOutput('kubejs:monitor_wafer', 9000, 0)
         .CWUt(24)
         .duration(600)
         .EUt(VA[GTValues.HV])

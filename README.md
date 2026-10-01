@@ -26,7 +26,7 @@ the configs AF9 changes. Everything else comes from the pack itself.
   built-in clean rooms; the Photolithography Line and Scanner and the Orbital Lithography Station, nine lithography
   modes with vacuum, break chance and real light sources; AF9's chips, GT's circuits on plain chips and tier metals;
   the Supercooling Cryostat, the Particle Accelerator and wireless energy. The Line and Scanner cool with air (Air
-  Conditioning Hatches), draw OPC computation from the bus, drift out of calibration and are calibrated and corrected by
+  Conditioning Hatches), draw OPC computation from the bus, are measured and corrected by
   a Metrology Station, and can multi-pattern one version above their own; a Coater Track primes, coats and bakes the
   wafers first (BARC, resist, TARC; the spun-off solvent is distilled back), the masks come in three classes by node
   (chrome, phase-shift, EUV) and the EUV tools are built from Mo/Si mirrors; the chemistry has RCA clean, piranha

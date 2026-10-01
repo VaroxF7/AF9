@@ -65,9 +65,8 @@ public class LithoConsoleWidget extends ConsoleWidget {
     private int coolLoad;
     private int coolSteps;
     private boolean coolLapsed;
-    /** Share of the OPC demand the computation meets, percent (-1: no demand or no source), and the calibration x10. */
+    /** Share of the OPC demand the computation meets, percent (-1: no demand or no source). */
     private int opc = -1;
-    private int calibration = 1000;
     /** The shown mode's prints are multi-patterned (exposed twice, one version above the machine's own). */
     private boolean multi;
     private String product = "";
@@ -175,7 +174,6 @@ public class LithoConsoleWidget extends ConsoleWidget {
         boolean newCoolLapsed = machine.hasCoolingLapsed() && logic.isWorking();
         double opcRatio = machine.getOpcRatio(active, logic.isWorking());
         int newOpc = opcRatio < 0 ? -1 : (int) Math.round(opcRatio * 100);
-        int newCalibration = (int) Math.round(machine.getCalibration() * 10);
         boolean newMulti = machine.isMultiPatterned(active);
         int newCoolant = -1;
         if (machine instanceof OrbitalLithographyMachine station && active.minCoolant() != null) {
@@ -188,8 +186,8 @@ public class LithoConsoleWidget extends ConsoleWidget {
                 newPrinted != printed ||
                 newBroken != broken || newVacuum != vacuum || newCoolant != coolant ||
                 newCoolCapacity != coolCapacity || newCoolLoad != coolLoad || newCoolSteps != coolSteps ||
-                newCoolLapsed != coolLapsed || newOpc != opc || newCalibration != calibration ||
-                newMulti != multi || !Objects.equals(newProduct, product);
+                newCoolLapsed != coolLapsed || newOpc != opc || newMulti != multi ||
+                !Objects.equals(newProduct, product);
         status = newStatus;
         mode = newMode;
         version = newVersion;
@@ -208,7 +206,6 @@ public class LithoConsoleWidget extends ConsoleWidget {
         coolSteps = newCoolSteps;
         coolLapsed = newCoolLapsed;
         opc = newOpc;
-        calibration = newCalibration;
         multi = newMulti;
         product = newProduct;
         return changed;
@@ -234,7 +231,6 @@ public class LithoConsoleWidget extends ConsoleWidget {
         buffer.writeVarInt(coolSteps);
         buffer.writeBoolean(coolLapsed);
         buffer.writeVarInt(opc + 1);
-        buffer.writeVarInt(calibration);
         buffer.writeBoolean(multi);
         buffer.writeUtf(product);
     }
@@ -259,7 +255,6 @@ public class LithoConsoleWidget extends ConsoleWidget {
         coolSteps = buffer.readVarInt();
         coolLapsed = buffer.readBoolean();
         opc = buffer.readVarInt() - 1;
-        calibration = buffer.readVarInt();
         multi = buffer.readBoolean();
         product = buffer.readUtf();
     }
@@ -339,18 +334,11 @@ public class LithoConsoleWidget extends ConsoleWidget {
         } else if (status == STATUS_PUMPING_DOWN) {
             drawSmall(graphics, Component.translatable("af9.litho.console.wait_seal").getString(), lx, y0 + 84, INFO,
                     false);
-        } else if (status == STATUS_CALIBRATING) {
-            drawSmall(graphics, Component.translatable("af9.litho.console.calibrating").getString(), lx, y0 + 84,
-                    INFO, false);
-        } else {
-            // how well the machine is tuned: the computation behind its OPC and its calibration
-            double cal = calibration / 10.0;
+        } else if (multi || opc >= 0) {
+            // multi-patterning and the computation behind the print's OPC
             String quality = (multi ? Component.translatable("af9.litho.console.multipatterned").getString() + "  " : "") +
-                    (opc >= 0 ? Component.translatable("af9.litho.console.opc", opc).getString() + "  " : "") +
-                    Component.translatable("af9.litho.console.calibration",
-                            String.format(Locale.ROOT, "%.0f", cal)).getString();
-            drawSmall(graphics, quality, lx, y0 + 84, cal < LithoMode.CALIBRATION_MIN ? BAD :
-                    cal < LithoMode.AUTO_CALIBRATION_BELOW ? WARN : MUTED, false);
+                    (opc >= 0 ? Component.translatable("af9.litho.console.opc", opc).getString() : "");
+            drawSmall(graphics, quality, lx, y0 + 84, MUTED, false);
         }
         // Line and Scanner: the air conditioning against the print's heat load
         if (coolLoad > 0) {

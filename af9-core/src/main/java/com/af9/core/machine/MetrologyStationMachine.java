@@ -18,14 +18,13 @@ import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Metrology Station (structure and recipe type in KubeJS): the fab's measuring tool. It sits on the machine bus; a run
- * (a calibration wafer and some computation) measures the critical dimensions and the overlay of every lithography
- * machine on its bus network, and calibrates them all ({@link LithoMachine#calibrate}). For {@link #FEEDBACK_TICKS}
- * after a run, and while one is running, the station feeds its measurements back into the machines' alignment and
- * dose: their prints break {@link com.af9.core.litho.LithoMode#METROLOGY_FACTOR} as often ({@link #isFeedbackActive}).
+ * (a monitor wafer and some computation) measures the critical dimensions and the overlay of every lithography
+ * machine on its bus network. For {@link #FEEDBACK_TICKS} after a run, and while one is running, the station feeds its
+ * measurements back into the machines' alignment and dose: their prints break
+ * {@link com.af9.core.litho.LithoMode#METROLOGY_FACTOR} as often ({@link #isFeedbackActive}).
  */
 public class MetrologyStationMachine extends WorkableElectricMultiblockMachine {
 
@@ -38,9 +37,6 @@ public class MetrologyStationMachine extends WorkableElectricMultiblockMachine {
     /** Game time the feedback lasts until (-1: none yet). */
     @Persisted
     private long feedbackUntil = -1;
-    /** Machines the last run calibrated. */
-    @Persisted
-    private int lastCalibrated;
 
     public MetrologyStationMachine(IMachineBlockEntity holder) {
         super(holder);
@@ -56,16 +52,10 @@ public class MetrologyStationMachine extends WorkableElectricMultiblockMachine {
         return new MetrologyLogic(this);
     }
 
-    /** A run finished: calibrate the lithography machines on the bus network and start the feedback. */
+    /** A run finished: the feedback to the lithography machines on the bus network starts. */
     private void runFinished() {
         Level level = getLevel();
         if (level == null || level.isClientSide) return;
-        int count = 0;
-        for (LithoMachine litho : getLithoMachines()) {
-            litho.calibrate();
-            count++;
-        }
-        lastCalibrated = count;
         feedbackUntil = level.getGameTime() + FEEDBACK_TICKS;
         markDirty();
     }
@@ -112,9 +102,8 @@ public class MetrologyStationMachine extends WorkableElectricMultiblockMachine {
         List<LithoMachine> machines = getLithoMachines();
         text.add(Component.translatable("af9.metrology.machines", machines.size()).withStyle(ChatFormatting.GRAY));
         for (LithoMachine litho : machines) {
-            text.add(Component.translatable("af9.metrology.machine", litho.getBlockState().getBlock().getName(),
-                    String.format(Locale.ROOT, "%.0f", litho.getCalibration()))
-                    .withStyle(litho.getCalibration() < 70 ? ChatFormatting.YELLOW : ChatFormatting.DARK_GRAY));
+            text.add(Component.translatable("af9.metrology.machine", litho.getBlockState().getBlock().getName())
+                    .withStyle(ChatFormatting.DARK_GRAY));
         }
         if (isFeedbackActive()) {
             long left = getFeedbackTicksLeft() / 20;

@@ -351,6 +351,9 @@ coolant took. Out of energy it puts out nothing; nothing burns, nothing breaks.
 Parts on the casings (the supercomputer's: its end slices), maxima only: energy hatches (2 / 4; the supercomputer one laser hatch), Coolant Hatches (2 / 4),
 one Bus Connector, one Computation Transmitter Hatch.
 
+The Server Casing has connected textures (LDLib, like the Plascrete Filter Casing: `server_casing.png.mcmeta` points to
+`server_casing_ctm.png`): a wall of casings is one perforated panel, the frame and the rivets only around its outline.
+
 **Computer Rack** (`gtceu:mv_computer_rack`, `gtceu:luv_computer_rack`): four card slots. The MV rack takes Tube and
 Silicon cards (its own fans 4 EU/t, 1 heat/t), the LuV rack every card (128 EU/t, 2 heat/t). The MV rack is a machine
 hull with a rack front; the LuV rack is GT's computer casing with a panel (GT's HPCA component face) on all four
