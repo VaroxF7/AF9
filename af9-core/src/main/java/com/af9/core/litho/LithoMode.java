@@ -71,6 +71,21 @@ public enum LithoMode {
     public static final int AMPERAGE = 4;
     public static final int ORBITAL_AMPERAGE = 50;
 
+    /** Air cooling: per doubling of the cooling units above a print's heat load (up to this many): see {@link Coolant}. */
+    public static final int MAX_COOLING_STEPS = 2;
+    /** Break chance factor of a print during which the air conditioning lost its power. */
+    public static final double COOLING_LAPSE_FACTOR = 2.0;
+    /** Optical proximity correction: the break chance falls by up to this share when the computation is all there. */
+    public static final double OPC_BONUS = 0.3;
+    /** Calibration: break chance rises by this share (of itself) when the machine has drifted all the way (0 %). */
+    public static final double DRIFT_BREAK = 1.0;
+    /** Below this calibration (%) no print starts until the machine is calibrated. */
+    public static final double CALIBRATION_MIN = 20;
+    /** An idle machine below this calibration (%) calibrates itself when a calibration wafer is in an input bus. */
+    public static final double AUTO_CALIBRATION_BELOW = 70;
+    /** Ticks a calibration run takes (the machine prints nothing meanwhile). */
+    public static final int CALIBRATION_TICKS = 400;
+
     public final String id;
     /** Substrate id: the blank wafer (gtceu:/kubejs:&lt;substrate&gt;_wafer) and kubejs:broken_&lt;substrate&gt;_wafer. */
     public final String substrate;
@@ -171,6 +186,56 @@ public enum LithoMode {
             case N7 -> 32;
             case N1 -> 96;
             default -> 0;
+        };
+    }
+
+    /**
+     * Heat the print puts into the machine's air, in cooling units (CU) the air conditioning has to remove: 350 nm 1,
+     * 200 nm 2, 100 nm 4, 80 nm 8, 65 nm 16 (an Air Conditioning Hatch gives 1 CU at MV and doubles per tier, two fit).
+     * 0: no air cooling. The orbital station is in space, it cools with supercooled fluids ({@link #minCoolant()}).
+     */
+    public int heatLoad() {
+        return switch (this) {
+            case N350 -> 1;
+            case N200 -> 2;
+            case N100 -> 4;
+            case N80 -> 8;
+            case N65 -> 16;
+            default -> 0;
+        };
+    }
+
+    /**
+     * Computation the machine's optical proximity correction and alignment can use, CWU/t (0: none): it is only an
+     * extra, the print runs without it, but the more of it the machine gets over its Bus Connector or a computation
+     * hatch, the fewer wafers break ({@link #OPC_BONUS}). The 7 and 1 nm nodes draw {@link #computation()} as a recipe
+     * input instead.
+     */
+    public int opcDemand() {
+        return switch (this) {
+            case N350 -> 2;
+            case N200 -> 4;
+            case N100 -> 8;
+            case N80 -> 16;
+            case N65 -> 24;
+            case N50 -> 32;
+            case N20 -> 48;
+            default -> 0;
+        };
+    }
+
+    /** Calibration (percentage points) one print wears off the machine: the finer the node, the faster it drifts. */
+    public double driftPerPrint() {
+        return switch (this) {
+            case N350 -> 0.5;
+            case N200 -> 0.75;
+            case N100 -> 1.0;
+            case N80 -> 1.5;
+            case N65 -> 2.0;
+            case N50 -> 2.5;
+            case N20 -> 3.0;
+            case N7 -> 4.0;
+            case N1 -> 5.0;
         };
     }
 

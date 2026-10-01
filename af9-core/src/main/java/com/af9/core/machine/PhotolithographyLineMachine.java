@@ -1,6 +1,7 @@
 package com.af9.core.machine;
 
 import com.af9.core.AF9Core;
+import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.console.BusPlacardWidget;
 
@@ -114,9 +115,11 @@ public class PhotolithographyLineMachine extends LithoMachine {
         }
         LithoMode mode = LithoMode.of(recipe.recipeType);
         if (mode == null) return ModifierFunction.IDENTITY;
-        int surplus = line.surplusFor(mode);
-        if (surplus <= 0) return ModifierFunction.IDENTITY;
-        return ModifierFunction.builder().durationMultiplier(LithoMode.speedFactor(surplus)).build();
+        // a version above the mode and every doubling of the air conditioning above its heat load speed it up
+        double factor = LithoMode.speedFactor(line.surplusFor(mode)) *
+                Math.pow(Coolant.TIME_FACTOR, line.coolingSteps(mode));
+        if (factor >= 1) return ModifierFunction.IDENTITY;
+        return ModifierFunction.builder().durationMultiplier(factor).build();
     };
 
     private final Spec spec;

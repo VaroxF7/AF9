@@ -91,6 +91,13 @@ public class ScannerConsoleWidget extends ConsoleWidget {
     /** Prints in the running batch (0: nothing running). */
     private int batch;
     private boolean laser;
+    /** Air cooling (units given / heat load, doublings above it, lapsed), OPC percent (-1: none), calibration x10. */
+    private int coolCapacity;
+    private int coolLoad;
+    private int coolSteps;
+    private boolean coolLapsed;
+    private int opc = -1;
+    private int calibration = 1000;
     private String product = "";
 
     public ScannerConsoleWidget(PhotolithographyScannerMachine machine, int x, int y) {
@@ -172,9 +179,15 @@ public class ScannerConsoleWidget extends ConsoleWidget {
                 (int) Math.round(machine.getCleanliness() * 10), (int) Math.round(machine.getPrintVacuum() * 10),
                 machine.getVacuumState(), (int) Math.round(machine.currentBreakChance(active) * 10000),
                 machine.isWorkingEnabled() ? 1 : 0, machine.isBatchEnabled() ? 1 : 0,
-                running == null ? 0 : LithoMachine.printsIn(running), machine.hasLaser() ? 1 : 0 };
+                running == null ? 0 : LithoMachine.printsIn(running), machine.hasLaser() ? 1 : 0,
+                machine.needsAirCooling(active) ? machine.getCoolingCapacity() : 0,
+                machine.needsAirCooling(active) ? active.heatLoad() : 0, machine.coolingSteps(active),
+                machine.hasCoolingLapsed() && logic.isWorking() ? 1 : 0,
+                opcPercent(machine.getOpcRatio(active, logic.isWorking())),
+                (int) Math.round(machine.getCalibration() * 10) };
         int[] before = { status, mode, version, tier, progress, duration, cleanliness, printVacuum, vacuum,
-                breakChance, workingEnabled ? 1 : 0, batchEnabled ? 1 : 0, batch, laser ? 1 : 0 };
+                breakChance, workingEnabled ? 1 : 0, batchEnabled ? 1 : 0, batch, laser ? 1 : 0, coolCapacity,
+                coolLoad, coolSteps, coolLapsed ? 1 : 0, opc, calibration };
         long newAvailable = machine.getAvailableEUt();
         String newProduct = current == null ? "" : current.toString();
         boolean changed = !Arrays.equals(now, before) || newAvailable != available ||
@@ -194,11 +207,21 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         batchEnabled = now[11] == 1;
         batch = now[12];
         laser = now[13] == 1;
+        coolCapacity = now[14];
+        coolLoad = now[15];
+        coolSteps = now[16];
+        coolLapsed = now[17] == 1;
+        opc = now[18];
+        calibration = now[19];
         available = newAvailable;
         printed = machine.getPrinted();
         broken = machine.getBroken();
         product = newProduct;
         return changed;
+    }
+
+    private static int opcPercent(double ratio) {
+        return ratio < 0 ? -1 : (int) Math.round(ratio * 100);
     }
 
     @Override
@@ -210,6 +233,12 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         buffer.writeBoolean(workingEnabled);
         buffer.writeBoolean(batchEnabled);
         buffer.writeBoolean(laser);
+        buffer.writeVarInt(coolCapacity);
+        buffer.writeVarInt(coolLoad);
+        buffer.writeVarInt(coolSteps);
+        buffer.writeBoolean(coolLapsed);
+        buffer.writeVarInt(opc + 1);
+        buffer.writeVarInt(calibration);
         buffer.writeVarLong(available);
         buffer.writeVarLong(printed);
         buffer.writeVarLong(broken);
@@ -232,6 +261,12 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         workingEnabled = buffer.readBoolean();
         batchEnabled = buffer.readBoolean();
         laser = buffer.readBoolean();
+        coolCapacity = buffer.readVarInt();
+        coolLoad = buffer.readVarInt();
+        coolSteps = buffer.readVarInt();
+        coolLapsed = buffer.readBoolean();
+        opc = buffer.readVarInt() - 1;
+        calibration = buffer.readVarInt();
         available = buffer.readVarLong();
         printed = buffer.readVarLong();
         broken = buffer.readVarLong();
@@ -466,7 +501,7 @@ public class ScannerConsoleWidget extends ConsoleWidget {
                 Component.translatable("af9.console.status." + status).getString());
         int line = 0;
         for (FormattedCharSequence part : font.split(hint, (PANEL_W - 10) * 4 / 3)) {
-            if (line >= 3) break;
+            if (line >= 2) break;
             graphics.pose().pushPose();
             graphics.pose().translate(x + 5, y + 119 + line * 7, 0);
             graphics.pose().scale(0.75F, 0.75F, 1F);
@@ -474,6 +509,18 @@ public class ScannerConsoleWidget extends ConsoleWidget {
             graphics.pose().popPose();
             line++;
         }
+        // the air conditioning, the OPC the computation gave and the calibration, in one line under the hint
+        double cal = calibration / 10.0;
+        String quality = (coolLoad > 0 ? (coolLapsed ? Component.translatable("af9.litho.console.cooling_lapsed")
+                .getString() : Component.translatable("af9.litho.console.cooling_short", coolCapacity, coolLoad)
+                .getString()) + "  " : "") +
+                (opc >= 0 ? Component.translatable("af9.litho.console.opc", opc).getString() + "  " : "") +
+                Component.translatable("af9.litho.console.calibration", String.format(Locale.ROOT, "%.0f", cal))
+                        .getString();
+        boolean coolBad = coolLoad > 0 && (coolLapsed || coolCapacity < coolLoad);
+        drawSmall(graphics, fit(quality, (PANEL_W - 10) * 4 / 3), x + 5, y + 133,
+                coolBad || cal < LithoMode.CALIBRATION_MIN ? BAD : status == STATUS_CALIBRATING ? INFO :
+                        cal < LithoMode.AUTO_CALIBRATION_BELOW ? WARN : MUTED, false);
     }
 
     @OnlyIn(Dist.CLIENT)

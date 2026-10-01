@@ -21,6 +21,7 @@ const $PhotolithographyScannerMachine = Java.loadClass('com.af9.core.machine.Pho
 const $OrbitalLithographyMachine = Java.loadClass('com.af9.core.machine.OrbitalLithographyMachine')
 const $LithoMachine = Java.loadClass('com.af9.core.machine.LithoMachine')
 const $LithoCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
+const $LithoAirConditioning = Java.loadClass('com.af9.core.machine.part.AirConditioningHatchPartMachine')
 const $LithoBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $LithoRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 const $LithoMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
@@ -258,6 +259,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 // up to two normal 2A hatches = 4A, what every print needs; their voltage decides the modes
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
                 .or(Predicates.abilities($LithoBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
+                // air cooling: the hatches carry the print's heat (cooling units, see air_conditioning.js)
+                .or(Predicates.abilities($LithoAirConditioning.AIR_CONDITIONING).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units
@@ -313,6 +316,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
                 .or(Predicates.abilities($LithoBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
+                // air cooling: the hatches carry the print's heat (cooling units, see air_conditioning.js)
+                .or(Predicates.abilities($LithoAirConditioning.AIR_CONDITIONING).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units

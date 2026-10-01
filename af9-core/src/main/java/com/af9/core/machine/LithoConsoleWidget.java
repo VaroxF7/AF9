@@ -60,6 +60,14 @@ public class LithoConsoleWidget extends ConsoleWidget {
     private int vacuum;
     /** Orbital station: coolant of the running / next print (grade, 0 none), -1 on machines without coolant. */
     private int coolant = -1;
+    /** Air cooling: cooling units the hatches give / the print's heat load (0: none needed), doublings above it. */
+    private int coolCapacity;
+    private int coolLoad;
+    private int coolSteps;
+    private boolean coolLapsed;
+    /** Share of the OPC demand the computation meets, percent (-1: no demand or no source), and the calibration x10. */
+    private int opc = -1;
+    private int calibration = 1000;
     private String product = "";
 
     public LithoConsoleWidget(LithoMachine machine, int x, int y) {
@@ -158,6 +166,14 @@ public class LithoConsoleWidget extends ConsoleWidget {
         long newBroken = machine.getBroken();
         int newVacuum = machine.getVacuumState();
         String newProduct = current == null ? "" : current.toString();
+        boolean airCooled = machine.needsAirCooling(active);
+        int newCoolCapacity = airCooled ? machine.getCoolingCapacity() : 0;
+        int newCoolLoad = airCooled ? active.heatLoad() : 0;
+        int newCoolSteps = machine.coolingSteps(active);
+        boolean newCoolLapsed = machine.hasCoolingLapsed() && logic.isWorking();
+        double opcRatio = machine.getOpcRatio(active, logic.isWorking());
+        int newOpc = opcRatio < 0 ? -1 : (int) Math.round(opcRatio * 100);
+        int newCalibration = (int) Math.round(machine.getCalibration() * 10);
         int newCoolant = -1;
         if (machine instanceof OrbitalLithographyMachine station && active.minCoolant() != null) {
             Coolant used = station.currentCoolant(active);
@@ -168,6 +184,8 @@ public class LithoConsoleWidget extends ConsoleWidget {
                 newCleanliness != cleanliness || newPrintVacuum != printVacuum || newBreak != breakChance ||
                 newPrinted != printed ||
                 newBroken != broken || newVacuum != vacuum || newCoolant != coolant ||
+                newCoolCapacity != coolCapacity || newCoolLoad != coolLoad || newCoolSteps != coolSteps ||
+                newCoolLapsed != coolLapsed || newOpc != opc || newCalibration != calibration ||
                 !Objects.equals(newProduct, product);
         status = newStatus;
         mode = newMode;
@@ -182,6 +200,12 @@ public class LithoConsoleWidget extends ConsoleWidget {
         broken = newBroken;
         vacuum = newVacuum;
         coolant = newCoolant;
+        coolCapacity = newCoolCapacity;
+        coolLoad = newCoolLoad;
+        coolSteps = newCoolSteps;
+        coolLapsed = newCoolLapsed;
+        opc = newOpc;
+        calibration = newCalibration;
         product = newProduct;
         return changed;
     }
@@ -201,6 +225,12 @@ public class LithoConsoleWidget extends ConsoleWidget {
         buffer.writeVarLong(broken);
         buffer.writeVarInt(vacuum);
         buffer.writeVarInt(coolant);
+        buffer.writeVarInt(coolCapacity);
+        buffer.writeVarInt(coolLoad);
+        buffer.writeVarInt(coolSteps);
+        buffer.writeBoolean(coolLapsed);
+        buffer.writeVarInt(opc + 1);
+        buffer.writeVarInt(calibration);
         buffer.writeUtf(product);
     }
 
@@ -219,6 +249,12 @@ public class LithoConsoleWidget extends ConsoleWidget {
         broken = buffer.readVarLong();
         vacuum = buffer.readVarInt();
         coolant = buffer.readVarInt();
+        coolCapacity = buffer.readVarInt();
+        coolLoad = buffer.readVarInt();
+        coolSteps = buffer.readVarInt();
+        coolLapsed = buffer.readBoolean();
+        opc = buffer.readVarInt() - 1;
+        calibration = buffer.readVarInt();
         product = buffer.readUtf();
     }
 
@@ -297,6 +333,32 @@ public class LithoConsoleWidget extends ConsoleWidget {
         } else if (status == STATUS_PUMPING_DOWN) {
             drawSmall(graphics, Component.translatable("af9.litho.console.wait_seal").getString(), lx, y0 + 84, INFO,
                     false);
+        } else if (status == STATUS_CALIBRATING) {
+            drawSmall(graphics, Component.translatable("af9.litho.console.calibrating").getString(), lx, y0 + 84,
+                    INFO, false);
+        } else {
+            // how well the machine is tuned: the computation behind its OPC and its calibration
+            double cal = calibration / 10.0;
+            String quality = (opc >= 0 ? Component.translatable("af9.litho.console.opc", opc).getString() + "  " : "") +
+                    Component.translatable("af9.litho.console.calibration",
+                            String.format(Locale.ROOT, "%.0f", cal)).getString();
+            drawSmall(graphics, quality, lx, y0 + 84, cal < LithoMode.CALIBRATION_MIN ? BAD :
+                    cal < LithoMode.AUTO_CALIBRATION_BELOW ? WARN : MUTED, false);
+        }
+        // Line and Scanner: the air conditioning against the print's heat load
+        if (coolLoad > 0) {
+            drawSmall(graphics, Component.translatable("af9.litho.console.cooling").getString(), lx, y0 + 92, MUTED,
+                    false);
+            String text;
+            int color;
+            if (coolLapsed) {
+                text = Component.translatable("af9.litho.console.cooling_lapsed").getString();
+                color = BAD;
+            } else {
+                text = coolCapacity + "/" + coolLoad + " CU" + (coolSteps > 0 ? " +" + coolSteps : "");
+                color = coolCapacity < coolLoad ? BAD : coolSteps > 0 ? GOOD : TEXT;
+            }
+            drawSmall(graphics, text, lx + lw - font.width(text) * 3 / 4, y0 + 92, color, false);
         }
         // orbital station: the coolant of the running (or next) print and how many grades it gains
         if (coolant >= 0 && active.minCoolant() != null) {

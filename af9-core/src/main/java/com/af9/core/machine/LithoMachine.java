@@ -1,16 +1,25 @@
 package com.af9.core.machine;
 
+import com.af9.core.AF9Config;
 import com.af9.core.AF9Core;
 import com.af9.core.common.IPowerGated;
+import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.console.ConsoleWidget;
+import com.af9.core.machine.part.AirConditioningHatchPartMachine;
 
 import com.gregtechceu.gtceu.api.capability.IDataAccessHatch;
+import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider;
+import com.gregtechceu.gtceu.api.capability.recipe.CWURecipeCapability;
+import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.capability.recipe.IRecipeHandler;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMaintenanceMachine;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
+import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
@@ -71,6 +80,8 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     public static final int VACUUM_INTERVAL = 10;
     /** Ticks the pumps may go without power before the vacuum starts venting. */
     public static final int POWER_GRACE_TICKS = 60;
+    /** The reference wafer a calibration run uses up (made in the assembler, put in an input bus). */
+    public static final ResourceLocation CALIBRATION_WAFER = new ResourceLocation("kubejs", "calibration_wafer");
 
     /**
      * Only starts a print the machine can do right now (line version / orbit, see {@link #canPrint}), whose EU/t the
@@ -85,6 +96,8 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         }
         LithoMode mode = LithoMode.of(recipe.recipeType);
         if (mode != null && !litho.canPrint(mode)) return ModifierFunction.NULL;
+        // the air conditioning has to carry the print's heat, and the machine has to be in calibration
+        if (mode != null && (!litho.hasCooling(mode) || litho.isCalibrationBlocked())) return ModifierFunction.NULL;
         if (litho.getAvailableEUt() < RecipeHelper.getRealEUt(recipe).getTotalEU()) return ModifierFunction.NULL;
         if (!litho.isVacuumSealed()) return ModifierFunction.NULL;
         if (recipe.conditions.stream().anyMatch(ResearchCondition.class::isInstance) && !litho.hasDataHatch()) {
@@ -122,6 +135,20 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     private long printed;
     @Persisted
     private long broken;
+    /** Calibration of the optics and stages, 0-100: every print wears it off ({@link LithoMode#driftPerPrint}). */
+    @Persisted
+    private double calibration = 100;
+    /** Ticks left of the running calibration (0: not calibrating). */
+    @Persisted
+    private int calibrateTicks;
+    /** Whether the air conditioning went without power during the running print (its break roll doubles). */
+    @Persisted
+    private boolean coolingLapsed;
+    /** Over the running print: the share of its OPC demand the computation met, summed per tick, and the ticks. */
+    @Persisted
+    private double opcSum;
+    @Persisted
+    private int opcTicks;
 
     private TickableSubscription vacuumSubs;
     private int unpoweredTicks;
@@ -182,7 +209,10 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
 
     /** Why the active mode cannot run, as a console status code, or -1 if it can. */
     public int blockedStatus(LithoMode mode) {
-        return canPrint(mode) ? -1 : ConsoleWidget.STATUS_LOCKED;
+        if (!canPrint(mode)) return ConsoleWidget.STATUS_LOCKED;
+        int calibrating = calibrationStatus();
+        if (calibrating >= 0) return calibrating;
+        return hasCooling(mode) ? -1 : ConsoleWidget.STATUS_NO_COOLING;
     }
 
     //////////////////////////////////////
@@ -192,7 +222,15 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
-        vacuumSubs = subscribeServerTick(vacuumSubs, this::updateVacuum);
+        vacuumSubs = subscribeServerTick(vacuumSubs, this::tickProcess);
+    }
+
+    /** Everything the machine does besides the recipe, each tick: vacuum, cooling, OPC, calibration. */
+    private void tickProcess() {
+        updateVacuum();
+        updateCooling();
+        updateOpc();
+        updateCalibration();
     }
 
     /** A broken structure loses its vacuum: the next time it forms it pumps down from 0. */
@@ -291,6 +329,9 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     public boolean beforeWorking(GTRecipe recipe) {
         if (!super.beforeWorking(recipe)) return false;
         printLow = getCleanliness();
+        coolingLapsed = false;
+        opcSum = 0;
+        opcTicks = 0;
         return true;
     }
 
@@ -302,7 +343,8 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
      */
     GTRecipe finishPrints(LithoMode mode, GTRecipe recipe) {
         RandomSource random = getLevel() != null ? getLevel().getRandom() : RandomSource.create();
-        double chance = mode.breakChance(rollVacuum(), surplusFor(mode)) * breakFactor(mode, recipe);
+        double chance = Math.min(LithoMode.MAX_BREAK,
+                mode.breakChance(rollVacuum(), surplusFor(mode)) * breakFactor(mode, true));
         int prints = printsIn(recipe);
         int brokenNow = 0;
         for (int i = 0; i < prints; i++) {
@@ -310,6 +352,8 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         }
         printed += prints - brokenNow;
         broken += brokenNow;
+        // every print wears the optics and stages a little: the finer the node, the more
+        calibration = Math.max(0, calibration - mode.driftPerPrint() * prints);
         markDirty();
         return brokenNow == 0 ? recipe : withBroken(recipe, mode, prints, brokenNow);
     }
@@ -399,15 +443,227 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     /** Break chance of the running print (from its lowest vacuum), or of the next one (on a sealed vacuum). */
     public double currentBreakChance(LithoMode mode) {
         GTRecipe running = getRecipeLogic().isActive() ? getRecipeLogic().getLastRecipe() : null;
-        return mode.breakChance(getPrintVacuum(), surplusFor(mode)) * breakFactor(mode, running);
+        return Math.min(LithoMode.MAX_BREAK,
+                mode.breakChance(getPrintVacuum(), surplusFor(mode)) * breakFactor(mode, running != null));
     }
 
     /**
-     * Factor on a print's break chance besides the vacuum and the version (the orbital station's coolant). The recipe
-     * is the run (as modified for this machine), or null for the next print. 1 by default.
+     * Everything on a print's break chance besides the vacuum and the version: the machine's own factor (the orbital
+     * station's coolant), the air conditioning, the OPC the computation gave and the calibration.
+     *
+     * @param measured true for a print that ran (what its cooling and computation really were), false for the next
+     *                 one (what they would be now)
      */
-    protected double breakFactor(LithoMode mode, GTRecipe recipe) {
+    private double breakFactor(LithoMode mode, boolean measured) {
+        return machineBreakFactor(mode, measured) * coolingBreakFactor(mode, measured) *
+                opcBreakFactor(mode, measured) * calibrationBreakFactor();
+    }
+
+    /**
+     * Factor on a print's break chance of the machine's own kind (the orbital station's coolant); the recipe the
+     * machine would take its coolant from is the running one, or null for the next print. 1 by default.
+     */
+    protected double machineBreakFactor(LithoMode mode, boolean measured) {
         return 1;
+    }
+
+    //////////////////////////////////////
+    // ********** Cooling ***********//
+    //////////////////////////////////////
+
+    /** Cooling units the Air Conditioning Hatches of the structure give together. */
+    public int getCoolingCapacity() {
+        if (!isFormed()) return 0;
+        int units = 0;
+        for (IMultiPart part : getParts()) {
+            if (part instanceof AirConditioningHatchPartMachine hatch) units += hatch.getCoolingUnits();
+        }
+        return units;
+    }
+
+    /** Whether the mode's print puts heat into the air that has to be carried off (not on the orbital station). */
+    public boolean needsAirCooling(LithoMode mode) {
+        return mode.heatLoad() > 0 && AF9Config.LITHO_AIR_COOLING.get();
+    }
+
+    /** The air conditioning carries the mode's heat load (or none is needed). */
+    public boolean hasCooling(LithoMode mode) {
+        return !needsAirCooling(mode) || getCoolingCapacity() >= mode.heatLoad();
+    }
+
+    /** Doublings of the cooling units above the mode's heat load, 0 to {@link LithoMode#MAX_COOLING_STEPS}. */
+    public int coolingSteps(LithoMode mode) {
+        if (!needsAirCooling(mode)) return 0;
+        int capacity = getCoolingCapacity();
+        int steps = 0;
+        while (steps < LithoMode.MAX_COOLING_STEPS && capacity >= mode.heatLoad() * (2 << steps)) steps++;
+        return steps;
+    }
+
+    /** A print is running that the air conditioning is cooling (and it still has its power). */
+    public boolean isCooling() {
+        return isFormed() && getRecipeLogic().isWorking() && needsAirCooling(getActiveMode()) && !coolingLapsed;
+    }
+
+    /** Whether the air conditioning lost its power during the running print. */
+    public boolean hasCoolingLapsed() {
+        return coolingLapsed;
+    }
+
+    /** What the hatches draw in one {@link #VACUUM_INTERVAL}. */
+    public long coolingDrawPerInterval() {
+        long draw = 0;
+        for (IMultiPart part : getParts()) {
+            if (part instanceof AirConditioningHatchPartMachine hatch) draw += hatch.getDraw();
+        }
+        return draw * VACUUM_INTERVAL;
+    }
+
+    /** Pays the hatches while a print runs; a print whose cooling went without power breaks twice as often. */
+    private void updateCooling() {
+        if (getOffsetTimer() % VACUUM_INTERVAL != 0 || !isFormed() || !getRecipeLogic().isWorking()) return;
+        if (!needsAirCooling(getActiveMode()) || getCoolingCapacity() <= 0) return;
+        long draw = coolingDrawPerInterval();
+        if (energyContainer != null && energyContainer.getEnergyStored() >= draw) {
+            energyContainer.removeEnergy(draw);
+        } else if (!coolingLapsed) {
+            coolingLapsed = true;
+            markDirty();
+        }
+    }
+
+    private double coolingBreakFactor(LithoMode mode, boolean measured) {
+        if (!needsAirCooling(mode)) return 1;
+        if (measured && coolingLapsed) return LithoMode.COOLING_LAPSE_FACTOR;
+        return Math.pow(Coolant.BREAK_FACTOR, coolingSteps(mode));
+    }
+
+    //////////////////////////////////////
+    // ************* OPC **************//
+    //////////////////////////////////////
+
+    /** Whether a computation source (a Bus Connector, a computation hatch) is in the structure. */
+    public boolean hasOpcSource() {
+        if (!isFormed()) return false;
+        for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, CWURecipeCapability.CAP)) {
+            if (handler instanceof IOpticalComputationProvider) return true;
+        }
+        return false;
+    }
+
+    /** Takes up to {@code cwut} CWU/t from the computation sources of the structure (or only asks). */
+    private int requestOpc(int cwut, boolean simulate) {
+        int got = 0;
+        for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, CWURecipeCapability.CAP)) {
+            if (got >= cwut) break;
+            if (handler instanceof IOpticalComputationProvider provider) {
+                got += Math.max(0, provider.requestCWUt(cwut - got, simulate, new ArrayList<>()));
+            }
+        }
+        return got;
+    }
+
+    /** While a print runs, draws its OPC and alignment computation and remembers how much of it there was. */
+    private void updateOpc() {
+        if (!isFormed() || !getRecipeLogic().isWorking()) return;
+        int demand = getActiveMode().opcDemand();
+        if (demand <= 0 || !hasOpcSource()) return;
+        opcSum += Math.min(1.0, (double) requestOpc(demand, false) / demand);
+        opcTicks++;
+    }
+
+    /**
+     * The share of the mode's OPC demand the computation meets: over the running print, or what it would be now (the
+     * sources asked without taking anything). -1 for a mode that has none or a machine without a source.
+     */
+    public double getOpcRatio(LithoMode mode, boolean measured) {
+        int demand = mode.opcDemand();
+        if (demand <= 0 || !hasOpcSource()) return -1;
+        if (measured) return opcTicks == 0 ? 0 : opcSum / opcTicks;
+        return Math.min(1.0, (double) requestOpc(demand, true) / demand);
+    }
+
+    private double opcBreakFactor(LithoMode mode, boolean measured) {
+        double ratio = getOpcRatio(mode, measured);
+        return ratio <= 0 ? 1 : 1 - LithoMode.OPC_BONUS * ratio;
+    }
+
+    //////////////////////////////////////
+    // ********* Calibration **********//
+    //////////////////////////////////////
+
+    /** Calibration of the optics and stages, 0-100. */
+    public double getCalibration() {
+        return calibration;
+    }
+
+    public boolean isCalibrating() {
+        return calibrateTicks > 0;
+    }
+
+    /** Ticks left of the running calibration. */
+    public int getCalibrateTicks() {
+        return calibrateTicks;
+    }
+
+    /** Too far out of calibration (or being calibrated): no print starts. */
+    public boolean isCalibrationBlocked() {
+        return calibrateTicks > 0 || calibration < LithoMode.CALIBRATION_MIN;
+    }
+
+    /** Console status of the calibration, or -1 when the machine may print. */
+    protected int calibrationStatus() {
+        if (calibrateTicks > 0) return ConsoleWidget.STATUS_CALIBRATING;
+        return calibration < LithoMode.CALIBRATION_MIN ? ConsoleWidget.STATUS_NEEDS_CALIBRATION : -1;
+    }
+
+    /** Back to 100: what a calibration run does (and what a Metrology Station does for the machines on its bus). */
+    public void calibrate() {
+        calibration = 100;
+        calibrateTicks = 0;
+        markDirty();
+    }
+
+    private double calibrationBreakFactor() {
+        return 1 + LithoMode.DRIFT_BREAK * (100 - Math.max(0, Math.min(100, calibration))) / 100.0;
+    }
+
+    /**
+     * An idle machine that has drifted calibrates itself when a calibration wafer lies in one of its input buses: it
+     * takes the wafer and spends {@link LithoMode#CALIBRATION_TICKS} on the run.
+     */
+    private void updateCalibration() {
+        if (!isFormed()) return;
+        if (calibrateTicks > 0) {
+            if (--calibrateTicks == 0) calibration = 100;
+            if (calibrateTicks % 20 == 0) markDirty();
+            return;
+        }
+        if (calibration > LithoMode.AUTO_CALIBRATION_BELOW || getRecipeLogic().isWorking() ||
+                getOffsetTimer() % 20 != 0) {
+            return;
+        }
+        if (takeCalibrationWafer()) {
+            calibrateTicks = LithoMode.CALIBRATION_TICKS;
+            markDirty();
+        }
+    }
+
+    private boolean takeCalibrationWafer() {
+        for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, ItemRecipeCapability.CAP)) {
+            if (!(handler instanceof NotifiableItemStackHandler items) || items.getHandlerIO() != IO.IN ||
+                    !items.canCapInput() || !items.shouldSearchContent()) {
+                continue;
+            }
+            for (int slot = 0; slot < items.getSlots(); slot++) {
+                ItemStack stack = items.getStackInSlot(slot);
+                if (!stack.isEmpty() && CALIBRATION_WAFER.equals(ForgeRegistries.ITEMS.getKey(stack.getItem())) &&
+                        !items.extractItemInternal(slot, 1, false).isEmpty()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /** A data access hatch or an optical data hatch in the structure (for researched prints). */

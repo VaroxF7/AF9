@@ -16,6 +16,8 @@ public final class AF9Config {
     public static final ForgeConfigSpec.BooleanValue ME_NEEDS_COMPUTATION;
     /** Channels one CWU/t pays for. */
     public static final ForgeConfigSpec.IntValue ME_CHANNELS_PER_CWUT;
+    /** Whether the Photolithography Line and Scanner need Air Conditioning Hatches for their heat load. */
+    public static final ForgeConfigSpec.BooleanValue LITHO_AIR_COOLING;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -45,6 +47,14 @@ public final class AF9Config {
         ME_CHANNELS_PER_CWUT = builder
                 .comment("Channels one CWU/t pays for (a network of 128 channels needs 32 CWU/t at 4).")
                 .defineInRange("channelsPerCwut", 4, 1, 1024);
+        builder.pop();
+        builder.comment("The Photolithography Line and Scanner are built as clean rooms and cool with air: a print puts",
+                "heat into the chamber and the Air Conditioning Hatches in the structure have to remove it (the",
+                "Orbital Lithography Station cools with supercooled fluids instead).")
+                .push("lithography");
+        LITHO_AIR_COOLING = builder
+                .comment("The Line and the Scanner need Air Conditioning Hatches for the heat load of the print.")
+                .define("airCooling", true);
         builder.pop();
         SPEC = builder.build();
     }
