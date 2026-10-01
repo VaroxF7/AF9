@@ -1297,6 +1297,8 @@ The Photolithography Line and Scanner are built as clean rooms, so they cool wit
 - Recipes: an assembler recipe per tier (hull, pump, motor, 2 circuits, 4 tier plates, soldering alloy).
 - **The warm air** leaves from the hatch's front. `AirConditioningHatchPartMachine` implements `thermal/IHeatEmitter` (`getHeatOutput()` in heat units per tick: 2 per CU in use while the machine cools, `getHeatPos()`, `getHeatDirection()`): **the hook for the Temperature Update**. Nothing reads it yet; the temperature system (warmth around machines the player feels, the hotbar message, the screen effect) is meant to collect the emitters and warm the blocks in front of them.
 
+Crafting (`litho_process.js`, assembler, programmed circuit 1): the tier's machine hull + pump + motor + 2 circuits + 4 plates (aluminium MV, stainless steel HV, titanium EV, tungsten steel IV) + 144 mB soldering alloy. The circuit tells the IV recipe from the Scanner's, which holds all of it and more (`tools/lint` R7).
+
 ## 18.2 OPC: computation that improves the yield
 
 Every node up to 20 nm has an **OPC demand** (optical proximity correction and alignment, `LithoMode.opcDemand`), drawn each tick while a print runs from the machine's computation source (a Bus Connector, or a computation hatch on the orbital station):
@@ -1362,7 +1364,7 @@ The layers are made in the fab machines (`af9:aluminium_nitride`, `lithium_nioba
 | Atomic | 2 TMD logic, 2 WSe2, 2 hBN | 4 TMD logic, 4 WSe2, 4 hBN | 4 memristors, 2 GST |
 | Sub-atomic | 2 quantum-dot ICs, 250 mB colloid | 4 quantum-dot ICs, 500 mB colloid | 2 quantum-dot ICs, 4 memristors, 250 mB colloid |
 
-All on a multilayer fibre-reinforced board with 8 YBCO wire and soldering alloy, at UV in a clean room (circuit assembler; the Sub-atomic ones in the assembler: they take two fluids). Numbers of the cards: `docs/machine-bus.md` §9.
+All on a multilayer fibre-reinforced board with 8 YBCO wire, at UV in a clean room, in the circuit assembler with a **programmed circuit** (1 CPU, 2 GPU, 3 RAM: the three cards of a tier take the same things in different amounts, so without it the machine could make either) and soldering alloy; the Sub-atomic cards take the colloid as ink *instead of* solder (GT's assembler and circuit assembler have **one** fluid slot). Numbers of the cards: `docs/machine-bus.md` §9.
 
 ## 18.8 The Coater Track, coated wafers, the etch plasma
 

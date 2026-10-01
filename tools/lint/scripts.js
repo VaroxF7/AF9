@@ -6,6 +6,7 @@
 //
 // Checks (each finding is one line: LEVEL code message):
 //   S1  a script threw while loading (a typo, an undefined name, a stub that is missing: see tools/lint/README.md)
+//   S2  an item, block, fluid, material, machine or recipe type registered twice (the second one would fail or replace the first)
 //   R1  duplicate recipe id within a recipe type
 //   R2  a recipe over the slots of its machine (items / fluids in and out, the not-consumed ones and circuits count)
 //   R3  an item, block or fluid id nobody defines: kubejs: not registered, gtceu: neither an AF9 material nor a name
@@ -13,6 +14,7 @@
 //   R4  a recipe type that is neither AF9's nor GT's
 //   R5  an AF9 material, fluid or kubejs item a recipe takes that no recipe makes (nor a tag or a loot source)
 //   R6  an AF9 material or kubejs item registered that no recipe makes or takes (dead content)
+//   R13 a furnace recipe (EBF, boule melting, fab calcination / CVD / crystal growth) without blastFurnaceTemp()
 //   M1  multiblock pattern: aisles / rows of different size, a pattern character without `where`, a `where` that is
 //       never used, no or several controllers, a part with a minimum or an exact count (AF9 rule: maximums only)
 //   M2  multiblock: a recipe type that does not exist, a machine without tooltips keys in the lang files
@@ -33,6 +35,7 @@ const DATA = path.join(__dirname, 'data')
 const gtMaterials = new Set(lines(path.join(DATA, 'gt-materials.txt')))
 const gtNames = new Set(lines(path.join(DATA, 'gt-names.txt')))
 const gtPatterns = lines(path.join(DATA, 'gt-patterns.txt')).filter(l => !l.startsWith('#')).map(r => new RegExp('^(?:' + r + ')$'))
+const gtSlots = new Map(lines(path.join(DATA, 'gt-recipe-slots.txt')).map(l => l.split(' ')).map(([n, ...v]) => [n, v.map(Number)]))
 const gtTypes = new Set(lines(path.join(DATA, 'gt-recipe-types.txt')))
 // what the base pack (ATM9's kubejs, which this repo is laid over) provides: items, recipe types, GT names that GT's lists lack
 const packIds = new Set(lines(path.join(DATA, 'pack.txt')))
@@ -116,19 +119,27 @@ const recorder = record => {
 
 function recipeBuilder(type, id) {
     const rec = { type, id, file: state.currentFile, itemIn: [], itemOut: [], fluidIn: [], fluidOut: [], circuits: 0,
-        notConsumed: 0, calls: {}, fluidAmounts: [], chances: [] }
+        notConsumed: 0, calls: {}, fluidAmounts: [], chances: [], itemQty: new Map() }
     state.recipes.push(rec)
     const ids = x => typeof x === 'string' ? parseId(x) : x && x.fluid ? x.fluid : null
     const amount = x => { if (x && x.fluid) rec.fluidAmounts.push([x.fluid, x.amount]) }
+    // how many of an item a recipe takes ('4x ns:id'; 1 otherwise): for the conflict check R7
+    const qty = x => {
+        const id = ids(x)
+        if (!id) return
+        const m = typeof x === 'string' ? x.match(/^(\d+)x\s/) : null
+        rec.itemQty.set(id, (rec.itemQty.get(id) || 0) + (m ? Number(m[1]) : 1))
+    }
     return recorder((name, a) => {
         const items = flat(a)
         rec.calls[name] = a
         if (/Fluids?$/.test(name) || name === 'chancedFluidOutput') items.forEach(amount)
         if (name === 'chancedOutput' || name === 'chancedFluidOutput') rec.chances.push(a[1])
+        if (name === 'chancedOutput') (rec.chanceItems || (rec.chanceItems = [])).push(ids(a[0]))
         switch (name) {
-            case 'itemInputs': items.forEach(i => rec.itemIn.push(ids(i))); break
-            case 'notConsumable': items.forEach(i => { rec.itemIn.push(ids(i)); rec.notConsumed++ }); break
-            case 'circuit': rec.itemIn.push('circuit:' + a[0]); rec.circuits++; break
+            case 'itemInputs': items.forEach(i => { rec.itemIn.push(ids(i)); qty(i) }); break
+            case 'notConsumable': items.forEach(i => { rec.itemIn.push(ids(i)); rec.notConsumed++; qty(i) }); break
+            case 'circuit': rec.itemIn.push('circuit:' + a[0]); rec.circuits++; rec.itemQty.set('circuit:' + a[0], 1); break
             case 'itemOutputs': items.forEach(i => rec.itemOut.push(ids(i))); break
             case 'chancedOutput': rec.itemOut.push(ids(a[0])); break
             case 'inputFluids': items.forEach(i => rec.fluidIn.push(ids(i))); break
@@ -146,7 +157,7 @@ function crafting(type, out, ins) {
     const ingredient = x => typeof x === 'string' ? parseId(x) : x && typeof x === 'object' ? (x.item || (x.tag ? '#' + x.tag : null)) : null
     const rec = { type, id: `auto#${++craftingCount}`, file: state.currentFile, itemIn: flat([ins]).map(ingredient).filter(Boolean),
         itemOut: [parseId(typeof out === 'string' ? out : out && out.item)].filter(Boolean), fluidIn: [], fluidOut: [], circuits: 0, notConsumed: 0,
-        calls: {}, fluidAmounts: [], chances: [] }
+        calls: {}, fluidAmounts: [], chances: [], itemQty: new Map() }
     state.recipes.push(rec)
     return { id(i) { rec.id = String(i); return this } }
 }
@@ -253,10 +264,21 @@ const creator = (kind, type, file) => ({
             tooltips: [], io: null }
         if (kind === 'startup') {
             const t = type
-            if (t === 'item' || t === 'block' || t === 'fluid') { info.kind = t; info.textures = []; state.items.set(id, info) }
-        } else if (type === 'gtceu:material') state.materials.set(id, info)
-        else if (type === 'gtceu:recipe_type') state.recipeTypes.set(id, info)
-        else if (type === 'gtceu:machine') state.machines.push(info)
+            if (t === 'item' || t === 'block' || t === 'fluid') {
+                info.kind = t; info.textures = []
+                if (state.items.has(id)) report('ERROR', 'S2', `${t} ${id} is registered twice (also in ${state.items.get(id).file})`, file)
+                state.items.set(id, info)
+            }
+        } else if (type === 'gtceu:material') {
+            if (state.materials.has(id)) report('ERROR', 'S2', `material ${id} is registered twice (also in ${state.materials.get(id).file})`, file)
+            state.materials.set(id, info)
+        } else if (type === 'gtceu:recipe_type') {
+            if (state.recipeTypes.has(id)) report('ERROR', 'S2', `recipe type ${id} is registered twice (also in ${state.recipeTypes.get(id).file})`, file)
+            state.recipeTypes.set(id, info)
+        } else if (type === 'gtceu:machine') {
+            if (state.machines.some(m => m.id === id)) report('ERROR', 'S2', `machine ${id} is registered twice`, file)
+            state.machines.push(info)
+        }
         const p = new Proxy({}, {
             get(_, name) {
                 if (name === 'then' || name === Symbol.toPrimitive) return undefined
@@ -351,6 +373,7 @@ const slots = {
     fab_calcination: [3, 2, 2, 2], fab_cvd: [3, 2, 2, 2], fab_crystal_growth: [3, 2, 2, 2],
     circuit_assembler: [6, 1, 1, 0], cutter: [1, 2, 1, 0], laser_engraver: [2, 1, 0, 0], macerator: [1, 4, 0, 0]
 }
+gtSlots.forEach((v, id) => { slots[id] = v })   // GT's own types: the recipes AF9 adds to them have to fit too
 state.recipeTypes.forEach((info, id) => { if (info.io) slots[id] = info.io.map(Number) })
 state.recipes.forEach(r => {
     const s = slots[r.type]
@@ -415,20 +438,47 @@ state.recipes.forEach(r => {
     }
 })
 
-// ---- R7 recipe conflicts: within an AF9 recipe type, a recipe whose inputs are all among another's (circuits count) ----
+// ---- R13 thermal recipes -----------------------------------------------------------------------------------------------------
+//   R13 a recipe of a furnace type (electric_blast_furnace, boule_melting, fab_calcination, fab_cvd, fab_crystal_growth) without
+//       blastFurnaceTemp(): GT's furnace conditions and AF9's thermal fab modes need the temperature
+const THERMAL = new Set(['electric_blast_furnace', 'boule_melting', 'fab_calcination', 'fab_cvd', 'fab_crystal_growth'])
+state.recipes.forEach(r => {
+    if (THERMAL.has(r.type) && r.calls.blastFurnaceTemp === undefined) {
+        report('ERROR', 'R13', `${r.type}/${r.id} has no blastFurnaceTemp()`, r.file)
+    }
+})
+
+// ---- R7 recipe conflicts: within a recipe type, a recipe of AF9 whose inputs are all among another's (circuits count) ----
 // GT picks the first recipe the machine's contents satisfy; if A's inputs are a subset of B's, a machine holding B's
-// inputs can run A instead. Amounts are not compared, so this over-reports a little: look at each one.
+// inputs can run A instead (when B holds at least as much of every input of A).
+// AF9's own types, and in any GT type the recipes AF9 adds (`af9:` ids) among themselves: two reticles written with the same blank and
+// lens would be one such conflict
 const fabLike = id => id.startsWith('fab_') || id.startsWith('lithography_') || af9Types.has(id)
 const byType = new Map()
-state.recipes.forEach(r => { if (fabLike(r.type)) { if (!byType.has(r.type)) byType.set(r.type, []); byType.get(r.type).push(r) } })
+state.recipes.forEach(r => {
+    if (r.type.startsWith('crafting_')) return
+    if (fabLike(r.type) || String(r.id).startsWith('af9:')) {
+        if (!byType.has(r.type)) byType.set(r.type, [])
+        byType.get(r.type).push(r)
+    }
+})
 byType.forEach((list, type) => {
     const sets = list.map(r => new Set(r.itemIn.concat(r.fluidIn).filter(Boolean)))
+    // amounts per input: items from the recipe's quantities, fluids from its amounts (the larger one when a fluid repeats)
+    const qtys = list.map(r => {
+        const m = new Map(r.itemQty)
+        r.fluidAmounts.forEach(([f, a]) => m.set(f, Math.max(m.get(f) || 0, Number(a) || 0)))
+        return m
+    })
     for (let i = 0; i < list.length; i++) {
         if (sets[i].size === 0) continue
         for (let j = 0; j < list.length; j++) {
             if (i === j || sets[i].size > sets[j].size) continue
             let subset = true
-            for (const x of sets[i]) if (!sets[j].has(x)) { subset = false; break }
+            // all of A's inputs are B's, and B holds at least as much of each: a machine loaded for B can run A
+            for (const x of sets[i]) {
+                if (!sets[j].has(x) || (qtys[j].get(x) || 1) < (qtys[i].get(x) || 1)) { subset = false; break }
+            }
             if (!subset) continue
             // equal sets are reported once
             if (sets[i].size === sets[j].size && i > j) continue
@@ -663,7 +713,7 @@ state.machines.forEach(m => {
 if (dump) {
     state.recipes.forEach(r => console.log(JSON.stringify({ type: r.type, id: r.id, file: r.file, itemIn: r.itemIn, itemOut: r.itemOut,
         fluidIn: r.fluidIn, fluidOut: r.fluidOut, EUt: r.calls.EUt || null, duration: r.calls.duration || null,
-        fluidAmounts: r.fluidAmounts, calls: Object.keys(r.calls) })))
+        fluidAmounts: r.fluidAmounts, chances: r.chances, chanceItems: r.chanceItems || [], calls: Object.keys(r.calls) })))
     process.exitCode = 0
     findings.length = 0   // nothing more to print
 }

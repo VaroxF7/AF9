@@ -16,6 +16,7 @@ ServerEvents.recipes(event => {
     ]
     hatches.forEach(([tier, plate, voltage]) => {
         event.recipes.gtceu.assembler(`af9:${tier}_air_conditioning_hatch`)
+            .circuit(1)   // the Scanner's recipe holds all of this and more (at IV): a programmed circuit tells them apart
             .itemInputs(`gtceu:${tier}_machine_hull`, `gtceu:${tier}_electric_pump`, `gtceu:${tier}_electric_motor`,
                 `2x #gtceu:circuits/${tier}`, `4x ${plate}`)
             .inputFluids(Fluid.of('gtceu:soldering_alloy', 144))
@@ -291,14 +292,19 @@ ServerEvents.recipes(event => {
         ['subatomic_gpu', ['4x kubejs:quantum_dot_ic_chip'], 500],
         ['subatomic_ram', ['2x kubejs:quantum_dot_ic_chip', '4x kubejs:memristor_chip'], 250]
     ]
+    // the CPU, GPU and RAM card of a tier take the same things in different amounts: the programmed circuit (1 CPU,
+    // 2 GPU, 3 RAM) decides which one the machine makes
     cards.forEach(([id, inputs, colloid]) => {
-        const recipe = event.recipes.gtceu[colloid > 0 ? 'assembler' : 'circuit_assembler'](`af9:${id}_card`)
+        const recipe = event.recipes.gtceu.circuit_assembler(`af9:${id}_card`)
+            .circuit({ cpu: 1, gpu: 2, ram: 3 }[id.split('_')[1]])
             .itemInputs([board].concat(inputs, [wire]))
             .itemOutputs(`af9:${id}_card`)
             .duration(400)
             .EUt(VA[GTValues.UV])
             .cleanroom(CleanroomType.CLEANROOM)
-        if (colloid > 0) recipe.inputFluids(solder, Fluid.of('gtceu:quantum_dot_colloid', colloid))
+        // GT's assembler and circuit assembler have ONE fluid slot: the sub-atomic cards print their quantum dots from the
+        // colloid (ink) instead of soldering them
+        if (colloid > 0) recipe.inputFluids(Fluid.of('gtceu:quantum_dot_colloid', colloid))
         else recipe.inputFluids(solder)
     })
 })

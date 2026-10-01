@@ -1,6 +1,6 @@
 # AF9 lint
 
-Four linters that read the repository the way the game would and say what is wrong before anybody has to start Minecraft.
+Five linters that read the repository the way the game would and say what is wrong before anybody has to start Minecraft.
 Nothing of GT or Minecraft runs: the scripts load against stubs, the Java is only scanned for names.
 
 ```
@@ -18,6 +18,7 @@ The CI workflow runs `run.sh --selftest` before it builds (`.github/workflows/bu
 | `quests.py` | `config/ftbquests/quests`, the lang files | quests, tasks, dependencies, texts |
 | `assets.py` | KubeJS assets, `af9-core` resources and Java | textures, models, lang files, names |
 | `facts.py` | the recipes (`scripts.js --dump`), the quest lang | numbers in quest texts that the recipes decide |
+| `docs.py` | README.md, docs/*.md | stale paths, dead links, sections that do not exist |
 | `selftest.sh` | all of the above, on a scratch copy | proves each rule still finds its mistake |
 
 ## Rules
@@ -26,20 +27,22 @@ The CI workflow runs `run.sh --selftest` before it builds (`.github/workflows/bu
 
 | code | level | what it finds | how to avoid it |
 |---|---|---|---|
+| S2 | error | an item, block, fluid, material, machine or recipe type registered twice | search the startup scripts for the id before registering; one table per family |
 | S1 | error | a script threw while loading (typo, undefined name) | run the linter before pushing; the first line of the message is the JS error. A stub that is missing (a new GT global) goes into `ctx` in `scripts.js` |
 | F1 | warn | a file with the AllTheMods licence header is in this repo | files of the base pack are not ours to ship; do not copy them into the overlay |
 | R1 | error | the same recipe id twice in one recipe type (the second silently replaces the first) | give every recipe a unique `af9:` id; generate ids from the loop variable |
-| R2 | error | more items / fluids than the machine's slots (`setMaxIOSize`) | check `[items in, items out, fluids in, fluids out]` of the type; circuits and not-consumed items count |
+| R2 | error | more items / fluids than the machine's slots: AF9's types (`setMaxIOSize`) and GT's (`data/gt-recipe-slots.txt`, from GT 7.2.0: the **assembler has 9 item and ONE fluid slot**, the circuit assembler 6 and one) | check `[items in, items out, fluids in, fluids out]` of the type; circuits and not-consumed items count |
 | R3 | error / warn | an id nobody defines: a `kubejs:` item that is not registered, a `gtceu:` name that GT does not have, an `af9:` item that AF9 Core does not register | copy the id from the registration, not from memory; `gtceu:<material>_<shape>` needs the material to have that shape |
 | R4 | warn | a recipe type that exists nowhere | the type is spelled `event.recipes.gtceu.<type>`; register new types in `startup_scripts` |
 | R5 | warn | an AF9 item that a recipe takes and no recipe makes | add the recipe that makes it, or (world / loot / quest / Java source) one line in `data/sources.txt` |
 | R6 | note | AF9 content that no recipe makes or takes | dead content: use it or remove it |
-| R7 | warn | in one AF9 recipe type, a recipe whose inputs are all in another (the machine could pick either) | give one of them a circuit or another input |
+| R7 | warn | in one recipe type, a recipe of AF9 whose inputs are all in another's, in at least the same amounts (a machine loaded for the second could run the first instead) | give one of them a programmed circuit (`.circuit(n)`) or another input |
 | R8 | error / warn | no `duration()` / `EUt()`, a duration or EUt of 0, a chance outside 1..10000, a fluid amount that is not a positive integer, a circuit outside 0..32, an item count of 0 | every GT recipe sets `.duration(n).EUt(n)`; a chance is in hundredths of a percent (10000 = 100 %) |
 | R9 | warn | a `fab_*` recipe from HV (512 EU/t) on with neither `.cleanroom()` nor `.blastFurnaceTemp()` | the rule (docs §11): non-thermal fab recipes from HV need `.cleanroom(CleanroomType.CLEANROOM)`, thermal ones carry the temperature |
 | R10 | error | an AF9 item or material that can never be made: its recipes need ingredients that are themselves unmakeable (a cycle, a missing step) | walk the chain from raw materials; a catalyst that is only made from itself is a dead end |
 | R11 | error | a recipe with more different fluid inputs / outputs than the multiblock has fluid hatches for | raise the hatch maximum of the pattern or split the recipe; AF9's coolant hatches count as fluid inputs |
 | R12 | error | a recipe above the highest tier of the single blocks that run its type, when no multiblock runs it | lower the EUt or add a tier / a multiblock |
+| R13 | error | a furnace recipe (`electric_blast_furnace`, `boule_melting`, `fab_calcination`, `fab_cvd`, `fab_crystal_growth`) without `.blastFurnaceTemp()` | thermal recipes carry their temperature; GT's furnace condition and the fab thermal modes read it |
 | M1 | error / warn | pattern: rows of different width, aisles of different height, a character without `where()` (or one never used), no or several controllers, a **minimum** or **exact** part count, `autoAbilities`, one ability limited twice | AF9 rule: parts have maximums only (`setMaxGlobalLimited(max, preview)`); `autoAbilities` forces energy + maintenance hatches |
 | M3 | error | a pattern names a block nobody defines | the structure could never form; copy the block id from its registration |
 | M4 | error | an AF9 recipe type that no machine runs | the recipes could never run; add the type to a machine's `recipeTypes` (or to the Java that attaches it, `BouleMelting`) |
@@ -78,13 +81,23 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
 
 | code | what it finds | how to avoid it |
 |---|---|---|
+| X2 | `LithoMode.java` (Java) and the print recipes (KubeJS) disagree: a mode without recipes, a print that does not take the substrate's coated wafer, the wrong broken wafer or break chance, the wrong EUt or amps | the nine modes live in three places (Java `LithoMode`, `AF9_WAFERS` in the server script, the recipe types in the startup script): change them together |
 | X1 | a quest text of a node (`af9.quest.litho.n<node>.*`) whose "Fluids per print" / "Coater Track, per wafer" amounts differ from the print and coating recipes | after changing a print or coating recipe, rewrite that text (the message names the key); keep its form `Fluids per print: a X, b Y. Coater Track, per wafer: a X, b Y; N spent solvent out.` |
+
+### Docs (`docs.py`)
+
+| code | what it finds | how to avoid it |
+|---|---|---|
+| D1 | a `kubejs/...`, `af9-core/...`, `config/...`, `docs/...`, `tools/...` path in the documents that is no file | when a file moves, search the documents for its old path (the appendix file map of `docs/semiconductor-factory.md` is the usual victim) |
+| D2 | a Markdown link to a file that does not exist | |
+| D3 | a `§6.4`-style reference to a section of `docs/semiconductor-factory.md` that has no heading | sections are renumbered rarely: keep the numbers, add `b`, `c` ... (6.5b) |
 
 ## Data (`data/`)
 
-* `gt-names.txt`, `gt-materials.txt`, `gt-recipe-types.txt`: the ids GT defines, made by `python3 tools/lint/update-gt-lists.py <GT checkout>`
-  from the branch head. **The pack runs GT 7.2.0, the head is 8.0.0**: a name that is new in 8.0.0 passes the lint but does not
-  exist in the pack, so a `gtceu:` finding is advisory (WARN), not proof.
+* `gt-names.txt`, `gt-materials.txt`, `gt-recipe-types.txt`, `gt-recipe-slots.txt`: the ids and recipe slots GT defines, made by
+  `python3 tools/lint/update-gt-lists.py <GT checkout>` from **GT 7.2.0** (tag `v.7.2.0-1.20.1`, the version the pack runs): clone that
+  tag, not a branch head, or names of a newer GT pass the lint that the pack does not have. The name lists over-approximate (every
+  string literal of the registration code), so a `gtceu:` finding means "no such name anywhere", a missing finding does not prove it exists.
 * `gt-patterns.txt`: regular expressions for ids that loops in GT make (coil blocks, lenses, pipes, lamps, flawless gems ...).
 * `pack.txt`: what the base pack (ATM9's KubeJS and mods, which this repo is laid over) provides and GT's lists lack.
 * `sources.txt`: ids a recipe may take that no recipe makes (Java makes them, the world, a quest, the creative tab).

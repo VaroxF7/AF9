@@ -13,6 +13,7 @@ cp -r "$ROOT/kubejs" "$TMP/kubejs"
 cp -r "$ROOT/config/ftbquests" "$TMP/config/ftbquests"
 cp -r "$ROOT/af9-core/src/main/java" "$ROOT/af9-core/src/main/resources" "$TMP/af9-core/src/main/"
 cp -r "$HERE" "$TMP/tools/lint"
+mkdir -p "$TMP/docs"; cp "$ROOT"/README.md "$TMP/"; cp "$ROOT"/docs/*.md "$TMP/docs/"
 rm -rf "$TMP/tools/lint/selftest"
 
 # --- scripts: fixtures with mistakes ------------------------------------------------------------------------------------
@@ -49,6 +50,11 @@ t = lang.read_text(encoding='utf-8')
 t = t.rstrip().rstrip('}').rstrip() + ',\n\t"af9.selftest.dup": "one",\n\t"af9.selftest.dup": "two",\n\t"af9.selftest.fmt": "50%d done"\n}\n'
 t = t.replace('Fluids per print: 300 TMAH', 'Fluids per print: 301 TMAH', 1)   # X1: a quest text that no longer matches its recipe
 lang.write_text(t, encoding='utf-8')
+lm = root / 'af9-core/src/main/java/com/af9/core/litho/LithoMode.java'
+lm.write_text(lm.read_text(encoding='utf-8').replace('"photoresist", 200, Machine.LINE', '"photoresist", 201, Machine.LINE', 1), encoding='utf-8')   # X2
+# --- docs: a path that is gone, a section that does not exist
+readme = root / 'README.md'
+readme.write_text(readme.read_text(encoding='utf-8') + '\nSee `kubejs/startup_scripts/gtceu/selftest_gone.js` and §99.1.\n', encoding='utf-8')
 m = root / 'af9-core/src/main/resources/assets/af9/models/item/nano_cpu_card.json'
 m.write_text(m.read_text(encoding='utf-8').replace('af9:item/nano_cpu_card', 'af9:item/selftest_no_texture'), encoding='utf-8')
 PY
@@ -61,7 +67,7 @@ check() {   # check <name> <output> <code...>
   done
 }
 S="$(node "$TMP/tools/lint/scripts.js" "$TMP" 2>&1)"
-check scripts "$S" S1 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 M1 M3 M4 L1
+check scripts "$S" S1 S2 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 M1 M3 M4 L1
 for typo in cleanroom_glas strange_matte_dust; do
   grep -q "gtceu:$typo" <<<"$S" || { echo "SELFTEST FAIL: scripts no longer find the GT typo gtceu:$typo"; fail=1; }
 done
@@ -70,7 +76,9 @@ check quests "$Q" Q1 Q2 Q3 Q5 Q6
 A="$(python3 "$TMP/tools/lint/assets.py" "$TMP" 2>&1)"
 check assets "$A" A1 A2 A4 A5 A6
 X="$(python3 "$TMP/tools/lint/facts.py" "$TMP" 2>&1)"
-check facts "$X" X1
+check facts "$X" X1 X2
+D="$(python3 "$TMP/tools/lint/docs.py" "$TMP" 2>&1)"
+check docs "$D" D1 D3
 if [ "${SELFTEST_VERBOSE:-}" = 1 ]; then echo "$S" | grep -E "selftest|^(ERROR|WARN)" | head -50; echo "$Q" | head -20; echo "$A" | head -20; fi
 if [ "$fail" = 0 ]; then echo "selftest ok: every planted mistake was found"; else
   echo "--- scripts"; echo "$S" | head -60; echo "--- quests"; echo "$Q" | head -30; echo "--- assets"; echo "$A" | head -30; fi

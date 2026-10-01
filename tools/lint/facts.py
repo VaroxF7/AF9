@@ -3,8 +3,11 @@
 
     python3 tools/lint/facts.py [repo root]
 
-A number in a quest text that a recipe could change is a promise: when the recipe changes, the text lies. Checked (code X1):
+A number in a quest text that a recipe could change is a promise: when the recipe changes, the text lies. Checked (codes X1, X2):
 
+  * (X2) the numbers of `com.af9.core.litho.LithoMode` (Java) against the print recipes (KubeJS): every mode's recipe type exists, its
+    prints take `kubejs:coated_<substrate>_wafer` (a blank on the 1 nm station) and give `kubejs:broken_<substrate>_wafer` as the
+    chanced output at the mode's base break chance, at `EUt(VA[tier], 4)` (50 A at 1 nm)
   * the quests of the nodes (`af9.quest.litho.n<node>.*`) say "Fluids per print: <amount> <fluid>, ..." and, for the coater,
     "Coater Track, per wafer: <amount> <fluid>, ...; <amount> spent solvent out.": the amounts have to be those of the
     `lithography_<node>` print recipe and of the `wafer_coating` recipe of the node's substrate.
@@ -22,8 +25,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 findings = []
 
 
-def report(msg, where=''):
-    findings.append(('ERROR', 'X1', msg, where))
+def report(msg, where='', code='X1'):
+    findings.append(('ERROR', code, msg, where))
 
 
 out = subprocess.run(['node', os.path.join(HERE, 'scripts.js'), ROOT, '--dump'], capture_output=True, text=True)
@@ -75,7 +78,35 @@ for node, substrate in SUBSTRATE.items():
         report(f'{key}: the text says coating {amounts(m.group(2))} + {m.group(3)} spent solvent, the recipe {coat_recipe["id"]} '
                f'has {coat_in} + {waste}', 'kubejs lang')
 
-print(f'facts: {checked} node texts checked against the recipes')
+# ---- X2: LithoMode (Java) against the print recipes (KubeJS) -------------------------------------------------------------------
+VOLT = {'MV': 128, 'HV': 512, 'EV': 2048, 'IV': 8192, 'LuV': 32768, 'ZPM': 131072, 'UV': 524288, 'UHV': 2097152}
+java = open(os.path.join(ROOT, 'af9-core/src/main/java/com/af9/core/litho/LithoMode.java'), encoding='utf-8').read()
+# the enum constants span two lines: join them first
+flat = re.sub(r'\n\s+', ' ', java)
+modes = re.findall(r'\bN(\d+)\("(\w+)", "(\w+)", \d+, GTValues\.(\w+), .*?, (\d+), Machine\.\w+, \d+\)', flat)
+if len(modes) != 9:
+    report(f'LithoMode.java: found {len(modes)} modes, expected 9 (did its constants change shape? then fix tools/lint/facts.py)', code='X2')
+for nm, mid, substrate, tier, base in modes:
+    rtype = 'orbital_lithography' if nm == '1' else f'lithography_{mid}'
+    prints = [r for r in recipes if r['type'] == rtype]
+    if not prints:
+        report(f'LithoMode {mid}: no recipes of type {rtype}', code='X2')
+        continue
+    checked += 1
+    for r in prints:
+        wafer_in = [i for i in r['itemIn'] if i and i.endswith('_wafer')]
+        want_in = f'kubejs:{substrate}_wafer' if nm == '1' else f'kubejs:coated_{substrate}_wafer'
+        if want_in not in r['itemIn']:
+            report(f'{r["id"]}: takes {wafer_in}, LithoMode {mid} ({substrate}) wants {want_in}', r['file'], 'X2')
+        broken = f'kubejs:broken_{substrate}_wafer'
+        if broken not in r['chanceItems'] or int(base) not in r['chances']:
+            report(f'{r["id"]}: broken wafer {r["chanceItems"]} at {r["chances"]}, LithoMode {mid} wants {broken} at {base}', r['file'], 'X2')
+        eut = r['EUt']
+        want_eut = [VOLT[tier], 50 if nm == '1' else 4]
+        if not eut or [int(x) for x in eut] != want_eut:
+            report(f'{r["id"]}: EUt {eut}, LithoMode {mid} wants {want_eut} (tier {tier}, amps)', r['file'], 'X2')
+
+print(f'facts: {checked} node texts and modes checked against the recipes')
 print(f'{len(findings)} errors, 0 warnings, 0 notes')
 for level, code, msg, where in findings:
     print(f'{level:5} {code} {msg}' + (f'  [{where}]' if where else ''))

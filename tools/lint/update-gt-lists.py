@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""Regenerates tools/lint/data/gt-{names,materials,recipe-types}.txt from a checkout of GregTechCEu/GregTech-Modern.
+"""Regenerates tools/lint/data/gt-{names,materials,recipe-types,recipe-slots}.txt from a checkout of GregTechCEu/GregTech-Modern.
 
     python3 tools/lint/update-gt-lists.py /path/to/GregTech-Modern
 
 The lists say which GT ids exist, so the linters can tell a typo (`gtceu:cleanroom_glas`) from a real name. They are made from the
-branch head (1.20.1, version 8.0.0 at the time of writing), the pack runs 7.2.0: a name that is new in 8.0.0 passes the lint here but
-does not exist in the pack, one that was renamed fails it. Ids that loops make (coil blocks, lenses, pipes, lamps, gems) are not
+checkout you give: use the tag of the GT version the pack runs (`git clone --branch v.7.2.0-1.20.1 ...`). A newer checkout lets
+names pass that the pack does not have and fails ones it renamed. Ids that loops make (coil blocks, lenses, pipes, lamps, gems) are not
 listed but matched by regular expressions in data/gt-patterns.txt. Names of the base pack that GT's lists lack go to data/pack.txt.
 The lists are over-approximations on purpose (every lower-case string literal in the registration code): a name that is only
 missing here is a finding, a typo that happens to equal another literal is not.
@@ -53,3 +53,14 @@ rt = os.path.join(gt, 'common/data/GTRecipeTypes.java')
 if os.path.exists(rt):
     types = set(re.findall(r'register\(\s*"([a-z0-9_]+)"', read(rt)))
 write('gt-recipe-types.txt', types)
+
+# the slots of GT's recipe types: `name items-in items-out fluids-in fluids-out` (setMaxIOSize of the statement that registers it)
+slots = set()
+if os.path.exists(rt):
+    text = read(rt)
+    for m in re.finditer(r'register\(\s*"([a-z0-9_]+)"', text):
+        statement = text[m.end():text.index(';', m.end())]
+        io = re.search(r'setMaxIOSize\(\s*(\d+),\s*(\d+),\s*(\d+),\s*(\d+)\)', statement)
+        if io:
+            slots.add(f'{m.group(1)} {" ".join(io.groups())}')
+write('gt-recipe-slots.txt', slots)

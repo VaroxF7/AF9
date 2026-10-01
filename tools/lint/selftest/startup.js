@@ -5,6 +5,7 @@ StartupEvents.registry('item', event => {
     event.create('selftest_a').displayName('A')                  // R10: a and b only make each other
     event.create('selftest_b').displayName('B')
     event.create('selftest_nameless')                            // A5: no name, A1: no texture
+    event.create('selftest_dead').displayName('Dead again')      // S2: registered twice
 })
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {

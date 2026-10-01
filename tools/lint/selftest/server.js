@@ -26,6 +26,8 @@ ServerEvents.recipes(event => {
     gt.fab_synthesis('af9:selftest_fab').inputFluids(Fluid.of('gtceu:water', 1000)).outputFluids(Fluid.of('gtceu:water', 1000)).duration(10).EUt(2048)
     // R12: 2048 EU/t, but the type is only run by single blocks up to MV
     gt.selftest_single('af9:selftest_power').itemInputs('gtceu:steel_plate').itemOutputs('gtceu:steel_ingot').duration(10).EUt(2048)
+    // R13: a furnace recipe without a temperature
+    gt.fab_cvd('af9:selftest_notemp').itemInputs('gtceu:steel_plate').itemOutputs('gtceu:steel_ingot').duration(10).EUt(32)
     // L1: a translation nobody wrote
     Component.translatable('af9.selftest.no_such_key')
     // S1: a typo
