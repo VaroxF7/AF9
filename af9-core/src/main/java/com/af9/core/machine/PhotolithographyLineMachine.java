@@ -1,6 +1,7 @@
 package com.af9.core.machine;
 
 import com.af9.core.AF9Core;
+import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.console.BusPlacardWidget;
 
@@ -114,9 +115,13 @@ public class PhotolithographyLineMachine extends LithoMachine {
         }
         LithoMode mode = LithoMode.of(recipe.recipeType);
         if (mode == null) return ModifierFunction.IDENTITY;
-        int surplus = line.surplusFor(mode);
-        if (surplus <= 0) return ModifierFunction.IDENTITY;
-        return ModifierFunction.builder().durationMultiplier(LithoMode.speedFactor(surplus)).build();
+        // a version above the mode and every doubling of the air conditioning above its heat load speed it up
+        double factor = LithoMode.speedFactor(line.surplusFor(mode)) *
+                Math.pow(Coolant.TIME_FACTOR, line.coolingSteps(mode));
+        // a mode one version above the machine's own, exposed twice (multi-patterning)
+        if (line.isMultiPatterned(mode)) factor *= LithoMode.MULTI_PATTERNING_TIME;
+        if (Math.abs(factor - 1) < 1e-9) return ModifierFunction.IDENTITY;
+        return ModifierFunction.builder().durationMultiplier(factor).build();
     };
 
     private final Spec spec;
@@ -149,7 +154,14 @@ public class PhotolithographyLineMachine extends LithoMachine {
 
     @Override
     public boolean canPrint(LithoMode mode) {
-        return spec.modes().contains(mode) && mode.level() <= getVersion();
+        // multi-patterning lets a machine run the mode one version above its own
+        return spec.modes().contains(mode) && getVersion() > 0 &&
+                mode.level() <= getVersion() + (isMultiPatterning() ? 1 : 0);
+    }
+
+    @Override
+    public boolean canMultiPattern() {
+        return true;
     }
 
     @Override

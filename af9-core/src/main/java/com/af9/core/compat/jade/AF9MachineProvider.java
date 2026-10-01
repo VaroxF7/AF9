@@ -88,6 +88,15 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             tag.putDouble("clean", startup ? ((OrbitalLithographyMachine) litho).getStartupPercent() :
                     litho.getCleanliness());
             tag.putDouble("break", litho.currentBreakChance(mode));
+            boolean airCooled = litho.needsAirCooling(mode);
+            tag.putInt("coolLoad", airCooled ? mode.heatLoad() : 0);
+            tag.putInt("coolCap", airCooled ? litho.getCoolingCapacity() : 0);
+            tag.putInt("coolSteps", litho.coolingSteps(mode));
+            tag.putBoolean("coolLapsed", litho.hasCoolingLapsed() && logic.isWorking());
+            tag.putDouble("opc", litho.getOpcRatio(mode, logic.isWorking()));
+            tag.putDouble("cal", litho.getCalibration());
+            tag.putBoolean("multi", litho.isMultiPatterned(mode));
+            tag.putBoolean("multiOn", litho.isMultiPatterning());
             tag.putInt("vacuum", litho.getVacuumState());
             tag.putString("product", product == null ? "" : "item:" + product);
             tag.putInt("progress", logic.isWorking() ? logic.getProgress() : 0);
@@ -157,6 +166,28 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
                         .withStyle(ChatFormatting.DARK_GRAY));
             }
             tooltip.add(chance);
+            // air conditioning against the print's heat, the OPC the computation gave, the calibration
+            int coolLoad = tag.getInt("coolLoad");
+            if (coolLoad > 0) {
+                int coolCap = tag.getInt("coolCap");
+                int coolSteps = tag.getInt("coolSteps");
+                tooltip.add(tag.getBoolean("coolLapsed") ?
+                        Component.translatable("af9.jade.cooling_lapsed").withStyle(ChatFormatting.RED) :
+                        Component.translatable("af9.jade.cooling", coolCap, coolLoad,
+                                coolSteps > 0 ? " +" + coolSteps : "")
+                                .withStyle(coolCap < coolLoad ? ChatFormatting.RED : ChatFormatting.GRAY));
+            }
+            if (tag.getBoolean("multi")) {
+                tooltip.add(Component.translatable("af9.jade.multipatterned").withStyle(ChatFormatting.LIGHT_PURPLE));
+            } else if (tag.getBoolean("multiOn")) {
+                tooltip.add(Component.translatable("af9.jade.multipatterning_on").withStyle(ChatFormatting.DARK_PURPLE));
+            }
+            double opc = tag.getDouble("opc");
+            double cal = tag.getDouble("cal");
+            tooltip.add(Component.translatable("af9.jade.tuning",
+                    opc >= 0 ? Math.round(opc * 100) + "%" : "-", Math.round(cal) + "%")
+                    .withStyle(cal < LithoMode.CALIBRATION_MIN ? ChatFormatting.RED :
+                            cal < LithoMode.AUTO_CALIBRATION_BELOW ? ChatFormatting.YELLOW : ChatFormatting.GRAY));
         } else {
             tooltip.add(statusLine(status, Component.translatable(tag.getString("modeKey"))
                     .withStyle(ChatFormatting.AQUA)));

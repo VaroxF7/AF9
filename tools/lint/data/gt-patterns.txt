@@ -1,0 +1,17 @@
+# Regular expressions (matched against the whole path after `gtceu:`) for GT ids that loops there make, so the lists made from
+# GT's source do not hold them. Checked against GT's source: CoilBlock, GTItems.GLASS_LENSES, TagPrefix.gemFlawless,
+# GCYMBlocks, CleanroomFilterType, the prospector and the large boiler registrations.
+[a-z_]+_coil_block
+[a-z_]+_glass_lens
+(flawless|flawed|chipped|exquisite)_[a-z_]+_gem
+prospector\.[a-z]+
+[a-z_]+_large_boiler
+cleanroom
+filter_casing
+sterilizing_filter_casing
+nonconducting_casing
+stress_proof_casing
+shock_proof_cutting_casing
+[a-z_]+_(tiny|small|normal|large|huge|quadruple|nonuple)_fluid_pipe
+[a-z_]+_(small|normal|large|huge|restrictive_small|restrictive_normal|restrictive_large|restrictive_huge)_item_pipe
+[a-z_]+_(borderless_)?lamp

@@ -243,6 +243,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         if (!mode.onOrbitalStation()) return ConsoleWidget.STATUS_LOCKED;
         if (!isInOrbit()) return ConsoleWidget.STATUS_NO_ORBIT;
         if (reticleSlot.getStackInSlot(0).isEmpty()) return ConsoleWidget.STATUS_NO_RETICLE;
+        int calibrating = calibrationStatus();
+        if (calibrating >= 0) return calibrating;
         // a computation hatch alone is not enough: something (an HPCA) has to supply the node's CWU/t through it
         if (mode.computation() > 0 && availableComputation() < mode.computation()) {
             return ConsoleWidget.STATUS_NO_COMPUTATION;
@@ -356,8 +358,10 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     }
 
     @Override
-    protected double breakFactor(LithoMode mode, GTRecipe recipe) {
-        Coolant coolant = recipe != null ? coolantOf(recipe) : chooseCoolant(mode);
+    protected double machineBreakFactor(LithoMode mode, boolean measured) {
+        // a run that ran: the coolant it was started with; the next print: the one it would take now
+        GTRecipe run = measured ? getRecipeLogic().getLastRecipe() : null;
+        Coolant coolant = run != null ? coolantOf(run) : chooseCoolant(mode);
         return coolant == null ? 1 : Math.pow(Coolant.BREAK_FACTOR, coolant.steps(mode));
     }
 

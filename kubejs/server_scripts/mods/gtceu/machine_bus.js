@@ -15,6 +15,7 @@ ServerEvents.recipes(event => {
 
     // Bus Connector: an MV hull with the port, its controller (two MCUs) and a circuit
     event.recipes.gtceu.assembler('af9:bus_connector')
+        .circuit(1)   // the controller's recipe holds all of this and more: a programmed circuit tells them apart
         .itemInputs('gtceu:mv_machine_hull', '2x kubejs:mcu_chip', '4x af9:optical_bus_cable', '#gtceu:circuits/mv')
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 144))
         .itemOutputs('gtceu:mv_bus_connector')
@@ -72,6 +73,7 @@ ServerEvents.recipes(event => {
 
     // Bus Controller: a PLC in an MV hull; the robot arm is what moves the ingredients
     event.recipes.gtceu.assembler('af9:bus_controller')
+        .circuit(2)
         .itemInputs('gtceu:mv_machine_hull', '4x kubejs:mcu_chip', '2x #gtceu:circuits/mv', 'gtceu:mv_robot_arm',
             '8x af9:optical_bus_cable')
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))

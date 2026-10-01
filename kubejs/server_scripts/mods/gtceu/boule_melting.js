@@ -111,11 +111,13 @@ ServerEvents.recipes(event => {
     ;['silicon_boule', 'phosphorus_boule', 'naquadah_boule', 'neutronium_boule']
         .forEach(boule => event.remove({ id: `gtceu:electric_blast_furnace/${boule}` }))
     boules.forEach(b => {
-        event.recipes.gtceu.fab_blending(`af9:${b.id}_melt_charge`)
+        const charge = event.recipes.gtceu.fab_blending(`af9:${b.id}_melt_charge`)
             .itemInputs(b.charge)
             .itemOutputs(`kubejs:${b.id}_melt_charge`)
             .duration(200)
             .EUt(VA[b.chargeTier])
+        // non-thermal fab recipes from HV on need a clean room (docs/semiconductor-factory.md §11)
+        if (VA[b.chargeTier] >= VA[GTValues.HV]) charge.cleanroom(CleanroomType.CLEANROOM)
         event.recipes.gtceu.fab_crystal_growth(`af9:${b.id}_seed_crystal`)
             .itemInputs(b.seed)
             .inputFluids(Fluid.of(b.seedGas[0], b.seedGas[1]))

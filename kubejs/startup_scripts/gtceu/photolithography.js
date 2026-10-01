@@ -21,6 +21,7 @@ const $PhotolithographyScannerMachine = Java.loadClass('com.af9.core.machine.Pho
 const $OrbitalLithographyMachine = Java.loadClass('com.af9.core.machine.OrbitalLithographyMachine')
 const $LithoMachine = Java.loadClass('com.af9.core.machine.LithoMachine')
 const $LithoCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
+const $LithoAirConditioning = Java.loadClass('com.af9.core.machine.part.AirConditioningHatchPartMachine')
 const $LithoBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $LithoRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 const $LithoMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
@@ -130,27 +131,18 @@ StartupEvents.registry('item', event => {
         .displayName('Saturated Molecular Sieve')
         .tooltip('Smelt it to drive the water out and reuse it.')
 
-    // One reticle per printed chip (the derived wafers, Nano CPU ... UHPIC, are made from printed ones and need none)
-    const chips = [
-        { id: 'ilc', name: 'ILC' },
-        { id: 'ram', name: 'RAM' },
-        { id: 'cpu', name: 'CPU' },
-        { id: 'ulpic', name: 'ULPIC' },
-        { id: 'lpic', name: 'LPIC' },
-        { id: 'simple_soc', name: 'Simple SoC' },
-        { id: 'nand', name: 'NAND' },
-        { id: 'nor', name: 'NOR' },
-        { id: 'mpic', name: 'PIC' },
-        { id: 'soc', name: 'SoC' },
-        { id: 'advanced_soc', name: 'ASoC' },
-        { id: 'highly_advanced_soc', name: 'HASoC' }
-    ]
-    chips.forEach(chip => {
-        event.create(`${chip.id}_reticle`)
-            .displayName(`${chip.name} Reticle`)
-            .maxStackSize(1)
-            .tooltip('Photomask for the lithography machines. Not consumed.')
-    })
+    // The reticles of the printed chips: reticles.js
+
+    // EUV optics: nothing refracts 13.5 nm light, every optic is a mirror. A Mo/Si multilayer (40+ bilayers of molybdenum
+    // and silicon, each about 7 nm thick) on a titania-doped ultra-low-expansion glass reflects about 70 % of it;
+    // the light source's collector and the orbital station's projection optics are made of them.
+    event.create('ule_glass_substrate')
+        .displayName('ULE Glass Substrate')
+        .tooltip('Quartz doped with titania: it hardly expands when it heats up. The ground-flat body of an EUV mirror.')
+    event.create('mo_si_mirror')
+        .displayName('Mo/Si Multilayer Mirror')
+        .tooltip('Forty bilayers of molybdenum and silicon: reflects 13.5 nm EUV light, which no lens can pass.')
+        .tooltip('The collector of the EUV Light Source and the projection optics of the Orbital Lithography Station.')
 
     // Without gravity there is no spin coating: the orbital station deposits its tin-oxo resist from the vapour
     event.create('dry_resist_cartridge')
@@ -184,14 +176,15 @@ StartupEvents.registry('block', event => {
 
 // One recipe type per exposure mode; GT turns them into machine modes. Must stay in sync with
 // com.af9.core.litho.LithoMode in af9-core.
-// Fluid inputs: the five track chemicals, + excimer laser gas from 200 nm, + ultrapure water (immersion) from 65 nm,
+// Fluid inputs: developer, rinse water, extreme clean dry air (the coating chemicals, HMDS, resist, BARC and TARC, are the
+// Coater Track's), + the etch plasma and excimer laser gas from 200 nm, + ultrapure water (immersion) from 65 nm,
 // + hafnium tetrachloride (high-k gate) from 50 nm. EUV (20 and 7 nm) needs no laser gas but molten tin and hydrogen
 // for the plasma source.
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // [node, fluid inputs, item inputs]: substrate + reticle, + the ArF Excimer Laser for 80 and 65 nm (the scanner's
     // laser slot) or the EUV Light Source for 20 and 7 nm (both not consumed)
-    const lineModes = [['350nm', 5, 2], ['200nm', 6, 2], ['100nm', 6, 2], ['80nm', 6, 3], ['65nm', 7, 3],
-        ['50nm', 8, 2], ['20nm', 8, 3], ['7nm', 8, 3]]
+    const lineModes = [['350nm', 3, 2], ['200nm', 5, 2], ['100nm', 5, 2], ['80nm', 5, 3], ['65nm', 6, 3],
+        ['50nm', 7, 2], ['20nm', 7, 3], ['7nm', 7, 3]]
     // the orbital station's modes sound like it: a deep hum (af9-core AF9Sounds, vanilla sounds pitched down)
     const orbitalNodes = ['50nm', '20nm', '7nm']
     lineModes.forEach(([node, fluids, items]) => {
@@ -231,7 +224,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN,
             $PhotolithographyLineMachine.LITHO_VERSION, GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:plascrete'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_line.tooltip', 16))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_line.tooltip', 17))
         // 3 wide x 3 high x 10-12 long, built from plascrete like a clean room. Aisles run from the front (controller)
         // to the back (light source): the controller has to come before the repeatable lens aisle, or GT's auto-build
         // (terminal) places the structure off the controller. Each aisle lists its rows bottom -> middle -> top.
@@ -258,6 +251,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 // up to two normal 2A hatches = 4A, what every print needs; their voltage decides the modes
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
                 .or(Predicates.abilities($LithoBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
+                // air cooling: the hatches carry the print's heat (cooling units, see air_conditioning.js)
+                .or(Predicates.abilities($LithoAirConditioning.AIR_CONDITIONING).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units
@@ -293,7 +288,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN,
             $PhotolithographyLineMachine.LITHO_VERSION, GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:plascrete'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_scanner.tooltip', 9))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_scanner.tooltip', 10))
         .pattern(definition => FactoryBlockPattern.start($LithoRelativeDirection.LEFT, $LithoRelativeDirection.UP,
             $LithoRelativeDirection.BACK)
             .aisle('CCC', 'CMC', 'CCC') // front with the controller
@@ -313,6 +308,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
                 .or(Predicates.abilities($LithoBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
+                // air cooling: the hatches carry the print's heat (cooling units, see air_conditioning.js)
+                .or(Predicates.abilities($LithoAirConditioning.AIR_CONDITIONING).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units

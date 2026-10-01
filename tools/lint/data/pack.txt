@@ -1,0 +1,19 @@
+# What the base pack (ATM9's KubeJS and mods, which this repo is laid over) provides. One id per line.
+# Recipe types of the base pack's machines
+world_data_scanner
+void_miner
+# items its startup scripts register
+kubejs:overworld_data
+kubejs:nether_data
+kubejs:end_data
+# GT names that are not in the lists made from GT's source (made by loops there, or renamed between versions): checked
+# against the pack that runs, not against GT's branch head
+gtceu:normal_optical_pipe
+gtceu:data_bank
+gtceu:advanced_data_access_hatch
+gtceu:void_miner
+gtceu:fluorite_dust
+gtceu:uv_256a_laser_target_hatch
+gtceu:uv_256a_laser_source_hatch
+gtceu:uhv_1024a_laser_target_hatch
+gtceu:uhv_1024a_laser_source_hatch

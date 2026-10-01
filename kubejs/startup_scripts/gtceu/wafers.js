@@ -18,7 +18,8 @@
 // MPIC, SoC, naquadah for ASoC, neutronium for HASoC) is the same or lower. The print is always GT's own chip wafer
 // (gtceu:ram_wafer ...); a better substrate gives more of them per blank (AF9_WAFERS.yieldOf in the server script).
 //
-// Every substrate also has a broken wafer (a failed print) and a contaminated wafer (handled without gloves outside a
+// Every substrate but the last has a coated wafer (what the Coater Track makes of the blank, and what is printed). Every
+// substrate also has a broken wafer (a failed print) and a contaminated wafer (handled without gloves outside a
 // clean room, see af9-core WaferContamination). Chips contaminate the same way: every chip GT's cutter makes of a
 // printed wafer has a contaminated chip (kubejs:contaminated_<chip>).
 
@@ -53,6 +54,15 @@ StartupEvents.registry('item', event => {
         event.create(s.blank.substring('kubejs:'.length))
             .displayName(s.name)
             .texture(`kubejs:item/wafers/${s.id}_wafer`)
+    })
+
+    // coated wafers: a blank primed and coated with its node's resist (the Coater Track, litho_process.js); the
+    // lithography machines print these. The 1 nm station deposits its resist dry, so chromodynium has none.
+    table.substrates.filter(s => s.id !== 'chromodynium').forEach(s => {
+        event.create(`coated_${s.id}_wafer`)
+            .displayName(`Coated ${s.name}`)
+            .texture(`kubejs:item/wafers/coated_${s.id}_wafer`)
+            .tooltip('Primed and coated with the resist of its node (Coater Track). The lithography machines print it.')
     })
 
     // failed prints and handled wafers, one of each per substrate

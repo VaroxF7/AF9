@@ -31,7 +31,8 @@ public abstract class ConsoleWidget extends Widget implements BusConsole {
     public static final int STATUS_OFFLINE = 0, STATUS_IDLE = 1, STATUS_RUNNING = 2, STATUS_NO_POWER = 3,
             STATUS_PAUSED = 4, STATUS_MAINTENANCE = 5, STATUS_LOCKED = 6, STATUS_NO_ORBIT = 7, STATUS_NO_COOLANT = 8,
             STATUS_PUMPING_DOWN = 9, STATUS_NO_COMPUTATION = 10, STATUS_NO_DATA = 11, STATUS_NO_RETICLE = 12,
-            STATUS_STARTING_UP = 13, STATUS_NO_LIGHT = 14;
+            STATUS_STARTING_UP = 13, STATUS_NO_LIGHT = 14, STATUS_NO_COOLING = 15, STATUS_NEEDS_CALIBRATION = 16,
+            STATUS_CALIBRATING = 17;
 
     protected ConsoleWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -230,8 +231,9 @@ public abstract class ConsoleWidget extends Widget implements BusConsole {
             case STATUS_RUNNING -> GOOD;
             case STATUS_IDLE -> WARN;
             case STATUS_NO_POWER, STATUS_MAINTENANCE, STATUS_LOCKED, STATUS_NO_ORBIT, STATUS_NO_COOLANT,
-                    STATUS_NO_COMPUTATION, STATUS_NO_DATA, STATUS_NO_RETICLE, STATUS_NO_LIGHT -> BAD;
-            case STATUS_PAUSED, STATUS_PUMPING_DOWN, STATUS_STARTING_UP -> INFO;
+                    STATUS_NO_COMPUTATION, STATUS_NO_DATA, STATUS_NO_RETICLE, STATUS_NO_LIGHT, STATUS_NO_COOLING,
+                    STATUS_NEEDS_CALIBRATION -> BAD;
+            case STATUS_PAUSED, STATUS_PUMPING_DOWN, STATUS_STARTING_UP, STATUS_CALIBRATING -> INFO;
             default -> MUTED;
         };
     }
