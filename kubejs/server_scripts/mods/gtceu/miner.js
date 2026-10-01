@@ -259,11 +259,9 @@ ServerEvents.recipes((event) => {
             "4x gtceu:raw_tungstate",
             "2x gtceu:raw_lithium"], "4"],
 
-        [["9x gtceu:raw_pitchblende",
-            "6x gtceu:raw_uraninite"], "5"],
-
-        [["9x gtceu:raw_naquadah",
-            "3x gtceu:raw_plutonium"], "6"]]
+        // Circuit 5 was pitchblende and uraninite, and circuit 6 carried raw plutonium with the naquadah: uranium and
+        // plutonium come from the Asteroid Field now (asteroid_fission.js), no void miner makes them
+        [["9x gtceu:raw_naquadah"], "6"]]
 
     end_raw_ores.forEach((end_ore) => {
         let recipe = gtr.void_miner("end_void_ore_" + end_ore[1])

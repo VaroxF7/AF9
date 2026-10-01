@@ -15,3 +15,6 @@ shock_proof_cutting_casing
 [a-z_]+_(tiny|small|normal|large|huge|quadruple|nonuple)_fluid_pipe
 [a-z_]+_(small|normal|large|huge|restrictive_small|restrictive_normal|restrictive_large|restrictive_huge)_item_pipe
 [a-z_]+_(borderless_)?lamp
+# the drums: GTMachines.registerDrum makes <material>_drum for wood, bronze, steel, aluminium, stainless steel, gold,
+# titanium and tungsten steel
+[a-z_]+_drum

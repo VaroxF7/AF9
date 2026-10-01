@@ -32,6 +32,12 @@ the configs AF9 changes. Everything else comes from the pack itself.
   (chrome, phase-shift, EUV) and the EUV tools are built from Mo/Si mirrors; the chemistry has RCA clean, piranha
   strip, ethyl lactate, BARC, TARC, an etch plasma and metal-oxo resists; six chip families (acoustic wave, photonics,
   spintronics, 2D materials, neuromorphic, quantum dots) feed three more card tiers of the computation arrays.
+- **Asteroid fission** (`docs/asteroid-fission.md`): uranium and plutonium come only from Brannerite, an ore in the
+  Asteroid Field, a void dimension of Ad Astra near Mars (asteroids of all sizes, GT ore veins in them, a space station
+  through Ad Astra's menu); rockets are built in the assembler from GT parts and burn a new propellant (Aluminised
+  Hydrolox); the FX-1 Reactor turns fuel rods, water and coolant into supercritical steam for GT's and Extreme Reactors'
+  turbines and spent fuel for plutonium; a warning above the hotbar near radioactive material; the Fusion Reactor Mk1 needs
+  the plutonium and AF9's chips.
 - **Lint** (`tools/lint/`): `bash tools/lint/run.sh` checks the recipes, multiblocks, quests, textures and lang files
   without starting the game (CI runs it before every build); `docs/review-findings.md` lists what it found.
 - **Machine bus** (`docs/machine-bus.md`): Optical Bus Cable and Bus Connectors join the machines; the Central

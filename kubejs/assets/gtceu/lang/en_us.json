@@ -386,5 +386,21 @@
     "material.gtceu.etch_plasma_gas": "Etch Plasma Gas",
     "gtceu.wafer_coating": "Wafer Coating",
     "af9.photolithography_line.tooltip.16": "§dMulti-patterning§7: a §fscrewdriver§7 on the controller lets it print the mode one version above its own, exposing every layer twice: §c2x time§7, §c1.5x breaks§7, 2x OPC.",
-    "af9.photolithography_scanner.tooltip.9": "§dMulti-patterning§7: a §fscrewdriver§7 on the controller lets a V1 scanner print 65nm, exposing every layer twice: §c2x time§7, §c1.5x breaks§7, 2x OPC. Takes §fcoated wafers§7 (Coater Track)."
+    "af9.photolithography_scanner.tooltip.9": "§dMulti-patterning§7: a §fscrewdriver§7 on the controller lets a V1 scanner print 65nm, exposing every layer twice: §c2x time§7, §c1.5x breaks§7, 2x OPC. Takes §fcoated wafers§7 (Coater Track).",
+    "gtceu.fx1_reactor": "FX-1 Reactor",
+    "af9.fx1_reactor.tooltip.0": "§7A fission reactor: a §fFuel Rod§7, §fDistilled Water§7 and §fSodium-Potassium§7 coolant in; §bSupercritical Steam§7, the §cSpent Fuel Rod§7 and hot coolant out.",
+    "af9.fx1_reactor.tooltip.1": "§7One rod per 1,200 ticks makes §f61,440 mB§7 of steam: Large Steam Turbines (and Extreme Reactors' turbines) turn it into power.",
+    "af9.fx1_reactor.tooltip.2": "§7The hot alloy goes back to coolant in a §fVacuum Freezer§7. The spent rod holds the §dplutonium§7: macerate, dissolve in nitric acid, centrifuge.",
+    "af9.fx1_reactor.tooltip.3": "§cRadioactive§7: while it runs, a warning shows above the hotbar near it. Wear a full hazmat suit.",
+    "af9.fx1_reactor.tooltip.4": "§7EV: §f1,920 EU/t§7 (IV hatches overclock it).",
+    "af9.fx1_reactor.tooltip.5": "§7Parts are optional, with a maximum: §f2§7 energy, §f1+1§7 item, §f3§7 + §f4§7 fluid hatches, §f1§7 maintenance.",
+    "material.gtceu.brannerite": "Brannerite",
+    "material.gtceu.uranyl_sulfate_solution": "Uranyl Sulfate Solution",
+    "material.gtceu.yellowcake": "Yellowcake",
+    "material.gtceu.irradiated_fuel": "Irradiated Fuel",
+    "material.gtceu.spent_fuel_solution": "Dissolved Spent Fuel",
+    "material.gtceu.hot_sodium_potassium": "Hot Sodium-Potassium Alloy",
+    "material.gtceu.supercritical_steam": "Supercritical Steam",
+    "material.gtceu.triethylaluminium": "Triethylaluminium",
+    "material.gtceu.aluminised_hydrolox": "Aluminised Hydrolox"
 }

@@ -50,9 +50,12 @@ lang = root / 'kubejs/assets/kubejs/lang/en_us.json'
 t = lang.read_text(encoding='utf-8')
 t = t.rstrip().rstrip('}').rstrip() + ',\n\t"af9.selftest.dup": "one",\n\t"af9.selftest.dup": "two",\n\t"af9.selftest.fmt": "50%d done"\n}\n'
 t = t.replace('Fluids per print: 300 TMAH', 'Fluids per print: 301 TMAH', 1)   # X1: a quest text that no longer matches its recipe
+t = t.replace('&b61,440 mB supercritical steam&r', '&b61,441 mB supercritical steam&r', 1)   # X3: the reactor's steam, in its quest text
 lang.write_text(t, encoding='utf-8')
 lm = root / 'af9-core/src/main/java/com/af9/core/litho/LithoMode.java'
 lm.write_text(lm.read_text(encoding='utf-8').replace('"photoresist", 200, Machine.LINE', '"photoresist", 201, Machine.LINE', 1), encoding='utf-8')   # X2
+af = root / 'af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java'
+af.write_text(af.read_text(encoding='utf-8').replace('Blocks.TUFF.defaultBlockState()', 'Blocks.SMOOTH_BASALT.defaultBlockState()', 1), encoding='utf-8')   # X4: a rock the ore layer does not know
 # --- J3: Java names a KubeJS item that nobody registers
 lmm = root / 'af9-core/src/main/java/com/af9/core/machine/LithoMachine.java'
 lmm.write_text(lmm.read_text(encoding='utf-8').replace('new ResourceLocation("kubejs", "calibration_wafer")', 'new ResourceLocation("kubejs", "selftest_no_such_item")', 1), encoding='utf-8')
@@ -80,7 +83,7 @@ check quests "$Q" Q1 Q2 Q3 Q5 Q6
 A="$(python3 "$TMP/tools/lint/assets.py" "$TMP" 2>&1)"
 check assets "$A" A1 A2 A4 A5 A6
 X="$(python3 "$TMP/tools/lint/facts.py" "$TMP" 2>&1)"
-check facts "$X" X1 X2
+check facts "$X" X1 X2 X3 X4
 D="$(python3 "$TMP/tools/lint/docs.py" "$TMP" 2>&1)"
 check docs "$D" D1 D3
 J="$(python3 "$TMP/tools/lint/links.py" "$TMP" 2>&1)"

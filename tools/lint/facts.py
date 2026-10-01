@@ -3,7 +3,7 @@
 
     python3 tools/lint/facts.py [repo root]
 
-A number in a quest text that a recipe could change is a promise: when the recipe changes, the text lies. Checked (codes X1, X2):
+A number in a quest text that a recipe could change is a promise: when the recipe changes, the text lies. Checked (codes X1-X4):
 
   * (X2) the numbers of `com.af9.core.litho.LithoMode` (Java) against the print recipes (KubeJS): every mode's recipe type exists, its
     prints take `kubejs:coated_<substrate>_wafer` (a blank on the 1 nm station) and give `kubejs:broken_<substrate>_wafer` as the
@@ -11,6 +11,12 @@ A number in a quest text that a recipe could change is a promise: when the recip
   * the quests of the nodes (`af9.quest.litho.n<node>.*`) say "Fluids per print: <amount> <fluid>, ..." and, for the coater,
     "Coater Track, per wafer: <amount> <fluid>, ...; <amount> spent solvent out.": the amounts have to be those of the
     `lithography_<node>` print recipe and of the `wafer_coating` recipe of the node's substrate.
+
+  * (X3) the quests of the Asteroid Fission chapter (`af9.quest.fx.*`) state the fluid amounts and run times of the recipes of
+    kubejs/server_scripts/mods/gtceu/asteroid_fission.js and rockets.js (the reactor cycle, the leach, the propellant ...)
+  * (X4) names that Java, data and scripts share: the rock AsteroidFieldFeature builds and the stones of the ore layer, the
+    reactor id RadiationWatch looks for, the fluid tag ExtremeReactorsCompat maps, the dimensions of the asteroid layer, the ore
+    veins, the planets and the space station recipe
 
 Run by tools/lint/run.sh. When you change a print or coating recipe, run it: the message names the key to rewrite.
 """
@@ -106,7 +112,122 @@ for nm, mid, substrate, tier, base in modes:
         if not eut or [int(x) for x in eut] != want_eut:
             report(f'{r["id"]}: EUt {eut}, LithoMode {mid} wants {want_eut} (tier {tier}, amps)', r['file'], 'X2')
 
-print(f'facts: {checked} node texts and modes checked against the recipes')
+# ---- X3: the Asteroid Fission quests against the recipes ---------------------------------------------------------------------------
+def quest_text(key):
+    return ' '.join(v for k, v in lang.items() if k.startswith(f'af9.quest.fx.{key}.') and k.rsplit('.', 1)[1].isdigit())
+
+
+FLUID_QUESTS = {
+    'tea': 'af9:triethylaluminium', 'fuel': 'af9:aluminised_hydrolox', 'leach': 'af9:brannerite_leach',
+    'yellowcake': 'af9:yellowcake_precipitation', 'uf6': 'af9:uranium_hexafluoride_from_yellowcake',
+    'pellets': 'af9:fx_fuel_pellets', 'reactor': 'af9:fx1_fuel_cycle', 'dissolve': 'af9:dissolve_irradiated_fuel',
+    'plutonium': 'af9:separate_spent_fuel', 'coolant': 'af9:cool_hot_sodium_potassium',
+}
+for key, rid in FLUID_QUESTS.items():
+    recipe = next((r for r in recipes if r['id'] == rid), None)
+    text = quest_text(key)
+    if not recipe:
+        report(f'af9.quest.fx.{key}: its recipe {rid} does not exist', code='X3')
+        continue
+    if not text:
+        report(f'af9.quest.fx.{key}: no text', 'kubejs lang', 'X3')
+        continue
+    checked += 1
+    for fluid, amount in recipe['fluidAmounts']:
+        if f'{amount:,} mB' not in text:
+            report(f'af9.quest.fx.{key}: the recipe {rid} moves {amount:,} mB of {fluid}, the text does not say "{amount:,} mB"',
+                   'kubejs lang', 'X3')
+reactor = next((r for r in recipes if r['id'] == 'af9:fx1_fuel_cycle'), None)
+freezer = next((r for r in recipes if r['id'] == 'af9:cool_hot_sodium_potassium'), None)
+turbine = next((r for r in recipes if r['id'] == 'af9:supercritical_steam'), None)
+if reactor and freezer and turbine:
+    steam = dict(reactor['fluidAmounts'])['gtceu:supercritical_steam']
+    cycle = int(reactor['duration'][0])
+    if f'{cycle:,} ticks' not in quest_text('reactor'):
+        report(f'af9.quest.fx.reactor: the cycle is {cycle:,} ticks, the text does not say so', 'kubejs lang', 'X3')
+    if f'{int(freezer["duration"][0])} ticks' not in quest_text('coolant'):
+        report(f'af9.quest.fx.coolant: the Vacuum Freezer takes {int(freezer["duration"][0])} ticks, the text does not say so',
+               'kubejs lang', 'X3')
+    if f'{round(steam / cycle)} mB/t' not in quest_text('steam') or f'{steam:,} mB' not in quest_text('steam'):
+        report(f'af9.quest.fx.steam: a rod makes {steam:,} mB, {round(steam / cycle)} mB/t: the text says otherwise', 'kubejs lang', 'X3')
+    amount, ticks, eut = dict(turbine['fluidAmounts'])['gtceu:supercritical_steam'], int(turbine['duration'][0]), abs(int(turbine['EUt'][0]))
+    per_turbine = f'{2 * amount / ticks:g} mB/t'     # two parallels in a Large Steam Turbine
+    if per_turbine not in quest_text('turbines') or f'{2 * eut:,} EU/t' not in quest_text('turbines'):
+        report(f'af9.quest.fx.turbines: a Large Steam Turbine (2 parallels) takes {per_turbine} for {2 * eut:,} EU/t: the text says otherwise',
+               'kubejs lang', 'X3')
+    if f'{eut} EU/t' not in quest_text('turbines'):
+        report(f'af9.quest.fx.turbines: the turbine recipe is {eut} EU/t, the text does not say so', 'kubejs lang', 'X3')
+    per_mb = eut * ticks / amount
+    if f'{per_mb:g} EU per mB' not in quest_text('steam').replace('&e', '').replace('&r', ''):
+        report(f'af9.quest.fx.steam: the turbine recipe is worth {per_mb:g} EU per mB, the text does not say so', 'kubejs lang', 'X3')
+
+# ---- X4: names that Java, data and scripts share ----------------------------------------------------------------------------------
+def read(rel):
+    with open(os.path.join(ROOT, rel), encoding='utf-8') as f:
+        return f.read()
+
+
+def code(rel, pattern, what):
+    m = re.search(pattern, read(rel), re.S)
+    if not m:
+        report(f'{rel}: could not find {what} (did it change shape? then fix tools/lint/facts.py)', code='X4')
+    return m
+
+
+startup = 'kubejs/startup_scripts/gtceu/asteroid_fission.js'
+server = 'kubejs/server_scripts/mods/gtceu/asteroid_fission.js'
+feature = 'af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java'
+rock_m = code(feature, r'BlockState rockAt\(.*?\n    }', 'rockAt')
+layer_m = code(startup, r"\.targets\(([^)]*)\)", 'the asteroid layer\'s targets')
+if rock_m and layer_m:
+    checked += 1
+    rock = sorted({'minecraft:' + b.lower() for b in re.findall(r'Blocks\.([A-Z_]+)\.defaultBlockState', rock_m.group(0))})
+    layer = sorted(re.findall(r"'([a-z_:]+)'", layer_m.group(1)))
+    if rock != layer:
+        report(f'AsteroidFieldFeature builds {rock}, the layer af9_asteroid (startup script) lets ores grow into {layer}: ore veins '
+               f'would miss or replace the wrong rock', code='X4')
+rad = code('af9-core/src/main/java/com/af9/core/radiation/RadiationWatch.java', r'REACTOR_ID = new ResourceLocation\("(\w+)", "(\w+)"\)', 'REACTOR_ID')
+if rad:
+    checked += 1
+    if f"event.create('{rad.group(2)}', 'multiblock')" not in read(startup) or rad.group(1) != 'gtceu':
+        report(f'RadiationWatch.REACTOR_ID is {rad.group(1)}:{rad.group(2)}, the startup script defines no such multiblock', code='X4')
+tag = code('af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeReactorsCompat.java', r'FLUID_TAG = "([^"]+)"', 'FLUID_TAG')
+vapor = code('af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeReactorsCompat.java', r'VAPOR_LANG_KEY = "([^"]+)"', 'VAPOR_LANG_KEY')
+if tag and vapor:
+    checked += 1
+    if f"event.add('{tag.group(1)}'" not in read(server):
+        report(f'ExtremeReactorsCompat maps the fluid tag {tag.group(1)}, no server script puts supercritical steam in it', code='X4')
+    if f'"{vapor.group(1)}"' not in read('af9-core/src/main/resources/assets/af9/lang/en_us.json'):
+        report(f'the vapor name {vapor.group(1)} is in no lang file of AF9 Core (Extreme Reactors would show the key)', code='X4')
+data = os.path.join(ROOT, 'af9-core/src/main/resources/data/af9')
+dims = {'af9:' + n[:-5] for n in os.listdir(os.path.join(data, 'dimension'))} if os.path.isdir(os.path.join(data, 'dimension')) else set()
+planets = {}
+planet_dir = os.path.join(data, 'planets')
+for n in sorted(os.listdir(planet_dir)) if os.path.isdir(planet_dir) else []:
+    planets[n[:-5]] = json.load(open(os.path.join(planet_dir, n), encoding='utf-8'))
+for n, planet in planets.items():
+    checked += 1
+    if planet['dimension'] not in dims and not planet['dimension'].startswith('ad_astra:'):
+        report(f'planets/{n}.json: the dimension {planet["dimension"]} has no data/af9/dimension file', code='X4')
+    if 'orbit' in planet and planet['orbit'] not in {p['dimension'] for p in planets.values()}:
+        report(f'planets/{n}.json: its orbit {planet["orbit"]} is no planet of AF9', code='X4')
+space = {p['dimension'] for p in planets.values() if 'orbit' not in p}
+used_dims = set(re.findall(r"\.dimensions\('([^']+)'\)", read(startup) + read(server)))
+for d in sorted(used_dims):
+    checked += 1
+    if d not in dims:
+        report(f'a script lets ore generate in {d}, which has no data/af9/dimension file', code='X4')
+recipes_dir = os.path.join(data, 'recipes')
+for n in sorted(os.listdir(recipes_dir)) if os.path.isdir(recipes_dir) else []:
+    recipe = json.load(open(os.path.join(recipes_dir, n), encoding='utf-8'))
+    if recipe.get('type') == 'ad_astra:space_station_recipe':
+        checked += 1
+        if recipe['dimension'] not in space:
+            report(f'recipes/{n}: the space station of {recipe["dimension"]}, which is no space planet of AF9 (a planet without orbit)', code='X4')
+        if recipe['dimension'] not in dims:
+            report(f'recipes/{n}: the dimension {recipe["dimension"]} has no data/af9/dimension file', code='X4')
+
+print(f'facts: {checked} node texts, modes and shared names checked against the recipes')
 print(f'{len(findings)} errors, 0 warnings, 0 notes')
 for level, code, msg, where in findings:
     print(f'{level:5} {code} {msg}' + (f'  [{where}]' if where else ''))

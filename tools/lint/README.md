@@ -85,6 +85,8 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
 |---|---|---|
 | X2 | `LithoMode.java` (Java) and the print recipes (KubeJS) disagree: a mode without recipes, a print that does not take the substrate's coated wafer, the wrong broken wafer or break chance, the wrong EUt or amps | the nine modes live in three places (Java `LithoMode`, `AF9_WAFERS` in the server script, the recipe types in the startup script): change them together |
 | X1 | a quest text of a node (`af9.quest.litho.n<node>.*`) whose "Fluids per print" / "Coater Track, per wafer" amounts differ from the print and coating recipes | after changing a print or coating recipe, rewrite that text (the message names the key); keep its form `Fluids per print: a X, b Y. Coater Track, per wafer: a X, b Y; N spent solvent out.` |
+| X3 | a quest text of the Asteroid Fission chapter (`af9.quest.fx.*`) that does not say a fluid amount, run time, steam rate or EU per mB of its recipe (the reactor cycle, leach, precipitation, UF6, pellets, dissolving, centrifuge, coolant, propellant, steam turbine) | after changing one of those recipes, rewrite the text (the message names the key); amounts are written with a comma and the unit, `61,440 mB`, `1,200 ticks` |
+| X4 | a name Java, data and scripts share that does not agree: the rock `AsteroidFieldFeature` builds vs the stones of the ore layer `af9_asteroid`, the reactor id `RadiationWatch` looks for, the fluid tag and vapor name of `ExtremeReactorsCompat`, the dimensions of the layer and the veins, the planets (`data/af9/planets`) and the space station recipe | a typo here fails silently in the game (ore that never grows, a warning that never shows); change both sides together |
 
 ### Docs (`docs.py`)
 

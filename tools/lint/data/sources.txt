@@ -4,3 +4,4 @@
 kubejs:contaminated_*
 # ores
 gtceu:zircon_dust
+gtceu:brannerite_dust

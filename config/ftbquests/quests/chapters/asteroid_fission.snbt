@@ -1,0 +1,930 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "asteroid_fission"
+	group: "1DA67E79B40AB130"
+	icon: "gtceu:fx1_reactor"
+	id: "723D005691F3F573"
+	order_index: 14
+	progression_mode: "flexible"
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"{af9.quest.fx.intro.1}"
+				""
+				"{af9.quest.fx.intro.2}"
+				""
+				"{af9.quest.fx.intro.3}"
+				""
+				"{af9.quest.fx.intro.4}"
+			]
+			icon: "gtceu:fx1_reactor"
+			id: "37CA1C9FEECE96C4"
+			rewards: [{
+				id: "6D798937374BEED7"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "gear"
+			size: 2.5d
+			subtitle: "{af9.quest.fx.intro.subtitle}"
+			tasks: [
+				{
+					id: "67E173827C7AA485"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fx.intro.title}"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["37CA1C9FEECE96C4"]
+			description: [
+				"{af9.quest.fx.rocketParts.1}"
+				""
+				"{af9.quest.fx.rocketParts.2}"
+			]
+			icon: "ad_astra:nasa_workbench"
+			id: "0E4F3F552705CD69"
+			rewards: [{
+				id: "2F508B88EE65207A"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.rocketParts.subtitle}"
+			tasks: [
+				{
+					id: "00E872E55A9778B7"
+					item: "ad_astra:nasa_workbench"
+					type: "item"
+				}
+				{
+					id: "133E8B491611E907"
+					item: "ad_astra:launch_pad"
+					type: "item"
+				}
+				{
+					id: "27E45FF963E923F0"
+					item: "ad_astra:rocket_nose_cone"
+					type: "item"
+				}
+				{
+					count: 4L
+					id: "7DFBCAA53FB88EA0"
+					item: "ad_astra:rocket_fin"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.rocketParts.title}"
+			x: 3.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["0E4F3F552705CD69"]
+			description: [
+				"{af9.quest.fx.engineTank.1}"
+				""
+				"{af9.quest.fx.engineTank.2}"
+			]
+			icon: "ad_astra:steel_engine"
+			id: "6092F361A16F97FB"
+			rewards: [{
+				id: "02B8132AB660667C"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.engineTank.subtitle}"
+			tasks: [
+				{
+					id: "321D68EFB8E18627"
+					item: "ad_astra:steel_engine"
+					type: "item"
+				}
+				{
+					id: "7ED82B938070FF7B"
+					item: "ad_astra:steel_tank"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.engineTank.title}"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["6092F361A16F97FB"]
+			description: [
+				"{af9.quest.fx.rocket1.1}"
+			]
+			icon: "ad_astra:tier_1_rocket"
+			id: "39C59CAE19EF1DAE"
+			rewards: [{
+				id: "6FFA3D067ED1D8A7"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.fx.rocket1.subtitle}"
+			tasks: [
+				{
+					id: "5EBF7B5A896D53D4"
+					item: "ad_astra:tier_1_rocket"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.rocket1.title}"
+			x: 9.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["39C59CAE19EF1DAE"]
+			description: [
+				"{af9.quest.fx.rocket2.1}"
+			]
+			icon: "ad_astra:tier_2_rocket"
+			id: "4062A22A6E51F461"
+			rewards: [{
+				id: "60A3DABC20B54493"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.fx.rocket2.subtitle}"
+			tasks: [
+				{
+					id: "5E8F09E3CF9A535E"
+					item: "ad_astra:tier_2_rocket"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.rocket2.title}"
+			x: 12.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["37CA1C9FEECE96C4"]
+			description: [
+				"{af9.quest.fx.tea.1}"
+			]
+			icon: "gtceu:mv_chemical_reactor"
+			id: "355E57399C7CB35C"
+			rewards: [{
+				id: "56385AACA8AC58CD"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.tea.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:triethylaluminium"
+					id: "6EB339040B688F55"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.fx.tea.title}"
+			x: 3.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["355E57399C7CB35C"]
+			description: [
+				"{af9.quest.fx.fuel.1}"
+				""
+				"{af9.quest.fx.fuel.2}"
+			]
+			icon: "gtceu:mv_chemical_reactor"
+			id: "47D0FFA3E008C78F"
+			rewards: [{
+				id: "26FE5D43B05C4E3D"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.fuel.subtitle}"
+			tasks: [
+				{
+					amount: 3000L
+					fluid: "gtceu:aluminised_hydrolox"
+					id: "25E0B4319F79CEE8"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.fx.fuel.title}"
+			x: 6.0d
+			y: -3.0d
+		}
+		{
+			dependencies: [
+				"4062A22A6E51F461"
+				"47D0FFA3E008C78F"
+			]
+			description: [
+				"{af9.quest.fx.field.1}"
+				""
+				"{af9.quest.fx.field.2}"
+				""
+				"{af9.quest.fx.field.3}"
+			]
+			icon: "ad_astra:tier_2_rocket"
+			id: "41DCF00E396CDF61"
+			rewards: [{
+				id: "69645FE1BECC5CFA"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.fx.field.subtitle}"
+			tasks: [
+				{
+					dimension: "af9:asteroid_field"
+					id: "2CEB837F427C8FFF"
+					type: "dimension"
+				}
+			]
+			title: "{af9.quest.fx.field.title}"
+			x: 15.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["41DCF00E396CDF61"]
+			description: [
+				"{af9.quest.fx.station.1}"
+			]
+			icon: "gtceu:titanium_plate"
+			id: "0F7A799F0E512B1E"
+			rewards: [{
+				id: "64CD9BD895260DD1"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.station.subtitle}"
+			tasks: [
+				{
+					id: "18450D85508E1308"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fx.station.title}"
+			x: 15.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["41DCF00E396CDF61"]
+			description: [
+				"{af9.quest.fx.hazmat.1}"
+				""
+				"{af9.quest.fx.hazmat.2}"
+			]
+			icon: "gtceu:hazmat_chestpiece"
+			id: "4DD2ADAA3056B119"
+			rewards: [{
+				id: "0B2C6F2171FFD759"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.hazmat.subtitle}"
+			tasks: [
+				{
+					id: "568A35368490C0BE"
+					item: "gtceu:hazmat_headpiece"
+					type: "item"
+				}
+				{
+					id: "2D748A20DE9B383E"
+					item: "gtceu:hazmat_chestpiece"
+					type: "item"
+				}
+				{
+					id: "52674261E23E2E5B"
+					item: "gtceu:hazmat_leggings"
+					type: "item"
+				}
+				{
+					id: "4BB455DE4F7D399D"
+					item: "gtceu:hazmat_boots"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.hazmat.title}"
+			x: 15.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["4DD2ADAA3056B119"]
+			description: [
+				"{af9.quest.fx.radiationHints.1}"
+				""
+				"{af9.quest.fx.radiationHints.2}"
+			]
+			icon: "gtceu:hazmat_headpiece"
+			id: "2955C0C69ED722D4"
+			optional: true
+			rewards: [{
+				id: "2BD70458ED0D192B"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.radiationHints.subtitle}"
+			tasks: [
+				{
+					id: "6550075302B41EFB"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fx.radiationHints.title}"
+			x: 18.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["41DCF00E396CDF61"]
+			description: [
+				"{af9.quest.fx.ore.1}"
+				""
+				"{af9.quest.fx.ore.2}"
+			]
+			icon: "gtceu:raw_brannerite"
+			id: "30A0F880AD2F42B9"
+			rewards: [{
+				id: "7489E1FE83829558"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.ore.subtitle}"
+			tasks: [
+				{
+					count: 16L
+					id: "28C44295046CA432"
+					item: "gtceu:raw_brannerite"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.ore.title}"
+			x: 18.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["30A0F880AD2F42B9"]
+			description: [
+				"{af9.quest.fx.oreDust.1}"
+			]
+			icon: "gtceu:brannerite_dust"
+			id: "2FA825A3F1BD9E40"
+			rewards: [{
+				id: "5381560FA7C623E2"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.oreDust.subtitle}"
+			tasks: [
+				{
+					count: 16L
+					id: "01A2345B3D3B26A1"
+					item: "gtceu:brannerite_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.oreDust.title}"
+			x: 21.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["2FA825A3F1BD9E40"]
+			description: [
+				"{af9.quest.fx.leach.1}"
+			]
+			icon: "gtceu:mv_chemical_reactor"
+			id: "5FE18F945E728969"
+			rewards: [{
+				id: "3D9AB466BBC5700B"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.leach.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:uranyl_sulfate_solution"
+					id: "47B8F3B5151A67E2"
+					type: "fluid"
+				}
+				{
+					count: 4L
+					id: "1871B12CBA2B6565"
+					item: "gtceu:rutile_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.leach.title}"
+			x: 21.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["5FE18F945E728969"]
+			description: [
+				"{af9.quest.fx.yellowcake.1}"
+			]
+			icon: "gtceu:yellowcake_dust"
+			id: "798420D4763A616C"
+			rewards: [{
+				id: "77A5378F3E88EEE8"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.yellowcake.subtitle}"
+			tasks: [
+				{
+					count: 6L
+					id: "155E5F9B9E288FC8"
+					item: "gtceu:yellowcake_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.yellowcake.title}"
+			x: 21.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["798420D4763A616C"]
+			description: [
+				"{af9.quest.fx.uf6.1}"
+				""
+				"{af9.quest.fx.uf6.2}"
+			]
+			icon: "gtceu:mv_chemical_reactor"
+			id: "26869AED43F923D9"
+			rewards: [{
+				id: "1CE0A061F20674A2"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.uf6.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:uranium_hexafluoride"
+					id: "5AD79902535A51F6"
+					type: "fluid"
+				}
+				{
+					count: 16L
+					id: "0C29509966C988D6"
+					item: "gtceu:uranium_dust"
+					type: "item"
+				}
+				{
+					count: 8L
+					id: "63F31D4C7F2CB34F"
+					item: "gtceu:tiny_uranium_235_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.uf6.title}"
+			x: 24.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["26869AED43F923D9"]
+			description: [
+				"{af9.quest.fx.pellets.1}"
+			]
+			icon: "kubejs:fx_fuel_pellet"
+			id: "7EF8EFCDD9A99B6F"
+			rewards: [{
+				id: "1A17FBD450F5595B"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.pellets.subtitle}"
+			tasks: [
+				{
+					count: 16L
+					id: "0A38B982F124F07E"
+					item: "kubejs:fx_fuel_pellet"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.pellets.title}"
+			x: 27.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["26869AED43F923D9"]
+			description: [
+				"{af9.quest.fx.zirconium.1}"
+			]
+			icon: "gtceu:zirconium_ingot"
+			id: "461EDD76B238AAFE"
+			rewards: [{
+				id: "7BDEEE7123FAAEFC"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.zirconium.subtitle}"
+			tasks: [
+				{
+					count: 4L
+					id: "092E85284FBD4403"
+					item: "gtceu:zirconium_ingot"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.zirconium.title}"
+			x: 27.0d
+			y: 9.0d
+		}
+		{
+			dependencies: [
+				"7EF8EFCDD9A99B6F"
+				"461EDD76B238AAFE"
+			]
+			description: [
+				"{af9.quest.fx.rod.1}"
+			]
+			icon: "kubejs:fx_fuel_rod"
+			id: "3B4F21F7F51897B8"
+			rewards: [{
+				id: "299462E1368A7BA9"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.fx.rod.subtitle}"
+			tasks: [
+				{
+					count: 4L
+					id: "1513F861535BFBF1"
+					item: "kubejs:fx_fuel_rod"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.rod.title}"
+			x: 30.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["3B4F21F7F51897B8"]
+			description: [
+				"{af9.quest.fx.reactor.1}"
+				""
+				"{af9.quest.fx.reactor.2}"
+				""
+				"{af9.quest.fx.reactor.3}"
+			]
+			icon: "gtceu:fx1_reactor"
+			id: "16D7A64CE82A800F"
+			rewards: [{
+				id: "5318206D2145267C"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "gear"
+			size: 2.5d
+			subtitle: "{af9.quest.fx.reactor.subtitle}"
+			tasks: [
+				{
+					id: "199FCD32E0559523"
+					item: "gtceu:fx1_reactor"
+					type: "item"
+				}
+				{
+					count: 70L
+					id: "0E7687F5C8FB9FB2"
+					item: "gtceu:stable_machine_casing"
+					type: "item"
+				}
+				{
+					count: 20L
+					id: "0BBF19B575737F03"
+					item: "gtceu:heatproof_machine_casing"
+					type: "item"
+				}
+				{
+					count: 6L
+					id: "2DB8EA925EF425C0"
+					item: "gtceu:titanium_pipe_casing"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.reactor.title}"
+			x: 33.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["16D7A64CE82A800F"]
+			description: [
+				"{af9.quest.fx.coolant.1}"
+			]
+			icon: "gtceu:vacuum_freezer"
+			id: "4BD64327DED2295D"
+			rewards: [{
+				id: "096228A42630722F"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.coolant.subtitle}"
+			tasks: [
+				{
+					amount: 4000L
+					fluid: "gtceu:sodium_potassium"
+					id: "6B37AA53B12197D6"
+					type: "fluid"
+				}
+				{
+					id: "771F9D50575C2C0A"
+					item: "gtceu:vacuum_freezer"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.coolant.title}"
+			x: 33.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["16D7A64CE82A800F"]
+			description: [
+				"{af9.quest.fx.steam.1}"
+			]
+			icon: "gtceu:fx1_reactor"
+			id: "226D9DFA1DBF3540"
+			rewards: [{
+				id: "6017B42C7744D10B"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.fx.steam.subtitle}"
+			tasks: [
+				{
+					amount: 10000L
+					fluid: "gtceu:supercritical_steam"
+					id: "59367F60007E17F6"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.fx.steam.title}"
+			x: 36.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["226D9DFA1DBF3540"]
+			description: [
+				"{af9.quest.fx.turbines.1}"
+				""
+				"{af9.quest.fx.turbines.2}"
+			]
+			icon: "gtceu:steam_large_turbine"
+			id: "6C5EB71A6F018C8C"
+			rewards: [{
+				id: "13C548D880EB93F5"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.turbines.subtitle}"
+			tasks: [
+				{
+					count: 4L
+					id: "222894467AFCC082"
+					item: "gtceu:steam_large_turbine"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.turbines.title}"
+			x: 39.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["226D9DFA1DBF3540"]
+			description: [
+				"{af9.quest.fx.extremeReactors.1}"
+			]
+			icon: "gtceu:steam_large_turbine"
+			id: "09430017A0E5698E"
+			optional: true
+			rewards: [{
+				id: "2AC1ADAF53516536"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.extremeReactors.subtitle}"
+			tasks: [
+				{
+					id: "4B072AED8B68F03B"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fx.extremeReactors.title}"
+			x: 39.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["16D7A64CE82A800F"]
+			description: [
+				"{af9.quest.fx.spentRod.1}"
+			]
+			icon: "kubejs:fx_spent_fuel_rod"
+			id: "64C5FB226AC6C713"
+			rewards: [{
+				id: "5ED00869511E4BF5"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.spentRod.subtitle}"
+			tasks: [
+				{
+					count: 4L
+					id: "210BB71132A9F167"
+					item: "kubejs:fx_spent_fuel_rod"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.spentRod.title}"
+			x: 36.0d
+			y: 9.0d
+		}
+		{
+			dependencies: ["64C5FB226AC6C713"]
+			description: [
+				"{af9.quest.fx.decladding.1}"
+			]
+			icon: "gtceu:irradiated_fuel_dust"
+			id: "53F82EDDDFB6E5A8"
+			rewards: [{
+				id: "7B4150A1F5629F7E"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.decladding.subtitle}"
+			tasks: [
+				{
+					count: 8L
+					id: "15CABFF7013B48BD"
+					item: "gtceu:irradiated_fuel_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.decladding.title}"
+			x: 33.0d
+			y: 9.0d
+		}
+		{
+			dependencies: ["53F82EDDDFB6E5A8"]
+			description: [
+				"{af9.quest.fx.dissolve.1}"
+			]
+			icon: "gtceu:hv_chemical_reactor"
+			id: "5CC72995FC2D1B71"
+			rewards: [{
+				id: "57718376FFE8C9F0"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.dissolve.subtitle}"
+			tasks: [
+				{
+					amount: 3000L
+					fluid: "gtceu:spent_fuel_solution"
+					id: "1948888E85A7E2BE"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.fx.dissolve.title}"
+			x: 30.0d
+			y: 9.0d
+		}
+		{
+			dependencies: ["5CC72995FC2D1B71"]
+			description: [
+				"{af9.quest.fx.plutonium.1}"
+				""
+				"{af9.quest.fx.plutonium.2}"
+			]
+			icon: "gtceu:plutonium_dust"
+			id: "14CA60DE34A76AB4"
+			rewards: [{
+				id: "12503768E94B2179"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.fx.plutonium.subtitle}"
+			tasks: [
+				{
+					count: 8L
+					id: "565140C5DEE1C632"
+					item: "gtceu:plutonium_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.plutonium.title}"
+			x: 30.0d
+			y: 12.0d
+		}
+		{
+			dependencies: ["14CA60DE34A76AB4"]
+			description: [
+				"{af9.quest.fx.pu241.1}"
+			]
+			icon: "gtceu:plutonium_241_dust"
+			id: "7821752F8FFF2B89"
+			rewards: [{
+				id: "4005B7538E7BED03"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.pu241.subtitle}"
+			tasks: [
+				{
+					count: 6L
+					id: "713BA676BA8C8F34"
+					item: "gtceu:plutonium_241_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.pu241.title}"
+			x: 33.0d
+			y: 12.0d
+		}
+		{
+			dependencies: [
+				"7821752F8FFF2B89"
+				"226D9DFA1DBF3540"
+			]
+			description: [
+				"{af9.quest.fx.mk1.1}"
+				""
+				"{af9.quest.fx.mk1.2}"
+			]
+			icon: "gtceu:luv_fusion_reactor"
+			id: "23827C3D9504C194"
+			rewards: [{
+				id: "1B9913DD3D3A2BE3"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "gear"
+			size: 2.5d
+			subtitle: "{af9.quest.fx.mk1.subtitle}"
+			tasks: [
+				{
+					id: "1D985718B32FD1FC"
+					item: "gtceu:luv_fusion_reactor"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.mk1.title}"
+			x: 36.0d
+			y: 12.0d
+		}
+	]
+	subtitle: ["{af9.quest.fx.chapter.subtitle}"]
+	title: "{af9.quest.fx.chapter.title}"
+}
