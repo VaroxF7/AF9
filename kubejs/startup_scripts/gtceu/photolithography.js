@@ -176,14 +176,14 @@ StartupEvents.registry('block', event => {
 
 // One recipe type per exposure mode; GT turns them into machine modes. Must stay in sync with
 // com.af9.core.litho.LithoMode in af9-core.
-// Fluid inputs: developer, rinse water, extreme clean dry air and the etch plasma (the coating chemicals, HMDS, resist,
-// BARC and TARC, are the Coater Track's), + excimer laser gas from 200 nm, + ultrapure water (immersion) from 65 nm,
+// Fluid inputs: developer, rinse water, extreme clean dry air (the coating chemicals, HMDS, resist, BARC and TARC, are the
+// Coater Track's), + the etch plasma and excimer laser gas from 200 nm, + ultrapure water (immersion) from 65 nm,
 // + hafnium tetrachloride (high-k gate) from 50 nm. EUV (20 and 7 nm) needs no laser gas but molten tin and hydrogen
 // for the plasma source.
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // [node, fluid inputs, item inputs]: substrate + reticle, + the ArF Excimer Laser for 80 and 65 nm (the scanner's
     // laser slot) or the EUV Light Source for 20 and 7 nm (both not consumed)
-    const lineModes = [['350nm', 4, 2], ['200nm', 5, 2], ['100nm', 5, 2], ['80nm', 5, 3], ['65nm', 6, 3],
+    const lineModes = [['350nm', 3, 2], ['200nm', 5, 2], ['100nm', 5, 2], ['80nm', 5, 3], ['65nm', 6, 3],
         ['50nm', 7, 2], ['20nm', 7, 3], ['7nm', 7, 3]]
     // the orbital station's modes sound like it: a deep hum (af9-core AF9Sounds, vanilla sounds pitched down)
     const orbitalNodes = ['50nm', '20nm', '7nm']

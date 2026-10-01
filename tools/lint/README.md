@@ -1,6 +1,6 @@
 # AF9 lint
 
-Three linters that read the repository the way the game would and say what is wrong before anybody has to start Minecraft.
+Four linters that read the repository the way the game would and say what is wrong before anybody has to start Minecraft.
 Nothing of GT or Minecraft runs: the scripts load against stubs, the Java is only scanned for names.
 
 ```
@@ -17,6 +17,7 @@ The CI workflow runs `run.sh --selftest` before it builds (`.github/workflows/bu
 | `scripts.js` | `kubejs/startup_scripts`, `kubejs/server_scripts` | recipes, recipe types, machines, multiblock patterns |
 | `quests.py` | `config/ftbquests/quests`, the lang files | quests, tasks, dependencies, texts |
 | `assets.py` | KubeJS assets, `af9-core` resources and Java | textures, models, lang files, names |
+| `facts.py` | the recipes (`scripts.js --dump`), the quest lang | numbers in quest texts that the recipes decide |
 | `selftest.sh` | all of the above, on a scratch copy | proves each rule still finds its mistake |
 
 ## Rules
@@ -72,6 +73,12 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
 | A6 | an AF9 Core model that points to a texture or parent that does not exist, a blockstate to a missing model, an item or block without model or name, a block without loot table | |
 | A7 | a `Component.translatable("af9...")` in the Java that is in no lang file | the key shows raw in the game |
 | A8 | tabs and spaces mixed in a lang file | note only: new lines follow the file around them |
+
+### Facts (`facts.py`)
+
+| code | what it finds | how to avoid it |
+|---|---|---|
+| X1 | a quest text of a node (`af9.quest.litho.n<node>.*`) whose "Fluids per print" / "Coater Track, per wafer" amounts differ from the print and coating recipes | after changing a print or coating recipe, rewrite that text (the message names the key); keep its form `Fluids per print: a X, b Y. Coater Track, per wafer: a X, b Y; N spent solvent out.` |
 
 ## Data (`data/`)
 

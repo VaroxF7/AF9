@@ -47,6 +47,7 @@ b = bytearray((tex / 'selftest_wide.png').read_bytes()); b[16:24] = struct.pack(
 lang = root / 'kubejs/assets/kubejs/lang/en_us.json'
 t = lang.read_text(encoding='utf-8')
 t = t.rstrip().rstrip('}').rstrip() + ',\n\t"af9.selftest.dup": "one",\n\t"af9.selftest.dup": "two",\n\t"af9.selftest.fmt": "50%d done"\n}\n'
+t = t.replace('Fluids per print: 300 TMAH', 'Fluids per print: 301 TMAH', 1)   # X1: a quest text that no longer matches its recipe
 lang.write_text(t, encoding='utf-8')
 m = root / 'af9-core/src/main/resources/assets/af9/models/item/nano_cpu_card.json'
 m.write_text(m.read_text(encoding='utf-8').replace('af9:item/nano_cpu_card', 'af9:item/selftest_no_texture'), encoding='utf-8')
@@ -68,6 +69,8 @@ Q="$(python3 "$TMP/tools/lint/quests.py" "$TMP" 2>&1)"
 check quests "$Q" Q1 Q2 Q3 Q5 Q6
 A="$(python3 "$TMP/tools/lint/assets.py" "$TMP" 2>&1)"
 check assets "$A" A1 A2 A4 A5 A6
+X="$(python3 "$TMP/tools/lint/facts.py" "$TMP" 2>&1)"
+check facts "$X" X1
 if [ "${SELFTEST_VERBOSE:-}" = 1 ]; then echo "$S" | grep -E "selftest|^(ERROR|WARN)" | head -50; echo "$Q" | head -20; echo "$A" | head -20; fi
 if [ "$fail" = 0 ]; then echo "selftest ok: every planted mistake was found"; else
   echo "--- scripts"; echo "$S" | head -60; echo "--- quests"; echo "$Q" | head -30; echo "--- assets"; echo "$A" | head -30; fi

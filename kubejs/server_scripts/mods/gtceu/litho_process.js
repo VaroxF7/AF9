@@ -158,14 +158,15 @@ ServerEvents.recipes(event => {
         .cleanroom(CleanroomType.CLEANROOM)
 
     // ---- Coater Track (the machine: startup_scripts/gtceu/litho_process.js; the coating recipes: photolithography.js) ----
+    // MV like the Line: the first (350 nm) print needs a coated wafer
     gt.assembler('af9:wafer_coater')
-        .itemInputs('gtceu:hv_machine_hull', '2x gtceu:hv_electric_pump', '2x gtceu:hv_electric_motor',
-            'gtceu:hv_robot_arm', '4x #gtceu:circuits/hv', '8x gtceu:stainless_steel_plate',
+        .itemInputs('gtceu:mv_machine_hull', '2x gtceu:mv_electric_pump', '2x gtceu:mv_electric_motor',
+            'gtceu:mv_robot_arm', '4x #gtceu:circuits/mv', '8x gtceu:stainless_steel_plate',
             '4x kubejs:plascrete_pipe_casing')
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
         .itemOutputs('gtceu:wafer_coater')
         .duration(400)
-        .EUt(HV)
+        .EUt(MV)
 
     // ---- Metal-oxo EUV resists ----
     // The same tin-free idea as the tin-oxo resist, with the zirconium and hafnium the zircon chain makes: hafnium

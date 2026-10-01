@@ -27,8 +27,8 @@ const AF9_WAFERS = (() => {
     // chanced broken wafer, the break roll itself is AF9 Core's). light: the exposure tool the real node used; resist:
     // the photoresist made for that light; laserGas: the excimer premix; immersion: water film under the lens; highK:
     // HfO2 gate dielectric from hafnium tetrachloride; euv: tin-plasma source (molten tin + hydrogen buffer gas);
-    // barc: the bottom anti-reflective coat under the resist (the DUV nodes down to 65 nm; the 50 nm node has no free
-    // fluid slot for it).
+    // barc: the bottom anti-reflective coat under the resist (every ArF and KrF node, 200 to 50 nm); the immersion nodes
+    // (65, 50 nm) also get the top coat TARC, both in the Coater Track.
     const modes = [
         { id: '350nm', substrate: 0, resist: 'gtceu:photoresist', baseBreak: 200 },
         { id: '200nm', substrate: 1, resist: 'gtceu:krf_photoresist', laserGas: 'gtceu:krf_excimer_gas', barc: true,
@@ -40,7 +40,7 @@ const AF9_WAFERS = (() => {
         { id: '65nm', substrate: 4, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', immersion: true,
             barc: true, laser: 'kubejs:arf_excimer_laser', baseBreak: 900 },
         { id: '50nm', substrate: 5, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', immersion: true,
-            highK: true, baseBreak: 1200 },
+            highK: true, barc: true, baseBreak: 1200 },
         { id: '20nm', substrate: 6, resist: 'gtceu:euv_photoresist', euv: true, highK: true, baseBreak: 1800 },
         { id: '7nm', substrate: 7, resist: 'gtceu:euv_photoresist', euv: true, highK: true, baseBreak: 2500 }
     ]
@@ -582,8 +582,8 @@ ServerEvents.recipes(event => {
     // ---- Printed wafers (Photolithography Line) ----
     // Coated wafer in: exposure, PEB, TMAH develop, DI rinse, plasma etch, hard bake, 4A of the mode's tier, each step 1.5x
     // the chemicals. The excimer lasers burn their premix; immersion modes expose through ultrapure water; from 50 nm a
-    // high-k HfO2 gate is grown from HfCl4 + water (ALD); the EUV modes burn tin droplets in a hydrogen buffer; every
-    // mode etches in a plasma of CF4, chlorine, argon and oxygen. The reticle is of the mask class of the node
+    // high-k HfO2 gate is grown from HfCl4 + water (ALD); the EUV modes burn tin droplets in a hydrogen buffer; from 200 nm
+    // on the etch is a plasma of CF4, chlorine, argon and oxygen. The reticle is of the mask class of the node
     // (AF9_WAFERS.maskClass).
     // Output: GT's chip wafer (as many as the substrate yields), and the broken wafer at the mode's base break chance
     // for the recipe viewers. The machine takes the chanced broken wafer out and rolls the real break chance (node,
@@ -597,8 +597,9 @@ ServerEvents.recipes(event => {
         const fluids = [
             Fluid.of('gtceu:tmah_developer', Math.round(200 * chemicals)),
             Fluid.of('gtceu:distilled_water', Math.round(1000 * chemicals)),
-            Fluid.of('gtceu:extreme_clean_dry_air', Math.round(1000 * chemicals)),
-            Fluid.of('gtceu:etch_plasma_gas', Math.round(50 * chemicals))]
+            Fluid.of('gtceu:extreme_clean_dry_air', Math.round(1000 * chemicals))]
+        // the etch plasma (CF4 and chlorine: HV chemistry) from the 200 nm node on; the 350 nm node is MV and etches wet
+        if (m.index >= 1) fluids.push(Fluid.of('gtceu:etch_plasma_gas', Math.round(50 * chemicals)))
         if (m.laserGas) fluids.push(Fluid.of(m.laserGas, Math.round(10 * chemicals)))
         if (m.immersion) fluids.push(Fluid.of('gtceu:ultrapure_water', 1000))
         if (m.euv) {

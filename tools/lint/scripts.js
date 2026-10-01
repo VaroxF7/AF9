@@ -663,7 +663,7 @@ state.machines.forEach(m => {
 if (dump) {
     state.recipes.forEach(r => console.log(JSON.stringify({ type: r.type, id: r.id, file: r.file, itemIn: r.itemIn, itemOut: r.itemOut,
         fluidIn: r.fluidIn, fluidOut: r.fluidOut, EUt: r.calls.EUt || null, duration: r.calls.duration || null,
-        calls: Object.keys(r.calls) })))
+        fluidAmounts: r.fluidAmounts, calls: Object.keys(r.calls) })))
     process.exitCode = 0
     findings.length = 0   // nothing more to print
 }
