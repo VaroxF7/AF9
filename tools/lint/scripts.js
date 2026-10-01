@@ -240,11 +240,66 @@ ctx.GTCEuStartupEvents = { registry: startup('gtceu'), materialModification() {}
     modifyMaterial() {}, postMaterialRegistry() {} }
 const vmctx = vm.createContext(ctx)
 
+// S3: KubeJS runs the scripts on Rhino, which keeps a `const` declared in a loop's body at the value of the first pass
+// (Node, which runs them here, gives every pass its own), so the script would work in this linter and fail in the game.
+// Returns the lines of such declarations: a `const` inside the braces of a for / while loop, not inside a function
+// that starts in the loop (a callback has its own scope each call).
+function loopConsts(source) {
+    const lines = []
+    const blocks = []           // 'loop', 'function' or 'block' for every open brace
+    let pendingLoop = -1        // paren depth at which a loop's header closes, -1 none
+    let parens = 0, line = 1, i = 0
+    let next = 'block'          // what the next `{` opens
+    const skipTo = (end, escapes) => {
+        i++
+        while (i < source.length && !source.startsWith(end, i)) {
+            if (source[i] === '\n') line++
+            if (escapes && source[i] === '\\') i++
+            i++
+        }
+        i += end.length
+    }
+    while (i < source.length) {
+        const c = source[i]
+        if (c === '\n') { line++; i++; continue }
+        if (source.startsWith('//', i)) { while (i < source.length && source[i] !== '\n') i++; continue }
+        if (source.startsWith('/*', i)) { i++; skipTo('*/', false); continue }
+        if (c === '\'' || c === '"' || c === '`') { skipTo(c, true); continue }
+        if (/[A-Za-z_$]/.test(c)) {
+            let j = i
+            while (j < source.length && /[\w$]/.test(source[j])) j++
+            const word = source.slice(i, j)
+            if (word === 'for' || word === 'while') pendingLoop = parens
+            else if (word === 'function') next = 'function'
+            else if (word === 'const') {
+                const fn = blocks.lastIndexOf('function'), loop = blocks.lastIndexOf('loop')
+                if (loop > fn) lines.push(line)
+            } else if (next === 'loop') next = 'block'      // a loop with a single statement: no body of braces
+            i = j
+            continue
+        }
+        if (c === '(') parens++
+        else if (c === ')') {
+            parens--
+            if (pendingLoop === parens) { pendingLoop = -1; next = 'loop' }
+        } else if (source.startsWith('=>', i)) { next = 'function'; i += 2; continue } else if (c === '{') {
+            blocks.push(next)
+            next = 'block'
+        } else if (c === '}') blocks.pop()
+        else if (!/\s/.test(c) && next !== 'function') next = 'block'     // a loop with a single statement, an expression
+        i++
+    }
+    return lines
+}
+
 function run(file) {
     state.currentFile = path.relative(root, file)
     if (/authored by AllTheMods/.test(read(file).slice(0, 400))) {
         foreign.add(state.currentFile)
         report('WARN', 'F1', 'a file of the base pack (AllTheMods header, All Rights Reserved) is in this repository', state.currentFile)
+    }
+    for (const line of loopConsts(read(file))) {
+        report('ERROR', 'S3', `line ${line}: a const declared in a loop's body (Rhino keeps it at its first pass's value)`, state.currentFile)
     }
     try {
         vm.runInContext(read(file), vmctx, { filename: state.currentFile })
@@ -693,7 +748,11 @@ state.machines.forEach(m => {
 
 // ---- L1 lang keys of tooltips -------------------------------------------------------------------------------------
 const langKeys = new Set()
-const langFiles = walkDir(root).filter(f => /\/lang\/en_us\.json$/.test(f) && !f.includes('/node_modules/') && !f.includes('/build/'))
+// (paths with forward slashes, so the filters hold on Windows too)
+const langFiles = walkDir(root).filter(f => {
+    const p = f.replace(/\\/g, '/')
+    return /\/lang\/en_us\.json$/.test(p) && !p.includes('/node_modules/') && !p.includes('/build/')
+})
 langFiles.forEach(f => { try { Object.keys(JSON.parse(read(f))).forEach(k => langKeys.add(k)) } catch (e) { report('ERROR', 'L1', `${path.relative(root, f)} is not valid JSON: ${e.message}`, f) } })
 // GT's own keys (gtceu.*, block.gtceu.*) are in GT's jar: with a checkout of GT's source (GT_SRC=dir or --gt dir) they are checked too
 const gtSrc = process.env.GT_SRC || (args.includes('--gt') ? args[args.indexOf('--gt') + 1] : null)

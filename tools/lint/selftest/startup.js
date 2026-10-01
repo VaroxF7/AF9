@@ -6,6 +6,9 @@ StartupEvents.registry('item', event => {
     event.create('selftest_b').displayName('B')
     event.create('selftest_nameless')                            // A5: no name, A1: no texture
     event.create('selftest_dead').displayName('Dead again')      // S2: registered twice
+    for (let i = 0; i < 2; i++) {
+        const selftestKept = i                                   // S3: a const in a loop's body (Rhino keeps the first)
+    }
 })
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {

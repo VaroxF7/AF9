@@ -29,6 +29,7 @@ The CI workflow (job `lint`) runs `run.sh --selftest` before it builds (`.github
 | code | level | what it finds | how to avoid it |
 |---|---|---|---|
 | S2 | error | an item, block, fluid, material, machine or recipe type registered twice | search the startup scripts for the id before registering; one table per family |
+| S3 | error | a `const` declared in the body of a `for` / `while` loop: KubeJS's engine (Rhino) keeps it at the first pass's value, Node (this linter) does not, so the script passes here and fails in the game (the reticles registered `ilc_reticle` twice that way) | loop with a callback (`forEach`, `map`): a `const` in a callback is new each call |
 | S1 | error | a script threw while loading (typo, undefined name) | run the linter before pushing; the first line of the message is the JS error. A stub that is missing (a new GT global) goes into `ctx` in `scripts.js` |
 | F1 | warn | a file with the AllTheMods licence header is in this repo | files of the base pack are not ours to ship; do not copy them into the overlay |
 | R1 | error | the same recipe id twice in one recipe type (the second silently replaces the first) | give every recipe a unique `af9:` id; generate ids from the loop variable |

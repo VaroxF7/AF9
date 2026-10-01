@@ -71,7 +71,7 @@ check() {   # check <name> <output> <code...>
   done
 }
 S="$(node "$TMP/tools/lint/scripts.js" "$TMP" 2>&1)"
-check scripts "$S" S1 S2 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 M1 M3 M4 L1
+check scripts "$S" S1 S2 S3 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 M1 M3 M4 L1
 for typo in cleanroom_glas strange_matte_dust; do
   grep -q "gtceu:$typo" <<<"$S" || { echo "SELFTEST FAIL: scripts no longer find the GT typo gtceu:$typo"; fail=1; }
 done
