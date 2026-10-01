@@ -209,13 +209,20 @@ function FactoryBlockPatternStart() {
 }
 const FactoryBlockPattern = { start: () => FactoryBlockPatternStart() }
 
+// af9-core's OreCatalog (the ores GT has, by microverse tier): a few real ones, so the recipes made from it are linted
+const oreCatalog = {
+    materials: tier => ({ 1: ['iron', 'copper'], 2: ['gold'], 3: ['tungstate'], 4: ['pitchblende'] })[tier] || [],
+    ore: material => 'gtceu:raw_' + material
+}
+
 const ctx = {
     console, GTValues, Predicates, FactoryBlockPattern, GTCEu: { id: x => 'gtceu:' + x, MOD_ID: 'gtceu' },
     Fluid: { of: (fluid, amount) => ({ fluid, amount }) }, Item: { of: s => ({ item: s }), exists: () => true, getBlock: () => ({}) },
     Block: { getBlock: () => ({}) }, CleanroomType: { CLEANROOM: 'cleanroom', STERILE_CLEANROOM: 'sterile' },
     Ingredient: { of: s => s }, Platform: { isLoaded: () => true },
     Component: { translatable: (k, ...a) => { state.translatables.add(k); return { key: k } }, literal: k => k },
-    Java: { loadClass: n => named(String(n).split('.').pop()) }, JsonIO: { read: () => ({}) },
+    Java: { loadClass: n => String(n).endsWith('.OreCatalog') ? oreCatalog : named(String(n).split('.').pop()) },
+    JsonIO: { read: () => ({}) },
     GuiTextures: permissive(), FillDirection: permissive(), RotationState: permissive(),
     GTRecipeModifiers: permissive(), GTMaterialIconSet: permissive(), GTMaterialFlags: permissive(),
     PropertyKey: permissive(), GTSoundEntries: permissive(), GTCEuServerEvents: permissive(),

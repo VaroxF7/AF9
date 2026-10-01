@@ -47,6 +47,8 @@ the configs AF9 changes. Everything else comes from the pack itself.
   and cards, and the ME Computation Link: an ME network needs computation for its channels.
 - **Crafting CPU Array** (`docs/crafting-cpu.md`): AE2's autocrafting CPU as a GregTech multiblock: HBM Memory Sticks
   and Stacks in its racks are the CPU's bytes, CPU Clusters and Superpositioned Clusters its co-processors.
+- **Microverse Projector** (`docs/microverse.md`): every ore GT has is farmable: a Microverse Core, a Miner Drone and a
+  dust of the ore (the seed) give raw ore; four tiers, Overworld to the Asteroid Field.
 
 ## Install
 
