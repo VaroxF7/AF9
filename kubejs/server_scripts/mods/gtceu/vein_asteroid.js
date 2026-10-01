@@ -29,10 +29,10 @@ GTCEuServerEvents.oreVeins(event => {
                     .withNetherBlock(() => $AsteroidChemicalHelper.getBlock($AsteroidTagPrefix.ore, GTMaterials.get(material))))
         })
     }
-    asteroidVein('af9:asteroid_brannerite_vein', 60, 120, 0.55, 'brannerite')
-    asteroidVein('af9:asteroid_pentlandite_vein', 20, 100, 0.5, 'pentlandite')
-    asteroidVein('af9:asteroid_magnetite_vein', 15, 100, 0.5, 'magnetite')
-    asteroidVein('af9:asteroid_cooperite_vein', 10, 90, 0.45, 'cooperite')
+    asteroidVein('af9:asteroid_brannerite_vein', 60, 200, 0.55, 'brannerite')
+    asteroidVein('af9:asteroid_pentlandite_vein', 20, 170, 0.5, 'pentlandite')
+    asteroidVein('af9:asteroid_magnetite_vein', 15, 170, 0.5, 'magnetite')
+    asteroidVein('af9:asteroid_cooperite_vein', 10, 150, 0.45, 'cooperite')
 
     // The old ways to uranium: the veins with pitchblende or uraninite are switched off (weight 0), wherever the pack put
     // them
