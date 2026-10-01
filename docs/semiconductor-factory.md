@@ -8,7 +8,7 @@ gtceu: "7.2.0 (GregTech CEu Modern)"
 kubejs: "2001.6.5-build.16"
 af9_core: "0.1.0 (mod_id `af9`)"
 gtceu_config: "enableCleanroom=true, cleanMultiblocks=false, enableMaintenance=true, highTierContent=false, orderedAssemblyLineItems=true"
-status: "Matches main. One lithography mode per wafer substrate (§5.2): Photolithography Line 350 nm Si (MV) → 200 nm P → 100 nm Nq → 80 nm trinium → 65 nm naquadria → 50 nm Nt → 20 nm transmuted neutronium → 7 nm strange matter (UHV), each 4A of its tier + OC_PERFECT and with its real light source and resist (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV); the Orbital Lithography Station prints 1 nm chromodynium wafers in orbit (50A UHV laser). A substrate prints its own chips and every lower substrate's chips as GT's own plain chip wafers (a better substrate gives more of them per blank), no NBT. Vacuum cleanliness 0-100, air cooling, OPC computation, calibration and a Metrology Station decide the break roll (§18, §5.4). Boules are 10x material in the EBF's Boule Melting mode (§12). Superseded: wafer packages, per-mode chips (MUV/HUV/EUV/XUV/LUV), the old CZ boules, Mk I-III modules, high_grade/premium items."
+status: "Matches main. One lithography mode per wafer substrate (§5.2): Photolithography Line 350 nm Si (MV) → 200 nm P → 100 nm Nq → 80 nm trinium → 65 nm naquadria → 50 nm Nt → 20 nm transmuted neutronium → 7 nm strange matter (UHV), each 4A of its tier + OC_PERFECT and with its real light source and resist (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV); the Orbital Lithography Station prints 1 nm chromodynium wafers in orbit (50A UHV laser). A substrate prints its own chips and every lower substrate's chips as GT's own plain chip wafers (a better substrate gives more of them per blank), no NBT. Vacuum cleanliness 0-100, air cooling, OPC computation and a Metrology Station decide the break roll (§18, §5.4). Boules are 10x material in the EBF's Boule Melting mode (§12). Superseded: wafer packages, per-mode chips (MUV/HUV/EUV/XUV/LUV), the old CZ boules, Mk I-III modules, high_grade/premium items."
 agent_hint: "All exact IDs are in backticks. `gtceu:` = base GregTech item/machine/recipe-type (KubeJS GT machines, materials and recipe types also land in `gtceu:`). `kubejs:` = AF9 custom item/block. `af9:` = AF9 custom recipe ID (output namespace varies — see §6). No NBT anywhere in the chip chain."
 ---
 
@@ -36,7 +36,7 @@ See Appendix A for the full map. The numbers live in three places that must agre
 
 ## 0.3 One-paragraph mental model
 
-Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Siemens polysilicon → melt charges + seed crystal (SMC) → boule (EBF Boule Melting) → cutter blank wafer of one of nine substrates → Coater Track (HMDS prime, BARC, resist, TARC, bake: the blank becomes a coated wafer, §6.5b) → Photolithography Line (built in 8 versions like the Assembly Line's lengths; the mode is the substrate: 350 nm silicon … 7 nm strange matter; a reticle of the node's mask class + developer, rinse water, clean air, etch plasma + the mode's laser gas / immersion water / HfCl4 / tin) → GT's chip wafers (as many as the substrate yields) or broken wafers, decided by the machine's vacuum, cooling, computation and calibration (§5.4, §18) → cutter dies → circuit assembler. Higher substrates print every lower substrate's chips too and give more chip wafers per blank. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion → EUV 13.5 nm → high-NA EUV) and the resist made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate → tin-oxo EUV resist); the 1 nm chromodynium node is an X-ray free-electron laser in orbit. Wafers taken into a player's inventory get contaminated unless the player wears gloves or stands in a clean Cleanroom.
+Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Siemens polysilicon → melt charges + seed crystal (SMC) → boule (EBF Boule Melting) → cutter blank wafer of one of nine substrates → Coater Track (HMDS prime, BARC, resist, TARC, bake: the blank becomes a coated wafer, §6.5b) → Photolithography Line (built in 8 versions like the Assembly Line's lengths; the mode is the substrate: 350 nm silicon … 7 nm strange matter; a reticle of the node's mask class + developer, rinse water, clean air, etch plasma + the mode's laser gas / immersion water / HfCl4 / tin) → GT's chip wafers (as many as the substrate yields) or broken wafers, decided by the machine's vacuum, cooling and computation (§5.4, §18) → cutter dies → circuit assembler. Higher substrates print every lower substrate's chips too and give more chip wafers per blank. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion → EUV 13.5 nm → high-NA EUV) and the resist made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate → tin-oxo EUV resist); the 1 nm chromodynium node is an X-ray free-electron laser in orbit. Wafers taken into a player's inventory get contaminated unless the player wears gloves or stands in a clean Cleanroom.
 
 ---
 
@@ -946,7 +946,7 @@ EGS (+ dopant) → [blending] melt charge, [crystal growth] seed crystal → [EB
    4 neutronium wafers + Be target + supercooled H2 → [PARTICLE_ACCELERATOR neutron irradiation] 4 transmuted neutronium wafers)
   → [PHOTOLITHOGRAPHY_LINE version 1-8, mode = substrate (350 nm Si … 7 nm strange matter), + reticle + track fluids (+ mode's resist, laser gas, UPW, HfCl4, tin + H2)]
   | [ORBITAL_LITHOGRAPHY_STATION in orbit, 1 nm chromodynium, + reticle + dry resist cartridge + supercooled endion]
-     → GT's chip wafer(s) (as many as the substrate yields, §5.3)  or  kubejs:broken_<substrate>_wafer (break roll: vacuum, cooling, OPC, calibration)
+     → GT's chip wafer(s) (as many as the substrate yields, §5.3)  or  kubejs:broken_<substrate>_wafer (break roll: vacuum, cooling, OPC, metrology)
      → [CHEMICAL_REACTOR / LCR, cleanroom] derived wafer (nano/qbit CPU, HPIC, UHPIC) on the same substrate
      → [CUTTER] plain GT chips (more per wafer on higher substrates)
         → [CIRCUIT_ASSEMBLER] + that tier's metals (MV Al-Si + Kovar, HV gold + stainless, EV Pt-Ir + titanium,
@@ -1273,7 +1273,7 @@ Assembler at the hull tier: the base hatch + 2 sensors (receiver) or emitters (t
 - **Data stick** (GT's `IDataStickInteractable`): right-click a transmitter to write its link to the stick (`af9_wireless` tag, shown in the stick's tooltip); right-click a receiver to link it; shift-right-click a receiver to copy its link onto the stick.
 - The hatches' energy role is fixed (GT caches a part's handler IO the first time a multiblock asks, and an energy container reports none at 0 V). Overlay tint: cyan receivers, orange transmitters.
 
-# 18. The lithography process: cooling, computation, calibration, metrology, chemistry, new chips
+# 18. The lithography process: cooling, computation, metrology, chemistry, new chips
 
 What the process around the print adds to §5 (AF9 Core `LithoMachine`, `MetrologyStationMachine`, `AirConditioningHatchPartMachine`;
 KubeJS `startup_scripts/gtceu/air_conditioning.js`, `litho_process.js`, `chips.js`; `server_scripts/mods/gtceu/litho_process.js`).
@@ -1309,27 +1309,15 @@ Every node up to 20 nm has an **OPC demand** (optical proximity correction and a
 
 It is an extra, the print runs without it. The share of the demand the computation met over the print (`opcSum / opcTicks`) cuts the break chance by up to 30% (`OPC_BONUS`): factor `1 − 0.3 × share`. The 7 and 1 nm nodes already draw 32 / 96 CWU/t as a recipe input (§5.6).
 
-## 18.3 Calibration
-
-Every finished print wears the optics and stages (`driftPerPrint`, percentage points per print):
-
-| Node | 350 | 200 | 100 | 80 | 65 | 50 | 20 | 7 | 1 |
-|---|---|---|---|---|---|---|---|---|---|
-| Drift per print | 0.5 | 0.75 | 1 | 1.5 | 2 | 2.5 | 3 | 4 | 5 |
-
-- The break chance rises with the drift: factor `1 + (100 − calibration)/100` (doubled at 0 %).
-- **Below 20 %** no print starts (status CALIBRATE, code 16).
-- An **idle** machine below 70 % takes a **Calibration Wafer** (`kubejs:calibration_wafer`, assembler: silicon wafer, chromium plate, 100 mB photoresist → 4) from one of its input buses and calibrates itself in 20 s (status CALIBRATING, code 17); the calibration is persisted. A Metrology Station does it for every machine on its bus (§18.5).
-
 ## 18.4 The break chance, all together
 
-`p = min(0.95, (base + (100 − vacuum)/100 × 0.5) × 0.75^version surplus × coolant (orbital) × cooling × OPC × calibration × metrology)`; cooling = 0.8^doublings (2.0 if the hatches lost power); OPC = 1 − 0.3 × share; calibration = 1 + (100 − calibration)/100; metrology = 0.85 with a Metrology Station's feedback on the bus network (else 1). The consoles show the result; the Line's console has the AIR COOLING row and the OPC / CAL line, the Scanner's the same under its hint, Jade both.
+`p = min(0.95, (base + (100 − vacuum)/100 × 0.5) × 0.75^version surplus × coolant (orbital) × cooling × OPC × metrology)`; cooling = 0.8^doublings (2.0 if the hatches lost power); OPC = 1 − 0.3 × share; metrology = 0.85 with a Metrology Station's feedback on the bus network (else 1). The consoles show the result; the Line's console has the AIR COOLING row and the OPC line, the Scanner's the same under its hint, Jade both.
 
 ## 18.5 Metrology Station
 
-`gtceu:metrology_station` (HV assembler recipe), 3 × 3 × 5 of plascrete (aisles front → back: the controller, a measuring tube with cleanroom glass, the wafer stage, a back); item input and output bus, energy (2), fluid input, maintenance and **a Bus Connector** (maximums). Recipe type `gtceu:metrology`, `af9:metrology_run`: a Calibration Wafer + 100 mB distilled water, **24 CWU/t**, 600 t at HV; the wafer comes back 9 times in 10.
+`gtceu:metrology_station` (HV assembler recipe), 3 × 3 × 5 of plascrete (aisles front → back: the controller, a measuring tube with cleanroom glass, the wafer stage, a back); item input and output bus, energy (2), fluid input, maintenance and **a Bus Connector** (maximums). Recipe type `gtceu:metrology`, `af9:metrology_run`: a **Monitor Wafer** (`kubejs:monitor_wafer`, assembler: silicon wafer, chromium plate, 100 mB photoresist → 4) + 100 mB distilled water, **24 CWU/t**, 600 t at HV; the wafer comes back 9 times in 10.
 
-A finished run **calibrates every Line, Scanner and Orbital Station on the station's bus network** (`MetrologyStationMachine.runFinished`) and starts the **feedback**: for 10 minutes after the run, and while one is measuring, their prints break ×0.85. The station's screen lists the machines on its bus with their calibration.
+A finished run starts the **feedback** to every Line, Scanner and Orbital Station on the station's bus network (`MetrologyStationMachine.runFinished`): for 10 minutes after the run, and while one is measuring, their prints break ×0.85. The station's screen lists the machines on its bus.
 
 ## 18.6 Chemistry
 
@@ -1385,15 +1373,15 @@ No glass passes 13.5 nm light, so every optic of an EUV tool is a mirror: `kubej
 
 ## 18.11 Multi-patterning
 
-A **screwdriver on the controller** of a Line or Scanner (not while a print runs) switches multi-patterning: the machine then prints the mode **one version above its own** (a V2 line the 100 nm mode, a V1 scanner 65 nm), exposing every layer twice: **2× the run time, 1.5× the break chance, 2× the OPC demand, 2× the calibration wear** (`LithoMode.MULTI_PATTERNING_*`, `LithoMachine.isMultiPatterned`, `LITHO_VERSION`). The consoles show **MP x2** in their tuning line, Jade a "Multi-patterned" line. The Orbital Station has no versions and no multi-patterning.
+A **screwdriver on the controller** of a Line or Scanner (not while a print runs) switches multi-patterning: the machine then prints the mode **one version above its own** (a V2 line the 100 nm mode, a V1 scanner 65 nm), exposing every layer twice: **2× the run time, 1.5× the break chance, 2× the OPC demand** (`LithoMode.MULTI_PATTERNING_*`, `LithoMachine.isMultiPatterned`, `LITHO_VERSION`). The consoles show **MP x2** in their tuning line, Jade a "Multi-patterned" line. The Orbital Station has no versions and no multi-patterning.
 
 # Appendix A. File map
 
 ```text
 af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → mods/)
   litho/LithoMode.java                 # the 9 modes: substrate, node, tier, light (λ, NA, k1), resist, colour, base break chance, break/speed maths
-  machine/LithoMachine                 # shared by the litho machines: vacuum cleanliness, break roll, counters, LITHO_GATE, STRIP_BROKEN, §18: air cooling, OPC, calibration, metrology feedback
-  machine/MetrologyStationMachine      # §18.5: calibrates the litho machines on its bus, feedback
+  machine/LithoMachine                 # shared by the litho machines: vacuum cleanliness, break roll, counters, LITHO_GATE, STRIP_BROKEN, §18: air cooling, OPC, metrology feedback
+  machine/MetrologyStationMachine      # §18.5: feedback to the litho machines on its bus
   machine/part/AirConditioningHatchPartMachine # §18.1: cooling units, draw, IHeatEmitter
   thermal/IHeatEmitter                 # the hook for the Temperature Update (heat units per tick, position, direction)
   machine/PhotolithographyLineMachine  # Mk1 line + Mk2 scanner (Spec), versions, LITHO_VERSION, preview pages, recipe info
@@ -1435,12 +1423,12 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → 
   machine/fab/FabConsoleWidget         # the fab console (full for multiblocks, strip for single blocks)
 kubejs/startup_scripts/gtceu/wafers.js             # AF9_WAFER_TABLE: new blank substrates, broken + contaminated wafers (a print is GT's own chip wafer)
 kubejs/startup_scripts/gtceu/air_conditioning.js   # §18.1: the Air Conditioning Hatch MV-IV
-kubejs/startup_scripts/gtceu/litho_process.js      # §18: calibration wafer, chemistry materials, family materials, metrology recipe type + station, coater recipe type + station
+kubejs/startup_scripts/gtceu/litho_process.js      # §18: monitor wafer, chemistry materials, family materials, metrology recipe type + station, coater recipe type + station
 kubejs/startup_scripts/gtceu/reticles.js           # §6.4 / §18.9: the 67 reticles of the three mask classes
 tools/lint/                                        # the linters (README there): scripts, quests, assets, facts, self-test
 tools/textures/                                    # reticles.py, coated_wafers.py, optics.py: draw the textures
 kubejs/startup_scripts/gtceu/chips.js              # AF9's own chips (§5.3b) and the six new families (§18.7)
-kubejs/server_scripts/mods/gtceu/litho_process.js  # §18: hatches, calibration wafer, chemistry, family chains, the three new card tiers, the Metrology Station
+kubejs/server_scripts/mods/gtceu/litho_process.js  # §18: hatches, monitor wafer, chemistry, family chains, the three new card tiers, the Metrology Station
 kubejs/startup_scripts/gtceu/photolithography.js   # litho, XCDA, i-line and EUV resist materials, reticles, sieves, light sources, 9 recipe types, both litho structures, tooltips
 kubejs/startup_scripts/gtceu/boule_melting.js      # endion, endionite, charges, seeds, crucibles, new boules, Endion coils, recipe type boule_melting
 kubejs/startup_scripts/gtceu/cryogenics.js         # dense/supercooled fluids, dense_cooling + supercooling, Supercooling Cryostat, coolant hatches LuV-UHV
@@ -1460,7 +1448,7 @@ kubejs/server_scripts/mods/gtceu/tiered_circuits.js # HV-LuV circuits: plain chi
 config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in kubejs/assets/kubejs/lang/en_us.json (af9.quest.*)
 kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type/block names, tooltips, mode descriptions, AF9 material names
 af9-core/src/main/resources/assets/af9/lang/en_us.json # consoles, Jade, recipe info, substrate/light names, wafer messages
-kubejs/assets/kubejs/textures/item/wafers/*         # 5 new blanks, 9 broken, 9 contaminated, the own chips' wafers, the calibration wafer
+kubejs/assets/kubejs/textures/item/wafers/*         # 5 new blanks, 9 broken, 9 contaminated, the own chips' wafers, the monitor wafer
 kubejs/assets/kubejs/textures/item/boules/*         # melt charges, seed crystals, 4 new boules, 2 crucibles
 kubejs/assets/kubejs/textures/item/accelerator/*    # spallation target, magnetic trap, QGP trap
 kubejs/assets/kubejs/textures/item/                 # photomask blank, 12 reticles, molecular sieve (+ saturated), dry resist cartridge

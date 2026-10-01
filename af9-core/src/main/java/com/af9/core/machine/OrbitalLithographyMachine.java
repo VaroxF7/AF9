@@ -243,8 +243,6 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         if (!mode.onOrbitalStation()) return ConsoleWidget.STATUS_LOCKED;
         if (!isInOrbit()) return ConsoleWidget.STATUS_NO_ORBIT;
         if (reticleSlot.getStackInSlot(0).isEmpty()) return ConsoleWidget.STATUS_NO_RETICLE;
-        int calibrating = calibrationStatus();
-        if (calibrating >= 0) return calibrating;
         // a computation hatch alone is not enough: something (an HPCA) has to supply the node's CWU/t through it
         if (mode.computation() > 0 && availableComputation() < mode.computation()) {
             return ConsoleWidget.STATUS_NO_COMPUTATION;

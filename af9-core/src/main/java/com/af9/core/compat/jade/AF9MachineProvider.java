@@ -94,7 +94,6 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             tag.putInt("coolSteps", litho.coolingSteps(mode));
             tag.putBoolean("coolLapsed", litho.hasCoolingLapsed() && logic.isWorking());
             tag.putDouble("opc", litho.getOpcRatio(mode, logic.isWorking()));
-            tag.putDouble("cal", litho.getCalibration());
             tag.putBoolean("multi", litho.isMultiPatterned(mode));
             tag.putBoolean("multiOn", litho.isMultiPatterning());
             tag.putInt("vacuum", litho.getVacuumState());
@@ -166,7 +165,7 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
                         .withStyle(ChatFormatting.DARK_GRAY));
             }
             tooltip.add(chance);
-            // air conditioning against the print's heat, the OPC the computation gave, the calibration
+            // air conditioning against the print's heat, the OPC the computation gave
             int coolLoad = tag.getInt("coolLoad");
             if (coolLoad > 0) {
                 int coolCap = tag.getInt("coolCap");
@@ -183,11 +182,10 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
                 tooltip.add(Component.translatable("af9.jade.multipatterning_on").withStyle(ChatFormatting.DARK_PURPLE));
             }
             double opc = tag.getDouble("opc");
-            double cal = tag.getDouble("cal");
-            tooltip.add(Component.translatable("af9.jade.tuning",
-                    opc >= 0 ? Math.round(opc * 100) + "%" : "-", Math.round(cal) + "%")
-                    .withStyle(cal < LithoMode.CALIBRATION_MIN ? ChatFormatting.RED :
-                            cal < LithoMode.AUTO_CALIBRATION_BELOW ? ChatFormatting.YELLOW : ChatFormatting.GRAY));
+            if (opc >= 0) {
+                tooltip.add(Component.translatable("af9.jade.tuning", Math.round(opc * 100) + "%")
+                        .withStyle(ChatFormatting.GRAY));
+            }
         } else {
             tooltip.add(statusLine(status, Component.translatable(tag.getString("modeKey"))
                     .withStyle(ChatFormatting.AQUA)));

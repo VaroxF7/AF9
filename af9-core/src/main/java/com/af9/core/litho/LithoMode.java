@@ -77,24 +77,16 @@ public enum LithoMode {
     public static final double COOLING_LAPSE_FACTOR = 2.0;
     /** Optical proximity correction: the break chance falls by up to this share when the computation is all there. */
     public static final double OPC_BONUS = 0.3;
-    /** Calibration: break chance rises by this share (of itself) when the machine has drifted all the way (0 %). */
-    public static final double DRIFT_BREAK = 1.0;
     /** A Metrology Station on the bus network (measuring or run lately) feeds back into the machine: breaks x0.85. */
     public static final double METROLOGY_FACTOR = 0.85;
     /**
      * Multi-patterning (a screwdriver on the controller of a Line or Scanner): the machine prints the mode one version above
-     * its own by exposing every layer twice. A run takes twice as long, its prints break 1.5 times as often, need twice the
-     * OPC computation and wear the calibration twice as much.
+     * its own by exposing every layer twice. A run takes twice as long, its prints break 1.5 times as often and need
+     * twice the OPC computation.
      */
     public static final double MULTI_PATTERNING_TIME = 2.0;
     public static final double MULTI_PATTERNING_BREAK = 1.5;
     public static final int MULTI_PATTERNING_FACTOR = 2;
-    /** Below this calibration (%) no print starts until the machine is calibrated. */
-    public static final double CALIBRATION_MIN = 20;
-    /** An idle machine below this calibration (%) calibrates itself when a calibration wafer is in an input bus. */
-    public static final double AUTO_CALIBRATION_BELOW = 70;
-    /** Ticks a calibration run takes (the machine prints nothing meanwhile). */
-    public static final int CALIBRATION_TICKS = 400;
 
     public final String id;
     /** Substrate id: the blank wafer (gtceu:/kubejs:&lt;substrate&gt;_wafer) and kubejs:broken_&lt;substrate&gt;_wafer. */
@@ -231,21 +223,6 @@ public enum LithoMode {
             case N50 -> 32;
             case N20 -> 48;
             default -> 0;
-        };
-    }
-
-    /** Calibration (percentage points) one print wears off the machine: the finer the node, the faster it drifts. */
-    public double driftPerPrint() {
-        return switch (this) {
-            case N350 -> 0.5;
-            case N200 -> 0.75;
-            case N100 -> 1.0;
-            case N80 -> 1.5;
-            case N65 -> 2.0;
-            case N50 -> 2.5;
-            case N20 -> 3.0;
-            case N7 -> 4.0;
-            case N1 -> 5.0;
         };
     }
 

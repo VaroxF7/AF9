@@ -91,13 +91,12 @@ public class ScannerConsoleWidget extends ConsoleWidget {
     /** Prints in the running batch (0: nothing running). */
     private int batch;
     private boolean laser;
-    /** Air cooling (units given / heat load, doublings above it, lapsed), OPC percent (-1: none), calibration x10. */
+    /** Air cooling (units given / heat load, doublings above it, lapsed), OPC percent (-1: none). */
     private int coolCapacity;
     private int coolLoad;
     private int coolSteps;
     private boolean coolLapsed;
     private int opc = -1;
-    private int calibration = 1000;
     /** The shown mode's prints are multi-patterned (exposed twice, one version above the scanner's own). */
     private boolean multi;
     private String product = "";
@@ -186,10 +185,10 @@ public class ScannerConsoleWidget extends ConsoleWidget {
                 machine.needsAirCooling(active) ? active.heatLoad() : 0, machine.coolingSteps(active),
                 machine.hasCoolingLapsed() && logic.isWorking() ? 1 : 0,
                 opcPercent(machine.getOpcRatio(active, logic.isWorking())),
-                (int) Math.round(machine.getCalibration() * 10), machine.isMultiPatterned(active) ? 1 : 0 };
+                machine.isMultiPatterned(active) ? 1 : 0 };
         int[] before = { status, mode, version, tier, progress, duration, cleanliness, printVacuum, vacuum,
                 breakChance, workingEnabled ? 1 : 0, batchEnabled ? 1 : 0, batch, laser ? 1 : 0, coolCapacity,
-                coolLoad, coolSteps, coolLapsed ? 1 : 0, opc, calibration, multi ? 1 : 0 };
+                coolLoad, coolSteps, coolLapsed ? 1 : 0, opc, multi ? 1 : 0 };
         long newAvailable = machine.getAvailableEUt();
         String newProduct = current == null ? "" : current.toString();
         boolean changed = !Arrays.equals(now, before) || newAvailable != available ||
@@ -214,8 +213,7 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         coolSteps = now[16];
         coolLapsed = now[17] == 1;
         opc = now[18];
-        calibration = now[19];
-        multi = now[20] == 1;
+        multi = now[19] == 1;
         available = newAvailable;
         printed = machine.getPrinted();
         broken = machine.getBroken();
@@ -241,7 +239,6 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         buffer.writeVarInt(coolSteps);
         buffer.writeBoolean(coolLapsed);
         buffer.writeVarInt(opc + 1);
-        buffer.writeVarInt(calibration);
         buffer.writeBoolean(multi);
         buffer.writeVarLong(available);
         buffer.writeVarLong(printed);
@@ -270,7 +267,6 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         coolSteps = buffer.readVarInt();
         coolLapsed = buffer.readBoolean();
         opc = buffer.readVarInt() - 1;
-        calibration = buffer.readVarInt();
         multi = buffer.readBoolean();
         available = buffer.readVarLong();
         printed = buffer.readVarLong();
@@ -514,19 +510,15 @@ public class ScannerConsoleWidget extends ConsoleWidget {
             graphics.pose().popPose();
             line++;
         }
-        // the air conditioning, the OPC the computation gave and the calibration, in one line under the hint
-        double cal = calibration / 10.0;
+        // the air conditioning and the OPC the computation gave, in one line under the hint
         String quality = (multi ? Component.translatable("af9.litho.console.multipatterned").getString() + "  " : "") +
                 (coolLoad > 0 ? (coolLapsed ? Component.translatable("af9.litho.console.cooling_lapsed")
                 .getString() : Component.translatable("af9.litho.console.cooling_short", coolCapacity, coolLoad)
                 .getString()) + "  " : "") +
-                (opc >= 0 ? Component.translatable("af9.litho.console.opc", opc).getString() + "  " : "") +
-                Component.translatable("af9.litho.console.calibration", String.format(Locale.ROOT, "%.0f", cal))
-                        .getString();
+                (opc >= 0 ? Component.translatable("af9.litho.console.opc", opc).getString() : "");
         boolean coolBad = coolLoad > 0 && (coolLapsed || coolCapacity < coolLoad);
         drawSmall(graphics, fit(quality, (PANEL_W - 10) * 4 / 3), x + 5, y + 133,
-                coolBad || cal < LithoMode.CALIBRATION_MIN ? BAD : status == STATUS_CALIBRATING ? INFO :
-                        cal < LithoMode.AUTO_CALIBRATION_BELOW ? WARN : MUTED, false);
+                coolBad ? BAD : MUTED, false);
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -3089,33 +3089,8 @@
 			y: 1.5d
 		}
 		{
-			dependencies: ["35B1F5439640C0EA"]
-			description: [
-				"{af9.quest.litho.calibration.1}"
-				""
-				"{af9.quest.litho.calibration.2}"
-			]
-			id: "6BAEFBF75C1FAA9F"
-			rewards: [{
-				id: "6864AF16411BFF12"
-				type: "xp"
-				xp: 50
-			}]
-			subtitle: "{af9.quest.litho.calibration.subtitle}"
-			tasks: [
-				{
-					id: "6705EB2D6406D27D"
-					item: "kubejs:calibration_wafer"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.litho.calibration.title}"
-			x: 18.0d
-			y: 1.5d
-		}
-		{
 			dependencies: [
-				"6BAEFBF75C1FAA9F"
+				"35B1F5439640C0EA"
 				"0432E9477BA17293"
 			]
 			description: [
@@ -3138,7 +3113,7 @@
 				}
 			]
 			title: "{af9.quest.litho.metrology.title}"
-			x: 19.5d
+			x: 18.0d
 			y: 1.5d
 		}
 		{
