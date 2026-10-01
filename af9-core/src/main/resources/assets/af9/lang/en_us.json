@@ -560,6 +560,7 @@
     "af9.compute.card.luv_rack": "Fits LuV Computer Racks only",
     "af9.compute.rack.cards": "Takes cards up to %s",
     "block.af9.crafting_cpu_core": "Crafting CPU Core",
+    "block.af9.oil_regolith": "Oil Regolith",
     "af9.cpu_rack.holds": "HBM Memory and CPU Clusters in this rack:",
     "af9.cpu_rack.bytes": "Storage: %s",
     "af9.cpu_rack.threads": "Co-processors: %s",

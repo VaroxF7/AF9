@@ -27,7 +27,9 @@ import net.minecraft.world.level.levelgen.synth.SimplexNoise;
  * each axis whose surface is pushed in and out by two layers of simplex noise.
  * <p>
  * The rock is a mix of andesite, tuff, basalt and blackstone (by a slow noise, so it comes in patches): the stones
- * GregTech has ore blocks for, which is what its ore veins (the {@code af9_asteroid} layer, KubeJS) grow into. Ad
+ * GregTech has ore blocks for, which is what its ore veins (the {@code af9_asteroid} layer, KubeJS) grow into. In
+ * pockets of it (a second noise, about a seventh of the rock) the stone is {@link AF9Space#OIL_REGOLITH}, the sand-like,
+ * oil-soaked rock all of the game's oil comes from. Ad
  * Astra builds a space station at y = 100; rocks hang around it at any height.
  */
 public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
@@ -68,6 +70,9 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
             new SizeClass(4, 150, 0, 1, 18, 28, 0.9),
             new SizeClass(5, 320, 0, 1, 32, 46, 0.7),
     };
+
+    /** Above this value of the pocket noise the rock is Oil Regolith (about a seventh of it). */
+    private static final double OIL_POCKET = 0.38;
 
     /** The slow noise that lifts and sinks regions: made once per world seed. */
     private static volatile Drift drift;
@@ -153,6 +158,8 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         SimplexNoise shape = new SimplexNoise(random);
         SimplexNoise detail = new SimplexNoise(random);
         SimplexNoise rock = new SimplexNoise(random);
+        SimplexNoise pocket = new SimplexNoise(random);
+        BlockState regolith = AF9Space.OIL_REGOLITH.get().defaultBlockState();
         double radius = Math.max(radiusX, Math.max(radiusY, radiusZ));
         double shapeScale = 1.0 / Math.max(6.0, radius * 0.9);
         double detailScale = 1.0 / Math.max(3.0, radius * 0.3);
@@ -177,7 +184,8 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
                             0.10 * detail.getValue(x * detailScale, y * detailScale, z * detailScale);
                     if (distanceSquared >= bulge * bulge) continue;
                     pos.set(x, y, z);
-                    level.setBlock(pos, rockAt(rock.getValue(x * 0.09, y * 0.09, z * 0.09)), 2);
+                    boolean oily = pocket.getValue(x * 0.07, y * 0.07, z * 0.07) > OIL_POCKET;
+                    level.setBlock(pos, oily ? regolith : rockAt(rock.getValue(x * 0.09, y * 0.09, z * 0.09)), 2);
                     placed = true;
                 }
             }

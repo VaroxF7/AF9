@@ -49,6 +49,8 @@ the configs AF9 changes. Everything else comes from the pack itself.
   and Stacks in its racks are the CPU's bytes, CPU Clusters and Superpositioned Clusters its co-processors.
 - **Microverse Projector** (`docs/microverse.md`): every ore GT has is farmable: a Microverse Core, a Miner Drone and a
   dust of the ore (the seed) give raw ore; four tiers, Overworld to the Asteroid Field.
+- **Oil** (`docs/oil.md`): the world's oil is off; Oil Regolith, a sand-like rock of the asteroids, becomes Impure Oil, Shiny
+  Oil, then Oil and Heavy Oil; the Asteroid Field's fluid deposits hold nitrogen, oxygen, heavy water and acids.
 
 ## Install
 

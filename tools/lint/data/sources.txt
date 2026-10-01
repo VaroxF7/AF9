@@ -5,3 +5,5 @@ kubejs:contaminated_*
 # ores
 gtceu:zircon_dust
 gtceu:brannerite_dust
+# fluid deposits of the Asteroid Field (vein_oil.js), drilled with the Fluid Drilling Rig
+gtceu:heavy_water
