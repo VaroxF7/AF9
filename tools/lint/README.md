@@ -1,6 +1,6 @@
 # AF9 lint
 
-Five linters that read the repository the way the game would and say what is wrong before anybody has to start Minecraft.
+Six linters that read the repository the way the game would and say what is wrong before anybody has to start Minecraft.
 Nothing of GT or Minecraft runs: the scripts load against stubs, the Java is only scanned for names.
 
 ```
@@ -19,6 +19,7 @@ The CI workflow runs `run.sh --selftest` before it builds (`.github/workflows/bu
 | `assets.py` | KubeJS assets, `af9-core` resources and Java | textures, models, lang files, names |
 | `facts.py` | the recipes (`scripts.js --dump`), the quest lang | numbers in quest texts that the recipes decide |
 | `docs.py` | README.md, docs/*.md | stale paths, dead links, sections that do not exist |
+| `links.py` | the `Java.loadClass` calls of the scripts, AF9 Core's (and GT's) Java sources | classes and static members that do not exist |
 | `selftest.sh` | all of the above, on a scratch copy | proves each rule still finds its mistake |
 
 ## Rules
@@ -91,6 +92,14 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
 | D1 | a `kubejs/...`, `af9-core/...`, `config/...`, `docs/...`, `tools/...` path in the documents that is no file | when a file moves, search the documents for its old path (the appendix file map of `docs/semiconductor-factory.md` is the usual victim) |
 | D2 | a Markdown link to a file that does not exist | |
 | D3 | a `§6.4`-style reference to a section of `docs/semiconductor-factory.md` that has no heading | sections are renumbered rarely: keep the numbers, add `b`, `c` ... (6.5b) |
+
+### Links (`links.py`)
+
+| code | what it finds | how to avoid it |
+|---|---|---|
+| J1 | `Java.loadClass('com.af9...')` of a class that is not in AF9 Core (with `GT_SRC` also GT's) | the script stops with an error at startup; rename the class in the script when you rename it in Java |
+| J3 | Java names a `kubejs:<id>` (an item or block it looks up) that no startup script registers | register it, or rename in both |
+| J2 | `$Class.MEMBER` in a script where the Java source of the class does not mention MEMBER | a typo in a static field or method name; copy it from the Java source |
 
 ## Data (`data/`)
 

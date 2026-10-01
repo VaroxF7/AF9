@@ -5,7 +5,7 @@ Nichts davon wurde in Minecraft gestartet (siehe „Grenzen"); geprüft wurde mi
 
 ## 1. Kurzfassung
 
-* Ich habe **fünf Prüfprogramme** gebaut (`tools/lint/`, Aufruf `bash tools/lint/run.sh --selftest`). Sie laden die KubeJS-Skripte
+* Ich habe **sechs Prüfprogramme** gebaut (`tools/lint/`, Aufruf `bash tools/lint/run.sh --selftest`). Sie laden die KubeJS-Skripte
   gegen Attrappen von GT/Minecraft (nichts davon läuft wirklich), lesen die Quest-Dateien (SNBT), die Texturen, Modelle,
   Lang-Dateien, den Java-Quelltext und die Dokumente und melden **was im Spiel kaputt wäre**: fehlende Namen, doppelte Ids,
   Recipes die nie laufen können, Multiblocks die sich nicht bauen lassen, Quests die sich nie freischalten, Texte die lügen.
@@ -24,11 +24,12 @@ Nichts davon wurde in Minecraft gestartet (siehe „Grenzen"); geprüft wurde mi
 
 | Programm | prüft | Regeln |
 |---|---|---|
-| `scripts.js` | KubeJS: Recipes, Multiblock-Muster, Maschinen, Lang-Schlüssel | S1 S2 R1–R12 M1 M3 M4 L1 |
+| `scripts.js` | KubeJS: Recipes, Multiblock-Muster, Maschinen, Lang-Schlüssel | S1 S2 R1–R13 M1 M3 M4 L1 |
 | `quests.py` | alle Quest-Kapitel (SNBT) + Texte | Q1–Q8 |
 | `assets.py` | Texturen, `.mcmeta`, Modelle, Lang-Dateien, Namen | A1–A8 |
 | `facts.py` | Zahlen in Quest-Texten gegen die Recipes, Java-`LithoMode` gegen die Print-Recipes | X1 X2 |
 | `docs.py` | Pfade, Links, Abschnittsverweise in README und `docs/` | D1–D3 |
+| `links.py` | die `Java.loadClass`-Aufrufe der Skripte und die `kubejs:`-Ids, die das Java erwartet, gegen den Java-Quelltext | J1–J3 |
 | `selftest.sh` | prüft die Prüfer | – |
 
 Jede Regel mit Bedeutung und Gegenmaßnahme steht in `tools/lint/README.md`. Nebenprodukte: `tools/textures/` (die Skripte, die
@@ -60,6 +61,12 @@ Nicht als Fehler gewertet, aber im Bericht der Werkzeuge sichtbar: 17 Abhängigk
 diesem Repo nicht liegen (Basis-Pack), die Überlappungen und Absatz-Nummern der ATM9-Kapitel (Basis-Pack), gemischte Tabs/Leerzeichen in zwei
 Lang-Dateien (harmlos).
 
+Stichproben ohne eigenen Befund: die **GT-Formen** der Rezepte (Platte, Folie, Stange, Schraube, Draht ...) habe ich für alle
+~60 verwendeten Material/Form-Paare gegen den GT-7.2.0-Quelltext geprüft (Flags wie `EXT2_METAL`, `GENERATE_FINE_WIRE`): alle
+existieren. Alle Methoden, die die Rezepte am GT-Builder aufrufen (`CWUt`, `stationResearch`, `blastFurnaceTemp` ...), gibt es in
+7.2.0 mit diesen Signaturen. Die 54 Java-Klassen, die die Skripte laden, und jede ihrer verwendeten statischen Member gibt es.
+Dafür gibt es keine Dauerprüfung außer J1–J3; die Formen-Prüfung war einmalig und von Hand (sie braucht GTs Flag-Logik).
+
 ## 4. Beim Bauen der neuen Features abgefangen
 
 Das sind keine Fehler im Bestand, sondern Fehler, die die neuen Features gehabt hätten, wären sie ohne Gegenprobe gebaut worden.
@@ -75,11 +82,13 @@ Das sind keine Fehler im Bestand, sondern Fehler, die die neuen Features gehabt 
 
 ## 5. Regeln, die daraus folgen (Checkliste vor jedem Commit)
 
-1. `bash tools/lint/run.sh --selftest` (dasselbe läuft in CI; `GT_SRC=<GT-Checkout>` prüft zusätzlich GTs eigene Texturen und
+1. `bash tools/lint/run.sh --selftest` (dasselbe läuft in CI; ohne die GT-Textur-Prüfung, Neuaufbau der Listen mit `update-gt-lists.py`; `GT_SRC=<GT-Checkout>` prüft zusätzlich GTs eigene Texturen und
    Lang-Schlüssel).
 2. Neue Maschine / Material / Rezepttyp / Item → Name in der Definition (`langValue`, `displayName`) oder im Lang-File.
 3. Neues `fab_*`-Rezept ab HV → `.cleanroom(CleanroomType.CLEANROOM)`, außer es hat `.blastFurnaceTemp()`.
-4. Neues Recipe → `.duration()` und `.EUt()`, ganze Zahlen, Chancen 1–10000.
+4. Neues Recipe → `.duration()` und `.EUt()`, ganze Zahlen, Chancen 1–10000; **Slots der Maschine zählen** (Assembler: 9 Items,
+   **1 Fluid**; Circuit Assembler: 6 Items, 1 Fluid), Ofenrezepte brauchen `.blastFurnaceTemp()`; teilt es seine Zutaten mit einem
+   anderen Rezept derselben Maschine, bekommt eines ein `.circuit(n)`.
 5. Neue Quest → Id mit `secrets.token_hex(8).upper()` und **gegen alle Kapitel geprüft**, erste Hex-Ziffer 0–7; Absätze in
    Anzeigereihenfolge nummerieren; Position mit Abstand ≥ 1 zu Quests und Links.
 6. Zahl in einem Text, die ein Recipe bestimmt → nicht abtippen, sondern aus dem Recipe ableiten (siehe `facts.py`), sonst ein

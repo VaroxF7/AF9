@@ -19,6 +19,7 @@ rm -rf "$TMP/tools/lint/selftest"
 # --- scripts: fixtures with mistakes ------------------------------------------------------------------------------------
 cp "$HERE/selftest/startup.js" "$TMP/kubejs/startup_scripts/zz_selftest.js"
 cp "$HERE/selftest/server.js" "$TMP/kubejs/server_scripts/zz_selftest.js"
+cp "$HERE/selftest/links.js" "$TMP/kubejs/startup_scripts/zz_selftest_links.js"
 
 # --- quests: a duplicate id, a dead dependency, a missing text, a missing item, a bad id ----------------------------------------
 python3 - "$TMP" <<'PY'
@@ -52,6 +53,9 @@ t = t.replace('Fluids per print: 300 TMAH', 'Fluids per print: 301 TMAH', 1)   #
 lang.write_text(t, encoding='utf-8')
 lm = root / 'af9-core/src/main/java/com/af9/core/litho/LithoMode.java'
 lm.write_text(lm.read_text(encoding='utf-8').replace('"photoresist", 200, Machine.LINE', '"photoresist", 201, Machine.LINE', 1), encoding='utf-8')   # X2
+# --- J3: Java names a KubeJS item that nobody registers
+lmm = root / 'af9-core/src/main/java/com/af9/core/machine/LithoMachine.java'
+lmm.write_text(lmm.read_text(encoding='utf-8').replace('new ResourceLocation("kubejs", "calibration_wafer")', 'new ResourceLocation("kubejs", "selftest_no_such_item")', 1), encoding='utf-8')
 # --- docs: a path that is gone, a section that does not exist
 readme = root / 'README.md'
 readme.write_text(readme.read_text(encoding='utf-8') + '\nSee `kubejs/startup_scripts/gtceu/selftest_gone.js` and §99.1.\n', encoding='utf-8')
@@ -79,6 +83,8 @@ X="$(python3 "$TMP/tools/lint/facts.py" "$TMP" 2>&1)"
 check facts "$X" X1 X2
 D="$(python3 "$TMP/tools/lint/docs.py" "$TMP" 2>&1)"
 check docs "$D" D1 D3
+J="$(python3 "$TMP/tools/lint/links.py" "$TMP" 2>&1)"
+check links "$J" J1 J2 J3
 if [ "${SELFTEST_VERBOSE:-}" = 1 ]; then echo "$S" | grep -E "selftest|^(ERROR|WARN)" | head -50; echo "$Q" | head -20; echo "$A" | head -20; fi
 if [ "$fail" = 0 ]; then echo "selftest ok: every planted mistake was found"; else
   echo "--- scripts"; echo "$S" | head -60; echo "--- quests"; echo "$Q" | head -30; echo "--- assets"; echo "$A" | head -30; fi
