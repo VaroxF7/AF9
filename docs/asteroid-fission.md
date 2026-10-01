@@ -22,7 +22,8 @@ what the **Fusion Reactor Mk1** needs, and that is what the whole update is for.
 Ad Astra rocket (gregified parts, Aluminised Hydrolox)
    -> Ceres, its space = the Asteroid Field (af9:asteroid_field)      station built through Ad Astra's planet menu
         -> Brannerite ore in the asteroids (GT ore veins, layer af9_asteroid)
-             -> purified dust -> leach (uranyl sulfate) -> yellowcake -> UF6 (GT enriches) -> U-238 + U-235 dust
+             -> purified dust -> leach (uranyl sulfate) -> yellowcake -> reduction (EBF, hydrogen) -> uranium dust
+                  -> (UF6 -> GT's enrichment -> U-235 dust)
                   -> pellets (EBF) -> fuel rod (assembler, zirconium)
                        -> FX-1 Reactor (+ water, + NaK) -> supercritical steam -> Large Steam Turbines / Extreme Reactors
                        -> spent rod -> macerator -> nitric acid -> centrifuge -> plutonium (239 and 241), uranium back
@@ -137,10 +138,12 @@ diesel and biodiesel).
 | Precipitation | Chemical Reactor, MV | 1,000 mB uranyl sulfate, 1,000 mB ammonia | 3 Yellowcake, 1,000 mB diluted sulfuric acid |
 | UF6 | Chemical Reactor, MV | 3 yellowcake, 4,000 mB hydrofluoric acid, 2,000 mB fluorine | 1,000 mB uranium hexafluoride, 2,000 mB water |
 | (enrichment) | GT's centrifuge and electrolyzer | UF6 | U-235 and U-238 dust |
+| Reduction | Electric Blast Furnace, HV, 1,500 K | 3 yellowcake, 8,000 mB hydrogen | 6 uranium dust, 8,000 mB steam |
 | Pellets | Electric Blast Furnace, HV, 1,800 K | 12 uranium dust, 4 tiny U-235 dust, 8,000 mB oxygen | 4 `kubejs:fx_fuel_pellet` |
 | Fuel rod | Assembler, HV | 4 pellets, 1 zirconium ingot (the zircon chain: `docs/semiconductor-factory.md` §6.9) | `kubejs:fx_fuel_rod` |
 
-One ore is about three yellowcake and a thousand mB of UF6; GT's enrichment gives a tenth of it as U-235. A rod needs 12 uranium dust
+The **reduction** is what makes the natural uranium dust of the pellets: GT's own chain only gives U-235 and U-238 dust, and with the
+pitchblende and uraninite veins replaced by the asteroids nothing else did (the chain was a dead end before it). One ore is about three yellowcake and a thousand mB of UF6; GT's enrichment gives a tenth of it as U-235. A rod needs 12 uranium dust
 and 4 tiny U-235 dust and the reprocessing gives back 8 and 2 x 60 %: about **4 ore per rod net**. Tiny U-235 dust also comes from
 `af9:uranium_238_separation` (GT's centrifuge on uranium dust, 23 %, its tiny plutonium removed).
 

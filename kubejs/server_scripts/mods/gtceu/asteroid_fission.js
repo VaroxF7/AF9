@@ -65,6 +65,18 @@ ServerEvents.recipes(event => {
         .duration(200)
         .EUt(VA[GTValues.MV])
 
+    // Yellowcake to uranium metal: reduction with hydrogen (U3O8 + 8 H2 -> 3 U + 8 H2O; two thirds of it come out). This is
+    // the natural uranium dust of the pellets: GT's own chain (UF6, centrifuge, electrolyzer) only gives U-235 and U-238 dust,
+    // and with the pitchblende and uraninite veins gone nothing else makes it, so without this step the ore led nowhere.
+    event.recipes.gtceu.electric_blast_furnace('af9:yellowcake_reduction')
+        .itemInputs('3x gtceu:yellowcake_dust')
+        .inputFluids(Fluid.of('gtceu:hydrogen', 8000))
+        .itemOutputs('6x gtceu:uranium_dust')
+        .outputFluids(Fluid.of('gtceu:steam', 8000))
+        .blastFurnaceTemp(1500)
+        .duration(600)
+        .EUt(VA[GTValues.HV])
+
     // Pellets: natural uranium oxide with a little U-235 to start the chain reaction, sintered in oxygen (Kanthal coils)
     event.recipes.gtceu.electric_blast_furnace('af9:fx_fuel_pellets')
         .itemInputs('12x gtceu:uranium_dust', '4x gtceu:tiny_uranium_235_dust')
