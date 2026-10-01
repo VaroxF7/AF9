@@ -32,11 +32,16 @@ ServerEvents.recipes(event => {
         .itemOutputs('4x kubejs:calibration_wafer')
         .duration(300)
         .EUt(VA[GTValues.MV])
+})
 
-    // ======================================================================================================
-    // Chemistry (materials: startup_scripts/gtceu/litho_process.js). All in the SMC fab machines, like the
-    // rest of the fab chemistry; non-thermal recipes from HV power on need a clean room.
-    // ======================================================================================================
+// Each part is its own handler: a recipe that fails to load (an item id of another mod, a typo) stops only its own part.
+
+// ======================================================================================================
+// Chemistry (materials: startup_scripts/gtceu/litho_process.js). All in the SMC fab machines, like the
+// rest of the fab chemistry; non-thermal recipes from HV power on need a clean room.
+// ======================================================================================================
+ServerEvents.recipes(event => {
+    const VA = GTValues.VA
     const gt = event.recipes.gtceu
     const MV = VA[GTValues.MV], HV = VA[GTValues.HV], IV = VA[GTValues.IV]
 
@@ -134,4 +139,120 @@ ServerEvents.recipes(event => {
         .duration(600)
         .EUt(IV)
         .cleanroom(CleanroomType.CLEANROOM)
+})
+
+// ======================================================================================================
+// The new chip families (chips.js): the functional layers their cards use. Thermal steps in the SMC thermal furnace
+// (blast temperature, no clean room), the rest from HV power on in a clean room.
+// ======================================================================================================
+ServerEvents.recipes(event => {
+    const VA = GTValues.VA
+    const gt = event.recipes.gtceu
+    const HV = VA[GTValues.HV], EV = VA[GTValues.EV], LuV = VA[GTValues.LuV]
+
+    // Acoustic wave: the piezo films. 2 Al + 2 NH3 -> 2 AlN + 3 H2 (reactive sputtering / MOCVD); Li + Nb + O2 solid
+    // state, as the lithium niobate crystals SAW filters are cut from
+    gt.fab_cvd('af9:aluminium_nitride')
+        .itemInputs('2x gtceu:aluminium_dust')
+        .inputFluids(Fluid.of('gtceu:ammonia', 2000))
+        .itemOutputs('2x gtceu:aluminium_nitride_dust')
+        .outputFluids(Fluid.of('gtceu:hydrogen', 3000))
+        .blastFurnaceTemp(1400)
+        .duration(300)
+        .EUt(EV)
+    gt.fab_calcination('af9:lithium_niobate')
+        .itemInputs('gtceu:lithium_dust', 'gtceu:niobium_dust')
+        .inputFluids(Fluid.of('gtceu:oxygen', 3000))
+        .itemOutputs('gtceu:lithium_niobate_dust')
+        .blastFurnaceTemp(1500)
+        .duration(400)
+        .EUt(EV)
+
+    // Photonics: the silicon nitride waveguide. 3 Si + 4 NH3 -> Si3N4 + 6 H2 (LPCVD)
+    gt.fab_cvd('af9:silicon_nitride')
+        .itemInputs('3x gtceu:silicon_dust')
+        .inputFluids(Fluid.of('gtceu:ammonia', 4000))
+        .itemOutputs('gtceu:silicon_nitride_dust')
+        .outputFluids(Fluid.of('gtceu:hydrogen', 6000))
+        .blastFurnaceTemp(1300)
+        .duration(400)
+        .EUt(HV)
+
+    // Spintronics: the CoFeB free layer of the tunnel junction (sputtered from an alloy target)
+    gt.fab_blending('af9:cobalt_iron_boron')
+        .itemInputs('gtceu:cobalt_dust', 'gtceu:iron_dust', 'gtceu:boron_dust')
+        .itemOutputs('3x gtceu:cobalt_iron_boron_dust')
+        .duration(200)
+        .EUt(EV)
+        .cleanroom(CleanroomType.CLEANROOM)
+
+    // 2D materials: WSe2 by chemical vapour transport, hexagonal boron nitride from boron and ammonia
+    gt.fab_cvd('af9:tungsten_diselenide')
+        .itemInputs('gtceu:tungsten_dust', '2x gtceu:selenium_dust')
+        .itemOutputs('gtceu:tungsten_diselenide_dust')
+        .blastFurnaceTemp(1100)
+        .duration(400)
+        .EUt(LuV)
+    gt.fab_cvd('af9:boron_nitride')
+        .itemInputs('gtceu:boron_dust')
+        .inputFluids(Fluid.of('gtceu:ammonia', 1000))
+        .itemOutputs('gtceu:boron_nitride_dust')
+        .outputFluids(Fluid.of('gtceu:hydrogen', 1500))
+        .blastFurnaceTemp(1300)
+        .duration(400)
+        .EUt(LuV)
+
+    // Neuromorphic: Ge2Sb2Te5, the phase-change material of PCM cells (the memristor crossbars)
+    gt.fab_blending('af9:gst_alloy')
+        .itemInputs('2x gtceu:germanium_dust', '2x gtceu:antimony_dust', '5x gtceu:tellurium_dust')
+        .itemOutputs('9x gtceu:gst_alloy_dust')
+        .duration(300)
+        .EUt(LuV)
+        .cleanroom(CleanroomType.CLEANROOM)
+
+    // Quantum dots: CdSe nanocrystals by hot injection into a solvent
+    gt.fab_synthesis('af9:quantum_dot_colloid')
+        .itemInputs('gtceu:cadmium_dust', 'gtceu:selenium_dust')
+        .inputFluids(Fluid.of('gtceu:dimethylbenzene', 1000))
+        .outputFluids(Fluid.of('gtceu:quantum_dot_colloid', 1000))
+        .duration(400)
+        .EUt(LuV)
+        .cleanroom(CleanroomType.CLEANROOM)
+})
+
+// ======================================================================================================
+// Cards of the three new tiers (af9-core ComputeCard): the chips of the new families on a multilayer board. Photonic:
+// photonic ICs (processors) and spintronic memory; Atomic: 2D-material logic and memristor memory; Sub-atomic:
+// quantum-dot chips. Made at UV, in a clean room; the Sub-atomic ones also take the quantum-dot colloid (an
+// assembler: the circuit assembler has one fluid slot).
+// ======================================================================================================
+ServerEvents.recipes(event => {
+    const VA = GTValues.VA
+    const board = 'gtceu:multilayer_fiber_reinforced_printed_circuit_board'
+    const wire = '8x gtceu:fine_yttrium_barium_cuprate_wire'
+    const solder = Fluid.of('gtceu:soldering_alloy', 144)
+    // [id, inputs besides the board and the wire, quantum-dot colloid]
+    const cards = [
+        ['photonic_cpu', ['2x kubejs:photonic_ic_chip', '4x gtceu:silicon_nitride_dust'], 0],
+        ['photonic_gpu', ['4x kubejs:photonic_ic_chip', '8x gtceu:silicon_nitride_dust'], 0],
+        ['photonic_ram', ['4x kubejs:spin_logic_chip', '2x gtceu:cobalt_iron_boron_dust'], 0],
+        ['atomic_cpu', ['2x kubejs:tmd_logic_chip', '2x gtceu:tungsten_diselenide_dust', '2x gtceu:boron_nitride_dust'],
+            0],
+        ['atomic_gpu', ['4x kubejs:tmd_logic_chip', '4x gtceu:tungsten_diselenide_dust', '4x gtceu:boron_nitride_dust'],
+            0],
+        ['atomic_ram', ['4x kubejs:memristor_chip', '2x gtceu:gst_alloy_dust'], 0],
+        ['subatomic_cpu', ['2x kubejs:quantum_dot_ic_chip'], 250],
+        ['subatomic_gpu', ['4x kubejs:quantum_dot_ic_chip'], 500],
+        ['subatomic_ram', ['2x kubejs:quantum_dot_ic_chip', '4x kubejs:memristor_chip'], 250]
+    ]
+    cards.forEach(([id, inputs, colloid]) => {
+        const recipe = event.recipes.gtceu[colloid > 0 ? 'assembler' : 'circuit_assembler'](`af9:${id}_card`)
+            .itemInputs([board].concat(inputs, [wire]))
+            .itemOutputs(`af9:${id}_card`)
+            .duration(400)
+            .EUt(VA[GTValues.UV])
+            .cleanroom(CleanroomType.CLEANROOM)
+        if (colloid > 0) recipe.inputFluids(solder, Fluid.of('gtceu:quantum_dot_colloid', colloid))
+        else recipe.inputFluids(solder)
+    })
 })

@@ -35,7 +35,23 @@ GTCEuStartupEvents.registry('gtceu:material', event => {
         // BARC, the bottom anti-reflective coat under the resist (KrF and ArF): an acrylic polymer with a dye that
         // soaks up the light that passed the resist, in ethyl lactate. The dye is a nitrated naphthalene.
         ['nitronaphthalene', 'dust', 0xd9b24a, 'C10H7NO2'],
-        ['barc', 'liquid', 0xc9a447, '(C5H8O2)n(C10H7NO2)(C5H10O3)']
+        ['barc', 'liquid', 0xc9a447, '(C5H8O2)n(C10H7NO2)(C5H10O3)'],
+
+        // The functional layers of the new chip families (chips.js): the cards that use the chips take them too.
+        // Acoustic wave: the piezo films of SAW and BAW filters
+        ['aluminium_nitride', 'dust', 0xb8c4d0, 'AlN'],
+        ['lithium_niobate', 'dust', 0xdcd8e8, 'LiNbO3'],
+        // Photonics: the silicon nitride waveguide (germanium and indium phosphide come from GT)
+        ['silicon_nitride', 'dust', 0x9aa0b4, 'Si3N4'],
+        // Spintronics: the free layer of the magnetic tunnel junction (the MgO barrier is GT's magnesia)
+        ['cobalt_iron_boron', 'dust', 0x6c7a96, '(Co)(Fe)(B)'],
+        // 2D materials: tungsten diselenide channels, hexagonal boron nitride dielectric (MoS2 is GT's molybdenite)
+        ['tungsten_diselenide', 'dust', 0x4a5260, 'WSe2'],
+        ['boron_nitride', 'dust', 0xf0f0f4, 'BN'],
+        // Neuromorphic: the phase-change memory material
+        ['gst_alloy', 'dust', 0x8a7a96, 'Ge2Sb2Te5'],
+        // Quantum dots: CdSe nanocrystals in solution
+        ['quantum_dot_colloid', 'liquid', 0xe0503c, '(CdSe)n(C8H10)']
     ]
     materials.forEach(([id, form, color, formula]) => {
         const material = event.create(id)

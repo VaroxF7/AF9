@@ -82,7 +82,14 @@ const AF9_WAFERS = (() => {
         own('mram', 3, 'blue', 16, 'phase_shift'),
         own('feram', 3, 'yellow', 16, 'phase_shift'),
         own('vpu', 4, 'purple', 6, 'phase_shift'),
-        own('tpu', 6, 'orange', 4, 'euv')
+        own('tpu', 6, 'orange', 4, 'euv'),
+        // the new families (chips.js): the lens colours repeat across blanks, never within one
+        own('saw_filter', 2, 'red', 8, 'phase_shift'),
+        own('photonic_ic', 3, 'cyan', 6, 'phase_shift'),
+        own('spin_logic', 4, 'lime', 8, 'phase_shift'),
+        own('tmd_logic', 5, 'pink', 6, 'euv'),
+        own('memristor', 6, 'cyan', 8, 'euv'),
+        own('quantum_dot_ic', 7, 'yellow', 4, 'euv')
     ]
     const chip = id => {
         const found = chips.filter(c => c.id === id)[0]
@@ -96,7 +103,7 @@ const AF9_WAFERS = (() => {
     // Chip wafers per print, like GT's engraving: 1 on the chip's own substrate; above it the substrate's yield,
     // divided by the chip class's divisor (silicon chips 1, phosphorus chips 2, ASoC 8, HASoC 16: GT's numbers;
     // AF9's trinium, naquadria and transmuted neutronium chips: their substrate's yield)
-    const CLASS_DIVISOR = { 0: 1, 1: 2, 2: 8, 3: 10, 4: 12, 5: 16, 6: 24 }
+    const CLASS_DIVISOR = { 0: 1, 1: 2, 2: 8, 3: 10, 4: 12, 5: 16, 6: 24, 7: 32 }
     const yieldOf = (substrateIndex, c) => {
         if (substrateIndex < c.native) return 0
         if (substrateIndex === c.native) return 1
@@ -255,7 +262,8 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.LuV])
         .cleanroom(CleanroomType.CLEANROOM)
 
-    // A reticle: its blank written through the chip's lens (the finer chips' at their substrate's voltage). Every chip
+    // A reticle: its blank written through the chip's lens (the finer chips' at their substrate's voltage, at most UV:
+    // the strange-matter chips are written and cut at UV). Every chip
     // has its own lens on the chrome blank; on the other blanks the lens colours come round again.
     AF9_WAFERS.reticles.forEach(c => {
         event.recipes.gtceu.laser_engraver(`af9:${c.id}_reticle`)
@@ -263,7 +271,7 @@ ServerEvents.recipes(event => {
             .notConsumable(`#forge:lenses/${c.lens}`)
             .itemOutputs(`kubejs:${c.id}_reticle`)
             .duration(1800)
-            .EUt(c.blank ? VA[substrates[c.native].tier] : EU_MV)
+            .EUt(c.blank ? VA[Math.min(substrates[c.native].tier, GTValues.UV)] : EU_MV)
     })
 
     // ---- AF9's own chips: dicing and packaging ----
@@ -275,7 +283,7 @@ ServerEvents.recipes(event => {
             .inputFluids(Fluid.of('gtceu:distilled_water', 100))
             .itemOutputs(`${c.dies}x ${c.chip}`)
             .duration(900)
-            .EUt(VA[substrates[c.native].tier])
+            .EUt(VA[Math.min(substrates[c.native].tier, GTValues.UV)])
         if (c.native > 0) cut.cleanroom(CleanroomType.CLEANROOM)
     })
     // eDRAM beside the processor on one package, the cache chiplet (as on the Xbox 360's GPU): the CPU or SoC die and

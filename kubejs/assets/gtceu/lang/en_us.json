@@ -369,7 +369,15 @@
     "material.gtceu.lactic_acid": "Lactic Acid",
     "material.gtceu.ethyl_lactate": "Ethyl Lactate",
     "material.gtceu.nitronaphthalene": "Nitronaphthalene",
-    "material.gtceu.barc": "BARC"
+    "material.gtceu.barc": "BARC",
+    "material.gtceu.aluminium_nitride": "Aluminium Nitride",
+    "material.gtceu.lithium_niobate": "Lithium Niobate",
+    "material.gtceu.silicon_nitride": "Silicon Nitride",
+    "material.gtceu.cobalt_iron_boron": "Cobalt Iron Boron",
+    "material.gtceu.tungsten_diselenide": "Tungsten Diselenide",
+    "material.gtceu.boron_nitride": "Boron Nitride",
+    "material.gtceu.gst_alloy": "GST Alloy",
+    "material.gtceu.quantum_dot_colloid": "Quantum Dot Colloid"
 }
 
 

@@ -19,7 +19,8 @@ import java.util.Locale;
 public enum ComputeCard {
 
     // tier, kind, CWU/t (full speed), heat per tick, EU/t. The draw is a share of an amp of the card's voltage
-    // (MV, HV, IV, LuV, UV): a CPU 1/16, a GPU 1/8, RAM 1/32.
+    // (MV, HV, IV, LuV, UV): a CPU 1/16, a GPU 1/8, RAM 1/32. The last three tiers all run at UHV: Photonic the same
+    // shares (twice the computation of Tensor), Atomic and Sub-atomic more of the amp for more computation.
     TUBE_CPU(1, Kind.CPU, 1, 1, 8),
     TUBE_GPU(1, Kind.GPU, 2, 3, 16),
     TUBE_RAM(1, Kind.RAM, 0, 1, 4),
@@ -34,7 +35,16 @@ public enum ComputeCard {
     QUANTUM_RAM(4, Kind.RAM, 0, 3, 1024),
     TENSOR_CPU(5, Kind.CPU, 16, 8, 32768),
     TENSOR_GPU(5, Kind.GPU, 32, 18, 65536),
-    TENSOR_RAM(5, Kind.RAM, 0, 4, 16384);
+    TENSOR_RAM(5, Kind.RAM, 0, 4, 16384),
+    PHOTONIC_CPU(6, Kind.CPU, 32, 10, 131072),
+    PHOTONIC_GPU(6, Kind.GPU, 64, 22, 262144),
+    PHOTONIC_RAM(6, Kind.RAM, 0, 5, 65536),
+    ATOMIC_CPU(7, Kind.CPU, 64, 14, 262144),
+    ATOMIC_GPU(7, Kind.GPU, 128, 30, 524288),
+    ATOMIC_RAM(7, Kind.RAM, 0, 7, 131072),
+    SUBATOMIC_CPU(8, Kind.CPU, 128, 20, 524288),
+    SUBATOMIC_GPU(8, Kind.GPU, 256, 44, 1048576),
+    SUBATOMIC_RAM(8, Kind.RAM, 0, 10, 262144);
 
     public enum Kind {
         CPU, GPU, RAM;
@@ -44,9 +54,14 @@ public enum ComputeCard {
         }
     }
 
-    /** Card tiers: Tube (MV, before the lithography line), Silicon (HV), Nano (IV), Quantum (LuV), Tensor (UV). */
-    public static final String[] TIER_NAMES = { "", "tube", "silicon", "nano", "quantum", "tensor" };
-    public static final int MAX_TIER = 5;
+    /**
+     * Card tiers: Tube (MV, before the lithography line), Silicon (HV), Nano (IV), Quantum (LuV), Tensor (UV), then the
+     * new chip families (UHV): Photonic (photonic ICs, spintronic memory), Atomic (2D-material logic, memristor
+     * memory), Sub-atomic (quantum-dot chips).
+     */
+    public static final String[] TIER_NAMES = { "", "tube", "silicon", "nano", "quantum", "tensor", "photonic",
+            "atomic", "subatomic" };
+    public static final int MAX_TIER = 8;
 
     public final int tier;
     public final Kind kind;
