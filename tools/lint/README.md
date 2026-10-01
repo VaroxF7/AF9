@@ -4,13 +4,13 @@ Six linters that read the repository the way the game would and say what is wron
 Nothing of GT or Minecraft runs: the scripts load against stubs, the Java is only scanned for names.
 
 ```
-bash tools/lint/run.sh               # all three
+bash tools/lint/run.sh               # all of them
 bash tools/lint/run.sh --selftest    # and the self-test (see below)
-GT_SRC=/path/to/GregTech-Modern bash tools/lint/run.sh    # also checks GT's own textures and lang keys
+GT_SRC=/path/to/GregTech-Modern bash tools/lint/run.sh    # also checks GT's own textures, lang keys and classes
 ```
 
 Needs Node 18+ and Python 3. An exit code of 1 means an **error**; warnings and notes never fail.
-The CI workflow runs `run.sh --selftest` before it builds (`.github/workflows/build-af9-core.yml`).
+The CI workflow (job `lint`) runs `run.sh --selftest` before it builds (`.github/workflows/build-af9-core.yml`).
 
 | file | reads | finds |
 |---|---|---|
