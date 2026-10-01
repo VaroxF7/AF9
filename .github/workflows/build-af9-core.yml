@@ -1,6 +1,7 @@
 name: Build AF9 Core
 
 # Runs on pushes to main (and by hand from the Actions tab).
+# 0. lint:    tools/lint (recipes, multiblocks, quests, textures, lang) and its self-test; an error stops the build
 # 1. build:   builds the AF9 Core mod (af9-core/), artifact "af9-core"
 # 2. package: artifact "AF9-update": mods/af9-core-*.jar + kubejs/ and config/ from this commit.
 #             Extract it into the instance folder (next to mods/) and let it overwrite.
@@ -12,6 +13,7 @@ on:
       - 'af9-core/**'
       - 'kubejs/**'
       - 'config/**'
+      - 'tools/lint/**'
       - '.github/workflows/build-af9-core.yml'
   workflow_dispatch:
 
@@ -19,7 +21,24 @@ permissions:
   contents: read
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Lint recipes, multiblocks, quests, assets
+        run: bash tools/lint/run.sh --selftest
+
   build:
+    needs: lint
     runs-on: ubuntu-latest
     defaults:
       run:

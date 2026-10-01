@@ -58,6 +58,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // N1 Computation Array: 3x3x6. The racks sit in the middle row of the four inner slices, left and right, a cooling
     // pipe between them; hatches on any casing.
     event.create('n1_computation_array', 'multiblock')
+        .langValue('N1 Computation Array')
         .machine(holder => new $ComputationArrayMachine(holder, $ComputationArrayMachine.ARRAY))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.DUMMY_RECIPES])
@@ -87,6 +88,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // controller comes before the repeatable slices, so GT's auto-build places the structure right behind it (with the
     // controller after them GT started the build 29 blocks back, at their longest).
     event.create('n1_supercomputer_array', 'multiblock')
+        .langValue('N1 Supercomputer Array')
         .machine(holder => new $ComputationArrayMachine(holder, $ComputationArrayMachine.SUPERCOMPUTER))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.DUMMY_RECIPES])

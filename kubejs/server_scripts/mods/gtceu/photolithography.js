@@ -494,6 +494,7 @@ ServerEvents.recipes(event => {
         .outputFluids(Fluid.of('gtceu:tin_tetrachloride', 1000))
         .duration(300)
         .EUt(VA[GTValues.EV])
+        .cleanroom(CleanroomType.CLEANROOM)
 
     // Hydrolysed with methacrylic acid into tin-oxo methacrylate clusters, dissolved in PGMEA
     event.recipes.gtceu.fab_synthesis('af9:euv_photoresist')
