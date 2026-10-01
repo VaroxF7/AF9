@@ -18,6 +18,8 @@ public final class AF9Config {
     public static final ForgeConfigSpec.IntValue ME_CHANNELS_PER_CWUT;
     /** Whether the Photolithography Line and Scanner need Air Conditioning Hatches for their heat load. */
     public static final ForgeConfigSpec.BooleanValue LITHO_AIR_COOLING;
+    /** Whether players get a warning above the hotbar near radioactive material. */
+    public static final ForgeConfigSpec.BooleanValue RADIATION_HINTS;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -55,6 +57,14 @@ public final class AF9Config {
         LITHO_AIR_COOLING = builder
                 .comment("The Line and the Scanner need Air Conditioning Hatches for the heat load of the print.")
                 .define("airCooling", true);
+        builder.pop();
+        builder.comment("Radiation: GregTech's hazard system poisons players that carry radioactive material without a",
+                "hazmat suit. AF9 adds the warning: near radioactive material (in the inventory, dropped, as ore",
+                "blocks close by, a running FX-1 Reactor) a message above the hotbar says how strong it is.")
+                .push("radiation");
+        RADIATION_HINTS = builder
+                .comment("Warn above the hotbar when radioactive material is near.")
+                .define("hints", true);
         builder.pop();
         SPEC = builder.build();
     }

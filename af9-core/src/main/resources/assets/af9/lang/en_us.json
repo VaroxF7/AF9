@@ -618,5 +618,13 @@
     "af9.litho.multipatterning.busy": "Not while a print is running.",
     "af9.litho.console.multipatterned": "MP x2",
     "af9.jade.multipatterned": "Multi-patterned: twice the time, breaks x1.5, twice the OPC",
-    "af9.jade.multipatterning_on": "Multi-patterning on (a screwdriver switches it)"
+    "af9.jade.multipatterning_on": "Multi-patterning on (a screwdriver switches it)",
+    "planet.af9.ceres": "Ceres",
+    "planet.af9.asteroid_field": "Asteroid Field",
+    "af9.radiation.mild": "Radioactive material nearby",
+    "af9.radiation.strong": "Strong radiation",
+    "af9.radiation.severe": "DANGEROUS RADIATION",
+    "af9.radiation.protected": "Hazmat suit: protected",
+    "af9.radiation.unprotected": "no hazmat suit",
+    "vapor.af9.supercritical_steam": "Supercritical Steam"
 }
