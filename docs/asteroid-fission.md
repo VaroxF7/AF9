@@ -65,15 +65,17 @@ by the world seed and the *cell* of its size class:
 
 | Class | Cell (blocks) | Per cell | Radius | Centre height spread |
 |---|---|---|---|---|
-| pebbles | 16 | 1-3 | 2-4 | the whole band |
-| small | 32 | 1-3 | 4-8 | the whole band |
-| medium | 64 | 1-3 | 9-16 | the whole band |
-| large | 96 | 1-2 | 18-28 | 80 % of it |
-| huge | 160 | 1 | 32-46 | 50 % of it |
+| pebbles | 18 | 0-1 | 2-4 | the whole band |
+| small | 26 | 0-1 | 4-8 | the whole band |
+| medium | 66 | 0-1 | 9-16 | the whole band |
+| large | 150 | 0-1 | 18-28 | 90 % of it |
+| huge | 320 | 0-1 | 32-46 | 70 % of it |
 
-Centres lie at y = 8..92 (most near the middle); the station is at y = 100. The radius leans to the small end (`random^1.6`), each
+A cell may be empty (0-1: half of them are). Centres lie at y = 5..270, evenly spread, and a slow noise over the plane
+(`DRIFT`: +-90 blocks, features about 420 blocks wide) lifts and sinks whole regions, so the rocks do not hang in one flat
+band; the station is at y = 100. The radius leans to the small end (`random^1.6`), each
 axis is stretched by 0.75-1.25 (vertically 0.6-1.1) and the surface is pushed in and out by two layers of simplex noise (amplitudes
-0.25 and 0.10). About 12 % of the band is rock.
+0.25 and 0.10). About 3 blocks of rock in a column of the 300-block band: mostly empty space.
 
 The rock is andesite, tuff, basalt and blackstone, by a slow noise in patches. These are four of the stones GT has ore blocks for;
 the ore layer targets exactly them (`.targets(...)` in the startup script; lint X4).
@@ -82,11 +84,12 @@ the ore layer targets exactly them (`.targets(...)` in the startup script; lint 
 
 - **Layer** `af9_asteroid` (`kubejs/startup_scripts/gtceu/asteroid_fission.js`): GT's world gen layer for the four stones, in
   `af9:asteroid_field` only. Ore veins of this layer grow only into those blocks.
-- **Veins** (`kubejs/server_scripts/mods/gtceu/asteroid_fission.js`, `GTCEuServerEvents.oreVeins`): one per 3 x 3 chunks, chosen by
+- **Veins** (`kubejs/server_scripts/mods/gtceu/vein_asteroid.js`, `GTCEuServerEvents.oreVeins`; the file has to load after the
+  pack's `mining_dim_ores.js`, which moves every vein it finds to the Mining dimension: scripts load alphabetically): one per 3 x 3 chunks, chosen by
   weight: brannerite 60 (cluster 120, density 0.55), pentlandite 20, magnetite 15, cooperite 10 (clusters 90-100, density 0.45-0.5).
-  Height 0-110. `discardChanceOnAirExposure(0)`: the ore may sit on the surface, in the void's face.
-- GT places a vein's blocks only where there is rock. With 12 % of the band rock, a vein of cluster size 120 gives roughly 40-80
-  ore blocks. **If the field turns out to be too poor or too rich**, the knobs are the clusters and densities of the veins, and
+  Height 0-280. `discardChanceOnAirExposure(0)`: the ore may sit on the surface, in the void's face.
+- GT places a vein's blocks only where there is rock, and only in chunks generated after the veins existed: a field explored before
+  has none. The rock is much sparser now, so a vein gives fewer ore blocks than it did with 12 % of the band rock. **If the field turns out to be too poor or too rich**, the knobs are the clusters and densities of the veins, and
   `CLASSES` (cell sizes and counts) in the Java.
 - **Brannerite** (`(U,Ca,Ce)(Ti,Fe)2O6`): dust and ore, two crushed ores per ore, by-products rutile, thorium, neodymium, GT's
   radioactive hazard x0.6. No components, so GT adds no electrolyzer or centrifuge shortcut.

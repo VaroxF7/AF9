@@ -14,24 +14,30 @@ import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
 /**
  * The asteroids of the Asteroid Field (af9:asteroid_field), a void dimension: lumpy rocks of five size classes, from
- * pebbles to rocks a hundred blocks across.
+ * pebbles to rocks a hundred blocks across, with a lot of empty space between them (about 3 blocks of rock in a column
+ * of the whole 300-block height).
  * <p>
  * Every chunk draws every asteroid that reaches into it and fills only its own part, so the rocks come out whole
  * whatever order the chunks are generated in. An asteroid is fixed by the world seed and the cell of its size class
  * it belongs to: the cells of a class are squares of {@link SizeClass#cell} blocks, each holds
  * {@link SizeClass#minCount} to {@link SizeClass#maxCount} asteroids at random places, and the radius of each is
- * random between the class's limits (small ones more often than large ones). The shape is an ellipsoid with
- * different radii on each axis whose surface is pushed in and out by two layers of simplex noise.
+ * random between the class's limits (small ones more often than large ones). A cell may hold none. The height of an
+ * asteroid is spread over almost the whole height of the dimension, and a slow noise over the plane lifts and sinks whole
+ * regions ({@link #DRIFT}), so the rocks do not hang in one flat band. The shape is an ellipsoid with different radii on
+ * each axis whose surface is pushed in and out by two layers of simplex noise.
  * <p>
  * The rock is a mix of andesite, tuff, basalt and blackstone (by a slow noise, so it comes in patches): the stones
  * GregTech has ore blocks for, which is what its ore veins (the {@code af9_asteroid} layer, KubeJS) grow into. Ad
- * Astra builds a space station at y = 100, so the rocks hang below it.
+ * Astra builds a space station at y = 100; rocks hang around it at any height.
  */
 public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
 
     /** Lowest and highest y a rock's centre can have. */
-    public static final int CENTER_MIN_Y = 8;
-    public static final int CENTER_MAX_Y = 92;
+    public static final int CENTER_MIN_Y = 5;
+    public static final int CENTER_MAX_Y = 270;
+    /** How far the slow noise lifts or sinks a region's rocks (blocks), and how wide its features are (blocks). */
+    private static final double DRIFT = 90;
+    private static final double DRIFT_SCALE = 1.0 / 420.0;
 
     /** Largest stretch of a class's radius along one axis. */
     private static final double MAX_STRETCH = 1.25;
@@ -43,7 +49,7 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     /**
      * A size class: cells of {@code cell} x {@code cell} blocks, {@code minCount}..{@code maxCount} asteroids in each,
      * radii {@code minR}..{@code maxR}; {@code spread} is how far the centre's height reaches from the middle of the
-     * band (0 = all in the middle, 1 = the whole band).
+     * band (0 = all in the middle, 1 = the whole band); {@code minCount} may be 0 (an empty cell).
      */
     private record SizeClass(int salt, int cell, int minCount, int maxCount, int minR, int maxR, double spread) {
 
@@ -53,14 +59,29 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 
-    // About 12 % of the band is rock. Pebbles, small, medium, large and huge rocks.
+    // Pebbles, small, medium, large and huge rocks: about 3 blocks of rock in a column of the 300-block band, a good part
+    // of a percent of the volume (each cell holds 0 or 1: half of them are empty).
     private static final SizeClass[] CLASSES = {
-            new SizeClass(1, 16, 1, 3, 2, 4, 1.0),
-            new SizeClass(2, 32, 1, 3, 4, 8, 1.0),
-            new SizeClass(3, 64, 1, 3, 9, 16, 1.0),
-            new SizeClass(4, 96, 1, 2, 18, 28, 0.8),
-            new SizeClass(5, 160, 1, 1, 32, 46, 0.5),
+            new SizeClass(1, 18, 0, 1, 2, 4, 1.0),
+            new SizeClass(2, 26, 0, 1, 4, 8, 1.0),
+            new SizeClass(3, 66, 0, 1, 9, 16, 1.0),
+            new SizeClass(4, 150, 0, 1, 18, 28, 0.9),
+            new SizeClass(5, 320, 0, 1, 32, 46, 0.7),
     };
+
+    /** The slow noise that lifts and sinks regions: made once per world seed. */
+    private static volatile Drift drift;
+
+    private record Drift(long seed, SimplexNoise noise) {}
+
+    private static SimplexNoise driftNoise(long seed) {
+        Drift current = drift;
+        if (current == null || current.seed != seed) {
+            current = new Drift(seed, new SimplexNoise(new XoroshiroRandomSource(seed ^ 0x5DEECE66DL)));
+            drift = current;
+        }
+        return current.noise;
+    }
 
     public AsteroidFieldFeature() {
         super(NoneFeatureConfiguration.CODEC);
@@ -99,9 +120,11 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         for (int i = 0; i < count; i++) {
             double centerX = cellX * sizeClass.cell + random.nextInt(sizeClass.cell) + 0.5;
             double centerZ = cellZ * sizeClass.cell + random.nextInt(sizeClass.cell) + 0.5;
-            double band = (random.nextDouble() + random.nextDouble()) - 1.0; // -1..1, most near 0
+            double band = random.nextDouble() * 2.0 - 1.0; // -1..1, evenly
             double middle = (CENTER_MIN_Y + CENTER_MAX_Y) / 2.0;
-            double centerY = middle + band * sizeClass.spread * (CENTER_MAX_Y - CENTER_MIN_Y) / 2.0;
+            double lift = driftNoise(seed).getValue(centerX * DRIFT_SCALE, centerZ * DRIFT_SCALE) * DRIFT;
+            double centerY = Mth.clamp(middle + lift + band * sizeClass.spread * (CENTER_MAX_Y - CENTER_MIN_Y) / 2.0,
+                    CENTER_MIN_Y, CENTER_MAX_Y);
             double size = Math.pow(random.nextDouble(), 1.6);
             double radius = sizeClass.minR + size * (sizeClass.maxR - sizeClass.minR);
             double radiusX = radius * (0.75 + random.nextDouble() * 0.5);
