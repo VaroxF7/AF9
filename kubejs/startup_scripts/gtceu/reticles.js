@@ -50,15 +50,16 @@ StartupEvents.registry('item', event => {
     ]
     const classOf = native => native <= 1 ? 0 : native <= 4 ? 1 : 2
     AF9_RETICLE_TABLE.forEach(([id, name, native]) => {
-        for (let k = classOf(native); k < classes.length; k++) {
-            const cls = classes[k]
+        // a callback per class, not a for loop: Rhino keeps a const declared in a loop's body at its first value, so
+        // every pass would register the native reticle again
+        classes.slice(classOf(native)).forEach((cls, step) => {
             // the native class keeps the plain `<chip>_reticle` id
-            const itemId = k === classOf(native) ? `${id}_reticle` : `${id}${cls.suffix}_reticle`
+            const itemId = step === 0 ? `${id}_reticle` : `${id}${cls.suffix}_reticle`
             event.create(itemId)
                 .displayName(`${name} ${cls.label}Reticle`)
                 .maxStackSize(1)
                 .tooltip('Photomask for the lithography machines. Not consumed.')
                 .tooltip(cls.tip)
-        }
+        })
     })
 })

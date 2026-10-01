@@ -132,12 +132,12 @@ const AF9_WAFERS = (() => {
         `kubejs:${c.reticle}_${cls}_reticle`
     // every reticle: the chip, its class, the item, the blank it is written on, the native reticle it is written from
     const reticles = []
+    // (a callback per class, not a for loop: Rhino keeps a const declared in a loop's body at its first value)
     chips.filter(c => c.reticle).forEach(c => {
-        for (let k = CLASSES.indexOf(maskClass(c.native)); k < CLASSES.length; k++) {
-            const cls = CLASSES[k]
+        CLASSES.slice(CLASSES.indexOf(maskClass(c.native))).forEach(cls => {
             reticles.push({ chip: c, cls: cls, item: reticleItem(c, cls), blank: BLANKS[cls],
                 master: cls === maskClass(c.native) ? null : reticleItem(c, maskClass(c.native)), lens: c.lens })
-        }
+        })
     })
     return { substrates: substrates, modes: modes, orbital: orbital, chips: chips, chip: chip, printed: printed,
         yieldOf: yieldOf, wafersOf: wafersOf, chipStack: chipStack, classes: CLASSES, maskClass: maskClass,
