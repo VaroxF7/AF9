@@ -31,6 +31,14 @@ Jade tooltips).
         versionRange = "[${gtceu_version},)"
         ordering = "AFTER"
         side = "BOTH"
+    # the Asteroid Field's dimension and planets are Ad Astra data: its dimension types, noise settings and planet
+    # format have to be there, or the world's data would not load
+    [[dependencies.${mod_id}]]
+        modId = "ad_astra"
+        mandatory = true
+        versionRange = "[1.15,2)"
+        ordering = "AFTER"
+        side = "BOTH"
     [[dependencies.${mod_id}]]
         modId = "ae2"
         mandatory = false

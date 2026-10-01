@@ -50,7 +50,7 @@ the configs AF9 changes. Everything else comes from the pack itself.
 
 Build AF9 Core (or take the jar from GitHub Actions, see `af9-core/README.md`), put it into the instance's `mods/`
 folder, and copy `kubejs/` and `config/` over the instance's own. Every client and server needs the jar: the KubeJS
-scripts load its classes.
+scripts load its classes. AF9 Core needs GregTech CEu Modern 7.2.0 and Ad Astra 1.15 (the Asteroid Field is Ad Astra data); AE2, Jade and Curios are optional.
 
 ## Build
 
