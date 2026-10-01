@@ -9,6 +9,8 @@
 //             products. GT's two shortcuts to plutonium (U-238 and Pu-239 centrifuging) are gone.
 
 // ---- 1. Veins ----
+const $AsteroidChemicalHelper = Java.loadClass('com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper')
+const $AsteroidTagPrefix = Java.loadClass('com.gregtechceu.gtceu.api.data.tag.TagPrefix')
 GTCEuServerEvents.oreVeins(event => {
     // The veins of the asteroid layer; each 3 x 3 chunks of the field hold one of them (weights). Ore only grows where
     // there is rock, and an asteroid is mostly empty space around it, so the clusters are big and exposed to the
@@ -22,7 +24,10 @@ GTCEuServerEvents.oreVeins(event => {
                 .layer('af9_asteroid')
                 .dimensions('af9:asteroid_field')
                 .heightRangeUniform(0, 110)
-                .standardVeinGenerator(generator => generator.withMaterial(GTMaterials.get(material)))
+                // withBlock, not withMaterial: GT 7.2.0 sends the veins to every joining player with a codec that reads
+                // the block field only, and withMaterial leaves it empty ("Invalid player data", no world loads)
+                .standardVeinGenerator(generator => generator.withBlock(() =>
+                    $AsteroidChemicalHelper.getBlock($AsteroidTagPrefix.ore, GTMaterials.get(material))))
         })
     }
     asteroidVein('af9:asteroid_brannerite_vein', 60, 120, 0.55, 'brannerite')
