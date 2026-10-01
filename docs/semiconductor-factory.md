@@ -8,7 +8,7 @@ gtceu: "7.2.0 (GregTech CEu Modern)"
 kubejs: "2001.6.5-build.16"
 af9_core: "0.1.0 (mod_id `af9`)"
 gtceu_config: "enableCleanroom=true, cleanMultiblocks=false, enableMaintenance=true, highTierContent=false, orderedAssemblyLineItems=true"
-status: "Matches main. One lithography mode per wafer substrate (§5.2): Photolithography Line 350 nm Si (MV) → 200 nm P → 100 nm Nq → 80 nm trinium → 65 nm naquadria → 50 nm Nt → 20 nm transmuted neutronium → 7 nm strange matter (UHV), each 4A of its tier + OC_PERFECT and with its real light source and resist (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV); the Orbital Lithography Station prints 1 nm chromodynium wafers in orbit (50A UHV laser). A substrate prints its own chips and every lower substrate's chips as plain items (GT's wafer or `kubejs:<substrate>_<chip>_wafer`), no NBT. Vacuum cleanliness 0-100 decides the break roll (§5.4). Boules are 10x material in the EBF's Boule Melting mode (§12). Superseded: wafer packages, per-mode chips (MUV/HUV/EUV/XUV/LUV), the old CZ boules, Mk I-III modules, high_grade/premium items."
+status: "Matches main. One lithography mode per wafer substrate (§5.2): Photolithography Line 350 nm Si (MV) → 200 nm P → 100 nm Nq → 80 nm trinium → 65 nm naquadria → 50 nm Nt → 20 nm transmuted neutronium → 7 nm strange matter (UHV), each 4A of its tier + OC_PERFECT and with its real light source and resist (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV); the Orbital Lithography Station prints 1 nm chromodynium wafers in orbit (50A UHV laser). A substrate prints its own chips and every lower substrate's chips as GT's own plain chip wafers (a better substrate gives more of them per blank), no NBT. Vacuum cleanliness 0-100, air cooling, OPC computation, calibration and a Metrology Station decide the break roll (§18, §5.4). Boules are 10x material in the EBF's Boule Melting mode (§12). Superseded: wafer packages, per-mode chips (MUV/HUV/EUV/XUV/LUV), the old CZ boules, Mk I-III modules, high_grade/premium items."
 agent_hint: "All exact IDs are in backticks. `gtceu:` = base GregTech item/machine/recipe-type (KubeJS GT machines, materials and recipe types also land in `gtceu:`). `kubejs:` = AF9 custom item/block. `af9:` = AF9 custom recipe ID (output namespace varies — see §6). No NBT anywhere in the chip chain."
 ---
 
@@ -36,7 +36,7 @@ See Appendix A for the full map. The numbers live in three places that must agre
 
 ## 0.3 One-paragraph mental model
 
-Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Siemens polysilicon → melt charges + seed crystal (SMC) → boule (EBF Boule Melting) → cutter blank wafer of one of nine substrates → Photolithography Line (built in 8 versions like the Assembly Line's lengths; the mode is the substrate: 350 nm silicon … 7 nm strange matter; reticle + 5 track chemistries + the mode's laser gas / immersion water / HfCl4 / tin) → printed wafer (plain item) or a broken wafer, decided by the line's vacuum cleanliness → cutter dies → circuit assembler. Higher substrates print every lower substrate's chips too and cut into more dies. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion → EUV 13.5 nm → high-NA EUV) and the resist made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate → tin-oxo EUV resist); the 1 nm chromodynium node is an X-ray free-electron laser in orbit. Wafers taken into a player's inventory get contaminated unless the player wears gloves or stands in a clean Cleanroom.
+Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Siemens polysilicon → melt charges + seed crystal (SMC) → boule (EBF Boule Melting) → cutter blank wafer of one of nine substrates → Photolithography Line (built in 8 versions like the Assembly Line's lengths; the mode is the substrate: 350 nm silicon … 7 nm strange matter; reticle + 5 track chemistries + the mode's laser gas / immersion water / HfCl4 / tin) → GT's chip wafers (as many as the substrate yields) or broken wafers, decided by the machine's vacuum, cooling, computation and calibration (§5.4, §18) → cutter dies → circuit assembler. Higher substrates print every lower substrate's chips too and give more chip wafers per blank. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion → EUV 13.5 nm → high-NA EUV) and the resist made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate → tin-oxo EUV resist); the 1 nm chromodynium node is an X-ray free-electron laser in orbit. Wafers taken into a player's inventory get contaminated unless the player wears gloves or stands in a clean Cleanroom.
 
 ---
 
@@ -327,7 +327,7 @@ Lens map (base, kept by AF9): red→ILC, green→RAM, light_blue→CPU, blue→U
 
 # 5. AF9 lithography — current implementation
 
-Three machines print chip wafers: the **Photolithography Line** (Mk1: 350, 200, 100 nm), the **Photolithography Scanner** (Mk2: 80, 65 nm) and the **Orbital Lithography Station** (50, 20, 7, 1 nm, only in orbit). There is **one mode per wafer substrate**, and what comes out is a plain item: GT's own wafer when the chip belongs to the substrate, otherwise `kubejs:<substrate>_<chip>_wafer`. No NBT, no packages, no per-mode chips (all removed).
+Three machines print chip wafers: the **Photolithography Line** (Mk1: 350, 200, 100 nm), the **Photolithography Scanner** (Mk2: 80, 65 nm) and the **Orbital Lithography Station** (50, 20, 7, 1 nm, only in orbit). There is **one mode per wafer substrate**, and what comes out is GT's own chip wafer (AF9's own chips: their own wafers), as many as the substrate yields (§5.3). No NBT, no packages, no per-mode chips, no per-substrate printed wafers (all removed).
 
 ## 5.1 Machines + recipe types
 
@@ -368,32 +368,31 @@ Colours on the consoles / tiles: 350 violet, 200 blue, 100 cyan, 80 green, 65 li
 
 A substrate prints every chip whose own substrate (GT's) is the same or lower. GT's native substrates: silicon for ILC, RAM, CPU, ULPIC, LPIC, Simple SoC; phosphorus for NAND, NOR, MPIC, SoC; naquadah for ASoC; neutronium for HASoC. Derived wafers (Nano CPU, Qubit CPU from CPU; HPIC, UHPIC from MPIC) follow the substrate of the wafer they come from (GT's own: silicon for Nano/Qubit CPU, phosphorus for HPIC/UHPIC).
 
-- On the chip's own substrate: GT's wafer (`gtceu:cpu_wafer`, …).
-- On a higher substrate: `kubejs:<substrate>_<chip>_wafer`, e.g. `kubejs:naquadah_cpu_wafer` "Naquadah-doped CPU Wafer" (115 items). Chip ids are GT's wafer ids: `ilc ram cpu ulpic lpic simple_soc nand_memory nor_memory mpic soc advanced_soc highly_advanced_soc nano_cpu qbit_cpu hpic uhpic`.
-- Texture: the substrate's wafer (GT's own, or GT's silicon wafer recoloured to the new substrate) with the chip's pattern on top: the pixels where GT's printed wafer differs from its blank, drawn darker/lighter on the new substrate; derived wafers carry their source chip's pattern tinted in the treatment colour (Nano CPU blue, Qubit green, HPIC orange, UHPIC red). Generated offline from GT 7.2.0's wafer textures (the generator script is not in the repo; regenerate the same way when a substrate or chip is added).
+- **A print is GT's own chip wafer**: `gtceu:<chip>_wafer` (AF9's own chips: `kubejs:<chip>_wafer`, §5.3b), plain, no NBT. There are no per-substrate printed wafer items (the old `kubejs:<substrate>_<chip>_wafer` variants are removed): a chip is a chip whatever substrate it was printed on. Chip ids are GT's wafer ids: `ilc ram cpu ulpic lpic simple_soc nand_memory nor_memory mpic soc advanced_soc highly_advanced_soc nano_cpu qbit_cpu hpic uhpic`.
+- **A better substrate gives more wafers per print, not more dies per wafer.** One chip wafer on the chip's own substrate; above it `floor(substrate yield ÷ class divisor)` wafers (`AF9_WAFERS.yieldOf`): substrate yields 1 / 4 / 8 / 10 / 12 / 16 / 24 / 32 / 64 (Si … Qc), class divisors by the chip's own substrate 1 / 2 / 8 / 10 / 12 / 16 / 24 / 32 (GT's engraving numbers, extended). The Cutter then cuts them with GT's own recipes (the bold dies of the table, unchanged).
 
-Chips per wafer at the cutter (GT's count on the chip's own substrate, +1× per substrate above, at most 128 = the single cutter's two output slots):
+Chip wafers per print (bold: the chip's own substrate, 1 wafer):
 
-| chip | Si | P | Nq | Ke | Nq* | Nt | Nt* | Sq | Qc | cut EU/t | cleanroom |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| ilc | **8** | 16 | 24 | 32 | 40 | 48 | 56 | 64 | 72 | 64 | no |
-| ram | **32** | 64 | 96 | 128 | 128 | 128 | 128 | 128 | 128 | 96 | no |
-| cpu | **8** | 16 | 24 | 32 | 40 | 48 | 56 | 64 | 72 | 120 | no |
-| ulpic | **6** | 12 | 18 | 24 | 30 | 36 | 42 | 48 | 54 | 120 | no |
-| lpic | **4** | 8 | 12 | 16 | 20 | 24 | 28 | 32 | 36 | 480 | yes |
-| simple_soc | **6** | 12 | 18 | 24 | 30 | 36 | 42 | 48 | 54 | 64 | no |
-| nand_memory | — | **32** | 64 | 96 | 128 | 128 | 128 | 128 | 128 | 192 | yes |
-| nor_memory | — | **16** | 32 | 48 | 64 | 80 | 96 | 112 | 128 | 192 | yes |
-| mpic | — | **4** | 8 | 12 | 16 | 20 | 24 | 28 | 32 | 1920 | yes |
-| soc | — | **6** | 12 | 18 | 24 | 30 | 36 | 42 | 48 | 480 | yes |
-| advanced_soc | — | — | **6** | 12 | 18 | 24 | 30 | 36 | 42 | 1920 | yes |
-| highly_advanced_soc | — | — | — | — | — | **6** | 12 | 18 | 24 | 7680 | yes |
-| nano_cpu | **8** | 16 | 24 | 32 | 40 | 48 | 56 | 64 | 72 | 480 | yes |
-| qbit_cpu | **4** | 8 | 12 | 16 | 20 | 24 | 28 | 32 | 36 | 1920 | yes |
-| hpic | — | **2** | 4 | 6 | 8 | 10 | 12 | 14 | 16 | 7680 | yes |
-| uhpic | — | **2** | 4 | 6 | 8 | 10 | 12 | 14 | 16 | 30720 | yes |
+| chip | Si | P | Nq | Ke | Nq* | Nt | Nt* | Sq | Qc | dies per wafer (GT cutter) | cut EU/t | cleanroom |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| ilc | **1** | 4 | 8 | 10 | 12 | 16 | 24 | 32 | 64 | 8 | 64 | no |
+| ram | **1** | 4 | 8 | 10 | 12 | 16 | 24 | 32 | 64 | 32 | 96 | no |
+| cpu | **1** | 4 | 8 | 10 | 12 | 16 | 24 | 32 | 64 | 8 | 120 | no |
+| ulpic | **1** | 4 | 8 | 10 | 12 | 16 | 24 | 32 | 64 | 6 | 120 | no |
+| lpic | **1** | 4 | 8 | 10 | 12 | 16 | 24 | 32 | 64 | 4 | 480 | yes |
+| simple_soc | **1** | 4 | 8 | 10 | 12 | 16 | 24 | 32 | 64 | 6 | 64 | no |
+| nand_memory | — | **1** | 4 | 5 | 6 | 8 | 12 | 16 | 32 | 32 | 192 | yes |
+| nor_memory | — | **1** | 4 | 5 | 6 | 8 | 12 | 16 | 32 | 16 | 192 | yes |
+| mpic | — | **1** | 4 | 5 | 6 | 8 | 12 | 16 | 32 | 4 | 1920 | yes |
+| soc | — | **1** | 4 | 5 | 6 | 8 | 12 | 16 | 32 | 6 | 480 | yes |
+| advanced_soc | — | — | **1** | 1 | 1 | 2 | 3 | 4 | 8 | 6 | 1920 | yes |
+| highly_advanced_soc | — | — | — | — | — | **1** | 1 | 2 | 4 | 6 | 7680 | yes |
+| nano_cpu | **1** | 4 | 8 | 10 | 12 | 16 | 24 | 32 | 64 | 8 | 480 | yes |
+| qbit_cpu | **1** | 4 | 8 | 10 | 12 | 16 | 24 | 32 | 64 | 4 | 1920 | yes |
+| hpic | — | **1** | 4 | 5 | 6 | 8 | 12 | 16 | 32 | 2 | 7680 | yes |
+| uhpic | — | **1** | 4 | 5 | 6 | 8 | 12 | 16 | 32 | 2 | 30720 | yes |
 
-Bold = GT's own wafer, cut by GT's own cutter recipes (unchanged).
+Dies per wafer, cut EU/t and clean room are GT's own cutter recipes, unchanged.
 
 > TRAPS: chip items without `_chip`: `simple_soc`, `soc`, `advanced_soc`, `highly_advanced_soc`. Reticle ids use the old short names (`nand_reticle`, `nor_reticle`, `mpic_reticle` "PIC Reticle"). GT's engraving prefixes: `engrave_ssoc`, `engrave_asoc`, `engrave_hasoc`, `engrave_pic`.
 
@@ -513,7 +512,6 @@ Jade (§16) shows the same: the vacuum bar at the top, then status + mode, what 
 |---|---|
 | `kubejs:photomask_blank`, `kubejs:<chip>_reticle` (12), `kubejs:molecular_sieve`, `kubejs:saturated_molecular_sieve` | as before |
 | `kubejs:trinium_wafer`, `naquadria_wafer`, `transmuted_neutronium_wafer`, `strange_matter_wafer`, `chromodynium_wafer` | the new blank substrates |
-| `kubejs:<substrate>_<chip>_wafer` | 115 printed / derived wafers on higher substrates (§5.3) |
 | `kubejs:broken_<substrate>_wafer` (9) | failed prints (§5.4) |
 | `kubejs:contaminated_<substrate>_wafer` (9) | handled without protection (§15) |
 | `kubejs:dry_resist_cartridge` | orbital resist, one per wafer |
@@ -644,9 +642,9 @@ af9:molecular_sieve (wet) 4x zeolite_dust + bentonite_dust + 500 distilled_water
 
 ## 6.6 Step 3 — Print wafers (Photolithography Line, Orbital Lithography Station)
 
-Recipe IDs `af9:print_<chip>_<node>` on `gtceu:lithography_<node>` (85 recipes: 6 + 10 + 11 + 11 + 11 + 12 + 12 + 12) and `gtceu:orbital_lithography` (12). Input: the mode's blank substrate wafer + the reticle (not consumed) + fluids; output: the printed wafer (§5.3) + the broken wafer as a chanced output at the base chance (display only, §5.4). 900t, `EUt(VA[tier], 4)`.
+Recipe IDs `af9:print_<chip>_<node>` on `gtceu:lithography_<node>` (85 recipes: 6 + 10 + 11 + 11 + 11 + 12 + 12 + 12) and `gtceu:orbital_lithography` (12). Input: the mode's blank substrate wafer + the reticle (not consumed) + fluids; output: GT's chip wafer(s) (§5.3) + the broken wafer as a chanced output at the base chance (display only, §5.4). 900t, `EUt(VA[tier], 4)`. The recipe count grows with every chip of §5.3b and §18.
 
-Fluids per print (mB): the five track chemicals `round(base × 1.5^index)`, laser gas `round(10 × 1.5^index)` (200-50 nm), `ultrapure_water` 1000 flat (65 and 50 nm, immersion), `hafnium_tetrachloride` 100 flat (50, 20, 7 nm, high-k gate), molten `tin` 144 + `hydrogen` 1000 flat (20 and 7 nm, the EUV plasma source):
+Fluids per print (mB): the five track chemicals `round(base × 1.5^index)`, laser gas `round(10 × 1.5^index)` (200-50 nm), `barc` `round(60 × 1.5^index)` (200, 100, 80 and 65 nm: the DUV nodes; the 50 nm node has no free fluid slot, §18.5), `ultrapure_water` 1000 flat (65 and 50 nm, immersion), `hafnium_tetrachloride` 100 flat (50, 20, 7 nm, high-k gate), molten `tin` 144 + `hydrogen` 1000 flat (20 and 7 nm, the EUV plasma source):
 
 | Mode | `hmds_vapor` | resist | `tmah_developer` | `distilled_water` | `extreme_clean_dry_air` | laser gas | extras | fluid slots |
 |---|---|---|---|---|---|---|---|---|
@@ -669,9 +667,7 @@ Removed base: GT's engraving of every chip wafer on every substrate except `engr
 
 ## 6.7 Step 4 — Cutting (cutter)
 
-`af9:cut_<chip>_<substrate>[|_distilled_water|_water]` for every `kubejs:` printed wafer (345 recipes): the dies of §5.3 as plain GT chips, split into stacks of ≤64. Fluids: lubricant `clamp(totalEU/1280,1,250)` 900t, distilled `clamp(totalEU/426,3,750)` 1350t, water `clamp(totalEU/320,4,1000)` 1800t, `totalEU = 900 × cutEUt`; cleanroom per §5.3. GT's own wafers keep GT's cutter recipes.
-
-AF9's own chip wafers: `af9:cut_<chip>_wafer`, `kubejs:<chip>_wafer` + 100mB distilled water → the dies of §5.3b | 900t | the chip substrate's voltage; a clean room from phosphorus up.
+GT's chip wafers are cut by GT's own cutter recipes (dies per wafer, EU/t, clean room: the table of §5.3), whatever substrate they were printed on. AF9's own chip wafers: `af9:cut_<chip>_wafer`, `kubejs:<chip>_wafer` + 100mB distilled water → the dies of §5.3b | 900t | the chip substrate's voltage (at most UV); a clean room from phosphorus up. (The old `af9:cut_<chip>_<substrate>` recipes of the printed substrate wafers no longer exist.)
 
 ## 6.8 Step 5 — Circuits
 
@@ -907,7 +903,7 @@ EGS (+ dopant) → [blending] melt charge, [crystal growth] seed crystal → [EB
    4 neutronium wafers + Be target + supercooled H2 → [PARTICLE_ACCELERATOR neutron irradiation] 4 transmuted neutronium wafers)
   → [PHOTOLITHOGRAPHY_LINE version 1-8, mode = substrate (350 nm Si … 7 nm strange matter), + reticle + track fluids (+ mode's resist, laser gas, UPW, HfCl4, tin + H2)]
   | [ORBITAL_LITHOGRAPHY_STATION in orbit, 1 nm chromodynium, + reticle + dry resist cartridge + supercooled endion]
-     → printed wafer (GT's own on the chip's substrate, kubejs:<substrate>_<chip>_wafer above it)  or  kubejs:broken_<substrate>_wafer (vacuum roll)
+     → GT's chip wafer(s) (as many as the substrate yields, §5.3)  or  kubejs:broken_<substrate>_wafer (break roll: vacuum, cooling, OPC, calibration)
      → [CHEMICAL_REACTOR / LCR, cleanroom] derived wafer (nano/qbit CPU, HPIC, UHPIC) on the same substrate
      → [CUTTER] plain GT chips (more per wafer on higher substrates)
         → [CIRCUIT_ASSEMBLER] + that tier's metals (MV Al-Si + Kovar, HV gold + stainless, EV Pt-Ir + titanium,
@@ -964,7 +960,7 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 | asic | on top: GT Large Miners EV 2 / IV 4 / LuV 8, Fluid Drilling Rigs HV 2 / EV 4 (not MV: before phosphorus), Void Miner 4; extra SMC fab multiblock controller recipes with ASICs in place of the circuits | chip_uses.js, miner.js, fab_machines.js |
 | edram packages | extra, half the time, 1 package in place of 4 RAM: Quantum Computer (and ASMD) 4 CPU packages, Crystal Processor Assembly 6 SoC packages, the pack's Nano Mainframe (Assembly Line, 800 t) 4 CPU packages | tiered_circuits.js |
 | mram | extra, half GT's time, no research, clean room: Data Orb (Circuit Assembler: epoxy board, CPU chip, 4 MRAM, 16 fine Pt wire), Data Bank (Assembler: computer casing, 16 MRAM, 2 CPU chips, 32 fine NbTi wire, 4 optical pipes), Advanced Data Access Hatch (Assembler: LuV input bus, 8 MRAM, 2 CPU chips, 32 fine NbTi wire) | chip_uses.js |
-| feram | none yet (kept for later features) | |
+| feram | the Tensor RAM card of the computation arrays (the pack's UV memory) | computation.js |
 | vpu | GT LuV Sensor (Assembly Line): 2 on top; LuV Scanner: GT's shape with 2 VPUs in place of the bottom two ZPM circuits (`CEC / WHW / VSV`); Orbital Lithography Station: 8 on top | chip_uses.js, photolithography.js |
 | tpu | GT HPCA Advanced Computation Component: 4 on top; the pack's UHV Wetware Mainframe: 16 on top | chip_uses.js |
 
@@ -974,12 +970,14 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 2. Circuits do not ask for a substrate: a UV circuit could be made to need 20 nm chips (e.g. only cut from transmuted neutronium wafers) if the late game should depend on the new substrates beyond die counts.
 3. Wet etch (HF/BOE) step, sterile cleanroom wafers, crystal chips (autoclave path) — untouched.
 4. Quests are updated (§6.10); non-English quest languages show the new English text for changed quests until translated.
-5. Hafnium metal: only HfCl4 is used (high-k); `GTMaterials.Hafnium` still has no items. Zirconium ingots have no use yet.
+5. Hafnium metal: still has no items (only HfCl4: the high-k gate and the hafnium-oxo resist, §18.6); zirconium ingots have no use beyond the zirconium-oxo resist.
 6. Masks: one reticle per chip serves every mode; GT's chips are binary chrome, AF9's 80 nm and finer chips have phase-shift or EUV reticles (§5.3b), GT's own chips do not. Real sub-wavelength and EUV modes need phase-shift masks with OPC, EUV reflective Mo/Si masks; a PSM / reflective reticle tier would be the next realism step.
-7. BARC/topcoat coats and multi-patterning are not modelled; every AF9 mode is single exposure (k1 ≥ 0.29).
+7. BARC is a track fluid of the DUV nodes (§18.6); the topcoat (TARC) and multi-patterning are not modelled; every AF9 mode is single exposure (k1 ≥ 0.29).
 8. ArF resin is the first-generation methacrylate terpolymer. Modern ArF monomers (2-methyl-2-adamantyl methacrylate from dicyclopentadiene → adamantane → adamantanone; α-methacryloyloxy-γ-butyrolactone from 1,4-butanediol) would extend Line 5. The i-line DNQ chain (§6.5) is still the short 3-step version (real PAC: DNQ-5-sulfonyl chloride esterified onto a trihydroxybenzophenone).
 9. Pd/C, VPO, TS-1, iron molybdate, acidic resin and the other catalysts are not consumed; catalyst deactivation is not modelled.
 10. The orbital station's orbit test is by dimension name (`orbit` / `*_orbit`); a new space mod's orbit dimension with another name needs a line in `OrbitalLithographyMachine.isOrbit`.
+11. The track split (coater and developer modules as multiblocks, TARC, etch and strip as steps of their own) needs wafers that carry their process state, i.e. an item per substrate and state; see §18.8.
+12. The Temperature Update (warmth around machines the player feels, the hotbar message, the screen effect): the Air Conditioning Hatch is an `IHeatEmitter` (§18.1); the system that reads it is not built. The computation arrays have their own heat (§ machine-bus 9) and could implement it too.
 
 ---
 
@@ -992,9 +990,9 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 - [ ] Tier check for consumables (§6.11): 350 nm inputs at MV0 (single blocks ≤ MV incl. MV SMC single blocks and still cuts, SMC Thermal Processing Furnace, pyrolyse), 200 nm inputs at HV0 (+ HV single blocks, SMC multiblocks, cracker), no Distillation Tower / Vacuum Freezer before 200 nm chips. Run the reachability analysis over GT 7.2.0 + AF9 recipes after every chain change.
 - [ ] Subset conflicts in both directions within each fab type and, for AF9 recipes on GT machines, against every GT 7.2.0 recipe of the same machine (CR recipes also run in the LCR); circuit-gated recipes only clash with the same circuit. Watch GT's generic ones: distilled-water electrolysis, clay/quartzite autoclave, graphite electrolysis, ethenone (sulfuric + acetic acid), acetic acid (CO + methanol), steel (iron + oxygen).
 - [ ] New fab materials: formula only, no components (no GT decomposition shortcut); ID must not exist in GT 7.2.0.
-- [ ] Prints: the mode's blank wafer + reticle (NC) + fluids → one printed wafer (GT's own on the chip's substrate, `kubejs:<substrate>_<chip>_wafer` above it) + the broken wafer as a chanced output at the base chance; 900t, `EUt(VA[tier], 4)` (orbital 7200t, `EUt(VA[UHV], 50)`); chemicals `round(base×1.5^i)`; a substrate prints exactly the chips whose native substrate is at or below it. Line versions (§5.5): `LithoMode` constants and `PhotolithographyLineMachine` light sources match the startup structure (lens aisle `setRepeatable(3, 10)`, `L` = lamp / KrF / ArF / EUV source).
+- [ ] Prints: the mode's blank wafer + reticle (NC) + fluids → GT's chip wafer(s) (`AF9_WAFERS.yieldOf`) + the broken wafer as a chanced output at the base chance; 900t, `EUt(VA[tier], 4)` (orbital 7200t, `EUt(VA[UHV], 50)`); chemicals `round(base×1.5^i)`; a substrate prints exactly the chips whose native substrate is at or below it. Line versions (§5.5): `LithoMode` constants and `PhotolithographyLineMachine` light sources match the startup structure (lens aisle `setRepeatable(3, 10)`, `L` = lamp / KrF / ArF / EUV source).
 - [ ] Derived wafers: chemical reactor + LCR recipes on every substrate that prints the source chip, same substrate out, cleanroom; GT's own derived recipes stay for GT's wafers.
-- [ ] Cutter: every `kubejs:` printed wafer → `AF9_WAFERS.dies(substrate, chip)` plain chips (GT count × (1 + substrates above native), ≤128), ≤64 per stack, GT fluid formulas with clamps, cleanroom per §5.3; GT's own wafers keep GT's cutter recipes.
+- [ ] Cutter: GT's chip wafers keep GT's cutter recipes whatever substrate printed them; AF9's own chip wafers have `af9:cut_<chip>_wafer`.
 - [ ] Circuits: plain chips only (`AF9_WAFERS.chipStack`); no NBT, no mode tags.
 - [ ] Metals: a tier's circuits only use that tier's metals (Circuits quest page), each makeable with the previous tier's machines (mixer/EBF voltage one tier lower; two hatches give +1 tier on an EBF).
 - [ ] Bootstrap check for any change: a tier-T circuit, energy hatch or the line must never need something only tier-T machines make.
@@ -1230,12 +1228,109 @@ Assembler at the hull tier: the base hatch + 2 sensors (receiver) or emitters (t
 - **Data stick** (GT's `IDataStickInteractable`): right-click a transmitter to write its link to the stick (`af9_wireless` tag, shown in the stick's tooltip); right-click a receiver to link it; shift-right-click a receiver to copy its link onto the stick.
 - The hatches' energy role is fixed (GT caches a part's handler IO the first time a multiblock asks, and an energy container reports none at 0 V). Overlay tint: cyan receivers, orange transmitters.
 
+# 18. The lithography process: cooling, computation, calibration, metrology, chemistry, new chips
+
+What the process around the print adds to §5 (AF9 Core `LithoMachine`, `MetrologyStationMachine`, `AirConditioningHatchPartMachine`;
+KubeJS `startup_scripts/gtceu/air_conditioning.js`, `litho_process.js`, `chips.js`; `server_scripts/mods/gtceu/litho_process.js`).
+
+## 18.1 Air cooling: the Air Conditioning Hatch
+
+The Photolithography Line and Scanner are built as clean rooms, so they cool with air (the Orbital Station is in space and cools with supercooled fluids, §5.6). A print puts a **heat load** into the chamber, in cooling units (CU); the **Air Conditioning Hatches** of the structure (ability `af9_air_conditioning`, up to 2, MV-IV) have to carry it away. A hatch is worth 1 CU at MV and doubles per tier.
+
+| Node | 350 nm | 200 nm | 100 nm | 80 nm | 65 nm |
+|---|---|---|---|---|---|
+| Heat load (CU) | 1 | 2 | 4 | 8 | 16 |
+
+| Hatch | MV | HV | EV | IV |
+|---|---|---|---|---|
+| Cooling units | 1 | 2 | 4 | 8 |
+| Draw while a print runs | ¼ A of its tier | | | |
+
+- **Short of cooling: no print** (status NO COOLING, code 15). The hatches draw their power from the machine's own energy hatches every 10 ticks while a print runs (`updateCooling`); a print during which they went without power breaks **twice** as often (`COOLING_LAPSE_FACTOR`, status text COOLING LOST POWER).
+- **Every doubling of the CU above the heat load** (up to 2): the print runs ×0.9 as long (`Coolant.TIME_FACTOR`, in `LITHO_VERSION`) and breaks ×0.8 as often (`Coolant.BREAK_FACTOR`). Two IV hatches (16 CU) are exactly what a 65 nm print needs.
+- Config `config/af9-common.toml` `[lithography] airCooling = true`: switch it off and the Line and Scanner need no hatches.
+- Recipes: an assembler recipe per tier (hull, pump, motor, 2 circuits, 4 tier plates, soldering alloy).
+- **The warm air** leaves from the hatch's front. `AirConditioningHatchPartMachine` implements `thermal/IHeatEmitter` (`getHeatOutput()` in heat units per tick: 2 per CU in use while the machine cools, `getHeatPos()`, `getHeatDirection()`): **the hook for the Temperature Update**. Nothing reads it yet; the temperature system (warmth around machines the player feels, the hotbar message, the screen effect) is meant to collect the emitters and warm the blocks in front of them.
+
+## 18.2 OPC: computation that improves the yield
+
+Every node up to 20 nm has an **OPC demand** (optical proximity correction and alignment, `LithoMode.opcDemand`), drawn each tick while a print runs from the machine's computation source (a Bus Connector, or a computation hatch on the orbital station):
+
+| Node | 350 | 200 | 100 | 80 | 65 | 50 | 20 | 7 | 1 |
+|---|---|---|---|---|---|---|---|---|---|
+| OPC CWU/t | 2 | 4 | 8 | 16 | 24 | 32 | 48 | – | – |
+
+It is an extra, the print runs without it. The share of the demand the computation met over the print (`opcSum / opcTicks`) cuts the break chance by up to 30% (`OPC_BONUS`): factor `1 − 0.3 × share`. The 7 and 1 nm nodes already draw 32 / 96 CWU/t as a recipe input (§5.6).
+
+## 18.3 Calibration
+
+Every finished print wears the optics and stages (`driftPerPrint`, percentage points per print):
+
+| Node | 350 | 200 | 100 | 80 | 65 | 50 | 20 | 7 | 1 |
+|---|---|---|---|---|---|---|---|---|---|
+| Drift per print | 0.5 | 0.75 | 1 | 1.5 | 2 | 2.5 | 3 | 4 | 5 |
+
+- The break chance rises with the drift: factor `1 + (100 − calibration)/100` (doubled at 0 %).
+- **Below 20 %** no print starts (status CALIBRATE, code 16).
+- An **idle** machine below 70 % takes a **Calibration Wafer** (`kubejs:calibration_wafer`, assembler: silicon wafer, chromium plate, 100 mB photoresist → 4) from one of its input buses and calibrates itself in 20 s (status CALIBRATING, code 17); the calibration is persisted. A Metrology Station does it for every machine on its bus (§18.5).
+
+## 18.4 The break chance, all together
+
+`p = min(0.95, (base + (100 − vacuum)/100 × 0.5) × 0.75^version surplus × coolant (orbital) × cooling × OPC × calibration × metrology)`; cooling = 0.8^doublings (2.0 if the hatches lost power); OPC = 1 − 0.3 × share; calibration = 1 + (100 − calibration)/100; metrology = 0.85 with a Metrology Station's feedback on the bus network (else 1). The consoles show the result; the Line's console has the AIR COOLING row and the OPC / CAL line, the Scanner's the same under its hint, Jade both.
+
+## 18.5 Metrology Station
+
+`gtceu:metrology_station` (HV assembler recipe), 3 × 3 × 5 of plascrete (aisles front → back: the controller, a measuring tube with cleanroom glass, the wafer stage, a back); item input and output bus, energy (2), fluid input, maintenance and **a Bus Connector** (maximums). Recipe type `gtceu:metrology`, `af9:metrology_run`: a Calibration Wafer + 100 mB distilled water, **24 CWU/t**, 600 t at HV; the wafer comes back 9 times in 10.
+
+A finished run **calibrates every Line, Scanner and Orbital Station on the station's bus network** (`MetrologyStationMachine.runFinished`) and starts the **feedback**: for 10 minutes after the run, and while one is measuring, their prints break ×0.85. The station's screen lists the machines on its bus with their calibration.
+
+## 18.6 Chemistry
+
+All in the SMC fab machines (§11), recipes in `server_scripts/mods/gtceu/litho_process.js`, materials in `startup_scripts/gtceu/litho_process.js`.
+
+- **RCA clean and strip.** SC-1 (ammonia, peroxide, water 1:1:5 → `sc1_solution`), SC-2 (HCl, peroxide, water 1:1:6 → `sc2_solution`), piranha (sulfuric acid, peroxide 3:1 → `piranha_solution`), blending at MV. The clean-up of **contaminated wafers** is now a real RCA clean (SC-1, a dilute HF dip, SC-2: `af9:clean_contaminated_<substrate>_wafer`); **broken wafers** can be **reworked** (`af9:rework_broken_<substrate>_wafer`: piranha strip, SC-1, SC-2 → the blank wafer back **60 %** of the time, spent piranha out) beside the grinding. Spent piranha + calcium hydroxide → gypsum (`af9:spent_piranha_neutralisation`).
+- **Ethyl lactate**: ethanol → acetaldehyde (copper) → lactonitrile (+ HCN, base) → lactic acid (+ water, sulfuric acid; ammonium bisulfate out) → ethyl lactate (+ ethanol, acid catalyst), MV.
+- **BARC** (bottom anti-reflective coat): naphthalene nitrated to nitronaphthalene (the dye, mixed acid), then methacrylate resin + dye in ethyl lactate (`af9:barc`, HV, clean room). **A track fluid of the 200, 100, 80 and 65 nm prints** (60 × 1.5^index mB; their fluid slots 7 / 7 / 7 / 8). **TARC** (the immersion top coat) is **not built**: the 65 nm print is at its 8 fluid slots (the machines' fluid hatch maximum) and the 50 nm print too; a topcoat needs the track split of §18.8.
+- **Metal-oxo EUV resists** (IV, clean room): `af9:zirconium_oxo_resist` (ZrCl4 + methacrylic acid + PGMEA + UPW → 4000 `euv_photoresist`) and `af9:hafnium_oxo_resist` (HfCl4 → 5000), beside the tin-oxo resist (§6.6). They give the zircon chain's zirconium and hafnium tetrachloride a use.
+
+## 18.7 The new chip families
+
+Six chips beyond §5.3b, one per family the finer substrates open up, printed and cut like the others (`chips.js`, `AF9_WAFERS.chips`; textures made on the existing chips' shared shading, each substrate's palette, a 6 × 6 glyph):
+
+| Chip | Family | Own substrate | Reticle (lens / blank) | Dies | Functional layer (chain) |
+|---|---|---|---|---|---|
+| `saw_filter` | acoustic wave (SAW / BAW) | naquadah, 100 nm (EV) | red / phase-shift | 8 | aluminium nitride, lithium niobate |
+| `photonic_ic` | silicon photonics | trinium, 80 nm (IV) | cyan / phase-shift | 6 | silicon nitride (+ germanium, InP from GT) |
+| `spin_logic` | spintronics (MTJ logic) | naquadria, 65 nm (LuV) | lime / phase-shift | 8 | CoFeB (+ magnesia from GT) |
+| `tmd_logic` | 2D materials | neutronium, 50 nm (ZPM) | pink / EUV | 6 | tungsten diselenide, hexagonal boron nitride (+ molybdenite, graphene from GT) |
+| `memristor` | neuromorphic (ReRAM, PCM) | transmuted neutronium, 20 nm (UV) | cyan / EUV | 8 | GST alloy (Ge2Sb2Te5) |
+| `quantum_dot_ic` | sub-atomic (quantum dots, SET) | strange matter, 7 nm (UHV) | yellow / EUV | 4 | CdSe quantum-dot colloid |
+
+The layers are made in the fab machines (`af9:aluminium_nitride`, `lithium_niobate`, `silicon_nitride`, `cobalt_iron_boron`, `tungsten_diselenide`, `boron_nitride`, `gst_alloy`, `quantum_dot_colloid`: thermal steps in the thermal furnace, the rest from HV power on in a clean room) and are taken, with the chips, by the uses below. The reticles and cuts of the strange-matter chips run at UV (no UHV machine needed). Tier of each family: the substrate's.
+
+**Uses.** The **wireless energy hatches** (EV-UHV) take a SAW filter and 2 aluminium nitride films on top (`wireless_energy.js`). The **card tiers** of the computation arrays (below) are made from the others.
+
+| Card tier | CPU | GPU | RAM |
+|---|---|---|---|
+| Photonic | 2 photonic ICs, 4 Si3N4 | 4 photonic ICs, 8 Si3N4 | 4 spin logic, 2 CoFeB |
+| Atomic | 2 TMD logic, 2 WSe2, 2 hBN | 4 TMD logic, 4 WSe2, 4 hBN | 4 memristors, 2 GST |
+| Sub-atomic | 2 quantum-dot ICs, 250 mB colloid | 4 quantum-dot ICs, 500 mB colloid | 2 quantum-dot ICs, 4 memristors, 250 mB colloid |
+
+All on a multilayer fibre-reinforced board with 8 YBCO wire and soldering alloy, at UV in a clean room (circuit assembler; the Sub-atomic ones in the assembler: they take two fluids). Numbers of the cards: `docs/machine-bus.md` §9.
+
+## 18.8 Not built: the track modules
+
+The spec asks for the spin coater / track and the developer / PEB / hard-bake as multiblocks of their own. They are **not built**, for two reasons: a wafer would have to carry its process state between them (coated, exposed, developed: an item per substrate and state, since NBT is out, §0.1) and every print and cutter recipe would change; and the Line and Scanner already contain their track in the structure, with batch mode instead of a parallel hatch by design (§5.6). What the track split would add, TARC and etch / strip as steps of their own, waits on that decision (§9).
+
 # Appendix A. File map
 
 ```text
 af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → mods/)
   litho/LithoMode.java                 # the 9 modes: substrate, node, tier, light (λ, NA, k1), resist, colour, base break chance, break/speed maths
-  machine/LithoMachine                 # shared by both litho machines: vacuum cleanliness, break roll, counters, LITHO_GATE, STRIP_BROKEN
+  machine/LithoMachine                 # shared by the litho machines: vacuum cleanliness, break roll, counters, LITHO_GATE, STRIP_BROKEN, §18: air cooling, OPC, calibration, metrology feedback
+  machine/MetrologyStationMachine      # §18.5: calibrates the litho machines on its bus, feedback
+  machine/part/AirConditioningHatchPartMachine # §18.1: cooling units, draw, IHeatEmitter
+  thermal/IHeatEmitter                 # the hook for the Temperature Update (heat units per tick, position, direction)
   machine/PhotolithographyLineMachine  # Mk1 line + Mk2 scanner (Spec), versions, LITHO_VERSION, preview pages, recipe info
   machine/OrbitalLithographyMachine    # the 1 nm station: orbit check
   machine/LithoRecipeLogic             # break roll when a print finishes (swaps the output for the broken wafer)
@@ -1273,7 +1368,11 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → 
   machine/fab/FabMultiblockMachine     # SMC multiblocks: built-in clean room from filter casings, PTFE-pipe parallels, counters, console
   machine/fab/FabTieredMachine         # SMC single blocks: GT slot page + console strip, furnace temperature per tier
   machine/fab/FabConsoleWidget         # the fab console (full for multiblocks, strip for single blocks)
-kubejs/startup_scripts/gtceu/wafers.js             # AF9_WAFER_TABLE: new blank substrates, printed/derived wafers on higher substrates, broken + contaminated wafers
+kubejs/startup_scripts/gtceu/wafers.js             # AF9_WAFER_TABLE: new blank substrates, broken + contaminated wafers (a print is GT's own chip wafer)
+kubejs/startup_scripts/gtceu/air_conditioning.js   # §18.1: the Air Conditioning Hatch MV-IV
+kubejs/startup_scripts/gtceu/litho_process.js      # §18: calibration wafer, chemistry materials, family materials, metrology recipe type + station
+kubejs/startup_scripts/gtceu/chips.js              # AF9's own chips (§5.3b) and the six new families (§18.7)
+kubejs/server_scripts/mods/gtceu/litho_process.js  # §18: hatches, calibration wafer, chemistry, family chains, the three new card tiers, the Metrology Station
 kubejs/startup_scripts/gtceu/photolithography.js   # litho, XCDA, i-line and EUV resist materials, reticles, sieves, light sources, 9 recipe types, both litho structures, tooltips
 kubejs/startup_scripts/gtceu/boule_melting.js      # endion, endionite, charges, seeds, crucibles, new boules, Endion coils, recipe type boule_melting
 kubejs/startup_scripts/gtceu/cryogenics.js         # dense/supercooled fluids, dense_cooling + supercooling, Supercooling Cryostat, coolant hatches LuV-UHV
@@ -1293,7 +1392,7 @@ kubejs/server_scripts/mods/gtceu/tiered_circuits.js # HV-LuV circuits: plain chi
 config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in kubejs/assets/kubejs/lang/en_us.json (af9.quest.*)
 kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type/block names, tooltips, mode descriptions, AF9 material names
 af9-core/src/main/resources/assets/af9/lang/en_us.json # consoles, Jade, recipe info, substrate/light names, wafer messages
-kubejs/assets/kubejs/textures/item/wafers/*         # 5 new blanks, 115 printed/derived, 9 broken, 9 contaminated (generated offline from GT's wafer textures)
+kubejs/assets/kubejs/textures/item/wafers/*         # 5 new blanks, 9 broken, 9 contaminated, the own chips' wafers, the calibration wafer
 kubejs/assets/kubejs/textures/item/boules/*         # melt charges, seed crystals, 4 new boules, 2 crucibles
 kubejs/assets/kubejs/textures/item/accelerator/*    # spallation target, magnetic trap, QGP trap
 kubejs/assets/kubejs/textures/item/                 # photomask blank, 12 reticles, molecular sieve (+ saturated), dry resist cartridge

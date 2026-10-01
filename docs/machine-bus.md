@@ -368,6 +368,13 @@ still).
 | Nano (IV) | 4, 3, 512 | 8, 8, 1024 | 2, 256 |
 | Quantum (LuV) | 8, 5, 2048 | 16, 12, 4096 | 3, 1024 |
 | Tensor (UV) | 16, 8, 32768 | 32, 18, 65536 | 4, 16384 |
+| Photonic (UHV) | 32, 10, 131072 | 64, 22, 262144 | 5, 65536 |
+| Atomic (UHV) | 64, 14, 262144 | 128, 30, 524288 | 7, 131072 |
+| Sub-atomic (UHV) | 128, 20, 524288 | 256, 44, 1048576 | 10, 262144 |
+
+The last three tiers are made from the chips of the new families (`docs/semiconductor-factory.md` §18.7): Photonic from
+photonic ICs and spin logic (memory), Atomic from TMD logic and memristors (memory), Sub-atomic from quantum-dot ICs.
+They fit the LuV rack only; all are made at UV.
 
 **Coolant** (through Coolant Hatches, heat taken per mB): distilled water 8 (only while the hatch is part of an array:
 the MV Coolant Hatch comes before the Supercooling Cryostat), supercooled hydrogen 64, argon 96, xenon 160, endion 256.
