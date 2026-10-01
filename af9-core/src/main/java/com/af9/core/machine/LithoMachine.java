@@ -2,6 +2,8 @@ package com.af9.core.machine;
 
 import com.af9.core.AF9Config;
 import com.af9.core.AF9Core;
+import com.af9.core.bus.BusConnectorPartMachine;
+import com.af9.core.bus.BusNetwork;
 import com.af9.core.common.IPowerGated;
 import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
@@ -456,7 +458,27 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
      */
     private double breakFactor(LithoMode mode, boolean measured) {
         return machineBreakFactor(mode, measured) * coolingBreakFactor(mode, measured) *
-                opcBreakFactor(mode, measured) * calibrationBreakFactor();
+                opcBreakFactor(mode, measured) * calibrationBreakFactor() * metrologyBreakFactor();
+    }
+
+    /** A Metrology Station on the bus network with its feedback on: the machine's alignment and dose are corrected. */
+    private double metrologyBreakFactor() {
+        BusConnectorPartMachine own = BusConnectorPartMachine.of(this);
+        if (own == null) return 1;
+        for (BusNetwork.Bus bus : own.getNetwork().buses()) {
+            for (BusConnectorPartMachine connector : bus.connectors()) {
+                if (!connector.isInValid() && connector.getMachineController() instanceof MetrologyStationMachine station &&
+                        station.isFeedbackActive()) {
+                    return LithoMode.METROLOGY_FACTOR;
+                }
+            }
+        }
+        return 1;
+    }
+
+    /** Whether a Metrology Station on the bus network gives its feedback now (the consoles and Jade show it). */
+    public boolean hasMetrologyFeedback() {
+        return metrologyBreakFactor() < 1;
     }
 
     /**

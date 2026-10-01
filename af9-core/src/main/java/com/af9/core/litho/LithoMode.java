@@ -79,6 +79,8 @@ public enum LithoMode {
     public static final double OPC_BONUS = 0.3;
     /** Calibration: break chance rises by this share (of itself) when the machine has drifted all the way (0 %). */
     public static final double DRIFT_BREAK = 1.0;
+    /** A Metrology Station on the bus network (measuring or run lately) feeds back into the machine: breaks x0.85. */
+    public static final double METROLOGY_FACTOR = 0.85;
     /** Below this calibration (%) no print starts until the machine is calibrated. */
     public static final double CALIBRATION_MIN = 20;
     /** An idle machine below this calibration (%) calibrates itself when a calibration wafer is in an input bus. */

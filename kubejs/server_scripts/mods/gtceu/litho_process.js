@@ -256,3 +256,29 @@ ServerEvents.recipes(event => {
         else recipe.inputFluids(solder)
     })
 })
+
+// ======================================================================================================
+// Metrology Station (startup_scripts/gtceu/litho_process.js, af9-core MetrologyStationMachine)
+// ======================================================================================================
+ServerEvents.recipes(event => {
+    const VA = GTValues.VA
+    // The tool: sensors and an emitter for the measuring, a robot arm for the wafer stage, MCUs and a Bus Connector's
+    // cable for the link to the machines
+    event.recipes.gtceu.assembler('af9:metrology_station')
+        .itemInputs('gtceu:hv_machine_hull', '2x gtceu:hv_sensor', 'gtceu:hv_emitter', '4x #gtceu:circuits/hv',
+            'gtceu:hv_robot_arm', '4x kubejs:mcu_chip', '8x gtceu:stainless_steel_plate', '4x af9:optical_bus_cable')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
+        .itemOutputs('gtceu:metrology_station')
+        .duration(400)
+        .EUt(VA[GTValues.HV])
+
+    // A run: the reference wafer goes under the microscope (and comes back nine times in ten), the measurements are
+    // evaluated with 24 CWU/t of computation over the machine bus
+    event.recipes.gtceu.metrology('af9:metrology_run')
+        .itemInputs('kubejs:calibration_wafer')
+        .inputFluids(Fluid.of('gtceu:distilled_water', 100))
+        .chancedOutput('kubejs:calibration_wafer', 9000, 0)
+        .CWUt(24)
+        .duration(600)
+        .EUt(VA[GTValues.HV])
+})

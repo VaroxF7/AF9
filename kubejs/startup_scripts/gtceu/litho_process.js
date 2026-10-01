@@ -61,3 +61,56 @@ GTCEuStartupEvents.registry('gtceu:material', event => {
         if (formula) material.formula(formula)
     })
 })
+
+// ---- Metrology Station ----
+// The fab's measuring tool (af9-core MetrologyStationMachine): on the machine bus, a run (a calibration wafer and 24
+// CWU/t of computation) calibrates every lithography machine on its bus network and, for ten minutes after, feeds the
+// measurements back into their alignment and dose: 15% fewer broken wafers.
+const $MetrologyStation = Java.loadClass('com.af9.core.machine.MetrologyStationMachine')
+const $MetrologyBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
+const $MetrologyDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
+
+GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
+    // a calibration wafer in (and, mostly, back out), distilled water for the stage
+    event.create('metrology')
+        .category('multiblock')
+        .setEUIO('in')
+        .setMaxIOSize(1, 1, 1, 0)
+        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+        .setSound(GTSoundEntries.ELECTROLYZER)
+})
+
+GTCEuStartupEvents.registry('gtceu:machine', event => {
+    // 3 wide x 3 high x 5 long, built from plascrete like the lithography machines: a front with the controller, a
+    // measuring tube (cleanroom glass on both sides, filter casings over it) with the wafer stage in it, a back. Aisles
+    // front -> back, rows bottom -> top; hatches on any plascrete.
+    event.create('metrology_station', 'multiblock')
+        .machine(holder => new $MetrologyStation(holder))
+        .rotationState(RotationState.NON_Y_AXIS)
+        .recipeTypes([GTRecipeTypes.get('metrology')])
+        .appearanceBlock(() => Block.getBlock('gtceu:plascrete'))
+        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3].map(i =>
+            Component.translatable(`af9.metrology_station.tooltip.${i}`)))
+        .pattern(definition => FactoryBlockPattern.start($MetrologyDirection.LEFT, $MetrologyDirection.UP,
+            $MetrologyDirection.BACK)
+            .aisle('CCC', 'CMC', 'CCC') // front with the controller
+            .aisle('CCC', 'W#W', 'CFC') // measuring tube
+            .aisle('CRC', 'W#W', 'CFC') // wafer stage and microscope
+            .aisle('CCC', 'W#W', 'CFC')
+            .aisle('CCC', 'CCC', 'CCC') // back
+            .where('M', Predicates.controller(Predicates.blocks(definition.get())))
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
+            .where('C', Predicates.blocks('gtceu:plascrete')
+                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities($MetrologyBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
+            .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units
+            .where('R', Predicates.blocks('gtceu:stainless_steel_gearbox'))      // wafer stage
+            .where('W', Predicates.blocks('gtceu:cleanroom_glass'))              // windows of the tube
+            .where('#', Predicates.air())                                        // the tube
+            .build())
+        .workableCasingModel('gtceu:block/casings/cleanroom/plascrete', 'gtceu:block/multiblock/network_switch')
+})

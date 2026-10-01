@@ -598,5 +598,15 @@
     "af9.air_conditioning_hatch.tooltip.0": "Cools a Photolithography Line or Scanner with air.",
     "af9.air_conditioning_hatch.tooltip.1": "1 cooling unit at MV, doubling per tier. A print needs 1 (350 nm) to 16 (65 nm) units; two hatches fit.",
     "af9.air_conditioning_hatch.tooltip.2": "Draws a quarter of an amp of its tier while a print runs. Every doubling above the heat load: prints 10% faster, 20% fewer broken wafers.",
-    "af9.air_conditioning_hatch.tooltip.3": "The warm air leaves from the front: keep it clear."
+    "af9.air_conditioning_hatch.tooltip.3": "The warm air leaves from the front: keep it clear.",
+    "af9.metrology_station.tooltip.0": "The fab's measuring tool: it sits on the machine bus, next to the lithography machines.",
+    "af9.metrology_station.tooltip.1": "A run (a Calibration Wafer, 24 CWU/t over the bus) calibrates every Line, Scanner and Orbital Station on its bus network.",
+    "af9.metrology_station.tooltip.2": "For ten minutes after a run, and while one is measuring, their prints break 15% less often.",
+    "af9.metrology_station.tooltip.3": "Needs a Bus Connector in its structure; one wafer comes back nine times in ten.",
+    "af9.metrology.no_bus": "Not on a bus: the Bus Connector's cable reaches no machine.",
+    "af9.metrology.machines": "%s lithography machines on the bus",
+    "af9.metrology.machine": "  %s: calibration %s%%",
+    "af9.metrology.measuring": "Measuring, feedback to the machines (%s:%s)",
+    "af9.metrology.feedback": "Feeding back to the machines: %s:%s left",
+    "af9.metrology.idle": "No feedback: start a run with a Calibration Wafer"
 }

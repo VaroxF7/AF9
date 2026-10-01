@@ -377,7 +377,9 @@
     "material.gtceu.tungsten_diselenide": "Tungsten Diselenide",
     "material.gtceu.boron_nitride": "Boron Nitride",
     "material.gtceu.gst_alloy": "GST Alloy",
-    "material.gtceu.quantum_dot_colloid": "Quantum Dot Colloid"
+    "material.gtceu.quantum_dot_colloid": "Quantum Dot Colloid",
+    "block.gtceu.metrology_station": "Metrology Station",
+    "gtceu.metrology": "Metrology"
 }
 
 
