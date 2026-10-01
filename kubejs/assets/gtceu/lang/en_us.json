@@ -68,7 +68,7 @@
     "af9.photolithography_line.tooltip.1": " §e350nm§7 Silicon, §e200nm§7 Phosphorus, §e100nm§7 Naquadah.",
     "af9.photolithography_line.tooltip.2": " §780-65nm: the §fMk2 Photolithography Scanner§7. 50nm and finer: the §fOrbital Lithography Station§7.",
     "af9.photolithography_line.tooltip.3": "§7A substrate prints its own chips and all lower ones as GT's wafers, §fmore per print§7 the higher it is.",
-    "af9.photolithography_line.tooltip.4": "§bPrime §8> §bcoat §8> §bbake §8> §dexpose §8> §bbake §8> §bdevelop §8> §brinse",
+    "af9.photolithography_line.tooltip.4": "§7Takes §fcoated wafers§7 (§fCoater Track§7: prime, BARC, resist, topcoat, bake): §dexpose §8> §bbake §8> §bdevelop §8> §betch §8> §brinse",
     "af9.photolithography_line.tooltip.5": "§bVacuum§7: starts at §f0§7 when formed and pumps to §f100§7 in §f10s per version§7 (V1 10s ... V3 30s).",
     "af9.photolithography_line.tooltip.6": "§7Prints only start on a §fsealed§7 vacuum; without power it vents to 0 in §c60s§7. Every print can §cbreak§7:",
     "af9.photolithography_line.tooltip.7": " §7the finer the node, the likelier (§f2%%§7 at 350nm ... §f5%%§7 at 100nm), §c+50%%§7 if the vacuum vents mid-print.",
@@ -384,5 +384,7 @@
     "material.gtceu.spent_resist_solvent": "Spent Resist Solvent",
     "material.gtceu.tetrafluoromethane": "Tetrafluoromethane",
     "material.gtceu.etch_plasma_gas": "Etch Plasma Gas",
-    "gtceu.wafer_coating": "Wafer Coating"
+    "gtceu.wafer_coating": "Wafer Coating",
+    "af9.photolithography_line.tooltip.16": "§dMulti-patterning§7: a §fscrewdriver§7 on the controller lets it print the mode one version above its own, exposing every layer twice: §c2x time§7, §c1.5x breaks§7, 2x OPC.",
+    "af9.photolithography_scanner.tooltip.9": "§dMulti-patterning§7: a §fscrewdriver§7 on the controller lets a V1 scanner print 65nm, exposing every layer twice: §c2x time§7, §c1.5x breaks§7, 2x OPC. Takes §fcoated wafers§7 (Coater Track)."
 }

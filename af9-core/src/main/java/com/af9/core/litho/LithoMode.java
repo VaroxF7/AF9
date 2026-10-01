@@ -81,6 +81,14 @@ public enum LithoMode {
     public static final double DRIFT_BREAK = 1.0;
     /** A Metrology Station on the bus network (measuring or run lately) feeds back into the machine: breaks x0.85. */
     public static final double METROLOGY_FACTOR = 0.85;
+    /**
+     * Multi-patterning (a screwdriver on the controller of a Line or Scanner): the machine prints the mode one version above
+     * its own by exposing every layer twice. A run takes twice as long, its prints break 1.5 times as often, need twice the
+     * OPC computation and wear the calibration twice as much.
+     */
+    public static final double MULTI_PATTERNING_TIME = 2.0;
+    public static final double MULTI_PATTERNING_BREAK = 1.5;
+    public static final int MULTI_PATTERNING_FACTOR = 2;
     /** Below this calibration (%) no print starts until the machine is calibrated. */
     public static final double CALIBRATION_MIN = 20;
     /** An idle machine below this calibration (%) calibrates itself when a calibration wafer is in an input bus. */

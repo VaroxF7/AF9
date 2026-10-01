@@ -35,12 +35,18 @@ import com.gregtechceu.gtceu.common.recipe.condition.ResearchCondition;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
@@ -126,6 +132,9 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         };
     };
 
+    /** Multi-patterning switched on (a screwdriver on the controller; only machines with versions, see {@link #canMultiPattern}). */
+    @Persisted
+    private boolean multiPatterning;
     @Persisted
     private double cleanliness;
     @Persisted
@@ -187,6 +196,38 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
 
     /** Line versions above the mode's own (0 for the orbital station). */
     public abstract int surplusFor(LithoMode mode);
+
+    /** Whether the machine can multi-pattern: print the mode one version above its own (the Line and the Scanner). */
+    public boolean canMultiPattern() {
+        return false;
+    }
+
+    /** Multi-patterning is on (always off where it cannot be). */
+    public boolean isMultiPatterning() {
+        return multiPatterning && canMultiPattern();
+    }
+
+    /** Whether a print of the mode is multi-patterned: switched on, and the mode is above the machine's version. */
+    public boolean isMultiPatterned(LithoMode mode) {
+        return isMultiPatterning() && mode.level() > getVersion();
+    }
+
+    /** A screwdriver on the controller switches multi-patterning, between prints. */
+    @Override
+    protected InteractionResult onScrewdriverClick(Player player, InteractionHand hand, Direction side,
+                                                   BlockHitResult hit) {
+        if (!canMultiPattern()) return super.onScrewdriverClick(player, hand, side, hit);
+        if (isRemote()) return InteractionResult.SUCCESS;
+        if (getRecipeLogic().isWorking()) {
+            player.displayClientMessage(Component.translatable("af9.litho.multipatterning.busy"), true);
+            return InteractionResult.SUCCESS;
+        }
+        multiPatterning = !multiPatterning;
+        markDirty();
+        player.displayClientMessage(Component.translatable(multiPatterning ? "af9.litho.multipatterning.on" :
+                "af9.litho.multipatterning.off"), true);
+        return InteractionResult.SUCCESS;
+    }
 
     /** Machine level for the pump-down time: Mk1 line 1-3, Mk2 scanner 4-5, orbital station 6. */
     protected abstract int vacuumLevel();
@@ -355,7 +396,8 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         printed += prints - brokenNow;
         broken += brokenNow;
         // every print wears the optics and stages a little: the finer the node, the more
-        calibration = Math.max(0, calibration - mode.driftPerPrint() * prints);
+        calibration = Math.max(0, calibration - mode.driftPerPrint() * prints *
+                (isMultiPatterned(mode) ? LithoMode.MULTI_PATTERNING_FACTOR : 1));
         markDirty();
         return brokenNow == 0 ? recipe : withBroken(recipe, mode, prints, brokenNow);
     }
@@ -458,7 +500,8 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
      */
     private double breakFactor(LithoMode mode, boolean measured) {
         return machineBreakFactor(mode, measured) * coolingBreakFactor(mode, measured) *
-                opcBreakFactor(mode, measured) * calibrationBreakFactor() * metrologyBreakFactor();
+                opcBreakFactor(mode, measured) * calibrationBreakFactor() * metrologyBreakFactor() *
+                (isMultiPatterned(mode) ? LithoMode.MULTI_PATTERNING_BREAK : 1);
     }
 
     /** A Metrology Station on the bus network with its feedback on: the machine's alignment and dose are corrected. */
@@ -588,7 +631,7 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     /** While a print runs, draws its OPC and alignment computation and remembers how much of it there was. */
     private void updateOpc() {
         if (!isFormed() || !getRecipeLogic().isWorking()) return;
-        int demand = getActiveMode().opcDemand();
+        int demand = opcDemandOf(getActiveMode());
         if (demand <= 0 || !hasOpcSource()) return;
         opcSum += Math.min(1.0, (double) requestOpc(demand, false) / demand);
         opcTicks++;
@@ -599,10 +642,15 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
      * sources asked without taking anything). -1 for a mode that has none or a machine without a source.
      */
     public double getOpcRatio(LithoMode mode, boolean measured) {
-        int demand = mode.opcDemand();
+        int demand = opcDemandOf(mode);
         if (demand <= 0 || !hasOpcSource()) return -1;
         if (measured) return opcTicks == 0 ? 0 : opcSum / opcTicks;
         return Math.min(1.0, (double) requestOpc(demand, true) / demand);
+    }
+
+    /** CWU/t of OPC computation the mode asks for: twice as much when its print is multi-patterned. */
+    public int opcDemandOf(LithoMode mode) {
+        return mode.opcDemand() * (isMultiPatterned(mode) ? LithoMode.MULTI_PATTERNING_FACTOR : 1);
     }
 
     private double opcBreakFactor(LithoMode mode, boolean measured) {

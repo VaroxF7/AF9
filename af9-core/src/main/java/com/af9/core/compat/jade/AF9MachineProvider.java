@@ -95,6 +95,8 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             tag.putBoolean("coolLapsed", litho.hasCoolingLapsed() && logic.isWorking());
             tag.putDouble("opc", litho.getOpcRatio(mode, logic.isWorking()));
             tag.putDouble("cal", litho.getCalibration());
+            tag.putBoolean("multi", litho.isMultiPatterned(mode));
+            tag.putBoolean("multiOn", litho.isMultiPatterning());
             tag.putInt("vacuum", litho.getVacuumState());
             tag.putString("product", product == null ? "" : "item:" + product);
             tag.putInt("progress", logic.isWorking() ? logic.getProgress() : 0);
@@ -174,6 +176,11 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
                         Component.translatable("af9.jade.cooling", coolCap, coolLoad,
                                 coolSteps > 0 ? " +" + coolSteps : "")
                                 .withStyle(coolCap < coolLoad ? ChatFormatting.RED : ChatFormatting.GRAY));
+            }
+            if (tag.getBoolean("multi")) {
+                tooltip.add(Component.translatable("af9.jade.multipatterned").withStyle(ChatFormatting.LIGHT_PURPLE));
+            } else if (tag.getBoolean("multiOn")) {
+                tooltip.add(Component.translatable("af9.jade.multipatterning_on").withStyle(ChatFormatting.DARK_PURPLE));
             }
             double opc = tag.getDouble("opc");
             double cal = tag.getDouble("cal");

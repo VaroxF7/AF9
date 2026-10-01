@@ -224,7 +224,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN,
             $PhotolithographyLineMachine.LITHO_VERSION, GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:plascrete'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_line.tooltip', 16))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_line.tooltip', 17))
         // 3 wide x 3 high x 10-12 long, built from plascrete like a clean room. Aisles run from the front (controller)
         // to the back (light source): the controller has to come before the repeatable lens aisle, or GT's auto-build
         // (terminal) places the structure off the controller. Each aisle lists its rows bottom -> middle -> top.
@@ -288,7 +288,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN,
             $PhotolithographyLineMachine.LITHO_VERSION, GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:plascrete'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_scanner.tooltip', 9))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_scanner.tooltip', 10))
         .pattern(definition => FactoryBlockPattern.start($LithoRelativeDirection.LEFT, $LithoRelativeDirection.UP,
             $LithoRelativeDirection.BACK)
             .aisle('CCC', 'CMC', 'CCC') // front with the controller

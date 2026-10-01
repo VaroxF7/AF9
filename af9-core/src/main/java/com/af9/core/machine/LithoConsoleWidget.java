@@ -68,6 +68,8 @@ public class LithoConsoleWidget extends ConsoleWidget {
     /** Share of the OPC demand the computation meets, percent (-1: no demand or no source), and the calibration x10. */
     private int opc = -1;
     private int calibration = 1000;
+    /** The shown mode's prints are multi-patterned (exposed twice, one version above the machine's own). */
+    private boolean multi;
     private String product = "";
 
     public LithoConsoleWidget(LithoMachine machine, int x, int y) {
@@ -174,6 +176,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         double opcRatio = machine.getOpcRatio(active, logic.isWorking());
         int newOpc = opcRatio < 0 ? -1 : (int) Math.round(opcRatio * 100);
         int newCalibration = (int) Math.round(machine.getCalibration() * 10);
+        boolean newMulti = machine.isMultiPatterned(active);
         int newCoolant = -1;
         if (machine instanceof OrbitalLithographyMachine station && active.minCoolant() != null) {
             Coolant used = station.currentCoolant(active);
@@ -186,7 +189,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
                 newBroken != broken || newVacuum != vacuum || newCoolant != coolant ||
                 newCoolCapacity != coolCapacity || newCoolLoad != coolLoad || newCoolSteps != coolSteps ||
                 newCoolLapsed != coolLapsed || newOpc != opc || newCalibration != calibration ||
-                !Objects.equals(newProduct, product);
+                newMulti != multi || !Objects.equals(newProduct, product);
         status = newStatus;
         mode = newMode;
         version = newVersion;
@@ -206,6 +209,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         coolLapsed = newCoolLapsed;
         opc = newOpc;
         calibration = newCalibration;
+        multi = newMulti;
         product = newProduct;
         return changed;
     }
@@ -231,6 +235,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         buffer.writeBoolean(coolLapsed);
         buffer.writeVarInt(opc + 1);
         buffer.writeVarInt(calibration);
+        buffer.writeBoolean(multi);
         buffer.writeUtf(product);
     }
 
@@ -255,6 +260,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         coolLapsed = buffer.readBoolean();
         opc = buffer.readVarInt() - 1;
         calibration = buffer.readVarInt();
+        multi = buffer.readBoolean();
         product = buffer.readUtf();
     }
 
@@ -339,7 +345,8 @@ public class LithoConsoleWidget extends ConsoleWidget {
         } else {
             // how well the machine is tuned: the computation behind its OPC and its calibration
             double cal = calibration / 10.0;
-            String quality = (opc >= 0 ? Component.translatable("af9.litho.console.opc", opc).getString() + "  " : "") +
+            String quality = (multi ? Component.translatable("af9.litho.console.multipatterned").getString() + "  " : "") +
+                    (opc >= 0 ? Component.translatable("af9.litho.console.opc", opc).getString() + "  " : "") +
                     Component.translatable("af9.litho.console.calibration",
                             String.format(Locale.ROOT, "%.0f", cal)).getString();
             drawSmall(graphics, quality, lx, y0 + 84, cal < LithoMode.CALIBRATION_MIN ? BAD :

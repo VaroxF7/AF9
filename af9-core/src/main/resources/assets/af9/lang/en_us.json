@@ -612,5 +612,11 @@
     "af9.wafer_coater.tooltip.0": "The spin-coat track in front of the lithography machines: HMDS prime, bottom anti-reflective coat, resist, topcoat, soft bake.",
     "af9.wafer_coater.tooltip.1": "A blank wafer goes in, the coated wafer of its node comes out; the Line, Scanner and Orbital Station print only coated wafers.",
     "af9.wafer_coater.tooltip.2": "What the spin spins off is spent resist solvent: a fluid output hatch takes it, a Fractionating Still or Rectification Column recovers most of it.",
-    "af9.wafer_coater.tooltip.3": "A Parallel Hatch coats several wafers at once. Plascrete, 3x3x6; hatches on any plascrete."
+    "af9.wafer_coater.tooltip.3": "A Parallel Hatch coats several wafers at once. Plascrete, 3x3x6; hatches on any plascrete.",
+    "af9.litho.multipatterning.on": "Multi-patterning on: this machine now prints the mode one version above its own, exposing every layer twice.",
+    "af9.litho.multipatterning.off": "Multi-patterning off.",
+    "af9.litho.multipatterning.busy": "Not while a print is running.",
+    "af9.litho.console.multipatterned": "MP x2",
+    "af9.jade.multipatterned": "Multi-patterned: twice the time, breaks x1.5, twice the OPC",
+    "af9.jade.multipatterning_on": "Multi-patterning on (a screwdriver switches it)"
 }
