@@ -25,7 +25,11 @@ the configs AF9 changes. Everything else comes from the pack itself.
   boules and wafers; the SMC fab machines (chemistry, separation, electrochemistry, thermal) with changeover purges and
   built-in clean rooms; the Photolithography Line and Scanner and the Orbital Lithography Station, nine lithography
   modes with vacuum, break chance and real light sources; AF9's chips, GT's circuits on plain chips and tier metals;
-  the Supercooling Cryostat, the Particle Accelerator and wireless energy.
+  the Supercooling Cryostat, the Particle Accelerator and wireless energy. The Line and Scanner cool with air (Air
+  Conditioning Hatches), draw OPC computation from the bus, drift out of calibration and are calibrated and corrected by
+  a Metrology Station; the chemistry has RCA clean, piranha strip, ethyl lactate, BARC and metal-oxo resists; six chip
+  families (acoustic wave, photonics, spintronics, 2D materials, neuromorphic, quantum dots) feed three more card tiers
+  of the computation arrays.
 - **Machine bus** (`docs/machine-bus.md`): Optical Bus Cable and Bus Connectors join the machines; the Central
   Monitor shows, runs and opens them; the Bus Controller picks their recipes, supplies them and crafts for the ME
   network through GT's ME Pattern Buffer; computation and research flow over the bus.
