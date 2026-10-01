@@ -24,10 +24,12 @@ GTCEuServerEvents.oreVeins(event => {
                 .layer('af9_asteroid')
                 .dimensions('af9:asteroid_field')
                 .heightRangeUniform(0, 110)
-                // withBlock, not withMaterial: GT 7.2.0 sends the veins to every joining player with a codec that reads
-                // the block field only, and withMaterial leaves it empty ("Invalid player data", no world loads)
-                .standardVeinGenerator(generator => generator.withBlock(() =>
-                    $AsteroidChemicalHelper.getBlock($AsteroidTagPrefix.ore, GTMaterials.get(material))))
+                // withBlock and withNetherBlock, not withMaterial: GT 7.2.0 sends the veins to every joining player with a
+                // codec that reads the block, deep and nether block fields, and withMaterial leaves them empty ("Invalid
+                // player data", no world loads). withBlock sets the first two.
+                .standardVeinGenerator(generator => generator
+                    .withBlock(() => $AsteroidChemicalHelper.getBlock($AsteroidTagPrefix.ore, GTMaterials.get(material)))
+                    .withNetherBlock(() => $AsteroidChemicalHelper.getBlock($AsteroidTagPrefix.ore, GTMaterials.get(material))))
         })
     }
     asteroidVein('af9:asteroid_brannerite_vein', 60, 120, 0.55, 'brannerite')
