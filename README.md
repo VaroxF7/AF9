@@ -27,9 +27,13 @@ the configs AF9 changes. Everything else comes from the pack itself.
   modes with vacuum, break chance and real light sources; AF9's chips, GT's circuits on plain chips and tier metals;
   the Supercooling Cryostat, the Particle Accelerator and wireless energy. The Line and Scanner cool with air (Air
   Conditioning Hatches), draw OPC computation from the bus, drift out of calibration and are calibrated and corrected by
-  a Metrology Station; the chemistry has RCA clean, piranha strip, ethyl lactate, BARC and metal-oxo resists; six chip
-  families (acoustic wave, photonics, spintronics, 2D materials, neuromorphic, quantum dots) feed three more card tiers
-  of the computation arrays.
+  a Metrology Station, and can multi-pattern one version above their own; a Coater Track primes, coats and bakes the
+  wafers first (BARC, resist, TARC; the spun-off solvent is distilled back), the masks come in three classes by node
+  (chrome, phase-shift, EUV) and the EUV tools are built from Mo/Si mirrors; the chemistry has RCA clean, piranha
+  strip, ethyl lactate, BARC, TARC, an etch plasma and metal-oxo resists; six chip families (acoustic wave, photonics,
+  spintronics, 2D materials, neuromorphic, quantum dots) feed three more card tiers of the computation arrays.
+- **Lint** (`tools/lint/`): `bash tools/lint/run.sh` checks the recipes, multiblocks, quests, textures and lang files
+  without starting the game (CI runs it before every build); `docs/review-findings.md` lists what it found.
 - **Machine bus** (`docs/machine-bus.md`): Optical Bus Cable and Bus Connectors join the machines; the Central
   Monitor shows, runs and opens them; the Bus Controller picks their recipes, supplies them and crafts for the ME
   network through GT's ME Pattern Buffer; computation and research flow over the bus.

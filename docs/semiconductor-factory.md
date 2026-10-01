@@ -36,7 +36,7 @@ See Appendix A for the full map. The numbers live in three places that must agre
 
 ## 0.3 One-paragraph mental model
 
-Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Siemens polysilicon → melt charges + seed crystal (SMC) → boule (EBF Boule Melting) → cutter blank wafer of one of nine substrates → Photolithography Line (built in 8 versions like the Assembly Line's lengths; the mode is the substrate: 350 nm silicon … 7 nm strange matter; reticle + 5 track chemistries + the mode's laser gas / immersion water / HfCl4 / tin) → GT's chip wafers (as many as the substrate yields) or broken wafers, decided by the machine's vacuum, cooling, computation and calibration (§5.4, §18) → cutter dies → circuit assembler. Higher substrates print every lower substrate's chips too and give more chip wafers per blank. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion → EUV 13.5 nm → high-NA EUV) and the resist made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate → tin-oxo EUV resist); the 1 nm chromodynium node is an X-ray free-electron laser in orbit. Wafers taken into a player's inventory get contaminated unless the player wears gloves or stands in a clean Cleanroom.
+Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Siemens polysilicon → melt charges + seed crystal (SMC) → boule (EBF Boule Melting) → cutter blank wafer of one of nine substrates → Coater Track (HMDS prime, BARC, resist, TARC, bake: the blank becomes a coated wafer, §6.5b) → Photolithography Line (built in 8 versions like the Assembly Line's lengths; the mode is the substrate: 350 nm silicon … 7 nm strange matter; a reticle of the node's mask class + developer, rinse water, clean air, etch plasma + the mode's laser gas / immersion water / HfCl4 / tin) → GT's chip wafers (as many as the substrate yields) or broken wafers, decided by the machine's vacuum, cooling, computation and calibration (§5.4, §18) → cutter dies → circuit assembler. Higher substrates print every lower substrate's chips too and give more chip wafers per blank. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion → EUV 13.5 nm → high-NA EUV) and the resist made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate → tin-oxo EUV resist); the 1 nm chromodynium node is an X-ray free-electron laser in orbit. Wafers taken into a player's inventory get contaminated unless the player wears gloves or stands in a clean Cleanroom.
 
 ---
 
@@ -339,10 +339,11 @@ Three machines print chip wafers: the **Photolithography Line** (Mk1: 350, 200, 
 | Mk1 modes | `gtceu:lithography_350nm`, `_200nm`, `_100nm` | Lithography 350 nm (Silicon) … 100 nm (Naquadah) |
 | Mk2 modes | `gtceu:lithography_80nm`, `_65nm` | 80 nm (Trinium), 65 nm (Naquadria) |
 | Orbital modes | `gtceu:lithography_50nm`, `_20nm`, `_7nm`, `gtceu:orbital_lithography` | 50 nm (Neutronium) … 1 nm (Chromodynium) |
+| Coater controller | `gtceu:wafer_coater` | Coater Track (type `gtceu:wafer_coating`, §6.5b) |
 
 Java (AF9 Core): `LithoMode` (the 9 modes: substrate, node, tier, light, λ, NA, resist, base break chance), `LithoMachine` (shared by both: vacuum cleanliness, break roll, counters, `LITHO_GATE`, `STRIP_BROKEN`), `PhotolithographyLineMachine` (Mk1 and Mk2 from a `Spec`: modes, lens block and slices, light sources, vacuum level, title; versions, `LITHO_VERSION`, version preview pages, EMI info), `OrbitalLithographyMachine` (orbit check), `LithoRecipeLogic` (break roll when a print finishes), `LithoConsoleWidget` (console), `compat/jade/AF9MachineProvider` (Jade).
 Modifiers: line and scanner `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT + BATCH_MODE` (no parallel hatch); orbital `LITHO_GATE + STRIP_BROKEN + COOLANT + OC_PERFECT + BATCH_MODE`.
-Tooltips: `af9.photolithography_line.tooltip.0-15`, `af9.photolithography_scanner.tooltip.0-8`, `af9.orbital_lithography_station.tooltip.0-9` (`kubejs/assets/gtceu/lang/en_us.json`).
+Tooltips: `af9.photolithography_line.tooltip.0-16`, `af9.photolithography_scanner.tooltip.0-9`, `af9.orbital_lithography_station.tooltip.0-9` (`kubejs/assets/gtceu/lang/en_us.json`).
 
 ## 5.2 The nine substrates (load-bearing numbers)
 
@@ -560,6 +561,16 @@ af9:photomask_blank (gtceu:assembler)
 ```
 
 ```text
+af9:wafer_coater (gtceu:assembler, MV)
+  gtceu:mv_machine_hull + 2x mv_electric_pump + 2x mv_electric_motor + mv_robot_arm + 4x #gtceu:circuits/mv
+  + 8x stainless_steel_plate + 4x kubejs:plascrete_pipe_casing + 288mB soldering_alloy → gtceu:wafer_coater | 400t | MV
+
+af9:ule_glass_substrate (gtceu:fab_calcination, 1800 K)
+  gtceu:quartzite_plate + gtceu:rutile_dust → kubejs:ule_glass_substrate | 600t | HV
+af9:mo_si_mirror (gtceu:fab_cvd, 1200 K)
+  kubejs:ule_glass_substrate + 4x molybdenum_dust + 4x silicon_dust + 2000mB argon → kubejs:mo_si_mirror | 1800t | LuV
+  (EUV optics: the EUV Light Source takes 2, the Orbital Lithography Station 6, §18.10)
+
 af9:phase_shift_mask_blank (gtceu:fab_cvd, clean room, 900 K)
   gtceu:quartzite_plate + gtceu:small_molybdenum_dust + gtceu:small_silicon_dust + 100mB gtceu:arf_photoresist
   → kubejs:phase_shift_mask_blank | 600t | EV
@@ -568,21 +579,30 @@ af9:euv_mask_blank (gtceu:fab_cvd, clean room, 1200 K)
   → kubejs:euv_mask_blank | 1200t | LuV
 ```
 
-Real analogue: stepper build + chrome-on-quartz mask blank (pre-coated resist); an attenuated phase-shift blank (MoSi film, 6 % transmission, 180° shift) for 80 and 65 nm; an EUV blank (40 Mo/Si bilayers on low-expansion glass, sputtered; the Ru cap and the TaBN absorber are not modelled). Glass lenses = projection optics, steel = stages, emitter/sensor/arms/motors/pumps = robots + focus + dispense.
+Real analogue: stepper build + chrome-on-quartz mask blank (pre-coated resist); an attenuated phase-shift blank (MoSi film, 6 % transmission, 180° shift) for 100 to 65 nm; an EUV blank (40 Mo/Si bilayers on low-expansion glass, sputtered; the Ru cap and the TaBN absorber are not modelled). Glass lenses = projection optics, steel = stages, emitter/sensor/arms/motors/pumps = robots + focus + dispense.
 
 ## 6.4 Step 2b — Reticles (laser_engraver)
 
+The mask has to fit the light (§18.9): **chrome** reticles print 350 and 200 nm, **phase-shift** (PSM) reticles 100, 80 and 65 nm, **EUV** reticles 50, 20, 7 and 1 nm. A chip has a reticle of its own (native) class, `kubejs:<chip>_reticle`, and one of every finer class, `kubejs:<chip>_psm_reticle` and `kubejs:<chip>_euv_reticle` (67 items, 27 chips; `startup_scripts/gtceu/reticles.js`, `AF9_WAFERS.reticles`).
+
 ```text
+native class (the class of the chip's own substrate: silicon, phosphorus -> chrome; naquadah, trinium, naquadria -> psm; neutronium and up -> euv)
 af9:<chip>_reticle (gtceu:laser_engraver)
-  kubejs:photomask_blank + notConsumable #forge:lenses/<color> → kubejs:<chip>_reticle | 1800t | 120 EU/t (MV)
+  <the class's blank> + notConsumable #forge:lenses/<color> → kubejs:<chip>_reticle | 1800t | chrome MV, psm EV, euv ZPM
+finer classes (the chip's own reticle is the master, kept)
+af9:<chip>_<psm|euv>_reticle (gtceu:laser_engraver)
+  <the class's blank> + notConsumable kubejs:<chip>_reticle → kubejs:<chip>_<class>_reticle | 1800t | psm EV, euv ZPM
 
-ilc red, ram green, cpu light_blue, ulpic blue, lpic orange, simple_soc cyan,
-nand gray, nor pink, mpic brown, soc yellow, advanced_soc purple, highly_advanced_soc black
-rf_transceiver lime, apu magenta, mcu white, asic light_gray (chrome blank, 120 EU/t)
+blanks: chrome kubejs:photomask_blank, psm kubejs:phase_shift_mask_blank, euv kubejs:euv_mask_blank
 
-kubejs:phase_shift_mask_blank + lens → edram green, mram blue, feram yellow (IV), vpu purple (LuV)
-kubejs:euv_mask_blank + lens → tpu orange (UV)
+lens colours (own reticle; the colours of one class's chips differ, so a blank + lens is one recipe):
+chrome  ilc red, ram green, cpu light_blue, ulpic blue, lpic orange, simple_soc cyan, nand gray, nor pink, mpic brown, soc yellow,
+        rf_transceiver lime, apu magenta, mcu white, asic light_gray
+psm     advanced_soc orange, saw_filter red, edram green, mram blue, feram yellow, photonic_ic cyan, vpu purple, spin_logic lime
+euv     highly_advanced_soc black, tpu orange, tmd_logic pink, memristor cyan, quantum_dot_ic yellow
 ```
+
+A print takes the reticle of its node's class (`AF9_WAFERS.reticleItem(chip, maskClass(substrate))`); the 1 nm prints and their research (the Research Station scans the EUV reticle) the EUV one. Why a master and not the lens for the finer classes: there are 16 lens colours, but 22 chips with a PSM reticle and 27 with an EUV one.
 
 eDRAM packages (gtceu:assembler, IV, clean room): `gtceu:cpu_chip` or `gtceu:soc` + 2x `kubejs:edram_chip` + `gtceu:epoxy_plate` + 4x `gtceu:fine_gold_wire` + 72mB `gtceu:soldering_alloy` → `kubejs:edram_cpu_package` / `kubejs:edram_soc_package` | 400t.
 
@@ -640,22 +660,45 @@ af9:tmah_developer (electrolysis) 5000 tetramethylammonium_chloride_solution →
 af9:molecular_sieve (wet) 4x zeolite_dust + bentonite_dust + 500 distilled_water → 4x kubejs:molecular_sieve | 600t MV
 ```
 
+## 6.5b Step 2d — Coated wafers (Coater Track)
+
+`gtceu:wafer_coater` (assembler, MV), recipe type `gtceu:wafer_coating`, `af9:coat_<substrate>_wafer`: a blank wafer + the node's coating fluids → `kubejs:coated_<substrate>_wafer` (eight, silicon to strange matter; chromodynium has none: the 1 nm station deposits its resist dry on a blank), 300t, `EUt(VA[tier])`. Fluids (mB, `round(base × 1.5^index)`): `hmds_vapor` 40, the node's resist 100, `barc` 60 (200 to 50 nm), `tarc` 60 (65 and 50 nm, immersion); out: `spent_resist_solvent` 30 (the spin spins most of the resist off). Fluid slots in 4, out 2.
+
+Structure (§18.8): 3 × 3 × 6 of plascrete, plascrete pipe casings (dispense lines), a stainless-steel gearbox (spin chuck), heatproof casing (hotplate), plascrete filter casings, cleanroom glass; hatches (maximums): 2 item in, 2 item out, 2 energy, 6 fluid in, 2 fluid out, 1 parallel hatch, 1 Bus Connector, 1 maintenance.
+
+Waste: `af9:recover_resist_solvent` (`fab_fractionation`, HV, clean room): 1000 `spent_resist_solvent` → **600 PGMEA** + 1 carbon dust: 60 % comes back, never all of it.
+
 ## 6.6 Step 3 — Print wafers (Photolithography Line, Orbital Lithography Station)
 
-Recipe IDs `af9:print_<chip>_<node>` on `gtceu:lithography_<node>` (85 recipes: 6 + 10 + 11 + 11 + 11 + 12 + 12 + 12) and `gtceu:orbital_lithography` (12). Input: the mode's blank substrate wafer + the reticle (not consumed) + fluids; output: GT's chip wafer(s) (§5.3) + the broken wafer as a chanced output at the base chance (display only, §5.4). 900t, `EUt(VA[tier], 4)`. The recipe count grows with every chip of §5.3b and §18.
+Recipe IDs `af9:print_<chip>_<node>` on `gtceu:lithography_<node>` (158 recipes: 9 + 14 + 16 + 20 + 22 + 24 + 26 + 27) and `gtceu:orbital_lithography` (27). Input: the mode's **coated wafer** (§6.5b) + the reticle of the node's mask class (not consumed, §6.4) + fluids; output: GT's chip wafer(s) (§5.3) + the broken wafer as a chanced output at the base chance (display only, §5.4). 900t, `EUt(VA[tier], 4)`. The recipe count grows with every chip of §5.3b and §18.
 
-Fluids per print (mB): the five track chemicals `round(base × 1.5^index)`, laser gas `round(10 × 1.5^index)` (200-50 nm), `barc` `round(60 × 1.5^index)` (200, 100, 80 and 65 nm: the DUV nodes; the 50 nm node has no free fluid slot, §18.5), `ultrapure_water` 1000 flat (65 and 50 nm, immersion), `hafnium_tetrachloride` 100 flat (50, 20, 7 nm, high-k gate), molten `tin` 144 + `hydrogen` 1000 flat (20 and 7 nm, the EUV plasma source):
+Fluids per print (mB): `tmah_developer` 200, `distilled_water` 1000 and `extreme_clean_dry_air` 1000 × `1.5^index`; from 200 nm the etch plasma `etch_plasma_gas` `round(50 × 1.5^index)` (the 350 nm print, an MV print, etches wet); laser gas `round(10 × 1.5^index)` (200-50 nm); `ultrapure_water` 1000 flat (65 and 50 nm, immersion); `hafnium_tetrachloride` 100 flat (50, 20, 7 nm, high-k gate); molten `tin` 144 + `hydrogen` 1000 flat (20 and 7 nm, the EUV plasma source). HMDS, resist, BARC and TARC are the coater's (§6.5b):
 
-| Mode | `hmds_vapor` | resist | `tmah_developer` | `distilled_water` | `extreme_clean_dry_air` | laser gas | extras | fluid slots |
+| Mode | `tmah_developer` | `distilled_water` | `extreme_clean_dry_air` | `etch_plasma_gas` | laser gas | extras | fluid slots | reticle class |
 |---|---|---|---|---|---|---|---|---|
-| 350nm | 40 | 100 `photoresist` | 200 | 1000 | 1000 | — | — | 5 |
-| 200nm | 60 | 150 `krf_photoresist` | 300 | 1500 | 1500 | 15 KrF | — | 6 |
-| 100nm | 90 | 225 `arf_photoresist` | 450 | 2250 | 2250 | 23 ArF | — | 6 |
-| 80nm | 135 | 338 `arf_photoresist` | 675 | 3375 | 3375 | 34 ArF | — | 6 |
-| 65nm | 203 | 506 `arf_photoresist` | 1013 | 5063 | 5063 | 51 ArF | UPW | 7 |
-| 50nm | 304 | 759 `arf_photoresist` | 1519 | 7594 | 7594 | 76 ArF | UPW, HfCl4 | 8 |
-| 20nm | 456 | 1139 `euv_photoresist` | 2278 | 11391 | 11391 | — | tin, H2, HfCl4 | 8 |
-| 7nm | 683 | 1709 `euv_photoresist` | 3417 | 17086 | 17086 | — | tin, H2, HfCl4 | 8 |
+| 350nm | 200 | 1000 | 1000 | — | — | — | 3 | chrome |
+| 200nm | 300 | 1500 | 1500 | 75 | 15 KrF | — | 5 | chrome |
+| 100nm | 450 | 2250 | 2250 | 113 | 23 ArF | — | 5 | psm |
+| 80nm | 675 | 3375 | 3375 | 169 | 34 ArF | — | 5 | psm |
+| 65nm | 1013 | 5063 | 5063 | 253 | 51 ArF | UPW | 6 | psm |
+| 50nm | 1519 | 7594 | 7594 | 380 | 76 ArF | UPW, HfCl4 | 7 | euv |
+| 20nm | 2278 | 11391 | 11391 | 570 | — | tin, H2, HfCl4 | 7 | euv |
+| 7nm | 3417 | 17086 | 17086 | 854 | — | tin, H2, HfCl4 | 7 | euv |
+
+Coating per wafer (§6.5b; resist: i-line `photoresist`, KrF, ArF (100 to 50 nm), EUV (20 and 7 nm)):
+
+| Substrate (mode) | `hmds_vapor` | resist | `barc` | `tarc` | spent solvent out |
+|---|---|---|---|---|---|
+| silicon (350) | 40 | 100 | — | — | 30 |
+| phosphorus (200) | 60 | 150 | 90 | — | 45 |
+| naquadah (100) | 90 | 225 | 135 | — | 68 |
+| trinium (80) | 135 | 338 | 203 | — | 101 |
+| naquadria (65) | 203 | 506 | 304 | 304 | 152 |
+| neutronium (50) | 304 | 759 | 456 | 456 | 228 |
+| transmuted neutronium (20) | 456 | 1139 | — | — | 342 |
+| strange matter (7) | 683 | 1709 | — | — | 513 |
+
+(The numbers of the node quests are checked against the recipes by `tools/lint/facts.py`.)
 
 Orbital (`af9:print_<chip>_1nm`): `kubejs:chromodynium_wafer` + `kubejs:dry_resist_cartridge` + reticle (the station's reticle slot) + 500 mB `supercooled_endion` (coolant hatch) → the chromodynium wafer, 35 % chanced broken; 7200t, `EUt(VA[UHV], 50)` = 98,304,000 EU/t (12.5× the 7 nm mode's power × 8× its time = 100× its energy).
 
@@ -972,11 +1015,11 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 4. Quests are updated (§6.10); non-English quest languages show the new English text for changed quests until translated.
 5. Hafnium metal: still has no items (only HfCl4: the high-k gate and the hafnium-oxo resist, §18.6); zirconium ingots have no use beyond the zirconium-oxo resist.
 6. Masks: one reticle per chip serves every mode; GT's chips are binary chrome, AF9's 80 nm and finer chips have phase-shift or EUV reticles (§5.3b), GT's own chips do not. Real sub-wavelength and EUV modes need phase-shift masks with OPC, EUV reflective Mo/Si masks; a PSM / reflective reticle tier would be the next realism step.
-7. BARC is a track fluid of the DUV nodes (§18.6); the topcoat (TARC) and multi-patterning are not modelled; every AF9 mode is single exposure (k1 ≥ 0.29).
+7. BARC and TARC are fluids of the Coater Track (§18.6, §6.5b); multi-patterning is a switch on the Line and Scanner (§18.11); the modes themselves are single exposure (k1 ≥ 0.29), the optics' k1 is not simulated.
 8. ArF resin is the first-generation methacrylate terpolymer. Modern ArF monomers (2-methyl-2-adamantyl methacrylate from dicyclopentadiene → adamantane → adamantanone; α-methacryloyloxy-γ-butyrolactone from 1,4-butanediol) would extend Line 5. The i-line DNQ chain (§6.5) is still the short 3-step version (real PAC: DNQ-5-sulfonyl chloride esterified onto a trihydroxybenzophenone).
 9. Pd/C, VPO, TS-1, iron molybdate, acidic resin and the other catalysts are not consumed; catalyst deactivation is not modelled.
 10. The orbital station's orbit test is by dimension name (`orbit` / `*_orbit`); a new space mod's orbit dimension with another name needs a line in `OrbitalLithographyMachine.isOrbit`.
-11. The track split (coater and developer modules as multiblocks, TARC, etch and strip as steps of their own) needs wafers that carry their process state, i.e. an item per substrate and state; see §18.8.
+11. The coater is a multiblock of its own with a coated wafer per substrate (§18.8); the developer / PEB / hard bake stay in the Line (one run exposes, bakes and develops, so no further wafer state is needed). Not built: strip as a step of its own, a fluid output on the prints for the spent etch plasma, the HF / calcium fluoride loop that would hang on it.
 12. The Temperature Update (warmth around machines the player feels, the hotbar message, the screen effect): the Air Conditioning Hatch is an `IHeatEmitter` (§18.1); the system that reads it is not built. The computation arrays have their own heat (§ machine-bus 9) and could implement it too.
 
 ---
@@ -1292,7 +1335,8 @@ All in the SMC fab machines (§11), recipes in `server_scripts/mods/gtceu/litho_
 
 - **RCA clean and strip.** SC-1 (ammonia, peroxide, water 1:1:5 → `sc1_solution`), SC-2 (HCl, peroxide, water 1:1:6 → `sc2_solution`), piranha (sulfuric acid, peroxide 3:1 → `piranha_solution`), blending at MV. The clean-up of **contaminated wafers** is now a real RCA clean (SC-1, a dilute HF dip, SC-2: `af9:clean_contaminated_<substrate>_wafer`); **broken wafers** can be **reworked** (`af9:rework_broken_<substrate>_wafer`: piranha strip, SC-1, SC-2 → the blank wafer back **60 %** of the time, spent piranha out) beside the grinding. Spent piranha + calcium hydroxide → gypsum (`af9:spent_piranha_neutralisation`).
 - **Ethyl lactate**: ethanol → acetaldehyde (copper) → lactonitrile (+ HCN, base) → lactic acid (+ water, sulfuric acid; ammonium bisulfate out) → ethyl lactate (+ ethanol, acid catalyst), MV.
-- **BARC** (bottom anti-reflective coat): naphthalene nitrated to nitronaphthalene (the dye, mixed acid), then methacrylate resin + dye in ethyl lactate (`af9:barc`, HV, clean room). **A track fluid of the 200, 100, 80 and 65 nm prints** (60 × 1.5^index mB; their fluid slots 7 / 7 / 7 / 8). **TARC** (the immersion top coat) is **not built**: the 65 nm print is at its 8 fluid slots (the machines' fluid hatch maximum) and the 50 nm print too; a topcoat needs the track split of §18.8.
+- **BARC** (bottom anti-reflective coat): naphthalene nitrated to nitronaphthalene (the dye, mixed acid), then methacrylate resin + dye in ethyl lactate (`af9:barc`, HV, clean room). **A fluid of the Coater Track for the 200, 100, 80, 65 and 50 nm nodes** (60 × 1.5^index mB). **TARC** (the immersion top coat, 65 and 50 nm): tetrafluoroethylene + PGMEA (`af9:tarc`, 500 + 1000 → 1500, HV, clean room), the Coater Track's fourth fluid.
+- **Etch plasma** (§18.8): `af9:tetrafluoromethane` (carbon + 2000 fluorine, HV, clean room), `af9:etch_plasma_gas` (500 CF4 + 250 chlorine + 2000 argon + 250 oxygen → 3000 mB, HV, clean room). A print from 200 nm on burns `round(50 × 1.5^index)` mB.
 - **Metal-oxo EUV resists** (IV, clean room): `af9:zirconium_oxo_resist` (ZrCl4 + methacrylic acid + PGMEA + UPW → 4000 `euv_photoresist`) and `af9:hafnium_oxo_resist` (HfCl4 → 5000), beside the tin-oxo resist (§6.6). They give the zircon chain's zirconium and hafnium tetrachloride a use.
 
 ## 18.7 The new chip families
@@ -1320,9 +1364,26 @@ The layers are made in the fab machines (`af9:aluminium_nitride`, `lithium_nioba
 
 All on a multilayer fibre-reinforced board with 8 YBCO wire and soldering alloy, at UV in a clean room (circuit assembler; the Sub-atomic ones in the assembler: they take two fluids). Numbers of the cards: `docs/machine-bus.md` §9.
 
-## 18.8 Not built: the track modules
+## 18.8 The Coater Track, coated wafers, the etch plasma
 
-The spec asks for the spin coater / track and the developer / PEB / hard-bake as multiblocks of their own. They are **not built**, for two reasons: a wafer would have to carry its process state between them (coated, exposed, developed: an item per substrate and state, since NBT is out, §0.1) and every print and cutter recipe would change; and the Line and Scanner already contain their track in the structure, with batch mode instead of a parallel hatch by design (§5.6). What the track split would add, TARC and etch / strip as steps of their own, waits on that decision (§9).
+The track of the spec is split in two: the coating is a multiblock of its own, the developing stays in the Line (a wafer would otherwise have to carry a state per step; one item per substrate, `coated_<substrate>_wafer`, is enough since exposure, PEB and develop happen in one machine run).
+
+- **Coater Track** (`gtceu:wafer_coater`, MV, §6.5b): spin coat, BARC, topcoat, bake. Kept as a plain GT multiblock (`WorkableElectricMultiblockMachine`, no AF9 Core class), 3 × 3 × 6 of plascrete; Parallel Hatch, Bus Connector; modifiers `PARALLEL_HATCH + OC_NON_PERFECT`.
+- **Coated wafers**: the prints take them (`kubejs:coated_<substrate>_wafer`, tagged like the blanks: they contaminate in a bare-handed inventory and are RCA-cleaned back to a blank wafer; a broken print's rework strips the resist the same way). Textures: `tools/textures/coated_wafers.py` (each substrate's blank with the film of its node's resist; the strange-matter one is animated).
+- **Waste and recovery**: 30 mB spent resist solvent per 100 mB resist, distilled back to **60 %** PGMEA (`af9:recover_resist_solvent`); a coater without a fluid output hatch stops when its tank is full.
+- **Etch plasma**: from 200 nm every print burns CF4 / Cl2 / Ar / O2 plasma (§18.6). The 350 nm print etches wet and stays an MV recipe. Not built: a fluid output on the prints for the spent plasma (the print types have no fluid outputs; the Line, Scanner and Orbital hatches would need output hatches and the consoles a row), and the HF / calcium fluoride recycling loop that would hang on it.
+
+## 18.9 Mask classes
+
+`maskClass(substrateIndex)`: chrome for 350 and 200 nm, phase-shift for 100, 80 and 65 nm, EUV from 50 nm (the orbital station). The 22 chips with a PSM reticle and the 27 with an EUV one exceed the 16 lens colours, so the finer classes are written from the chip's own (native) reticle, not from a lens (§6.4). Tiers: chrome MV, phase-shift EV, EUV ZPM. Two chips changed class with this: the ASoC (native 100 nm, now phase-shift, lens purple → orange so it does not repeat the VPU's) and the HASoC (native 50 nm, now EUV). Textures: `tools/textures/reticles.py` draws every class from the chip's reticle (chrome: dark chrome with the pattern clear; phase-shift: lavender, purple pattern; EUV: a blue mirror with a black pattern).
+
+## 18.10 EUV optics
+
+No glass passes 13.5 nm light, so every optic of an EUV tool is a mirror: `kubejs:mo_si_mirror` (§6.3: ULE glass substrate + molybdenum + silicon sputtered in argon, LuV). The **EUV Light Source** takes 2 (its collector), the **Orbital Lithography Station** 6 (its projection optics: it is crafted at ZPM, where the LuV mirrors are available). Textures: `tools/textures/optics.py`.
+
+## 18.11 Multi-patterning
+
+A **screwdriver on the controller** of a Line or Scanner (not while a print runs) switches multi-patterning: the machine then prints the mode **one version above its own** (a V2 line the 100 nm mode, a V1 scanner 65 nm), exposing every layer twice: **2× the run time, 1.5× the break chance, 2× the OPC demand, 2× the calibration wear** (`LithoMode.MULTI_PATTERNING_*`, `LithoMachine.isMultiPatterned`, `LITHO_VERSION`). The consoles show **MP x2** in their tuning line, Jade a "Multi-patterned" line. The Orbital Station has no versions and no multi-patterning.
 
 # Appendix A. File map
 
@@ -1372,7 +1433,10 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → 
   machine/fab/FabConsoleWidget         # the fab console (full for multiblocks, strip for single blocks)
 kubejs/startup_scripts/gtceu/wafers.js             # AF9_WAFER_TABLE: new blank substrates, broken + contaminated wafers (a print is GT's own chip wafer)
 kubejs/startup_scripts/gtceu/air_conditioning.js   # §18.1: the Air Conditioning Hatch MV-IV
-kubejs/startup_scripts/gtceu/litho_process.js      # §18: calibration wafer, chemistry materials, family materials, metrology recipe type + station
+kubejs/startup_scripts/gtceu/litho_process.js      # §18: calibration wafer, chemistry materials, family materials, metrology recipe type + station, coater recipe type + station
+kubejs/startup_scripts/gtceu/reticles.js           # §6.4 / §18.9: the 67 reticles of the three mask classes
+tools/lint/                                        # the linters (README there): scripts, quests, assets, facts, self-test
+tools/textures/                                    # reticles.py, coated_wafers.py, optics.py: draw the textures
 kubejs/startup_scripts/gtceu/chips.js              # AF9's own chips (§5.3b) and the six new families (§18.7)
 kubejs/server_scripts/mods/gtceu/litho_process.js  # §18: hatches, calibration wafer, chemistry, family chains, the three new card tiers, the Metrology Station
 kubejs/startup_scripts/gtceu/photolithography.js   # litho, XCDA, i-line and EUV resist materials, reticles, sieves, light sources, 9 recipe types, both litho structures, tooltips
