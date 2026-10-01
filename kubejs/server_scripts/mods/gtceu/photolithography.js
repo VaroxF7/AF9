@@ -26,15 +26,19 @@ const AF9_WAFERS = (() => {
     // One mode per substrate. baseBreak: break chance at a clean vacuum, of 10000 (= LithoMode.baseBreak; shown as the
     // chanced broken wafer, the break roll itself is AF9 Core's). light: the exposure tool the real node used; resist:
     // the photoresist made for that light; laserGas: the excimer premix; immersion: water film under the lens; highK:
-    // HfO2 gate dielectric from hafnium tetrachloride; euv: tin-plasma source (molten tin + hydrogen buffer gas).
+    // HfO2 gate dielectric from hafnium tetrachloride; euv: tin-plasma source (molten tin + hydrogen buffer gas);
+    // barc: the bottom anti-reflective coat under the resist (the DUV nodes down to 65 nm; the 50 nm node has no free
+    // fluid slot for it).
     const modes = [
         { id: '350nm', substrate: 0, resist: 'gtceu:photoresist', baseBreak: 200 },
-        { id: '200nm', substrate: 1, resist: 'gtceu:krf_photoresist', laserGas: 'gtceu:krf_excimer_gas', baseBreak: 300 },
-        { id: '100nm', substrate: 2, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', baseBreak: 500 },
-        { id: '80nm', substrate: 3, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas',
+        { id: '200nm', substrate: 1, resist: 'gtceu:krf_photoresist', laserGas: 'gtceu:krf_excimer_gas', barc: true,
+            baseBreak: 300 },
+        { id: '100nm', substrate: 2, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', barc: true,
+            baseBreak: 500 },
+        { id: '80nm', substrate: 3, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', barc: true,
             laser: 'kubejs:arf_excimer_laser', baseBreak: 700 },
         { id: '65nm', substrate: 4, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', immersion: true,
-            laser: 'kubejs:arf_excimer_laser', baseBreak: 900 },
+            barc: true, laser: 'kubejs:arf_excimer_laser', baseBreak: 900 },
         { id: '50nm', substrate: 5, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', immersion: true,
             highK: true, baseBreak: 1200 },
         { id: '20nm', substrate: 6, resist: 'gtceu:euv_photoresist', euv: true, highK: true, baseBreak: 1800 },
@@ -523,6 +527,7 @@ ServerEvents.recipes(event => {
             Fluid.of('gtceu:distilled_water', Math.round(1000 * chemicals)),
             Fluid.of('gtceu:extreme_clean_dry_air', Math.round(1000 * chemicals))]
         if (m.laserGas) fluids.push(Fluid.of(m.laserGas, Math.round(10 * chemicals)))
+        if (m.barc) fluids.push(Fluid.of('gtceu:barc', Math.round(60 * chemicals)))
         if (m.immersion) fluids.push(Fluid.of('gtceu:ultrapure_water', 1000))
         if (m.euv) {
             fluids.push(Fluid.of('gtceu:tin', 144))
@@ -580,11 +585,24 @@ ServerEvents.recipes(event => {
             .itemOutputs(`2x ${s.reclaim}`)
             .duration(100)
             .EUt(EU_LV)
+        // RCA clean: SC-1 (particles, organics), a dilute HF dip (the oxide), SC-2 (metal ions)
         event.recipes.gtceu.fab_wet_processing(`af9:clean_contaminated_${s.id}_wafer`)
             .itemInputs(`kubejs:contaminated_${s.id}_wafer`)
-            .inputFluids(Fluid.of('gtceu:hydrofluoric_acid', 100), Fluid.of('gtceu:distilled_water', 1000))
+            .inputFluids(Fluid.of('gtceu:sc1_solution', 500), Fluid.of('gtceu:hydrofluoric_acid', 50),
+                Fluid.of('gtceu:sc2_solution', 500))
             .itemOutputs(s.blank)
             .duration(200)
+            .EUt(VA[Math.min(s.tier, GTValues.LuV)])
+            .cleanroom(CleanroomType.CLEANROOM)
+        // Rework, as a real fab does with a failed resist layer: piranha strips the baked resist, then the RCA clean;
+        // the wafer survives most of the time (the spent piranha is waste)
+        event.recipes.gtceu.fab_wet_processing(`af9:rework_broken_${s.id}_wafer`)
+            .itemInputs(`kubejs:broken_${s.id}_wafer`)
+            .inputFluids(Fluid.of('gtceu:piranha_solution', 500), Fluid.of('gtceu:sc1_solution', 500),
+                Fluid.of('gtceu:sc2_solution', 500))
+            .chancedOutput(s.blank, 6000, 0)
+            .outputFluids(Fluid.of('gtceu:spent_piranha', 500))
+            .duration(300)
             .EUt(VA[Math.min(s.tier, GTValues.LuV)])
             .cleanroom(CleanroomType.CLEANROOM)
     })

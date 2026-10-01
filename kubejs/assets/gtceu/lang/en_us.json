@@ -359,7 +359,17 @@
     "material.gtceu.zirconia": "Zirconia",
     "material.gtceu.crude_zirconium_tetrachloride": "Crude Zirconium Tetrachloride",
     "material.gtceu.zirconium_tetrachloride": "Zirconium Tetrachloride",
-    "material.gtceu.hafnium_tetrachloride": "Hafnium Tetrachloride"
+    "material.gtceu.hafnium_tetrachloride": "Hafnium Tetrachloride",
+    "material.gtceu.sc1_solution": "SC-1 Solution",
+    "material.gtceu.sc2_solution": "SC-2 Solution",
+    "material.gtceu.piranha_solution": "Piranha Solution",
+    "material.gtceu.spent_piranha": "Spent Piranha",
+    "material.gtceu.acetaldehyde": "Acetaldehyde",
+    "material.gtceu.lactonitrile": "Lactonitrile",
+    "material.gtceu.lactic_acid": "Lactic Acid",
+    "material.gtceu.ethyl_lactate": "Ethyl Lactate",
+    "material.gtceu.nitronaphthalene": "Nitronaphthalene",
+    "material.gtceu.barc": "BARC"
 }
 
 

@@ -191,7 +191,8 @@ StartupEvents.registry('block', event => {
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // [node, fluid inputs, item inputs]: substrate + reticle, + the ArF Excimer Laser for 80 and 65 nm (the scanner's
     // laser slot) or the EUV Light Source for 20 and 7 nm (both not consumed)
-    const lineModes = [['350nm', 5, 2], ['200nm', 6, 2], ['100nm', 6, 2], ['80nm', 6, 3], ['65nm', 7, 3],
+    // (one fluid slot more than the track chemicals and gases for the BARC of the DUV nodes: 200 to 65 nm)
+    const lineModes = [['350nm', 5, 2], ['200nm', 7, 2], ['100nm', 7, 2], ['80nm', 7, 3], ['65nm', 8, 3],
         ['50nm', 8, 2], ['20nm', 8, 3], ['7nm', 8, 3]]
     // the orbital station's modes sound like it: a deep hum (af9-core AF9Sounds, vanilla sounds pitched down)
     const orbitalNodes = ['50nm', '20nm', '7nm']
