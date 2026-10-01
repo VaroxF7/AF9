@@ -3054,6 +3054,374 @@
 			x: 19.5d
 			y: 9.0d
 		}
+		{
+			dependencies: ["35B1F5439640C0EA"]
+			description: [
+				"{af9.quest.litho.airConditioning.1}"
+				""
+				"{af9.quest.litho.airConditioning.2}"
+				""
+				"{af9.quest.litho.airConditioning.3}"
+			]
+			id: "2909AE583CCC38B7"
+			rewards: [{
+				id: "48489D0F31064483"
+				type: "xp"
+				xp: 50
+			}]
+			subtitle: "{af9.quest.litho.airConditioning.subtitle}"
+			tasks: [
+				{
+					id: "2242B3C0E2563E4B"
+					item: "gtceu:mv_air_conditioning_hatch"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.airConditioning.title}"
+			x: 16.5d
+			y: 1.5d
+		}
+		{
+			dependencies: ["35B1F5439640C0EA"]
+			description: [
+				"{af9.quest.litho.calibration.1}"
+				""
+				"{af9.quest.litho.calibration.2}"
+			]
+			id: "6BAEFBF75C1FAA9F"
+			rewards: [{
+				id: "6864AF16411BFF12"
+				type: "xp"
+				xp: 50
+			}]
+			subtitle: "{af9.quest.litho.calibration.subtitle}"
+			tasks: [
+				{
+					id: "6705EB2D6406D27D"
+					item: "kubejs:calibration_wafer"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.calibration.title}"
+			x: 18.0d
+			y: 1.5d
+		}
+		{
+			dependencies: [
+				"6BAEFBF75C1FAA9F"
+				"0432E9477BA17293"
+			]
+			description: [
+				"{af9.quest.litho.metrology.1}"
+				""
+				"{af9.quest.litho.metrology.2}"
+			]
+			id: "4A0B83EE8770F0B6"
+			rewards: [{
+				id: "61020FFBE990B3EA"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.metrology.subtitle}"
+			tasks: [
+				{
+					id: "2803071C340466FA"
+					item: "gtceu:metrology_station"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.metrology.title}"
+			x: 19.5d
+			y: 1.5d
+		}
+		{
+			dependencies: ["3820A788D384105B"]
+			description: [
+				"{af9.quest.litho.rcaClean.1}"
+				""
+				"{af9.quest.litho.rcaClean.2}"
+			]
+			id: "50E638CEB7052664"
+			rewards: [{
+				id: "6E25E6110697B18C"
+				type: "xp"
+				xp: 50
+			}]
+			subtitle: "{af9.quest.litho.rcaClean.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:sc1_solution"
+					id: "6742B3A43B22E7DE"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:sc2_solution"
+					id: "1FCC78DD8C9E51D5"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:piranha_solution"
+					id: "21AB17B9BF9B4438"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.rcaClean.title}"
+			x: 10.5d
+			y: 3.0d
+		}
+		{
+			dependencies: ["50E638CEB7052664"]
+			description: [
+				"{af9.quest.litho.ethylLactate.1}"
+			]
+			id: "7204393564551FDF"
+			rewards: [{
+				id: "39EF80FC7AD93428"
+				type: "xp"
+				xp: 50
+			}]
+			subtitle: "{af9.quest.litho.ethylLactate.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:ethyl_lactate"
+					id: "2E18EA202F634FDF"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.ethylLactate.title}"
+			x: 10.5d
+			y: 4.5d
+		}
+		{
+			dependencies: ["7204393564551FDF"]
+			description: [
+				"{af9.quest.litho.barc.1}"
+				""
+				"{af9.quest.litho.barc.2}"
+			]
+			id: "6976E80CCBF9952F"
+			rewards: [{
+				id: "407C8F6763628FF7"
+				type: "xp"
+				xp: 50
+			}]
+			subtitle: "{af9.quest.litho.barc.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:barc"
+					id: "68E9BE41B2133A63"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.barc.title}"
+			x: 10.5d
+			y: 6.0d
+		}
+		{
+			dependencies: [
+				"366BC95EF3EB2F45"
+				"0A7EB273ED631834"
+			]
+			description: [
+				"{af9.quest.litho.oxoResist.1}"
+			]
+			id: "4CB1AF9F1FC4BE40"
+			rewards: [{
+				id: "0743BCB4BAD1F704"
+				type: "xp"
+				xp: 50
+			}]
+			subtitle: "{af9.quest.litho.oxoResist.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:euv_photoresist"
+					id: "31D92CC973144F18"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.litho.oxoResist.title}"
+			x: 58.5d
+			y: -1.5d
+		}
+		{
+			dependencies: ["418DC14B94C9272A"]
+			description: [
+				"{af9.quest.litho.sawFilter.1}"
+			]
+			id: "181785702661DDFE"
+			rewards: [{
+				id: "521C23E797802716"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.sawFilter.subtitle}"
+			tasks: [
+				{
+					id: "0FA48AAA7CDD48DD"
+					item: "kubejs:saw_filter_chip"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.sawFilter.title}"
+			x: 36.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["46CAB00FF64D12DE"]
+			description: [
+				"{af9.quest.litho.photonicIc.1}"
+			]
+			id: "5DD86B41C286C20E"
+			rewards: [{
+				id: "6A1BEFB01B91E6B0"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.photonicIc.subtitle}"
+			tasks: [
+				{
+					id: "75137804AD4F23B9"
+					item: "kubejs:photonic_ic_chip"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.photonicIc.title}"
+			x: 42.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["106D52BD58E747F8"]
+			description: [
+				"{af9.quest.litho.spinLogic.1}"
+			]
+			id: "5680075613F329C0"
+			rewards: [{
+				id: "30D6AFA57E70B161"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.spinLogic.subtitle}"
+			tasks: [
+				{
+					id: "168502B6FFC83D74"
+					item: "kubejs:spin_logic_chip"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.spinLogic.title}"
+			x: 48.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["37C6FB7A87A3E12F"]
+			description: [
+				"{af9.quest.litho.tmdLogic.1}"
+			]
+			id: "04C526F822E3F570"
+			rewards: [{
+				id: "593A78D36C5FE71B"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.tmdLogic.subtitle}"
+			tasks: [
+				{
+					id: "50F1870B2D747416"
+					item: "kubejs:tmd_logic_chip"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.tmdLogic.title}"
+			x: 54.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["0266685DD6B82444"]
+			description: [
+				"{af9.quest.litho.memristor.1}"
+			]
+			id: "17E5AC19E466E705"
+			rewards: [{
+				id: "435D2078BA9B6711"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.memristor.subtitle}"
+			tasks: [
+				{
+					id: "06F17E1748ED81E7"
+					item: "kubejs:memristor_chip"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.memristor.title}"
+			x: 60.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["23C7AC818504BEB9"]
+			description: [
+				"{af9.quest.litho.quantumDot.1}"
+			]
+			id: "3087B2F37678CC69"
+			rewards: [{
+				id: "38D1A4C87C41C41A"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.quantumDot.subtitle}"
+			tasks: [
+				{
+					id: "7ABE5A41042A39BB"
+					item: "kubejs:quantum_dot_ic_chip"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.quantumDot.title}"
+			x: 66.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["3087B2F37678CC69"]
+			description: [
+				"{af9.quest.litho.cardTiers.1}"
+				""
+				"{af9.quest.litho.cardTiers.2}"
+			]
+			id: "2B9696BF36BF7FEC"
+			rewards: [{
+				id: "5BC382CDE5559766"
+				type: "xp"
+				xp: 150
+			}]
+			subtitle: "{af9.quest.litho.cardTiers.subtitle}"
+			tasks: [
+				{
+					id: "1ED4A10890A808A3"
+					item: "af9:photonic_cpu_card"
+					type: "item"
+				}
+				{
+					id: "7895F154703585E3"
+					item: "af9:atomic_cpu_card"
+					type: "item"
+				}
+				{
+					id: "4A5538E3ABC24062"
+					item: "af9:subatomic_cpu_card"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.cardTiers.title}"
+			x: 72.0d
+			y: 6.0d
+		}
 	]
 	subtitle: ["{af9.quest.litho.chapter.subtitle}"]
 	title: "{af9.quest.litho.chapter.title}"
