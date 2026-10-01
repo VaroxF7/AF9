@@ -131,27 +131,18 @@ StartupEvents.registry('item', event => {
         .displayName('Saturated Molecular Sieve')
         .tooltip('Smelt it to drive the water out and reuse it.')
 
-    // One reticle per printed chip (the derived wafers, Nano CPU ... UHPIC, are made from printed ones and need none)
-    const chips = [
-        { id: 'ilc', name: 'ILC' },
-        { id: 'ram', name: 'RAM' },
-        { id: 'cpu', name: 'CPU' },
-        { id: 'ulpic', name: 'ULPIC' },
-        { id: 'lpic', name: 'LPIC' },
-        { id: 'simple_soc', name: 'Simple SoC' },
-        { id: 'nand', name: 'NAND' },
-        { id: 'nor', name: 'NOR' },
-        { id: 'mpic', name: 'PIC' },
-        { id: 'soc', name: 'SoC' },
-        { id: 'advanced_soc', name: 'ASoC' },
-        { id: 'highly_advanced_soc', name: 'HASoC' }
-    ]
-    chips.forEach(chip => {
-        event.create(`${chip.id}_reticle`)
-            .displayName(`${chip.name} Reticle`)
-            .maxStackSize(1)
-            .tooltip('Photomask for the lithography machines. Not consumed.')
-    })
+    // The reticles of the printed chips: reticles.js
+
+    // EUV optics: nothing refracts 13.5 nm light, every optic is a mirror. A Mo/Si multilayer (40+ bilayers of molybdenum
+    // and silicon, each about 7 nm thick) on a titania-doped ultra-low-expansion glass reflects about 70 % of it;
+    // the light source's collector and the orbital station's projection optics are made of them.
+    event.create('ule_glass_substrate')
+        .displayName('ULE Glass Substrate')
+        .tooltip('Quartz doped with titania: it hardly expands when it heats up. The ground-flat body of an EUV mirror.')
+    event.create('mo_si_mirror')
+        .displayName('Mo/Si Multilayer Mirror')
+        .tooltip('Forty bilayers of molybdenum and silicon: reflects 13.5 nm EUV light, which no lens can pass.')
+        .tooltip('The collector of the EUV Light Source and the projection optics of the Orbital Lithography Station.')
 
     // Without gravity there is no spin coating: the orbital station deposits its tin-oxo resist from the vapour
     event.create('dry_resist_cartridge')
@@ -185,15 +176,15 @@ StartupEvents.registry('block', event => {
 
 // One recipe type per exposure mode; GT turns them into machine modes. Must stay in sync with
 // com.af9.core.litho.LithoMode in af9-core.
-// Fluid inputs: the five track chemicals, + excimer laser gas from 200 nm, + ultrapure water (immersion) from 65 nm,
+// Fluid inputs: developer, rinse water, extreme clean dry air and the etch plasma (the coating chemicals, HMDS, resist,
+// BARC and TARC, are the Coater Track's), + excimer laser gas from 200 nm, + ultrapure water (immersion) from 65 nm,
 // + hafnium tetrachloride (high-k gate) from 50 nm. EUV (20 and 7 nm) needs no laser gas but molten tin and hydrogen
 // for the plasma source.
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // [node, fluid inputs, item inputs]: substrate + reticle, + the ArF Excimer Laser for 80 and 65 nm (the scanner's
     // laser slot) or the EUV Light Source for 20 and 7 nm (both not consumed)
-    // (one fluid slot more than the track chemicals and gases for the BARC of the DUV nodes: 200 to 65 nm)
-    const lineModes = [['350nm', 5, 2], ['200nm', 7, 2], ['100nm', 7, 2], ['80nm', 7, 3], ['65nm', 8, 3],
-        ['50nm', 8, 2], ['20nm', 8, 3], ['7nm', 8, 3]]
+    const lineModes = [['350nm', 4, 2], ['200nm', 5, 2], ['100nm', 5, 2], ['80nm', 5, 3], ['65nm', 6, 3],
+        ['50nm', 7, 2], ['20nm', 7, 3], ['7nm', 7, 3]]
     // the orbital station's modes sound like it: a deep hum (af9-core AF9Sounds, vanilla sounds pitched down)
     const orbitalNodes = ['50nm', '20nm', '7nm']
     lineModes.forEach(([node, fluids, items]) => {

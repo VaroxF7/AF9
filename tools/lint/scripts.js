@@ -25,6 +25,7 @@ const vm = require('vm'), fs = require('fs'), path = require('path')
 const args = process.argv.slice(2)
 const root = path.resolve(args.find(a => !a.startsWith('--')) || '.')
 const asJson = args.includes('--json')
+const dump = args.includes('--dump')   // every recipe as one JSON line (for ad-hoc analysis)
 
 const read = f => fs.readFileSync(f, 'utf8')
 const lines = f => fs.existsSync(f) ? read(f).split('\n').map(s => s.trim()).filter(Boolean) : []
@@ -144,7 +145,8 @@ let craftingCount = 0
 function crafting(type, out, ins) {
     const ingredient = x => typeof x === 'string' ? parseId(x) : x && typeof x === 'object' ? (x.item || (x.tag ? '#' + x.tag : null)) : null
     const rec = { type, id: `auto#${++craftingCount}`, file: state.currentFile, itemIn: flat([ins]).map(ingredient).filter(Boolean),
-        itemOut: [parseId(typeof out === 'string' ? out : out && out.item)].filter(Boolean), fluidIn: [], fluidOut: [], circuits: 0, notConsumed: 0 }
+        itemOut: [parseId(typeof out === 'string' ? out : out && out.item)].filter(Boolean), fluidIn: [], fluidOut: [], circuits: 0, notConsumed: 0,
+        calls: {}, fluidAmounts: [], chances: [] }
     state.recipes.push(rec)
     return { id(i) { rec.id = String(i); return this } }
 }
@@ -658,12 +660,21 @@ state.machines.forEach(m => {
 })
 
 // ---- output --------------------------------------------------------------------------------------------------------
+if (dump) {
+    state.recipes.forEach(r => console.log(JSON.stringify({ type: r.type, id: r.id, file: r.file, itemIn: r.itemIn, itemOut: r.itemOut,
+        fluidIn: r.fluidIn, fluidOut: r.fluidOut, EUt: r.calls.EUt || null, duration: r.calls.duration || null,
+        calls: Object.keys(r.calls) })))
+    process.exitCode = 0
+    findings.length = 0   // nothing more to print
+}
 const order = { ERROR: 0, WARN: 1, INFO: 2 }
 findings.sort((a, b) => order[a.level] - order[b.level] || a.code.localeCompare(b.code))
-if (asJson) {
+if (dump) {
+    // printed above
+} else if (asJson) {
     const registry = {
         items: [...state.items].map(([id, i]) => ({ id, kind: i.kind, file: i.file, textures: i.textures || [], displayName: i.displayName ? String(i.displayName) : null })),
-        materials: [...state.materials.keys()],
+        materials: [...state.materials].map(([id, m]) => ({ id, file: m.file })),
         machines: state.machines.map(m => ({ id: m.id, tiers: m.tiers ? m.tiers.map(String) : null, file: m.file, tooltips: m.tooltips,
             langValue: m.langValue ? String(m.langValue) : null })),
         recipeTypes: [...state.recipeTypes].map(([id, t]) => ({ id, file: t.file, langValue: t.langValue ? String(t.langValue) : null })),
@@ -678,4 +689,5 @@ if (asJson) {
     console.log(`${count('ERROR')} errors, ${count('WARN')} warnings, ${count('INFO')} notes`)
     findings.forEach(f => console.log(`${f.level.padEnd(5)} ${f.code} ${f.msg}${f.where ? `  [${f.where}]` : ''}`))
 }
-process.exit(findings.some(f => f.level === 'ERROR') ? 1 : 0)
+// no process.exit: it would cut off a large JSON output on a pipe (64 KB)
+process.exitCode = findings.some(f => f.level === 'ERROR') ? 1 : 0

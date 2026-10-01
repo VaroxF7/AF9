@@ -659,7 +659,7 @@ Fluids per print (mB): the five track chemicals `round(base × 1.5^index)`, lase
 
 Orbital (`af9:print_<chip>_1nm`): `kubejs:chromodynium_wafer` + `kubejs:dry_resist_cartridge` + reticle (the station's reticle slot) + 500 mB `supercooled_endion` (coolant hatch) → the chromodynium wafer, 35 % chanced broken; 7200t, `EUt(VA[UHV], 50)` = 98,304,000 EU/t (12.5× the 7 nm mode's power × 8× its time = 100× its energy).
 
-EUV resist chain (`photolithography.js`): `af9:tin_tetrachloride` (fab synthesis) tin dust + 4000 chlorine → 1000 SnCl4, EV; `af9:euv_photoresist` (fab synthesis, cleanroom) 1000 SnCl4 + 2000 methacrylic acid + 4000 PGMEA + 1000 ultrapure water → 4000 `euv_photoresist` + 2000 HCl, IV; `af9:dry_resist_cartridge` (fab CVD, 600 K, cleanroom) tungstensteel plate + 1000 EUV resist → cartridge, UV.
+EUV resist chain (`photolithography.js`): `af9:tin_tetrachloride` (fab synthesis, cleanroom) tin dust + 4000 chlorine → 1000 SnCl4, EV; `af9:euv_photoresist` (fab synthesis, cleanroom) 1000 SnCl4 + 2000 methacrylic acid + 4000 PGMEA + 1000 ultrapure water → 4000 `euv_photoresist` + 2000 HCl, IV; `af9:dry_resist_cartridge` (fab CVD, 600 K, cleanroom) tungstensteel plate + 1000 EUV resist → cartridge, UV.
 
 Derived wafers (GT's chemistry on any substrate): `af9:chemical_reactor/<chip>_wafer[_suffix]_<substrate>` and the same on `large_chemical_reactor`, cleanroom, GT's EU/t and time: Nano CPU (CPU wafer + 16 carbon fibers + 576 glowstone, EV 1200t), Qubit CPU (Nano CPU wafer + 2 quantum eyes + 288 GaAs, EV 900t; or + 1 InGaP + 50 radon, EV 1200t), HPIC (MPIC wafer + 2 InGaP + 288 vanadium gallium, IV 1200t), UHPIC (HPIC wafer + 8 InGaP + 576 naquadah, LuV 1200t). GT's own recipes stay for GT's wafers.
 
@@ -1138,6 +1138,8 @@ A boule is **ten times the material** of GT's old boule, and so it fits the EBF'
 | `kubejs:chromodynium_boule` | 4 chromodynium + strange matter (UHV) | 4 small Qc + small strange, 400 Ed | 80000 endion | 12000 K | UHV × 4 | 48000t | tritanium | 128 |
 
 Power: GT 7.2 recipes carry real amps (`EUt(VA[tier], amps)`), so the EBF's hatches must deliver voltage × amps every tick: silicon one normal MV hatch (2A), every other boule two normal hatches of its tier (4A). Two hatches of a tier count as the next tier for the EBF (GT's `EnergyContainerList`), which adds its 100 K but gives no overclock (4 × 4A would be needed). The recipe's voltage tier stays the listed tier (GT checks the per-amp voltage). The Endion parallels are capped by the EBF's voltage (GT's `ParallelLogic`), so a parallel only happens when the hatches can pay for it.
+
+The charge blending is not thermal, so from HV on (every charge but silicon's) it needs a clean room like all non-thermal fab recipes (§11: single blocks a GT Cleanroom, the fab multiblocks bring their own filter ceiling).
 
 Seeds: 1200t at the charge tier and the boule's temperature (SMC thermal single blocks reach MV 1800 K … LuV 5400 K; hotter seeds need the SMC Thermal Processing Furnace with coils). Crucibles: `af9:fused_quartz_crucible` (EBF, 6 quartzite dust, 1800 K, MV), `af9:tritanium_crucible` (assembler, 6 tritanium plates + 500 supercooled argon, UV). New boule cutting `af9:cut_<id>_boule` (lubricant 250, cleanroom).
 

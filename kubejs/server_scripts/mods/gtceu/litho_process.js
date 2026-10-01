@@ -122,6 +122,51 @@ ServerEvents.recipes(event => {
         .EUt(HV)
         .cleanroom(CleanroomType.CLEANROOM)
 
+    // ---- TARC, the etch plasma, and the coater's waste ----
+    // TARC, the top anti-reflective coat of the immersion nodes: a fluoropolymer (PTFE's monomer) in PGMEA
+    gt.fab_blending('af9:tarc')
+        .inputFluids(Fluid.of('gtceu:tetrafluoroethylene', 500), Fluid.of('gtceu:propylene_glycol_methyl_ether_acetate', 1000))
+        .outputFluids(Fluid.of('gtceu:tarc', 1500))
+        .duration(200)
+        .EUt(HV)
+        .cleanroom(CleanroomType.CLEANROOM)
+    // C + 2 F2 -> CF4
+    gt.fab_synthesis('af9:tetrafluoromethane')
+        .itemInputs('gtceu:carbon_dust')
+        .inputFluids(Fluid.of('gtceu:fluorine', 2000))
+        .outputFluids(Fluid.of('gtceu:tetrafluoromethane', 1000))
+        .duration(200)
+        .EUt(HV)
+        .cleanroom(CleanroomType.CLEANROOM)
+    // The etch plasma every print burns: CF4 etches the oxide, chlorine the silicon and metals, oxygen cleans the
+    // polymer off, argon carries the discharge
+    gt.fab_blending('af9:etch_plasma_gas')
+        .inputFluids(Fluid.of('gtceu:tetrafluoromethane', 500), Fluid.of('gtceu:chlorine', 250),
+            Fluid.of('gtceu:argon', 2000), Fluid.of('gtceu:oxygen', 250))
+        .outputFluids(Fluid.of('gtceu:etch_plasma_gas', 3000))
+        .duration(100)
+        .EUt(HV)
+        .cleanroom(CleanroomType.CLEANROOM)
+    // What the coater spins off is mostly resist solvent: distilled back to PGMEA, 60 % of it (the rest is polymer and
+    // the solvent that left with it: never all of it)
+    gt.fab_fractionation('af9:recover_resist_solvent')
+        .inputFluids(Fluid.of('gtceu:spent_resist_solvent', 1000))
+        .itemOutputs('gtceu:carbon_dust')
+        .outputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether_acetate', 600))
+        .duration(200)
+        .EUt(HV)
+        .cleanroom(CleanroomType.CLEANROOM)
+
+    // ---- Coater Track (the machine: startup_scripts/gtceu/litho_process.js; the coating recipes: photolithography.js) ----
+    gt.assembler('af9:wafer_coater')
+        .itemInputs('gtceu:hv_machine_hull', '2x gtceu:hv_electric_pump', '2x gtceu:hv_electric_motor',
+            'gtceu:hv_robot_arm', '4x #gtceu:circuits/hv', '8x gtceu:stainless_steel_plate',
+            '4x kubejs:plascrete_pipe_casing')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
+        .itemOutputs('gtceu:wafer_coater')
+        .duration(400)
+        .EUt(HV)
+
     // ---- Metal-oxo EUV resists ----
     // The same tin-free idea as the tin-oxo resist, with the zirconium and hafnium the zircon chain makes: hafnium
     // clusters absorb EUV the best (a quarter more resist per batch), zirconium is the plentiful one.

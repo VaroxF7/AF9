@@ -3,7 +3,7 @@
 //
 // They are printed like GT's chips (server_scripts/mods/gtceu/photolithography.js, AF9_WAFERS.chips): a substrate
 // prints every chip whose own substrate is the same or lower, the Cutter dices the chip wafer into dies.
-//   chip             substrate                 reticle (lens / mask blank)
+//   chip             substrate                 reticle (lens / mask blank; the mask classes: reticles.js)
 //   RF Transceiver   Silicon (350 nm)          lime / chrome
 //   APU              Silicon (350 nm)          magenta / chrome
 //   MCU              Silicon (350 nm)          white (glass lens) / chrome
@@ -58,10 +58,6 @@ StartupEvents.registry('item', event => {
             .displayName(`Contaminated ${name} Chip`)
             .texture(`kubejs:item/chips/contaminated_${id}_chip`)
             .tooltip('Touched by bare hands. Rinse it (SMC wet processing) to get the chip back.')
-        event.create(`${id}_reticle`)
-            .displayName(`${name} Reticle`)
-            .maxStackSize(1)
-            .tooltip('Photomask for the lithography machines. Not consumed.')
     })
 
     // The masks of the finer chips: an attenuated phase-shift blank (a MoSi film that shifts the light half a wave:

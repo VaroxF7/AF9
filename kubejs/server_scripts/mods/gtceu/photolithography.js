@@ -47,13 +47,14 @@ const AF9_WAFERS = (() => {
     modes.forEach((m, index) => m.index = index)
     const orbital = { id: '1nm', substrate: 8, baseBreak: 3500 }
 
-    function own(id, native, lens, dies, blank) {
-        return { id: id, native: native, reticle: id, lens: lens, blank: blank, chip: `kubejs:${id}_chip`,
+    function own(id, native, lens, dies) {
+        return { id: id, native: native, reticle: id, lens: lens, chip: `kubejs:${id}_chip`,
             wafer: `kubejs:${id}_wafer`, dies: dies }
     }
     // Every GT chip wafer. native = index of the chip's own substrate (GT's: silicon, phosphorus, naquadah for ASoC,
     // neutronium for HASoC). reticle: the photomask (derived wafers come from GT's Chemical Reactor recipes instead);
-    // lens: the GT lens colour that engraves the reticle; chip: the chip GT's cutter makes of the wafer.
+    // lens: the GT lens colour that engraves the chip's own reticle (native mask class, see maskClass: the colours of one
+    // class's chips differ); chip: the chip GT's cutter makes of the wafer.
     const chips = [
         { id: 'ilc', native: 0, reticle: 'ilc', lens: 'red', engrave: 'engrave_ilc', chip: 'gtceu:ilc_chip' },
         { id: 'ram', native: 0, reticle: 'ram', lens: 'green', engrave: 'engrave_ram', chip: 'gtceu:ram_chip' },
@@ -65,31 +66,30 @@ const AF9_WAFERS = (() => {
         { id: 'nor_memory', native: 1, reticle: 'nor', lens: 'pink', engrave: 'engrave_nor', chip: 'gtceu:nor_memory_chip' },
         { id: 'mpic', native: 1, reticle: 'mpic', lens: 'brown', engrave: 'engrave_pic', chip: 'gtceu:mpic_chip' },
         { id: 'soc', native: 1, reticle: 'soc', lens: 'yellow', engrave: 'engrave_soc', chip: 'gtceu:soc' },
-        { id: 'advanced_soc', native: 2, reticle: 'advanced_soc', lens: 'purple', engrave: 'engrave_asoc', chip: 'gtceu:advanced_soc' },
+        { id: 'advanced_soc', native: 2, reticle: 'advanced_soc', lens: 'orange', engrave: 'engrave_asoc', chip: 'gtceu:advanced_soc' },
         { id: 'highly_advanced_soc', native: 5, reticle: 'highly_advanced_soc', lens: 'black', engrave: 'engrave_hasoc', chip: 'gtceu:highly_advanced_soc' },
         { id: 'nano_cpu', native: 0, from: 'cpu', chip: 'gtceu:nano_cpu_chip' },
         { id: 'qbit_cpu', native: 0, from: 'nano_cpu', chip: 'gtceu:qbit_cpu_chip' },
         { id: 'hpic', native: 1, from: 'mpic', chip: 'gtceu:hpic_chip' },
         { id: 'uhpic', native: 1, from: 'hpic', chip: 'gtceu:uhpic_chip' },
         // AF9's own chips (startup_scripts/gtceu/chips.js), kubejs items: wafer = their chip wafer, dies = chips the
-        // Cutter makes of one, blank = the mask blank of their reticle (the chrome-on-quartz one when none: the
-        // 80 nm and finer chips need a phase-shift or an EUV blank)
+        // Cutter makes of one
         own('rf_transceiver', 0, 'lime', 8),
         own('apu', 0, 'magenta', 6),
         own('mcu', 0, 'white', 16),
         own('asic', 1, 'light_gray', 8),
-        own('edram', 3, 'green', 16, 'phase_shift'),
-        own('mram', 3, 'blue', 16, 'phase_shift'),
-        own('feram', 3, 'yellow', 16, 'phase_shift'),
-        own('vpu', 4, 'purple', 6, 'phase_shift'),
-        own('tpu', 6, 'orange', 4, 'euv'),
-        // the new families (chips.js): the lens colours repeat across blanks, never within one
-        own('saw_filter', 2, 'red', 8, 'phase_shift'),
-        own('photonic_ic', 3, 'cyan', 6, 'phase_shift'),
-        own('spin_logic', 4, 'lime', 8, 'phase_shift'),
-        own('tmd_logic', 5, 'pink', 6, 'euv'),
-        own('memristor', 6, 'cyan', 8, 'euv'),
-        own('quantum_dot_ic', 7, 'yellow', 4, 'euv')
+        own('edram', 3, 'green', 16),
+        own('mram', 3, 'blue', 16),
+        own('feram', 3, 'yellow', 16),
+        own('vpu', 4, 'purple', 6),
+        own('tpu', 6, 'orange', 4),
+        // the new families (chips.js)
+        own('saw_filter', 2, 'red', 8),
+        own('photonic_ic', 3, 'cyan', 6),
+        own('spin_logic', 4, 'lime', 8),
+        own('tmd_logic', 5, 'pink', 6),
+        own('memristor', 6, 'cyan', 8),
+        own('quantum_dot_ic', 7, 'yellow', 4)
     ]
     const chip = id => {
         const found = chips.filter(c => c.id === id)[0]
@@ -109,8 +109,10 @@ const AF9_WAFERS = (() => {
         if (substrateIndex === c.native) return 1
         return Math.max(1, Math.floor(substrates[substrateIndex].yield / CLASS_DIVISOR[c.native]))
     }
-    // Every wafer item of a substrate, for the contamination tags: the blank and GT's chip wafers of that substrate
+    // Every wafer item of a substrate, for the contamination tags: the blank, the coated wafer (all but the last substrate's) and
+    // GT's chip wafers of that substrate
     const wafersOf = substrateIndex => [substrates[substrateIndex].blank]
+        .concat(substrateIndex < substrates.length - 1 ? [`kubejs:coated_${substrates[substrateIndex].id}_wafer`] : [])
         .concat(chips.filter(c => c.native === substrateIndex).map(waferOf))
     // Plain chip stack by chip or old reticle id (the circuit scripts use 'nand', 'nor' ...)
     const chipStack = (id, count) => {
@@ -118,10 +120,28 @@ const AF9_WAFERS = (() => {
         if (!found) throw new Error(`AF9_WAFERS: unknown chip '${id}'`)
         return `${count || 1}x ${found.chip}`
     }
+    // Mask classes: the photomask has to fit the light. Chrome-on-quartz (binary) masks for 350 and 200 nm, MoSi attenuated
+    // phase-shift masks for 100 to 65 nm, reflective Mo/Si EUV multilayer masks from 50 nm (the orbital station's nodes).
+    // A chip has a reticle of its own (native) class and one of every finer class: the finer one is written from the
+    // native one (same layout, new blank). startup_scripts/gtceu/reticles.js registers them.
+    const CLASSES = ['chrome', 'psm', 'euv']
+    const BLANKS = { chrome: 'kubejs:photomask_blank', psm: 'kubejs:phase_shift_mask_blank', euv: 'kubejs:euv_mask_blank' }
+    const maskClass = substrateIndex => CLASSES[substrateIndex <= 1 ? 0 : substrateIndex <= 4 ? 1 : 2]
+    // kubejs:<chip>_reticle in the chip's native class, kubejs:<chip>_<class>_reticle in a finer one
+    const reticleItem = (c, cls) => cls === maskClass(c.native) ? `kubejs:${c.reticle}_reticle` :
+        `kubejs:${c.reticle}_${cls}_reticle`
+    // every reticle: the chip, its class, the item, the blank it is written on, the native reticle it is written from
+    const reticles = []
+    chips.filter(c => c.reticle).forEach(c => {
+        for (let k = CLASSES.indexOf(maskClass(c.native)); k < CLASSES.length; k++) {
+            const cls = CLASSES[k]
+            reticles.push({ chip: c, cls: cls, item: reticleItem(c, cls), blank: BLANKS[cls],
+                master: cls === maskClass(c.native) ? null : reticleItem(c, maskClass(c.native)), lens: c.lens })
+        }
+    })
     return { substrates: substrates, modes: modes, orbital: orbital, chips: chips, chip: chip, printed: printed,
-        yieldOf: yieldOf, wafersOf: wafersOf, chipStack: chipStack,
-        reticles: chips.filter(c => c.reticle).map(c => ({ id: c.reticle, lens: c.lens, blank: c.blank,
-            native: c.native })) }
+        yieldOf: yieldOf, wafersOf: wafersOf, chipStack: chipStack, classes: CLASSES, maskClass: maskClass,
+        reticleItem: reticleItem, reticles: reticles }
 })()
 
 // Contamination (af9-core WaferContamination): every wafer of a substrate, every chip, the gloves that protect
@@ -190,10 +210,10 @@ ServerEvents.recipes(event => {
         .duration(1200)
         .EUt(VA[GTValues.EV])
     // Laser-produced plasma: a CO2 drive laser hits tin droplets 50,000 times a second; a multilayer collector mirror
-    // gathers the 13.5 nm light
+    // (two Mo/Si mirrors) gathers the 13.5 nm light
     event.recipes.gtceu.assembler('af9:euv_light_source')
         .itemInputs('gtceu:uv_machine_hull', '4x gtceu:uv_emitter', '4x #gtceu:circuits/uv', '8x gtceu:glass_lens',
-            '2x gtceu:uv_electric_pump', '8x gtceu:neutronium_plate')
+            '2x gtceu:uv_electric_pump', '8x gtceu:neutronium_plate', '2x kubejs:mo_si_mirror')
         .inputFluids(Fluid.of('gtceu:tin', 2304))
         .itemOutputs('kubejs:euv_light_source')
         .duration(2400)
@@ -210,11 +230,12 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.IV])
 
     // Orbital Lithography Station (built on the ground, runs only in orbit; its structure is GT and GCYM blocks).
-    // It prints from 50 nm (ZPM) on, so it is crafted at ZPM; its VPUs watch the wafer die by die.
+    // It prints from 50 nm (ZPM) on, so it is crafted at ZPM; its VPUs watch the wafer die by die and six Mo/Si mirrors
+    // are its projection optics.
     event.recipes.gtceu.assembler('af9:orbital_lithography_station')
         .itemInputs('gtceu:zpm_machine_hull', '4x gtceu:zpm_emitter', '4x gtceu:zpm_field_generator',
             '4x #gtceu:circuits/zpm', '4x gtceu:zpm_sensor', '4x gtceu:zpm_robot_arm', '16x gtceu:naquadah_alloy_plate',
-            '8x kubejs:vpu_chip')
+            '8x kubejs:vpu_chip', '6x kubejs:mo_si_mirror')
         .inputFluids(Fluid.of('gtceu:supercooled_endion', 4000))
         .itemOutputs('gtceu:orbital_lithography_station')
         .duration(4000)
@@ -262,16 +283,37 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.LuV])
         .cleanroom(CleanroomType.CLEANROOM)
 
-    // A reticle: its blank written through the chip's lens (the finer chips' at their substrate's voltage, at most UV:
-    // the strange-matter chips are written and cut at UV). Every chip
-    // has its own lens on the chrome blank; on the other blanks the lens colours come round again.
-    AF9_WAFERS.reticles.forEach(c => {
-        event.recipes.gtceu.laser_engraver(`af9:${c.id}_reticle`)
-            .itemInputs(c.blank ? `kubejs:${c.blank}_mask_blank` : 'kubejs:photomask_blank')
-            .notConsumable(`#forge:lenses/${c.lens}`)
-            .itemOutputs(`kubejs:${c.id}_reticle`)
+    // EUV optics: a ULE glass body (quartz doped with titania, calcined), then forty Mo/Si bilayers sputtered on it in
+    // argon: the collector of the light source and the projection mirrors of the orbital station
+    event.recipes.gtceu.fab_calcination('af9:ule_glass_substrate')
+        .itemInputs('gtceu:quartzite_plate', 'gtceu:rutile_dust')
+        .itemOutputs('kubejs:ule_glass_substrate')
+        .blastFurnaceTemp(1800)
+        .duration(600)
+        .EUt(VA[GTValues.HV])
+    event.recipes.gtceu.fab_cvd('af9:mo_si_mirror')
+        .itemInputs('kubejs:ule_glass_substrate', '4x gtceu:molybdenum_dust', '4x gtceu:silicon_dust')
+        .inputFluids(Fluid.of('gtceu:argon', 2000))
+        .itemOutputs('kubejs:mo_si_mirror')
+        .blastFurnaceTemp(1200)
+        .duration(1800)
+        .EUt(VA[GTValues.LuV])
+
+    // A reticle: the chip's own one (its native class) is its blank written through the chip's lens; every finer class is
+    // written onto that class's blank from the native reticle (the layout, kept). A class costs more voltage: the
+    // phase-shift masks are written at EV, the EUV masks at ZPM (a chip's finest ones, the strange-matter chips', are
+    // still cut at UV).
+    const WRITER = { chrome: EU_MV, psm: VA[GTValues.EV], euv: VA[GTValues.ZPM] }
+    AF9_WAFERS.reticles.forEach(r => {
+        const native = r.master === null
+        const recipe = event.recipes.gtceu.laser_engraver(native ? `af9:${r.chip.reticle}_reticle` :
+            `af9:${r.chip.reticle}_${r.cls}_reticle`)
+            .itemInputs(r.blank)
+        if (native) recipe.notConsumable(`#forge:lenses/${r.lens}`)
+        else recipe.notConsumable(r.master)
+        recipe.itemOutputs(r.item)
             .duration(1800)
-            .EUt(c.blank ? VA[Math.min(substrates[c.native].tier, GTValues.UV)] : EU_MV)
+            .EUt(WRITER[r.cls])
     })
 
     // ---- AF9's own chips: dicing and packaging ----
@@ -515,11 +557,34 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.UV])
         .cleanroom(CleanroomType.CLEANROOM)
 
+    // ---- Coated wafers (Coater Track) ----
+    // HMDS prime, the bottom anti-reflective coat (the DUV nodes down to 65 nm), the resist made for the mode's light, the
+    // topcoat (the immersion nodes), soft bake: the blank wafer of the substrate becomes its coated wafer, 1.5x the
+    // chemicals a node. What the spin spins off is spent solvent (30 mB of 100 mB of resist's worth), distilled back in the
+    // SMC machines at 60 %. The orbital station's 1 nm print takes a blank wafer and deposits its resist dry.
+    modes.forEach(m => {
+        const s = substrates[m.substrate]
+        const chemicals = Math.pow(1.5, m.index)
+        const coat = [
+            Fluid.of('gtceu:hmds_vapor', Math.round(40 * chemicals)),
+            Fluid.of(m.resist, Math.round(100 * chemicals))]
+        if (m.barc) coat.push(Fluid.of('gtceu:barc', Math.round(60 * chemicals)))
+        if (m.immersion) coat.push(Fluid.of('gtceu:tarc', Math.round(60 * chemicals)))
+        event.recipes.gtceu.wafer_coating(`af9:coat_${s.id}_wafer`)
+            .itemInputs(s.blank)
+            .inputFluids(coat)
+            .itemOutputs(`kubejs:coated_${s.id}_wafer`)
+            .outputFluids(Fluid.of('gtceu:spent_resist_solvent', Math.round(30 * chemicals)))
+            .duration(300)
+            .EUt(VA[s.tier])
+    })
+
     // ---- Printed wafers (Photolithography Line) ----
-    // HMDS prime -> resist coat -> soft bake -> exposure -> PEB -> TMAH develop -> DI rinse -> hard bake, 4A of the
-    // mode's tier, each step 1.5x the chemicals. The resist is the one made for the mode's light; the excimer lasers
-    // burn their premix; immersion modes expose through ultrapure water; from 50 nm a high-k HfO2 gate is grown from
-    // HfCl4 + water (ALD); the EUV modes burn tin droplets in a hydrogen buffer.
+    // Coated wafer in: exposure, PEB, TMAH develop, DI rinse, plasma etch, hard bake, 4A of the mode's tier, each step 1.5x
+    // the chemicals. The excimer lasers burn their premix; immersion modes expose through ultrapure water; from 50 nm a
+    // high-k HfO2 gate is grown from HfCl4 + water (ALD); the EUV modes burn tin droplets in a hydrogen buffer; every
+    // mode etches in a plasma of CF4, chlorine, argon and oxygen. The reticle is of the mask class of the node
+    // (AF9_WAFERS.maskClass).
     // Output: GT's chip wafer (as many as the substrate yields), and the broken wafer at the mode's base break chance
     // for the recipe viewers. The machine takes the chanced broken wafer out and rolls the real break chance (node,
     // vacuum cleanliness, line version) when the print is done: a broken print gives one broken wafer and no chip wafers
@@ -530,13 +595,11 @@ ServerEvents.recipes(event => {
         const s = substrates[m.substrate]
         const chemicals = Math.pow(1.5, m.index)
         const fluids = [
-            Fluid.of('gtceu:hmds_vapor', Math.round(40 * chemicals)),
-            Fluid.of(m.resist, Math.round(100 * chemicals)),
             Fluid.of('gtceu:tmah_developer', Math.round(200 * chemicals)),
             Fluid.of('gtceu:distilled_water', Math.round(1000 * chemicals)),
-            Fluid.of('gtceu:extreme_clean_dry_air', Math.round(1000 * chemicals))]
+            Fluid.of('gtceu:extreme_clean_dry_air', Math.round(1000 * chemicals)),
+            Fluid.of('gtceu:etch_plasma_gas', Math.round(50 * chemicals))]
         if (m.laserGas) fluids.push(Fluid.of(m.laserGas, Math.round(10 * chemicals)))
-        if (m.barc) fluids.push(Fluid.of('gtceu:barc', Math.round(60 * chemicals)))
         if (m.immersion) fluids.push(Fluid.of('gtceu:ultrapure_water', 1000))
         if (m.euv) {
             fluids.push(Fluid.of('gtceu:tin', 144))
@@ -545,8 +608,8 @@ ServerEvents.recipes(event => {
         if (m.highK) fluids.push(Fluid.of('gtceu:hafnium_tetrachloride', 100))
         chips.filter(c => c.reticle && c.native <= m.substrate).forEach(c => {
             const recipe = event.recipes.gtceu[`lithography_${m.id}`](`af9:print_${c.id}_${m.id}`)
-                .itemInputs(s.blank)
-                .notConsumable(`kubejs:${c.reticle}_reticle`)
+                .itemInputs(`kubejs:coated_${s.id}_wafer`)
+                .notConsumable(AF9_WAFERS.reticleItem(c, AF9_WAFERS.maskClass(m.substrate)))
             // the scanner's ArF laser in its laser slot, the orbital station's EUV source in its EUV slot (or either in
             // an input bus)
             if (m.laser) recipe.notConsumable(m.laser)
@@ -572,13 +635,13 @@ ServerEvents.recipes(event => {
     chips.filter(c => c.reticle).forEach(c => {
         event.recipes.gtceu.orbital_lithography(`af9:print_${c.id}_1nm`)
             .itemInputs(chromodynium.blank, 'kubejs:dry_resist_cartridge')
-            .notConsumable(`kubejs:${c.reticle}_reticle`)
+            .notConsumable(AF9_WAFERS.reticleItem(c, AF9_WAFERS.maskClass(chromodynium.index)))
             .itemOutputs(`${yieldOf(chromodynium.index, c)}x ${printed(chromodynium.index, c)}`)
             .chancedOutput(`kubejs:broken_${chromodynium.id}_wafer`, AF9_WAFERS.orbital.baseBreak, 0)
             .duration(7200)
             .EUt(VA[chromodynium.tier], 50)
             .CWUt(96)
-            .stationResearch(b => b.researchStack(Item.of(`kubejs:${c.reticle}_reticle`))
+            .stationResearch(b => b.researchStack(Item.of(AF9_WAFERS.reticleItem(c, AF9_WAFERS.maskClass(chromodynium.index))))
                 .researchId(`af9_litho_1nm_${c.id}`).EUt(VA[GTValues.ZPM], 2).CWUt(48, 256000))
     })
 

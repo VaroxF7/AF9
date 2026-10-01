@@ -379,8 +379,10 @@
     "material.gtceu.gst_alloy": "GST Alloy",
     "material.gtceu.quantum_dot_colloid": "Quantum Dot Colloid",
     "block.gtceu.metrology_station": "Metrology Station",
-    "gtceu.metrology": "Metrology"
+    "gtceu.metrology": "Metrology",
+    "material.gtceu.tarc": "TARC",
+    "material.gtceu.spent_resist_solvent": "Spent Resist Solvent",
+    "material.gtceu.tetrafluoromethane": "Tetrafluoromethane",
+    "material.gtceu.etch_plasma_gas": "Etch Plasma Gas",
+    "gtceu.wafer_coating": "Wafer Coating"
 }
-
-
-

@@ -93,7 +93,7 @@ try:
     registry = json.loads(out.stdout)['registry']
 except (OSError, ValueError, KeyError):
     registry = {'items': [], 'machines': [], 'recipeTypes': [], 'materials': []}
-    report('WARN', 'A5', 'the script linter gave no registry: names of KubeJS items are not checked')
+    report('ERROR', 'A5', 'the script linter gave no registry (node tools/lint/scripts.js --json failed): KubeJS items, machines and materials are not checked')
 
 KJS = os.path.join(ROOT, 'kubejs/assets')
 # a checkout of GT's source (GT_SRC=... or --gt DIR) lets the textures of GT in a model be checked; without it they are not
@@ -229,6 +229,11 @@ for m in registry['machines']:
     ids = [m['id']] + [f'{t}_{m["id"]}' for t in TIERS]
     if not m.get('langValue') and not any(('block.gtceu.' + i) in lang for i in ids):
         report('WARN', 'A5', f'machine {m["id"]} has no name (langValue or block.gtceu.{m["id"]} in a lang file)', m['file'])
+# materials: GT shows `material.gtceu.<id>` for the fluid, the dust, the cell ...: without it the name is the raw key
+for mat in registry.get('materials', []):
+    mid = mat['id'] if isinstance(mat, dict) else mat
+    if f'material.gtceu.{mid}' not in lang:
+        report('ERROR', 'A5', f'material {mid} has no name (material.gtceu.{mid} in the gtceu lang)', 'kubejs/assets/gtceu/lang/en_us.json')
 for t in registry['recipeTypes']:
     if base_pack_file(t['file']):
         continue
