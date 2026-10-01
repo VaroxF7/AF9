@@ -150,7 +150,7 @@ try:
 except Exception as e:  # noqa
     report('WARN', 'Q6', f'the script linter did not give its registry ({e}); item ids are not checked')
 kube_items = {i['id'] for i in registry['items']}
-materials = set(registry['materials'])
+materials = {m['id'] if isinstance(m, dict) else m for m in registry['materials']}
 machine_ids = set()
 for m in registry['machines']:
     if m['tiers']:
