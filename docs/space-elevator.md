@@ -4,7 +4,7 @@ GTNH's Space Elevator (https://wiki.gtnewhorizons.com/wiki/Space_Elevator): a to
 the **renewable ore source** of the pack from ZPM on: it sends Mining Drones to the asteroids and brings their ore home.
 
 Code: `af9-core` `com.af9.core.elevator` (`SpaceElevatorMachine`: the asteroids, the motors, the modules, the cable; `OreCatalog`: GT's
-ores and veins) and `com.af9.core.client.render.SpaceElevatorRender` (the cable and the platform that turns on it). KubeJS:
+ores and veins; `ClimberRide`: the climber's rides) and `com.af9.core.client.render.SpaceElevatorRender` (the cable and the climber). KubeJS:
 `kubejs/startup_scripts/gtceu/space_elevator.js` (blocks, drones, recipe type, the machine and its structure),
 `kubejs/server_scripts/mods/gtceu/space_elevator.js` (crafting and the expeditions).
 
@@ -139,20 +139,40 @@ parts of ZPM (Mk-I) or UV (GT has no parts above UV while `highTierContent` is o
 alloy plates; Mk-II the same in UV; Mk-III 2 arms, 4 sensors, 2 emitters, 8 circuits and 4 tritanium plates; Mk-IV 4 arms, 8 sensors, 4 emitters, 16
 circuits and 4 neutronium plates.
 
-## 4. The cable and the platform
+## 4. The cable and the climber
 
-While the structure is formed, `SpaceElevatorRender` draws the upper part of the elevator (a GT dynamic render, `hasBER`): the **cable**, from the Cable
-block on top of the shaft (22 above the controller and 3 behind it, so it turns with the controller) up 150 blocks (as far as the world's top) to a small
-station with solar wings, and the **platform** that rides it 64 blocks above the Cable block (GTNH's climber), **turning slowly** around the cable:
-`SPIN` 0.08 degrees a tick (a full turn in a little under four minutes; twice that while a run is on). It is a model made in code from a few shapes,
-no model file: a hub that holds the cable, a ring of 4.7 blocks radius with light strips on eight spokes, eight posts with lamps, six blue glass tank
-pods on arms, orange spotlights under the ring. The colours are cells of a 4 x 4 palette texture (`assets/af9/textures/entity/space_elevator.png`); the
-lights are drawn at full brightness, the glass is translucent. The render box covers the cable and the platform, so they show from far away (256 blocks
-from the platform). The numbers are `SpaceElevatorMachine.CABLE_UP`, `CABLE_BACK`, `PLATFORM_UP` and `CABLE_LENGTH`.
+While the structure is formed, `SpaceElevatorRender` draws the upper part of the elevator (a GT dynamic render, `hasBER`), as GTNH draws its
+own (`gtnhintergalactic.render.RenderSpaceElevatorCable`, `TileEntitySpaceElevatorCable`). The numbers and the way it moves are GTNH's; **the
+model and the textures are not**: GTNH's climber is a model of its own (by Adam, textured by Jimbno), and AF9 ships none of GTNH's files.
+What is drawn here is made by hand, in code, after pictures of GTNH's.
+
+* **The cable**: a rope of four bands wound round each other (an octagon 0.9 across, a turn every 2.96 blocks, each band 0.75 high), from the
+  floor of the shaft (23 blocks under the Cable block, through the motors) **512 blocks** up, far past the world's top. A **blue light** runs
+  up it every three seconds and lights the lamps of the bands it passes. Further than 96 blocks from the camera the rope is drawn as a plain
+  eight-sided column. A band's tile is `assets/af9/textures/entity/space_elevator_strand.png`.
+* **The climber**: a wheel round the cable (radius 6.2, dark, blue on top, gold underneath) with a hub and four spokes; a white pod stands
+  on the end of three of them, a rack of six blue tanks hangs on the fourth, close by the wheel: about 23 blocks across. Its colours are cells
+  of a 4 x 4 palette texture (`space_elevator.png`). It rests **50 blocks above the Cable block** (100 where that would be under y 100).
+* Both are drawn at full brightness (as GTNH's), from 288 blocks away, level.
+
+### The rides
+
+`ClimberRide`, GTNH's animation: the climber moves a block a tick, slower over the first and the last 30 blocks of its way, and turns half a
+degree a tick while a ride is on. Between rides it **stands still**.
+
+* **Formation**: a tower that forms calls the climber down from orbit, 250 blocks above its rest (about 17 seconds). A tower that was formed
+  before the world was loaded has it already.
+* **Delivery**: while the elevator is **switched on** (whether or not a run is on), every 2,000 ticks (100 seconds) the climber rides up to
+  orbit, waits 200 ticks and comes back: about 55 seconds.
+
+The machine keeps the ride, the game time it began at and the climber's turn (`climberRide`, `climberStart`, `climberTurn`, synced); where the
+climber is follows from the time since, so every client draws the same ride. Where the Cable block is from the controller:
+`SpaceElevatorMachine.CABLE_UP`, `CABLE_BACK`.
 
 ## 5. Not done
 
 GTNH's modules are machines of their own (mining, pumping, assembler; each with its own buses, drone, parameters and an asteroid filter); here a
 module is a block that makes the elevator fly more expeditions, the buses and the drone are the elevator's, and there are only Mining Modules.
 GTNH's elevator also has a galaxy map for travel, and plasma, drill tips, rods and computation as inputs; here it runs on hydrogen and a coolant
-and has no travel function. GTNH's climber goes up and down its cable; here the platform turns on it.
+and has no travel function. GTNH's climber model and textures are GTNH's own and are not used: the climber, the cable and the block textures
+are made by hand after pictures (section 4).

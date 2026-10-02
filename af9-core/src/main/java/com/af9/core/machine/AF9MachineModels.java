@@ -41,22 +41,18 @@ public final class AF9MachineModels {
     }
 
     /**
-     * GT's workable casing model plus the Space Elevator's platform, turning on the cable above the structure
-     * ({@link SpaceElevatorRender}). The machine must implement {@code ISpaceElevatorMachine} and have a block entity
-     * renderer ({@code .hasBER(true)}).
+     * GT's workable casing model plus the Space Elevator's cable and the climber on it ({@link SpaceElevatorRender}).
+     * The machine must implement {@code ISpaceElevatorMachine} and have a block entity renderer
+     * ({@code .hasBER(true)}).
      *
-     * @param up       the cable block above the controller (blocks)
-     * @param back     the cable block behind the controller (blocks)
-     * @param platform how high the platform rides above the cable block (blocks)
-     * @param cable    how far the cable runs up from its block (blocks)
+     * @param up   the cable block above the controller (blocks)
+     * @param back the cable block behind the controller (blocks)
      */
     public static MachineBuilder.ModelInitializer workableCasingWithSpaceElevator(ResourceLocation casing,
                                                                                    ResourceLocation overlay, float up,
-                                                                                   float back, float platform,
-                                                                                   float cable) {
+                                                                                   float back) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
-                .andThen(model -> model.addDynamicRenderer(
-                        () -> SpaceElevatorRender.create(up, back, platform, cable)));
+                .andThen(model -> model.addDynamicRenderer(() -> SpaceElevatorRender.create(up, back)));
     }
 
     /**

@@ -5,6 +5,7 @@ import com.af9.core.common.IPowerGated;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
+import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockDisplayText;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.pattern.BlockPattern;
@@ -26,6 +27,7 @@ import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 
 import com.lowdragmc.lowdraglib.gui.util.ClickData;
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
+import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import com.lowdragmc.lowdraglib.utils.BlockInfo;
@@ -74,8 +76,8 @@ import java.util.stream.IntStream;
  * main ore, the rest are shared by its other ores. Re-rolled for every run ({@link #ASTEROID}); the recipes themselves
  * (KubeJS: {@code server_scripts/mods/gtceu/space_elevator.js}) only name the drone, the fluids and the energy.
  * <p>
- * While the structure is formed the cable runs up into the sky and the platform on it turns slowly
- * ({@link com.af9.core.client.render.SpaceElevatorRender}).
+ * While the structure is formed the cable runs up into the sky and the climber rides it as GTNH's does
+ * ({@link ClimberRide}; drawn by {@link com.af9.core.client.render.SpaceElevatorRender}).
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
 public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine implements ISpaceElevatorMachine,
@@ -87,10 +89,9 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     /**
      * Where the cable is (the model's, space_elevator.js reads these): the Space Elevator Cable block sits
      * {@code CABLE_UP} blocks above the controller and {@code CABLE_BACK} behind it, on top of the motor shaft in the
-     * middle of the tower; the platform rides the cable {@code PLATFORM_UP} above that block, and the cable runs on
-     * {@code CABLE_LENGTH} blocks up from it (as far as the world's top).
+     * middle of the tower.
      */
-    public static final float CABLE_UP = 22, CABLE_BACK = 3, PLATFORM_UP = 64, CABLE_LENGTH = 150;
+    public static final float CABLE_UP = 22, CABLE_BACK = 3;
 
     /** The motor tiers there are: {@code kubejs:space_elevator_motor_mk1} to {@code mk5}. */
     public static final int MOTOR_TIERS = 5;
@@ -128,6 +129,23 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     /** The size the structure is checked for: GTNH's extended elevator instead of the basic one. */
     @Persisted
     private boolean extended;
+    /**
+     * The climber's ride ({@link ClimberRide}): which one is on, the game time it began at, and how far the climber
+     * had turned when it began (degrees). Synced: every client plays the ride from these.
+     */
+    @Persisted
+    @DescSynced
+    private int climberRide;
+    @Persisted
+    @DescSynced
+    private long climberStart;
+    @Persisted
+    @DescSynced
+    private float climberTurn;
+    /** Whether the climber has come down to this tower: it comes down from orbit once, when the tower forms. */
+    @Persisted
+    private boolean climberDown;
+    private TickableSubscription climberSubs;
     /** The tier of the motors round the shaft (1 to 5), 0 while not formed. */
     private int motorTier;
     /** Mining Modules in the module slots, those of them the motors power, and the expeditions these fly at once. */
@@ -161,9 +179,62 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         return isFormed();
     }
 
+    //////////////////////////////////////
+    // *********** Climber ************//
+    //////////////////////////////////////
+
+    /** Ticks into the ride that is on. */
+    private float rideTicks(float partialTick) {
+        Level level = getLevel();
+        return level == null ? 0F : Math.max(0F, level.getGameTime() - climberStart + partialTick);
+    }
+
     @Override
-    public boolean isElevatorWorking() {
-        return isFormed() && getRecipeLogic().isWorking();
+    public float climberHeight(float partialTick) {
+        return ClimberRide.height(climberRide, rideTicks(partialTick));
+    }
+
+    @Override
+    public float climberTurn(float partialTick) {
+        return (climberTurn + ClimberRide.turn(climberRide, rideTicks(partialTick))) % 360F;
+    }
+
+    private void startRide(int ride) {
+        Level level = getLevel();
+        if (level == null) return;
+        climberRide = ride;
+        climberStart = level.getGameTime();
+    }
+
+    /**
+     * Server, every tick of a formed tower: ends the ride that is over (the climber keeps the turn it made) and, while
+     * the elevator is switched on, sends the climber up on a delivery every {@link ClimberRide#DELIVERY_INTERVAL} ticks.
+     */
+    private void climberTick() {
+        Level level = getLevel();
+        if (level == null || !isFormed()) return;
+        if (climberRide != ClimberRide.NONE) {
+            int duration = ClimberRide.duration(climberRide);
+            if (level.getGameTime() - climberStart >= duration) {
+                climberTurn = (climberTurn + ClimberRide.turn(climberRide, duration)) % 360F;
+                climberRide = ClimberRide.NONE;
+            }
+        } else if (recipeLogic.isWorkingEnabled() && getOffsetTimer() % ClimberRide.DELIVERY_INTERVAL == 0) {
+            startRide(ClimberRide.DELIVERY);
+        }
+    }
+
+    private void unsubscribeClimber() {
+        if (climberSubs != null) {
+            climberSubs.unsubscribe();
+            climberSubs = null;
+        }
+    }
+
+    @Override
+    public void onUnload() {
+        super.onUnload();
+        unsubscribeClimber();
     }
 
     //////////////////////////////////////
@@ -316,6 +387,14 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         motorTier = context.getOrDefault(MOTOR_KEY, 0);
         IntList found = context.get(MODULES_KEY);
         countModules(found == null ? IntList.of() : found);
+        if (getLevel() instanceof ServerLevel) {
+            // a tower that forms calls its climber down from orbit; one that was formed before has it already
+            if (!climberDown) {
+                climberDown = true;
+                startRide(ClimberRide.FORMATION);
+            }
+            climberSubs = subscribeServerTick(climberSubs, this::climberTick);
+        }
     }
 
     @Override
@@ -323,6 +402,10 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         super.onStructureInvalid();
         motorTier = 0;
         modules = poweredModules = expeditions = 0;
+        unsubscribeClimber();
+        climberDown = false;
+        climberRide = ClimberRide.NONE;
+        climberTurn = 0F;
     }
 
     /** Module slots the motors of a tier power, 0 for no motors. */

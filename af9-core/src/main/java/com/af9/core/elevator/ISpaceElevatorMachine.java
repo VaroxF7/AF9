@@ -8,9 +8,12 @@ import com.gregtechceu.gtceu.api.machine.feature.IMachineFeature;
  */
 public interface ISpaceElevatorMachine extends IMachineFeature {
 
-    /** Whether the structure is formed (then the platform turns on its cable). */
+    /** Whether the structure is formed (then the cable and the climber on it are drawn). */
     boolean isElevatorFormed();
 
-    /** Whether a mining run is on (the platform's lights are brighter and it turns a little faster). */
-    boolean isElevatorWorking();
+    /** How far above its rest the climber is now (blocks): 0 between its rides ({@link ClimberRide}). */
+    float climberHeight(float partialTick);
+
+    /** How far the climber has turned round the cable (degrees). */
+    float climberTurn(float partialTick);
 }

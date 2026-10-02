@@ -1,6 +1,6 @@
 // AF9 - The Space Elevator, GTNH's: a tower on a cable that reaches into space, the pack's renewable ore source from ZPM on.
 // Behaviour: af9-core (com.af9.core.elevator.SpaceElevatorMachine: the asteroids, the motors, the modules, the cable; the
-// platform that turns on the cable: com.af9.core.client.render.SpaceElevatorRender). Recipes:
+// cable and the climber that rides it: com.af9.core.client.render.SpaceElevatorRender). Recipes:
 // server_scripts/mods/gtceu/space_elevator.js. Spec: docs/space-elevator.md
 //
 // A Mining Drone (not used up) in an input bus, 50 to 100 buckets of hydrogen and of a supercooled coolant in the fluid hatches
@@ -730,10 +730,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // the structure preview's two pages: the basic and the extended tower
         .shapeInfos(definition => $SpaceElevator.previews(definition))
         .workableCasingModel('kubejs:block/space_elevator_base_casing', 'gtceu:block/multiblock/fusion_reactor')
-        // the same model plus the cable and the platform on it; the numbers live in af9-core (where the cable block is
-        // from the controller, how high the platform rides, how far the cable runs up)
+        // the same model plus the cable and the climber on it; where the cable block is from the controller lives in
+        // af9-core
         .model($ElevatorModels.workableCasingWithSpaceElevator('kubejs:block/space_elevator_base_casing',
-            'gtceu:block/multiblock/fusion_reactor', $SpaceElevator.CABLE_UP, $SpaceElevator.CABLE_BACK,
-            $SpaceElevator.PLATFORM_UP, $SpaceElevator.CABLE_LENGTH))
+            'gtceu:block/multiblock/fusion_reactor', $SpaceElevator.CABLE_UP, $SpaceElevator.CABLE_BACK))
         .hasBER(true)
 })
