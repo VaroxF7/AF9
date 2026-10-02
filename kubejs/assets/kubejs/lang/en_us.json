@@ -8154,7 +8154,7 @@
 	"af9.quest.se.extended.title": "The Extended Tower",
 	"af9.quest.se.extended.subtitle": "24 module slots",
 	"af9.quest.se.extended.1": "GTNH's second size: a &ering of 47 x 47&r round the tower's foot, in its bottom five layers, with &b12 more module slots&r (three in the middle of every side): 24 in all. It takes 432 more concrete, 188 more Internal Structure and Base Casing for the new slots.",
-	"af9.quest.se.extended.2": "Click the line &eStructure&r on the controller's screen to switch the size: the elevator then only forms with the whole ring built (the second page of the structure preview shows it; a terminal builds the size that is switched on).",
+	"af9.quest.se.extended.2": "The &esize switch&r on the controller's screen (the button with the tower seen from above) switches the size: the elevator then only forms with the whole ring built (the second page of the structure preview shows it; a terminal builds the size that is switched on).",
 	"af9.quest.se.extended.3": "&7Switching takes a formed tower apart and checks it anew: a run that is on is lost.",
 	"af9.quest.se.motors5.title": "Motors MK-IV and MK-V",
 	"af9.quest.se.motors5.subtitle": "18 and 24 slots",

@@ -3,6 +3,7 @@ package com.af9.core.elevator;
 import com.af9.core.common.IPowerGated;
 
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
+import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
@@ -24,9 +25,9 @@ import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
+import com.gregtechceu.gtceu.utils.FormattingUtil;
 
-import com.lowdragmc.lowdraglib.gui.util.ClickData;
-import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
+import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
@@ -35,10 +36,10 @@ import com.lowdragmc.lowdraglib.utils.BlockInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
@@ -65,7 +66,8 @@ import java.util.stream.IntStream;
  * with rules of their own are checked here. The {@link #motors() motors} round the shaft are all of one tier, the
  * elevator's; the {@link #cable() cable} block on top of the shaft needs open sky above it; the module slots hold
  * {@link #modules() Mining Modules}. It has GTNH's two sizes: the basic tower, and the extended one with a ring round
- * its foot and twelve more module slots, switched on the screen ({@link #setExtended}; {@link #getPattern()}).
+ * its foot and twelve more module slots, switched on the screen ({@link #setExtended}; {@link #getPattern()}; the
+ * screen is {@link SpaceElevatorScreen}).
  * <p>
  * As in GTNH the modules do the work: a Mining Module flies 2, 4 or 8 expeditions at once (MK-I to MK-III), each with the
  * recipe's full hydrogen, coolant and energy, all to the same asteroid. The motors' tier powers 6, 12, 15, 18 or 24 module
@@ -566,42 +568,56 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     // ************ Screen ************//
     //////////////////////////////////////
 
+    /** GTNH's window instead of GT's: one plain screen ({@link SpaceElevatorScreen}). */
+    @Override
+    public ModularUI createUI(Player entityPlayer) {
+        return new ModularUI(SpaceElevatorScreen.WIDTH, SpaceElevatorScreen.HEIGHT, this, entityPlayer)
+                .background(GuiTextures.BACKGROUND)
+                .widget(new SpaceElevatorScreen(this));
+    }
+
+    /**
+     * The screen's text, short lines that fit its width: GTNH's two first (ready or not, the number of modules), then
+     * the elevator's own (size, motors, powered modules) and the run (status, progress, ore, asteroid, energy).
+     */
     @Override
     public void addDisplayText(List<Component> text) {
-        MultiblockDisplayText.builder(text, isFormed())
-                .setWorkingStatus(recipeLogic.isWorkingEnabled(), recipeLogic.isActive())
-                .addEnergyUsageLine(energyContainer)
-                .addWorkingStatusLine()
-                .addProgressLine(recipeLogic.getProgress(), recipeLogic.getMaxProgress(),
-                        recipeLogic.getProgressPercent())
-                .addOutputLines(recipeLogic.getLastRecipe());
-        // the size switch: also while the tower is not formed, it says which of the two is to be built
-        Component size = Component.translatable(extended ? "af9.space_elevator.size.extended" :
-                "af9.space_elevator.size.basic").withStyle(style -> style.withHoverEvent(new HoverEvent(
-                        HoverEvent.Action.SHOW_TEXT, Component.translatable("af9.space_elevator.size.hint"))));
-        text.add(Component.translatable("af9.space_elevator.size").append(ComponentPanelWidget.withButton(size, "size")));
-        if (!isFormed()) return;
+        Component size = Component.translatable("af9.space_elevator.size", Component.translatable(extended ?
+                "af9.space_elevator.size.extended" : "af9.space_elevator.size.basic"));
+        if (!isFormed()) {
+            text.add(Component.translatable("af9.space_elevator.incomplete").withStyle(ChatFormatting.RED));
+            text.add(size);
+            return;
+        }
+        text.add(Component.translatable("af9.space_elevator.ready"));
+        text.add(Component.translatable("af9.space_elevator.module_count", modules));
+        text.add(size);
         if (motorTier >= 1 && motorTier <= ROMAN.length) {
             text.add(Component.translatable("af9.space_elevator.motors", ROMAN[motorTier - 1],
                     moduleSlots(motorTier)).withStyle(ChatFormatting.AQUA));
         }
         if (expeditions > 0) {
-            text.add(Component.translatable("af9.space_elevator.modules", poweredModules, modules, expeditions)
+            text.add(Component.translatable("af9.space_elevator.modules", poweredModules)
+                    .withStyle(ChatFormatting.AQUA));
+            text.add(Component.translatable("af9.space_elevator.expeditions", expeditions)
                     .withStyle(ChatFormatting.AQUA));
         } else {
             text.add(Component.translatable("af9.space_elevator.no_modules").withStyle(ChatFormatting.RED));
+            text.add(Component.translatable("af9.space_elevator.no_modules.hint").withStyle(ChatFormatting.GRAY));
         }
         if (!cableClear()) {
             text.add(Component.translatable("af9.space_elevator.error.sky").withStyle(ChatFormatting.RED));
         }
+        MultiblockDisplayText.builder(text, true)
+                .setWorkingStatus(recipeLogic.isWorkingEnabled(), recipeLogic.isActive())
+                .addWorkingStatusLine()
+                .addProgressLine(recipeLogic.getProgress(), recipeLogic.getMaxProgress(),
+                        recipeLogic.getProgressPercent())
+                .addOutputLines(recipeLogic.getLastRecipe());
         if (!asteroid.isEmpty()) {
             text.add(Component.translatable("af9.space_elevator.asteroid", asteroid).withStyle(ChatFormatting.AQUA));
         }
-        text.add(Component.translatable("af9.space_elevator.power", getAvailableEUt()).withStyle(ChatFormatting.GRAY));
-    }
-
-    @Override
-    public void handleDisplayClick(String componentData, ClickData clickData) {
-        if (!clickData.isRemote && componentData.equals("size")) setExtended(!extended);
+        text.add(Component.translatable("af9.space_elevator.power", FormattingUtil.formatNumbers(getAvailableEUt()))
+                .withStyle(ChatFormatting.GRAY));
     }
 }

@@ -3,8 +3,9 @@
 GTNH's Space Elevator (https://wiki.gtnewhorizons.com/wiki/Space_Elevator): a tower on a cable that reaches into space. In AF9 it is
 the **renewable ore source** of the pack from ZPM on: it sends Mining Drones to the asteroids and brings their ore home.
 
-Code: `af9-core` `com.af9.core.elevator` (`SpaceElevatorMachine`: the asteroids, the motors, the modules, the cable; `OreCatalog`: GT's
-ores and veins; `ClimberRide`: the climber's rides) and `com.af9.core.client.render.SpaceElevatorRender` (the cable and the climber). KubeJS:
+Code: `af9-core` `com.af9.core.elevator` (`SpaceElevatorMachine`: the asteroids, the motors, the modules, the cable; `SpaceElevatorScreen`:
+its screen; `OreCatalog`: GT's ores and veins; `ClimberRide`: the climber's rides) and `com.af9.core.client.render.SpaceElevatorRender` (the
+cable and the climber). KubeJS:
 `kubejs/startup_scripts/gtceu/space_elevator.js` (blocks, drones, recipe type, the machine and its structure),
 `kubejs/server_scripts/mods/gtceu/space_elevator.js` (crafting and the expeditions).
 
@@ -100,7 +101,7 @@ GTNH's second size (`STRUCTURE_PIECE_EXTENDED`, the table `SE_EXTENSION`): a **r
 layers, with **twelve more module slots** (three in the middle of every side, on platforms of their own): 24 in all. It adds 432 Ultra High
 Strength Concrete Floor (1,232), 188 Internal Structure (548) and up to 120 Base Casing (the new slots and the places round them: 593 to 905).
 
-The size is **switched on the controller's screen** (the line *Structure*: click it; GTNH has a button for it). The machine then checks the
+The size is **switched on the controller's screen** (the size switch, GTNH's extension button: section 5). The machine then checks the
 other pattern (`SpaceElevatorMachine.getPattern()`: the startup script builds both and hands the extended one over,
 `setExtendedPattern`): switched to extended, the tower only forms with the whole ring built. Switching takes a formed tower apart and
 checks it anew, so a run that is on is lost. The structure preview has both sizes as its two pages (`previews`); the terminal builds
@@ -169,10 +170,30 @@ The machine keeps the ride, the game time it began at and the climber's turn (`c
 climber is follows from the time since, so every client draws the same ride. Where the Cable block is from the controller:
 `SpaceElevatorMachine.CABLE_UP`, `CABLE_BACK`.
 
-## 5. Not done
+## 5. The screen
+
+`SpaceElevatorScreen` (the controller's `createUI`), laid out as GTNH's: a TecTech controller without an inventory, so one plain window
+(198 x 192) filled by a dark blue screen, the elevator's buttons on the screen's lower right and the power switch under it. **Nothing on it
+is configured**: TecTech's parameters, LEDs, power pass and safe void are left out, and so are GT's side tabs. The player inventory is not
+shown (as in GTNH).
+
+* **The text** (it scrolls when it is long), in short lines: GTNH's two first, *Incomplete Structure* or *Ready* and *Number of modules*;
+  then the size, the motors' tier and the slots it powers, the powered modules and the expeditions they fly at once, what is wrong (no
+  powered module, the cable under a roof), and the run: GT's status, progress and ore lines, the asteroid, the energy the hatches supply.
+* **The size switch** (GTNH's extension button): the tower seen from above, grey for the basic structure, blue with its ring for the
+  extended one (section 2).
+* **The info sign**: GTNH's contributors, on hover (GTNH opens a window for them).
+* **The logo**: the elevator's own.
+* Under the screen, where TecTech has its LED strip: the **progress** of the run and the **power switch** (a soft mallet does the same).
+  While the elevator is switched on the climber makes its deliveries (section 4).
+
+The buttons and the info sign are GT's own; the size switch's picture and the logo are drawn for AF9
+(`assets/af9/textures/gui/space_elevator/`), as GTNH's GUI textures are not used. The tooltip of a switch names the state it is in.
+
+## 6. Not done
 
 GTNH's modules are machines of their own (mining, pumping, assembler; each with its own buses, drone, parameters and an asteroid filter); here a
 module is a block that makes the elevator fly more expeditions, the buses and the drone are the elevator's, and there are only Mining Modules.
 GTNH's elevator also has a galaxy map for travel, and plasma, drill tips, rods and computation as inputs; here it runs on hydrogen and a coolant
-and has no travel function. GTNH's climber model and textures are GTNH's own and are not used: the climber, the cable and the block textures
-are made by hand after pictures (section 4).
+and has no travel function (so its screen has no teleport button). GTNH's climber model and textures are GTNH's own and are not used: the
+climber, the cable, the block textures and the screen's pictures are made by hand after pictures (sections 4 and 5).
