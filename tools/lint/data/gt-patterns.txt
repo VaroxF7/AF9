@@ -18,3 +18,4 @@ shock_proof_cutting_casing
 # the drums: GTMachines.registerDrum makes <material>_drum for wood, bronze, steel, aluminium, stainless steel, gold,
 # titanium and tungsten steel
 [a-z_]+_drum
+(crushed|purified|refined)_[a-z_]+_ore
