@@ -8,6 +8,7 @@
 // ---- 1. Veins ----
 const $AsteroidChemicalHelper = Java.loadClass('com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper')
 const $AsteroidTagPrefix = Java.loadClass('com.gregtechceu.gtceu.api.data.tag.TagPrefix')
+const $AsteroidArrayList = Java.loadClass('java.util.ArrayList')
 GTCEuServerEvents.oreVeins(event => {
     // The veins of the asteroid layer; each 3 x 3 chunks of the field hold one of them (weights). Ore only grows where
     // there is rock, and an asteroid is mostly empty space around it, so the clusters are big and exposed to the
@@ -41,7 +42,8 @@ GTCEuServerEvents.oreVeins(event => {
         if (String(id).startsWith('af9:')) return
         let isUranium = false
         try {
-            vein.veinGenerator().getAllMaterials().forEach(material => {
+            // a copy in an ArrayList: Rhino cannot walk GT's immutable lists (java.util keeps their classes to itself)
+            new $AsteroidArrayList(vein.veinGenerator().getAllMaterials()).forEach(material => {
                 if (uranium.includes(String(material.getName()))) isUranium = true
             })
         } catch (error) {

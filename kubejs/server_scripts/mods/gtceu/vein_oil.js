@@ -9,22 +9,27 @@ const $OilResourceLocation = Java.loadClass('net.minecraft.resources.ResourceLoc
 const $OilResourceKey = Java.loadClass('net.minecraft.resources.ResourceKey')
 const $OilRegistries = Java.loadClass('net.minecraft.core.registries.Registries')
 const $OilVeinData = Java.loadClass('com.gregtechceu.gtceu.api.data.worldgen.bedrockfluid.BedrockFluidVeinSavedData')
+const $OilArrayList = Java.loadClass('java.util.ArrayList')
+
+// Rhino cannot call methods on the unmodifiable views and immutable lists that GT hands out (java.util keeps those
+// classes to itself: "cannot access a member of class java.util.Collections$Unmodifiable... with modifiers public"). A
+// copy in an ArrayList (made in Java, from the view as an argument) can be walked.
+const oilListOf = collection => new $OilArrayList(collection)
 
 // ---- The oil fluid veins off ----
 GTCEuServerEvents.fluidVeins(event => {
-    const oils = ['gtceu:oil', 'gtceu:oil_heavy', 'gtceu:oil_light', 'gtceu:oil_medium', 'gtceu:raw_oil']
+    // GT's oil deposits (GTBedrockFluids), by id: weight 0 takes them out of the draw (the natural gas deposit stays)
+    const oils = ['gtceu:heavy_oil_deposit', 'gtceu:light_oil_deposit', 'gtceu:oil_deposit', 'gtceu:raw_oil_deposit']
     let off = 0
-    // one vein that cannot be read must not stop the deposits below from being registered
-    $OilGTRegistries.BEDROCK_FLUID_DEFINITIONS.entries().forEach(entry => {
+    // one vein that cannot be changed must not stop the deposits below from being registered
+    oils.forEach(id => {
         try {
-            const vein = entry.getValue()
-            const id = String($OilForgeRegistries.FLUIDS.getKey(vein.getStoredFluid().get()))
-            if (oils.includes(id)) {
+            event.modify(id, vein => {
                 vein.setWeight(0)
                 off++
-            }
+            })
         } catch (error) {
-            console.error(`vein_oil.js: could not read the fluid vein ${entry.getKey()}: ${error}`)
+            console.error(`vein_oil.js: could not switch off the fluid vein ${id}: ${error}`)
         }
     })
     console.info(`vein_oil.js: ${off} oil fluid veins switched off`)
@@ -74,14 +79,13 @@ ServerEvents.loaded(event => {
         const level = event.server.getLevel(dimension)
         if (level === null) return
         const data = $OilVeinData.getOrCreate(level)
-        const entries = data.veinFluids.entrySet().iterator()
         let forgotten = 0
-        while (entries.hasNext()) {
-            if (entries.next().getValue().getDefinition() === null) {
-                entries.remove()
+        oilListOf(data.veinFluids.keySet()).forEach(chunk => {
+            if (data.veinFluids.get(chunk).getDefinition() === null) {
+                data.veinFluids.remove(chunk)
                 forgotten++
             }
-        }
+        })
         if (forgotten > 0) data.setDirty()
         console.info(`vein_oil.js: ${forgotten} empty fluid veins of af9:asteroid_field forgotten`)
     } catch (error) {
@@ -95,7 +99,7 @@ GTCEuServerEvents.oreVeins(event => {
         if (String(id).startsWith('af9:')) return
         let sandy = false
         try {
-            vein.veinGenerator().getAllMaterials().forEach(material => {
+            oilListOf(vein.veinGenerator().getAllMaterials()).forEach(material => {
                 if (String(material.getName()) === 'oilsands') sandy = true
             })
         } catch (error) {

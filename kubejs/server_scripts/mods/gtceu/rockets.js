@@ -107,10 +107,16 @@ ServerEvents.recipes(event => {
             // the control circuits of the tier; the previous rocket is the research (a Scanner, one tier below the line)
             rocket.itemInputs(`4x #gtceu:circuits/${v}`)
                 .inputFluids(Fluid.of('gtceu:soldering_alloy', 144 * 4 * (tier - 2)))
-                .scannerResearch(b => b
-                    .researchStack(Item.of(`ad_astra:tier_${tier - 1}_rocket`))
+            const scanned = Item.of(`ad_astra:tier_${tier - 1}_rocket`)
+            if (scanned.isEmpty() === true) {
+                // an empty research stack would fail to build and show an error on every world load
+                console.error(`rockets.js: ad_astra:tier_${tier - 1}_rocket is no item: the tier ${tier} rocket has no research`)
+            } else {
+                rocket.scannerResearch(b => b
+                    .researchStack(scanned)
                     .duration(1200)
                     .EUt(VA[voltage - 1]))
+            }
         } else {
             rocket.inputFluids(Fluid.of('gtceu:soldering_alloy', 576))
         }

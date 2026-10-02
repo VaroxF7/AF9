@@ -7,18 +7,26 @@
 // fuel rods (and the ore they took). The rest is GT's: the superconducting coil, ZPM circuits, field generators, the
 // research (a scan of the ITBTC wire).
 
+const $FusionChemicalHelper = Java.loadClass('com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper')
+const $FusionTagPrefix = Java.loadClass('com.gregtechceu.gtceu.api.data.tag.TagPrefix')
+
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
 
-    // The scan: the ITBTC wire, or (if this GT has no such item, the research stack would be empty and the recipe
-    // fails to build: "Research recipe must have an item or fluid stack") the superconducting coil
-    const wire = 'gtceu:indium_tin_barium_titanium_cuprate_single_wire'
-    const researched = Item.exists(wire) ? wire : 'gtceu:superconducting_coil'
-    if (researched !== wire) console.warn(`fusion_reactor.js: ${wire} does not exist, the research scans ${researched}`)
+    // The scan: the single ITBTC wire, as GT's own recipe has it (asked of GT's ChemicalHelper, which knows the item
+    // whatever its id), else the superconducting coil. A scan with no item would fail to build ("Research recipe must
+    // have an item or fluid stack") and show an error on every world load: with neither, the recipe has no research
+    // (and the log says so) instead.
+    let researched = $FusionChemicalHelper.get($FusionTagPrefix.wireGtSingle,
+        GTMaterials.get('indium_tin_barium_titanium_cuprate'))
+    if (researched.isEmpty() === true) {
+        console.warn('fusion_reactor.js: GT has no single ITBTC wire item, the research scans the superconducting coil')
+        researched = Item.of('gtceu:superconducting_coil')
+    }
 
     // by output, so whatever else the pack has made it with goes too
     event.remove({ output: 'gtceu:luv_fusion_reactor' })
-    event.recipes.gtceu.assembly_line('af9:fusion_reactor_mk1')
+    const reactor = event.recipes.gtceu.assembly_line('af9:fusion_reactor_mk1')
         .itemInputs('gtceu:superconducting_coil', '4x #gtceu:circuits/zpm', '3x gtceu:double_plutonium_241_plate',
             '4x gtceu:plutonium_ingot', '2x gtceu:double_osmiridium_plate', '2x gtceu:iv_field_generator',
             '64x gtceu:uhpic_chip', '32x gtceu:indium_tin_barium_titanium_cuprate_single_wire',
@@ -26,10 +34,13 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 2304))
         .inputFluids(Fluid.of('gtceu:niobium_titanium', 2304))
         .itemOutputs('gtceu:luv_fusion_reactor')
-        .scannerResearch(b => b
-            .researchStack(Item.of(researched))
+    if (researched.isEmpty() === true) {
+        console.error('fusion_reactor.js: nothing to scan for the Fusion Reactor Mk1: the recipe has no research')
+    } else {
+        reactor.scannerResearch(b => b
+            .researchStack(researched)
             .duration(1200)
             .EUt(VA[GTValues.IV]))
-        .duration(1000)
-        .EUt(VA[GTValues.LuV])
+    }
+    reactor.duration(1000).EUt(VA[GTValues.LuV])
 })

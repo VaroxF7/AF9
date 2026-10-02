@@ -32,8 +32,12 @@ new chunks have the new share.
 
 ## 3. The world's oil is off
 
-* GT's oil fluid veins (`gtceu:oil`, `oil_heavy`, `oil_light`, `oil_medium`) get weight 0 (`vein_oil.js` goes over GT's registry of
-  bedrock fluid veins, so it does not depend on the vein ids; the log says how many it switched off).
+* GT's four oil deposits (`gtceu:heavy_oil_deposit`, `light_oil_deposit`, `oil_deposit`, `raw_oil_deposit`) get weight 0 (`vein_oil.js`,
+  by id with the event's `modify`; the natural gas deposit stays; the log says how many it switched off). The script used to walk GT's
+  registry (`entries().forEach`), which Rhino cannot do: it cannot call methods on the unmodifiable views and immutable lists GT hands out
+  (`cannot access a member of class java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet`), so the whole event stopped with that
+  error and **no deposit was ever registered** (the reason for "no fluid veins"). Where a script has to walk such a collection it copies it
+  into an `ArrayList` first (`new ArrayList(collection)`, the collection only as an argument).
 * Ore veins that hold `oilsands` get weight 0 (the same `modifyAll` as the uranium veins).
 * Ores no vein holds are Mk4 for the Microverse Projector (`docs/microverse.md`): oil sands could be farmed there, with a dust as seed.
 
