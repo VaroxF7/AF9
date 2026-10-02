@@ -41,8 +41,7 @@ the configs AF9 changes. Everything else comes from the pack itself.
 - **Lint** (`tools/lint/`): `bash tools/lint/run.sh` checks the recipes, multiblocks, quests, textures and lang files
   without starting the game (CI runs it before every build); `docs/review-findings.md` lists what it found.
 - **Computation** (`docs/computation.md`): CWU Servers (LV-IV), the N1 Computation Array and the N1 Supercomputer Array
-  with Computer Racks and cards, and the ME Computation Link: an ME network needs computation for its channels. (The
-  machine bus was taken out; it is to come back in another way.)
+  with Computer Racks and cards. (The machine bus, the ME Computation Link and the Crafting CPU Array were taken out.)
 - **Microverse Projector** (`docs/microverse.md`): every ore GT has is farmable: a Microverse Core, a Miner Drone and a
   dust of the ore (the seed) give raw ore; four tiers, Overworld to the Asteroid Field.
 - **Oil** (`docs/oil.md`): the world's oil is off; Oil Regolith, a sand-like rock of the asteroids, becomes Impure Oil, Shiny
@@ -52,7 +51,7 @@ the configs AF9 changes. Everything else comes from the pack itself.
 
 Build AF9 Core (or take the jar from GitHub Actions, see `af9-core/README.md`), put it into the instance's `mods/`
 folder, and copy `kubejs/` and `config/` over the instance's own. Every client and server needs the jar: the KubeJS
-scripts load its classes. AF9 Core needs GregTech CEu Modern 7.2.0 and Ad Astra 1.15 (the Asteroid Field is Ad Astra data); AE2, Jade and Curios are optional.
+scripts load its classes. AF9 Core needs GregTech CEu Modern 7.2.0 and Ad Astra 1.15 (the Asteroid Field is Ad Astra data); Jade and Curios are optional.
 
 ## Build
 

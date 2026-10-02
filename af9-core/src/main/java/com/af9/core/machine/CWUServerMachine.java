@@ -1,6 +1,5 @@
 package com.af9.core.machine;
 
-import com.af9.core.compute.ComputationConsumer;
 import com.af9.core.machine.console.ScrollingText;
 
 import com.gregtechceu.gtceu.api.GTValues;
@@ -50,13 +49,12 @@ import java.util.Map;
  * CWU Server: a single-block machine that turns EU into computation, LV to IV ({@link #cwutFor}: LV 4, MV 8, HV 16, EV
  * 32, IV 64 CWU/t). It gives what is asked of it each tick up to that, and pays for it from its buffer: at full output
  * one amp of its tier ({@code VA[tier]} EU/t), less when less is drawn. It is a GT computation source
- * ({@link IOpticalComputationProvider}, on every side): an ME Computation Link against it takes it directly, GT's
- * Optical Fiber Cable leads it to a reception hatch. Power goes in on any side but the front, which is its lights. A
+ * ({@link IOpticalComputationProvider}, on every side): GT's Optical Fiber Cable leads it to a
+ * reception hatch. Power goes in on any side but the front, which is its lights. A
  * soft mallet (or the screen) switches it off.
  * <p>
  * Its front lights ({@link #LIGHTS}, {@link #lightsModel}): a red dot, steady, while it is offline (switched off, out
- * of energy, or nothing next to it that could draw from it: an ME Computation Link or GT Optical Fiber Cable on any
- * side); steady green while online and idle;
+ * of energy, or no GT Optical Fiber Cable joined to it on any side); steady green while online and idle;
  * blinking while it gives computation. The blinking has two patterns of different lengths ({@link #ALT_LIGHTS}, chosen
  * by the position), so servers side by side do not blink in step.
  */
@@ -251,8 +249,7 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
     }
 
     /**
-     * Whether something next to it could draw its computation: an ME Computation Link against it (any face of either)
-     * or GT Optical Fiber Cable joined to it on any side.
+     * Whether something could draw its computation: GT Optical Fiber Cable joined to it on any side.
      */
     public boolean isConnected() {
         Level level = getLevel();
@@ -262,7 +259,6 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
             BlockPos next = pos.relative(side);
             if (!level.isLoaded(next)) continue;
             BlockEntity entity = level.getBlockEntity(next);
-            if (entity instanceof ComputationConsumer) return true;
             if (entity instanceof OpticalPipeBlockEntity pipe &&
                     PipeBlockEntity.isConnected(pipe.getConnections(), side.getOpposite())) {
                 return true;

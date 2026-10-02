@@ -36,13 +36,6 @@ repositories {
             includeGroup 'earth.terrarium.adastra'
         }
     }
-    maven { // AE2 (ME networks need computation: the ME Computation Link, the channel cap)
-        name = 'Modmaven'
-        url = 'https://modmaven.dev/'
-        content {
-            includeGroup 'appeng'
-        }
-    }
     maven { // Jade (the same coordinates GTCEu builds against)
         name = 'Modrinth'
         url = 'https://api.modrinth.com/maven'
@@ -85,10 +78,8 @@ dependencies {
     modCompileOnly("top.theillusivec4.curios:curios-forge:${curios_version}:api")
     // the orbital station's magnetic field (optional at runtime)
     modCompileOnly("earth.terrarium.adastra:ad_astra-forge-${minecraft_version}:${ad_astra_version}") { transitive = false }
-    // ME networks need computation (optional at runtime: without AE2 none of it loads)
-    modCompileOnly("appeng:appliedenergistics2-forge:${ae2_version}") { transitive = false }
 
-    // Mixin refmaps (the Mixins target AE2's own, unobfuscated code)
+    // Mixin refmaps
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 

@@ -411,7 +411,7 @@ for fname, ch in chapters.items():
 
 # dead texts
 for k in lang:
-    if k.startswith('af9.quest.') and k not in used_keys and not k.startswith('af9.quest.ae2'):
+    if k.startswith('af9.quest.') and k not in used_keys:
         # chapter texts and keys of quests that are not in an AF9 chapter are used by other chapters; only report litho/*
         if k.startswith('af9.quest.litho.') and not k.endswith(('.chapter.title', '.chapter.subtitle')):
             report('INFO', 'Q8', f'text {k} is used by no quest', 'kubejs lang')

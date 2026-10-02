@@ -581,8 +581,6 @@
 			]
 			description: [
 				"{atm9.quest.ae2.desc.ME_controller}"
-				""
-				"{af9.quest.ae2.controllerComputation}"
 			]
 			id: "2F16B6A173525277"
 			rewards: [

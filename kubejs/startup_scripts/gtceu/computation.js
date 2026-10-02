@@ -6,7 +6,7 @@
 // N1 Supercomputer Array (LuV, 2x4 across, 7 to 30 long): four racks in each slice between the end slices, heat
 // vents over and under them.
 // The arrays run while switched on and fed: energy for their cards, coolant (Coolant Hatches) for the heat. No recipes.
-// Their computation leaves through a Computation Transmitter Hatch (GT's Optical Fiber Cable, an ME Computation Link).
+// Their computation leaves through a Computation Transmitter Hatch (GT's Optical Fiber Cable).
 
 const $ComputationArrayMachine = Java.loadClass('com.af9.core.compute.ComputationArrayMachine')
 const $ComputerRack = Java.loadClass('com.af9.core.compute.ComputerRackPartMachine')

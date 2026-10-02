@@ -1,16 +1,16 @@
 # Computation
 
 Where AF9's computation (CWU/t) comes from, besides GT's own HPCA: a single-block **CWU Server** (LV to IV), computers built
-from **racks of cards** (the N1 computation arrays), and the rule that makes **ME networks** need it. All of them are GT
-computation sources (`IOpticalComputationProvider`): GT's Optical Fiber Cable leads them to a reception hatch (a Research
-Station, the Orbital Station, a computation hatch on a Photolithography Line or Scanner, the Metrology Station), and an ME
-Computation Link takes them straight from a face. Code: af9-core `com.af9.core.compute`, `com.af9.core.machine.CWUServerMachine`,
-`com.af9.core.ae2`; KubeJS `startup_scripts/gtceu/cwu_server.js` and `computation.js`, `server_scripts/mods/gtceu/cwu_server.js` and
+from **racks of cards** (the N1 computation arrays). All of them are GT computation sources
+(`IOpticalComputationProvider`): GT's Optical Fiber Cable leads them to a reception hatch (a Research Station, the Orbital
+Station, a computation hatch on a Photolithography Line or Scanner, the Metrology Station). Code: af9-core
+`com.af9.core.compute`, `com.af9.core.machine.CWUServerMachine`; KubeJS `startup_scripts/gtceu/cwu_server.js` and `computation.js`, `server_scripts/mods/gtceu/cwu_server.js` and
 `computation.js`. The glass fibre in their recipes is fine borosilicate glass wire.
 
 *The machine bus (Optical Bus Cable, Bus Connector, Bus Controller, Interconnect Hatch, the Machine Bus Module for the Central
-Monitor, ME autocrafting through the controller) was taken out of the pack: it is to be restarted in another way. Its document
-was docs/machine-bus.md, in the history before that commit.*
+Monitor, ME autocrafting through the controller), the ME Computation Link (ME networks needing computation for their channels)
+and the Crafting CPU Array (an AE2 crafting CPU as a multiblock) were taken out of the pack. Their documents are in the history
+(docs/machine-bus.md, and the ME link's section 3 of this file).*
 
 ## 1. CWU Server
 
@@ -21,7 +21,6 @@ each tick, up to **LV 4, MV 8, HV 16, EV 32, IV 64 CWU/t** (`cwutFor`: 4 doublin
 when less is drawn; without the energy it gives what the energy covers. Power goes in on any side but the front (one
 amp). It is a GT computation source (`IOpticalComputationProvider`, every side), so it feeds everything:
 
-- an ME Computation Link against it (§3): one LV server runs a 16-channel ME network at the default rate;
 - GT's Optical Fiber Cable to a reception hatch (a Research Station, the Orbital Station);
 
 Bridging (for a Network Switch) always allowed. A soft mallet or its screen switches it off; its screen shows what it
@@ -29,8 +28,7 @@ gave last tick, the EU per CWU and its energy, and has a switch.
 
 **Front lights** (model properties `cwu_lights`, `cwu_alt_lights`, set every 10 ticks; models
 `af9:block/machine/cwu_server_<state>`): a steady red dot while **offline**: switched off, out of energy, or nothing next
-to it that could draw from it (an ME Computation Link against it or GT Optical Fiber Cable joined to it on
-any side); the power LEDs steady
+to it that could draw from it (GT Optical Fiber Cable joined to it on any side); the power LEDs steady
 green while **idle**; blinking while **busy** (it gave computation within the last second). Two blinking patterns of different lengths (8
 frames at 2 ticks, 11 at 3), picked by the block position (`Mth.getSeed`), so servers side by side do not blink in step.
 
@@ -94,7 +92,7 @@ the MV Coolant Hatch comes before the Supercooling Cryostat), supercooled hydrog
 
 **Where the computation goes.** An array is a GT computation source (`IOpticalComputationProvider`, as GT's HPCA): each
 tick it gives what is asked of it up to its output. A Computation Transmitter Hatch in it feeds GT's Optical Fiber
-Cable (a Research Station, the Orbital Station) or an ME Computation Link (§3). Bridging (for a Network Switch) always
+Cable (a Research Station, the Orbital Station). Bridging (for a Network Switch) always
 allowed. Its screen shows racks and cards, the computation (put out / fully cooled), what it gave last tick, the draw,
 the heat and the cooling.
 
@@ -107,42 +105,3 @@ the heat and the cooling.
 | N1 Computation Array | Assembler, MV, 30 s | MV hull, 4 MV circuits, 4 Server Casing, 4 MV pumps, 2 MV motors, 8 fine borosilicate glass wire, 288 mB soldering alloy |
 | N1 Supercomputer Array | Assembler, LuV, 60 s, cleanroom | LuV hull, 4 LuV circuits, 8 computer casings, 4 heat vents, 4 LuV pumps, 2 LuV field generators, 16 fine borosilicate glass wire, 1152 mB soldering alloy |
 | Cards | Circuit Assembler, the tier's voltage, 20 s (cleanroom from Nano) | the tier's board, its chips (Tube: vacuum tubes, magnetic iron rods for RAM), fine wire, 144 mB soldering alloy |
-
-## 3. ME networks need computation (AE2)
-
-Code: af9-core `com.af9.core.ae2` (only set up when AE2 is loaded), the Mixin
-`com.af9.core.mixin.ae2.PathingCalculationMixin` (`af9.mixins.json`, not required); settings `af9-common.toml`,
-`[meComputation]`: `enabled` (true), `channelsPerCwut` (4). Built against AE2 15.4.9 (compile only, modmaven).
-
-**The rule.** An AE2 network with an ME Controller (controller state online) needs computation for its channels:
-1 CWU/t per `channelsPerCwut` channels, every tick. The channels it wants are its devices that need a channel (a
-multiblock such as a crafting CPU counts once, as AE2 gives it one channel), counted each second. Networks without a
-controller (ad-hoc, 8 channels) need none.
-
-**Short of it** (`MEComputationService`, an AE2 grid service, one per network): the network draws its CWU/t every
-tick through its ME Computation Links, in turn. Averaged over a second: if it got all it asked for, its channels are
-not limited; else it may use `supplied × channelsPerCwut` channels. The cap is applied inside AE2's channel assignment
-(`PathingCalculation.tryUseChannel`, a BFS out from the controllers, dense cables first): once the cap is reached no
-more channels are granted, so the devices farthest from the controller go without. Channels are only reassigned
-(`IPathingService.repath`, the network reboots briefly) when the cap really changes: at once when the network gets all
-it needs again or first falls short, else at most every 5 s and only for a change of at least a tenth (or of
-`channelsPerCwut`). A new network starts with all its channels for its first second.
-
-**ME Computation Link** (`af9:me_computation_link`, `MEComputationLinkBlock` / `MEComputationLinkBlockEntity`): an
-AE2 in-world grid node on all six faces (it needs no channel itself, 1 AE/t); every face takes computation too
-(`facing`, placed against the block clicked, only turns the model):
-
-| Against a face | It draws |
-|---|---|
-| a CWU Server, a GT Computation Transmitter Hatch (HPCA, Network Switch, computation array), an HPCA's or array's controller | straight from it, no cable (GT's computation capability on that face; `getDirectSources`) |
-| GT Optical Fiber Cable | from what the fibre leads to (the link shows GT's fibre a receiving port on every face, so the fibre connects) |
-
-The faces in the order down, up, north, south, west, east, until the request is met; other ME Computation Links are left out.
-
-Any number per network. Right-click: what it draws from, how much, and the network's channels, needs, supply and cap.
-The ME Controller's tooltip names the rule. Quests: the link (Photolithography chapter),
-and a paragraph on the ME Controller quest.
-
-| Output | Machine | Inputs |
-|---|---|---|
-| ME Computation Link | Assembler, MV, 10 s | 2 calculation processors, fluix glass cable, quartz fiber, an MCU chip, 4 fine borosilicate glass wire, 144 mB soldering alloy |
