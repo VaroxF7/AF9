@@ -16,7 +16,8 @@ A number in a quest text that a recipe could change is a promise: when the recip
     kubejs/server_scripts/mods/gtceu/asteroid_fission.js and rockets.js (the reactor cycle, the leach, the propellant ...)
   * (X4) names that Java, data and scripts share: the rock AsteroidFieldFeature builds and the stones of the ore layer, the
     reactor id RadiationWatch looks for, the fluid tag ExtremeReactorsCompat maps, the dimensions of the asteroid layer, the ore
-    veins, the planets and the space station recipe
+    veins, the planets and the space station recipe, the loot tables of the temples (they exist, and every item in them does:
+    an unknown item makes Minecraft drop the whole table)
 
 Run by tools/lint/run.sh. When you change a print or coating recipe, run it: the message names the key to rewrite.
 """
@@ -226,6 +227,42 @@ for n in sorted(os.listdir(recipes_dir)) if os.path.isdir(recipes_dir) else []:
             report(f'recipes/{n}: the space station of {recipe["dimension"]}, which is no space planet of AF9 (a planet without orbit)', code='X4')
         if recipe['dimension'] not in dims:
             report(f'recipes/{n}: the dimension {recipe["dimension"]} has no data/af9/dimension file', code='X4')
+
+# the loot tables of the ancient temples: the sizes of TempleLayout name them, AsteroidFieldFeature builds the id from them
+layout_src = read('af9-core/src/main/java/com/af9/core/space/TempleLayout.java')
+tables = sorted(set(re.findall(r'^\s+(?:SHRINE|TEMPLE|GRAND_TEMPLE)\("(\w+)"', layout_src, re.M)))
+if not tables:
+    report('TempleLayout.java: found no sizes with a loot table (did Kind change shape? then fix tools/lint/facts.py)', code='X4')
+if 'new ResourceLocation("af9", "chests/" + temple.kind.lootTable)' not in read(feature):
+    report('AsteroidFieldFeature no longer builds the chest loot table id as af9:chests/<TempleLayout.Kind.lootTable>', code='X4')
+chip_ids = set(re.findall(r"^\s*\['(\w+)',", read('kubejs/startup_scripts/gtceu/chips.js'), re.M))
+materials_dir = os.path.join(ROOT, 'kubejs/startup_scripts')
+ore_materials = set()
+for dirpath, _, files in os.walk(materials_dir):
+    for f in files:
+        if f.endswith('.js'):
+            body = open(os.path.join(dirpath, f), encoding='utf-8').read()
+            for m in re.finditer(r"event\.create\('(\w+)'\)(.*?)(?=event\.create\(|\Z)", body, re.S):
+                if re.search(r'\.ore\(', m.group(2).split('\n\n')[0]):
+                    ore_materials.add(m.group(1))
+gt_materials = {l.strip() for l in open(os.path.join(HERE, 'data/gt-materials.txt'), encoding='utf-8') if l.strip()}
+for table in tables:
+    checked += 1
+    path = os.path.join(data, 'loot_tables', 'chests', table + '.json')
+    if not os.path.isfile(path):
+        report(f'TempleLayout names the loot table af9:chests/{table}, which is not in data/af9/loot_tables/chests', code='X4')
+        continue
+    loot = json.load(open(path, encoding='utf-8'))
+    for pool in loot.get('pools', []):
+        for entry in pool.get('entries', []):
+            name = entry.get('name', '')
+            ns, _, item = name.partition(':')
+            if ns == 'kubejs' and not (item.endswith('_chip') and item[:-5] in chip_ids):
+                report(f'chests/{table}.json: {name} is no item AF9 registers (the chips are kubejs:<chip>_chip, chips.js)', code='X4')
+            if ns == 'gtceu' and item.startswith('raw_') and item[4:] not in gt_materials | ore_materials:
+                report(f'chests/{table}.json: {name} is no raw ore of GT or AF9 ({item[4:]} has no ore)', code='X4')
+            if not name or ':' not in name:
+                report(f'chests/{table}.json: an entry without an item name', code='X4')
 
 print(f'facts: {checked} node texts, modes and shared names checked against the recipes')
 print(f'{len(findings)} errors, 0 warnings, 0 notes')

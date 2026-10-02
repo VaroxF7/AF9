@@ -63,20 +63,63 @@ Astra's below-world rule for space dimensions).
 that reaches into it and fills only its own part, so a rock comes out whole in any order of chunk generation. An asteroid is fixed
 by the world seed and the *cell* of its size class:
 
-| Class | Cell (blocks) | Per cell | Radius | Centre height spread |
-|---|---|---|---|---|
-| pebbles | 16 | 1-3 | 2-4 | the whole band |
-| small | 32 | 1-3 | 4-8 | the whole band |
-| medium | 64 | 1-3 | 9-16 | the whole band |
-| large | 96 | 1-2 | 18-28 | 80 % of it |
-| huge | 160 | 1 | 32-46 | 50 % of it |
+| Class | Cell (blocks) | Per cell | Radius | Centre height spread | Holds a temple |
+|---|---|---|---|---|---|
+| pebbles | 14 | 1-3 | 2-4 | the whole band | never |
+| small | 27 | 1-3 | 4-8 | the whole band | never |
+| medium | 54 | 1-3 | 9-16 | the whole band | 25 % (if one fits) |
+| large | 82 | 1-2 | 18-28 | 80 % of it | 60 % |
+| huge | 136 | 1 | 32-46 | 50 % of it | always |
 
 Centres lie at y = 8..92 (most near the middle); the station is at y = 100. The radius leans to the small end (`random^1.6`), each
 axis is stretched by 0.75-1.25 (vertically 0.6-1.1) and the surface is pushed in and out by two layers of simplex noise (amplitudes
-0.25 and 0.10). About 12 % of the band is rock.
+0.25 and 0.10).
+
+**Spacing.** The cells were 16 / 32 / 64 / 96 / 160 blocks; they are now about 15 % smaller (14 / 27 / 54 / 82 / 136), which is
+about 38 % more rocks per area, and the gaps between them shrink by about the same share. A calculation over the class tables
+(volume of the ellipsoids per cell, divided by the 84 blocks of the band; the big rocks overlap, so the real share is lower) gives
+the rock share of the band: before about 23 %, now about 31 %. The knob is `CLASSES` in the Java; a rock's shape and size
+do not depend on the cell, so only the *number* of rocks changes. Asteroids of a world that was already generated keep their old
+places, new chunks get the new ones: for the first look, use a new world or unexplored space.
 
 The rock is andesite, tuff, basalt and blackstone, by a slow noise in patches. These are four of the stones GT has ore blocks for;
 the ore layer targets exactly them (`.targets(...)` in the startup script; lint X4).
+
+## 2.2b Ancient temples (`TempleLayout`)
+
+Ruins in the bigger rocks. `af9-core/src/main/java/com/af9/core/space/TempleLayout.java` is pure geometry (no Minecraft classes) and
+answers "what is at this world position": a hall carved out of the rock and lined with polished blackstone brick, a corridor from it
+to the surface, a gate there. `AsteroidFieldFeature` asks it for every position of its chunk, so a temple comes out whole in any order
+of chunk generation, like the rock itself. The temple's middle is the asteroid's middle; it is turned by a random quarter turn.
+
+| Size | Hall inside (wide x long x high) | Corridor | In it | Fits an asteroid from (radius, worst / best case) |
+|---|---|---|---|---|
+| shrine | 3 x 5 x 3 | 1 wide, 2 high | an altar block and one chest, two end rods | about 12 / 9 |
+| temple | 7 x 11 x 4 | 3 wide, 3 high | two rows of pillars (purpur), end rods, a platform with an altar and a chest, a band of carvings on the back wall | about 21 / 12 |
+| grand temple | 11 x 17 x 6 | 5 wide, 4 high | the same, longer (four rows of pillars), and a chest in each back corner | about 30 / 18 |
+
+The biggest size that fits is built: the corner of the outer wall, as a share of the radii, squared and added up, has to stay below
+0.36 (an ellipsoid's surface is 1; the lumps of the surface take up to a third of the radius). A temple that pokes out of a thin
+spot of the rock stays: the walls hang on the rock, it is a ruin. A medium asteroid gets a shrine only if it is at the big end of
+its class, a large one a shrine or a temple, a huge one a grand temple (or a temple where its radii are small).
+
+The corridor runs on along its axis through the rock; the *gate* stands where the rock ends (the layout walks along the axis through
+the asteroid's own shape and takes the last rock, a gap of two blocks is a lump in the surface): two purpur pillars, a chiselled
+lintel and an end rod on each end of it, and the opening is carved a few blocks further out, so that no lump closes it. The corridor
+of a grand temple in a huge asteroid is up to about 45 blocks long.
+
+Blocks: `polished_blackstone_bricks` (one in eight cracked), `chiseled_polished_blackstone`, `polished_blackstone` and now and then
+`gilded_blackstone` for the floor, `purpur_pillar`, `crying_obsidian` for the altars, `end_rod` for light. None of them is a stone of
+the ore layer, so no vein grows into a wall. Chests face the entrance and hold loot tables by size
+(`af9-core/src/main/resources/data/af9/loot_tables/chests/`):
+
+| Table | Used by | Contents |
+|---|---|---|
+| `ancient_shrine` | the shrine | 2-3 rolls of desh, gold, iron, raw Brannerite, ender pearls; 30 %: a diamond or an ASIC chip |
+| `ancient_temple` | temple and grand temple | 3-5 rolls of desh, ostrum, calorite, gold, diamond, raw platinum, raw Brannerite, raw naquadah; 60 %: 1-2 of ender pearls, crying obsidian, netherite scrap, ASIC / MRAM / VPU chips |
+
+Lint X4 checks that the tables named by `TempleLayout` exist and that every `kubejs:` chip and `gtceu:raw_` ore in them is real
+(an unknown item makes Minecraft drop the whole table without a word).
 
 ## 2.3 The ore (GT's ore veins)
 
@@ -85,8 +128,8 @@ the ore layer targets exactly them (`.targets(...)` in the startup script; lint 
 - **Veins** (`kubejs/server_scripts/mods/gtceu/asteroid_fission.js`, `GTCEuServerEvents.oreVeins`): one per 3 x 3 chunks, chosen by
   weight: brannerite 60 (cluster 120, density 0.55), pentlandite 20, magnetite 15, cooperite 10 (clusters 90-100, density 0.45-0.5).
   Height 0-110. `discardChanceOnAirExposure(0)`: the ore may sit on the surface, in the void's face.
-- GT places a vein's blocks only where there is rock. With 12 % of the band rock, a vein of cluster size 120 gives roughly 40-80
-  ore blocks. **If the field turns out to be too poor or too rich**, the knobs are the clusters and densities of the veins, and
+- GT places a vein's blocks only where there is rock. With about a third of the band rock, a vein of cluster size 120 gives
+  roughly 40-90 ore blocks. **If the field turns out to be too poor or too rich**, the knobs are the clusters and densities of the veins, and
   `CLASSES` (cell sizes and counts) in the Java.
 - **Brannerite** (`(U,Ca,Ce)(Ti,Fe)2O6`): dust and ore, two crushed ores per ore, by-products rutile, thorium, neodymium, GT's
   radioactive hazard x0.6. No components, so GT adds no electrolyzer or centrifuge shortcut.
@@ -95,17 +138,25 @@ the ore layer targets exactly them (`.targets(...)` in the startup script; lint 
 
 ## 3.1 Gregified rockets (`kubejs/server_scripts/mods/gtceu/rockets.js`)
 
-Ad Astra's crafting recipes for the rocket parts, the NASA Workbench, the Launch Pad and the four rockets (the workbench's own
-recipes) are removed. All are assembler recipes now, with the item graph kept: nose cone, fins, engine frame, an engine and a
-tank per tier that take the previous tier's, and the rocket in the NASA Workbench's 14 slots (a custom `ad_astra:nasa_workbench`
-recipe `af9:nasa_workbench/tier_<n>_rocket`).
+Ad Astra's crafting recipes for the rocket parts, the NASA Workbench, the Launch Pad, the Rover and the four rockets (the
+workbench's own recipes) are removed. Everything is a GT machine recipe now, **the rockets themselves too**: the item graph is kept
+(nose cone, fins, engine frame, an engine and a tank per tier that take the previous tier's), the parts are assembler recipes, and
+the rocket is an assembler recipe (tiers 1 and 2) or an Assembly Line recipe (tiers 3 and 4). The NASA Workbench is still made but
+has no recipes left (it would have none to show).
 
-| Rocket | Metal (parts, hull blocks) | GT tier of the parts | Chip in the engine | Engine / tank | Reaches |
-|---|---|---|---|---|---|
-| 1 | stainless steel | HV | MCU | `steel_engine`, `steel_tank` | Moon |
-| 2 | titanium | EV | ASIC | `desh_engine`, `desh_tank` | Mars, Ceres, the Asteroid Field |
-| 3 | tungsten steel | IV | MRAM | `ostrum_engine`, `ostrum_tank` | Venus, Mercury |
-| 4 | HSS-E | LuV | VPU | `calorite_engine`, `calorite_tank` | Glacio |
+| Rocket | Metal (parts, hull blocks) | GT tier of the parts | Chip in the engine | Engine / tank | Rocket made in | Reaches |
+|---|---|---|---|---|---|---|
+| 1 | stainless steel | HV | MCU | `steel_engine`, `steel_tank` | Assembler, HV | Moon |
+| 2 | titanium | EV | ASIC | `desh_engine`, `desh_tank` | Assembler, EV | Mars, Ceres, the Asteroid Field |
+| 3 | tungsten steel | IV | MRAM | `ostrum_engine`, `ostrum_tank` | Assembly Line, IV | Venus, Mercury |
+| 4 | HSS-E | LuV | VPU | `calorite_engine`, `calorite_tank` | Assembly Line, LuV | Glacio |
+
+The rocket (`af9:tier_<n>_rocket`): the nose cone, six hull blocks of the tier's metal, four fins, two tanks, the engine and two robot
+arms of the tier; tiers 1 and 2 add 576 mB soldering alloy (600 ticks); tiers 3 and 4 add four circuits of the tier and 576 / 1,152 mB
+soldering alloy, and are researched on the previous rocket (a Scanner of the tier below scans it into a data stick, 1,200 ticks,
+`scannerResearch`: GT's own mechanism, so a data stick is enough and the research is made once per world). The Rover
+(`af9:tier_1_rover`, Assembler EV) takes a desh engine, two wheels, a radio, a large gas tank, titanium blocks and plates and two EV
+motors.
 
 An engine: the previous engine (the frame for tier 1), two pumps, a motor, 8 plates, 4 screws, two chips, 288 mB soldering alloy.
 A tank: the previous tank and a drum of the tier (tier 1: a drum and a pump), 8 plates and a fluid regulator. The nose cone takes a
@@ -118,8 +169,19 @@ Not Ad Astra's fuel (the Fuel Refinery recipe `ad_astra:refining/fuel_from_refin
 
 | Step | Machine, tier | Takes | Gives |
 |---|---|---|---|
-| Triethylaluminium | Chemical Reactor, MV | 1 aluminium dust, 3,000 mB ethylene, 1,500 mB hydrogen | 1,000 mB `gtceu:triethylaluminium` |
-| Aluminised Hydrolox | Chemical Reactor, MV | 2 aluminium dust, 4,000 mB hydrogen, 2,000 mB oxygen, 400 mB triethylaluminium | 3,000 mB `gtceu:aluminised_hydrolox` |
+| 1. Triethylaluminium (the igniter) | Chemical Reactor, MV, 100 ticks | 1 aluminium dust, 1,000 mB ethylene | 1,000 mB `gtceu:triethylaluminium` |
+| 2. Aluminised Hydrolox | Chemical Reactor, MV, 200 ticks | 2 aluminium dust, 2,000 mB hydrogen, 1,000 mB oxygen, 500 mB triethylaluminium | 3,000 mB `gtceu:aluminised_hydrolox` |
+
+The whole chain is these two recipes, from four base ingredients (aluminium dust, ethylene, hydrogen, oxygen):
+
+```text
+aluminium dust + ethylene  ->  Triethylaluminium
+Triethylaluminium + aluminium dust + hydrogen + oxygen  ->  Aluminised Hydrolox (3,000 mB = one launch)
+```
+
+Hydrogen and oxygen are in the ratio of water (2 : 1), as in a real hydrolox engine; the aluminium powder burns in them and the
+Triethylaluminium lights it. A launch costs 2.5 aluminium dust, 2,000 mB hydrogen, 1,000 mB oxygen and 500 mB ethylene. (The first
+version of the chain was three inputs and 1,500 mB of hydrogen more in the igniter, and odd amounts.)
 
 3,000 mB is a rocket's tank and one launch (Ad Astra's rule). The fluid tags `ad_astra:tier_1..4_rocket_fuel` and
 `tier_1_rover_fuel` hold nothing else (the tag script empties them first: Ad Astra's own `#ad_astra:fuel` also brings in oil fuel,
@@ -206,7 +268,7 @@ carry GT's radioactive hazard themselves. Setting: `[radiation] hints` in `confi
 # 8. Quests
 
 The chapter `config/ftbquests/quests/chapters/asteroid_fission.snbt` (texts `af9.quest.fx.*` in
-`kubejs/assets/kubejs/lang/en_us.json`): 30 quests from the rockets to the Mk1. ATM9's Mk1 quest (`zero_point_module.snbt`) now
+`kubejs/assets/kubejs/lang/en_us.json`): 34 quests from the rockets (all four, and the Rover) to the Mk1, with one for the ancient temples. ATM9's Mk1 quest (`zero_point_module.snbt`) now
 needs the plutonium-241 quest too.
 
 # 9. What was not run
@@ -219,7 +281,12 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 3. the radiation warning above the hotbar, with and without a hazmat suit (GT's hazard system must be on);
 4. the FX-1 in the multiblock preview, one fuel cycle, a Large Steam Turbine on the steam;
 5. Extreme Reactors, if installed: the log line `Extreme Reactors: could not ...` means the vapor was not registered;
-6. the quest task "dimension" of `af9.quest.fx.field` (an FTB Quests task type).
+6. the quest task "dimension" of `af9.quest.fx.field` (an FTB Quests task type);
+7. the temples: that they generate (a shrine in a big medium rock, a temple or a grand temple in a large and huge one), that the gate
+   and corridor open to the void, that the chests hold loot (a missing `af9:chests/...` table gives empty chests, a log line "Couldn't
+   find resource table"), and how the density of rocks looks now (§2.2: `CLASSES`);
+8. the Assembly Line rocket recipes (tiers 3 and 4): the recipe in the Assembly Line preview, the research of the tier 2 rocket in
+   the Scanner.
 
 # 10. Files
 
@@ -231,6 +298,8 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `kubejs/server_scripts/mods/gtceu/fusion_reactor.js` | the Fusion Reactor Mk1 |
 | `kubejs/server_scripts/mods/gtceu/miner.js` | the void miner without uranium and plutonium |
 | `af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`, `AF9Space.java` | the asteroids and their registration |
+| `af9-core/src/main/java/com/af9/core/space/TempleLayout.java` | the ancient temples (geometry, no Minecraft classes) |
+| `af9-core/src/main/resources/data/af9/loot_tables/chests/` | the loot of the temples and shrines |
 | `af9-core/src/main/java/com/af9/core/radiation/RadiationWatch.java` | the radiation warning |
 | `af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeReactorsCompat.java` | supercritical steam for Extreme Reactors |
 | `af9-core/src/main/resources/data/af9/` | dimensions, dimension type, biome, features, planets, the station recipe |

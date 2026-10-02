@@ -56,6 +56,8 @@ lm = root / 'af9-core/src/main/java/com/af9/core/litho/LithoMode.java'
 lm.write_text(lm.read_text(encoding='utf-8').replace('"photoresist", 200, Machine.LINE', '"photoresist", 201, Machine.LINE', 1), encoding='utf-8')   # X2
 af = root / 'af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java'
 af.write_text(af.read_text(encoding='utf-8').replace('Blocks.TUFF.defaultBlockState()', 'Blocks.SMOOTH_BASALT.defaultBlockState()', 1), encoding='utf-8')   # X4: a rock the ore layer does not know
+lt = root / 'af9-core/src/main/resources/data/af9/loot_tables/chests/ancient_temple.json'
+lt.write_text(lt.read_text(encoding='utf-8').replace('gtceu:raw_brannerite', 'gtceu:raw_brannerit', 1), encoding='utf-8')   # X4: an item in a loot table that does not exist
 # --- J3: Java names a KubeJS item that nobody registers
 lmm = root / 'af9-core/src/main/java/com/af9/core/machine/OrbitalLithographyMachine.java'
 lmm.write_text(lmm.read_text(encoding='utf-8').replace('new ResourceLocation("kubejs", "euv_light_source")', 'new ResourceLocation("kubejs", "selftest_no_such_item")', 1), encoding='utf-8')

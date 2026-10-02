@@ -924,6 +924,116 @@
 			x: 36.0d
 			y: 12.0d
 		}
+		{
+			dependencies: ["4062A22A6E51F461"]
+			description: [
+				"{af9.quest.fx.rocket3.1}"
+			]
+			icon: "ad_astra:tier_3_rocket"
+			id: "468BE0195890E9E3"
+			rewards: [{
+				id: "5217F914FCAD32D0"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.fx.rocket3.subtitle}"
+			tasks: [
+				{
+					id: "70B8839F6200A44E"
+					item: "ad_astra:tier_3_rocket"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.rocket3.title}"
+			x: 12.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["468BE0195890E9E3"]
+			description: [
+				"{af9.quest.fx.rocket4.1}"
+			]
+			icon: "ad_astra:tier_4_rocket"
+			id: "6F22B51906899429"
+			rewards: [{
+				id: "177862D9F2D1F1D5"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.fx.rocket4.subtitle}"
+			tasks: [
+				{
+					id: "7F8888B50659C46E"
+					item: "ad_astra:tier_4_rocket"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.rocket4.title}"
+			x: 12.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["39C59CAE19EF1DAE"]
+			description: [
+				"{af9.quest.fx.rover.1}"
+			]
+			icon: "ad_astra:tier_1_rover"
+			id: "5F40330398874549"
+			optional: true
+			rewards: [{
+				id: "4206FF1144AE9906"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.rover.subtitle}"
+			tasks: [
+				{
+					id: "0D4FBE879F60AA61"
+					item: "ad_astra:tier_1_rover"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.rover.title}"
+			x: 9.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["41DCF00E396CDF61"]
+			description: [
+				"{af9.quest.fx.temples.1}"
+				""
+				"{af9.quest.fx.temples.2}"
+				""
+				"{af9.quest.fx.temples.3}"
+			]
+			icon: "minecraft:crying_obsidian"
+			id: "259A35E1279761A6"
+			rewards: [{
+				id: "51A678DE1D9CB7F4"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "diamond"
+			size: 2.0d
+			subtitle: "{af9.quest.fx.temples.subtitle}"
+			tasks: [
+				{
+					count: 2L
+					id: "3DCD76246013B42F"
+					item: "minecraft:crying_obsidian"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.temples.title}"
+			x: 18.0d
+			y: -3.0d
+		}
 	]
 	subtitle: ["{af9.quest.fx.chapter.subtitle}"]
 	title: "{af9.quest.fx.chapter.title}"
