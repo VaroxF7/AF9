@@ -8,7 +8,6 @@
     "client.LevelRendererCloudsMixin"
   ],
   "mixins": [
-    "ae2.CraftingCPUClusterAccessor",
     "ae2.PathingCalculationMixin"
   ],
   "injectors": {

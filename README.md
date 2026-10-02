@@ -43,8 +43,6 @@ the configs AF9 changes. Everything else comes from the pack itself.
 - **Computation** (`docs/computation.md`): CWU Servers (LV-IV), the N1 Computation Array and the N1 Supercomputer Array
   with Computer Racks and cards, and the ME Computation Link: an ME network needs computation for its channels. (The
   machine bus was taken out; it is to come back in another way.)
-- **Crafting CPU Array** (`docs/crafting-cpu.md`): AE2's autocrafting CPU as a GregTech multiblock: HBM Memory Sticks
-  and Stacks in its racks are the CPU's bytes, CPU Clusters and Superpositioned Clusters its co-processors.
 - **Microverse Projector** (`docs/microverse.md`): every ore GT has is farmable: a Microverse Core, a Miner Drone and a
   dust of the ore (the seed) give raw ore; four tiers, Overworld to the Asteroid Field.
 - **Oil** (`docs/oil.md`): the world's oil is off; Oil Regolith, a sand-like rock of the asteroids, becomes Impure Oil, Shiny

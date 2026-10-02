@@ -43,7 +43,7 @@ holds (`Microverse: N ores in tier T`).
 | Item | Made from |
 |---|---|
 | Miner Drone Mk1-4 (two per recipe) | robot arm, sensor, motor, 2 circuits, 4 plates of the tier (titanium, tungsten steel, rhodium-plated palladium, naquadah alloy), solder, circuit 11-14 |
-| Microverse Core Mk1-4 | 2 field generators, an emitter, 4 circuits, 8 plates of the tier; Mk2 also an HBM Memory Stick, Mk3 a CPU Cluster, Mk4 a CPU Superpositioned Cluster and an HBM Memory Stack (docs/crafting-cpu.md) |
+| Microverse Core Mk1-4 | 2 field generators, an emitter, 4 circuits, 8 plates of the tier; Mk2 also a sensor, Mk3 a sensor and a robot arm, Mk4 the same at ZPM |
 
 ## 4. Structure
 

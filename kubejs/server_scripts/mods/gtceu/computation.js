@@ -115,8 +115,7 @@ ServerEvents.recipes(event => {
             .duration(400)
             .EUt(VA[tier])
         if (clean) recipe.cleanroom(CleanroomType.CLEANROOM)
-        // GT's processor assembly (HV) holds all the RAM card takes, and the HBM Sticks and Stacks (crafting_cpu.js) hold
-        // everything the RAM cards take: a programmed circuit tells them apart
-        if (id === 'silicon_ram' || id === 'nano_ram') recipe.circuit(3)
+        // GT's processor assembly (HV) holds all the RAM card takes: a programmed circuit tells them apart
+        if (id === 'silicon_ram') recipe.circuit(3)
     })
 })

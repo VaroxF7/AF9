@@ -17,14 +17,12 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
 import appeng.api.networking.GridServices;
-import appeng.blockentity.AEBaseBlockEntity;
 
 /**
  * AE2: an ME network with an ME Controller needs computation for its channels ({@link MEComputationService}, the cap
@@ -51,20 +49,6 @@ public final class AF9AE2 {
             BLOCK_ENTITIES.register("me_computation_link",
                     () -> BlockEntityType.Builder.of(MEComputationLinkBlockEntity::new, LINK.get()).build(null));
 
-    /** Crafting CPU Core: the Crafting CPU Array's AE2 crafting unit (docs/crafting-cpu.md). */
-    public static final RegistryObject<Block> CORE = BLOCKS.register("crafting_cpu_core",
-            () -> new CpuCoreBlock(BlockBehaviour.Properties.of()
-                    .mapColor(MapColor.METAL)
-                    .strength(2.2f, 11f)
-                    .sound(SoundType.METAL)));
-    public static final RegistryObject<Item> CORE_ITEM = ITEMS.register("crafting_cpu_core",
-            () -> new BlockItem(CORE.get(), new Item.Properties()));
-    @SuppressWarnings("DataFlowIssue") // no data fixer type, as every mod's
-    public static final RegistryObject<BlockEntityType<CpuCoreBlockEntity>> CORE_ENTITY =
-            BLOCK_ENTITIES.register("crafting_cpu_core", () -> BlockEntityType.Builder.of(
-                    (pos, state) -> new CpuCoreBlockEntity(AF9AE2.CORE_ENTITY.get(), pos, state), CORE.get())
-                    .build(null));
-
     @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
     private static final ResourceLocation ME_CONTROLLER = new ResourceLocation("ae2", "controller");
 
@@ -76,23 +60,12 @@ public final class AF9AE2 {
         ITEMS.register(modBus);
         BLOCK_ENTITIES.register(modBus);
         modBus.addListener(AF9AE2::fillCreativeTabs);
-        modBus.addListener(AF9AE2::commonSetup);
         GridServices.register(MEComputationService.class, MEComputationService.class);
         MinecraftForge.EVENT_BUS.addListener(AF9AE2::controllerTooltip);
     }
 
     private static void fillCreativeTabs(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() != CreativeModeTabs.FUNCTIONAL_BLOCKS) return;
-        event.accept(LINK_ITEM);
-        event.accept(CORE_ITEM);
-    }
-
-    /** AE2's crafting blocks make their block entity through the block: tell it which one (as AE2 does for its own). */
-    private static void commonSetup(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            ((CpuCoreBlock) CORE.get()).setBlockEntity(CpuCoreBlockEntity.class, CORE_ENTITY.get(), null, null);
-            AEBaseBlockEntity.registerBlockEntityItem(CORE_ENTITY.get(), CORE_ITEM.get());
-        });
+        if (event.getTabKey() == CreativeModeTabs.FUNCTIONAL_BLOCKS) event.accept(LINK_ITEM);
     }
 
     /** The ME Controller says it needs computation. */

@@ -17,12 +17,13 @@ ServerEvents.recipes(event => {
         { tier: 1, name: 'ev', volt: GTValues.EV, plate: 'gtceu:titanium_plate', seconds: 30,
             core: ['2x gtceu:ev_field_generator', 'gtceu:ev_emitter', '4x #gtceu:circuits/ev'] },
         { tier: 2, name: 'iv', volt: GTValues.IV, plate: 'gtceu:tungsten_steel_plate', seconds: 40,
-            core: ['2x gtceu:iv_field_generator', 'gtceu:iv_emitter', '4x #gtceu:circuits/iv', 'kubejs:hbm_memory_stick'] },
+            core: ['2x gtceu:iv_field_generator', 'gtceu:iv_emitter', '4x #gtceu:circuits/iv', 'gtceu:iv_sensor'] },
         { tier: 3, name: 'luv', volt: GTValues.LuV, plate: 'gtceu:rhodium_plated_palladium_plate', seconds: 50,
-            core: ['2x gtceu:luv_field_generator', 'gtceu:luv_emitter', '4x #gtceu:circuits/luv', 'kubejs:cpu_cluster'] },
+            core: ['2x gtceu:luv_field_generator', 'gtceu:luv_emitter', '4x #gtceu:circuits/luv', 'gtceu:luv_sensor',
+                'gtceu:luv_robot_arm'] },
         { tier: 4, name: 'zpm', volt: GTValues.ZPM, plate: 'gtceu:naquadah_alloy_plate', seconds: 60,
-            core: ['2x gtceu:zpm_field_generator', 'gtceu:zpm_emitter', '4x #gtceu:circuits/zpm',
-                'kubejs:superpositioned_cpu_cluster', 'kubejs:hbm_memory_stack'] }
+            core: ['2x gtceu:zpm_field_generator', 'gtceu:zpm_emitter', '4x #gtceu:circuits/zpm', 'gtceu:zpm_sensor',
+                'gtceu:zpm_robot_arm'] }
     ]
 
     tiers.forEach(t => {
