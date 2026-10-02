@@ -1,11 +1,13 @@
 // AF9 - The Space Elevator, GTNH's: a tower on a cable that reaches into space, the pack's renewable ore source from ZPM on.
-// Behaviour: af9-core (com.af9.core.elevator.SpaceElevatorMachine: the asteroids, the motors, the cable; the platform that
-// turns on the cable: com.af9.core.client.render.SpaceElevatorRender). Recipes: server_scripts/mods/gtceu/space_elevator.js.
-// Spec: docs/space-elevator.md
+// Behaviour: af9-core (com.af9.core.elevator.SpaceElevatorMachine: the asteroids, the motors, the modules, the cable; the
+// platform that turns on the cable: com.af9.core.client.render.SpaceElevatorRender). Recipes:
+// server_scripts/mods/gtceu/space_elevator.js. Spec: docs/space-elevator.md
 //
 // A Mining Drone (not used up) in an input bus, 50 to 100 buckets of hydrogen and of a supercooled coolant in the fluid hatches
 // and 4 to 32 amps of ZPM energy for minutes send an expedition to a random asteroid: the output buses hold its ore,
 // tens of stacks of raw ore. The asteroids are made from GT's ore veins; the better the drone, the more of them it reaches.
+// As in GTNH the work is the modules': Mining Modules in the module slots fly 2, 4 or 8 expeditions at once, and the motors'
+// tier says how many slots are powered.
 //
 // The structure is GTNH's, block for block (SE_MAIN): 35 x 35 and 43 high, a floor of concrete, a central column of motors
 // round an empty shaft with the cable on top of it, and a tapering frame of base casing and support structure around it.
@@ -15,6 +17,10 @@ const $ElevatorModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $ElevatorDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 
 const SE_ROMAN = ['I', 'II', 'III', 'IV', 'V']
+// module slots the motors of each tier power, expeditions a Mining Module of each tier flies at once (GTNH's numbers; the
+// machine's own are SpaceElevatorMachine.MODULE_SLOTS and MODULE_EXPEDITIONS)
+const SE_SLOTS = [6, 12, 15, 18, 24]
+const SE_EXPEDITIONS = [2, 4, 8]
 
 StartupEvents.registry('block', event => {
     // the blocks of the tower: [id, name, sound]
@@ -42,7 +48,20 @@ StartupEvents.registry('block', event => {
             .resistance(12)
             .requiresTool(true)
             .tagBlock('minecraft:mineable/pickaxe')
-            .item(item => item.tooltip('All 88 motors of a Space Elevator are of one tier.'))
+            .item(item => item.tooltip('All 88 motors of a Space Elevator are of one tier.')
+                .tooltip(`Powers ${SE_SLOTS[i]} module slots, and Mining Modules up to MK-${SE_ROMAN[Math.min(i, 2)]}.`))
+    })
+    // the Mining Modules, three tiers: in the module slots of the tower, they fly the expeditions
+    SE_EXPEDITIONS.forEach((expeditions, i) => {
+        event.create(`space_mining_module_mk${i + 1}`)
+            .displayName(`Space Mining Module MK-${SE_ROMAN[i]}`)
+            .soundType('metal')
+            .hardness(5)
+            .resistance(12)
+            .requiresTool(true)
+            .tagBlock('minecraft:mineable/pickaxe')
+            .item(item => item.tooltip(`In a module slot of a Space Elevator: flies ${expeditions} expeditions at once.`)
+                .tooltip(`Needs Motors MK-${SE_ROMAN[i]} or better.`))
     })
     event.create('space_elevator_cable')
         .displayName('Space Elevator Cable')
@@ -83,7 +102,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 //   A  Ultra High Strength Concrete Floor   D  Base Casing            E  Support Structure     F  Internal Structure
 //   H  Neutronium Frame Box                 C  Motor (one tier)       B  the Cable             -  air (the shaft)
 //   X  Base Casing or a hatch of the elevator: the bottom centre casings (and the controller, in the front one's middle)
-//   M  Base Casing or a bus / hatch of a module slot                  I  Base Casing: a module slot
+//   M  Base Casing or a bus / hatch of a module slot                  I  a module slot: a Mining Module, or Base Casing
 const SE_MAIN = [
     [   // 0
         '               FF FF               ',
@@ -550,7 +569,7 @@ const sePattern = (definition, slices) => {
         .where('B', $SpaceElevator.cable())                                 // with open sky above it
         .where('X', Predicates.blocks(casing).or(power).or(buses))
         .where('M', Predicates.blocks(casing).or(buses))
-        .where('I', Predicates.blocks(casing))
+        .where('I', $SpaceElevator.modules().or(Predicates.blocks(casing)))  // any tier
         .where('-', Predicates.air())
         .where(' ', Predicates.any())
         .build()
@@ -573,7 +592,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeTypes([GTRecipeTypes.get('space_mining')])
         .recipeModifiers([$SpaceElevator.ASTEROID])
         .appearanceBlock(() => Block.getBlock('kubejs:space_elevator_base_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_elevator.tooltip', 7))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_elevator.tooltip', 8))
         .pattern(definition => sePattern(definition, seSlices()))
         .workableCasingModel('kubejs:block/space_elevator_base_casing', 'gtceu:block/multiblock/fusion_reactor')
         // the same model plus the cable and the platform on it; the numbers live in af9-core (where the cable block is

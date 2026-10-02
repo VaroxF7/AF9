@@ -8,13 +8,16 @@ import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockDisplayText;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
 import com.gregtechceu.gtceu.api.pattern.error.PatternStringError;
+import com.gregtechceu.gtceu.api.pattern.util.PatternMatchContext;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
+import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
+import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
@@ -33,6 +36,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -43,9 +49,14 @@ import java.util.stream.IntStream;
  * up) in an input bus, hydrogen and a supercooled coolant in the fluid hatches and a very great deal of energy send an
  * expedition to a random asteroid; when it is back the output buses hold its ore, tens of stacks of raw ore.
  * <p>
- * The structure is GTNH's (the startup script {@code startup_scripts/gtceu/space_elevator.js} holds it): its two blocks
+ * The structure is GTNH's (the startup script {@code startup_scripts/gtceu/space_elevator.js} holds it): its blocks
  * with rules of their own are checked here. The {@link #motors() motors} round the shaft are all of one tier, the
- * elevator's; the {@link #cable() cable} block on top of the shaft needs open sky above it.
+ * elevator's; the {@link #cable() cable} block on top of the shaft needs open sky above it; the module slots hold
+ * {@link #modules() Mining Modules}.
+ * <p>
+ * As in GTNH the modules do the work: a Mining Module flies 2, 4 or 8 expeditions at once (MK-I to MK-III), each with the
+ * recipe's full hydrogen, coolant and energy, all to the same asteroid. The motors' tier powers 6, 12, 15, 18 or 24 module
+ * slots, and only modules of its own tier or lower. Without a powered module nothing flies.
  * <p>
  * The asteroid is made from one of GT's ore veins (weighted by the vein's weight, among the veins of the drone's tier and
  * below; the best drone also finds the exotic asteroid, whose ores no vein holds): about half the stacks are the vein's
@@ -75,8 +86,16 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     private static final String[] ROMAN = { "I", "II", "III", "IV", "V" };
     private static final String MOTOR = "space_elevator_motor_mk";
     private static final ResourceLocation CABLE = new ResourceLocation("kubejs", "space_elevator_cable");
-    /** The pattern check's note of the motor tier (GT's match context). */
+    /** The Mining Module tiers there are: {@code kubejs:space_mining_module_mk1} to {@code mk3}. */
+    public static final int MODULE_TIERS = 3;
+    private static final String MODULE = "space_mining_module_mk";
+    /** The pattern check's notes (GT's match context): the motor tier, the tiers of the modules found. */
     private static final String MOTOR_KEY = "SpaceElevatorMotor";
+    private static final String MODULES_KEY = "SpaceElevatorModules";
+    /** Module slots the motors of each tier power (GTNH's). */
+    private static final int[] MODULE_SLOTS = { 6, 12, 15, 18, 24 };
+    /** Expeditions a Mining Module of each tier flies at once (GTNH's parallels). */
+    private static final int[] MODULE_EXPEDITIONS = { 2, 4, 8 };
 
     /** Stacks of ore an expedition of each drone tier brings home: at least and at most. */
     private static final int[] MIN_STACKS = { 8, 12, 16, 24 };
@@ -91,6 +110,8 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
 
     /** The tier of the motors round the shaft (1 to 5), 0 while not formed. */
     private int motorTier;
+    /** Mining Modules in the module slots, those of them the motors power, and the expeditions these fly at once. */
+    private int modules, poweredModules, expeditions;
     /** The asteroid the elevator drew last, by the vein it is made from (the screen shows it). */
     private String asteroid = "";
 
@@ -155,7 +176,7 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     public static TraceabilityPredicate motors() {
         return new TraceabilityPredicate(state -> {
             int tier = tierOf(state.getBlockState(), MOTOR);
-            if (tier < 1) return false;
+            if (tier < 1 || tier > MOTOR_TIERS) return false;
             int first = state.getMatchContext().getOrPut(MOTOR_KEY, tier);
             if (first != tier) {
                 state.setError(new PatternStringError("af9.space_elevator.error.motors"));
@@ -164,6 +185,17 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
             return true;
         }, () -> candidates(MOTOR, MOTOR_TIERS))
                 .addTooltips(Component.translatable("af9.space_elevator.error.motors"));
+    }
+
+    /** A Mining Module in a module slot, any tier; the check notes them all down ({@link #onStructureFormed}). */
+    public static TraceabilityPredicate modules() {
+        return new TraceabilityPredicate(state -> {
+            int tier = tierOf(state.getBlockState(), MODULE);
+            if (tier < 1 || tier > MODULE_TIERS) return false;
+            state.getMatchContext().getOrCreate(MODULES_KEY, IntArrayList::new).add(tier);
+            return true;
+        }, () -> candidates(MODULE, MODULE_TIERS))
+                .addTooltips(Component.translatable("af9.space_elevator.pattern.module"));
     }
 
     /** The Space Elevator Cable, with nothing but air above it up to the world's top (GTNH: it must see the sky). */
@@ -211,13 +243,40 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
-        motorTier = getMultiblockState().getMatchContext().getOrDefault(MOTOR_KEY, 0);
+        PatternMatchContext context = getMultiblockState().getMatchContext();
+        motorTier = context.getOrDefault(MOTOR_KEY, 0);
+        IntList found = context.get(MODULES_KEY);
+        countModules(found == null ? IntList.of() : found);
     }
 
     @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
         motorTier = 0;
+        modules = poweredModules = expeditions = 0;
+    }
+
+    /** Module slots the motors of a tier power, 0 for no motors. */
+    public static int moduleSlots(int motorTier) {
+        return motorTier < 1 ? 0 : MODULE_SLOTS[Math.min(motorTier, MODULE_SLOTS.length) - 1];
+    }
+
+    /**
+     * Which of the modules found the motors power: those of the motors' tier or lower, the best first, as many as the
+     * motors have slots for (GTNH refuses a tower with more modules than slots; here the rest stands idle).
+     */
+    private void countModules(IntList tiers) {
+        int slots = moduleSlots(motorTier);
+        int[] ofTier = new int[MODULE_TIERS + 1];
+        for (int i = 0; i < tiers.size(); i++) ofTier[tiers.getInt(i)]++;
+        modules = tiers.size();
+        poweredModules = 0;
+        expeditions = 0;
+        for (int tier = Math.min(motorTier, MODULE_TIERS); tier >= 1 && poweredModules < slots; tier--) {
+            int powered = Math.min(ofTier[tier], slots - poweredModules);
+            poweredModules += powered;
+            expeditions += powered * MODULE_EXPEDITIONS[tier - 1];
+        }
     }
 
     /** The tier of the motors (1 to 5), 0 while not formed. */
@@ -230,32 +289,57 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     //////////////////////////////////////
 
     /**
-     * Only starts a run the hatches can supply with its full EU/t (and while the cable is free), and gives it its
-     * asteroid: the ore the run puts out (the recipe's own outputs are dropped).
+     * Starts a run of as many expeditions at once as the powered Mining Modules fly, the hatches can supply in full
+     * (EU/t), the hydrogen and the coolant last for and the output buses have room for, while the cable is free, and
+     * gives it its asteroid: the ore the run puts out, the same asteroid for every expedition of the run (the recipe's
+     * own outputs are dropped).
      */
     public static final RecipeModifier ASTEROID = (machine, recipe) -> {
         if (!(machine instanceof SpaceElevatorMachine elevator)) {
             return RecipeModifier.nullWrongType(SpaceElevatorMachine.class, machine);
         }
-        if (elevator.getAvailableEUt() < RecipeHelper.getRealEUt(recipe).getTotalEU()) return ModifierFunction.NULL;
+        long eut = RecipeHelper.getRealEUt(recipe).getTotalEU();
         int tier = droneTier(recipe);
-        if (tier < 1 || !elevator.cableClear()) return ModifierFunction.NULL;
+        if (tier < 1 || eut < 1 || !elevator.cableClear()) return ModifierFunction.NULL;
+        int limit = (int) Math.min(elevator.expeditions, elevator.getAvailableEUt() / eut);
+        if (limit < 1) return ModifierFunction.NULL;
+        int runs = ParallelLogic.getParallelAmountWithoutEU(machine, recipe, limit);
+        if (runs < 1) return ModifierFunction.NULL;
         RandomSource random = elevator.getLevel() != null ? elevator.getLevel().getRandom() : RandomSource.create();
         StringBuilder where = new StringBuilder();
         List<ItemStack> ores = asteroid(tier, random, where);
         if (ores.isEmpty()) return ModifierFunction.NULL;
+        if (runs > 1) {
+            // fewer of them when the output buses cannot take the ore of all (a single one that does not fit waits)
+            GTRecipe one = recipe.copy();
+            one.outputs.put(ItemRecipeCapability.CAP, contents(ores, 1));
+            runs = ParallelLogic.limitByOutputMerging(elevator, one, runs, elevator::canVoidRecipeOutputs, List.of());
+            if (runs < 1) return ModifierFunction.NULL;
+        }
         elevator.asteroid = where.toString();
+        List<Content> outputs = contents(ores, runs);
+        // the inputs and the EU/t of every expedition (the drone is not used up: it is not multiplied)
+        ModifierFunction parallel = ModifierFunction.builder()
+                .modifyAllContents(ContentModifier.multiplier(runs))
+                .eutMultiplier(runs)
+                .parallels(runs)
+                .build();
         return modified -> {
-            GTRecipe result = modified.copy();
-            List<Content> outputs = new ArrayList<>();
-            for (ItemStack stack : ores) {
-                outputs.add(new Content(SizedIngredient.create(stack), ChanceLogic.getMaxChancedValue(),
-                        ChanceLogic.getMaxChancedValue(), 0));
-            }
-            result.outputs.put(ItemRecipeCapability.CAP, outputs);
+            GTRecipe result = parallel.apply(modified);
+            if (result != null) result.outputs.put(ItemRecipeCapability.CAP, outputs);
             return result;
         };
     };
+
+    /** The ore of an asteroid as a recipe's item outputs, {@code times} over. */
+    private static List<Content> contents(List<ItemStack> ores, int times) {
+        List<Content> result = new ArrayList<>();
+        for (ItemStack ore : ores) {
+            result.add(new Content(SizedIngredient.create(ore.copyWithCount(ore.getCount() * times)),
+                    ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0));
+        }
+        return result;
+    }
 
     /** The tier of the Mining Drone a recipe takes ({@code space_mining_drone_mk<n>}), 0 if there is none. */
     private static int droneTier(GTRecipe recipe) {
@@ -341,8 +425,14 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
                 .addOutputLines(recipeLogic.getLastRecipe());
         if (!isFormed()) return;
         if (motorTier >= 1 && motorTier <= ROMAN.length) {
-            text.add(Component.translatable("af9.space_elevator.motors", ROMAN[motorTier - 1])
+            text.add(Component.translatable("af9.space_elevator.motors", ROMAN[motorTier - 1],
+                    moduleSlots(motorTier)).withStyle(ChatFormatting.AQUA));
+        }
+        if (expeditions > 0) {
+            text.add(Component.translatable("af9.space_elevator.modules", poweredModules, modules, expeditions)
                     .withStyle(ChatFormatting.AQUA));
+        } else {
+            text.add(Component.translatable("af9.space_elevator.no_modules").withStyle(ChatFormatting.RED));
         }
         if (!cableClear()) {
             text.add(Component.translatable("af9.space_elevator.error.sky").withStyle(ChatFormatting.RED));

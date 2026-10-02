@@ -3,8 +3,8 @@
 GTNH's Space Elevator (https://wiki.gtnewhorizons.com/wiki/Space_Elevator): a tower on a cable that reaches into space. In AF9 it is
 the **renewable ore source** of the pack from ZPM on: it sends Mining Drones to the asteroids and brings their ore home.
 
-Code: `af9-core` `com.af9.core.elevator` (`SpaceElevatorMachine`: the asteroids, the motors, the cable; `OreCatalog`: GT's ores and
-veins) and `com.af9.core.client.render.SpaceElevatorRender` (the cable and the platform that turns on it). KubeJS:
+Code: `af9-core` `com.af9.core.elevator` (`SpaceElevatorMachine`: the asteroids, the motors, the modules, the cable; `OreCatalog`: GT's
+ores and veins) and `com.af9.core.client.render.SpaceElevatorRender` (the cable and the platform that turns on it). KubeJS:
 `kubejs/startup_scripts/gtceu/space_elevator.js` (blocks, drones, recipe type, the machine and its structure),
 `kubejs/server_scripts/mods/gtceu/space_elevator.js` (crafting and the expeditions).
 
@@ -13,8 +13,9 @@ veins) and `com.af9.core.client.render.SpaceElevatorRender` (the cable and the p
 `gtceu:space_elevator` runs the recipe type `gtceu:space_mining`: a **Mining Drone** (`kubejs:space_mining_drone_mk1..4`, **not used up**) in
 an input bus, **hydrogen** and a **supercooled coolant** in the fluid hatches, and energy for minutes. Nothing is made by the recipe
 itself: when a run starts (`SpaceElevatorMachine.ASTEROID`, a recipe modifier that re-rolls every run) the elevator draws an
-**asteroid** and the run puts out its ore, **8 to 48 stacks of raw ore** in the output buses (the recipe viewers show no outputs; the
-controller's screen lists the ore of the run that is on).
+**asteroid** and the run puts out its ore, **8 to 48 stacks of raw ore an expedition** in the output buses (the recipe viewers show no
+outputs; the controller's screen lists the ore of the run that is on). The table is one expedition; the **Mining Modules** of the tower
+fly several at once (below).
 
 | Drone | Reaches | Hydrogen | Coolant (supercooled) | Energy | Time | Stacks |
 |---|---|---|---|---|---|---|
@@ -26,6 +27,23 @@ controller's screen lists the ore of the run that is on).
 The coolants are the Supercooling Cryostat's (`cryogenics.js`). The energy is the recipe's: the machine only starts a run its hatches can
 supply in full (`IPowerGated`, as the Particle Accelerator): Mk-I runs on one 4A ZPM hatch, Mk-II on two, Mk-III on four (the most
 there are), Mk-IV on laser hatches (up to two). A run that cannot start waits.
+
+### Modules and motors
+
+As in GTNH the elevator itself does nothing: its **modules** do the work, and its **motors** say how many of them.
+
+* A **Space Mining Module** (`kubejs:space_mining_module_mk1..3`, a block) in a **module slot** of the tower flies expeditions:
+  **MK-I 2 at once, MK-II 4, MK-III 8** (GTNH's parallels). Without a powered module nothing flies.
+* The **motors' tier** (the 88 motors round the shaft, all of one tier, `kubejs:space_elevator_motor_mk1..5`) powers
+  **6 / 12 / 15 / 18 / 24 module slots** (MK-I to MK-V, GTNH's numbers), and only modules of **its own tier or lower** (a MK-III module
+  needs MK-III motors). With more modules than slots the best ones are powered and the rest stand idle (GTNH refuses such a tower).
+* A run flies as many expeditions at once as the powered modules allow, the hatches can **supply in full** (EU/t), the hydrogen
+  and the coolant in the hatches **last for** and the output buses **have room for**: every expedition takes the recipe's full
+  hydrogen, coolant and EU/t, and all of a run go to the **same asteroid** (its ore times the expeditions). One drone in the bus
+  serves them all: it is not used up.
+
+So one MK-I module with one 4A ZPM hatch flies a single Mk-I expedition; with 8A it flies two. Six MK-I modules on MK-I motors fly
+up to 12 at once, twelve MK-III modules on MK-III motors up to 96, on laser hatches.
 
 ### Asteroids
 
@@ -55,6 +73,7 @@ unfolds it into GT's pattern (aisles front to back, rows top to bottom); it was 
 | Space Elevator Motor (`kubejs:space_elevator_motor_mk1..5`) | 88 | the central column, round the shaft, 22 layers |
 | Neutronium Frame Box (`gtceu:neutronium_frame`) | 56 | four arcs half way up the frame |
 | Space Elevator Cable (`kubejs:space_elevator_cable`) | 1 | on top of the shaft, 22 above the controller |
+| Space Mining Module (`kubejs:space_mining_module_mk1..3`) | 0 to 12 | the module slots: round the column, three a side, in the 4th layer |
 | the controller | 1 | **front centre of the central column, 4th layer** |
 
 Rules of the structure (GTNH's):
@@ -67,7 +86,9 @@ Rules of the structure (GTNH's):
 * **Upright only**: the controller faces sideways, the tower cannot be turned on its side or flipped.
 * **Hatches** have maxima only: 4 energy and 2 laser hatches in the **bottom centre casings** (72 places: the floor under the column
   and three layers round its foot); 8 fluid input hatches, 2 item input and 8 item output buses there or in the **module slots**
-  (12 slots round the column, three a side, 9 places each). There is no maintenance hatch (as in GTNH).
+  (12 slots round the column, three a side: the module's own place and 9 places round it). There is no maintenance hatch (as in GTNH).
+* **A module slot** holds a Mining Module of any tier, or Base Casing (`SpaceElevatorMachine.modules()` notes the modules down; what
+  they do is section 1).
 
 The tower spans 35 x 35 blocks, 9 chunks or more: all of them have to be loaded for it to form and to work.
 
@@ -87,6 +108,9 @@ All Assembler recipes; a craft makes many, the tower takes hundreds:
 | Motor MK-III | 4 | 4 MK-II, 4 UV electric motors, 4 neutronium plates, 8 endionite foil | UV |
 | Motor MK-IV | 4 | 4 MK-III, 4 UV field generators, 4 neutronium gears, 2 UHV circuits | UV |
 | Motor MK-V | 4 | 4 MK-IV, 2 gravi stars, 4 chromodynium plates, 4 UHV circuits | UV |
+| Mining Module MK-I | 1 | a ZPM machine hull, 2 robot arms, 2 sensors, 2 emitters and 4 circuits of ZPM, 4 base casings | ZPM |
+| Mining Module MK-II | 1 | a MK-I, 2 robot arms, 2 sensors, 2 emitters and 4 circuits of UV, 4 tritanium plates | UV |
+| Mining Module MK-III | 1 | a MK-II, 4 UV robot arms, 2 UV field generators, 4 UHV circuits, 4 neutronium plates | UV |
 
 The Neutronium Frame Boxes are GT's (neutronium comes from the Mk-III fusion reactor).
 
@@ -111,6 +135,7 @@ from the platform). The numbers are `SpaceElevatorMachine.CABLE_UP`, `CABLE_BACK
 
 ## 5. Not done
 
-GTNH's elevator also has **modules** (mining, pumping, assembler) in its module slots, an **extended** structure with twelve more of them, a galaxy map
-for travel, and plasma, drill tips and rods as inputs. Here the elevator mines by itself, with hydrogen and a coolant, and has no travel function; the
-module slots hold Base Casing or buses. GTNH's climber goes up and down its cable; here the platform turns on it.
+GTNH's modules are machines of their own (mining, pumping, assembler; each with its own buses, drone, parameters and an asteroid filter); here a
+module is a block that makes the elevator fly more expeditions, the buses and the drone are the elevator's, and there are only Mining Modules.
+GTNH's elevator also has an **extended** structure with twelve more module slots, a galaxy map for travel, and plasma, drill tips, rods and computation
+as inputs; here it runs on hydrogen and a coolant and has no travel function. GTNH's climber goes up and down its cable; here the platform turns on it.

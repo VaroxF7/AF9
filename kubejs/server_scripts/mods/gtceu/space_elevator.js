@@ -3,7 +3,8 @@
 // Spec: docs/space-elevator.md
 //
 // An expedition names a drone (not used up), hydrogen and a supercooled coolant (the Cryostat's, cryogenics.js) and the
-// energy: the ore is not in the recipe, a run gets its asteroid when it starts (so the recipe viewers show none).
+// energy: the ore is not in the recipe, a run gets its asteroid when it starts (so the recipe viewers show none). The
+// Mining Modules of the tower fly several of them at once, each with the full inputs.
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
@@ -103,6 +104,30 @@ ServerEvents.recipes(event => {
             .duration(400)
             .EUt(VA[GTValues.UV])
     })
+
+    // ---- The Mining Modules (in the module slots: 2, 4 and 8 expeditions at once): MK-I from ZPM parts, the next from
+    // the one before ----
+    event.recipes.gtceu.assembler('af9:space_mining_module_mk1')
+        .itemInputs('gtceu:zpm_machine_hull', '2x gtceu:zpm_robot_arm', '2x gtceu:zpm_sensor', '2x gtceu:zpm_emitter',
+            '4x #gtceu:circuits/zpm', '4x kubejs:space_elevator_base_casing')
+        .inputFluids(solder(1152))
+        .itemOutputs('kubejs:space_mining_module_mk1')
+        .duration(600)
+        .EUt(VA[GTValues.ZPM])
+    event.recipes.gtceu.assembler('af9:space_mining_module_mk2')
+        .itemInputs('kubejs:space_mining_module_mk1', '2x gtceu:uv_robot_arm', '2x gtceu:uv_sensor',
+            '2x gtceu:uv_emitter', '4x #gtceu:circuits/uv', '4x gtceu:tritanium_plate')
+        .inputFluids(solder(2304))
+        .itemOutputs('kubejs:space_mining_module_mk2')
+        .duration(600)
+        .EUt(VA[GTValues.UV])
+    event.recipes.gtceu.assembler('af9:space_mining_module_mk3')
+        .itemInputs('kubejs:space_mining_module_mk2', '4x gtceu:uv_robot_arm', '2x gtceu:uv_field_generator',
+            '4x #gtceu:circuits/uhv', '4x gtceu:neutronium_plate')
+        .inputFluids(solder(4608))
+        .itemOutputs('kubejs:space_mining_module_mk3')
+        .duration(600)
+        .EUt(VA[GTValues.UV])
 
     // ---- The Space Elevator: ZPM ----
     event.recipes.gtceu.assembly_line('af9:space_elevator')
