@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "af9:me_computation_link"
+    "af9:me_computation_link",
+    "af9:crafting_cpu_core"
   ]
 }

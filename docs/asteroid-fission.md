@@ -22,7 +22,8 @@ what the **Fusion Reactor Mk1** needs, and that is what the whole update is for.
 Ad Astra rocket (gregified parts, Aluminised Hydrolox)
    -> Ceres, its space = the Asteroid Field (af9:asteroid_field)      station built through Ad Astra's planet menu
         -> Brannerite ore in the asteroids (GT ore veins, layer af9_asteroid)
-             -> purified dust -> leach (uranyl sulfate) -> yellowcake -> UF6 (GT enriches) -> U-238 + U-235 dust
+             -> purified dust -> leach (uranyl sulfate) -> yellowcake -> reduction (EBF, hydrogen) -> uranium dust
+                  -> (UF6 -> GT's enrichment -> U-235 dust)
                   -> pellets (EBF) -> fuel rod (assembler, zirconium)
                        -> FX-1 Reactor (+ water, + NaK) -> supercritical steam -> Large Steam Turbines / Extreme Reactors
                        -> spent rod -> macerator -> nitric acid -> centrifuge -> plutonium (239 and 241), uranium back
@@ -59,28 +60,27 @@ Astra's below-world rule for space dimensions).
 
 ## 2.2 The asteroids (`AsteroidFieldFeature`)
 
-`af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`, registered by `AF9Space`. Every chunk draws every asteroid
-that reaches into it and fills only its own part, so a rock comes out whole in any order of chunk generation. An asteroid is fixed
-by the world seed and the *cell* of its size class:
+`af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`, registered by `AF9Space`. The field is made of **clusters**: a large
+island with a swarm of smaller rocks around it, and a lot of empty space between the clusters. Every chunk draws every cluster that
+reaches into it and fills only its own part, so a rock comes out whole in any order of chunk generation. A cluster is fixed by the world
+seed and the square *cell* of 420 blocks it belongs to (a cell holds one with a chance of 55 %, at a random place in it):
 
-| Class | Cell (blocks) | Per cell | Radius | Centre height spread | Holds a temple |
-|---|---|---|---|---|---|
-| pebbles | 14 | 1-3 | 2-4 | the whole band | never |
-| small | 27 | 1-3 | 4-8 | the whole band | never |
-| medium | 54 | 1-3 | 9-16 | the whole band | 25 % (if one fits) |
-| large | 82 | 1-2 | 18-28 | 80 % of it | 60 % |
-| huge | 136 | 1 | 32-46 | 50 % of it | always |
+| Part | Size | Where |
+|---|---|---|
+| the island | radius 45-75 blocks (each axis x0.8-1.2), vertically 0.45-0.70 of that: a flattened lump | the cluster's centre |
+| satellites, 12-24 | pebbles r 2-4 (28 %), small 4-8 (40 %), medium 9-16 (24 %), large 18-28 (8 %) | from the island's edge to **85** blocks beyond it, anywhere in **42** blocks above or below the island: a band of about 84 blocks |
 
-Centres lie at y = 8..92 (most near the middle); the station is at y = 100. The radius leans to the small end (`random^1.6`), each
-axis is stretched by 0.75-1.25 (vertically 0.6-1.1) and the surface is pushed in and out by two layers of simplex noise (amplitudes
-0.25 and 0.10).
+The cluster's height is the middle of the band (y 5..270; the station is at y = 100) plus a slow noise over the plane (`DRIFT`: +-90 blocks,
+features about 420 blocks wide: whole regions lie higher or lower) and a random lift (+-55), so clusters hang at all heights, not in one flat band
+like the End's islands. The radius of a satellite leans to the small end (`random^1.6`), each axis is stretched by 0.75-1.25 (vertically 0.6-1.1)
+and the surface of every rock is pushed in and out by two layers of simplex noise (amplitudes 0.25 and 0.10). About 2 blocks of rock in a column
+of the 300-block band: mostly empty space, and the rock that there is lies together, so a vein finds an island to grow in.
 
-**Spacing.** The cells were 16 / 32 / 64 / 96 / 160 blocks; they are now about 15 % smaller (14 / 27 / 54 / 82 / 136), which is
-about 38 % more rocks per area, and the gaps between them shrink by about the same share. A calculation over the class tables
-(volume of the ellipsoids per cell, divided by the 84 blocks of the band; the big rocks overlap, so the real share is lower) gives
-the rock share of the band: before about 23 %, now about 31 %. The knob is `CLASSES` in the Java; a rock's shape and size
-do not depend on the cell, so only the *number* of rocks changes. Asteroids of a world that was already generated keep their old
-places, new chunks get the new ones: for the first look, use a new world or unexplored space.
+**Spacing of a cluster.** The satellites lay up to 100 blocks from the island's edge and 50 blocks above and below it; they now lie up to
+85 and 42 (`SATELLITE_DISTANCE`, `SATELLITE_SPREAD_Y`), a volume about a third smaller, so the rocks of a cluster are about 1.5 times
+denser and the gaps between them shrink by about a seventh. The empty space *between* the clusters (`CELL`, `CLUSTER_CHANCE`) is
+unchanged. A rock's shape and size do not depend on its place, and which rocks there are does not change: only where the satellites lie.
+Chunks that were generated before keep their old rocks; for the first look use a new world or unexplored space.
 
 The rock is andesite, tuff, basalt and blackstone, by a slow noise in patches. These are four of the stones GT has ore blocks for;
 the ore layer targets exactly them (`.targets(...)` in the startup script; lint X4).
@@ -90,7 +90,9 @@ the ore layer targets exactly them (`.targets(...)` in the startup script; lint 
 Ruins in the bigger rocks. `af9-core/src/main/java/com/af9/core/space/TempleLayout.java` is pure geometry (no Minecraft classes) and
 answers "what is at this world position": a hall carved out of the rock and lined with polished blackstone brick, a corridor from it
 to the surface, a gate there. `AsteroidFieldFeature` asks it for every position of its chunk, so a temple comes out whole in any order
-of chunk generation, like the rock itself. The temple's middle is the asteroid's middle; it is turned by a random quarter turn.
+of chunk generation, like the rock itself. It is turned by a random quarter turn. The hall starts in the middle of the rock and is moved along the
+corridor towards the gate as far as it stays inside the rock (its corners and the middle of its walls must be rock), so that the corridor is
+at most 20 blocks long (`MAX_CORRIDOR`), also in an island of 90 blocks of radius.
 
 | Size | Hall inside (wide x long x high) | Corridor | In it | Fits an asteroid from (radius, worst / best case) |
 |---|---|---|---|---|
@@ -98,15 +100,16 @@ of chunk generation, like the rock itself. The temple's middle is the asteroid's
 | temple | 7 x 11 x 4 | 3 wide, 3 high | two rows of pillars (purpur), end rods, a platform with an altar and a chest, a band of carvings on the back wall | about 21 / 12 |
 | grand temple | 11 x 17 x 6 | 5 wide, 4 high | the same, longer (four rows of pillars), and a chest in each back corner | about 30 / 18 |
 
-The biggest size that fits is built: the corner of the outer wall, as a share of the radii, squared and added up, has to stay below
-0.36 (an ellipsoid's surface is 1; the lumps of the surface take up to a third of the radius). A temple that pokes out of a thin
-spot of the rock stays: the walls hang on the rock, it is a ruin. A medium asteroid gets a shrine only if it is at the big end of
-its class, a large one a shrine or a temple, a huge one a grand temple (or a temple where its radii are small).
+Which rocks hold one (`AsteroidFieldFeature`): **the island of every cluster** (the biggest size that fits: always a grand temple, the islands
+have radii of 45-75), **60 % of the large satellites** (a shrine or a temple), **25 % of the medium ones** (a shrine, only at the big end of the
+class), never the small ones. Whether a rock holds one, its size and its direction come from the rock's own seed, so they do not move
+the cluster's other rocks. The biggest size that fits is built: the corner of the outer wall, as a share of the radii, squared and added up, has to
+stay below 0.36 (an ellipsoid's surface is 1; the lumps of the surface take up to a third of the radius). A temple that pokes out of a thin spot
+of the rock stays: the walls hang on the rock, it is a ruin.
 
 The corridor runs on along its axis through the rock; the *gate* stands where the rock ends (the layout walks along the axis through
 the asteroid's own shape and takes the last rock, a gap of two blocks is a lump in the surface): two purpur pillars, a chiselled
-lintel and an end rod on each end of it, and the opening is carved a few blocks further out, so that no lump closes it. The corridor
-of a grand temple in a huge asteroid is up to about 45 blocks long.
+lintel and an end rod on each end of it, and the opening is carved a few blocks further out, so that no lump closes it.
 
 Blocks: `polished_blackstone_bricks` (one in eight cracked), `chiseled_polished_blackstone`, `polished_blackstone` and now and then
 `gilded_blackstone` for the floor, `purpur_pillar`, `crying_obsidian` for the altars, `end_rod` for light. None of them is a stone of
@@ -125,12 +128,13 @@ Lint X4 checks that the tables named by `TempleLayout` exist and that every `kub
 
 - **Layer** `af9_asteroid` (`kubejs/startup_scripts/gtceu/asteroid_fission.js`): GT's world gen layer for the four stones, in
   `af9:asteroid_field` only. Ore veins of this layer grow only into those blocks.
-- **Veins** (`kubejs/server_scripts/mods/gtceu/asteroid_fission.js`, `GTCEuServerEvents.oreVeins`): one per 3 x 3 chunks, chosen by
-  weight: brannerite 60 (cluster 120, density 0.55), pentlandite 20, magnetite 15, cooperite 10 (clusters 90-100, density 0.45-0.5).
-  Height 0-110. `discardChanceOnAirExposure(0)`: the ore may sit on the surface, in the void's face.
-- GT places a vein's blocks only where there is rock. With about a third of the band rock, a vein of cluster size 120 gives
-  roughly 40-90 ore blocks. **If the field turns out to be too poor or too rich**, the knobs are the clusters and densities of the veins, and
-  `CLASSES` (cell sizes and counts) in the Java.
+- **Veins** (`kubejs/server_scripts/mods/gtceu/vein_asteroid.js`, `GTCEuServerEvents.oreVeins`; the file has to load after the
+  pack's `mining_dim_ores.js`, which moves every vein it finds to the Mining dimension: scripts load alphabetically): one per 3 x 3 chunks, chosen by
+  weight: brannerite 60 (cluster 200, density 0.55), pentlandite 20, magnetite 15 (clusters 170, density 0.5), cooperite 10 (cluster 150, density 0.45).
+  Height 0-280. `discardChanceOnAirExposure(0)`: the ore may sit on the surface, in the void's face.
+- GT places a vein's blocks only where there is rock, and only in chunks generated after the veins existed: a field explored before
+  has none. The rock is much sparser now, so a vein gives fewer ore blocks than it did with 12 % of the band rock. **If the field turns out to be too poor or too rich**, the knobs are the clusters and densities of the veins, and
+  the constants of the cluster (`CELL`, `CLUSTER_CHANCE`, `ISLAND_*`, `SATELLITE_*`) in the Java.
 - **Brannerite** (`(U,Ca,Ce)(Ti,Fe)2O6`): dust and ore, two crushed ores per ore, by-products rutile, thorium, neodymium, GT's
   radioactive hazard x0.6. No components, so GT adds no electrolyzer or centrifuge shortcut.
 
@@ -196,10 +200,12 @@ diesel and biodiesel).
 | Precipitation | Chemical Reactor, MV | 1,000 mB uranyl sulfate, 1,000 mB ammonia | 3 Yellowcake, 1,000 mB diluted sulfuric acid |
 | UF6 | Chemical Reactor, MV | 3 yellowcake, 4,000 mB hydrofluoric acid, 2,000 mB fluorine | 1,000 mB uranium hexafluoride, 2,000 mB water |
 | (enrichment) | GT's centrifuge and electrolyzer | UF6 | U-235 and U-238 dust |
+| Reduction | Electric Blast Furnace, HV, 1,500 K | 3 yellowcake, 8,000 mB hydrogen | 6 uranium dust, 8,000 mB steam |
 | Pellets | Electric Blast Furnace, HV, 1,800 K | 12 uranium dust, 4 tiny U-235 dust, 8,000 mB oxygen | 4 `kubejs:fx_fuel_pellet` |
 | Fuel rod | Assembler, HV | 4 pellets, 1 zirconium ingot (the zircon chain: `docs/semiconductor-factory.md` §6.9) | `kubejs:fx_fuel_rod` |
 
-One ore is about three yellowcake and a thousand mB of UF6; GT's enrichment gives a tenth of it as U-235. A rod needs 12 uranium dust
+The **reduction** is what makes the natural uranium dust of the pellets: GT's own chain only gives U-235 and U-238 dust, and with the
+pitchblende and uraninite veins replaced by the asteroids nothing else did (the chain was a dead end before it). One ore is about three yellowcake and a thousand mB of UF6; GT's enrichment gives a tenth of it as U-235. A rod needs 12 uranium dust
 and 4 tiny U-235 dust and the reprocessing gives back 8 and 2 x 60 %: about **4 ore per rod net**. Tiny U-235 dust also comes from
 `af9:uranium_238_separation` (GT's centrifuge on uranium dust, 23 %, its tiny plutonium removed).
 
@@ -282,9 +288,9 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 4. the FX-1 in the multiblock preview, one fuel cycle, a Large Steam Turbine on the steam;
 5. Extreme Reactors, if installed: the log line `Extreme Reactors: could not ...` means the vapor was not registered;
 6. the quest task "dimension" of `af9.quest.fx.field` (an FTB Quests task type);
-7. the temples: that they generate (a shrine in a big medium rock, a temple or a grand temple in a large and huge one), that the gate
+7. the temples: that they generate (a grand temple in every island, a shrine or a temple in the large satellites, a shrine in the big medium ones), that the gate
    and corridor open to the void, that the chests hold loot (a missing `af9:chests/...` table gives empty chests, a log line "Couldn't
-   find resource table"), and how the density of rocks looks now (§2.2: `CLASSES`);
+   find resource table"), and how the cluster looks with the closer satellites (§2.2: `SATELLITE_DISTANCE`, `SATELLITE_SPREAD_Y`);
 8. the Assembly Line rocket recipes (tiers 3 and 4): the recipe in the Assembly Line preview, the research of the tier 2 rocket in
    the Scanner.
 

@@ -11,7 +11,9 @@ package com.af9.core.space;
  * inside, its walls one block thick. The corridor runs on from the middle of the front wall along -z, {@code 2 * cw + 1}
  * wide and {@code ch} high, lined with brick; where the rock ends (found by walking along its axis through the asteroid's
  * own shape) the gate stands: two pillars, a lintel and two lights. The whole thing is turned by {@code rotation} quarter
- * turns around its middle.
+ * turns around its middle. The hall starts in the middle of the asteroid and is moved along the corridor towards the
+ * gate as far as it stays inside the rock, so that the corridor is at most {@link #MAX_CORRIDOR} blocks long even in an
+ * island of 90 blocks of radius.
  * <p>
  * Three sizes, the biggest that fits inside the asteroid ({@link #fits}): a shrine (one chest), a temple (an altar with a
  * chest between two rows of pillars) and a grand temple (the same, longer, with two more chests in the back corners).
@@ -64,6 +66,8 @@ public final class TempleLayout {
     private static final double FIT = 0.36;
     /** Blocks past the last rock the gate's opening is carved. */
     private static final int OPENING = 3;
+    /** The longest corridor, in blocks, that the hall is moved up to the gate for (a rock that is small has a short one anyway). */
+    public static final int MAX_CORRIDOR = 20;
 
     public final Kind kind;
     public final int rotation;
@@ -132,8 +136,30 @@ public final class TempleLayout {
         int originX = (int) Math.floor(centerX);
         int originZ = (int) Math.floor(centerZ);
         int floorY = (int) Math.floor(centerY) - (kind.ih + 2) / 2;
-        // walk out along the corridor's axis, at the height of its middle, to the last rock (a gap of up to two blocks
-        // is a lump in the surface, not its end)
+        int turns = rotation & 3;
+        int exitZ = exitOf(kind, turns, originX, originZ, floorY, maxLength, solid);
+        // a corridor longer than MAX_CORRIDOR: move the hall up towards the gate, as far as the hall stays inside the rock
+        int start = -(kind.iz + 2);
+        int excess = (start - exitZ) - MAX_CORRIDOR;
+        for (int shift = Math.max(0, excess); shift > 0; shift--) {
+            int shiftedX = originX + worldX(turns, 0, -shift);
+            int shiftedZ = originZ + worldZ(turns, 0, -shift);
+            if (hallInside(kind, turns, shiftedX, shiftedZ, floorY, solid)) {
+                originX = shiftedX;
+                originZ = shiftedZ;
+                exitZ = exitOf(kind, turns, originX, originZ, floorY, maxLength, solid);
+                break;
+            }
+        }
+        return new TempleLayout(kind, turns, originX, originZ, floorY, exitZ, (int) (hashSeed ^ (hashSeed >>> 32)));
+    }
+
+    /**
+     * Local z of the gate: walk out along the corridor's axis, at the height of its middle, to the last rock (a gap of up
+     * to two blocks is a lump in the surface, not its end).
+     */
+    private static int exitOf(Kind kind, int rotation, int originX, int originZ, int floorY, int maxLength,
+                              Solid solid) {
         int start = -(kind.iz + 2);
         int last = start;
         int gap = 0;
@@ -147,7 +173,23 @@ public final class TempleLayout {
                 gap++;
             }
         }
-        return new TempleLayout(kind, rotation & 3, originX, originZ, floorY, last, (int) (hashSeed ^ (hashSeed >>> 32)));
+        return last;
+    }
+
+    /** Whether the outer corners and the middle of every wall of the hall, at the height of its middle, are rock. */
+    private static boolean hallInside(Kind kind, int rotation, int originX, int originZ, int floorY, Solid solid) {
+        int hx = kind.ix + 1;
+        int hz = kind.iz + 1;
+        int y = floorY + (kind.ih + 2) / 2;
+        int[][] points = { { -hx, -hz }, { hx, -hz }, { -hx, hz }, { hx, hz }, { 0, -hz }, { 0, hz }, { -hx, 0 },
+                { hx, 0 } };
+        for (int[] point : points) {
+            if (!solid.at(originX + worldX(rotation, point[0], point[1]), y,
+                    originZ + worldZ(rotation, point[0], point[1]))) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /** The direction of local -z (where the corridor leaves) as an index into {north, east, south, west}. */

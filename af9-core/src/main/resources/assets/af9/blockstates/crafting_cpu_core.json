@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "formed=false,powered=false": { "model": "af9:block/crafting_cpu_core" },
+    "formed=false,powered=true": { "model": "af9:block/crafting_cpu_core" },
+    "formed=true,powered=false": { "model": "af9:block/crafting_cpu_core" },
+    "formed=true,powered=true": { "model": "af9:block/crafting_cpu_core_on" }
+  }
+}

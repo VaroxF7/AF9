@@ -10,6 +10,12 @@
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
 
+    // The scan: the ITBTC wire, or (if this GT has no such item, the research stack would be empty and the recipe
+    // fails to build: "Research recipe must have an item or fluid stack") the superconducting coil
+    const wire = 'gtceu:indium_tin_barium_titanium_cuprate_single_wire'
+    const researched = Item.exists(wire) ? wire : 'gtceu:superconducting_coil'
+    if (researched !== wire) console.warn(`fusion_reactor.js: ${wire} does not exist, the research scans ${researched}`)
+
     // by output, so whatever else the pack has made it with goes too
     event.remove({ output: 'gtceu:luv_fusion_reactor' })
     event.recipes.gtceu.assembly_line('af9:fusion_reactor_mk1')
@@ -21,7 +27,7 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:niobium_titanium', 2304))
         .itemOutputs('gtceu:luv_fusion_reactor')
         .scannerResearch(b => b
-            .researchStack(Item.of('gtceu:indium_tin_barium_titanium_cuprate_single_wire'))
+            .researchStack(Item.of(researched))
             .duration(1200)
             .EUt(VA[GTValues.IV]))
         .duration(1000)

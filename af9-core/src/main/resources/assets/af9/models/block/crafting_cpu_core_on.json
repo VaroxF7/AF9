@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "af9:block/crafting_cpu_core_on"
+  }
+}
