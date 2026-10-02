@@ -1,0 +1,238 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "oil"
+	group: "1DA67E79B40AB130"
+	icon: "af9:oil_regolith"
+	id: "4C18836EE0055796"
+	order_index: 15
+	progression_mode: "flexible"
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"{af9.quest.oil.intro.1}"
+				""
+				"{af9.quest.oil.intro.2}"
+				""
+				"{af9.quest.oil.intro.3}"
+			]
+			icon: "af9:oil_regolith"
+			id: "1767B52636068775"
+			rewards: [{
+				id: "4D44314E3498D66F"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "gear"
+			size: 2.5d
+			subtitle: "{af9.quest.oil.intro.subtitle}"
+			tasks: [
+				{
+					id: "7F99C79650333CA8"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.oil.intro.title}"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["1767B52636068775"]
+			description: [
+				"{af9.quest.oil.regolith.1}"
+				""
+				"{af9.quest.oil.regolith.2}"
+			]
+			icon: "af9:oil_regolith"
+			id: "592BDEABA5391083"
+			rewards: [{
+				id: "711AD5C23906E499"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.regolith.subtitle}"
+			tasks: [
+				{
+					id: "4E00E712446BC0E1"
+					item: "af9:oil_regolith"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.oil.regolith.title}"
+			x: 3.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["592BDEABA5391083"]
+			description: [
+				"{af9.quest.oil.impure.1}"
+			]
+			icon: "gtceu:impure_oil_bucket"
+			id: "58094828CD11CC86"
+			rewards: [{
+				id: "3C12E30F23CB41D6"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.impure.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:impure_oil"
+					id: "42D4FF6E9E68C1FA"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.impure.title}"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["58094828CD11CC86"]
+			description: [
+				"{af9.quest.oil.shiny.1}"
+			]
+			icon: "gtceu:shiny_oil_bucket"
+			id: "3FEDE0A2CBDBA0D9"
+			rewards: [{
+				id: "1D60CA3A4515712B"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.shiny.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:shiny_oil"
+					id: "65F40C9C6F54A979"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.shiny.title}"
+			x: 9.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3FEDE0A2CBDBA0D9"]
+			description: [
+				"{af9.quest.oil.oil.1}"
+			]
+			icon: "gtceu:oil_bucket"
+			id: "32FFA2B6E8A7E849"
+			rewards: [{
+				id: "62E8FDBA90F05589"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.oil.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:oil"
+					id: "6AEF3DA06DCAFCD1"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:oil_heavy"
+					id: "25398BA16EDD2580"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.oil.title}"
+			x: 12.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["1767B52636068775"]
+			description: [
+				"{af9.quest.oil.bio.1}"
+			]
+			icon: "gtceu:ethylene_bucket"
+			id: "06D84603079A54A6"
+			rewards: [{
+				id: "70550B58987A8F65"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.bio.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:ethylene"
+					id: "0DAF0B4AA4AFD228"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.bio.title}"
+			x: 3.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["1767B52636068775"]
+			description: [
+				"{af9.quest.oil.deposits.1}"
+			]
+			icon: "gtceu:mv_fluid_drilling_rig"
+			id: "50AEB65CE58DD7B3"
+			rewards: [{
+				id: "6D124B8B530A77B7"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.deposits.subtitle}"
+			tasks: [
+				{
+					id: "43231735750B6EEB"
+					item: "gtceu:mv_fluid_drilling_rig"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.oil.deposits.title}"
+			x: 6.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["50AEB65CE58DD7B3"]
+			description: [
+				"{af9.quest.oil.heavy.1}"
+			]
+			icon: "gtceu:heavy_water_bucket"
+			id: "6CBDACA3C5AFA88D"
+			rewards: [{
+				id: "5B03BCA06C7D71C2"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.heavy.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:heavy_water"
+					id: "1278D66C58FF8FBD"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.heavy.title}"
+			x: 9.0d
+			y: 3.0d
+		}
+	]
+	subtitle: ["{af9.quest.oil.chapter.subtitle}"]
+	title: "{af9.quest.oil.chapter.title}"
+}
