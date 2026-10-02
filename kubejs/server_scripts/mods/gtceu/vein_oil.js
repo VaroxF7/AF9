@@ -74,12 +74,13 @@ GTCEuServerEvents.fluidVeins(event => {
 // drilled) while the dimension had no deposits is saved as "no fluid" for good, and so shows nothing even now. Forget those
 // entries when the world loads: the next look at the chunk rolls a deposit.
 ServerEvents.loaded(event => {
+    // var, not const: Rhino keeps a const of a nested block once for the whole script (see rockets.js)
     try {
-        const dimension = $OilResourceKey.create($OilRegistries.DIMENSION, new $OilResourceLocation('af9:asteroid_field'))
-        const level = event.server.getLevel(dimension)
+        var dimension = $OilResourceKey.create($OilRegistries.DIMENSION, new $OilResourceLocation('af9:asteroid_field'))
+        var level = event.server.getLevel(dimension)
         if (level === null) return
-        const data = $OilVeinData.getOrCreate(level)
-        let forgotten = 0
+        var data = $OilVeinData.getOrCreate(level)
+        var forgotten = 0
         oilListOf(data.veinFluids.keySet()).forEach(chunk => {
             if (data.veinFluids.get(chunk).getDefinition() === null) {
                 data.veinFluids.remove(chunk)
