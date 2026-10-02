@@ -45,8 +45,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Every rock is an ellipsoid whose surface is pushed in and out by two layers of simplex noise.
  * <p>
  * The rock is a mix of andesite, tuff, basalt and blackstone (by a slow noise, so it comes in patches): the stones
- * GregTech has ore blocks for, which is what its ore veins (the {@code af9_asteroid} layer, KubeJS) grow into. In
- * pockets of it (a second noise, about 7 % of the rock) the stone is {@link AF9Space#OIL_REGOLITH}, the sand-like,
+ * GregTech has ore blocks for: where an ore's noise is high ({@link AsteroidOres}) the stone is GT's ore block of it,
+ * at every height, not in GT's flat veins. In pockets of it (a second noise, about 7 % of the rock) the stone is {@link AF9Space#OIL_REGOLITH}, the sand-like,
  * oil-soaked rock all of the game's oil comes from. Ad Astra builds a space station at y = 100; rocks hang around it
  * at any height.
  * <p>
@@ -220,7 +220,7 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         if (cluster == null) return;
         for (Spec spec : cluster.specs) {
             if (reaches(spec.x, spec.z, spec.radiusX, spec.radiusZ, chunkMinX, chunkMinZ)) {
-                rocks.add(new Rock(spec, spec == cluster.host && clusterHasTemple(seed, cluster)));
+                rocks.add(new Rock(spec, spec == cluster.host && clusterHasTemple(seed, cluster), seed));
             }
         }
     }
@@ -348,10 +348,12 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
                 centerZ + reachZ >= chunkMinZ && centerZ - reachZ < chunkMinZ + 16;
     }
 
-    /** One rock: its shape (an ellipsoid with a lumpy surface) and its stone (with pockets of Oil Regolith). */
+    /** One rock: its shape (an ellipsoid with a lumpy surface) and its stone (with pockets of Oil Regolith and the ores). */
     private static final class Rock {
 
         final long noiseSeed;
+        /** The world's seed: the ores' noises are of the world, not of the rock ({@link AsteroidOres}). */
+        private final long worldSeed;
         final double centerX, centerY, centerZ, radiusX, radiusY, radiusZ;
         /** The temple inside the rock, or null. */
         final TempleLayout temple;
@@ -359,7 +361,8 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         private final BlockState regolith;
         private final double shapeScale, detailScale;
 
-        Rock(Spec spec, boolean hasTemple) {
+        Rock(Spec spec, boolean hasTemple, long worldSeed) {
+            this.worldSeed = worldSeed;
             this.noiseSeed = spec.noiseSeed;
             this.centerX = spec.x;
             this.centerY = spec.y;
@@ -405,7 +408,9 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
 
         BlockState stoneAt(int x, int y, int z) {
             boolean oily = pocket.getValue(x * OIL_POCKET_SCALE, y * OIL_POCKET_SCALE, z * OIL_POCKET_SCALE) > OIL_POCKET;
-            return oily ? regolith : rockAt(stone.getValue(x * 0.09, y * 0.09, z * 0.09));
+            if (oily) return regolith;
+            // the stone of the patch, or its ore where an ore's noise is high
+            return AsteroidOres.oreAt(worldSeed, x, y, z, rockAt(stone.getValue(x * 0.09, y * 0.09, z * 0.09)));
         }
     }
 

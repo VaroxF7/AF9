@@ -32,7 +32,7 @@ An ore's tier is the lowest tier of the world-gen layers of the veins that hold 
 | 1 | Overworld | stone, deepslate |
 | 2 | Nether | netherrack |
 | 3 | End | end stone (and any layer unknown to the catalog) |
-| 4 | Asteroid | `af9_asteroid`, and every ore that no vein holds |
+| 4 | Asteroid | every ore that no vein holds: brannerite (the Asteroid Field's ores are grown into the rock, no vein), pitchblende, uraninite |
 
 Veins of weight 0 count as no vein: pitchblende and uraninite (the Asteroid Field replaced their veins) are Mk4, like the
 brannerite. An ore a modpack adds to GT is in the catalog without anybody writing it down. The log says how many ores each tier

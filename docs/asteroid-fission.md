@@ -21,7 +21,7 @@ what the **Fusion Reactor Mk1** needs, and that is what the whole update is for.
 ```text
 Ad Astra rocket (gregified parts, Aluminised Hydrolox)
    -> Ceres, its space = the Asteroid Field (af9:asteroid_field)      station built through Ad Astra's planet menu
-        -> Brannerite ore in the asteroids (GT ore veins, layer af9_asteroid)
+        -> Brannerite ore in the asteroids (AsteroidOres: grown into the rock)
              -> purified dust -> leach (uranyl sulfate) -> yellowcake -> reduction (EBF, hydrogen) -> uranium dust
                   -> (UF6 -> GT's enrichment -> U-235 dust)
                   -> pellets (EBF) -> fuel rod (assembler, zirconium)
@@ -153,17 +153,22 @@ the ore layer, so no vein grows into a wall. Chests face the entrance and hold l
 Lint X4 checks that the tables named by `TempleLayout` exist and that every `kubejs:` chip and `gtceu:raw_` ore in them is real
 (an unknown item makes Minecraft drop the whole table without a word).
 
-## 2.3 The ore (GT's ore veins)
+## 2.3 The ore (`AsteroidOres`)
 
-- **Layer** `af9_asteroid` (`kubejs/startup_scripts/gtceu/asteroid_fission.js`): GT's world gen layer for the four stones, in
-  `af9:asteroid_field` only. Ore veins of this layer grow only into those blocks.
-- **Veins** (`kubejs/server_scripts/mods/gtceu/vein_asteroid.js`, `GTCEuServerEvents.oreVeins`; the file has to load after the
-  pack's `mining_dim_ores.js`, which moves every vein it finds to the Mining dimension: scripts load alphabetically): one per 3 x 3 chunks, chosen by
-  weight: brannerite 60 (cluster 200, density 0.55), pentlandite 20, magnetite 15 (clusters 170, density 0.5), cooperite 10 (cluster 150, density 0.45).
-  Height 0-280. `discardChanceOnAirExposure(0)`: the ore may sit on the surface, in the void's face.
-- GT places a vein's blocks only where there is rock, and only in chunks generated after the veins existed: a field explored before
-  has none. The rock is much sparser now, so a vein gives fewer ore blocks than it did with 12 % of the band rock. **If the field turns out to be too poor or too rich**, the knobs are the clusters and densities of the veins, and
-  the constants of the cluster (`CELL`, `CLUSTER_CHANCE`, `ISLAND_*`, `SATELLITE_*`) in the Java.
+The ores are **not GT ore veins**: `AsteroidFieldFeature` grows them into the rock as it makes it (`AsteroidOres`, `af9-core`). A standard
+GT vein is one small blob (a vanilla-style ore blob, a few blocks tall for its width) at one random height; in rocks that hang anywhere in
+250 blocks of height it lay in the void or cut a rock in a thin slab, whatever the height range of the vein said.
+
+- **How:** each ore has a noise of the *position in the world* (scale 0.07: blobs about a dozen blocks across, of the world seed), and where
+  it is above the ore's threshold the stone of the rock is GT's ore block of that stone (`TagPrefix.oreAndesite`, `oreTuff`, `oreBasalt`,
+  `oreBlackstone`). Position noise means an ore runs through a rock at every height and on into the rock beside it, the same whichever chunk is made first.
+- **Share of the rock:** brannerite about 9 % (threshold 0.60), pentlandite 4.5 % and magnetite 4.5 % (0.68), cooperite 2.5 % (0.74). The first of the ores
+  whose noise is high wins; Oil Regolith pockets (§ oil.md) are checked first and hold no ore.
+- **Knobs:** `Ore` (thresholds) and `SCALE` in `AsteroidOres.java`. A GT material or ore block that is missing is logged once
+  (`Asteroid ore <material> in <stone>: ...`) and that ore is left out.
+- GT's layer `af9_asteroid` (`startup_scripts/gtceu/asteroid_fission.js`) stays (lint X4 checks its stones against the Java); no GT vein uses it. The prospector and
+  the vein page of JEI/EMI do not list these ores, there being no vein. Only chunks generated after this have the ore.
+- `kubejs/server_scripts/mods/gtceu/vein_asteroid.js` only switches the pitchblende and uraninite veins off (weight 0).
 - **Brannerite** (`(U,Ca,Ce)(Ti,Fe)2O6`): dust and ore, two crushed ores per ore, by-products rutile, thorium, neodymium, GT's
   radioactive hazard x0.6. No components, so GT adds no electrolyzer or centrifuge shortcut.
 
@@ -312,7 +317,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 
 1. the world: that `af9:asteroid_field` loads (a planet menu entry for Ceres, the station button), how the asteroids look and how
    much ore a vein leaves (§2.3);
-2. GT's ore veins of the layer `af9_asteroid` show up in the JEI/EMI vein page and generate;
+2. the ores in the rock (brannerite, pentlandite, magnetite, cooperite) at every height of the islands, not in slabs;
 3. the radiation warning above the hotbar, with and without a hazmat suit (GT's hazard system must be on);
 4. the FX-1 in the multiblock preview, one fuel cycle, a Large Steam Turbine on the steam;
 5. Extreme Reactors, if installed: the log line `Extreme Reactors: could not ...` means the vapor was not registered;
