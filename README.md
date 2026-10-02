@@ -42,8 +42,6 @@ the configs AF9 changes. Everything else comes from the pack itself.
   without starting the game (CI runs it before every build); `docs/review-findings.md` lists what it found.
 - **Computation** (`docs/computation.md`): CWU Servers (LV-IV), the N1 Computation Array and the N1 Supercomputer Array
   with Computer Racks and cards. (The machine bus, the ME Computation Link and the Crafting CPU Array were taken out.)
-- **Microverse Projector** (`docs/microverse.md`): every ore GT has is farmable: a Microverse Core, a Miner Drone and a
-  dust of the ore (the seed) give raw ore; four tiers, Overworld to the Asteroid Field.
 - **Oil** (`docs/oil.md`): the world's oil is off; Oil Regolith, a sand-like rock of the asteroids, becomes Impure Oil, Shiny
   Oil, then Oil and Heavy Oil; the Asteroid Field's fluid deposits hold nitrogen, oxygen, heavy water and acids.
 

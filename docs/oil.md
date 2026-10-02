@@ -40,7 +40,6 @@ new chunks have the new share.
   error and **no deposit was ever registered** (the reason for "no fluid veins"). Where a script has to walk such a collection it copies it
   into an `ArrayList` first (`new ArrayList(collection)`, the collection only as an argument).
 * Ore veins that hold `oilsands` get weight 0 (the same `modifyAll` as the uranium veins).
-* Ores no vein holds are Mk4 for the Microverse Projector (`docs/microverse.md`): oil sands could be farmed there, with a dust as seed.
 
 **Rocket fuel does not need oil.** Aluminised Hydrolox needs triethylaluminium, which needs ethylene, and GT makes ethylene from
 ethanol (`ethylene_from_ethanol`; ethanol from biomass by distillation), so the first flight to the Asteroid Field needs no oil.
