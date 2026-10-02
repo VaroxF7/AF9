@@ -31,17 +31,18 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.joml.Vector3f;
 
 /**
- * The upper part of the Space Elevator: a platform that rides the top of the shaft, drawn while the structure is formed and
- * turning slowly around the cable ({@link #SPIN} degrees a tick, twice that while a run is on). It is a model made in code
- * from a few shapes (no model file): a hub that holds the cable, a ring with its light strips on eight spokes, eight posts with
- * lamps, six blue tank pods hanging off the ring and orange spotlights under it; above it the cable runs up into the sky
- * to a small station with solar wings (after GTNH's, whose climber rides the cable).
+ * The upper part of the Space Elevator, drawn while the structure is formed: the cable, from the Space Elevator Cable block
+ * on top of the tower's shaft up into the sky to a small station with solar wings, and the platform that rides it (after
+ * GTNH's, whose climber rides the cable), turning slowly around it ({@link #SPIN} degrees a tick, twice that while a run
+ * is on). It is a model made in code from a few shapes (no model file): a hub that holds the cable, a ring with its light
+ * strips on eight spokes, eight posts with lamps, six blue tank pods hanging off the ring and orange spotlights under it.
  * <p>
  * Every colour is a cell of a 4 x 4 palette texture ({@link #TEXTURE}); the glass of the pods is translucent, the lights are
  * drawn at full brightness (and a little brighter while a run is on).
  * <p>
- * Placed relative to the controller: {@code up} blocks above it and {@code back} behind it, so it turns with the controller's
- * facing; the cable goes {@code cable} blocks up from there (as far as the world's top). Model side:
+ * Placed relative to the controller: the cable block is {@code up} blocks above it and {@code back} behind it (so the model
+ * turns with the controller's facing); the platform rides {@code platform} blocks above the cable block and the cable goes
+ * {@code cable} blocks up from it (as far as the world's top). Model side:
  * {@link com.af9.core.machine.AF9MachineModels#workableCasingWithSpaceElevator}.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
@@ -51,6 +52,7 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
     public static final Codec<SpaceElevatorRender> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.FLOAT.fieldOf("up").forGetter(render -> render.up),
             Codec.FLOAT.fieldOf("back").forGetter(render -> render.back),
+            Codec.FLOAT.fieldOf("platform").forGetter(render -> render.platform),
             Codec.FLOAT.fieldOf("cable").forGetter(render -> render.cable)
     ).apply(instance, SpaceElevatorRender::new));
     // spotless:on
@@ -69,17 +71,19 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
 
     private final float up;
     private final float back;
+    private final float platform;
     private final float cable;
 
-    public SpaceElevatorRender(float up, float back, float cable) {
+    public SpaceElevatorRender(float up, float back, float platform, float cable) {
         this.up = up;
         this.back = back;
+        this.platform = platform;
         this.cable = cable;
     }
 
     /** Typed as GT's base class, so common code that builds a model never loads this client class. */
-    public static DynamicRender<?, ?> create(float up, float back, float cable) {
-        return new SpaceElevatorRender(up, back, cable);
+    public static DynamicRender<?, ?> create(float up, float back, float platform, float cable) {
+        return new SpaceElevatorRender(up, back, platform, cable);
     }
 
     /** Client, before the models are built (mod construction). */
@@ -97,7 +101,7 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
         return 256;
     }
 
-    /** Where the shaft's axis is at the platform, relative to the controller's position. */
+    /** The middle of the cable block, relative to the controller's position. */
     private Vector3f centre(MetaMachine self) {
         boolean flipped = self instanceof MultiblockControllerMachine controller && controller.isFlipped();
         Direction upDir = RelativeDirection.UP.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), flipped);
@@ -112,7 +116,8 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
         if (!machine.isElevatorFormed()) return false;
         BlockPos pos = machine.self().getPos();
         Vector3f c = centre(machine.self());
-        return new Vec3(pos.getX() + c.x, pos.getY() + c.y, pos.getZ() + c.z).closerThan(cameraPos,
+        // from the platform: it is what is seen from far away
+        return new Vec3(pos.getX() + c.x, pos.getY() + c.y + platform, pos.getZ() + c.z).closerThan(cameraPos,
                 getViewDistance());
     }
 
@@ -122,7 +127,7 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
         BlockPos pos = machine.self().getPos();
         Vector3f c = centre(machine.self());
         double x = pos.getX() + c.x, y = pos.getY() + c.y, z = pos.getZ() + c.z;
-        return new AABB(pos).minmax(new AABB(x - 8, y - 4, z - 8, x + 8, y + cable + 3, z + 8));
+        return new AABB(pos).minmax(new AABB(x - 8, y, z - 8, x + 8, y + cable + 3, z + 8));
     }
 
     @Override
@@ -137,9 +142,13 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
         boolean working = machine.isElevatorWorking();
         float time = level.getGameTime() + partialTick;
         float angle = (time * SPIN * (working ? 2F : 1F)) % 360F;
+        // the cable ends under the world's top; the platform rides it, never closer than 6 blocks to the station
+        float top = Math.min(cable, level.getMaxBuildHeight() - 2 - (pos.getY() + c.y));
+        if (top < 12) return;
+        float ride = Math.min(platform, top - 6);
         // the light of the sky at the platform: the controller's own light is far below it
         int light = LevelRenderer.getLightColor(level, new BlockPos(pos.getX() + Mth.floor(c.x),
-                pos.getY() + Mth.floor(c.y), pos.getZ() + Mth.floor(c.z)));
+                pos.getY() + Mth.floor(c.y + ride), pos.getZ() + Mth.floor(c.z)));
         float glow = working ? 1F : 0.75F + 0.25F * Mth.sin(time * 0.05F);
         VertexConsumer solid = buffer.getBuffer(RenderType.entityCutoutNoCull(TEXTURE));
         VertexConsumer glass = buffer.getBuffer(RenderType.entityTranslucent(TEXTURE));
@@ -148,10 +157,10 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
         poseStack.pushPose();
         poseStack.translate(c.x, c.y, c.z);
         // the cable, and the station on its end
-        float top = Math.min(cable, level.getMaxBuildHeight() - 2 - (pos.getY() + c.y));
-        if (top > 3) cableAndStation(shapes, solid, light, top);
+        cableAndStation(shapes, solid, light, top);
         // the platform
         poseStack.pushPose();
+        poseStack.translate(0, ride, 0);
         poseStack.mulPose(Axis.YP.rotationDegrees(angle));
         platform(shapes, solid, glass, poseStack, light, glow);
         poseStack.popPose();
@@ -164,8 +173,8 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
 
     /** The cable (black, with a thin light core and a node every 16 blocks) up to the station. */
     private static void cableAndStation(Shapes s, VertexConsumer solid, int light, float top) {
-        s.prism(solid, 0.2F, 0, top, 8, BLACK, light, 255);
-        s.prism(solid, 0.07F, 0, top, 6, CYAN, FULL_BRIGHT, 255);
+        s.prism(solid, 0.2F, 0.5F, top, 8, BLACK, light, 255);
+        s.prism(solid, 0.07F, 0.5F, top, 6, CYAN, FULL_BRIGHT, 255);
         for (float y = 16; y < top - 2; y += 16) s.prism(solid, 0.32F, y - 0.25F, y + 0.25F, 8, STEEL, light, 255);
         // the station: a drum on the cable with a light band, and two solar wings
         s.prism(solid, 0.9F, top - 0.7F, top + 0.7F, 10, DARK, light, 255);

@@ -45,15 +45,18 @@ public final class AF9MachineModels {
      * ({@link SpaceElevatorRender}). The machine must implement {@code ISpaceElevatorMachine} and have a block entity
      * renderer ({@code .hasBER(true)}).
      *
-     * @param up    the platform's centre above the controller (blocks)
-     * @param back  the cable's axis behind the controller (blocks)
-     * @param cable how far the cable runs up from the platform (blocks)
+     * @param up       the cable block above the controller (blocks)
+     * @param back     the cable block behind the controller (blocks)
+     * @param platform how high the platform rides above the cable block (blocks)
+     * @param cable    how far the cable runs up from its block (blocks)
      */
     public static MachineBuilder.ModelInitializer workableCasingWithSpaceElevator(ResourceLocation casing,
                                                                                    ResourceLocation overlay, float up,
-                                                                                   float back, float cable) {
+                                                                                   float back, float platform,
+                                                                                   float cable) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
-                .andThen(model -> model.addDynamicRenderer(() -> SpaceElevatorRender.create(up, back, cable)));
+                .andThen(model -> model.addDynamicRenderer(
+                        () -> SpaceElevatorRender.create(up, back, platform, cable)));
     }
 
     /**

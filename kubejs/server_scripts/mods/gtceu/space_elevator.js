@@ -47,35 +47,70 @@ ServerEvents.recipes(event => {
             .EUt(VA[voltage])
     })
 
-    // ---- The blocks of the tower ----
+    // ---- The blocks of the tower: GTNH's tower takes 800 of the concrete, up to 785 base casings, 620 supports and 360
+    // internal structures, so a craft makes 8 or 16. The casings share their frames and plates: a circuit each ----
+    event.recipes.gtceu.assembler('af9:ultra_high_strength_concrete_floor')
+        .itemInputs('8x gtceu:dark_concrete', '2x gtceu:tungsten_steel_rod')
+        .inputFluids(Fluid.of('gtceu:polybenzimidazole', 72))
+        .itemOutputs('8x kubejs:ultra_high_strength_concrete_floor')
+        .duration(100)
+        .EUt(VA[GTValues.IV])
     event.recipes.gtceu.assembler('af9:space_elevator_base_casing')
-        .itemInputs('gtceu:naquadah_alloy_frame', '4x gtceu:naquadah_alloy_plate', 'gtceu:fusion_casing')
-        .itemOutputs('4x kubejs:space_elevator_base_casing')
+        .itemInputs('gtceu:naquadah_alloy_frame', '4x gtceu:naquadah_alloy_plate', '8x gtceu:tungsten_steel_plate')
+        .circuit(1)
+        .itemOutputs('16x kubejs:space_elevator_base_casing')
         .duration(200)
         .EUt(VA[GTValues.LuV])
     event.recipes.gtceu.assembler('af9:space_elevator_support')
-        .itemInputs('2x gtceu:naquadah_alloy_frame', '4x gtceu:tungsten_steel_plate')
-        .itemOutputs('4x kubejs:space_elevator_support')
+        .itemInputs('2x gtceu:naquadah_alloy_frame', '8x gtceu:tungsten_steel_plate')
+        .circuit(2)
+        .itemOutputs('16x kubejs:space_elevator_support')
         .duration(200)
         .EUt(VA[GTValues.LuV])
-    event.recipes.gtceu.assembler('af9:space_elevator_glass')
-        .itemInputs('8x gtceu:fusion_glass', '2x gtceu:naquadah_alloy_plate')
-        .itemOutputs('8x kubejs:space_elevator_glass')
+    event.recipes.gtceu.assembler('af9:space_elevator_internal_structure')
+        .itemInputs('gtceu:naquadah_alloy_frame', '4x gtceu:osmiridium_plate', '4x gtceu:tungsten_steel_plate')
+        .circuit(3)
+        .itemOutputs('16x kubejs:space_elevator_internal_structure')
         .duration(200)
         .EUt(VA[GTValues.LuV])
+    // one cable block: it stands on top of the motor shaft
     event.recipes.gtceu.assembler('af9:space_elevator_cable')
-        .itemInputs('8x gtceu:naquadah_alloy_rod', '2x gtceu:luv_field_generator')
+        .itemInputs('32x gtceu:carbon_fiber_plate', '8x gtceu:naquadah_alloy_rod', '2x gtceu:luv_field_generator')
         .inputFluids(solder(288))
-        .itemOutputs('2x kubejs:space_elevator_cable')
+        .itemOutputs('kubejs:space_elevator_cable')
         .duration(300)
         .EUt(VA[GTValues.ZPM])
+
+    // ---- The motors (88 of one tier round the shaft): MK-I from ZPM motors, every tier after it from the tier before ----
+    event.recipes.gtceu.assembler('af9:space_elevator_motor_mk1')
+        .itemInputs('4x gtceu:zpm_electric_motor', 'gtceu:naquadah_alloy_frame', '4x gtceu:naquadah_alloy_plate')
+        .inputFluids(solder(288))
+        .itemOutputs('4x kubejs:space_elevator_motor_mk1')
+        .duration(400)
+        .EUt(VA[GTValues.ZPM])
+    // [tier, what four motors of the tier before take to become it]
+    const motorUpgrades = [
+        [2, ['4x gtceu:uv_electric_motor', '4x gtceu:tritanium_plate']],
+        [3, ['4x gtceu:uv_electric_motor', '4x gtceu:neutronium_plate', '8x gtceu:endionite_foil']],
+        [4, ['4x gtceu:uv_field_generator', '4x gtceu:neutronium_gear', '2x #gtceu:circuits/uhv']],
+        [5, ['2x gtceu:gravi_star', '4x gtceu:chromodynium_plate', '4x #gtceu:circuits/uhv']]
+    ]
+    motorUpgrades.forEach(([tier, parts]) => {
+        event.recipes.gtceu.assembler(`af9:space_elevator_motor_mk${tier}`)
+            .itemInputs([`4x kubejs:space_elevator_motor_mk${tier - 1}`].concat(parts))
+            .inputFluids(solder(576))
+            .itemOutputs(`4x kubejs:space_elevator_motor_mk${tier}`)
+            .duration(400)
+            .EUt(VA[GTValues.UV])
+    })
 
     // ---- The Space Elevator: ZPM ----
     event.recipes.gtceu.assembly_line('af9:space_elevator')
         .itemInputs('gtceu:zpm_machine_hull', '8x gtceu:zpm_electric_motor', '4x gtceu:zpm_field_generator',
             '2x gtceu:zpm_sensor', '2x gtceu:zpm_emitter', '4x #gtceu:circuits/zpm',
             '16x kubejs:space_elevator_base_casing', '8x kubejs:space_elevator_support',
-            '8x kubejs:space_elevator_glass', '2x kubejs:space_elevator_cable', '4x gtceu:double_naquadah_alloy_plate')
+            '8x kubejs:space_elevator_internal_structure', 'kubejs:space_elevator_cable',
+            '4x gtceu:double_naquadah_alloy_plate')
         .inputFluids(solder(4608))
         .itemOutputs('gtceu:space_elevator')
         .duration(1200)
