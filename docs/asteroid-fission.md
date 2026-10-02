@@ -63,7 +63,7 @@ Astra's below-world rule for space dimensions).
 `af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`, registered by `AF9Space`. The field is made of **clusters**: a large
 island with a swarm of smaller rocks around it, and a lot of empty space between the clusters. Every chunk draws every cluster that
 reaches into it and fills only its own part, so a rock comes out whole in any order of chunk generation. A cluster is fixed by the world
-seed and the square *cell* of 420 blocks it belongs to (a cell holds one with a chance of 55 %, at a random place in it):
+seed and the square *cell* of 300 blocks it belongs to (a cell holds one with a chance of 65 %, at a random place in it):
 
 | Part | Size | Where |
 |---|---|---|
@@ -73,14 +73,28 @@ seed and the square *cell* of 420 blocks it belongs to (a cell holds one with a 
 The cluster's height is the middle of the band (y 5..270; the station is at y = 100) plus a slow noise over the plane (`DRIFT`: +-90 blocks,
 features about 420 blocks wide: whole regions lie higher or lower) and a random lift (+-55), so clusters hang at all heights, not in one flat band
 like the End's islands. The radius of a satellite leans to the small end (`random^1.6`), each axis is stretched by 0.75-1.25 (vertically 0.6-1.1)
-and the surface of every rock is pushed in and out by two layers of simplex noise (amplitudes 0.25 and 0.10). About 2 blocks of rock in a column
-of the 300-block band: mostly empty space, and the rock that there is lies together, so a vein finds an island to grow in.
+and the surface of every rock is pushed in and out by two layers of simplex noise (amplitudes 0.25 and 0.10). About 5 blocks of rock in a column
+of the 300-block band (measured over 2,000 x 2,000 blocks: 4.5-5.5): mostly empty space, and the rock that there is lies together, so a vein
+finds an island to grow in.
 
-**Spacing of a cluster.** The satellites lay up to 100 blocks from the island's edge and 50 blocks above and below it; they now lie up to
-85 and 42 (`SATELLITE_DISTANCE`, `SATELLITE_SPREAD_Y`), a volume about a third smaller, so the rocks of a cluster are about 1.5 times
-denser and the gaps between them shrink by about a seventh. The empty space *between* the clusters (`CELL`, `CLUSTER_CHANCE`) is
-unchanged. A rock's shape and size do not depend on its place, and which rocks there are does not change: only where the satellites lie.
-Chunks that were generated before keep their old rocks; for the first look use a new world or unexplored space.
+**Spacing.** Two things set how far apart things are, both constants in the Java:
+
+* *between the clusters*: `CELL` and `CLUSTER_CHANCE`. They were 420 and 55 %: the next island lay 215 blocks from an island's edge on
+  average, 380 for the unluckiest tenth, 3.1 clusters per km². Now 300 and 65 %: **100 blocks** on average (median; 200 for the unluckiest
+  tenth), 7.2 clusters per km². (Simulated on the world's own noise, many seeds; the table below is for tuning.)
+* *inside a cluster*: `SATELLITE_DISTANCE` and `SATELLITE_SPREAD_Y`. The satellites lay up to 100 blocks from the island's edge and 50 blocks
+  above and below it; they lie up to 85 and 42, a volume about a third smaller.
+
+| `CELL` | `CLUSTER_CHANCE` | clusters per km² | gap to the next island's edge, median / unluckiest tenth |
+|---|---|---|---|
+| 420 | 55 % (before) | 3.1 | 215 / 380 |
+| 360 | 65 % | 5.0 | 156 / 268 |
+| **300** | **65 %** | **7.2** | **102 / 202** |
+| 280 | 75 % | 9.6 | 83 / 171 |
+| 240 | 75 % | 13.0 | 53 / 129 |
+
+A rock's shape and size do not depend on its place, so a change of the spacing moves the clusters but does not change a cluster. Chunks that
+were generated before keep their old rocks; for the first look use a new world or unexplored space.
 
 The rock is andesite, tuff, basalt and blackstone, by a slow noise in patches. These are four of the stones GT has ore blocks for;
 the ore layer targets exactly them (`.targets(...)` in the startup script; lint X4).
@@ -89,8 +103,9 @@ the ore layer targets exactly them (`.targets(...)` in the startup script; lint 
 
 Ruins in the bigger rocks. `af9-core/src/main/java/com/af9/core/space/TempleLayout.java` is pure geometry (no Minecraft classes) and
 answers "what is at this world position": a hall carved out of the rock and lined with polished blackstone brick, a corridor from it
-to the surface, a gate there. `AsteroidFieldFeature` asks it for every position of its chunk, so a temple comes out whole in any order
-of chunk generation, like the rock itself. It is turned by a random quarter turn. The hall starts in the middle of the rock and is moved along the
+to the surface, a gate there, and in front of the gate a forecourt out in the void. `AsteroidFieldFeature` asks it for every position of
+its chunk, so a temple comes out whole in any order of chunk generation, like the rock itself. A chunk sets the stone of all the rocks
+that reach it first and the temples after (a rock that overlaps a temple's rock does not close its corridor). It is turned by a random quarter turn. The hall starts in the middle of the rock and is moved along the
 corridor towards the gate as far as it stays inside the rock (its corners and the middle of its walls must be rock), so that the corridor is
 at most 20 blocks long (`MAX_CORRIDOR`), also in an island of 90 blocks of radius.
 
@@ -109,7 +124,14 @@ of the rock stays: the walls hang on the rock, it is a ruin.
 
 The corridor runs on along its axis through the rock; the *gate* stands where the rock ends (the layout walks along the axis through
 the asteroid's own shape and takes the last rock, a gap of two blocks is a lump in the surface): two purpur pillars, a chiselled
-lintel and an end rod on each end of it, and the opening is carved a few blocks further out, so that no lump closes it.
+lintel and an end rod on each end of it.
+
+**The forecourt** is what you see of a temple from outside (the hall and the corridor are inside the rock, the gate is a hole in its side):
+a platform of the hall's floor (gilded stripe down the middle) stands out of the gate into the void, 4 / 7 / 10 blocks long (shrine /
+temple / grand temple) and 7 / 9 / 11 wide, with a row of purpur pillars every three blocks along both sides, a chiselled beam over
+each row and along the sides, and the air over it carved. The **outer pair of pillars are towers**: 16 / 17 / 18 blocks tall with two blocks of crying
+obsidian and two end rods on top, a glowing mark on the side of the rock (at the height of the hall, which is the height of the rock's
+middle). The forecourt is no more than 10 blocks past the rock's surface; `MARGIN` (14) in the feature is its reach.
 
 Blocks: `polished_blackstone_bricks` (one in eight cracked), `chiseled_polished_blackstone`, `polished_blackstone` and now and then
 `gilded_blackstone` for the floor, `purpur_pillar`, `crying_obsidian` for the altars, `end_rod` for light. None of them is a stone of
@@ -288,9 +310,11 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 4. the FX-1 in the multiblock preview, one fuel cycle, a Large Steam Turbine on the steam;
 5. Extreme Reactors, if installed: the log line `Extreme Reactors: could not ...` means the vapor was not registered;
 6. the quest task "dimension" of `af9.quest.fx.field` (an FTB Quests task type);
-7. the temples: that they generate (a grand temple in every island, a shrine or a temple in the large satellites, a shrine in the big medium ones), that the gate
-   and corridor open to the void, that the chests hold loot (a missing `af9:chests/...` table gives empty chests, a log line "Couldn't
-   find resource table"), and how the cluster looks with the closer satellites (§2.2: `SATELLITE_DISTANCE`, `SATELLITE_SPREAD_Y`);
+7. the temples: that they generate (a grand temple in every island, a shrine or a temple in the large satellites, a shrine in the big medium ones), that the
+   forecourts and their towers stand out of the rocks' sides, that the gate and corridor open to the void (simulated: about 98 %; a temple whose gate
+   lies inside another rock that overlaps its own stays closed), that the chests hold loot (a missing `af9:chests/...` table gives empty chests, a log line
+   "Couldn't find resource table"), and how the field looks with the closer clusters and satellites (§2.2: `CELL`, `CLUSTER_CHANCE`,
+   `SATELLITE_DISTANCE`, `SATELLITE_SPREAD_Y`);
 8. the Assembly Line rocket recipes (tiers 3 and 4): the recipe in the Assembly Line preview, the research of the tier 2 rocket in
    the Scanner.
 

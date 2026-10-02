@@ -16,10 +16,14 @@ import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
 import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The asteroids of the Asteroid Field (af9:asteroid_field), a void dimension: <b>clusters</b>, each a large island with
- * a swarm of smaller rocks around it at every height of a range of about 100 blocks, and a lot of empty space between
- * the clusters (about 2 blocks of rock in a column of the whole 300-block height).
+ * a swarm of smaller rocks around it at every height of a range of about 85 blocks, and empty space between the
+ * clusters (the nearest island is about 100 blocks from an island's edge; about 5 blocks of rock in a column of the whole
+ * 300-block height).
  * <p>
  * Every chunk draws every cluster that reaches into it and fills only its own part, so the rocks come out whole
  * whatever order the chunks are generated in. A cluster is fixed by the world seed and the square cell of
@@ -30,7 +34,7 @@ import net.minecraft.world.level.levelgen.synth.SimplexNoise;
  * <li>the island: a flattened ellipsoid with radii of {@link #ISLAND_MIN_R} to {@link #ISLAND_MAX_R} blocks, big enough
  * for a whole ore vein;</li>
  * <li>the satellites ({@link #SATELLITES} classes, {@code MIN_SATELLITES} to {@code MAX_SATELLITES} of them): rocks
- * from pebbles to 28 blocks of radius, around the island at a distance of its edge to 100 blocks beyond, anywhere in
+ * from pebbles to 28 blocks of radius, around the island at a distance of its edge to 85 blocks beyond, anywhere in
  * {@link #SATELLITE_SPREAD_Y} blocks above and below the island.</li>
  * </ul>
  * Every rock is an ellipsoid whose surface is pushed in and out by two layers of simplex noise.
@@ -44,10 +48,12 @@ import net.minecraft.world.level.levelgen.synth.SimplexNoise;
  * Temples ({@link TempleLayout}): the island of a cluster holds a temple (the biggest size that fits, a grand temple in all
  * but the smallest islands), a large satellite most of the time (60 %), a medium one now and then (25 %, a shrine); pebbles
  * and small rocks never. The hall is carved out of the rock and lined with polished blackstone brick, the corridor from it
- * runs out to a gate on the surface, and the chests (loot tables {@code af9:chests/ancient_shrine} and
+ * runs out to a gate on the surface, in front of the gate a forecourt with pillars and two glowing towers stands out into
+ * the void (the sign of a temple from far away), and the chests (loot tables {@code af9:chests/ancient_shrine} and
  * {@code af9:chests/ancient_temple}) stand at the altar. The temple's blocks are not stones of the ore layer, so no ore
  * vein grows into the walls. Whether a rock holds one is a function of the rock's own seed, so it does not change which
- * rocks there are or where.
+ * rocks there are or where. A chunk sets the stone of all the rocks that reach it first and the temples after, so a
+ * rock that overlaps a temple's rock never closes its corridor.
  */
 public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
 
@@ -55,8 +61,8 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     public static final int CENTER_MIN_Y = 5;
     public static final int CENTER_MAX_Y = 270;
     /** Cells of clusters (blocks), the chance of a cluster in a cell. */
-    private static final int CELL = 420;
-    private static final double CLUSTER_CHANCE = 0.55;
+    private static final int CELL = 300;
+    private static final double CLUSTER_CHANCE = 0.65;
     /** How far the slow noise lifts or sinks a region's clusters (blocks), and how wide its features are (blocks). */
     private static final double DRIFT = 90;
     private static final double DRIFT_SCALE = 1.0 / 420.0;
@@ -80,8 +86,11 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     private static final double MAX_STRETCH = 1.25;
     /** Largest bulge of the surface: 1 + the two noise layers' amplitudes (0.25 and 0.10). */
     private static final double MAX_BULGE = 1.35;
-    /** Blocks past a rock the work of a chunk reaches: the gate of a temple and its opening stand at the surface. */
-    private static final int MARGIN = 4;
+    /**
+     * Blocks past a rock the work of a chunk reaches: a temple's forecourt stands out in front of its gate (up to 10 blocks
+     * past the surface, 5 to each side).
+     */
+    private static final int MARGIN = 14;
     /** The share of the islands, of the large and of the medium satellites that hold a temple (if one fits). */
     private static final double ISLAND_TEMPLE_CHANCE = 1.0;
     /**
@@ -89,7 +98,7 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
      * its range and its own radius, each with the stretch and the bulge. (Plus a margin.)
      */
     private static final int CLUSTER_REACH = (int) Math.ceil(
-            (ISLAND_MAX_R * 1.2 + SATELLITE_DISTANCE + 28 * MAX_STRETCH) * MAX_BULGE) + 8;
+            (ISLAND_MAX_R * 1.2 + SATELLITE_DISTANCE + 28 * MAX_STRETCH) * MAX_BULGE) + MARGIN + 4;
 
     /**
      * Above this value of the pocket noise the rock is Oil Regolith: about 7 % of it, in separate deposits of some hundreds of
@@ -141,20 +150,29 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         int cellMaxX = Mth.floorDiv(chunkMinX + 15 + CLUSTER_REACH, CELL);
         int cellMinZ = Mth.floorDiv(chunkMinZ - CLUSTER_REACH, CELL);
         int cellMaxZ = Mth.floorDiv(chunkMinZ + 15 + CLUSTER_REACH, CELL);
-        boolean placed = false;
+        List<Rock> rocks = new ArrayList<>();
         for (int cellX = cellMinX; cellX <= cellMaxX; cellX++) {
             for (int cellZ = cellMinZ; cellZ <= cellMaxZ; cellZ++) {
-                placed |= fillCluster(level, seed, cellX, cellZ, chunkMinX, chunkMinZ);
+                collectCluster(rocks, seed, cellX, cellZ, chunkMinX, chunkMinZ);
             }
+        }
+        boolean placed = false;
+        // the stone of every rock first, the temples over all of it: a rock that overlaps a temple's rock does not close
+        // its corridor or its forecourt, whatever order they are drawn in
+        for (Rock rock : rocks) {
+            placed |= fillStone(level, rock, chunkMinX, chunkMinZ);
+        }
+        for (Rock rock : rocks) {
+            if (rock.temple != null) placed |= buildTemple(level, rock, chunkMinX, chunkMinZ);
         }
         return placed;
     }
 
-    /** The cluster of one cell (if it has one), as far as its rocks reach into the chunk. */
-    private static boolean fillCluster(WorldGenLevel level, long seed, int cellX, int cellZ, int chunkMinX,
+    /** The cluster of one cell (if it has one): the rocks of it that reach into the chunk, each with its temple if it has one. */
+    private static void collectCluster(List<Rock> rocks, long seed, int cellX, int cellZ, int chunkMinX,
                                        int chunkMinZ) {
         RandomSource random = new XoroshiroRandomSource(cellSeed(seed, cellX, cellZ));
-        if (random.nextDouble() >= CLUSTER_CHANCE) return false;
+        if (random.nextDouble() >= CLUSTER_CHANCE) return;
         double centerX = cellX * (double) CELL + random.nextInt(CELL) + 0.5;
         double centerZ = cellZ * (double) CELL + random.nextInt(CELL) + 0.5;
         // the band's middle, lifted or sunk by the region and by this cluster; the satellites need room both ways
@@ -164,7 +182,6 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         double centerY = Mth.clamp(middle + lift, CENTER_MIN_Y + SATELLITE_SPREAD_Y,
                 CENTER_MAX_Y - SATELLITE_SPREAD_Y);
 
-        boolean placed = false;
         // the island
         double islandR = ISLAND_MIN_R + random.nextDouble() * (ISLAND_MAX_R - ISLAND_MIN_R);
         double islandX = islandR * (0.8 + random.nextDouble() * 0.4);
@@ -172,8 +189,7 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         double islandY = islandR * (ISLAND_FLAT_MIN + random.nextDouble() * (ISLAND_FLAT_MAX - ISLAND_FLAT_MIN));
         long islandNoise = random.nextLong();
         if (reaches(centerX, centerZ, islandX, islandZ, chunkMinX, chunkMinZ)) {
-            placed |= fill(level, new Rock(islandNoise, centerX, centerY, centerZ, islandX, islandY, islandZ),
-                    ISLAND_TEMPLE_CHANCE, chunkMinX, chunkMinZ);
+            rocks.add(new Rock(islandNoise, centerX, centerY, centerZ, islandX, islandY, islandZ, ISLAND_TEMPLE_CHANCE));
         }
 
         // the satellites: always draw every parameter of every one, so the next does not depend on whether this one is in range
@@ -201,10 +217,8 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
             double z = centerZ + Math.sin(angle) * distance;
             double y = Mth.clamp(centerY + dy, CENTER_MIN_Y, CENTER_MAX_Y);
             if (!reaches(x, z, radiusX, radiusZ, chunkMinX, chunkMinZ)) continue;
-            placed |= fill(level, new Rock(noiseSeed, x, y, z, radiusX, radiusY, radiusZ), kind.templeChance,
-                    chunkMinX, chunkMinZ);
+            rocks.add(new Rock(noiseSeed, x, y, z, radiusX, radiusY, radiusZ, kind.templeChance));
         }
-        return placed;
     }
 
     private static boolean reaches(double centerX, double centerZ, double radiusX, double radiusZ, int chunkMinX,
@@ -220,12 +234,14 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
 
         final long noiseSeed;
         final double centerX, centerY, centerZ, radiusX, radiusY, radiusZ;
+        /** The temple inside the rock, or null. */
+        final TempleLayout temple;
         private final SimplexNoise shape, detail, stone, pocket;
         private final BlockState regolith;
         private final double shapeScale, detailScale;
 
         Rock(long noiseSeed, double centerX, double centerY, double centerZ, double radiusX, double radiusY,
-             double radiusZ) {
+             double radiusZ, double templeChance) {
             this.noiseSeed = noiseSeed;
             this.centerX = centerX;
             this.centerY = centerY;
@@ -243,6 +259,21 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
             double radius = Math.max(radiusX, Math.max(radiusY, radiusZ));
             this.shapeScale = 1.0 / Math.max(6.0, radius * 0.9);
             this.detailScale = 1.0 / Math.max(3.0, radius * 0.3);
+            this.temple = templeChance > 0 ? templeOf(templeChance) : null;
+        }
+
+        /**
+         * Whether the rock holds a temple, and which way it faces, come from the rock's own seed: a chunk and its
+         * neighbour agree.
+         */
+        private TempleLayout templeOf(double templeChance) {
+            RandomSource templeRandom = new XoroshiroRandomSource(noiseSeed ^ 0x2545F4914F6CDD1DL);
+            double roll = templeRandom.nextDouble();
+            int turns = templeRandom.nextInt(4);
+            // the corridor of a temple may run out to the far side of the rock
+            int maxLength = (int) Math.ceil(Math.max(radiusX, radiusZ) * MAX_BULGE) + 2;
+            return TempleLayout.create(templeChance, roll, turns, centerX, centerY, centerZ, radiusX, radiusY, radiusZ,
+                    maxLength, noiseSeed, this::solid);
         }
 
         boolean solid(int x, int y, int z) {
@@ -262,48 +293,45 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 
-    /** Sets the blocks of one rock (and its temple) inside the chunk. */
-    private static boolean fill(WorldGenLevel level, Rock rock, double templeChance, int chunkMinX, int chunkMinZ) {
-        // whether the rock holds a temple, and which way it faces, come from the rock's own seed: a chunk and its neighbour agree
-        TempleLayout temple = null;
-        if (templeChance > 0) {
-            RandomSource templeRandom = new XoroshiroRandomSource(rock.noiseSeed ^ 0x2545F4914F6CDD1DL);
-            double roll = templeRandom.nextDouble();
-            int turns = templeRandom.nextInt(4);
-            // the corridor of a temple may run out to the far side of the rock
-            int maxLength = (int) Math.ceil(Math.max(rock.radiusX, rock.radiusZ) * MAX_BULGE) + 2;
-            temple = TempleLayout.create(templeChance, roll, turns, rock.centerX, rock.centerY, rock.centerZ,
-                    rock.radiusX, rock.radiusY, rock.radiusZ, maxLength, rock.noiseSeed, rock::solid);
-        }
-
-        int minX = Math.max(chunkMinX, Mth.floor(rock.centerX - rock.radiusX * MAX_BULGE) - MARGIN);
-        int maxX = Math.min(chunkMinX + 15, Mth.ceil(rock.centerX + rock.radiusX * MAX_BULGE) + MARGIN);
-        int minZ = Math.max(chunkMinZ, Mth.floor(rock.centerZ - rock.radiusZ * MAX_BULGE) - MARGIN);
-        int maxZ = Math.min(chunkMinZ + 15, Mth.ceil(rock.centerZ + rock.radiusZ * MAX_BULGE) + MARGIN);
-        int minY = Math.max(level.getMinBuildHeight(), Mth.floor(rock.centerY - rock.radiusY * MAX_BULGE) - MARGIN);
-        int maxY = Math.min(level.getMaxBuildHeight() - 1, Mth.ceil(rock.centerY + rock.radiusY * MAX_BULGE) + MARGIN);
+    /** Sets the stone of one rock inside the chunk. */
+    private static boolean fillStone(WorldGenLevel level, Rock rock, int chunkMinX, int chunkMinZ) {
+        int minX = Math.max(chunkMinX, Mth.floor(rock.centerX - rock.radiusX * MAX_BULGE) - 1);
+        int maxX = Math.min(chunkMinX + 15, Mth.ceil(rock.centerX + rock.radiusX * MAX_BULGE) + 1);
+        int minZ = Math.max(chunkMinZ, Mth.floor(rock.centerZ - rock.radiusZ * MAX_BULGE) - 1);
+        int maxZ = Math.min(chunkMinZ + 15, Mth.ceil(rock.centerZ + rock.radiusZ * MAX_BULGE) + 1);
+        int minY = Math.max(level.getMinBuildHeight(), Mth.floor(rock.centerY - rock.radiusY * MAX_BULGE) - 1);
+        int maxY = Math.min(level.getMaxBuildHeight() - 1, Mth.ceil(rock.centerY + rock.radiusY * MAX_BULGE) + 1);
         boolean placed = false;
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (int x = minX; x <= maxX; x++) {
             for (int z = minZ; z <= maxZ; z++) {
                 for (int y = minY; y <= maxY; y++) {
-                    TempleLayout.Part part = temple == null ? TempleLayout.Part.KEEP : temple.at(x, y, z);
-                    boolean solid = rock.solid(x, y, z);
-                    if (part == TempleLayout.Part.KEEP) {
-                        if (!solid) continue;
-                        pos.set(x, y, z);
-                        level.setBlock(pos, rock.stoneAt(x, y, z), 2);
-                        placed = true;
-                        continue;
-                    }
-                    if (part == TempleLayout.Part.AIR) {
-                        // carving air out of the void is nothing
-                        if (!solid) continue;
-                        pos.set(x, y, z);
-                        level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
-                        placed = true;
-                        continue;
-                    }
+                    if (!rock.solid(x, y, z)) continue;
+                    pos.set(x, y, z);
+                    level.setBlock(pos, rock.stoneAt(x, y, z), 2);
+                    placed = true;
+                }
+            }
+        }
+        return placed;
+    }
+
+    /** Sets the blocks of a rock's temple inside the chunk: its walls and furnishings, and the air of its halls. */
+    private static boolean buildTemple(WorldGenLevel level, Rock rock, int chunkMinX, int chunkMinZ) {
+        TempleLayout temple = rock.temple;
+        int minX = Math.max(chunkMinX, temple.minX);
+        int maxX = Math.min(chunkMinX + 15, temple.maxX);
+        int minZ = Math.max(chunkMinZ, temple.minZ);
+        int maxZ = Math.min(chunkMinZ + 15, temple.maxZ);
+        int minY = Math.max(level.getMinBuildHeight(), temple.minY);
+        int maxY = Math.min(level.getMaxBuildHeight() - 1, temple.maxY);
+        boolean placed = false;
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        for (int x = minX; x <= maxX; x++) {
+            for (int z = minZ; z <= maxZ; z++) {
+                for (int y = minY; y <= maxY; y++) {
+                    TempleLayout.Part part = temple.at(x, y, z);
+                    if (part == TempleLayout.Part.KEEP) continue;
                     pos.set(x, y, z);
                     if (part == TempleLayout.Part.CHEST) {
                         placeChest(level, pos, temple, rock.noiseSeed);

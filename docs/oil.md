@@ -62,3 +62,14 @@ Each depletes by 1 % a drilling cycle with a 1 in 100 chance, down to 25 mB/s. *
 heavy water); an electrolyzer turns 1,000 mB into 2,000 mB deuterium and 1,000 mB oxygen.
 
 Only chunks generated after this exist have the rock; the fluid deposits are not in blocks and apply to the whole dimension.
+
+**Finding them.** A deposit is not a block: it is a number the world keeps for a chunk (GT's *bedrock fluid vein*), one deposit for every square
+of 8 x 8 chunks (128 blocks), chosen by the weights above. You see it with the **Prospector** (the pack's quests introduce the HV one): sneak +
+right-click switches it to *Fluid* mode, the map then colours every chunk with its fluid, and hovering gives the fluid and the yield. A
+**Fluid Drilling Rig** (MV and up) standing on the chunk drills it. There is no bedrock in the Asteroid Field and nothing to see in the rock.
+
+**Old worlds.** GT decides a chunk's vein the first time anything asks for it and saves the answer. A chunk of the Asteroid Field that was
+prospected while the dimension had no deposits was saved as "no fluid" and showed nothing even after the deposits were added. `vein_oil.js`
+forgets those empty entries when a world loads (log line `vein_oil.js: N empty fluid veins of af9:asteroid_field forgotten`), so the next look
+rolls a deposit. The server log also says `vein_oil.js: 9 fluid deposits registered for af9:asteroid_field` when the script ran, and names a
+deposit whose fluid does not exist. (The Overworld's chunks that were prospected while oil was on keep their oil: GT saves them too.)

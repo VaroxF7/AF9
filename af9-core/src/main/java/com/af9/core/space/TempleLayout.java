@@ -10,10 +10,12 @@ package com.af9.core.space;
  * 0, the hall's air at 1..ih and the ceiling at ih + 1. The hall is {@code 2 * ix + 1} wide and {@code 2 * iz + 1} long
  * inside, its walls one block thick. The corridor runs on from the middle of the front wall along -z, {@code 2 * cw + 1}
  * wide and {@code ch} high, lined with brick; where the rock ends (found by walking along its axis through the asteroid's
- * own shape) the gate stands: two pillars, a lintel and two lights. The whole thing is turned by {@code rotation} quarter
- * turns around its middle. The hall starts in the middle of the asteroid and is moved along the corridor towards the
- * gate as far as it stays inside the rock, so that the corridor is at most {@link #MAX_CORRIDOR} blocks long even in an
- * island of 90 blocks of radius.
+ * own shape) the gate stands: two pillars, a lintel and two lights. In front of the gate a forecourt reaches out into the
+ * void: a platform with rows of pillars and beams, the outer pair of pillars a tower with a glowing top, so that a temple
+ * is seen from far away on the rock's side. The whole thing is turned by {@code rotation} quarter turns around its middle.
+ * The hall starts in the middle of the asteroid and is moved along the corridor towards the gate as far as it stays
+ * inside the rock, so that the corridor is at most {@link #MAX_CORRIDOR} blocks long even in an island of 90 blocks of
+ * radius.
  * <p>
  * Three sizes, the biggest that fits inside the asteroid ({@link #fits}): a shrine (one chest), a temple (an altar with a
  * chest between two rows of pillars) and a grand temple (the same, longer, with two more chests in the back corners).
@@ -27,23 +29,43 @@ public final class TempleLayout {
 
     /**
      * A size: the hall's inside is {@code 2 * ix + 1} wide, {@code 2 * iz + 1} long and {@code ih} high; the corridor is
-     * {@code 2 * cw + 1} wide and {@code ch} high.
+     * {@code 2 * cw + 1} wide and {@code ch} high; the forecourt in front of the gate is {@code court} blocks long (three
+     * to a row of pillars, and one more) and {@code 2 * (cw + 3) + 1} wide.
      */
     public enum Kind {
-        SHRINE("ancient_shrine", 1, 2, 3, 0, 2),
-        TEMPLE("ancient_temple", 3, 5, 4, 1, 3),
-        GRAND_TEMPLE("ancient_temple", 5, 8, 6, 2, 4);
+        SHRINE("ancient_shrine", 1, 2, 3, 0, 2, 4),
+        TEMPLE("ancient_temple", 3, 5, 4, 1, 3, 7),
+        GRAND_TEMPLE("ancient_temple", 5, 8, 6, 2, 4, 10);
 
         public final String lootTable;
-        public final int ix, iz, ih, cw, ch;
+        public final int ix, iz, ih, cw, ch, court;
 
-        Kind(String lootTable, int ix, int iz, int ih, int cw, int ch) {
+        Kind(String lootTable, int ix, int iz, int ih, int cw, int ch, int court) {
             this.lootTable = lootTable;
             this.ix = ix;
             this.iz = iz;
             this.ih = ih;
             this.cw = cw;
             this.ch = ch;
+            this.court = court;
+        }
+
+        /** Half the forecourt's width. */
+        int courtHalf() {
+            return cw + 3;
+        }
+
+        /** Height of the forecourt's pillars, of the outer pair (the towers) and of the glowing top above them. */
+        int columnHeight() {
+            return ch + 3;
+        }
+
+        int towerHeight() {
+            return ch + 14;
+        }
+
+        int towerTop() {
+            return towerHeight() + 4;
         }
 
         /** Pillars stand this far from the middle of the hall (none in a shrine). */
@@ -64,8 +86,6 @@ public final class TempleLayout {
      * radius away, so 0.36 keeps the walls inside the rock nearly everywhere.
      */
     private static final double FIT = 0.36;
-    /** Blocks past the last rock the gate's opening is carved. */
-    private static final int OPENING = 3;
     /** The longest corridor, in blocks, that the hall is moved up to the gate for (a rock that is small has a short one anyway). */
     public static final int MAX_CORRIDOR = 20;
 
@@ -87,10 +107,10 @@ public final class TempleLayout {
         this.floorY = floorY;
         this.exitZ = exitZ;
         this.seed = seed;
-        int halfX = Math.max(kind.ix + 1, kind.cw + 1);
-        int lowZ = exitZ - OPENING;
+        int halfX = Math.max(kind.ix + 1, kind.courtHalf());
+        int lowZ = exitZ - kind.court;
         int highZ = kind.iz + 1;
-        int top = Math.max(kind.ih + 1, kind.ch + 3);
+        int top = Math.max(kind.ih + 1, kind.towerTop());
         int[] xs = new int[4];
         int[] zs = new int[4];
         int[][] corners = { { -halfX, lowZ }, { halfX, lowZ }, { -halfX, highZ }, { halfX, highZ } };
@@ -232,7 +252,8 @@ public final class TempleLayout {
         int ih = kind.ih;
         int ax = Math.abs(x);
         if (z >= -(iz + 1) && z <= iz + 1 && ax <= ix + 1 && y >= 0 && y <= ih + 1) return hall(x, y, z, ax);
-        if (z < -(iz + 1) && z >= exitZ - OPENING) return corridor(x, y, z, ax);
+        if (z < -(iz + 1) && z >= exitZ) return corridor(x, y, z, ax);
+        if (z < exitZ && z >= exitZ - kind.court) return forecourt(x, y, z, ax);
         return Part.KEEP;
     }
 
@@ -288,8 +309,6 @@ public final class TempleLayout {
     private Part corridor(int x, int y, int z, int ax) {
         int cw = kind.cw;
         int ch = kind.ch;
-        // the opening goes on past the gate, so that no lump of rock closes it
-        if (z < exitZ) return (ax <= cw && y >= 1 && y <= ch) ? Part.AIR : Part.KEEP;
         if (z == exitZ) {
             // the gate: a pillar each side, a chiselled lintel over the opening, a light on each end of it
             if (ax <= cw) {
@@ -310,6 +329,36 @@ public final class TempleLayout {
         if (ax <= cw && y >= 1 && y <= ch) return Part.AIR;
         if (y == 0) return Part.FLOOR;
         return wall(x, y, z);
+    }
+
+    /**
+     * The forecourt past the gate: a platform of the hall's floor with a row of pillars every three blocks along both
+     * sides, a beam over each row and along the sides, the outer row a tower ({@code ch + 14} blocks tall, a crying obsidian
+     * head and lights on it). The air over the platform is carved, so that no lump of rock closes it.
+     */
+    private Part forecourt(int x, int y, int z, int ax) {
+        int half = kind.courtHalf();
+        if (ax > half) return Part.KEEP;
+        int dz = exitZ - z;
+        if (y == 0) return (ax == 0 && dz % 3 == 0) ? Part.FLOOR_GILDED : Part.FLOOR;
+        int column = kind.columnHeight();
+        boolean row = dz % 3 == 2 && dz < kind.court;
+        boolean tower = row && dz == kind.court - 2;
+        if (ax == half) {
+            if (row) {
+                int top = tower ? kind.towerHeight() : column;
+                if (y <= top) return Part.PILLAR;
+                if (tower) return y <= top + 2 ? Part.ALTAR : (y <= top + 4 ? Part.LIGHT : Part.KEEP);
+                if (y == top + 1) return Part.WALL_CHISELED;
+                return y == top + 2 ? Part.LIGHT : Part.KEEP;
+            }
+            // between two pillars: the beam along the side
+            if (y == column + 1 && dz >= 2 && dz <= kind.court - 2) return Part.WALL_CHISELED;
+            return y <= column ? Part.AIR : Part.KEEP;
+        }
+        if (y <= column) return Part.AIR;
+        // the beam across, over each row
+        return (row && y == column + 1) ? Part.WALL_CHISELED : Part.KEEP;
     }
 
     /** Brick, now and then cracked: by a hash of the position, so a chunk and its neighbour agree. */

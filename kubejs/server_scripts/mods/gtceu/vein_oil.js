@@ -6,18 +6,25 @@
 const $OilGTRegistries = Java.loadClass('com.gregtechceu.gtceu.api.registry.GTRegistries')
 const $OilForgeRegistries = Java.loadClass('net.minecraftforge.registries.ForgeRegistries')
 const $OilResourceLocation = Java.loadClass('net.minecraft.resources.ResourceLocation')
+const $OilResourceKey = Java.loadClass('net.minecraft.resources.ResourceKey')
+const $OilRegistries = Java.loadClass('net.minecraft.core.registries.Registries')
+const $OilVeinData = Java.loadClass('com.gregtechceu.gtceu.api.data.worldgen.bedrockfluid.BedrockFluidVeinSavedData')
 
 // ---- The oil fluid veins off ----
 GTCEuServerEvents.fluidVeins(event => {
     const oils = ['gtceu:oil', 'gtceu:oil_heavy', 'gtceu:oil_light', 'gtceu:oil_medium', 'gtceu:raw_oil']
     let off = 0
+    // one vein that cannot be read must not stop the deposits below from being registered
     $OilGTRegistries.BEDROCK_FLUID_DEFINITIONS.entries().forEach(entry => {
-        const vein = entry.getValue()
-        const fluid = vein.getStoredFluid().get()
-        const id = String($OilForgeRegistries.FLUIDS.getKey(fluid))
-        if (oils.includes(id)) {
-            vein.setWeight(0)
-            off++
+        try {
+            const vein = entry.getValue()
+            const id = String($OilForgeRegistries.FLUIDS.getKey(vein.getStoredFluid().get()))
+            if (oils.includes(id)) {
+                vein.setWeight(0)
+                off++
+            }
+        } catch (error) {
+            console.error(`vein_oil.js: could not read the fluid vein ${entry.getKey()}: ${error}`)
         }
     })
     console.info(`vein_oil.js: ${off} oil fluid veins switched off`)
@@ -36,7 +43,14 @@ GTCEuServerEvents.fluidVeins(event => {
         ['phosphoric_acid', 'gtceu:phosphoric_acid', 10, 100, 250],
         ['acetic_acid', 'gtceu:acetic_acid', 8, 100, 250]
     ]
+    let registered = 0
     deposits.forEach(([name, fluid, weight, minYield, maxYield]) => {
+        // a fluid that does not exist would be a deposit of nothing that the prospector draws as nothing
+        const found = $OilForgeRegistries.FLUIDS.getValue(new $OilResourceLocation(fluid))
+        if (found === null || String($OilForgeRegistries.FLUIDS.getKey(found)) !== fluid) {
+            console.error(`vein_oil.js: the deposit af9:void_${name} holds ${fluid}, which is not a fluid`)
+        }
+        registered++
         event.add(`af9:void_${name}`, builder => {
             builder.fluid(fluidOf(fluid))
                 .weight(weight)
@@ -47,6 +61,32 @@ GTCEuServerEvents.fluidVeins(event => {
                 .dimensions('af9:asteroid_field')
         })
     })
+    console.info(`vein_oil.js: ${registered} fluid deposits registered for af9:asteroid_field`)
+})
+
+// ---- Chunks that were looked at before the deposits existed ----
+// GT decides a chunk's vein once and saves it with the world. A chunk of the Asteroid Field that was prospected (or
+// drilled) while the dimension had no deposits is saved as "no fluid" for good, and so shows nothing even now. Forget those
+// entries when the world loads: the next look at the chunk rolls a deposit.
+ServerEvents.loaded(event => {
+    try {
+        const dimension = $OilResourceKey.create($OilRegistries.DIMENSION, new $OilResourceLocation('af9:asteroid_field'))
+        const level = event.server.getLevel(dimension)
+        if (level === null) return
+        const data = $OilVeinData.getOrCreate(level)
+        const entries = data.veinFluids.entrySet().iterator()
+        let forgotten = 0
+        while (entries.hasNext()) {
+            if (entries.next().getValue().getDefinition() === null) {
+                entries.remove()
+                forgotten++
+            }
+        }
+        if (forgotten > 0) data.setDirty()
+        console.info(`vein_oil.js: ${forgotten} empty fluid veins of af9:asteroid_field forgotten`)
+    } catch (error) {
+        console.error(`vein_oil.js: could not look at the fluid veins of af9:asteroid_field: ${error}`)
+    }
 })
 
 // ---- The oil sands off (the ore of GT that holds oil) ----
