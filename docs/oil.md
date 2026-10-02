@@ -25,7 +25,10 @@ Impure Oil and Shiny Oil have their own animated textures (`kubejs/assets/gtceu/
 ## 2. Oil Regolith
 
 `af9:oil_regolith`: a falling block (like sand), shovel. `AsteroidFieldFeature` grows it in **pockets** of the asteroids' rock: a second
-noise decides (`OIL_POCKET` 0.38, about a seventh of the rock). So the oil sits in the asteroids with the ore, mostly in the big ones.
+noise decides (`OIL_POCKET` 0.65 at a scale of 0.05: about **7 %** of the rock, in separate deposits of some hundreds of blocks, which
+only the bigger rocks hold). So the oil sits in the asteroids with the ore, mostly in the big ones. (It was 0.38 at 0.07, measured at a
+fifth of the rock with the pockets running into each other: regolith everywhere.) Rocks that are already generated keep their old stone;
+new chunks have the new share.
 
 ## 3. The world's oil is off
 

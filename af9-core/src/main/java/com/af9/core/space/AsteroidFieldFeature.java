@@ -37,7 +37,7 @@ import net.minecraft.world.level.levelgen.synth.SimplexNoise;
  * <p>
  * The rock is a mix of andesite, tuff, basalt and blackstone (by a slow noise, so it comes in patches): the stones
  * GregTech has ore blocks for, which is what its ore veins (the {@code af9_asteroid} layer, KubeJS) grow into. In
- * pockets of it (a second noise, about a seventh of the rock) the stone is {@link AF9Space#OIL_REGOLITH}, the sand-like,
+ * pockets of it (a second noise, about 7 % of the rock) the stone is {@link AF9Space#OIL_REGOLITH}, the sand-like,
  * oil-soaked rock all of the game's oil comes from. Ad Astra builds a space station at y = 100; rocks hang around it
  * at any height.
  * <p>
@@ -91,8 +91,13 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     private static final int CLUSTER_REACH = (int) Math.ceil(
             (ISLAND_MAX_R * 1.2 + SATELLITE_DISTANCE + 28 * MAX_STRETCH) * MAX_BULGE) + 8;
 
-    /** Above this value of the pocket noise the rock is Oil Regolith (about a seventh of it). */
-    private static final double OIL_POCKET = 0.38;
+    /**
+     * Above this value of the pocket noise the rock is Oil Regolith: about 7 % of it, in separate deposits of some hundreds of
+     * blocks. (It was 0.38 at a scale of 0.07: a fifth of the rock, and the pockets ran into each other.)
+     */
+    private static final double OIL_POCKET = 0.65;
+    /** The pocket noise's scale: its features are about 1 / this many blocks wide. */
+    private static final double OIL_POCKET_SCALE = 0.05;
 
     /** A class of satellite: radii, its share of the satellites (relative) and the share of it that holds a temple. */
     private record Satellite(int minR, int maxR, int weight, double templeChance) {}
@@ -252,7 +257,7 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         }
 
         BlockState stoneAt(int x, int y, int z) {
-            boolean oily = pocket.getValue(x * 0.07, y * 0.07, z * 0.07) > OIL_POCKET;
+            boolean oily = pocket.getValue(x * OIL_POCKET_SCALE, y * OIL_POCKET_SCALE, z * OIL_POCKET_SCALE) > OIL_POCKET;
             return oily ? regolith : rockAt(stone.getValue(x * 0.09, y * 0.09, z * 0.09));
         }
     }
