@@ -1,0 +1,591 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "platinum_group"
+	group: "1DA67E79B40AB130"
+	icon: "gtceu:platinum_ingot"
+	id: "41A57C4621885257"
+	order_index: 16
+	progression_mode: "flexible"
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"{af9.quest.pgm.intro.1}"
+				""
+				"{af9.quest.pgm.intro.2}"
+				""
+				"{af9.quest.pgm.intro.3}"
+			]
+			icon: "gtceu:platinum_dust"
+			id: "1721600171506F25"
+			rewards: [{
+				id: "0282C120363FB94B"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "gear"
+			size: 2.5d
+			subtitle: "{af9.quest.pgm.intro.subtitle}"
+			tasks: [
+				{
+					id: "6DA6684221D72286"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.pgm.intro.title}"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["1721600171506F25"]
+			description: [
+				"{af9.quest.pgm.ore.1}"
+				""
+				"{af9.quest.pgm.ore.2}"
+			]
+			icon: "gtceu:purified_cooperite_ore"
+			id: "27C1E5EFD5AD7444"
+			rewards: [{
+				id: "055B0FFC48E7E3CA"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.ore.subtitle}"
+			tasks: [
+				{
+					id: "1AB329E11FCBA508"
+					item: "gtceu:purified_cooperite_ore"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.ore.title}"
+			x: 3.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["27C1E5EFD5AD7444"]
+			description: [
+				"{af9.quest.pgm.matte.1}"
+				""
+				"{af9.quest.pgm.matte.2}"
+			]
+			icon: "gtceu:pgm_matte_dust"
+			id: "4C6867B44F280084"
+			rewards: [{
+				id: "0685E1FEDB527507"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.matte.subtitle}"
+			tasks: [
+				{
+					id: "51872F1382605B42"
+					item: "gtceu:pgm_matte_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.matte.title}"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["4C6867B44F280084"]
+			description: [
+				"{af9.quest.pgm.leach.1}"
+				""
+				"{af9.quest.pgm.leach.2}"
+				""
+				"{af9.quest.pgm.leach.3}"
+			]
+			icon: "gtceu:pgm_leach_residue_dust"
+			id: "37AD65FD89165EC9"
+			rewards: [{
+				id: "14EA21BA45CEDA61"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.leach.subtitle}"
+			tasks: [
+				{
+					id: "1671E5E0BB6EE55D"
+					item: "gtceu:pgm_leach_residue_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.leach.title}"
+			x: 9.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["37AD65FD89165EC9"]
+			description: [
+				"{af9.quest.pgm.dissolve.1}"
+				""
+				"{af9.quest.pgm.dissolve.2}"
+			]
+			icon: "gtceu:platinum_group_chloride_liquor_bucket"
+			id: "0EA4F146F64A1271"
+			rewards: [{
+				id: "5D39D082073CB9EA"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.dissolve.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:platinum_group_chloride_liquor"
+					id: "22EFD8B5AC1655DC"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.pgm.dissolve.title}"
+			x: 12.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["0EA4F146F64A1271"]
+			description: [
+				"{af9.quest.pgm.gold.1}"
+			]
+			icon: "minecraft:gold_ingot"
+			id: "678C08636639493C"
+			rewards: [{
+				id: "4278F307C9367ED2"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.gold.subtitle}"
+			tasks: [
+				{
+					id: "2AB2419FD799BDC9"
+					item: "gtceu:gold_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.gold.title}"
+			x: 15.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["678C08636639493C"]
+			description: [
+				"{af9.quest.pgm.ptsalt.1}"
+			]
+			icon: "gtceu:ammonium_hexachloroplatinate_dust"
+			id: "2EC365669EA3CD30"
+			rewards: [{
+				id: "1FC8BBBE3DF97810"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.ptsalt.subtitle}"
+			tasks: [
+				{
+					id: "74791FC5983AF4CF"
+					item: "gtceu:ammonium_hexachloroplatinate_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.ptsalt.title}"
+			x: 15.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["2EC365669EA3CD30"]
+			description: [
+				"{af9.quest.pgm.platinum.1}"
+				""
+				"{af9.quest.pgm.platinum.2}"
+			]
+			icon: "gtceu:platinum_ingot"
+			id: "542C9215DBE56C68"
+			rewards: [{
+				id: "423F017FDCBD645D"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.platinum.subtitle}"
+			tasks: [
+				{
+					count: 4L
+					id: "5ADE947305D15A49"
+					item: "gtceu:platinum_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.platinum.title}"
+			x: 18.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["2EC365669EA3CD30"]
+			description: [
+				"{af9.quest.pgm.pdsalt.1}"
+			]
+			icon: "gtceu:palladium_diammine_dichloride_dust"
+			id: "59C74D249B84638B"
+			rewards: [{
+				id: "43E91E9C75C0BCB0"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.pdsalt.subtitle}"
+			tasks: [
+				{
+					id: "1C9618F52FAAD1A4"
+					item: "gtceu:palladium_diammine_dichloride_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.pdsalt.title}"
+			x: 15.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["59C74D249B84638B"]
+			description: [
+				"{af9.quest.pgm.palladium.1}"
+			]
+			icon: "gtceu:palladium_ingot"
+			id: "426626530F5A5A28"
+			rewards: [{
+				id: "201B0887A0C8C21B"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.palladium.subtitle}"
+			tasks: [
+				{
+					count: 3L
+					id: "1BE28D21B0197A99"
+					item: "gtceu:palladium_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.palladium.title}"
+			x: 18.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["0EA4F146F64A1271"]
+			description: [
+				"{af9.quest.pgm.residue2.1}"
+			]
+			icon: "gtceu:pgm_insoluble_residue_dust"
+			id: "79318C90BE11B415"
+			rewards: [{
+				id: "13F18C28FC1B3560"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.residue2.subtitle}"
+			tasks: [
+				{
+					id: "744E8C6169D2B392"
+					item: "gtceu:pgm_insoluble_residue_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.residue2.title}"
+			x: 12.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["79318C90BE11B415"]
+			description: [
+				"{af9.quest.pgm.fusion.1}"
+				""
+				"{af9.quest.pgm.fusion.2}"
+			]
+			icon: "gtceu:pgm_fusion_cake_dust"
+			id: "1A4330407B8D54B0"
+			rewards: [{
+				id: "666C98C553502493"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.fusion.subtitle}"
+			tasks: [
+				{
+					id: "56295FFEFCA01623"
+					item: "gtceu:pgm_fusion_cake_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.fusion.title}"
+			x: 15.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["1A4330407B8D54B0"]
+			description: [
+				"{af9.quest.pgm.tetroxide.1}"
+				""
+				"{af9.quest.pgm.tetroxide.2}"
+			]
+			icon: "gtceu:osmium_tetroxide_dust"
+			id: "1D62C55EE205D5F6"
+			rewards: [{
+				id: "10D8B6C66532E07A"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.tetroxide.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:platinum_group_tetroxide_vapour"
+					id: "724339B95D9F50CD"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.pgm.tetroxide.title}"
+			x: 18.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["1D62C55EE205D5F6"]
+			description: [
+				"{af9.quest.pgm.ruthenium.1}"
+			]
+			icon: "gtceu:ruthenium_ingot"
+			id: "3F8D09BDEB86C690"
+			rewards: [{
+				id: "341B818394AED49B"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.ruthenium.subtitle}"
+			tasks: [
+				{
+					id: "0E9ECCC1AB15F80D"
+					item: "gtceu:ruthenium_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.ruthenium.title}"
+			x: 21.0d
+			y: 4.0d
+		}
+		{
+			dependencies: ["1D62C55EE205D5F6"]
+			description: [
+				"{af9.quest.pgm.osmium.1}"
+			]
+			icon: "gtceu:osmium_ingot"
+			id: "3C00EED6069DD601"
+			rewards: [{
+				id: "37D1C0C20DBB1FA5"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.osmium.subtitle}"
+			tasks: [
+				{
+					id: "5DB95F7D17947CC0"
+					item: "gtceu:osmium_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.osmium.title}"
+			x: 21.0d
+			y: 8.0d
+		}
+		{
+			dependencies: ["1A4330407B8D54B0"]
+			description: [
+				"{af9.quest.pgm.oxide.1}"
+			]
+			icon: "gtceu:rhodium_iridium_oxide_dust"
+			id: "3D2F415644C2D6F1"
+			rewards: [{
+				id: "2AFCC22BE2600B45"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.oxide.subtitle}"
+			tasks: [
+				{
+					id: "3BD5544DB378DDBE"
+					item: "gtceu:rhodium_iridium_oxide_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.oxide.title}"
+			x: 18.0d
+			y: 10.0d
+		}
+		{
+			dependencies: ["3D2F415644C2D6F1"]
+			description: [
+				"{af9.quest.pgm.iridium.1}"
+			]
+			icon: "gtceu:iridium_ingot"
+			id: "3022EF93A0392A5C"
+			rewards: [{
+				id: "5F773A16D22E5FD0"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.iridium.subtitle}"
+			tasks: [
+				{
+					id: "7B1DDD9B99471F17"
+					item: "gtceu:iridium_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.iridium.title}"
+			x: 21.0d
+			y: 11.0d
+		}
+		{
+			dependencies: ["3022EF93A0392A5C"]
+			description: [
+				"{af9.quest.pgm.rhodium.1}"
+				""
+				"{af9.quest.pgm.rhodium.2}"
+			]
+			icon: "gtceu:rhodium_ingot"
+			id: "00DBD88999F26D9A"
+			rewards: [{
+				id: "1ADFC6500F3D86DD"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.rhodium.subtitle}"
+			tasks: [
+				{
+					id: "260C105A076AD90A"
+					item: "gtceu:rhodium_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.rhodium.title}"
+			x: 24.0d
+			y: 11.0d
+		}
+		{
+			dependencies: ["542C9215DBE56C68" "426626530F5A5A28"]
+			description: [
+				"{af9.quest.pgm.recycle.1}"
+			]
+			icon: "gtceu:ammonium_chloride_dust"
+			id: "5DDC44D339108FE4"
+			rewards: [{
+				id: "6E10175993E433CD"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.pgm.recycle.subtitle}"
+			tasks: [
+				{
+					id: "1D271BB354673E2F"
+					item: "gtceu:ammonium_chloride_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.recycle.title}"
+			x: 24.0d
+			y: 1.5d
+		}
+		{
+			dependencies: ["678C08636639493C" "542C9215DBE56C68" "426626530F5A5A28" "3F8D09BDEB86C690" "3C00EED6069DD601" "00DBD88999F26D9A"]
+			description: [
+				"{af9.quest.pgm.final.1}"
+				""
+				"{af9.quest.pgm.final.2}"
+			]
+			icon: "gtceu:platinum_ingot"
+			id: "059E7C24A63D8F68"
+			rewards: [{
+				id: "18FD1AA66EF3CE03"
+				type: "xp"
+				xp: 300
+			}]
+			shape: "gear"
+			size: 2.0d
+			subtitle: "{af9.quest.pgm.final.subtitle}"
+			tasks: [
+				{
+					id: "492661EC9C3037D4"
+					item: "gtceu:gold_dust"
+					type: "item"
+				}
+				{
+					id: "0ACC0F65C97133B5"
+					item: "gtceu:platinum_dust"
+					type: "item"
+				}
+				{
+					id: "141E79D59ECFA0D2"
+					item: "gtceu:palladium_dust"
+					type: "item"
+				}
+				{
+					id: "36480AC37DA2DB46"
+					item: "gtceu:rhodium_dust"
+					type: "item"
+				}
+				{
+					id: "65761E6C4B240EBF"
+					item: "gtceu:ruthenium_dust"
+					type: "item"
+				}
+				{
+					id: "0A82CD4FA96FEDA5"
+					item: "gtceu:iridium_dust"
+					type: "item"
+				}
+				{
+					id: "7AD8F975EBEBB6BB"
+					item: "gtceu:osmium_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.pgm.final.title}"
+			x: 27.0d
+			y: 7.0d
+		}
+	]
+	subtitle: ["{af9.quest.pgm.chapter.subtitle}"]
+	title: "{af9.quest.pgm.chapter.title}"
+}
