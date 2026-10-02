@@ -42,6 +42,9 @@ the configs AF9 changes. Everything else comes from the pack itself.
   without starting the game (CI runs it before every build); `docs/review-findings.md` lists what it found.
 - **Computation** (`docs/computation.md`): CWU Servers (LV-IV), the N1 Computation Array and the N1 Supercomputer Array
   with Computer Racks and cards. (The machine bus, the ME Computation Link and the Crafting CPU Array were taken out.)
+- **Platinum line** (`docs/platinum-group-metals.md`): a refinery chain in GT's own machines: purified ore to matte, leach residue and a
+  chloride liquor, then gold, platinum and palladium by precipitation and calcination, ruthenium and osmium through an alkaline fusion and
+  the volatile tetroxides, iridium and rhodium last. GT's own platinum group chain is untouched; the tiers are GT's (HV, EV, IV).
 - **Oil** (`docs/oil.md`): the world's oil is off; Oil Regolith, a sand-like rock of the asteroids, becomes Impure Oil, Shiny
   Oil, then Oil and Heavy Oil; the Asteroid Field's fluid deposits hold nitrogen, oxygen, heavy water and acids.
 
