@@ -39,7 +39,7 @@ StartupEvents.registry('block', event => {
         .soundType('glass')
         .hardness(3)
         .resistance(8)
-        .noOcclusion()
+        .notSolid()
         .renderType('translucent')
         .requiresTool(true)
         .tagBlock('minecraft:mineable/pickaxe')
