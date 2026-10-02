@@ -1,15 +1,13 @@
 package com.af9.core.machine;
 
-import com.af9.core.bus.BusConnectorPartMachine;
-import com.af9.core.bus.BusConsumer;
-import com.af9.core.bus.OpticalBusCableBlock;
+import com.af9.core.compute.ComputationConsumer;
+import com.af9.core.machine.console.ScrollingText;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.blockentity.PipeBlockEntity;
 import com.gregtechceu.gtceu.api.capability.IControllable;
 import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.TieredEnergyMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IFancyUIMachine;
@@ -20,8 +18,6 @@ import com.gregtechceu.gtceu.common.data.models.GTMachineModels;
 import com.gregtechceu.gtceu.data.model.builder.MachineModelBuilder;
 
 import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
-import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
-import com.lowdragmc.lowdraglib.gui.widget.TextFieldWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
@@ -55,13 +51,12 @@ import java.util.Map;
  * 32, IV 64 CWU/t). It gives what is asked of it each tick up to that, and pays for it from its buffer: at full output
  * one amp of its tier ({@code VA[tier]} EU/t), less when less is drawn. It is a GT computation source
  * ({@link IOpticalComputationProvider}, on every side): an ME Computation Link against it takes it directly, GT's
- * Optical Fiber Cable leads it to a reception hatch, and Optical Bus Cable on any side but its front makes it a source
- * on the machine bus ({@link com.af9.core.bus.BusNetwork#facesBus}). Power goes in on any side but the front, which
- * is its lights. A soft mallet (or the screen) switches it off.
+ * Optical Fiber Cable leads it to a reception hatch. Power goes in on any side but the front, which is its lights. A
+ * soft mallet (or the screen) switches it off.
  * <p>
  * Its front lights ({@link #LIGHTS}, {@link #lightsModel}): a red dot, steady, while it is offline (switched off, out
- * of energy, or nothing next to it that could draw from it: Optical Bus Cable or a Bus Connector facing it on any side
- * but its front, an ME Computation Link or GT Optical Fiber Cable on any side); steady green while online and idle;
+ * of energy, or nothing next to it that could draw from it: an ME Computation Link or GT Optical Fiber Cable on any
+ * side); steady green while online and idle;
  * blinking while it gives computation. The blinking has two patterns of different lengths ({@link #ALT_LIGHTS}, chosen
  * by the position), so servers side by side do not blink in step.
  */
@@ -75,10 +70,6 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
     @Persisted
     @DescSynced
     private boolean workingEnabled = true;
-    /** Its name, its address on the bus ("" none): the Bus Controller lists it by it. */
-    @Persisted
-    @DescSynced
-    private String label = "";
     /** CWU/t given this tick, and last tick's. */
     private int given, lastGiven;
     private long givenTick = -1;
@@ -260,27 +251,18 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
     }
 
     /**
-     * Whether something next to it could draw its computation: Optical Bus Cable or a Bus Connector facing it on any
-     * side but its front, an ME Computation Link against it (any face of either) or GT Optical Fiber Cable joined to
-     * it on any side.
+     * Whether something next to it could draw its computation: an ME Computation Link against it (any face of either)
+     * or GT Optical Fiber Cable joined to it on any side.
      */
     public boolean isConnected() {
         Level level = getLevel();
         if (level == null) return false;
         BlockPos pos = getPos();
-        Direction front = getFrontFacing();
         for (Direction side : Direction.values()) {
             BlockPos next = pos.relative(side);
             if (!level.isLoaded(next)) continue;
-            if (side != front) {
-                if (level.getBlockState(next).getBlock() instanceof OpticalBusCableBlock) return true;
-                if (MetaMachine.getMachine(level, next) instanceof BusConnectorPartMachine connector &&
-                        connector.getFrontFacing() == side.getOpposite()) {
-                    return true;
-                }
-            }
             BlockEntity entity = level.getBlockEntity(next);
-            if (entity instanceof BusConsumer) return true;
+            if (entity instanceof ComputationConsumer) return true;
             if (entity instanceof OpticalPipeBlockEntity pipe &&
                     PipeBlockEntity.isConnected(pipe.getConnections(), side.getOpposite())) {
                 return true;
@@ -298,33 +280,11 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
     // ************ Screen *************//
     //////////////////////////////////////
 
-    public String getLabel() {
-        return label;
-    }
-
-    private void setLabel(String text) {
-        String trimmed = text == null ? "" : text.strip();
-        if (trimmed.length() > BusConnectorPartMachine.MAX_LABEL) {
-            trimmed = trimmed.substring(0, BusConnectorPartMachine.MAX_LABEL);
-        }
-        if (trimmed.equals(label)) return;
-        label = trimmed;
-        markDirty();
-    }
-
-    /** Its name, else its machine name. */
-    public Component getDisplayName() {
-        return label.isEmpty() ? Component.translatable(getDefinition().getDescriptionId()) : Component.literal(label);
-    }
-
     @Override
     public Widget createUIWidget() {
         var group = new WidgetGroup(0, 0, 182, 96);
-        group.addWidget(new LabelWidget(4, 5, Component.translatable("af9.bus.connector.label")));
-        group.addWidget(new TextFieldWidget(52, 3, 126, 12, () -> label, this::setLabel)
-                .setMaxStringLength(BusConnectorPartMachine.MAX_LABEL));
         boolean client = getLevel() != null && getLevel().isClientSide;
-        group.addWidget(BusConnectorPartMachine.scrolling(0, 19, 182, 77, new ComponentPanelWidget(4, 1,
+        group.addWidget(ScrollingText.box(0, 4, 182, 92, new ComponentPanelWidget(4, 1,
                 this::addDisplayText)
                 .textSupplier(client ? null : this::addDisplayText)
                 .setMaxWidthLimit(172)
@@ -332,30 +292,6 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
                     if (!click.isRemote && id.equals("power")) setWorkingEnabled(!workingEnabled);
                 })));
         return group;
-    }
-
-    /**
-     * What a Bus Controller shows when this server is picked: the model and its state, its output, its energy, and a
-     * switch (click id {@code server_power}).
-     */
-    public void addBusText(List<Component> text) {
-        Lights lights = lights();
-        text.add(Component.translatable("af9.bus.controller.server",
-                Component.translatable(getDefinition().getDescriptionId()),
-                Component.translatable("af9.cwu_server.state." + lights.getSerializedName()).withStyle(
-                        lights == Lights.OFFLINE ? ChatFormatting.RED : lights == Lights.BUSY ? ChatFormatting.AQUA :
-                                ChatFormatting.GREEN))
-                .withStyle(ChatFormatting.GRAY));
-        text.add(Component.translatable("af9.cwu_server.giving", getLastGiven(), getMaxOutput())
-                .withStyle(ChatFormatting.AQUA));
-        text.add(Component.translatable("af9.cwu_server.stored", energyContainer.getEnergyStored(),
-                energyContainer.getEnergyCapacity()).withStyle(ChatFormatting.GRAY));
-        text.add(ComponentPanelWidget.withButton(Component.translatable(workingEnabled ? "af9.cwu_server.on" :
-                "af9.cwu_server.off").withStyle(workingEnabled ? ChatFormatting.GREEN : ChatFormatting.RED),
-                "server_power"));
-        if (label.isEmpty()) {
-            text.add(Component.translatable("af9.bus.controller.server_unnamed").withStyle(ChatFormatting.DARK_GRAY));
-        }
     }
 
     private void addDisplayText(List<Component> text) {

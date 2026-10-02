@@ -1,6 +1,6 @@
 package com.af9.core.cpu;
 
-import com.af9.core.bus.BusConnectorPartMachine;
+import com.af9.core.machine.console.ScrollingText;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
@@ -101,7 +101,7 @@ public class CpuRackPartMachine extends TieredPartMachine implements IMachineLif
                     .setBackgroundTexture(GuiTextures.SLOT));
         }
         boolean client = getLevel() != null && getLevel().isClientSide;
-        group.addWidget(BusConnectorPartMachine.scrolling(0, 26, 176, 70, new ComponentPanelWidget(4, 0,
+        group.addWidget(ScrollingText.box(0, 26, 176, 70, new ComponentPanelWidget(4, 0,
                 this::addDisplayText)
                 .textSupplier(client ? null : this::addDisplayText)
                 .setMaxWidthLimit(166)));

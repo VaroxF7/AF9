@@ -50,14 +50,14 @@ ServerEvents.recipes(event => {
     // ---- The machines ----
     event.recipes.gtceu.assembler('af9:hv_cpu_rack')
         .itemInputs('gtceu:hv_machine_hull', '2x #gtceu:circuits/hv', '2x gtceu:hv_electric_motor',
-            '4x af9:optical_bus_cable', '4x gtceu:stainless_steel_plate')
+            '4x gtceu:fine_borosilicate_glass_wire', '4x gtceu:stainless_steel_plate')
         .inputFluids(solder(288))
         .itemOutputs('gtceu:hv_cpu_rack')
         .duration(300)
         .EUt(VA[GTValues.HV])
     event.recipes.gtceu.assembler('af9:crafting_cpu_array')
         .itemInputs('gtceu:hv_machine_hull', '4x #gtceu:circuits/hv', '4x gtceu:advanced_computer_casing',
-            '2x gtceu:hv_sensor', '2x gtceu:hv_robot_arm', '8x af9:optical_bus_cable')
+            '2x gtceu:hv_sensor', '2x gtceu:hv_robot_arm', '8x gtceu:fine_borosilicate_glass_wire')
         .inputFluids(solder(576))
         .itemOutputs('gtceu:crafting_cpu_array')
         .duration(600)

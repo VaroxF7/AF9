@@ -3,7 +3,6 @@ package com.af9.core.machine;
 import com.af9.core.AF9Core;
 import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
-import com.af9.core.machine.console.BusPlacardWidget;
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
@@ -275,7 +274,7 @@ public class PhotolithographyLineMachine extends LithoMachine {
     /** Replaces GT's text display with the console; GT's side tabs (power, mode, parts) stay. */
     @Override
     public Widget createUIWidget() {
-        return BusPlacardWidget.wrap(LithoConsoleWidget.create(this), this);
+        return LithoConsoleWidget.create(this);
     }
 
     //////////////////////////////////////

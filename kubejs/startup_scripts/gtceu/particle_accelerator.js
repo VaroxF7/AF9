@@ -13,7 +13,6 @@
 
 const $ParticleAcceleratorMachine = Java.loadClass('com.af9.core.machine.ParticleAcceleratorMachine')
 const $AccelCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
-const $AccelBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $AccelModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 const $AccelMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $AccelSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
@@ -314,7 +313,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2))
                 .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0))
-                .or(Predicates.abilities($AccelBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
             return pattern
                 .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                 .where('C', Predicates.blocks('gtceu:clean_machine_casing').or(parts))

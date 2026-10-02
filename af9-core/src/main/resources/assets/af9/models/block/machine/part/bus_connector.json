@@ -1,7 +1,0 @@
-{
-  "parent": "gtceu:block/overlay/2_layer/front_emissive",
-  "textures": {
-    "overlay": "af9:block/overlay/machine/overlay_bus_connector",
-    "overlay_emissive": "af9:block/overlay/machine/overlay_bus_connector_emissive"
-  }
-}

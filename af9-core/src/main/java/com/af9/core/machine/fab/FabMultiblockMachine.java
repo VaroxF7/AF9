@@ -3,7 +3,6 @@ package com.af9.core.machine.fab;
 import com.af9.core.fab.FabFamily;
 import com.af9.core.fab.FabRecipeLogic;
 import com.af9.core.fab.IFabMachine;
-import com.af9.core.machine.console.BusPlacardWidget;
 
 import com.gregtechceu.gtceu.api.block.ICoilType;
 import com.gregtechceu.gtceu.api.block.IFilterType;
@@ -305,6 +304,6 @@ public class FabMultiblockMachine extends CoilWorkableElectricMultiblockMachine 
         reset.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
         reset.setHoverTooltips(Component.translatable("af9.fab.console.reset_tooltip"));
         group.addWidget(reset);
-        return BusPlacardWidget.wrap(group, this);
+        return group;
     }
 }

@@ -23,7 +23,6 @@
 
 const $FabFamily = Java.loadClass('com.af9.core.fab.FabFamily')
 const $FabModifiers = Java.loadClass('com.af9.core.fab.FabModifiers')
-const $FabBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $FabMultiblockMachine = Java.loadClass('com.af9.core.machine.fab.FabMultiblockMachine')
 const $FabTieredMachine = Java.loadClass('com.af9.core.machine.fab.FabTieredMachine')
 const $FabSimpleTieredMachine = Java.loadClass('com.gregtechceu.gtceu.api.machine.SimpleTieredMachine')
@@ -112,7 +111,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     })
 
     // ---------------------------------------------------------------------------------------------------------------
-    // Multiblocks. Hatches, buses, a maintenance hatch, a parallel hatch, a laser hatch and a Bus Connector go on any
+    // Multiblocks. Hatches, buses, a maintenance hatch, a parallel hatch and a laser hatch go on any
     // casing; every part has a maximum only, never a required count (setMaxGlobalLimited(max, preview count)).
     // ---------------------------------------------------------------------------------------------------------------
     const hatches = casing => Predicates.blocks(casing)
@@ -124,7 +123,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
         .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 1))
         .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 0))
-        .or(Predicates.abilities($FabBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
 
     // SMC LCR: GT's Large Chemical Reactor core (PTFE stirrer, one heating coil in the jacket) sealed in a
     // cleanroom-glass mini-environment with a fan filter unit ceiling. 5 x 5 x 4. The 3 x 3 x 2 vessel inside is open:

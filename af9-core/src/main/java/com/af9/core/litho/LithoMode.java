@@ -77,7 +77,7 @@ public enum LithoMode {
     public static final double COOLING_LAPSE_FACTOR = 2.0;
     /** Optical proximity correction: the break chance falls by up to this share when the computation is all there. */
     public static final double OPC_BONUS = 0.3;
-    /** A Metrology Station on the bus network (measuring or run lately) feeds back into the machine: breaks x0.85. */
+    /** A Metrology Station in range (measuring or run lately) feeds back into the machine: breaks x0.85. */
     public static final double METROLOGY_FACTOR = 0.85;
     /**
      * Multi-patterning (a screwdriver on the controller of a Line or Scanner): the machine prints the mode one version above
@@ -209,8 +209,8 @@ public enum LithoMode {
 
     /**
      * Computation the machine's optical proximity correction and alignment can use, CWU/t (0: none): it is only an
-     * extra, the print runs without it, but the more of it the machine gets over its Bus Connector or a computation
-     * hatch, the fewer wafers break ({@link #OPC_BONUS}). The 7 and 1 nm nodes draw {@link #computation()} as a recipe
+     * extra, the print runs without it, but the more of it the machine gets over a computation hatch, the fewer
+     * wafers break ({@link #OPC_BONUS}). The 7 and 1 nm nodes draw {@link #computation()} as a recipe
      * input instead.
      */
     public int opcDemand() {

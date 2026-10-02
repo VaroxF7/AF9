@@ -1,8 +1,8 @@
 # AF9
 
 AF9 turns a GregTech CEu Modern (7.2.0) pack on Minecraft 1.20.1 Forge into a semiconductor factory: silicon from
-quartz to wafers, a real fab chemistry, lithography from 350 nm down to 1 nm, AF9's own chips and circuits, a machine
-bus that runs the factory, and computation to feed it.
+quartz to wafers, a real fab chemistry, lithography from 350 nm down to 1 nm, AF9's own chips and circuits, and
+computation to feed it.
 
 This repository holds AF9's layer on top of the pack: the AF9 Core mod, the KubeJS scripts and assets, the quests and
 the configs AF9 changes. Everything else comes from the pack itself.
@@ -26,7 +26,7 @@ the configs AF9 changes. Everything else comes from the pack itself.
   built-in clean rooms; the Photolithography Line and Scanner and the Orbital Lithography Station, nine lithography
   modes with vacuum, break chance and real light sources; AF9's chips, GT's circuits on plain chips and tier metals;
   the Supercooling Cryostat, the Particle Accelerator and wireless energy. The Line and Scanner cool with air (Air
-  Conditioning Hatches), draw OPC computation from the bus, are measured and corrected by
+  Conditioning Hatches), take OPC computation through a computation hatch, are measured and corrected by
   a Metrology Station, and can multi-pattern one version above their own; a Coater Track primes, coats and bakes the
   wafers first (BARC, resist, TARC; the spun-off solvent is distilled back), the masks come in three classes by node
   (chrome, phase-shift, EUV) and the EUV tools are built from Mo/Si mirrors; the chemistry has RCA clean, piranha
@@ -40,11 +40,9 @@ the configs AF9 changes. Everything else comes from the pack itself.
   the plutonium and AF9's chips.
 - **Lint** (`tools/lint/`): `bash tools/lint/run.sh` checks the recipes, multiblocks, quests, textures and lang files
   without starting the game (CI runs it before every build); `docs/review-findings.md` lists what it found.
-- **Machine bus** (`docs/machine-bus.md`): Optical Bus Cable and Bus Connectors join the machines; the Central
-  Monitor shows, runs and opens them; the Bus Controller picks their recipes, supplies them and crafts for the ME
-  network through GT's ME Pattern Buffer; computation and research flow over the bus.
-- **Computation**: CWU Servers (LV-IV), the N1 Computation Array and the N1 Supercomputer Array with Computer Racks
-  and cards, and the ME Computation Link: an ME network needs computation for its channels.
+- **Computation** (`docs/computation.md`): CWU Servers (LV-IV), the N1 Computation Array and the N1 Supercomputer Array
+  with Computer Racks and cards, and the ME Computation Link: an ME network needs computation for its channels. (The
+  machine bus was taken out; it is to come back in another way.)
 - **Crafting CPU Array** (`docs/crafting-cpu.md`): AE2's autocrafting CPU as a GregTech multiblock: HBM Memory Sticks
   and Stacks in its racks are the CPU's bytes, CPU Clusters and Superpositioned Clusters its co-processors.
 - **Microverse Projector** (`docs/microverse.md`): every ore GT has is farmable: a Microverse Core, a Miner Drone and a

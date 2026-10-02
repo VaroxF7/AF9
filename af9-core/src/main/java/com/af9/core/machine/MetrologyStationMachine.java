@@ -1,10 +1,6 @@
 package com.af9.core.machine;
 
-import com.af9.core.bus.BusConnectorPartMachine;
-import com.af9.core.bus.BusNetwork;
-
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockDisplayText;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
@@ -13,18 +9,20 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Metrology Station (structure and recipe type in KubeJS): the fab's measuring tool. It sits on the machine bus; a run
- * (a monitor wafer and some computation) measures the critical dimensions and the overlay of every lithography
- * machine on its bus network. For {@link #FEEDBACK_TICKS} after a run, and while one is running, the station feeds its
- * measurements back into the machines' alignment and dose: their prints break
- * {@link com.af9.core.litho.LithoMode#METROLOGY_FACTOR} as often ({@link #isFeedbackActive}).
+ * Metrology Station (structure and recipe type in KubeJS): the fab's measuring tool. A run (a monitor wafer and some
+ * computation) measures the critical dimensions and the overlay of every lithography machine within
+ * {@link #FEEDBACK_RANGE} blocks of it. For {@link #FEEDBACK_TICKS} after a run, and while one is running, the station
+ * feeds its measurements back into the machines' alignment and dose: their prints break
+ * {@link com.af9.core.litho.LithoMode#METROLOGY_FACTOR} as often ({@link #isFeedbackActive}, {@link #feedbackNear}).
  */
 public class MetrologyStationMachine extends WorkableElectricMultiblockMachine {
 
@@ -33,6 +31,10 @@ public class MetrologyStationMachine extends WorkableElectricMultiblockMachine {
 
     /** Ticks the feedback lasts after a finished run: ten minutes. */
     public static final long FEEDBACK_TICKS = 12000;
+    /** Blocks around the station in which a lithography machine gets its feedback. */
+    public static final int FEEDBACK_RANGE = 32;
+    /** The formed stations (each side of a client / server pair has its own), to find the ones near a machine. */
+    private static final Set<MetrologyStationMachine> STATIONS = ConcurrentHashMap.newKeySet();
 
     /** Game time the feedback lasts until (-1: none yet). */
     @Persisted
@@ -52,7 +54,36 @@ public class MetrologyStationMachine extends WorkableElectricMultiblockMachine {
         return new MetrologyLogic(this);
     }
 
-    /** A run finished: the feedback to the lithography machines on the bus network starts. */
+    @Override
+    public void onStructureFormed() {
+        super.onStructureFormed();
+        STATIONS.add(this);
+    }
+
+    @Override
+    public void onStructureInvalid() {
+        super.onStructureInvalid();
+        STATIONS.remove(this);
+    }
+
+    @Override
+    public void onUnload() {
+        super.onUnload();
+        STATIONS.remove(this);
+    }
+
+    /** Whether a station within {@link #FEEDBACK_RANGE} blocks of the position gives its feedback now. */
+    public static boolean feedbackNear(Level level, BlockPos pos) {
+        for (MetrologyStationMachine station : STATIONS) {
+            if (station.getLevel() == level && station.isFeedbackActive() &&
+                    station.getPos().distSqr(pos) <= (double) FEEDBACK_RANGE * FEEDBACK_RANGE) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** A run finished: the feedback to the lithography machines in range starts. */
     private void runFinished() {
         Level level = getLevel();
         if (level == null || level.isClientSide) return;
@@ -60,22 +91,7 @@ public class MetrologyStationMachine extends WorkableElectricMultiblockMachine {
         markDirty();
     }
 
-    /** The lithography machines on the bus network of this station (empty off the bus). */
-    public List<LithoMachine> getLithoMachines() {
-        List<LithoMachine> machines = new ArrayList<>();
-        BusConnectorPartMachine own = BusConnectorPartMachine.of(this);
-        if (own == null) return machines;
-        for (BusNetwork.Bus bus : own.getNetwork().buses()) {
-            for (BusConnectorPartMachine connector : bus.connectors()) {
-                if (connector.isInValid()) continue;
-                IMultiController controller = connector.getMachineController();
-                if (controller instanceof LithoMachine litho && !machines.contains(litho)) machines.add(litho);
-            }
-        }
-        return machines;
-    }
-
-    /** A run is measuring or finished lately: the machines on the bus get their feedback. */
+    /** A run is measuring or finished lately: the machines in range get their feedback. */
     public boolean isFeedbackActive() {
         Level level = getLevel();
         return isFormed() && level != null && (getRecipeLogic().isWorking() || level.getGameTime() < feedbackUntil);
@@ -94,17 +110,7 @@ public class MetrologyStationMachine extends WorkableElectricMultiblockMachine {
                 .addEnergyUsageLine(energyContainer)
                 .addWorkingStatusLine();
         if (!isFormed()) return;
-        BusConnectorPartMachine connector = BusConnectorPartMachine.of(this);
-        if (connector == null || !connector.isOnBus()) {
-            text.add(Component.translatable("af9.metrology.no_bus").withStyle(ChatFormatting.RED));
-            return;
-        }
-        List<LithoMachine> machines = getLithoMachines();
-        text.add(Component.translatable("af9.metrology.machines", machines.size()).withStyle(ChatFormatting.GRAY));
-        for (LithoMachine litho : machines) {
-            text.add(Component.translatable("af9.metrology.machine", litho.getBlockState().getBlock().getName())
-                    .withStyle(ChatFormatting.DARK_GRAY));
-        }
+        text.add(Component.translatable("af9.metrology.range", FEEDBACK_RANGE).withStyle(ChatFormatting.GRAY));
         if (isFeedbackActive()) {
             long left = getFeedbackTicksLeft() / 20;
             text.add(Component.translatable(getRecipeLogic().isWorking() ? "af9.metrology.measuring" :

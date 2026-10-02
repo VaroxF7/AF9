@@ -29,7 +29,7 @@ import appeng.blockentity.AEBaseBlockEntity;
 /**
  * AE2: an ME network with an ME Controller needs computation for its channels ({@link MEComputationService}, the cap
  * applied by {@code PathingCalculationMixin}), brought in by the ME Computation Link. Only set up when AE2 is loaded.
- * Spec: docs/machine-bus.md §7.
+ * Spec: docs/computation.md §3.
  */
 public final class AF9AE2 {
 

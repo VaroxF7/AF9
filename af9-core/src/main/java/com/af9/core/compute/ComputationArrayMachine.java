@@ -1,6 +1,5 @@
 package com.af9.core.compute;
 
-import com.af9.core.bus.BusConnectorPartMachine;
 import com.af9.core.machine.part.CoolantHatchPartMachine;
 
 import com.gregtechceu.gtceu.api.GTValues;
@@ -33,9 +32,8 @@ import java.util.Locale;
  * Out of energy it puts out nothing; nothing burns, nothing breaks.
  * <p>
  * It is a GT computation source ({@link IOpticalComputationProvider}, as GT's HPCA): each tick it gives what is asked
- * of it up to its output. A Bus Connector in it puts it on the machine bus
- * ({@link BusConnectorPartMachine#getComputationSource}); a Computation Transmitter Hatch in it feeds GT's Optical
- * Fiber Cable or an ME Computation Link.
+ * of it up to its output. A Computation Transmitter Hatch in it feeds GT's Optical Fiber Cable or an ME Computation
+ * Link.
  * <p>
  * Two sizes ({@link Spec}): the N1 Computation Array (MV, 3x3x6, eight MV racks) and the N1 Supercomputer Array (LuV,
  * 2x4 across, 7 to 30 long, two racks a slice). Structures in KubeJS ({@code startup_scripts/gtceu/computation.js}).
@@ -130,7 +128,7 @@ public class ComputationArrayMachine extends WorkableElectricMultiblockMachine i
     }
 
     /**
-     * Computation this array puts on the bus now, CWU/t (0 when it did not run this tick or the last: off, unformed,
+     * Computation this array puts out now, CWU/t (0 when it did not run this tick or the last: off, unformed,
      * unloaded).
      */
     public int getOutputCWUt() {
@@ -241,11 +239,10 @@ public class ComputationArrayMachine extends WorkableElectricMultiblockMachine i
         }
     }
 
-    /** Whether its computation leaves it: a Bus Connector or a Computation Transmitter Hatch in it. */
+    /** Whether its computation leaves it: a Computation Transmitter Hatch in it. */
     public boolean hasOutlet() {
         for (IMultiPart part : getParts()) {
-            if (part instanceof BusConnectorPartMachine ||
-                    PartAbility.COMPUTATION_DATA_TRANSMISSION.isApplicable(part.self().getBlockState().getBlock())) {
+            if (PartAbility.COMPUTATION_DATA_TRANSMISSION.isApplicable(part.self().getBlockState().getBlock())) {
                 return true;
             }
         }

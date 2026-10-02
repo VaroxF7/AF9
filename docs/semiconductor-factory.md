@@ -664,7 +664,7 @@ af9:molecular_sieve (wet) 4x zeolite_dust + bentonite_dust + 500 distilled_water
 
 `gtceu:wafer_coater` (assembler, MV), recipe type `gtceu:wafer_coating`, `af9:coat_<substrate>_wafer`: a blank wafer + the node's coating fluids → `kubejs:coated_<substrate>_wafer` (eight, silicon to strange matter; chromodynium has none: the 1 nm station deposits its resist dry on a blank), 300t, `EUt(VA[tier])`. Fluids (mB, `round(base × 1.5^index)`): `hmds_vapor` 40, the node's resist 100, `barc` 60 (200 to 50 nm), `tarc` 60 (65 and 50 nm, immersion); out: `spent_resist_solvent` 30 (the spin spins most of the resist off). Fluid slots in 4, out 2.
 
-Structure (§18.8): 3 × 3 × 6 of plascrete, plascrete pipe casings (dispense lines), a stainless-steel gearbox (spin chuck), heatproof casing (hotplate), plascrete filter casings, cleanroom glass; hatches (maximums): 2 item in, 2 item out, 2 energy, 6 fluid in, 2 fluid out, 1 parallel hatch, 1 Bus Connector, 1 maintenance.
+Structure (§18.8): 3 × 3 × 6 of plascrete, plascrete pipe casings (dispense lines), a stainless-steel gearbox (spin chuck), heatproof casing (hotplate), plascrete filter casings, cleanroom glass; hatches (maximums): 2 item in, 2 item out, 2 energy, 6 fluid in, 2 fluid out, 1 parallel hatch, 1 maintenance.
 
 Waste: `af9:recover_resist_solvent` (`fab_fractionation`, HV, clean room): 1000 `spent_resist_solvent` → **600 PGMEA** + 1 carbon dust: 60 % comes back, never all of it.
 
@@ -999,7 +999,7 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 |---|---|---|
 | rf_transceiver | wireless energy hatches, EV-UHV: 2 on top of each receiver / transmitter; AE2 Wireless Receiver (so the Wireless Access Point and every wireless terminal): 1, in the shape `F / IQI / IRI` | wireless_energy.js, chip_uses.js |
 | apu | extra MV Microprocessor: 1 APU in place of the CPU chip + RAM, 3 out instead of 2 | circuits_af9.js |
-| mcu | GT Machine Controller, Activity / Item / Fluid Detector covers: 1 on top (they had no circuit); extra LV / MV Robot Arm and Sensor Assembler recipes: 1 MCU in place of the circuit; the machine bus (`docs/machine-bus.md`): 2 per Bus Connector, 1 per Machine Bus Module | chip_uses.js, machine_bus.js |
+| mcu | GT Machine Controller, Activity / Item / Fluid Detector covers: 1 on top (they had no circuit); extra LV / MV Robot Arm and Sensor Assembler recipes: 1 MCU in place of the circuit; the Metrology Station: 4 | chip_uses.js, litho_process.js |
 | asic | on top: GT Large Miners EV 2 / IV 4 / LuV 8, Fluid Drilling Rigs HV 2 / EV 4 (not MV: before phosphorus), Void Miner 4; extra SMC fab multiblock controller recipes with ASICs in place of the circuits | chip_uses.js, miner.js, fab_machines.js |
 | edram packages | extra, half the time, 1 package in place of 4 RAM: Quantum Computer (and ASMD) 4 CPU packages, Crystal Processor Assembly 6 SoC packages, the pack's Nano Mainframe (Assembly Line, 800 t) 4 CPU packages | circuits_af9.js |
 | mram | extra, half GT's time, no research, clean room: Data Orb (Circuit Assembler: epoxy board, CPU chip, 4 MRAM, 16 fine Pt wire), Data Bank (Assembler: computer casing, 16 MRAM, 2 CPU chips, 32 fine NbTi wire, 4 optical pipes), Advanced Data Access Hatch (Assembler: LuV input bus, 8 MRAM, 2 CPU chips, 32 fine NbTi wire) | chip_uses.js |
@@ -1020,7 +1020,7 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 9. Pd/C, VPO, TS-1, iron molybdate, acidic resin and the other catalysts are not consumed; catalyst deactivation is not modelled.
 10. The orbital station's orbit test is by dimension name (`orbit` / `*_orbit`); a new space mod's orbit dimension with another name needs a line in `OrbitalLithographyMachine.isOrbit`.
 11. The coater is a multiblock of its own with a coated wafer per substrate (§18.8); the developer / PEB / hard bake stay in the Line (one run exposes, bakes and develops, so no further wafer state is needed). Not built: strip as a step of its own, a fluid output on the prints for the spent etch plasma, the HF / calcium fluoride loop that would hang on it.
-12. The Temperature Update (warmth around machines the player feels, the hotbar message, the screen effect): the Air Conditioning Hatch is an `IHeatEmitter` (§18.1); the system that reads it is not built. The computation arrays have their own heat (§ machine-bus 9) and could implement it too.
+12. The Temperature Update (warmth around machines the player feels, the hotbar message, the screen effect): the Air Conditioning Hatch is an `IHeatEmitter` (§18.1); the system that reads it is not built. The computation arrays have their own heat (`docs/computation.md` §2) and could implement it too.
 
 ---
 
@@ -1301,7 +1301,7 @@ Crafting (`litho_process.js`, assembler, programmed circuit 1): the tier's machi
 
 ## 18.2 OPC: computation that improves the yield
 
-Every node up to 20 nm has an **OPC demand** (optical proximity correction and alignment, `LithoMode.opcDemand`), drawn each tick while a print runs from the machine's computation source (a Bus Connector, or a computation hatch on the orbital station):
+Every node up to 20 nm has an **OPC demand** (optical proximity correction and alignment, `LithoMode.opcDemand`), drawn each tick while a print runs from the machine's computation source (a computation hatch):
 
 | Node | 350 | 200 | 100 | 80 | 65 | 50 | 20 | 7 | 1 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -1311,13 +1311,13 @@ It is an extra, the print runs without it. The share of the demand the computati
 
 ## 18.4 The break chance, all together
 
-`p = min(0.95, (base + (100 − vacuum)/100 × 0.5) × 0.75^version surplus × coolant (orbital) × cooling × OPC × metrology)`; cooling = 0.8^doublings (2.0 if the hatches lost power); OPC = 1 − 0.3 × share; metrology = 0.85 with a Metrology Station's feedback on the bus network (else 1). The consoles show the result; the Line's console has the AIR COOLING row and the OPC line, the Scanner's the same under its hint, Jade both.
+`p = min(0.95, (base + (100 − vacuum)/100 × 0.5) × 0.75^version surplus × coolant (orbital) × cooling × OPC × metrology)`; cooling = 0.8^doublings (2.0 if the hatches lost power); OPC = 1 − 0.3 × share; metrology = 0.85 with a Metrology Station's feedback within 32 blocks (else 1). The consoles show the result; the Line's console has the AIR COOLING row and the OPC line, the Scanner's the same under its hint, Jade both.
 
 ## 18.5 Metrology Station
 
-`gtceu:metrology_station` (HV assembler recipe), 3 × 3 × 5 of plascrete (aisles front → back: the controller, a measuring tube with cleanroom glass, the wafer stage, a back); item input and output bus, energy (2), fluid input, maintenance and **a Bus Connector** (maximums). Recipe type `gtceu:metrology`, `af9:metrology_run`: a **Monitor Wafer** (`kubejs:monitor_wafer`, assembler: silicon wafer, chromium plate, 100 mB photoresist → 4) + 100 mB distilled water, **24 CWU/t**, 600 t at HV; the wafer comes back 9 times in 10.
+`gtceu:metrology_station` (HV assembler recipe), 3 × 3 × 5 of plascrete (aisles front → back: the controller, a measuring tube with cleanroom glass, the wafer stage, a back); item input and output bus, energy (2), fluid input, maintenance and **a computation hatch** (maximums). Recipe type `gtceu:metrology`, `af9:metrology_run`: a **Monitor Wafer** (`kubejs:monitor_wafer`, assembler: silicon wafer, chromium plate, 100 mB photoresist → 4) + 100 mB distilled water, **24 CWU/t**, 600 t at HV; the wafer comes back 9 times in 10.
 
-A finished run starts the **feedback** to every Line, Scanner and Orbital Station on the station's bus network (`MetrologyStationMachine.runFinished`): for 10 minutes after the run, and while one is measuring, their prints break ×0.85. The station's screen lists the machines on its bus.
+A finished run starts the **feedback** to every Line, Scanner and Orbital Station within 32 blocks of the station (`MetrologyStationMachine.runFinished`, `FEEDBACK_RANGE`; the stations register themselves while formed, `feedbackNear`): for 10 minutes after the run, and while one is measuring, their prints break ×0.85. The station needs a computation hatch for its 24 CWU/t; its screen shows the range and the time of the feedback left. (It used to reach the machines on its machine bus; the bus is gone, the range is the stand-in until the new one.)
 
 ## 18.6 Chemistry
 
@@ -1352,13 +1352,13 @@ The layers are made in the fab machines (`af9:aluminium_nitride`, `lithium_nioba
 | Atomic | 2 TMD logic, 2 WSe2, 2 hBN | 4 TMD logic, 4 WSe2, 4 hBN | 4 memristors, 2 GST |
 | Sub-atomic | 2 quantum-dot ICs, 250 mB colloid | 4 quantum-dot ICs, 500 mB colloid | 2 quantum-dot ICs, 4 memristors, 250 mB colloid |
 
-All on a multilayer fibre-reinforced board with 8 YBCO wire, at UV in a clean room, in the circuit assembler with a **programmed circuit** (1 CPU, 2 GPU, 3 RAM: the three cards of a tier take the same things in different amounts, so without it the machine could make either) and soldering alloy; the Sub-atomic cards take the colloid as ink *instead of* solder (GT's assembler and circuit assembler have **one** fluid slot). Numbers of the cards: `docs/machine-bus.md` §9.
+All on a multilayer fibre-reinforced board with 8 YBCO wire, at UV in a clean room, in the circuit assembler with a **programmed circuit** (1 CPU, 2 GPU, 3 RAM: the three cards of a tier take the same things in different amounts, so without it the machine could make either) and soldering alloy; the Sub-atomic cards take the colloid as ink *instead of* solder (GT's assembler and circuit assembler have **one** fluid slot). Numbers of the cards: `docs/computation.md` §2.
 
 ## 18.8 The Coater Track, coated wafers, the etch plasma
 
 The track of the spec is split in two: the coating is a multiblock of its own, the developing stays in the Line (a wafer would otherwise have to carry a state per step; one item per substrate, `coated_<substrate>_wafer`, is enough since exposure, PEB and develop happen in one machine run).
 
-- **Coater Track** (`gtceu:wafer_coater`, MV, §6.5b): spin coat, BARC, topcoat, bake. Kept as a plain GT multiblock (`WorkableElectricMultiblockMachine`, no AF9 Core class), 3 × 3 × 6 of plascrete; Parallel Hatch, Bus Connector; modifiers `PARALLEL_HATCH + OC_NON_PERFECT`.
+- **Coater Track** (`gtceu:wafer_coater`, MV, §6.5b): spin coat, BARC, topcoat, bake. Kept as a plain GT multiblock (`WorkableElectricMultiblockMachine`, no AF9 Core class), 3 × 3 × 6 of plascrete; Parallel Hatch; modifiers `PARALLEL_HATCH + OC_NON_PERFECT`.
 - **Coated wafers**: the prints take them (`kubejs:coated_<substrate>_wafer`, tagged like the blanks: they contaminate in a bare-handed inventory and are RCA-cleaned back to a blank wafer; a broken print's rework strips the resist the same way). Textures: `tools/textures/coated_wafers.py` (each substrate's blank with the film of its node's resist; the strange-matter one is animated).
 - **Waste and recovery**: 30 mB spent resist solvent per 100 mB resist, distilled back to **60 %** PGMEA (`af9:recover_resist_solvent`); a coater without a fluid output hatch stops when its tank is full.
 - **Etch plasma**: from 200 nm every print burns CF4 / Cl2 / Ar / O2 plasma (§18.6). The 350 nm print etches wet and stays an MV recipe. Not built: a fluid output on the prints for the spent plasma (the print types have no fluid outputs; the Line, Scanner and Orbital hatches would need output hatches and the consoles a row), and the HF / calcium fluoride recycling loop that would hang on it.
@@ -1381,7 +1381,7 @@ A **screwdriver on the controller** of a Line or Scanner (not while a print runs
 af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → mods/)
   litho/LithoMode.java                 # the 9 modes: substrate, node, tier, light (λ, NA, k1), resist, colour, base break chance, break/speed maths
   machine/LithoMachine                 # shared by the litho machines: vacuum cleanliness, break roll, counters, LITHO_GATE, STRIP_BROKEN, §18: air cooling, OPC, metrology feedback
-  machine/MetrologyStationMachine      # §18.5: feedback to the litho machines on its bus
+  machine/MetrologyStationMachine      # §18.5: feedback to the litho machines within 32 blocks
   machine/part/AirConditioningHatchPartMachine # §18.1: cooling units, draw, IHeatEmitter
   thermal/IHeatEmitter                 # the hook for the Temperature Update (heat units per tick, position, direction)
   machine/PhotolithographyLineMachine  # Mk1 line + Mk2 scanner (Spec), versions, LITHO_VERSION, preview pages, recipe info

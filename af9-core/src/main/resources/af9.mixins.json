@@ -9,8 +9,7 @@
   ],
   "mixins": [
     "ae2.CraftingCPUClusterAccessor",
-    "ae2.PathingCalculationMixin",
-    "gt.WorkableElectricMultiblockMachineMixin"
+    "ae2.PathingCalculationMixin"
   ],
   "injectors": {
     "defaultRequire": 1

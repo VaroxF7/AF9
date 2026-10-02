@@ -1,7 +1,7 @@
 // AF9 - Crafting of the computation arrays (startup_scripts/gtceu/computation.js, af9-core com.af9.core.compute): the
 // Computer Racks, the N1 arrays, the Server Casing, the MV Coolant Hatch and the rack cards. Everything for the MV
 // array comes before the Photolithography Line (no chips): the Tube cards run on vacuum tubes and magnetic core memory.
-// Spec: docs/machine-bus.md §9
+// Spec: docs/computation.md §2
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
@@ -31,14 +31,14 @@ ServerEvents.recipes(event => {
     // ---- Computer Racks ----
     event.recipes.gtceu.assembler('af9:mv_computer_rack')
         .itemInputs('gtceu:mv_machine_hull', '2x #gtceu:circuits/mv', '2x gtceu:mv_electric_motor',
-            '4x af9:optical_bus_cable', '4x gtceu:aluminium_plate')
+            '4x gtceu:fine_borosilicate_glass_wire', '4x gtceu:aluminium_plate')
         .inputFluids(solder(144))
         .itemOutputs('gtceu:mv_computer_rack')
         .duration(200)
         .EUt(VA[GTValues.MV])
     event.recipes.gtceu.assembler('af9:luv_computer_rack')
         .itemInputs('gtceu:luv_machine_hull', '2x #gtceu:circuits/luv', '2x gtceu:luv_electric_motor',
-            '4x af9:optical_bus_cable', '4x gtceu:rhodium_plated_palladium_plate')
+            '4x gtceu:fine_borosilicate_glass_wire', '4x gtceu:rhodium_plated_palladium_plate')
         .inputFluids(solder(576))
         .itemOutputs('gtceu:luv_computer_rack')
         .duration(400)
@@ -48,7 +48,7 @@ ServerEvents.recipes(event => {
     // ---- The arrays ----
     event.recipes.gtceu.assembler('af9:n1_computation_array')
         .itemInputs('gtceu:mv_machine_hull', '4x #gtceu:circuits/mv', '4x kubejs:server_casing',
-            '4x gtceu:mv_electric_pump', '2x gtceu:mv_electric_motor', '8x af9:optical_bus_cable')
+            '4x gtceu:mv_electric_pump', '2x gtceu:mv_electric_motor', '8x gtceu:fine_borosilicate_glass_wire')
         .inputFluids(solder(288))
         .itemOutputs('gtceu:n1_computation_array')
         .duration(600)
@@ -56,7 +56,7 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.assembler('af9:n1_supercomputer_array')
         .itemInputs('gtceu:luv_machine_hull', '4x #gtceu:circuits/luv', '8x gtceu:computer_casing',
             '4x gtceu:computer_heat_vent', '4x gtceu:luv_electric_pump', '2x gtceu:luv_field_generator',
-            '16x af9:optical_bus_cable')
+            '16x gtceu:fine_borosilicate_glass_wire')
         .inputFluids(solder(1152))
         .itemOutputs('gtceu:n1_supercomputer_array')
         .duration(1200)

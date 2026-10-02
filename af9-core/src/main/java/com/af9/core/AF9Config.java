@@ -39,8 +39,8 @@ public final class AF9Config {
                 .defineInRange("gravity", 1.0, 0.0, 4.0);
         builder.pop();
         builder.comment("AE2: a network with an ME Controller needs computation (CWU/t) for its channels, brought in",
-                "by ME Computation Links (Optical Bus Cable, a GT Computation Transmitter Hatch or GT Optical Fiber",
-                "Cable on their back). Short of it, the network gets only the channels its computation pays for (the",
+                "by ME Computation Links (a CWU Server, a GT Computation Transmitter Hatch or GT Optical Fiber",
+                "Cable against them). Short of it, the network gets only the channels its computation pays for (the",
                 "devices farthest from the controller lose theirs first). Networks without a controller need none.")
                 .push("meComputation");
         ME_NEEDS_COMPUTATION = builder

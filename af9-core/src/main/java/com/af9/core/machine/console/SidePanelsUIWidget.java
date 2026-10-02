@@ -37,7 +37,6 @@ public class SidePanelsUIWidget<C extends ConsoleWidget> extends FancyMachineUIW
     private final PanelFactory<C> panels;
     private Widget process;
     private Widget system;
-    private BusPlacardWidget placard;
 
     public SidePanelsUIWidget(IFancyUIProvider mainPage, int pageWidth, int pageHeight, Class<C> consoleType,
                               PanelFactory<C> panels) {
@@ -55,7 +54,6 @@ public class SidePanelsUIWidget<C extends ConsoleWidget> extends FancyMachineUIW
             process = null;
             system = null;
         }
-        placard = null;
         if (fancyUI != mainPage || !showInventory || playerInventory == null) return;
         List<C> consoles = pageContainer.getWidgetsByType(consoleType);
         if (consoles.isEmpty()) return;
@@ -67,16 +65,5 @@ public class SidePanelsUIWidget<C extends ConsoleWidget> extends FancyMachineUIW
         int right = invX + invW + 4;
         addWidget(process = panels.create(console, false, 4, invY + 2, invX - 8, height));
         addWidget(system = panels.create(console, true, right, invY + 2, getSize().width - right - 4, height));
-        List<BusPlacardWidget> placards = pageContainer.getWidgetsByType(BusPlacardWidget.class);
-        placard = placards.isEmpty() ? null : placards.get(0);
-    }
-
-    /** The panels hide with the page while the machine is part of a bus ({@link BusPlacardWidget}). */
-    @Override
-    public void updateScreen() {
-        super.updateScreen();
-        boolean locked = placard != null && placard.isLocked();
-        if (process != null) process.setVisible(!locked);
-        if (system != null) system.setVisible(!locked);
     }
 }

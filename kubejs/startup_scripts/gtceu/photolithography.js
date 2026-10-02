@@ -22,7 +22,6 @@ const $OrbitalLithographyMachine = Java.loadClass('com.af9.core.machine.OrbitalL
 const $LithoMachine = Java.loadClass('com.af9.core.machine.LithoMachine')
 const $LithoCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $LithoAirConditioning = Java.loadClass('com.af9.core.machine.part.AirConditioningHatchPartMachine')
-const $LithoBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $LithoRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 const $LithoMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $LithoSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
@@ -250,7 +249,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('C', Predicates.blocks('gtceu:plascrete')
                 // up to two normal 2A hatches = 4A, what every print needs; their voltage decides the modes
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
-                .or(Predicates.abilities($LithoBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
+                // a computation hatch: the optical proximity correction's computation (an extra)
+                .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 0))
                 // air cooling: the hatches carry the print's heat (cooling units, see air_conditioning.js)
                 .or(Predicates.abilities($LithoAirConditioning.AIR_CONDITIONING).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
@@ -307,7 +307,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
-                .or(Predicates.abilities($LithoBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
+                // a computation hatch: the optical proximity correction's computation (an extra)
+                .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 0))
                 // air cooling: the hatches carry the print's heat (cooling units, see air_conditioning.js)
                 .or(Predicates.abilities($LithoAirConditioning.AIR_CONDITIONING).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
@@ -387,18 +388,15 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('C', Predicates.blocks('gtceu:nonconducting_casing'))
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)): the track
             // chemicals through fluid input hatches, the supercooled coolant through coolant hatches, computation (7 and
-            // 1 nm) through a computation hatch and the 1 nm research through a data hatch, or both over the machine
-            // bus through the Bus Connector. Every hatch goes on the PTFE casings of the top deck and nowhere else.
-            // The connector counts as a computation and an optical data reception hatch too (GT counts a part against
-            // every limit it matches), hence 2 of each: the connector and a hatch of the station's own
+            // 1 nm) through a computation hatch and the 1 nm research through a data hatch. Every hatch goes on the
+            // PTFE casings of the top deck and nowhere else.
             .where('O', Predicates.blocks('gtceu:inert_machine_casing')
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(3, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities($LithoCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
-                .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.DATA_ACCESS).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities(PartAbility.OPTICAL_DATA_RECEPTION).setMaxGlobalLimited(2, 0))
-                .or(Predicates.abilities($LithoBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 0))
+                .or(Predicates.abilities(PartAbility.OPTICAL_DATA_RECEPTION).setMaxGlobalLimited(1, 0))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))

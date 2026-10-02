@@ -8,7 +8,7 @@ StartupEvents.registry('item', event => {
         .displayName('Monitor Wafer')
         .texture('kubejs:item/wafers/monitor_wafer')
         .tooltip('A reference wafer with alignment marks: a Metrology Station measures the prints of the lithography')
-        .tooltip('machines on its bus against it.')
+        .tooltip('machines around it against it.')
 })
 
 // ---- Chemistry the process needs beside the track fluids ----
@@ -71,11 +71,10 @@ GTCEuStartupEvents.registry('gtceu:material', event => {
 })
 
 // ---- Metrology Station ----
-// The fab's measuring tool (af9-core MetrologyStationMachine): on the machine bus, a run (a monitor wafer and 24
-// CWU/t of computation) measures the prints of every lithography machine on its bus network and, for ten minutes
+// The fab's measuring tool (af9-core MetrologyStationMachine): a run (a monitor wafer and 24 CWU/t of computation,
+// through a computation hatch) measures the prints of every lithography machine within 32 blocks and, for ten minutes
 // after, feeds the measurements back into their alignment and dose: 15% fewer broken wafers.
 const $MetrologyStation = Java.loadClass('com.af9.core.machine.MetrologyStationMachine')
-const $MetrologyBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $MetrologyDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
@@ -112,7 +111,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
-                .or(Predicates.abilities($MetrologyBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units
@@ -128,7 +127,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
 // keeps the developing): HMDS prime, bottom anti-reflective coat, resist spun on, topcoat, soft bake. It turns a blank
 // wafer into the coated wafer of its node, and what it spins off is spent solvent. Plain GT machine logic, no AF9 Core class.
 const $CoaterMachine = Java.loadClass('com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine')
-const $CoaterBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $CoaterDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
@@ -171,7 +169,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(6, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 0))
-                .or(Predicates.abilities($CoaterBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('P', Predicates.blocks('kubejs:plascrete_pipe_casing'))       // chemical dispense lines
             .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units

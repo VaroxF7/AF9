@@ -1,11 +1,9 @@
 package com.af9.core.machine;
 
 import com.af9.core.AF9Core;
-import com.af9.core.bus.BusConnectorPartMachine;
 import com.af9.core.common.AF9DamageTypes;
 import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
-import com.af9.core.machine.console.BusPlacardWidget;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.OrbitalConsoleWidget;
 import com.af9.core.machine.console.OrbitalStationUIWidget;
@@ -293,11 +291,10 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return max;
     }
 
-    /** A computation hatch, or a Bus Connector (computation over the machine bus). */
+    /** A computation hatch. */
     public boolean hasComputationHatch() {
         return getParts().stream()
-                .anyMatch(part -> part instanceof OpticalComputationHatchMachine hatch && !hatch.isTransmitter() ||
-                        part instanceof BusConnectorPartMachine);
+                .anyMatch(part -> part instanceof OpticalComputationHatchMachine hatch && !hatch.isTransmitter());
     }
 
     //////////////////////////////////////
@@ -666,7 +663,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
 
     @Override
     public Widget createUIWidget() {
-        return BusPlacardWidget.wrap(OrbitalConsoleWidget.createPage(this), this);
+        return OrbitalConsoleWidget.createPage(this);
     }
 
     /** GT's machine screen with the station's page and a panel on each side of the player inventory. */

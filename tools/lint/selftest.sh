@@ -33,7 +33,7 @@ t = t.replace(f'id: "{ids[0]}"', f'id: "{ids[1]}"', 1)
 # Q3: a dependency on a quest that does not exist
 t = t.replace('dependencies: [', 'dependencies: [\n\t\t\t\t"DEADBEEFDEADBEEF"', 1)
 # Q5: a text that is in no lang file
-t = t.replace('"{af9.quest.litho.busConnector.1}"', '"{af9.quest.litho.busConnector.99}"', 1)
+t = t.replace('"{af9.quest.litho.meComputationLink.1}"', '"{af9.quest.litho.meComputationLink.99}"', 1)
 # Q6: an item nobody defines
 t = t.replace('kubejs:photomask_blank', 'kubejs:selftest_no_such_item', 1)
 # Q2: an id that is not hex

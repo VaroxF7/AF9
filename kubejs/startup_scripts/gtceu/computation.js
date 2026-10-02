@@ -1,17 +1,15 @@
 // AF9 - Computation arrays: the Computer Rack and the two N1 computation arrays. Behaviour: af9-core
 // com.af9.core.compute (cards: ComputeCard, the arrays: ComputationArrayMachine). Recipes:
-// server_scripts/mods/gtceu/computation.js. Spec: docs/machine-bus.md §9
+// server_scripts/mods/gtceu/computation.js. Spec: docs/computation.md §2
 //
 // N1 Computation Array (MV, 3x3x6): eight MV Computer Racks (Tube and Silicon cards).
 // N1 Supercomputer Array (LuV, 2x4 across, 7 to 30 long): four racks in each slice between the end slices, heat
 // vents over and under them.
 // The arrays run while switched on and fed: energy for their cards, coolant (Coolant Hatches) for the heat. No recipes.
-// Their computation leaves through a Bus Connector (onto the machine bus) or a Computation Transmitter Hatch (GT's
-// Optical Fiber Cable, an ME Computation Link).
+// Their computation leaves through a Computation Transmitter Hatch (GT's Optical Fiber Cable, an ME Computation Link).
 
 const $ComputationArrayMachine = Java.loadClass('com.af9.core.compute.ComputationArrayMachine')
 const $ComputerRack = Java.loadClass('com.af9.core.compute.ComputerRackPartMachine')
-const $ComputeBusConnector = Java.loadClass('com.af9.core.bus.BusConnectorPartMachine')
 const $ComputeCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $ComputeRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 
@@ -77,7 +75,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('C', Predicates.blocks('kubejs:server_casing')
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities($ComputeCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
-                .or(Predicates.abilities($ComputeBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_TRANSMISSION).setMaxGlobalLimited(1, 0)))
             .build())
         .workableCasingModel('kubejs:block/server_casing', 'gtceu:block/multiblock/data_bank')
@@ -106,7 +103,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 0))
                 .or(Predicates.abilities($ComputeCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(4, 1))
-                .or(Predicates.abilities($ComputeBusConnector.BUS_CONNECTOR).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_TRANSMISSION).setMaxGlobalLimited(1, 0)))
             .build())
         .workableCasingModel('gtceu:block/casings/hpca/computer_casing/back', 'gtceu:block/multiblock/hpca')

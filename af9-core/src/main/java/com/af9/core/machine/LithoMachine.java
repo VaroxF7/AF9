@@ -2,8 +2,6 @@ package com.af9.core.machine;
 
 import com.af9.core.AF9Config;
 import com.af9.core.AF9Core;
-import com.af9.core.bus.BusConnectorPartMachine;
-import com.af9.core.bus.BusNetwork;
 import com.af9.core.common.IPowerGated;
 import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
@@ -45,6 +43,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -489,22 +488,13 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
                 (isMultiPatterned(mode) ? LithoMode.MULTI_PATTERNING_BREAK : 1);
     }
 
-    /** A Metrology Station on the bus network with its feedback on: the machine's alignment and dose are corrected. */
+    /** A Metrology Station in range with its feedback on: the machine's alignment and dose are corrected. */
     private double metrologyBreakFactor() {
-        BusConnectorPartMachine own = BusConnectorPartMachine.of(this);
-        if (own == null) return 1;
-        for (BusNetwork.Bus bus : own.getNetwork().buses()) {
-            for (BusConnectorPartMachine connector : bus.connectors()) {
-                if (!connector.isInValid() && connector.getMachineController() instanceof MetrologyStationMachine station &&
-                        station.isFeedbackActive()) {
-                    return LithoMode.METROLOGY_FACTOR;
-                }
-            }
-        }
-        return 1;
+        Level level = getLevel();
+        return level != null && MetrologyStationMachine.feedbackNear(level, getPos()) ? LithoMode.METROLOGY_FACTOR : 1;
     }
 
-    /** Whether a Metrology Station on the bus network gives its feedback now (the consoles and Jade show it). */
+    /** Whether a Metrology Station in range gives its feedback now (the consoles and Jade show it). */
     public boolean hasMetrologyFeedback() {
         return metrologyBreakFactor() < 1;
     }
@@ -592,7 +582,7 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
     // ************* OPC **************//
     //////////////////////////////////////
 
-    /** Whether a computation source (a Bus Connector, a computation hatch) is in the structure. */
+    /** Whether a computation source (a computation hatch) is in the structure. */
     public boolean hasOpcSource() {
         if (!isFormed()) return false;
         for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, CWURecipeCapability.CAP)) {
