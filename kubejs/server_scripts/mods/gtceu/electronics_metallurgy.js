@@ -1,26 +1,9 @@
 // AF9 - Electronics metallurgy recipes (materials: startup_scripts/gtceu/electronics_metallurgy.js)
-// Alloy dusts are mixed here; GT then melts them in the EBF at the temperatures set in the startup script and makes
-// the parts. The circuits using them are in mv_circuits.js and tiered_circuits.js. Spec: docs/semiconductor-factory.md
+// The zircon -> zirconium / hafnium chain and the zircon sands vein. The alloy dusts of the circuit metals (Al-Si, Kovar,
+// Pt-Ir: mixers) and the circuits using them are in circuits_af9.js. Spec: docs/semiconductor-factory.md
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
-
-    // ---- Alloy dusts ----
-    // Mixed one tier below the circuits that use them (LV for the MV alloys, HV for the EV one). Circuit 3 keeps Kovar
-    // apart from GT's invar (circuit 1), whose inputs are a subset of Kovar's.
-    const alloys = [
-        { id: 'aluminium_silicon', inputs: ['16x gtceu:aluminium_dust', 'gtceu:silicon_dust'], count: 17, circuit: 2, eut: VA[GTValues.LV] },
-        { id: 'kovar', inputs: ['6x gtceu:iron_dust', '3x gtceu:nickel_dust', '2x gtceu:cobalt_dust'], count: 11, circuit: 3, eut: VA[GTValues.LV] },
-        { id: 'platinum_iridium', inputs: ['9x gtceu:platinum_dust', 'gtceu:iridium_dust'], count: 10, circuit: 2, eut: VA[GTValues.HV] }
-    ]
-    alloys.forEach(a => {
-        event.recipes.gtceu.mixer(`af9:${a.id}_dust`)
-            .itemInputs(a.inputs)
-            .circuit(a.circuit)
-            .itemOutputs(`${a.count}x gtceu:${a.id}_dust`)
-            .duration(a.count * 30)
-            .EUt(a.eut)
-    })
 
     // ---- Zircon -> zirconium and hafnium tetrachloride ----
     // 1. Plasma dissociation: ZrSiO4 -> ZrO2 + SiO2

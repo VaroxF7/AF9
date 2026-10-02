@@ -714,11 +714,11 @@ GT's chip wafers are cut by GT's own cutter recipes (dies per wafer, EU/t, clean
 
 ## 6.8 Step 5 — Circuits
 
-Chips are plain GT chips; a chip is a chip whatever substrate it came from. `tiered_circuits.js` keeps GT's HV-LuV circuit recipes with each tier's own metals (the Circuits quest page): HV gold fine wire + stainless steel bolts, EV platinum-iridium fine wire (bootstrap Workstation: plain platinum) + titanium bolts, IV tungstensteel fine wire and frames + tungsten wire, LuV osmiridium fine wire + niobium-titanium wire + rhodium-plated palladium bolts. `AF9_WAFERS.chipStack(id, count)` gives `"<count>x gtceu:<chip>"`. MV and lower: `mv_circuits.js` (Al-Si wire, Kovar), unchanged. The pack's LuV Nano Mainframe (its own Assembly Line recipe) takes 16 plain RAM chips.
+Chips are plain GT chips; a chip is a chip whatever substrate it came from. `circuits_af9.js` (all of AF9's circuit crafting in one file: the circuit metals' alloy mixers, the MV circuits, the HV-LuV circuits, the eDRAM versions) keeps GT's HV-LuV circuit recipes with each tier's own metals (the Circuits quest page): HV gold fine wire + stainless steel bolts, EV platinum-iridium fine wire (bootstrap Workstation: plain platinum) + titanium bolts, IV tungstensteel fine wire and frames + tungsten wire, LuV osmiridium fine wire + niobium-titanium wire + rhodium-plated palladium bolts. `AF9_WAFERS.chipStack(id, count)` gives `"<count>x gtceu:<chip>"`. MV and lower: also `circuits_af9.js` (Al-Si wire, Kovar), unchanged. The pack's LuV Nano Mainframe (its own Assembly Line recipe) takes 16 plain RAM chips.
 
 ## 6.9 Electronics metallurgy (alloys + zircon)
 
-Files: `startup_scripts/gtceu/electronics_metallurgy.js` (materials), `server_scripts/mods/gtceu/electronics_metallurgy.js` (mixers, zircon chain, ore vein). GT generates each alloy's EBF recipe from its blast property (circuit 1 without gas, circuit 2 with the gas at 0.67× time; above 1750 K a hot ingot + vacuum freezer), the parts and centrifuge decomposition. Only alloys of a tier metal exist; HV, IV and LuV use GT's own metals.
+Files: `startup_scripts/gtceu/electronics_metallurgy.js` (materials), `server_scripts/mods/gtceu/electronics_metallurgy.js` (zircon chain, ore vein; the alloy mixers are in `circuits_af9.js`). GT generates each alloy's EBF recipe from its blast property (circuit 1 without gas, circuit 2 with the gas at 0.67× time; above 1750 K a hot ingot + vacuum freezer), the parts and centrifuge decomposition. Only alloys of a tier metal exist; HV, IV and LuV use GT's own metals.
 
 | Alloy `gtceu:` | Tier | Mixer (circuit) → dust, EU/t | EBF | Gas | EBF EU/t, time | Part used | Real-world role |
 |---|---|---|---|---|---|---|---|
@@ -998,10 +998,10 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 | Chip | Where | Script |
 |---|---|---|
 | rf_transceiver | wireless energy hatches, EV-UHV: 2 on top of each receiver / transmitter; AE2 Wireless Receiver (so the Wireless Access Point and every wireless terminal): 1, in the shape `F / IQI / IRI` | wireless_energy.js, chip_uses.js |
-| apu | extra MV Microprocessor: 1 APU in place of the CPU chip + RAM, 3 out instead of 2 | mv_circuits.js |
+| apu | extra MV Microprocessor: 1 APU in place of the CPU chip + RAM, 3 out instead of 2 | circuits_af9.js |
 | mcu | GT Machine Controller, Activity / Item / Fluid Detector covers: 1 on top (they had no circuit); extra LV / MV Robot Arm and Sensor Assembler recipes: 1 MCU in place of the circuit; the machine bus (`docs/machine-bus.md`): 2 per Bus Connector, 1 per Machine Bus Module | chip_uses.js, machine_bus.js |
 | asic | on top: GT Large Miners EV 2 / IV 4 / LuV 8, Fluid Drilling Rigs HV 2 / EV 4 (not MV: before phosphorus), Void Miner 4; extra SMC fab multiblock controller recipes with ASICs in place of the circuits | chip_uses.js, miner.js, fab_machines.js |
-| edram packages | extra, half the time, 1 package in place of 4 RAM: Quantum Computer (and ASMD) 4 CPU packages, Crystal Processor Assembly 6 SoC packages, the pack's Nano Mainframe (Assembly Line, 800 t) 4 CPU packages | tiered_circuits.js |
+| edram packages | extra, half the time, 1 package in place of 4 RAM: Quantum Computer (and ASMD) 4 CPU packages, Crystal Processor Assembly 6 SoC packages, the pack's Nano Mainframe (Assembly Line, 800 t) 4 CPU packages | circuits_af9.js |
 | mram | extra, half GT's time, no research, clean room: Data Orb (Circuit Assembler: epoxy board, CPU chip, 4 MRAM, 16 fine Pt wire), Data Bank (Assembler: computer casing, 16 MRAM, 2 CPU chips, 32 fine NbTi wire, 4 optical pipes), Advanced Data Access Hatch (Assembler: LuV input bus, 8 MRAM, 2 CPU chips, 32 fine NbTi wire) | chip_uses.js |
 | feram | the Tensor RAM card of the computation arrays (the pack's UV memory) | computation.js |
 | vpu | GT LuV Sensor (Assembly Line): 2 on top; LuV Scanner: GT's shape with 2 VPUs in place of the bottom two ZPM circuits (`CEC / WHW / VSV`); Orbital Lithography Station: 8 on top | chip_uses.js, photolithography.js |
@@ -1438,13 +1438,12 @@ kubejs/server_scripts/mods/gtceu/photolithography.js # AF9_WAFERS table + wafer 
 kubejs/server_scripts/mods/gtceu/boule_melting.js  # Ender Air → endion, endionite, coils, crucibles, charges/seeds/boules, new boule cutting, GT boule removals
 kubejs/server_scripts/mods/gtceu/cryogenics.js     # cryostat + coolant hatch crafting, dense cooling + supercooling
 kubejs/server_scripts/mods/gtceu/particle_accelerator.js # accelerator + consumables crafting, neutron irradiation, ion collision, quark synthesis
-kubejs/server_scripts/mods/gtceu/electronics_metallurgy.js # alloy mixers, zircon chain, zircon sands ore vein
+kubejs/server_scripts/mods/gtceu/electronics_metallurgy.js # zircon chain, zircon sands ore vein
 kubejs/startup_scripts/gtceu/fab_chemistry.js      # 72 fab-chemistry materials + the resists, laser gases, ultrapure water the line uses
 kubejs/server_scripts/mods/gtceu/fab_chemistry.js  # lines 1-5 (§6.12-6.16): Siemens polysilicon + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
 kubejs/startup_scripts/gtceu/fab_machines.js       # §11: 12 fab recipe types (slot layouts), 4 SMC single-block families (MV-LuV), 4 SMC multiblocks (structures, modifiers)
 kubejs/server_scripts/mods/gtceu/fab_machines.js   # §11: crafting of the SMC machines
-kubejs/server_scripts/mods/gtceu/mv_circuits.js     # MV circuits without transistors/diodes (Al-Si wire, Kovar pins)
-kubejs/server_scripts/mods/gtceu/tiered_circuits.js # HV-LuV circuits: plain chips + tier metals
+kubejs/server_scripts/mods/gtceu/circuits_af9.js    # all of AF9's circuit crafting: alloy mixers (Al-Si, Kovar, Pt-Ir), MV circuits without transistors/diodes, HV-LuV circuits (plain chips + tier metals), eDRAM versions
 config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in kubejs/assets/kubejs/lang/en_us.json (af9.quest.*)
 kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type/block names, tooltips, mode descriptions, AF9 material names
 af9-core/src/main/resources/assets/af9/lang/en_us.json # consoles, Jade, recipe info, substrate/light names, wafer messages

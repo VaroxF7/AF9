@@ -1,4 +1,32 @@
-// AF9 - HV to LuV circuits are built from the metals of their own tier (the ones the Circuits quest page lists per
+// AF9 - Circuit crafting: everything AF9 changes about how GT's circuits are made, in one file to edit.
+//
+// What is here, in order:
+//   1. helpers (the tin / soldering alloy pair that every circuit assembler recipe gets, the chips, the cleanroom)
+//   2. the metals of the circuits: the alloy dusts (Aluminium-Silicon, Kovar, Platinum-Iridium) mixed in LV / HV
+//      (GT melts them in the EBF at the temperatures of startup_scripts/gtceu/electronics_metallurgy.js)
+//   3. MV circuits without discrete semiconductors (Good Electronic / Good Integrated circuit, Microprocessor, APU version)
+//   4. HV to LuV circuits from the metals of their own tier, with plain chips (+ their SMD / SoC versions)
+//   5. the eDRAM package recipes (LuV): extra recipes beside the RAM ones
+// Everything else about circuits is GT's own (CircuitRecipes.java, GTCEu 7.2.0, harderCircuitRecipes off). The chips
+// themselves (what a wafer yields, the lithography machines) are in photolithography.js and litho_process.js; the
+// circuit-free uses of chips (robot arms, sensors, data orbs) are in chip_uses.js. Spec: docs/semiconductor-factory.md
+//
+// To change a circuit: edit its recipe below (inputs, outputs, duration, EUt); to take one out, delete its block. A
+// circuit that GT makes by itself and is not listed here is untouched. A recipe id is af9:<id> (and af9:<id>_soldering_alloy
+// for the second solder version): keep it unique.
+//
+// ---- MV (before this was mv_circuits.js) ----
+// Transistors and diodes are replaced by lithographed chips (Photolithography Line); resistors and capacitors stay as
+// board passives. Any chip works regardless of the mode it was printed in. The metal parts are MV metals (aluminium,
+// the MV metal of the Circuits quest page): Aluminium-Silicon bond wire and Kovar pins (their alloy dusts: section 2 below),
+// both from an LV mixer and the EBF, so they can be made before any MV machine.
+//
+// The Good Electronic Circuit must stay chip-free: the Photolithography Line and its MV parts need MV circuits, so at
+// least one MV circuit has to be makeable before the line exists. It uses vacuum tubes (the pre-semiconductor
+// rectifier) where GT used diodes. The SoC Microprocessor recipe is GT's own and stays: it has no discrete parts.
+//
+// ---- HV to LuV (before this was tiered_circuits.js) ----
+// HV to LuV circuits are built from the metals of their own tier (the ones the Circuits quest page lists per
 // tier). The chips are GT's plain chips: the lithography machines print plain wafer items, and a chip is a chip
 // whatever substrate it was cut from (higher substrates just give more chips per wafer).
 //
@@ -13,12 +41,11 @@
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
-    // plain GT chips; the tier / mode arguments only document which circuit tier a recipe belongs to
-    const chipIn = (modeId, chipId, count) => AF9_WAFERS.chipStack(chipId, count)
-    const chip = (tier, chipId, count) => AF9_WAFERS.chipStack(chipId, count)
 
-    // A tin (144 mB x multiplier) and a soldering alloy (72 mB x multiplier) version, the same pair GT's generator
-    // makes (KubeJS recipes skip it)
+    // ================================= 1. helpers =================================
+    // GT's circuit assembler recipes get a tin and a soldering alloy version from GT's recipe generator, which KubeJS
+    // recipes skip; this adds both the same way: a tin (144 mB x multiplier) and a soldering alloy (72 mB x multiplier)
+    // version of one recipe
     const newCircuit = (id, solder, build) => {
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}`)).inputFluids(Fluid.of('gtceu:tin', 144 * solder))
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}_soldering_alloy`)).inputFluids(Fluid.of('gtceu:soldering_alloy', 72 * solder))
@@ -29,8 +56,96 @@ ServerEvents.recipes(event => {
         event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
         newCircuit(id, solder, build)
     }
+    const circuitAssembler = (id, build) => newCircuit(id, 1, build)
+    // plain GT chips; the tier / mode arguments only document which circuit tier a recipe belongs to
+    const chipIn = (modeId, chipId, count) => AF9_WAFERS.chipStack(chipId, count)
+    const chip = (tier, chipId, count) => AF9_WAFERS.chipStack(chipId, count)
     const clean = recipe => recipe.cleanroom(CleanroomType.CLEANROOM)
 
+    // ================================= 2. the metals of the circuits =================================
+    // Mixed one tier below the circuits that use them (LV for the MV alloys, HV for the EV one). Circuit 3 keeps Kovar
+    // apart from GT's invar (circuit 1), whose inputs are a subset of Kovar's.
+    const alloys = [
+        { id: 'aluminium_silicon', inputs: ['16x gtceu:aluminium_dust', 'gtceu:silicon_dust'], count: 17, circuit: 2, eut: VA[GTValues.LV] },
+        { id: 'kovar', inputs: ['6x gtceu:iron_dust', '3x gtceu:nickel_dust', '2x gtceu:cobalt_dust'], count: 11, circuit: 3, eut: VA[GTValues.LV] },
+        { id: 'platinum_iridium', inputs: ['9x gtceu:platinum_dust', 'gtceu:iridium_dust'], count: 10, circuit: 2, eut: VA[GTValues.HV] }
+    ]
+    alloys.forEach(a => {
+        event.recipes.gtceu.mixer(`af9:${a.id}_dust`)
+            .itemInputs(a.inputs)
+            .circuit(a.circuit)
+            .itemOutputs(`${a.count}x gtceu:${a.id}_dust`)
+            .duration(a.count * 30)
+            .EUt(a.eut)
+    })
+
+    // ================================= 3. MV =================================
+    // GT's versions (with diodes / transistors) and their generated solder variants
+    const replacedGtRecipes = ['electronic_circuit_mv', 'integrated_circuit_mv', 'processor_mv']
+    event.remove({ id: 'gtceu:shaped/electronic_circuit_mv' })
+    replacedGtRecipes.forEach(id => {
+        event.remove({ id: `gtceu:circuit_assembler/${id}` })
+        event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
+    })
+
+    // ---- Good Electronic Circuit (MV, bootstrap) ----
+    event.shaped('gtceu:good_electronic_circuit', ['VPV', 'CBC', 'WCW'], {
+        V: 'gtceu:vacuum_tube',
+        P: 'gtceu:steel_plate',
+        C: 'gtceu:basic_electronic_circuit',
+        B: 'gtceu:phenolic_printed_circuit_board',
+        W: 'gtceu:copper_single_wire'
+    }).id('af9:shaped/good_electronic_circuit')
+
+    circuitAssembler('good_electronic_circuit', recipe => recipe
+        .itemInputs(
+            'gtceu:phenolic_printed_circuit_board',
+            '2x gtceu:basic_electronic_circuit',
+            '2x gtceu:vacuum_tube',
+            '2x gtceu:copper_single_wire')
+        .itemOutputs('gtceu:good_electronic_circuit')
+        .duration(300)
+        .EUt(GTValues.VA[GTValues.LV]))
+
+    // ---- Good Integrated Circuit (MV): logic chips instead of diodes ----
+    circuitAssembler('good_integrated_circuit', recipe => recipe
+        .itemInputs(
+            'gtceu:phenolic_printed_circuit_board',
+            '2x gtceu:basic_integrated_circuit',
+            '2x gtceu:ilc_chip',
+            '2x #gtceu:resistors',
+            '4x gtceu:fine_aluminium_silicon_wire',
+            '4x gtceu:kovar_bolt')
+        .itemOutputs('2x gtceu:good_integrated_circuit')
+        .duration(400)
+        .EUt(24))
+
+    // ---- Microprocessor (MV): CPU with a RAM cache instead of discrete transistors ----
+    circuitAssembler('micro_processor', recipe => recipe
+        .itemInputs(
+            'gtceu:plastic_printed_circuit_board',
+            'gtceu:cpu_chip',
+            'gtceu:ram_chip',
+            '4x #gtceu:resistors',
+            '4x #gtceu:capacitors',
+            '4x gtceu:fine_aluminium_silicon_wire')
+        .itemOutputs('2x gtceu:micro_processor')
+        .duration(200)
+        .EUt(60))
+
+    // ---- Microprocessor (MV), APU version: CPU and graphics on one die, with their cache; one chip does the work of
+    // the CPU and its RAM, so the board takes more of them ----
+    circuitAssembler('micro_processor_apu', recipe => recipe
+        .itemInputs(
+            'gtceu:plastic_printed_circuit_board',
+            'kubejs:apu_chip',
+            '4x #gtceu:resistors',
+            '4x #gtceu:capacitors',
+            '4x gtceu:fine_aluminium_silicon_wire')
+        .itemOutputs('3x gtceu:micro_processor')
+        .duration(200)
+        .EUt(60))
+    // ================================= 4. HV to LuV =================================
     // ================================= HV (gold + stainless steel) =================================
     circuit('integrated_circuit_hv', 1, r => r
         .itemInputs('2x gtceu:good_integrated_circuit', chipIn('muv', 'ilc', 2), chipIn('muv', 'ram', 2), '4x #gtceu:transistors',
