@@ -4,8 +4,12 @@ import com.af9.core.common.IPowerGated;
 
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockDisplayText;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
+import com.gregtechceu.gtceu.api.pattern.BlockPattern;
+import com.gregtechceu.gtceu.api.pattern.MultiblockShapeInfo;
+import com.gregtechceu.gtceu.api.pattern.MultiblockWorldSavedData;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
 import com.gregtechceu.gtceu.api.pattern.error.PatternStringError;
 import com.gregtechceu.gtceu.api.pattern.util.PatternMatchContext;
@@ -20,13 +24,18 @@ import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 
+import com.lowdragmc.lowdraglib.gui.util.ClickData;
+import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
+import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import com.lowdragmc.lowdraglib.utils.BlockInfo;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -40,6 +49,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.IntStream;
@@ -52,7 +62,8 @@ import java.util.stream.IntStream;
  * The structure is GTNH's (the startup script {@code startup_scripts/gtceu/space_elevator.js} holds it): its blocks
  * with rules of their own are checked here. The {@link #motors() motors} round the shaft are all of one tier, the
  * elevator's; the {@link #cable() cable} block on top of the shaft needs open sky above it; the module slots hold
- * {@link #modules() Mining Modules}.
+ * {@link #modules() Mining Modules}. It has GTNH's two sizes: the basic tower, and the extended one with a ring round
+ * its foot and twelve more module slots, switched on the screen ({@link #setExtended}; {@link #getPattern()}).
  * <p>
  * As in GTNH the modules do the work: a Mining Module flies 2, 4 or 8 expeditions at once (MK-I to MK-III), each with the
  * recipe's full hydrogen, coolant and energy, all to the same asteroid. The motors' tier powers 6, 12, 15, 18 or 24 module
@@ -108,6 +119,15 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     private static final int EXOTIC_ONE_IN = 6;
     private static final String DRONE = "space_mining_drone_mk";
 
+    /**
+     * The pattern of the extended structure. The startup script builds it together with the basic one (the machine
+     * definition's own pattern) and hands it over, the first time GT asks for the definition's pattern.
+     */
+    private static volatile BlockPattern extendedPattern;
+
+    /** The size the structure is checked for: GTNH's extended elevator instead of the basic one. */
+    @Persisted
+    private boolean extended;
     /** The tier of the motors round the shaft (1 to 5), 0 while not formed. */
     private int motorTier;
     /** Mining Modules in the module slots, those of them the motors power, and the expeditions these fly at once. */
@@ -149,6 +169,55 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     //////////////////////////////////////
     // ********** Structure ***********//
     //////////////////////////////////////
+
+    /** The startup script's: the pattern of the extended structure. */
+    public static void setExtendedPattern(BlockPattern pattern) {
+        extendedPattern = pattern;
+    }
+
+    /** The basic structure's pattern, or the extended one's while that size is switched on. */
+    @Override
+    public BlockPattern getPattern() {
+        // the definition's first: building it is what makes the script hand over the extended one
+        BlockPattern basic = super.getPattern();
+        BlockPattern big = extendedPattern;
+        return extended && big != null ? big : basic;
+    }
+
+    /** The two pages of the structure preview: the basic and the extended tower. */
+    public static List<MultiblockShapeInfo> previews(MultiblockMachineDefinition definition) {
+        List<MultiblockShapeInfo> pages = new ArrayList<>();
+        pages.add(preview(definition.getPatternFactory().get()));
+        BlockPattern big = extendedPattern;
+        if (big != null) pages.add(preview(big));
+        return pages;
+    }
+
+    private static MultiblockShapeInfo preview(BlockPattern pattern) {
+        int[] once = new int[pattern.aisleRepetitions.length];
+        Arrays.fill(once, 1);
+        return new MultiblockShapeInfo(pattern.getPreview(once));
+    }
+
+    public boolean isExtended() {
+        return extended;
+    }
+
+    /**
+     * Switches between the basic and the extended structure (GTNH's size button). A formed tower is taken apart and
+     * checked anew for the other size, as when its controller is turned; a run that is on is lost.
+     */
+    public void setExtended(boolean extended) {
+        if (this.extended == extended) return;
+        this.extended = extended;
+        markDirty();
+        if (isFormed() && getLevel() instanceof ServerLevel serverLevel) {
+            onStructureInvalid();
+            MultiblockWorldSavedData data = MultiblockWorldSavedData.getOrCreate(serverLevel);
+            data.removeMapping(getMultiblockState());
+            data.addAsyncLogic(this);
+        }
+    }
 
     /** A tiered block of the elevator ({@code kubejs:<prefix><tier>}, from the startup script), null when there is none. */
     private static Block tiered(String prefix, int tier) {
@@ -423,6 +492,11 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
                 .addProgressLine(recipeLogic.getProgress(), recipeLogic.getMaxProgress(),
                         recipeLogic.getProgressPercent())
                 .addOutputLines(recipeLogic.getLastRecipe());
+        // the size switch: also while the tower is not formed, it says which of the two is to be built
+        Component size = Component.translatable(extended ? "af9.space_elevator.size.extended" :
+                "af9.space_elevator.size.basic").withStyle(style -> style.withHoverEvent(new HoverEvent(
+                        HoverEvent.Action.SHOW_TEXT, Component.translatable("af9.space_elevator.size.hint"))));
+        text.add(Component.translatable("af9.space_elevator.size").append(ComponentPanelWidget.withButton(size, "size")));
         if (!isFormed()) return;
         if (motorTier >= 1 && motorTier <= ROMAN.length) {
             text.add(Component.translatable("af9.space_elevator.motors", ROMAN[motorTier - 1],
@@ -441,5 +515,10 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
             text.add(Component.translatable("af9.space_elevator.asteroid", asteroid).withStyle(ChatFormatting.AQUA));
         }
         text.add(Component.translatable("af9.space_elevator.power", getAvailableEUt()).withStyle(ChatFormatting.GRAY));
+    }
+
+    @Override
+    public void handleDisplayClick(String componentData, ClickData clickData) {
+        if (!clickData.isRemote && componentData.equals("size")) setExtended(!extended);
     }
 }

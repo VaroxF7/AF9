@@ -43,7 +43,8 @@ As in GTNH the elevator itself does nothing: its **modules** do the work, and it
   serves them all: it is not used up.
 
 So one MK-I module with one 4A ZPM hatch flies a single Mk-I expedition; with 8A it flies two. Six MK-I modules on MK-I motors fly
-up to 12 at once, twelve MK-III modules on MK-III motors up to 96, on laser hatches.
+up to 12 at once, twelve MK-III modules on MK-III motors up to 96, on laser hatches. The basic tower has 12 module slots, the
+**extended** one 24 (section 2): MK-III motors power 15 of them, MK-IV 18, MK-V all 24.
 
 ### Asteroids
 
@@ -58,11 +59,12 @@ The screen names the asteroid the elevator drew last (the vein it is made from).
 
 ## 2. Structure
 
-**GTNH's structure, block for block**: 35 x 35 and 43 high, 2,711 blocks. It is taken from GTNH's own definition
-(`gtnhintergalactic.tile.multi.elevator.TileEntitySpaceElevator`, `STRUCTURE_PIECE_MAIN`; programming minecraft7771 and BlueWeabo,
-design Sampsa, Jimbno, Adam and Baunti; GT5-Unofficial, LGPL-3.0) and held by the startup script as the table `SE_MAIN`: the slices
-from the front to the middle one (the back half mirrors the front), each slice its rows from its highest block down. The script
-unfolds it into GT's pattern (aisles front to back, rows top to bottom); it was checked against GTNH's source, position by position.
+**GTNH's structure, block for block**: 35 x 35 and 43 high, 2,711 blocks (and its extended size, below). It is taken from GTNH's own
+definition (`gtnhintergalactic.tile.multi.elevator.TileEntitySpaceElevator`, `STRUCTURE_PIECE_MAIN`; programming minecraft7771 and
+BlueWeabo, design Sampsa, Jimbno, Adam and Baunti; GT5-Unofficial, LGPL-3.0) and held by the startup script as the table `SE_MAIN`:
+the slices from the front to the middle one (the back half mirrors the front), each slice its rows from its highest block down. The
+script unfolds it into GT's pattern (aisles front to back, rows top to bottom); both sizes were checked against GTNH's source, position
+by position.
 
 | Block | Count | Where |
 |---|---|---|
@@ -90,7 +92,22 @@ Rules of the structure (GTNH's):
 * **A module slot** holds a Mining Module of any tier, or Base Casing (`SpaceElevatorMachine.modules()` notes the modules down; what
   they do is section 1).
 
-The tower spans 35 x 35 blocks, 9 chunks or more: all of them have to be loaded for it to form and to work.
+The tower spans 35 x 35 blocks, 9 chunks or more (the extended one 47 x 47): all of them have to be loaded for it to form and to work.
+
+### The extended structure
+
+GTNH's second size (`STRUCTURE_PIECE_EXTENDED`, the table `SE_EXTENSION`): a **ring of 47 x 47** round the tower's foot, in its bottom five
+layers, with **twelve more module slots** (three in the middle of every side, on platforms of their own): 24 in all. It adds 432 Ultra High
+Strength Concrete Floor (1,232), 188 Internal Structure (548) and up to 120 Base Casing (the new slots and the places round them: 593 to 905).
+
+The size is **switched on the controller's screen** (the line *Structure*: click it; GTNH has a button for it). The machine then checks the
+other pattern (`SpaceElevatorMachine.getPattern()`: the startup script builds both and hands the extended one over,
+`setExtendedPattern`): switched to extended, the tower only forms with the whole ring built. Switching takes a formed tower apart and
+checks it anew, so a run that is on is lost. The structure preview has both sizes as its two pages (`previews`); the terminal builds
+the size that is switched on.
+
+GTNH only checks the extension from MK-III motors on. Here the size is the player's choice at any tier: with MK-I or MK-II motors the
+extension's slots are simply not powered (6 and 12 slots).
 
 ### The blocks
 
@@ -137,5 +154,5 @@ from the platform). The numbers are `SpaceElevatorMachine.CABLE_UP`, `CABLE_BACK
 
 GTNH's modules are machines of their own (mining, pumping, assembler; each with its own buses, drone, parameters and an asteroid filter); here a
 module is a block that makes the elevator fly more expeditions, the buses and the drone are the elevator's, and there are only Mining Modules.
-GTNH's elevator also has an **extended** structure with twelve more module slots, a galaxy map for travel, and plasma, drill tips, rods and computation
-as inputs; here it runs on hydrogen and a coolant and has no travel function. GTNH's climber goes up and down its cable; here the platform turns on it.
+GTNH's elevator also has a galaxy map for travel, and plasma, drill tips, rods and computation as inputs; here it runs on hydrogen and a coolant
+and has no travel function. GTNH's climber goes up and down its cable; here the platform turns on it.

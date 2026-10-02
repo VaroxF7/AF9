@@ -11,6 +11,7 @@
 //
 // The structure is GTNH's, block for block (SE_MAIN): 35 x 35 and 43 high, a floor of concrete, a central column of motors
 // round an empty shaft with the cable on top of it, and a tapering frame of base casing and support structure around it.
+// Its extended size (SE_EXTENSION, switched on the controller's screen) adds a ring of 47 x 47 with twelve more module slots.
 
 const $SpaceElevator = Java.loadClass('com.af9.core.elevator.SpaceElevatorMachine')
 const $ElevatorModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
@@ -510,11 +511,117 @@ const SE_MAIN = [
     ]
 ]
 
+// GTNH's extended elevator (STRUCTURE_PIECE_EXTENDED): a ring of 47 x 47 round the tower's foot, in its bottom five layers,
+// with twelve more module slots (three in the middle of every side). Written as the tower is: the slices from the front
+// to the middle one, each its rows from its highest block down; the tower stands in the middle of it.
+const SE_EXTENSION = [
+    [   // 0
+        '                    FFFFFFF                    ',
+        '                    AAAAAAA                    '
+    ],
+    [   // 1
+        '                     M M M                     ',
+        '                     M M M                     ',
+        '                     M M M                     ',
+        '                   FFM M MFF                   ',
+        '                 AAAAM M MAAAA                 '
+    ],
+    [   // 2
+        '                     M M M                     ',
+        '                     I I I                     ',
+        '                     M M M                     ',
+        '                   FFM M MFF                   ',
+        '              AAAAAAAM M MAAAAAAA              '
+    ],
+    [   // 3
+        '                   FFF F FFF                   ',
+        '            AAAAAAAAAA   AAAAAAAAAA            '
+    ],
+    [   // 4
+        '                  FFFF F FFFF                  ',
+        '          AAAA   AAAAA   AAAAA   AAAA          '
+    ],
+    [   // 5
+        '                  FFFF F FFFF                  ',
+        '        AAAA     AAAAA   AAAAA     AAAA        '
+    ],
+    [   // 6
+        '                  FFFFFFFFFFF                  ',
+        '       AAA      AAAAAAAAAAAAAAA      AAA       '
+    ],
+    [   // 7
+        '      AAA       AA           AA       AAA      '
+    ],
+    [   // 8
+        '     AAA                               AAA     '
+    ],
+    [   // 9
+        '     AA                                 AA     '
+    ],
+    [   // 10
+        '    AA                                   AA    '
+    ],
+    [   // 11
+        '    AA                                   AA    '
+    ],
+    [   // 12
+        '   AA                                     AA   '
+    ],
+    [   // 13
+        '   AA                                     AA   '
+    ],
+    [   // 14
+        '  AA                                       AA  '
+    ],
+    [   // 15
+        '  AA                                       AA  '
+    ],
+    [   // 16
+        '  AA  AA                               AA  AA  '
+    ],
+    [   // 17
+        ' AAAAAAA                               AAAAAAA '
+    ],
+    [   // 18
+        '    FFF                                 FFF    ',
+        ' AAAAAA                                 AAAAAA '
+    ],
+    [   // 19
+        ' FFFFFF                                 FFFFFF ',
+        ' AAAAAA                                 AAAAAA '
+    ],
+    [   // 20
+        'FFFFFFF                                 FFFFFFF',
+        'AAAAAAA                                 AAAAAAA'
+    ],
+    [   // 21
+        ' MM                                         MM ',
+        ' MI                                         IM ',
+        ' MM                                         MM ',
+        'FMMFFFF                                 FFFFMMF',
+        'AMMAAAA                                 AAAAMMA'
+    ],
+    [   // 22
+        'F     F                                 F     F',
+        'A     A                                 A     A'
+    ],
+    [   // 23
+        ' MM                                         MM ',
+        ' MI                                         IM ',
+        ' MM                                         MM ',
+        'FMMFFFF                                 FFFFMMF',
+        'AMM   A                                 A   MMA'
+    ]
+]
+
 const SE_WIDTH = 35
 const SE_HEIGHT = 43
 const SE_DEPTH = 35
 // the controller: the front centre of the central column, in the 4th layer (column, row from the top, slice)
 const SE_CONTROLLER = [17, 39, 14]
+// the extension: how far it reaches out past the tower on every side, and how many of the bottom layers it is in
+const SE_REACH = 6
+const SE_RING_HEIGHT = 5
 
 const seBlank = width => {
     let row = ''
@@ -536,12 +643,34 @@ const seUnfold = (table, depth, height, width) => {
     return slices
 }
 
-// The tower's slices with the controller in its place
-const seSlices = () => {
-    const slices = seUnfold(SE_MAIN, SE_DEPTH, SE_HEIGHT, SE_WIDTH)
-    const row = slices[SE_CONTROLLER[2]][SE_CONTROLLER[1]]
-    slices[SE_CONTROLLER[2]][SE_CONTROLLER[1]] = row.substring(0, SE_CONTROLLER[0]) + 'S' +
+// The tower's slices with the controller in its place; extended: the tower in the middle of the extension's ring
+const seSlices = extended => {
+    const tower = seUnfold(SE_MAIN, SE_DEPTH, SE_HEIGHT, SE_WIDTH)
+    const row = tower[SE_CONTROLLER[2]][SE_CONTROLLER[1]]
+    tower[SE_CONTROLLER[2]][SE_CONTROLLER[1]] = row.substring(0, SE_CONTROLLER[0]) + 'S' +
         row.substring(SE_CONTROLLER[0] + 1)
+    if (!extended) return tower
+    const width = SE_WIDTH + 2 * SE_REACH
+    const depth = SE_DEPTH + 2 * SE_REACH
+    const ring = seUnfold(SE_EXTENSION, depth, SE_RING_HEIGHT, width)
+    const slices = []
+    for (var c = 0; c < depth; c++) {
+        var slice = []
+        for (var b = 0; b < SE_HEIGHT; b++) {
+            var line = ''
+            for (var a = 0; a < width; a++) {
+                // the tower's block where it has one, else the ring's (they agree where both have one)
+                var block = c >= SE_REACH && c < SE_REACH + SE_DEPTH && a >= SE_REACH && a < SE_REACH + SE_WIDTH ?
+                    tower[c - SE_REACH][b].charAt(a - SE_REACH) : ' '
+                if (block === ' ' && b >= SE_HEIGHT - SE_RING_HEIGHT) {
+                    block = ring[c][b - (SE_HEIGHT - SE_RING_HEIGHT)].charAt(a)
+                }
+                line += block
+            }
+            slice.push(line)
+        }
+        slices.push(slice)
+    }
     return slices
 }
 
@@ -592,8 +721,14 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeTypes([GTRecipeTypes.get('space_mining')])
         .recipeModifiers([$SpaceElevator.ASTEROID])
         .appearanceBlock(() => Block.getBlock('kubejs:space_elevator_base_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_elevator.tooltip', 8))
-        .pattern(definition => sePattern(definition, seSlices()))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_elevator.tooltip', 9))
+        .pattern(definition => {
+            // GT asks for this once: both sizes are built, the extended one is the machine's own to switch to
+            $SpaceElevator.setExtendedPattern(sePattern(definition, seSlices(true)))
+            return sePattern(definition, seSlices(false))
+        })
+        // the structure preview's two pages: the basic and the extended tower
+        .shapeInfos(definition => $SpaceElevator.previews(definition))
         .workableCasingModel('kubejs:block/space_elevator_base_casing', 'gtceu:block/multiblock/fusion_reactor')
         // the same model plus the cable and the platform on it; the numbers live in af9-core (where the cable block is
         // from the controller, how high the platform rides, how far the cable runs up)

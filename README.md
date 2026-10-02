@@ -45,9 +45,9 @@ the configs AF9 changes. Everything else comes from the pack itself.
 - **Platinum line** (`docs/platinum-group-metals.md`): a refinery chain in GT's own machines: purified ore to matte, leach residue and a
   chloride liquor, then gold, platinum and palladium by precipitation and calcination, ruthenium and osmium through an alkaline fusion and
   the volatile tetroxides, iridium and rhodium last. GT's own platinum group chain is untouched; the tiers are GT's (HV, EV, IV).
-- **Space Elevator** (`docs/space-elevator.md`): GTNH's, its structure block for block (35 x 35 x 43); a ZPM tower on a cable with a platform that
-  turns on it: Mining Drones, hydrogen and a supercooled coolant (50-100 buckets each) and huge energy send expeditions to random asteroids made from
-  GT's ore veins: the pack's renewable ore source.
+- **Space Elevator** (`docs/space-elevator.md`): GTNH's, its structure block for block (35 x 35 x 43, and the extended 47 x 47), with its motor
+  tiers and Mining Modules; a ZPM tower on a cable with a platform that turns on it: Mining Drones, hydrogen and a supercooled coolant (50-100
+  buckets each) and huge energy send expeditions to random asteroids made from GT's ore veins: the pack's renewable ore source.
 - **Oil** (`docs/oil.md`): the world's oil is off; Oil Regolith, a sand-like rock of the asteroids, becomes Impure Oil, Shiny
   Oil, then Oil and Heavy Oil; the Asteroid Field's fluid deposits hold nitrogen, oxygen, heavy water and acids.
 

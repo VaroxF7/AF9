@@ -388,6 +388,7 @@
     "af9.space_elevator.tooltip.5": "§735x35x43, GTNH's structure block for block: a floor of §fUltra High Strength Concrete§7, a tapering frame of §fBase Casing§7 and §fSupport Structure§7 round a column of §bMotors§7 (88, all of one tier) with the §fCable§7 on top of its shaft, under the open sky. The platform turns on the cable above it.",
     "af9.space_elevator.tooltip.6": "§7Hatches (maxima): 4 energy and 2 laser in the bottom centre casings; 8 fluid input, 2 item input and 8 item output there or in the module slots.",
     "af9.space_elevator.tooltip.7": "§bSpace Mining Modules§7 in the 12 module slots fly the expeditions, as in GTNH: MK-I 2 at once, MK-II 4, MK-III 8, each with the full hydrogen, coolant and energy. The §bMotors§7' tier powers 6 / 12 / 15 / 18 / 24 slots and modules up to its own tier. Without a powered module nothing flies.",
+    "af9.space_elevator.tooltip.8": "§7Two sizes, as in GTNH (the switch is on the controller's screen): the basic tower, or §eextended§7 with a ring of 47x47 round its foot and §b12 more module slots§7 (24). Motors MK-III and better have the slots for them.",
     "material.gtceu.tarc": "TARC",
     "material.gtceu.impure_oil": "Impure Oil",
     "material.gtceu.shiny_oil": "Shiny Oil",
