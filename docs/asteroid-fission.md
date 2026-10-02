@@ -115,12 +115,19 @@ at most 20 blocks long (`MAX_CORRIDOR`), also in an island of 90 blocks of radiu
 | temple | 7 x 11 x 4 | 3 wide, 3 high | two rows of pillars (purpur), end rods, a platform with an altar and a chest, a band of carvings on the back wall | about 21 / 12 |
 | grand temple | 11 x 17 x 6 | 5 wide, 4 high | the same, longer (four rows of pillars), and a chest in each back corner | about 30 / 18 |
 
-Which rocks hold one (`AsteroidFieldFeature`): **the island of every cluster** (the biggest size that fits: always a grand temple, the islands
-have radii of 45-75), **60 % of the large satellites** (a shrine or a temple), **25 % of the medium ones** (a shrine, only at the big end of the
-class), never the small ones. Whether a rock holds one, its size and its direction come from the rock's own seed, so they do not move
-the cluster's other rocks. The biggest size that fits is built: the corner of the outer wall, as a share of the radii, squared and added up, has to
-stay below 0.36 (an ellipsoid's surface is 1; the lumps of the surface take up to a third of the radius). A temple that pokes out of a thin spot
-of the rock stays: the walls hang on the rock, it is a ruin.
+**Where the temples are: a grid like the End cities'.** Vanilla places `minecraft:end_city` with `random_spread`, spacing 20 and
+separation 11 chunks: the world is cut into squares of 20 x 20 chunks (320 blocks), every square has one candidate point at random in its
+first 9 chunks, so two points are at least 11 chunks (176 blocks) apart. The temples use the same numbers (`TEMPLE_SPACING`,
+`TEMPLE_SEPARATION`, a salt of their own): each square's point goes to **the cluster whose centre is nearest to it** (within
+`TEMPLE_RANGE` = 192 blocks; none if there is no cluster that near), and **a cluster holds at most one temple**: in its island 70 % of
+the time (`ISLAND_HOST_SHARE`: a grand temple, the islands have radii of 45-75), else in its biggest satellite that a temple fits (a large
+or a big medium one: a shrine, a temple or a grand temple). Simulated over 216 km2: **5.6 temples per km2, in 76 % of the clusters**, the
+nearest other temple a median 256 blocks away (the 10th percentile 151, the minimum a few dozen: the point is the grid's, the rock is
+the nearest cluster's). Which rock it is comes from the world seed and the cell alone (a pure function, cached per square), so a chunk and
+its neighbour agree and the cluster's other rocks do not move. The biggest size that fits is built: the corner of the outer wall, as a
+share of the radii, squared and added up, has to stay below 0.36 (an ellipsoid's surface is 1; the lumps of the surface take up to a third
+of the radius). A temple that pokes out of a thin spot of the rock stays: the walls hang on the rock, it is a ruin. (Before: a temple in
+every island, 60 % of the large and 25 % of the medium satellites, about 50 a km2.)
 
 The corridor runs on along its axis through the rock; the *gate* stands where the rock ends (the layout walks along the axis through
 the asteroid's own shape and takes the last rock, a gap of two blocks is a lump in the surface): two purpur pillars, a chiselled
@@ -310,7 +317,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 4. the FX-1 in the multiblock preview, one fuel cycle, a Large Steam Turbine on the steam;
 5. Extreme Reactors, if installed: the log line `Extreme Reactors: could not ...` means the vapor was not registered;
 6. the quest task "dimension" of `af9.quest.fx.field` (an FTB Quests task type);
-7. the temples: that they generate (a grand temple in every island, a shrine or a temple in the large satellites, a shrine in the big medium ones), that the
+7. the temples: that they generate (about one in four clusters has none; a grand temple in the islands, now and then a temple or shrine in a satellite), that the
    forecourts and their towers stand out of the rocks' sides, that the gate and corridor open to the void (simulated: about 98 %; a temple whose gate
    lies inside another rock that overlaps its own stays closed), that the chests hold loot (a missing `af9:chests/...` table gives empty chests, a log line
    "Couldn't find resource table"), and how the field looks with the closer clusters and satellites (§2.2: `CELL`, `CLUSTER_CHANCE`,

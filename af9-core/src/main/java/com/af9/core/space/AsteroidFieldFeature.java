@@ -1,5 +1,7 @@
 package com.af9.core.space;
 
+import com.af9.core.AF9Core;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -18,6 +20,9 @@ import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The asteroids of the Asteroid Field (af9:asteroid_field), a void dimension: <b>clusters</b>, each a large island with
@@ -91,8 +96,20 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
      * past the surface, 5 to each side).
      */
     private static final int MARGIN = 14;
-    /** The share of the islands, of the large and of the medium satellites that hold a temple (if one fits). */
-    private static final double ISLAND_TEMPLE_CHANCE = 1.0;
+    /**
+     * The temples sit on a grid like the End cities' (minecraft:end_city: spacing 20, separation 11 chunks): every square of
+     * {@code TEMPLE_SPACING} x {@code TEMPLE_SPACING} chunks has one candidate point at random in its first
+     * {@code TEMPLE_SPACING - TEMPLE_SEPARATION} chunks, so two candidates are at least {@code TEMPLE_SEPARATION} chunks apart.
+     * The temple goes into the cluster whose centre is nearest to the point (within {@link #TEMPLE_RANGE} blocks; none if there is
+     * no cluster), and a cluster holds at most one: in its island (a grand temple) {@link #ISLAND_HOST_SHARE} of the time, else
+     * in its biggest satellite that a temple fits (a temple or a shrine).
+     */
+    private static final int TEMPLE_SPACING = 20;
+    private static final int TEMPLE_SEPARATION = 11;
+    private static final double TEMPLE_RANGE = 192;
+    /** The share of the clusters whose temple is in the island (the rest: in the biggest satellite that holds one). */
+    private static final double ISLAND_HOST_SHARE = 0.7;
+    private static final long TEMPLE_SALT = 0x3C6EF372FE94F82AL;
     /**
      * Blocks from a cluster's centre that any of its rocks can reach: the island's radius, a satellite at the end of
      * its range and its own radius, each with the stretch and the bulge. (Plus a margin.)
@@ -108,15 +125,38 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     /** The pocket noise's scale: its features are about 1 / this many blocks wide. */
     private static final double OIL_POCKET_SCALE = 0.05;
 
-    /** A class of satellite: radii, its share of the satellites (relative) and the share of it that holds a temple. */
-    private record Satellite(int minR, int maxR, int weight, double templeChance) {}
+    /** A class of satellite: radii, its share of the satellites (relative) and its rank as a host of a temple (0 never). */
+    private record Satellite(int minR, int maxR, int weight, int rank) {}
 
     private static final Satellite[] SATELLITES = {
-            new Satellite(2, 4, 28, 0.0),     // pebbles
-            new Satellite(4, 8, 40, 0.0),     // small
-            new Satellite(9, 16, 24, 0.25),   // medium
-            new Satellite(18, 28, 8, 0.6),    // large
+            new Satellite(2, 4, 28, 0),     // pebbles
+            new Satellite(4, 8, 40, 0),     // small
+            new Satellite(9, 16, 24, 1),    // medium
+            new Satellite(18, 28, 8, 2),    // large
     };
+    /** The island's rank as a host of a temple (a satellite's is 2 for the large ones, 1 for the medium ones, 0 never). */
+    private static final int ISLAND_RANK = 3;
+
+    /** A rock before it is made: where it is, how big, its noise seed, its rank as a host of a temple. */
+    private record Spec(long noiseSeed, double x, double y, double z, double radiusX, double radiusY, double radiusZ,
+                        int rank) {
+
+        /** Whether a temple may go into it: it ranks, and the smallest one fits. */
+        boolean hostsTemple() {
+            return rank > 0 && TempleLayout.fits(TempleLayout.Kind.SHRINE, radiusX, radiusY, radiusZ);
+        }
+    }
+
+    /** A cluster: its centre, its rocks (the island first) and the rock that would hold its temple. */
+    private record Cluster(double x, double z, List<Spec> specs, Spec host) {}
+
+    /** The square of a grid of the temples, in a world. */
+    private record Region(long seed, int x, int z) {}
+
+    private static final long NO_ROCK = Long.MIN_VALUE;
+    /** The rock that holds the temple of a region (its noise seed, or {@link #NO_ROCK}): a pure function, kept for speed. */
+    private static final Map<Region, Long> TEMPLE_ROCKS = new ConcurrentHashMap<>();
+    private static final AtomicBoolean LOGGED = new AtomicBoolean();
 
     private static final Direction[] ENTRANCES = { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST };
     private static final int SATELLITE_WEIGHT = 28 + 40 + 24 + 8;
@@ -146,6 +186,11 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         int chunkMinX = origin.getX() & ~15;
         int chunkMinZ = origin.getZ() & ~15;
         long seed = level.getSeed();
+        if (LOGGED.compareAndSet(false, true)) {
+            AF9Core.LOGGER.info("AF9 Asteroid Field: a cluster in {} % of the cells of {} blocks, temples on a grid of {} "
+                    + "chunks (separation {}, within {} blocks of the point), oil regolith above noise {}",
+                    (int) (CLUSTER_CHANCE * 100), CELL, TEMPLE_SPACING, TEMPLE_SEPARATION, (int) TEMPLE_RANGE, OIL_POCKET);
+        }
         int cellMinX = Mth.floorDiv(chunkMinX - CLUSTER_REACH, CELL);
         int cellMaxX = Mth.floorDiv(chunkMinX + 15 + CLUSTER_REACH, CELL);
         int cellMinZ = Mth.floorDiv(chunkMinZ - CLUSTER_REACH, CELL);
@@ -171,8 +216,22 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     /** The cluster of one cell (if it has one): the rocks of it that reach into the chunk, each with its temple if it has one. */
     private static void collectCluster(List<Rock> rocks, long seed, int cellX, int cellZ, int chunkMinX,
                                        int chunkMinZ) {
+        Cluster cluster = clusterOf(seed, cellX, cellZ);
+        if (cluster == null) return;
+        for (Spec spec : cluster.specs) {
+            if (reaches(spec.x, spec.z, spec.radiusX, spec.radiusZ, chunkMinX, chunkMinZ)) {
+                rocks.add(new Rock(spec, spec == cluster.host && clusterHasTemple(seed, cluster)));
+            }
+        }
+    }
+
+    /**
+     * The cluster of one cell, or null: all of it from the world seed and the cell, a pure function (every parameter of every
+     * satellite is drawn, so the next does not depend on the one before).
+     */
+    private static Cluster clusterOf(long seed, int cellX, int cellZ) {
         RandomSource random = new XoroshiroRandomSource(cellSeed(seed, cellX, cellZ));
-        if (random.nextDouble() >= CLUSTER_CHANCE) return;
+        if (random.nextDouble() >= CLUSTER_CHANCE) return null;
         double centerX = cellX * (double) CELL + random.nextInt(CELL) + 0.5;
         double centerZ = cellZ * (double) CELL + random.nextInt(CELL) + 0.5;
         // the band's middle, lifted or sunk by the region and by this cluster; the satellites need room both ways
@@ -182,17 +241,16 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         double centerY = Mth.clamp(middle + lift, CENTER_MIN_Y + SATELLITE_SPREAD_Y,
                 CENTER_MAX_Y - SATELLITE_SPREAD_Y);
 
+        List<Spec> specs = new ArrayList<>();
         // the island
         double islandR = ISLAND_MIN_R + random.nextDouble() * (ISLAND_MAX_R - ISLAND_MIN_R);
         double islandX = islandR * (0.8 + random.nextDouble() * 0.4);
         double islandZ = islandR * (0.8 + random.nextDouble() * 0.4);
         double islandY = islandR * (ISLAND_FLAT_MIN + random.nextDouble() * (ISLAND_FLAT_MAX - ISLAND_FLAT_MIN));
         long islandNoise = random.nextLong();
-        if (reaches(centerX, centerZ, islandX, islandZ, chunkMinX, chunkMinZ)) {
-            rocks.add(new Rock(islandNoise, centerX, centerY, centerZ, islandX, islandY, islandZ, ISLAND_TEMPLE_CHANCE));
-        }
+        specs.add(new Spec(islandNoise, centerX, centerY, centerZ, islandX, islandY, islandZ, ISLAND_RANK));
 
-        // the satellites: always draw every parameter of every one, so the next does not depend on whether this one is in range
+        // the satellites
         int count = MIN_SATELLITES + random.nextInt(MAX_SATELLITES - MIN_SATELLITES + 1);
         for (int i = 0; i < count; i++) {
             Satellite kind = SATELLITES[0];
@@ -216,9 +274,70 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
             double x = centerX + Math.cos(angle) * distance;
             double z = centerZ + Math.sin(angle) * distance;
             double y = Mth.clamp(centerY + dy, CENTER_MIN_Y, CENTER_MAX_Y);
-            if (!reaches(x, z, radiusX, radiusZ, chunkMinX, chunkMinZ)) continue;
-            rocks.add(new Rock(noiseSeed, x, y, z, radiusX, radiusY, radiusZ, kind.templeChance));
+            specs.add(new Spec(noiseSeed, x, y, z, radiusX, radiusY, radiusZ, kind.rank));
         }
+
+        // the rock that would hold the cluster's temple: the island, or the biggest satellite that one fits
+        Spec host = specs.get(0);
+        if (random.nextDouble() >= ISLAND_HOST_SHARE) {
+            for (Spec spec : specs.subList(1, specs.size())) {
+                if (spec.hostsTemple() && (host == specs.get(0) ||
+                        Math.max(spec.radiusX, spec.radiusZ) > Math.max(host.radiusX, host.radiusZ))) {
+                    host = spec;
+                }
+            }
+        }
+        return new Cluster(centerX, centerZ, specs, host);
+    }
+
+    /** Whether the cluster holds the temple of one of the grid's regions whose candidate point is within reach of its centre. */
+    private static boolean clusterHasTemple(long seed, Cluster cluster) {
+        int size = TEMPLE_SPACING * 16;
+        // a candidate point lies in the first (spacing - separation) chunks of its region: at most this far from its corner
+        int offset = (TEMPLE_SPACING - TEMPLE_SEPARATION) * 16;
+        int fromX = Mth.floorDiv(Mth.floor(cluster.x - TEMPLE_RANGE) - offset, size);
+        int toX = Mth.floorDiv(Mth.floor(cluster.x + TEMPLE_RANGE), size);
+        int fromZ = Mth.floorDiv(Mth.floor(cluster.z - TEMPLE_RANGE) - offset, size);
+        int toZ = Mth.floorDiv(Mth.floor(cluster.z + TEMPLE_RANGE), size);
+        for (int regionX = fromX; regionX <= toX; regionX++) {
+            for (int regionZ = fromZ; regionZ <= toZ; regionZ++) {
+                if (templeRock(seed, regionX, regionZ) == cluster.host.noiseSeed) return true;
+            }
+        }
+        return false;
+    }
+
+    private static long templeRock(long seed, int regionX, int regionZ) {
+        Region key = new Region(seed, regionX, regionZ);
+        Long known = TEMPLE_ROCKS.get(key);
+        if (known != null) return known;
+        long found = searchTempleRock(seed, regionX, regionZ);
+        if (TEMPLE_ROCKS.size() > 20000) TEMPLE_ROCKS.clear();
+        TEMPLE_ROCKS.put(key, found);
+        return found;
+    }
+
+    /** The rock of the region's temple: the host of the cluster whose centre is nearest to the candidate point. */
+    private static long searchTempleRock(long seed, int regionX, int regionZ) {
+        RandomSource random = new XoroshiroRandomSource(cellSeed(seed ^ TEMPLE_SALT, regionX, regionZ));
+        int spread = TEMPLE_SPACING - TEMPLE_SEPARATION;
+        double pointX = (regionX * (double) TEMPLE_SPACING + random.nextInt(spread)) * 16 + 8;
+        double pointZ = (regionZ * (double) TEMPLE_SPACING + random.nextInt(spread)) * 16 + 8;
+        int range = (int) Math.ceil(TEMPLE_RANGE);
+        Cluster best = null;
+        double bestDistance = 0;
+        for (int cellX = Mth.floorDiv(Mth.floor(pointX) - range, CELL); cellX <= Mth.floorDiv(Mth.floor(pointX) + range, CELL); cellX++) {
+            for (int cellZ = Mth.floorDiv(Mth.floor(pointZ) - range, CELL); cellZ <= Mth.floorDiv(Mth.floor(pointZ) + range, CELL); cellZ++) {
+                Cluster cluster = clusterOf(seed, cellX, cellZ);
+                if (cluster == null) continue;
+                double distance = Math.hypot(cluster.x - pointX, cluster.z - pointZ);
+                if (distance <= TEMPLE_RANGE && (best == null || distance < bestDistance)) {
+                    best = cluster;
+                    bestDistance = distance;
+                }
+            }
+        }
+        return best == null ? NO_ROCK : best.host.noiseSeed;
     }
 
     private static boolean reaches(double centerX, double centerZ, double radiusX, double radiusZ, int chunkMinX,
@@ -240,15 +359,14 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         private final BlockState regolith;
         private final double shapeScale, detailScale;
 
-        Rock(long noiseSeed, double centerX, double centerY, double centerZ, double radiusX, double radiusY,
-             double radiusZ, double templeChance) {
-            this.noiseSeed = noiseSeed;
-            this.centerX = centerX;
-            this.centerY = centerY;
-            this.centerZ = centerZ;
-            this.radiusX = radiusX;
-            this.radiusY = radiusY;
-            this.radiusZ = radiusZ;
+        Rock(Spec spec, boolean hasTemple) {
+            this.noiseSeed = spec.noiseSeed;
+            this.centerX = spec.x;
+            this.centerY = spec.y;
+            this.centerZ = spec.z;
+            this.radiusX = spec.radiusX;
+            this.radiusY = spec.radiusY;
+            this.radiusZ = spec.radiusZ;
             // the order of the noises is the order the rocks were made in: it fixes their shape and their stone
             RandomSource random = new XoroshiroRandomSource(noiseSeed);
             this.shape = new SimplexNoise(random);
@@ -259,20 +377,18 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
             double radius = Math.max(radiusX, Math.max(radiusY, radiusZ));
             this.shapeScale = 1.0 / Math.max(6.0, radius * 0.9);
             this.detailScale = 1.0 / Math.max(3.0, radius * 0.3);
-            this.temple = templeChance > 0 ? templeOf(templeChance) : null;
+            this.temple = hasTemple ? templeOf() : null;
         }
 
         /**
          * Whether the rock holds a temple, and which way it faces, come from the rock's own seed: a chunk and its
          * neighbour agree.
          */
-        private TempleLayout templeOf(double templeChance) {
-            RandomSource templeRandom = new XoroshiroRandomSource(noiseSeed ^ 0x2545F4914F6CDD1DL);
-            double roll = templeRandom.nextDouble();
-            int turns = templeRandom.nextInt(4);
+        private TempleLayout templeOf() {
+            int turns = new XoroshiroRandomSource(noiseSeed ^ 0x2545F4914F6CDD1DL).nextInt(4);
             // the corridor of a temple may run out to the far side of the rock
             int maxLength = (int) Math.ceil(Math.max(radiusX, radiusZ) * MAX_BULGE) + 2;
-            return TempleLayout.create(templeChance, roll, turns, centerX, centerY, centerZ, radiusX, radiusY, radiusZ,
+            return TempleLayout.create(1.0, 0.0, turns, centerX, centerY, centerZ, radiusX, radiusY, radiusZ,
                     maxLength, noiseSeed, this::solid);
         }
 

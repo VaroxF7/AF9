@@ -3,7 +3,7 @@ name: Build AF9 Core
 # Runs on pushes to main (and by hand from the Actions tab).
 # 0. lint:    tools/lint (recipes, multiblocks, quests, textures, lang) and its self-test; an error stops the build
 # 1. build:   builds the AF9 Core mod (af9-core/), artifact "af9-core"
-# 2. package: artifact "AF9-update": mods/af9-core-*.jar + kubejs/ and config/ from this commit.
+# 2. package: artifact "AF9-update": mods/af9-core-*.jar + kubejs/ and config/ from this commit + AF9_BUILD.txt (the commit).
 #             Extract it into the instance folder (next to mods/) and let it overwrite.
 on:
   push:
@@ -80,6 +80,14 @@ jobs:
           mkdir -p update/mods
           cp "$(ls jar/*.jar | grep -vE -- '-(sources|dev|slim)\.jar$' | head -1)" update/mods/
           cp -r kubejs config update/
+          # which build this is: the file lands in the instance folder with the rest, so you can tell what you run
+          {
+            echo "AF9 update"
+            echo "commit:  ${GITHUB_SHA}"
+            echo "branch:  ${GITHUB_REF_NAME}"
+            echo "built:   $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git log -1 --format='subject: %s'
+          } > update/AF9_BUILD.txt
 
       - uses: actions/upload-artifact@v4
         with:
