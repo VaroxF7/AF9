@@ -17,8 +17,9 @@ ServerEvents.recipes(event => {
     // whatever its id), else the superconducting coil. A scan with no item would fail to build ("Research recipe must
     // have an item or fluid stack") and show an error on every world load: with neither, the recipe has no research
     // (and the log says so) instead.
-    let researched = $FusionChemicalHelper.get($FusionTagPrefix.wireGtSingle,
-        GTMaterials.get('indium_tin_barium_titanium_cuprate'))
+    // (the signature is named: ChemicalHelper.get has overloads of two and three arguments that Rhino cannot tell apart)
+    let researched = $FusionChemicalHelper['get(com.gregtechceu.gtceu.api.data.tag.TagPrefix,com.gregtechceu.gtceu.api.data.chemical.material.Material)'](
+        $FusionTagPrefix.wireGtSingle, GTMaterials.get('indium_tin_barium_titanium_cuprate'))
     if (researched.isEmpty() === true) {
         console.warn('fusion_reactor.js: GT has no single ITBTC wire item, the research scans the superconducting coil')
         researched = Item.of('gtceu:superconducting_coil')
