@@ -11,7 +11,7 @@ import java.util.Locale;
 /**
  * The cards of the computation arrays' racks: processors (CPU, GPU) make computation and heat; RAM feeds them. Every
  * number of the computers is here. Items: {@link AF9Compute}; recipes in KubeJS
- * ({@code server_scripts/mods/gtceu/computation.js}); spec: docs/machine-bus.md §9.
+ * ({@code server_scripts/mods/gtceu/computation.js}); spec: docs/computation.md.
  * <p>
  * A processor needs a RAM card of its tier or higher in the same rack to run at full speed; each RAM card feeds one
  * processor. A processor without RAM runs at a quarter of its computation (and still takes its full energy and heat).

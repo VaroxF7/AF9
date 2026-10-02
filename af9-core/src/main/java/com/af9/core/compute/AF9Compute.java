@@ -15,7 +15,7 @@ import java.util.Map;
 
 /**
  * The computation arrays' cards (af9:&lt;tier&gt;_&lt;kind&gt;_card, {@link ComputeCard}). The arrays and the racks
- * are GT machines defined in KubeJS ({@code startup_scripts/gtceu/computation.js}). Spec: docs/machine-bus.md §9.
+ * are GT machines defined in KubeJS ({@code startup_scripts/gtceu/computation.js}). Spec: docs/computation.md.
  */
 public final class AF9Compute {
 
