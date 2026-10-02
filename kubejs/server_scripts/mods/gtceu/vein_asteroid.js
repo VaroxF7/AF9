@@ -8,6 +8,34 @@
 // moves it to the Mining dimension, so a change made before it could be overwritten. Server scripts load in alphabetical order.
 
 const $AsteroidArrayList = Java.loadClass('java.util.ArrayList')
+const $AsteroidChemicalHelper = Java.loadClass('com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper')
+const $AsteroidTagPrefix = Java.loadClass('com.gregtechceu.gtceu.api.data.tag.TagPrefix')
+
+// ---- The Naquadah vein: raw naquadah only ----
+// GT's naquadah vein holds plutonium besides the naquadah: one more way to plutonium that the Asteroid Field's reactor chain is
+// meant to be the only one (asteroid_fission.js closes GT's centrifuge shortcuts). The vein keeps its layer, dimension, height,
+// size and weight; its ore is now naquadah alone (GT's ore block of the stone, of the deepslate and of the netherrack).
+GTCEuServerEvents.oreVeins(event => {
+    try {
+        event.modify('gtceu:naquadah_vein', vein => {
+            const naquadah = GTMaterials.get('naquadah')
+            const oreIn = prefix => () => $AsteroidChemicalHelper.getBlock(prefix, naquadah)
+            vein.standardVeinGenerator(generator => {
+                generator.withBlock(oreIn($AsteroidTagPrefix.ore))
+                generator.withNetherBlock(oreIn($AsteroidTagPrefix.oreNetherrack))
+                try {
+                    generator.deepBlock = oreIn($AsteroidTagPrefix.oreDeepslate)
+                } catch (error) {
+                    console.warn(`vein_asteroid.js: the naquadah vein keeps stone ore in deepslate: ${error}`)
+                }
+            })
+        })
+        console.info('vein_asteroid.js: the naquadah vein is raw naquadah only')
+    } catch (error) {
+        console.error(`vein_asteroid.js: could not change gtceu:naquadah_vein: ${error}`)
+    }
+})
+
 GTCEuServerEvents.oreVeins(event => {
     // The old ways to uranium: the veins with pitchblende or uraninite are switched off (weight 0), wherever the pack put
     // them

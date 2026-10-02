@@ -286,8 +286,9 @@ reflection, so AF9 Core needs nothing of the mod to build. The server script put
 
 **Closed:** GT's `centrifuge/uranium_238_separation` (tiny plutonium) and `centrifuge/plutonium_239_separation` (Pu-241), the void
 miner's circuit 5 (pitchblende, uraninite) and the raw plutonium in circuit 6, and every ore vein with pitchblende or uraninite
-(`modifyAll`: weight 0, wherever the pack put them). Plutonium from a naquadah vein's spread stays but can no longer be turned
-into Pu-241.
+(`modifyAll`: weight 0, wherever the pack put them). GT's **naquadah vein** (`gtceu:naquadah_vein`) held plutonium: `vein_asteroid.js` makes it a raw
+naquadah vein (a standard generator with the naquadah ore blocks of the stone, deepslate and netherrack; layer, dimension, height, size and weight stay).
+Plutonium that is already in the world from it can no longer be turned into Pu-241.
 
 **Fusion Reactor Mk1** (`kubejs/server_scripts/mods/gtceu/fusion_reactor.js`, `af9:fusion_reactor_mk1`, Assembly Line, LuV): GT's
 recipe is removed by output and replaced: a superconducting coil, 4 ZPM circuits, **3 double plates of plutonium-241** (GT: 1),
