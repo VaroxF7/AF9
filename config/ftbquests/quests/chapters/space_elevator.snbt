@@ -1,0 +1,384 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "space_elevator"
+	group: "1DA67E79B40AB130"
+	icon: "gtceu:space_elevator"
+	id: "6CBB74B8CC4BCBF0"
+	order_index: 17
+	progression_mode: "flexible"
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"{af9.quest.se.intro.1}"
+				""
+				"{af9.quest.se.intro.2}"
+				""
+				"{af9.quest.se.intro.3}"
+			]
+			icon: "gtceu:space_elevator"
+			id: "0BE620319ECC5BD5"
+			rewards: [{
+				id: "3B80182D37796B3F"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "gear"
+			size: 2.5d
+			subtitle: "{af9.quest.se.intro.subtitle}"
+			tasks: [
+				{
+					id: "372C43BC014CA8DB"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.se.intro.title}"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["0BE620319ECC5BD5"]
+			description: [
+				"{af9.quest.se.hydrogen.1}"
+			]
+			icon: "gtceu:hydrogen_bucket"
+			id: "6759B9F740085D3F"
+			rewards: [{
+				id: "26085E639A4F79E3"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.hydrogen.subtitle}"
+			tasks: [
+				{
+					amount: 64000L
+					fluid: "gtceu:hydrogen"
+					id: "5BEA4AC3FCBA97DA"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.se.hydrogen.title}"
+			x: 3.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["6759B9F740085D3F"]
+			description: [
+				"{af9.quest.se.coolant.1}"
+				""
+				"{af9.quest.se.coolant.2}"
+			]
+			icon: "gtceu:supercooled_hydrogen_bucket"
+			id: "567458278204F5DE"
+			rewards: [{
+				id: "1E2EF172D3B80A02"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.coolant.subtitle}"
+			tasks: [
+				{
+					amount: 50000L
+					fluid: "gtceu:supercooled_hydrogen"
+					id: "2BEE45E89601700D"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.se.coolant.title}"
+			x: 6.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["0BE620319ECC5BD5"]
+			description: [
+				"{af9.quest.se.blocks.1}"
+				""
+				"{af9.quest.se.blocks.2}"
+			]
+			icon: "kubejs:space_elevator_base_casing"
+			id: "3708EE923BC0D8D1"
+			rewards: [{
+				id: "0CD4D4FC94E48635"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.blocks.subtitle}"
+			tasks: [
+				{
+					id: "5B221AE3DF0BAC47"
+					item: "kubejs:space_elevator_base_casing"
+					type: "item"
+				}
+				{
+					id: "100669740ED80365"
+					item: "kubejs:space_elevator_support"
+					type: "item"
+				}
+				{
+					id: "73D6551EB6E7B574"
+					item: "kubejs:space_elevator_glass"
+					type: "item"
+				}
+				{
+					id: "5AE147F796AECA9B"
+					item: "kubejs:space_elevator_cable"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.blocks.title}"
+			x: 3.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["0BE620319ECC5BD5"]
+			description: [
+				"{af9.quest.se.power.1}"
+				""
+				"{af9.quest.se.power.2}"
+			]
+			icon: "gtceu:zpm_energy_input_hatch"
+			id: "789C6D30633057C6"
+			rewards: [{
+				id: "35698756D6815C43"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.power.subtitle}"
+			tasks: [
+				{
+					id: "0CC2618E88B12A8F"
+					item: "gtceu:zpm_energy_input_hatch"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.power.title}"
+			x: 3.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["0BE620319ECC5BD5"]
+			description: [
+				"{af9.quest.se.drone1.1}"
+				""
+				"{af9.quest.se.drone1.2}"
+			]
+			icon: "kubejs:space_mining_drone_mk1"
+			id: "16521CDE00E625A5"
+			rewards: [{
+				id: "709ABD28165A3150"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.drone1.subtitle}"
+			tasks: [
+				{
+					id: "104D4E40B36A34CA"
+					item: "kubejs:space_mining_drone_mk1"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.drone1.title}"
+			x: 6.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["3708EE923BC0D8D1" "789C6D30633057C6"]
+			description: [
+				"{af9.quest.se.elevator.1}"
+				""
+				"{af9.quest.se.elevator.2}"
+			]
+			icon: "gtceu:space_elevator"
+			id: "296AC913435ABD15"
+			rewards: [{
+				id: "2AD98D24F30AE33A"
+				type: "xp"
+				xp: 300
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.se.elevator.subtitle}"
+			tasks: [
+				{
+					id: "6EB6A95E9A9B7F36"
+					item: "gtceu:space_elevator"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.elevator.title}"
+			x: 9.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["296AC913435ABD15"]
+			description: [
+				"{af9.quest.se.platform.1}"
+				""
+				"{af9.quest.se.platform.2}"
+			]
+			icon: "kubejs:space_elevator_cable"
+			id: "6263A5340994A5FD"
+			rewards: [{
+				id: "6B52712293BA6253"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.platform.subtitle}"
+			tasks: [
+				{
+					id: "6AE0E89CD1E6AD7F"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.se.platform.title}"
+			x: 9.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["296AC913435ABD15" "16521CDE00E625A5" "6759B9F740085D3F" "567458278204F5DE"]
+			description: [
+				"{af9.quest.se.run.1}"
+				""
+				"{af9.quest.se.run.2}"
+			]
+			icon: "minecraft:raw_iron"
+			id: "6D4CA38C921AFC5F"
+			rewards: [{
+				id: "21AFE0E04438A39A"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.run.subtitle}"
+			tasks: [
+				{
+					id: "69D8C79109220F0F"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.se.run.title}"
+			x: 12.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["6D4CA38C921AFC5F"]
+			description: [
+				"{af9.quest.se.drone2.1}"
+			]
+			icon: "kubejs:space_mining_drone_mk2"
+			id: "7DAEB2A7F796D019"
+			rewards: [{
+				id: "15322D7C7DFE2B90"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.drone2.subtitle}"
+			tasks: [
+				{
+					id: "3931F0495BC65799"
+					item: "kubejs:space_mining_drone_mk2"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.drone2.title}"
+			x: 15.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["7DAEB2A7F796D019"]
+			description: [
+				"{af9.quest.se.drone3.1}"
+			]
+			icon: "kubejs:space_mining_drone_mk3"
+			id: "4A6C2B0DE92CC881"
+			rewards: [{
+				id: "7E143E2B0DD942DD"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.drone3.subtitle}"
+			tasks: [
+				{
+					id: "176E449242ABABD0"
+					item: "kubejs:space_mining_drone_mk3"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.drone3.title}"
+			x: 18.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["4A6C2B0DE92CC881"]
+			description: [
+				"{af9.quest.se.drone4.1}"
+			]
+			icon: "kubejs:space_mining_drone_mk4"
+			id: "45465D7D3255F823"
+			rewards: [{
+				id: "0B9577B06E39CEB2"
+				type: "xp"
+				xp: 300
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.drone4.subtitle}"
+			tasks: [
+				{
+					id: "68BED813172D3373"
+					item: "kubejs:space_mining_drone_mk4"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.drone4.title}"
+			x: 21.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["45465D7D3255F823"]
+			description: [
+				"{af9.quest.se.exotic.1}"
+			]
+			icon: "gtceu:raw_brannerite"
+			id: "0ECB74448C406DA1"
+			rewards: [{
+				id: "2A5284094B61048B"
+				type: "xp"
+				xp: 300
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.se.exotic.subtitle}"
+			tasks: [
+				{
+					id: "736CE7EC49A5B788"
+					item: "gtceu:raw_brannerite"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.exotic.title}"
+			x: 24.0d
+			y: 0.0d
+		}
+	]
+	subtitle: ["{af9.quest.se.chapter.subtitle}"]
+	title: "{af9.quest.se.chapter.title}"
+}
