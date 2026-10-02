@@ -38,7 +38,9 @@ ServerEvents.recipes(event => {
     if (researched.isEmpty() === true) {
         console.error('fusion_reactor.js: nothing to scan for the Fusion Reactor Mk1: the recipe has no research')
     } else {
-        reactor.scannerResearch(b => b
+        // The overload by its signature: scannerResearch also exists for an ItemStack, and Rhino picks that one for the function
+        // (which then has no stack: "Research recipe must have an item or fluid stack" on every world load)
+        reactor['scannerResearch(java.util.function.UnaryOperator)'](b => b
             .researchStack(researched)
             .duration(1200)
             .EUt(VA[GTValues.IV]))
