@@ -200,7 +200,7 @@ const Predicates = new Proxy(PredicatesBase, { get: (t, k) => t[String(k).split(
 function FactoryBlockPatternStart() {
     const pat = { aisles: [], where: {}, repeat: [] }
     const b = {
-        aisle: (...rows) => { pat.aisles.push(rows); pat.repeat.push(null); return b },
+        aisle: (...rows) => { pat.aisles.push(rows.flat()); pat.repeat.push(null); return b },
         setRepeatable: (...n) => { pat.repeat[pat.repeat.length - 1] = n; return b },
         where: (ch, p) => { pat.where[ch] = p; return b },
         build: () => pat

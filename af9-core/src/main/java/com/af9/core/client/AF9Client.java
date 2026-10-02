@@ -2,6 +2,7 @@ package com.af9.core.client;
 
 import com.af9.core.AF9Core;
 import com.af9.core.client.render.LightRingRender;
+import com.af9.core.client.render.SpaceElevatorRender;
 import com.af9.core.client.render.ModeFluidRender;
 import com.af9.core.wafer.WaferContamination;
 import com.af9.core.wireless.WirelessLink;
@@ -27,6 +28,7 @@ public final class AF9Client {
     public static void init() {
         ModeFluidRender.register();
         LightRingRender.register();
+        SpaceElevatorRender.register();
     }
 
     @Mod.EventBusSubscriber(modid = AF9Core.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)

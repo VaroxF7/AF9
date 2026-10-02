@@ -2,6 +2,7 @@ package com.af9.core.machine;
 
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.ModeFluidRender;
+import com.af9.core.client.render.SpaceElevatorRender;
 
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
@@ -37,6 +38,22 @@ public final class AF9MachineModels {
                 new ResourceLocation(String.valueOf(fluid))));
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(() -> ModeFluidRender.create(fluids)));
+    }
+
+    /**
+     * GT's workable casing model plus the Space Elevator's platform, turning on the cable above the structure
+     * ({@link SpaceElevatorRender}). The machine must implement {@code ISpaceElevatorMachine} and have a block entity
+     * renderer ({@code .hasBER(true)}).
+     *
+     * @param up    the platform's centre above the controller (blocks)
+     * @param back  the cable's axis behind the controller (blocks)
+     * @param cable how far the cable runs up from the platform (blocks)
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithSpaceElevator(ResourceLocation casing,
+                                                                                   ResourceLocation overlay, float up,
+                                                                                   float back, float cable) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(() -> SpaceElevatorRender.create(up, back, cable)));
     }
 
     /**

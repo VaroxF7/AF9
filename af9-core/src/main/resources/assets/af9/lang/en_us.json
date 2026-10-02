@@ -405,6 +405,8 @@
     "af9.compute.card.any_rack": "Fits MV and LuV Computer Racks",
     "af9.compute.card.luv_rack": "Fits LuV Computer Racks only",
     "af9.compute.rack.cards": "Takes cards up to %s",
+    "af9.space_elevator.asteroid": "Last expedition: %s",
+    "af9.space_elevator.power": "Energy the hatches can supply: %s EU/t",
     "block.af9.oil_regolith": "Oil Regolith",
     "af9.compute.rack.cwut": "Computation: %s CWU/t",
     "af9.compute.rack.unfed": "%s processors without RAM (a quarter speed)",
