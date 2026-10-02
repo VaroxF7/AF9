@@ -80,6 +80,10 @@ ServerEvents.recipes(event => {
         [4, 'hsse', GTValues.LuV, 'kubejs:vpu_chip', 'calorite', 'tungsten_steel', 'ostrum', 'assembly_line']]
     tiers.forEach(([tier, metal, voltage, chip, name, drum, previous, machine]) => {
         const v = GTValues.VN[voltage].toLowerCase()
+        // The research of an assembly line rocket: the previous rocket. Declared here, not in the if block below: Rhino keeps
+        // a const of a nested block once for the whole script, so the second tier that takes the block failed with
+        // "redeclaration of var" (and left the first one without its outputs and duration).
+        const scanned = machine === 'assembly_line' ? Item.of(`ad_astra:tier_${tier - 1}_rocket`) : null
         // Engine: the previous engine (the frame for the first), two pumps for the turbopumps, a motor, the casing plates and
         // the flight computer
         event.recipes.gtceu.assembler(`af9:rocket_${name}_engine`)
@@ -107,12 +111,11 @@ ServerEvents.recipes(event => {
             // the control circuits of the tier; the previous rocket is the research (a Scanner, one tier below the line)
             rocket.itemInputs(`4x #gtceu:circuits/${v}`)
                 .inputFluids(Fluid.of('gtceu:soldering_alloy', 144 * 4 * (tier - 2)))
-            const scanned = Item.of(`ad_astra:tier_${tier - 1}_rocket`)
             if (scanned.isEmpty() === true) {
                 // an empty research stack would fail to build and show an error on every world load
                 console.error(`rockets.js: ad_astra:tier_${tier - 1}_rocket is no item: the tier ${tier} rocket has no research`)
             } else {
-                rocket.scannerResearch(b => b
+                rocket['scannerResearch(java.util.function.UnaryOperator)'](b => b
                     .researchStack(scanned)
                     .duration(1200)
                     .EUt(VA[voltage - 1]))
