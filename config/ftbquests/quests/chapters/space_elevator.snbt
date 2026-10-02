@@ -99,6 +99,8 @@
 				"{af9.quest.se.blocks.1}"
 				""
 				"{af9.quest.se.blocks.2}"
+				""
+				"{af9.quest.se.blocks.3}"
 			]
 			icon: "kubejs:space_elevator_base_casing"
 			id: "3708EE923BC0D8D1"
@@ -131,9 +133,48 @@
 					item: "kubejs:space_elevator_cable"
 					type: "item"
 				}
+				{
+					id: "5B996A89E59648F1"
+					item: "kubejs:ultra_high_strength_concrete_floor"
+					type: "item"
+				}
+				{
+					id: "4DDC893ED0E47365"
+					item: "gtceu:neutronium_frame"
+					type: "item"
+				}
 			]
 			title: "{af9.quest.se.blocks.title}"
 			x: 3.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["3708EE923BC0D8D1"]
+			description: [
+				"{af9.quest.se.motors.1}"
+				""
+				"{af9.quest.se.motors.2}"
+			]
+			icon: "kubejs:space_elevator_motor_mk1"
+			id: "5D0E9FF38F756040"
+			rewards: [{
+				id: "758463E8AC49E7F5"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.motors.subtitle}"
+			tasks: [
+				{
+					count: 88L
+					id: "14118A851DD5FA40"
+					item: "kubejs:space_elevator_motor_mk1"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.motors.title}"
+			x: 6.0d
 			y: 0.0d
 		}
 		{
@@ -193,11 +234,41 @@
 			y: 3.0d
 		}
 		{
-			dependencies: ["3708EE923BC0D8D1" "789C6D30633057C6"]
+			dependencies: ["3708EE923BC0D8D1"]
+			description: [
+				"{af9.quest.se.module1.1}"
+				""
+				"{af9.quest.se.module1.2}"
+			]
+			icon: "kubejs:space_mining_module_mk1"
+			id: "6899E431B966F3DA"
+			rewards: [{
+				id: "3F121EBA72BA0C87"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.module1.subtitle}"
+			tasks: [
+				{
+					id: "5C90224E52DA2B9B"
+					item: "kubejs:space_mining_module_mk1"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.module1.title}"
+			x: 9.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["3708EE923BC0D8D1" "789C6D30633057C6" "5D0E9FF38F756040"]
 			description: [
 				"{af9.quest.se.elevator.1}"
 				""
 				"{af9.quest.se.elevator.2}"
+				""
+				"{af9.quest.se.elevator.3}"
 			]
 			icon: "gtceu:space_elevator"
 			id: "296AC913435ABD15"
@@ -245,10 +316,10 @@
 			]
 			title: "{af9.quest.se.platform.title}"
 			x: 9.0d
-			y: 3.0d
+			y: -3.0d
 		}
 		{
-			dependencies: ["296AC913435ABD15" "16521CDE00E625A5" "6759B9F740085D3F" "567458278204F5DE"]
+			dependencies: ["296AC913435ABD15" "16521CDE00E625A5" "6759B9F740085D3F" "567458278204F5DE" "6899E431B966F3DA"]
 			description: [
 				"{af9.quest.se.run.1}"
 				""
@@ -377,6 +448,172 @@
 			title: "{af9.quest.se.exotic.title}"
 			x: 24.0d
 			y: 0.0d
+		}
+		{
+			dependencies: ["6D4CA38C921AFC5F"]
+			description: [
+				"{af9.quest.se.motors2.1}"
+				""
+				"{af9.quest.se.motors2.2}"
+			]
+			icon: "kubejs:space_elevator_motor_mk2"
+			id: "4ECE0E5EC897CE71"
+			rewards: [{
+				id: "5F3A6BB4C176FEAF"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.motors2.subtitle}"
+			tasks: [
+				{
+					count: 88L
+					id: "47E34CD35EEC054A"
+					item: "kubejs:space_elevator_motor_mk2"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.motors2.title}"
+			x: 12.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["4ECE0E5EC897CE71"]
+			description: [
+				"{af9.quest.se.module2.1}"
+			]
+			icon: "kubejs:space_mining_module_mk2"
+			id: "1F64A663255C46EB"
+			rewards: [{
+				id: "7D4BC859D3DB6B7F"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.module2.subtitle}"
+			tasks: [
+				{
+					id: "68AB48F9B81507A1"
+					item: "kubejs:space_mining_module_mk2"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.module2.title}"
+			x: 15.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["4ECE0E5EC897CE71"]
+			description: [
+				"{af9.quest.se.motors3.1}"
+			]
+			icon: "kubejs:space_elevator_motor_mk3"
+			id: "6C3A505CE6F25C87"
+			rewards: [{
+				id: "4CF6CDEAAC9CFB8C"
+				type: "xp"
+				xp: 250
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.motors3.subtitle}"
+			tasks: [
+				{
+					count: 88L
+					id: "3E403C07B5CE238A"
+					item: "kubejs:space_elevator_motor_mk3"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.motors3.title}"
+			x: 18.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["6C3A505CE6F25C87"]
+			description: [
+				"{af9.quest.se.module3.1}"
+			]
+			icon: "kubejs:space_mining_module_mk3"
+			id: "2FCCC57F8F4A6F0D"
+			rewards: [{
+				id: "4111537FD1834D6E"
+				type: "xp"
+				xp: 300
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.module3.subtitle}"
+			tasks: [
+				{
+					id: "5A3EF56BDB989C69"
+					item: "kubejs:space_mining_module_mk3"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.module3.title}"
+			x: 21.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["6C3A505CE6F25C87"]
+			description: [
+				"{af9.quest.se.extended.1}"
+				""
+				"{af9.quest.se.extended.2}"
+				""
+				"{af9.quest.se.extended.3}"
+			]
+			icon: "kubejs:ultra_high_strength_concrete_floor"
+			id: "11607EFBFEF57878"
+			rewards: [{
+				id: "7B8C434EBDD5B0C6"
+				type: "xp"
+				xp: 300
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.se.extended.subtitle}"
+			tasks: [
+				{
+					id: "46EE13BCE213D87E"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.se.extended.title}"
+			x: 18.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["11607EFBFEF57878"]
+			description: [
+				"{af9.quest.se.motors5.1}"
+				""
+				"{af9.quest.se.motors5.2}"
+			]
+			icon: "kubejs:space_elevator_motor_mk5"
+			id: "44887627368593CB"
+			rewards: [{
+				id: "6159B0BE40262E7A"
+				type: "xp"
+				xp: 400
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.motors5.subtitle}"
+			tasks: [
+				{
+					count: 88L
+					id: "4D9EB3FCF6CC996E"
+					item: "kubejs:space_elevator_motor_mk5"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.se.motors5.title}"
+			x: 21.0d
+			y: 6.0d
 		}
 	]
 	subtitle: ["{af9.quest.se.chapter.subtitle}"]
