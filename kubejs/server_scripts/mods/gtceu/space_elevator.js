@@ -27,15 +27,20 @@ ServerEvents.recipes(event => {
             .EUt(V[GTValues.ZPM] * amps)
     })
 
-    // ---- The Mining Drones: one at ZPM, and one tier of parts higher for each tier after ----
+    // ---- The Mining Drones: ZPM parts for the first, UV parts (GT's last tier with parts: highTierContent is off) for
+    // the rest, more of them and a rarer plate for each tier ----
+    // [tier, part tier, arms, sensors, emitters, circuits, plate, plates, solder mB, voltage]
     const drones = [
-        [1, 'zpm', GTValues.ZPM, 576], [2, 'uv', GTValues.UV, 1152], [3, 'uhv', GTValues.UHV, 1728],
-        [4, 'uev', GTValues.UEV, 2304]
+        [1, 'zpm', 1, 2, 1, 4, 'naquadah_alloy', 4, 576, GTValues.ZPM],
+        [2, 'uv', 1, 2, 1, 4, 'naquadah_alloy', 4, 1152, GTValues.UV],
+        [3, 'uv', 2, 4, 2, 8, 'tritanium', 4, 1728, GTValues.UV],
+        [4, 'uv', 4, 8, 4, 16, 'neutronium', 4, 2304, GTValues.UV]
     ]
-    drones.forEach(([tier, name, voltage, mb]) => {
+    drones.forEach(([tier, name, arms, sensors, emitters, circuits, plate, plates, mb, voltage]) => {
         event.recipes.gtceu.assembler(`af9:space_mining_drone_mk${tier}`)
-            .itemInputs(`gtceu:${name}_robot_arm`, `2x gtceu:${name}_sensor`, `gtceu:${name}_emitter`,
-                `4x #gtceu:circuits/${name}`, '4x gtceu:naquadah_alloy_plate')
+            .itemInputs(`${arms}x gtceu:${name}_robot_arm`, `${sensors}x gtceu:${name}_sensor`,
+                `${emitters}x gtceu:${name}_emitter`, `${circuits}x #gtceu:circuits/${name}`,
+                `${plates}x gtceu:${plate}_plate`)
             .inputFluids(solder(mb))
             .itemOutputs(`kubejs:space_mining_drone_mk${tier}`)
             .duration(600)

@@ -52,8 +52,9 @@ tungsten steel plates; glass 8 from 8 fusion glass and 2 plates; cable 2 from 8 
 ## 3. Crafting
 
 The Space Elevator: Assembly Line, **ZPM**, 1200 ticks: a ZPM machine hull, 8 motors, 4 field generators, 2 sensors, 2 emitters, 4 circuits, 16 base casings,
-8 supports, 8 glass, 2 cables, 4 double naquadah alloy plates, 4608 mB soldering alloy. The drones: assembler, 600 ticks, a robot arm, 2 sensors, an emitter,
-4 circuits and 4 naquadah alloy plates of ZPM (Mk-I), UV, UHV and UEV (Mk-II to IV).
+8 supports, 8 glass, 2 cables, 4 double naquadah alloy plates, 4608 mB soldering alloy. The drones: assembler, 600 ticks, soldering alloy and parts of ZPM (Mk-I) or UV (GT has no
+parts above UV while `highTierContent` is off): Mk-I a robot arm, 2 sensors, an emitter, 4 circuits and 4 naquadah alloy plates; Mk-II the same in UV;
+Mk-III 2 arms, 4 sensors, 2 emitters, 8 circuits and 4 tritanium plates; Mk-IV 4 arms, 8 sensors, 4 emitters, 16 circuits and 4 neutronium plates.
 
 ## 4. The platform
 
