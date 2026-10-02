@@ -18,21 +18,20 @@ const oilListOf = collection => new $OilArrayList(collection)
 
 // ---- The oil fluid veins off ----
 GTCEuServerEvents.fluidVeins(event => {
-    // GT's oil deposits (GTBedrockFluids), by id: weight 0 takes them out of the draw (the natural gas deposit stays)
+    // GT's oil deposits (GTBedrockFluids), by id, removed: they are gone from the world and from the recipe viewers' diagrams
+    // (the natural gas deposit stays)
     const oils = ['gtceu:heavy_oil_deposit', 'gtceu:light_oil_deposit', 'gtceu:oil_deposit', 'gtceu:raw_oil_deposit']
     let off = 0
-    // one vein that cannot be changed must not stop the deposits below from being registered
+    // one vein that cannot be removed must not stop the deposits below from being registered
     oils.forEach(id => {
         try {
-            event.modify(id, vein => {
-                vein.setWeight(0)
-                off++
-            })
+            event.remove(id)
+            off++
         } catch (error) {
-            console.error(`vein_oil.js: could not switch off the fluid vein ${id}: ${error}`)
+            console.error(`vein_oil.js: could not remove the fluid vein ${id}: ${error}`)
         }
     })
-    console.info(`vein_oil.js: ${off} oil fluid veins switched off`)
+    console.info(`vein_oil.js: ${off} oil fluid veins removed`)
 
     // ---- The asteroids' deposits: void fluids, rich in nitrogen, oxygen, heavy water and acids ----
     const fluidOf = id => () => $OilForgeRegistries.FLUIDS.getValue(new $OilResourceLocation(id))

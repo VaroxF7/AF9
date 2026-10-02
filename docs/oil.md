@@ -32,8 +32,9 @@ new chunks have the new share.
 
 ## 3. The world's oil is off
 
-* GT's four oil deposits (`gtceu:heavy_oil_deposit`, `light_oil_deposit`, `oil_deposit`, `raw_oil_deposit`) get weight 0 (`vein_oil.js`,
-  by id with the event's `modify`; the natural gas deposit stays; the log says how many it switched off). The script used to walk GT's
+* GT's four oil deposits (`gtceu:heavy_oil_deposit`, `light_oil_deposit`, `oil_deposit`, `raw_oil_deposit`) are **removed** (`vein_oil.js`,
+  by id with the event's `remove`, so they are gone from the recipe viewers' bedrock fluid diagrams too; first they only had weight 0 and
+  still showed; the natural gas deposit stays; the log says how many it removed). The script used to walk GT's
   registry (`entries().forEach`), which Rhino cannot do: it cannot call methods on the unmodifiable views and immutable lists GT hands out
   (`cannot access a member of class java.util.Collections$UnmodifiableMap$UnmodifiableEntrySet`), so the whole event stopped with that
   error and **no deposit was ever registered** (the reason for "no fluid veins"). Where a script has to walk such a collection it copies it
