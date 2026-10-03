@@ -51,6 +51,10 @@ the configs AF9 changes. Everything else comes from the pack itself.
   A liquid mission, picked on its screen, goes to a planet instead and brings home a fluid (GTNH's Space Pumping table).
 - **Oil** (`docs/oil.md`): the world's oil is off; Oil Regolith, a sand-like rock of the asteroids, becomes Impure Oil, Shiny
   Oil, then Oil and Heavy Oil; the Asteroid Field's fluid deposits hold nitrogen, oxygen, heavy water and acids.
+- **Area Simulation** (`docs/area-simulation.md`): renewable ores from HV on, before the Space Elevator: tiered chambers
+  (HV-LuV, perfect overclocks) grow raw ore on Anode Rods out of hydrogen, carbon dioxide and lithium gas, in seven
+  areas on Area Data with the ore on a programmed circuit (Overworld, Nether, End, Moon, Mars, Venus, Asteroids,
+  with Brannerite and Oil Regolith).
 
 ## Install
 

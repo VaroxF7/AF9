@@ -441,4 +441,17 @@
     "material.gtceu.sodium_hexanitritorhodate": "Sodium Hexanitritorhodate",
     "material.gtceu.rhodium_trichloride_solution": "Rhodium Trichloride Solution",
     "material.gtceu.zinc_chloride": "Zinc Chloride"
+,
+    "block.gtceu.hv_area_simulation_chamber": "§6Advanced Area Simulation Chamber§r",
+    "block.gtceu.ev_area_simulation_chamber": "§5Advanced Area Simulation Chamber II§r",
+    "block.gtceu.iv_area_simulation_chamber": "§9Elite Area Simulation Chamber§r",
+    "block.gtceu.luv_area_simulation_chamber": "§dElite Area Simulation Chamber II§r",
+    "af9.area_simulation_chamber.tooltip.0": "§7Grows §fraw ore§7 on §fAnode Rods§7 out of §bHydrogen§7, §8Carbon Dioxide§7 and §dLithium Gas§7: the pack's renewable ores before the Space Elevator.",
+    "af9.area_simulation_chamber.tooltip.1": "§7An §fArea Data§7 picks the area: §aOverworld§7, §cNether§7, §eEnd§7, §fMoon§7, §6Mars§7, §6Venus§7, §dAsteroids§7; a §bprogrammed circuit§7 picks the ore. Harder areas take more gas, more rods and a higher voltage.",
+    "af9.area_simulation_chamber.tooltip.2": "§7Perfect overclocks, §6HV§7 to §dLuV§7, no parallel hatch. A run takes 60 to 400 seconds, longer for more ore.",
+    "af9.area_simulation_chamber.tooltip.3": "§7Asteroid mode grows §6Brannerite§7 and §eOil Regolith§7 next to the asteroid ores.",
+    "gtceu.area_simulation": "Area Simulation",
+    "gtceu.area_simulation.short": "SIM",
+    "gtceu.area_simulation.desc": "Gases and anode rods grow raw ore",
+    "material.gtceu.lithium_gas": "Lithium Gas"
 }
