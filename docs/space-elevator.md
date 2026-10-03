@@ -12,11 +12,12 @@ what it lacks; `OreCatalog`: GT's ores and veins; `ClimberRide`: the climber's r
 ## 1. How it works
 
 `gtceu:space_elevator` runs the recipe type `gtceu:space_mining`: a **Mining Drone** (`kubejs:space_mining_drone_mk1..4`, **not used
-up**) in the drone slot of its screen (section 5; or in an input bus), **hydrogen** and a **supercooled coolant** in the fluid hatches,
-and energy for minutes. Nothing is made by the recipe itself: when a run starts (`SpaceElevatorMachine.ASTEROID`, a recipe modifier that
-re-rolls every run) the elevator draws an **asteroid** and the run puts out its ore, **8 to 48 stacks of raw ore an expedition** in the
-output buses. The recipe viewers' page lists the ores the drone's asteroids hold (section 6); the controller's screen lists the ore of
-the run that is on. The table is one expedition; the **Mining Modules** of the tower fly several at once (below).
+up**) in the drone slot of its screen (section 5; or in an input bus), **hydrogen** in a fluid input hatch, a **supercooled coolant**
+in **Coolant Hatches** (below) and energy for minutes. Nothing is made by the recipe itself: when a run starts
+(`SpaceElevatorMachine.ASTEROID`, a recipe modifier that re-rolls every run) the elevator draws an **asteroid** and the run puts out
+its ore, **8 to 48 stacks of raw ore an expedition** in the output buses. The recipe viewers' page lists the ores the drone's
+asteroids hold (section 6); the controller's screen lists the ore of the run that is on. The table is one expedition; the **Mining
+Modules** of the tower fly several at once (below).
 
 | Drone | Reaches | Hydrogen | Coolant (supercooled) | Energy | Time | Stacks |
 |---|---|---|---|---|---|---|
@@ -29,6 +30,26 @@ The coolants are the Supercooling Cryostat's (`cryogenics.js`). The energy is th
 viewers say "ZPM" and the amps): the machine only starts a run its hatches can
 supply in full (`IPowerGated`, as the Particle Accelerator): Mk-I runs on one 4A ZPM hatch, Mk-II on two, Mk-III on four (the most
 there are), Mk-IV on laser hatches (up to two). A run that cannot start waits.
+
+### The coolant: Coolant Hatches
+
+As AF9's other cooled machines the elevator has **Coolant Hatches** for its supercooled coolant (`gtceu:<tier>_coolant_hatch`,
+`cryogenics.js`: a fluid input hatch that takes supercooled fluids only): **up to 4**, in the places of the other hatches (section 2).
+The preview shows one, the terminal builds two, and the screen names the Coolant Hatch when the coolant runs short. The hydrogen goes
+through fluid input hatches: a Coolant Hatch does not take it.
+
+A Coolant Hatch holds an eighth of a fluid hatch of its tier, and an expedition takes all its coolant when it starts. Four of them
+hold the coolant of this many expeditions at once:
+
+| 4 Coolant Hatches | Hold | Mk-I (50 B) | Mk-II (64 B) | Mk-III (80 B) | Mk-IV (100 B) |
+|---|---|---|---|---|---|
+| ZPM (128 B each) | 512 B | 10 | 8 | 6 | 5 |
+| UV (256 B each) | 1,024 B | 20 | 16 | 12 | 10 |
+| UHV (512 B each) | 2,048 B | 40 | 32 | 25 | 20 |
+
+A bigger run takes the rest of its coolant from the **fluid input hatches**: to GT a Coolant Hatch is a fluid input hatch, and GT
+takes a recipe's fluids from all of them together, so supercooled coolant in a fluid input hatch counts as well (the screen's coolant
+is `SpaceElevatorMachine.stockOf`: all of it).
 
 ### Modules and motors
 
@@ -90,13 +111,15 @@ Rules of the structure (GTNH's):
   until it is gone (the screen says so).
 * **Upright only**: the controller faces sideways, the tower cannot be turned on its side or flipped.
 * **Hatches** have maxima only: 4 energy and 2 laser hatches in the **bottom centre casings** (72 places: the floor under the column
-  and three layers round its foot); 8 fluid input hatches, 2 item input and 12 item output buses there or in the **module slots**
-  (12 slots round the column, three a side: the module's own place and 9 places round it). There is no maintenance hatch (as in GTNH).
+  and three layers round its foot); 8 fluid input hatches, **4 Coolant Hatches** (section 1), 2 item input and 12 item output buses
+  there or in the **module slots** (12 slots round the column, three a side: the module's own place and 9 places round it). A Coolant
+  Hatch is a part of its own here and not one of the 8 fluid hatches (`SpaceElevatorMachine.plainFluidHatches`: to GT it is a fluid
+  input hatch too). There is no maintenance hatch (as in GTNH).
   Any tier is taken, but the structure preview shows **ZPM parts** and the terminal builds with them
   (`SpaceElevatorMachine.zpmFirst`: GT would take its first ones, ULV, which hold nothing an expedition needs). A tower the terminal
-  builds in creative has 4 energy hatches, 2 input buses, 6 fluid hatches and 4 output buses: GT's terminal builds a place with the
-  first kind of part that is not full and counts the place for every kind that is not full, so the kinds are listed with rising
-  maxima (with 8 output buses it built 8 fluid hatches and no bus at all, and such a tower cannot run).
+  builds in creative has 4 energy hatches, 2 input buses, 2 Coolant Hatches, 4 fluid hatches and 4 output buses: GT's terminal
+  builds a place with the first kind of part that is not full and counts the place for every kind that is not full, so the kinds are
+  listed with rising maxima (with 8 output buses it built 8 fluid hatches and no bus at all, and such a tower cannot run).
 * **A module slot** holds a Mining Module of any tier, or Base Casing (`SpaceElevatorMachine.modules()` notes the modules down; what
   they do is section 1).
 
@@ -216,7 +239,7 @@ order a run needs things, with the numbers of the drone that would fly:
 | NO DRONE | no drone in the slot or in a bus | put one in the slot |
 | NO POWER | the hatches supply less than one expedition takes | *An expedition takes 491,520 EU/t (4A ZPM). The hatches supply 64.* |
 | NO HYDROGEN | less hydrogen in the hatches than one expedition takes | how many buckets |
-| NO COOLANT | less of the drone's coolant than one expedition takes | how many buckets of which |
+| NO COOLANT | less of the drone's coolant than one expedition takes | how many buckets of which: *fill a Coolant Hatch* |
 | NO ROOM | the asteroid drawn does not fit the output buses, or there is none | add or empty output buses |
 | IDLE | nothing is missing | the next expedition starts by itself |
 | RUNNING | a run is on | |
@@ -227,10 +250,10 @@ elevator's). The run's asteroid goes with the run (`ASTEROID_TAG` in the recipe'
 ## 6. The recipe page
 
 `SpaceMiningRecipeUI` (installed in common setup, `SpaceElevatorMachine.registerRecipeInfo`), in the style of the other AF9 pages: the
-drone top left (kept), under it the hydrogen and, marked as coolant, the supercooled fluid, both piped into the foot of a little tower
-with its cable, its climber and a drone on its way to an asteroid (`SpaceMiningFlowWidget`); then GT's arrow and, on the right, what the
-recipe itself cannot say, because a run gets its asteroid only when it starts: **the ores this drone's asteroids hold**, taking turns
-in nine slots, with the stacks an expedition brings under them.
+drone top left (kept), under it the hydrogen and, marked as coolant (its hover text names the Coolant Hatch), the supercooled
+fluid, both piped into the foot of a little tower with its cable, its climber and a drone on its way to an asteroid
+(`SpaceMiningFlowWidget`); then GT's arrow and, on the right, what the recipe itself cannot say, because a run gets its asteroid only
+when it starts: **the ores this drone's asteroids hold**, taking turns in nine slots, with the stacks an expedition brings under them.
 
 * The ores come from the same catalogue the machine draws its asteroids from (`OreCatalog.reach`: the ores of the veins of the drone's
   tier and below, for the Mk-IV the exotic ones as well), read on the client from the veins GT syncs to it (`ClientOreVeins`).

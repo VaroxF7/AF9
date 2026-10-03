@@ -17,6 +17,7 @@
 const $SpaceElevator = Java.loadClass('com.af9.core.elevator.SpaceElevatorMachine')
 const $ElevatorModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $ElevatorDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
+const $ElevatorCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 
 const SE_ROMAN = ['I', 'II', 'III', 'IV', 'V']
 // module slots the motors of each tier power, expeditions a Mining Module of each tier flies at once (GTNH's numbers; the
@@ -105,6 +106,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 //   H  Neutronium Frame Box                 C  Motor (one tier)       B  the Cable             -  air (the shaft)
 //   X  Base Casing or a hatch of the elevator: the bottom centre casings (and the controller, in the front one's middle)
 //   M  Base Casing or a bus / hatch of a module slot                  I  a module slot: a Mining Module, or Base Casing
+// Hatches: energy and laser in X; input bus, Coolant Hatch, fluid input hatch and output bus in X or M.
 const SE_MAIN = [
     [   // 0
         '               FF FF               ',
@@ -682,25 +684,32 @@ const sePattern = (definition, slices) => {
     for (var c = 0; c < slices.length; c++) pattern = pattern.aisle(slices[c])
     // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)). One set of them for
     // the whole tower, so the maximums count across it. GTNH's places: the energy in the bottom centre casings, the buses
-    // and the fluid hatches there or in the module slots
+    // and the hatches of the fluids there or in the module slots. The supercooled coolant has its Coolant Hatches, as
+    // in AF9's other cooled machines: up to 4. They hold an eighth of a fluid hatch (ZPM 128 B, UV 256 B, UHV 512 B); GT
+    // takes a recipe's fluids from every fluid input, so the coolant of a run bigger than they hold sits in the fluid
+    // input hatches, with the hydrogen
     const energy = Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2)
     const laser = Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0)
     const itemsIn = Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1)
-    const fluidsIn = Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 2)
+    const coolant = Predicates.abilities($ElevatorCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(4, 1)
+    const fluidsIn = Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1)
     const itemsOut = Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(12, 2)
+    // a Coolant Hatch is a fluid input hatch too: here it is a part of its own, counted once
+    $SpaceElevator.plainFluidHatches(fluidsIn)
     // what the preview shows and the terminal builds with: ZPM parts, not GT's first ones (ULV, which hold nothing an
     // expedition needs)
     $SpaceElevator.zpmFirst(energy)
     $SpaceElevator.zpmFirst(laser)
     $SpaceElevator.zpmFirst(itemsIn)
+    $SpaceElevator.zpmFirst(coolant)
     $SpaceElevator.zpmFirst(fluidsIn)
     $SpaceElevator.zpmFirst(itemsOut)
     // The order matters to the terminal: it builds a place with the first kind that is not full, and counts the place for
-    // every kind that is not full. So each kind gets its maximum less that of the kind before it: 4 energy hatches, and
-    // 2 input buses, 6 fluid hatches and 4 output buses (with the output buses' maximum no higher than the fluid hatches'
-    // it built none, and the tower could not run)
+    // every kind that is not full. So each kind gets its maximum less that of the kind before it, and the maximums have to
+    // rise along the list (a kind whose maximum is no higher than that of the kind before it is never built): 4 energy
+    // hatches, and 2 input buses, 2 Coolant Hatches, 4 fluid hatches and 4 output buses
     const power = energy.or(laser)
-    const buses = itemsIn.or(fluidsIn).or(itemsOut)
+    const buses = itemsIn.or(coolant).or(fluidsIn).or(itemsOut)
     return pattern
         .where('S', Predicates.controller(Predicates.blocks(definition.get())))
         .where('A', Predicates.blocks('kubejs:ultra_high_strength_concrete_floor'))

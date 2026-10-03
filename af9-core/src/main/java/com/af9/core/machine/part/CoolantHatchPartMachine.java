@@ -19,9 +19,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 /**
  * Coolant Hatch: a fluid input hatch that only takes the supercooled fluids (gtceu:supercooled_*, made in the
  * Supercooling Cryostat). The machines that need cooling (Particle Accelerator, Orbital Lithography Station, the
- * computation arrays) take their fluids only through these ({@link #COOLANT_INPUT}); in other multiblocks it works as a
- * filtered input hatch. In a computation array it also takes distilled water (the MV array's coolant: the MV hatch
- * comes before the cryostat).
+ * computation arrays) take their fluids only through these ({@link #COOLANT_INPUT}); the Space Elevator has them for
+ * its coolant; in other multiblocks it works as a filtered input hatch. In a computation array it also takes distilled
+ * water (the MV array's coolant: the MV hatch comes before the cryostat).
  */
 public class CoolantHatchPartMachine extends FluidHatchPartMachine {
 

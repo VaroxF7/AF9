@@ -2,6 +2,7 @@ package com.af9.core.elevator;
 
 import com.af9.core.client.ClientOreVeins;
 import com.af9.core.machine.AcceleratorFlowWidget;
+import com.af9.core.machine.AcceleratorRecipeUI;
 
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
@@ -11,6 +12,7 @@ import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.WidgetUtils;
 import com.gregtechceu.gtceu.api.gui.editor.IEditableUI;
 import com.gregtechceu.gtceu.api.gui.widget.SlotWidget;
+import com.gregtechceu.gtceu.api.gui.widget.TankWidget;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.ui.GTRecipeTypeUI;
@@ -38,11 +40,12 @@ import java.util.List;
 /**
  * The Space Elevator's expeditions in EMI / JEI, in the style of the other AF9 pages
  * ({@link com.af9.core.machine.AcceleratorRecipeUI}): the Mining Drone top left (kept), the hydrogen and, marked as
- * coolant, the supercooled fluid under it, piped into the tower; the tower with its cable, the climber and a drone on
- * its way to the asteroid in the middle ({@link SpaceMiningFlowWidget}); GT's arrow; and on the right what the recipe
- * itself cannot say, because a run gets its asteroid only when it starts: <b>the ores this drone's asteroids hold</b>,
- * taking turns in nine slots, with the stacks an expedition brings under them. The ores are outputs to the viewers, so
- * looking up a raw ore finds the expedition that brings it. GT's own slots (same ids) for the inputs.
+ * coolant (its hover text names the Coolant Hatch it goes into), the supercooled fluid under it, piped into the
+ * tower; the tower with its cable, the climber and a drone on its way to the asteroid in the middle
+ * ({@link SpaceMiningFlowWidget}); GT's arrow; and on the right what the recipe itself cannot say, because a run gets
+ * its asteroid only when it starts: <b>the ores this drone's asteroids hold</b>, taking turns in nine slots, with the
+ * stacks an expedition brings under them. The ores are outputs to the viewers, so looking up a raw ore finds the
+ * expedition that brings it. GT's own slots (same ids) for the inputs.
  */
 public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
 
@@ -110,10 +113,21 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         group.addWidget(slot);
     }
 
-    /** The drone's tier to the scene, and the ores it reaches into the slots beside it; then the type's own builder. */
+    /**
+     * The drone's tier to the scene, and the ores it reaches into the slots beside it; the coolant's hover text names
+     * the Coolant Hatch (after GT's own lines for the slot); then the type's own builder.
+     */
     @Override
     public void appendJEIUI(GTRecipe recipe, WidgetGroup widgetGroup) {
         int tier = SpaceElevatorMachine.droneTier(recipe);
+        WidgetUtils.widgetByIdForEach(widgetGroup, "^" + FluidRecipeCapability.CAP.slotName(IO.IN, 1) + "$",
+                TankWidget.class, tank -> AcceleratorRecipeUI.addTooltips(tank, tooltips -> {
+                    tooltips.add(Component.literal("\u2744 ").append(
+                            Component.translatable("af9.recipe.space_mining.coolant_tooltip.0"))
+                            .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
+                    tooltips.add(Component.translatable("af9.recipe.space_mining.coolant_tooltip.1")
+                            .withStyle(ChatFormatting.GRAY));
+                }));
         WidgetUtils.widgetByIdForEach(widgetGroup, "^" + FLOW_ID + "$", SpaceMiningFlowWidget.class, flow -> {
             flow.setTier(tier);
             // into the page's own group: GT builds that anew when the page is redrawn, the slots with it

@@ -1214,7 +1214,7 @@ Supercooled fluids are 1 K fluids (GT refuses temperatures below 0 K); the cryos
 
 Structure 5×5×5: frostproof shell (maximums only: 2 energy hatches, 2 fluid inputs, 2 fluid outputs, 1 maintenance), PTFE pipe heat exchangers, stainless gearboxes (compressors), tempered-glass windows around an air-filled cold chamber. Console (`ProcessConsoleWidget`): mode tiles DENSE / SUPERCOOL, power vs recipe, the fluid being made, the 4A gate, chamber temperature falling from the inlet to the target over the run, run-time bar.
 
-**Coolant Hatch** `gtceu:<hv|ev|iv|luv|zpm|uv|uhv>_coolant_hatch`: a 1-slot fluid input hatch (1000 × 2^tier mB: 8000 at HV, 64 000 at LuV) whose tank only accepts `gtceu:supercooled_*` fluids; abilities `IMPORT_FLUIDS` + `CoolantHatchPartMachine.COOLANT_INPUT`. The Particle Accelerator and the Orbital Lithography Station take fluids only through it. Crafted from the tier's input hatch + 2 pumps (UV pumps for UHV) + frostproof casing + 4 PTFE plates + 1000 supercooled hydrogen, at the tier's voltage.
+**Coolant Hatch** `gtceu:<hv|ev|iv|luv|zpm|uv|uhv>_coolant_hatch`: a 1-slot fluid input hatch (1000 × 2^tier mB: 8000 at HV, 64 000 at LuV) whose tank only accepts `gtceu:supercooled_*` fluids; abilities `IMPORT_FLUIDS` + `CoolantHatchPartMachine.COOLANT_INPUT`. The Particle Accelerator and the Orbital Lithography Station take fluids only through it; the Space Elevator has up to 4 for its coolant (`docs/space-elevator.md`). Crafted from the tier's input hatch + 2 pumps (UV pumps for UHV) + frostproof casing + 4 PTFE plates + 1000 supercooled hydrogen, at the tier's voltage.
 
 # 14. Particle Accelerator
 

@@ -5,6 +5,7 @@ import com.af9.core.common.IPowerGated;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.SidePanelsUIWidget;
 import com.af9.core.machine.console.SpaceElevatorConsoleWidget;
+import com.af9.core.machine.part.CoolantHatchPartMachine;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.block.MetaMachineBlock;
@@ -23,6 +24,7 @@ import com.gregtechceu.gtceu.api.pattern.MultiblockShapeInfo;
 import com.gregtechceu.gtceu.api.pattern.MultiblockWorldSavedData;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
 import com.gregtechceu.gtceu.api.pattern.error.PatternStringError;
+import com.gregtechceu.gtceu.api.pattern.predicates.PredicateBlocks;
 import com.gregtechceu.gtceu.api.pattern.predicates.SimplePredicate;
 import com.gregtechceu.gtceu.api.pattern.util.PatternMatchContext;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
@@ -77,8 +79,9 @@ import java.util.stream.IntStream;
 
 /**
  * Space Elevator (GTNH's, docs/space-elevator.md): a tower on a cable that reaches into space. A Mining Drone (not used
- * up) in the drone slot of its screen ({@link #droneSlot}; or in an input bus), hydrogen and a supercooled coolant in the
- * fluid hatches and a very great deal of energy send an expedition to a random asteroid; when it is back the output
+ * up) in the drone slot of its screen ({@link #droneSlot}; or in an input bus), hydrogen in the fluid hatches, a
+ * supercooled coolant in the Coolant Hatches (to GT fluid input hatches as the others: the recipe takes its fluids from
+ * all of them) and a very great deal of energy send an expedition to a random asteroid; when it is back the output
  * buses hold its ore, tens of stacks of raw ore.
  * <p>
  * The structure is GTNH's (the startup script {@code startup_scripts/gtceu/space_elevator.js} holds it): its blocks
@@ -376,6 +379,24 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         return predicate;
     }
 
+    /**
+     * Takes the Coolant Hatches out of a predicate of fluid input hatches (a Coolant Hatch is a fluid input hatch too):
+     * in the elevator they are a part of their own with a maximum of their own, and are not to count twice. To be
+     * called before {@link #zpmFirst}: the candidates are made anew here.
+     */
+    public static TraceabilityPredicate plainFluidHatches(TraceabilityPredicate predicate) {
+        for (List<SimplePredicate> kind : List.of(predicate.limited, predicate.common)) {
+            for (SimplePredicate simple : kind) {
+                if (!(simple instanceof PredicateBlocks hatches)) continue;
+                hatches.blocks = Arrays.stream(hatches.blocks)
+                        .filter(block -> !CoolantHatchPartMachine.COOLANT_INPUT.isApplicable(block))
+                        .toArray(Block[]::new);
+                hatches.buildPredicate();
+            }
+        }
+        return predicate;
+    }
+
     /** ZPM first, then up, then down from LuV: a part's place among the candidates. */
     private static int rank(Block block) {
         int tier = block instanceof MetaMachineBlock machine ? machine.getDefinition().getTier() : GTValues.ZPM;
@@ -653,7 +674,10 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         return fluid.isSame(GTMaterials.Hydrogen.getFluid());
     }
 
-    /** Millibuckets of a fluid in the fluid input hatches (hydrogen: {@link #isHydrogen}). */
+    /**
+     * Millibuckets of a fluid in the fluid input hatches (hydrogen: {@link #isHydrogen}), the Coolant Hatches among
+     * them.
+     */
     public long stockOf(Fluid fluid) {
         if (!isFormed()) return 0;
         long total = 0;

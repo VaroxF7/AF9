@@ -29,6 +29,7 @@ import net.minecraftforge.fluids.FluidStack;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * The Particle Accelerator's recipes in EMI / JEI, in the lithography page's style
@@ -144,20 +145,9 @@ public class AcceleratorRecipeUI extends GTRecipeTypeUI {
         return least;
     }
 
-    /** Adds the coolant's lines to the tank's tooltip, after the ones GT gave it (its chance and such). */
-    @SuppressWarnings("unchecked")
+    /** Adds the coolant's lines to the tank's tooltip. */
     private static void markCoolant(TankWidget tank, Coolant least) {
-        BiConsumer<TankWidget, List<Component>> gt = null;
-        try {
-            Field field = TankWidget.class.getDeclaredField("onAddedTooltips");
-            field.setAccessible(true);
-            gt = (BiConsumer<TankWidget, List<Component>>) field.get(tank);
-        } catch (ReflectiveOperationException | RuntimeException ignored) {
-            // no GT lines to keep
-        }
-        BiConsumer<TankWidget, List<Component>> before = gt;
-        tank.setOnAddedTooltips((widget, tooltips) -> {
-            if (before != null) before.accept(widget, tooltips);
+        addTooltips(tank, tooltips -> {
             tooltips.add(Component.literal("\u2744 ").append(
                     Component.translatable("af9.recipe.accelerator_page.coolant"))
                     .withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD));
@@ -169,6 +159,27 @@ public class AcceleratorRecipeUI extends GTRecipeTypeUI {
                     .withStyle(ChatFormatting.GRAY));
             tooltips.add(Component.translatable("af9.recipe.accelerator_page.coolant_magnets")
                     .withStyle(ChatFormatting.DARK_AQUA));
+        });
+    }
+
+    /**
+     * Adds lines to a recipe page tank's tooltip, after the ones GT gave it (its chance and such): the pages mark their
+     * coolant with it.
+     */
+    @SuppressWarnings("unchecked")
+    public static void addTooltips(TankWidget tank, Consumer<List<Component>> lines) {
+        BiConsumer<TankWidget, List<Component>> gt = null;
+        try {
+            Field field = TankWidget.class.getDeclaredField("onAddedTooltips");
+            field.setAccessible(true);
+            gt = (BiConsumer<TankWidget, List<Component>>) field.get(tank);
+        } catch (ReflectiveOperationException | RuntimeException ignored) {
+            // no GT lines to keep
+        }
+        BiConsumer<TankWidget, List<Component>> before = gt;
+        tank.setOnAddedTooltips((widget, tooltips) -> {
+            if (before != null) before.accept(widget, tooltips);
+            lines.accept(tooltips);
         });
     }
 }
