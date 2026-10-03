@@ -5,9 +5,8 @@ hydrogen sulfide, Nether flora to radon, a full bio diesel / bioethanol / ethano
 benzene, chlorobenzene and chloroform, and three AF9 diesels above GT's. GT's own biomass, ethanol
 and oil chemistry is untouched; these lines run beside it.
 
-Code: `kubejs/startup_scripts/gtceu/biofuels.js` (bioethanol),
-`kubejs/startup_scripts/gtceu/aromatics.js` (dichloromethane),
-`kubejs/startup_scripts/gtceu/diesel.js` (shiny, chloromethane and mana diesel),
+Code: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (the materials: bioethanol, dichloromethane,
+shiny, chloromethane and mana diesel),
 `kubejs/server_scripts/mods/gtceu/nether_chemistry.js`,
 `kubejs/server_scripts/mods/gtceu/biofuels.js`,
 `kubejs/server_scripts/mods/gtceu/aromatics.js`,
@@ -98,13 +97,13 @@ reagent, semiconductor-factory §6.14).
 AF9's own planet type past GTNH's table (`PlanetCatalog`, Mk-IV only): bio diesel 1,400, bioethanol
 1,792, benzene 1,400, chloroform 896, chlorobenzene 1,120, hydrogen sulfide 784 and radon 128 buckets
 a mission — the green-chemistry fluids plus richer cuts of the sour gas and radon the nearer types
-already bring (392 and 64). Bioethanol is a KubeJS fluid, looked up by id at runtime;
-while it does not exist the mission is skipped like GTNH's three missing fluids.
+already bring (392 and 64). Bioethanol is one of AF9's own materials (`AF9Materials`),
+looked up by id at runtime; while it does not exist the mission is skipped like GTNH's three missing fluids.
 
 ## 6. Diesel line
 
 Three AF9 fuels above GT's diesel (`diesel`, `bio_diesel`, `cetane_boosted_diesel` stay GT's).
-Code: `kubejs/startup_scripts/gtceu/diesel.js`,
+Code: AF9 Core `registry/AF9Materials` (`diesel()`),
 `kubejs/server_scripts/mods/gtceu/diesel.js`.
 
 ```

@@ -113,7 +113,7 @@ public final class PlanetCatalog {
         add(list, 8, 7, GTMaterials.Tin, 672);
         // T9 (AF9's own far dark, Mk-IV): green-chemistry fluids and richer sour gas and radon
         add(list, 9, 1, GTMaterials.BioDiesel, 1_400);
-        add(list, 9, 2, kubejsFluid("bioethanol"), 1_792);
+        add(list, 9, 2, af9Fluid("bioethanol"), 1_792);
         add(list, 9, 3, GTMaterials.Benzene, 1_400);
         add(list, 9, 4, GTMaterials.Chloroform, 896);
         add(list, 9, 5, GTMaterials.Chlorobenzene, 1_120);
@@ -136,10 +136,10 @@ public final class PlanetCatalog {
     }
 
     /**
-     * A fluid KubeJS registered (AF9's biodiesel and bioethanol): looked up by id at runtime, when the materials
-     * exist. Null while they do not, and the mission is then skipped like GTNH's three missing fluids.
+     * The fluid of one of AF9's own materials ({@link com.af9.core.registry.AF9Materials}: bioethanol), looked up by
+     * id at runtime. Null when it does not exist, and the mission is then skipped like GTNH's three missing fluids.
      */
-    private static Fluid kubejsFluid(String id) {
+    private static Fluid af9Fluid(String id) {
         return ForgeRegistries.FLUIDS.getValue(new ResourceLocation("gtceu", id));
     }
 

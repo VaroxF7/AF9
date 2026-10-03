@@ -1,4 +1,4 @@
-// AF9 - Diesel line: three AF9 fuels above GT's diesel (materials: startup_scripts/gtceu/diesel.js).
+// AF9 - Diesel line: three AF9 fuels above GT's diesel (materials: af9-core, registry/AF9Materials).
 // Spec: docs/green-chemistry.md §6
 //
 //   shiny oil + refinery gas       -reactor, HV->  shiny diesel + sulfur (HOG hydrotreating)

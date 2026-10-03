@@ -1,4 +1,4 @@
-// AF9 - Fab chemistry recipes (materials: startup_scripts/gtceu/fab_chemistry.js)
+// AF9 - Fab chemistry recipes (materials: af9-core, registry/AF9Materials)
 // Real industrial routes, one machine step per real unit operation. Spec: docs/semiconductor-factory.md §6.11-6.15
 //
 // All of it runs only in the SMC fab machines (startup_scripts/gtceu/fab_machines.js, spec §11): GT's Chemical

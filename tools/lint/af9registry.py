@@ -9,14 +9,16 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 
 
 def load(here=HERE):
-    """kind -> {id without the namespace: the words after it}, for the kinds item, block and fluid."""
-    registry = {'item': {}, 'block': {}, 'fluid': {}}
+    """kind -> {id without the namespace: the words after it}, for the kinds item, block, fluid and material.
+
+    A material is GregTech's by id (`material gtceu:<name>`); the word `ore` marks one with an ore."""
+    registry = {'item': {}, 'block': {}, 'fluid': {}, 'material': {}}
     try:
         with open(os.path.join(here, 'data', 'af9-registry.txt'), encoding='utf-8') as f:
             rows = [line.split() for line in f if line.strip() and not line.startswith('#')]
     except OSError:
         return registry
     for row in rows:
-        if len(row) >= 2 and row[0] in registry and row[1].startswith('af9:'):
-            registry[row[0]][row[1][4:]] = row[2:]
+        if len(row) >= 2 and row[0] in registry and row[1].startswith('gtceu:' if row[0] == 'material' else 'af9:'):
+            registry[row[0]][row[1].split(':', 1)[1]] = row[2:]
     return registry

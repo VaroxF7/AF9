@@ -29,8 +29,8 @@ The CI workflow (job `lint`) runs `run.sh --selftest` before it builds (`.github
 
 | code | level | what it finds | how to avoid it |
 |---|---|---|---|
-| S2 | error | a material, machine or recipe type registered twice | search the startup scripts for the id before registering; one table per family |
-| S4 | error | a startup script that registers an item, a block or a fluid | AF9's blocks and items are registered by AF9 Core (`af9-core/src/main/java/com/af9/core/registry`: `AF9Items`, `AF9Blocks`), with their names, models and textures in its resources; they are `af9:<id>` |
+| S2 | error | a machine or recipe type registered twice | search the startup scripts for the id before registering; one table per family |
+| S4 | error | a startup script that registers an item, a block, a fluid, a material, a material icon set or an ore layer | AF9 Core registers them (`af9-core/src/main/java/com/af9/core/registry`: `AF9Items`, `AF9Blocks`, `AF9Materials`; the ore layer: `space/AF9Space`). Blocks and items are `af9:<id>` with their names, models and textures in AF9 Core's resources; materials keep `gtceu:<name>` |
 | S3 | error | a `const` declared in the body of a `for` / `while` loop: KubeJS's engine (Rhino) keeps it at the first pass's value, Node (this linter) does not, so the script passes here and fails in the game (the reticles registered `ilc_reticle` twice that way) | loop with a callback (`forEach`, `map`): a `const` in a callback is new each call |
 | S1 | error | a script threw while loading (typo, undefined name) | run the linter before pushing; the first line of the message is the JS error. A stub that is missing (a new GT global) goes into `ctx` in `scripts.js` |
 | F1 | warn | a file with the AllTheMods licence header is in this repo | files of the base pack are not ours to ship; do not copy them into the overlay |
@@ -118,8 +118,9 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
 ## The registry list
 
 `data/af9-registry.txt` says what AF9 Core registers: `item af9:<id>`, `block af9:<id>` (a machine's block is marked
-`machine`), `fluid af9:<id>`, a line each. A linter cannot read that out of the Java (loops and tables make the ids), so the
-game writes it: AF9 Core's headless dev run boots Minecraft with GT and AF9 Core, writes the list and stops, in about a minute.
+`machine`), `fluid af9:<id>`, `material gtceu:<name>` (one with an ore is marked `ore`), a line each. A linter cannot read
+that out of the Java (loops and tables make the ids), so the game writes it: AF9 Core's headless dev run boots Minecraft with
+GT and AF9 Core, writes the list and stops, in about a minute or two.
 
 ```
 cd af9-core
@@ -127,8 +128,8 @@ cd af9-core
 ```
 
 The run takes the mods AF9 Core needs at runtime and that are on no Maven repository (Ad Astra's libraries, KubeJS) from the
-`mods` folder of that instance. Run it after adding, renaming or removing a block or an item, and commit the list with the
-change. Where no instance is at hand, edit the list by hand: it is sorted, a line a thing. `assets.py` (A6) holds the list
+`mods` folder of that instance. Run it after adding, renaming or removing a block, an item or a material, and commit the
+list with the change. Where no instance is at hand, edit the list by hand: it is sorted, a line a thing. `assets.py` (A6) holds the list
 against the models and block states, so a line that is missing or left over shows up.
 
 ## Self-test

@@ -1,2 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+# written by AF9 Core's dev run with Unix line ends on any system: kept that way, so a run that changes nothing leaves no diff
+tools/lint/data/af9-registry.txt text eol=lf

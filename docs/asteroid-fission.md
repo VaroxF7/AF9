@@ -7,7 +7,7 @@ gtceu: "7.2.0 (GregTech CEu Modern)"
 ad_astra: "1.15.20"
 af9_core: "0.1.0 (mod_id `af9`)"
 status: "Implemented. Java compiles on CI, the lint suite (run.sh --selftest) passes; nothing of it has been started in the game yet (§9 lists what to look at first)."
-agent_hint: "`gtceu:` = base GregTech and everything AF9 registers through GT's KubeJS (materials, machines, recipe types). `af9:` = AF9's plain items (the fuel pellet, rod and spent rod; registered by AF9 Core), AF9 recipe ids, dimensions, planets and the Java feature. Numbers live in the scripts named in §10; the lint (`tools/lint/facts.py`, X3 and X4) holds the quest texts and the shared names to them."
+agent_hint: "`gtceu:` = base GregTech, AF9's materials (AF9 Core registers them into GT's registry) and what AF9 registers through GT's KubeJS (machines, recipe types). `af9:` = AF9's plain items (the fuel pellet, rod and spent rod; registered by AF9 Core), AF9 recipe ids, dimensions, planets and the Java feature. Numbers live in the scripts named in §10; the lint (`tools/lint/facts.py`, X3 and X4) holds the quest texts and the shared names to them."
 ---
 
 # 1. What it is
@@ -97,7 +97,7 @@ A rock's shape and size do not depend on its place, so a change of the spacing m
 were generated before keep their old rocks; for the first look use a new world or unexplored space.
 
 The rock is andesite, tuff, basalt and blackstone, by a slow noise in patches. These are four of the stones GT has ore blocks for;
-the ore layer targets exactly them (`.targets(...)` in the startup script; lint X4).
+the ore layer targets exactly them (the block tag `af9:asteroid_rock`, `AF9Space`; lint X4).
 
 ## 2.2b Ancient temples (`TempleLayout`)
 
@@ -166,7 +166,7 @@ GT vein is one small blob (a vanilla-style ore blob, a few blocks tall for its w
   whose noise is high wins; Oil Regolith pockets (§ oil.md) are checked first and hold no ore.
 - **Knobs:** `Ore` (thresholds) and `SCALE` in `AsteroidOres.java`. A GT material or ore block that is missing is logged once
   (`Asteroid ore <material> in <stone>: ...`) and that ore is left out.
-- GT's layer `af9_asteroid` (`startup_scripts/gtceu/asteroid_fission.js`) stays (lint X4 checks its stones against the Java); no GT vein uses it. The prospector and
+- GT's layer `af9_asteroid` (AF9 Core, `space/AF9Space`; its stones are the block tag `af9:asteroid_rock`) stays (lint X4 checks the tag against the feature); no GT vein of these ores uses it. The prospector and
   the vein page of JEI/EMI do not list these ores, there being no vein. Only chunks generated after this have the ore.
 - `kubejs/server_scripts/mods/gtceu/vein_asteroid.js` only switches the pitchblende and uraninite veins off (weight 0).
 - **Brannerite** (`(U,Ca,Ce)(Ti,Fe)2O6`): dust and ore, two crushed ores per ore, by-products rutile, thorium, neodymium, GT's
@@ -335,7 +335,9 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 
 | File | Holds |
 |---|---|
-| `kubejs/startup_scripts/gtceu/asteroid_fission.js` | materials, items, the ore layer, the FX-1's recipe type and structure |
+| `kubejs/startup_scripts/gtceu/asteroid_fission.js` | the FX-1's recipe type and structure |
+| `af9-core/src/main/java/com/af9/core/registry/` | the materials (`AF9Materials`, `asteroidFission()`), the fuel pellet and rods (`AF9Items`) |
+| `af9-core/src/main/java/com/af9/core/space/AF9Space.java` | the ore layer `af9_asteroid` and the tag of its stones |
 | `kubejs/server_scripts/mods/gtceu/asteroid_fission.js` | the ore veins, the closed old ways, the uranium chain, the reactor, steam turbine, reprocessing, tags |
 | `kubejs/server_scripts/mods/gtceu/rockets.js` | the gregified rockets, the propellant, the fuel tags |
 | `kubejs/server_scripts/mods/gtceu/fusion_reactor.js` | the Fusion Reactor Mk1 |

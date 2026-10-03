@@ -295,8 +295,8 @@ Quest chapters track this order: MV → HV → EV → IV → LuV → ZPM → UV 
 
 | Path | What |
 |---|---|
-| `af9-core/` | AF9 Core Forge mod — the pack's blocks and items, their textures and models, and the machine logic (see [`af9-core/README.md`](af9-core/README.md)) |
-| `kubejs/startup_scripts/gtceu/` | AF9 machines, materials, parts, recipe types |
+| `af9-core/` | AF9 Core Forge mod — the pack's blocks, items and materials, their textures and models, and the machine logic (see [`af9-core/README.md`](af9-core/README.md)) |
+| `kubejs/startup_scripts/gtceu/` | AF9 machines, parts, recipe types |
 | `kubejs/server_scripts/mods/gtceu/` | AF9 recipes |
 | `kubejs/assets/` | lang (`gtceu`, `kubejs`), fluid textures |
 | `config/ftbquests/` | quest chapters AF9 adds/extends |

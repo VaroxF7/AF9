@@ -8,85 +8,12 @@
 // asteroid_fission.js); the plutonium goes into the Fusion Reactor Mk1 (fusion_reactor.js).
 //
 // What lives where:
-//   this file                                   materials, items, the layer of the asteroid ores, the reactor's recipe type
-//                                               and its structure
+//   this file                                   the reactor's recipe type and its structure
 //   server_scripts/mods/gtceu/asteroid_fission  ore veins, the uranium chain, the reactor's recipes, steam turbine, tags
 //   server_scripts/mods/gtceu/rockets.js        gregified rockets, the propellant
-//   af9-core                                    the asteroids (com.af9.core.space), RadiationWatch, Extreme Reactors
-
-// ---- The layer: what GT's ore veins grow into in the Asteroid Field ----
-// The rock of the asteroids: the four stones GT has ore blocks for (AsteroidFieldFeature).
-GTCEuStartupEvents.registry('gtceu:world_gen_layer', event => {
-    event.create('af9_asteroid')
-        .targets('minecraft:andesite', 'minecraft:tuff', 'minecraft:basalt', 'minecraft:blackstone')
-        .dimensions('af9:asteroid_field')
-})
-
-GTCEuStartupEvents.registry('gtceu:material', event => {
-    // ---- The ore and the uranium chain ----
-    // Formulas only (no components), so GT adds no electrolyzer or centrifuge shortcut past the chain.
-    // Brannerite: uranium, titanium and rare earths in one oxide. Crushing gives two crushed ores per ore.
-    event.create('brannerite')
-        .dust().ore(2, 1)
-        .color(0x4a4636).secondaryColor(0xd2c24a)
-        .iconSet(GTMaterialIconSet.RADIOACTIVE)
-        .formula('(U,Ca,Ce)(Ti,Fe)2O6')
-        .radioactiveHazard(0.6)
-        .addOreByproducts(GTMaterials.Rutile, GTMaterials.Thorium, GTMaterials.Neodymium)
-
-    // The acid leach of the ore: uranyl sulfate in solution, and the ammonia precipitates it as yellowcake
-    event.create('uranyl_sulfate_solution')
-        .liquid()
-        .color(0xc9d63c)
-        .formula('UO2SO4')
-    event.create('yellowcake')
-        .dust()
-        .color(0xe8c51c)
-        .iconSet('rough')
-        .formula('U3O8')
-        .radioactiveHazard(0.8)
-
-    // ---- Spent fuel ----
-    // What the reactor leaves in a rod, dissolved in nitric acid; the centrifuge splits plutonium and uranium off.
-    event.create('irradiated_fuel')
-        .dust()
-        .color(0x4b5a22).secondaryColor(0x8cff3c)
-        .iconSet(GTMaterialIconSet.RADIOACTIVE)
-        .formula('(U,Pu,FP)O2')
-        .radioactiveHazard(1.5)
-    event.create('spent_fuel_solution')
-        .liquid()
-        .color(0x7a9a2e)
-        .formula('(U,Pu)(NO3)x')
-
-    // ---- The reactor's coolant circuit ----
-    // The coolant is GT's own sodium-potassium alloy (NaK, liquid at room temperature). It carries the heat out of the
-    // core and gives it to the water in the same machine; the hot alloy goes back to NaK in a Vacuum Freezer.
-    event.create('hot_sodium_potassium')
-        .liquid(800)
-        .color(0xff8a3d)
-        .formula('NaK*')
-    // Water above the critical point (647 K, 22 MPa): no boiling, so no drying out. 80 EU per mB in a steam turbine
-    // (steam: 0.5), 320 FE in Extreme Reactors' (af9-core ExtremeReactorsCompat).
-    event.create('supercritical_steam')
-        .gas(647)
-        .color(0xe6f4ff)
-        .formula('H2O*')
-
-    // ---- The propellant of the rockets (server_scripts/mods/gtceu/rockets.js) ----
-    // Triethylaluminium, the hypergolic igniter of real rockets (the Merlin's TEA-TEB): aluminium, ethylene and hydrogen
-    // in a chemical reactor, MV
-    event.create('triethylaluminium')
-        .liquid()
-        .color(0xd7dbf2)
-        .formula('Al(C2H5)3')
-    // Hydrogen and oxygen with aluminium powder burning in them and the igniter: more thrust per mB than any of its
-    // parts. The only fuel Ad Astra's rockets take in this pack.
-    event.create('aluminised_hydrolox')
-        .liquid()
-        .color(0xf2c96a)
-        .formula('H2/O2/Al')
-})
+//   af9-core                                    the materials and the fuel items (com.af9.core.registry), the asteroids
+//                                               and the layer of their ores (com.af9.core.space), RadiationWatch,
+//                                               Extreme Reactors
 
 // ---- The FX-1 Reactor ----
 const $Fx1Reactor = Java.loadClass('com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine')

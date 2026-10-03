@@ -1,4 +1,5 @@
-// AF9 - Asteroid fission (materials, items, machine: startup_scripts/gtceu/asteroid_fission.js). Spec: docs/asteroid-fission.md
+// AF9 - Asteroid fission (machine: startup_scripts/gtceu/asteroid_fission.js; materials and items: af9-core,
+// com.af9.core.registry). Spec: docs/asteroid-fission.md
 //
 // 1. Veins:   (vein_asteroid.js) Brannerite (the uranium ore) and three metal ores in the asteroids of af9:asteroid_field; GT's old uranium
 //             veins (pitchblende, uraninite) switched off

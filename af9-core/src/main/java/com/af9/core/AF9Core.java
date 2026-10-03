@@ -15,8 +15,11 @@ import com.af9.core.network.AF9Network;
 import com.af9.core.pattern.AF9Filters;
 import com.af9.core.registry.AF9Blocks;
 import com.af9.core.registry.AF9Items;
+import com.af9.core.registry.AF9Materials;
 import com.af9.core.registry.AF9Tabs;
 import com.af9.core.space.AF9Space;
+
+import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -30,8 +33,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /**
- * AF9 Core: Java-side machine logic for the AF9 modpack.
- * Machines, materials and recipes are defined in KubeJS; this mod supplies the behaviour KubeJS cannot
+ * AF9 Core: the AF9 modpack's own content and its Java-side machine logic.
+ * It registers the pack's blocks, items and materials ({@code com.af9.core.registry}); machines, recipe types and
+ * recipes are defined in KubeJS, and this mod supplies the behaviour KubeJS cannot
  * (consoles, module detection, recipe gating, the lithography vacuum and break roll, wafer and chip contamination,
  * the EBF's Boule Melting mode, the Plascrete Filter Casing as a cleanroom filter, fluids inside running machines, Jade
  * tooltips, the asteroids of the Asteroid Field, the radiation warning). Settings: {@link AF9Config}.
@@ -41,11 +45,16 @@ public class AF9Core {
 
     public static final String MOD_ID = "af9";
     public static final Logger LOGGER = LogManager.getLogger();
+    /** GregTech's registrate for this mod: what is registered through GregTech's builders goes through it. */
+    public static final GTRegistrate REGISTRATE = GTRegistrate.create(MOD_ID);
 
     @SuppressWarnings("removal")
     public AF9Core() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         AF9Sounds.register(FMLJavaModLoadingContext.get().getModEventBus());
+        REGISTRATE.registerRegistrate();
+        // the pack's materials, in GregTech's material phase
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(AF9Materials::register);
         // the pack's plain blocks and items
         AF9Blocks.register(FMLJavaModLoadingContext.get().getModEventBus());
         AF9Items.register(FMLJavaModLoadingContext.get().getModEventBus());

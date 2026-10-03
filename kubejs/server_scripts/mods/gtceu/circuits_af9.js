@@ -3,7 +3,7 @@
 // What is here, in order:
 //   1. helpers (the tin / soldering alloy pair that every circuit assembler recipe gets, the chips, the cleanroom)
 //   2. the metals of the circuits: the alloy dusts (Aluminium-Silicon, Kovar, Platinum-Iridium) mixed in LV / HV
-//      (GT melts them in the EBF at the temperatures of startup_scripts/gtceu/electronics_metallurgy.js)
+//      (GT melts them in the EBF at the temperatures of af9-core's registry/AF9Materials)
 //   3. MV circuits without discrete semiconductors (Good Electronic / Good Integrated circuit, Microprocessor, APU version)
 //   4. HV to LuV circuits from the metals of their own tier, with plain chips (+ their SMD / SoC versions)
 //   5. the eDRAM package recipes (LuV): extra recipes beside the RAM ones

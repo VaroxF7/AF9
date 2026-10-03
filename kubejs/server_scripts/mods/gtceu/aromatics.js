@@ -1,5 +1,5 @@
 // AF9 - Aromatics, GTNH-style: benzene from wood tar and toluene, chlorobenzene both ways,
-// and the stepwise methane chlorination down to chloroform (materials: startup_scripts/gtceu/aromatics.js).
+// and the stepwise methane chlorination down to chloroform (materials: af9-core, registry/AF9Materials).
 // Spec: docs/green-chemistry.md
 //
 //   wood tar                 -distillation tower-> benzene + toluene + phenol + creosote (AF9 topping)

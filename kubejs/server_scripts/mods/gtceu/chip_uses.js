@@ -1,4 +1,4 @@
-// AF9 - Where AF9's own chips (startup_scripts/gtceu/chips.js) go into other mods' recipes: chips added to GT's and
+// AF9 - Where AF9's own chips (af9-core, registry/AF9Items) go into other mods' recipes: chips added to GT's and
 // AE2's recipes, and alternative recipes that take a chip. The uses inside AF9's own recipes sit with those recipes
 // (wireless energy hatches, MV circuits, tiered circuits, fab machines, void miner, Orbital Lithography Station).
 // Spec: docs/semiconductor-factory.md §8.

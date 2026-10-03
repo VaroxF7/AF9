@@ -181,14 +181,24 @@ startup = 'kubejs/startup_scripts/gtceu/asteroid_fission.js'
 server = 'kubejs/server_scripts/mods/gtceu/asteroid_fission.js'
 feature = 'af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java'
 rock_m = code(feature, r'BlockState rockAt\(.*?\n    }', 'rockAt')
-layer_m = code(startup, r"\.targets\(([^)]*)\)", 'the asteroid layer\'s targets')
-if rock_m and layer_m:
+# the ore layer of the Asteroid Field (AF9Space): its stones are a block tag, its dimension a constant
+space = 'af9-core/src/main/java/com/af9/core/space/AF9Space.java'
+rock_tag = 'af9-core/src/main/resources/data/af9/tags/blocks/asteroid_rock.json'
+layer_m = code(space, r'new SimpleWorldGenLayer\(ORE_LAYER, \(\) -> new TagMatchTest\(ASTEROID_ROCK\), Set\.of\(ASTEROID_FIELD_DIMENSION\)\)',
+               'the ore layer of the Asteroid Field')
+tag_m = code(space, r'ASTEROID_ROCK = BlockTags\.create\(new ResourceLocation\(AF9Core\.MOD_ID,\s*"asteroid_rock"\)\)', 'the tag of the layer\'s stones')
+layer_dim_m = code(space, r'ASTEROID_FIELD_DIMENSION = new ResourceLocation\(AF9Core\.MOD_ID,\s*"(\w+)"\)', 'the dimension of the ore layer')
+if rock_m and layer_m and tag_m:
     checked += 1
     rock = sorted({'minecraft:' + b.lower() for b in re.findall(r'Blocks\.([A-Z_]+)\.defaultBlockState', rock_m.group(0))})
-    layer = sorted(re.findall(r"'([a-z_:]+)'", layer_m.group(1)))
-    if rock != layer:
-        report(f'AsteroidFieldFeature builds {rock}, the layer af9_asteroid (startup script) lets ores grow into {layer}: ore veins '
-               f'would miss or replace the wrong rock', code='X4')
+    try:
+        layer = sorted(json.loads(read(rock_tag))['values'])
+    except (OSError, ValueError, KeyError):
+        layer = None
+        report(f'{rock_tag}: the stones of the ore layer af9_asteroid are not there (or not valid JSON)', code='X4')
+    if layer is not None and rock != layer:
+        report(f'AsteroidFieldFeature builds {rock}, the layer af9_asteroid (the tag af9:asteroid_rock) lets ores grow into {layer}: '
+               f'ore veins would miss or replace the wrong rock', code='X4')
 rad = code('af9-core/src/main/java/com/af9/core/radiation/RadiationWatch.java', r'REACTOR_ID = new ResourceLocation\("(\w+)", "(\w+)"\)', 'REACTOR_ID')
 if rad:
     checked += 1
@@ -216,6 +226,8 @@ for n, planet in planets.items():
         report(f'planets/{n}.json: its orbit {planet["orbit"]} is no planet of AF9', code='X4')
 space = {p['dimension'] for p in planets.values() if 'orbit' not in p}
 used_dims = set(re.findall(r"\.dimensions\('([^']+)'\)", read(startup) + read(server)))
+if layer_dim_m:
+    used_dims.add('af9:' + layer_dim_m.group(1))
 for d in sorted(used_dims):
     checked += 1
     if d not in dims:
@@ -237,9 +249,10 @@ if not tables:
     report('TempleLayout.java: found no sizes with a loot table (did Kind change shape? then fix tools/lint/facts.py)', code='X4')
 if 'new ResourceLocation("af9", "chests/" + temple.kind.lootTable)' not in read(feature):
     report('AsteroidFieldFeature no longer builds the chest loot table id as af9:chests/<TempleLayout.Kind.lootTable>', code='X4')
-af9_items = set(af9registry.load(HERE)['item'])
+af9_registry = af9registry.load(HERE)
+af9_items = set(af9_registry['item'])
 materials_dir = os.path.join(ROOT, 'kubejs/startup_scripts')
-ore_materials = set()
+ore_materials = {name for name, words in af9_registry['material'].items() if 'ore' in words}
 for dirpath, _, files in os.walk(materials_dir):
     for f in files:
         if f.endswith('.js'):

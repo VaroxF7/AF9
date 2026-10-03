@@ -1,4 +1,4 @@
-// AF9 - The oil chain (fluids: startup_scripts/gtceu/oil.js; the regolith: af9-core). Spec: docs/oil.md
+// AF9 - The oil chain (fluids: af9-core, registry/AF9Materials; the regolith: af9-core). Spec: docs/oil.md
 //
 //   Oil Regolith (asteroid rock)  -> centrifuge -> Impure Oil (+ sand, sulfur)
 //   Impure Oil + a little sulfuric acid -> chemical reactor -> Shiny Oil (the wash: the acid takes the solids)

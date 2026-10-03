@@ -9,7 +9,7 @@ kubejs: "2001.6.5-build.16"
 af9_core: "0.1.0 (mod_id `af9`)"
 gtceu_config: "enableCleanroom=true, cleanMultiblocks=false, enableMaintenance=true, highTierContent=false, orderedAssemblyLineItems=true"
 status: "Matches main. One lithography mode per wafer substrate (§5.2): Photolithography Line 350 nm Si (MV) → 200 nm P → 100 nm Nq → 80 nm trinium → 65 nm naquadria → 50 nm Nt → 20 nm transmuted neutronium → 7 nm strange matter (UHV), each 4A of its tier + OC_PERFECT and with its real light source and resist (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV); the Orbital Lithography Station prints 1 nm chromodynium wafers in orbit (50A UHV laser). A substrate prints its own chips and every lower substrate's chips as GT's own plain chip wafers (a better substrate gives more of them per blank), no NBT. Vacuum cleanliness 0-100, air cooling, OPC computation and a Metrology Station decide the break roll (§18, §5.4). Boules are 10x material in the EBF's Boule Melting mode (§12). Superseded: wafer packages, per-mode chips (MUV/HUV/EUV/XUV/LUV), the old CZ boules, Mk I-III modules, high_grade/premium items."
-agent_hint: "All exact IDs are in backticks. `gtceu:` = base GregTech item/machine/recipe-type (KubeJS GT machines, materials and recipe types also land in `gtceu:`). `af9:` = AF9 custom item/block (registered by AF9 Core; `kubejs:` until October 2026, old worlds are remapped) and AF9 custom recipe ID (output namespace varies — see §6). No NBT anywhere in the chip chain."
+agent_hint: "All exact IDs are in backticks. `gtceu:` = base GregTech item/machine/recipe-type (AF9's materials, which AF9 Core registers, and the KubeJS GT machines and recipe types also land in `gtceu:`). `af9:` = AF9 custom item/block (registered by AF9 Core; `kubejs:` until October 2026, old worlds are remapped) and AF9 custom recipe ID (output namespace varies — see §6). No NBT anywhere in the chip chain."
 ---
 
 # 0. How agents must read this doc
@@ -718,7 +718,7 @@ Chips are plain GT chips; a chip is a chip whatever substrate it came from. `cir
 
 ## 6.9 Electronics metallurgy (alloys + zircon)
 
-Files: `startup_scripts/gtceu/electronics_metallurgy.js` (materials), `server_scripts/mods/gtceu/electronics_metallurgy.js` (zircon chain, ore vein; the alloy mixers are in `circuits_af9.js`). GT generates each alloy's EBF recipe from its blast property (circuit 1 without gas, circuit 2 with the gas at 0.67× time; above 1750 K a hot ingot + vacuum freezer), the parts and centrifuge decomposition. Only alloys of a tier metal exist; HV, IV and LuV use GT's own metals.
+Files: AF9 Core `registry/AF9Materials` (`electronicsMetallurgy()`, the materials), `server_scripts/mods/gtceu/electronics_metallurgy.js` (zircon chain, ore vein; the alloy mixers are in `circuits_af9.js`). GT generates each alloy's EBF recipe from its blast property (circuit 1 without gas, circuit 2 with the gas at 0.67× time; above 1750 K a hot ingot + vacuum freezer), the parts and centrifuge decomposition. Only alloys of a tier metal exist; HV, IV and LuV use GT's own metals.
 
 | Alloy `gtceu:` | Tier | Mixer (circuit) → dust, EU/t | EBF | Gas | EBF EU/t, time | Part used | Real-world role |
 |---|---|---|---|---|---|---|---|
@@ -780,7 +780,7 @@ so that no dependency line passes under another quest); new IDs are 63-bit rando
 
 ## 6.11 Fab chemistry: gating rules and verification
 
-Files: `startup_scripts/gtceu/fab_chemistry.js` (72 materials, formulas only, so GT generates no electrolyzer/centrifuge shortcut), `server_scripts/mods/gtceu/fab_chemistry.js` (recipes). Five lines, each 10-20 unit operations with real chemistry, inspired by Nomifactory / Cosmic Frontiers style chains.
+Files: AF9 Core `registry/AF9Materials` (`fabChemistry()`: 72 materials, formulas only, so GT generates no electrolyzer/centrifuge shortcut), `server_scripts/mods/gtceu/fab_chemistry.js` (recipes). Five lines, each 10-20 unit operations with real chemistry, inspired by Nomifactory / Cosmic Frontiers style chains.
 
 All of these recipes run only in the SMC fab machines (§11): GT's Chemical Reactor, Large Chemical Reactor, mixer, bath, autoclave, blast furnace, electrolyzer and distillation tower have none of them. Non-thermal recipes from HV power on need a clean room (single blocks: a GT Cleanroom; the fab multiblocks bring their own filter ceiling).
 
@@ -1163,7 +1163,7 @@ Dry run of the startup and server scripts with stubs (slots incl. circuits and p
 
 # 12. Boule Melting and the Endion coils
 
-Files: `startup_scripts/gtceu/boule_melting.js` (recipe type, Endion, Endionite, coils, charges, seeds, crucibles, new boules), `server_scripts/mods/gtceu/boule_melting.js` (recipes), AF9 Core `blast/BouleMelting` (adds the mode to GT's EBF at common setup, coil bonus, EMI info).
+Files: `startup_scripts/gtceu/boule_melting.js` (recipe type), AF9 Core `registry` (`AF9Materials`: Endion, Endionite; `AF9Blocks`: the coils; `AF9Items`: charges, seeds, crucibles, new boules), `server_scripts/mods/gtceu/boule_melting.js` (recipes), AF9 Core `blast/BouleMelting` (adds the mode to GT's EBF at common setup, coil bonus, EMI info).
 
 **The EBF gets a second machine mode, `gtceu:boule_melting`** (GT's mode tab; `ELECTRIC_BLAST_FURNACE.setRecipeTypes([blast, boule_melting])`, modifier list `COIL_BONUS` + GT's own `ebfOverclock` + batch). The mode keeps GT's EBF rules (coil temperature + 100 K per tier above MV, `ebf_temp` on every recipe). Max IO 3 items in, 1 out, 1 fluid in. Its EMI/JEI icon is the EBF (`setIconSupplier`: GT only sets icons for types a machine builder registers).
 
@@ -1199,7 +1199,7 @@ The coils are `gtceu:coil` blocks (KubeJS), so every GT coil multiblock accepts 
 
 # 13. Cryogenics: Supercooling Cryostat and Coolant Hatch
 
-Files: `startup_scripts/gtceu/cryogenics.js`, `server_scripts/mods/gtceu/cryogenics.js`, AF9 Core `SupercoolerMachine`, `part/CoolantHatchPartMachine`, `common/AF9Modifiers.POWER_GATE`.
+Files: `startup_scripts/gtceu/cryogenics.js`, `server_scripts/mods/gtceu/cryogenics.js`, AF9 Core `registry/AF9Materials` (the dense and supercooled fluids), `SupercoolerMachine`, `part/CoolantHatchPartMachine`, `common/AF9Modifiers.POWER_GATE`.
 
 `gtceu:supercooling_cryostat` (HV, crafted at HV): modes `gtceu:dense_cooling` and `gtceu:supercooling` (0/0/1/1 IO). Every recipe is `EUt(VA[HV], 4)` = 1920 EU/t; `POWER_GATE` refuses to start below the recipe's full EU/t, so it needs **4A of HV (two normal HV energy hatches)**; `OC_PERFECT` above that.
 
@@ -1218,7 +1218,7 @@ Structure 5×5×5: frostproof shell (maximums only: 2 energy hatches, 2 fluid in
 
 # 14. Particle Accelerator
 
-Files: `startup_scripts/gtceu/particle_accelerator.js`, `server_scripts/mods/gtceu/particle_accelerator.js`, AF9 Core `ParticleAcceleratorMachine`, `console/AcceleratorConsoleWidget`, `console/SidePanelsUIWidget`, `client/render/LightRingRender`.
+Files: `startup_scripts/gtceu/particle_accelerator.js`, `server_scripts/mods/gtceu/particle_accelerator.js`, AF9 Core `registry/AF9Materials` (strange matter, chromodynium), `ParticleAcceleratorMachine`, `console/AcceleratorConsoleWidget`, `console/SidePanelsUIWidget`, `client/render/LightRingRender`.
 
 `gtceu:particle_accelerator` (crafted at ZPM): a storage ring **47 × 47, 7 high**, the layout of GTNH's Compact Fusion Computer (GT5-Unofficial `MTELargeFusionComputer`, layers L0 L1 L2 L3 L2 L1 L0 as top views in the startup script). An empty beam tube (`H`, 560 blocks that must be air: GTNH's superconducting coils, left out so the beam can be seen running through it) inside a shell of `gtceu:clean_machine_casing` (`C`, ~1660, the bending magnets; a diamond around the tube: 3 wide at y 1 and 5, 5 wide at y 2-4), four gates at the compass points with `gtceu:fusion_glass` (`B`) and `gtceu:naquadah_alloy_frame` corners (`F`, 128). The controller sits in the south gate's outer wall at y 3, facing out (GTNH has it on the inner wall; GTNH's drone-hatch spots are casing here). Parts, maximums only, one set for the whole ring (a shared predicate, so the maximums count across it): anywhere on the clean-steel casing (`C`, and GTNH's energy spots `E`, casing here too) or in the gates' glass spots (`I`): 2 coolant hatches, 2 item inputs, 2 item outputs, 1 maintenance, 4 energy / 2 laser hatches. `POWER_GATE` + `OC_NON_PERFECT`. The linac's blocks (beamline casing, RF cavity, spallation target housing) are gone.
 
@@ -1321,7 +1321,7 @@ A finished run starts the **feedback** to every Line, Scanner and Orbital Statio
 
 ## 18.6 Chemistry
 
-All in the SMC fab machines (§11), recipes in `server_scripts/mods/gtceu/litho_process.js`, materials in `startup_scripts/gtceu/litho_process.js`.
+All in the SMC fab machines (§11), recipes in `server_scripts/mods/gtceu/litho_process.js`, materials in AF9 Core `registry/AF9Materials` (`lithoProcess()`).
 
 - **RCA clean and strip.** SC-1 (ammonia, peroxide, water 1:1:5 → `sc1_solution`), SC-2 (HCl, peroxide, water 1:1:6 → `sc2_solution`), piranha (sulfuric acid, peroxide 3:1 → `piranha_solution`), blending at MV. The clean-up of **contaminated wafers** is now a real RCA clean (SC-1, a dilute HF dip, SC-2: `af9:clean_contaminated_<substrate>_wafer`); **broken wafers** can be **reworked** (`af9:rework_broken_<substrate>_wafer`: piranha strip, SC-1, SC-2 → the blank wafer back **60 %** of the time, spent piranha out) beside the grinding. Spent piranha + calcium hydroxide → gypsum (`af9:spent_piranha_neutralisation`).
 - **Ethyl lactate**: ethanol → acetaldehyde (copper) → lactonitrile (+ HCN, base) → lactic acid (+ water, sulfuric acid; ammonium bisulfate out) → ethyl lactate (+ ethanol, acid catalyst), MV.
@@ -1424,22 +1424,21 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → 
 af9-core/src/main/java/com/af9/core/registry/AF9Items.java  # every plain item, af9:<id>: new blank substrates, coated, broken + contaminated wafers, AF9's chips, the reticles, charges, seeds, crucibles, new boules, the drones
 af9-core/src/main/java/com/af9/core/registry/AF9Blocks.java # every plain block: the light sources, the plascrete casings, the server casing, the Endion coils, the Space Elevator's blocks
 af9-core/src/main/java/com/af9/core/registry/AF9Remaps.java # worlds from before October 2026: kubejs:<id> is taken for af9:<id>
+af9-core/src/main/java/com/af9/core/registry/AF9Materials.java # every material (gtceu:<name>), a method a topic: the litho, XCDA and resist chemistry, the 72 of the fab chemistry, tier alloys and zircon, endion, the dense and supercooled fluids, strange matter and chromodynium
 kubejs/startup_scripts/gtceu/air_conditioning.js   # §18.1: the Air Conditioning Hatch MV-IV
-kubejs/startup_scripts/gtceu/litho_process.js      # §18: chemistry materials, family materials, metrology recipe type + station, coater recipe type + station
+kubejs/startup_scripts/gtceu/litho_process.js      # §18: metrology recipe type + station, coater recipe type + station
 tools/lint/                                        # the linters (README there): scripts, quests, assets, facts, self-test
 tools/textures/                                    # reticles.py, coated_wafers.py, optics.py: draw the textures
 kubejs/server_scripts/mods/gtceu/litho_process.js  # §18: hatches, monitor wafer, chemistry, family chains, the three new card tiers, the Metrology Station
-kubejs/startup_scripts/gtceu/photolithography.js   # litho, XCDA, i-line and EUV resist materials, 9 recipe types, both litho structures, tooltips
-kubejs/startup_scripts/gtceu/boule_melting.js      # endion, endionite, recipe type boule_melting
-kubejs/startup_scripts/gtceu/cryogenics.js         # dense/supercooled fluids, dense_cooling + supercooling, Supercooling Cryostat, coolant hatches LuV-UHV
-kubejs/startup_scripts/gtceu/particle_accelerator.js # strange matter, chromodynium, 3 recipe types, the Particle Accelerator ring
-kubejs/startup_scripts/gtceu/electronics_metallurgy.js # tier alloys (Al-Si, Kovar, Pt-Ir), zircon/zirconia/chlorides, zirconium properties
+kubejs/startup_scripts/gtceu/photolithography.js   # 9 recipe types, both litho structures, tooltips
+kubejs/startup_scripts/gtceu/boule_melting.js      # recipe type boule_melting
+kubejs/startup_scripts/gtceu/cryogenics.js         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches LuV-UHV
+kubejs/startup_scripts/gtceu/particle_accelerator.js # 3 recipe types, the Particle Accelerator ring
 kubejs/server_scripts/mods/gtceu/photolithography.js # AF9_WAFERS table + wafer tags, machine/light-source crafting, XCDA/i-line/EUV chemistry, prints, derived wafers, cutting, reclaim/clean, removals
 kubejs/server_scripts/mods/gtceu/boule_melting.js  # Ender Air → endion, endionite, coils, crucibles, charges/seeds/boules, new boule cutting, GT boule removals
 kubejs/server_scripts/mods/gtceu/cryogenics.js     # cryostat + coolant hatch crafting, dense cooling + supercooling
 kubejs/server_scripts/mods/gtceu/particle_accelerator.js # accelerator + consumables crafting, neutron irradiation, ion collision, quark synthesis
 kubejs/server_scripts/mods/gtceu/electronics_metallurgy.js # zircon chain, zircon sands ore vein
-kubejs/startup_scripts/gtceu/fab_chemistry.js      # 72 fab-chemistry materials + the resists, laser gases, ultrapure water the line uses
 kubejs/server_scripts/mods/gtceu/fab_chemistry.js  # lines 1-5 (§6.12-6.16): Siemens polysilicon + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
 kubejs/startup_scripts/gtceu/fab_machines.js       # §11: 12 fab recipe types (slot layouts), 4 SMC single-block families (MV-LuV), 4 SMC multiblocks (structures, modifiers)
 kubejs/server_scripts/mods/gtceu/fab_machines.js   # §11: crafting of the SMC machines

@@ -1,5 +1,7 @@
 package com.af9.core.devtest;
 
+import com.af9.core.registry.AF9Materials;
+
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.block.IMachineBlock;
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
@@ -8,6 +10,8 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.OreProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.data.chemical.material.stack.MaterialStack;
+import com.gregtechceu.gtceu.api.data.worldgen.IWorldGenLayer;
+import com.gregtechceu.gtceu.api.data.worldgen.WorldGeneratorUtils;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
@@ -33,6 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 
 /**
@@ -83,6 +88,11 @@ public final class RegistryDump {
         for (ResourceLocation id : ForgeRegistries.FLUIDS.getKeys()) {
             if (mine(id)) lines.add("fluid " + id);
         }
+        // the materials are GregTech's by id (gtceu:<name>); an ore has a raw ore and ore blocks
+        for (Material material : AF9Materials.all()) {
+            lines.add("material " + material.getResourceLocation() +
+                    (material.hasProperty(PropertyKey.ORE) ? " ore" : ""));
+        }
         List<String> text = new ArrayList<>();
         text.add("# What AF9 Core registers: written by its dev run, read by the linters. Not edited by hand unless the run");
         text.add("# is out of reach (it needs a pack instance); see tools/lint/README.md, \"The registry list\".");
@@ -118,6 +128,11 @@ public final class RegistryDump {
         for (ResourceLocation id : BuiltInRegistries.CREATIVE_MODE_TAB.keySet()) lines.add("tab " + id);
         for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) lines.add(material(material));
         for (GTRecipeType type : GTRegistries.RECIPE_TYPES) lines.add(recipeType(type));
+        for (Map.Entry<String, IWorldGenLayer> layer : WorldGeneratorUtils.WORLD_GEN_LAYERS.entrySet()) {
+            List<String> levels = new ArrayList<>();
+            for (ResourceLocation level : layer.getValue().getLevels()) levels.add(level.toString());
+            lines.add("layer " + layer.getKey() + " levels=" + tags(levels));
+        }
         for (MachineDefinition machine : GTRegistries.MACHINES) lines.add(machine(machine));
         for (Field field : PartAbility.class.getFields()) {
             if (!Modifier.isStatic(field.getModifiers()) || field.getType() != PartAbility.class) continue;

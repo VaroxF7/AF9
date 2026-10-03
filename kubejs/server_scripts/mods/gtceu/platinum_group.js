@@ -1,4 +1,4 @@
-// AF9 - The platinum group metals line (materials: startup_scripts/gtceu/platinum_group.js). Spec: docs/platinum-group-metals.md
+// AF9 - The platinum group metals line (materials: af9-core, registry/AF9Materials). Spec: docs/platinum-group-metals.md
 //
 // GT's own chain (platinum group sludge, aqua regia, centrifuge) is not touched; its sludge is one more feed here.
 // Tiers follow GT's: platinum and palladium from HV, ruthenium and rhodium from EV, osmium and iridium from IV.

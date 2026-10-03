@@ -1,5 +1,5 @@
 // AF9 - Biofuels rework: a full farm-to-tank line for bioethanol, fuel ethanol and biodiesel
-// (materials: startup_scripts/gtceu/biofuels.js). Spec: docs/green-chemistry.md
+// (materials: af9-core, registry/AF9Materials). Spec: docs/green-chemistry.md
 //
 //   crops + water          -brewery->     fermented biomass (GT's own fluid)
 //   fermented biomass      -distillery->  bioethanol (the 95 % azeotrope)

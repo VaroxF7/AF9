@@ -17,35 +17,6 @@ const $AccelModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 const $AccelMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $AccelSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
 
-// The two quark materials' own animated looks: Strange Matter a dark violet void with twinkling glints, Chromodynium a
-// pearl metal with a sheen sweeping through its colour charge. Models and textures in af9-core
-// (assets/gtceu/{models,textures}/item/material_sets/<set>, Chromodynium's block and frame in textures/block/...);
-// shapes the sets lack come from GT's shiny set
-GTCEuStartupEvents.registry('gtceu:material_icon_set', event => {
-    event.create('strange_matter').parent(GTMaterialIconSet.SHINY)
-    event.create('chromodynium').parent(GTMaterialIconSet.SHINY)
-})
-
-GTCEuStartupEvents.registry('gtceu:material', event => {
-    // stable strangelets: up, down and strange quarks in one bag
-    event.create('strange_matter')
-        .dust()
-        .color(0x8a1e6a).secondaryColor(0x2a0033)
-        .iconSet('strange_matter')
-        .formula('(uds)n')
-
-    // colour-charged quark matter held in a lattice: the metal of the 1 nm wafers
-    event.create('chromodynium')
-        .ingot()
-        .fluid()
-        .color(0xff3c78).secondaryColor(0x3cffb4)
-        .iconSet('chromodynium')
-        .flags(GTMaterialFlags.GENERATE_PLATE, GTMaterialFlags.GENERATE_FOIL, GTMaterialFlags.GENERATE_ROD,
-            GTMaterialFlags.GENERATE_FRAME)
-        .blastTemp(12000, 'highest', GTValues.VA[GTValues.UHV], 2400)
-        .formula('Qc')
-})
-
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // [id, items in, items out, progress bar, sound]; one fluid input each: the coolant. All three sound like the
     // accelerator: its own hum (af9-core AF9Sounds, the beacon hum pitched up)

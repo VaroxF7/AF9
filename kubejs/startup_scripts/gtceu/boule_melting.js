@@ -7,25 +7,8 @@
 // Endion coils speed the mode up: Endion -25 % time and up to 2 parallels, Resonant Endion -50 % and up to 4.
 //
 // Endion: a heavy noble gas found only in the End's air; the centrifuge and the distillation tower separate it
-// from Ender Air (server_scripts/mods/gtceu/boule_melting.js).
-
-GTCEuStartupEvents.registry('gtceu:material', event => {
-    event.create('endion')
-        .gas()
-        .color(0x9b6bff)
-        .formula('Ed')
-
-    // Tungstensteel and naquadah soaked in endion: the wire of the Endion coils
-    event.create('endionite')
-        .ingot()
-        .fluid()
-        .color(0x5e2a9e).secondaryColor(0x1a0b33)
-        .iconSet(GTMaterialIconSet.SHINY)
-        .flags(GTMaterialFlags.GENERATE_PLATE, GTMaterialFlags.GENERATE_FOIL, GTMaterialFlags.GENERATE_FINE_WIRE,
-            GTMaterialFlags.GENERATE_ROD, GTMaterialFlags.GENERATE_FRAME)
-        .blastTemp(5400, 'highest', GTValues.VA[GTValues.IV], 1200)
-        .formula('(W2Fe2Nq)Ed')
-})
+// from Ender Air (server_scripts/mods/gtceu/boule_melting.js). The materials, the coils and the items: AF9 Core
+// (com.af9.core.registry).
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // melt charges, seed crystal, crucible + protective gas -> boule

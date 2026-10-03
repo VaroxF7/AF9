@@ -73,7 +73,7 @@ const AF9_WAFERS = (() => {
         { id: 'qbit_cpu', native: 0, from: 'nano_cpu', chip: 'gtceu:qbit_cpu_chip' },
         { id: 'hpic', native: 1, from: 'mpic', chip: 'gtceu:hpic_chip' },
         { id: 'uhpic', native: 1, from: 'hpic', chip: 'gtceu:uhpic_chip' },
-        // AF9's own chips (startup_scripts/gtceu/chips.js), kubejs items: wafer = their chip wafer, dies = chips the
+        // AF9's own chips (af9-core, registry/AF9Items), af9: items: wafer = their chip wafer, dies = chips the
         // Cutter makes of one
         own('rf_transceiver', 0, 'lime', 8),
         own('apu', 0, 'magenta', 6),
@@ -124,7 +124,7 @@ const AF9_WAFERS = (() => {
     // Mask classes: the photomask has to fit the light. Chrome-on-quartz (binary) masks for 350 and 200 nm, MoSi attenuated
     // phase-shift masks for 100 to 65 nm, reflective Mo/Si EUV multilayer masks from 50 nm (the orbital station's nodes).
     // A chip has a reticle of its own (native) class and one of every finer class: the finer one is written from the
-    // native one (same layout, new blank). startup_scripts/gtceu/reticles.js registers them.
+    // native one (same layout, new blank). af9-core registers them (registry/AF9Items, RETICLES).
     const CLASSES = ['chrome', 'psm', 'euv']
     const BLANKS = { chrome: 'af9:photomask_blank', psm: 'af9:phase_shift_mask_blank', euv: 'af9:euv_mask_blank' }
     const maskClass = substrateIndex => CLASSES[substrateIndex <= 1 ? 0 : substrateIndex <= 4 ? 1 : 2]

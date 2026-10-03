@@ -1,11 +1,14 @@
 # AF9 Core
 
-Forge mod (1.20.1, GTCEu 7.2.0) with the pack's own blocks and items and the machine logic KubeJS can't provide on
-its own. Machines, materials and recipes stay in `../kubejs`; KubeJS plugs the Java classes in via `.machine(...)`.
+Forge mod (1.20.1, GTCEu 7.2.0) with the pack's own blocks, items and materials and the machine logic KubeJS can't
+provide on its own. Machines, recipe types and recipes stay in `../kubejs`; KubeJS plugs the Java classes in via
+`.machine(...)`.
 
 | Class | Used by | Does |
 |---|---|---|
 | `registry/AF9Items`, `registry/AF9Blocks` | the whole pack | Register AF9's plain items (wafers, chips, reticles, boule charges, fuel rods, the Mining Drones: 198) and blocks (the light sources, the plascrete casings, the server casing, the Endion coils, the Space Elevator's blocks: 20) as `af9:<id>`. Names and tooltip lines are in the lang file (`item.af9.<id>`, `item.af9.<id>.tooltip.<n>`), models, block states, textures and loot tables in the resources. Machines name the blocks they look for through `AF9Blocks` |
+| `registry/AF9Materials` | GregTech, the recipes | The pack's materials, registered in GregTech's material phase into GregTech's own registry: their ids stay `gtceu:<name>` (`gtceu:kovar_ingot`, the fluid `gtceu:endion`). A method a topic (fab chemistry, platinum group, cryogenics ...); most are a form, a colour and a formula, so GT derives no shortcut recipes. Also gives GT's zirconium its dust, ingot and blast properties |
+| `AF9Addon` | GregTech | AF9 Core as a GregTech addon (`@GTAddon`): its registrate, and the ore layer of the Asteroid Field (`space/AF9Space`: `af9_asteroid`, the stones of the tag `af9:asteroid_rock`) |
 | `registry/AF9Tabs` | the creative inventory | The AF9 tab: every block and item AF9 Core registers, in the order of `AF9Blocks` and `AF9Items` |
 | `registry/AF9Remaps` | worlds from before October 2026 | KubeJS registered these blocks and items until then (`kubejs:<id>`): what a world misses under such an id is taken for `af9:<id>` |
 | `litho/LithoMode` | everything below | The nine lithography modes, one per wafer substrate, and the machine that prints each (Mk1 line 350-100 nm, Mk2 scanner 80-65 nm, orbital station 50-1 nm): tier and power, light source (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV, X-ray FEL) with wavelength, NA and resist, base break chance, the break-chance and speed maths. Must match `AF9_WAFERS` (KubeJS server) and the item tables of `registry/AF9Items` |

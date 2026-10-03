@@ -1,8 +1,8 @@
-// AF9 - The Quantanium vein of the Asteroid Field (the ore: startup_scripts/gtceu/quantanium.js).
+// AF9 - The Quantanium vein of the Asteroid Field (the ore: af9-core, registry/AF9Materials).
 // Spec: docs/quantanium.md
 //
-// A GT dike vein in the field's own layer (af9_asteroid, registered in
-// startup_scripts/gtceu/asteroid_fission.js): a vertical dike wherever the rock
+// A GT dike vein in the field's own layer (af9_asteroid, registered by
+// af9-core, space/AF9Space): a vertical dike wherever the rock
 // is, piercing every rock of its column. Dikes, not blobs: a standard blob at
 // one random height mostly misses the floating rocks (vein_asteroid.js).
 // Named to load after the pack's mining_dim_ores.js, which moves every GT vein

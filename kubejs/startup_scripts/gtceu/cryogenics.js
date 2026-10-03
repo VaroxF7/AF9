@@ -14,26 +14,6 @@ const $SupercoolerMachine = Java.loadClass('com.af9.core.machine.SupercoolerMach
 const $CryoCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $CryoModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 
-GTCEuStartupEvents.registry('gtceu:material', event => {
-    // gas, dense colour, supercooled colour, formula, dense liquid temperature (K)
-    const gases = [
-        ['hydrogen', 0x7fb2e6, 0xc8e6ff, 'H2', 14],
-        ['argon', 0x3fb8c9, 0x9fefff, 'Ar', 84],
-        ['xenon', 0x6a4fc9, 0xb9a3ff, 'Xe', 161],
-        ['endion', 0x4a22b0, 0x8f6bff, 'Ed', 40]
-    ]
-    gases.forEach(([id, dense, supercooled, formula, kelvin]) => {
-        event.create(`dense_${id}`)
-            .liquid(kelvin)
-            .color(dense)
-            .formula(formula)
-        event.create(`supercooled_${id}`)
-            .liquid(1)
-            .color(supercooled)
-            .formula(formula)
-    })
-})
-
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     event.create('dense_cooling')
         .category('multiblock')

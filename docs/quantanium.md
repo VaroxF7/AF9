@@ -5,7 +5,7 @@ Asteroid Field, as a GT dike vein. Nothing else holds it, and no recipe takes
 it yet: the UHV hulls and circuits that will need it are a separate change, as
 is the quest that asks for the first raw ore.
 
-Code: `kubejs/startup_scripts/gtceu/quantanium.js` (the material),
+Code: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (the material, `quantanium()`),
 `kubejs/server_scripts/mods/gtceu/vein_quantanium.js` (the vein).
 
 ## 1. Reachability audit (was it reachable before?)
@@ -31,7 +31,7 @@ is `material.gtceu.quantanium` in `kubejs/assets/gtceu/lang/en_us.json`
 ## 3. The vein
 
 `af9:quantanium_vein`: a dike in the field's own layer (`af9_asteroid`,
-`kubejs/startup_scripts/gtceu/asteroid_fission.js`), dimensions
+`af9-core/src/main/java/com/af9/core/space/AF9Space.java`), dimensions
 `af9:asteroid_field`, height 5-270 (the rocks' whole band,
 `af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`).
 

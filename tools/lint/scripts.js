@@ -6,9 +6,9 @@
 //
 // Checks (each finding is one line: LEVEL code message):
 //   S1  a script threw while loading (a typo, an undefined name, a stub that is missing: see tools/lint/README.md)
-//   S2  a material, machine or recipe type registered twice (the second one would fail or replace the first)
-//   S4  a startup script that registers an item, a block or a fluid: AF9's are registered by AF9 Core
-//       (af9-core/src/main/java/com/af9/core/registry), not by KubeJS
+//   S2  a machine or recipe type registered twice (the second one would fail or replace the first)
+//   S4  a startup script that registers an item, a block, a fluid, a material, a material icon set or an ore layer:
+//       AF9's are registered by AF9 Core (af9-core/src/main/java/com/af9/core/registry), not by KubeJS
 //   R1  duplicate recipe id within a recipe type
 //   R2  a recipe over the slots of its machine (items / fluids in and out, the not-consumed ones and circuits count)
 //   R3  an item, block or fluid id nobody defines: af9: not in the list of what AF9 Core registers
@@ -53,11 +53,14 @@ const GTValues = { VA: VOLT, V: VOLT, VN: TIERS, VNF: TIERS, VLVH: TIERS, VLVT: 
 TIERS.forEach((t, i) => { GTValues[t] = i })
 const TIER_PREFIX = TIERS.map(t => t.toLowerCase())
 
-// what AF9 Core registers (af9:<id>): the list its dev run writes, see tools/lint/README.md, "The registry list"
-const af9 = { item: new Set(), block: new Set(), fluid: new Set() }
+// what AF9 Core registers (af9:<id>; its materials are GregTech's by id, gtceu:<name>): the list its dev run writes,
+// see tools/lint/README.md, "The registry list"
+const af9 = { item: new Set(), block: new Set(), fluid: new Set(), material: new Set() }
 lines(path.join(DATA, 'af9-registry.txt')).filter(l => !l.startsWith('#')).forEach(l => {
     const [kind, id] = l.split(' ')
-    if (af9[kind] && id && id.startsWith('af9:')) af9[kind].add(id.slice(4))
+    if (!af9[kind] || !id) return
+    if (kind === 'material' && id.startsWith('gtceu:')) af9.material.add(id.slice(6))
+    else if (id.startsWith('af9:')) af9[kind].add(id.slice(4))
 })
 const af9Items = af9.item
 const walkDir = d => fs.existsSync(d) ? fs.readdirSync(d).flatMap(f => {
@@ -301,24 +304,29 @@ const scriptsOf = dir => walkDir(path.join(root, 'kubejs', dir)).filter(f => f.e
 scriptsOf('startup_scripts').forEach(run)
 
 // run the registry handlers, recording what they create
-const moved = new Set()     // S4, once a file and kind
+// S4: what AF9 Core registers now, and where (once a file and kind; in a file of the base pack it is a note: its own
+// content stays where it is)
+const MOVED = {
+    item: 'registry/AF9Items', block: 'registry/AF9Blocks', fluid: 'registry/AF9Blocks',
+    'gtceu:material': 'registry/AF9Materials', 'gtceu:material_icon_set': 'registry/AF9Materials',
+    'gtceu:world_gen_layer': 'space/AF9Space'
+}
+const moved = new Set()
 const creator = (kind, type, file) => ({
     create: (id, form) => {
         const info = { id, form: form || null, file, flags: [], forms: new Set(), tiers: null, types: null, pattern: null,
             tooltips: [], io: null }
+        if (MOVED[type] && !moved.has(`${file}|${type}`)) {
+            moved.add(`${file}|${type}`)
+            report('ERROR', 'S4', `a startup script registers a ${type.replace('gtceu:', '').replace(/_/g, ' ')} (${id} ...): AF9's are registered by AF9 Core (${MOVED[type]})`, file)
+        }
         if (kind === 'startup') {
             const t = type
             if (t === 'item' || t === 'block' || t === 'fluid') {
                 info.kind = t; info.textures = []
-                // (in a file of the base pack this is a note: its own items stay where they are)
-                if (!moved.has(`${file}|${t}`)) {
-                    moved.add(`${file}|${t}`)
-                    report('ERROR', 'S4', `a startup script registers ${t}s (${id} ...): AF9's are registered by AF9 Core (registry/AF9Items, AF9Blocks)`, file)
-                }
                 state.items.set(id, info)
             }
         } else if (type === 'gtceu:material') {
-            if (state.materials.has(id)) report('ERROR', 'S2', `material ${id} is registered twice (also in ${state.materials.get(id).file})`, file)
             state.materials.set(id, info)
         } else if (type === 'gtceu:recipe_type') {
             if (state.recipeTypes.has(id)) report('ERROR', 'S2', `recipe type ${id} is registered twice (also in ${state.recipeTypes.get(id).file})`, file)
@@ -392,6 +400,8 @@ function materialOfItem(name) {
     for (const s of [...SHAPES].sort((a, b) => b.length - a.length)) if (n.endsWith('_' + s)) return n.slice(0, -s.length - 1)
     return n
 }
+const MATERIALS_FILE = 'af9-core/src/main/java/com/af9/core/registry/AF9Materials.java'
+af9.material.forEach(id => { if (!state.materials.has(id)) state.materials.set(id, { id, file: MATERIALS_FILE }) })
 const af9Materials = new Set(state.materials.keys())
 function gtceuKnown(id) {
     const name = id.replace(/^gtceu:/, '')
