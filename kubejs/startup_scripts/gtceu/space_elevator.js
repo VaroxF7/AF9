@@ -3,9 +3,10 @@
 // cable and the climber that rides it: com.af9.core.client.render.SpaceElevatorRender). Recipes:
 // server_scripts/mods/gtceu/space_elevator.js. Spec: docs/space-elevator.md
 //
-// A Mining Drone (not used up) in an input bus, 50 to 100 buckets of hydrogen and of a supercooled coolant in the fluid hatches
-// and 4 to 32 amps of ZPM energy for minutes send an expedition to a random asteroid: the output buses hold its ore,
-// tens of stacks of raw ore. The asteroids are made from GT's ore veins; the better the drone, the more of them it reaches.
+// A Mining Drone (not used up) in the drone slot of its screen (or an input bus), 50 to 100 buckets of hydrogen and of a
+// supercooled coolant in the fluid hatches and 4 to 32 amps of ZPM energy for minutes send an expedition to a random
+// asteroid: the output buses hold its ore, tens of stacks of raw ore. The asteroids are made from GT's ore veins; the better
+// the drone, the more of them it reaches.
 // As in GTNH the work is the modules': Mining Modules in the module slots fly 2, 4 or 8 expeditions at once, and the motors'
 // tier says how many slots are powered.
 //
@@ -734,7 +735,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeTypes([GTRecipeTypes.get('space_mining')])
         .recipeModifiers([$SpaceElevator.ASTEROID])
         .appearanceBlock(() => Block.getBlock('kubejs:space_elevator_base_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_elevator.tooltip', 9))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_elevator.tooltip', 10))
         .pattern(definition => {
             // GT asks for this once: both sizes are built, the extended one is the machine's own to switch to
             $SpaceElevator.setExtendedPattern(sePattern(definition, seSlices(true)))

@@ -13,8 +13,8 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import java.util.Locale;
 
 /**
- * Base of the AF9 machine consoles (lithography, accelerator, cryostat): a dark panel with a status header, drawn
- * entirely in {@link #drawInBackground}. The server samples the machine every tick ({@link #sample()}) and sends the
+ * Base of the AF9 machine consoles (lithography, accelerator, cryostat, space elevator): a dark panel with a status
+ * header, drawn entirely in {@link #drawInBackground}. The server samples the machine every tick ({@link #sample()}) and sends the
  * state only when something changed; hover tooltips and the counter-reset click come from widgets the machine places
  * over the drawn
  * tiles.
@@ -29,7 +29,8 @@ public abstract class ConsoleWidget extends Widget {
     public static final int STATUS_OFFLINE = 0, STATUS_IDLE = 1, STATUS_RUNNING = 2, STATUS_NO_POWER = 3,
             STATUS_PAUSED = 4, STATUS_MAINTENANCE = 5, STATUS_LOCKED = 6, STATUS_NO_ORBIT = 7, STATUS_NO_COOLANT = 8,
             STATUS_PUMPING_DOWN = 9, STATUS_NO_COMPUTATION = 10, STATUS_NO_DATA = 11, STATUS_NO_RETICLE = 12,
-            STATUS_STARTING_UP = 13, STATUS_NO_LIGHT = 14, STATUS_NO_COOLING = 15;
+            STATUS_STARTING_UP = 13, STATUS_NO_LIGHT = 14, STATUS_NO_COOLING = 15, STATUS_NO_SKY = 16,
+            STATUS_NO_MODULE = 17, STATUS_NO_DRONE = 18, STATUS_NO_FUEL = 19, STATUS_OUTPUT_FULL = 20;
 
     protected ConsoleWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -209,7 +210,8 @@ public abstract class ConsoleWidget extends Widget {
             case STATUS_RUNNING -> GOOD;
             case STATUS_IDLE -> WARN;
             case STATUS_NO_POWER, STATUS_MAINTENANCE, STATUS_LOCKED, STATUS_NO_ORBIT, STATUS_NO_COOLANT,
-                    STATUS_NO_COMPUTATION, STATUS_NO_DATA, STATUS_NO_RETICLE, STATUS_NO_LIGHT, STATUS_NO_COOLING ->
+                    STATUS_NO_COMPUTATION, STATUS_NO_DATA, STATUS_NO_RETICLE, STATUS_NO_LIGHT, STATUS_NO_COOLING,
+                    STATUS_NO_SKY, STATUS_NO_MODULE, STATUS_NO_DRONE, STATUS_NO_FUEL, STATUS_OUTPUT_FULL ->
                 BAD;
             case STATUS_PAUSED, STATUS_PUMPING_DOWN, STATUS_STARTING_UP -> INFO;
             default -> MUTED;

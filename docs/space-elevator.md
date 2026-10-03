@@ -3,16 +3,17 @@
 GTNH's Space Elevator (https://wiki.gtnewhorizons.com/wiki/Space_Elevator): a tower on a cable that reaches into space. In AF9 it is
 the **renewable ore source** of the pack from ZPM on: it sends Mining Drones to the asteroids and brings their ore home.
 
-Code: `af9-core` `com.af9.core.elevator` (`SpaceElevatorMachine`: the asteroids, the motors, the modules, the cable; `SpaceElevatorScreen`:
-its screen; `OreCatalog`: GT's ores and veins; `ClimberRide`: the climber's rides) and `com.af9.core.client.render.SpaceElevatorRender` (the
-cable and the climber). KubeJS:
+Code: `af9-core` `com.af9.core.elevator` (`SpaceElevatorMachine`: the asteroids, the motors, the modules, the cable, the drone slot,
+what it lacks; `OreCatalog`: GT's ores and veins; `ClimberRide`: the climber's rides), `com.af9.core.machine.console.SpaceElevatorConsoleWidget`
+(its screen) and `com.af9.core.client.render.SpaceElevatorRender` (the cable and the climber). KubeJS:
 `kubejs/startup_scripts/gtceu/space_elevator.js` (blocks, drones, recipe type, the machine and its structure),
 `kubejs/server_scripts/mods/gtceu/space_elevator.js` (crafting and the expeditions).
 
 ## 1. How it works
 
 `gtceu:space_elevator` runs the recipe type `gtceu:space_mining`: a **Mining Drone** (`kubejs:space_mining_drone_mk1..4`, **not used up**) in
-an input bus, **hydrogen** and a **supercooled coolant** in the fluid hatches, and energy for minutes. Nothing is made by the recipe
+the drone slot of its screen (section 5; or in an input bus), **hydrogen** and a **supercooled coolant** in the fluid hatches, and energy
+for minutes. Nothing is made by the recipe
 itself: when a run starts (`SpaceElevatorMachine.ASTEROID`, a recipe modifier that re-rolls every run) the elevator draws an
 **asteroid** and the run puts out its ore, **8 to 48 stacks of raw ore an expedition** in the output buses (the recipe viewers show no
 outputs; the controller's screen lists the ore of the run that is on). The table is one expedition; the **Mining Modules** of the tower
@@ -38,11 +39,12 @@ As in GTNH the elevator itself does nothing: its **modules** do the work, and it
   **MK-I 2 at once, MK-II 4, MK-III 8** (GTNH's parallels). Without a powered module nothing flies.
 * The **motors' tier** (the 88 motors round the shaft, all of one tier, `kubejs:space_elevator_motor_mk1..5`) powers
   **6 / 12 / 15 / 18 / 24 module slots** (MK-I to MK-V, GTNH's numbers), and only modules of **its own tier or lower** (a MK-III module
-  needs MK-III motors). With more modules than slots the best ones are powered and the rest stand idle (GTNH refuses such a tower).
+  needs MK-III motors, and on lesser motors it does nothing: the screen says so). With more modules than slots the best ones are
+  powered and the rest stand idle (GTNH refuses such a tower, and one with a module above its motors).
 * A run flies as many expeditions at once as the powered modules allow, the hatches can **supply in full** (EU/t), the hydrogen
   and the coolant in the hatches **last for** and the output buses **have room for**: every expedition takes the recipe's full
-  hydrogen, coolant and EU/t, and all of a run go to the **same asteroid** (its ore times the expeditions). One drone in the bus
-  serves them all: it is not used up.
+  hydrogen, coolant and EU/t, and all of a run go to the **same asteroid** (its ore times the expeditions). One drone serves them
+  all: it is not used up.
 
 So one MK-I module with one 4A ZPM hatch flies a single Mk-I expedition; with 8A it flies two. Six MK-I modules on MK-I motors fly
 up to 12 at once, twelve MK-III modules on MK-III motors up to 96, on laser hatches. The basic tower has 12 module slots, the
@@ -180,28 +182,54 @@ climber is follows from the time since, so every client draws the same ride. Whe
 
 ## 5. The screen
 
-`SpaceElevatorScreen` (the controller's `createUI`), laid out as GTNH's: a TecTech controller without an inventory, so one plain window
-(198 x 192) filled by a dark blue screen, the elevator's buttons on the screen's lower right and the power switch under it. **Nothing on it
-is configured**: TecTech's parameters, LEDs, power pass and safe void are left out, and so are GT's side tabs. The player inventory is not
-shown (as in GTNH).
+`SpaceElevatorConsoleWidget` (in `com.af9.core.machine.console`, with the other consoles), in the Orbital Lithography Station's layout:
+GT's machine screen (title bar, the parts' tabs, the player inventory) round a console page, and a panel on each side of the inventory
+(`SidePanelsUIWidget`). **Nothing on it is configured**: there are two switches and a slot.
 
-* **The text** (it scrolls when it is long), in short lines: GTNH's two first, *Incomplete Structure* or *Ready* and *Number of modules*;
-  then the size, the motors' tier and the slots it powers, the powered modules and the expeditions they fly at once, what is wrong (no
-  powered module, the cable under a roof), and the run: GT's status, progress and ore lines, the asteroid, the energy the hatches supply.
-* **The size switch** (GTNH's extension button): the tower seen from above, grey for the basic structure, blue with its ring for the
-  extended one (section 2).
-* **The info sign**: GTNH's contributors, on hover (GTNH opens a window for them).
-* **The logo**: the elevator's own.
-* Under the screen, where TecTech has its LED strip: the **progress** of the run and the **power switch** (a soft mallet does the same).
-  While the elevator is switched on the climber makes its deliveries (section 4).
+* **Left, the ascent**: the four Mining Drones as tiles (the one that flies is lit; a tile's tooltip says what its expedition takes
+  and brings), the tower on the ground, the cable up to orbit with its running light and the **climber where its ride has it**, the
+  asteroid of the run with its name, and the drones flying out to it and back with the ore; under it the state and the run-time bar.
+* **Right, the run**: the drone that flies, the asteroid and **its ore in stacks**, the **drone slot**, the **ONLINE** switch and the
+  **size switch** (35x35 / 47x47: section 2), the expeditions that fly of those the modules could, the counters (expeditions flown, ore
+  brought home; RESET) and the **hint**.
+* **Beside the inventory**: left the process (the motors' tier and the slots it powers, modules powered of those in the slots, flights,
+  hydrogen and coolant in the hatches over what an expedition takes, the sky above the cable), right the system (status, the energy
+  the hatches supply over what an expedition takes, tier, size, switch).
 
-The buttons and the info sign are GT's own; the size switch's picture and the logo are drawn for AF9
-(`assets/af9/textures/gui/space_elevator/`), as GTNH's GUI textures are not used. The tooltip of a switch names the state it is in.
+### The drone slot
+
+`SpaceElevatorMachine.droneSlot`: a slot of the controller that GT reads as it reads an input bus (the Orbital Station's reticle slot
+is the same thing), so the elevator needs **no input bus**. The drone stays in it: it is not used up. With the slot empty, a drone in
+an input bus flies (the best one); only the chosen drone's expedition runs (`chosenDrone`), so two drones never make GT pick. A broken
+controller drops its drone.
+
+### What it lacks
+
+While nothing flies, the status and the hint name the **first thing the elevator lacks** (`SpaceElevatorMachine.getStatus`), in the
+order a run needs things, with the numbers of the drone that would fly:
+
+| Status | When | The hint |
+|---|---|---|
+| OFFLINE | the structure is not formed | finish it; the size switch picks which |
+| PAUSED | switched off (GT also switches a multiblock off that ran out of energy five times) | press ONLINE |
+| NO SKY | something stands over the cable | it needs open sky |
+| NO MODULE | no Mining Module is powered | put one in a slot; or: *Mining Modules MK-III need Motors MK-III: these are MK-I* |
+| NO DRONE | no drone in the slot or in a bus | put one in the slot |
+| NO POWER | the hatches supply less than one expedition takes | *An expedition takes 491,520 EU/t (4A ZPM). The hatches supply 64.* |
+| NO HYDROGEN | less hydrogen in the hatches than one expedition takes | how many buckets |
+| NO COOLANT | less of the drone's coolant than one expedition takes | how many buckets of which |
+| NO ROOM | the asteroid drawn does not fit the output buses, or there is none | add or empty output buses |
+| IDLE | nothing is missing | the next expedition starts by itself |
+| RUNNING | a run is on | |
+
+The status codes are the consoles' shared ones (`ConsoleWidget.STATUS_*`, lang `af9.console.status.<code>`; 16 to 20 are the
+elevator's). The run's asteroid goes with the run (`ASTEROID_TAG` in the recipe's data), so a reloaded world still names it.
 
 ## 6. Not done
 
 GTNH's modules are machines of their own (mining, pumping, assembler; each with its own buses, drone, parameters and an asteroid filter); here a
 module is a block that makes the elevator fly more expeditions, the buses and the drone are the elevator's, and there are only Mining Modules.
 GTNH's elevator also has a galaxy map for travel, and plasma, drill tips, rods and computation as inputs; here it runs on hydrogen and a coolant
-and has no travel function (so its screen has no teleport button). GTNH's climber model and textures are GTNH's own and are not used: the
-climber, the cable, the block textures and the screen's pictures are made by hand after pictures (sections 4 and 5).
+and has no travel function. GTNH's screen (a TecTech controller's, with its parameters) is not rebuilt: the elevator has AF9's console
+(section 5). GTNH's climber model and textures are GTNH's own and are not used: the climber, the cable and the block textures are made by
+hand after pictures (section 4).
