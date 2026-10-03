@@ -1,0 +1,5 @@
+{
+    "ldlib": {
+        "connection": "kubejs:block/space_elevator_motor_mk5_ctm"
+    }
+}
