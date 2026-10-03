@@ -348,6 +348,35 @@
 		{
 			dependencies: ["6D4CA38C921AFC5F"]
 			description: [
+				"{af9.quest.se.liquid.1}"
+				""
+				"{af9.quest.se.liquid.2}"
+				""
+				"{af9.quest.se.liquid.3}"
+			]
+			icon: "minecraft:lava_bucket"
+			id: "4E0DDFCE0735C9C9"
+			rewards: [{
+				id: "00A1A5F1EBF87ED6"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.se.liquid.subtitle}"
+			tasks: [
+				{
+					id: "7506782156BE1D97"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.se.liquid.title}"
+			x: 12.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["6D4CA38C921AFC5F"]
+			description: [
 				"{af9.quest.se.drone2.1}"
 			]
 			icon: "kubejs:space_mining_drone_mk2"

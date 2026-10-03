@@ -1,6 +1,7 @@
 package com.af9.core.machine.console;
 
 import com.af9.core.elevator.ClimberRide;
+import com.af9.core.elevator.PlanetCatalog;
 import com.af9.core.elevator.SpaceElevatorMachine;
 
 import com.gregtechceu.gtceu.api.GTValues;
@@ -18,14 +19,17 @@ import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.locale.Language;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -33,6 +37,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -43,16 +48,18 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * The Space Elevator's screen, the Orbital Lithography Station's layout (see {@link SidePanelsUIWidget}), with nothing
- * on it to configure:
+ * The Space Elevator's screen, the Orbital Lithography Station's layout (see {@link SidePanelsUIWidget}). The one
+ * thing picked on it is the mission:
  * <ul>
  * <li>left, the ascent: the four Mining Drones as tiles (the one that flies is lit: the drone in the slot picks the
  * expedition), the tower on the ground, the cable up from it to orbit with its running light and the climber where its
- * ride has it, the asteroid of the run and the drones flying out to it and back with its ore, the state and the run-time
- * bar;</li>
- * <li>right, the run: the drone, the asteroid and its ore in stacks, the drone slot (the drone stays in it), the on/off
- * switch and the size switch (basic or extended structure), the expeditions that fly of those the modules could, the
- * counters, and a hint that says what the elevator lacks while nothing flies;</li>
+ * ride has it, the asteroid of the run (a liquid mission: the planet) and the drones flying out to it and back with
+ * its cargo, the state and the run-time bar;</li>
+ * <li>right, the run: the drone; the mission selector, two rows of arrows: the target (the asteroids, or a planet type
+ * for a liquid mission) and under it the planet's fluid with the buckets a mission brings (on an ore mission: the ore of
+ * the run, in stacks); the drone slot (the drone stays in it), the on/off switch and the size switch (basic or extended
+ * structure), the expeditions that fly of those the modules could, the counters, and a hint that says what the
+ * elevator lacks while nothing flies;</li>
  * <li>beside the player inventory ({@link SidePanel}): left the process (motors, modules, flights, hydrogen, coolant,
  * the sky above the cable), right the system (status, power, tier, size, switch).</li>
  * </ul>
@@ -66,6 +73,9 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
     public static final int FIELD_X = 4, FIELD_Y = 4, FIELD_W = 240, FIELD_H = 140;
     public static final int PANEL_X = 250, PANEL_Y = 4, PANEL_W = 130, PANEL_H = 140;
     public static final int TILE_Y = 8, TILE_H = 20;
+    /** The mission selector: the target row between its arrows, and the arrows of the fluid's row under it. */
+    public static final int TARGET_Y = 19, TARGET_H = 10, CARGO_H = 16, ARROW_W = 9;
+    public static final int ARROW_LEFT_X = PANEL_X + 5, ARROW_RIGHT_X = PANEL_X + PANEL_W - 5 - ARROW_W;
     /** The ore of the run (so many icons at most), the drone slot, the switches, the counter reset. */
     public static final int ORE_Y = 31, ORES = 6;
     public static final int SLOT_X = PANEL_X + 5, SLOT_Y = 53;
@@ -75,6 +85,10 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
     /** The Mining Drones there are, and their colours (as the Mining Modules' screens: blue, green, orange; pink). */
     public static final int DRONES = 4;
     private static final int[] TIER_COLORS = { 0xFF7DD3FC, 0xFF86EFAC, 0xFFFDBA74, 0xFFF0ABFC };
+    /** A liquid mission's colour, and the planet types' (2 to 8) for a fluid that has no colour of its own. */
+    private static final int LIQUID = 0xFF5EEAD4;
+    private static final int[] PLANET_COLORS = { 0xFFB4623C, 0xFF7A8496, 0xFFC8A45A, 0xFFD9B38C, 0xFF8FB5D9, 0xFF6FA8A0,
+            0xFF9C8FD9 };
     /** The scene: the ground, the tower on it, where orbit is, the asteroid. */
     private static final int GROUND_Y = 112, TOWER_X = FIELD_X + 44, TOWER_H = 22, ORBIT_Y = 40;
     private static final int ROCK_X = FIELD_X + 178, ROCK_Y = 66, ROCK_R = 13;
@@ -105,6 +119,11 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
     private boolean extended;
     private boolean droneInSlot;
     private boolean skyClear;
+    /** The mission picked: a liquid one, and its planet type and gas type; the fluid of the run that is on (its code). */
+    private boolean liquid;
+    private int planet;
+    private int gas;
+    private int runCargo;
     private long available;
     private long needed;
     /** Millibuckets in the hatches, and what one expedition takes. */
@@ -114,6 +133,9 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
     private long coolantNeed;
     private long flown;
     private long mined;
+    private long pumped;
+    /** The fluid row's arrows: only there while a liquid mission is picked. */
+    private Widget[] cargoArrows = new Widget[0];
     private String coolantFluid = "";
     private String asteroid = "";
     /** The ore of the run: "id*count" per item. */
@@ -125,16 +147,38 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
     }
 
     /**
-     * The page: this console, the drone tiles' tooltips, the drone slot, the on/off switch, the size switch and the
-     * counter reset. The slot works on the handler's storage: the handler refuses inserts (no pipe access).
+     * The page: this console, the drone tiles' tooltips, the mission selector's arrows, the drone slot, the on/off
+     * switch, the size switch and the counter reset. The slot works on the handler's storage: the handler refuses
+     * inserts (no pipe access).
      */
     public static WidgetGroup createPage(SpaceElevatorMachine machine) {
         var page = new WidgetGroup(0, 0, WIDTH, HEIGHT);
-        page.addWidget(new SpaceElevatorConsoleWidget(machine, 0, 0));
+        var console = new SpaceElevatorConsoleWidget(machine, 0, 0);
+        page.addWidget(console);
         for (int i = 0; i < DRONES; i++) {
             var tile = new Widget(tileX(i), TILE_Y, tileWidth(), TILE_H);
             tile.setHoverTooltips(tileTooltip(machine, i + 1));
             page.addWidget(tile);
+        }
+        // the mission: the target through the asteroids and the planet types, the fluid through the planet's fluids
+        for (int step : new int[] { -1, 1 }) {
+            page.addWidget(arrow(step < 0 ? ARROW_LEFT_X : ARROW_RIGHT_X, TARGET_Y, TARGET_H,
+                    () -> machine.cycleTarget(step),
+                    Component.translatable("af9.space_elevator.console.target_tooltip.0"),
+                    Component.translatable("af9.space_elevator.console.target_tooltip.1")
+                            .withStyle(ChatFormatting.GRAY),
+                    Component.translatable("af9.space_elevator.console.target_tooltip.2")
+                            .withStyle(ChatFormatting.DARK_GRAY)));
+        }
+        console.cargoArrows = new Widget[2];
+        for (int i = 0; i < 2; i++) {
+            int step = i == 0 ? -1 : 1;
+            console.cargoArrows[i] = arrow(i == 0 ? ARROW_LEFT_X : ARROW_RIGHT_X, ORE_Y, CARGO_H,
+                    () -> machine.cycleCargo(step),
+                    Component.translatable("af9.space_elevator.console.cargo_tooltip.0"),
+                    Component.translatable("af9.space_elevator.console.cargo_tooltip.1")
+                            .withStyle(ChatFormatting.GRAY));
+            page.addWidget(console.cargoArrows[i]);
         }
         page.addWidget(new SlotWidget(machine.droneSlot.storage, 0, SLOT_X, SLOT_Y, true, true)
                 .setBackgroundTexture(GuiTextures.SLOT)
@@ -167,11 +211,23 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
         return page;
     }
 
+    /** An arrow of the mission selector: the console draws it, this takes its clicks. */
+    private static ButtonWidget arrow(int x, int y, int height, Runnable action, Component... tooltips) {
+        var arrow = new ButtonWidget(x, y, ARROW_W, height, IGuiTexture.EMPTY, click -> {
+            if (!click.isRemote) action.run();
+        });
+        arrow.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
+        arrow.setHoverTooltips(tooltips);
+        return arrow;
+    }
+
     /** What a drone's expedition takes and brings: its tile's tooltip. */
     private static List<Component> tileTooltip(SpaceElevatorMachine machine, int tier) {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.translatable("af9.space_elevator.console.drone", SpaceElevatorMachine.mark(tier)));
         lines.add(Component.translatable("af9.space_elevator.console.tile.reach." + tier)
+                .withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("af9.space_elevator.console.tile.planets." + tier)
                 .withStyle(ChatFormatting.GRAY));
         SpaceElevatorMachine.Expedition needs = machine.expedition(tier);
         if (needs != null) {
@@ -235,13 +291,15 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
                 logic.isWorking() ? logic.getDuration() : 0, formed ? machine.getTier() : -1,
                 needs == null ? 0 : (int) needs.amperage(), needs == null ? 0 : voltageTier(needs.voltage()),
                 machine.isWorkingEnabled() ? 1 : 0, machine.isExtended() ? 1 : 0, machine.isDroneInSlot() ? 1 : 0,
-                machine.isSkyClear() ? 1 : 0 };
+                machine.isSkyClear() ? 1 : 0, machine.isLiquidMission() ? 1 : 0, machine.getPlanetType(),
+                machine.getGasType(), machine.flyingCargo() };
         int[] before = { status, drone, motorTier, modules, powered, expeditions, topModule, flying, possible,
                 progress, duration, tier, amps, volts, workingEnabled ? 1 : 0, extended ? 1 : 0, droneInSlot ? 1 : 0,
-                skyClear ? 1 : 0 };
+                skyClear ? 1 : 0, liquid ? 1 : 0, planet, gas, runCargo };
         long[] nowLong = { newAvailable, eut, hydrogenStock, needs == null ? 0 : needs.hydrogen(), coolantStock,
-                needs == null ? 0 : needs.coolantAmount(), machine.getFlown(), machine.getMined() };
-        long[] beforeLong = { available, needed, hydrogen, hydrogenNeed, coolant, coolantNeed, flown, mined };
+                needs == null ? 0 : needs.coolantAmount(), machine.getFlown(), machine.getMined(),
+                machine.getPumped() };
+        long[] beforeLong = { available, needed, hydrogen, hydrogenNeed, coolant, coolantNeed, flown, mined, pumped };
         ResourceLocation fluidId = coolantKind == Fluids.EMPTY ? null : ForgeRegistries.FLUIDS.getKey(coolantKind);
         String newFluid = fluidId == null ? "" : fluidId.toString();
         String newAsteroid = machine.flyingAsteroid();
@@ -267,6 +325,10 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
         extended = now[15] == 1;
         droneInSlot = now[16] == 1;
         skyClear = now[17] == 1;
+        liquid = now[18] == 1;
+        planet = now[19];
+        gas = now[20];
+        runCargo = now[21];
         available = nowLong[0];
         needed = nowLong[1];
         hydrogen = nowLong[2];
@@ -275,6 +337,7 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
         coolantNeed = nowLong[5];
         flown = nowLong[6];
         mined = nowLong[7];
+        pumped = nowLong[8];
         coolantFluid = newFluid;
         asteroid = newAsteroid;
         ore = newOre;
@@ -284,15 +347,16 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
     @Override
     protected void writeState(FriendlyByteBuf buffer) {
         for (int value : new int[] { status, drone, motorTier, modules, powered, expeditions, topModule, flying,
-                possible, progress, duration, tier, amps, volts }) {
+                possible, progress, duration, tier, amps, volts, planet, gas, runCargo }) {
             buffer.writeVarInt(value);
         }
         buffer.writeBoolean(workingEnabled);
         buffer.writeBoolean(extended);
         buffer.writeBoolean(droneInSlot);
         buffer.writeBoolean(skyClear);
+        buffer.writeBoolean(liquid);
         for (long value : new long[] { available, needed, hydrogen, hydrogenNeed, coolant, coolantNeed, flown,
-                mined }) {
+                mined, pumped }) {
             buffer.writeVarLong(value);
         }
         buffer.writeUtf(coolantFluid);
@@ -316,10 +380,14 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
         tier = buffer.readVarInt();
         amps = buffer.readVarInt();
         volts = buffer.readVarInt();
+        planet = buffer.readVarInt();
+        gas = buffer.readVarInt();
+        runCargo = buffer.readVarInt();
         workingEnabled = buffer.readBoolean();
         extended = buffer.readBoolean();
         droneInSlot = buffer.readBoolean();
         skyClear = buffer.readBoolean();
+        liquid = buffer.readBoolean();
         available = buffer.readVarLong();
         needed = buffer.readVarLong();
         hydrogen = buffer.readVarLong();
@@ -328,6 +396,7 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
         coolantNeed = buffer.readVarLong();
         flown = buffer.readVarLong();
         mined = buffer.readVarLong();
+        pumped = buffer.readVarLong();
         coolantFluid = buffer.readUtf();
         asteroid = buffer.readUtf();
         ore = buffer.readUtf();
@@ -344,12 +413,16 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
         int y0 = getPosition().y;
         graphics.fill(x0, y0, x0 + WIDTH, y0 + HEIGHT, BG);
         border(graphics, x0, y0, WIDTH, HEIGHT, EDGE);
+        for (Widget arrow : cargoArrows) arrow.setVisible(liquid);
         drawField(graphics, x0 + FIELD_X, y0 + FIELD_Y, partialTicks);
         drawPanel(graphics, x0 + PANEL_X, y0 + PANEL_Y);
         super.drawInBackground(graphics, mouseX, mouseY, partialTicks);
     }
 
-    /** The ascent: drone tiles, the tower, the cable and the climber, the asteroid and the drones, state, run time. */
+    /**
+     * The ascent: drone tiles, the tower, the cable and the climber, the asteroid (or the planet) and the drones,
+     * state, run time.
+     */
     @OnlyIn(Dist.CLIENT)
     private void drawField(GuiGraphics graphics, int x, int y, float partialTicks) {
         Font font = font();
@@ -407,28 +480,44 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
             graphics.fill(tx + 6, cy - 3, tx + 8, cy, 0xFF2AA0C6);
         }
 
-        // the asteroid: lit while a run goes to it, its ore glinting
+        // where the mission goes: the run's while one is on, else the one picked. A liquid mission: a planet in its
+        // fluid's colour; else the asteroid, lit while a run goes to it, its ore glinting
         int ax = x0 + ROCK_X, ay = y0 + ROCK_Y;
-        for (int dy = -ROCK_R; dy <= ROCK_R; dy++) {
-            int half = (int) Math.sqrt((double) ROCK_R * ROCK_R - dy * dy);
-            int left = half - Math.floorMod(dy * 37, 3), right = half - Math.floorMod(dy * 53, 4);
-            graphics.fill(ax - left, ay + dy, ax + right + 1, ay + dy + 1, running ? 0xFF4A5261 : 0xFF202733);
+        PlanetCatalog.Cargo there = running ? PlanetCatalog.byCode(runCargo) : cargo();
+        boolean liquidRun = running && there != null;
+        String rock;
+        if (there != null) {
+            int body = planetColor(there);
+            for (int dy = -ROCK_R; dy <= ROCK_R; dy++) {
+                int half = (int) Math.sqrt((double) ROCK_R * ROCK_R - dy * dy);
+                int band = Math.floorMod(dy, 5) == 2 ? shade(body, 0.7F) : Math.floorMod(dy, 7) == 4 ?
+                        shade(body, 1.2F) : body;
+                graphics.fill(ax - half, ay + dy, ax + half + 1, ay + dy + 1, running ? band : shade(band, 0.4F));
+            }
+            rock = running ? fluidName(there.fluid()) :
+                    Component.translatable("af9.space_elevator.console.target.planet", there.planet()).getString();
+        } else {
+            for (int dy = -ROCK_R; dy <= ROCK_R; dy++) {
+                int half = (int) Math.sqrt((double) ROCK_R * ROCK_R - dy * dy);
+                int left = half - Math.floorMod(dy * 37, 3), right = half - Math.floorMod(dy * 53, 4);
+                graphics.fill(ax - left, ay + dy, ax + right + 1, ay + dy + 1, running ? 0xFF4A5261 : 0xFF202733);
+            }
+            int crater = running ? 0xFF353C49 : 0xFF181D26;
+            graphics.fill(ax - 6, ay - 5, ax - 2, ay - 2, crater);
+            graphics.fill(ax + 2, ay + 2, ax + 7, ay + 5, crater);
+            graphics.fill(ax - 4, ay + 6, ax - 1, ay + 8, crater);
+            rock = running ? asteroidName() : Component.translatable("af9.space_elevator.console.no_target")
+                    .getString();
         }
-        int crater = running ? 0xFF353C49 : 0xFF181D26;
-        graphics.fill(ax - 6, ay - 5, ax - 2, ay - 2, crater);
-        graphics.fill(ax + 2, ay + 2, ax + 7, ay + 5, crater);
-        graphics.fill(ax - 4, ay + 6, ax - 1, ay + 8, crater);
-        String rock = running ? asteroidName() : Component.translatable("af9.space_elevator.console.no_target")
-                .getString();
         drawSmall(graphics, fit(rock, 144), ax, ay + ROCK_R + 5, running ? TEXT : DIM, true);
 
         if (running) {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 5 && !liquidRun; i++) {
                 if ((now / 250 + i * 2L) % 5 != 0) continue;
                 int gx = ax - 7 + Math.floorMod(i * 41, 15), gy = ay - 7 + Math.floorMod(i * 29, 15);
                 graphics.fill(gx, gy, gx + 1, gy + 1, 0xFFFFE08A);
             }
-            // the drones: out to the asteroid in the first part of the run, at it, home with the ore in the last
+            // the drones: out to the asteroid in the first part of the run, at it, home with the cargo in the last
             double way = fraction < 0.45 ? fraction / 0.45 : fraction > 0.55 ? (1 - fraction) / 0.45 : 1;
             boolean home = fraction > 0.55;
             int shown = Math.min(Math.max(flying, 1), SHOWN_DRONES);
@@ -438,7 +527,7 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
                 double px = Mth.lerp(s, tx + 5, ax - ROCK_R - 3);
                 double py = Mth.lerp(s, orbit, ay) - Math.sin(Math.PI * s) * 9 + (i - (shown - 1) / 2.0) * 3 * s;
                 int dx = (int) Math.round(px), dy = (int) Math.round(py);
-                int body = home ? 0xFFFFE08A : color;
+                int body = !home ? color : liquidRun ? LIQUID : 0xFFFFE08A;
                 // a short trail behind it: it flies right on the way out, left on the way home
                 if (s < 1) {
                     int trail = home ? dx + 2 : dx - 3;
@@ -462,7 +551,10 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
         drawSmall(graphics, timeText, cx, y + 133, running ? TEXT : MUTED, true);
     }
 
-    /** The run: drone, asteroid and ore, the drone slot, the switches, the flights, the counters, the hint. */
+    /**
+     * The run: the drone, the mission (its target, and its fluid or the run's ore), the drone slot, the switches, the
+     * flights, the counters, the hint.
+     */
     @OnlyIn(Dist.CLIENT)
     private void drawPanel(GuiGraphics graphics, int x, int y) {
         Font font = font();
@@ -481,18 +573,44 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
                 Component.translatable("af9.space_elevator.console.no_drone").getString();
         graphics.drawString(font, fit(title, PANEL_W - 10), x + 5, y + 5, color, false);
 
-        // the asteroid of the run and its ore, in stacks
-        drawSmall(graphics, Component.translatable("af9.space_elevator.console.asteroid").getString(), x + 5,
-                y + 18, MUTED, false);
+        // the mission: its target between the arrows
+        int ty = y0 + TARGET_Y;
+        drawArrow(graphics, x0 + ARROW_LEFT_X, ty, TARGET_H, false);
+        drawArrow(graphics, x0 + ARROW_RIGHT_X, ty, TARGET_H, true);
+        String target = liquid ?
+                Component.translatable("af9.space_elevator.console.target.planet", planet).getString() :
+                Component.translatable("af9.space_elevator.console.target.asteroids").getString();
+        drawSmall(graphics, target, x + PANEL_W / 2, ty + 2, liquid ? LIQUID : TEXT, true);
+
+        // under it the fluid picked, with the buckets a mission brings (a liquid run that is still on after the
+        // asteroids were picked: its fluid); on an ore mission the ore of the run, in stacks
+        PlanetCatalog.Cargo shown = liquid ? cargo() : running ? PlanetCatalog.byCode(runCargo) : null;
         List<ItemStack> ores = stacks(ore);
-        if (!running || ores.isEmpty()) {
+        int cy = y0 + ORE_Y;
+        if (shown != null) {
+            if (liquid) {
+                drawArrow(graphics, x0 + ARROW_LEFT_X, cy, CARGO_H, false);
+                drawArrow(graphics, x0 + ARROW_RIGHT_X, cy, CARGO_H, true);
+            }
+            drawFluid(graphics, shown.fluid(), x + 18, cy);
+            // a planet beyond the drone that would fly
+            boolean beyond = liquid && drone > 0 && drone < shown.drone();
+            int textX = x + 38, textWidth = (x0 + ARROW_RIGHT_X - 3 - textX) * 4 / 3;
+            drawSmall(graphics, fit(fluidName(shown.fluid()), textWidth), textX, cy + 1, beyond ? WARN : TEXT, false);
+            String amount = running && runCargo == shown.code() ?
+                    Component.translatable("af9.space_elevator.console.cargo.run",
+                            compact((long) shown.buckets() * Math.max(1, flying))).getString() :
+                    beyond ? Component.translatable("af9.space_elevator.console.cargo.needs",
+                            SpaceElevatorMachine.mark(shown.drone())).getString() :
+                            Component.translatable("af9.space_elevator.console.cargo.each",
+                                    FormattingUtil.formatNumbers(shown.buckets())).getString();
+            drawSmall(graphics, fit(amount, textWidth), textX, cy + 9, beyond ? BAD : MUTED, false);
+        } else if (!running || ores.isEmpty()) {
             drawSmall(graphics, Component.translatable("af9.space_elevator.console.nothing").getString(), x + 5,
-                    y0 + ORE_Y + 5, DIM, false);
+                    cy + 5, DIM, false);
         } else {
-            String name = fit(asteroidName(), (PANEL_W - 52) * 4 / 3);
-            drawSmall(graphics, name, x + PANEL_W - 5 - font.width(name) * 3 / 4, y + 18, TEXT, false);
             for (int i = 0; i < Math.min(ORES, ores.size()); i++) {
-                drawOre(graphics, font, ores.get(i), x + 5 + i * 20, y0 + ORE_Y);
+                drawOre(graphics, font, ores.get(i), x + 5 + i * 20, cy);
             }
         }
 
@@ -527,8 +645,10 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
                 MUTED, false);
         String flownText = compact(flown);
         graphics.drawString(font, flownText, x + PANEL_W - 5 - font.width(flownText), y + 95, TEXT, false);
-        String counters = Component.translatable("af9.space_elevator.console.mined", compact(mined / 64))
-                .getString();
+        // the ore brought home, or on a liquid mission the fluid
+        String counters = liquid ?
+                Component.translatable("af9.space_elevator.console.pumped", compact(pumped / 1000)).getString() :
+                Component.translatable("af9.space_elevator.console.mined", compact(mined / 64)).getString();
         drawSmall(graphics, fit(counters, (x0 + RESET_X - 3 - (x + 5)) * 4 / 3), x + 5, y0 + RESET_Y + 2, MUTED,
                 false);
         drawButton(graphics, x0 + RESET_X, y0 + RESET_Y, RESET_W, RESET_H,
@@ -551,6 +671,15 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
     @OnlyIn(Dist.CLIENT)
     private Component hint() {
         return switch (status) {
+            case STATUS_RUNNING -> runCargo != 0 ? Component.translatable("af9.space_elevator.hint.2.liquid") :
+                    Component.translatable("af9.space_elevator.hint.2");
+            // a drone is there, but the planet picked lies beyond it
+            case STATUS_NO_DRONE -> liquid && drone > 0 ?
+                    Component.translatable("af9.space_elevator.hint.18.reach", planet,
+                            SpaceElevatorMachine.mark(PlanetCatalog.droneFor(planet))) :
+                    Component.translatable("af9.space_elevator.hint.18");
+            case STATUS_OUTPUT_FULL -> liquid ? Component.translatable("af9.space_elevator.hint.20.liquid") :
+                    Component.translatable("af9.space_elevator.hint.20");
             case STATUS_NO_POWER -> Component.translatable("af9.space_elevator.hint.3",
                     FormattingUtil.formatNumbers(needed), amps,
                     GTValues.VN[Mth.clamp(volts, 0, GTValues.VN.length - 1)], FormattingUtil.formatNumbers(available));
@@ -563,6 +692,61 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
             case STATUS_NO_FUEL -> Component.translatable("af9.space_elevator.hint.19", hydrogenNeed / 1000);
             default -> Component.translatable("af9.space_elevator.hint." + status);
         };
+    }
+
+    /** The fluid picked for the liquid missions (the client knows the table too), null on an ore mission. */
+    private PlanetCatalog.Cargo cargo() {
+        return liquid ? PlanetCatalog.find(planet, gas) : null;
+    }
+
+    /** An arrow of the mission selector. */
+    @OnlyIn(Dist.CLIENT)
+    private static void drawArrow(GuiGraphics graphics, int x, int y, int height, boolean right) {
+        graphics.fill(x, y, x + ARROW_W, y + height, 0xFF0B0F17);
+        border(graphics, x, y, ARROW_W, height, DIM);
+        int middle = y + height / 2;
+        for (int i = 0; i < 3; i++) {
+            int column = right ? x + 3 + i : x + ARROW_W - 4 - i;
+            graphics.fill(column, middle - 2 + i, column + 1, middle + 3 - i, TEXT);
+        }
+    }
+
+    /** A fluid as a tank shows it: its still texture in its colour. */
+    @OnlyIn(Dist.CLIENT)
+    private static void drawFluid(GuiGraphics graphics, Fluid fluid, int x, int y) {
+        graphics.fill(x - 1, y - 1, x + 17, y + 17, 0xFF0B0F17);
+        IClientFluidTypeExtensions look = IClientFluidTypeExtensions.of(fluid);
+        ResourceLocation still = look.getStillTexture();
+        int tint = look.getTintColor();
+        if (still == null) {
+            graphics.fill(x, y, x + 16, y + 16, tint | 0xFF000000);
+            return;
+        }
+        TextureAtlasSprite sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(still);
+        graphics.setColor((tint >> 16 & 0xFF) / 255F, (tint >> 8 & 0xFF) / 255F, (tint & 0xFF) / 255F, 1F);
+        graphics.blit(x, y, 0, 16, 16, sprite);
+        graphics.setColor(1F, 1F, 1F, 1F);
+    }
+
+    /** A planet's colour: its fluid's, or the planet type's when the fluid has none (a texture in its own colours). */
+    @OnlyIn(Dist.CLIENT)
+    private static int planetColor(PlanetCatalog.Cargo cargo) {
+        int tint = IClientFluidTypeExtensions.of(cargo.fluid()).getTintColor() | 0xFF000000;
+        if ((tint & 0xFFFFFF) != 0xFFFFFF) return tint;
+        return PLANET_COLORS[Mth.clamp(cargo.planet() - 2, 0, PLANET_COLORS.length - 1)];
+    }
+
+    /** A colour, darker (below 1) or lighter. */
+    private static int shade(int argb, float factor) {
+        int r = Mth.clamp(Math.round((argb >> 16 & 0xFF) * factor), 0, 255);
+        int g = Mth.clamp(Math.round((argb >> 8 & 0xFF) * factor), 0, 255);
+        int b = Mth.clamp(Math.round((argb & 0xFF) * factor), 0, 255);
+        return argb & 0xFF000000 | r << 16 | g << 8 | b;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private static String fluidName(Fluid fluid) {
+        return new FluidStack(fluid, 1).getDisplayName().getString();
     }
 
     /** An ore of the run with its stacks on it. */

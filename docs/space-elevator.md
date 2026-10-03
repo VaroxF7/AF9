@@ -1,12 +1,14 @@
 # Space Elevator
 
 GTNH's Space Elevator (https://wiki.gtnewhorizons.com/wiki/Space_Elevator): a tower on a cable that reaches into space. In AF9 it is
-the **renewable ore source** of the pack from ZPM on: it sends Mining Drones to the asteroids and brings their ore home.
+the **renewable ore source** of the pack from ZPM on: it sends Mining Drones to the asteroids and brings their ore home. A **liquid
+mission** sends them to a planet instead, for a fluid (GTNH's Space Pumping).
 
-Code: `af9-core` `com.af9.core.elevator` (`SpaceElevatorMachine`: the asteroids, the motors, the modules, the cable, the drone slot,
-what it lacks; `OreCatalog`: GT's ores and veins; `ClimberRide`: the climber's rides), `com.af9.core.machine.console.SpaceElevatorConsoleWidget`
+Code: `af9-core` `com.af9.core.elevator` (`SpaceElevatorMachine`: the missions, the asteroids, the motors, the modules, the cable, the
+drone slot, what it lacks; `OreCatalog`: GT's ores and veins; `PlanetCatalog`: the planets' fluids; `ClimberRide`: the climber's rides),
+`com.af9.core.machine.console.SpaceElevatorConsoleWidget`
 (its screen) and `com.af9.core.client.render.SpaceElevatorRender` (the cable and the climber). KubeJS:
-`kubejs/startup_scripts/gtceu/space_elevator.js` (blocks, drones, recipe type, the machine and its structure),
+`kubejs/startup_scripts/gtceu/space_elevator.js` (blocks, drones, the two recipe types, the machine and its structure),
 `kubejs/server_scripts/mods/gtceu/space_elevator.js` (crafting and the expeditions).
 
 ## 1. How it works
@@ -50,6 +52,38 @@ hold the coolant of this many expeditions at once:
 A bigger run takes the rest of its coolant from the **fluid input hatches**: to GT a Coolant Hatch is a fluid input hatch, and GT
 takes a recipe's fluids from all of them together, so supercooled coolant in a fluid input hatch counts as well (the screen's coolant
 is `SpaceElevatorMachine.stockOf`: all of it).
+
+### Liquid missions
+
+Instead of an asteroid an expedition can go to a **planet** and bring home a **fluid**: GTNH's Space Pumping
+(`gtnhintergalactic.recipe.SpacePumpingRecipes`, the table of its Space Pumping Module), as a mission of AF9's elevator.
+
+* **The same flight**: a liquid mission takes what the drone's ore mission takes (the table above: hydrogen, coolant, energy, time)
+  and is flown by the same Mining Modules, as many at once. Its recipe is the ore mission's in a recipe type of its own
+  (`gtceu:space_pumping`); the fluid is not in the recipe: the run gets it when it starts (`SpaceElevatorMachine.MISSION`).
+* **Picked on the screen** (section 5): the target (the asteroids, or a **planet type**, GTNH's 2 to 8) and the planet's fluid. The
+  elevator flies **one kind of mission at a time**: the kind is its recipe type that is on (GT's own mode tab is left out of the
+  screen). A run that is on flies to its end.
+* **The drone says how far**: MK-I reaches planet types 2 and 3, MK-II 4 and 5, MK-III 6 and 7, MK-IV type 8
+  (`PlanetCatalog.droneFor`), each the nearer ones too.
+* **GTNH's amounts**: what GTNH's module pumps in a second (for 1A of UHV) is here what one mission brings. A better drone brings no
+  more of a planet's fluid, it only reaches further.
+* The fluid goes to **fluid output hatches** (up to 6; an ME one takes any run): a run flies as many missions as they have room for.
+
+| Planet type | Drone | Fluids (buckets a mission) |
+|---|---|---|
+| 2 | MK-I | chlorobenzene 896 |
+| 3 | MK-I | lava 1,800, natural gas 1,400 |
+| 4 | MK-II | sulfuric acid 784, molten iron 896, oil 1,400, heavy oil 1,792, molten lead 896, raw oil 1,400, light oil 780, carbon dioxide 1,680 |
+| 5 | MK-II | carbon monoxide 4,480, helium-3 2,800, salt water 2,800, helium 1,400, liquid oxygen 896, neon 32, argon 32, krypton 8, methane 1,792, hydrogen sulfide 392, ethane 1,194 |
+| 6 | MK-III | deuterium 1,568, tritium 240, ammonia 240, xenon 16, ethylene 1,792 |
+| 7 | MK-III | hydrofluoric acid 672, fluorine 1,792, nitrogen 1,792, oxygen 1,792 |
+| 8 | MK-IV | hydrogen 1,568, liquid air 875, molten copper 672, distilled water 17,920, radon 64, molten tin 672 |
+
+GTNH's gas types keep their numbers (`PlanetCatalog`: planet type 5, gas type 2 is helium-3). Three of GTNH's fluids are not there:
+ender goo (3, 1), extra heavy oil (3, 2) and GalaxySpace's unknown water (8, 4), which GregTech does not have here. The argon and the
+xenon missions bring less than their drone's coolant is made of (a MK-II mission takes 64 B of supercooled argon, a MK-III one 80 B of
+supercooled xenon): GTNH's numbers, kept as they are.
 
 ### Modules and motors
 
@@ -111,13 +145,15 @@ Rules of the structure (GTNH's):
   until it is gone (the screen says so).
 * **Upright only**: the controller faces sideways, the tower cannot be turned on its side or flipped.
 * **Hatches** have maxima only: 4 energy and 2 laser hatches in the **bottom centre casings** (72 places: the floor under the column
-  and three layers round its foot); 8 fluid input hatches, **4 Coolant Hatches** (section 1), 2 item input and 12 item output buses
+  and three layers round its foot); 8 fluid input hatches, **4 Coolant Hatches** (section 1), 6 fluid output hatches (the liquid
+  missions'), 2 item input and 12 item output buses
   there or in the **module slots** (12 slots round the column, three a side: the module's own place and 9 places round it). A Coolant
   Hatch is a part of its own here and not one of the 8 fluid hatches (`SpaceElevatorMachine.plainFluidHatches`: to GT it is a fluid
   input hatch too). There is no maintenance hatch (as in GTNH).
   Any tier is taken, but the structure preview shows **ZPM parts** and the terminal builds with them
   (`SpaceElevatorMachine.zpmFirst`: GT would take its first ones, ULV, which hold nothing an expedition needs). A tower the terminal
-  builds in creative has 4 energy hatches, 2 input buses, 2 Coolant Hatches, 4 fluid hatches and 4 output buses: GT's terminal
+  builds in creative has 4 energy hatches, 2 input buses, 2 Coolant Hatches, 2 fluid output hatches, 2 fluid input hatches and 4 output
+  buses: GT's terminal
   builds a place with the first kind of part that is not full and counts the place for every kind that is not full, so the kinds are
   listed with rising maxima (with 8 output buses it built 8 fluid hatches and no bus at all, and such a tower cannot run).
 * **A module slot** holds a Mining Module of any tier, or Base Casing (`SpaceElevatorMachine.modules()` notes the modules down; what
@@ -206,14 +242,16 @@ climber is follows from the time since, so every client draws the same ride. Whe
 
 `SpaceElevatorConsoleWidget` (in `com.af9.core.machine.console`, with the other consoles), in the Orbital Lithography Station's layout:
 GT's machine screen (title bar, the parts' tabs, the player inventory) round a console page, and a panel on each side of the inventory
-(`SidePanelsUIWidget`). **Nothing on it is configured**: there are two switches and a slot.
+(`SidePanelsUIWidget`). There are two switches and a slot on it, and one thing is picked: **the mission**.
 
 * **Left, the ascent**: the four Mining Drones as tiles (the one that flies is lit; a tile's tooltip says what its expedition takes
   and brings), the tower on the ground, the cable up to orbit with its running light and the **climber where its ride has it**, the
   asteroid of the run with its name, and the drones flying out to it and back with the ore; under it the state and the run-time bar.
-* **Right, the run**: the drone that flies, the asteroid and **its ore in stacks**, the **drone slot**, the **ONLINE** switch and the
-  **size switch** (35x35 / 47x47: section 2), the expeditions that fly of those the modules could, the counters (expeditions flown, ore
-  brought home; RESET) and the **hint**.
+* **Right, the run**: the drone that flies; the **mission selector**, two rows of arrows: the target (ASTEROIDS, or PLANET TYPE 2 to 8)
+  and under it the planet's fluid with the buckets a mission brings (on an ore mission that row shows **the run's ore in stacks**); the
+  **drone slot**, the **ONLINE** switch and the **size switch** (35x35 / 47x47: section 2), the expeditions that fly of those the modules
+  could, the counters (expeditions flown, ore or fluid brought home; RESET) and the **hint**. On a liquid mission the scene on the left
+  has the planet for the asteroid, in its fluid's colour.
 * **Beside the inventory**: left the process (the motors' tier and the slots it powers, modules powered of those in the slots, flights,
   hydrogen and coolant in the hatches over what an expedition takes, the sky above the cable), right the system (status, the energy
   the hatches supply over what an expedition takes, tier, size, switch).
@@ -236,11 +274,11 @@ order a run needs things, with the numbers of the drone that would fly:
 | PAUSED | switched off (GT also switches a multiblock off that ran out of energy five times) | press ONLINE |
 | NO SKY | something stands over the cable | it needs open sky |
 | NO MODULE | no Mining Module is powered | put one in a slot; or: *Mining Modules MK-III need Motors MK-III: these are MK-I* |
-| NO DRONE | no drone in the slot or in a bus | put one in the slot |
+| NO DRONE | no drone in the slot or in a bus; on a liquid mission also: the planet picked lies beyond the drone | put one in the slot; *Planet type 5 lies beyond this drone: it takes a Mining Drone MK-II or better* |
 | NO POWER | the hatches supply less than one expedition takes | *An expedition takes 491,520 EU/t (4A ZPM). The hatches supply 64.* |
 | NO HYDROGEN | less hydrogen in the hatches than one expedition takes | how many buckets |
 | NO COOLANT | less of the drone's coolant than one expedition takes | how many buckets of which: *fill a Coolant Hatch* |
-| NO ROOM | the asteroid drawn does not fit the output buses, or there is none | add or empty output buses |
+| NO ROOM | the asteroid drawn does not fit the output buses, or there is none; a liquid mission: the fluid does not fit the fluid output hatches, or there is none | add or empty output buses, or fluid output hatches |
 | IDLE | nothing is missing | the next expedition starts by itself |
 | RUNNING | a run is on | |
 
@@ -261,11 +299,16 @@ when it starts: **the ores this drone's asteroids hold**, taking turns in nine s
   expedition that brings it. They are not outputs of the recipe: the recipe has none.
 * GT's lines under the page are its own: the time, the total energy, and the usage as amps of ZPM (3.75A for a 4A recipe: GT divides
   the EU/t by the tier's full voltage, and a recipe takes 15/16 of it an amp).
+* The **liquid missions** have the same page in their own category (Space Pumping), with a planet for the asteroid and, in the nine
+  slots, **the fluids of the planets the drone reaches**, each with the buckets a mission brings and, on its hover text, its planet
+  type and the drone it takes. They are outputs to the recipe viewers too: looking up helium-3 finds the missions that bring it.
 
 ## 7. Not done
 
 GTNH's modules are machines of their own (mining, pumping, assembler; each with its own buses, drone, parameters and an asteroid filter); here a
 module is a block that makes the elevator fly more expeditions, the buses and the drone are the elevator's, and there are only Mining Modules.
+GTNH's Space Pumping Module pumps all the time beside the mining, for energy alone, up to four fluids at once, set by parameters; here its
+fluids are liquid missions of the elevator itself, one kind of mission at a time, picked on the screen. There is no assembler module.
 GTNH's elevator also has a galaxy map for travel, and plasma, drill tips, rods and computation as inputs; here it runs on hydrogen and a coolant
 and has no travel function. GTNH's screen (a TecTech controller's, with its parameters) is not rebuilt: the elevator has AF9's console
 (section 5). GTNH's climber model and textures are GTNH's own and are not used: the climber, the cable and the block textures are made by

@@ -16,7 +16,9 @@ import com.gregtechceu.gtceu.api.gui.widget.TankWidget;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.ui.GTRecipeTypeUI;
+import com.gregtechceu.gtceu.integration.xei.handlers.fluid.CycleFluidStackHandler;
 import com.gregtechceu.gtceu.integration.xei.handlers.item.CycleItemStackHandler;
+import com.gregtechceu.gtceu.utils.FormattingUtil;
 
 import com.lowdragmc.lowdraglib.gui.texture.ColorBorderTexture;
 import com.lowdragmc.lowdraglib.gui.texture.ColorRectTexture;
@@ -32,6 +34,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
 import java.util.ArrayList;
@@ -46,6 +49,10 @@ import java.util.List;
  * its asteroid only when it starts: <b>the ores this drone's asteroids hold</b>, taking turns in nine slots, with the
  * stacks an expedition brings under them. The ores are outputs to the viewers, so looking up a raw ore finds the
  * expedition that brings it. GT's own slots (same ids) for the inputs.
+ * <p>
+ * The liquid missions' page ({@code space_pumping}) is the same with a planet for the asteroid and, in the nine slots,
+ * <b>the fluids of the planets this drone reaches</b> ({@link PlanetCatalog}), each with the buckets a mission brings:
+ * one of them a mission, the one picked on the elevator's screen.
  */
 public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
 
@@ -57,16 +64,19 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
     public static final String FLOW_ID = "af9_space_mining_flow";
 
     private final GTRecipeType type;
+    /** The liquid missions' page: fluids for ores, a planet for the asteroid. */
+    private final boolean liquid;
 
-    public SpaceMiningRecipeUI(GTRecipeType type) {
+    public SpaceMiningRecipeUI(GTRecipeType type, boolean liquid) {
         super(type);
         this.type = type;
+        this.liquid = liquid;
     }
 
     /** Gives the recipe type this page, keeping what its KubeJS definition set on GT's. */
-    public static void install(GTRecipeType type) {
+    public static void install(GTRecipeType type, boolean liquid) {
         GTRecipeTypeUI old = type.getRecipeUI();
-        SpaceMiningRecipeUI ui = new SpaceMiningRecipeUI(type);
+        SpaceMiningRecipeUI ui = new SpaceMiningRecipeUI(type, liquid);
         ui.setSlotOverlays(old.getSlotOverlays());
         ui.setProgressBarTexture(old.getProgressBarTexture());
         ui.setMaxTooltips(old.getMaxTooltips());
@@ -84,7 +94,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         int fluids = Math.min(2, type.maxInputs.getInt(FluidRecipeCapability.CAP));
         WidgetGroup group = new WidgetGroup(0, 0, WIDTH, HEIGHT);
         // the scene and the pipes first: the slots draw over them
-        SpaceMiningFlowWidget flow = new SpaceMiningFlowWidget();
+        SpaceMiningFlowWidget flow = new SpaceMiningFlowWidget(liquid);
         flow.setId(FLOW_ID);
         group.addWidget(flow);
         slot(group, ItemRecipeCapability.CAP, IO.IN, 0, IN_X, DRONE_Y,
@@ -114,8 +124,8 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
     }
 
     /**
-     * The drone's tier to the scene, and the ores it reaches into the slots beside it; the coolant's hover text names
-     * the Coolant Hatch (after GT's own lines for the slot); then the type's own builder.
+     * The drone's tier to the scene, and the ores (or the fluids) it reaches into the slots beside it; the coolant's
+     * hover text names the Coolant Hatch (after GT's own lines for the slot); then the type's own builder.
      */
     @Override
     public void appendJEIUI(GTRecipe recipe, WidgetGroup widgetGroup) {
@@ -132,7 +142,8 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
             flow.setTier(tier);
             // into the page's own group: GT builds that anew when the page is redrawn, the slots with it
             if (flow.getParent() != null && FMLEnvironment.dist == Dist.CLIENT) {
-                addOres(flow.getParent(), tier, reach(tier));
+                if (liquid) addFluids(flow.getParent(), tier);
+                else addOres(flow.getParent(), tier, reach(tier));
             }
         });
         super.appendJEIUI(recipe, widgetGroup);
@@ -169,5 +180,47 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
             });
             group.addWidget(slot);
         }
+    }
+
+    /**
+     * The slots the fluids take turns in, the buckets a mission brings on each: every fluid is an output the recipe
+     * viewers know.
+     */
+    private static void addFluids(WidgetGroup group, int tier) {
+        List<PlanetCatalog.Cargo> cargoes = PlanetCatalog.reach(tier);
+        int slots = Math.min(ORE_COLUMNS * ORE_ROWS, cargoes.size());
+        List<List<FluidStack>> turns = new ArrayList<>();
+        for (int i = 0; i < slots; i++) turns.add(new ArrayList<>());
+        for (int i = 0; i < cargoes.size(); i++) {
+            PlanetCatalog.Cargo cargo = cargoes.get(i);
+            turns.get(i % slots).add(new FluidStack(cargo.fluid(), cargo.millibuckets()));
+        }
+        CycleFluidStackHandler handler = new CycleFluidStackHandler(turns);
+        for (int i = 0; i < slots; i++) {
+            TankWidget tank = new TankWidget(handler, i, ORES_X + 18 * (i % ORE_COLUMNS),
+                    ORES_Y + 18 * (i / ORE_COLUMNS), false, false);
+            tank.setBackground(GuiTextures.FLUID_SLOT);
+            tank.setIngredientIO(IngredientIO.OUTPUT);
+            tank.setOnAddedTooltips((widget, tooltips) -> {
+                PlanetCatalog.Cargo shown = cargoOf(widget.getFluid());
+                if (shown == null) return;
+                tooltips.add(Component.translatable("af9.recipe.space_pumping.fluid_tooltip.0", shown.planet(),
+                        FormattingUtil.formatNumbers(shown.buckets())).withStyle(ChatFormatting.AQUA));
+                tooltips.add(Component.translatable("af9.recipe.space_pumping.fluid_tooltip.1",
+                        SpaceElevatorMachine.mark(shown.drone())).withStyle(ChatFormatting.GRAY));
+                tooltips.add(Component.translatable("af9.recipe.space_pumping.fluid_tooltip.2")
+                        .withStyle(ChatFormatting.GRAY));
+            });
+            group.addWidget(tank);
+        }
+    }
+
+    /** The table's entry of a fluid a slot shows, null for none. */
+    private static PlanetCatalog.Cargo cargoOf(FluidStack stack) {
+        if (stack == null || stack.isEmpty()) return null;
+        for (PlanetCatalog.Cargo cargo : PlanetCatalog.all()) {
+            if (cargo.fluid().isSame(stack.getFluid())) return cargo;
+        }
+        return null;
     }
 }

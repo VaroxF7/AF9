@@ -9,6 +9,8 @@
 // the drone, the more of them it reaches.
 // As in GTNH the work is the modules': Mining Modules in the module slots fly 2, 4 or 8 expeditions at once, and the motors'
 // tier says how many slots are powered.
+// Instead of an asteroid an expedition can go to a planet and bring home a fluid (a liquid mission, picked on the screen):
+// GTNH's Space Pumping table (af9-core, PlanetCatalog), the same drone, fluids and energy, into fluid output hatches.
 //
 // The structure is GTNH's, block for block (SE_MAIN): 35 x 35 and 43 high, a floor of concrete, a central column of motors
 // round an empty shaft with the cable on top of it, and a tapering frame of base casing and support structure around it.
@@ -24,6 +26,9 @@ const SE_ROMAN = ['I', 'II', 'III', 'IV', 'V']
 // machine's own are SpaceElevatorMachine.MODULE_SLOTS and MODULE_EXPEDITIONS)
 const SE_SLOTS = [6, 12, 15, 18, 24]
 const SE_EXPEDITIONS = [2, 4, 8]
+// the farthest planet type a liquid mission of each drone tier reaches (GTNH's planet types 2 to 8; the machine's own is
+// PlanetCatalog.droneFor)
+const SE_PLANETS = [3, 5, 7, 8]
 
 StartupEvents.registry('block', event => {
     // the blocks of the tower: [id, name, sound]
@@ -83,6 +88,7 @@ StartupEvents.registry('item', event => {
             .displayName(`Mining Drone MK-${roman}`)
             .maxStackSize(1)
             .tooltip(`Sent to the asteroids by a Space Elevator: reaches the ores of tier ${i + 1} and below.`)
+            .tooltip(`Or to a planet for its fluid: reaches planet types 2 to ${SE_PLANETS[i]}.`)
             .tooltip('Not used up.')
     })
 })
@@ -93,6 +99,14 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .category('multiblock')
         .setEUIO('in')
         .setMaxIOSize(1, 1, 2, 0)
+        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+        .setSound(GTSoundEntries.ARC)
+    // the same flights for a planet's fluid, the liquid missions: the fluid is put in when a run starts, the one picked on
+    // the elevator's screen (SpaceElevatorMachine, PlanetCatalog). The elevator flies the kind of mission that is picked
+    event.create('space_pumping')
+        .category('multiblock')
+        .setEUIO('in')
+        .setMaxIOSize(1, 0, 2, 1)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC)
 })
@@ -106,7 +120,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 //   H  Neutronium Frame Box                 C  Motor (one tier)       B  the Cable             -  air (the shaft)
 //   X  Base Casing or a hatch of the elevator: the bottom centre casings (and the controller, in the front one's middle)
 //   M  Base Casing or a bus / hatch of a module slot                  I  a module slot: a Mining Module, or Base Casing
-// Hatches: energy and laser in X; input bus, Coolant Hatch, fluid input hatch and output bus in X or M.
+// Hatches: energy and laser in X; input bus, Coolant Hatch, fluid output hatch, fluid input hatch and output bus in X or M.
 const SE_MAIN = [
     [   // 0
         '               FF FF               ',
@@ -687,11 +701,12 @@ const sePattern = (definition, slices) => {
     // and the hatches of the fluids there or in the module slots. The supercooled coolant has its Coolant Hatches, as
     // in AF9's other cooled machines: up to 4. They hold an eighth of a fluid hatch (ZPM 128 B, UV 256 B, UHV 512 B); GT
     // takes a recipe's fluids from every fluid input, so the coolant of a run bigger than they hold sits in the fluid
-    // input hatches, with the hydrogen
+    // input hatches, with the hydrogen. The fluid of a liquid mission goes to fluid output hatches
     const energy = Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2)
     const laser = Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0)
     const itemsIn = Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1)
     const coolant = Predicates.abilities($ElevatorCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(4, 1)
+    const fluidsOut = Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(6, 1)
     const fluidsIn = Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1)
     const itemsOut = Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(12, 2)
     // a Coolant Hatch is a fluid input hatch too: here it is a part of its own, counted once
@@ -702,14 +717,15 @@ const sePattern = (definition, slices) => {
     $SpaceElevator.zpmFirst(laser)
     $SpaceElevator.zpmFirst(itemsIn)
     $SpaceElevator.zpmFirst(coolant)
+    $SpaceElevator.zpmFirst(fluidsOut)
     $SpaceElevator.zpmFirst(fluidsIn)
     $SpaceElevator.zpmFirst(itemsOut)
     // The order matters to the terminal: it builds a place with the first kind that is not full, and counts the place for
     // every kind that is not full. So each kind gets its maximum less that of the kind before it, and the maximums have to
     // rise along the list (a kind whose maximum is no higher than that of the kind before it is never built): 4 energy
-    // hatches, and 2 input buses, 2 Coolant Hatches, 4 fluid hatches and 4 output buses
+    // hatches, and 2 input buses, 2 Coolant Hatches, 2 fluid output hatches, 2 fluid input hatches and 4 output buses
     const power = energy.or(laser)
-    const buses = itemsIn.or(coolant).or(fluidsIn).or(itemsOut)
+    const buses = itemsIn.or(coolant).or(fluidsOut).or(fluidsIn).or(itemsOut)
     return pattern
         .where('S', Predicates.controller(Predicates.blocks(definition.get())))
         .where('A', Predicates.blocks('kubejs:ultra_high_strength_concrete_floor'))
@@ -741,10 +757,11 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // upright only, as GTNH's
         .allowExtendedFacing(false)
         .allowFlip(false)
-        .recipeTypes([GTRecipeTypes.get('space_mining')])
-        .recipeModifiers([$SpaceElevator.ASTEROID])
+        // the two kinds of mission: the one that is on is picked on the screen (the first one, ore, to begin with)
+        .recipeTypes([GTRecipeTypes.get('space_mining'), GTRecipeTypes.get('space_pumping')])
+        .recipeModifiers([$SpaceElevator.MISSION])
         .appearanceBlock(() => Block.getBlock('kubejs:space_elevator_base_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_elevator.tooltip', 10))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_elevator.tooltip', 11))
         .pattern(definition => {
             // GT asks for this once: both sizes are built, the extended one is the machine's own to switch to
             $SpaceElevator.setExtendedPattern(sePattern(definition, seSlices(true)))

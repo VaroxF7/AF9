@@ -48,6 +48,7 @@ the configs AF9 changes. Everything else comes from the pack itself.
 - **Space Elevator** (`docs/space-elevator.md`): GTNH's, its structure block for block (35 x 35 x 43, and the extended 47 x 47), with its motor
   tiers and Mining Modules; a ZPM tower on a cable that its climber rides as GTNH's does: Mining Drones, hydrogen and a supercooled coolant
   (50-100 buckets each) and huge energy send expeditions to random asteroids made from GT's ore veins: the pack's renewable ore source.
+  A liquid mission, picked on its screen, goes to a planet instead and brings home a fluid (GTNH's Space Pumping table).
 - **Oil** (`docs/oil.md`): the world's oil is off; Oil Regolith, a sand-like rock of the asteroids, becomes Impure Oil, Shiny
   Oil, then Oil and Heavy Oil; the Asteroid Field's fluid deposits hold nitrogen, oxygen, heavy water and acids.
 

@@ -20,7 +20,8 @@ import static com.af9.core.elevator.SpaceMiningRecipeUI.*;
  * The drawing behind a Space Elevator expedition's slots ({@link SpaceMiningRecipeUI}): the hydrogen's pipe and, apart
  * from it and in ice, the coolant's, into the foot of the tower; the tower on the ground with its cable up to orbit,
  * the running light on it and the climber; the drone's way to the asteroid and back with the ore, in the drone's
- * colour; over the fluids what they are, under the ore slots the stacks an expedition brings.
+ * colour; over the fluids what they are, under the ore slots the stacks an expedition brings. A liquid mission's page
+ * has a planet for the asteroid, and under its fluid slots that a mission brings one of them.
  */
 public class SpaceMiningFlowWidget extends Widget {
 
@@ -29,10 +30,15 @@ public class SpaceMiningFlowWidget extends Widget {
     private static final int GROUND_Y = 70, TOWER_X = SCENE_X + 12, TOWER_H = 20, ORBIT_Y = 12;
     private static final int ROCK_X = SCENE_X + 40, ROCK_Y = 27, ROCK_R = 7;
 
+    /** A liquid mission's cargo on its way home, and the planet it comes from. */
+    private static final int FLUID = 0xFF7DD3FC, PLANET = 0xFFC8A45A, PLANET_BAND = 0xFF9C7A3C;
+
+    private final boolean liquid;
     private int tier = 1;
 
-    public SpaceMiningFlowWidget() {
+    public SpaceMiningFlowWidget(boolean liquid) {
         super(0, 0, WIDTH, HEIGHT);
+        this.liquid = liquid;
     }
 
     /** The tier of the recipe's drone: the colour of what flies, the stacks it brings. */
@@ -98,31 +104,40 @@ public class SpaceMiningFlowWidget extends Widget {
             graphics.fill(dash, orbit + 4, dash + 2, orbit + 5, 0x30FFFFFF);
         }
 
-        // the asteroid, and the drone out to it and home with the ore
+        // the asteroid (a liquid mission: the planet), and the drone out to it and home with the cargo
         int ax = x0 + ROCK_X, ay = y0 + ROCK_Y;
         for (int dy = -ROCK_R; dy <= ROCK_R; dy++) {
             int half = (int) Math.sqrt((double) ROCK_R * ROCK_R - dy * dy);
-            graphics.fill(ax - half + Math.floorMod(dy * 37, 2), ay + dy, ax + half + 1 - Math.floorMod(dy * 53, 3),
-                    ay + dy + 1, 0xFF4A5261);
+            if (liquid) {
+                graphics.fill(ax - half, ay + dy, ax + half + 1, ay + dy + 1,
+                        Math.floorMod(dy, 4) == 1 ? PLANET_BAND : PLANET);
+            } else {
+                graphics.fill(ax - half + Math.floorMod(dy * 37, 2), ay + dy,
+                        ax + half + 1 - Math.floorMod(dy * 53, 3), ay + dy + 1, 0xFF4A5261);
+            }
         }
-        graphics.fill(ax - 3, ay - 3, ax, ay - 1, 0xFF353C49);
-        graphics.fill(ax + 1, ay + 1, ax + 4, ay + 3, 0xFF353C49);
-        int glint = (int) (time / 300 % 4);
-        graphics.fill(ax - 2 + glint, ay - 4, ax - 1 + glint, ay - 3, 0xFFFFE08A);
+        if (!liquid) {
+            graphics.fill(ax - 3, ay - 3, ax, ay - 1, 0xFF353C49);
+            graphics.fill(ax + 1, ay + 1, ax + 4, ay + 3, 0xFF353C49);
+            int glint = (int) (time / 300 % 4);
+            graphics.fill(ax - 2 + glint, ay - 4, ax - 1 + glint, ay - 3, 0xFFFFE08A);
+        }
         double lap = (time % 4000) / 4000.0;
         double way = lap < 0.45 ? lap / 0.45 : lap > 0.55 ? (1 - lap) / 0.45 : 1;
         boolean home = lap > 0.55;
         int droneX = (int) Math.round(Mth.lerp(way, tx + 3, ax - ROCK_R - 3));
         int droneY = (int) Math.round(Mth.lerp(way, orbit + 4, ay) - Math.sin(Math.PI * way) * 5);
-        graphics.fill(droneX, droneY - 1, droneX + 2, droneY + 1, home ? 0xFFFFE08A : color);
+        graphics.fill(droneX, droneY - 1, droneX + 2, droneY + 1, !home ? color : liquid ? FLUID : 0xFFFFE08A);
 
-        // under the ore slots: the stacks an expedition of this drone brings
+        // under the slots: the stacks an expedition of this drone brings, or that a liquid mission brings one fluid
         int middle = x0 + ORES_X + 9 * ORE_COLUMNS;
-        drawSmallCentered(graphics, Component.translatable("af9.recipe.space_mining.stacks",
-                SpaceElevatorMachine.minStacks(tier), SpaceElevatorMachine.maxStacks(tier)).getString(), middle,
-                y0 + ORES_Y + 18 * ORE_ROWS + 3, 0xFFFFFFFF);
-        drawSmallCentered(graphics, Component.translatable("af9.recipe.space_mining.ore").getString(), middle,
-                y0 + ORES_Y + 18 * ORE_ROWS + 10, LABEL);
+        String first = liquid ? Component.translatable("af9.recipe.space_pumping.one").getString() :
+                Component.translatable("af9.recipe.space_mining.stacks", SpaceElevatorMachine.minStacks(tier),
+                        SpaceElevatorMachine.maxStacks(tier)).getString();
+        String second = Component.translatable(liquid ? "af9.recipe.space_pumping.pick" :
+                "af9.recipe.space_mining.ore").getString();
+        drawSmallCentered(graphics, first, middle, y0 + ORES_Y + 18 * ORE_ROWS + 3, 0xFFFFFFFF);
+        drawSmallCentered(graphics, second, middle, y0 + ORES_Y + 18 * ORE_ROWS + 10, LABEL);
         super.drawInBackground(graphics, mouseX, mouseY, partialTicks);
     }
 

@@ -6,6 +6,8 @@
 // energy: the ore is not in the recipe, a run gets its asteroid when it starts (the recipe viewers' page lists the ores
 // the drone's asteroids hold: af9-core, SpaceMiningRecipeUI). The Mining Modules of the tower fly several of them at once,
 // each with the full inputs.
+// A liquid mission is the same flight for a planet's fluid (gtceu:space_pumping): the fluid is not in the recipe either,
+// the elevator puts in the one picked on its screen (af9-core, PlanetCatalog: GTNH's Space Pumping table).
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
@@ -22,6 +24,12 @@ ServerEvents.recipes(event => {
     ]
     expeditions.forEach(([tier, hydrogen, coolant, coolantMb, amps, seconds]) => {
         event.recipes.gtceu.space_mining(`af9:space_mining_mk${tier}`)
+            .notConsumable(`kubejs:space_mining_drone_mk${tier}`)
+            .inputFluids(Fluid.of('gtceu:hydrogen', hydrogen))
+            .inputFluids(Fluid.of(coolant, coolantMb))
+            .duration(seconds * 20)
+            .EUt(VA[GTValues.ZPM], amps)
+        event.recipes.gtceu.space_pumping(`af9:space_pumping_mk${tier}`)
             .notConsumable(`kubejs:space_mining_drone_mk${tier}`)
             .inputFluids(Fluid.of('gtceu:hydrogen', hydrogen))
             .inputFluids(Fluid.of(coolant, coolantMb))
