@@ -309,7 +309,7 @@ Key scripts: `photolithography.js` + `wafers.js` + `litho_process.js` (nodes mus
 `LithoMode.java`), `fab_machines.js` / `fab_chemistry.js`, `cryogenics.js`, `particle_accelerator.js`,
 `asteroid_fission.js` + `rockets.js` + `fusion_reactor.js`, `computation.js` + `cwu_server.js`,
 `space_elevator.js`, `platinum_group.js`, `oil.js` + `vein_oil.js` + `vein_asteroid.js`, `miner.js`,
-`wireless_energy.js`, `chip_uses.js` / `circuits_af9.js`.
+`rubber.js`, `wireless_energy.js`, `chip_uses.js` / `circuits_af9.js`.
 
 ---
 
@@ -376,6 +376,7 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 - [Space Elevator](docs/space-elevator.md) — structure, drones, ore + liquid missions, screen
 - [Platinum-group metals](docs/platinum-group-metals.md) — refinery chain
 - [Oil](docs/oil.md) — regolith chain, fluid deposits, prospecting
+- [Rubber](docs/rubber.md) — latex from plants, rubber / liquid rubber / silicone / SBR
 - [Review findings](docs/review-findings.md) — what the lint found
 - [AF9 Core](af9-core/README.md) — Java class map
 - [Lint](tools/lint/README.md) — checker usage
