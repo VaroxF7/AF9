@@ -85,10 +85,10 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
     /** The Mining Drones there are, and their colours (as the Mining Modules' screens: blue, green, orange; pink). */
     public static final int DRONES = 4;
     private static final int[] TIER_COLORS = { 0xFF7DD3FC, 0xFF86EFAC, 0xFFFDBA74, 0xFFF0ABFC };
-    /** A liquid mission's colour, and the planet types' (2 to 8) for a fluid that has no colour of its own. */
+    /** A liquid mission's colour, and the planet types' (2 to 9) for a fluid that has no colour of its own. */
     private static final int LIQUID = 0xFF5EEAD4;
     private static final int[] PLANET_COLORS = { 0xFFB4623C, 0xFF7A8496, 0xFFC8A45A, 0xFFD9B38C, 0xFF8FB5D9, 0xFF6FA8A0,
-            0xFF9C8FD9 };
+            0xFF9C8FD9, 0xFF5EEAD4 };
     /** The scene: the ground, the tower on it, where orbit is, the asteroid. */
     private static final int GROUND_Y = 112, TOWER_X = FIELD_X + 44, TOWER_H = 22, ORBIT_Y = 40;
     private static final int ROCK_X = FIELD_X + 178, ROCK_Y = 66, ROCK_R = 13;

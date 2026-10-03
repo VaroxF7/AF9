@@ -455,5 +455,8 @@
     "gtceu.void_mining_asteroids.desc": "Drilling fluid in, tenfold asteroid ore out",
     "af9.void_miner.tooltip.0": "§7AF9's rebuilt miner: §ftenfold ore§7, same time and energy.",
     "af9.void_miner.tooltip.1": "§7Four areas as §fmodes§7: §aOverworld§7, §cNether§7, §eEnd§7, §dAsteroids§7; a §bprogrammed circuit§7 picks the ore.",
-    "af9.void_miner.tooltip.2": "§7Needs §fdrilling fluid§7 and an energy hatch fit for the area; §6HV§7 to build."
+    "af9.void_miner.tooltip.2": "§7Needs §fdrilling fluid§7 and an energy hatch fit for the area; §6HV§7 to build.",
+    "material.gtceu.biodiesel": "Biodiesel",
+    "material.gtceu.bioethanol": "Bioethanol",
+    "material.gtceu.dichloromethane": "Dichloromethane"
 }

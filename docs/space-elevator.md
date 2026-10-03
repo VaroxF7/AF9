@@ -61,10 +61,11 @@ Instead of an asteroid an expedition can go to a **planet** and bring home a **f
 * **The same flight**: a liquid mission takes what the drone's ore mission takes (the table above: hydrogen, coolant, energy, time)
   and is flown by the same Mining Modules, as many at once. Its recipe is the ore mission's in a recipe type of its own
   (`gtceu:space_pumping`); the fluid is not in the recipe: the run gets it when it starts (`SpaceElevatorMachine.MISSION`).
-* **Picked on the screen** (section 5): the target (the asteroids, or a **planet type**, GTNH's 2 to 8) and the planet's fluid. The
+* **Picked on the screen** (section 5): the target (the asteroids, or a **planet type**, GTNH's 2 to 8 plus AF9's
+  own type 9) and the planet's fluid. The
   elevator flies **one kind of mission at a time**: the kind is its recipe type that is on (GT's own mode tab is left out of the
   screen). A run that is on flies to its end.
-* **The drone says how far**: MK-I reaches planet types 2 and 3, MK-II 4 and 5, MK-III 6 and 7, MK-IV type 8
+* **The drone says how far**: MK-I reaches planet types 2 and 3, MK-II 4 and 5, MK-III 6 and 7, MK-IV types 8 and 9
   (`PlanetCatalog.droneFor`), each the nearer ones too.
 * **GTNH's amounts**: what GTNH's module pumps in a second (for 1A of UHV) is here what one mission brings. A better drone brings no
   more of a planet's fluid, it only reaches further.
@@ -79,6 +80,7 @@ Instead of an asteroid an expedition can go to a **planet** and bring home a **f
 | 6 | MK-III | deuterium 1,568, tritium 240, ammonia 240, xenon 16, ethylene 1,792 |
 | 7 | MK-III | hydrofluoric acid 672, fluorine 1,792, nitrogen 1,792, oxygen 1,792 |
 | 8 | MK-IV | hydrogen 1,568, liquid air 875, molten copper 672, distilled water 17,920, radon 64, molten tin 672 |
+| 9 (AF9) | MK-IV | biodiesel 1,400, bioethanol 1,792, benzene 1,400, chloroform 896, chlorobenzene 1,120, hydrogen sulfide 784, radon 128 |
 
 GTNH's gas types keep their numbers (`PlanetCatalog`: planet type 5, gas type 2 is helium-3). Three of GTNH's fluids are not there:
 ender goo (3, 1), extra heavy oil (3, 2) and GalaxySpace's unknown water (8, 4), which GregTech does not have here. The argon and the
@@ -247,7 +249,7 @@ GT's machine screen (title bar, the parts' tabs, the player inventory) round a c
 * **Left, the ascent**: the four Mining Drones as tiles (the one that flies is lit; a tile's tooltip says what its expedition takes
   and brings), the tower on the ground, the cable up to orbit with its running light and the **climber where its ride has it**, the
   asteroid of the run with its name, and the drones flying out to it and back with the ore; under it the state and the run-time bar.
-* **Right, the run**: the drone that flies; the **mission selector**, two rows of arrows: the target (ASTEROIDS, or PLANET TYPE 2 to 8)
+* **Right, the run**: the drone that flies; the **mission selector**, two rows of arrows: the target (ASTEROIDS, or PLANET TYPE 2 to 9)
   and under it the planet's fluid with the buckets a mission brings (on an ore mission that row shows **the run's ore in stacks**); the
   **drone slot**, the **ONLINE** switch and the **size switch** (35x35 / 47x47: section 2), the expeditions that fly of those the modules
   could, the counters (expeditions flown, ore or fluid brought home; RESET) and the **hint**. On a liquid mission the scene on the left

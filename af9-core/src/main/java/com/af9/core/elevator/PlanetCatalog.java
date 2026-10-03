@@ -5,8 +5,10 @@ import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKey;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +22,9 @@ import java.util.List;
  * GTNH pumps the amount every second, for energy alone; here it is what one mission brings, a flight of minutes with
  * the drone's hydrogen, coolant and energy ({@link SpaceElevatorMachine#MISSION}). The drone says how far a mission
  * goes ({@link #droneFor}); the fluid is picked on the elevator's screen.
+ * <p>
+ * Planet type 9 is AF9's own (GTNH's table ends at 8): the far dark, reached by the Mk-IV, bringing home the fluids
+ * of AF9's green chemistry (docs/green-chemistry.md) and richer cuts of hydrogen sulfide and radon.
  */
 public final class PlanetCatalog {
 
@@ -46,8 +51,8 @@ public final class PlanetCatalog {
     private PlanetCatalog() {}
 
     /**
-     * The least Mining Drone tier that reaches a planet type: MK-I types 2 and 3, MK-II 4 and 5, MK-III 6 and 7, MK-IV
-     * type 8.
+     * The least Mining Drone tier that reaches a planet type: MK-I types 2 and 3, MK-II 4 and 5, MK-III 6 and 7,
+     * MK-IV types 8 and 9.
      */
     public static int droneFor(int planet) {
         return planet / 2;
@@ -106,6 +111,14 @@ public final class PlanetCatalog {
         add(list, 8, 5, GTMaterials.DistilledWater, 17_920);
         add(list, 8, 6, GTMaterials.Radon, 64);
         add(list, 8, 7, GTMaterials.Tin, 672);
+        // T9 (AF9's own far dark, Mk-IV): green-chemistry fluids and richer sour gas and radon
+        add(list, 9, 1, kubejsFluid("biodiesel"), 1_400);
+        add(list, 9, 2, kubejsFluid("bioethanol"), 1_792);
+        add(list, 9, 3, GTMaterials.Benzene, 1_400);
+        add(list, 9, 4, GTMaterials.Chloroform, 896);
+        add(list, 9, 5, GTMaterials.Chlorobenzene, 1_120);
+        add(list, 9, 6, GTMaterials.HydrogenSulfide, 784);
+        add(list, 9, 7, GTMaterials.Radon, 128);
         return List.copyOf(list);
     }
 
@@ -120,6 +133,14 @@ public final class PlanetCatalog {
 
     private static Fluid fluid(Material material, FluidStorageKey key) {
         return material.hasFluid() ? material.getFluid(key) : null;
+    }
+
+    /**
+     * A fluid KubeJS registered (AF9's biodiesel and bioethanol): looked up by id at runtime, when the materials
+     * exist. Null while they do not, and the mission is then skipped like GTNH's three missing fluids.
+     */
+    private static Fluid kubejsFluid(String id) {
+        return ForgeRegistries.FLUIDS.getValue(new ResourceLocation("gtceu", id));
     }
 
     /** The fluid of a planet type and a gas type, null when there is none. */
