@@ -1,5 +1,6 @@
 package com.af9.core.elevator;
 
+import com.af9.core.AF9Core;
 import com.af9.core.common.IPowerGated;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.SidePanelsUIWidget;
@@ -26,6 +27,7 @@ import com.gregtechceu.gtceu.api.pattern.predicates.SimplePredicate;
 import com.gregtechceu.gtceu.api.pattern.util.PatternMatchContext;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
@@ -35,6 +37,7 @@ import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
+import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
@@ -139,6 +142,8 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     private static final int EXOTIC_ORES = 3;
     private static final int EXOTIC_ONE_IN = 6;
     private static final String DRONE = "space_mining_drone_mk";
+    /** The recipe type of the expeditions ({@code gtceu:space_mining}, from the startup script). */
+    public static final String RECIPE_TYPE = "space_mining";
     /** Recipe data key of the asteroid a run flies to (the vein it is made from, or "exotic"). */
     public static final String ASTEROID_TAG = "af9_asteroid";
 
@@ -206,6 +211,20 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     @Override
     public ManagedFieldHolder getFieldHolder() {
         return MANAGED_FIELD_HOLDER;
+    }
+
+    /**
+     * Common setup: the expeditions get their own EMI / JEI page ({@link SpaceMiningRecipeUI}: the drone and the fluids
+     * piped into the tower, and the ores the drone's asteroids hold).
+     */
+    public static void registerRecipeInfo() {
+        GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", RECIPE_TYPE));
+        if (type == null) {
+            AF9Core.LOGGER.warn("Recipe type gtceu:{} not found - is the AF9 KubeJS startup script loaded?",
+                    RECIPE_TYPE);
+            return;
+        }
+        SpaceMiningRecipeUI.install(type);
     }
 
     /** Re-modify every run: each expedition goes to a new asteroid. */

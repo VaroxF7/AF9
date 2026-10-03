@@ -16,9 +16,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -33,6 +35,9 @@ import java.util.TreeMap;
  * <li>the {@code af9_asteroid} layer: the Asteroid Field.</li>
  * </ol>
  * A layer GT does not know here counts as the End. An ore that no vein holds (veins of weight 0 count as no vein) is tier 4.
+ * <p>
+ * The veins are the server's ({@link GTRegistries#ORE_VEINS}). A client holds the copy GT syncs to it instead: the
+ * methods that take the veins are for it (the recipe viewer page, {@link SpaceMiningRecipeUI}).
  */
 public final class OreCatalog {
 
@@ -53,12 +58,18 @@ public final class OreCatalog {
 
     /** Ore material name -> tier, for every ore GT has now. */
     public static Map<String, Integer> tiers() {
+        return tiers(GTRegistries.ORE_VEINS.entries());
+    }
+
+    /** The same, of the veins given. */
+    public static Map<String, Integer> tiers(Iterable<Map.Entry<ResourceLocation, GTOreDefinition>> source) {
         Map<String, Integer> result = new TreeMap<>();
         for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
             if (material.hasProperty(PropertyKey.ORE)) result.put(material.getName(), TIERS);
         }
         int veins = 0;
-        for (GTOreDefinition vein : GTRegistries.ORE_VEINS) {
+        for (Map.Entry<ResourceLocation, GTOreDefinition> entry : source) {
+            GTOreDefinition vein = entry.getValue();
             if (vein.weight() <= 0 || vein.veinGenerator() == null) continue;
             veins++;
             Optional<String> key = WorldGeneratorUtils.getWorldGenLayerKey(vein.layer());
@@ -82,9 +93,14 @@ public final class OreCatalog {
 
     /** The ore veins GT has now (weight above 0) that hold at least one ore material. */
     public static List<Vein> veins() {
-        Map<String, Integer> ores = tiers();
+        return veins(GTRegistries.ORE_VEINS.entries());
+    }
+
+    /** The same, of the veins given. */
+    public static List<Vein> veins(Iterable<Map.Entry<ResourceLocation, GTOreDefinition>> source) {
+        Map<String, Integer> ores = tiers(source);
         List<Vein> result = new ArrayList<>();
-        for (Map.Entry<ResourceLocation, GTOreDefinition> entry : GTRegistries.ORE_VEINS.entries()) {
+        for (Map.Entry<ResourceLocation, GTOreDefinition> entry : source) {
             GTOreDefinition vein = entry.getValue();
             if (vein.weight() <= 0 || vein.veinGenerator() == null) continue;
             int tier = WorldGeneratorUtils.getWorldGenLayerKey(vein.layer()).map(OreCatalog::tierOfLayer).orElse(3);
@@ -104,11 +120,29 @@ public final class OreCatalog {
 
     /** The ores that no vein holds, by material name (alphabetical): the Space Elevator's exotic asteroid. */
     public static List<String> exotics() {
+        return exotics(GTRegistries.ORE_VEINS.entries());
+    }
+
+    /** The same, of the veins given. */
+    public static List<String> exotics(Iterable<Map.Entry<ResourceLocation, GTOreDefinition>> source) {
         List<String> names = new ArrayList<>();
-        tiers().forEach((name, tier) -> {
+        tiers(source).forEach((name, tier) -> {
             if (tier == TIERS) names.add(name);
         });
         return names;
+    }
+
+    /**
+     * The ores a drone of a tier can bring home, by material name: those of the veins of its tier and below (in the
+     * veins' order, a vein's main ore first), and for the best drone the exotic ones as well.
+     */
+    public static List<String> reach(int tier, Iterable<Map.Entry<ResourceLocation, GTOreDefinition>> source) {
+        Set<String> names = new LinkedHashSet<>();
+        for (Vein vein : veins(source)) {
+            if (vein.tier() <= tier) names.addAll(vein.materials());
+        }
+        if (tier >= TIERS) names.addAll(exotics(source));
+        return new ArrayList<>(names);
     }
 
     /**

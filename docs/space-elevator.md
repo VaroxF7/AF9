@@ -11,13 +11,12 @@ what it lacks; `OreCatalog`: GT's ores and veins; `ClimberRide`: the climber's r
 
 ## 1. How it works
 
-`gtceu:space_elevator` runs the recipe type `gtceu:space_mining`: a **Mining Drone** (`kubejs:space_mining_drone_mk1..4`, **not used up**) in
-the drone slot of its screen (section 5; or in an input bus), **hydrogen** and a **supercooled coolant** in the fluid hatches, and energy
-for minutes. Nothing is made by the recipe
-itself: when a run starts (`SpaceElevatorMachine.ASTEROID`, a recipe modifier that re-rolls every run) the elevator draws an
-**asteroid** and the run puts out its ore, **8 to 48 stacks of raw ore an expedition** in the output buses (the recipe viewers show no
-outputs; the controller's screen lists the ore of the run that is on). The table is one expedition; the **Mining Modules** of the tower
-fly several at once (below).
+`gtceu:space_elevator` runs the recipe type `gtceu:space_mining`: a **Mining Drone** (`kubejs:space_mining_drone_mk1..4`, **not used
+up**) in the drone slot of its screen (section 5; or in an input bus), **hydrogen** and a **supercooled coolant** in the fluid hatches,
+and energy for minutes. Nothing is made by the recipe itself: when a run starts (`SpaceElevatorMachine.ASTEROID`, a recipe modifier that
+re-rolls every run) the elevator draws an **asteroid** and the run puts out its ore, **8 to 48 stacks of raw ore an expedition** in the
+output buses. The recipe viewers' page lists the ores the drone's asteroids hold (section 6); the controller's screen lists the ore of
+the run that is on. The table is one expedition; the **Mining Modules** of the tower fly several at once (below).
 
 | Drone | Reaches | Hydrogen | Coolant (supercooled) | Energy | Time | Stacks |
 |---|---|---|---|---|---|---|
@@ -225,7 +224,22 @@ order a run needs things, with the numbers of the drone that would fly:
 The status codes are the consoles' shared ones (`ConsoleWidget.STATUS_*`, lang `af9.console.status.<code>`; 16 to 20 are the
 elevator's). The run's asteroid goes with the run (`ASTEROID_TAG` in the recipe's data), so a reloaded world still names it.
 
-## 6. Not done
+## 6. The recipe page
+
+`SpaceMiningRecipeUI` (installed in common setup, `SpaceElevatorMachine.registerRecipeInfo`), in the style of the other AF9 pages: the
+drone top left (kept), under it the hydrogen and, marked as coolant, the supercooled fluid, both piped into the foot of a little tower
+with its cable, its climber and a drone on its way to an asteroid (`SpaceMiningFlowWidget`); then GT's arrow and, on the right, what the
+recipe itself cannot say, because a run gets its asteroid only when it starts: **the ores this drone's asteroids hold**, taking turns
+in nine slots, with the stacks an expedition brings under them.
+
+* The ores come from the same catalogue the machine draws its asteroids from (`OreCatalog.reach`: the ores of the veins of the drone's
+  tier and below, for the Mk-IV the exotic ones as well), read on the client from the veins GT syncs to it (`ClientOreVeins`).
+* The slots are **outputs to the recipe viewers** (as GT's own ore vein pages do it), so looking up a raw ore in EMI finds the
+  expedition that brings it. They are not outputs of the recipe: the recipe has none.
+* GT's lines under the page are its own: the time, the total energy, and the usage as amps of ZPM (3.75A for a 4A recipe: GT divides
+  the EU/t by the tier's full voltage, and a recipe takes 15/16 of it an amp).
+
+## 7. Not done
 
 GTNH's modules are machines of their own (mining, pumping, assembler; each with its own buses, drone, parameters and an asteroid filter); here a
 module is a block that makes the elevator fly more expeditions, the buses and the drone are the elevator's, and there are only Mining Modules.

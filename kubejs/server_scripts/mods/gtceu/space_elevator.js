@@ -3,8 +3,9 @@
 // Spec: docs/space-elevator.md
 //
 // An expedition names a drone (not used up), hydrogen and a supercooled coolant (the Cryostat's, cryogenics.js) and the
-// energy: the ore is not in the recipe, a run gets its asteroid when it starts (so the recipe viewers show none). The
-// Mining Modules of the tower fly several of them at once, each with the full inputs.
+// energy: the ore is not in the recipe, a run gets its asteroid when it starts (the recipe viewers' page lists the ores
+// the drone's asteroids hold: af9-core, SpaceMiningRecipeUI). The Mining Modules of the tower fly several of them at once,
+// each with the full inputs.
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
