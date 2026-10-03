@@ -4,6 +4,7 @@ import com.af9.core.AF9Core;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.SpaceElevatorRender;
 import com.af9.core.client.render.ModeFluidRender;
+import com.af9.core.compat.emi.EmiAcceleratorCompat;
 import com.af9.core.wafer.WaferContamination;
 import com.af9.core.wireless.WirelessLink;
 
@@ -13,22 +14,28 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.List;
 
 /**
  * Client side: the dynamic machine renders, the tooltip of everything that contaminates in a player's inventory,
- * and the wireless link a data stick carries.
+ * the wireless link a data stick carries, and EMI Accelerator's cache kept in step with the pack's items.
  */
 public final class AF9Client {
 
     private AF9Client() {}
 
     /** Mod construction: the render types must exist before the machine models are built. */
+    @SuppressWarnings("removal") // FMLJavaModLoadingContext.get() is the only way on 47.x
     public static void init() {
         ModeFluidRender.register();
         LightRingRender.register();
         SpaceElevatorRender.register();
+        // every item is registered by client setup, and EMI has not loaded its list yet
+        FMLJavaModLoadingContext.get().getModEventBus()
+                .addListener((FMLClientSetupEvent event) -> EmiAcceleratorCompat.checkCache());
     }
 
     @Mod.EventBusSubscriber(modid = AF9Core.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
