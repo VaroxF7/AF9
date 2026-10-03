@@ -154,7 +154,9 @@ What is drawn here is made by hand, in code, after pictures of GTNH's.
 * **The climber**: a wheel round the cable (radius 6.2, dark, blue on top, gold underneath) with a hub and four spokes; a white pod stands
   on the end of three of them, a rack of six blue tanks hangs on the fourth, close by the wheel: about 23 blocks across. Its colours are cells
   of a 4 x 4 palette texture (`space_elevator.png`). It rests **50 blocks above the Cable block** (100 where that would be under y 100).
-* Both are drawn at full brightness (as GTNH's), from 288 blocks away, level.
+* Both are drawn at full brightness (as GTNH's), from 288 blocks away, level, and whether or not the controller is on the screen
+  (`shouldRenderOffScreen`: a block entity is otherwise only drawn with its own chunk section, and looking up at the climber the
+  controller is out of view).
 
 ### The rides
 

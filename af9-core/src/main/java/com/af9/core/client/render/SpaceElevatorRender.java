@@ -142,7 +142,17 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
         return dx * dx + dz * dz < (double) getViewDistance() * getViewDistance();
     }
 
-    /** The cable and the climber's whole way (the block entity would be culled with the controller's own box otherwise). */
+    /**
+     * Drawn whether or not the controller's own chunk section is on the screen. A block entity is otherwise only drawn
+     * with its section, and the cable and the climber stand far above the controller: looking up at them, the
+     * controller is out of view and they would be gone.
+     */
+    @Override
+    public boolean shouldRenderOffScreen(ISpaceElevatorMachine machine) {
+        return true;
+    }
+
+    /** The cable and the climber's whole way: what the frustum check asks, instead of the controller's own box. */
     @Override
     public AABB getRenderBoundingBox(ISpaceElevatorMachine machine) {
         BlockPos pos = machine.self().getPos();
