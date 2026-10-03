@@ -105,7 +105,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
 
     public static Component[] tileTooltip(LithoMode mode) {
         Component resist = mode.resist.equals("dry_resist") ?
-                Component.translatable("item.kubejs.dry_resist_cartridge") :
+                Component.translatable("item.af9.dry_resist_cartridge") :
                 Component.translatable("material.gtceu." + mode.resist);
         Component level = switch (mode.machine) {
             case ORBITAL -> Component.translatable("af9.litho.console.tile_orbit");

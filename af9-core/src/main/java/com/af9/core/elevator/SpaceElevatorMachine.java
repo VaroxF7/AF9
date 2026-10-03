@@ -6,6 +6,8 @@ import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.SidePanelsUIWidget;
 import com.af9.core.machine.console.SpaceElevatorConsoleWidget;
 import com.af9.core.machine.part.CoolantHatchPartMachine;
+import com.af9.core.registry.AF9Blocks;
+import com.af9.core.registry.AF9Items;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.block.MetaMachineBlock;
@@ -129,14 +131,13 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
      */
     public static final float CABLE_UP = 22, CABLE_BACK = 3;
 
-    /** The motor tiers there are: {@code kubejs:space_elevator_motor_mk1} to {@code mk5}. */
-    public static final int MOTOR_TIERS = 5;
+    /** The motor tiers there are: {@code af9:space_elevator_motor_mk1} to {@code mk5}. */
+    public static final int MOTOR_TIERS = AF9Blocks.MOTORS;
     private static final String[] ROMAN = { "I", "II", "III", "IV", "V" };
-    private static final String MOTOR = "space_elevator_motor_mk";
-    private static final ResourceLocation CABLE = new ResourceLocation("kubejs", "space_elevator_cable");
-    /** The Mining Module tiers there are: {@code kubejs:space_mining_module_mk1} to {@code mk3}. */
-    public static final int MODULE_TIERS = 3;
-    private static final String MODULE = "space_mining_module_mk";
+    private static final String MOTOR = AF9Blocks.MOTOR;
+    /** The Mining Module tiers there are: {@code af9:space_mining_module_mk1} to {@code mk3}. */
+    public static final int MODULE_TIERS = AF9Blocks.MODULES;
+    private static final String MODULE = AF9Blocks.MODULE;
     /** The pattern check's notes (GT's match context): the motor tier, the tiers of the modules found. */
     private static final String MOTOR_KEY = "SpaceElevatorMotor";
     private static final String MODULES_KEY = "SpaceElevatorModules";
@@ -154,7 +155,7 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     /** How many of the exotic ores one exotic asteroid holds, and its share of the Mk4 draws (1 in this many). */
     private static final int EXOTIC_ORES = 3;
     private static final int EXOTIC_ONE_IN = 6;
-    private static final String DRONE = "space_mining_drone_mk";
+    private static final String DRONE = AF9Items.DRONE;
     /** The recipe type of the expeditions ({@code gtceu:space_mining}, from the startup script). */
     public static final String RECIPE_TYPE = "space_mining";
     /** The recipe type of the liquid missions ({@code gtceu:space_pumping}): the same flights, for a planet's fluid. */
@@ -251,7 +252,7 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         for (String name : new String[] { RECIPE_TYPE, LIQUID_RECIPE_TYPE }) {
             GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", name));
             if (type == null) {
-                AF9Core.LOGGER.warn("Recipe type gtceu:{} not found - is the AF9 KubeJS startup script loaded?", name);
+                AF9Core.LOGGER.warn("Recipe type gtceu:{} not found", name);
                 continue;
             }
             SpaceMiningRecipeUI.install(type, name.equals(LIQUID_RECIPE_TYPE));
@@ -431,16 +432,16 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         return tier >= GTValues.ZPM ? tier - GTValues.ZPM : GTValues.MAX + GTValues.ZPM - tier;
     }
 
-    /** A tiered block of the elevator ({@code kubejs:<prefix><tier>}, from the startup script), null when there is none. */
+    /** A tiered block of the elevator ({@code af9:<prefix><tier>}, {@link AF9Blocks}), null when there is none. */
     private static Block tiered(String prefix, int tier) {
-        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("kubejs", prefix + tier));
+        Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(AF9Core.MOD_ID, prefix + tier));
         return block == null || block == Blocks.AIR ? null : block;
     }
 
     /** The tier of such a block (1 up), 0 for any other block. */
     private static int tierOf(BlockState state, String prefix) {
         ResourceLocation key = ForgeRegistries.BLOCKS.getKey(state.getBlock());
-        if (key == null || !key.getNamespace().equals("kubejs") || !key.getPath().startsWith(prefix)) return 0;
+        if (key == null || !key.getNamespace().equals(AF9Core.MOD_ID) || !key.getPath().startsWith(prefix)) return 0;
         try {
             return Integer.parseInt(key.getPath().substring(prefix.length()));
         } catch (NumberFormatException exception) {
@@ -482,18 +483,14 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     /** The Space Elevator Cable, with nothing but air above it up to the world's top (GTNH: it must see the sky). */
     public static TraceabilityPredicate cable() {
         return new TraceabilityPredicate(state -> {
-            Block cable = ForgeRegistries.BLOCKS.getValue(CABLE);
-            if (cable == null || cable == Blocks.AIR || !state.getBlockState().is(cable)) return false;
+            if (!state.getBlockState().is(AF9Blocks.SPACE_ELEVATOR_CABLE.get())) return false;
             if (!seesSky(state.getWorld(), state.getPos())) {
                 state.setError(new PatternStringError("af9.space_elevator.error.sky"));
                 return false;
             }
             return true;
-        }, () -> {
-            Block cable = ForgeRegistries.BLOCKS.getValue(CABLE);
-            return cable == null || cable == Blocks.AIR ? new BlockInfo[0] :
-                    new BlockInfo[] { BlockInfo.fromBlock(cable) };
-        }).addTooltips(Component.translatable("af9.space_elevator.error.sky"));
+        }, () -> new BlockInfo[] { BlockInfo.fromBlock(AF9Blocks.SPACE_ELEVATOR_CABLE.get()) })
+                .addTooltips(Component.translatable("af9.space_elevator.error.sky"));
     }
 
     /**
@@ -623,7 +620,7 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     // ************ Drone *************//
     //////////////////////////////////////
 
-    /** A Mining Drone ({@code kubejs:space_mining_drone_mk<n>}). */
+    /** A Mining Drone ({@code af9:space_mining_drone_mk<n>}). */
     public static boolean isDrone(ItemStack stack) {
         return droneTierOf(stack) > 0;
     }
@@ -632,7 +629,7 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     public static int droneTierOf(ItemStack stack) {
         if (stack.isEmpty()) return 0;
         ResourceLocation key = ForgeRegistries.ITEMS.getKey(stack.getItem());
-        if (key == null || !key.getNamespace().equals("kubejs") || !key.getPath().startsWith(DRONE)) return 0;
+        if (key == null || !key.getNamespace().equals(AF9Core.MOD_ID) || !key.getPath().startsWith(DRONE)) return 0;
         try {
             return Integer.parseInt(key.getPath().substring(DRONE.length()));
         } catch (NumberFormatException exception) {

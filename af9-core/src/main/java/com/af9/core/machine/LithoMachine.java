@@ -401,10 +401,9 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
      * outputs) and one broken wafer of the mode's substrate per broken print (a print is one blank wafer).
      */
     static GTRecipe withBroken(GTRecipe recipe, LithoMode mode, int prints, int brokenCount) {
-        Item brokenItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation("kubejs", mode.brokenWafer()));
+        Item brokenItem = ForgeRegistries.ITEMS.getValue(new ResourceLocation(AF9Core.MOD_ID, mode.brokenWafer()));
         if (brokenItem == null || brokenItem == Items.AIR) {
-            AF9Core.LOGGER.warn("Item kubejs:{} not found - is the AF9 KubeJS startup script loaded?",
-                    mode.brokenWafer());
+            AF9Core.LOGGER.warn("Item af9:{} not found", mode.brokenWafer());
             return recipe;
         }
         int kept = prints - brokenCount;
@@ -430,7 +429,7 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
         ItemStack[] items = ingredient.getItems();
         if (items.length == 0) return false;
         ResourceLocation id = ForgeRegistries.ITEMS.getKey(items[0].getItem());
-        return id != null && id.getNamespace().equals("kubejs") && id.getPath().startsWith("broken_") &&
+        return id != null && id.getNamespace().equals(AF9Core.MOD_ID) && id.getPath().startsWith("broken_") &&
                 id.getPath().endsWith("_wafer");
     }
 

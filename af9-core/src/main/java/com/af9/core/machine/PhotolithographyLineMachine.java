@@ -3,6 +3,7 @@ package com.af9.core.machine;
 import com.af9.core.AF9Core;
 import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
+import com.af9.core.registry.AF9Blocks;
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
@@ -84,8 +85,8 @@ public class PhotolithographyLineMachine extends LithoMachine {
     }
 
     private static final ResourceLocation PURPLE_LAMP = new ResourceLocation("gtceu", "purple_lamp");
-    private static final ResourceLocation KRF_LASER = new ResourceLocation("kubejs", "krf_excimer_laser");
-    private static final ResourceLocation ARF_LASER = new ResourceLocation("kubejs", "arf_excimer_laser");
+    private static final ResourceLocation KRF_LASER = AF9Blocks.KRF_EXCIMER_LASER.getId();
+    private static final ResourceLocation ARF_LASER = AF9Blocks.ARF_EXCIMER_LASER.getId();
 
     /**
      * Mk1, the Photolithography Line: 350, 200 and 100 nm. 3-5 tempered-glass lens slices; mercury lamp (GT's purple
@@ -298,7 +299,7 @@ public class PhotolithographyLineMachine extends LithoMachine {
         for (LithoMode mode : LithoMode.values()) {
             GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", mode.recipeTypeId()));
             if (type == null) {
-                AF9Core.LOGGER.warn("Recipe type gtceu:{} not found - is the AF9 KubeJS startup script loaded?",
+                AF9Core.LOGGER.warn("Recipe type gtceu:{} not found",
                         mode.recipeTypeId());
                 continue;
             }

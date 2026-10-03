@@ -9,6 +9,7 @@ import com.af9.core.machine.console.OrbitalConsoleWidget;
 import com.af9.core.machine.console.OrbitalStationUIWidget;
 import com.af9.core.machine.part.CoolantHatchPartMachine;
 import com.af9.core.network.AF9Network;
+import com.af9.core.registry.AF9Blocks;
 
 import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider;
 import com.gregtechceu.gtceu.api.capability.recipe.CWURecipeCapability;
@@ -151,7 +152,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
 
     /** The EUV Light Source item the 20 and 7 nm prints keep (not consumed). */
     @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
-    public static final ResourceLocation EUV_SOURCE = new ResourceLocation("kubejs", "euv_light_source");
+    public static final ResourceLocation EUV_SOURCE = AF9Blocks.EUV_LIGHT_SOURCE.getId();
 
     /**
      * The EUV Light Source slot of the station's screen: a recipe input (GT reads the controller's own handlers). No
@@ -190,11 +191,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return !stack.isEmpty() && EUV_SOURCE.equals(ForgeRegistries.ITEMS.getKey(stack.getItem()));
     }
 
-    /** kubejs:&lt;chip&gt;_reticle. */
+    /** af9:&lt;chip&gt;_reticle. */
     public static boolean isReticle(ItemStack stack) {
         if (stack.isEmpty()) return false;
         ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
-        return id != null && id.getNamespace().equals("kubejs") && id.getPath().endsWith("_reticle");
+        return id != null && id.getNamespace().equals(AF9Core.MOD_ID) && id.getPath().endsWith("_reticle");
     }
 
     /** The reticle a print names (its not-consumed input), or null. */

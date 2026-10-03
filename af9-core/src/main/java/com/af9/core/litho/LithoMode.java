@@ -89,7 +89,7 @@ public enum LithoMode {
     public static final int MULTI_PATTERNING_FACTOR = 2;
 
     public final String id;
-    /** Substrate id: the blank wafer (gtceu:/kubejs:&lt;substrate&gt;_wafer) and kubejs:broken_&lt;substrate&gt;_wafer. */
+    /** Substrate id: the blank wafer (gtceu:/af9:&lt;substrate&gt;_wafer) and af9:broken_&lt;substrate&gt;_wafer. */
     public final String substrate;
     public final int nodeNm;
     /** Voltage tier of the energy (or laser) hatches the mode needs. */
@@ -250,7 +250,7 @@ public enum LithoMode {
         return nodeNm * numericalAperture / wavelengthNm;
     }
 
-    /** kubejs:broken_&lt;substrate&gt;_wafer, what a failed print turns into. */
+    /** af9:broken_&lt;substrate&gt;_wafer, what a failed print turns into. */
     public String brokenWafer() {
         return "broken_" + substrate + "_wafer";
     }

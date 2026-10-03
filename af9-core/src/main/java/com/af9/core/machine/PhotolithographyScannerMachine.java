@@ -4,6 +4,7 @@ import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.ScannerConsoleWidget;
 import com.af9.core.machine.console.ScannerUIWidget;
+import com.af9.core.registry.AF9Blocks;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
@@ -37,7 +38,7 @@ public class PhotolithographyScannerMachine extends PhotolithographyLineMachine 
             PhotolithographyScannerMachine.class, PhotolithographyLineMachine.MANAGED_FIELD_HOLDER);
 
     /** The ArF excimer laser the 80 and 65 nm prints keep (not consumed). */
-    public static final ResourceLocation ARF_LASER = new ResourceLocation("kubejs", "arf_excimer_laser");
+    public static final ResourceLocation ARF_LASER = AF9Blocks.ARF_EXCIMER_LASER.getId();
 
     /**
      * The laser slot of the scanner's screen: a recipe input (GT reads the controller's own handlers). No pipe access

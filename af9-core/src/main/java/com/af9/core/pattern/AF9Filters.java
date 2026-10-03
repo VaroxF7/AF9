@@ -1,6 +1,6 @@
 package com.af9.core.pattern;
 
-import com.af9.core.AF9Core;
+import com.af9.core.registry.AF9Blocks;
 
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.block.IFilterType;
@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Comparator;
 import java.util.List;
@@ -24,7 +23,7 @@ import java.util.function.Supplier;
 /**
  * Cleanroom filters of the AF9 machines.
  * <ul>
- * <li>The Plascrete Filter Casing ({@code kubejs:plascrete_filter_casing}, an MV block from
+ * <li>The Plascrete Filter Casing ({@code af9:plascrete_filter_casing}, an MV block from
  * kubejs/startup_scripts/gtceu/photolithography.js) is a GT cleanroom filter like GT's Filter Casing (ISO 5): it
  * works in GT's Cleanroom and in every filter roof.</li>
  * <li>{@link #cleanroomFilters()} is GT's filter predicate with a fixed order: the structure preview and the
@@ -34,9 +33,6 @@ import java.util.function.Supplier;
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
 public final class AF9Filters {
-
-    public static final ResourceLocation PLASCRETE_FILTER_ID = new ResourceLocation("kubejs",
-            "plascrete_filter_casing");
 
     private AF9Filters() {}
 
@@ -68,14 +64,9 @@ public final class AF9Filters {
         }
     }
 
-    /** Common setup, after KubeJS registered the block. */
+    /** Common setup: the block is registered by then. */
     public static void register() {
-        if (!ForgeRegistries.BLOCKS.containsKey(PLASCRETE_FILTER_ID)) {
-            AF9Core.LOGGER.warn("Block {} not found - is the AF9 KubeJS startup script loaded?", PLASCRETE_FILTER_ID);
-            return;
-        }
-        Block block = ForgeRegistries.BLOCKS.getValue(PLASCRETE_FILTER_ID);
-        GTCEuAPI.CLEANROOM_FILTERS.put(FilterType.PLASCRETE, () -> block);
+        GTCEuAPI.CLEANROOM_FILTERS.put(FilterType.PLASCRETE, AF9Blocks.PLASCRETE_FILTER_CASING);
     }
 
     /** Any registered cleanroom filter, all of one type (like GT's); candidates in the order described above. */

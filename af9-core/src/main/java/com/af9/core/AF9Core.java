@@ -13,6 +13,8 @@ import com.af9.core.machine.PhotolithographyLineMachine;
 import com.af9.core.machine.VoidMinerMachine;
 import com.af9.core.network.AF9Network;
 import com.af9.core.pattern.AF9Filters;
+import com.af9.core.registry.AF9Blocks;
+import com.af9.core.registry.AF9Items;
 import com.af9.core.space.AF9Space;
 
 import net.minecraftforge.api.distmarker.Dist;
@@ -43,6 +45,9 @@ public class AF9Core {
     public AF9Core() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
         AF9Sounds.register(FMLJavaModLoadingContext.get().getModEventBus());
+        // the pack's plain blocks and items
+        AF9Blocks.register(FMLJavaModLoadingContext.get().getModEventBus());
+        AF9Items.register(FMLJavaModLoadingContext.get().getModEventBus());
         AF9Compute.register(FMLJavaModLoadingContext.get().getModEventBus());
         // the Asteroid Field's feature
         AF9Space.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -63,7 +68,7 @@ public class AF9Core {
         // Void Miner, rebuilt: GT's controller block and structure stay, AF9 takes over the definition
         event.enqueueWork(VoidMinerMachine::install);
         event.enqueueWork(VoidMinerMachine::registerRecipeInfo);
-        // the KubeJS block exists now; structures are only checked later
+        // the blocks exist now; structures are only checked later
         event.enqueueWork(AF9Filters::register);
         // the orbital station's magnetic field sets gravity through Ad Astra
         event.enqueueWork(AdAstraCompat::init);

@@ -37,8 +37,8 @@ import java.util.Map;
 /**
  * Wafers and chips belong in a clean room: when a player takes a wafer (blank, printed or derived) or a chip into
  * their inventory, holds it on the cursor or puts it in the inventory crafting grid, it turns into its contaminated
- * version: the contaminated wafer of its substrate (kubejs:contaminated_&lt;substrate&gt;_wafer), or the contaminated
- * chip (kubejs:contaminated_&lt;chip&gt;, e.g. kubejs:contaminated_ram_chip).
+ * version: the contaminated wafer of its substrate (af9:contaminated_&lt;substrate&gt;_wafer), or the contaminated
+ * chip (af9:contaminated_&lt;chip&gt;, e.g. af9:contaminated_ram_chip).
  * <p>
  * Protected are players who wear gloves (an item of {@code #af9:wafer_gloves}, GT's Rubber Gloves or Hazmat
  * chestpiece, in an armor slot or a Curios slot) or who stand inside a formed, clean GT Cleanroom. Spectators are
@@ -144,26 +144,24 @@ public final class WaferContamination {
 
     private static Item contaminatedWafer(String substrate) {
         return CONTAMINATED.computeIfAbsent(substrate, key -> {
-            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation("kubejs",
+            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(AF9Core.MOD_ID,
                     "contaminated_" + key + "_wafer"));
             if (item == null || item == Items.AIR) {
-                AF9Core.LOGGER.warn("Item kubejs:contaminated_{}_wafer not found - is the AF9 KubeJS startup " +
-                        "script loaded?", key);
+                AF9Core.LOGGER.warn("Item af9:contaminated_{}_wafer not found", key);
                 return null;
             }
             return item;
         });
     }
 
-    /** kubejs:contaminated_&lt;chip's registry path&gt;. */
+    /** af9:contaminated_&lt;chip's registry path&gt;. */
     private static Item contaminatedChip(Item chip) {
         return CONTAMINATED_CHIPS.computeIfAbsent(chip, key -> {
             ResourceLocation id = ForgeRegistries.ITEMS.getKey(key);
-            Item item = id == null ? null :
-                    ForgeRegistries.ITEMS.getValue(new ResourceLocation("kubejs", "contaminated_" + id.getPath()));
+            Item item = id == null ? null : ForgeRegistries.ITEMS.getValue(
+                    new ResourceLocation(AF9Core.MOD_ID, "contaminated_" + id.getPath()));
             if (item == null || item == Items.AIR) {
-                AF9Core.LOGGER.warn("No contaminated item kubejs:contaminated_{} - is the AF9 KubeJS startup " +
-                        "script loaded?", id == null ? "?" : id.getPath());
+                AF9Core.LOGGER.warn("No contaminated item af9:contaminated_{}", id == null ? "?" : id.getPath());
                 return null;
             }
             return item;
