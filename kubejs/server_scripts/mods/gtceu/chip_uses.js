@@ -13,7 +13,7 @@ ServerEvents.recipes(event => {
     // ---- RF Transceiver: the radio of every wireless link ----
     // AE2's Wireless Receiver, the part of the Wireless Access Point and of every wireless terminal
     event.remove({ id: 'ae2:network/wireless_part' })
-    event.shaped('ae2:wireless_receiver', ['F', 'IQI', 'IRI'], {
+    event.shaped('ae2:wireless_receiver', [' F ', 'IQI', 'IRI'], {
         F: 'ae2:fluix_pearl', I: '#forge:ingots/iron', Q: 'ae2:quartz_fiber', R: 'kubejs:rf_transceiver_chip'
     }).id('af9:ae2/wireless_receiver')
 
