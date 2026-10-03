@@ -682,11 +682,24 @@ const sePattern = (definition, slices) => {
     // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)). One set of them for
     // the whole tower, so the maximums count across it. GTNH's places: the energy in the bottom centre casings, the buses
     // and the fluid hatches there or in the module slots
-    const power = Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 1)
-        .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0))
-    const buses = Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 2)
-        .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
-        .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(8, 2))
+    const energy = Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2)
+    const laser = Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0)
+    const itemsIn = Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1)
+    const fluidsIn = Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 2)
+    const itemsOut = Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(12, 2)
+    // what the preview shows and the terminal builds with: ZPM parts, not GT's first ones (ULV, which hold nothing an
+    // expedition needs)
+    $SpaceElevator.zpmFirst(energy)
+    $SpaceElevator.zpmFirst(laser)
+    $SpaceElevator.zpmFirst(itemsIn)
+    $SpaceElevator.zpmFirst(fluidsIn)
+    $SpaceElevator.zpmFirst(itemsOut)
+    // The order matters to the terminal: it builds a place with the first kind that is not full, and counts the place for
+    // every kind that is not full. So each kind gets its maximum less that of the kind before it: 4 energy hatches, and
+    // 2 input buses, 6 fluid hatches and 4 output buses (with the output buses' maximum no higher than the fluid hatches'
+    // it built none, and the tower could not run)
+    const power = energy.or(laser)
+    const buses = itemsIn.or(fluidsIn).or(itemsOut)
     return pattern
         .where('S', Predicates.controller(Predicates.blocks(definition.get())))
         .where('A', Predicates.blocks('kubejs:ultra_high_strength_concrete_floor'))

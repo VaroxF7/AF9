@@ -88,8 +88,13 @@ Rules of the structure (GTNH's):
   until it is gone (the screen says so).
 * **Upright only**: the controller faces sideways, the tower cannot be turned on its side or flipped.
 * **Hatches** have maxima only: 4 energy and 2 laser hatches in the **bottom centre casings** (72 places: the floor under the column
-  and three layers round its foot); 8 fluid input hatches, 2 item input and 8 item output buses there or in the **module slots**
+  and three layers round its foot); 8 fluid input hatches, 2 item input and 12 item output buses there or in the **module slots**
   (12 slots round the column, three a side: the module's own place and 9 places round it). There is no maintenance hatch (as in GTNH).
+  Any tier is taken, but the structure preview shows **ZPM parts** and the terminal builds with them
+  (`SpaceElevatorMachine.zpmFirst`: GT would take its first ones, ULV, which hold nothing an expedition needs). A tower the terminal
+  builds in creative has 4 energy hatches, 2 input buses, 6 fluid hatches and 4 output buses: GT's terminal builds a place with the
+  first kind of part that is not full and counts the place for every kind that is not full, so the kinds are listed with rising
+  maxima (with 8 output buses it built 8 fluid hatches and no bus at all, and such a tower cannot run).
 * **A module slot** holds a Mining Module of any tier, or Base Casing (`SpaceElevatorMachine.modules()` notes the modules down; what
   they do is section 1).
 

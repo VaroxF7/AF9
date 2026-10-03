@@ -2,6 +2,8 @@ package com.af9.core.elevator;
 
 import com.af9.core.common.IPowerGated;
 
+import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.block.MetaMachineBlock;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
@@ -14,6 +16,7 @@ import com.gregtechceu.gtceu.api.pattern.MultiblockShapeInfo;
 import com.gregtechceu.gtceu.api.pattern.MultiblockWorldSavedData;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
 import com.gregtechceu.gtceu.api.pattern.error.PatternStringError;
+import com.gregtechceu.gtceu.api.pattern.predicates.SimplePredicate;
 import com.gregtechceu.gtceu.api.pattern.util.PatternMatchContext;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
@@ -53,8 +56,10 @@ import it.unimi.dsi.fastutil.ints.IntList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 /**
@@ -290,6 +295,33 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
             data.removeMapping(getMultiblockState());
             data.addAsyncLogic(this);
         }
+    }
+
+    /**
+     * Puts the ZPM parts first among a predicate's candidates, then the better ones, then the lesser. The structure
+     * preview shows a predicate's first block and the terminal builds with it, and GT lists parts from ULV up: a tower
+     * built that way had ULV hatches (8 buckets, 16 EU/t), which hold nothing an expedition needs. What the predicate
+     * accepts stays the same.
+     */
+    public static TraceabilityPredicate zpmFirst(TraceabilityPredicate predicate) {
+        for (List<SimplePredicate> kind : List.of(predicate.limited, predicate.common)) {
+            for (SimplePredicate simple : kind) {
+                Supplier<BlockInfo[]> candidates = simple.candidates;
+                if (candidates == null) continue;
+                simple.candidates = () -> {
+                    BlockInfo[] sorted = candidates.get().clone();
+                    Arrays.sort(sorted, Comparator.comparingInt(info -> rank(info.getBlockState().getBlock())));
+                    return sorted;
+                };
+            }
+        }
+        return predicate;
+    }
+
+    /** ZPM first, then up, then down from LuV: a part's place among the candidates. */
+    private static int rank(Block block) {
+        int tier = block instanceof MetaMachineBlock machine ? machine.getDefinition().getTier() : GTValues.ZPM;
+        return tier >= GTValues.ZPM ? tier - GTValues.ZPM : GTValues.MAX + GTValues.ZPM - tier;
     }
 
     /** A tiered block of the elevator ({@code kubejs:<prefix><tier>}, from the startup script), null when there is none. */
