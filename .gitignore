@@ -57,3 +57,4 @@ keys.txt
 /kubejs/CustomPackSettings.json
 kubejs/assets/ponderjs_generated/lang/en_us.json
 TrashSlotSaveState.json
+__pycache__/
