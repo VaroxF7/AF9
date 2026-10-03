@@ -184,7 +184,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "kubejs:asic_chip",
+          "name": "af9:asic_chip",
           "weight": 4,
           "functions": [
             {
@@ -199,7 +199,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "kubejs:mram_chip",
+          "name": "af9:mram_chip",
           "weight": 3,
           "functions": [
             {
@@ -214,7 +214,7 @@
         },
         {
           "type": "minecraft:item",
-          "name": "kubejs:vpu_chip",
+          "name": "af9:vpu_chip",
           "weight": 1
         }
       ],

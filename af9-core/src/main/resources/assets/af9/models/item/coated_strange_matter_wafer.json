@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "af9:item/wafers/coated_strange_matter_wafer"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "af9:block/resonant_endion_coil_block"
+    },
+    "active=true": {
+      "model": "af9:block/resonant_endion_coil_block_active"
+    }
+  }
+}

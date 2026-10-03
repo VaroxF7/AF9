@@ -94,7 +94,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "kubejs:asic_chip",
+          "name": "af9:asic_chip",
           "weight": 3
         },
         {
