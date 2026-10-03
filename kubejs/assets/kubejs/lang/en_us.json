@@ -8255,19 +8255,4 @@
 	"af9.quest.pgm.final.2": "&7Nothing in the pack's own progression changed: every recipe that wants one of these metals still takes it the way it did.",
 	"af9.quest.pgm.chapter.title": "The Platinum Line",
 	"af9.quest.pgm.chapter.subtitle": "From sulfide ore to platinum, palladium, gold, rhodium, ruthenium, iridium and osmium"
-,
-	"af9.quest.asc.chapter.subtitle": "Renewable ores from HV on",
-	"af9.quest.asc.intro.title": "Simulating Ore Country",
-	"af9.quest.asc.intro.subtitle": "Seven areas, one chamber",
-	"af9.quest.asc.intro.1": "The &6Area Simulation Chamber&r grows &eraw ore&r on &fAnode Rods&r out of three gases: &bHydrogen&r, &8Carbon Dioxide&r and &dLithium Gas&r. It is the pack's renewable ore source from &6HV&r on, long before the Space Elevator.",
-	"af9.quest.asc.intro.2": "Pick the area with an &fArea Data&r (kept, not used up) and the ore with a &bprogrammed circuit&r (1 to 8 in the area's list), feed rods and gases, and take the ore. Harder areas want more of everything and a better chamber.",
-	"af9.quest.asc.chamber.title": "The Chamber",
-	"af9.quest.asc.chamber.subtitle": "HV to LuV",
-	"af9.quest.asc.chamber.1": "An &fElectrolyzer&r of the tier, pumps, filters, tier circuits and &fAnode Rods&r (assembler: copper and carbon fibre plate). The &fArea Data&r for an area is a data stick with the area's plates, at the area's voltage. The chamber perfect-overclocks and has no parallel hatch.",
-	"af9.quest.asc.iron.title": "First Simulation",
-	"af9.quest.asc.iron.subtitle": "Overworld iron",
-	"af9.quest.asc.iron.1": "&fArea Data: Overworld&r (kept) and circuit &a1&r with 1 rod, hydrogen, carbon dioxide and lithium gas: &f8 raw iron&r in about 3 minutes. Every ore has its own circuit in the same area.",
-	"af9.quest.asc.asteroid.title": "Asteroid Country",
-	"af9.quest.asc.asteroid.subtitle": "Brannerite and oil",
-	"af9.quest.asc.asteroid.1": "&fArea Data: Asteroids&r (kept) and the ore's circuit on a &dLuV&r chamber grows the asteroid ores: &6Brannerite&r, magnetite, pentlandite, cooperite, naquadah, platinum and &eOil Regolith&r for the oil chain."
 }
