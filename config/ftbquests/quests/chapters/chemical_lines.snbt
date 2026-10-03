@@ -4,7 +4,7 @@
 	filename: "chemical_lines"
 	group: "1DA67E79B40AB130"
 	icon: "gtceu:mv_chemical_reactor"
-	id: "C3A1B2C3D4E5F607"
+	id: "595B23C7BAFC46F3"
 	order_index: 2
 	progression_mode: "flexible"
 	quest_links: [ ]
@@ -18,9 +18,9 @@
 				"{af9.quest.chem.intro.3}"
 			]
 			icon: "gtceu:mv_chemical_reactor"
-			id: "C3A1B2C3D4E5F601"
+			id: "53436C602A427DBE"
 			rewards: [{
-				id: "C3A1B2C3D4E5F602"
+				id: "773F3C87CC13C25A"
 				type: "xp"
 				xp: 10
 			}]
@@ -29,7 +29,7 @@
 			subtitle: "{af9.quest.chem.intro.subtitle}"
 			tasks: [
 				{
-					id: "C3A1B2C3D4E5F603"
+					id: "2F1DAFBBA9DE06DF"
 					type: "checkmark"
 				}
 			]
@@ -38,450 +38,450 @@
 			y: 3.0d
 		}
 		{
-			dependencies: ["C3A1B2C3D4E5F601"]
+			dependencies: ["53436C602A427DBE"]
 			description: ["{af9.quest.chem.siemens.1}" "" "{af9.quest.chem.siemens.2}" "" "{af9.quest.chem.siemens.3}"]
 			icon: "gtceu:polysilicon_ingot"
-			id: "A1657F1FF1E1F2F0"
-			rewards: [{ id: "A136FB35B5C729C8" type: "xp" xp: 25 }]
+			id: "2580A0F9326E2BA5"
+			rewards: [{ id: "4A89E22941665EB4" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.siemens.subtitle}"
-			tasks: [{ id: "A15AFA3FEFCC1264" item: "gtceu:polysilicon_ingot" type: "item" } { id: "A116AD4D79B0FDC2" item: "gtceu:electronic_grade_silicon_dust" type: "item" }]
+			tasks: [{ id: "0D8C54EEED3B8B24" item: "gtceu:polysilicon_ingot" type: "item" } { id: "7095621F6C980245" item: "gtceu:electronic_grade_silicon_dust" type: "item" }]
 			title: "{af9.quest.chem.siemens.title}"
 			x: 0.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["A1657F1FF1E1F2F0"]
+			dependencies: ["2580A0F9326E2BA5"]
 			description: ["{af9.quest.chem.fluoro.1}" "" "{af9.quest.chem.fluoro.2}" "" "{af9.quest.chem.fluoro.3}"]
 			icon: "gtceu:potassium_fluoride_dust"
-			id: "A1088CF6BE8D4E1F"
-			rewards: [{ id: "A1718F36F7A32CD0" type: "xp" xp: 25 }]
+			id: "14E4E679FA5EBB80"
+			rewards: [{ id: "039F21224D4B4060" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.fluoro.subtitle}"
-			tasks: [{ amount: 1000L fluid: "gtceu:hydrofluoric_acid" id: "A1F455FC7E93AEE1" type: "fluid" } { amount: 1000L fluid: "gtceu:trifluoromethanesulfonic_acid" id: "A1AAA55F0D963E22" type: "fluid" }]
+			tasks: [{ amount: 1000L fluid: "gtceu:hydrofluoric_acid" id: "0E02B983DFA4EEB7" type: "fluid" } { amount: 1000L fluid: "gtceu:trifluoromethanesulfonic_acid" id: "3C74F005D5F713A0" type: "fluid" }]
 			title: "{af9.quest.chem.fluoro.title}"
 			x: 3.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["A1088CF6BE8D4E1F"]
+			dependencies: ["14E4E679FA5EBB80"]
 			description: ["{af9.quest.chem.air.1}" "" "{af9.quest.chem.air.2}" "" "{af9.quest.chem.air.3}"]
 			icon: "af9:arf_excimer_laser"
-			id: "A157C8D108F7E182"
-			rewards: [{ id: "A123764879F2E09C" type: "xp" xp: 25 }]
+			id: "3E2B60BE069179F6"
+			rewards: [{ id: "28435A953BC3CE62" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.air.subtitle}"
-			tasks: [{ amount: 1000L fluid: "gtceu:argon" id: "A14D60F3908D7E0B" type: "fluid" } { amount: 1000L fluid: "gtceu:krf_excimer_gas" id: "A11D4ABAC1A1613A" type: "fluid" }]
+			tasks: [{ amount: 1000L fluid: "gtceu:argon" id: "55EF827AB69F98E5" type: "fluid" } { amount: 1000L fluid: "gtceu:krf_excimer_gas" id: "1AB1432C0E43839A" type: "fluid" }]
 			title: "{af9.quest.chem.air.title}"
 			x: 6.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["A157C8D108F7E182"]
+			dependencies: ["3E2B60BE069179F6"]
 			description: ["{af9.quest.chem.krf.1}" "" "{af9.quest.chem.krf.2}"]
 			icon: "gtceu:tboc_polyhydroxystyrene_dust"
-			id: "A1B7A64C61F057B2"
-			rewards: [{ id: "A1B08653CE9D08F3" type: "xp" xp: 25 }]
+			id: "378A9C64E6B6E90E"
+			rewards: [{ id: "7A07B94AD4566B02" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.krf.subtitle}"
-			tasks: [{ id: "A1FFB7E4B0897F82" item: "gtceu:tboc_polyhydroxystyrene_dust" type: "item" } { amount: 1000L fluid: "gtceu:krf_photoresist" id: "A1C7CB8B3AFDD27E" type: "fluid" }]
+			tasks: [{ id: "4CA205E02B77E442" item: "gtceu:tboc_polyhydroxystyrene_dust" type: "item" } { amount: 1000L fluid: "gtceu:krf_photoresist" id: "7C8CCAC72B59465C" type: "fluid" }]
 			title: "{af9.quest.chem.krf.title}"
 			x: 9.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["A1B7A64C61F057B2"]
+			dependencies: ["378A9C64E6B6E90E"]
 			description: ["{af9.quest.chem.arf.1}" "" "{af9.quest.chem.arf.2}" "" "{af9.quest.chem.arf.3}"]
 			icon: "gtceu:methacrylate_resin_dust"
-			id: "A11F687EDB7F4703"
-			rewards: [{ id: "A1A86A91BB1945C8" type: "xp" xp: 25 }]
+			id: "35A9CDBD4639D09C"
+			rewards: [{ id: "4811D64D999E85F7" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.arf.subtitle}"
-			tasks: [{ count: 2L id: "A13D858F9466D4B1" item: "gtceu:methacrylate_resin_dust" type: "item" } { amount: 1000L fluid: "gtceu:arf_photoresist" id: "A110BBFB0780ADBF" type: "fluid" } { amount: 1000L fluid: "gtceu:ultrapure_water" id: "A1A655F22730E07C" type: "fluid" }]
+			tasks: [{ count: 2L id: "321949724761461C" item: "gtceu:methacrylate_resin_dust" type: "item" } { amount: 1000L fluid: "gtceu:arf_photoresist" id: "6990DD9627F81198" type: "fluid" } { amount: 1000L fluid: "gtceu:ultrapure_water" id: "60B718011D77D301" type: "fluid" }]
 			title: "{af9.quest.chem.arf.title}"
 			x: 12.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["A11F687EDB7F4703"]
+			dependencies: ["35A9CDBD4639D09C"]
 			description: ["{af9.quest.chem.xcda.1}" "" "{af9.quest.chem.xcda.2}"]
 			icon: "gtceu:hopcalite_dust"
-			id: "A16CE78C1BB44A52"
-			rewards: [{ id: "A1D8559CF4330981" type: "xp" xp: 25 }]
+			id: "39C5FA63BF24FE74"
+			rewards: [{ id: "26613747C1D959BC" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.xcda.subtitle}"
-			tasks: [{ id: "A170E77227112614" item: "af9:molecular_sieve" type: "item" } { amount: 1000L fluid: "gtceu:extreme_clean_dry_air" id: "A12975E9CA09182F" type: "fluid" }]
+			tasks: [{ id: "24FDCB39A425DFF0" item: "af9:molecular_sieve" type: "item" } { amount: 1000L fluid: "gtceu:extreme_clean_dry_air" id: "61A2CC5475E039A5" type: "fluid" }]
 			title: "{af9.quest.chem.xcda.title}"
 			x: 15.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["A16CE78C1BB44A52"]
+			dependencies: ["39C5FA63BF24FE74"]
 			description: ["{af9.quest.chem.iline.1}" "" "{af9.quest.chem.iline.2}" "" "{af9.quest.chem.iline.3}"]
 			icon: "gtceu:diazonaphthoquinone_dust"
-			id: "A10F0D2CF1DBEAC7"
-			rewards: [{ id: "A1184E8102F199B3" type: "xp" xp: 25 }]
+			id: "660492297AF6029C"
+			rewards: [{ id: "115D678E08AF8165" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.iline.subtitle}"
-			tasks: [{ amount: 1000L fluid: "gtceu:hmds_vapor" id: "A117771643E3BDB3" type: "fluid" } { amount: 1000L fluid: "gtceu:tmah_developer" id: "A1A6B2D0BAFBAC9F" type: "fluid" }]
+			tasks: [{ amount: 1000L fluid: "gtceu:hmds_vapor" id: "11C4BA0CE425600A" type: "fluid" } { amount: 1000L fluid: "gtceu:tmah_developer" id: "37569782D39C4525" type: "fluid" }]
 			title: "{af9.quest.chem.iline.title}"
 			x: 18.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["A10F0D2CF1DBEAC7"]
+			dependencies: ["660492297AF6029C"]
 			description: ["{af9.quest.chem.euv.1}" "" "{af9.quest.chem.euv.2}"]
 			icon: "af9:dry_resist_cartridge"
-			id: "A141A8CFC44576E2"
-			rewards: [{ id: "A1B8B5E44336C72B" type: "xp" xp: 25 }]
+			id: "31E4B7E30D6A75A7"
+			rewards: [{ id: "61B9A2316BF076EC" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.euv.subtitle}"
-			tasks: [{ amount: 1000L fluid: "gtceu:euv_photoresist" id: "A1646F270A8616A2" type: "fluid" } { id: "A147E10C4CCA02C3" item: "af9:dry_resist_cartridge" type: "item" }]
+			tasks: [{ amount: 1000L fluid: "gtceu:euv_photoresist" id: "5ECEADFE83745FE3" type: "fluid" } { id: "15E330640C0132A8" item: "af9:dry_resist_cartridge" type: "item" }]
 			title: "{af9.quest.chem.euv.title}"
 			x: 21.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["A141A8CFC44576E2"]
+			dependencies: ["31E4B7E30D6A75A7"]
 			description: ["{af9.quest.chem.boule.1}" "" "{af9.quest.chem.boule.2}" "" "{af9.quest.chem.boule.3}"]
 			icon: "af9:fused_quartz_crucible"
-			id: "A1FDC193D50EDF4E"
-			rewards: [{ id: "A10C367EA4CFED73" type: "xp" xp: 25 }]
+			id: "3F61DBF5DBE741A6"
+			rewards: [{ id: "3EACD56EBEDB6066" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.boule.subtitle}"
-			tasks: [{ id: "A17FCBB161E0D373" item: "af9:silicon_melt_charge" type: "item" } { id: "A1F6B780A3C1B9CD" item: "gtceu:silicon_boule" type: "item" }]
+			tasks: [{ id: "2B090920542037E5" item: "af9:silicon_melt_charge" type: "item" } { id: "5F2F86E6B64F60DC" item: "gtceu:silicon_boule" type: "item" }]
 			title: "{af9.quest.chem.boule.title}"
 			x: 24.0d
 			y: 0.0d
 		}
 		{
-			dependencies: ["A1FDC193D50EDF4E"]
+			dependencies: ["3F61DBF5DBE741A6"]
 			description: ["{af9.quest.chem.cryo.1}" "" "{af9.quest.chem.cryo.2}"]
 			icon: "gtceu:supercooling_cryostat"
-			id: "A1284EDB98CC5035"
-			rewards: [{ id: "A16FF2B6D78D9E68" type: "xp" xp: 25 }]
+			id: "582BD25EEA773A28"
+			rewards: [{ id: "61F8143009EB6620" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.cryo.subtitle}"
-			tasks: [{ id: "A135E9E5CB50AEFC" item: "gtceu:supercooling_cryostat" type: "item" } { amount: 1000L fluid: "gtceu:supercooled_argon" id: "A1A176D10E92ABAC" type: "fluid" }]
+			tasks: [{ id: "72A32B34DCEE3948" item: "gtceu:supercooling_cryostat" type: "item" } { amount: 1000L fluid: "gtceu:supercooled_argon" id: "2AD04016955B7FE0" type: "fluid" }]
 			title: "{af9.quest.chem.cryo.title}"
 			x: 27.0d
 			y: 3.0d
 		}
 		{
-			dependencies: ["A1284EDB98CC5035"]
+			dependencies: ["582BD25EEA773A28"]
 			description: ["{af9.quest.chem.accel.1}" "" "{af9.quest.chem.accel.2}" "" "{af9.quest.chem.accel.3}"]
 			icon: "gtceu:particle_accelerator"
-			id: "A138C7CC082F2A33"
-			rewards: [{ id: "A187CA67B13C959D" type: "xp" xp: 25 }]
+			id: "63651CE18E890BA2"
+			rewards: [{ id: "09D85734E207B400" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.accel.subtitle}"
-			tasks: [{ id: "A1264718CF2CC7EA" item: "gtceu:particle_accelerator" type: "item" } { id: "A1F5CDF6B87968F0" item: "af9:qgp_trap" type: "item" }]
+			tasks: [{ id: "514200CB7366B191" item: "gtceu:particle_accelerator" type: "item" } { id: "35A50F75CF1EAAF4" item: "af9:qgp_trap" type: "item" }]
 			title: "{af9.quest.chem.accel.title}"
 			x: 30.0d
 			y: 3.0d
 		}
 		{
-			dependencies: ["A138C7CC082F2A33"]
+			dependencies: ["63651CE18E890BA2"]
 			description: ["{af9.quest.chem.zircon.1}" "" "{af9.quest.chem.zircon.2}"]
 			icon: "gtceu:zircon_dust"
-			id: "A1357EEF2FF589BE"
-			rewards: [{ id: "A1B8BA13B875BEDD" type: "xp" xp: 25 }]
+			id: "74D192C27B78563B"
+			rewards: [{ id: "0EFFEFFB1647AB8E" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.zircon.subtitle}"
-			tasks: [{ amount: 1000L fluid: "gtceu:zirconium_tetrachloride" id: "A1008DC4A92D9398" type: "fluid" } { amount: 1000L fluid: "gtceu:hafnium_tetrachloride" id: "A10A37BB1D3F5153" type: "fluid" }]
+			tasks: [{ amount: 1000L fluid: "gtceu:zirconium_tetrachloride" id: "2FDA689B4B4EEB74" type: "fluid" } { amount: 1000L fluid: "gtceu:hafnium_tetrachloride" id: "00782B86985D6706" type: "fluid" }]
 			title: "{af9.quest.chem.zircon.title}"
 			x: 33.0d
 			y: 3.0d
 		}
 		{
-			dependencies: ["A1357EEF2FF589BE"]
+			dependencies: ["74D192C27B78563B"]
 			description: ["{af9.quest.chem.alloys.1}" "" "{af9.quest.chem.alloys.2}"]
 			icon: "gtceu:kovar_dust"
-			id: "A1177E2209A53575"
-			rewards: [{ id: "A150E85375EB2489" type: "xp" xp: 25 }]
+			id: "5B6397104C6D1A4C"
+			rewards: [{ id: "5181600C2497B8AD" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.alloys.subtitle}"
-			tasks: [{ id: "A16ADD67BB98EB59" item: "gtceu:aluminium_silicon_dust" type: "item" } { id: "A10088D9B5062476" item: "gtceu:platinum_iridium_dust" type: "item" }]
+			tasks: [{ id: "34D33E57B3D3F6ED" item: "gtceu:aluminium_silicon_dust" type: "item" } { id: "4A1742272FCAE233" item: "gtceu:platinum_iridium_dust" type: "item" }]
 			title: "{af9.quest.chem.alloys.title}"
 			x: 36.0d
 			y: 3.0d
 		}
 		{
-			dependencies: ["A1177E2209A53575"]
+			dependencies: ["5B6397104C6D1A4C"]
 			description: ["{af9.quest.chem.lithochem.1}" "" "{af9.quest.chem.lithochem.2}" "" "{af9.quest.chem.lithochem.3}"]
 			icon: "gtceu:nitronaphthalene_dust"
-			id: "A1D4A04CC967041A"
-			rewards: [{ id: "A117678792B4E140" type: "xp" xp: 25 }]
+			id: "63A242835DF886FE"
+			rewards: [{ id: "67F699078D8E5117" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.lithochem.subtitle}"
-			tasks: [{ amount: 1000L fluid: "gtceu:sc1_solution" id: "A14F85D4A0CA7A8C" type: "fluid" } { amount: 1000L fluid: "gtceu:etch_plasma_gas" id: "A105F27C50E6E1F6" type: "fluid" }]
+			tasks: [{ amount: 1000L fluid: "gtceu:sc1_solution" id: "64EE8898F2CDEFE9" type: "fluid" } { amount: 1000L fluid: "gtceu:etch_plasma_gas" id: "2BCED51BF0E08D95" type: "fluid" }]
 			title: "{af9.quest.chem.lithochem.title}"
 			x: 39.0d
 			y: 3.0d
 		}
 		{
-			dependencies: ["A1D4A04CC967041A"]
+			dependencies: ["63A242835DF886FE"]
 			description: ["{af9.quest.chem.layers.1}" "" "{af9.quest.chem.layers.2}"]
 			icon: "gtceu:gst_alloy_dust"
-			id: "A1D762A2CBB22973"
-			rewards: [{ id: "A136DD3B12FFB920" type: "xp" xp: 25 }]
+			id: "51EE4F27CD278C46"
+			rewards: [{ id: "3FCF86C6008CEB94" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.layers.subtitle}"
-			tasks: [{ id: "A1B12436A2729F26" item: "gtceu:aluminium_nitride_dust" type: "item" } { id: "A1BAE93E117E622E" item: "gtceu:silicon_nitride_dust" type: "item" }]
+			tasks: [{ id: "1CDE6F28C51A2463" item: "gtceu:aluminium_nitride_dust" type: "item" } { id: "5C2144B2193608F3" item: "gtceu:silicon_nitride_dust" type: "item" }]
 			title: "{af9.quest.chem.layers.title}"
 			x: 42.0d
 			y: 3.0d
 		}
 		{
-			dependencies: ["A1D762A2CBB22973"]
+			dependencies: ["51EE4F27CD278C46"]
 			description: ["{af9.quest.chem.print.1}" "" "{af9.quest.chem.print.2}"]
 			icon: "gtceu:photolithography_line"
-			id: "A1B63DD147506CE0"
-			rewards: [{ id: "A15ADAA81D6FDC8F" type: "xp" xp: 50 }]
+			id: "53609151C11F9046"
+			rewards: [{ id: "40FBCCC4700ECC60" type: "xp" xp: 50 }]
 			shape: "circle"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.print.subtitle}"
-			tasks: [{ id: "A13D61A52AC83286" type: "checkmark" }]
+			tasks: [{ id: "25648791CB542560" type: "checkmark" }]
 			title: "{af9.quest.chem.print.title}"
 			x: 45.0d
 			y: 3.0d
 		}
 		{
-			dependencies: ["A1B63DD147506CE0"]
+			dependencies: ["53609151C11F9046"]
 			description: ["{af9.quest.chem.pgm.1}" "" "{af9.quest.chem.pgm.2}"]
 			icon: "gtceu:platinum_dust"
-			id: "A1C4C1F0B1A1C80E"
-			rewards: [{ id: "A1A0250ADF222457" type: "xp" xp: 50 }]
+			id: "3D4F245D5ED93523"
+			rewards: [{ id: "7BA125EAD7CF4F86" type: "xp" xp: 50 }]
 			shape: "circle"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.pgm.subtitle}"
-			tasks: [{ id: "A14A6B13B61632DC" type: "checkmark" }]
+			tasks: [{ id: "207B34E005BE5FC3" type: "checkmark" }]
 			title: "{af9.quest.chem.pgm.title}"
 			x: 48.0d
 			y: 3.0d
 		}
 		{
-			dependencies: ["A1C4C1F0B1A1C80E"]
+			dependencies: ["3D4F245D5ED93523"]
 			description: ["{af9.quest.chem.oil.1}" "" "{af9.quest.chem.oil.2}"]
 			icon: "af9:fx_fuel_rod"
-			id: "A1C328098CB08EB1"
-			rewards: [{ id: "A126582FB033F6B7" type: "xp" xp: 50 }]
+			id: "12D07A96B772C889"
+			rewards: [{ id: "7279FA9DF4F1858E" type: "xp" xp: 50 }]
 			shape: "circle"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.oil.subtitle}"
-			tasks: [{ id: "A1BD34AA09665EA3" type: "checkmark" }]
+			tasks: [{ id: "7FEFC28E56F7720A" type: "checkmark" }]
 			title: "{af9.quest.chem.oil.title}"
 			x: 51.0d
 			y: 3.0d
 		}
 		{
-			dependencies: ["A1C328098CB08EB1"]
+			dependencies: ["12D07A96B772C889"]
 			description: ["{af9.quest.chem.voidminer.1}" "" "{af9.quest.chem.voidminer.2}"]
 			icon: "gtceu:void_miner"
-			id: "B200000000000001"
-			rewards: [{ id: "B200000000000201" type: "xp" xp: 50 }]
+			id: "17FF8FEE0564730D"
+			rewards: [{ id: "5E4F8FCD3F52F15A" type: "xp" xp: 50 }]
 			shape: "circle"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.voidminer.subtitle}"
-			tasks: [{ count: 64L id: "B200000000000101" item: "gtceu:magnetite_dust" type: "item" }]
+			tasks: [{ count: 64L id: "68AE0413AB244638" item: "gtceu:magnetite_dust" type: "item" }]
 			title: "{af9.quest.chem.voidminer.title}"
 			x: 0.0d
 			y: 6.0d
 		}
 		{
-			dependencies: ["B200000000000001"]
+			dependencies: ["17FF8FEE0564730D"]
 			description: ["{af9.quest.chem.elevator_ore.1}" "" "{af9.quest.chem.elevator_ore.2}"]
 			icon: "af9:space_mining_drone_mk1"
-			id: "B200000000000002"
-			rewards: [{ id: "B200000000000202" type: "xp" xp: 50 }]
+			id: "69EFFB3FB405C627"
+			rewards: [{ id: "043E34A6D1654244" type: "xp" xp: 50 }]
 			shape: "circle"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.elevator_ore.subtitle}"
-			tasks: [{ id: "B200000000000102" item: "af9:space_mining_drone_mk1" type: "item" }]
+			tasks: [{ id: "70CF027C2D9BF61B" item: "af9:space_mining_drone_mk1" type: "item" }]
 			title: "{af9.quest.chem.elevator_ore.title}"
 			x: 3.0d
 			y: 6.0d
 		}
 		{
-			dependencies: ["B200000000000002"]
+			dependencies: ["69EFFB3FB405C627"]
 			description: ["{af9.quest.chem.elevator_fluid.1}" "" "{af9.quest.chem.elevator_fluid.2}"]
 			icon: "gtceu:space_elevator"
-			id: "B200000000000003"
-			rewards: [{ id: "B200000000000203" type: "xp" xp: 50 }]
+			id: "46F7FC8C3BB9F5B2"
+			rewards: [{ id: "0013DD5A62CAE8D8" type: "xp" xp: 50 }]
 			shape: "circle"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.elevator_fluid.subtitle}"
-			tasks: [{ id: "B200000000000103" type: "checkmark" }]
+			tasks: [{ id: "69D65EA44E866FEB" type: "checkmark" }]
 			title: "{af9.quest.chem.elevator_fluid.title}"
 			x: 6.0d
 			y: 6.0d
 		}
 		{
-			dependencies: ["B200000000000003"]
+			dependencies: ["46F7FC8C3BB9F5B2"]
 			description: ["{af9.quest.chem.asteroid_manual.1}" "" "{af9.quest.chem.asteroid_manual.2}"]
 			icon: "af9:oil_regolith"
-			id: "B200000000000004"
-			rewards: [{ id: "B200000000000204" type: "xp" xp: 25 }]
+			id: "2D581951326D625E"
+			rewards: [{ id: "628B1B253D5B03F9" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.asteroid_manual.subtitle}"
-			tasks: [{ id: "B200000000000104" item: "af9:oil_regolith" type: "item" } { id: "B200000000000105" item: "gtceu:raw_brannerite" type: "item" }]
+			tasks: [{ id: "4D36AC569836EF4E" item: "af9:oil_regolith" type: "item" } { id: "587264588C99C552" item: "gtceu:raw_brannerite" type: "item" }]
 			title: "{af9.quest.chem.asteroid_manual.title}"
 			x: 9.0d
 			y: 6.0d
 		}
 		{
-			dependencies: ["B200000000000004"]
+			dependencies: ["2D581951326D625E"]
 			description: ["{af9.quest.chem.oil_chain.1}" "" "{af9.quest.chem.oil_chain.2}" "" "{af9.quest.chem.oil_chain.3}"]
 			icon: "gtceu:impure_oil_bucket"
-			id: "B200000000000005"
-			rewards: [{ id: "B200000000000205" type: "xp" xp: 50 }]
+			id: "1ED4FDF18E912B0E"
+			rewards: [{ id: "624BF8612252F5C3" type: "xp" xp: 50 }]
 			shape: "circle"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.oil_chain.subtitle}"
-			tasks: [{ amount: 1000L fluid: "gtceu:impure_oil" id: "B200000000000106" type: "fluid" } { amount: 1000L fluid: "gtceu:oil" id: "B200000000000107" type: "fluid" }]
+			tasks: [{ amount: 1000L fluid: "gtceu:impure_oil" id: "470E01FD1334ECCB" type: "fluid" } { amount: 1000L fluid: "gtceu:oil" id: "465221F9D05DE4DC" type: "fluid" }]
 			title: "{af9.quest.chem.oil_chain.title}"
 			x: 12.0d
 			y: 6.0d
 		}
 		{
-			dependencies: ["B200000000000005"]
+			dependencies: ["1ED4FDF18E912B0E"]
 			description: ["{af9.quest.chem.bedrock_fluids.1}" "" "{af9.quest.chem.bedrock_fluids.2}"]
 			icon: "gtceu:mv_fluid_drilling_rig"
-			id: "B200000000000006"
-			rewards: [{ id: "B200000000000206" type: "xp" xp: 25 }]
+			id: "1EC768845255404C"
+			rewards: [{ id: "5E449558261F9CB8" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.bedrock_fluids.subtitle}"
-			tasks: [{ amount: 1000L fluid: "gtceu:nitrogen" id: "B200000000000108" type: "fluid" }]
+			tasks: [{ amount: 1000L fluid: "gtceu:nitrogen" id: "00EF7CB498BFE367" type: "fluid" }]
 			title: "{af9.quest.chem.bedrock_fluids.title}"
 			x: 15.0d
 			y: 6.0d
 		}
 		{
-			dependencies: ["B200000000000006"]
+			dependencies: ["1EC768845255404C"]
 			description: ["{af9.quest.chem.heavywater_fuel.1}" "" "{af9.quest.chem.heavywater_fuel.2}" "" "{af9.quest.chem.heavywater_fuel.3}"]
 			icon: "gtceu:heavy_water_bucket"
-			id: "B200000000000007"
-			rewards: [{ id: "B200000000000207" type: "xp" xp: 25 }]
+			id: "5723567D07A77479"
+			rewards: [{ id: "7031D07CD1B3313D" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.heavywater_fuel.subtitle}"
-			tasks: [{ amount: 2000L fluid: "gtceu:deuterium" id: "B200000000000109" type: "fluid" } { amount: 3000L fluid: "gtceu:aluminised_hydrolox" id: "B20000000000010A" type: "fluid" }]
+			tasks: [{ amount: 2000L fluid: "gtceu:deuterium" id: "2C65C8A5C0EDA315" type: "fluid" } { amount: 3000L fluid: "gtceu:aluminised_hydrolox" id: "3ACEC60F7952F142" type: "fluid" }]
 			title: "{af9.quest.chem.heavywater_fuel.title}"
 			x: 18.0d
 			y: 6.0d
 		}
 		{
-			dependencies: ["B200000000000007"]
+			dependencies: ["5723567D07A77479"]
 			description: ["{af9.quest.chem.fission.1}" "" "{af9.quest.chem.fission.2}" "" "{af9.quest.chem.fission.3}"]
 			icon: "gtceu:fx1_reactor"
-			id: "B200000000000008"
-			rewards: [{ id: "B200000000000208" type: "xp" xp: 50 }]
+			id: "38C086B9FDF3BD6E"
+			rewards: [{ id: "7A879BC37DE35D89" type: "xp" xp: 50 }]
 			shape: "circle"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.fission.subtitle}"
-			tasks: [{ id: "B20000000000010B" item: "af9:fx_fuel_rod" type: "item" } { id: "B20000000000010C" item: "gtceu:plutonium_dust" type: "item" }]
+			tasks: [{ id: "507B3965F43E53ED" item: "af9:fx_fuel_rod" type: "item" } { id: "39D3F154144DC8A2" item: "gtceu:plutonium_dust" type: "item" }]
 			title: "{af9.quest.chem.fission.title}"
 			x: 0.0d
 			y: 9.0d
 		}
 		{
-			dependencies: ["B200000000000008"]
+			dependencies: ["38C086B9FDF3BD6E"]
 			description: ["{af9.quest.chem.endion.1}" "" "{af9.quest.chem.endion.2}"]
 			icon: "gtceu:endion_bucket"
-			id: "B200000000000009"
-			rewards: [{ id: "B200000000000209" type: "xp" xp: 25 }]
+			id: "7A56707E743BA752"
+			rewards: [{ id: "5B1FE4D0BCE617EE" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.endion.subtitle}"
-			tasks: [{ amount: 1000L fluid: "gtceu:endion" id: "B20000000000010D" type: "fluid" }]
+			tasks: [{ amount: 1000L fluid: "gtceu:endion" id: "2FAF4206CD0D0738" type: "fluid" }]
 			title: "{af9.quest.chem.endion.title}"
 			x: 3.0d
 			y: 9.0d
 		}
 		{
-			dependencies: ["B200000000000009"]
+			dependencies: ["7A56707E743BA752"]
 			description: ["{af9.quest.chem.air_water.1}" "" "{af9.quest.chem.air_water.2}"]
 			icon: "gtceu:hydrogen_bucket"
-			id: "B20000000000000A"
-			rewards: [{ id: "B20000000000020A" type: "xp" xp: 25 }]
+			id: "30F05B32071CBDB7"
+			rewards: [{ id: "76E8829493FBECCE" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.air_water.subtitle}"
-			tasks: [{ amount: 1000L fluid: "gtceu:hydrogen" id: "B20000000000010E" type: "fluid" } { amount: 1000L fluid: "gtceu:oxygen" id: "B20000000000010F" type: "fluid" }]
+			tasks: [{ amount: 1000L fluid: "gtceu:hydrogen" id: "6FF8E7F44A36DAFE" type: "fluid" } { amount: 1000L fluid: "gtceu:oxygen" id: "5B60C80582D73293" type: "fluid" }]
 			title: "{af9.quest.chem.air_water.title}"
 			x: 6.0d
 			y: 9.0d
 		}
 		{
-			dependencies: ["B20000000000000A"]
+			dependencies: ["30F05B32071CBDB7"]
 			description: ["{af9.quest.chem.accelerator.1}" "" "{af9.quest.chem.accelerator.2}" "" "{af9.quest.chem.accelerator.3}"]
 			icon: "gtceu:strange_matter_dust"
-			id: "B20000000000000B"
-			rewards: [{ id: "B20000000000020B" type: "xp" xp: 25 }]
+			id: "36FFD64237DD1E79"
+			rewards: [{ id: "11885073B1C1880E" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.accelerator.subtitle}"
-			tasks: [{ id: "B200000000000110" item: "gtceu:strange_matter_dust" type: "item" } { id: "B200000000000111" item: "gtceu:chromodynium_dust" type: "item" }]
+			tasks: [{ id: "47EAE760B7CBCCD3" item: "gtceu:strange_matter_dust" type: "item" } { id: "5566A3EFD2C4F805" item: "gtceu:chromodynium_dust" type: "item" }]
 			title: "{af9.quest.chem.accelerator.title}"
 			x: 9.0d
 			y: 9.0d
 		}
 		{
-			dependencies: ["B20000000000000B"]
+			dependencies: ["36FFD64237DD1E79"]
 			description: ["{af9.quest.chem.fab_air.1}" "" "{af9.quest.chem.fab_air.2}" "" "{af9.quest.chem.fab_air.3}"]
 			icon: "gtceu:argon_bucket"
-			id: "B20000000000000C"
-			rewards: [{ id: "B20000000000020C" type: "xp" xp: 25 }]
+			id: "5CB20583286FDBF4"
+			rewards: [{ id: "6CFA0E2946DF1A39" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.fab_air.subtitle}"
-			tasks: [{ amount: 1000L fluid: "gtceu:argon" id: "B200000000000112" type: "fluid" } { amount: 1000L fluid: "gtceu:extreme_clean_dry_air" id: "B200000000000113" type: "fluid" }]
+			tasks: [{ amount: 1000L fluid: "gtceu:argon" id: "72487C57F6DD86ED" type: "fluid" } { amount: 1000L fluid: "gtceu:extreme_clean_dry_air" id: "19ED20D8112CC114" type: "fluid" }]
 			title: "{af9.quest.chem.fab_air.title}"
 			x: 12.0d
 			y: 9.0d
 		}
 		{
-			dependencies: ["B20000000000000C"]
+			dependencies: ["5CB20583286FDBF4"]
 			description: ["{af9.quest.chem.hub.1}" "" "{af9.quest.chem.hub.2}"]
 			icon: "gtceu:chromodynium_dust"
-			id: "B20000000000000D"
-			rewards: [{ id: "B20000000000020D" type: "xp" xp: 50 }]
+			id: "78A8B0A351167790"
+			rewards: [{ id: "5A5B96CF60DA64E8" type: "xp" xp: 50 }]
 			shape: "circle"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.hub.subtitle}"
-			tasks: [{ id: "B200000000000114" type: "checkmark" }]
+			tasks: [{ id: "20CBBA3E414311AA" type: "checkmark" }]
 			title: "{af9.quest.chem.hub.title}"
 			x: 15.0d
 			y: 9.0d
 		}
 		{
-			dependencies: ["B20000000000000D"]
+			dependencies: ["78A8B0A351167790"]
 			description: [
 				"{af9.quest.chem.final.1}"
 				""
 				"{af9.quest.chem.final.2}"
 			]
 			icon: "gtceu:mv_chemical_reactor"
-			id: "C3A1B2C3D4E5F6F0"
+			id: "2C8659037A43C9B1"
 			rewards: [{
-				id: "C3A1B2C3D4E5F6F1"
+				id: "22A4C10B75CB2072"
 				type: "xp"
 				xp: 100
 			}]
@@ -490,7 +490,7 @@
 			subtitle: "{af9.quest.chem.final.subtitle}"
 			tasks: [
 				{
-					id: "C3A1B2C3D4E5F6F2"
+					id: "5A8193DCFF9B8A6F"
 					type: "checkmark"
 				}
 			]
