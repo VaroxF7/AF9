@@ -1,0 +1,17 @@
+{
+	"af9.quest.vm.chapter.title": "Void-Miner",
+	"af9.quest.vm.chapter.subtitle": "Erneuerbare Erze, zehnfach",
+	"af9.quest.vm.intro.title": "Bergbau in der Leere",
+	"af9.quest.vm.intro.subtitle": "Zehnfache Ausbeute",
+	"af9.quest.vm.intro.1": "Der &6Void-Miner&r ist umgebaut: Seine Rezepte liegen jetzt in AF9-Dateien, seine Modi wählen das Gestein — &aOberwelt&r, &cNether&r, &eEnde&r und &dAsteroiden&r — und jeder Durchlauf bringt &ezehnfaches Erz&r für gleiche Zeit und Energie.",
+	"af9.quest.vm.intro.2": "Modus auf seinem Bildschirm wählen, Erz mit einem &bprogrammierten Schaltkreis&r, &fBohrflüssigkeit&r zuführen.",
+	"af9.quest.vm.miner.title": "Der Miner",
+	"af9.quest.vm.miner.subtitle": "Mitte HV",
+	"af9.quest.vm.miner.1": "Montagemaschine (&6HV&r): GTs LV-, MV- und HV-Miner, LV/MV/HV-Feldgeneratoren, HV-Schaltkreise, 4 Mining-ASICs, Titanplatten, Lötlegierung.",
+	"af9.quest.vm.ore.title": "Erstes Gestein",
+	"af9.quest.vm.ore.subtitle": "Magnetit, zehnfach",
+	"af9.quest.vm.ore.1": "Oberwelt-Modus, Magnetit-Schaltkreis: &f120 Magnetit, 80 Vanadium-Magnetit und 40 Gold&r pro Durchlauf, jedes mit den alten Chancen.",
+	"af9.quest.vm.asteroid.title": "Asteroiden-Gestein",
+	"af9.quest.vm.asteroid.subtitle": "Brannerit",
+	"af9.quest.vm.asteroid.1": "Asteroiden-Modus ab EV-Energie: &6Brannerit&r, Magnetit, Pentlandit, Cooperit, Naquadah, Platin und &eÖl-Regolith&r."
+}

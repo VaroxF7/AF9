@@ -1,0 +1,17 @@
+{
+    "gtceu.void_mining_overworld": "Void-Mining: Oberwelt",
+    "gtceu.void_mining_overworld.short": "OBERWELT",
+    "gtceu.void_mining_overworld.desc": "Bohrflüssigkeit rein, zehnfaches Oberwelt-Erz raus",
+    "gtceu.void_mining_nether": "Void-Mining: Nether",
+    "gtceu.void_mining_nether.short": "NETHER",
+    "gtceu.void_mining_nether.desc": "Bohrflüssigkeit rein, zehnfaches Nether-Erz raus",
+    "gtceu.void_mining_end": "Void-Mining: Ende",
+    "gtceu.void_mining_end.short": "ENDE",
+    "gtceu.void_mining_end.desc": "Bohrflüssigkeit rein, zehnfaches End-Erz raus",
+    "gtceu.void_mining_asteroids": "Void-Mining: Asteroiden",
+    "gtceu.void_mining_asteroids.short": "ASTEROIDEN",
+    "gtceu.void_mining_asteroids.desc": "Bohrflüssigkeit rein, zehnfaches Asteroiden-Erz raus",
+    "af9.void_miner.tooltip.0": "§7AF9s umgebauter Miner: §fzehnfaches Erz§7, gleiche Zeit und Energie.",
+    "af9.void_miner.tooltip.1": "§7Vier Gebiete als §fModi§7: §aOberwelt§7, §cNether§7, §eEnde§7, §dAsteroiden§7; ein §bprogrammierter Schaltkreis§7 wählt das Erz.",
+    "af9.void_miner.tooltip.2": "§7Braucht §fBohrflüssigkeit§7 und eine zum Gebiet passende Energieluke; zu bauen ab §6HV§7."
+}
