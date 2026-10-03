@@ -15,6 +15,7 @@ import com.af9.core.network.AF9Network;
 import com.af9.core.pattern.AF9Filters;
 import com.af9.core.registry.AF9Blocks;
 import com.af9.core.registry.AF9Items;
+import com.af9.core.registry.AF9Tabs;
 import com.af9.core.space.AF9Space;
 
 import net.minecraftforge.api.distmarker.Dist;
@@ -48,6 +49,7 @@ public class AF9Core {
         // the pack's plain blocks and items
         AF9Blocks.register(FMLJavaModLoadingContext.get().getModEventBus());
         AF9Items.register(FMLJavaModLoadingContext.get().getModEventBus());
+        AF9Tabs.register(FMLJavaModLoadingContext.get().getModEventBus());
         AF9Compute.register(FMLJavaModLoadingContext.get().getModEventBus());
         // the Asteroid Field's feature
         AF9Space.register(FMLJavaModLoadingContext.get().getModEventBus());

@@ -1088,5 +1088,6 @@
     "item.af9.contaminated_hpic_chip": "Contaminated HPIC Chip",
     "item.af9.contaminated_hpic_chip.tooltip.0": "Touched by bare hands. Rinse it (SMC wet processing) to get the chip back.",
     "item.af9.contaminated_uhpic_chip": "Contaminated UHPIC Chip",
-    "item.af9.contaminated_uhpic_chip.tooltip.0": "Touched by bare hands. Rinse it (SMC wet processing) to get the chip back."
+    "item.af9.contaminated_uhpic_chip.tooltip.0": "Touched by bare hands. Rinse it (SMC wet processing) to get the chip back.",
+    "itemGroup.af9": "AF9"
 }
