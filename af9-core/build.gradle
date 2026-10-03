@@ -3,6 +3,10 @@ plugins {
 }
 
 repositories {
+    // dev runs only: jars of a pack instance (-Paf9Instance=<its folder>), see the runs below
+    if (project.hasProperty('af9Instance')) {
+        flatDir { dirs "${project.property('af9Instance')}/mods" }
+    }
     mavenLocal()
     mavenCentral()
     maven {
@@ -50,8 +54,22 @@ group = maven_group
 base { archivesName = archives_base_name }
 java { sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17 }
 
+sourceSets {
+    // dev runs only, not in the jar: writes down what the game has registered (RegistryDump)
+    devtest {
+        compileClasspath += sourceSets.main.output
+        runtimeClasspath += sourceSets.main.output
+    }
+}
+
+configurations {
+    devtestImplementation.extendsFrom implementation
+    devtestRuntimeOnly.extendsFrom runtimeOnly
+}
+
 legacyForge {
     version = project.minecraft_version + '-' + project.forge_version
+    addModdingDependenciesTo(sourceSets.devtest)
 
     parchment {
         mappingsVersion = project.mapping_version
@@ -61,6 +79,20 @@ legacyForge {
     mods {
         "${mod_id}" {
             sourceSet(sourceSets.main)
+            sourceSet(sourceSets.devtest)
+        }
+    }
+
+    runs {
+        // A headless boot for checking what AF9 Core registers: mod loading, the registries, common setup and a server's
+        // data packs, then it stops (no window, no world kept). Needs the mods AF9 Core depends on at runtime, and takes
+        // KubeJS along, so the pack's scripts in run/kubejs are loaded as well:
+        //   ./gradlew runGameTestServer -Paf9Instance=<folder of a pack instance> [-Paf9Dump=<file>]
+        // With af9Dump, everything registered is written to that file (devtest source set, RegistryDump).
+        gameTestServer {
+            type = "gameTestServer"
+            gameDirectory = file('run')
+            systemProperty 'af9.dump', (project.findProperty('af9Dump') ?: '').toString()
         }
     }
 }
@@ -78,6 +110,17 @@ dependencies {
     modCompileOnly("top.theillusivec4.curios:curios-forge:${curios_version}:api")
     // the orbital station's magnetic field (optional at runtime)
     modCompileOnly("earth.terrarium.adastra:ad_astra-forge-${minecraft_version}:${ad_astra_version}") { transitive = false }
+
+    // dev runs only: the mods AF9 Core needs at runtime that are not on a maven above, taken from a pack instance
+    if (project.hasProperty('af9Instance')) {
+        modRuntimeOnly("earth.terrarium.adastra:ad_astra-forge-${minecraft_version}:${ad_astra_version}") { transitive = false }
+        modRuntimeOnly "af9.instance:botarium-forge-${minecraft_version}:2.3.4"
+        modRuntimeOnly "af9.instance:resourcefullib-forge-${minecraft_version}:2.1.29"
+        modRuntimeOnly "af9.instance:resourcefulconfig-forge-${minecraft_version}:2.1.3"
+        modRuntimeOnly "af9.instance:kubejs-forge:2001.6.5-build.16"
+        modRuntimeOnly "af9.instance:rhino-forge:2001.2.3-build.10"
+        modRuntimeOnly "af9.instance:architectury:9.2.14-forge"
+    }
 
     // Mixin refmaps
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
