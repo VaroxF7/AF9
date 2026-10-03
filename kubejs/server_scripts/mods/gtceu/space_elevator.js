@@ -8,11 +8,11 @@
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
-    const V = GTValues.V
     const solder = mb => Fluid.of('gtceu:soldering_alloy', mb)
 
     // ---- The expeditions: drone tier, hydrogen (mB), coolant, coolant (mB), amps of ZPM, seconds ----
-    // 50 to 100 buckets of each. Mk1 runs on one 4A ZPM hatch, Mk2 on two, Mk3 on four, Mk4 on lasers.
+    // 50 to 100 buckets of each. ZPM recipes of several amps (as the Particle Accelerator's): Mk1 runs on one 4A ZPM
+    // hatch, Mk2 on two, Mk3 on four, Mk4 on lasers.
     const expeditions = [
         [1, 64000, 'gtceu:supercooled_hydrogen', 50000, 4, 180],
         [2, 80000, 'gtceu:supercooled_argon', 64000, 8, 240],
@@ -25,7 +25,7 @@ ServerEvents.recipes(event => {
             .inputFluids(Fluid.of('gtceu:hydrogen', hydrogen))
             .inputFluids(Fluid.of(coolant, coolantMb))
             .duration(seconds * 20)
-            .EUt(V[GTValues.ZPM] * amps)
+            .EUt(VA[GTValues.ZPM], amps)
     })
 
     // ---- The Mining Drones: ZPM parts for the first, UV parts (GT's last tier with parts: highTierContent is off) for

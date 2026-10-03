@@ -20,12 +20,13 @@ fly several at once (below).
 
 | Drone | Reaches | Hydrogen | Coolant (supercooled) | Energy | Time | Stacks |
 |---|---|---|---|---|---|---|
-| Mk-I | tier 1 ores (the Overworld's) | 64 B | 50 B hydrogen | 4A ZPM (524,288 EU/t) | 3 min | 8-16 |
-| Mk-II | tier 1-2 (and the Nether's) | 80 B | 64 B argon | 8A ZPM (1,048,576 EU/t) | 4 min | 12-24 |
-| Mk-III | tier 1-3 (and the End's) | 96 B | 80 B xenon | 16A ZPM (2,097,152 EU/t) | 5 min | 16-32 |
-| Mk-IV | all, and the exotic asteroid | 100 B | 100 B endion | 32A ZPM (4,194,304 EU/t) | 6 min | 24-48 |
+| Mk-I | tier 1 ores (the Overworld's) | 64 B | 50 B hydrogen | 4A ZPM (491,520 EU/t) | 3 min | 8-16 |
+| Mk-II | tier 1-2 (and the Nether's) | 80 B | 64 B argon | 8A ZPM (983,040 EU/t) | 4 min | 12-24 |
+| Mk-III | tier 1-3 (and the End's) | 96 B | 80 B xenon | 16A ZPM (1,966,080 EU/t) | 5 min | 16-32 |
+| Mk-IV | all, and the exotic asteroid | 100 B | 100 B endion | 32A ZPM (3,932,160 EU/t) | 6 min | 24-48 |
 
-The coolants are the Supercooling Cryostat's (`cryogenics.js`). The energy is the recipe's: the machine only starts a run its hatches can
+The coolants are the Supercooling Cryostat's (`cryogenics.js`). The energy is the recipe's, a ZPM recipe of several amps (the recipe
+viewers say "ZPM" and the amps): the machine only starts a run its hatches can
 supply in full (`IPowerGated`, as the Particle Accelerator): Mk-I runs on one 4A ZPM hatch, Mk-II on two, Mk-III on four (the most
 there are), Mk-IV on laser hatches (up to two). A run that cannot start waits.
 

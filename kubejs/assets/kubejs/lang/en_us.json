@@ -8103,7 +8103,7 @@
 	"af9.quest.se.motors.2": "The tier powers the &bmodule slots&r: &eMK-I 6&r, MK-II 12, MK-III 15, MK-IV 18, MK-V 24, and only modules of its own tier or lower. &6MK-I:&r Assembler, ZPM: 4 motors from 4 ZPM electric motors, a naquadah alloy frame and 4 naquadah alloy plates.",
 	"af9.quest.se.power.title": "Power",
 	"af9.quest.se.power.subtitle": "Amps of ZPM",
-	"af9.quest.se.power.1": "The elevator only starts what its hatches can supply in full. An expedition takes &e4A&r of ZPM (524,288 EU/t) with the Mk-I drone, &e8A&r with the Mk-II, &e16A&r with the Mk-III and &e32A&r with the Mk-IV; a run of several expeditions at once takes that for each of them, so the big runs need &dlaser hatches&r.",
+	"af9.quest.se.power.1": "The elevator only starts what its hatches can supply in full. An expedition takes &e4A&r of ZPM (491,520 EU/t) with the Mk-I drone, &e8A&r with the Mk-II, &e16A&r with the Mk-III and &e32A&r with the Mk-IV; a run of several expeditions at once takes that for each of them, so the big runs need &dlaser hatches&r.",
 	"af9.quest.se.power.2": "An expedition lasts three to six minutes. Up to four energy hatches and two laser hatches go in the bottom centre casings of the tower.",
 	"af9.quest.se.drone1.title": "Mining Drone MK-I",
 	"af9.quest.se.drone1.subtitle": "Not used up",
