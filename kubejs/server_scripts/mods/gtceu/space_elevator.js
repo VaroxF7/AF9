@@ -57,8 +57,8 @@ ServerEvents.recipes(event => {
             .EUt(VA[voltage])
     })
 
-    // ---- The blocks of the tower: GTNH's tower takes 800 of the concrete, up to 785 base casings, 620 supports and 360
-    // internal structures, so a craft makes 8 or 16. The casings share their frames and plates: a circuit each ----
+    // ---- The blocks of the tower: GTNH's tower takes 800 of the concrete, up to 785 base casings, 620 stress-proof
+    // casings and 360 internal structures, so a craft makes 8 or 16. The casings share their frames and plates ----
     event.recipes.gtceu.assembler('af9:ultra_high_strength_concrete_floor')
         .itemInputs('8x gtceu:dark_concrete', '2x gtceu:tungsten_steel_rod')
         .inputFluids(Fluid.of('gtceu:polybenzimidazole', 72))
@@ -71,15 +71,9 @@ ServerEvents.recipes(event => {
         .itemOutputs('16x kubejs:space_elevator_base_casing')
         .duration(200)
         .EUt(VA[GTValues.LuV])
-    event.recipes.gtceu.assembler('af9:space_elevator_support')
-        .itemInputs('2x gtceu:naquadah_alloy_frame', '8x gtceu:tungsten_steel_plate')
-        .circuit(2)
-        .itemOutputs('16x kubejs:space_elevator_support')
-        .duration(200)
-        .EUt(VA[GTValues.LuV])
     event.recipes.gtceu.assembler('af9:space_elevator_internal_structure')
         .itemInputs('gtceu:naquadah_alloy_frame', '4x gtceu:osmiridium_plate', '4x gtceu:tungsten_steel_plate')
-        .circuit(3)
+        .circuit(2)
         .itemOutputs('16x kubejs:space_elevator_internal_structure')
         .duration(200)
         .EUt(VA[GTValues.LuV])
@@ -142,7 +136,7 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.assembly_line('af9:space_elevator')
         .itemInputs('gtceu:zpm_machine_hull', '8x gtceu:zpm_electric_motor', '4x gtceu:zpm_field_generator',
             '2x gtceu:zpm_sensor', '2x gtceu:zpm_emitter', '4x #gtceu:circuits/zpm',
-            '16x kubejs:space_elevator_base_casing', '8x kubejs:space_elevator_support',
+            '16x kubejs:space_elevator_base_casing', '8x gtceu:stress_proof_casing',
             '8x kubejs:space_elevator_internal_structure', 'kubejs:space_elevator_cable',
             '4x gtceu:double_naquadah_alloy_plate')
         .inputFluids(solder(4608))

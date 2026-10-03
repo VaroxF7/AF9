@@ -13,7 +13,7 @@
 // GTNH's Space Pumping table (af9-core, PlanetCatalog), the same drone, fluids and energy, into fluid output hatches.
 //
 // The structure is GTNH's, block for block (SE_MAIN): 35 x 35 and 43 high, a floor of concrete, a central column of motors
-// round an empty shaft with the cable on top of it, and a tapering frame of base casing and support structure around it.
+// round an empty shaft with the cable on top of it, and a tapering frame of base casing and stress-proof casing around it.
 // Its extended size (SE_EXTENSION, switched on the controller's screen) adds a ring of 47 x 47 with twelve more module slots.
 
 const $SpaceElevator = Java.loadClass('com.af9.core.elevator.SpaceElevatorMachine')
@@ -34,7 +34,6 @@ StartupEvents.registry('block', event => {
     // the blocks of the tower: [id, name, sound]
     const blocks = [
         ['space_elevator_base_casing', 'Space Elevator Base Casing', 'metal'],
-        ['space_elevator_support', 'Space Elevator Support Structure', 'metal'],
         ['space_elevator_internal_structure', 'Space Elevator Internal Structure', 'metal'],
         ['ultra_high_strength_concrete_floor', 'Ultra High Strength Concrete Floor', 'stone']
     ]
@@ -116,7 +115,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 // Baunti), block for block: 35 wide, 43 high, 35 deep. The table holds the slices from the front to the middle one (the
 // back half mirrors the front), each slice its rows from its highest block down to the floor (the tower narrows), a row
 // its blocks from left to right:
-//   A  Ultra High Strength Concrete Floor   D  Base Casing            E  Support Structure     F  Internal Structure
+//   A  Ultra High Strength Concrete Floor   D  Base Casing            E  Stress-Proof Casing       F  Internal Structure
 //   H  Neutronium Frame Box                 C  Motor (one tier)       B  the Cable             -  air (the shaft)
 //   X  Base Casing or a hatch of the elevator: the bottom centre casings (and the controller, in the front one's middle)
 //   M  Base Casing or a bus / hatch of a module slot                  I  a module slot: a Mining Module, or Base Casing
@@ -730,7 +729,7 @@ const sePattern = (definition, slices) => {
         .where('S', Predicates.controller(Predicates.blocks(definition.get())))
         .where('A', Predicates.blocks('kubejs:ultra_high_strength_concrete_floor'))
         .where('D', Predicates.blocks(casing))
-        .where('E', Predicates.blocks('kubejs:space_elevator_support'))
+        .where('E', Predicates.blocks('gtceu:stress_proof_casing'))
         .where('F', Predicates.blocks('kubejs:space_elevator_internal_structure'))
         .where('H', Predicates.blocks('gtceu:neutronium_frame'))
         .where('C', $SpaceElevator.motors())                                // any tier, all of one tier

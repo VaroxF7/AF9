@@ -8094,7 +8094,7 @@
 	"af9.quest.se.coolant.2": "The coolant goes into the elevator's &bCoolant Hatches&r (up to four; a ZPM one holds 128 buckets, each tier twice the one before), the hydrogen into fluid input hatches (up to eight). &7A run that takes more coolant than the Coolant Hatches hold takes the rest from the fluid input hatches.",
 	"af9.quest.se.blocks.title": "The Tower's Blocks",
 	"af9.quest.se.blocks.subtitle": "GTNH's tower",
-	"af9.quest.se.blocks.1": "The tower is &eGTNH's, block for block: 35 x 35 and 43 high&r. A floor of &fUltra High Strength Concrete&r (800), a tapering frame of &9Base Casing&r (up to 785) and &8Support Structure&r (620) with decks of &fInternal Structure&r (360) and 56 &fNeutronium Frame Boxes&r, round a column of &b88 Motors&r with the &eCable&r on top of its shaft.",
+	"af9.quest.se.blocks.1": "The tower is &eGTNH's, block for block: 35 x 35 and 43 high&r. A floor of &fUltra High Strength Concrete&r (800), a tapering frame of &9Base Casing&r (up to 785) and &fStress-Proof Casing&r (620) with decks of &fInternal Structure&r (360) and 56 &fNeutronium Frame Boxes&r, round a column of &b88 Motors&r with the &eCable&r on top of its shaft.",
 	"af9.quest.se.blocks.2": "Assembler recipes (the concrete IV, the casings LuV, the Cable ZPM): 8 concrete from dark concrete, tungsten steel rods and polybenzimidazole; 16 of a casing from naquadah alloy frames with tungsten steel plates (and naquadah alloy or osmiridium plates, a circuit each); the one Cable from carbon fibre plates, naquadah alloy rods and field generators.",
 	"af9.quest.se.blocks.3": "&7The structure preview of the controller shows every layer; a terminal builds it from your inventory.",
 	"af9.quest.se.motors.title": "The Motors",

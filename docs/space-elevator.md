@@ -128,7 +128,7 @@ by position.
 |---|---|---|
 | Ultra High Strength Concrete Floor (`kubejs:ultra_high_strength_concrete_floor`) | 800 | the floor, a disc 35 across |
 | Space Elevator Base Casing (`kubejs:space_elevator_base_casing`) | 593 to 785 | the blue of the tower: frame, column, feet |
-| Space Elevator Support Structure (`kubejs:space_elevator_support`) | 620 | the dark ribs that taper to the top |
+| Stress-Proof Casing (`gtceu:stress_proof_casing`) | 620 | the dark ribs that taper to the top |
 | Space Elevator Internal Structure (`kubejs:space_elevator_internal_structure`) | 360 | the decks: the second layer, the rings up the column, the crown |
 | Space Elevator Motor (`kubejs:space_elevator_motor_mk1..5`) | 88 | the central column, round the shaft, 22 layers |
 | Neutronium Frame Box (`gtceu:neutronium_frame`) | 56 | four arcs half way up the frame |
@@ -184,8 +184,8 @@ All Assembler recipes; a craft makes many, the tower takes hundreds:
 |---|---|---|---|
 | Ultra High Strength Concrete Floor | 8 | 8 dark concrete, 2 tungsten steel rods, 72 mB polybenzimidazole | IV |
 | Base Casing | 16 | a naquadah alloy frame, 4 naquadah alloy plates, 8 tungsten steel plates (circuit 1) | LuV |
-| Support Structure | 16 | 2 naquadah alloy frames, 8 tungsten steel plates (circuit 2) | LuV |
-| Internal Structure | 16 | a naquadah alloy frame, 4 osmiridium plates, 4 tungsten steel plates (circuit 3) | LuV |
+| Stress-Proof Casing | GT's | GT's own LuV casing | LuV |
+| Internal Structure | 16 | a naquadah alloy frame, 4 osmiridium plates, 4 tungsten steel plates (circuit 2) | LuV |
 | Cable | 1 | 32 carbon fibre plates, 8 naquadah alloy rods, 2 LuV field generators, soldering alloy | ZPM |
 | Motor MK-I | 4 | 4 ZPM electric motors, a naquadah alloy frame, 4 naquadah alloy plates, soldering alloy | ZPM |
 | Motor MK-II | 4 | 4 MK-I, 4 UV electric motors, 4 tritanium plates | UV |
@@ -201,7 +201,7 @@ The Neutronium Frame Boxes are GT's (neutronium comes from the Mk-III fusion rea
 ## 3. Crafting
 
 The Space Elevator: Assembly Line, **ZPM**, 1200 ticks: a ZPM machine hull, 8 motors, 4 field generators, 2 sensors, 2 emitters, 4 circuits, 16 base casings,
-8 supports, 8 internal structures, a cable, 4 double naquadah alloy plates, 4608 mB soldering alloy. The drones: assembler, 600 ticks, soldering alloy and
+8 stress-proof casings, 8 internal structures, a cable, 4 double naquadah alloy plates, 4608 mB soldering alloy. The drones: assembler, 600 ticks, soldering alloy and
 parts of ZPM (Mk-I) or UV (GT has no parts above UV while `highTierContent` is off): Mk-I a robot arm, 2 sensors, an emitter, 4 circuits and 4 naquadah
 alloy plates; Mk-II the same in UV; Mk-III 2 arms, 4 sensors, 2 emitters, 8 circuits and 4 tritanium plates; Mk-IV 4 arms, 8 sensors, 4 emitters, 16
 circuits and 4 neutronium plates.
