@@ -10,6 +10,7 @@ import com.af9.core.elevator.SpaceElevatorMachine;
 import com.af9.core.fab.FabRecipeInfo;
 import com.af9.core.machine.ParticleAcceleratorMachine;
 import com.af9.core.machine.PhotolithographyLineMachine;
+import com.af9.core.machine.VoidMinerMachine;
 import com.af9.core.network.AF9Network;
 import com.af9.core.pattern.AF9Filters;
 import com.af9.core.space.AF9Space;
@@ -59,6 +60,9 @@ public class AF9Core {
         event.enqueueWork(FabRecipeInfo::register);
         // Boule Melting: second mode of GT's Electric Blast Furnace (before any machine is created)
         event.enqueueWork(BouleMelting::install);
+        // Void Miner, rebuilt: GT's controller block and structure stay, AF9 takes over the definition
+        event.enqueueWork(VoidMinerMachine::install);
+        event.enqueueWork(VoidMinerMachine::registerRecipeInfo);
         // the KubeJS block exists now; structures are only checked later
         event.enqueueWork(AF9Filters::register);
         // the orbital station's magnetic field sets gravity through Ad Astra

@@ -440,5 +440,20 @@
     "material.gtceu.rhodium_chloride_filtrate": "Rhodium Chloride Filtrate",
     "material.gtceu.sodium_hexanitritorhodate": "Sodium Hexanitritorhodate",
     "material.gtceu.rhodium_trichloride_solution": "Rhodium Trichloride Solution",
-    "material.gtceu.zinc_chloride": "Zinc Chloride"
+    "material.gtceu.zinc_chloride": "Zinc Chloride",
+    "gtceu.void_mining_overworld": "Void Mining: Overworld",
+    "gtceu.void_mining_overworld.short": "OVERWORLD",
+    "gtceu.void_mining_overworld.desc": "Drilling fluid in, tenfold Overworld ore out",
+    "gtceu.void_mining_nether": "Void Mining: Nether",
+    "gtceu.void_mining_nether.short": "NETHER",
+    "gtceu.void_mining_nether.desc": "Drilling fluid in, tenfold Nether ore out",
+    "gtceu.void_mining_end": "Void Mining: End",
+    "gtceu.void_mining_end.short": "END",
+    "gtceu.void_mining_end.desc": "Drilling fluid in, tenfold End ore out",
+    "gtceu.void_mining_asteroids": "Void Mining: Asteroids",
+    "gtceu.void_mining_asteroids.short": "ASTEROIDS",
+    "gtceu.void_mining_asteroids.desc": "Drilling fluid in, tenfold asteroid ore out",
+    "af9.void_miner.tooltip.0": "§7AF9's rebuilt miner: §ftenfold ore§7, same time and energy.",
+    "af9.void_miner.tooltip.1": "§7Four areas as §fmodes§7: §aOverworld§7, §cNether§7, §eEnd§7, §dAsteroids§7; a §bprogrammed circuit§7 picks the ore.",
+    "af9.void_miner.tooltip.2": "§7Needs §fdrilling fluid§7 and an energy hatch fit for the area; §6HV§7 to build."
 }

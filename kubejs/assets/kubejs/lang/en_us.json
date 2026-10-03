@@ -8254,5 +8254,20 @@
 	"af9.quest.pgm.final.1": "One batch of 8 residue, from 4 cooperite or 8 sulfide ore, gives &e4 platinum, 3 palladium, 1 gold, 1 rhodium, 1 ruthenium, 1 iridium and 1 osmium&r.",
 	"af9.quest.pgm.final.2": "&7Nothing in the pack's own progression changed: every recipe that wants one of these metals still takes it the way it did.",
 	"af9.quest.pgm.chapter.title": "The Platinum Line",
-	"af9.quest.pgm.chapter.subtitle": "From sulfide ore to platinum, palladium, gold, rhodium, ruthenium, iridium and osmium"
+	"af9.quest.pgm.chapter.subtitle": "From sulfide ore to platinum, palladium, gold, rhodium, ruthenium, iridium and osmium",
+	"af9.quest.vm.chapter.title": "Void Miner",
+	"af9.quest.vm.chapter.subtitle": "Renewable ores, tenfold",
+	"af9.quest.vm.intro.title": "Mining the Void",
+	"af9.quest.vm.intro.subtitle": "Ten times the ore",
+	"af9.quest.vm.intro.1": "The &6Void Miner&r is rebuilt: its recipes live in AF9 files now, its modes pick the rock — &aOverworld&r, &cNether&r, &eEnd&r and &dAsteroids&r — and every run brings &eten times the ore&r for the same time and energy.",
+	"af9.quest.vm.intro.2": "Set the mode on its screen, set the ore with a &bprogrammed circuit&r, feed &fdrilling fluid&r.",
+	"af9.quest.vm.miner.title": "The Miner",
+	"af9.quest.vm.miner.subtitle": "Mid HV",
+	"af9.quest.vm.miner.1": "Assembler (&6HV&r): GT's LV, MV and HV miners, LV/MV/HV field generators, HV circuits, 4 mining ASICs, titanium plates, soldering alloy.",
+	"af9.quest.vm.ore.title": "First Rock",
+	"af9.quest.vm.ore.subtitle": "Magnetite, tenfold",
+	"af9.quest.vm.ore.1": "Overworld mode, the magnetite circuit: &f120 magnetite, 80 vanadium magnetite and 40 gold&r a run, each at the old chances.",
+	"af9.quest.vm.asteroid.title": "Asteroid Rock",
+	"af9.quest.vm.asteroid.subtitle": "Brannerite",
+	"af9.quest.vm.asteroid.1": "Asteroid mode on EV power and up: &6brannerite&r, magnetite, pentlandite, cooperite, naquadah, platinum and &eOil Regolith&r."
 }

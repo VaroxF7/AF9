@@ -1,6 +1,23 @@
 ServerEvents.recipes((event) => {
     const gtr = event.recipes.gtceu
 
+    // AF9: the void miner runs four AF9 modes now (void_mining_overworld, void_mining_nether, void_mining_end,
+    // void_mining_asteroids). GT's and ATM's recipes of the old void_miner and world_data_scanner types go; only
+    // af9: ids may remain. The removal mirrors the repo's event.remove({ id: ... }) filter style (boule_melting.js):
+    // no precedent removes whole types, so the foreign ids are collected first and removed one by one.
+    const foreign = []
+    event.forEachRecipe({ type: "gtceu:void_miner" }, (recipe) => {
+        let id = String(recipe.getId())
+        if (!id.startsWith("af9:")) foreign.push(id)
+    })
+    event.forEachRecipe({ type: "gtceu:world_data_scanner" }, (recipe) => {
+        let id = String(recipe.getId())
+        if (!id.startsWith("af9:")) foreign.push(id)
+    })
+    foreign.forEach((id) => {
+        event.remove({ id: id })
+    })
+
     gtr.assembler("gtceu:void_miner")
         .itemInputs("gtceu:lv_miner",
             "gtceu:mv_miner",
@@ -8,7 +25,7 @@ ServerEvents.recipes((event) => {
             "4x gtceu:lv_field_generator",
             "4x gtceu:mv_field_generator",
             "4x gtceu:hv_field_generator",
-            "4x #gtceu:circuits/ev",
+            "4x #gtceu:circuits/hv",
             "4x kubejs:asic_chip", // AF9: the mining ASIC (chip_uses.js)
             // (the assembler has 9 item slots: with the ASIC the recipe had 10 and could not be loaded; the long titanium
             // rod is gone, the plates stay)
@@ -18,155 +35,110 @@ ServerEvents.recipes((event) => {
         .EUt(GTValues.VA[GTValues.HV])
         .duration(800)
 
-    const world_data_scanner = [
-        ["lv", "gtceu:tin_single_cable"],
-        ["mv", "gtceu:copper_single_cable"],
-        ["hv", "gtceu:gold_single_cable"],
-        ["ev", "gtceu:aluminium_single_cable"],
-        ["iv", "gtceu:platinum_single_cable"],
-        ["luv", "gtceu:niobium_titanium_single_cable"],
-        ["zpm", "gtceu:vanadium_gallium_single_cable"],
-        ["uv", "gtceu:yttrium_barium_cuprate_single_cable"],
-        ["uhv", "gtceu:europium_single_cable"]]
-    world_data_scanner.forEach((scanner) => {
-        event.shaped("gtceu:" + scanner[0] + "_world_data_scanner", [
-            "CDC",
-            "BAB",
-            "CDC"
-        ], {
-            A: "gtceu:" + scanner[0] + "_machine_hull",
-            B: scanner[1],
-            C: "gtceu:" + scanner[0] + "_sensor",
-            D: "#gtceu:circuits/" + scanner[0]
-        })
-    })
-
-    gtr.world_data_scanner("kubejs:overworld_data")
-        .itemInputs("gtceu:data_stick", "64x gtceu:stone_dust")
-        .inputFluids("gtceu:pcb_coolant 100", "gtceu:air 64000")
-        .itemOutputs("kubejs:overworld_data")
-        .EUt(32)
-        .duration(4000)
-        .dimension("overworld")
-
-    gtr.world_data_scanner("kubejs:nether_data")
-        .itemInputs("2x gtceu:data_stick", "64x gtceu:netherrack_dust")
-        .inputFluids("gtceu:pcb_coolant 200", "gtceu:nether_air 64000")
-        .itemOutputs("2x kubejs:nether_data")
-        .EUt(128)
-        .duration(4000)
-        .dimension("the_nether")
-
-    gtr.world_data_scanner("kubejs:end_data")
-        .itemInputs("4x gtceu:data_stick", "64x gtceu:endstone_dust")
-        .inputFluids("gtceu:pcb_coolant 400", "gtceu:ender_air 64000")
-        .itemOutputs("4x kubejs:end_data")
-        .EUt(512)
-        .duration(4000)
-        .dimension("the_end")
-    
+    // The data sticks are gone: the void miner picks its dimension with the machine mode, not with a data item.
+    // One recipe per table entry: [outputs (all counts x10 of GT's), circuit, id]. The id names the FIRST ore's
+    // material. Circuit 8 of the overworld also opens on chalcopyrite, so the circuit number disambiguates it.
     const overworld_raw_ores =
-        [[["3x gtceu:raw_bentonite",
-            "2x gtceu:raw_magnetite",
-            "2x gtceu:raw_olivine",
-            "1x gtceu:raw_glauconite_sand"], "1"],
+        [[["30x gtceu:raw_bentonite",
+            "20x gtceu:raw_magnetite",
+            "20x gtceu:raw_olivine",
+            "10x gtceu:raw_glauconite_sand"], "1", "af9:vm_overworld_bentonite"],
 
-        [["9x gtceu:raw_almandine",
-            "6x gtceu:raw_pyrope",
-            "3x gtceu:raw_sapphire",
-            "3x gtceu:raw_green_sapphire"], "2"],
+        [["90x gtceu:raw_almandine",
+            "60x gtceu:raw_pyrope",
+            "30x gtceu:raw_sapphire",
+            "30x gtceu:raw_green_sapphire"], "2", "af9:vm_overworld_almandine"],
 
-        [["3x gtceu:raw_goethite",
-            "12x gtceu:raw_yellow_limonite",
-            "12x gtceu:raw_hematite",
-            "6x gtceu:raw_malachite"], "3"],
+        [["30x gtceu:raw_goethite",
+            "120x gtceu:raw_yellow_limonite",
+            "120x gtceu:raw_hematite",
+            "60x gtceu:raw_malachite"], "3", "af9:vm_overworld_goethite"],
 
-        [["6x gtceu:raw_soapstone",
-            "4x gtceu:raw_talc",
-            "4x gtceu:raw_glauconite_sand",
-            "2x gtceu:raw_pentlandite"], "4"],
+        [["60x gtceu:raw_soapstone",
+            "40x gtceu:raw_talc",
+            "40x gtceu:raw_glauconite_sand",
+            "20x gtceu:raw_pentlandite"], "4", "af9:vm_overworld_soapstone"],
 
-        [["3x gtceu:raw_grossular",
-            "2x gtceu:raw_spessartine",
-            "2x gtceu:raw_pyrolusite",
-            "1x gtceu:raw_tantalite"], "5"],
+        [["30x gtceu:raw_grossular",
+            "20x gtceu:raw_spessartine",
+            "20x gtceu:raw_pyrolusite",
+            "10x gtceu:raw_tantalite"], "5", "af9:vm_overworld_grossular"],
 
-        [["13x gtceu:raw_chalcopyrite",
-            "1x gtceu:raw_zeolite",
-            "1x gtceu:raw_cassiterite",
-            "3x gtceu:raw_realgar"], "6"],
+        [["130x gtceu:raw_chalcopyrite",
+            "10x gtceu:raw_zeolite",
+            "10x gtceu:raw_cassiterite",
+            "30x gtceu:raw_realgar"], "6", "af9:vm_overworld_chalcopyrite"],
 
-        [["12x gtceu:raw_coal"], "7"],
+        [["120x gtceu:raw_coal"], "7", "af9:vm_overworld_coal"],
 
-        [["2x gtceu:raw_chalcopyrite",
-            "8x minecraft:raw_iron",
-            "8x gtceu:raw_pyrite",
-            "8x minecraft:raw_copper"], "8"],
+        [["20x gtceu:raw_chalcopyrite",
+            "80x minecraft:raw_iron",
+            "80x gtceu:raw_pyrite",
+            "80x minecraft:raw_copper"], "8", "af9:vm_overworld_chalcopyrite_8"],
 
-        [["12x gtceu:raw_magnetite",
-            "8x gtceu:raw_vanadium_magnetite",
-            "4x minecraft:raw_gold"], "9"],
+        [["120x gtceu:raw_magnetite",
+            "80x gtceu:raw_vanadium_magnetite",
+            "40x minecraft:raw_gold"], "9", "af9:vm_overworld_magnetite"],
 
-        [["6x gtceu:raw_lazurite",
-            "4x gtceu:raw_sodalite",
-            "4x gtceu:raw_lapis",
-            "2x gtceu:raw_calcite"], "10"],
+        [["60x gtceu:raw_lazurite",
+            "40x gtceu:raw_sodalite",
+            "40x gtceu:raw_lapis",
+            "20x gtceu:raw_calcite"], "10", "af9:vm_overworld_lazurite"],
 
-        [["6x gtceu:raw_galena",
-            "4x gtceu:raw_silver",
-            "2x gtceu:raw_lead"], "11"],
+        [["60x gtceu:raw_galena",
+            "40x gtceu:raw_silver",
+            "20x gtceu:raw_lead"], "11", "af9:vm_overworld_galena"],
 
-        [["3x gtceu:raw_kyanite",
-            "2x gtceu:raw_mica",
-            "2x gtceu:raw_bauxite",
-            "1x gtceu:raw_pollucite"], "12"],
+        [["30x gtceu:raw_kyanite",
+            "20x gtceu:raw_mica",
+            "20x gtceu:raw_bauxite",
+            "10x gtceu:raw_pollucite"], "12", "af9:vm_overworld_kyanite"],
 
-        [["16x gtceu:raw_tin",
-            "8x gtceu:raw_cassiterite"], "13"],
+        [["160x gtceu:raw_tin",
+            "80x gtceu:raw_cassiterite"], "13", "af9:vm_overworld_tin"],
 
-        [["6x gtceu:raw_red_garnet",
-            "4x gtceu:raw_yellow_garnet",
-            "4x gtceu:raw_amethyst",
-            "2x gtceu:raw_opal"], "14"],
+        [["60x gtceu:raw_red_garnet",
+            "40x gtceu:raw_yellow_garnet",
+            "40x gtceu:raw_amethyst",
+            "20x gtceu:raw_opal"], "14", "af9:vm_overworld_red_garnet"],
 
-        [["12x gtceu:raw_basaltic_mineral_sand",
-            "8x gtceu:raw_granitic_mineral_sand",
-            "8x gtceu:raw_fullers_earth",
-            "4x gtceu:raw_gypsum"], "15"],
+        [["120x gtceu:raw_basaltic_mineral_sand",
+            "80x gtceu:raw_granitic_mineral_sand",
+            "80x gtceu:raw_fullers_earth",
+            "40x gtceu:raw_gypsum"], "15", "af9:vm_overworld_basaltic_mineral_sand"],
 
-        [["8x gtceu:raw_rock_salt",
-            "1x gtceu:raw_salt",
-            "3x gtceu:raw_lepidolite",
-            "3x gtceu:raw_spodumene"], "16"],
+        [["80x gtceu:raw_rock_salt",
+            "10x gtceu:raw_salt",
+            "30x gtceu:raw_lepidolite",
+            "30x gtceu:raw_spodumene"], "16", "af9:vm_overworld_rock_salt"],
 
-        [["9x gtceu:raw_redstone",
-            "6x gtceu:raw_ruby",
-            "3x gtceu:raw_cinnabar"], "17"],
+        [["90x gtceu:raw_redstone",
+            "60x gtceu:raw_ruby",
+            "30x gtceu:raw_cinnabar"], "17", "af9:vm_overworld_redstone"],
 
-        [["6x gtceu:raw_apatite",
-            "4x gtceu:raw_tricalcium_phosphate",
-            "2x gtceu:raw_pyrochlore"], "18"],
+        [["60x gtceu:raw_apatite",
+            "40x gtceu:raw_tricalcium_phosphate",
+            "20x gtceu:raw_pyrochlore"], "18", "af9:vm_overworld_apatite"],
 
-        [["12x gtceu:raw_cassiterite_sand",
-            "8x gtceu:raw_garnet_sand",
-            "8x gtceu:raw_asbestos",
-            "4x gtceu:raw_diatomite"], "19"],
+        [["120x gtceu:raw_cassiterite_sand",
+            "80x gtceu:raw_garnet_sand",
+            "80x gtceu:raw_asbestos",
+            "40x gtceu:raw_diatomite"], "19", "af9:vm_overworld_cassiterite_sand"],
 
-        [["12x gtceu:raw_oilsands"], "20"],
+        [["120x gtceu:raw_oilsands"], "20", "af9:vm_overworld_oilsands"],
 
-        [["6x gtceu:raw_graphite",
-            "4x gtceu:raw_diamond",
-            "2x gtceu:raw_coal"], "21"],
+        [["60x gtceu:raw_graphite",
+            "40x gtceu:raw_diamond",
+            "20x gtceu:raw_coal"], "21", "af9:vm_overworld_graphite"],
 
-        [["6x gtceu:raw_garnierite",
-            "4x gtceu:raw_nickel",
-            "4x gtceu:raw_cobaltite",
-            "2x gtceu:raw_pentlandite"], "22"]]
+        [["60x gtceu:raw_garnierite",
+            "40x gtceu:raw_nickel",
+            "40x gtceu:raw_cobaltite",
+            "20x gtceu:raw_pentlandite"], "22", "af9:vm_overworld_garnierite"]]
 
     overworld_raw_ores.forEach((overworld_ore) => {
-        let recipe = gtr.void_miner("overworld_void_ore_" + overworld_ore[1])
+        let recipe = gtr.void_mining_overworld(overworld_ore[2])
             .inputFluids("gtceu:drilling_fluid 1000")
-            .notConsumable("kubejs:overworld_data")
             .circuit(overworld_ore[1])
             .EUt(GTValues.VA[GTValues.EV])
             .duration(20)
@@ -176,61 +148,60 @@ ServerEvents.recipes((event) => {
         })
     })
     const nether_raw_ores =
-        [[["14x gtceu:raw_tetrahedrite",
-            "7x minecraft:raw_copper",
-            "4x gtceu:raw_stibnite"], "1"],
+        [[["140x gtceu:raw_tetrahedrite",
+            "70x minecraft:raw_copper",
+            "40x gtceu:raw_stibnite"], "1", "af9:vm_nether_tetrahedrite"],
 
-        [["5x gtceu:raw_bastnasite",
-            "2x gtceu:raw_molybdenum",
-            "2x gtceu:raw_neodymium",
-            "2x gtceu:raw_monazite"], "2"],
+        [["50x gtceu:raw_bastnasite",
+            "20x gtceu:raw_molybdenum",
+            "20x gtceu:raw_neodymium",
+            "20x gtceu:raw_monazite"], "2", "af9:vm_nether_bastnasite"],
 
-        [["9x gtceu:raw_redstone",
-            "6x gtceu:raw_ruby",
-            "3x gtceu:raw_cinnabar"], "3"],
+        [["90x gtceu:raw_redstone",
+            "60x gtceu:raw_ruby",
+            "30x gtceu:raw_cinnabar"], "3", "af9:vm_nether_redstone"],
 
-        [["6x gtceu:raw_saltpeter",
-            "4x gtceu:raw_diatomite",
-            "4x gtceu:raw_electrotine",
-            "2x gtceu:raw_alunite"], "4"],
+        [["60x gtceu:raw_saltpeter",
+            "40x gtceu:raw_diatomite",
+            "40x gtceu:raw_electrotine",
+            "20x gtceu:raw_alunite"], "4", "af9:vm_nether_saltpeter"],
 
-        [["5x gtceu:raw_beryllium",
-            "6x gtceu:raw_emerald"], "5"],
+        [["50x gtceu:raw_beryllium",
+            "60x gtceu:raw_emerald"], "5", "af9:vm_nether_beryllium"],
 
-        [["3x gtceu:raw_grossular",
-            "2x gtceu:raw_pyrolusite",
-            "1x gtceu:raw_tantalite"], "6"],
+        [["30x gtceu:raw_grossular",
+            "20x gtceu:raw_pyrolusite",
+            "10x gtceu:raw_tantalite"], "6", "af9:vm_nether_grossular"],
 
-        [["8x gtceu:raw_wulfenite",
-            "5x gtceu:raw_molybdenite",
-            "3x gtceu:raw_molybdenum",
-            "3x gtceu:raw_powellite"], "7"],
+        [["80x gtceu:raw_wulfenite",
+            "50x gtceu:raw_molybdenite",
+            "30x gtceu:raw_molybdenum",
+            "30x gtceu:raw_powellite"], "7", "af9:vm_nether_wulfenite"],
 
-        [["5x gtceu:raw_goethite",
-            "3x gtceu:raw_yellow_limonite",
-            "3x gtceu:raw_hematite",
-            "2x minecraft:raw_gold"], "8"],
+        [["50x gtceu:raw_goethite",
+            "30x gtceu:raw_yellow_limonite",
+            "30x gtceu:raw_hematite",
+            "20x minecraft:raw_gold"], "8", "af9:vm_nether_goethite"],
 
-        [["6x gtceu:raw_quartzite",
-            "4x gtceu:raw_certus_quartz",
-            "2x gtceu:raw_barite"], "9"],
+        [["60x gtceu:raw_quartzite",
+            "40x gtceu:raw_certus_quartz",
+            "20x gtceu:raw_barite"], "9", "af9:vm_nether_quartzite"],
 
-        [["11x gtceu:raw_blue_topaz",
-            "7x gtceu:raw_topaz",
-            "7x gtceu:raw_chalcocite",
-            "4x gtceu:raw_bornite"], "10"],
+        [["110x gtceu:raw_blue_topaz",
+            "70x gtceu:raw_topaz",
+            "70x gtceu:raw_chalcocite",
+            "40x gtceu:raw_bornite"], "10", "af9:vm_nether_blue_topaz"],
 
-        [["12x gtceu:raw_nether_quartz",
-            "4x gtceu:raw_quartzite"], "11"],
+        [["120x gtceu:raw_nether_quartz",
+            "40x gtceu:raw_quartzite"], "11", "af9:vm_nether_nether_quartz"],
 
-        [["15x gtceu:raw_sulfur",
-            "10x gtceu:raw_pyrite",
-            "5x gtceu:raw_sphalerite"], "12"]]
+        [["150x gtceu:raw_sulfur",
+            "100x gtceu:raw_pyrite",
+            "50x gtceu:raw_sphalerite"], "12", "af9:vm_nether_sulfur"]]
 
     nether_raw_ores.forEach((nether_ore) => {
-        let recipe = gtr.void_miner("nether_void_ore_" + nether_ore[1])
+        let recipe = gtr.void_mining_nether(nether_ore[2])
             .inputFluids("gtceu:drilling_fluid 1000")
-            .notConsumable("2x kubejs:nether_data")
             .circuit(nether_ore[1])
             .EUt(2 * GTValues.VA[GTValues.EV])
             .duration(20)
@@ -241,36 +212,62 @@ ServerEvents.recipes((event) => {
     })
 
     const end_raw_ores =
-        [[["9x gtceu:raw_magnetite",
-            "6x gtceu:raw_vanadium_magnetite",
-            "6x gtceu:raw_chromite",
-            "3x minecraft:raw_gold"], "1"],
+        [[["90x gtceu:raw_magnetite",
+            "60x gtceu:raw_vanadium_magnetite",
+            "60x gtceu:raw_chromite",
+            "30x minecraft:raw_gold"], "1", "af9:vm_end_magnetite"],
 
-        [["8x gtceu:raw_bauxite",
-            "4x gtceu:raw_ilmenite",
-            "4x gtceu:raw_aluminium"], "2"],
+        [["80x gtceu:raw_bauxite",
+            "40x gtceu:raw_ilmenite",
+            "40x gtceu:raw_aluminium"], "2", "af9:vm_end_bauxite"],
 
-        [["3x gtceu:raw_bornite",
-            "2x gtceu:raw_cooperite",
-            "2x gtceu:raw_platinum",
-            "1x gtceu:raw_palladium"], "3"],
+        [["30x gtceu:raw_bornite",
+            "20x gtceu:raw_cooperite",
+            "20x gtceu:raw_platinum",
+            "10x gtceu:raw_palladium"], "3", "af9:vm_end_bornite"],
 
-        [["6x gtceu:raw_scheelite",
-            "4x gtceu:raw_tungstate",
-            "2x gtceu:raw_lithium"], "4"],
+        [["60x gtceu:raw_scheelite",
+            "40x gtceu:raw_tungstate",
+            "20x gtceu:raw_lithium"], "4", "af9:vm_end_scheelite"],
 
         // Circuit 5 was pitchblende and uraninite, and circuit 6 carried raw plutonium with the naquadah: uranium and
         // plutonium come from the Asteroid Field now (asteroid_fission.js), no void miner makes them
-        [["9x gtceu:raw_naquadah"], "6"]]
+        [["90x gtceu:raw_naquadah"], "6", "af9:vm_end_naquadah"]]
 
     end_raw_ores.forEach((end_ore) => {
-        let recipe = gtr.void_miner("end_void_ore_" + end_ore[1])
+        let recipe = gtr.void_mining_end(end_ore[2])
             .inputFluids("gtceu:drilling_fluid 1000")
-            .notConsumable("4x kubejs:end_data")
             .circuit(end_ore[1])
             .EUt(GTValues.VA[GTValues.IV])
             .duration(20)
         let output = end_ore[0]
+        output.forEach(item => {
+            recipe.chancedOutput(item, 2000, 0)
+        })
+    })
+
+    const asteroids_raw_ores =
+        [[["40x gtceu:raw_brannerite"], "1", "af9:vm_asteroids_brannerite"],
+
+        [["90x gtceu:raw_magnetite"], "2", "af9:vm_asteroids_magnetite"],
+
+        [["40x gtceu:raw_pentlandite"], "3", "af9:vm_asteroids_pentlandite"],
+
+        [["20x gtceu:raw_cooperite"], "4", "af9:vm_asteroids_cooperite"],
+
+        [["90x gtceu:raw_naquadah"], "5", "af9:vm_asteroids_naquadah"],
+
+        [["20x gtceu:raw_platinum"], "6", "af9:vm_asteroids_platinum"],
+
+        [["40x af9:oil_regolith"], "7", "af9:vm_asteroids_oil_regolith"]]
+
+    asteroids_raw_ores.forEach((asteroids_ore) => {
+        let recipe = gtr.void_mining_asteroids(asteroids_ore[2])
+            .inputFluids("gtceu:drilling_fluid 1000")
+            .circuit(asteroids_ore[1])
+            .EUt(GTValues.VA[GTValues.IV])
+            .duration(20)
+        let output = asteroids_ore[0]
         output.forEach(item => {
             recipe.chancedOutput(item, 2000, 0)
         })

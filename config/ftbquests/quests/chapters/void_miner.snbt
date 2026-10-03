@@ -1,0 +1,121 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "void_miner"
+	group: "1DA67E79B40AB130"
+	icon: "gtceu:void_miner"
+	id: "68BBA4603FE1EF0C"
+	order_index: 18
+	progression_mode: "flexible"
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"{af9.quest.vm.intro.1}"
+				""
+				"{af9.quest.vm.intro.2}"
+			]
+			icon: "gtceu:void_miner"
+			id: "2C56DB9B1465E2B9"
+			rewards: [{
+				id: "364C8F6FDDEAD922"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "gear"
+			size: 2.5d
+			subtitle: "{af9.quest.vm.intro.subtitle}"
+			tasks: [
+				{
+					id: "77DFCCE3B0D76741"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.vm.intro.title}"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["2C56DB9B1465E2B9"]
+			description: [
+				"{af9.quest.vm.miner.1}"
+			]
+			icon: "gtceu:void_miner"
+			id: "7DCAE35A2C3059C3"
+			rewards: [{
+				id: "1D52F143E095083D"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.vm.miner.subtitle}"
+			tasks: [
+				{
+					id: "12EB0FBB2EF1AA05"
+					item: "gtceu:void_miner"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.vm.miner.title}"
+			x: 3.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["7DCAE35A2C3059C3"]
+			description: [
+				"{af9.quest.vm.ore.1}"
+			]
+			icon: "gtceu:raw_magnetite"
+			id: "4013256F055DDE30"
+			rewards: [{
+				id: "0C0523150269222A"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.vm.ore.subtitle}"
+			tasks: [
+				{
+					count: 64L
+					id: "3CE64C6A0CD2B99D"
+					item: "gtceu:raw_magnetite"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.vm.ore.title}"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["4013256F055DDE30"]
+			description: [
+				"{af9.quest.vm.asteroid.1}"
+			]
+			icon: "gtceu:raw_brannerite"
+			id: "7A951C26AD77ECA2"
+			rewards: [{
+				id: "29F26671DB16042A"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.vm.asteroid.subtitle}"
+			tasks: [
+				{
+					count: 8L
+					id: "29ADC8FC99787108"
+					item: "gtceu:raw_brannerite"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.vm.asteroid.title}"
+			x: 9.0d
+			y: 0.0d
+		}
+	]
+	subtitle: ["{af9.quest.vm.chapter.subtitle}"]
+	title: "{af9.quest.vm.chapter.title}"
+}
