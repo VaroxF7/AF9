@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AF9 — a semiconductor factory on GregTech CEu Modern</title>
+<meta name="description" content="AF9 turns a GregTech CEu Modern 7.2.0 pack (MC 1.20.1) into a semiconductor factory: 350 nm to 1 nm lithography, asteroid fission, computation, space elevator, platinum refinery, off-world oil.">
+<style>
+:root{
+  --bg:#0b0e14; --bg2:#111624; --card:#151b2e; --card2:#1a2138;
+  --line:#26304f; --txt:#e8ecf6; --mut:#9aa5c4; --acc:#6ee7ff; --acc2:#a78bfa;
+  --grn:#4ade80; --gld:#fbbf24; --rose:#fb7185; --radius:14px;
+  --font:system-ui,-apple-system,"Segoe UI",Roboto,Inter,Arial,sans-serif;
+  --mono:ui-monospace,"Cascadia Code","JetBrains Mono",Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:radial-gradient(1200px 600px at 80% -10%,#1b2450 0%,transparent 60%),radial-gradient(900px 500px at 10% 0%,#14283f 0%,transparent 55%),var(--bg);color:var(--txt);font-family:var(--font);line-height:1.6}
+a{color:var(--acc);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1120px;margin:0 auto;padding:0 22px}
+header.nav{position:sticky;top:0;z-index:50;background:rgba(11,14,20,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.nav .wrap{display:flex;align-items:center;gap:18px;padding:12px 22px}
+.brand{font-weight:800;font-size:18px;letter-spacing:.5px}
+.brand span{background:linear-gradient(90deg,var(--acc),var(--acc2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.links{margin-left:auto;display:flex;gap:14px;font-size:14px;flex-wrap:wrap}
+.links a{color:var(--mut)}
+.links a:hover{color:var(--txt)}
+.btn{display:inline-block;padding:10px 18px;border-radius:10px;font-weight:700;border:1px solid var(--line);background:var(--card);color:var(--txt)}
+.btn:hover{text-decoration:none;transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(90deg,#0ea5e9,#8b5cf6);border:0;color:#fff}
+.hero{padding:72px 0 40px}
+.eyebrow{display:inline-block;font-size:12px;letter-spacing:2px;color:var(--acc);border:1px solid var(--line);border-radius:999px;padding:5px 14px;background:rgba(110,231,255,.06);margin-bottom:18px}
+h1{font-size:clamp(34px,5.4vw,58px);line-height:1.08;margin:0 0 14px}
+h1 .grad{background:linear-gradient(90deg,var(--acc),var(--acc2),var(--rose));-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:var(--mut);font-size:clamp(15px,2vw,18px);max-width:760px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin:22px 0}
+.badges img{height:22px}
+.cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:34px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.stat b{display:block;font-size:20px}
+.stat small{color:var(--mut)}
+section{padding:34px 0}
+h2{font-size:28px;margin:0 0 6px}
+.kicker{color:var(--acc);font-size:13px;letter-spacing:2px;font-weight:700}
+p.lead{color:var(--mut);max-width:780px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-top:18px}
+.card{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:var(--radius);padding:20px}
+.card:hover{border-color:#3b4a7d}
+.card .icon{font-size:26px}
+.card h3{margin:8px 0 6px;font-size:18px}
+.card p{color:var(--mut);font-size:14px;margin:0 0 10px}
+.card code{font-family:var(--mono);font-size:12px;color:var(--acc)}
+.flow{background:#0d1220;border:1px solid var(--line);border-radius:var(--radius);padding:18px;overflow-x:auto;font-family:var(--mono);font-size:13px;color:#c7d2fe;margin-top:14px;white-space:pre}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13.5px;background:var(--card);border-radius:var(--radius);overflow:hidden}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:#1b2340;color:var(--acc);font-size:12px;letter-spacing:.6px;text-transform:uppercase;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td code{font-family:var(--mono);font-size:12px;color:#c7d2fe}
+.tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;border:1px solid var(--line);color:var(--mut)}
+.tag.mv{color:var(--grn)} .tag.hv{color:var(--acc)} .tag.ev{color:#c4b5fd} .tag.iv{color:var(--gld)} .tag.luv{color:#f9a8d4} .tag.zpm{color:var(--rose)} .tag.uv{color:#fdba74} .tag.uhv{color:#fff;background:#7c3aed}
+.tabs{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.tab{padding:9px 18px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--mut);cursor:pointer;font-weight:700;font-size:14px}
+.tab.active{background:linear-gradient(90deg,#0ea5e9,#8b5cf6);color:#fff;border:0}
+.panel{display:none;background:#0d1220;border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-top:12px}
+.panel.active{display:block}
+.panel ol,.panel ul{margin:8px 0;padding-left:22px}
+.panel code,.card code,li code{font-family:var(--mono);background:#0b1020;border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+pre.cmd{background:#05070d;border:1px solid var(--line);border-radius:10px;padding:14px;overflow-x:auto;font-family:var(--mono);font-size:13px;color:var(--grn)}
+.timeline{display:grid;gap:10px;margin-top:14px}
+.step{display:grid;grid-template-columns:110px 1fr;gap:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.step b.tier{font-size:14px}
+.step p{margin:2px 0 0;color:var(--mut);font-size:14px}
+.docs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+.doc{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.doc b{display:block;margin-bottom:4px}
+.doc small{color:var(--mut)}
+footer{border-top:1px solid var(--line);margin-top:30px;padding:26px 0 60px;color:var(--mut);font-size:13px}
+.note{background:rgba(251,191,36,.07);border:1px solid #4a3a12;border-radius:var(--radius);padding:14px 16px;margin-top:14px;font-size:14px}
+@media(max-width:640px){.step{grid-template-columns:1fr}.links{display:none}}
+</style>
+</head>
+<body>
+<header class="nav"><div class="wrap">
+  <div class="brand">AF9 <span>· semiconductor factory</span></div>
+  <nav class="links">
+    <a href="#systems">Systems</a><a href="#nodes">Nodes</a><a href="#progression">Progression</a>
+    <a href="#install">Install</a><a href="#repo">Repo</a><a href="#docs">Docs</a>
+    <a href="https://github.com/VaroxF7/AF9">GitHub</a>
+  </nav>
+</div></header>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="eyebrow">GREGTECH CEU MODERN 7.2.0 · MC 1.20.1 · FORGE</div>
+    <h1>From quartz to <span class="grad">1&nbsp;nm chips</span>,<br>then to orbit.</h1>
+    <p class="sub">AF9 turns a GregTech pack into a semiconductor factory: quartz → polysilicon →
+      Czochralski boules → wafers → fab chemistry → lithography from <b>350&nbsp;nm down to 1&nbsp;nm</b> →
+      GT + AF9 chips → the computation that feeds it all. Around the fab: asteroid fission, a ZPM space
+      elevator, a platinum refinery, and off-world oil.</p>
+    <div class="badges">
+      <img alt="build" src="https://github.com/VaroxF7/AF9/actions/workflows/build-af9-core.yml/badge.svg">
+      <img alt="mc" src="https://img.shields.io/badge/minecraft-1.20.1-green">
+      <img alt="forge" src="https://img.shields.io/badge/forge-47.4.0-orange">
+      <img alt="gtceu" src="https://img.shields.io/badge/GTCEu-7.2.0-blue">
+      <img alt="jdk" src="https://img.shields.io/badge/JDK-17-red">
+    </div>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/VaroxF7/AF9/actions/workflows/build-af9-core.yml">⬇ Get AF9-update artifact</a>
+      <a class="btn" href="https://github.com/VaroxF7/AF9">★ View repository</a>
+      <a class="btn" href="#install">Install guide</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><b>9</b><small>wafer substrates · 350 nm → 1 nm</small></div>
+      <div class="stat"><b>3 + 1</b><small>printers: Line · Scanner Mk2 · Orbital Station</small></div>
+      <div class="stat"><b>25+</b><small>chips: GT chain + 9 AF9 chips</small></div>
+      <div class="stat"><b>4</b><small>drones · 8–48 stacks per elevator expedition</small></div>
+      <div class="stat"><b>0</b><small>NBT in the chip chain · plain items</small></div>
+    </div>
+  </div>
+
+  <section id="systems">
+    <div class="kicker">WHAT AF9 ADDS</div>
+    <h2>Six systems, one factory</h2>
+    <p class="lead">This repo is AF9's layer on top of the pack: the <code>af9-core</code> Forge mod, KubeJS
+      machines/materials/recipes, quests, and the configs AF9 changes. Everything else comes from the pack.</p>
+    <div class="grid">
+      <div class="card"><div class="icon">🔬</div><h3>Semiconductor factory</h3>
+        <p>Siemens polysilicon, EBF Boule Melting, Coater Track, 9 lithography modes with vacuum / break rolls / air cooling / OPC computation / metrology, 3 mask classes, 6 chip families → computation cards.</p>
+        <code>docs/semiconductor-factory.md</code><br><a href="https://github.com/VaroxF7/AF9/blob/main/docs/semiconductor-factory.md">Read spec →</a></div>
+      <div class="card"><div class="icon">☢️</div><h3>Asteroid fission</h3>
+        <p>Brannerite only in the Asteroid Field (Ad Astra, seed-fixed clusters + temples) → yellowcake → FX-1 Reactor → supercritical steam + spent fuel → Pu-239/241 → Fusion Reactor Mk1.</p>
+        <code>docs/asteroid-fission.md</code><br><a href="https://github.com/VaroxF7/AF9/blob/main/docs/asteroid-fission.md">Read spec →</a></div>
+      <div class="card"><div class="icon">🧮</div><h3>Computation</h3>
+        <p>CWU Servers LV–IV (4–64 CWU/t) + N1 Computation / Supercomputer Arrays: racks of Tube→Sub-atomic cards, coolant-scaled output, all <code>IOpticalComputationProvider</code>.</p>
+        <code>docs/computation.md</code><br><a href="https://github.com/VaroxF7/AF9/blob/main/docs/computation.md">Read spec →</a></div>
+      <div class="card"><div class="icon">🛰️</div><h3>Space Elevator</h3>
+        <p>GTNH's tower block-for-block (35×35×43, ext. 47×47): Mining Drones Mk-I…IV + Modules, ore expeditions + Space Pumping liquid missions, animated cable &amp; climber, first-missing-hint screen.</p>
+        <code>docs/space-elevator.md</code><br><a href="https://github.com/VaroxF7/AF9/blob/main/docs/space-elevator.md">Read spec →</a></div>
+      <div class="card"><div class="icon">⚗️</div><h3>Platinum-group refinery</h3>
+        <p>Matte → leach → chloride liquor → Pt/Pd/Au, then Ru/Os tetroxides, Ir/Rh last. GT's own machines, GT's chain untouched, higher yield (Pt 4/batch).</p>
+        <code>docs/platinum-group-metals.md</code><br><a href="https://github.com/VaroxF7/AF9/blob/main/docs/platinum-group-metals.md">Read spec →</a></div>
+      <div class="card"><div class="icon">🛢️</div><h3>Oil, off-world</h3>
+        <p>Overworld oil off. Oil Regolith pockets in asteroids → Impure → Shiny → Oil/Heavy Oil; N₂/O₂/heavy-water/acid deposits drilled in the Field.</p>
+        <code>docs/oil.md</code><br><a href="https://github.com/VaroxF7/AF9/blob/main/docs/oil.md">Read spec →</a></div>
+    </div>
+    <div class="flow">quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer → Coater Track
+  → Line / Scanner / Orbital Station → GT chip wafers → cutter dies → circuits → computation …</div>
+  </section>
+
+  <section id="nodes">
+    <div class="kicker">LITHOGRAPHY</div>
+    <h2>Nine nodes, one mode per substrate</h2>
+    <p class="lead">A better substrate prints its own chips <b>and every lower substrate's chips</b> as GT's plain
+      chip wafers — more wafers per print, not more dies per wafer. Source of truth:
+      <code>LithoMode.java</code> = <code>AF9_WAFERS</code> = <code>AF9_WAFER_TABLE</code>.</p>
+    <div style="overflow-x:auto"><table>
+      <tr><th>Substrate</th><th>Node</th><th>Tier</th><th>Light</th><th>Resist</th><th>Break</th><th>Machine</th></tr>
+      <tr><td><code>silicon</code></td><td>350 nm</td><td><span class="tag mv">MV · 480</span></td><td>i-line 365</td><td><code>photoresist</code></td><td>2%</td><td>Line V1</td></tr>
+      <tr><td><code>phosphorus</code></td><td>200 nm</td><td><span class="tag hv">HV · 1.9k</span></td><td>KrF 248</td><td><code>krf_photoresist</code></td><td>3%</td><td>Line V2</td></tr>
+      <tr><td><code>naquadah</code></td><td>100 nm</td><td><span class="tag ev">EV · 7.7k</span></td><td>ArF dry 193</td><td><code>arf_photoresist</code></td><td>5%</td><td>Line V3</td></tr>
+      <tr><td><code>trinium</code></td><td>80 nm</td><td><span class="tag iv">IV · 30k</span></td><td>ArF dry 193</td><td><code>arf_photoresist</code></td><td>7%</td><td>Scanner V1</td></tr>
+      <tr><td><code>naquadria</code></td><td>65 nm</td><td><span class="tag luv">LuV · 123k</span></td><td>ArFi 193</td><td><code>arf_photoresist</code></td><td>9%</td><td>Scanner V2</td></tr>
+      <tr><td><code>neutronium</code></td><td>50 nm</td><td><span class="tag zpm">ZPM · 492k</span></td><td>ArFi 193</td><td><code>arf_photoresist</code></td><td>12%</td><td>Orbital</td></tr>
+      <tr><td><code>transmuted_n.</code></td><td>20 nm</td><td><span class="tag uv">UV · 2M</span></td><td>EUV 13.5</td><td><code>euv_photoresist</code></td><td>18%</td><td>Orbital + EUV</td></tr>
+      <tr><td><code>strange_m.</code></td><td>7 nm</td><td><span class="tag uhv">UHV · 7.9M</span></td><td>high-NA EUV</td><td><code>euv_photoresist</code></td><td>25%</td><td>Orbital + EUV</td></tr>
+      <tr><td><code>chromodynium</code></td><td><b>1 nm</b></td><td><span class="tag uhv">UHV · 50A</span></td><td>X-ray FEL (orbit)</td><td><code>dry_resist_cartridge</code></td><td>35%</td><td>Orbital, in orbit</td></tr>
+    </table></div>
+    <div class="note"><b>What decides a print:</b> vacuum cleanliness 0–100 (sealed in 10&nbsp;s × level, prints only start sealed) ·
+      break roll <span style="font-family:var(--mono)">(base + (100−low)/100 × 0.5) × 0.75<sup>surplus</sup></span> ·
+      line versions (×0.8 time, ×0.75 break each) · air cooling + OPC computation + Metrology Station.</div>
+  </section>
+
+  <section id="progression">
+    <div class="kicker">ROADMAP</div>
+    <h2>MV → UHV progression</h2>
+    <div class="timeline">
+      <div class="step"><b class="tier">🟩 MV</b><p>Si boule → 350 nm Line V1 + Coater Track + CWU LV/MV → GT LV–MV chips, computation for research.</p></div>
+      <div class="step"><b class="tier">🟦 HV</b><p>200 nm KrF, FX-1 fuel chain, Oil Regolith → oil, PGM matte (Pt/Pd) → ASIC/MCU/APU, first fission power.</p></div>
+      <div class="step"><b class="tier">🟪 EV</b><p>100 nm ArF dry, T2 rocket → Ceres/Field, Cryostat + N1 Array → naquadah circuits, brannerite, cold coolants.</p></div>
+      <div class="step"><b class="tier">🟨 IV–LuV</b><p>Scanner 80/65 nm, T3–T4 rockets, Particle Accelerator, N1 Supercomputer → e/m/FE-RAM, VPU, transmuted neutronium.</p></div>
+      <div class="step"><b class="tier">🟥 ZPM</b><p>Orbital 50 nm, Space Elevator Mk-I+, Fusion Mk1 (Pu-241) → renewable ore, neutronium HASoC, TPU path.</p></div>
+      <div class="step"><b class="tier">⬛ UV–UHV</b><p>EUV 20/7 nm, high-NA, 1 nm X-ray FEL in orbit; photonic/atomic/sub-atomic cards → endgame computation.</p></div>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="kicker">GET STARTED</div>
+    <h2>Install &amp; build</h2>
+    <div class="tabs">
+      <button class="tab active" data-t="play">🎮 Play (no build)</button>
+      <button class="tab" data-t="dev">🛠 Build from source</button>
+      <button class="tab" data-t="lint">🧹 Lint / CI</button>
+    </div>
+    <div class="panel active" id="p-play">
+      <ol>
+        <li>Go to <a href="https://github.com/VaroxF7/AF9/actions/workflows/build-af9-core.yml">Actions → Build AF9 Core → latest run → Artifacts</a> and download <b>AF9-update</b>.</li>
+        <li>Extract it into the instance folder (the one containing <code>mods/</code>) and let it overwrite. Delete any older <code>af9-core-*.jar</code>.</li>
+        <li>Requires GregTech CEu Modern <b>7.2.0</b> + Ad Astra <b>1.15</b>. Jade &amp; Curios optional. <b>Every client and server needs the jar.</b></li>
+      </ol>
+      <p style="color:var(--mut)">The artifact ships <code>mods/af9-core-&lt;version&gt;.jar</code> + <code>kubejs/</code> + <code>config/</code> of that commit, plus <code>AF9_BUILD.txt</code> with the commit hash.</p>
+    </div>
+    <div class="panel" id="p-dev">
+      <pre class="cmd">cd af9-core
+./gradlew build        # Windows: gradlew build
+# jar → af9-core/build/libs/af9-core-&lt;version&gt;.jar → instance mods/</pre>
+      <p>Needs <b>JDK 17</b>. Versions pinned in <code>af9-core/gradle.properties</code> to what GTCEu 7.2.0 was built against — bump together with the pack.</p>
+    </div>
+    <div class="panel" id="p-lint">
+      <pre class="cmd">bash tools/lint/run.sh            # full check, no game needed
+bash tools/lint/run.sh --selftest # + self-test (what CI runs)</pre>
+      <p>CI on pushes to <code>main</code> (<code>af9-core/</code>, <code>kubejs/</code>, <code>config/</code>, <code>tools/lint/</code>): <b>lint → build → package</b> (<code>af9-core</code> + <code>AF9-update</code> artifacts). Findings: <code>docs/review-findings.md</code>.</p>
+    </div>
+  </section>
+
+  <section id="repo">
+    <div class="kicker">REPOSITORY</div>
+    <h2>Repo map</h2>
+    <div style="overflow-x:auto"><table>
+      <tr><th>Path</th><th>What</th></tr>
+      <tr><td><code>af9-core/</code></td><td>Forge mod — machine logic KubeJS can't do (<code>litho</code>, <code>fab</code>, <code>space</code>, <code>compute</code>, <code>elevator</code>, wireless, radiation…)</td></tr>
+      <tr><td><code>kubejs/startup_scripts/gtceu/</code></td><td>machines, materials, parts, recipe types</td></tr>
+      <tr><td><code>kubejs/server_scripts/mods/gtceu/</code></td><td>recipes — photolithography, fab, rockets, fission, elevator, platinum, oil…</td></tr>
+      <tr><td><code>kubejs/assets/</code></td><td>textures, models, lang</td></tr>
+      <tr><td><code>config/ftbquests/</code></td><td>quest chapters (fission ×34, litho, platline, elevator, oil, circuits, tier chapters)</td></tr>
+      <tr><td><code>docs/</code></td><td>design docs + this page</td></tr>
+      <tr><td><code>tools/lint/</code></td><td>offline checker — recipes, multiblocks, quests, textures, lang</td></tr>
+    </table></div>
+  </section>
+
+  <section id="docs">
+    <div class="kicker">DEEP DOCS</div>
+    <h2>Design documents</h2>
+    <div class="docs">
+      <div class="doc"><b>🔬 <a href="https://github.com/VaroxF7/AF9/blob/main/docs/semiconductor-factory.md">Semiconductor factory</a></b><small>Wafers, silicon, SoCs, chips, lithography — the agent-optimized spec.</small></div>
+      <div class="doc"><b>☢️ <a href="https://github.com/VaroxF7/AF9/blob/main/docs/asteroid-fission.md">Asteroid fission</a></b><small>Field, Brannerite, FX-1, steam, plutonium, Fusion Mk1.</small></div>
+      <div class="doc"><b>🧮 <a href="https://github.com/VaroxF7/AF9/blob/main/docs/computation.md">Computation</a></b><small>CWU servers, N1 arrays, cards, coolants.</small></div>
+      <div class="doc"><b>🛰️ <a href="https://github.com/VaroxF7/AF9/blob/main/docs/space-elevator.md">Space Elevator</a></b><small>Structure, drones, ore + liquid missions, screen.</small></div>
+      <div class="doc"><b>⚗️ <a href="https://github.com/VaroxF7/AF9/blob/main/docs/platinum-group-metals.md">Platinum-group metals</a></b><small>Refinery chain in GT machines.</small></div>
+      <div class="doc"><b>🛢️ <a href="https://github.com/VaroxF7/AF9/blob/main/docs/oil.md">Oil</a></b><small>Regolith chain + Field fluid deposits.</small></div>
+      <div class="doc"><b>🧹 <a href="https://github.com/VaroxF7/AF9/blob/main/docs/review-findings.md">Review findings</a></b><small>What the lint found.</small></div>
+      <div class="doc"><b>🧩 <a href="https://github.com/VaroxF7/AF9/blob/main/af9-core/README.md">AF9 Core</a></b><small>Java class map.</small></div>
+    </div>
+  </section>
+</div>
+
+<footer><div class="wrap">
+  AF9 · a layer on GregTech CEu Modern 7.2.0 (MC 1.20.1 / Forge). Upstream pack: AllTheMods ATM-9.
+  Credits: GTCEu · GTNH (elevator structure/logic, platline method — re-expressed, no GTNH assets) · Ad Astra · KubeJS · LDLib · Jade · Curios · Extreme Reactors · EMI.<br>
+  <a href="https://github.com/VaroxF7/AF9">github.com/VaroxF7/AF9</a>
+</div></footer>
+
+<script>
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('p-'+b.dataset.t).classList.add('active');
+}));
+</script>
+</body>
+</html>
