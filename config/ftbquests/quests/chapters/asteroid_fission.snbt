@@ -515,7 +515,7 @@
 			description: [
 				"{af9.quest.fx.pellets.1}"
 			]
-			icon: "kubejs:fx_fuel_pellet"
+			icon: "af9:fx_fuel_pellet"
 			id: "7EF8EFCDD9A99B6F"
 			rewards: [{
 				id: "1A17FBD450F5595B"
@@ -529,7 +529,7 @@
 				{
 					count: 16L
 					id: "0A38B982F124F07E"
-					item: "kubejs:fx_fuel_pellet"
+					item: "af9:fx_fuel_pellet"
 					type: "item"
 				}
 			]
@@ -572,7 +572,7 @@
 			description: [
 				"{af9.quest.fx.rod.1}"
 			]
-			icon: "kubejs:fx_fuel_rod"
+			icon: "af9:fx_fuel_rod"
 			id: "3B4F21F7F51897B8"
 			rewards: [{
 				id: "299462E1368A7BA9"
@@ -586,7 +586,7 @@
 				{
 					count: 4L
 					id: "1513F861535BFBF1"
-					item: "kubejs:fx_fuel_rod"
+					item: "af9:fx_fuel_rod"
 					type: "item"
 				}
 			]
@@ -761,7 +761,7 @@
 			description: [
 				"{af9.quest.fx.spentRod.1}"
 			]
-			icon: "kubejs:fx_spent_fuel_rod"
+			icon: "af9:fx_spent_fuel_rod"
 			id: "64C5FB226AC6C713"
 			rewards: [{
 				id: "5ED00869511E4BF5"
@@ -775,7 +775,7 @@
 				{
 					count: 4L
 					id: "210BB71132A9F167"
-					item: "kubejs:fx_spent_fuel_rod"
+					item: "af9:fx_spent_fuel_rod"
 					type: "item"
 				}
 			]

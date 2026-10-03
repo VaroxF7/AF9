@@ -13,7 +13,7 @@
 // ---- Tags ----
 ServerEvents.tags('item', event => {
     // what RadiationWatch (af9-core) warns about besides GT's radioactive materials
-    event.add('af9:radioactive', ['kubejs:fx_fuel_pellet', 'kubejs:fx_fuel_rod', 'kubejs:fx_spent_fuel_rod'])
+    event.add('af9:radioactive', ['af9:fx_fuel_pellet', 'af9:fx_fuel_rod', 'af9:fx_spent_fuel_rod'])
 })
 ServerEvents.tags('fluid', event => {
     // Extreme Reactors' turbines take it as a vapor (af9-core ExtremeReactorsCompat)
@@ -81,14 +81,14 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.electric_blast_furnace('af9:fx_fuel_pellets')
         .itemInputs('12x gtceu:uranium_dust', '4x gtceu:tiny_uranium_235_dust')
         .inputFluids(Fluid.of('gtceu:oxygen', 8000))
-        .itemOutputs('4x kubejs:fx_fuel_pellet')
+        .itemOutputs('4x af9:fx_fuel_pellet')
         .blastFurnaceTemp(1800)
         .duration(400)
         .EUt(VA[GTValues.HV])
     // Rods: four pellets in a zirconium cladding (zircon chain, electronics_metallurgy.js)
     event.recipes.gtceu.assembler('af9:fx_fuel_rod')
-        .itemInputs('4x kubejs:fx_fuel_pellet', 'gtceu:zirconium_ingot')
-        .itemOutputs('kubejs:fx_fuel_rod')
+        .itemInputs('4x af9:fx_fuel_pellet', 'gtceu:zirconium_ingot')
+        .itemOutputs('af9:fx_fuel_rod')
         .duration(200)
         .EUt(VA[GTValues.HV])
 
@@ -97,10 +97,10 @@ ServerEvents.recipes(event => {
     // Turbines at full rotor power) for 640 mB of water, EV: 1,920 EU/t. The coolant goes through the core and comes out
     // hot, in equal amounts. Overclocking (IV hatches) runs it faster.
     event.recipes.gtceu.fx1_reactor('af9:fx1_fuel_cycle')
-        .itemInputs('kubejs:fx_fuel_rod')
+        .itemInputs('af9:fx_fuel_rod')
         .inputFluids(Fluid.of('gtceu:distilled_water', 640))
         .inputFluids(Fluid.of('gtceu:sodium_potassium', 1000))
-        .itemOutputs('kubejs:fx_spent_fuel_rod')
+        .itemOutputs('af9:fx_spent_fuel_rod')
         .outputFluids(Fluid.of('gtceu:supercritical_steam', 61440))
         .outputFluids(Fluid.of('gtceu:hot_sodium_potassium', 1000))
         .duration(1200)
@@ -124,7 +124,7 @@ ServerEvents.recipes(event => {
     // plutonium (a part of it Pu-241), uranium (recycled into new pellets) and fission products off, and the acid is
     // recovered.
     event.recipes.gtceu.macerator('af9:decladding_spent_fuel_rod')
-        .itemInputs('kubejs:fx_spent_fuel_rod')
+        .itemInputs('af9:fx_spent_fuel_rod')
         .itemOutputs('4x gtceu:irradiated_fuel_dust', 'gtceu:zirconium_dust')
         .duration(200)
         .EUt(VA[GTValues.HV])

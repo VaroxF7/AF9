@@ -325,7 +325,7 @@
 				}
 				{
 					id: "792862CA775424C9"
-					item: "kubejs:molecular_sieve"
+					item: "af9:molecular_sieve"
 					type: "item"
 				}
 				{
@@ -517,7 +517,7 @@
 			subtitle: "{af9.quest.litho.photomask.subtitle}"
 			tasks: [{
 				id: "68968FD1482649A5"
-				item: "kubejs:photomask_blank"
+				item: "af9:photomask_blank"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.photomask.title}"
@@ -548,12 +548,12 @@
 			tasks: [
 				{
 					id: "712E7F6F02B85CB2"
-					item: "kubejs:ilc_reticle"
+					item: "af9:ilc_reticle"
 					type: "item"
 				}
 				{
 					id: "4C18443D67E1874B"
-					item: "kubejs:ram_reticle"
+					item: "af9:ram_reticle"
 					type: "item"
 				}
 			]
@@ -590,7 +590,7 @@
 				}
 				{
 					id: "5A5B1F9534951E8A"
-					item: "kubejs:coated_silicon_wafer"
+					item: "af9:coated_silicon_wafer"
 					type: "item"
 				}
 			]
@@ -745,7 +745,7 @@
 			subtitle: "{af9.quest.litho.crucible.subtitle}"
 			tasks: [{
 				id: "4617E72FDD6C496F"
-				item: "kubejs:fused_quartz_crucible"
+				item: "af9:fused_quartz_crucible"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.crucible.title}"
@@ -764,7 +764,7 @@
 			subtitle: "{af9.quest.litho.siCharge.subtitle}"
 			tasks: [{
 				id: "1E9E15A392CEF723"
-				item: "kubejs:silicon_melt_charge"
+				item: "af9:silicon_melt_charge"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.siCharge.title}"
@@ -783,7 +783,7 @@
 			subtitle: "{af9.quest.litho.siSeed.subtitle}"
 			tasks: [{
 				id: "2D14F4420BBF0A26"
-				item: "kubejs:silicon_seed_crystal"
+				item: "af9:silicon_seed_crystal"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.siSeed.title}"
@@ -1167,7 +1167,7 @@
 			subtitle: "{af9.quest.litho.krfLaser.subtitle}"
 			tasks: [{
 				id: "78C35D4774D122B9"
-				item: "kubejs:krf_excimer_laser"
+				item: "af9:krf_excimer_laser"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.krfLaser.title}"
@@ -1310,12 +1310,12 @@
 			tasks: [
 				{
 					id: "20E7D2B368D9F0D3"
-					item: "kubejs:phosphorus_melt_charge"
+					item: "af9:phosphorus_melt_charge"
 					type: "item"
 				}
 				{
 					id: "07714610CCE46BBF"
-					item: "kubejs:phosphorus_seed_crystal"
+					item: "af9:phosphorus_seed_crystal"
 					type: "item"
 				}
 			]
@@ -1340,7 +1340,7 @@
 				""
 				"{af9.quest.litho.n200.4}"
 			]
-			icon: "kubejs:krf_excimer_laser"
+			icon: "af9:krf_excimer_laser"
 			id: "4669A10F9AAFBF39"
 			rewards: [{
 				id: "5DF5A558BA9E6CE5"
@@ -1358,7 +1358,7 @@
 				}
 				{
 					id: "29D05D142A6E5A19"
-					item: "kubejs:krf_excimer_laser"
+					item: "af9:krf_excimer_laser"
 					type: "item"
 				}
 			]
@@ -1497,7 +1497,7 @@
 			subtitle: "{af9.quest.litho.arfLaser.subtitle}"
 			tasks: [{
 				id: "4276A0A738BC451F"
-				item: "kubejs:arf_excimer_laser"
+				item: "af9:arf_excimer_laser"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.arfLaser.title}"
@@ -1545,12 +1545,12 @@
 			tasks: [
 				{
 					id: "064FCF7803647F81"
-					item: "kubejs:naquadah_melt_charge"
+					item: "af9:naquadah_melt_charge"
 					type: "item"
 				}
 				{
 					id: "5AFA048A4D66A93D"
-					item: "kubejs:naquadah_seed_crystal"
+					item: "af9:naquadah_seed_crystal"
 					type: "item"
 				}
 			]
@@ -1575,7 +1575,7 @@
 				""
 				"{af9.quest.litho.n100.4}"
 			]
-			icon: "kubejs:arf_excimer_laser"
+			icon: "af9:arf_excimer_laser"
 			id: "418DC14B94C9272A"
 			rewards: [{
 				id: "1AC5856508592640"
@@ -1593,7 +1593,7 @@
 				}
 				{
 					id: "1620A2FFFA57A7A2"
-					item: "kubejs:arf_excimer_laser"
+					item: "af9:arf_excimer_laser"
 					type: "item"
 				}
 			]
@@ -1651,7 +1651,7 @@
 				}
 				{
 					id: "2A3F059A59C338BC"
-					item: "kubejs:endion_coil_block"
+					item: "af9:endion_coil_block"
 					type: "item"
 				}
 			]
@@ -1678,17 +1678,17 @@
 			tasks: [
 				{
 					id: "136EEFDD5A1D1AC2"
-					item: "kubejs:trinium_melt_charge"
+					item: "af9:trinium_melt_charge"
 					type: "item"
 				}
 				{
 					id: "5965A24A94CFD78A"
-					item: "kubejs:trinium_seed_crystal"
+					item: "af9:trinium_seed_crystal"
 					type: "item"
 				}
 				{
 					id: "754FBE42CD74404B"
-					item: "kubejs:trinium_boule"
+					item: "af9:trinium_boule"
 					type: "item"
 				}
 			]
@@ -1711,7 +1711,7 @@
 				""
 				"{af9.quest.litho.n80.4}"
 			]
-			icon: "kubejs:trinium_wafer"
+			icon: "af9:trinium_wafer"
 			id: "46CAB00FF64D12DE"
 			rewards: [{
 				id: "55D678BDA82FE730"
@@ -1723,7 +1723,7 @@
 			subtitle: "{af9.quest.litho.n80.subtitle}"
 			tasks: [{
 				id: "7A9432BB9419A8A7"
-				item: "kubejs:trinium_wafer"
+				item: "af9:trinium_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.n80.title}"
@@ -1780,17 +1780,17 @@
 			tasks: [
 				{
 					id: "71BB2B85858FAA48"
-					item: "kubejs:naquadria_melt_charge"
+					item: "af9:naquadria_melt_charge"
 					type: "item"
 				}
 				{
 					id: "7A495BC0C4904217"
-					item: "kubejs:naquadria_seed_crystal"
+					item: "af9:naquadria_seed_crystal"
 					type: "item"
 				}
 				{
 					id: "5BF036DC9D8F4D3F"
-					item: "kubejs:naquadria_boule"
+					item: "af9:naquadria_boule"
 					type: "item"
 				}
 			]
@@ -1837,7 +1837,7 @@
 				""
 				"{af9.quest.litho.n65.4}"
 			]
-			icon: "kubejs:naquadria_wafer"
+			icon: "af9:naquadria_wafer"
 			id: "106D52BD58E747F8"
 			rewards: [{
 				id: "0F891B3BDE4F0DE3"
@@ -1850,7 +1850,7 @@
 			tasks: [
 				{
 					id: "5C83488733112B68"
-					item: "kubejs:naquadria_wafer"
+					item: "af9:naquadria_wafer"
 					type: "item"
 				}
 				{
@@ -1881,12 +1881,12 @@
 			tasks: [
 				{
 					id: "19509DD8AEFB4A0F"
-					item: "kubejs:neutronium_melt_charge"
+					item: "af9:neutronium_melt_charge"
 					type: "item"
 				}
 				{
 					id: "3499B768C85D249D"
-					item: "kubejs:neutronium_seed_crystal"
+					item: "af9:neutronium_seed_crystal"
 					type: "item"
 				}
 			]
@@ -1991,12 +1991,12 @@
 			tasks: [
 				{
 					id: "60ECF297DC31D471"
-					item: "kubejs:beryllium_spallation_target"
+					item: "af9:beryllium_spallation_target"
 					type: "item"
 				}
 				{
 					id: "79A2AAC187E56E9F"
-					item: "kubejs:transmuted_neutronium_wafer"
+					item: "af9:transmuted_neutronium_wafer"
 					type: "item"
 				}
 			]
@@ -2064,7 +2064,7 @@
 			subtitle: "{af9.quest.litho.euvSource.subtitle}"
 			tasks: [{
 				id: "521E4C493690F2A1"
-				item: "kubejs:euv_light_source"
+				item: "af9:euv_light_source"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.euvSource.title}"
@@ -2087,7 +2087,7 @@
 				""
 				"{af9.quest.litho.n20.4}"
 			]
-			icon: "kubejs:euv_light_source"
+			icon: "af9:euv_light_source"
 			id: "0266685DD6B82444"
 			rewards: [{
 				id: "2865AF19C964A950"
@@ -2100,12 +2100,12 @@
 			tasks: [
 				{
 					id: "1A0ABE1848928DBD"
-					item: "kubejs:transmuted_neutronium_wafer"
+					item: "af9:transmuted_neutronium_wafer"
 					type: "item"
 				}
 				{
 					id: "52EDB33254504AB9"
-					item: "kubejs:euv_light_source"
+					item: "af9:euv_light_source"
 					type: "item"
 				}
 			]
@@ -2126,12 +2126,12 @@
 			tasks: [
 				{
 					id: "40CD9AAA12D7E535"
-					item: "kubejs:magnetic_trap"
+					item: "af9:magnetic_trap"
 					type: "item"
 				}
 				{
 					id: "4380622C8CBEB51F"
-					item: "kubejs:qgp_trap"
+					item: "af9:qgp_trap"
 					type: "item"
 				}
 			]
@@ -2170,7 +2170,7 @@
 			subtitle: "{af9.quest.litho.tritaniumCrucible.subtitle}"
 			tasks: [{
 				id: "18D577CB70B8822A"
-				item: "kubejs:tritanium_crucible"
+				item: "af9:tritanium_crucible"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.tritaniumCrucible.title}"
@@ -2193,7 +2193,7 @@
 			subtitle: "{af9.quest.litho.resonantCoil.subtitle}"
 			tasks: [{
 				id: "7728CF35F8CF2783"
-				item: "kubejs:resonant_endion_coil_block"
+				item: "af9:resonant_endion_coil_block"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.resonantCoil.title}"
@@ -2221,17 +2221,17 @@
 			tasks: [
 				{
 					id: "29E6DACE1319D382"
-					item: "kubejs:strange_matter_melt_charge"
+					item: "af9:strange_matter_melt_charge"
 					type: "item"
 				}
 				{
 					id: "65535D33DE97034E"
-					item: "kubejs:strange_matter_seed_crystal"
+					item: "af9:strange_matter_seed_crystal"
 					type: "item"
 				}
 				{
 					id: "4C1D63E7D1E8BED0"
-					item: "kubejs:strange_matter_boule"
+					item: "af9:strange_matter_boule"
 					type: "item"
 				}
 			]
@@ -2255,7 +2255,7 @@
 				""
 				"{af9.quest.litho.n7.5}"
 			]
-			icon: "kubejs:strange_matter_wafer"
+			icon: "af9:strange_matter_wafer"
 			id: "23C7AC818504BEB9"
 			rewards: [{
 				id: "0BC576287F68B365"
@@ -2267,7 +2267,7 @@
 			subtitle: "{af9.quest.litho.n7.subtitle}"
 			tasks: [{
 				id: "500F7FAA55603377"
-				item: "kubejs:strange_matter_wafer"
+				item: "af9:strange_matter_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.n7.title}"
@@ -2314,17 +2314,17 @@
 			tasks: [
 				{
 					id: "079E873801CD732F"
-					item: "kubejs:chromodynium_melt_charge"
+					item: "af9:chromodynium_melt_charge"
 					type: "item"
 				}
 				{
 					id: "7A96B7424F1A905B"
-					item: "kubejs:chromodynium_seed_crystal"
+					item: "af9:chromodynium_seed_crystal"
 					type: "item"
 				}
 				{
 					id: "280A7304A5D5CF91"
-					item: "kubejs:chromodynium_boule"
+					item: "af9:chromodynium_boule"
 					type: "item"
 				}
 			]
@@ -2347,7 +2347,7 @@
 			subtitle: "{af9.quest.litho.dryResist.subtitle}"
 			tasks: [{
 				id: "070F504325AC3629"
-				item: "kubejs:dry_resist_cartridge"
+				item: "af9:dry_resist_cartridge"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.dryResist.title}"
@@ -2447,7 +2447,7 @@
 			subtitle: "{af9.quest.litho.n1.subtitle}"
 			tasks: [{
 				id: "28217AE69C30429F"
-				item: "kubejs:chromodynium_wafer"
+				item: "af9:chromodynium_wafer"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.n1.title}"
@@ -2551,7 +2551,7 @@
 			subtitle: "{af9.quest.litho.rfChip.subtitle}"
 			tasks: [{
 				id: "4E4D498C4CE0090A"
-				item: "kubejs:rf_transceiver_chip"
+				item: "af9:rf_transceiver_chip"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.rfChip.title}"
@@ -2579,7 +2579,7 @@
 			subtitle: "{af9.quest.litho.mcuChip.subtitle}"
 			tasks: [{
 				id: "5230F9139EAF6085"
-				item: "kubejs:mcu_chip"
+				item: "af9:mcu_chip"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.mcuChip.title}"
@@ -2607,7 +2607,7 @@
 			subtitle: "{af9.quest.litho.apuChip.subtitle}"
 			tasks: [{
 				id: "7935600A7BE19773"
-				item: "kubejs:apu_chip"
+				item: "af9:apu_chip"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.apuChip.title}"
@@ -2632,7 +2632,7 @@
 			subtitle: "{af9.quest.litho.asicChip.subtitle}"
 			tasks: [{
 				id: "217882D33D4DFA30"
-				item: "kubejs:asic_chip"
+				item: "af9:asic_chip"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.asicChip.title}"
@@ -2661,12 +2661,12 @@
 			tasks: [
 				{
 					id: "2DF1C7312DC7F21A"
-					item: "kubejs:phase_shift_mask_blank"
+					item: "af9:phase_shift_mask_blank"
 					type: "item"
 				}
 				{
 					id: "0E50099C7652171D"
-					item: "kubejs:ilc_psm_reticle"
+					item: "af9:ilc_psm_reticle"
 					type: "item"
 				}
 			]
@@ -2693,7 +2693,7 @@
 			subtitle: "{af9.quest.litho.edramChip.subtitle}"
 			tasks: [{
 				id: "6CD55E7891BF0631"
-				item: "kubejs:edram_chip"
+				item: "af9:edram_chip"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.edramChip.title}"
@@ -2719,12 +2719,12 @@
 			tasks: [
 				{
 					id: "46E32545F9788AF7"
-					item: "kubejs:edram_cpu_package"
+					item: "af9:edram_cpu_package"
 					type: "item"
 				}
 				{
 					id: "295D46EF6E2814B7"
-					item: "kubejs:edram_soc_package"
+					item: "af9:edram_soc_package"
 					type: "item"
 				}
 			]
@@ -2753,7 +2753,7 @@
 			subtitle: "{af9.quest.litho.mramChip.subtitle}"
 			tasks: [{
 				id: "6C7F67AFFA1205BD"
-				item: "kubejs:mram_chip"
+				item: "af9:mram_chip"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.mramChip.title}"
@@ -2779,7 +2779,7 @@
 			subtitle: "{af9.quest.litho.feramChip.subtitle}"
 			tasks: [{
 				id: "1459F9BAABC1D0FC"
-				item: "kubejs:feram_chip"
+				item: "af9:feram_chip"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.feramChip.title}"
@@ -2807,7 +2807,7 @@
 			subtitle: "{af9.quest.litho.vpuChip.subtitle}"
 			tasks: [{
 				id: "31E538837BD49B12"
-				item: "kubejs:vpu_chip"
+				item: "af9:vpu_chip"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.vpuChip.title}"
@@ -2833,12 +2833,12 @@
 			tasks: [
 				{
 					id: "77618159695F9800"
-					item: "kubejs:euv_mask_blank"
+					item: "af9:euv_mask_blank"
 					type: "item"
 				}
 				{
 					id: "0A5F6AB3303BC17A"
-					item: "kubejs:ilc_euv_reticle"
+					item: "af9:ilc_euv_reticle"
 					type: "item"
 				}
 			]
@@ -2867,7 +2867,7 @@
 			subtitle: "{af9.quest.litho.tpuChip.subtitle}"
 			tasks: [{
 				id: "3BCCFFBFBF0A4430"
-				item: "kubejs:tpu_chip"
+				item: "af9:tpu_chip"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.tpuChip.title}"
@@ -3081,7 +3081,7 @@
 			tasks: [
 				{
 					id: "0FA48AAA7CDD48DD"
-					item: "kubejs:saw_filter_chip"
+					item: "af9:saw_filter_chip"
 					type: "item"
 				}
 			]
@@ -3104,7 +3104,7 @@
 			tasks: [
 				{
 					id: "75137804AD4F23B9"
-					item: "kubejs:photonic_ic_chip"
+					item: "af9:photonic_ic_chip"
 					type: "item"
 				}
 			]
@@ -3127,7 +3127,7 @@
 			tasks: [
 				{
 					id: "168502B6FFC83D74"
-					item: "kubejs:spin_logic_chip"
+					item: "af9:spin_logic_chip"
 					type: "item"
 				}
 			]
@@ -3150,7 +3150,7 @@
 			tasks: [
 				{
 					id: "50F1870B2D747416"
-					item: "kubejs:tmd_logic_chip"
+					item: "af9:tmd_logic_chip"
 					type: "item"
 				}
 			]
@@ -3173,7 +3173,7 @@
 			tasks: [
 				{
 					id: "06F17E1748ED81E7"
-					item: "kubejs:memristor_chip"
+					item: "af9:memristor_chip"
 					type: "item"
 				}
 			]
@@ -3196,7 +3196,7 @@
 			tasks: [
 				{
 					id: "7ABE5A41042A39BB"
-					item: "kubejs:quantum_dot_ic_chip"
+					item: "af9:quantum_dot_ic_chip"
 					type: "item"
 				}
 			]
@@ -3360,12 +3360,12 @@
 			tasks: [
 				{
 					id: "3C07849E6BD57256"
-					item: "kubejs:ule_glass_substrate"
+					item: "af9:ule_glass_substrate"
 					type: "item"
 				}
 				{
 					id: "6253F5AD98A287BF"
-					item: "kubejs:mo_si_mirror"
+					item: "af9:mo_si_mirror"
 					type: "item"
 				}
 			]

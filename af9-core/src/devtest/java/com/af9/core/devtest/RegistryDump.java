@@ -40,6 +40,9 @@ import java.util.TreeSet;
  * game has registered, a line a thing, sorted, to the file named by {@code -Daf9.dump=<file>}. Two such files, one from
  * before a change and one from after, say exactly what the change did to the registries: used to move AF9's content
  * from KubeJS into AF9 Core without losing or altering any of it.
+ * <p>
+ * {@code -Daf9.registry=<file>} gets the short list of what AF9 Core itself registers, ids only: the linters read it
+ * ({@code tools/lint/data/af9-registry.txt}; the Gradle run sets the property to that file).
  */
 @Mod.EventBusSubscriber(modid = "af9", bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class RegistryDump {
@@ -48,8 +51,51 @@ public final class RegistryDump {
 
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
+        String registry = System.getProperty("af9.registry");
+        if (registry != null && !registry.isEmpty()) write(registry, af9Registry());
         String target = System.getProperty("af9.dump");
-        if (target == null || target.isEmpty()) return;
+        if (target != null && !target.isEmpty()) write(target, everything());
+    }
+
+    /** The file gets these lines, with Unix line ends on any system (the list for the linters is in the repository). */
+    private static void write(String target, List<String> lines) {
+        try {
+            Path file = Path.of(target);
+            if (file.getParent() != null) Files.createDirectories(file.getParent());
+            Files.writeString(file, String.join("\n", lines) + "\n", StandardCharsets.UTF_8);
+        } catch (IOException exception) {
+            throw new IllegalStateException("could not write " + target, exception);
+        }
+    }
+
+    /** What AF9 Core registers itself: the ids, a line each. */
+    private static List<String> af9Registry() {
+        TreeSet<String> lines = new TreeSet<>();
+        for (ResourceLocation id : ForgeRegistries.ITEMS.getKeys()) {
+            if (mine(id)) lines.add("item " + id);
+        }
+        for (ResourceLocation id : ForgeRegistries.BLOCKS.getKeys()) {
+            // a machine's block has its model, loot and name from GregTech
+            if (mine(id)) {
+                lines.add("block " + id + (ForgeRegistries.BLOCKS.getValue(id) instanceof IMachineBlock ? " machine" : ""));
+            }
+        }
+        for (ResourceLocation id : ForgeRegistries.FLUIDS.getKeys()) {
+            if (mine(id)) lines.add("fluid " + id);
+        }
+        List<String> text = new ArrayList<>();
+        text.add("# What AF9 Core registers: written by its dev run, read by the linters. Not edited by hand unless the run");
+        text.add("# is out of reach (it needs a pack instance); see tools/lint/README.md, \"The registry list\".");
+        text.addAll(lines);
+        return text;
+    }
+
+    private static boolean mine(ResourceLocation id) {
+        return id.getNamespace().equals("af9");
+    }
+
+    /** Everything the game has registered, with what a change could alter. */
+    private static List<String> everything() {
         TreeSet<String> lines = new TreeSet<>();
         for (ResourceLocation id : ForgeRegistries.ITEMS.getKeys()) {
             Item item = ForgeRegistries.ITEMS.getValue(id);
@@ -84,13 +130,7 @@ public final class RegistryDump {
                 lines.add("ability " + field.getName() + " unreadable");
             }
         }
-        try {
-            Path file = Path.of(target);
-            if (file.getParent() != null) Files.createDirectories(file.getParent());
-            Files.write(file, lines, StandardCharsets.UTF_8);
-        } catch (IOException exception) {
-            throw new IllegalStateException("could not write " + target, exception);
-        }
+        return new ArrayList<>(lines);
     }
 
     private static String tags(List<String> tags) {

@@ -27,6 +27,8 @@ import subprocess
 import sys
 from collections import Counter, defaultdict
 
+import af9registry
+
 ROOT = os.path.abspath(next((a for a in sys.argv[1:] if not a.startswith('--')), '.'))
 HERE = os.path.dirname(os.path.abspath(__file__))
 findings = []
@@ -149,7 +151,7 @@ try:
     registry = json.loads(out.stdout)['registry']
 except Exception as e:  # noqa
     report('WARN', 'Q6', f'the script linter did not give its registry ({e}); item ids are not checked')
-kube_items = {i['id'] for i in registry['items']}
+kube_items = {i['id'] for i in registry['items']}   # the base pack's own (AF9's items are AF9 Core's)
 materials = {m['id'] if isinstance(m, dict) else m for m in registry['materials']}
 machine_ids = set()
 for m in registry['machines']:
@@ -203,19 +205,8 @@ def strip_tier(name):
     return name
 
 
-# af9 items from the Java sources
-af9_items = set()
-for dp, _, fs in os.walk(os.path.join(ROOT, 'af9-core/src/main/java')):
-    for fn in fs:
-        if fn.endswith('.java'):
-            with open(os.path.join(dp, fn), encoding='utf-8') as f:
-                text = f.read()
-            af9_items |= set(re.findall(r'(?:ITEMS|BLOCKS)\.register\("([a-z0-9_]+)"', text))
-            if fn == 'ComputeCard.java':
-                af9_items |= {m.lower() + '_card' for m in re.findall(r'^\s+([A-Z_]+)\(\d+, Kind\.', text, re.M)}
-mdir = os.path.join(ROOT, 'af9-core/src/main/resources/assets/af9/models/item')
-if os.path.isdir(mdir):
-    af9_items |= {f[:-5] for f in os.listdir(mdir) if f.endswith('.json')}
+# the items AF9 Core registers
+af9_items = set(af9registry.load(HERE)['item'])
 
 
 def item_exists(rid):
@@ -223,7 +214,7 @@ def item_exists(rid):
     if rid in pack:
         return True
     if ns == 'kubejs':
-        return name in kube_items or name in materials
+        return name in kube_items
     if ns == 'af9':
         return name in af9_items
     if ns == 'gtceu':

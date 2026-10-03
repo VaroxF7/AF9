@@ -630,7 +630,7 @@
 			tasks: [
 				{
 					id: "1F338C035AC5855E"
-					item: "kubejs:soc_reticle"
+					item: "af9:soc_reticle"
 					type: "item"
 				}
 				{
@@ -1851,7 +1851,7 @@
 				}
 				{
 					id: "695408A4678EB41C"
-					item: "kubejs:mpic_reticle"
+					item: "af9:mpic_reticle"
 					type: "item"
 				}
 			]
@@ -2135,7 +2135,7 @@
 				}
 				{
 					id: "65BE4C99BE10B33C"
-					item: "kubejs:nor_reticle"
+					item: "af9:nor_reticle"
 					type: "item"
 				}
 			]
@@ -2164,7 +2164,7 @@
 				}
 				{
 					id: "187EBBDFD23265FC"
-					item: "kubejs:nand_reticle"
+					item: "af9:nand_reticle"
 					type: "item"
 				}
 			]

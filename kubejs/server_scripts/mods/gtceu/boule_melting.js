@@ -42,14 +42,14 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.assembler('af9:endion_coil_block')
         .itemInputs('16x gtceu:fine_endionite_wire', '8x gtceu:endionite_foil', 'gtceu:tungsten_steel_frame')
         .inputFluids(Fluid.of('gtceu:endion', 2000))
-        .itemOutputs('kubejs:endion_coil_block')
+        .itemOutputs('af9:endion_coil_block')
         .duration(900)
         .EUt(VA[GTValues.IV])
     event.recipes.gtceu.assembler('af9:resonant_endion_coil_block')
-        .itemInputs('kubejs:endion_coil_block', '32x gtceu:fine_endionite_wire', '4x gtceu:neutronium_plate',
+        .itemInputs('af9:endion_coil_block', '32x gtceu:fine_endionite_wire', '4x gtceu:neutronium_plate',
             'gtceu:uv_field_generator')
         .inputFluids(Fluid.of('gtceu:supercooled_endion', 1000))
-        .itemOutputs('kubejs:resonant_endion_coil_block')
+        .itemOutputs('af9:resonant_endion_coil_block')
         .duration(1200)
         .EUt(VA[GTValues.UV])
 
@@ -57,14 +57,14 @@ ServerEvents.recipes(event => {
     // Fused quartz: quartzite melted into a crucible (1800 K); tritanium for the exotic melts
     event.recipes.gtceu.electric_blast_furnace('af9:fused_quartz_crucible')
         .itemInputs('6x gtceu:quartzite_dust')
-        .itemOutputs('kubejs:fused_quartz_crucible')
+        .itemOutputs('af9:fused_quartz_crucible')
         .blastFurnaceTemp(1800)
         .duration(400)
         .EUt(VA[GTValues.MV])
     event.recipes.gtceu.assembler('af9:tritanium_crucible')
         .itemInputs('6x gtceu:tritanium_plate')
         .inputFluids(Fluid.of('gtceu:supercooled_argon', 500))
-        .itemOutputs('kubejs:tritanium_crucible')
+        .itemOutputs('af9:tritanium_crucible')
         .duration(400)
         .EUt(VA[GTValues.UV])
 
@@ -89,11 +89,11 @@ ServerEvents.recipes(event => {
         { id: 'trinium', charge: [`192x ${EG_SI}`, '2x gtceu:trinium_dust', 'gtceu:gallium_arsenide_dust'],
             chargeTier: GTValues.IV, seed: [`4x ${EG_SI}`, 'gtceu:small_trinium_dust'], seedGas: ['gtceu:argon', 400],
             gas: ['gtceu:argon', 80000], temp: 6000, duration: 16000, eu: [GTValues.IV, 6], crucible: 'fused_quartz',
-            boule: 'kubejs:trinium_boule' },
+            boule: 'af9:trinium_boule' },
         { id: 'naquadria', charge: [`240x ${EG_SI}`, '2x gtceu:naquadria_dust', '2x gtceu:gallium_arsenide_dust'],
             chargeTier: GTValues.LuV, seed: [`4x ${EG_SI}`, 'gtceu:small_naquadria_dust'], seedGas: ['gtceu:xenon', 200],
             gas: ['gtceu:xenon', 80000], temp: 6800, duration: 17000, eu: [GTValues.IV, 7], crucible: 'fused_quartz',
-            boule: 'kubejs:naquadria_boule' },
+            boule: 'af9:naquadria_boule' },
         { id: 'neutronium', charge: [`288x ${EG_SI}`, '4x gtceu:neutronium_dust', '2x gtceu:gallium_arsenide_dust'],
             chargeTier: GTValues.ZPM, seed: [`4x ${EG_SI}`, 'gtceu:small_neutronium_dust'], seedGas: ['gtceu:xenon', 400],
             gas: ['gtceu:xenon', 80000], temp: 7200, duration: 18000, eu: [GTValues.IV, 8], crucible: 'fused_quartz',
@@ -101,11 +101,11 @@ ServerEvents.recipes(event => {
         { id: 'strange_matter', charge: [`288x ${EG_SI}`, 'gtceu:strange_matter_dust', '4x gtceu:neutronium_dust'],
             chargeTier: GTValues.UV, seed: [`4x ${EG_SI}`, 'gtceu:small_strange_matter_dust'],
             seedGas: ['gtceu:xenon', 800], gas: ['gtceu:xenon', 160000], temp: 9000, duration: 20000,
-            eu: [GTValues.UV, 8], crucible: 'tritanium', boule: 'kubejs:strange_matter_boule' },
+            eu: [GTValues.UV, 8], crucible: 'tritanium', boule: 'af9:strange_matter_boule' },
         { id: 'chromodynium', charge: ['4x gtceu:chromodynium_dust', 'gtceu:strange_matter_dust'],
             chargeTier: GTValues.UHV, seed: ['4x gtceu:small_chromodynium_dust', 'gtceu:small_strange_matter_dust'],
             seedGas: ['gtceu:endion', 400], gas: ['gtceu:endion', 80000], temp: 12000, duration: 24000,
-            eu: [GTValues.UHV, 8], crucible: 'tritanium', boule: 'kubejs:chromodynium_boule' }
+            eu: [GTValues.UHV, 8], crucible: 'tritanium', boule: 'af9:chromodynium_boule' }
     ]
     // GT's EBF boules (the CZ recipes of the SMC furnaces are gone too, fab_chemistry.js)
     ;['silicon_boule', 'phosphorus_boule', 'naquadah_boule', 'neutronium_boule']
@@ -113,7 +113,7 @@ ServerEvents.recipes(event => {
     boules.forEach(b => {
         const charge = event.recipes.gtceu.fab_blending(`af9:${b.id}_melt_charge`)
             .itemInputs(b.charge)
-            .itemOutputs(`kubejs:${b.id}_melt_charge`)
+            .itemOutputs(`af9:${b.id}_melt_charge`)
             .duration(200)
             .EUt(VA[b.chargeTier])
         // non-thermal fab recipes from HV on need a clean room (docs/semiconductor-factory.md §11)
@@ -121,13 +121,13 @@ ServerEvents.recipes(event => {
         event.recipes.gtceu.fab_crystal_growth(`af9:${b.id}_seed_crystal`)
             .itemInputs(b.seed)
             .inputFluids(Fluid.of(b.seedGas[0], b.seedGas[1]))
-            .itemOutputs(`kubejs:${b.id}_seed_crystal`)
+            .itemOutputs(`af9:${b.id}_seed_crystal`)
             .blastFurnaceTemp(b.temp)
             .duration(1200)
             .EUt(VA[b.chargeTier])
         event.recipes.gtceu.boule_melting(`af9:${b.id}_boule`)
-            .itemInputs(`10x kubejs:${b.id}_melt_charge`, `kubejs:${b.id}_seed_crystal`,
-                `kubejs:${b.crucible}_crucible`)
+            .itemInputs(`10x af9:${b.id}_melt_charge`, `af9:${b.id}_seed_crystal`,
+                `af9:${b.crucible}_crucible`)
             .inputFluids(Fluid.of(b.gas[0], b.gas[1]))
             .itemOutputs(b.boule)
             .blastFurnaceTemp(b.temp)
@@ -144,9 +144,9 @@ ServerEvents.recipes(event => {
     ]
     cuts.forEach(([id, wafers, tier, duration]) => {
         const outputs = []
-        for (let left = wafers; left > 0; left -= 64) outputs.push(`${Math.min(left, 64)}x kubejs:${id}_wafer`)
+        for (let left = wafers; left > 0; left -= 64) outputs.push(`${Math.min(left, 64)}x af9:${id}_wafer`)
         event.recipes.gtceu.cutter(`af9:cut_${id}_boule`)
-            .itemInputs(`kubejs:${id}_boule`)
+            .itemInputs(`af9:${id}_boule`)
             .inputFluids(Fluid.of('gtceu:lubricant', 250))
             .itemOutputs(outputs)
             .duration(duration)

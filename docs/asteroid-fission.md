@@ -7,7 +7,7 @@ gtceu: "7.2.0 (GregTech CEu Modern)"
 ad_astra: "1.15.20"
 af9_core: "0.1.0 (mod_id `af9`)"
 status: "Implemented. Java compiles on CI, the lint suite (run.sh --selftest) passes; nothing of it has been started in the game yet (§9 lists what to look at first)."
-agent_hint: "`gtceu:` = base GregTech and everything AF9 registers through GT's KubeJS (materials, machines, recipe types). `kubejs:` = AF9's plain items (the fuel pellet, rod and spent rod). `af9:` = AF9 recipe ids, dimensions, planets and the Java feature. Numbers live in the scripts named in §10; the lint (`tools/lint/facts.py`, X3 and X4) holds the quest texts and the shared names to them."
+agent_hint: "`gtceu:` = base GregTech and everything AF9 registers through GT's KubeJS (materials, machines, recipe types). `af9:` = AF9's plain items (the fuel pellet, rod and spent rod; registered by AF9 Core), AF9 recipe ids, dimensions, planets and the Java feature. Numbers live in the scripts named in §10; the lint (`tools/lint/facts.py`, X3 and X4) holds the quest texts and the shared names to them."
 ---
 
 # 1. What it is
@@ -150,7 +150,7 @@ the ore layer, so no vein grows into a wall. Chests face the entrance and hold l
 | `ancient_shrine` | the shrine | 2-3 rolls of desh, gold, iron, raw Brannerite, ender pearls; 30 %: a diamond or an ASIC chip |
 | `ancient_temple` | temple and grand temple | 3-5 rolls of desh, ostrum, calorite, gold, diamond, raw platinum, raw Brannerite, raw naquadah; 60 %: 1-2 of ender pearls, crying obsidian, netherite scrap, ASIC / MRAM / VPU chips |
 
-Lint X4 checks that the tables named by `TempleLayout` exist and that every `kubejs:` chip and `gtceu:raw_` ore in them is real
+Lint X4 checks that the tables named by `TempleLayout` exist and that every `af9:` chip and `gtceu:raw_` ore in them is real
 (an unknown item makes Minecraft drop the whole table without a word).
 
 ## 2.3 The ore (`AsteroidOres`)
@@ -235,8 +235,8 @@ diesel and biodiesel).
 | UF6 | Chemical Reactor, MV | 3 yellowcake, 4,000 mB hydrofluoric acid, 2,000 mB fluorine | 1,000 mB uranium hexafluoride, 2,000 mB water |
 | (enrichment) | GT's centrifuge and electrolyzer | UF6 | U-235 and U-238 dust |
 | Reduction | Electric Blast Furnace, HV, 1,500 K | 3 yellowcake, 8,000 mB hydrogen | 6 uranium dust, 8,000 mB steam |
-| Pellets | Electric Blast Furnace, HV, 1,800 K | 12 uranium dust, 4 tiny U-235 dust, 8,000 mB oxygen | 4 `kubejs:fx_fuel_pellet` |
-| Fuel rod | Assembler, HV | 4 pellets, 1 zirconium ingot (the zircon chain: `docs/semiconductor-factory.md` §6.9) | `kubejs:fx_fuel_rod` |
+| Pellets | Electric Blast Furnace, HV, 1,800 K | 12 uranium dust, 4 tiny U-235 dust, 8,000 mB oxygen | 4 `af9:fx_fuel_pellet` |
+| Fuel rod | Assembler, HV | 4 pellets, 1 zirconium ingot (the zircon chain: `docs/semiconductor-factory.md` §6.9) | `af9:fx_fuel_rod` |
 
 The **reduction** is what makes the natural uranium dust of the pellets: GT's own chain only gives U-235 and U-238 dust, and with the
 pitchblende and uraninite veins replaced by the asteroids nothing else did (the chain was a dead end before it). One ore is about three yellowcake and a thousand mB of UF6; GT's enrichment gives a tenth of it as U-235. A rod needs 12 uranium dust
@@ -346,5 +346,5 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `af9-core/src/main/java/com/af9/core/radiation/RadiationWatch.java` | the radiation warning |
 | `af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeReactorsCompat.java` | supercritical steam for Extreme Reactors |
 | `af9-core/src/main/resources/data/af9/` | dimensions, dimension type, biome, features, planets, the station recipe |
-| `kubejs/assets/kubejs/textures/item/fx_fuel_pellet.png`, `fx_fuel_rod.png`, `fx_spent_fuel_rod.png` | the three items |
+| `af9-core/src/main/resources/assets/af9/textures/item/fx_fuel_pellet.png`, `fx_fuel_rod.png`, `fx_spent_fuel_rod.png` | the three items |
 | `config/ftbquests/quests/chapters/asteroid_fission.snbt` | the quests |

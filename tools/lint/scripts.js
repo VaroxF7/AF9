@@ -6,14 +6,17 @@
 //
 // Checks (each finding is one line: LEVEL code message):
 //   S1  a script threw while loading (a typo, an undefined name, a stub that is missing: see tools/lint/README.md)
-//   S2  an item, block, fluid, material, machine or recipe type registered twice (the second one would fail or replace the first)
+//   S2  a material, machine or recipe type registered twice (the second one would fail or replace the first)
+//   S4  a startup script that registers an item, a block or a fluid: AF9's are registered by AF9 Core
+//       (af9-core/src/main/java/com/af9/core/registry), not by KubeJS
 //   R1  duplicate recipe id within a recipe type
 //   R2  a recipe over the slots of its machine (items / fluids in and out, the not-consumed ones and circuits count)
-//   R3  an item, block or fluid id nobody defines: kubejs: not registered, gtceu: neither an AF9 material nor a name
-//       in GT's lists (tools/lint/data), af9: not an item of AF9 Core
+//   R3  an item, block or fluid id nobody defines: af9: not in the list of what AF9 Core registers
+//       (tools/lint/data/af9-registry.txt), gtceu: neither an AF9 material nor a name in GT's lists (tools/lint/data),
+//       kubejs: not an item of the base pack
 //   R4  a recipe type that is neither AF9's nor GT's
-//   R5  an AF9 material, fluid or kubejs item a recipe takes that no recipe makes (nor a tag or a loot source)
-//   R6  an AF9 material or kubejs item registered that no recipe makes or takes (dead content)
+//   R5  an AF9 material, fluid or item a recipe takes that no recipe makes (nor a tag or a loot source)
+//   R6  an AF9 material or item registered that no recipe makes or takes (dead content)
 //   R13 a furnace recipe (EBF, boule melting, fab calcination / CVD / crystal growth) without blastFurnaceTemp()
 //   M1  multiblock pattern: aisles / rows of different size, a pattern character without `where`, a `where` that is
 //       never used, no or several controllers, a part with a minimum or an exact count (AF9 rule: maximums only)
@@ -50,33 +53,17 @@ const GTValues = { VA: VOLT, V: VOLT, VN: TIERS, VNF: TIERS, VLVH: TIERS, VLVT: 
 TIERS.forEach((t, i) => { GTValues[t] = i })
 const TIER_PREFIX = TIERS.map(t => t.toLowerCase())
 
-// what an AF9 Core item is called: parsed from the Java sources
-function javaItems() {
-    const ids = new Set()
-    const walk = d => fs.existsSync(d) ? fs.readdirSync(d).flatMap(f => {
-        const p = path.join(d, f)
-        return fs.statSync(p).isDirectory() ? walk(p) : [p]
-    }) : []
-    const src = walk(path.join(root, 'af9-core/src/main/java')).filter(f => f.endsWith('.java'))
-    src.forEach(f => {
-        const t = read(f)
-        for (const m of t.matchAll(/(?:ITEMS|BLOCKS)\.register\("([a-z0-9_]+)"/g)) ids.add(m[1])
-    })
-    // ComputeCard: af9:<constant lower case>_card
-    const card = path.join(root, 'af9-core/src/main/java/com/af9/core/compute/ComputeCard.java')
-    if (fs.existsSync(card)) {
-        for (const m of read(card).matchAll(/^\s+([A-Z_]+)\((\d+), Kind\./gm)) ids.add(m[1].toLowerCase() + '_card')
-    }
-    return ids
-}
-const af9Items = javaItems()
-// block / item models of AF9 Core that exist as files (af9:<id> items of blocks registered otherwise)
+// what AF9 Core registers (af9:<id>): the list its dev run writes, see tools/lint/README.md, "The registry list"
+const af9 = { item: new Set(), block: new Set(), fluid: new Set() }
+lines(path.join(DATA, 'af9-registry.txt')).filter(l => !l.startsWith('#')).forEach(l => {
+    const [kind, id] = l.split(' ')
+    if (af9[kind] && id && id.startsWith('af9:')) af9[kind].add(id.slice(4))
+})
+const af9Items = af9.item
 const walkDir = d => fs.existsSync(d) ? fs.readdirSync(d).flatMap(f => {
     const p = path.join(d, f)
     return fs.statSync(p).isDirectory() ? walkDir(p) : [p]
 }) : []
-walkDir(path.join(root, 'af9-core/src/main/resources/assets/af9/models/item')).forEach(f =>
-    af9Items.add(path.basename(f, '.json')))
 
 // ---- stubs ---------------------------------------------------------------------------------------------------------
 const permissive = () => new Proxy(function () {}, {
@@ -314,6 +301,7 @@ const scriptsOf = dir => walkDir(path.join(root, 'kubejs', dir)).filter(f => f.e
 scriptsOf('startup_scripts').forEach(run)
 
 // run the registry handlers, recording what they create
+const moved = new Set()     // S4, once a file and kind
 const creator = (kind, type, file) => ({
     create: (id, form) => {
         const info = { id, form: form || null, file, flags: [], forms: new Set(), tiers: null, types: null, pattern: null,
@@ -322,7 +310,11 @@ const creator = (kind, type, file) => ({
             const t = type
             if (t === 'item' || t === 'block' || t === 'fluid') {
                 info.kind = t; info.textures = []
-                if (state.items.has(id)) report('ERROR', 'S2', `${t} ${id} is registered twice (also in ${state.items.get(id).file})`, file)
+                // (in a file of the base pack this is a note: its own items stay where they are)
+                if (!moved.has(`${file}|${t}`)) {
+                    moved.add(`${file}|${t}`)
+                    report('ERROR', 'S4', `a startup script registers ${t}s (${id} ...): AF9's are registered by AF9 Core (registry/AF9Items, AF9Blocks)`, file)
+                }
                 state.items.set(id, info)
             }
         } else if (type === 'gtceu:material') {
@@ -548,8 +540,11 @@ const checkId = (id, where, role) => {
     if (!id || id.startsWith('circuit:') || id.startsWith('#') || id.startsWith('minecraft:')) return
     const [ns, name] = id.split(':')
     if (packIds.has(id)) return
-    if (ns === 'kubejs') { if (!kubejsItem(name) && !af9Materials.has(name)) report('ERROR', 'R3', `${role} ${id} is not registered`, where) }
-    else if (ns === 'af9') { if (!af9Items.has(name)) report('WARN', 'R3', `${role} ${id}: no such item in AF9 Core`, where) }
+    if (ns === 'kubejs') { if (!kubejsItem(name)) report('ERROR', 'R3', `${role} ${id} is not registered (AF9's own items are af9:)`, where) }
+    else if (ns === 'af9') {
+        const kind = role.startsWith('fluid') ? 'fluid' : 'item'
+        if (!af9[kind].has(name)) report('ERROR', 'R3', `${role} ${id}: AF9 Core registers no such ${kind} (tools/lint/data/af9-registry.txt)`, where)
+    }
     else if (ns === 'gtceu') { if (!gtceuKnown(id)) report('WARN', 'R3', `${role} ${id}: not an AF9 material nor a name in GT's lists`, where) }
 }
 const reported = new Set()
@@ -575,7 +570,7 @@ state.recipes.forEach(r => {
         const [ns, name] = i.split(':')
         if (noRecipeNeeded.has(i)) return
         const mat = matOfId(i)
-        const mine = (ns === 'kubejs' && kubejsItem(name)) || mat
+        const mine = (ns === 'af9' && af9Items.has(name)) || mat
         if (mine && !produced.has(i) && !(mat && produced.has('mat:' + mat))) {
             const k = `R5|${i}`
             if (!reported.has(k)) { reported.add(k); report('WARN', 'R5', `${i} is taken by ${r.type}/${r.id} but no recipe makes it (a source? add it to tools/lint/data/sources.txt)`, r.file) }
@@ -583,9 +578,9 @@ state.recipes.forEach(r => {
     })
 })
 // R6: AF9 content nobody makes or uses
-state.items.forEach((info, id) => {
-    const i = `kubejs:${id}`
-    if (!produced.has(i) && !consumed.has(i) && !noRecipeNeeded.has(i)) report('INFO', 'R6', `${i} (${info.kind}) is registered but no recipe makes or takes it`, info.file)
+af9Items.forEach(id => {
+    const i = `af9:${id}`
+    if (!produced.has(i) && !consumed.has(i) && !noRecipeNeeded.has(i)) report('INFO', 'R6', `${i} is registered but no recipe makes or takes it`, 'af9-core')
 })
 state.materials.forEach((info, id) => {
     if (!produced.has('mat:' + id) && !consumed.has('mat:' + id) && !noRecipeNeeded.has(`gtceu:${id}`)) {
@@ -602,7 +597,7 @@ state.materials.forEach((info, id) => {
         const m = matOfId(id)
         if (m) return 'mat:' + m
         const [ns, name] = id.split(':')
-        return ns === 'kubejs' && kubejsItem(name) ? id : null
+        return ns === 'af9' && af9Items.has(name) ? id : null
     }
     const nodes = new Set()
     state.recipes.forEach(r => [...r.itemIn, ...r.fluidIn, ...r.itemOut, ...r.fluidOut].forEach(i => { const n = node(i); if (n) nodes.add(n) }))
@@ -686,7 +681,7 @@ const blockKnown = id => {
     const [ns, name] = id.split(':')
     if (!name || id.startsWith('#') || packIds.has(id)) return true
     if (ns === 'kubejs') return kubejsItem(name)
-    if (ns === 'af9') return af9Items.has(name)
+    if (ns === 'af9') return af9.block.has(name)
     if (ns === 'gtceu') return gtceuKnown(id)
     return true
 }
@@ -787,13 +782,12 @@ if (dump) {
         materials: [...state.materials].map(([id, m]) => ({ id, file: m.file })),
         machines: state.machines.map(m => ({ id: m.id, tiers: m.tiers ? m.tiers.map(String) : null, file: m.file, tooltips: m.tooltips,
             langValue: m.langValue ? String(m.langValue) : null })),
-        recipeTypes: [...state.recipeTypes].map(([id, t]) => ({ id, file: t.file, langValue: t.langValue ? String(t.langValue) : null })),
-        textures: [...state.items].map(([id, i]) => id).length
+        recipeTypes: [...state.recipeTypes].map(([id, t]) => ({ id, file: t.file, langValue: t.langValue ? String(t.langValue) : null }))
     }
-    console.log(JSON.stringify({ registry, stats: { recipes: state.recipes.length, items: state.items.size, materials: state.materials.size,
+    console.log(JSON.stringify({ registry, stats: { recipes: state.recipes.length, items: af9Items.size, materials: state.materials.size,
         machines: state.machines.length }, findings }, null, 1))
 } else {
-    console.log(`scripts: ${state.recipes.length} recipes, ${state.items.size} kubejs items, ${state.materials.size} materials, ` +
+    console.log(`scripts: ${state.recipes.length} recipes, ${af9Items.size} AF9 items, ${state.materials.size} materials, ` +
         `${state.machines.length} machines`)
     const count = l => findings.filter(f => f.level === l).length
     console.log(`${count('ERROR')} errors, ${count('WARN')} warnings, ${count('INFO')} notes`)

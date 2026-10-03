@@ -1,8 +1,9 @@
-// AF9 - Photolithography Line and Orbital Lithography Station recipes (machines, materials and items:
-// startup_scripts/gtceu/photolithography.js and wafers.js). Spec and numbers: docs/semiconductor-factory.md
+// AF9 - Photolithography Line and Orbital Lithography Station recipes (machines and materials:
+// startup_scripts/gtceu/photolithography.js; items: AF9 Core, registry/AF9Items). Spec and numbers:
+// docs/semiconductor-factory.md
 
 // Shared with the other server scripts (server scripts share one scope). Must stay in sync with
-// com.af9.core.litho.LithoMode in af9-core and AF9_WAFER_TABLE in startup_scripts/gtceu/wafers.js.
+// com.af9.core.litho.LithoMode and the item tables of com.af9.core.registry.AF9Items in af9-core.
 const AF9_WAFERS = (() => {
     // The nine substrates, lowest first. blank = the substrate wafer, tier = voltage of its lithography mode,
     // yield = silicon-class chip wafers one print gives (GT's laser engraving: 1 / 4 / 8 / 16 on silicon / phosphorus /
@@ -11,14 +12,14 @@ const AF9_WAFERS = (() => {
         { id: 'silicon', yield: 1, blank: 'gtceu:silicon_wafer', tier: GTValues.MV, reclaim: 'gtceu:small_silicon_dust' },
         { id: 'phosphorus', yield: 4, blank: 'gtceu:phosphorus_wafer', tier: GTValues.HV, reclaim: 'gtceu:small_silicon_dust' },
         { id: 'naquadah', yield: 8, blank: 'gtceu:naquadah_wafer', tier: GTValues.EV, reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'trinium', yield: 10, blank: 'kubejs:trinium_wafer', tier: GTValues.IV, reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'naquadria', yield: 12, blank: 'kubejs:naquadria_wafer', tier: GTValues.LuV, reclaim: 'gtceu:small_silicon_dust' },
+        { id: 'trinium', yield: 10, blank: 'af9:trinium_wafer', tier: GTValues.IV, reclaim: 'gtceu:small_silicon_dust' },
+        { id: 'naquadria', yield: 12, blank: 'af9:naquadria_wafer', tier: GTValues.LuV, reclaim: 'gtceu:small_silicon_dust' },
         { id: 'neutronium', yield: 16, blank: 'gtceu:neutronium_wafer', tier: GTValues.ZPM, reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'transmuted_neutronium', yield: 24, blank: 'kubejs:transmuted_neutronium_wafer', tier: GTValues.UV,
+        { id: 'transmuted_neutronium', yield: 24, blank: 'af9:transmuted_neutronium_wafer', tier: GTValues.UV,
             reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'strange_matter', yield: 32, blank: 'kubejs:strange_matter_wafer', tier: GTValues.UHV,
+        { id: 'strange_matter', yield: 32, blank: 'af9:strange_matter_wafer', tier: GTValues.UHV,
             reclaim: 'gtceu:small_silicon_dust' },
-        { id: 'chromodynium', yield: 64, blank: 'kubejs:chromodynium_wafer', tier: GTValues.UHV,
+        { id: 'chromodynium', yield: 64, blank: 'af9:chromodynium_wafer', tier: GTValues.UHV,
             reclaim: 'gtceu:small_chromodynium_dust' }
     ]
     substrates.forEach((s, index) => s.index = index)
@@ -36,9 +37,9 @@ const AF9_WAFERS = (() => {
         { id: '100nm', substrate: 2, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', barc: true,
             baseBreak: 500 },
         { id: '80nm', substrate: 3, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', barc: true,
-            laser: 'kubejs:arf_excimer_laser', baseBreak: 700 },
+            laser: 'af9:arf_excimer_laser', baseBreak: 700 },
         { id: '65nm', substrate: 4, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', immersion: true,
-            barc: true, laser: 'kubejs:arf_excimer_laser', baseBreak: 900 },
+            barc: true, laser: 'af9:arf_excimer_laser', baseBreak: 900 },
         { id: '50nm', substrate: 5, resist: 'gtceu:arf_photoresist', laserGas: 'gtceu:arf_excimer_gas', immersion: true,
             highK: true, barc: true, baseBreak: 1200 },
         { id: '20nm', substrate: 6, resist: 'gtceu:euv_photoresist', euv: true, highK: true, baseBreak: 1800 },
@@ -48,8 +49,8 @@ const AF9_WAFERS = (() => {
     const orbital = { id: '1nm', substrate: 8, baseBreak: 3500 }
 
     function own(id, native, lens, dies) {
-        return { id: id, native: native, reticle: id, lens: lens, chip: `kubejs:${id}_chip`,
-            wafer: `kubejs:${id}_wafer`, dies: dies }
+        return { id: id, native: native, reticle: id, lens: lens, chip: `af9:${id}_chip`,
+            wafer: `af9:${id}_wafer`, dies: dies }
     }
     // Every GT chip wafer. native = index of the chip's own substrate (GT's: silicon, phosphorus, naquadah for ASoC,
     // neutronium for HASoC). reticle: the photomask (derived wafers come from GT's Chemical Reactor recipes instead);
@@ -112,7 +113,7 @@ const AF9_WAFERS = (() => {
     // Every wafer item of a substrate, for the contamination tags: the blank, the coated wafer (all but the last substrate's) and
     // GT's chip wafers of that substrate
     const wafersOf = substrateIndex => [substrates[substrateIndex].blank]
-        .concat(substrateIndex < substrates.length - 1 ? [`kubejs:coated_${substrates[substrateIndex].id}_wafer`] : [])
+        .concat(substrateIndex < substrates.length - 1 ? [`af9:coated_${substrates[substrateIndex].id}_wafer`] : [])
         .concat(chips.filter(c => c.native === substrateIndex).map(waferOf))
     // Plain chip stack by chip or old reticle id (the circuit scripts use 'nand', 'nor' ...)
     const chipStack = (id, count) => {
@@ -125,11 +126,11 @@ const AF9_WAFERS = (() => {
     // A chip has a reticle of its own (native) class and one of every finer class: the finer one is written from the
     // native one (same layout, new blank). startup_scripts/gtceu/reticles.js registers them.
     const CLASSES = ['chrome', 'psm', 'euv']
-    const BLANKS = { chrome: 'kubejs:photomask_blank', psm: 'kubejs:phase_shift_mask_blank', euv: 'kubejs:euv_mask_blank' }
+    const BLANKS = { chrome: 'af9:photomask_blank', psm: 'af9:phase_shift_mask_blank', euv: 'af9:euv_mask_blank' }
     const maskClass = substrateIndex => CLASSES[substrateIndex <= 1 ? 0 : substrateIndex <= 4 ? 1 : 2]
-    // kubejs:<chip>_reticle in the chip's native class, kubejs:<chip>_<class>_reticle in a finer one
-    const reticleItem = (c, cls) => cls === maskClass(c.native) ? `kubejs:${c.reticle}_reticle` :
-        `kubejs:${c.reticle}_${cls}_reticle`
+    // af9:<chip>_reticle in the chip's native class, af9:<chip>_<class>_reticle in a finer one
+    const reticleItem = (c, cls) => cls === maskClass(c.native) ? `af9:${c.reticle}_reticle` :
+        `af9:${c.reticle}_${cls}_reticle`
     // every reticle: the chip, its class, the item, the blank it is written on, the native reticle it is written from
     const reticles = []
     // (a callback per class, not a for loop: Rhino keeps a const declared in a loop's body at its first value)
@@ -199,23 +200,23 @@ ServerEvents.recipes(event => {
         .itemInputs('gtceu:hv_machine_hull', '2x gtceu:hv_emitter', '4x #gtceu:circuits/hv', '2x gtceu:glass_lens',
             '4x gtceu:stainless_steel_plate', 'gtceu:hv_electric_pump')
         .inputFluids(Fluid.of('gtceu:krf_excimer_gas', 4000))
-        .itemOutputs('kubejs:krf_excimer_laser')
+        .itemOutputs('af9:krf_excimer_laser')
         .duration(1200)
         .EUt(VA[GTValues.HV])
     event.recipes.gtceu.assembler('af9:arf_excimer_laser')
         .itemInputs('gtceu:ev_machine_hull', '2x gtceu:ev_emitter', '4x #gtceu:circuits/ev', '4x gtceu:glass_lens',
             '4x gtceu:titanium_plate', 'gtceu:ev_electric_pump')
         .inputFluids(Fluid.of('gtceu:arf_excimer_gas', 4000))
-        .itemOutputs('kubejs:arf_excimer_laser')
+        .itemOutputs('af9:arf_excimer_laser')
         .duration(1200)
         .EUt(VA[GTValues.EV])
     // Laser-produced plasma: a CO2 drive laser hits tin droplets 50,000 times a second; a multilayer collector mirror
     // (two Mo/Si mirrors) gathers the 13.5 nm light
     event.recipes.gtceu.assembler('af9:euv_light_source')
         .itemInputs('gtceu:uv_machine_hull', '4x gtceu:uv_emitter', '4x #gtceu:circuits/uv', '8x gtceu:glass_lens',
-            '2x gtceu:uv_electric_pump', '8x gtceu:neutronium_plate', '2x kubejs:mo_si_mirror')
+            '2x gtceu:uv_electric_pump', '8x gtceu:neutronium_plate', '2x af9:mo_si_mirror')
         .inputFluids(Fluid.of('gtceu:tin', 2304))
-        .itemOutputs('kubejs:euv_light_source')
+        .itemOutputs('af9:euv_light_source')
         .duration(2400)
         .EUt(VA[GTValues.UV])
 
@@ -235,7 +236,7 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.assembler('af9:orbital_lithography_station')
         .itemInputs('gtceu:zpm_machine_hull', '4x gtceu:zpm_emitter', '4x gtceu:zpm_field_generator',
             '4x #gtceu:circuits/zpm', '4x gtceu:zpm_sensor', '4x gtceu:zpm_robot_arm', '16x gtceu:naquadah_alloy_plate',
-            '8x kubejs:vpu_chip', '6x kubejs:mo_si_mirror')
+            '8x af9:vpu_chip', '6x af9:mo_si_mirror')
         .inputFluids(Fluid.of('gtceu:supercooled_endion', 4000))
         .itemOutputs('gtceu:orbital_lithography_station')
         .duration(4000)
@@ -243,13 +244,13 @@ ServerEvents.recipes(event => {
 
     // Plascrete Pipe Casing: the chemical lines of the MV machines (Photolithography Line, SMC Thermal Processing
     // Furnace); GT's PTFE Pipe Casing only comes at HV. Like GT's pipe casings: plates, pipes, a frame.
-    event.shaped('2x kubejs:plascrete_pipe_casing', ['PIP', 'IFI', 'PIP'], {
+    event.shaped('2x af9:plascrete_pipe_casing', ['PIP', 'IFI', 'PIP'], {
         P: 'gtceu:plascrete', I: 'gtceu:polyethylene_normal_fluid_pipe', F: 'gtceu:steel_frame'
     }).id('af9:plascrete_pipe_casing')
 
     // Plascrete Filter Casing: the ceiling of the lithography machines, and a GT cleanroom filter (ISO 5). GT's Filter
     // Casing parts (item filters behind a grille, an MV fan motor, a steel rotor) in a plascrete frame.
-    event.shaped('2x kubejs:plascrete_filter_casing', ['PBP', 'IMI', 'PRP'], {
+    event.shaped('2x af9:plascrete_filter_casing', ['PBP', 'IMI', 'PRP'], {
         P: 'gtceu:plascrete', B: 'minecraft:iron_bars', I: 'gtceu:item_filter', M: 'gtceu:mv_electric_motor',
         R: 'gtceu:steel_rotor'
     }).id('af9:plascrete_filter_casing')
@@ -259,7 +260,7 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.assembler('af9:photomask_blank')
         .itemInputs('gtceu:quartzite_plate', 'gtceu:chromium_plate')
         .inputFluids(Fluid.of('gtceu:photoresist', 100))
-        .itemOutputs('kubejs:photomask_blank')
+        .itemOutputs('af9:photomask_blank')
         .duration(400)
         .EUt(EU_MV)
 
@@ -269,7 +270,7 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.fab_cvd('af9:phase_shift_mask_blank')
         .itemInputs('gtceu:quartzite_plate', 'gtceu:small_molybdenum_dust', 'gtceu:small_silicon_dust')
         .inputFluids(Fluid.of('gtceu:arf_photoresist', 100))
-        .itemOutputs('kubejs:phase_shift_mask_blank')
+        .itemOutputs('af9:phase_shift_mask_blank')
         .blastFurnaceTemp(900)
         .duration(600)
         .EUt(VA[GTValues.EV])
@@ -277,7 +278,7 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.fab_cvd('af9:euv_mask_blank')
         .itemInputs('gtceu:quartzite_plate', '2x gtceu:molybdenum_dust', '2x gtceu:silicon_dust')
         .inputFluids(Fluid.of('gtceu:euv_photoresist', 100), Fluid.of('gtceu:argon', 1000))
-        .itemOutputs('kubejs:euv_mask_blank')
+        .itemOutputs('af9:euv_mask_blank')
         .blastFurnaceTemp(1200)
         .duration(1200)
         .EUt(VA[GTValues.LuV])
@@ -287,14 +288,14 @@ ServerEvents.recipes(event => {
     // argon: the collector of the light source and the projection mirrors of the orbital station
     event.recipes.gtceu.fab_calcination('af9:ule_glass_substrate')
         .itemInputs('gtceu:quartzite_plate', 'gtceu:rutile_dust')
-        .itemOutputs('kubejs:ule_glass_substrate')
+        .itemOutputs('af9:ule_glass_substrate')
         .blastFurnaceTemp(1800)
         .duration(600)
         .EUt(VA[GTValues.HV])
     event.recipes.gtceu.fab_cvd('af9:mo_si_mirror')
-        .itemInputs('kubejs:ule_glass_substrate', '4x gtceu:molybdenum_dust', '4x gtceu:silicon_dust')
+        .itemInputs('af9:ule_glass_substrate', '4x gtceu:molybdenum_dust', '4x gtceu:silicon_dust')
         .inputFluids(Fluid.of('gtceu:argon', 2000))
-        .itemOutputs('kubejs:mo_si_mirror')
+        .itemOutputs('af9:mo_si_mirror')
         .blastFurnaceTemp(1200)
         .duration(1800)
         .EUt(VA[GTValues.LuV])
@@ -333,9 +334,9 @@ ServerEvents.recipes(event => {
     const packages = [['cpu', 'gtceu:cpu_chip'], ['soc', 'gtceu:soc']]
     packages.forEach(([id, die]) => {
         event.recipes.gtceu.assembler(`af9:edram_${id}_package`)
-            .itemInputs(die, '2x kubejs:edram_chip', 'gtceu:epoxy_plate', '4x gtceu:fine_gold_wire')
+            .itemInputs(die, '2x af9:edram_chip', 'gtceu:epoxy_plate', '4x gtceu:fine_gold_wire')
             .inputFluids(Fluid.of('gtceu:soldering_alloy', 72))
-            .itemOutputs(`kubejs:edram_${id}_package`)
+            .itemOutputs(`af9:edram_${id}_package`)
             .duration(400)
             .EUt(VA[GTValues.IV])
             .cleanroom(CleanroomType.CLEANROOM)
@@ -360,12 +361,12 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.fab_wet_processing('af9:molecular_sieve')
         .itemInputs('4x gtceu:zeolite_dust', 'gtceu:bentonite_dust')
         .inputFluids(Fluid.of('gtceu:distilled_water', 500))
-        .itemOutputs('4x kubejs:molecular_sieve')
+        .itemOutputs('4x af9:molecular_sieve')
         .duration(600)
         .EUt(EU_MV)
 
     // temperature-swing regeneration
-    event.smelting('kubejs:molecular_sieve', 'kubejs:saturated_molecular_sieve').id('af9:regenerate_molecular_sieve')
+    event.smelting('af9:molecular_sieve', 'af9:saturated_molecular_sieve').id('af9:regenerate_molecular_sieve')
 
     // 1. catalytic oxidation: CO, H2 and hydrocarbons -> CO2 + H2O
     event.recipes.gtceu.fab_purification('af9:xcda_oxidize_hopcalite')
@@ -403,9 +404,9 @@ ServerEvents.recipes(event => {
 
     // 3. drying: the sieve adsorbs the water
     event.recipes.gtceu.fab_purification('af9:xcda_dry')
-        .itemInputs('kubejs:molecular_sieve')
+        .itemInputs('af9:molecular_sieve')
         .inputFluids(Fluid.of('gtceu:decarbonated_air', 4000))
-        .itemOutputs('kubejs:saturated_molecular_sieve')
+        .itemOutputs('af9:saturated_molecular_sieve')
         .outputFluids(Fluid.of('gtceu:dry_air', 4000))
         .duration(400)
         .EUt(EU_MV)
@@ -551,7 +552,7 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.fab_cvd('af9:dry_resist_cartridge')
         .itemInputs('gtceu:tungsten_steel_plate')
         .inputFluids(Fluid.of('gtceu:euv_photoresist', 1000))
-        .itemOutputs('kubejs:dry_resist_cartridge')
+        .itemOutputs('af9:dry_resist_cartridge')
         .blastFurnaceTemp(600)
         .duration(400)
         .EUt(VA[GTValues.UV])
@@ -573,7 +574,7 @@ ServerEvents.recipes(event => {
         event.recipes.gtceu.wafer_coating(`af9:coat_${s.id}_wafer`)
             .itemInputs(s.blank)
             .inputFluids(coat)
-            .itemOutputs(`kubejs:coated_${s.id}_wafer`)
+            .itemOutputs(`af9:coated_${s.id}_wafer`)
             .outputFluids(Fluid.of('gtceu:spent_resist_solvent', Math.round(30 * chemicals)))
             .duration(300)
             .EUt(VA[s.tier])
@@ -609,16 +610,16 @@ ServerEvents.recipes(event => {
         if (m.highK) fluids.push(Fluid.of('gtceu:hafnium_tetrachloride', 100))
         chips.filter(c => c.reticle && c.native <= m.substrate).forEach(c => {
             const recipe = event.recipes.gtceu[`lithography_${m.id}`](`af9:print_${c.id}_${m.id}`)
-                .itemInputs(`kubejs:coated_${s.id}_wafer`)
+                .itemInputs(`af9:coated_${s.id}_wafer`)
                 .notConsumable(AF9_WAFERS.reticleItem(c, AF9_WAFERS.maskClass(m.substrate)))
             // the scanner's ArF laser in its laser slot, the orbital station's EUV source in its EUV slot (or either in
             // an input bus)
             if (m.laser) recipe.notConsumable(m.laser)
-            if (m.euv) recipe.notConsumable('kubejs:euv_light_source')
+            if (m.euv) recipe.notConsumable('af9:euv_light_source')
             recipe
                 .inputFluids(fluids)
                 .itemOutputs(`${yieldOf(m.substrate, c)}x ${printed(m.substrate, c)}`)
-                .chancedOutput(`kubejs:broken_${s.id}_wafer`, m.baseBreak, 0)
+                .chancedOutput(`af9:broken_${s.id}_wafer`, m.baseBreak, 0)
                 .duration(900)
                 .EUt(VA[s.tier], 4)
             // 7 nm: 32 CWU/t
@@ -635,10 +636,10 @@ ServerEvents.recipes(event => {
     const chromodynium = substrates[AF9_WAFERS.orbital.substrate]
     chips.filter(c => c.reticle).forEach(c => {
         event.recipes.gtceu.orbital_lithography(`af9:print_${c.id}_1nm`)
-            .itemInputs(chromodynium.blank, 'kubejs:dry_resist_cartridge')
+            .itemInputs(chromodynium.blank, 'af9:dry_resist_cartridge')
             .notConsumable(AF9_WAFERS.reticleItem(c, AF9_WAFERS.maskClass(chromodynium.index)))
             .itemOutputs(`${yieldOf(chromodynium.index, c)}x ${printed(chromodynium.index, c)}`)
-            .chancedOutput(`kubejs:broken_${chromodynium.id}_wafer`, AF9_WAFERS.orbital.baseBreak, 0)
+            .chancedOutput(`af9:broken_${chromodynium.id}_wafer`, AF9_WAFERS.orbital.baseBreak, 0)
             .duration(7200)
             .EUt(VA[chromodynium.tier], 50)
             .CWUt(96)
@@ -654,13 +655,13 @@ ServerEvents.recipes(event => {
     // wafer of their substrate (the print is lost).
     substrates.forEach(s => {
         event.recipes.gtceu.macerator(`af9:reclaim_broken_${s.id}_wafer`)
-            .itemInputs(`kubejs:broken_${s.id}_wafer`)
+            .itemInputs(`af9:broken_${s.id}_wafer`)
             .itemOutputs(`2x ${s.reclaim}`)
             .duration(100)
             .EUt(EU_LV)
         // RCA clean: SC-1 (particles, organics), a dilute HF dip (the oxide), SC-2 (metal ions)
         event.recipes.gtceu.fab_wet_processing(`af9:clean_contaminated_${s.id}_wafer`)
-            .itemInputs(`kubejs:contaminated_${s.id}_wafer`)
+            .itemInputs(`af9:contaminated_${s.id}_wafer`)
             .inputFluids(Fluid.of('gtceu:sc1_solution', 500), Fluid.of('gtceu:hydrofluoric_acid', 50),
                 Fluid.of('gtceu:sc2_solution', 500))
             .itemOutputs(s.blank)
@@ -670,7 +671,7 @@ ServerEvents.recipes(event => {
         // Rework, as a real fab does with a failed resist layer: piranha strips the baked resist, then the RCA clean;
         // the wafer survives most of the time (the spent piranha is waste)
         event.recipes.gtceu.fab_wet_processing(`af9:rework_broken_${s.id}_wafer`)
-            .itemInputs(`kubejs:broken_${s.id}_wafer`)
+            .itemInputs(`af9:broken_${s.id}_wafer`)
             .inputFluids(Fluid.of('gtceu:piranha_solution', 500), Fluid.of('gtceu:sc1_solution', 500),
                 Fluid.of('gtceu:sc2_solution', 500))
             .chancedOutput(s.blank, 6000, 0)
@@ -683,7 +684,7 @@ ServerEvents.recipes(event => {
     chips.forEach(c => {
         const path = c.chip.split(':')[1]
         event.recipes.gtceu.fab_wet_processing(`af9:clean_contaminated_${path}`)
-            .itemInputs(`kubejs:contaminated_${path}`)
+            .itemInputs(`af9:contaminated_${path}`)
             .inputFluids(Fluid.of('gtceu:hydrofluoric_acid', 10), Fluid.of('gtceu:distilled_water', 250))
             .itemOutputs(c.chip)
             .duration(60)

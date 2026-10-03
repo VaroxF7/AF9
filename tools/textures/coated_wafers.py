@@ -15,7 +15,7 @@ import sys
 from PIL import Image
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..')
-WAFERS = os.path.join(ROOT, 'kubejs/assets/kubejs/textures/item/wafers')
+WAFERS = os.path.join(ROOT, 'af9-core/src/main/resources/assets/af9/textures/item/wafers')
 GT_SRC = os.environ.get('GT_SRC')
 
 # substrate, where its blank texture is, the resist tint

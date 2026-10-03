@@ -5,15 +5,15 @@ ServerEvents.recipes(event => {
     gt.assembler('af9:selftest_dup').itemInputs('gtceu:steel_plate').itemOutputs('gtceu:steel_ingot').duration(10).EUt(32)
     gt.assembler('af9:selftest_dup').itemInputs('gtceu:iron_plate').itemOutputs('gtceu:iron_ingot').duration(10).EUt(32)
     // R3: an item nobody registered; R4: a recipe type that does not exist
-    gt.assembler('af9:selftest_unknown').itemInputs('kubejs:selftest_not_registered').itemOutputs('gtceu:steel_ingot').duration(10).EUt(32)
+    gt.assembler('af9:selftest_unknown').itemInputs('af9:selftest_not_registered').itemOutputs('gtceu:steel_ingot').duration(10).EUt(32)
     gt.selftest_not_a_type('af9:selftest_type').itemInputs('gtceu:steel_plate').duration(10).EUt(32)
     // R3: a typo in a GT name and in a GT material
     gt.assembler('af9:selftest_typo').itemInputs('gtceu:cleanroom_glas', 'gtceu:strange_matte_dust').itemOutputs('gtceu:steel_ingot').duration(10).EUt(32)
     // R5: takes an item nothing makes
-    gt.assembler('af9:selftest_takes_orphan').itemInputs('kubejs:selftest_orphan').itemOutputs('gtceu:steel_ingot').duration(10).EUt(32)
+    gt.assembler('af9:selftest_takes_orphan').itemInputs('af9:selftest_orphan').itemOutputs('gtceu:steel_ingot').duration(10).EUt(32)
     // R10: a and b only make each other
-    gt.assembler('af9:selftest_a').itemInputs('kubejs:selftest_b').itemOutputs('kubejs:selftest_a').duration(10).EUt(32)
-    gt.assembler('af9:selftest_b').itemInputs('kubejs:selftest_a').itemOutputs('kubejs:selftest_b').duration(10).EUt(32)
+    gt.assembler('af9:selftest_a').itemInputs('af9:selftest_b').itemOutputs('af9:selftest_a').duration(10).EUt(32)
+    gt.assembler('af9:selftest_b').itemInputs('af9:selftest_a').itemOutputs('af9:selftest_b').duration(10).EUt(32)
     // R2: over the slots (1 item in); R11: a fluid input but the machine has no fluid hatch; R8: no duration, a chance of 20000
     gt.selftest_run('af9:selftest_slots').itemInputs('gtceu:steel_plate', 'gtceu:iron_plate').inputFluids(Fluid.of('gtceu:water', 1000))
         .chancedOutput('gtceu:steel_ingot', 20000, 0).EUt(32)

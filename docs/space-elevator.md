@@ -13,7 +13,7 @@ drone slot, what it lacks; `OreCatalog`: GT's ores and veins; `PlanetCatalog`: t
 
 ## 1. How it works
 
-`gtceu:space_elevator` runs the recipe type `gtceu:space_mining`: a **Mining Drone** (`kubejs:space_mining_drone_mk1..4`, **not used
+`gtceu:space_elevator` runs the recipe type `gtceu:space_mining`: a **Mining Drone** (`af9:space_mining_drone_mk1..4`, **not used
 up**) in the drone slot of its screen (section 5; or in an input bus), **hydrogen** in a fluid input hatch, a **supercooled coolant**
 in **Coolant Hatches** (below) and energy for minutes. Nothing is made by the recipe itself: when a run starts
 (`SpaceElevatorMachine.ASTEROID`, a recipe modifier that re-rolls every run) the elevator draws an **asteroid** and the run puts out
@@ -89,9 +89,9 @@ supercooled xenon): GTNH's numbers, kept as they are.
 
 As in GTNH the elevator itself does nothing: its **modules** do the work, and its **motors** say how many of them.
 
-* A **Space Mining Module** (`kubejs:space_mining_module_mk1..3`, a block) in a **module slot** of the tower flies expeditions:
+* A **Space Mining Module** (`af9:space_mining_module_mk1..3`, a block) in a **module slot** of the tower flies expeditions:
   **MK-I 2 at once, MK-II 4, MK-III 8** (GTNH's parallels). Without a powered module nothing flies.
-* The **motors' tier** (the 88 motors round the shaft, all of one tier, `kubejs:space_elevator_motor_mk1..5`) powers
+* The **motors' tier** (the 88 motors round the shaft, all of one tier, `af9:space_elevator_motor_mk1..5`) powers
   **6 / 12 / 15 / 18 / 24 module slots** (MK-I to MK-V, GTNH's numbers), and only modules of **its own tier or lower** (a MK-III module
   needs MK-III motors, and on lesser motors it does nothing: the screen says so). With more modules than slots the best ones are
   powered and the rest stand idle (GTNH refuses such a tower, and one with a module above its motors).
@@ -126,14 +126,14 @@ by position.
 
 | Block | Count | Where |
 |---|---|---|
-| Ultra High Strength Concrete Floor (`kubejs:ultra_high_strength_concrete_floor`) | 800 | the floor, a disc 35 across |
-| Space Elevator Base Casing (`kubejs:space_elevator_base_casing`) | 593 to 785 | the blue of the tower: frame, column, feet |
+| Ultra High Strength Concrete Floor (`af9:ultra_high_strength_concrete_floor`) | 800 | the floor, a disc 35 across |
+| Space Elevator Base Casing (`af9:space_elevator_base_casing`) | 593 to 785 | the blue of the tower: frame, column, feet |
 | Stress-Proof Casing (`gtceu:stress_proof_casing`) | 620 | the dark ribs that taper to the top |
-| Space Elevator Internal Structure (`kubejs:space_elevator_internal_structure`) | 360 | the decks: the second layer, the rings up the column, the crown |
-| Space Elevator Motor (`kubejs:space_elevator_motor_mk1..5`) | 88 | the central column, round the shaft, 22 layers |
+| Space Elevator Internal Structure (`af9:space_elevator_internal_structure`) | 360 | the decks: the second layer, the rings up the column, the crown |
+| Space Elevator Motor (`af9:space_elevator_motor_mk1..5`) | 88 | the central column, round the shaft, 22 layers |
 | Neutronium Frame Box (`gtceu:neutronium_frame`) | 56 | four arcs half way up the frame |
-| Space Elevator Cable (`kubejs:space_elevator_cable`) | 1 | on top of the shaft, 22 above the controller |
-| Space Mining Module (`kubejs:space_mining_module_mk1..3`) | 0 to 12 | the module slots: round the column, three a side, in the 4th layer |
+| Space Elevator Cable (`af9:space_elevator_cable`) | 1 | on top of the shaft, 22 above the controller |
+| Space Mining Module (`af9:space_mining_module_mk1..3`) | 0 to 12 | the module slots: round the column, three a side, in the 4th layer |
 | the controller | 1 | **front centre of the central column, 4th layer** |
 
 Rules of the structure (GTNH's):

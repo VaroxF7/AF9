@@ -1,5 +1,5 @@
 {
     "ldlib": {
-        "connection": "kubejs:block/space_elevator_motor_mk2_ctm"
+        "connection": "af9:block/space_elevator_motor_mk2_ctm"
     }
 }

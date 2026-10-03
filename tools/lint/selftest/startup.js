@@ -1,11 +1,7 @@
 // Self-test fixture (tools/lint/selftest.sh copies this into a scratch tree): every line is a mistake the linters must find.
+// The items the recipes of server.js name (af9:selftest_orphan ...) are put into the scratch tree's registry list by selftest.sh.
 StartupEvents.registry('item', event => {
-    event.create('selftest_orphan').displayName('Orphan')        // R5: taken, never made
-    event.create('selftest_dead').displayName('Dead')            // R6: nobody makes or takes it
-    event.create('selftest_a').displayName('A')                  // R10: a and b only make each other
-    event.create('selftest_b').displayName('B')
-    event.create('selftest_nameless')                            // A5: no name, A1: no texture
-    event.create('selftest_dead').displayName('Dead again')      // S2: registered twice
+    event.create('selftest_kubejs_item').displayName('KubeJS item')   // S4: AF9's items are registered by AF9 Core
     for (let i = 0; i < 2; i++) {
         const selftestKept = i                                   // S3: a const in a loop's body (Rhino keeps the first)
     }
@@ -15,6 +11,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     event.create('selftest_nomachine').category('multiblock').setEUIO('in').setMaxIOSize(1, 1, 1, 0)   // M4
     event.create('selftest_run').category('multiblock').setEUIO('in').setMaxIOSize(1, 1, 1, 0)         // R2, R11
     event.create('selftest_single').category('multiblock').setEUIO('in').setMaxIOSize(1, 1, 1, 1)      // R12
+    event.create('selftest_single').category('multiblock').setEUIO('in').setMaxIOSize(1, 1, 1, 1)      // S2: registered twice
 })
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
@@ -27,7 +24,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .aisle('CS', 'CCC')
             .aisle('CZC', 'CCC')
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-            .where('C', Predicates.blocks('kubejs:selftest_no_such_block')
+            .where('C', Predicates.blocks('af9:selftest_no_such_block')
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMinGlobalLimited(1))
                 .or(Predicates.autoAbilities(true, false)))
             .where('U', Predicates.air())

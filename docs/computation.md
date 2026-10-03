@@ -53,7 +53,7 @@ coolant took. Out of energy it puts out nothing; nothing burns, nothing breaks.
 
 | Array | Id | Structure | Own draw, heat |
 |---|---|---|---|
-| N1 Computation Array | `gtceu:n1_computation_array` | MV, 3 x 3 x 6 of Server Casing (`kubejs:server_casing`); eight MV Computer Racks in the middle row of the four inner slices, a steel pipe casing between them | 32 EU/t, 2 heat/t |
+| N1 Computation Array | `gtceu:n1_computation_array` | MV, 3 x 3 x 6 of Server Casing (`af9:server_casing`); eight MV Computer Racks in the middle row of the four inner slices, a steel pipe casing between them | 32 EU/t, 2 heat/t |
 | N1 Supercomputer Array | `gtceu:n1_supercomputer_array` | LuV, 2 wide, 4 high, 7 to 30 long; every slice between the end slices holds four racks (MV or LuV; the two middle rows) between GT computer heat vents (the bottom and top rows): 20 to 112 racks; the end slices are GT computer casing, the controller second from the bottom | 512 EU/t, 8 heat/t |
 
 Parts on the casings (the supercomputer's: its end slices), maxima only: energy hatches (2 / 4; the supercomputer one laser hatch), Coolant Hatches (2 / 4),

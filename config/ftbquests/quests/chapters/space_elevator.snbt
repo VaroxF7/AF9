@@ -102,7 +102,7 @@
 				""
 				"{af9.quest.se.blocks.3}"
 			]
-			icon: "kubejs:space_elevator_base_casing"
+			icon: "af9:space_elevator_base_casing"
 			id: "3708EE923BC0D8D1"
 			rewards: [{
 				id: "0CD4D4FC94E48635"
@@ -115,7 +115,7 @@
 			tasks: [
 				{
 					id: "5B221AE3DF0BAC47"
-					item: "kubejs:space_elevator_base_casing"
+					item: "af9:space_elevator_base_casing"
 					type: "item"
 				}
 				{
@@ -125,17 +125,17 @@
 				}
 				{
 					id: "73D6551EB6E7B574"
-					item: "kubejs:space_elevator_internal_structure"
+					item: "af9:space_elevator_internal_structure"
 					type: "item"
 				}
 				{
 					id: "5AE147F796AECA9B"
-					item: "kubejs:space_elevator_cable"
+					item: "af9:space_elevator_cable"
 					type: "item"
 				}
 				{
 					id: "5B996A89E59648F1"
-					item: "kubejs:ultra_high_strength_concrete_floor"
+					item: "af9:ultra_high_strength_concrete_floor"
 					type: "item"
 				}
 				{
@@ -155,7 +155,7 @@
 				""
 				"{af9.quest.se.motors.2}"
 			]
-			icon: "kubejs:space_elevator_motor_mk1"
+			icon: "af9:space_elevator_motor_mk1"
 			id: "5D0E9FF38F756040"
 			rewards: [{
 				id: "758463E8AC49E7F5"
@@ -169,7 +169,7 @@
 				{
 					count: 88L
 					id: "14118A851DD5FA40"
-					item: "kubejs:space_elevator_motor_mk1"
+					item: "af9:space_elevator_motor_mk1"
 					type: "item"
 				}
 			]
@@ -212,7 +212,7 @@
 				""
 				"{af9.quest.se.drone1.2}"
 			]
-			icon: "kubejs:space_mining_drone_mk1"
+			icon: "af9:space_mining_drone_mk1"
 			id: "16521CDE00E625A5"
 			rewards: [{
 				id: "709ABD28165A3150"
@@ -225,7 +225,7 @@
 			tasks: [
 				{
 					id: "104D4E40B36A34CA"
-					item: "kubejs:space_mining_drone_mk1"
+					item: "af9:space_mining_drone_mk1"
 					type: "item"
 				}
 			]
@@ -240,7 +240,7 @@
 				""
 				"{af9.quest.se.module1.2}"
 			]
-			icon: "kubejs:space_mining_module_mk1"
+			icon: "af9:space_mining_module_mk1"
 			id: "6899E431B966F3DA"
 			rewards: [{
 				id: "3F121EBA72BA0C87"
@@ -253,7 +253,7 @@
 			tasks: [
 				{
 					id: "5C90224E52DA2B9B"
-					item: "kubejs:space_mining_module_mk1"
+					item: "af9:space_mining_module_mk1"
 					type: "item"
 				}
 			]
@@ -298,7 +298,7 @@
 				""
 				"{af9.quest.se.platform.2}"
 			]
-			icon: "kubejs:space_elevator_cable"
+			icon: "af9:space_elevator_cable"
 			id: "6263A5340994A5FD"
 			rewards: [{
 				id: "6B52712293BA6253"
@@ -379,7 +379,7 @@
 			description: [
 				"{af9.quest.se.drone2.1}"
 			]
-			icon: "kubejs:space_mining_drone_mk2"
+			icon: "af9:space_mining_drone_mk2"
 			id: "7DAEB2A7F796D019"
 			rewards: [{
 				id: "15322D7C7DFE2B90"
@@ -392,7 +392,7 @@
 			tasks: [
 				{
 					id: "3931F0495BC65799"
-					item: "kubejs:space_mining_drone_mk2"
+					item: "af9:space_mining_drone_mk2"
 					type: "item"
 				}
 			]
@@ -405,7 +405,7 @@
 			description: [
 				"{af9.quest.se.drone3.1}"
 			]
-			icon: "kubejs:space_mining_drone_mk3"
+			icon: "af9:space_mining_drone_mk3"
 			id: "4A6C2B0DE92CC881"
 			rewards: [{
 				id: "7E143E2B0DD942DD"
@@ -418,7 +418,7 @@
 			tasks: [
 				{
 					id: "176E449242ABABD0"
-					item: "kubejs:space_mining_drone_mk3"
+					item: "af9:space_mining_drone_mk3"
 					type: "item"
 				}
 			]
@@ -431,7 +431,7 @@
 			description: [
 				"{af9.quest.se.drone4.1}"
 			]
-			icon: "kubejs:space_mining_drone_mk4"
+			icon: "af9:space_mining_drone_mk4"
 			id: "45465D7D3255F823"
 			rewards: [{
 				id: "0B9577B06E39CEB2"
@@ -444,7 +444,7 @@
 			tasks: [
 				{
 					id: "68BED813172D3373"
-					item: "kubejs:space_mining_drone_mk4"
+					item: "af9:space_mining_drone_mk4"
 					type: "item"
 				}
 			]
@@ -485,7 +485,7 @@
 				""
 				"{af9.quest.se.motors2.2}"
 			]
-			icon: "kubejs:space_elevator_motor_mk2"
+			icon: "af9:space_elevator_motor_mk2"
 			id: "4ECE0E5EC897CE71"
 			rewards: [{
 				id: "5F3A6BB4C176FEAF"
@@ -499,7 +499,7 @@
 				{
 					count: 88L
 					id: "47E34CD35EEC054A"
-					item: "kubejs:space_elevator_motor_mk2"
+					item: "af9:space_elevator_motor_mk2"
 					type: "item"
 				}
 			]
@@ -512,7 +512,7 @@
 			description: [
 				"{af9.quest.se.module2.1}"
 			]
-			icon: "kubejs:space_mining_module_mk2"
+			icon: "af9:space_mining_module_mk2"
 			id: "1F64A663255C46EB"
 			rewards: [{
 				id: "7D4BC859D3DB6B7F"
@@ -525,7 +525,7 @@
 			tasks: [
 				{
 					id: "68AB48F9B81507A1"
-					item: "kubejs:space_mining_module_mk2"
+					item: "af9:space_mining_module_mk2"
 					type: "item"
 				}
 			]
@@ -538,7 +538,7 @@
 			description: [
 				"{af9.quest.se.motors3.1}"
 			]
-			icon: "kubejs:space_elevator_motor_mk3"
+			icon: "af9:space_elevator_motor_mk3"
 			id: "6C3A505CE6F25C87"
 			rewards: [{
 				id: "4CF6CDEAAC9CFB8C"
@@ -552,7 +552,7 @@
 				{
 					count: 88L
 					id: "3E403C07B5CE238A"
-					item: "kubejs:space_elevator_motor_mk3"
+					item: "af9:space_elevator_motor_mk3"
 					type: "item"
 				}
 			]
@@ -565,7 +565,7 @@
 			description: [
 				"{af9.quest.se.module3.1}"
 			]
-			icon: "kubejs:space_mining_module_mk3"
+			icon: "af9:space_mining_module_mk3"
 			id: "2FCCC57F8F4A6F0D"
 			rewards: [{
 				id: "4111537FD1834D6E"
@@ -578,7 +578,7 @@
 			tasks: [
 				{
 					id: "5A3EF56BDB989C69"
-					item: "kubejs:space_mining_module_mk3"
+					item: "af9:space_mining_module_mk3"
 					type: "item"
 				}
 			]
@@ -595,7 +595,7 @@
 				""
 				"{af9.quest.se.extended.3}"
 			]
-			icon: "kubejs:ultra_high_strength_concrete_floor"
+			icon: "af9:ultra_high_strength_concrete_floor"
 			id: "11607EFBFEF57878"
 			rewards: [{
 				id: "7B8C434EBDD5B0C6"
@@ -622,7 +622,7 @@
 				""
 				"{af9.quest.se.motors5.2}"
 			]
-			icon: "kubejs:space_elevator_motor_mk5"
+			icon: "af9:space_elevator_motor_mk5"
 			id: "44887627368593CB"
 			rewards: [{
 				id: "6159B0BE40262E7A"
@@ -636,7 +636,7 @@
 				{
 					count: 88L
 					id: "4D9EB3FCF6CC996E"
-					item: "kubejs:space_elevator_motor_mk5"
+					item: "af9:space_elevator_motor_mk5"
 					type: "item"
 				}
 			]

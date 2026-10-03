@@ -45,7 +45,7 @@ ServerEvents.recipes(event => {
     // Every controller also has an ASIC version: one ASIC chip (phosphorus wafers, HV) wherever it takes a circuit
     const controller = (id, pattern, circuit, keyOf) => {
         event.shaped(`gtceu:${id}`, pattern, keyOf(circuit)).id(`af9:${id}`)
-        event.shaped(`gtceu:${id}`, pattern, keyOf('kubejs:asic_chip')).id(`af9:${id}_asic`)
+        event.shaped(`gtceu:${id}`, pattern, keyOf('af9:asic_chip')).id(`af9:${id}_asic`)
     }
 
     controller('smc_large_chemical_reactor', ['CRC', 'PMP', 'FXF'], '#gtceu:circuits/hv', C => ({

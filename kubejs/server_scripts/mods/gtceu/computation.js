@@ -8,13 +8,13 @@ ServerEvents.recipes(event => {
     const solder = mb => Fluid.of('gtceu:soldering_alloy', mb)
 
     // ---- Server Casing: aluminium panels on a steel frame ----
-    event.shaped('2x kubejs:server_casing', ['PHP', 'PFP', 'PWP'], {
+    event.shaped('2x af9:server_casing', ['PHP', 'PFP', 'PWP'], {
         P: 'gtceu:aluminium_plate', F: 'gtceu:steel_frame', H: '#forge:tools/hammers', W: '#forge:tools/wrenches'
     }).id('af9:shaped/server_casing')
     event.recipes.gtceu.assembler('af9:server_casing')
         .itemInputs('6x gtceu:aluminium_plate', 'gtceu:steel_frame')
         .circuit(6)
-        .itemOutputs('2x kubejs:server_casing')
+        .itemOutputs('2x af9:server_casing')
         .duration(50)
         .EUt(16)
 
@@ -47,7 +47,7 @@ ServerEvents.recipes(event => {
 
     // ---- The arrays ----
     event.recipes.gtceu.assembler('af9:n1_computation_array')
-        .itemInputs('gtceu:mv_machine_hull', '4x #gtceu:circuits/mv', '4x kubejs:server_casing',
+        .itemInputs('gtceu:mv_machine_hull', '4x #gtceu:circuits/mv', '4x af9:server_casing',
             '4x gtceu:mv_electric_pump', '2x gtceu:mv_electric_motor', '8x gtceu:fine_borosilicate_glass_wire')
         .inputFluids(solder(288))
         .itemOutputs('gtceu:n1_computation_array')
@@ -78,7 +78,7 @@ ServerEvents.recipes(event => {
         ['silicon_cpu', 'gtceu:plastic_printed_circuit_board',
             ['2x gtceu:cpu_chip', '4x #gtceu:capacitors', '8x gtceu:fine_gold_wire'], GTValues.HV, false],
         ['silicon_gpu', 'gtceu:plastic_printed_circuit_board',
-            ['2x kubejs:apu_chip', '4x #gtceu:transistors', '8x gtceu:fine_gold_wire'], GTValues.HV, false],
+            ['2x af9:apu_chip', '4x #gtceu:transistors', '8x gtceu:fine_gold_wire'], GTValues.HV, false],
         ['silicon_ram', 'gtceu:plastic_printed_circuit_board',
             ['4x gtceu:ram_chip', '8x gtceu:fine_gold_wire'], GTValues.HV, false],
         // Nano (IV)
@@ -87,25 +87,25 @@ ServerEvents.recipes(event => {
         ['nano_gpu', 'gtceu:epoxy_printed_circuit_board',
             ['2x gtceu:advanced_soc', '4x gtceu:smd_transistor', '8x gtceu:fine_platinum_wire'], GTValues.IV, true],
         ['nano_ram', 'gtceu:epoxy_printed_circuit_board',
-            ['4x kubejs:edram_chip', '8x gtceu:fine_platinum_wire'], GTValues.IV, true],
+            ['4x af9:edram_chip', '8x gtceu:fine_platinum_wire'], GTValues.IV, true],
         // Quantum (LuV)
         ['quantum_cpu', 'gtceu:fiber_reinforced_printed_circuit_board',
             ['2x gtceu:qbit_cpu_chip', '4x gtceu:advanced_smd_capacitor', '8x gtceu:fine_osmiridium_wire'],
             GTValues.LuV, true],
         ['quantum_gpu', 'gtceu:fiber_reinforced_printed_circuit_board',
-            ['2x kubejs:vpu_chip', '4x gtceu:advanced_smd_transistor', '8x gtceu:fine_osmiridium_wire'],
+            ['2x af9:vpu_chip', '4x gtceu:advanced_smd_transistor', '8x gtceu:fine_osmiridium_wire'],
             GTValues.LuV, true],
         ['quantum_ram', 'gtceu:fiber_reinforced_printed_circuit_board',
-            ['4x kubejs:mram_chip', '8x gtceu:fine_osmiridium_wire'], GTValues.LuV, true],
+            ['4x af9:mram_chip', '8x gtceu:fine_osmiridium_wire'], GTValues.LuV, true],
         // Tensor (UV): the AI accelerator and ferroelectric memory
         ['tensor_cpu', 'gtceu:multilayer_fiber_reinforced_printed_circuit_board',
             ['2x gtceu:crystal_cpu', '4x gtceu:advanced_smd_capacitor', '8x gtceu:fine_yttrium_barium_cuprate_wire'],
             GTValues.UV, true],
         ['tensor_gpu', 'gtceu:multilayer_fiber_reinforced_printed_circuit_board',
-            ['2x kubejs:tpu_chip', '4x gtceu:advanced_smd_transistor', '8x gtceu:fine_yttrium_barium_cuprate_wire'],
+            ['2x af9:tpu_chip', '4x gtceu:advanced_smd_transistor', '8x gtceu:fine_yttrium_barium_cuprate_wire'],
             GTValues.UV, true],
         ['tensor_ram', 'gtceu:multilayer_fiber_reinforced_printed_circuit_board',
-            ['4x kubejs:feram_chip', '8x gtceu:fine_yttrium_barium_cuprate_wire'], GTValues.UV, true]
+            ['4x af9:feram_chip', '8x gtceu:fine_yttrium_barium_cuprate_wire'], GTValues.UV, true]
     ]
     cards.forEach(([id, board, inputs, tier, clean]) => {
         const recipe = event.recipes.gtceu.circuit_assembler(`af9:${id}_card`)

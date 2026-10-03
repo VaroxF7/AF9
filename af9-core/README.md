@@ -1,11 +1,13 @@
 # AF9 Core
 
-Small Forge mod (1.20.1, GTCEu 7.2.0) with the machine logic KubeJS can't provide on its own.
-Machines, materials and recipes stay in `../kubejs`; KubeJS plugs the Java classes in via `.machine(...)`.
+Forge mod (1.20.1, GTCEu 7.2.0) with the pack's own blocks and items and the machine logic KubeJS can't provide on
+its own. Machines, materials and recipes stay in `../kubejs`; KubeJS plugs the Java classes in via `.machine(...)`.
 
 | Class | Used by | Does |
 |---|---|---|
-| `litho/LithoMode` | everything below | The nine lithography modes, one per wafer substrate, and the machine that prints each (Mk1 line 350-100 nm, Mk2 scanner 80-65 nm, orbital station 50-1 nm): tier and power, light source (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV, X-ray FEL) with wavelength, NA and resist, base break chance, the break-chance and speed maths. Must match `AF9_WAFERS` (KubeJS server) and `AF9_WAFER_TABLE` (KubeJS startup) |
+| `registry/AF9Items`, `registry/AF9Blocks` | the whole pack | Register AF9's plain items (wafers, chips, reticles, boule charges, fuel rods, the Mining Drones: 198) and blocks (the light sources, the plascrete casings, the server casing, the Endion coils, the Space Elevator's blocks: 20) as `af9:<id>`. Names and tooltip lines are in the lang file (`item.af9.<id>`, `item.af9.<id>.tooltip.<n>`), models, block states, textures and loot tables in the resources. Machines name the blocks they look for through `AF9Blocks` |
+| `registry/AF9Remaps` | worlds from before October 2026 | KubeJS registered these blocks and items until then (`kubejs:<id>`): what a world misses under such an id is taken for `af9:<id>` |
+| `litho/LithoMode` | everything below | The nine lithography modes, one per wafer substrate, and the machine that prints each (Mk1 line 350-100 nm, Mk2 scanner 80-65 nm, orbital station 50-1 nm): tier and power, light source (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV, X-ray FEL) with wavelength, NA and resist, base break chance, the break-chance and speed maths. Must match `AF9_WAFERS` (KubeJS server) and the item tables of `registry/AF9Items` |
 | `machine/LithoMachine` | the lithography machines | Vacuum 0-100 (pumps down in 10 s per level while powered, vents to 0 in 60 s without power, holds through prints), the break roll, printed/broken counters, recipe gates `LITHO_GATE` (mode allowed + power) and `STRIP_BROKEN` |
 | `machine/PhotolithographyLineMachine` | `kubejs/startup_scripts/gtceu/photolithography.js` | Mk1 line (versions 1-3) and Mk2 scanner (versions 1-2) from a `Spec` (modes, lens block and slices, light sources): version from lens slices + light source, `LITHO_VERSION` (faster above a mode's version; fewer breaks in the roll), one structure preview page per version, recipe info (node, light, break chance) |
 | `machine/OrbitalLithographyMachine` | same script | The Orbital Lithography Station (50, 20, 7, 1 nm): prints only in an orbit dimension (Ad Astra `*_orbit`); starts up in 10 s instead of pumping a vacuum; its light ring glows in the node's colour while it prints and burns whatever touches it (`common/AF9DamageTypes`, `network/AF9Network` + `RingDeathPacket`, `client/RingDeathOverlay`: a pixel "VAPORIZED" death screen) |

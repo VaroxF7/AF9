@@ -242,7 +242,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('C', Predicates.heatingCoils())
             .where('T', Predicates.blocks('gtceu:tempered_glass'))                              // quartz process tube
             .where('G', Predicates.blocks('gtceu:tempered_glass'))                              // windows
-            .where('P', Predicates.blocks('kubejs:plascrete_pipe_casing'))                      // gas lines
+            .where('P', Predicates.blocks('af9:plascrete_pipe_casing'))                      // gas lines
             .where('R', Predicates.blocks('gtceu:steel_gearbox'))                               // boat elevator
             .build())
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_heatproof',

@@ -1,7 +1,7 @@
 # Ids a recipe may take that no recipe makes: Java makes them, the world does, a quest or a creative tab gives them.
 # `*` is a wildcard. Anything else that is taken and never made is a finding (R5).
 # contaminated wafers and chips: AF9 Core's WaferContamination turns them out of a player's inventory
-kubejs:contaminated_*
+af9:contaminated_*
 # ores
 gtceu:zircon_dust
 gtceu:brannerite_dust

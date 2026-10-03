@@ -30,68 +30,6 @@ const SE_EXPEDITIONS = [2, 4, 8]
 // PlanetCatalog.droneFor)
 const SE_PLANETS = [3, 5, 7, 8]
 
-StartupEvents.registry('block', event => {
-    // the blocks of the tower: [id, name, sound]
-    const blocks = [
-        ['space_elevator_base_casing', 'Space Elevator Base Casing', 'metal'],
-        ['space_elevator_internal_structure', 'Space Elevator Internal Structure', 'metal'],
-        ['ultra_high_strength_concrete_floor', 'Ultra High Strength Concrete Floor', 'stone']
-    ]
-    blocks.forEach(([id, name, sound]) => {
-        event.create(id)
-            .displayName(name)
-            .soundType(sound)
-            .hardness(5)
-            .resistance(12)
-            .requiresTool(true)
-            .tagBlock('minecraft:mineable/pickaxe')
-    })
-    // the motors round the cable, five tiers: all 88 of a tower are of one tier, the elevator's
-    SE_ROMAN.forEach((roman, i) => {
-        event.create(`space_elevator_motor_mk${i + 1}`)
-            .displayName(`Space Elevator Motor MK-${roman}`)
-            .soundType('metal')
-            .hardness(5)
-            .resistance(12)
-            .requiresTool(true)
-            .tagBlock('minecraft:mineable/pickaxe')
-            .item(item => item.tooltip('All 88 motors of a Space Elevator are of one tier.')
-                .tooltip(`Powers ${SE_SLOTS[i]} module slots, and Mining Modules up to MK-${SE_ROMAN[Math.min(i, 2)]}.`))
-    })
-    // the Mining Modules, three tiers: in the module slots of the tower, they fly the expeditions
-    SE_EXPEDITIONS.forEach((expeditions, i) => {
-        event.create(`space_mining_module_mk${i + 1}`)
-            .displayName(`Space Mining Module MK-${SE_ROMAN[i]}`)
-            .soundType('metal')
-            .hardness(5)
-            .resistance(12)
-            .requiresTool(true)
-            .tagBlock('minecraft:mineable/pickaxe')
-            .item(item => item.tooltip(`In a module slot of a Space Elevator: flies ${expeditions} expeditions at once.`)
-                .tooltip(`Needs Motors MK-${SE_ROMAN[i]} or better.`))
-    })
-    event.create('space_elevator_cable')
-        .displayName('Space Elevator Cable')
-        .soundType('metal')
-        .hardness(5)
-        .resistance(12)
-        .lightLevel(0.5)
-        .requiresTool(true)
-        .tagBlock('minecraft:mineable/pickaxe')
-        .item(item => item.tooltip('On top of the motor shaft, with nothing but sky above it.'))
-})
-
-StartupEvents.registry('item', event => {
-    SE_ROMAN.slice(0, 4).forEach((roman, i) => {
-        event.create(`space_mining_drone_mk${i + 1}`)
-            .displayName(`Mining Drone MK-${roman}`)
-            .maxStackSize(1)
-            .tooltip(`Sent to the asteroids by a Space Elevator: reaches the ores of tier ${i + 1} and below.`)
-            .tooltip(`Or to a planet for its fluid: reaches planet types 2 to ${SE_PLANETS[i]}.`)
-            .tooltip('Not used up.')
-    })
-})
-
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // a Mining Drone (not used up), hydrogen and the coolant in; the ore is made when a run starts (SpaceElevatorMachine)
     event.create('space_mining')
@@ -692,7 +630,7 @@ const seSlices = extended => {
 
 // The pattern of such slices: aisles front -> back (a slice each), rows top -> bottom, as the table is written
 const sePattern = (definition, slices) => {
-    const casing = 'kubejs:space_elevator_base_casing'
+    const casing = 'af9:space_elevator_base_casing'
     let pattern = FactoryBlockPattern.start($ElevatorDirection.RIGHT, $ElevatorDirection.DOWN, $ElevatorDirection.BACK)
     for (var c = 0; c < slices.length; c++) pattern = pattern.aisle(slices[c])
     // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)). One set of them for
@@ -727,10 +665,10 @@ const sePattern = (definition, slices) => {
     const buses = itemsIn.or(coolant).or(fluidsOut).or(fluidsIn).or(itemsOut)
     return pattern
         .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-        .where('A', Predicates.blocks('kubejs:ultra_high_strength_concrete_floor'))
+        .where('A', Predicates.blocks('af9:ultra_high_strength_concrete_floor'))
         .where('D', Predicates.blocks(casing))
         .where('E', Predicates.blocks('gtceu:stress_proof_casing'))
-        .where('F', Predicates.blocks('kubejs:space_elevator_internal_structure'))
+        .where('F', Predicates.blocks('af9:space_elevator_internal_structure'))
         .where('H', Predicates.blocks('gtceu:neutronium_frame'))
         .where('C', $SpaceElevator.motors())                                // any tier, all of one tier
         .where('B', $SpaceElevator.cable())                                 // with open sky above it
@@ -759,7 +697,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // the two kinds of mission: the one that is on is picked on the screen (the first one, ore, to begin with)
         .recipeTypes([GTRecipeTypes.get('space_mining'), GTRecipeTypes.get('space_pumping')])
         .recipeModifiers([$SpaceElevator.MISSION])
-        .appearanceBlock(() => Block.getBlock('kubejs:space_elevator_base_casing'))
+        .appearanceBlock(() => Block.getBlock('af9:space_elevator_base_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_elevator.tooltip', 11))
         .pattern(definition => {
             // GT asks for this once: both sizes are built, the extended one is the machine's own to switch to
@@ -768,10 +706,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         })
         // the structure preview's two pages: the basic and the extended tower
         .shapeInfos(definition => $SpaceElevator.previews(definition))
-        .workableCasingModel('kubejs:block/space_elevator_base_casing', 'gtceu:block/multiblock/fusion_reactor')
+        .workableCasingModel('af9:block/space_elevator_base_casing', 'gtceu:block/multiblock/fusion_reactor')
         // the same model plus the cable and the climber on it; where the cable block is from the controller lives in
         // af9-core
-        .model($ElevatorModels.workableCasingWithSpaceElevator('kubejs:block/space_elevator_base_casing',
+        .model($ElevatorModels.workableCasingWithSpaceElevator('af9:block/space_elevator_base_casing',
             'gtceu:block/multiblock/fusion_reactor', $SpaceElevator.CABLE_UP, $SpaceElevator.CABLE_BACK))
         .hasBER(true)
 })

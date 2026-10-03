@@ -46,21 +46,6 @@ GTCEuStartupEvents.registry('gtceu:material', event => {
         .formula('Qc')
 })
 
-StartupEvents.registry('item', event => {
-    event.create('beryllium_spallation_target')
-        .displayName('Beryllium Spallation Target')
-        .texture('kubejs:item/accelerator/beryllium_spallation_target')
-        .tooltip('Proton beam in, neutrons out. Wears out after four wafers.')
-    event.create('magnetic_trap')
-        .displayName('Magnetic Penning Trap')
-        .texture('kubejs:item/accelerator/magnetic_trap')
-        .tooltip('An empty superconducting trap for quark-gluon plasma.')
-    event.create('qgp_trap')
-        .displayName('Quark-Gluon Plasma Trap')
-        .texture('kubejs:item/accelerator/qgp_trap')
-        .tooltip('Quark-gluon plasma from a heavy-ion collision, held in a magnetic trap.')
-})
-
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // [id, items in, items out, progress bar, sound]; one fluid input each: the coolant. All three sound like the
     // accelerator: its own hum (af9-core AF9Sounds, the beacon hum pitched up)

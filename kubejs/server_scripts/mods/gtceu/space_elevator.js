@@ -24,13 +24,13 @@ ServerEvents.recipes(event => {
     ]
     expeditions.forEach(([tier, hydrogen, coolant, coolantMb, amps, seconds]) => {
         event.recipes.gtceu.space_mining(`af9:space_mining_mk${tier}`)
-            .notConsumable(`kubejs:space_mining_drone_mk${tier}`)
+            .notConsumable(`af9:space_mining_drone_mk${tier}`)
             .inputFluids(Fluid.of('gtceu:hydrogen', hydrogen))
             .inputFluids(Fluid.of(coolant, coolantMb))
             .duration(seconds * 20)
             .EUt(VA[GTValues.ZPM], amps)
         event.recipes.gtceu.space_pumping(`af9:space_pumping_mk${tier}`)
-            .notConsumable(`kubejs:space_mining_drone_mk${tier}`)
+            .notConsumable(`af9:space_mining_drone_mk${tier}`)
             .inputFluids(Fluid.of('gtceu:hydrogen', hydrogen))
             .inputFluids(Fluid.of(coolant, coolantMb))
             .duration(seconds * 20)
@@ -52,7 +52,7 @@ ServerEvents.recipes(event => {
                 `${emitters}x gtceu:${name}_emitter`, `${circuits}x #gtceu:circuits/${name}`,
                 `${plates}x gtceu:${plate}_plate`)
             .inputFluids(solder(mb))
-            .itemOutputs(`kubejs:space_mining_drone_mk${tier}`)
+            .itemOutputs(`af9:space_mining_drone_mk${tier}`)
             .duration(600)
             .EUt(VA[voltage])
     })
@@ -62,26 +62,26 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.assembler('af9:ultra_high_strength_concrete_floor')
         .itemInputs('8x gtceu:dark_concrete', '2x gtceu:tungsten_steel_rod')
         .inputFluids(Fluid.of('gtceu:polybenzimidazole', 72))
-        .itemOutputs('8x kubejs:ultra_high_strength_concrete_floor')
+        .itemOutputs('8x af9:ultra_high_strength_concrete_floor')
         .duration(100)
         .EUt(VA[GTValues.IV])
     event.recipes.gtceu.assembler('af9:space_elevator_base_casing')
         .itemInputs('gtceu:naquadah_alloy_frame', '4x gtceu:naquadah_alloy_plate', '8x gtceu:tungsten_steel_plate')
         .circuit(1)
-        .itemOutputs('16x kubejs:space_elevator_base_casing')
+        .itemOutputs('16x af9:space_elevator_base_casing')
         .duration(200)
         .EUt(VA[GTValues.LuV])
     event.recipes.gtceu.assembler('af9:space_elevator_internal_structure')
         .itemInputs('gtceu:naquadah_alloy_frame', '4x gtceu:osmiridium_plate', '4x gtceu:tungsten_steel_plate')
         .circuit(2)
-        .itemOutputs('16x kubejs:space_elevator_internal_structure')
+        .itemOutputs('16x af9:space_elevator_internal_structure')
         .duration(200)
         .EUt(VA[GTValues.LuV])
     // one cable block: it stands on top of the motor shaft
     event.recipes.gtceu.assembler('af9:space_elevator_cable')
         .itemInputs('32x gtceu:carbon_fiber_plate', '8x gtceu:naquadah_alloy_rod', '2x gtceu:luv_field_generator')
         .inputFluids(solder(288))
-        .itemOutputs('kubejs:space_elevator_cable')
+        .itemOutputs('af9:space_elevator_cable')
         .duration(300)
         .EUt(VA[GTValues.ZPM])
 
@@ -89,7 +89,7 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.assembler('af9:space_elevator_motor_mk1')
         .itemInputs('4x gtceu:zpm_electric_motor', 'gtceu:naquadah_alloy_frame', '4x gtceu:naquadah_alloy_plate')
         .inputFluids(solder(288))
-        .itemOutputs('4x kubejs:space_elevator_motor_mk1')
+        .itemOutputs('4x af9:space_elevator_motor_mk1')
         .duration(400)
         .EUt(VA[GTValues.ZPM])
     // [tier, what four motors of the tier before take to become it]
@@ -101,9 +101,9 @@ ServerEvents.recipes(event => {
     ]
     motorUpgrades.forEach(([tier, parts]) => {
         event.recipes.gtceu.assembler(`af9:space_elevator_motor_mk${tier}`)
-            .itemInputs([`4x kubejs:space_elevator_motor_mk${tier - 1}`].concat(parts))
+            .itemInputs([`4x af9:space_elevator_motor_mk${tier - 1}`].concat(parts))
             .inputFluids(solder(576))
-            .itemOutputs(`4x kubejs:space_elevator_motor_mk${tier}`)
+            .itemOutputs(`4x af9:space_elevator_motor_mk${tier}`)
             .duration(400)
             .EUt(VA[GTValues.UV])
     })
@@ -112,23 +112,23 @@ ServerEvents.recipes(event => {
     // the one before ----
     event.recipes.gtceu.assembler('af9:space_mining_module_mk1')
         .itemInputs('gtceu:zpm_machine_hull', '2x gtceu:zpm_robot_arm', '2x gtceu:zpm_sensor', '2x gtceu:zpm_emitter',
-            '4x #gtceu:circuits/zpm', '4x kubejs:space_elevator_base_casing')
+            '4x #gtceu:circuits/zpm', '4x af9:space_elevator_base_casing')
         .inputFluids(solder(1152))
-        .itemOutputs('kubejs:space_mining_module_mk1')
+        .itemOutputs('af9:space_mining_module_mk1')
         .duration(600)
         .EUt(VA[GTValues.ZPM])
     event.recipes.gtceu.assembler('af9:space_mining_module_mk2')
-        .itemInputs('kubejs:space_mining_module_mk1', '2x gtceu:uv_robot_arm', '2x gtceu:uv_sensor',
+        .itemInputs('af9:space_mining_module_mk1', '2x gtceu:uv_robot_arm', '2x gtceu:uv_sensor',
             '2x gtceu:uv_emitter', '4x #gtceu:circuits/uv', '4x gtceu:tritanium_plate')
         .inputFluids(solder(2304))
-        .itemOutputs('kubejs:space_mining_module_mk2')
+        .itemOutputs('af9:space_mining_module_mk2')
         .duration(600)
         .EUt(VA[GTValues.UV])
     event.recipes.gtceu.assembler('af9:space_mining_module_mk3')
-        .itemInputs('kubejs:space_mining_module_mk2', '4x gtceu:uv_robot_arm', '2x gtceu:uv_field_generator',
+        .itemInputs('af9:space_mining_module_mk2', '4x gtceu:uv_robot_arm', '2x gtceu:uv_field_generator',
             '4x #gtceu:circuits/uhv', '4x gtceu:neutronium_plate')
         .inputFluids(solder(4608))
-        .itemOutputs('kubejs:space_mining_module_mk3')
+        .itemOutputs('af9:space_mining_module_mk3')
         .duration(600)
         .EUt(VA[GTValues.UV])
 
@@ -136,8 +136,8 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.assembly_line('af9:space_elevator')
         .itemInputs('gtceu:zpm_machine_hull', '8x gtceu:zpm_electric_motor', '4x gtceu:zpm_field_generator',
             '2x gtceu:zpm_sensor', '2x gtceu:zpm_emitter', '4x #gtceu:circuits/zpm',
-            '16x kubejs:space_elevator_base_casing', '8x gtceu:stress_proof_casing',
-            '8x kubejs:space_elevator_internal_structure', 'kubejs:space_elevator_cable',
+            '16x af9:space_elevator_base_casing', '8x gtceu:stress_proof_casing',
+            '8x af9:space_elevator_internal_structure', 'af9:space_elevator_cable',
             '4x gtceu:double_naquadah_alloy_plate')
         .inputFluids(solder(4608))
         .itemOutputs('gtceu:space_elevator')

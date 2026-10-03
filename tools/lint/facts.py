@@ -6,7 +6,7 @@
 A number in a quest text that a recipe could change is a promise: when the recipe changes, the text lies. Checked (codes X1-X4):
 
   * (X2) the numbers of `com.af9.core.litho.LithoMode` (Java) against the print recipes (KubeJS): every mode's recipe type exists, its
-    prints take `kubejs:coated_<substrate>_wafer` (a blank on the 1 nm station) and give `kubejs:broken_<substrate>_wafer` as the
+    prints take `af9:coated_<substrate>_wafer` (a blank on the 1 nm station) and give `af9:broken_<substrate>_wafer` as the
     chanced output at the mode's base break chance, at `EUt(VA[tier], 4)` (50 A at 1 nm)
   * the quests of the nodes (`af9.quest.litho.n<node>.*`) say "Fluids per print: <amount> <fluid>, ..." and, for the coater,
     "Coater Track, per wafer: <amount> <fluid>, ...; <amount> spent solvent out.": the amounts have to be those of the
@@ -26,6 +26,8 @@ import os
 import re
 import subprocess
 import sys
+
+import af9registry
 
 ROOT = os.path.abspath(next((a for a in sys.argv[1:] if not a.startswith('--')), '.'))
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -102,10 +104,10 @@ for nm, mid, substrate, tier, base in modes:
     checked += 1
     for r in prints:
         wafer_in = [i for i in r['itemIn'] if i and i.endswith('_wafer')]
-        want_in = f'kubejs:{substrate}_wafer' if nm == '1' else f'kubejs:coated_{substrate}_wafer'
+        want_in = f'af9:{substrate}_wafer' if nm == '1' else f'af9:coated_{substrate}_wafer'
         if want_in not in r['itemIn']:
             report(f'{r["id"]}: takes {wafer_in}, LithoMode {mid} ({substrate}) wants {want_in}', r['file'], 'X2')
-        broken = f'kubejs:broken_{substrate}_wafer'
+        broken = f'af9:broken_{substrate}_wafer'
         if broken not in r['chanceItems'] or int(base) not in r['chances']:
             report(f'{r["id"]}: broken wafer {r["chanceItems"]} at {r["chances"]}, LithoMode {mid} wants {broken} at {base}', r['file'], 'X2')
         eut = r['EUt']
@@ -235,7 +237,7 @@ if not tables:
     report('TempleLayout.java: found no sizes with a loot table (did Kind change shape? then fix tools/lint/facts.py)', code='X4')
 if 'new ResourceLocation("af9", "chests/" + temple.kind.lootTable)' not in read(feature):
     report('AsteroidFieldFeature no longer builds the chest loot table id as af9:chests/<TempleLayout.Kind.lootTable>', code='X4')
-chip_ids = set(re.findall(r"^\s*\['(\w+)',", read('kubejs/startup_scripts/gtceu/chips.js'), re.M))
+af9_items = set(af9registry.load(HERE)['item'])
 materials_dir = os.path.join(ROOT, 'kubejs/startup_scripts')
 ore_materials = set()
 for dirpath, _, files in os.walk(materials_dir):
@@ -257,8 +259,8 @@ for table in tables:
         for entry in pool.get('entries', []):
             name = entry.get('name', '')
             ns, _, item = name.partition(':')
-            if ns == 'kubejs' and not (item.endswith('_chip') and item[:-5] in chip_ids):
-                report(f'chests/{table}.json: {name} is no item AF9 registers (the chips are kubejs:<chip>_chip, chips.js)', code='X4')
+            if ns == 'kubejs' or (ns == 'af9' and item not in af9_items):
+                report(f'chests/{table}.json: {name} is no item AF9 Core registers (the chips are af9:<chip>_chip)', code='X4')
             if ns == 'gtceu' and item.startswith('raw_') and item[4:] not in gt_materials | ore_materials:
                 report(f'chests/{table}.json: {name} is no raw ore of GT or AF9 ({item[4:]} has no ore)', code='X4')
             if not name or ':' not in name:

@@ -24,12 +24,12 @@ Nichts davon wurde in Minecraft gestartet (siehe „Grenzen"); geprüft wurde mi
 
 | Programm | prüft | Regeln |
 |---|---|---|
-| `scripts.js` | KubeJS: Recipes, Multiblock-Muster, Maschinen, Lang-Schlüssel | S1 S2 R1–R13 M1 M3 M4 L1 |
+| `scripts.js` | KubeJS: Recipes, Multiblock-Muster, Maschinen, Lang-Schlüssel | S1–S4 R1–R13 M1 M3 M4 L1 |
 | `quests.py` | alle Quest-Kapitel (SNBT) + Texte | Q1–Q8 |
-| `assets.py` | Texturen, `.mcmeta`, Modelle, Lang-Dateien, Namen | A1–A8 |
+| `assets.py` | Texturen, `.mcmeta`, Modelle, Lang-Dateien, Namen | A2–A8 |
 | `facts.py` | Zahlen in Quest-Texten gegen die Recipes, Java-`LithoMode` gegen die Print-Recipes | X1 X2 |
 | `docs.py` | Pfade, Links, Abschnittsverweise in README und `docs/` | D1–D3 |
-| `links.py` | die `Java.loadClass`-Aufrufe der Skripte und die `kubejs:`-Ids, die das Java erwartet, gegen den Java-Quelltext | J1–J3 |
+| `links.py` | die `Java.loadClass`-Aufrufe der Skripte gegen den Java-Quelltext (J3, die `kubejs:`-Ids, die das Java erwartete, entfiel, seit AF9 Core die Blöcke und Items selbst registriert) | J1 J2 |
 | `selftest.sh` | prüft die Prüfer | – |
 
 Jede Regel mit Bedeutung und Gegenmaßnahme steht in `tools/lint/README.md`. Nebenprodukte: `tools/textures/` (die Skripte, die
@@ -53,7 +53,7 @@ die Texturen der neuen Items zeichnen) und `tools/lint/update-gt-lists.py` (fris
 | 10 | Prüfer | Falschmeldungen: GT-Blöcke aus Schleifen (Spulen, Linsen, Rohre, Lampen, GCYM-Gehäuse), `%`-Zeichen in Texten, `world_data_scanner` aus dem ATM-Pack | Lärm, der echte Funde versteckt | ja: `data/gt-patterns.txt`, `data/pack.txt`, Minecraft-genaue `%`-Regel | Listen pflegen statt Meldungen zu ignorieren |
 | 11 | Prüfer | Die erste Fassung von R3 sah `shaped`/`shapeless`-Rezepte nicht (alle Plascrete-Blöcke galten als „ohne Rezept") | Falschmeldung | ja: Crafting-Rezepte werden aufgenommen und auf Ids geprüft | – |
 | 12 | Recipes | Die drei **Sub-atomic-Karten** (CPU, GPU, RAM) brauchten **zwei Fluide** (Lötzinn + Quantenpunkt-Kolloid) im `assembler`. GT 7.2.0 hat dort **nur einen Fluid-Slot** (ich hatte irrtümlich angenommen, der Assembler habe zwei) | die Rezepte hätten sich in keinem Einzelblock-Assembler ausführen lassen: die Sub-atomic-Karten wären nicht herstellbar | ja: im Circuit Assembler, das Kolloid ersetzt das Lötzinn (Quantenpunkte werden gedruckt, nicht gelötet) | **R2** kennt jetzt auch die Slots von GTs eigenen Rezepttypen (`data/gt-recipe-slots.txt`, aus dem GT-Quelltext); vorher prüfte es nur unsere Typen |
-| 13 | Recipes | Das **Void-Miner-Rezept** (ATM9) hatte durch unsere ASIC-Ergänzung (`4x kubejs:asic_chip`, Commit „ASIC uses") **10 Zutaten in einem Assembler mit 9 Slots** | der Void Miner war nicht mehr herstellbar | ja: die lange Titanstange entfällt (die Platten bleiben) | R2 (siehe 12). Wer eine Zutat zu einem fremden Rezept hinzufügt, zählt die Slots |
+| 13 | Recipes | Das **Void-Miner-Rezept** (ATM9) hatte durch unsere ASIC-Ergänzung (`4x af9:asic_chip`, Commit „ASIC uses") **10 Zutaten in einem Assembler mit 9 Slots** | der Void Miner war nicht mehr herstellbar | ja: die lange Titanstange entfällt (die Platten bleiben) | R2 (siehe 12). Wer eine Zutat zu einem fremden Rezept hinzufügt, zählt die Slots |
 | 14 | Recipes | **Mehrdeutige Rezepte**: Ein Rezept, dessen Zutaten alle in einem anderen stecken (mit mindestens gleicher Menge), kann von der Maschine statt dessen gewählt werden. Betroffen: Bus Connector ⊂ Bus Controller, RAM-Karte (Silizium) ⊂ GTs Processor Assembly, die CPU-/GPU-/RAM-Karten der drei neuen Kartenstufen (gleiche Zutaten, andere Mengen), IV-Air-Conditioning-Hatch ⊂ Scanner | GT nimmt irgendein passendes Rezept: der Spieler hätte statt der GPU-Karte die CPU-Karte bekommen (und die Reste behalten), statt des Bus Controllers den Connector | ja: programmierte Schaltkreise (`.circuit(n)`): Connector 1 / Controller 2, Karten CPU 1 / GPU 2 / RAM 3, Hatch 1, Silizium-RAM-Karte 3 | **R7** vergleicht jetzt auch Mengen und gilt für alle Rezepttypen (unsere `af9:`-Rezepte untereinander), nicht nur für unsere Typen |
 | 15 | Prüfer | R7 (die Mehrdeutigkeitsregel) galt nur für unsere eigenen Rezepttypen und hätte die Reticle-Kollision (Abschnitt 4b) im `laser_engraver` nicht gesehen | – | ja, siehe 14 | – |
 

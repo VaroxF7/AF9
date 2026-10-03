@@ -26,7 +26,7 @@ ServerEvents.recipes((event) => {
             "4x gtceu:mv_field_generator",
             "4x gtceu:hv_field_generator",
             "4x #gtceu:circuits/hv",
-            "4x kubejs:asic_chip", // AF9: the mining ASIC (chip_uses.js)
+            "4x af9:asic_chip", // AF9: the mining ASIC (chip_uses.js)
             // (the assembler has 9 item slots: with the ASIC the recipe had 10 and could not be loaded; the long titanium
             // rod is gone, the plates stay)
             "4x gtceu:titanium_plate")

@@ -1,7 +1,8 @@
 # AF9 lint
 
 Six linters that read the repository the way the game would and say what is wrong before anybody has to start Minecraft.
-Nothing of GT or Minecraft runs: the scripts load against stubs, the Java is only scanned for names.
+Nothing of GT or Minecraft runs: the scripts load against stubs, the Java is only scanned for names, and what AF9 Core
+registers is read from a list that its dev run writes (see "The registry list").
 
 ```
 bash tools/lint/run.sh               # all of them
@@ -14,9 +15,9 @@ The CI workflow (job `lint`) runs `run.sh --selftest` before it builds (`.github
 
 | file | reads | finds |
 |---|---|---|
-| `scripts.js` | `kubejs/startup_scripts`, `kubejs/server_scripts` | recipes, recipe types, machines, multiblock patterns |
+| `scripts.js` | `kubejs/startup_scripts`, `kubejs/server_scripts`, the registry list | recipes, recipe types, machines, multiblock patterns |
 | `quests.py` | `config/ftbquests/quests`, the lang files | quests, tasks, dependencies, texts |
-| `assets.py` | KubeJS assets, `af9-core` resources and Java | textures, models, lang files, names |
+| `assets.py` | KubeJS assets, `af9-core` resources and Java, the registry list | textures, models, lang files, names |
 | `facts.py` | the recipes (`scripts.js --dump`), the quest lang | numbers in quest texts that the recipes decide |
 | `docs.py` | README.md, docs/*.md | stale paths, dead links, sections that do not exist |
 | `links.py` | the `Java.loadClass` calls of the scripts, AF9 Core's (and GT's) Java sources | classes and static members that do not exist |
@@ -28,13 +29,14 @@ The CI workflow (job `lint`) runs `run.sh --selftest` before it builds (`.github
 
 | code | level | what it finds | how to avoid it |
 |---|---|---|---|
-| S2 | error | an item, block, fluid, material, machine or recipe type registered twice | search the startup scripts for the id before registering; one table per family |
+| S2 | error | a material, machine or recipe type registered twice | search the startup scripts for the id before registering; one table per family |
+| S4 | error | a startup script that registers an item, a block or a fluid | AF9's blocks and items are registered by AF9 Core (`af9-core/src/main/java/com/af9/core/registry`: `AF9Items`, `AF9Blocks`), with their names, models and textures in its resources; they are `af9:<id>` |
 | S3 | error | a `const` declared in the body of a `for` / `while` loop: KubeJS's engine (Rhino) keeps it at the first pass's value, Node (this linter) does not, so the script passes here and fails in the game (the reticles registered `ilc_reticle` twice that way) | loop with a callback (`forEach`, `map`): a `const` in a callback is new each call |
 | S1 | error | a script threw while loading (typo, undefined name) | run the linter before pushing; the first line of the message is the JS error. A stub that is missing (a new GT global) goes into `ctx` in `scripts.js` |
 | F1 | warn | a file with the AllTheMods licence header is in this repo | files of the base pack are not ours to ship; do not copy them into the overlay |
 | R1 | error | the same recipe id twice in one recipe type (the second silently replaces the first) | give every recipe a unique `af9:` id; generate ids from the loop variable |
 | R2 | error | more items / fluids than the machine's slots: AF9's types (`setMaxIOSize`) and GT's (`data/gt-recipe-slots.txt`, from GT 7.2.0: the **assembler has 9 item and ONE fluid slot**, the circuit assembler 6 and one) | check `[items in, items out, fluids in, fluids out]` of the type; circuits and not-consumed items count |
-| R3 | error / warn | an id nobody defines: a `kubejs:` item that is not registered, a `gtceu:` name that GT does not have, an `af9:` item that AF9 Core does not register | copy the id from the registration, not from memory; `gtceu:<material>_<shape>` needs the material to have that shape |
+| R3 | error / warn | an id nobody defines: an `af9:` item, block or fluid that AF9 Core does not register (the registry list), a `gtceu:` name that GT does not have, a `kubejs:` item that is not the base pack's | copy the id from the registration, not from memory; `gtceu:<material>_<shape>` needs the material to have that shape |
 | R4 | warn | a recipe type that exists nowhere | the type is spelled `event.recipes.gtceu.<type>`; register new types in `startup_scripts` |
 | R5 | warn | an AF9 item that a recipe takes and no recipe makes | add the recipe that makes it, or (world / loot / quest / Java source) one line in `data/sources.txt` |
 | R6 | note | AF9 content that no recipe makes or takes | dead content: use it or remove it |
@@ -70,12 +72,11 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
 
 | code | what it finds | how to avoid it |
 |---|---|---|
-| A1 | a registered KubeJS item or block whose texture file is not in the repo | the texture is `kubejs/assets/kubejs/textures/<path>.png` for `kubejs:<path>`; mind the default `kubejs:item/<id>` |
 | A2 | a texture that is not square (or a stack of squares with an `.mcmeta`), a broken `.mcmeta`, a frametime that is not a positive integer, `frames` that point past the strip, LDLib `connection` textures that are missing | a strip's height is `frames x width`; validate JSON before committing |
-| A3 | a texture that nothing references | note only (a model or Java may use it) |
+| A3 | an item or block texture that no model, script or Java source names | note only |
 | A4 | a lang file that is not valid JSON, a key twice, a value that is not a string, a colour code `&x` Minecraft does not know, a **`%d`** / `%f` / `%` at the end of a value | Minecraft reads `%s`, `%1$s` and `%%` only; a text with another `%x` shows its key. `20 % faster` (a space after the `%`) is fine |
-| A5 | an item, block, machine or recipe type without a name | `displayName(...)` / `langValue(...)` in the script, or the lang key (`gtceu.<type>` for a recipe type) |
-| A6 | an AF9 Core model that points to a texture or parent that does not exist, a blockstate to a missing model, an item or block without model or name, a block without loot table | |
+| A5 | a machine, material or recipe type without a name | `langValue(...)` in the script, or the lang key (`gtceu.<type>` for a recipe type, `material.gtceu.<id>` for a material) |
+| A6 | an AF9 Core model that points to a texture or parent that does not exist, a blockstate to a missing model, an item or block AF9 Core registers without model, name, blockstate or loot table, an item model or a blockstate of something that is not registered | a new item needs its line in `AF9Items`, `item.af9.<id>` in the lang file, `models/item/<id>.json` and the texture; a block also its blockstate, block model, loot table and the line in `data/minecraft/tags/blocks/mineable/pickaxe.json`. Then refresh the registry list |
 | A7 | a `Component.translatable("af9...")` in the Java that is in no lang file | the key shows raw in the game |
 | A8 | tabs and spaces mixed in a lang file | note only: new lines follow the file around them |
 
@@ -101,7 +102,6 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
 | code | what it finds | how to avoid it |
 |---|---|---|
 | J1 | `Java.loadClass('com.af9...')` of a class that is not in AF9 Core (with `GT_SRC` also GT's) | the script stops with an error at startup; rename the class in the script when you rename it in Java |
-| J3 | Java names a `kubejs:<id>` (an item or block it looks up) that no startup script registers | register it, or rename in both |
 | J2 | `$Class.MEMBER` in a script where the Java source of the class does not mention MEMBER | a typo in a static field or method name; copy it from the Java source |
 
 ## Data (`data/`)
@@ -113,9 +113,27 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
 * `gt-patterns.txt`: regular expressions for ids that loops in GT make (coil blocks, lenses, pipes, lamps, flawless gems ...).
 * `pack.txt`: what the base pack (ATM9's KubeJS and mods, which this repo is laid over) provides and GT's lists lack.
 * `sources.txt`: ids a recipe may take that no recipe makes (Java makes them, the world, a quest, the creative tab).
+* `af9-registry.txt`: what AF9 Core registers (next section).
+
+## The registry list
+
+`data/af9-registry.txt` says what AF9 Core registers: `item af9:<id>`, `block af9:<id>` (a machine's block is marked
+`machine`), `fluid af9:<id>`, a line each. A linter cannot read that out of the Java (loops and tables make the ids), so the
+game writes it: AF9 Core's headless dev run boots Minecraft with GT and AF9 Core, writes the list and stops, in about a minute.
+
+```
+cd af9-core
+./gradlew runGameTestServer -Paf9Instance="<folder of an installed pack instance>"
+```
+
+The run takes the mods AF9 Core needs at runtime and that are on no Maven repository (Ad Astra's libraries, KubeJS) from the
+`mods` folder of that instance. Run it after adding, renaming or removing a block or an item, and commit the list with the
+change. Where no instance is at hand, edit the list by hand: it is sorted, a line a thing. `assets.py` (A6) holds the list
+against the models and block states, so a line that is missing or left over shows up.
 
 ## Self-test
 
 `selftest.sh` copies the repository to a scratch directory, adds the fixtures `selftest/startup.js` and `selftest/server.js` (every
-line one mistake) and mutates a quest chapter, a lang file, a texture and a model, then checks that every rule finds its mistake.
+line one mistake), a few items to the registry list, and mutates a quest chapter, a lang file, a texture and a model, then checks
+that every rule finds its mistake.
 When you change a linter, run it: a linter that finds nothing proves nothing. When you add a rule, add its mistake to the fixture.

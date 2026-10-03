@@ -349,9 +349,9 @@ ServerEvents.recipes(event => {
 
     // Molecular sieve takes the CO2, N2O and water
     gt.fab_purification('af9:krypton_xenon_drying')
-        .itemInputs('kubejs:molecular_sieve')
+        .itemInputs('af9:molecular_sieve')
         .inputFluids(Fluid.of('gtceu:crude_krypton_xenon', 1000))
-        .itemOutputs('kubejs:saturated_molecular_sieve')
+        .itemOutputs('af9:saturated_molecular_sieve')
         .outputFluids(Fluid.of('gtceu:purified_krypton_xenon', 1000))
         .duration(100)
         .EUt(HV)

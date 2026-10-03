@@ -2,15 +2,6 @@
 // Station. Items and materials here; behaviour: AF9 Core (LithoMachine); recipes: server_scripts/mods/gtceu/
 // litho_process.js. Spec: docs/semiconductor-factory.md §18
 
-StartupEvents.registry('item', event => {
-    // The reference wafer of a Metrology Station's run: the station measures the machines' prints against its marks.
-    event.create('monitor_wafer')
-        .displayName('Monitor Wafer')
-        .texture('kubejs:item/wafers/monitor_wafer')
-        .tooltip('A reference wafer with alignment marks: a Metrology Station measures the prints of the lithography')
-        .tooltip('machines around it against it.')
-})
-
 // ---- Chemistry the process needs beside the track fluids ----
 // Formula only, no components (so GT adds no electrolyzer or centrifuge shortcut). Recipes: server_scripts/mods/gtceu/
 // litho_process.js.
@@ -114,7 +105,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
-            .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units
+            .where('F', Predicates.blocks('af9:plascrete_filter_casing'))     // fan filter units
             .where('R', Predicates.blocks('gtceu:stainless_steel_gearbox'))      // wafer stage
             .where('W', Predicates.blocks('gtceu:cleanroom_glass'))              // windows of the tube
             .where('#', Predicates.air())                                        // the tube
@@ -170,8 +161,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 0))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
-            .where('P', Predicates.blocks('kubejs:plascrete_pipe_casing'))       // chemical dispense lines
-            .where('F', Predicates.blocks('kubejs:plascrete_filter_casing'))     // fan filter units
+            .where('P', Predicates.blocks('af9:plascrete_pipe_casing'))       // chemical dispense lines
+            .where('F', Predicates.blocks('af9:plascrete_filter_casing'))     // fan filter units
             .where('R', Predicates.blocks('gtceu:stainless_steel_gearbox'))      // spin chuck
             .where('H', Predicates.blocks('gtceu:heatproof_machine_casing'))     // hotplate
             .where('W', Predicates.blocks('gtceu:cleanroom_glass'))              // windows of the track

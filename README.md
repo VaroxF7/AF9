@@ -108,7 +108,7 @@ chips **and every lower substrate's chips** — as GT's own plain chip wafers, n
 ### The nine nodes (load-bearing numbers)
 
 `LithoMode` (Java) = `AF9_WAFERS` (`kubejs/server_scripts/mods/gtceu/photolithography.js`) =
-`AF9_WAFER_TABLE` (`kubejs/startup_scripts/gtceu/wafers.js`). Files win over docs.
+the item tables of `AF9Items` (`af9-core/src/main/java/com/af9/core/registry/AF9Items.java`). Files win over docs.
 
 | Substrate | Blank wafer | Node | Tier / EU/t | Light λ / NA | Resist | Base break | Prints on |
 |---|---|---|---|---|---|---|---|
@@ -295,10 +295,10 @@ Quest chapters track this order: MV → HV → EV → IV → LuV → ZPM → UV 
 
 | Path | What |
 |---|---|
-| `af9-core/` | AF9 Core Forge mod — machine logic KubeJS can't do (see [`af9-core/README.md`](af9-core/README.md)) |
+| `af9-core/` | AF9 Core Forge mod — the pack's blocks and items, their textures and models, and the machine logic (see [`af9-core/README.md`](af9-core/README.md)) |
 | `kubejs/startup_scripts/gtceu/` | AF9 machines, materials, parts, recipe types |
 | `kubejs/server_scripts/mods/gtceu/` | AF9 recipes |
-| `kubejs/assets/` | textures, models, lang (`gtceu`, `kubejs`) |
+| `kubejs/assets/` | lang (`gtceu`, `kubejs`), fluid textures |
 | `config/ftbquests/` | quest chapters AF9 adds/extends |
 | `config/` | other configs AF9 changes (`fml.toml`, …) |
 | `docs/` | design docs + landing page (`docs/index.html`) |

@@ -138,7 +138,7 @@ ServerEvents.recipes(event => {
     circuitAssembler('micro_processor_apu', recipe => recipe
         .itemInputs(
             'gtceu:plastic_printed_circuit_board',
-            'kubejs:apu_chip',
+            'af9:apu_chip',
             '4x #gtceu:resistors',
             '4x #gtceu:capacitors',
             '4x gtceu:fine_aluminium_silicon_wire')
@@ -289,23 +289,23 @@ ServerEvents.recipes(event => {
         .itemOutputs('4x gtceu:wetware_processor')
         .duration(100).EUt(150000)))
 
-    // ---- eDRAM packages (kubejs:edram_cpu/soc_package): extra, faster recipes beside the RAM ones ----
+    // ---- eDRAM packages (af9:edram_cpu/soc_package): extra, faster recipes beside the RAM ones ----
     // A package is a CPU or SoC die with its eDRAM cache on one laminate; one replaces four RAM chips, in half the time
     newCircuit('quantum_computer_luv_edram', 2, r => clean(r
         .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', '2x gtceu:quantum_processor_assembly', '8x gtceu:smd_diode',
-            chip('luv', 'nor', 4), '4x kubejs:edram_cpu_package', '32x gtceu:fine_osmiridium_wire')
+            chip('luv', 'nor', 4), '4x af9:edram_cpu_package', '32x gtceu:fine_osmiridium_wire')
         .itemOutputs('gtceu:quantum_processor_computer')
         .duration(200).EUt(2400)))
 
     newCircuit('quantum_computer_luv_edram_asmd', 2, r => clean(r
         .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', '2x gtceu:quantum_processor_assembly', '2x gtceu:advanced_smd_diode',
-            chip('luv', 'nor', 4), '4x kubejs:edram_cpu_package', '32x gtceu:fine_osmiridium_wire')
+            chip('luv', 'nor', 4), '4x af9:edram_cpu_package', '32x gtceu:fine_osmiridium_wire')
         .itemOutputs('gtceu:quantum_processor_computer')
         .duration(100).EUt(2400)))
 
     newCircuit('crystal_assembly_luv_edram', 2, r => clean(r
         .itemInputs('gtceu:multilayer_fiber_reinforced_printed_circuit_board', '2x gtceu:crystal_processor', '4x gtceu:advanced_smd_inductor',
-            '8x gtceu:advanced_smd_capacitor', '6x kubejs:edram_soc_package', '16x gtceu:fine_niobium_titanium_wire')
+            '8x gtceu:advanced_smd_capacitor', '6x af9:edram_soc_package', '16x gtceu:fine_niobium_titanium_wire')
         .itemOutputs('2x gtceu:crystal_processor_assembly')
         .duration(200).EUt(9600)))
     // (the Nano Mainframe's eDRAM version: the pack's own Assembly Line recipe)

@@ -6,7 +6,7 @@ import os
 
 from PIL import Image
 
-TEX = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../kubejs/assets/kubejs/textures/item')
+TEX = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../af9-core/src/main/resources/assets/af9/textures/item')
 
 
 def substrate():

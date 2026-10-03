@@ -512,7 +512,7 @@
 				}
 				{
 					id: "43420B787D797A36"
-					item: "kubejs:cpu_reticle"
+					item: "af9:cpu_reticle"
 					type: "item"
 				}
 				{
@@ -572,7 +572,7 @@
 			tasks: [
 				{
 					id: "7E42CB16C1433CAA"
-					item: "kubejs:simple_soc_reticle"
+					item: "af9:simple_soc_reticle"
 					type: "item"
 				}
 				{

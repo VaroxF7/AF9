@@ -13,17 +13,6 @@ const $ComputerRack = Java.loadClass('com.af9.core.compute.ComputerRackPartMachi
 const $ComputeCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $ComputeRelativeDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 
-// Server Casing: the MV computer's shell (N1 Computation Array)
-StartupEvents.registry('block', event => {
-    event.create('server_casing')
-        .displayName('Server Casing')
-        .soundType('metal')
-        .hardness(5)
-        .resistance(6)
-        .requiresTool(true)
-        .tagBlock('minecraft:mineable/pickaxe')
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []
@@ -60,7 +49,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .machine(holder => new $ComputationArrayMachine(holder, $ComputationArrayMachine.ARRAY))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.DUMMY_RECIPES])
-        .appearanceBlock(() => Block.getBlock('kubejs:server_casing'))
+        .appearanceBlock(() => Block.getBlock('af9:server_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.n1_computation_array.tooltip', 5))
         .pattern(definition => FactoryBlockPattern.start()
             .aisle('CCC', 'CCC', 'CCC')
@@ -72,12 +61,12 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             .where('R', $ComputerRack.racks(true))                 // MV racks only
             .where('P', Predicates.blocks('gtceu:steel_pipe_casing'))
-            .where('C', Predicates.blocks('kubejs:server_casing')
+            .where('C', Predicates.blocks('af9:server_casing')
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities($ComputeCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_TRANSMISSION).setMaxGlobalLimited(1, 0)))
             .build())
-        .workableCasingModel('kubejs:block/server_casing', 'gtceu:block/multiblock/data_bank')
+        .workableCasingModel('af9:block/server_casing', 'gtceu:block/multiblock/data_bank')
 
     // N1 Supercomputer Array: 2 wide, 4 high, 7 to 30 long. Every slice between the two end slices holds four racks
     // (the two middle rows, left and right) between heat vents (the bottom and top rows); the end slices are computer

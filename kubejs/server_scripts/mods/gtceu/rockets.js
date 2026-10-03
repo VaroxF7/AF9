@@ -46,7 +46,7 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.MV])
     // the nose cone carries the guidance: a sensor and two MCUs
     event.recipes.gtceu.assembler('af9:rocket_nose_cone')
-        .itemInputs('3x gtceu:stainless_steel_plate', 'gtceu:hv_sensor', '2x kubejs:mcu_chip')
+        .itemInputs('3x gtceu:stainless_steel_plate', 'gtceu:hv_sensor', '2x af9:mcu_chip')
         .circuit(2)
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 144))
         .itemOutputs('ad_astra:rocket_nose_cone')
@@ -74,10 +74,10 @@ ServerEvents.recipes(event => {
     // tier, rocket's hull block and parts' metal, GT tier of the parts, chip, Ad Astra's name of the tier's engine / tank,
     // the drum's metal, the previous tier's name (none for the first), the rocket's machine
     const tiers = [
-        [1, 'stainless_steel', GTValues.HV, 'kubejs:mcu_chip', 'steel', 'stainless_steel', null, 'assembler'],
-        [2, 'titanium', GTValues.EV, 'kubejs:asic_chip', 'desh', 'titanium', 'steel', 'assembler'],
-        [3, 'tungsten_steel', GTValues.IV, 'kubejs:mram_chip', 'ostrum', 'tungsten_steel', 'desh', 'assembly_line'],
-        [4, 'hsse', GTValues.LuV, 'kubejs:vpu_chip', 'calorite', 'tungsten_steel', 'ostrum', 'assembly_line']]
+        [1, 'stainless_steel', GTValues.HV, 'af9:mcu_chip', 'steel', 'stainless_steel', null, 'assembler'],
+        [2, 'titanium', GTValues.EV, 'af9:asic_chip', 'desh', 'titanium', 'steel', 'assembler'],
+        [3, 'tungsten_steel', GTValues.IV, 'af9:mram_chip', 'ostrum', 'tungsten_steel', 'desh', 'assembly_line'],
+        [4, 'hsse', GTValues.LuV, 'af9:vpu_chip', 'calorite', 'tungsten_steel', 'ostrum', 'assembly_line']]
     tiers.forEach(([tier, metal, voltage, chip, name, drum, previous, machine]) => {
         const v = GTValues.VN[voltage].toLowerCase()
         // The research of an assembly line rocket: the previous rocket. Declared here, not in the if block below: Rhino keeps

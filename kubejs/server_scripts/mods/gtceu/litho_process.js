@@ -30,7 +30,7 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.assembler('af9:monitor_wafer')
         .itemInputs('gtceu:silicon_wafer', 'gtceu:chromium_plate')
         .inputFluids(Fluid.of('gtceu:photoresist', 100))
-        .itemOutputs('4x kubejs:monitor_wafer')
+        .itemOutputs('4x af9:monitor_wafer')
         .duration(300)
         .EUt(VA[GTValues.MV])
 })
@@ -163,7 +163,7 @@ ServerEvents.recipes(event => {
     gt.assembler('af9:wafer_coater')
         .itemInputs('gtceu:mv_machine_hull', '2x gtceu:mv_electric_pump', '2x gtceu:mv_electric_motor',
             'gtceu:mv_robot_arm', '4x #gtceu:circuits/mv', '8x gtceu:stainless_steel_plate',
-            '4x kubejs:plascrete_pipe_casing')
+            '4x af9:plascrete_pipe_casing')
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
         .itemOutputs('gtceu:wafer_coater')
         .duration(400)
@@ -280,17 +280,17 @@ ServerEvents.recipes(event => {
     const solder = Fluid.of('gtceu:soldering_alloy', 144)
     // [id, inputs besides the board and the wire, quantum-dot colloid]
     const cards = [
-        ['photonic_cpu', ['2x kubejs:photonic_ic_chip', '4x gtceu:silicon_nitride_dust'], 0],
-        ['photonic_gpu', ['4x kubejs:photonic_ic_chip', '8x gtceu:silicon_nitride_dust'], 0],
-        ['photonic_ram', ['4x kubejs:spin_logic_chip', '2x gtceu:cobalt_iron_boron_dust'], 0],
-        ['atomic_cpu', ['2x kubejs:tmd_logic_chip', '2x gtceu:tungsten_diselenide_dust', '2x gtceu:boron_nitride_dust'],
+        ['photonic_cpu', ['2x af9:photonic_ic_chip', '4x gtceu:silicon_nitride_dust'], 0],
+        ['photonic_gpu', ['4x af9:photonic_ic_chip', '8x gtceu:silicon_nitride_dust'], 0],
+        ['photonic_ram', ['4x af9:spin_logic_chip', '2x gtceu:cobalt_iron_boron_dust'], 0],
+        ['atomic_cpu', ['2x af9:tmd_logic_chip', '2x gtceu:tungsten_diselenide_dust', '2x gtceu:boron_nitride_dust'],
             0],
-        ['atomic_gpu', ['4x kubejs:tmd_logic_chip', '4x gtceu:tungsten_diselenide_dust', '4x gtceu:boron_nitride_dust'],
+        ['atomic_gpu', ['4x af9:tmd_logic_chip', '4x gtceu:tungsten_diselenide_dust', '4x gtceu:boron_nitride_dust'],
             0],
-        ['atomic_ram', ['4x kubejs:memristor_chip', '2x gtceu:gst_alloy_dust'], 0],
-        ['subatomic_cpu', ['2x kubejs:quantum_dot_ic_chip'], 250],
-        ['subatomic_gpu', ['4x kubejs:quantum_dot_ic_chip'], 500],
-        ['subatomic_ram', ['2x kubejs:quantum_dot_ic_chip', '4x kubejs:memristor_chip'], 250]
+        ['atomic_ram', ['4x af9:memristor_chip', '2x gtceu:gst_alloy_dust'], 0],
+        ['subatomic_cpu', ['2x af9:quantum_dot_ic_chip'], 250],
+        ['subatomic_gpu', ['4x af9:quantum_dot_ic_chip'], 500],
+        ['subatomic_ram', ['2x af9:quantum_dot_ic_chip', '4x af9:memristor_chip'], 250]
     ]
     // the CPU, GPU and RAM card of a tier take the same things in different amounts: the programmed circuit (1 CPU,
     // 2 GPU, 3 RAM) decides which one the machine makes
@@ -318,7 +318,7 @@ ServerEvents.recipes(event => {
     // optical port
     event.recipes.gtceu.assembler('af9:metrology_station')
         .itemInputs('gtceu:hv_machine_hull', '2x gtceu:hv_sensor', 'gtceu:hv_emitter', '4x #gtceu:circuits/hv',
-            'gtceu:hv_robot_arm', '4x kubejs:mcu_chip', '8x gtceu:stainless_steel_plate', '4x gtceu:fine_borosilicate_glass_wire')
+            'gtceu:hv_robot_arm', '4x af9:mcu_chip', '8x gtceu:stainless_steel_plate', '4x gtceu:fine_borosilicate_glass_wire')
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
         .itemOutputs('gtceu:metrology_station')
         .duration(400)
@@ -327,9 +327,9 @@ ServerEvents.recipes(event => {
     // A run: the reference wafer goes under the microscope (and comes back nine times in ten), the measurements are
     // evaluated with 24 CWU/t of computation (a computation hatch)
     event.recipes.gtceu.metrology('af9:metrology_run')
-        .itemInputs('kubejs:monitor_wafer')
+        .itemInputs('af9:monitor_wafer')
         .inputFluids(Fluid.of('gtceu:distilled_water', 100))
-        .chancedOutput('kubejs:monitor_wafer', 9000, 0)
+        .chancedOutput('af9:monitor_wafer', 9000, 0)
         .CWUt(24)
         .duration(600)
         .EUt(VA[GTValues.HV])

@@ -88,11 +88,13 @@ legacyForge {
         // data packs, then it stops (no window, no world kept). Needs the mods AF9 Core depends on at runtime, and takes
         // KubeJS along, so the pack's scripts in run/kubejs are loaded as well:
         //   ./gradlew runGameTestServer -Paf9Instance=<folder of a pack instance> [-Paf9Dump=<file>]
-        // With af9Dump, everything registered is written to that file (devtest source set, RegistryDump).
+        // It writes the list of what AF9 Core registers for the linters (tools/lint/data/af9-registry.txt) and, with
+        // af9Dump, everything the game has registered to that file (devtest source set, RegistryDump).
         gameTestServer {
             type = "gameTestServer"
             gameDirectory = file('run')
             systemProperty 'af9.dump', (project.findProperty('af9Dump') ?: '').toString()
+            systemProperty 'af9.registry', file('../tools/lint/data/af9-registry.txt').absolutePath
         }
     }
 }

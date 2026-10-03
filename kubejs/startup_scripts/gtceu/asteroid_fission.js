@@ -88,22 +88,6 @@ GTCEuStartupEvents.registry('gtceu:material', event => {
         .formula('H2/O2/Al')
 })
 
-// ---- Items ----
-StartupEvents.registry('item', event => {
-    event.create('fx_fuel_pellet')
-        .displayName('FX-1 Fuel Pellet')
-        .tooltip('§7Sintered uranium oxide: natural uranium with U-235 to start the chain reaction.')
-        .tooltip('§cRadioactive.')
-    event.create('fx_fuel_rod')
-        .displayName('FX-1 Fuel Rod')
-        .tooltip('§7Pellets in a zirconium cladding: one cycle of the FX-1 Reactor.')
-        .tooltip('§cRadioactive.')
-    event.create('fx_spent_fuel_rod')
-        .displayName('Spent FX-1 Fuel Rod')
-        .tooltip('§7Out of the reactor: plutonium bred, uranium left, fission products in it.')
-        .tooltip('§cStrongly radioactive.§7 Reprocess it: macerate, dissolve, centrifuge.')
-})
-
 // ---- The FX-1 Reactor ----
 const $Fx1Reactor = Java.loadClass('com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine')
 const $Fx1Direction = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')

@@ -17,7 +17,7 @@ import sys
 from PIL import Image
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..')
-TEX = os.path.join(ROOT, 'kubejs/assets/kubejs/textures/item')
+TEX = os.path.join(ROOT, 'af9-core/src/main/resources/assets/af9/textures/item')
 TABLE = os.path.join(ROOT, 'kubejs/startup_scripts/gtceu/reticles.js')
 
 # interior colours of the classes: background (a function of the pixel: the EUV mirror is a checker), pattern, ring

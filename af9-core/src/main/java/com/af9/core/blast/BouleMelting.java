@@ -31,7 +31,7 @@ import java.util.Arrays;
 public final class BouleMelting {
 
     public static final String TYPE = "boule_melting";
-    /** Coil type names = the coil blocks' registry paths (KubeJS gtceu:coil blocks). */
+    /** Coil type names = the coil blocks' registry paths ({@link com.af9.core.registry.AF9Blocks}). */
     public static final String ENDION_COIL = "endion_coil_block";
     public static final String RESONANT_ENDION_COIL = "resonant_endion_coil_block";
     public static final double ENDION_DURATION = 0.75;

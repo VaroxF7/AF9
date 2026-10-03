@@ -20,6 +20,10 @@ rm -rf "$TMP/tools/lint/selftest"
 cp "$HERE/selftest/startup.js" "$TMP/kubejs/startup_scripts/zz_selftest.js"
 cp "$HERE/selftest/server.js" "$TMP/kubejs/server_scripts/zz_selftest.js"
 cp "$HERE/selftest/links.js" "$TMP/kubejs/startup_scripts/zz_selftest_links.js"
+# items the fixtures' recipes name, as if AF9 Core registered them: one taken and never made (R5), one nobody uses (R6), two
+# that only make each other (R10), one without model and name (A6)
+printf 'item af9:selftest_orphan\nitem af9:selftest_dead\nitem af9:selftest_a\nitem af9:selftest_b\nitem af9:selftest_nameless\n' \
+  >> "$TMP/tools/lint/data/af9-registry.txt"
 
 # --- quests: a duplicate id, a dead dependency, a missing text, a missing item, a bad id ----------------------------------------
 python3 - "$TMP" <<'PY'
@@ -35,13 +39,13 @@ t = t.replace('dependencies: [', 'dependencies: [\n\t\t\t\t"DEADBEEFDEADBEEF"', 
 # Q5: a text that is in no lang file
 t = t.replace('"{af9.quest.litho.cwuServer.1}"', '"{af9.quest.litho.cwuServer.99}"', 1)
 # Q6: an item nobody defines
-t = t.replace('kubejs:photomask_blank', 'kubejs:selftest_no_such_item', 1)
+t = t.replace('af9:photomask_blank', 'af9:selftest_no_such_item', 1)
 # Q2: an id that is not hex
 t = t.replace(f'id: "{ids[5]}"', 'id: "NOTHEXNOTHEXNOTH"', 1)
 p.write_text(t, encoding='utf-8')
 
 # --- assets: a texture that is not square, a broken .mcmeta, a duplicate lang key, a bad format code, a model without texture
-tex = root / 'kubejs/assets/kubejs/textures/item'
+tex = root / 'af9-core/src/main/resources/assets/af9/textures/item'
 (tex / 'selftest_wide.png').write_bytes(open(next(tex.rglob('*.png')), 'rb').read())
 import struct
 b = bytearray((tex / 'selftest_wide.png').read_bytes()); b[16:24] = struct.pack('>II', 32, 16); (tex / 'selftest_wide.png').write_bytes(bytes(b))
@@ -58,9 +62,6 @@ af = root / 'af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java
 af.write_text(af.read_text(encoding='utf-8').replace('Blocks.TUFF.defaultBlockState()', 'Blocks.SMOOTH_BASALT.defaultBlockState()', 1), encoding='utf-8')   # X4: a rock the ore layer does not know
 lt = root / 'af9-core/src/main/resources/data/af9/loot_tables/chests/ancient_temple.json'
 lt.write_text(lt.read_text(encoding='utf-8').replace('gtceu:raw_brannerite', 'gtceu:raw_brannerit', 1), encoding='utf-8')   # X4: an item in a loot table that does not exist
-# --- J3: Java names a KubeJS item that nobody registers
-lmm = root / 'af9-core/src/main/java/com/af9/core/machine/OrbitalLithographyMachine.java'
-lmm.write_text(lmm.read_text(encoding='utf-8').replace('new ResourceLocation("kubejs", "euv_light_source")', 'new ResourceLocation("kubejs", "selftest_no_such_item")', 1), encoding='utf-8')
 # --- docs: a path that is gone, a section that does not exist
 readme = root / 'README.md'
 readme.write_text(readme.read_text(encoding='utf-8') + '\nSee `kubejs/startup_scripts/gtceu/selftest_gone.js` and §99.1.\n', encoding='utf-8')
@@ -76,20 +77,20 @@ check() {   # check <name> <output> <code...>
   done
 }
 S="$(node "$TMP/tools/lint/scripts.js" "$TMP" 2>&1)"
-check scripts "$S" S1 S2 S3 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 M1 M3 M4 L1
+check scripts "$S" S1 S2 S3 S4 R1 R2 R3 R4 R5 R6 R7 R8 R9 R10 R11 R12 R13 M1 M3 M4 L1
 for typo in cleanroom_glas strange_matte_dust; do
   grep -q "gtceu:$typo" <<<"$S" || { echo "SELFTEST FAIL: scripts no longer find the GT typo gtceu:$typo"; fail=1; }
 done
 Q="$(python3 "$TMP/tools/lint/quests.py" "$TMP" 2>&1)"
 check quests "$Q" Q1 Q2 Q3 Q5 Q6
 A="$(python3 "$TMP/tools/lint/assets.py" "$TMP" 2>&1)"
-check assets "$A" A1 A2 A4 A5 A6
+check assets "$A" A2 A4 A5 A6
 X="$(python3 "$TMP/tools/lint/facts.py" "$TMP" 2>&1)"
 check facts "$X" X1 X2 X3 X4
 D="$(python3 "$TMP/tools/lint/docs.py" "$TMP" 2>&1)"
 check docs "$D" D1 D3
 J="$(python3 "$TMP/tools/lint/links.py" "$TMP" 2>&1)"
-check links "$J" J1 J2 J3
+check links "$J" J1 J2
 if [ "${SELFTEST_VERBOSE:-}" = 1 ]; then echo "$S" | grep -E "selftest|^(ERROR|WARN)" | head -50; echo "$Q" | head -20; echo "$A" | head -20; fi
 if [ "$fail" = 0 ]; then echo "selftest ok: every planted mistake was found"; else
   echo "--- scripts"; echo "$S" | head -60; echo "--- quests"; echo "$Q" | head -30; echo "--- assets"; echo "$A" | head -30; fi

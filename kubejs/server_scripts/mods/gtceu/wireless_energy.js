@@ -17,7 +17,7 @@ ServerEvents.recipes(event => {
         const voltage = VA[GTValues.EV + index]
         event.recipes.gtceu.assembler(`af9:${tier}_wireless_energy_receiver`)
             .itemInputs(receiverBase, `2x gtceu:${tier}_sensor`, `gtceu:${tier}_field_generator`,
-                `2x #gtceu:circuits/${tier}`, '2x kubejs:rf_transceiver_chip', 'kubejs:saw_filter_chip',
+                `2x #gtceu:circuits/${tier}`, '2x af9:rf_transceiver_chip', 'af9:saw_filter_chip',
                 '2x gtceu:aluminium_nitride_dust')
             .inputFluids(Fluid.of('gtceu:soldering_alloy', 576))
             .itemOutputs(`gtceu:${tier}_wireless_energy_receiver`)
@@ -25,7 +25,7 @@ ServerEvents.recipes(event => {
             .EUt(voltage)
         event.recipes.gtceu.assembler(`af9:${tier}_wireless_energy_transmitter`)
             .itemInputs(transmitterBase, `2x gtceu:${tier}_emitter`, `gtceu:${tier}_field_generator`,
-                `2x #gtceu:circuits/${tier}`, '2x kubejs:rf_transceiver_chip', 'kubejs:saw_filter_chip',
+                `2x #gtceu:circuits/${tier}`, '2x af9:rf_transceiver_chip', 'af9:saw_filter_chip',
                 '2x gtceu:aluminium_nitride_dust')
             .inputFluids(Fluid.of('gtceu:soldering_alloy', 576))
             .itemOutputs(`gtceu:${tier}_wireless_energy_transmitter`)

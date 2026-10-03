@@ -3,19 +3,18 @@
 
     python3 tools/lint/assets.py [repo root]
 
-Reads the registry the script linter makes (`node tools/lint/scripts.js --json`), the KubeJS assets, the AF9 Core resources
-and the AF9 Core Java sources. Checks:
+Reads the registry the script linter makes (`node tools/lint/scripts.js --json`), the list of what AF9 Core registers
+(tools/lint/data/af9-registry.txt), the KubeJS assets, the AF9 Core resources and the AF9 Core Java sources. Checks:
 
-  A1  an item or block that KubeJS registers whose texture file is not in the repo (explicit `.texture(...)` or the default
-      `<ns>:item/<id>` / `<ns>:block/<id>`)
   A2  a texture that is not a square (or a stack of squares when it has an .mcmeta), an .mcmeta that is not valid, whose
       frametime is not a positive integer, whose `frames` point past the end of the strip, or that has no texture beside it
-  A3  a texture nobody references (dead file) - a note, since Java and other mods may use it
+  A3  an item or block texture nobody references (dead file) - a note, since Java and other mods may use it
   A4  a lang file that is not valid JSON, a key twice in one file, a value that is not a string, a `&` colour code that no
       Minecraft formatting knows, a `%s`/`%d` in a value of a key whose Java use passes no argument is NOT checked
-  A5  a KubeJS item, block, machine or recipe type without a name (no displayName / langValue / lang key)
+  A5  a machine, material or recipe type without a name (no langValue / lang key)
   A6  a model of AF9 Core that points to a texture or a parent that does not exist, a blockstate that points to a model
-      that does not exist, a registered item or block without model, name or (blocks) loot table
+      that does not exist, an item or block AF9 Core registers without model, name, blockstate or loot table, an item
+      model or a blockstate of something that is not registered
   A7  a `Component.translatable("af9...")` key in the Java sources that is in no lang file
   A8  a lang file with different styles of indentation (kubejs lang uses tabs, af9 / gtceu lang four spaces)
 
@@ -27,6 +26,8 @@ import re
 import struct
 import subprocess
 import sys
+
+import af9registry
 
 ROOT = os.path.abspath(next((a for a in sys.argv[1:] if not a.startswith('--')), '.'))
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -114,7 +115,7 @@ for p in [os.path.join(KJS, 'kubejs/lang/en_us.json'), os.path.join(KJS, 'gtceu/
         if len(indents) > 1:
             report('INFO', 'A8', 'tabs and spaces are mixed in the indentation (harmless; new lines follow the file around them)', rel(p))
 
-# ---- A1 / A2 textures of KubeJS ---------------------------------------------------------------------------------------
+# ---- A2 / A3 textures ---------------------------------------------------------------------------------------------------
 referenced = set()
 
 
@@ -142,28 +143,45 @@ def base_pack_file(path):
     return 'AllTheMods' in head or 'All Rights Reserved' in head
 
 
-for it in registry['items']:
-    if base_pack_file(it['file']):
-        continue
-    texs = it.get('textures') or []
-    if not texs:
-        texs = [f'kubejs:{"block" if it["kind"] == "block" else "item"}/{it["id"]}']
-    for t in texs:
-        ns, _, path = t.partition(':')
-        p = tex_path(ns, path)
-        if p is None:
-            continue
-        referenced.add(os.path.normpath(p))
-        if t.startswith(f'kubejs:block/') and not it.get('textures'):
-            pass   # default block texture
-        if not os.path.exists(p):
-            # a block with `.model(...)` or a fluid has its own; only report what is obviously expected
-            if it['kind'] == 'fluid':
-                continue
-            report('ERROR', 'A1', f'{it["kind"]} kubejs:{it["id"]}: texture {t} is not in the repo', it['file'])
+# what names a texture of AF9 Core: its models, and the sources and scripts (a machine's casing, an overlay, a renderer)
+AF9_TEX = os.path.join(AF9, 'textures')
+named_in_code = []
+for top, ext in (('af9-core/src/main/java', '.java'), ('kubejs', '.js')):
+    for dp, _, fs in os.walk(os.path.join(ROOT, top)):
+        for fn in fs:
+            if fn.endswith(ext):
+                with open(os.path.join(dp, fn), encoding='utf-8') as f:
+                    named_in_code.append(f.read())
+named_in_code = '\n'.join(named_in_code)
+for dp, _, fs in os.walk(os.path.join(AF9, 'models')):
+    for fn in fs:
+        if fn.endswith('.json'):
+            try:
+                with open(os.path.join(dp, fn), encoding='utf-8') as f:
+                    textures = (json.load(f).get('textures') or {}).values()
+            except (OSError, ValueError):
+                continue   # A6 reports it
+            for t in textures:
+                if isinstance(t, str) and t.startswith('af9:'):
+                    referenced.add(os.path.normpath(tex_path('af9', t[4:])))
 
-# every png under the kubejs assets
-for dp, _, fs in os.walk(os.path.join(KJS)):
+
+def is_referenced(p):
+    """A texture a model or an .mcmeta names, a `_bloom` / `_ctm` / `_emissive` layer of one, or one the code names."""
+    if os.path.normpath(p) in referenced:
+        return True
+    base = re.sub(r'_(bloom|ctm|emissive)\.png$', '.png', p)
+    if base != p and os.path.exists(base):
+        return True
+    if p.startswith(AF9_TEX):
+        path = os.path.relpath(p, AF9_TEX).replace(os.sep, '/')[:-4]
+        # named whole ("af9:block/machines/x"), or put together from a folder and a name ("block/coils/" + id)
+        return path in named_in_code or os.path.basename(path) in named_in_code
+    return False
+
+
+# every png under the kubejs assets and among AF9 Core's textures
+for dp, _, fs in [w for top in (KJS, AF9_TEX) for w in os.walk(top)]:
     for fn in sorted(fs):
         p = os.path.join(dp, fn)
         if fn.endswith('.png'):
@@ -210,18 +228,15 @@ for dp, _, fs in os.walk(os.path.join(KJS)):
                 report('ERROR', 'A2', f'texture {w}x{h} is not square and has no .mcmeta animation', rel(p))
             elif w % 16 != 0 and w not in (8, 4):
                 report('WARN', 'A2', f'texture {w}x{h}: not a multiple of 16', rel(p))
-            base = re.sub(r'_(bloom|ctm|emissive)\.png$', '.png', p)
-            if os.path.normpath(p) not in referenced and not (base != p and os.path.exists(base)):
-                report('INFO', 'A3', 'no KubeJS item or block names this texture (a model, Java or a template may)', rel(p))
+            in_af9 = p.startswith(AF9_TEX)
+            # of AF9 Core's textures, the items' and blocks' (a GUI texture is named in ways this cannot follow)
+            kind = os.path.relpath(p, AF9_TEX).split(os.sep)[0] if in_af9 else ''
+            if (not in_af9 or kind in ('item', 'block')) and not is_referenced(p):
+                report('INFO', 'A3', 'no model, script or Java source names this texture', rel(p))
         elif fn.endswith('.mcmeta') and not os.path.exists(p[:-7]):
             report('ERROR', 'A2', '.mcmeta without a texture beside it', rel(p))
 
 # ---- A5 names -----------------------------------------------------------------------------------------------------------
-for it in registry['items']:
-    key = ('block.kubejs.' if it['kind'] == 'block' else 'fluid_type.kubejs.' if it['kind'] == 'fluid' else 'item.kubejs.') + it['id']
-    if not it.get('displayName') and key not in lang:
-        report('ERROR', 'A5', f'{it["kind"]} kubejs:{it["id"]} has no name (displayName or {key})', it['file'])
-
 TIERS = ('ulv', 'lv', 'mv', 'hv', 'ev', 'iv', 'luv', 'zpm', 'uv', 'uhv', 'uev', 'uiv', 'uxv', 'opv', 'max')
 for m in registry['machines']:
     if base_pack_file(m['file']):
@@ -241,7 +256,13 @@ for t in registry['recipeTypes']:
         report('ERROR', 'A5', f'recipe type {t["id"]} has no name (gtceu.{t["id"]} in the gtceu lang)', t['file'])
 
 # ---- A6 AF9 Core models / blockstates / names / loot -------------------------------------------------------------------
-af9_items, af9_blocks = set(), set()
+# what AF9 Core registers; a machine's block has its model, loot and name from GregTech
+af9_registry = af9registry.load(HERE)
+af9_items = set(af9_registry['item'])
+af9_blocks = {b for b, words in af9_registry['block'].items() if 'machine' not in words}
+af9_machine_blocks = set(af9_registry['block']) - af9_blocks
+if not af9_items:
+    report('ERROR', 'A6', 'tools/lint/data/af9-registry.txt is missing or empty: the items and blocks of AF9 Core are not checked')
 java_dir = os.path.join(ROOT, 'af9-core/src/main/java')
 java_text = {}
 for dp, _, fs in os.walk(java_dir):
@@ -249,11 +270,6 @@ for dp, _, fs in os.walk(java_dir):
         if fn.endswith('.java'):
             with open(os.path.join(dp, fn), encoding='utf-8') as f:
                 java_text[os.path.join(dp, fn)] = f.read()
-for fn, text in java_text.items():
-    af9_items |= set(re.findall(r'ITEMS\.register\("([a-z0-9_]+)"', text))
-    af9_blocks |= set(re.findall(r'BLOCKS\.register\("([a-z0-9_]+)"', text))
-    if fn.endswith('ComputeCard.java'):
-        af9_items |= {m.lower() + '_card' for m in re.findall(r'^\s+([A-Z_]+)\(\d+, Kind\.', text, re.M)}
 
 
 def model_file(rid):
@@ -298,8 +314,9 @@ if os.path.isdir(bs_dir):
             if mf and not os.path.exists(mf):
                 report('ERROR', 'A6', f'blockstate points to model {mdl} that does not exist', rel(os.path.join(bs_dir, fn)))
 
-for i in sorted(af9_items):
-    if not os.path.exists(os.path.join(AF9, 'models/item', i + '.json')) and i not in af9_blocks:
+STALE = '(or the list of what AF9 Core registers is old: tools/lint/README.md, "The registry list")'
+for i in sorted(af9_items - af9_machine_blocks):
+    if not os.path.exists(os.path.join(AF9, 'models/item', i + '.json')):
         report('ERROR', 'A6', f'item af9:{i} has no models/item/{i}.json', 'af9-core')
     if f'item.af9.{i}' not in lang and f'block.af9.{i}' not in lang:
         report('ERROR', 'A6', f'item af9:{i} has no name (item.af9.{i} in the af9 lang)', 'af9-core')
@@ -310,6 +327,14 @@ for b in sorted(af9_blocks):
         report('WARN', 'A6', f'block af9:{b} has no blockstate (a custom model may do it in code)', 'af9-core')
     if not os.path.exists(os.path.join(ROOT, 'af9-core/src/main/resources/data/af9/loot_tables/blocks', b + '.json')):
         report('WARN', 'A6', f'block af9:{b} has no loot table: it drops nothing', 'af9-core')
+# the other way round: a model or a blockstate of something that is not registered
+item_models = os.path.join(AF9, 'models/item')
+for fn in sorted(os.listdir(item_models)) if os.path.isdir(item_models) else []:
+    if fn.endswith('.json') and fn[:-5] not in af9_items:
+        report('WARN', 'A6', f'models/item/{fn}: AF9 Core registers no item af9:{fn[:-5]} {STALE}', 'af9-core')
+for fn in sorted(os.listdir(bs_dir)) if os.path.isdir(bs_dir) else []:
+    if fn.endswith('.json') and fn[:-5] not in af9_registry['block']:
+        report('WARN', 'A6', f'blockstates/{fn}: AF9 Core registers no block af9:{fn[:-5]} {STALE}', 'af9-core')
 
 # ---- A7 translation keys of the Java sources ----------------------------------------------------------------------------
 for fn, text in sorted(java_text.items()):
@@ -326,7 +351,7 @@ for fn, text in sorted(java_text.items()):
 # ---- output ----------------------------------------------------------------------------------------------------------------
 order = {'ERROR': 0, 'WARN': 1, 'INFO': 2}
 findings.sort(key=lambda f: (order[f[0]], f[1], f[2]))
-print(f'assets: {len(registry["items"])} KubeJS items, {len(af9_items)} AF9 items, {len(af9_blocks)} AF9 blocks, {len(lang)} lang keys')
+print(f'assets: {len(af9_items)} AF9 items, {len(af9_registry["block"])} AF9 blocks, {len(lang)} lang keys')
 count = lambda l: sum(1 for f in findings if f[0] == l)
 print(f'{count("ERROR")} errors, {count("WARN")} warnings, {count("INFO")} notes')
 for level, code, msg, where in findings:
