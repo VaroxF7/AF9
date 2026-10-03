@@ -410,6 +410,7 @@
     "af9.fx1_reactor.tooltip.4": "§7EV: §f1,920 EU/t§7 (IV hatches overclock it).",
     "af9.fx1_reactor.tooltip.5": "§7Parts are optional, with a maximum: §f2§7 energy, §f1+1§7 item, §f3§7 + §f4§7 fluid hatches, §f1§7 maintenance.",
     "material.gtceu.brannerite": "Brannerite",
+    "material.gtceu.quantanium": "Quantanium",
     "material.gtceu.uranyl_sulfate_solution": "Uranyl Sulfate Solution",
     "material.gtceu.yellowcake": "Yellowcake",
     "material.gtceu.irradiated_fuel": "Irradiated Fuel",
@@ -456,7 +457,9 @@
     "af9.void_miner.tooltip.0": "§7AF9's rebuilt miner: §ftenfold ore§7, same time and energy.",
     "af9.void_miner.tooltip.1": "§7Four areas as §fmodes§7: §aOverworld§7, §cNether§7, §eEnd§7, §dAsteroids§7; a §bprogrammed circuit§7 picks the ore.",
     "af9.void_miner.tooltip.2": "§7Needs §fdrilling fluid§7 and an energy hatch fit for the area; §6HV§7 to build.",
-    "material.gtceu.biodiesel": "Biodiesel",
     "material.gtceu.bioethanol": "Bioethanol",
+    "material.gtceu.shiny_diesel": "Shiny Diesel",
+    "material.gtceu.chloromethane_diesel": "Chloromethane Diesel",
+    "material.gtceu.mana_diesel": "Mana Diesel",
     "material.gtceu.dichloromethane": "Dichloromethane"
 }

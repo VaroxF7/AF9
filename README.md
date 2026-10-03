@@ -377,6 +377,7 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 - [Platinum-group metals](docs/platinum-group-metals.md) — refinery chain
 - [Oil](docs/oil.md) — regolith chain, fluid deposits, prospecting
 - [Rubber](docs/rubber.md) — latex from plants, rubber / liquid rubber / silicone / SBR
+- [Quantanium](docs/quantanium.md) — the UHV unlock ore, Asteroid Field dike vein
 - [Review findings](docs/review-findings.md) — what the lint found
 - [AF9 Core](af9-core/README.md) — Java class map
 - [Lint](tools/lint/README.md) — checker usage

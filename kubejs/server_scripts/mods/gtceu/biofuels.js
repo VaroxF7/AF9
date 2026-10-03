@@ -64,16 +64,17 @@ ServerEvents.recipes(event => {
     })
 
     // ---- Transesterification: seed oil + methanol, soda lye as the catalyst ----
+    // GT's own bio_diesel: this is AF9's farm-scale alternative to its refinery route
     event.recipes.gtceu.chemical_reactor('af9:biodiesel_transesterification')
         .itemInputs('gtceu:sodium_hydroxide_dust')
         .inputFluids(Fluid.of('gtceu:seed_oil', 1000), Fluid.of('gtceu:methanol', 100))
-        .outputFluids(Fluid.of('gtceu:biodiesel', 1000), Fluid.of('gtceu:glycerol', 100))
+        .outputFluids(Fluid.of('gtceu:bio_diesel', 1000), Fluid.of('gtceu:glycerol', 100))
         .duration(200)
         .EUt(VA[GTValues.HV])
 
-    // ---- Burning it: AF9-balanced fuel values (38,400 EU a bucket of biodiesel, 32,000 of bioethanol) ----
+    // ---- Burning it: AF9-balanced fuel values (38,400 EU a bucket of bio diesel, 32,000 of bioethanol) ----
     event.recipes.gtceu.combustion_generator('af9:biodiesel_combustion')
-        .inputFluids(Fluid.of('gtceu:biodiesel', 1000))
+        .inputFluids(Fluid.of('gtceu:bio_diesel', 1000))
         .duration(1200)
         .EUt(32)
 

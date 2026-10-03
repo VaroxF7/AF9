@@ -112,7 +112,7 @@ public final class PlanetCatalog {
         add(list, 8, 6, GTMaterials.Radon, 64);
         add(list, 8, 7, GTMaterials.Tin, 672);
         // T9 (AF9's own far dark, Mk-IV): green-chemistry fluids and richer sour gas and radon
-        add(list, 9, 1, kubejsFluid("biodiesel"), 1_400);
+        add(list, 9, 1, GTMaterials.BioDiesel, 1_400);
         add(list, 9, 2, kubejsFluid("bioethanol"), 1_792);
         add(list, 9, 3, GTMaterials.Benzene, 1_400);
         add(list, 9, 4, GTMaterials.Chloroform, 896);
