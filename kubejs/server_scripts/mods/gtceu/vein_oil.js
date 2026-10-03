@@ -6,8 +6,6 @@
 const $OilGTRegistries = Java.loadClass('com.gregtechceu.gtceu.api.registry.GTRegistries')
 const $OilForgeRegistries = Java.loadClass('net.minecraftforge.registries.ForgeRegistries')
 const $OilResourceLocation = Java.loadClass('net.minecraft.resources.ResourceLocation')
-const $OilResourceKey = Java.loadClass('net.minecraft.resources.ResourceKey')
-const $OilRegistries = Java.loadClass('net.minecraft.core.registries.Registries')
 const $OilVeinData = Java.loadClass('com.gregtechceu.gtceu.api.data.worldgen.bedrockfluid.BedrockFluidVeinSavedData')
 const $OilArrayList = Java.loadClass('java.util.ArrayList')
 
@@ -75,8 +73,8 @@ GTCEuServerEvents.fluidVeins(event => {
 ServerEvents.loaded(event => {
     // var, not const: Rhino keeps a const of a nested block once for the whole script (see rockets.js)
     try {
-        var dimension = $OilResourceKey.create($OilRegistries.DIMENSION, new $OilResourceLocation('af9:asteroid_field'))
-        var level = event.server.getLevel(dimension)
+        // by its id: with a ResourceKey Rhino cannot choose between the server's getLevel and KubeJS's own
+        var level = event.server.getLevel('af9:asteroid_field')
         if (level === null) return
         var data = $OilVeinData.getOrCreate(level)
         var forgotten = 0
