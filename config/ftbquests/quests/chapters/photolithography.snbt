@@ -3313,6 +3313,64 @@
 			x: 51.0d
 			y: -1.5d
 		}
+		{
+			dependencies: ["098C3692B8FF765F"]
+			description: [
+				"{af9.quest.litho.plasmaSolder.1}"
+				""
+				"{af9.quest.litho.plasmaSolder.2}"
+			]
+			id: "667FE013E5B7CF7F"
+			rewards: [{
+				id: "4BADEF4C86F6CC82"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.plasmaSolder.subtitle}"
+			tasks: [{
+				id: "783A1EEE716F0E3F"
+				item: "gtceu:plasma_solder_dust"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.plasmaSolder.title}"
+			x: 57.0d
+			y: 15.0d
+		}
+		{
+			dependencies: ["586E1415B5F87EE9"]
+			description: [
+				"{af9.quest.litho.arrayMk2.1}"
+				""
+				"{af9.quest.litho.arrayMk2.2}"
+				""
+				"{af9.quest.litho.arrayMk2.3}"
+			]
+			icon: "gtceu:orbital_lithography_station"
+			id: "6CE41B00ED10F945"
+			rewards: [{
+				id: "4D07CBF0CD7A0504"
+				type: "xp"
+				xp: 500
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.litho.arrayMk2.subtitle}"
+			tasks: [
+				{
+					id: "6E0D9AD7A799BA44"
+					item: "gtceu:orbital_lithography_station"
+					type: "item"
+				}
+				{
+					id: "7658DD604AFF1C6D"
+					item: "gtceu:wetware_processor_mainframe"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.arrayMk2.title}"
+			x: 54.0d
+			y: -6.0d
+		}
 	]
 	subtitle: ["{af9.quest.litho.chapter.subtitle}"]
 	title: "{af9.quest.litho.chapter.title}"

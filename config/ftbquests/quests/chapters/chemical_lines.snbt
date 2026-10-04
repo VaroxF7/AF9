@@ -498,6 +498,104 @@
 			x: 21.0d
 			y: 6.0d
 		}
+		{
+			dependencies: ["2D581951326D625E"]
+			description: ["{af9.quest.chem.quantanium.1}" "" "{af9.quest.chem.quantanium.2}" "" "{af9.quest.chem.quantanium.3}"]
+			icon: "gtceu:raw_quantanium"
+			id: "0DDCE92C2CB31A1D"
+			rewards: [{ id: "4640ABA06491D4CE" type: "xp" xp: 25 }]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.chem.quantanium.subtitle}"
+			tasks: [{ id: "4D82C616C12BA2E7" item: "gtceu:raw_quantanium" type: "item" }]
+			title: "{af9.quest.chem.quantanium.title}"
+			x: 9.0d
+			y: 12.0d
+		}
+		{
+			dependencies: ["5B6397104C6D1A4C"]
+			description: ["{af9.quest.chem.highgrade.1}" "" "{af9.quest.chem.highgrade.2}"]
+			icon: "gtceu:high_grade_solder_ingot"
+			id: "30D2E06E85ED1B46"
+			rewards: [{ id: "1834F2C136CFE38C" type: "xp" xp: 25 }]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.chem.highgrade.subtitle}"
+			tasks: [{ id: "79DB88A92072874B" item: "gtceu:high_grade_solder_dust" type: "item" } { id: "354A09465C067C5A" item: "gtceu:high_grade_solder_ingot" type: "item" }]
+			title: "{af9.quest.chem.highgrade.title}"
+			x: 36.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["30D2E06E85ED1B46"]
+			description: ["{af9.quest.chem.livingsolder.1}" "" "{af9.quest.chem.livingsolder.2}"]
+			icon: "gtceu:living_solder_bucket"
+			id: "42D265A465C6B8B8"
+			rewards: [{ id: "446494382DE8DE3A" type: "xp" xp: 25 }]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.chem.livingsolder.subtitle}"
+			tasks: [{ amount: 2000L fluid: "gtceu:living_solder" id: "27B3A07B308BC5FB" type: "fluid" } { id: "3F688F70A42F573A" item: "gtceu:stem_cells" type: "item" }]
+			title: "{af9.quest.chem.livingsolder.title}"
+			x: 39.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["1ED4FDF18E912B0E"]
+			description: ["{af9.quest.chem.mto.1}" "" "{af9.quest.chem.mto.2}" "" "{af9.quest.chem.mto.3}"]
+			icon: "gtceu:ethylene_bucket"
+			id: "6BBA617125EBAAA5"
+			rewards: [{ id: "6300F09ABA1F9E3B" type: "xp" xp: 50 }]
+			shape: "circle"
+			size: 1.5d
+			subtitle: "{af9.quest.chem.mto.subtitle}"
+			tasks: [{ amount: 1000L fluid: "gtceu:ethylene" id: "38564C416D6CAA71" type: "fluid" } { amount: 1000L fluid: "gtceu:propene" id: "3A9B9C0C0F9D145B" type: "fluid" }]
+			title: "{af9.quest.chem.mto.title}"
+			x: 12.0d
+			y: 12.0d
+		}
+		{
+			dependencies: ["1EC768845255404C" "46F7FC8C3BB9F5B2"]
+			description: ["{af9.quest.chem.sangases.1}" "" "{af9.quest.chem.sangases.2}"]
+			icon: "gtceu:ares_gas_bucket"
+			id: "53E4EA2998891934"
+			rewards: [{ id: "37C808CB1E3152F5" type: "xp" xp: 25 }]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.chem.sangases.subtitle}"
+			tasks: [{ amount: 1000L fluid: "gtceu:ares_gas" id: "20614D332FFE3F50" type: "fluid" } { amount: 1000L fluid: "gtceu:lxa_1" id: "6E2FEDC9DC41E920" type: "fluid" }]
+			title: "{af9.quest.chem.sangases.title}"
+			x: 18.0d
+			y: 12.0d
+		}
+		{
+			dependencies: ["53E4EA2998891934"]
+			description: ["{af9.quest.chem.sansmelt.1}" "" "{af9.quest.chem.sansmelt.2}"]
+			icon: "gtceu:hot_sanguinite_ingot"
+			id: "5B3D4B0D2190CCE6"
+			rewards: [{ id: "07C27E61B6151821" type: "xp" xp: 50 }]
+			shape: "circle"
+			size: 1.5d
+			subtitle: "{af9.quest.chem.sansmelt.subtitle}"
+			tasks: [{ id: "4A4FE97CF12F146A" item: "gtceu:crude_sanguinite_dust" type: "item" } { id: "5FEAFB61F2C8023F" item: "gtceu:hot_sanguinite_ingot" type: "item" }]
+			title: "{af9.quest.chem.sansmelt.title}"
+			x: 21.0d
+			y: 12.0d
+		}
+		{
+			dependencies: ["5B3D4B0D2190CCE6"]
+			description: ["{af9.quest.chem.sancable.1}" "" "{af9.quest.chem.sancable.2}"]
+			icon: "gtceu:sanguinite_single_wire"
+			id: "0E6E1C753593DDB6"
+			rewards: [{ id: "4E7A6BA7B18CEAFE" type: "xp" xp: 25 }]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.chem.sancable.subtitle}"
+			tasks: [{ id: "51431C1595368E4D" item: "gtceu:sanguinite_single_wire" type: "item" }]
+			title: "{af9.quest.chem.sancable.title}"
+			x: 24.0d
+			y: 12.0d
+		}
 	]
 	subtitle: ["{af9.quest.chem.chapter.subtitle}"]
 	title: "{af9.quest.chem.chapter.title}"

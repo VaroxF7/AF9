@@ -1013,11 +1013,11 @@
 		{
 			dependencies: ["2B8E66760514BE77"]
 			description: [
-				"{atm9.quest.gregtech.uhv.desc.jumpStart.1}"
+				"{af9.quest.uhv.mainframe.1}"
 				""
-				"{atm9.quest.gregtech.uhv.desc.jumpStart.2}"
+				"{af9.quest.uhv.mainframe.2}"
 				""
-				"{atm9.quest.gregtech.uhv.desc.jumpStart.3}"
+				"{af9.quest.uhv.mainframe.3}"
 			]
 			id: "054D2D3C20C2D32F"
 			rewards: [{
@@ -1028,7 +1028,7 @@
 			}]
 			shape: "gear"
 			size: 1.75d
-			subtitle: "{atm9.quest.gregtech.uhv.subt.greatSuccess}"
+			subtitle: "{af9.quest.uhv.mainframe.subtitle}"
 			tasks: [{
 				id: "61316E46DA048A55"
 				item: "gtceu:wetware_processor_mainframe"
