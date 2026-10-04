@@ -309,4 +309,21 @@ ServerEvents.recipes(event => {
         .itemOutputs('2x gtceu:crystal_processor_assembly')
         .duration(200).EUt(9600)))
     // (the Nano Mainframe's eDRAM version: the pack's own Assembly Line recipe)
+
+    // ================================= UHV =================================
+    event.remove({ id: 'gtceu:circuit_assembler/wetware_processor_computer_uv' })
+    event.remove({ id: 'gtceu:circuit_assembler/wetware_processor_computer_uv_soldering_alloy' })
+
+    event.recipes.gtceu.circuit_assembler('af9:wetware_processor_computer_quantanium')
+        .itemInputs(
+            'gtceu:wetware_printed_circuit_board',
+            '2x gtceu:wetware_processor_assembly',
+            '8x gtceu:advanced_smd_capacitor',
+            '8x gtceu:advanced_smd_transistor',
+            '32x gtceu:fine_tritanium_wire')
+        .inputFluids(Fluid.of('gtceu:quantanium', 288))
+        .itemOutputs('gtceu:wetware_processor_computer')
+        .cleanroom(CleanroomType.CLEANROOM)
+        .duration(400)
+        .EUt(VA[GTValues.UV])
 })

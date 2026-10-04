@@ -739,7 +739,7 @@ public final class AF9Materials {
         // metals the ore grew with (all obtainable elsewhere already). The formula
         // uses real element symbols in brannerite's substitution notation.
         add(material("quantanium")
-                .ingot().dust().ore(2, 1)
+                .ingot().fluid().dust().ore(2, 1)
                 .color(0x9d4edd).secondaryColor(0x3c096c)
                 .iconSet(MaterialIconSet.SHINY)
                 .formula("(Ti,Nb)2O3")

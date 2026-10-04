@@ -60,8 +60,7 @@ asteroid instead of the lottery.
 
 ## 5. Still open
 
-- UHV consumers: no hull, circuit or machine recipe takes Quantanium yet.
-  Nothing unlocks until those are rewritten.
+- UHV consumers: liquid Quantanium (`gtceu:quantanium`) is used as liquid in the first UHV circuit (`wetware_processor_computer`).
 - Quest: nothing asks for the first raw ore yet (the Space Elevator's exotic
   quest is the brannerite model: one raw ore).
 - Bulk: the Mk-IV share follows the weight; if UHV wants stacks, raise the
