@@ -62,7 +62,7 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:hydrofluoric_acid', 4000))
         .inputFluids(Fluid.of('gtceu:fluorine', 2000))
         .outputFluids(Fluid.of('gtceu:uranium_hexafluoride', 1000))
-        .outputFluids(Fluid.of('gtceu:water', 2000))
+        .outputFluids(Fluid.of('minecraft:water', 2000))
         .duration(200)
         .EUt(VA[GTValues.MV])
 

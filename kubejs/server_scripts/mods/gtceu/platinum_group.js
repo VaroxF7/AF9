@@ -157,7 +157,7 @@ ServerEvents.recipes(event => {
     // Water takes the ruthenate and osmate; Rh2O3 and IrO2 stay as an oxide
     gt.chemical_reactor('af9:pgm_fusion_cake_leach')
         .itemInputs('3x gtceu:pgm_fusion_cake_dust')
-        .inputFluids(Fluid.of('gtceu:water', 3000))
+        .inputFluids(Fluid.of('minecraft:water', 3000))
         .itemOutputs('2x gtceu:rhodium_iridium_oxide_dust')
         .outputFluids(Fluid.of('gtceu:ruthenate_osmate_liquor', 3000))
         .duration(200)
@@ -185,7 +185,7 @@ ServerEvents.recipes(event => {
         .itemInputs('2x gtceu:ammonium_chloride_dust')
         .inputFluids(Fluid.of('gtceu:ruthenium_tetroxide_vapour', 1000), Fluid.of('gtceu:hydrochloric_acid', 6000))
         .itemOutputs('gtceu:ammonium_hexachlororuthenate_dust')
-        .outputFluids(Fluid.of('gtceu:chlorine', 2000), Fluid.of('gtceu:water', 4000))
+        .outputFluids(Fluid.of('gtceu:chlorine', 2000), Fluid.of('minecraft:water', 4000))
         .duration(300)
         .EUt(EV)
 
@@ -205,7 +205,7 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:osmium_tetroxide_vapour', 1000), Fluid.of('gtceu:hydrochloric_acid', 6000),
             Fluid.of('gtceu:ethanol', 1000))
         .itemOutputs('gtceu:ammonium_hexachloroosmate_dust')
-        .outputFluids(Fluid.of('gtceu:water', 2000))
+        .outputFluids(Fluid.of('minecraft:water', 2000))
         .duration(300)
         .EUt(IV)
 
