@@ -7846,7 +7846,7 @@
 	"af9.quest.litho.edramPackage.3": "Faster circuits, beside the RAM recipes: a package takes the place of 4 RAM chips, in half the time. &eQuantum Computer&r: 4 eDRAM CPU Packages for 16 RAM. &eCrystal Processor Assembly&r: 6 eDRAM SoC Packages for 24 RAM. &eNano Mainframe&r (Assembly Line): 4 eDRAM CPU Packages for 16 RAM.",
 	"af9.quest.litho.mramChip.title": "MRAM",
 	"af9.quest.litho.mramChip.subtitle": "Memory that never forgets",
-	"af9.quest.litho.mramChip.1": "&eMagnetoresistive RAM&r: every bit is a tiny magnet sandwich (cobalt-iron-boron round magnesium oxide) that keeps its state without power, as fast as DRAM. Printed from &eTrinium-doped&r wafers (80 nm) up, through the &eMRAM Reticle&r: a Phase-Shift Mask Blank engraved with a &9blue&r lens.",
+	"af9.quest.litho.mramChip.1": "&eMagnetoresistive RAM&r: every bit is a tiny magnet sandwich (cobalt-iron-boron around magnesium oxide) that keeps its state without power, as fast as DRAM. Printed from &eTrinium-doped&r wafers (80 nm) up, through the &eMRAM Reticle&r: a Phase-Shift Mask Blank engraved with a &9blue&r lens.",
 	"af9.quest.litho.mramChip.2": "The Cutter makes &e16&r chips of one wafer, in a &eCleanroom&r (IV).",
 	"af9.quest.litho.mramChip.3": "Faster research parts, in half GT's time and without research, all in a clean room: the &eData Orb&r (an epoxy board + a CPU chip + 4 MRAM + 16 fine platinum wire), the &eData Bank&r (a computer casing + 16 MRAM + 2 CPU chips + 32 fine niobium-titanium wire + 4 optical pipes) and the &eAdvanced Data Access Hatch&r (a LuV input bus + 8 MRAM + 2 CPU chips + 32 fine niobium-titanium wire).",
 	"af9.quest.litho.feramChip.title": "FeRAM",
