@@ -310,7 +310,8 @@ ServerEvents.recipes(event => {
         .duration(200).EUt(9600)))
     // (the Nano Mainframe's eDRAM version: the pack's own Assembly Line recipe)
 
-    // ================================= UHV =================================
+    // ================================= UV + UHV =================================
+    // UV wetware supercomputer: GT's circuit assembler recipe replaced with a quantanium-soldered version.
     event.remove({ id: 'gtceu:circuit_assembler/wetware_processor_computer_uv' })
     event.remove({ id: 'gtceu:circuit_assembler/wetware_processor_computer_uv_soldering_alloy' })
 
@@ -325,5 +326,34 @@ ServerEvents.recipes(event => {
         .itemOutputs('gtceu:wetware_processor_computer')
         .cleanroom(CleanroomType.CLEANROOM)
         .duration(400)
+        .EUt(VA[GTValues.UV])
+
+    // UHV wetware mainframe (photonic-only): GT's assembly line (tritanium frame, 2x wetware computer, 5x 32x SMD,
+    // 64x PBI foil, 32x RAM, 16x double ENTED wire, europium plates) is replaced with a photonic-only line:
+    // photonic ICs + the photonic compute cards (CPU/GPU + a fuck-ton of photonic DRAM), 10x wetware
+    // supercomputers, 64x double ENTED wire and 128x PBI foil. Same research as GT (scan the wetware
+    // supercomputer, 96 CWU/t at UV) and UV power.
+    event.remove({ id: 'gtceu:assembly_line/wetware_mainframe_uhv' })
+
+    event.recipes.gtceu.assembly_line('af9:wetware_mainframe_uhv')
+        .itemInputs(
+            '2x gtceu:tritanium_frame',
+            '10x gtceu:wetware_processor_computer',
+            '32x af9:photonic_ic_chip',
+            '16x af9:photonic_cpu_card',
+            '16x af9:photonic_gpu_card',
+            '32x af9:photonic_ram_card',
+            '64x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire',
+            '128x gtceu:polybenzimidazole_foil',
+            '8x gtceu:europium_plate')
+        .inputFluids(
+            Fluid.of('gtceu:soldering_alloy', 2880),
+            Fluid.of('gtceu:polybenzimidazole', 1152))
+        .itemOutputs('gtceu:wetware_processor_mainframe')
+        .stationResearch(b => b
+            .researchStack(Item.of('gtceu:wetware_processor_computer'))
+            .CWUt(96)
+            .EUt(VA[GTValues.UV]))
+        .duration(2000)
         .EUt(VA[GTValues.UV])
 })
