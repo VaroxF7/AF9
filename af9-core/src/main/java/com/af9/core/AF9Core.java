@@ -2,7 +2,6 @@ package com.af9.core;
 
 import com.af9.core.blast.BouleMelting;
 import com.af9.core.client.AF9Client;
-import com.af9.core.compute.AF9Compute;
 import com.af9.core.common.AF9Sounds;
 import com.af9.core.compat.adastra.AdAstraCompat;
 import com.af9.core.compat.extremereactors.ExtremeReactorsCompat;
@@ -59,7 +58,6 @@ public class AF9Core {
         AF9Blocks.register(FMLJavaModLoadingContext.get().getModEventBus());
         AF9Items.register(FMLJavaModLoadingContext.get().getModEventBus());
         AF9Tabs.register(FMLJavaModLoadingContext.get().getModEventBus());
-        AF9Compute.register(FMLJavaModLoadingContext.get().getModEventBus());
         // the Asteroid Field's feature
         AF9Space.register(FMLJavaModLoadingContext.get().getModEventBus());
         // supercritical steam in Extreme Reactors' turbines (only with Extreme Reactors loaded)

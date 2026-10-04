@@ -1,7 +1,6 @@
 package com.af9.core.registry;
 
 import com.af9.core.AF9Core;
-import com.af9.core.compute.AF9Compute;
 import com.af9.core.space.AF9Space;
 
 import net.minecraft.core.registries.Registries;
@@ -23,7 +22,7 @@ import java.util.Set;
 
 /**
  * The AF9 creative tab: everything the pack adds, in one place. First the blocks, then the plain items in the order
- * they are registered in ({@link AF9Blocks}, {@link AF9Items}), the rack cards, the Oil Regolith, and after them
+ * they are registered in ({@link AF9Blocks}, {@link AF9Items}), the Oil Regolith, and after them
  * whatever else is registered under {@code af9:}, by id.
  */
 public final class AF9Tabs {
@@ -42,7 +41,7 @@ public final class AF9Tabs {
     /** What the tab shows, every item once. */
     public static List<ItemStack> contents() {
         Set<Item> items = new LinkedHashSet<>();
-        for (DeferredRegister<Item> register : List.of(AF9Blocks.ITEMS, AF9Items.ITEMS, AF9Compute.ITEMS,
+        for (DeferredRegister<Item> register : List.of(AF9Blocks.ITEMS, AF9Items.ITEMS,
                 AF9Space.ITEMS)) {
             for (RegistryObject<Item> entry : register.getEntries()) items.add(entry.get());
         }

@@ -245,11 +245,12 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         float g = Mth.lerp(pulse, green(lastColor), 255) / 255f;
         float b = Mth.lerp(pulse, blue(lastColor), 255) / 255f;
         Frame frame = frame(machine.self());
-        int segments = Math.max(20, Math.round(radius * 5));
+        float ring = machine.ringRadius(radius);
+        int segments = Math.max(20, Math.round(ring * 5));
         VertexConsumer tube = source.getBuffer(tubeType);
-        torus(tube, mat, frame, radius, thickness, 10, segments, r, g, b, alpha);
+        torus(tube, mat, frame, ring, thickness, 10, segments, r, g, b, alpha);
         // the white-hot core inside it
-        torus(tube, mat, frame, radius, thickness * (hot ? HOT_CORE : CORE), 8, segments, 1F, 1F, 1F,
+        torus(tube, mat, frame, ring, thickness * (hot ? HOT_CORE : CORE), 8, segments, 1F, 1F, 1F,
                 alpha * (hot ? 1F : CORE_ALPHA));
         if (layers <= 0) return;
         // the glow in the plain colour, breathing with the pulse
@@ -259,7 +260,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         int drawn = 0;
         for (float[] layer : HALO) {
             if (drawn++ >= layers) return;
-            torus(glow, mat, frame, radius, thickness * layer[0], 10, segments, cr, cg, cb,
+            torus(glow, mat, frame, ring, thickness * layer[0], 10, segments, cr, cg, cb,
                     Math.min(MAX_GLOW_ALPHA, alpha * layer[1] * breath));
         }
     }
@@ -371,15 +372,16 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
             if (pulse != null) level.playLocalSound(cx, cy, cz, pulse, SoundSource.BLOCKS, 1F, 1F, false);
         }
         RandomSource random = level.getRandom();
-        if (arcs) tickBolts(state, random, frame, level, pos, machine.ringArcSound());
+        float ring = machine.ringRadius(radius);
+        if (arcs) tickBolts(state, random, frame, level, pos, machine.ringArcSound(), ring);
         int color = machine.getRingColor();
         Vector3f tint = new Vector3f(red(color) / 255f, green(color) / 255f, blue(color) / 255f);
         int count = 2 + random.nextInt(3);
         for (int i = 0; i < count; i++) {
             float angle = random.nextFloat() * Mth.TWO_PI;
             // on the ring; a ring inside its housing spits them off the housing's inner face instead
-            float dist = wall > 0 ? radius - wall - random.nextFloat() * 0.6F :
-                    radius + (random.nextFloat() - 0.5F) * thickness * 6;
+            float dist = wall > 0 ? ring - wall - random.nextFloat() * 0.6F :
+                    ring + (random.nextFloat() - 0.5F) * thickness * 6;
             float along = wall > 0 ? (random.nextFloat() - 0.5F) * 3F : (random.nextFloat() - 0.5F) * thickness * 4;
             Vec3 at = frame.onRing(angle, dist, along);
             double x = pos.getX() + at.x, y = pos.getY() + at.y, z = pos.getZ() + at.z;
@@ -402,12 +404,12 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
      * lengths count from where they come out in the open (the housing's inner face, for a ring inside its machine).
      */
     private void tickBolts(Effects state, RandomSource random, Frame frame, ClientLevel level, BlockPos pos,
-                           SoundEvent arc) {
+                           SoundEvent arc, float ring) {
         state.bolts.removeIf(bolt -> ++bolt.age >= bolt.life);
         if (state.bolts.size() >= 12) return;
         List<Bolt> born = new ArrayList<>(2);
         if (random.nextFloat() < 0.4F) {
-            born.add(new Bolt(random.nextFloat() * Mth.TWO_PI, (radius - wall) * (0.25F + random.nextFloat() * 0.45F),
+            born.add(new Bolt(random.nextFloat() * Mth.TWO_PI, (ring - wall) * (0.25F + random.nextFloat() * 0.45F),
                     (random.nextFloat() - 0.5F) * 3F, (random.nextFloat() - 0.5F) * 0.4F, random.nextLong(),
                     4 + random.nextInt(4), false));
         }
@@ -418,7 +420,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         }
         for (Bolt bolt : born) {
             state.bolts.add(bolt);
-            Vec3 end = bolt.end(frame, radius - wall);
+            Vec3 end = bolt.end(frame, ring - wall);
             if (arc != null && !bolt.dart) {
                 level.playLocalSound(pos.getX() + end.x, pos.getY() + end.y, pos.getZ() + end.z, arc,
                         SoundSource.BLOCKS, 1F, 0.85F + random.nextFloat() * 0.3F, false);
@@ -446,11 +448,12 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         int color = machine.getRingColor();
         float cr = red(color) / 255f, cg = green(color) / 255f, cb = blue(color) / 255f;
         long tick = self.getOffsetTimer() / 2;
+        float ring = machine.ringRadius(radius);
         for (Bolt bolt : state.bolts) {
             float fade = 1 - (float) bolt.age / bolt.life;
             RandomSource random = RandomSource.create(bolt.seed ^ tick * 0x9E3779B97F4A7C15L);
-            Vec3 from = frame.onRing(bolt.angle, radius - thickness, 0);
-            Vec3 to = bolt.end(frame, radius - wall);
+            Vec3 from = frame.onRing(bolt.angle, ring - thickness, 0);
+            Vec3 to = bolt.end(frame, ring - wall);
             List<Vec3> path = jagged(from, to, random, bolt.dart ? 3 : 5, bolt.length * 0.16F);
             float width = bolt.dart ? 0.55F : 1F;
             drawPath(consumer, mat, eye, path, width, cr, cg, cb, fade);
@@ -604,7 +607,8 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     @Override
     public AABB getRenderBoundingBox(ILightRingMachine machine) {
         BlockPos pos = machine.self().getPos();
-        float reach = Math.abs(up) + Math.abs(back) + radius + thickness * HALO[HALO.length - 1][0] + 1;
+        float ring = machine.ringRadius(radius);
+        float reach = Math.abs(up) + Math.abs(back) + ring + thickness * HALO[HALO.length - 1][0] + 1;
         return new AABB(pos).inflate(reach);
     }
 }

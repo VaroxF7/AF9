@@ -71,6 +71,7 @@ public final class AF9Materials {
         photolithography();
         platinumGroup();
         quantanium();
+        solders();
         uhvSuperconductor();
     }
 
@@ -772,6 +773,49 @@ public final class AF9Materials {
                 .cableProperties(GTValues.VA[GTValues.UV], 4, 0, true)
                 .blastTemp(13000, GasTier.HIGHEST, GTValues.VA[GTValues.UHV], 1200)
                 .formula("(Nt2Ke5)"));
+    }
+
+    /**
+     * Soldering alloys: the pack's own solders beyond GT's tin and soldering alloy. Recipes: solders.js (production),
+     * circuits_af9.js (HV-UV full replacement + wetware), plasma_soldering (UHV atomic soldering in the Orbital Array
+     * Mk2). Spec: docs/solders.md
+     * <pre>
+     *   high_grade_solder  HV-UV circuits, replaces soldering alloy (tin stays as budget option)
+     *   living_solder      UV wetware + neuron circuits, grown sterile from stem cells (bio-chain)
+     *   plasma_solder      UHV+ atomic soldering, condensed from quark-gluon plasma + quantanium
+     * </pre>
+     */
+    private static void solders() {
+        // High-grade lead-free solder: SAC-InBi (tin-silver-copper-indium-bismuth family, simplified to
+        // Sn9Bi1In1Ag1). Mixed at MV (one tier below its first users, the HV circuits), melted in the EBF at HV
+        // like the MV circuit alloys (one tier above the mixer). GT derives the EBF recipe, parts and
+        // decomposition from the components + blast property; the mixer recipe is in circuits_af9.js.
+        add(material("high_grade_solder")
+                .ingot().fluid()
+                .color(0xd8dee8).iconSet(MaterialIconSet.METALLIC)
+                .components(GTMaterials.Tin, 9, GTMaterials.Bismuth, 1, GTMaterials.Indium, 1,
+                        GTMaterials.Silver, 1)
+                .blastTemp(1500, GasTier.LOW, GTValues.VA[GTValues.HV], 500)
+                .formula("(Sn9BiInAg)"));
+
+        // Living solder: a conductive bio-hydrogel (silver nanowires in a crosslinked protein matrix, kept alive in
+        // sterilized growth medium). No components and no blast property, so GT adds no electrolyzer, centrifuge or
+        // EBF shortcut past the sterile bio-chain (solders.js): stem cells + sterilized growth medium + mutagen,
+        // incubated sterile at UV. Used as the fluid in all wetware / neuron circuit assembler recipes.
+        add(material("living_solder")
+                .liquid()
+                .color(0x6fe8a8)
+                .formula("Ag(C2H5NO2)(H2O)"));
+
+        // Plasma solder: quark-stabilised metallic plasma for atomic-level soldering (ion-by-ion deposition, no
+        // reflow). Dust + ingot + fluid, no components and no blast property, so GT adds no mixer/EBF shortcut: the
+        // dust is condensed in the Particle Accelerator's quark synthesis from QGP traps + quantanium (solders.js)
+        // and melts to the fluid in GT's own extractor (dust -> fluid), which is what the plasma_soldering recipe
+        // type in the Orbital Lithography Array Mk2 consumes (extended pattern, in orbit).
+        add(material("plasma_solder")
+                .dust().ingot().fluid()
+                .color(0xb47cff)
+                .formula("(Qc)(Qn)(Ed*)"));
     }
 
     /**

@@ -69,7 +69,7 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 |---|---|---|
 | 🔬 Semiconductor factory | quartz → EG polysilicon → CZ boules → 9 wafer substrates → fab chemistry → 350–1 nm lithography → GT + AF9 chips | [`docs/semiconductor-factory.md`](docs/semiconductor-factory.md) |
 | ☢️ Asteroid fission | Brannerite only in the Asteroid Field → yellowcake → FX-1 Reactor → supercritical steam + plutonium → Fusion Reactor Mk1 | [`docs/asteroid-fission.md`](docs/asteroid-fission.md) |
-| 🧮 Computation | CWU Servers (LV–IV) + N1 Computation / Supercomputer Arrays (racks of cards) as `IOpticalComputationProvider` | [`docs/computation.md`](docs/computation.md) |
+| 🧮 Computation | CWU Servers (LV–IV) as `IOpticalComputationProvider` | [`docs/computation.md`](docs/computation.md) |
 | 🛰️ Space Elevator | GTNH's 35×35×43 (ext. 47×47) tower, Mining Drones + Modules, ore expeditions + GTNH Space Pumping liquid missions | [`docs/space-elevator.md`](docs/space-elevator.md) |
 | ⚗️ Platinum-group refinery | matte → leach → chloride liquor → Pt/Pd/Au, then Ru/Os via tetroxides, Ir/Rh last — in GT's own machines | [`docs/platinum-group-metals.md`](docs/platinum-group-metals.md) |
 | 🛢️ Oil, off-world | Overworld oil off; Oil Regolith in asteroids → Impure → Shiny → Oil/Heavy Oil; fluids drilled in the Field | [`docs/oil.md`](docs/oil.md) |
@@ -77,7 +77,7 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 | 🧹 Lint | `bash tools/lint/run.sh` checks recipes, multiblocks, quests, textures, lang without starting the game | [`tools/lint/README.md`](tools/lint/README.md) · [`docs/review-findings.md`](docs/review-findings.md) |
 
 Plus the supporting machines: **SMC fab family** (chemistry / separation / electrochemistry / thermal,
-with changeover purges + built-in cleanrooms), **Coater Track**, **Metrology Station**,
+with changeover purges + built-in cleanrooms), **Coater Track**,
 **Supercooling Cryostat + Coolant Hatches**, **Particle Accelerator** (47×47 storage ring),
 **Wireless Energy** (substation transmitter → any multiblock receiver, data-stick channels), and
 **wafer contamination** (gloves or cleanroom, or the wafer is ruined).
@@ -134,8 +134,8 @@ Substrate yields (wafers-per-print scale): Si 1 · P 4 · Nq 8 · Ke 10 · Nq\* 
   (macerate → silicon dust) instead of the wafer.
 - **Line versions** (lens slices + light source, like the Assembly Line's length): each version above
   the mode = ×0.8 time, ×0.75 break chance.
-- **Cooling** (Air Conditioning Hatches), **OPC computation** (computation hatch), and the
-  **Metrology Station** measure/correct the run; the Scanner/Line cool with air.
+- **Cooling** (Air Conditioning Hatches) and **OPC computation** (computation hatch)
+  improve the run; the Scanner/Line cool with air.
 - **Masks in three classes** by node: chrome → MoSi phase-shift → EUV multilayer (Mo/Si mirrors);
   **Coater Track** primes/coats/bakes first; spun-off solvent is distilled back.
 - **Orbit rule:** the Orbital Lithography Station prints only in an `*_orbit` dimension
@@ -156,8 +156,9 @@ Printed like GT's; their wafers are `af9:<chip>_wafer` → cutter → `af9:<chip
 | `vpu` | video processing unit | naquadria (65 nm) | 6 |
 | `tpu` | tensor / AI unit | transmuted neutronium (20 nm) | 4 |
 
-Plus six research families feeding computation cards: acoustic-wave, photonics, spintronics,
-2D-materials, neuromorphic, quantum-dot (§18.7 of the fab doc). Uses: `server_scripts/mods/gtceu/chip_uses.js`.
+Plus six research families (acoustic-wave, photonics, spintronics,
+2D-materials, neuromorphic, quantum-dot) for the pack's UHV wetware mainframe (§18.7 of the fab doc).
+Uses: `server_scripts/mods/gtceu/chip_uses.js`.
 
 ---
 
@@ -195,19 +196,15 @@ GT rocket (gregified parts, Aluminised Hydrolox) → Ceres → Asteroid Field (a
 
 Full spec: [`docs/computation.md`](docs/computation.md). All sources are
 `IOpticalComputationProvider` — fiber to Research Station / Orbital Station / litho computation
-hatches / Metrology Station.
+hatches.
 
 | Source | Output | Notes |
 |---|---|---|
 | CWU Server LV→IV | 4 / 8 / 16 / 32 / 64 CWU/t | single block, EU→CWU (`VA/max` per CWU), front LEDs (red offline / green idle / blink busy) |
-| N1 Computation Array (MV, 3×3×6, 8× MV racks) | grows with cards | needs coolant; heat-scaled output |
-| N1 Supercomputer Array (LuV, 7–30 long, 20–112 racks) | grows with cards | MV or LuV racks, GT heat vents, laser hatch allowed |
 
-Cards (CPU/GPU compute, RAM feeds — a processor without tier-matched RAM in its rack runs at ¼):
-Tube → Silicon → Nano → Quantum → Tensor → **Photonic / Atomic / Sub-atomic** (UHV, from the new
-chip families). Coolants: distilled water 8 → supercooled H₂ 64 → Ar 96 → Xe 160 → endion 256 heat/mB.
+Larger computation comes from GT's own HPCA.
 
-> Removed and staying removed: machine bus, ME Computation Link, Crafting CPU Array
+> Removed and staying removed: N1 computation / supercomputer arrays (racks of cards), machine bus, ME Computation Link, Crafting CPU Array
 > (see history docs).
 
 ---
@@ -282,10 +279,10 @@ Oil Regolith (asteroid pockets, ~7% of rock, falling sand-like block)
 |---|---|---|
 | MV | quartz → MG-Si → polysilicon → Si boule → 350 nm line V1, CWU Server LV/MV, Coater Track | GT LV–MV chips on Si; computation for research |
 | HV | 200 nm (KrF), FX-1 fuel chain, Oil Regolith → oil, PGM matte (Pt/Pd) | ASIC/MCU/APU; first fission power; benzene/propene |
-| EV | 100 nm (ArF dry), rockets T2 → Ceres/Field, Supercooling Cryostat, N1 Array | Naquadah circuits; brannerite; cold coolants |
-| IV–LuV | Scanner 80/65 nm (ArF + immersion), rockets T3–T4, Particle Accelerator, N1 Supercomputer | trinium/naquadria chips; e/m/FE-RAM, VPU; transmuted neutronium (NTD) |
+| EV | 100 nm (ArF dry), rockets T2 → Ceres/Field, Supercooling Cryostat | Naquadah circuits; brannerite; cold coolants |
+| IV–LuV | Scanner 80/65 nm (ArF + immersion), rockets T3–T4, Particle Accelerator | trinium/naquadria chips; e/m/FE-RAM, VPU; transmuted neutronium (NTD) |
 | ZPM | Orbital Station (50 nm), Space Elevator Mk-I+, Fusion Reactor Mk1 (Pu-241) | renewable ore; neutronium HASoC; TPU path |
-| UV–UHV | EUV 20/7 nm, high-NA, X-ray FEL 1 nm in orbit; photonic/atomic/sub-atomic cards | strange-matter / chromodynium nodes; endgame computation |
+| UV–UHV | EUV 20/7 nm, high-NA, X-ray FEL 1 nm in orbit | strange-matter / chromodynium nodes; endgame computation |
 
 Quest chapters track this order: MV → HV → EV → IV → LuV → ZPM → UV → UHV, plus
 `photolithography`, `asteroid_fission`, `platinum_group`, `space_elevator`, `oil`, `circuits`.
@@ -374,7 +371,7 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 
 - [Semiconductor factory](docs/semiconductor-factory.md) — wafers, silicon, SoCs, chips, lithography
 - [Asteroid fission](docs/asteroid-fission.md) — field, Brannerite, FX-1, plutonium, Mk1
-- [Computation](docs/computation.md) — CWU servers, N1 arrays, cards, coolants
+- [Computation](docs/computation.md) — CWU servers
 - [Space Elevator](docs/space-elevator.md) — structure, drones, ore + liquid missions, screen
 - [Platinum-group metals](docs/platinum-group-metals.md) — refinery chain
 - [Oil](docs/oil.md) — regolith chain, fluid deposits, prospecting

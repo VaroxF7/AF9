@@ -67,9 +67,6 @@ public final class AF9Blocks {
         coil("endion_coil_block", 8100, 8, 6, 5, "block/coils/endion_coil");
         coil("resonant_endion_coil_block", 12600, 16, 16, 8, "block/coils/resonant_endion_coil");
 
-        // ---- Computation: the MV computer's shell (N1 Computation Array) ----
-        block("server_casing", SoundType.METAL, 6F, 0, 0);
-
         // ---- Photolithography: the chemical lines of the MV machines (GT's PTFE Pipe Casing needs PTFE, which only
         // comes at HV) ----
         block("plascrete_pipe_casing", SoundType.METAL, 6F, 0, 0);

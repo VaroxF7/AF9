@@ -476,26 +476,15 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
 
     /**
      * Everything on a print's break chance besides the vacuum and the version: the machine's own factor (the orbital
-     * station's coolant), the air conditioning, the OPC the computation gave and a Metrology Station's feedback.
+     * station's coolant), the air conditioning and the OPC the computation gave.
      *
      * @param measured true for a print that ran (what its cooling and computation really were), false for the next
      *                 one (what they would be now)
      */
     private double breakFactor(LithoMode mode, boolean measured) {
         return machineBreakFactor(mode, measured) * coolingBreakFactor(mode, measured) *
-                opcBreakFactor(mode, measured) * metrologyBreakFactor() *
+                opcBreakFactor(mode, measured) *
                 (isMultiPatterned(mode) ? LithoMode.MULTI_PATTERNING_BREAK : 1);
-    }
-
-    /** A Metrology Station in range with its feedback on: the machine's alignment and dose are corrected. */
-    private double metrologyBreakFactor() {
-        Level level = getLevel();
-        return level != null && MetrologyStationMachine.feedbackNear(level, getPos()) ? LithoMode.METROLOGY_FACTOR : 1;
-    }
-
-    /** Whether a Metrology Station in range gives its feedback now (the consoles and Jade show it). */
-    public boolean hasMetrologyFeedback() {
-        return metrologyBreakFactor() < 1;
     }
 
     /**

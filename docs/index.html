@@ -127,13 +127,13 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:26px 0 60px;colo
       machines/materials/recipes, quests, and the configs AF9 changes. Everything else comes from the pack.</p>
     <div class="grid">
       <div class="card"><div class="icon">🔬</div><h3>Semiconductor factory</h3>
-        <p>Siemens polysilicon, EBF Boule Melting, Coater Track, 9 lithography modes with vacuum / break rolls / air cooling / OPC computation / metrology, 3 mask classes, 6 chip families → computation cards.</p>
+        <p>Siemens polysilicon, EBF Boule Melting, Coater Track, 9 lithography modes with vacuum / break rolls / air cooling / OPC computation, 3 mask classes, 6 chip families for the pack's circuits.</p>
         <code>docs/semiconductor-factory.md</code><br><a href="https://github.com/VaroxF7/AF9/blob/main/docs/semiconductor-factory.md">Read spec →</a></div>
       <div class="card"><div class="icon">☢️</div><h3>Asteroid fission</h3>
         <p>Brannerite only in the Asteroid Field (Ad Astra, seed-fixed clusters + temples) → yellowcake → FX-1 Reactor → supercritical steam + spent fuel → Pu-239/241 → Fusion Reactor Mk1.</p>
         <code>docs/asteroid-fission.md</code><br><a href="https://github.com/VaroxF7/AF9/blob/main/docs/asteroid-fission.md">Read spec →</a></div>
       <div class="card"><div class="icon">🧮</div><h3>Computation</h3>
-        <p>CWU Servers LV–IV (4–64 CWU/t) + N1 Computation / Supercomputer Arrays: racks of Tube→Sub-atomic cards, coolant-scaled output, all <code>IOpticalComputationProvider</code>.</p>
+        <p>CWU Servers as <code>IOpticalComputationProvider</code>.</p>
         <code>docs/computation.md</code><br><a href="https://github.com/VaroxF7/AF9/blob/main/docs/computation.md">Read spec →</a></div>
       <div class="card"><div class="icon">🛰️</div><h3>Space Elevator</h3>
         <p>GTNH's tower block-for-block (35×35×43, ext. 47×47): Mining Drones Mk-I…IV + Modules, ore expeditions + Space Pumping liquid missions, animated cable &amp; climber, first-missing-hint screen.</p>
@@ -172,7 +172,7 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:26px 0 60px;colo
     </table></div>
     <div class="note"><b>What decides a print:</b> vacuum cleanliness 0–100 (sealed in 10&nbsp;s × level, prints only start sealed) ·
       break roll <span style="font-family:var(--mono)">(base + (100−low)/100 × 0.5) × 0.75<sup>surplus</sup></span> ·
-      line versions (×0.8 time, ×0.75 break each) · air cooling + OPC computation + Metrology Station.</div>
+      line versions (×0.8 time, ×0.75 break each) · air cooling + OPC computation.</div>
   </section>
 
   <section id="progression">
@@ -181,10 +181,10 @@ footer{border-top:1px solid var(--line);margin-top:30px;padding:26px 0 60px;colo
     <div class="timeline">
       <div class="step"><b class="tier">🟩 MV</b><p>Si boule → 350 nm Line V1 + Coater Track + CWU LV/MV → GT LV–MV chips, computation for research.</p></div>
       <div class="step"><b class="tier">🟦 HV</b><p>200 nm KrF, FX-1 fuel chain, Oil Regolith → oil, PGM matte (Pt/Pd) → ASIC/MCU/APU, first fission power.</p></div>
-      <div class="step"><b class="tier">🟪 EV</b><p>100 nm ArF dry, T2 rocket → Ceres/Field, Cryostat + N1 Array → naquadah circuits, brannerite, cold coolants.</p></div>
-      <div class="step"><b class="tier">🟨 IV–LuV</b><p>Scanner 80/65 nm, T3–T4 rockets, Particle Accelerator, N1 Supercomputer → e/m/FE-RAM, VPU, transmuted neutronium.</p></div>
+      <div class="step"><b class="tier">🟪 EV</b><p>100 nm ArF dry, T2 rocket → Ceres/Field, Cryostat → naquadah circuits, brannerite, cold coolants.</p></div>
+      <div class="step"><b class="tier">🟨 IV–LuV</b><p>Scanner 80/65 nm, T3–T4 rockets, Particle Accelerator, e/m/FE-RAM, VPU, transmuted neutronium.</p></div>
       <div class="step"><b class="tier">🟥 ZPM</b><p>Orbital 50 nm, Space Elevator Mk-I+, Fusion Mk1 (Pu-241) → renewable ore, neutronium HASoC, TPU path.</p></div>
-      <div class="step"><b class="tier">⬛ UV–UHV</b><p>EUV 20/7 nm, high-NA, 1 nm X-ray FEL in orbit; photonic/atomic/sub-atomic cards → endgame computation.</p></div>
+      <div class="step"><b class="tier">⬛ UV–UHV</b><p>EUV 20/7 nm, high-NA, 1 nm X-ray FEL in orbit; endgame chips.</p></div>
     </div>
   </section>
 
@@ -238,7 +238,7 @@ bash tools/lint/run.sh --selftest # + self-test (what CI runs)</pre>
     <div class="docs">
       <div class="doc"><b>🔬 <a href="https://github.com/VaroxF7/AF9/blob/main/docs/semiconductor-factory.md">Semiconductor factory</a></b><small>Wafers, silicon, SoCs, chips, lithography — the agent-optimized spec.</small></div>
       <div class="doc"><b>☢️ <a href="https://github.com/VaroxF7/AF9/blob/main/docs/asteroid-fission.md">Asteroid fission</a></b><small>Field, Brannerite, FX-1, steam, plutonium, Fusion Mk1.</small></div>
-      <div class="doc"><b>🧮 <a href="https://github.com/VaroxF7/AF9/blob/main/docs/computation.md">Computation</a></b><small>CWU servers, N1 arrays, cards, coolants.</small></div>
+      <div class="doc"><b>🧮 <a href="https://github.com/VaroxF7/AF9/blob/main/docs/computation.md">Computation</a></b><small>CWU servers.</small></div>
       <div class="doc"><b>🛰️ <a href="https://github.com/VaroxF7/AF9/blob/main/docs/space-elevator.md">Space Elevator</a></b><small>Structure, drones, ore + liquid missions, screen.</small></div>
       <div class="doc"><b>⚗️ <a href="https://github.com/VaroxF7/AF9/blob/main/docs/platinum-group-metals.md">Platinum-group metals</a></b><small>Refinery chain in GT machines.</small></div>
       <div class="doc"><b>🛢️ <a href="https://github.com/VaroxF7/AF9/blob/main/docs/oil.md">Oil</a></b><small>Regolith chain + Field fluid deposits.</small></div>

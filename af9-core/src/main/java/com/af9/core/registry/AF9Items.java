@@ -16,8 +16,7 @@ import net.minecraftforge.registries.ForgeRegistries;
  * To add one: a line here, its name ({@code item.af9.<id>}) and tooltip lines ({@code item.af9.<id>.tooltip.<n>}) in
  * the lang file, a model ({@code assets/af9/models/item/<id>.json}) and its texture; then the dev run, which
  * writes the linters' list of what is registered ({@code tools/lint/README.md}). The recipes are KubeJS's
- * ({@code kubejs/server_scripts}). The items with behaviour of their own are registered where it is (the rack cards:
- * {@link com.af9.core.compute.AF9Compute}).
+ * ({@code kubejs/server_scripts}).
  */
 public final class AF9Items {
 
@@ -102,10 +101,6 @@ public final class AF9Items {
         // eDRAM next to the processor on one package: the cache chiplet
         item("edram_cpu_package", 64, 1);
         item("edram_soc_package", 64, 1);
-
-        // ---- The lithography process ----
-        // the reference wafer of a Metrology Station's run
-        item("monitor_wafer", 64, 2);
 
         // ---- Particle Accelerator ----
         item("beryllium_spallation_target", 64, 1);

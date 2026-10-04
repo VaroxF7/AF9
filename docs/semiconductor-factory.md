@@ -8,7 +8,7 @@ gtceu: "7.2.0 (GregTech CEu Modern)"
 kubejs: "2001.6.5-build.16"
 af9_core: "0.1.0 (mod_id `af9`)"
 gtceu_config: "enableCleanroom=true, cleanMultiblocks=false, enableMaintenance=true, highTierContent=false, orderedAssemblyLineItems=true"
-status: "Matches main. One lithography mode per wafer substrate (§5.2): Photolithography Line 350 nm Si (MV) → 200 nm P → 100 nm Nq → 80 nm trinium → 65 nm naquadria → 50 nm Nt → 20 nm transmuted neutronium → 7 nm strange matter (UHV), each 4A of its tier + OC_PERFECT and with its real light source and resist (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV); the Orbital Lithography Station prints 1 nm chromodynium wafers in orbit (50A UHV laser). A substrate prints its own chips and every lower substrate's chips as GT's own plain chip wafers (a better substrate gives more of them per blank), no NBT. Vacuum cleanliness 0-100, air cooling, OPC computation and a Metrology Station decide the break roll (§18, §5.4). Boules are 10x material in the EBF's Boule Melting mode (§12). Superseded: wafer packages, per-mode chips (MUV/HUV/EUV/XUV/LUV), the old CZ boules, Mk I-III modules, high_grade/premium items."
+status: "Matches main. One lithography mode per wafer substrate (§5.2): Photolithography Line 350 nm Si (MV) → 200 nm P → 100 nm Nq → 80 nm trinium → 65 nm naquadria → 50 nm Nt → 20 nm transmuted neutronium → 7 nm strange matter (UHV), each 4A of its tier + OC_PERFECT and with its real light source and resist (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV); the Orbital Lithography Station prints 1 nm chromodynium wafers in orbit (50A UHV laser). A substrate prints its own chips and every lower substrate's chips as GT's own plain chip wafers (a better substrate gives more of them per blank), no NBT. Vacuum cleanliness 0-100, air cooling and OPC computation decide the break roll (§18, §5.4). Boules are 10x material in the EBF's Boule Melting mode (§12). Superseded: wafer packages, per-mode chips (MUV/HUV/EUV/XUV/LUV), the old CZ boules, Mk I-III modules, high_grade/premium items."
 agent_hint: "All exact IDs are in backticks. `gtceu:` = base GregTech item/machine/recipe-type (AF9's materials, which AF9 Core registers, and the KubeJS GT machines and recipe types also land in `gtceu:`). `af9:` = AF9 custom item/block (registered by AF9 Core; `kubejs:` until October 2026, old worlds are remapped) and AF9 custom recipe ID (output namespace varies — see §6). No NBT anywhere in the chip chain."
 ---
 
@@ -946,7 +946,7 @@ EGS (+ dopant) → [blending] melt charge, [crystal growth] seed crystal → [EB
    4 neutronium wafers + Be target + supercooled H2 → [PARTICLE_ACCELERATOR neutron irradiation] 4 transmuted neutronium wafers)
   → [PHOTOLITHOGRAPHY_LINE version 1-8, mode = substrate (350 nm Si … 7 nm strange matter), + reticle + track fluids (+ mode's resist, laser gas, UPW, HfCl4, tin + H2)]
   | [ORBITAL_LITHOGRAPHY_STATION in orbit, 1 nm chromodynium, + reticle + dry resist cartridge + supercooled endion]
-     → GT's chip wafer(s) (as many as the substrate yields, §5.3)  or  af9:broken_<substrate>_wafer (break roll: vacuum, cooling, OPC, metrology)
+     → GT's chip wafer(s) (as many as the substrate yields, §5.3)  or  af9:broken_<substrate>_wafer (break roll: vacuum, cooling, OPC)
      → [CHEMICAL_REACTOR / LCR, cleanroom] derived wafer (nano/qbit CPU, HPIC, UHPIC) on the same substrate
      → [CUTTER] plain GT chips (more per wafer on higher substrates)
         → [CIRCUIT_ASSEMBLER] + that tier's metals (MV Al-Si + Kovar, HV gold + stainless, EV Pt-Ir + titanium,
@@ -999,11 +999,11 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 |---|---|---|
 | rf_transceiver | wireless energy hatches, EV-UHV: 2 on top of each receiver / transmitter; AE2 Wireless Receiver (so the Wireless Access Point and every wireless terminal): 1, in the shape `F / IQI / IRI` | wireless_energy.js, chip_uses.js |
 | apu | extra MV Microprocessor: 1 APU in place of the CPU chip + RAM, 3 out instead of 2 | circuits_af9.js |
-| mcu | GT Machine Controller, Activity / Item / Fluid Detector covers: 1 on top (they had no circuit); extra LV / MV Robot Arm and Sensor Assembler recipes: 1 MCU in place of the circuit; the Metrology Station: 4 | chip_uses.js, litho_process.js |
+| mcu | GT Machine Controller, Activity / Item / Fluid Detector covers: 1 on top (they had no circuit); extra LV / MV Robot Arm and Sensor Assembler recipes: 1 MCU in place of the circuit | chip_uses.js |
 | asic | on top: GT Large Miners EV 2 / IV 4 / LuV 8, Fluid Drilling Rigs HV 2 / EV 4 (not MV: before phosphorus), Void Miner 4; extra SMC fab multiblock controller recipes with ASICs in place of the circuits | chip_uses.js, miner.js, fab_machines.js |
 | edram packages | extra, half the time, 1 package in place of 4 RAM: Quantum Computer (and ASMD) 4 CPU packages, Crystal Processor Assembly 6 SoC packages, the pack's Nano Mainframe (Assembly Line, 800 t) 4 CPU packages | circuits_af9.js |
 | mram | extra, half GT's time, no research, clean room: Data Orb (Circuit Assembler: epoxy board, CPU chip, 4 MRAM, 16 fine Pt wire), Data Bank (Assembler: computer casing, 16 MRAM, 2 CPU chips, 32 fine NbTi wire, 4 optical pipes), Advanced Data Access Hatch (Assembler: LuV input bus, 8 MRAM, 2 CPU chips, 32 fine NbTi wire) | chip_uses.js |
-| feram | the Tensor RAM card of the computation arrays (the pack's UV memory) | computation.js |
+| feram | the pack's UV memory (circuits) | chip_uses.js |
 | vpu | GT LuV Sensor (Assembly Line): 2 on top; LuV Scanner: GT's shape with 2 VPUs in place of the bottom two ZPM circuits (`CEC / WHW / VSV`); Orbital Lithography Station: 8 on top | chip_uses.js, photolithography.js |
 | tpu | GT HPCA Advanced Computation Component: 4 on top; the pack's UHV Wetware Mainframe: 16 on top | chip_uses.js |
 
@@ -1273,10 +1273,10 @@ Assembler at the hull tier: the base hatch + 2 sensors (receiver) or emitters (t
 - **Data stick** (GT's `IDataStickInteractable`): right-click a transmitter to write its link to the stick (`af9_wireless` tag, shown in the stick's tooltip); right-click a receiver to link it; shift-right-click a receiver to copy its link onto the stick.
 - The hatches' energy role is fixed (GT caches a part's handler IO the first time a multiblock asks, and an energy container reports none at 0 V). Overlay tint: cyan receivers, orange transmitters.
 
-# 18. The lithography process: cooling, computation, metrology, chemistry, new chips
+# 18. The lithography process: cooling, computation, chemistry, new chips
 
-What the process around the print adds to §5 (AF9 Core `LithoMachine`, `MetrologyStationMachine`, `AirConditioningHatchPartMachine`;
-AF9 Core `registry/AF9Items` (the chips, the monitor wafer); KubeJS `startup_scripts/gtceu/air_conditioning.js`, `litho_process.js`; `server_scripts/mods/gtceu/litho_process.js`).
+What the process around the print adds to §5 (AF9 Core `LithoMachine`, `AirConditioningHatchPartMachine`;
+AF9 Core `registry/AF9Items` (the chips); KubeJS `startup_scripts/gtceu/air_conditioning.js`, `litho_process.js`; `server_scripts/mods/gtceu/litho_process.js`).
 
 ## 18.1 Air cooling: the Air Conditioning Hatch
 
@@ -1311,13 +1311,7 @@ It is an extra, the print runs without it. The share of the demand the computati
 
 ## 18.4 The break chance, all together
 
-`p = min(0.95, (base + (100 − vacuum)/100 × 0.5) × 0.75^version surplus × coolant (orbital) × cooling × OPC × metrology)`; cooling = 0.8^doublings (2.0 if the hatches lost power); OPC = 1 − 0.3 × share; metrology = 0.85 with a Metrology Station's feedback within 32 blocks (else 1). The consoles show the result; the Line's console has the AIR COOLING row and the OPC line, the Scanner's the same under its hint, Jade both.
-
-## 18.5 Metrology Station
-
-`gtceu:metrology_station` (HV assembler recipe), 3 × 3 × 5 of plascrete (aisles front → back: the controller, a measuring tube with cleanroom glass, the wafer stage, a back); item input and output bus, energy (2), fluid input, maintenance and **a computation hatch** (maximums). Recipe type `gtceu:metrology`, `af9:metrology_run`: a **Monitor Wafer** (`af9:monitor_wafer`, assembler: silicon wafer, chromium plate, 100 mB photoresist → 4) + 100 mB distilled water, **24 CWU/t**, 600 t at HV; the wafer comes back 9 times in 10.
-
-A finished run starts the **feedback** to every Line, Scanner and Orbital Station within 32 blocks of the station (`MetrologyStationMachine.runFinished`, `FEEDBACK_RANGE`; the stations register themselves while formed, `feedbackNear`): for 10 minutes after the run, and while one is measuring, their prints break ×0.85. The station needs a computation hatch for its 24 CWU/t; its screen shows the range and the time of the feedback left. (It used to reach the machines on its machine bus; the bus is gone, the range is the stand-in until the new one.)
+`p = min(0.95, (base + (100 − vacuum)/100 × 0.5) × 0.75^version surplus × coolant (orbital) × cooling × OPC)`; cooling = 0.8^doublings (2.0 if the hatches lost power); OPC = 1 − 0.3 × share. The consoles show the result; the Line's console has the AIR COOLING row and the OPC line, the Scanner's the same under its hint, Jade both.
 
 ## 18.6 Chemistry
 
@@ -1344,15 +1338,7 @@ Six chips beyond §5.3b, one per family the finer substrates open up, printed an
 
 The layers are made in the fab machines (`af9:aluminium_nitride`, `lithium_niobate`, `silicon_nitride`, `cobalt_iron_boron`, `tungsten_diselenide`, `boron_nitride`, `gst_alloy`, `quantum_dot_colloid`: thermal steps in the thermal furnace, the rest from HV power on in a clean room) and are taken, with the chips, by the uses below. The reticles and cuts of the strange-matter chips run at UV (no UHV machine needed). Tier of each family: the substrate's.
 
-**Uses.** The **wireless energy hatches** (EV-UHV) take a SAW filter and 2 aluminium nitride films on top (`wireless_energy.js`). The **card tiers** of the computation arrays (below) are made from the others.
-
-| Card tier | CPU | GPU | RAM |
-|---|---|---|---|
-| Photonic | 2 photonic ICs, 4 Si3N4 | 4 photonic ICs, 8 Si3N4 | 4 spin logic, 2 CoFeB |
-| Atomic | 2 TMD logic, 2 WSe2, 2 hBN | 4 TMD logic, 4 WSe2, 4 hBN | 4 memristors, 2 GST |
-| Sub-atomic | 2 quantum-dot ICs, 250 mB colloid | 4 quantum-dot ICs, 500 mB colloid | 2 quantum-dot ICs, 4 memristors, 250 mB colloid |
-
-All on a multilayer fibre-reinforced board with 8 YBCO wire, at UV in a clean room, in the circuit assembler with a **programmed circuit** (1 CPU, 2 GPU, 3 RAM: the three cards of a tier take the same things in different amounts, so without it the machine could make either) and soldering alloy; the Sub-atomic cards take the colloid as ink *instead of* solder (GT's assembler and circuit assembler have **one** fluid slot). Numbers of the cards: `docs/computation.md` §2.
+**Uses.** The **wireless energy hatches** (EV-UHV) take a SAW filter and 2 aluminium nitride films on top (`wireless_energy.js`). The pack's UHV wetware mainframe takes photonic ICs and spin-logic chips (`circuits_af9.js`).
 
 ## 18.8 The Coater Track, coated wafers, the etch plasma
 
@@ -1380,8 +1366,7 @@ A **screwdriver on the controller** of a Line or Scanner (not while a print runs
 ```text
 af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → mods/)
   litho/LithoMode.java                 # the 9 modes: substrate, node, tier, light (λ, NA, k1), resist, colour, base break chance, break/speed maths
-  machine/LithoMachine                 # shared by the litho machines: vacuum cleanliness, break roll, counters, LITHO_GATE, STRIP_BROKEN, §18: air cooling, OPC, metrology feedback
-  machine/MetrologyStationMachine      # §18.5: feedback to the litho machines within 32 blocks
+  machine/LithoMachine                 # shared by the litho machines: vacuum cleanliness, break roll, counters, LITHO_GATE, STRIP_BROKEN, §18: air cooling, OPC
   machine/part/AirConditioningHatchPartMachine # §18.1: cooling units, draw, IHeatEmitter
   thermal/IHeatEmitter                 # the hook for the Temperature Update (heat units per tick, position, direction)
   machine/PhotolithographyLineMachine  # Mk1 line + Mk2 scanner (Spec), versions, LITHO_VERSION, preview pages, recipe info
@@ -1422,17 +1407,17 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → 
   machine/fab/FabTieredMachine         # SMC single blocks: GT slot page + console strip, furnace temperature per tier
   machine/fab/FabConsoleWidget         # the fab console (full for multiblocks, strip for single blocks)
 af9-core/src/main/java/com/af9/core/registry/AF9Items.java  # every plain item, af9:<id>: new blank substrates, coated, broken + contaminated wafers, AF9's chips, the reticles, charges, seeds, crucibles, new boules, the drones
-af9-core/src/main/java/com/af9/core/registry/AF9Blocks.java # every plain block: the light sources, the plascrete casings, the server casing, the Endion coils, the Space Elevator's blocks
+af9-core/src/main/java/com/af9/core/registry/AF9Blocks.java # every plain block: the light sources, the plascrete casings, the Endion coils, the Space Elevator's blocks
 af9-core/src/main/java/com/af9/core/registry/AF9Remaps.java # worlds from before October 2026: kubejs:<id> is taken for af9:<id>
 af9-core/src/main/java/com/af9/core/registry/AF9Materials.java # every material (gtceu:<name>), a method a topic: the litho, XCDA and resist chemistry, the 72 of the fab chemistry, tier alloys and zircon, endion, the dense and supercooled fluids, strange matter and chromodynium
 kubejs/startup_scripts/gtceu/air_conditioning.js   # §18.1: the Air Conditioning Hatch MV-IV
-kubejs/startup_scripts/gtceu/litho_process.js      # §18: metrology recipe type + station, coater recipe type + station
+kubejs/startup_scripts/gtceu/litho_process.js      # §18: coater recipe type + station
 tools/lint/                                        # the linters (README there): scripts, quests, assets, facts, self-test
 tools/textures/                                    # reticles.py, coated_wafers.py, optics.py: draw the textures
-kubejs/server_scripts/mods/gtceu/litho_process.js  # §18: hatches, monitor wafer, chemistry, family chains, the three new card tiers, the Metrology Station
+kubejs/server_scripts/mods/gtceu/litho_process.js  # §18: hatches, chemistry, family chains
 kubejs/startup_scripts/gtceu/photolithography.js   # 9 recipe types, both litho structures, tooltips
 kubejs/startup_scripts/gtceu/boule_melting.js      # recipe type boule_melting
-kubejs/startup_scripts/gtceu/cryogenics.js         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches LuV-UHV
+kubejs/startup_scripts/gtceu/cryogenics.js         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches HV-UHV
 kubejs/startup_scripts/gtceu/particle_accelerator.js # 3 recipe types, the Particle Accelerator ring
 kubejs/server_scripts/mods/gtceu/photolithography.js # AF9_WAFERS table + wafer tags, machine/light-source crafting, XCDA/i-line/EUV chemistry, prints, derived wafers, cutting, reclaim/clean, removals
 kubejs/server_scripts/mods/gtceu/boule_melting.js  # Ender Air → endion, endionite, coils, crucibles, charges/seeds/boules, new boule cutting, GT boule removals

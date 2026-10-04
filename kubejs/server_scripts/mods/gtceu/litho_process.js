@@ -24,15 +24,6 @@ ServerEvents.recipes(event => {
             .duration(200)
             .EUt(VA[voltage])
     })
-
-    // ---- Monitor Wafer (the Metrology Station's reference) ----
-    // A blank silicon wafer with chrome alignment marks: resist it, expose the marks, etch the chrome. Four from one.
-    event.recipes.gtceu.assembler('af9:monitor_wafer')
-        .itemInputs('gtceu:silicon_wafer', 'gtceu:chromium_plate')
-        .inputFluids(Fluid.of('gtceu:photoresist', 100))
-        .itemOutputs('4x af9:monitor_wafer')
-        .duration(300)
-        .EUt(VA[GTValues.MV])
 })
 
 // Each part is its own handler: a recipe that fails to load (an item id of another mod, a typo) stops only its own part.
@@ -267,70 +258,3 @@ ServerEvents.recipes(event => {
         .cleanroom(CleanroomType.CLEANROOM)
 })
 
-// ======================================================================================================
-// Cards of the three new tiers (af9-core ComputeCard): the chips of the new families on a multilayer board. Photonic:
-// photonic ICs (processors) and spintronic memory; Atomic: 2D-material logic and memristor memory; Sub-atomic:
-// quantum-dot chips. Made at UV, in a clean room; the Sub-atomic ones also take the quantum-dot colloid (an
-// assembler: the circuit assembler has one fluid slot).
-// ======================================================================================================
-ServerEvents.recipes(event => {
-    const VA = GTValues.VA
-    const board = 'gtceu:multilayer_fiber_reinforced_printed_circuit_board'
-    const wire = '8x gtceu:fine_yttrium_barium_cuprate_wire'
-    const solder = Fluid.of('gtceu:soldering_alloy', 144)
-    // [id, inputs besides the board and the wire, quantum-dot colloid]
-    const cards = [
-        ['photonic_cpu', ['2x af9:photonic_ic_chip', '4x gtceu:silicon_nitride_dust'], 0],
-        ['photonic_gpu', ['4x af9:photonic_ic_chip', '8x gtceu:silicon_nitride_dust'], 0],
-        ['photonic_ram', ['4x af9:spin_logic_chip', '2x gtceu:cobalt_iron_boron_dust'], 0],
-        ['atomic_cpu', ['2x af9:tmd_logic_chip', '2x gtceu:tungsten_diselenide_dust', '2x gtceu:boron_nitride_dust'],
-            0],
-        ['atomic_gpu', ['4x af9:tmd_logic_chip', '4x gtceu:tungsten_diselenide_dust', '4x gtceu:boron_nitride_dust'],
-            0],
-        ['atomic_ram', ['4x af9:memristor_chip', '2x gtceu:gst_alloy_dust'], 0],
-        ['subatomic_cpu', ['2x af9:quantum_dot_ic_chip'], 250],
-        ['subatomic_gpu', ['4x af9:quantum_dot_ic_chip'], 500],
-        ['subatomic_ram', ['2x af9:quantum_dot_ic_chip', '4x af9:memristor_chip'], 250]
-    ]
-    // the CPU, GPU and RAM card of a tier take the same things in different amounts: the programmed circuit (1 CPU,
-    // 2 GPU, 3 RAM) decides which one the machine makes
-    cards.forEach(([id, inputs, colloid]) => {
-        const recipe = event.recipes.gtceu.circuit_assembler(`af9:${id}_card`)
-            .circuit({ cpu: 1, gpu: 2, ram: 3 }[id.split('_')[1]])
-            .itemInputs([board].concat(inputs, [wire]))
-            .itemOutputs(`af9:${id}_card`)
-            .duration(400)
-            .EUt(VA[GTValues.UV])
-            .cleanroom(CleanroomType.CLEANROOM)
-        // GT's assembler and circuit assembler have ONE fluid slot: the sub-atomic cards print their quantum dots from the
-        // colloid (ink) instead of soldering them
-        if (colloid > 0) recipe.inputFluids(Fluid.of('gtceu:quantum_dot_colloid', colloid))
-        else recipe.inputFluids(solder)
-    })
-})
-
-// ======================================================================================================
-// Metrology Station (startup_scripts/gtceu/litho_process.js, af9-core MetrologyStationMachine)
-// ======================================================================================================
-ServerEvents.recipes(event => {
-    const VA = GTValues.VA
-    // The tool: sensors and an emitter for the measuring, a robot arm for the wafer stage, MCUs and glass fibre for the
-    // optical port
-    event.recipes.gtceu.assembler('af9:metrology_station')
-        .itemInputs('gtceu:hv_machine_hull', '2x gtceu:hv_sensor', 'gtceu:hv_emitter', '4x #gtceu:circuits/hv',
-            'gtceu:hv_robot_arm', '4x af9:mcu_chip', '8x gtceu:stainless_steel_plate', '4x gtceu:fine_borosilicate_glass_wire')
-        .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
-        .itemOutputs('gtceu:metrology_station')
-        .duration(400)
-        .EUt(VA[GTValues.HV])
-
-    // A run: the reference wafer goes under the microscope (and comes back nine times in ten), the measurements are
-    // evaluated with 24 CWU/t of computation (a computation hatch)
-    event.recipes.gtceu.metrology('af9:metrology_run')
-        .itemInputs('af9:monitor_wafer')
-        .inputFluids(Fluid.of('gtceu:distilled_water', 100))
-        .chancedOutput('af9:monitor_wafer', 9000, 0)
-        .CWUt(24)
-        .duration(600)
-        .EUt(VA[GTValues.HV])
-})

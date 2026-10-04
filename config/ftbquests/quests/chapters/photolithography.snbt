@@ -2927,31 +2927,6 @@
 			y: 1.5d
 		}
 		{
-			dependencies: ["35B1F5439640C0EA"]
-			description: [
-				"{af9.quest.litho.metrology.1}"
-				""
-				"{af9.quest.litho.metrology.2}"
-			]
-			id: "4A0B83EE8770F0B6"
-			rewards: [{
-				id: "61020FFBE990B3EA"
-				type: "xp"
-				xp: 100
-			}]
-			subtitle: "{af9.quest.litho.metrology.subtitle}"
-			tasks: [
-				{
-					id: "2803071C340466FA"
-					item: "gtceu:metrology_station"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.litho.metrology.title}"
-			x: 18.0d
-			y: 1.5d
-		}
-		{
 			dependencies: ["3820A788D384105B"]
 			description: [
 				"{af9.quest.litho.rcaClean.1}"
@@ -3202,41 +3177,6 @@
 			]
 			title: "{af9.quest.litho.quantumDot.title}"
 			x: 66.0d
-			y: 6.0d
-		}
-		{
-			dependencies: ["3087B2F37678CC69"]
-			description: [
-				"{af9.quest.litho.cardTiers.1}"
-				""
-				"{af9.quest.litho.cardTiers.2}"
-			]
-			id: "2B9696BF36BF7FEC"
-			rewards: [{
-				id: "5BC382CDE5559766"
-				type: "xp"
-				xp: 150
-			}]
-			subtitle: "{af9.quest.litho.cardTiers.subtitle}"
-			tasks: [
-				{
-					id: "1ED4A10890A808A3"
-					item: "af9:photonic_cpu_card"
-					type: "item"
-				}
-				{
-					id: "7895F154703585E3"
-					item: "af9:atomic_cpu_card"
-					type: "item"
-				}
-				{
-					id: "4A5538E3ABC24062"
-					item: "af9:subatomic_cpu_card"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.litho.cardTiers.title}"
-			x: 72.0d
 			y: 6.0d
 		}
 		{

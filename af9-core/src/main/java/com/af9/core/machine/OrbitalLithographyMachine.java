@@ -24,7 +24,9 @@ import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
 import com.gregtechceu.gtceu.api.pattern.BlockPattern;
 import com.gregtechceu.gtceu.api.pattern.MultiblockShapeInfo;
+import com.gregtechceu.gtceu.api.pattern.MultiblockWorldSavedData;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
+import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
@@ -43,13 +45,17 @@ import com.lowdragmc.lowdraglib.utils.BlockInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -110,6 +116,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * controller's front axis.
      */
     public static final float RING_UP = 0, RING_BACK = 3, RING_RADIUS = 9.6F, RING_THICKNESS = 0.25F;
+    /**
+     * The Array Mk2 (extended pattern): the same station with a larger ring, same structure scaled out. The light
+     * ring grows with the rim so it stays just inside it; the burn distance and tube stay the same.
+     */
+    public static final float RING_RADIUS_MK2 = 14.6F;
     /** Distance from the ring's core line within which it burns: the tube and its hottest glow. */
     public static final double RING_BURN = RING_THICKNESS * 2.5;
     /** Damage of the ring: nothing survives it (totems aside). */
@@ -117,8 +128,22 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     /** The station's extent: 12 blocks to each side of the controller, 17 behind it (below, when it faces up). */
     public static final int HALF_WIDTH = 12;
     public static final int DEPTH = 17;
+    /** The Mk2 extended array's extent: 17 to each side, 17 behind (a 35x35 platform, like the Elevator's 35x35). */
+    public static final int HALF_WIDTH_MK2 = 17;
+    public static final int DEPTH_MK2 = 17;
     /** Recipe data key of the coolant a run uses (the coolant's id). */
     public static final String COOLANT_TAG = "af9_coolant";
+
+    /**
+     * The pattern of the extended Array Mk2. The startup script builds it together with the basic one (the machine
+     * definition's own pattern) and hands it over, the first time GT asks for the definition's pattern — like the
+     * Space Elevator's extended tower.
+     */
+    private static volatile BlockPattern extendedPattern;
+
+    /** Whether the Array Mk2 (extended) size is switched on: persisted like the Elevator's size switch. */
+    @Persisted
+    private boolean extended;
 
     /**
      * Adds the coolant to a print: the best useful supercooled fluid the coolant hatches hold (the node's best grade
@@ -148,6 +173,23 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             cooled.data.putString(COOLANT_TAG, coolant.id);
             return cooled;
         };
+    };
+
+    /**
+     * Plasma atomic soldering gate (gtceu:plasma_soldering): runs only in orbit, only on the Array Mk2 (extended),
+     * with the recipe's full EU/t and a sealed start-up. Litho prints keep their own gate
+     * ({@link LithoMachine#LITHO_GATE}); this one is for the solder type, which has no LithoMode.
+     */
+    public static final RecipeModifier PLASMA_GATE = (machine, recipe) -> {
+        if (!(machine instanceof OrbitalLithographyMachine station)) {
+            return RecipeModifier.nullWrongType(OrbitalLithographyMachine.class, machine);
+        }
+        if (!"plasma_soldering".equals(recipe.recipeType.registryName.getPath())) return ModifierFunction.IDENTITY;
+        if (!station.isInOrbit()) return ModifierFunction.NULL;
+        if (!station.isExtended()) return ModifierFunction.NULL;
+        if (station.getAvailableEUt() < RecipeHelper.getRealEUt(recipe).getTotalEU()) return ModifierFunction.NULL;
+        if (!station.isVacuumSealed()) return ModifierFunction.NULL;
+        return ModifierFunction.IDENTITY;
     };
 
     /** The EUV Light Source item the 20 and 7 nm prints keep (not consumed). */
@@ -254,6 +296,120 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     @Override
     public int surplusFor(LithoMode mode) {
         return 0;
+    }
+
+    //////////////////////////////////////
+    // ********* Array Mk2 ***********//
+    //////////////////////////////////////
+
+    /** The startup script's: the pattern of the extended Array Mk2 (larger ring, same structure). */
+    public static void setExtendedPattern(BlockPattern pattern) {
+        extendedPattern = pattern;
+    }
+
+    /** The basic station's pattern, or the Mk2's while that size is switched on (like the Space Elevator). */
+    @Override
+    public BlockPattern getPattern() {
+        // the definition's first: building it is what makes the script hand over the extended one
+        BlockPattern basic = super.getPattern();
+        BlockPattern big = extendedPattern;
+        return extended && big != null ? big : basic;
+    }
+
+    /** The two pages of the structure preview: the basic station and the Array Mk2. */
+    public static List<MultiblockShapeInfo> previews(MultiblockMachineDefinition definition) {
+        List<MultiblockShapeInfo> pages = new ArrayList<>(previewShapes(definition));
+        BlockPattern big = extendedPattern;
+        if (big != null) pages.add(turnedPreview(big, definition));
+        return pages;
+    }
+
+    /** The preview of an arbitrary pattern, turned into the controller-up orientation like previewShapes does. */
+    private static MultiblockShapeInfo turnedPreview(BlockPattern pattern,
+                                                     MultiblockMachineDefinition definition) {
+        int[] repetition = new int[pattern.aisleRepetitions.length];
+        for (int i = 0; i < repetition.length; i++) repetition[i] = pattern.aisleRepetitions[i][0];
+        BlockInfo[][][] north = pattern.getPreview(repetition);
+        int[][] turn;
+        try {
+            turn = previewTurn(pattern);
+        } catch (ReflectiveOperationException e) {
+            AF9Core.LOGGER.warn("Orbital array preview: cannot turn GT's preview, showing it as GT draws it", e);
+            return new MultiblockShapeInfo(north);
+        }
+        int sx = north.length, sy = north[0].length, sz = north[0][0].length;
+        int[] min = { Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE };
+        int[] max = { Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE };
+        int[][][][] target = new int[sx][sy][sz][];
+        for (int x = 0; x < sx; x++) {
+            for (int y = 0; y < sy; y++) {
+                for (int z = 0; z < sz; z++) {
+                    int[] p = apply(turn, x, y, z);
+                    target[x][y][z] = p;
+                    for (int i = 0; i < 3; i++) {
+                        min[i] = Math.min(min[i], p[i]);
+                        max[i] = Math.max(max[i], p[i]);
+                    }
+                }
+            }
+        }
+        BlockInfo[][][] up = new BlockInfo[max[0] - min[0] + 1][max[1] - min[1] + 1][max[2] - min[2] + 1];
+        for (int x = 0; x < sx; x++) {
+            for (int y = 0; y < sy; y++) {
+                for (int z = 0; z < sz; z++) {
+                    int[] p = target[x][y][z];
+                    up[p[0] - min[0]][p[1] - min[1]][p[2] - min[2]] =
+                            turnedInfo(north[x][y][z], turn, definition);
+                }
+            }
+        }
+        return new MultiblockShapeInfo(up);
+    }
+
+    public boolean isExtended() {
+        return extended;
+    }
+
+    /**
+     * Switches between the basic station and the Array Mk2. A formed station is taken apart and checked anew for
+     * the other size, as when its controller is turned; a run that is on is lost.
+     */
+    public void setExtended(boolean extended) {
+        if (this.extended == extended) return;
+        this.extended = extended;
+        fieldBox = null;
+        markDirty();
+        if (isFormed() && getLevel() instanceof ServerLevel serverLevel) {
+            onStructureInvalid();
+            MultiblockWorldSavedData data = MultiblockWorldSavedData.getOrCreate(serverLevel);
+            data.removeMapping(getMultiblockState());
+            data.addAsyncLogic(this);
+        }
+    }
+
+    /** A screwdriver on the controller switches between the basic station and the Array Mk2, between runs. */
+    @Override
+    protected InteractionResult onScrewdriverClick(Player player, InteractionHand hand, Direction side,
+                                                   BlockHitResult hit) {
+        if (isRemote()) return InteractionResult.SUCCESS;
+        if (getRecipeLogic().isWorking()) {
+            player.displayClientMessage(Component.translatable("af9.orbital_array.mk2.busy"), true);
+            return InteractionResult.SUCCESS;
+        }
+        setExtended(!extended);
+        player.displayClientMessage(Component.translatable(extended ? "af9.orbital_array.mk2.on" :
+                "af9.orbital_array.mk2.off"), true);
+        return InteractionResult.SUCCESS;
+    }
+
+    /** Ring radius of the size it is formed as (the render reads this through {@link #ringRadius(float)}). */
+    public float currentRingRadius() {
+        return extended ? RING_RADIUS_MK2 : RING_RADIUS;
+    }
+
+    @Override
+    public float ringRadius(float modelRadius) {
+        return currentRingRadius();
     }
 
     /** No vacuum to pump in orbit (see {@link #updateVacuum()}); unused. */
@@ -457,8 +613,9 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     }
 
     /**
-     * The field: the station's own box ({@link #HALF_WIDTH} to the sides, {@link #DEPTH} behind the controller) and 4
-     * blocks in front of it (above the deck, when it faces up), so players stand and hop on the deck; nothing around it.
+     * The field: the station's own box (basic: {@link #HALF_WIDTH} to the sides, {@link #DEPTH} behind; Mk2:
+     * {@link #HALF_WIDTH_MK2}/{@link #DEPTH_MK2}) and 4 blocks in front of it (above the deck, when it faces up), so
+     * players stand and hop on the deck; nothing around it.
      */
     public AABB fieldBox() {
         Direction front = getFrontFacing();
@@ -466,8 +623,10 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         if (fieldBox == null || front != fieldFront || up != fieldUp) {
             Direction left = RelativeDirection.LEFT.getRelative(front, getUpwardsFacing(), isFlipped());
             BlockPos controller = getPos();
-            BlockPos a = controller.relative(left, HALF_WIDTH).relative(up, HALF_WIDTH).relative(front, -DEPTH);
-            BlockPos b = controller.relative(left, -HALF_WIDTH).relative(up, -HALF_WIDTH);
+            int half = extended ? HALF_WIDTH_MK2 : HALF_WIDTH;
+            int depth = extended ? DEPTH_MK2 : DEPTH;
+            BlockPos a = controller.relative(left, half).relative(up, half).relative(front, -depth);
+            BlockPos b = controller.relative(left, -half).relative(up, -half);
             AABB box = new AABB(a).minmax(new AABB(b));
             fieldBox = box.expandTowards(front.getStepX() * 4, front.getStepY() * 4, front.getStepZ() * 4);
             fieldFront = front;
@@ -501,10 +660,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         if (!(getLevel() instanceof ServerLevel level)) return;
         Vec3 centre = ringCentre();
         Vec3 axis = Vec3.atLowerCornerOf(getFrontFacing().getNormal());
-        AABB near = new AABB(centre, centre).inflate(RING_RADIUS + RING_BURN + 2);
+        float radius = currentRingRadius();
+        AABB near = new AABB(centre, centre).inflate(radius + RING_BURN + 2);
         for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, near,
                 OrbitalLithographyMachine::canBurn)) {
-            if (touchesRing(entity.getBoundingBox(), centre, axis)) burn(level, entity);
+            if (touchesRing(entity.getBoundingBox(), centre, axis, radius)) burn(level, entity);
         }
     }
 
@@ -518,13 +678,18 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * middle line, the box's half width added.
      */
     public static boolean touchesRing(AABB box, Vec3 centre, Vec3 axis) {
+        return touchesRing(box, centre, axis, RING_RADIUS);
+    }
+
+    /** As {@link #touchesRing(AABB, Vec3, Vec3)} for an explicit ring radius (the Array Mk2's larger ring). */
+    public static boolean touchesRing(AABB box, Vec3 centre, Vec3 axis, float radius) {
         double reach = RING_BURN + Math.max(box.getXsize(), box.getZsize()) / 2;
         Vec3 middle = box.getCenter();
         for (int i = 0; i <= 4; i++) {
             Vec3 point = new Vec3(middle.x, box.minY + box.getYsize() * i / 4, middle.z);
             Vec3 offset = point.subtract(centre);
             double along = offset.dot(axis);
-            double fromCircle = offset.subtract(axis.scale(along)).length() - RING_RADIUS;
+            double fromCircle = offset.subtract(axis.scale(along)).length() - radius;
             if (fromCircle * fromCircle + along * along < reach * reach) return true;
         }
         return false;
@@ -542,12 +707,24 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         if (killed && entity instanceof ServerPlayer player) AF9Network.sendRingDeath(player);
     }
 
-    /** The colour of the node being printed (the console's mode colour). */
+    /** The colour of the node being printed (the console's mode colour; plasma violet while soldering). */
     @Override
     public int getRingColor() {
         GTRecipe recipe = getRecipeLogic().getLastRecipe();
+        if (recipe != null && "plasma_soldering".equals(recipe.recipeType.registryName.getPath())) {
+            return 0xFFB47CFF;
+        }
         LithoMode mode = recipe == null ? null : LithoMode.of(recipe.recipeType);
-        return (mode != null ? mode : getActiveMode()).argb;
+        LithoMode active = mode != null ? mode : getActiveMode();
+        return active != null ? active.argb : 0xFFB47CFF;
+    }
+
+    /** Plasma soldering glows hotter than lithography: a fatter white-hot core with bloom. */
+    @Override
+    public float ringGlow() {
+        GTRecipe recipe = getRecipeLogic().getLastRecipe();
+        if (recipe != null && "plasma_soldering".equals(recipe.recipeType.registryName.getPath())) return 2F;
+        return 1F;
     }
 
     //////////////////////////////////////

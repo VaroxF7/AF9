@@ -55,6 +55,14 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setMaxIOSize(3, 2, 0, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound($LithoSounds.ORBITAL_STATION)
+    // plasma atomic soldering (UHV+ circuits, ion-by-ion deposition with plasma solder, no reflow): up to 10 item
+    // inputs (the UHV mainframe's 9), 1 out, plasma solder + PBI in. Runs only on the Array Mk2 (extended, in orbit).
+    event.create('plasma_soldering')
+        .category('multiblock')
+        .setEUIO('in')
+        .setMaxIOSize(10, 1, 2, 0)
+        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+        .setSound($LithoSounds.ORBITAL_STATION)
 })
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
@@ -177,10 +185,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .workableCasingModel('gtceu:block/casings/cleanroom/plascrete',
             'gtceu:block/multiblock/gcym/large_engraving_laser')
 
-    // Orbital Lithography Station (Mk2 lithography): a 25 x 25 platform, 18 high. The top deck of inert PTFE casing
-    // carries the controller and the hatches; under it lie the stress-proof deck plate, the shock-proof exposure deck
-    // (cross beams) in a ring of sturdy casing, non-conducting spokes and rims, HSS-S trusses, and the X-ray undulator
-    // mast: an HSS-G coil column in HSS-E frames reaching 12 blocks down. Prints 50, 20, 7 and 1 nm, only in orbit
+    // Orbital Lithography Station: a 25 x 25 platform, 18 high. The top deck of inert PTFE casing carries the
+    // controller and the hatches; under it lie the stress-proof deck plate, the shock-proof exposure deck (cross
+    // beams) in a ring of sturdy casing, non-conducting spokes and rims, HSS-S trusses, and the X-ray undulator mast:
+    // an HSS-G coil column in HSS-E frames reaching 12 blocks down. Prints 50, 20, 7 and 1 nm, only in orbit
     // (af9-core OrbitalLithographyMachine). Pattern from the sol_array design, unchanged; rows bottom -> top.
     // While it prints, a light ring like GT's fusion ring glows just inside the rim, at the level of the exposure deck
     // (3 below the controller, radius 9.6: clear of the rim, it only crosses the four beams), in the node's colour.
@@ -190,82 +198,149 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // print draws a supercooled fluid through the coolant hatches (af9-core OrbitalLithographyMachine.COOLANT);
     // 7 and 1 nm draw computation (computation hatch) and need their research (data hatch). While switched on and
     // powered its magnetic field gives the space around it normal gravity (Ad Astra; af9-core OrbitalField).
+    // Array Mk2 (extended, 35 x 35, a screwdriver on the controller switches sizes like the Space Elevator's screen
+    // switch): the same platform with a larger circular rim + cross spokes (same blocks) and a larger light ring
+    // (radius 14.6, af9-core RING_RADIUS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
+    // UHV+ circuits deposited ion-by-ion with plasma solder, in orbit.
+    const ORBITAL_BASIC = [
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','       CC   C   CC       ','    DDDCC  FHF  CCDDD    ','       CC   C   CC       ','            C            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','     CC     C     CC     ','   DDCC    FHF    CCDD   ','     CC     C     CC     ','                         ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','    C       C       C    ','  DDC      FHF      CDD  ','    C               C    ','            L            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ','  DC       FHF       CD  ','   C                 C   ','            L            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ',' DDC       FHF       CDD ','   C                 C   ','           LLL           ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ',' DC        FHF        CD ','  C                   C  ','           LLL           ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ','DDC        FHF        CDD','  C        F F        C  ','          LLLLL          ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ',' C          C          C ','DC        HHHHH        CD',' C         F F         C ','         LLLLLLL         ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','            A            ','            A            ','            A            ','            C            ',' C         CCC         C ','DC       HHHHHHH       CD',' C         FFF         C ','        LLLLLLLLL        ','           OOO           '],
+        ['                         ', '                         ', '                         ', '            A            ','            A            ', '           AAA           ','           AAA           ','           AA            ','            A            ','            A            ','           CBC           ','           CBC           ','           CBC           ',' C        CCBCC        C ','DCFFFFFFFHHHHHHHFFFFFFFCD',' C      FFFF FFFF      C ','      LLLLLLLLLLLLL      ','          OOOOO          '],
+        ['            A            ', '            A            ', '            A            ', '           AAA           ','           ABA           ', '           ABA           ','           ABA           ','           ABA           ','           ABA           ','          AABAA          ','          ABBBA          ','          ABBBA          ',' CCC     CCBBBCC     CCC ',' CCCCCCCCCCBBBCCCCCCCCCC ','DCHHHHHHHHHHHHHHHHHHHHHCD',' CCC       F F       CCC ',' CC LLLLLLLLLLLLLLLLL CC ','       OOOOOKOOOOO       '],
+        ['                         ', '                         ', '                         ', '            A            ','            A            ', '           AAA           ','           AAA           ','            AA           ','            A            ','            A            ','           CBC           ','           CBC           ','           CBC           ',' C        CCBCC        C ','DCFFFFFFFHHHHHHHFFFFFFFCD',' C      FFFF FFFF      C ','      LLLLLLLLLLLLL      ','          OOOOO          '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','            A            ','            A            ','            A            ','            C            ',' C         CCC         C ','DC       HHHHHHH       CD',' C         FFF         C ','        LLLLLLLLL        ','           OOO           '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ',' C          C          C ','DC        HHHHH        CD',' C         F F         C ','         LLLLLLL         ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ','DDC        FHF        CDD','  C        F F        C  ','          LLLLL          ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ',' DC        FHF        CD ','  C                   C  ','           LLL           ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ',' DDC       FHF       CDD ','   C                 C   ','           LLL           ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ','  DC       FHF       CD  ','   C                 C   ','            L            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','    C       C       C    ','  DDC      FHF      CDD  ','    C               C    ','            L            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','     CC     C     CC     ','   DDCC    FHF    CCDD   ','     CC     C     CC     ','                         ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','       CC   C   CC       ','    DDDCC  FHF  CCDDD    ','       CC   C   CC       ','            C            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ']
+    ]
+    // Array Mk2: the basic 25 x 25 centred in 35 x 35 (offset 5), plus a larger circular rim + cross spokes in the
+    // outer band (same blocks as the level: O on the top deck, D on the sturdy ring, C elsewhere; mast/air levels
+    // stay empty so the mast stands free). Rim band radius 14.5-17.5 about the centre (17, 17); spokes on x/z = 17.
+    const ORBITAL_PAD = 5
+    const ORBITAL_MK2 = 35
+    const orbitalLevelFill = row => {
+        if (row.includes('O') || row.includes('K')) return 'O'
+        if (row.includes('D')) return 'D'
+        if (row.includes('C') || row.includes('L') || row.includes('H') || row.includes('F')) return 'C'
+        return ' '
+    }
+    // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop
+    // bodies use callbacks (a const in a callback is new each call; lint rule S3)
+    const orbitalMk2Row = (az, ay) => {
+        const inCoreZ = az >= ORBITAL_PAD && az < ORBITAL_PAD + 25
+        const levelRow = inCoreZ ? ORBITAL_BASIC[az - ORBITAL_PAD][ay] : ORBITAL_BASIC[12][ay]
+        const fill = orbitalLevelFill(levelRow)
+        if (fill === ' ') {
+            return inCoreZ ? '     ' + levelRow + '     ' : '                                   '
+        }
+        let row = ''
+        Array.from({ length: ORBITAL_MK2 }).forEach((_, ax) => {
+            const inCoreX = ax >= ORBITAL_PAD && ax < ORBITAL_PAD + 25
+            if (inCoreX && inCoreZ) {
+                row += levelRow.charAt(ax - ORBITAL_PAD)
+                return
+            }
+            const dx = ax - 17, dz = az - 17
+            const dist = Math.sqrt(dx * dx + dz * dz)
+            const onRim = dist >= 14.5 && dist <= 17.5
+            const onSpoke = ax === 17 || az === 17
+            row += (onRim || onSpoke) ? fill : ' '
+        })
+        return row
+    }
+    const orbitalMk2Slices = () => {
+        const slices = []
+        Array.from({ length: ORBITAL_MK2 }).forEach((_, az) => {
+            const aisle = []
+            Array.from({ length: 18 }).forEach((_, ay) => { aisle.push(orbitalMk2Row(az, ay)) })
+            slices.push(aisle)
+        })
+        return slices
+    }
+    const orbitalWheres = definition => {
+        const energy = Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(3, 1)
+        const laser = Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 1)
+        const coolant = Predicates.abilities($LithoCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1)
+        const computation = Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 1)
+        const data = Predicates.abilities(PartAbility.DATA_ACCESS).setMaxGlobalLimited(1, 1)
+        const optical = Predicates.abilities(PartAbility.OPTICAL_DATA_RECEPTION).setMaxGlobalLimited(1, 0)
+        const fluids = Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1)
+        const itemsIn = Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1)
+        const itemsOut = Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1)
+        return [
+            ['K', Predicates.controller(Predicates.blocks(definition.get()))],
+            ['A', Predicates.blocks('gtceu:hsse_frame')],
+            ['B', Predicates.blocks('gtceu:hssg_coil_block')],
+            ['D', Predicates.blocks('gtceu:sturdy_machine_casing')],
+            ['F', Predicates.blocks('gtceu:hsss_frame')],
+            ['H', Predicates.blocks('gtceu:shock_proof_cutting_casing')],
+            ['L', Predicates.blocks('gtceu:stress_proof_casing')],
+            ['C', Predicates.blocks('gtceu:nonconducting_casing')],
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview)): the track
+            // chemicals through fluid input hatches, the supercooled coolant through coolant hatches, computation
+            // (7 and 1 nm) through a computation hatch and the 1 nm research through a data hatch. Every hatch goes
+            // on the PTFE casings of the top deck and nowhere else.
+            ['O', Predicates.blocks('gtceu:inert_machine_casing').or(energy).or(laser).or(coolant).or(computation)
+                .or(data).or(optical).or(fluids).or(itemsIn).or(itemsOut)
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))],
+            [' ', Predicates.any()]
+        ]
+    }
+    const orbitalPattern = (definition, slices) => {
+        let pattern = FactoryBlockPattern.start($LithoRelativeDirection.RIGHT, $LithoRelativeDirection.FRONT,
+            $LithoRelativeDirection.UP)
+        for (let c = 0; c < slices.length; c++) pattern = pattern.aisle(slices[c])
+        orbitalWheres(definition).forEach(([char, predicate]) => { pattern = pattern.where(char, predicate) })
+        return pattern.build()
+    }
+
     event.create('orbital_lithography_station', 'multiblock')
         .machine(holder => new $OrbitalLithographyMachine(holder))
         .rotationState(RotationState.ALL)
         .allowExtendedFacing(true)
-        .recipeTypes(['lithography_50nm', 'lithography_20nm', 'lithography_7nm', 'orbital_lithography']
-            .map(id => GTRecipeTypes.get(id)))
+        .recipeTypes(['lithography_50nm', 'lithography_20nm', 'lithography_7nm', 'orbital_lithography',
+            'plasma_soldering'].map(id => GTRecipeTypes.get(id)))
         // LITHO_GATE: only in orbit, with the recipe's full EU/t, a sealed vacuum and (researched prints) a data hatch;
-        // STRIP_BROKEN: the break roll decides; COOLANT: adds the coolant (faster with a better one); perfect
-        // overclocks; then batch mode (GT's: once overclocked below 5 s, several prints in one run, the coolant too).
-        // No parallel hatch.
+        // STRIP_BROKEN: the break roll decides; COOLANT: adds the coolant (faster with a better one);
+        // PLASMA_GATE: plasma soldering only in orbit on the Array Mk2 (extended); perfect overclocks; then batch
+        // mode (GT's: once overclocked below 5 s, several prints in one run, the coolant too). No parallel hatch.
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN, $OrbitalLithographyMachine.COOLANT,
-            GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
+            $OrbitalLithographyMachine.PLASMA_GATE, GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:inert_machine_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 13))
-        .pattern(definition => FactoryBlockPattern.start($LithoRelativeDirection.RIGHT, $LithoRelativeDirection.FRONT,
-            $LithoRelativeDirection.UP)
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','       CC   C   CC       ','    DDDCC  FHF  CCDDD    ','       CC   C   CC       ','            C            ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','     CC     C     CC     ','   DDCC    FHF    CCDD   ','     CC     C     CC     ','                         ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','    C       C       C    ','  DDC      FHF      CDD  ','    C               C    ','            L            ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ','  DC       FHF       CD  ','   C                 C   ','            L            ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ',' DDC       FHF       CDD ','   C                 C   ','           LLL           ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ',' DC        FHF        CD ','  C                   C  ','           LLL           ','            O            ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ','DDC        FHF        CDD','  C        F F        C  ','          LLLLL          ','            O            ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ',' C          C          C ','DC        HHHHH        CD',' C         F F         C ','         LLLLLLL         ','            O            ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','            A            ','            A            ','            A            ','            C            ',' C         CCC         C ','DC       HHHHHHH       CD',' C         FFF         C ','        LLLLLLLLL        ','           OOO           ')
-            .aisle('                         ', '                         ', '                         ', '            A            ','            A            ', '           AAA           ','           AAA           ','           AA            ','            A            ','            A            ','           CBC           ','           CBC           ','           CBC           ',' C        CCBCC        C ','DCFFFFFFFHHHHHHHFFFFFFFCD',' C      FFFF FFFF      C ','      LLLLLLLLLLLLL      ','          OOOOO          ')
-            .aisle('            A            ', '            A            ', '            A            ', '           AAA           ','           ABA           ', '           ABA           ','           ABA           ','           ABA           ','           ABA           ','          AABAA          ','          ABBBA          ','          ABBBA          ',' CCC     CCBBBCC     CCC ',' CCCCCCCCCCBBBCCCCCCCCCC ','DCHHHHHHHHHHHHHHHHHHHHHCD',' CCC       F F       CCC ',' CC LLLLLLLLLLLLLLLLL CC ','       OOOOOKOOOOO       ')
-            .aisle('                         ', '                         ', '                         ', '            A            ','            A            ', '           AAA           ','           AAA           ','            AA           ','            A            ','            A            ','           CBC           ','           CBC           ','           CBC           ',' C        CCBCC        C ','DCFFFFFFFHHHHHHHFFFFFFFCD',' C      FFFF FFFF      C ','      LLLLLLLLLLLLL      ','          OOOOO          ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','            A            ','            A            ','            A            ','            C            ',' C         CCC         C ','DC       HHHHHHH       CD',' C         FFF         C ','        LLLLLLLLL        ','           OOO           ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ',' C          C          C ','DC        HHHHH        CD',' C         F F         C ','         LLLLLLL         ','            O            ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ','DDC        FHF        CDD','  C        F F        C  ','          LLLLL          ','            O            ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ',' DC        FHF        CD ','  C                   C  ','           LLL           ','            O            ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ',' DDC       FHF       CDD ','   C                 C   ','           LLL           ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ','  DC       FHF       CD  ','   C                 C   ','            L            ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','    C       C       C    ','  DDC      FHF      CDD  ','    C               C    ','            L            ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','     CC     C     CC     ','   DDCC    FHF    CCDD   ','     CC     C     CC     ','                         ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','       CC   C   CC       ','    DDDCC  FHF  CCDDD    ','       CC   C   CC       ','            C            ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         ')
-            .aisle('                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ')
-            .where('K', Predicates.controller(Predicates.blocks(definition.get())))
-            .where('A', Predicates.blocks('gtceu:hsse_frame'))
-            .where('B', Predicates.blocks('gtceu:hssg_coil_block'))
-            .where('D', Predicates.blocks('gtceu:sturdy_machine_casing'))
-            .where('F', Predicates.blocks('gtceu:hsss_frame'))
-            .where('H', Predicates.blocks('gtceu:shock_proof_cutting_casing'))
-            .where('L', Predicates.blocks('gtceu:stress_proof_casing'))
-            .where('C', Predicates.blocks('gtceu:nonconducting_casing'))
-            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)): the track
-            // chemicals through fluid input hatches, the supercooled coolant through coolant hatches, computation (7 and
-            // 1 nm) through a computation hatch and the 1 nm research through a data hatch. Every hatch goes on the
-            // PTFE casings of the top deck and nowhere else.
-            .where('O', Predicates.blocks('gtceu:inert_machine_casing')
-                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(3, 1))
-                .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities($LithoCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
-                .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities(PartAbility.DATA_ACCESS).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities(PartAbility.OPTICAL_DATA_RECEPTION).setMaxGlobalLimited(1, 0))
-                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
-                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1))
-                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1))
-                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
-            .where(' ', Predicates.any())
-            .build())
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 15))
+        .pattern(definition => {
+            // GT asks for this once: both sizes are built, the extended one is the machine's own to switch to
+            $OrbitalLithographyMachine.setExtendedPattern(orbitalPattern(definition, orbitalMk2Slices()))
+            return orbitalPattern(definition, ORBITAL_BASIC)
+        })
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',
             'gtceu:block/multiblock/fusion_reactor')
-        // the same model plus the light ring: centre 3 behind the controller (below, as it faces up), radius 9.6,
-        // tube 0.25, lying across the controller's front axis. The numbers live in af9-core (RING_*), which also burns
-        // whatever touches the lit ring
+        // the same model plus the light ring: centre 3 behind the controller (below, as it faces up), radius 9.6
+        // (14.6 on the Array Mk2, af9-core reads the size through ringRadius), tube 0.25, lying across the
+        // controller's front axis. The numbers live in af9-core (RING_*), which also burns whatever touches the lit
+        // ring. Plasma soldering glows hotter (ringGlow 2, af9-core).
         .model($LithoMachineModels.workableCasingWithLightRing('gtceu:block/casings/solid/machine_casing_inert_ptfe',
             'gtceu:block/multiblock/fusion_reactor', $OrbitalLithographyMachine.RING_UP,
             $OrbitalLithographyMachine.RING_BACK, $OrbitalLithographyMachine.RING_RADIUS,
             $OrbitalLithographyMachine.RING_THICKNESS, 'front'))
         .hasBER(true)
-        // GT would draw the preview for a controller facing north (the platform on its edge): show it facing up
-        .shapeInfos(definition => $OrbitalLithographyMachine.previewShapes(definition))
+        // GT would draw the preview for a controller facing north (the platform on its edge): show it facing up;
+        // two pages, the basic station and the Array Mk2
+        .shapeInfos(definition => $OrbitalLithographyMachine.previews(definition))
 })

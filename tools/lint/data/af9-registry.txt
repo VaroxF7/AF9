@@ -8,7 +8,6 @@ block af9:oil_regolith
 block af9:plascrete_filter_casing
 block af9:plascrete_pipe_casing
 block af9:resonant_endion_coil_block
-block af9:server_casing
 block af9:space_elevator_base_casing
 block af9:space_elevator_cable
 block af9:space_elevator_internal_structure
@@ -34,9 +33,6 @@ item af9:asic_euv_reticle
 item af9:asic_psm_reticle
 item af9:asic_reticle
 item af9:asic_wafer
-item af9:atomic_cpu_card
-item af9:atomic_gpu_card
-item af9:atomic_ram_card
 item af9:beryllium_spallation_target
 item af9:broken_chromodynium_wafer
 item af9:broken_naquadah_wafer
@@ -139,7 +135,6 @@ item af9:memristor_reticle
 item af9:memristor_wafer
 item af9:mo_si_mirror
 item af9:molecular_sieve
-item af9:monitor_wafer
 item af9:mpic_euv_reticle
 item af9:mpic_psm_reticle
 item af9:mpic_reticle
@@ -150,9 +145,6 @@ item af9:mram_wafer
 item af9:nand_euv_reticle
 item af9:nand_psm_reticle
 item af9:nand_reticle
-item af9:nano_cpu_card
-item af9:nano_gpu_card
-item af9:nano_ram_card
 item af9:naquadah_melt_charge
 item af9:naquadah_seed_crystal
 item af9:naquadria_boule
@@ -169,22 +161,16 @@ item af9:phase_shift_mask_blank
 item af9:phosphorus_melt_charge
 item af9:phosphorus_seed_crystal
 item af9:photomask_blank
-item af9:photonic_cpu_card
-item af9:photonic_gpu_card
 item af9:photonic_ic_chip
 item af9:photonic_ic_euv_reticle
 item af9:photonic_ic_reticle
 item af9:photonic_ic_wafer
-item af9:photonic_ram_card
 item af9:plascrete_filter_casing
 item af9:plascrete_pipe_casing
 item af9:qgp_trap
-item af9:quantum_cpu_card
 item af9:quantum_dot_ic_chip
 item af9:quantum_dot_ic_reticle
 item af9:quantum_dot_ic_wafer
-item af9:quantum_gpu_card
-item af9:quantum_ram_card
 item af9:ram_euv_reticle
 item af9:ram_psm_reticle
 item af9:ram_reticle
@@ -199,11 +185,7 @@ item af9:saw_filter_chip
 item af9:saw_filter_euv_reticle
 item af9:saw_filter_reticle
 item af9:saw_filter_wafer
-item af9:server_casing
-item af9:silicon_cpu_card
-item af9:silicon_gpu_card
 item af9:silicon_melt_charge
-item af9:silicon_ram_card
 item af9:silicon_seed_crystal
 item af9:simple_soc_euv_reticle
 item af9:simple_soc_psm_reticle
@@ -234,12 +216,6 @@ item af9:strange_matter_boule
 item af9:strange_matter_melt_charge
 item af9:strange_matter_seed_crystal
 item af9:strange_matter_wafer
-item af9:subatomic_cpu_card
-item af9:subatomic_gpu_card
-item af9:subatomic_ram_card
-item af9:tensor_cpu_card
-item af9:tensor_gpu_card
-item af9:tensor_ram_card
 item af9:tmd_logic_chip
 item af9:tmd_logic_reticle
 item af9:tmd_logic_wafer
@@ -252,9 +228,6 @@ item af9:trinium_melt_charge
 item af9:trinium_seed_crystal
 item af9:trinium_wafer
 item af9:tritanium_crucible
-item af9:tube_cpu_card
-item af9:tube_gpu_card
-item af9:tube_ram_card
 item af9:ule_glass_substrate
 item af9:ulpic_euv_reticle
 item af9:ulpic_psm_reticle
@@ -325,6 +298,7 @@ material gtceu:gst_alloy
 material gtceu:hafnium_tetrachloride
 material gtceu:heavy_water
 material gtceu:hexamethyldisilazane
+material gtceu:high_grade_solder
 material gtceu:high_purity_quartz
 material gtceu:hmds_vapor
 material gtceu:hopcalite
@@ -343,6 +317,7 @@ material gtceu:krypton_xenon_concentrate
 material gtceu:lactic_acid
 material gtceu:lactonitrile
 material gtceu:lithium_niobate
+material gtceu:living_solder
 material gtceu:lxa_1
 material gtceu:maleic_anhydride
 material gtceu:mana_diesel
@@ -373,6 +348,7 @@ material gtceu:phenylmagnesium_chloride
 material gtceu:phosgene
 material gtceu:photoresist
 material gtceu:piranha_solution
+material gtceu:plasma_solder
 material gtceu:platinum_group_chloride_liquor
 material gtceu:platinum_group_tetroxide_vapour
 material gtceu:platinum_iridium

@@ -40,4 +40,14 @@ public interface ILightRingMachine extends IMachineFeature {
     default SoundEvent ringArcSound() {
         return null;
     }
+
+    /**
+     * Ring radius in blocks: the model's radius by default. A machine with two sizes (the Orbital Array's basic and
+     * extended patterns) overrides this to return the size it is formed as, so one model serves both rings.
+     *
+     * @param modelRadius the radius the model was built with
+     */
+    default float ringRadius(float modelRadius) {
+        return modelRadius;
+    }
 }

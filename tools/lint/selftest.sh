@@ -65,8 +65,8 @@ lt.write_text(lt.read_text(encoding='utf-8').replace('gtceu:raw_brannerite', 'gt
 # --- docs: a path that is gone, a section that does not exist
 readme = root / 'README.md'
 readme.write_text(readme.read_text(encoding='utf-8') + '\nSee `kubejs/startup_scripts/gtceu/selftest_gone.js` and §99.1.\n', encoding='utf-8')
-m = root / 'af9-core/src/main/resources/assets/af9/models/item/nano_cpu_card.json'
-m.write_text(m.read_text(encoding='utf-8').replace('af9:item/nano_cpu_card', 'af9:item/selftest_no_texture'), encoding='utf-8')
+m = root / 'af9-core/src/main/resources/assets/af9/models/item/apu_chip.json'
+m.write_text(m.read_text(encoding='utf-8').replace('af9:item/apu_chip', 'af9:item/selftest_no_texture'), encoding='utf-8')
 PY
 
 fail=0

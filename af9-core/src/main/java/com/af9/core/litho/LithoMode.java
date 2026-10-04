@@ -77,8 +77,6 @@ public enum LithoMode {
     public static final double COOLING_LAPSE_FACTOR = 2.0;
     /** Optical proximity correction: the break chance falls by up to this share when the computation is all there. */
     public static final double OPC_BONUS = 0.3;
-    /** A Metrology Station in range (measuring or run lately) feeds back into the machine: breaks x0.85. */
-    public static final double METROLOGY_FACTOR = 0.85;
     /**
      * Multi-patterning (a screwdriver on the controller of a Line or Scanner): the machine prints the mode one version above
      * its own by exposing every layer twice. A run takes twice as long, its prints break 1.5 times as often and need
