@@ -310,7 +310,8 @@ Key scripts: `photolithography.js` + `wafers.js` + `litho_process.js` (nodes mus
 `LithoMode.java`), `fab_machines.js` / `fab_chemistry.js`, `cryogenics.js`, `particle_accelerator.js`,
 `asteroid_fission.js` + `rockets.js` + `fusion_reactor.js`, `computation.js` + `cwu_server.js`,
 `space_elevator.js`, `platinum_group.js`, `oil.js` + `vein_oil.js` + `vein_asteroid.js`, `uhv_superconductor.js`, `miner.js`,
-`rubber.js`, `wireless_energy.js`, `chip_uses.js` / `circuits_af9.js`.
+`rubber.js`, `biofuels.js` + `aromatics.js` + `diesel.js` + `nether_chemistry.js` + `ethylene.js` (green chemistry),
+`wireless_energy.js`, `chip_uses.js` / `circuits_af9.js`.
 
 ---
 

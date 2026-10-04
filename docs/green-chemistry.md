@@ -10,7 +10,8 @@ shiny, chloromethane and mana diesel),
 `kubejs/server_scripts/mods/gtceu/nether_chemistry.js`,
 `kubejs/server_scripts/mods/gtceu/biofuels.js`,
 `kubejs/server_scripts/mods/gtceu/aromatics.js`,
-`kubejs/server_scripts/mods/gtceu/diesel.js`.
+`kubejs/server_scripts/mods/gtceu/diesel.js`,
+`kubejs/server_scripts/mods/gtceu/ethylene.js` (the LuV mass route, §7).
 Planet type 9 (the far dark) brings these fluids home: `PlanetCatalog`, §5.
 
 ## 1. Nether wart to sulfuric acid and hydrogen sulfide
@@ -121,3 +122,42 @@ shiny diesel + mana diamond  -large chemical reactor, EV-> mana diesel + diamond
 The ladder, worst to best: bio diesel 38,400 < chloromethane diesel 48,000 < shiny diesel 96,000 <
 mana diesel 192,000 EU a bucket (AF9 balance, combustion generator). The mana diamond's stone
 survives the infusion; only its mana goes into the tank.
+
+## 7. Late-game ethylene (LuV methanol-to-olefins, self-contained to the elevator)
+
+The MV bioethanol dehydration (§3) is farm-limited and the oil-regolith cracking is
+asteroid-limited. From LuV on, ethylene goes mass-scale on wood, water and power alone:
+steam gasification to syngas, ICI methanol synthesis, then UOP/Hydro methanol-to-olefins
+over a zeolite (the SAPO-34 analogue, kept as the catalyst). It carries polyethylene,
+PVC, styrene and rocket-igniter demand until the Space Elevator's Mk-III liquid missions
+bring 1,792 buckets of ethylene per flight (space-elevator §1).
+
+```
+carbon/coke (tree farm, pyrolyse oven) + water  -LCR, LuV->  syngas: CO + H2 (gasifier)
+syngas + extra H2 (water electrolysis)          -LCR, LuV->  methanol (ICI, 250 C, 100 bar)
+methanol                                        -LCR, LuV->  ethylene + water (MTO, zeolite, circuit 1)
+                                                -LCR, LuV->  ethylene + propene + water (mixed, circuit 2)
+```
+
+| Recipe | Takes | Gives | Time |
+|---|---|---|---|
+| `af9:syngas_gasification` | 4 carbon dust, 4,000 mB water | 4,000 mB carbon monoxide, 4,000 mB hydrogen | 200 ticks, LuV |
+| `af9:syngas_gasification_coke` | 4 coke dust, 4,000 mB water | 4,000 mB carbon monoxide, 4,000 mB hydrogen | 200 ticks, LuV |
+| `af9:methanol_from_syngas` | 4,000 mB carbon monoxide, 8,000 mB hydrogen | 4,000 mB methanol | 200 ticks, LuV |
+| `af9:mto_ethylene` | 8,000 mB methanol (zeolite kept, circuit 1) | 4,000 mB ethylene, 8,000 mB water | 200 ticks, LuV |
+| `af9:mto_olefins_mixed` | 12,000 mB methanol (zeolite kept, circuit 2) | 3,000 mB ethylene, 2,000 mB propene, 12,000 mB water | 200 ticks, LuV |
+
+End to end (ethylene mode): 8 carbon + water + power → 4,000 mB ethylene — about
+500 mB per carbon against ~150 per crop on the bio route, at four times the per-machine
+rate, with no farm and no asteroid in the loop. A methanol run takes twice the hydrogen
+its gasifier makes with its CO, so each methanol run wants one water-electrolyzer run
+beside it; the MTO bed pays the water back (8,000 mB out per ethylene run), so the loop
+is near water-closed. The mixed mode trades some ethylene for propene, which feeds the
+PGMEA chain (propylene oxide over titanium silicalite, semiconductor-factory §6.15) and
+GT's other propene chemistry.
+
+The two MTO circuits are load-bearing: the ethylene recipe's inputs sit inside the mixed
+recipe's (lint R7), and a circuit-less methanol-only recipe would sit inside GT's
+methanol-consuming recipes. The zeolite is GT's own (`gtceu:zeolite_dust`, already used
+for isobutylene and the molecular sieve), consumed never. GT's small-batch monoxide
+methanol and MV bioethanol dehydration stay untouched; this line runs beside them.

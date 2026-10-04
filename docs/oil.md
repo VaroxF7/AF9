@@ -44,6 +44,9 @@ new chunks have the new share.
 **Rocket fuel does not need oil.** Aluminised Hydrolox needs triethylaluminium, which needs ethylene, and GT makes ethylene from
 ethanol (`ethylene_from_ethanol`; ethanol from biomass by distillation), so the first flight to the Asteroid Field needs no oil.
 The oil products that have no such route (benzene, propene and what is made from them) wait for the first oil.
+From LuV on, ethylene (and propene with it) goes mass-scale without any oil or farm: the
+methanol-to-olefins chain (wood + water + power, green-chemistry §7) carries polyethylene
+demand until the Space Elevator's ethylene missions.
 
 ## 4. The asteroids' fluid deposits
 
