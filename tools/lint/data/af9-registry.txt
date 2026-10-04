@@ -279,6 +279,7 @@ material gtceu:ammonium_hexachloroiridate
 material gtceu:ammonium_hexachloroosmate
 material gtceu:ammonium_hexachloroplatinate
 material gtceu:ammonium_hexachlororuthenate
+material gtceu:ares_gas
 material gtceu:arf_excimer_gas
 material gtceu:arf_photoresist
 material gtceu:azobisisobutyronitrile
@@ -297,6 +298,7 @@ material gtceu:crude_fluorine
 material gtceu:crude_hydrogen_fluoride
 material gtceu:crude_krypton_xenon
 material gtceu:crude_neon
+material gtceu:crude_sanguinite
 material gtceu:crude_zirconium_tetrachloride
 material gtceu:cryogenic_supercooled_air
 material gtceu:decarbonated_air
@@ -341,6 +343,7 @@ material gtceu:krypton_xenon_concentrate
 material gtceu:lactic_acid
 material gtceu:lactonitrile
 material gtceu:lithium_niobate
+material gtceu:lxa_1
 material gtceu:maleic_anhydride
 material gtceu:mana_diesel
 material gtceu:metallurgical_grade_silicon
@@ -391,6 +394,7 @@ material gtceu:rhodium_iridium_oxide
 material gtceu:rhodium_trichloride_solution
 material gtceu:ruthenate_osmate_liquor
 material gtceu:ruthenium_tetroxide_vapour
+material gtceu:sanguinite
 material gtceu:sc1_solution
 material gtceu:sc2_solution
 material gtceu:shiny_diesel

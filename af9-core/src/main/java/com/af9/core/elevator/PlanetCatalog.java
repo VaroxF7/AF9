@@ -119,6 +119,8 @@ public final class PlanetCatalog {
         add(list, 9, 5, GTMaterials.Chlorobenzene, 1_120);
         add(list, 9, 6, GTMaterials.HydrogenSulfide, 784);
         add(list, 9, 7, GTMaterials.Radon, 128);
+        // LXA-1, the far dark's light exotic for Sanguinite (docs/uhv-superconductor.md): 64 buckets a Mk-IV mission
+        add(list, 9, 8, af9Fluid("lxa_1"), 64);
         return List.copyOf(list);
     }
 

@@ -71,6 +71,7 @@ public final class AF9Materials {
         photolithography();
         platinumGroup();
         quantanium();
+        uhvSuperconductor();
     }
 
     private static Material.Builder material(String id) {
@@ -726,6 +727,51 @@ public final class AF9Materials {
         roughDust("sodium_hexanitritorhodate", 0xe8e0a0, "Na3Rh(NO2)6");
         liquid("rhodium_trichloride_solution", 0xd04a60, "RhCl3");
         roughDust("zinc_chloride", 0xf0f0f0, "ZnCl2");  // the cementation of rhodium leaves it
+    }
+
+    /**
+     * Sanguinite: the bright-red UHV superconductor, smelted in the Rotary Hearth Furnace
+     * ({@code gtceu:mega_blast_furnace}). Neutronium and tritanium dusts are blended with hydrogen, Ares gas from the
+     * Martian asteroid field and LXA-1 from the Space Elevator's far-dark missions (Large Chemical Reactor), then the
+     * blend is smelted under supercooled endion at 13000 K (EBF/RHF, circuit 10, 4A UV, 60 s) into the hot ingot, which
+     * the Bulk Blast Chiller cools. Recipes: uhv_superconductor.js, vein_oil.js (Ares deposit), PlanetCatalog (LXA-1).
+     * Spec: docs/uhv-superconductor.md
+     */
+    private static void uhvSuperconductor() {
+        // Ares gas: the rust-red noble-gas wisp of the Martian asteroid field (the field's sky is Mars orbit),
+        // drilled with the Fluid Drilling Rig (vein_oil.js). Formulas only, so GT adds no shortcuts past the chain.
+        add(material("ares_gas")
+                .gas()
+                .color(0xc46a3d)
+                .formula("Mrs"));
+
+        // LXA-1: the far dark's light exotic, brought home by the Space Elevator's liquid missions
+        // (PlanetCatalog, planet type 9, Mk-IV). A gas at room temperature, kept as GT's fluid.
+        add(material("lxa_1")
+                .gas()
+                .color(0xbfefff)
+                .formula("Lx"));
+
+        // What the Large Chemical Reactor blends out of the dusts and the three gases: 4 neutronium, 10 tritanium.
+        add(material("crude_sanguinite")
+                .dust()
+                .color(0x8a2a1a)
+                .iconSet(MaterialIconSet.ROUGH)
+                .formula("(Nt4Ke10MrsLx)"));
+
+        // Sanguinite: blood-red, lossless at UV 4A. The blast property gives GT's own dust-to-hot EBF recipe (13000 K,
+        // Resonant Endion Coils only, at UHV) and the vacuum-freezer cooling the Bulk Blast Chiller runs; the real
+        // chain smelts the crude blend under supercooled endion instead (uhv_superconductor.js). The cable property
+        // with no loss makes it the UHV superconductor wire.
+        add(material("sanguinite")
+                .ingot().fluid()
+                .color(0xff1a1a).secondaryColor(0x5c0a0a)
+                .iconSet(MaterialIconSet.SHINY)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD,
+                        MaterialFlags.GENERATE_FINE_WIRE, MaterialFlags.GENERATE_FOIL)
+                .cableProperties(GTValues.VA[GTValues.UV], 4, 0, true)
+                .blastTemp(13000, GasTier.HIGHEST, GTValues.VA[GTValues.UHV], 1200)
+                .formula("(Nt2Ke5)"));
     }
 
     /**

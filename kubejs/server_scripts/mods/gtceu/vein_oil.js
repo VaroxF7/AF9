@@ -43,7 +43,9 @@ GTCEuServerEvents.fluidVeins(event => {
         ['nitric_acid', 'gtceu:nitric_acid', 15, 150, 350],
         ['hydrofluoric_acid', 'gtceu:hydrofluoric_acid', 10, 100, 250],
         ['phosphoric_acid', 'gtceu:phosphoric_acid', 10, 100, 250],
-        ['acetic_acid', 'gtceu:acetic_acid', 8, 100, 250]
+        ['acetic_acid', 'gtceu:acetic_acid', 8, 100, 250],
+        // Ares gas, the rust-red wisp Sanguinite needs (docs/uhv-superconductor.md): rarer than the acids
+        ['ares_gas', 'gtceu:ares_gas', 8, 100, 250]
     ]
     let registered = 0
     deposits.forEach(([name, fluid, weight, minYield, maxYield]) => {

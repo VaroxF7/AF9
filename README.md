@@ -73,6 +73,7 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 | 🛰️ Space Elevator | GTNH's 35×35×43 (ext. 47×47) tower, Mining Drones + Modules, ore expeditions + GTNH Space Pumping liquid missions | [`docs/space-elevator.md`](docs/space-elevator.md) |
 | ⚗️ Platinum-group refinery | matte → leach → chloride liquor → Pt/Pd/Au, then Ru/Os via tetroxides, Ir/Rh last — in GT's own machines | [`docs/platinum-group-metals.md`](docs/platinum-group-metals.md) |
 | 🛢️ Oil, off-world | Overworld oil off; Oil Regolith in asteroids → Impure → Shiny → Oil/Heavy Oil; fluids drilled in the Field | [`docs/oil.md`](docs/oil.md) |
+| 🔴 Sanguinite | bright-red UHV superconductor (lossless UV 4A): Nt/Ti dusts + H₂ + Ares gas + LXA-1 → Rotary Hearth Furnace under supercooled endion (13,000 K, 4A UV, 60 s) → Bulk Blast Chiller | [`docs/uhv-superconductor.md`](docs/uhv-superconductor.md) |
 | 🧹 Lint | `bash tools/lint/run.sh` checks recipes, multiblocks, quests, textures, lang without starting the game | [`tools/lint/README.md`](tools/lint/README.md) · [`docs/review-findings.md`](docs/review-findings.md) |
 
 Plus the supporting machines: **SMC fab family** (chemistry / separation / electrochemistry / thermal,
@@ -308,7 +309,7 @@ Quest chapters track this order: MV → HV → EV → IV → LuV → ZPM → UV 
 Key scripts: `photolithography.js` + `wafers.js` + `litho_process.js` (nodes must agree with
 `LithoMode.java`), `fab_machines.js` / `fab_chemistry.js`, `cryogenics.js`, `particle_accelerator.js`,
 `asteroid_fission.js` + `rockets.js` + `fusion_reactor.js`, `computation.js` + `cwu_server.js`,
-`space_elevator.js`, `platinum_group.js`, `oil.js` + `vein_oil.js` + `vein_asteroid.js`, `miner.js`,
+`space_elevator.js`, `platinum_group.js`, `oil.js` + `vein_oil.js` + `vein_asteroid.js`, `uhv_superconductor.js`, `miner.js`,
 `rubber.js`, `wireless_energy.js`, `chip_uses.js` / `circuits_af9.js`.
 
 ---
@@ -376,6 +377,7 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 - [Space Elevator](docs/space-elevator.md) — structure, drones, ore + liquid missions, screen
 - [Platinum-group metals](docs/platinum-group-metals.md) — refinery chain
 - [Oil](docs/oil.md) — regolith chain, fluid deposits, prospecting
+- [UHV superconductor](docs/uhv-superconductor.md) — Sanguinite: Ares gas, LXA-1 missions, RHF smelt
 - [Rubber](docs/rubber.md) — latex from plants, rubber / liquid rubber / silicone / SBR
 - [Quantanium](docs/quantanium.md) — the UHV unlock ore, Asteroid Field dike vein
 - [Review findings](docs/review-findings.md) — what the lint found

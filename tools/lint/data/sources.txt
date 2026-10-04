@@ -9,3 +9,6 @@ gtceu:quantanium_dust
 gtceu:quantanium
 # fluid deposits of the Asteroid Field (vein_oil.js), drilled with the Fluid Drilling Rig
 gtceu:heavy_water
+gtceu:ares_gas
+# Space Elevator far-dark liquid mission (PlanetCatalog planet type 9)
+gtceu:lxa_1
