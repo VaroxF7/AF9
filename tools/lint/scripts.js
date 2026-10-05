@@ -9,6 +9,10 @@
 //   S2  a machine or recipe type registered twice (the second one would fail or replace the first)
 //   S4  a startup script that registers an item, a block, a fluid, a material, a material icon set or an ore layer:
 //       AF9's are registered by AF9 Core (af9-core/src/main/java/com/af9/core/registry), not by KubeJS
+//   S5  a startup script that loads a GT block-holder class (Java.loadClass('...GTBlocks'/'...GCYMBlocks')) at its
+//       top level: forcing the class init while KubeJS itself is still constructing (before GT's materials exist)
+//       NPEs GT's own startup (the game crashes before the machines register). Load it inside the registry
+//       callback instead, where the registries are up.
 //   R1  duplicate recipe id within a recipe type
 //   R2  a recipe over the slots of its machine (items / fluids in and out, the not-consumed ones and circuits count)
 //   R3  an item, block or fluid id nobody defines: af9: not in the list of what AF9 Core registers
@@ -87,7 +91,7 @@ const parseId = s => {
 
 const state = {
     recipes: [], items: new Map(), materials: new Map(), recipeTypes: new Map(), machines: [], errors: [],
-    startup: [], handlers: [], translatables: new Set(), currentFile: ''
+    startup: [], handlers: [], translatables: new Set(), currentFile: '', startupTop: true, topLoads: []
 }
 const findings = []
 const foreign = new Set()   // files of the base pack (they carry AllTheMods' licence header): not AF9's, checked only for the record
@@ -205,7 +209,13 @@ const ctx = {
     Block: { getBlock: () => ({}) }, CleanroomType: { CLEANROOM: 'cleanroom', STERILE_CLEANROOM: 'sterile' },
     Ingredient: { of: s => s }, Platform: { isLoaded: () => true },
     Component: { translatable: (k, ...a) => { state.translatables.add(k); return { key: k } }, literal: k => k },
-    Java: { loadClass: n => named(String(n).split('.').pop()) },
+    Java: { loadClass: n => {
+        const cls = String(n)
+        if (state.startupTop && state.currentFile.replace(/\\/g, '/').startsWith('kubejs/startup_scripts/')) {
+            state.topLoads.push({ file: state.currentFile, cls })
+        }
+        return named(cls.split('.').pop())
+    } },
     JsonIO: { read: () => ({}) },
     GuiTextures: permissive(), FillDirection: permissive(), RotationState: permissive(),
     GTRecipeModifiers: permissive(), GTMaterialIconSet: permissive(), GTMaterialFlags: permissive(),
@@ -302,6 +312,15 @@ function run(file) {
 // ---- load ----------------------------------------------------------------------------------------------------------
 const scriptsOf = dir => walkDir(path.join(root, 'kubejs', dir)).filter(f => f.endsWith('.js')).sort()
 scriptsOf('startup_scripts').forEach(run)
+state.startupTop = false
+
+// S5: a startup script must not load GT's block-holder classes at its top level (see the header). In a registry
+// callback they are safe: the registries are up by then.
+for (const { file, cls } of state.topLoads) {
+    if (/^com\.gregtechceu\.gtceu\.common\.data\.(GTBlocks|GCYMBlocks)$/.test(cls)) {
+        report('ERROR', 'S5', `top-level Java.loadClass('${cls}'): forcing this class init while KubeJS is still constructing NPEs GT's startup (the game crashes); load it inside the registry callback instead`, file)
+    }
+}
 
 // run the registry handlers, recording what they create
 // S4: what AF9 Core registers now, and where (once a file and kind; in a file of the base pack it is a note: its own
