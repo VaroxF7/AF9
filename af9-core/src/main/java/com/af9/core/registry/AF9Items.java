@@ -101,6 +101,16 @@ public final class AF9Items {
         // eDRAM next to the processor on one package: the cache chiplet
         item("edram_cpu_package", 64, 1);
         item("edram_soc_package", 64, 1);
+        // Linear circuit ladder (§circuits_af9.js): silicon interposer packages that move the value
+        // from loose passives into lithographed dies. ASIC package bridges HV-EV, photonic package XPS.
+        item("asic_package", 64, 1);
+        item("photonic_package", 64, 1);
+        // Post-UHV circuits: XPS (photonic + spintronic) and NVM (memristive + quantum-dot).
+        // Each tier has a processor and its mainframe so the ladder stays linear past UHV.
+        item("xps_processor", 64, 1);
+        item("xps_processor_mainframe", 64, 1);
+        item("nvm_processor", 64, 1);
+        item("nvm_processor_mainframe", 64, 1);
 
         // ---- Particle Accelerator ----
         item("beryllium_spallation_target", 64, 1);

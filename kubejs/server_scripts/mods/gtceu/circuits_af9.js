@@ -1,63 +1,57 @@
-// AF9 - Circuit crafting: everything AF9 changes about how GT's circuits are made, in one file to edit.
+// AF9 - Circuit crafting, linear ladder: LV -> MV -> HV -> EV -> IV -> LuV -> ZPM -> UV -> UHV -> XPS -> NVM.
+//
+// Rules (load-bearing, do not soften without re-reading this file):
+//   1. LINEAR: every normal circuit at tier T takes >=1x circuit of tier T-1 as a direct
+//      item input, and inside a tier the circuits chain in order (assembly takes the
+//      integrated, processor takes the assembly). SoC shortcuts never skip a tier.
+//   2. SILICON FIRST: the value sits in lithographed dies and packages (node-matched
+//      chips, asic/edram/photonic packages), boards are carriers, wires/bolts/passives
+//      shrink every tier and collapse in lean recipes. MV keeps GT solders, HV-UV uses
+//      high-grade solder (tin stays as budget), wetware uses living solder, XPS/NVM
+//      uses plasma solder (tin stays as dead budget option).
+//   3. LEAN STAGES: reaching the end of a stage unlocks a second recipe for everything
+//      below it: same chain, 1x previous circuit, packages instead of loose chips,
+//      quarter wires/bolts, no loose passives, 2x output or half time, gated by one
+//      consumed input you only have at that stage end:
+//        Stage 1 @HV end:  MV lean, gate af9:asic_chip (200nm phosphorus)
+//        Stage 2 @LuV end: HV+EV+IV lean, gate af9:vpu_chip (65nm immersion naquadria)
+//        Stage 3 @UHV end: LuV+ZPM+UV lean, gate af9:tpu_chip + quantanium (20nm EUV)
+//        Stage 4 @XPS end: UHV+XPS lean, gate af9:photonic_ic_chip + af9:spin_logic_chip
+//        Stage 5 @NVM end: XPS+NVM lean, gate af9:memristor_chip + af9:quantum_dot_ic_chip
+//      Lean ids are af9:<id>_lean (tin) and af9:<id>_lean_high_grade / _lean_living /
+//      _lean_plasma for the canonical solder. The normal recipe always stays.
 //
 // What is here, in order:
-//   1. helpers (the tin / soldering alloy pair that every circuit assembler recipe gets, the chips, the cleanroom)
-//   2. the metals of the circuits: the alloy dusts (Aluminium-Silicon, Kovar, Platinum-Iridium) mixed in LV / HV
-//      (GT melts them in the EBF at the temperatures of af9-core's registry/AF9Materials)
-//   3. MV circuits without discrete semiconductors (Good Electronic / Good Integrated circuit, Microprocessor, APU version)
-//   4. HV to LuV circuits from the metals of their own tier, with plain chips (+ their SMD / SoC versions)
-//   5. the eDRAM package recipes (LuV): extra recipes beside the RAM ones
-// Everything else about circuits is GT's own (CircuitRecipes.java, GTCEu 7.2.0, harderCircuitRecipes off). The chips
-// themselves (what a wafer yields, the lithography machines) are in photolithography.js and litho_process.js; the
-// circuit-free uses of chips (robot arms, sensors, data orbs) are in chip_uses.js. Spec: docs/semiconductor-factory.md
-//
-// To change a circuit: edit its recipe below (inputs, outputs, duration, EUt); to take one out, delete its block. A
-// circuit that GT makes by itself and is not listed here is untouched. A recipe id is af9:<id> (and af9:<id>_soldering_alloy
-// for the second solder version): keep it unique.
-//
-// ---- MV (before this was mv_circuits.js) ----
-// Transistors and diodes are replaced by lithographed chips (Photolithography Line); resistors and capacitors stay as
-// board passives. Any chip works regardless of the mode it was printed in. The metal parts are MV metals (aluminium,
-// the MV metal of the Circuits quest page): Aluminium-Silicon bond wire and Kovar pins (their alloy dusts: section 2 below),
-// both from an LV mixer and the EBF, so they can be made before any MV machine.
-//
-// The Good Electronic Circuit must stay chip-free: the Photolithography Line and its MV parts need MV circuits, so at
-// least one MV circuit has to be makeable before the line exists. It uses vacuum tubes (the pre-semiconductor
-// rectifier) where GT used diodes. The SoC Microprocessor recipe is GT's own and stays: it has no discrete parts.
-//
-// ---- HV to LuV (before this was tiered_circuits.js) ----
-// HV to LuV circuits are built from the metals of their own tier (the ones the Circuits quest page lists per
-// tier). The chips are GT's plain chips: the lithography machines print plain wafer items, and a chip is a chip
-// whatever substrate it was cut from (higher substrates just give more chips per wafer).
-//
-// Metals (all makeable with the previous tier's machines):
-//   HV  gold bond wire, stainless steel bolts
-//   EV  Platinum-Iridium fine wire (bootstrap: plain platinum, iridium is EV-era), titanium bolts
-//   IV  tungstensteel fine wire and frames, tungsten busbars (single wire)
-//   LuV osmiridium fine wire, niobium-titanium superconductor wire (the LuV cable), rhodium-plated palladium bolts
-// The LuV Nano Mainframe is the pack's own Assembly Line recipe.
-//
-// Every recipe below is otherwise GT's own (CircuitRecipes.java, GTCEu 7.2.0, harderCircuitRecipes off).
+//   1. helpers (tin/solder pairs, high-grade, living, plasma; chip stacks; cleanroom)
+//   2. circuit alloy dusts (Al-Si, Kovar, Pt-Ir, high-grade solder)
+//   3. MV normal (bootstrap, chip-light) + MV lean (Stage 1)
+//   4. HV normal (linear, node-matched) + HV lean (Stage 2)
+//   5. EV normal + EV lean (Stage 2)
+//   6. IV normal + IV lean (Stage 2)
+//   7. LuV normal (incl. pack Nano Mainframe AL) + LuV lean (Stage 3)
+//   8. ZPM normal (crystal computer, quantum mainframe AL, wetware assembly) + ZPM lean (Stage 3)
+//   9. UV normal (crystal mainframe AL, wetware computer) + UV lean (Stage 3)
+//   10. UHV normal (wetware mainframe AL + plasma Mk2 path) + UHV lean (Stage 4)
+//   11. XPS normal (xps processor + mainframe, AL) + XPS lean (Stage 4/5)
+//   12. NVM normal (nvm processor + mainframe, AL) + NVM lean (Stage 5)
+//   13. packages (asic_package, photonic_package; edram packages live in photolithography.js)
+//   14. tags (gtceu:circuits/xps, gtceu:circuits/nvm)
+// Everything else is GT's own. Spec: docs/semiconductor-factory.md
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
 
     // ================================= 1. helpers =================================
-    // GT's circuit assembler recipes get a tin and a soldering alloy version from GT's recipe generator, which KubeJS
-    // recipes skip; this adds both the same way: a tin (144 mB x multiplier) and a soldering alloy (72 mB x multiplier)
-    // version of one recipe. MV stays on GT's solders (bootstrap: the high-grade EBF needs HV).
     const newCircuit = (id, solder, build) => {
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}`)).inputFluids(Fluid.of('gtceu:tin', 144 * solder))
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}_soldering_alloy`)).inputFluids(Fluid.of('gtceu:soldering_alloy', 72 * solder))
     }
-    // Replaces GT's recipe and its generated soldering alloy copy with that pair
     const circuit = (id, solder, build) => {
         event.remove({ id: `gtceu:circuit_assembler/${id}` })
         event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
         newCircuit(id, solder, build)
     }
     // HV-UV: full replacement of soldering alloy with the high-grade solder (tin stays as budget option).
-    // A recipe id is af9:<id> (tin) and af9:<id>_high_grade (high-grade): keep it unique.
     const newHighCircuit = (id, solder, build) => {
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}`)).inputFluids(Fluid.of('gtceu:tin', 144 * solder))
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}_high_grade`)).inputFluids(Fluid.of('gtceu:high_grade_solder', 72 * solder))
@@ -67,8 +61,7 @@ ServerEvents.recipes(event => {
         event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
         newHighCircuit(id, solder, build)
     }
-    // Wetware / neuron circuits: living solder only (reflow would kill the cells). Tin stays as a dead (worse)
-    // budget option; the living version is the canonical one.
+    // Wetware: living solder only (reflow would kill the cells). Tin stays as a dead budget option.
     const newLivingCircuit = (id, solder, build) => {
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}`)).inputFluids(Fluid.of('gtceu:tin', 144 * solder))
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}_living`)).inputFluids(Fluid.of('gtceu:living_solder', 72 * solder))
@@ -78,15 +71,23 @@ ServerEvents.recipes(event => {
         event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
         newLivingCircuit(id, solder, build)
     }
+    // XPS/NVM: plasma solder canonical (atomic deposition wastes nothing: half the fluid),
+    // tin stays as a dead budget option.
+    const newPlasmaCircuit = (id, solder, build) => {
+        build(event.recipes.gtceu.circuit_assembler(`af9:${id}`)).inputFluids(Fluid.of('gtceu:tin', 144 * solder))
+        build(event.recipes.gtceu.circuit_assembler(`af9:${id}_plasma`)).inputFluids(Fluid.of('gtceu:plasma_solder', 36 * solder))
+    }
+    // Assembly-line replacement (mainframes ZPM+): remove GT's line, if any, then build ours.
+    const assemblyLine = (id, build) => {
+        event.remove({ id: `gtceu:assembly_line/${id}` })
+        build(event.recipes.gtceu.assembly_line(`af9:${id}`))
+    }
     const circuitAssembler = (id, build) => newCircuit(id, 1, build)
-    // plain GT chips; the tier / mode arguments only document which circuit tier a recipe belongs to
     const chipIn = (modeId, chipId, count) => AF9_WAFERS.chipStack(chipId, count)
     const chip = (tier, chipId, count) => AF9_WAFERS.chipStack(chipId, count)
     const clean = recipe => recipe.cleanroom(CleanroomType.CLEANROOM)
 
     // ================================= 2. the metals of the circuits =================================
-    // Mixed one tier below the circuits that use them (LV for the MV alloys, HV for the EV one). Circuit 3 keeps Kovar
-    // apart from GT's invar (circuit 1), whose inputs are a subset of Kovar's.
     const alloys = [
         { id: 'aluminium_silicon', inputs: ['16x gtceu:aluminium_dust', 'gtceu:silicon_dust'], count: 17, circuit: 2, eut: VA[GTValues.LV] },
         { id: 'kovar', inputs: ['6x gtceu:iron_dust', '3x gtceu:nickel_dust', '2x gtceu:cobalt_dust'], count: 11, circuit: 3, eut: VA[GTValues.LV] },
@@ -102,8 +103,8 @@ ServerEvents.recipes(event => {
             .EUt(a.eut)
     })
 
-    // ================================= 3. MV =================================
-    // GT's versions (with diodes / transistors) and their generated solder variants
+    // ================================= 3. MV (LV -> MV, bootstrap) =================================
+    // Good Electronic stays chip-free (vacuum tubes): the line needs MV circuits first.
     const replacedGtRecipes = ['electronic_circuit_mv', 'integrated_circuit_mv', 'processor_mv']
     event.remove({ id: 'gtceu:shaped/electronic_circuit_mv' })
     replacedGtRecipes.forEach(id => {
@@ -111,7 +112,6 @@ ServerEvents.recipes(event => {
         event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
     })
 
-    // ---- Good Electronic Circuit (MV, bootstrap) ----
     event.shaped('gtceu:good_electronic_circuit', ['VPV', 'CBC', 'WCW'], {
         V: 'gtceu:vacuum_tube',
         P: 'gtceu:steel_plate',
@@ -130,7 +130,7 @@ ServerEvents.recipes(event => {
         .duration(300)
         .EUt(GTValues.VA[GTValues.LV]))
 
-    // ---- Good Integrated Circuit (MV): logic chips instead of diodes ----
+    // Good Integrated: LV basic_integrated + Si logic dies, Al-Si wire, Kovar pins.
     circuitAssembler('good_integrated_circuit', recipe => recipe
         .itemInputs(
             'gtceu:phenolic_printed_circuit_board',
@@ -143,33 +143,57 @@ ServerEvents.recipes(event => {
         .duration(400)
         .EUt(24))
 
-    // ---- Microprocessor (MV): CPU with a RAM cache instead of discrete transistors ----
+    // Microprocessor: LV microchip + CPU/RAM dies on plastic. Linear via microchip_processor.
     circuitAssembler('micro_processor', recipe => recipe
         .itemInputs(
             'gtceu:plastic_printed_circuit_board',
+            'gtceu:microchip_processor',
             'gtceu:cpu_chip',
             'gtceu:ram_chip',
             '4x #gtceu:resistors',
-            '4x #gtceu:capacitors',
             '4x gtceu:fine_aluminium_silicon_wire')
         .itemOutputs('2x gtceu:micro_processor')
         .duration(200)
         .EUt(60))
 
-    // ---- Microprocessor (MV), APU version: CPU and graphics on one die, with their cache; one chip does the work of
-    // the CPU and its RAM, so the board takes more of them ----
+    // Microprocessor, APU version: one APU die does CPU+RAM, takes the LV microchip too.
     circuitAssembler('micro_processor_apu', recipe => recipe
         .itemInputs(
             'gtceu:plastic_printed_circuit_board',
+            'gtceu:microchip_processor',
             'af9:apu_chip',
             '4x #gtceu:resistors',
-            '4x #gtceu:capacitors',
             '4x gtceu:fine_aluminium_silicon_wire')
         .itemOutputs('3x gtceu:micro_processor')
         .duration(200)
         .EUt(60))
-    // ================================= 4. HV to LuV =================================
-    // ================================= HV (gold + stainless steel) =================================
+
+    // ---- MV lean (Stage 1 @HV end, gate: asic_chip). Packages instead of loose
+    // passives, quarter wire, 2x output. The chain still starts at LV. ----
+    newCircuit('good_integrated_circuit_lean', 1, recipe => recipe
+        .itemInputs(
+            'gtceu:phenolic_printed_circuit_board',
+            'gtceu:basic_integrated_circuit',
+            '2x gtceu:ilc_chip',
+            'af9:asic_chip',
+            '2x gtceu:fine_aluminium_silicon_wire',
+            '2x gtceu:kovar_bolt')
+        .itemOutputs('4x gtceu:good_integrated_circuit')
+        .duration(200)
+        .EUt(24))
+
+    newCircuit('micro_processor_lean', 1, recipe => recipe
+        .itemInputs(
+            'gtceu:plastic_printed_circuit_board',
+            'gtceu:microchip_processor',
+            'af9:apu_chip',
+            'af9:asic_chip',
+            '2x gtceu:fine_aluminium_silicon_wire')
+        .itemOutputs('4x gtceu:micro_processor')
+        .duration(100)
+        .EUt(60))
+
+    // ================================= 4. HV (MV -> HV) =================================
     highCircuit('integrated_circuit_hv', 1, r => r
         .itemInputs('2x gtceu:good_integrated_circuit', chipIn('muv', 'ilc', 2), chipIn('muv', 'ram', 2), '4x #gtceu:transistors',
             '8x gtceu:fine_gold_wire', '8x gtceu:stainless_steel_bolt')
@@ -182,25 +206,47 @@ ServerEvents.recipes(event => {
         .itemOutputs('2x gtceu:micro_processor_assembly')
         .duration(400).EUt(VA[GTValues.MV]))
 
+    // Nano: takes the HV assembly (linear), nano_cpu die, SMD, Au wire.
     highCircuit('nano_processor_hv', 1, r => clean(r
-        .itemInputs('gtceu:epoxy_printed_circuit_board', chip('hv', 'nano_cpu', 1), '8x gtceu:smd_resistor', '8x gtceu:smd_capacitor',
-            '8x gtceu:smd_transistor', '8x gtceu:fine_gold_wire')
+        .itemInputs('gtceu:epoxy_printed_circuit_board', 'gtceu:micro_processor_assembly', chip('hv', 'nano_cpu', 1),
+            '8x gtceu:smd_resistor', '8x gtceu:smd_capacitor', '8x gtceu:fine_gold_wire')
         .itemOutputs('2x gtceu:nano_processor')
         .duration(200).EUt(600)))
 
     highCircuit('nano_processor_hv_asmd', 1, r => clean(r
-        .itemInputs('gtceu:epoxy_printed_circuit_board', chip('hv', 'nano_cpu', 1), '2x gtceu:advanced_smd_resistor',
-            '2x gtceu:advanced_smd_capacitor', '2x gtceu:advanced_smd_transistor', '8x gtceu:fine_gold_wire')
+        .itemInputs('gtceu:epoxy_printed_circuit_board', 'gtceu:micro_processor_assembly', chip('hv', 'nano_cpu', 1),
+            '2x gtceu:advanced_smd_resistor', '2x gtceu:advanced_smd_capacitor', '8x gtceu:fine_gold_wire')
         .itemOutputs('2x gtceu:nano_processor')
         .duration(100).EUt(600)))
 
+    // SoC shortcut, linearised: still takes the HV assembly, then the SoC die does the discretes.
     highCircuit('nano_processor_hv_soc', 1, r => clean(r
-        .itemInputs('gtceu:epoxy_printed_circuit_board', chip('hv', 'advanced_soc', 1), '4x gtceu:fine_gold_wire', '4x gtceu:stainless_steel_bolt')
+        .itemInputs('gtceu:epoxy_printed_circuit_board', 'gtceu:micro_processor_assembly', chip('hv', 'advanced_soc', 1),
+            '4x gtceu:fine_gold_wire', '4x gtceu:stainless_steel_bolt')
         .itemOutputs('4x gtceu:nano_processor')
         .duration(50).EUt(9600)))
 
-    // ================================= EV (platinum + titanium) =================================
-    // bootstrap: plain platinum wire
+    // ---- HV lean (Stage 2 @LuV end, gate: vpu_chip). 1x previous circuit, packages
+    // over loose RAM, quarter metals, 2x output. ----
+    newHighCircuit('integrated_circuit_hv_lean', 1, r => clean(r
+        .itemInputs('gtceu:good_integrated_circuit', chip('hv', 'nand_memory', 2), 'af9:vpu_chip',
+            '2x gtceu:fine_gold_wire', '2x gtceu:stainless_steel_bolt')
+        .itemOutputs('2x gtceu:advanced_integrated_circuit')
+        .duration(400).EUt(VA[GTValues.LV])))
+
+    newHighCircuit('processor_assembly_hv_lean', 2, r => clean(r
+        .itemInputs('gtceu:plastic_printed_circuit_board', 'gtceu:micro_processor', 'af9:asic_package',
+            'af9:vpu_chip', '2x gtceu:fine_gold_wire')
+        .itemOutputs('4x gtceu:micro_processor_assembly')
+        .duration(200).EUt(VA[GTValues.MV])))
+
+    newHighCircuit('nano_processor_hv_lean', 1, r => clean(r
+        .itemInputs('gtceu:epoxy_printed_circuit_board', 'gtceu:micro_processor_assembly', chip('hv', 'nano_cpu', 1),
+            'af9:vpu_chip', '2x gtceu:fine_gold_wire')
+        .itemOutputs('4x gtceu:nano_processor')
+        .duration(100).EUt(600)))
+
+    // ================================= 5. EV (HV -> EV) =================================
     highCircuit('workstation_ev', 2, r => clean(r
         .itemInputs('gtceu:plastic_printed_circuit_board', '2x gtceu:micro_processor_assembly', '4x #gtceu:diodes',
             chipIn('huv', 'ram', 4), '16x gtceu:fine_platinum_wire', '16x gtceu:titanium_bolt')
@@ -219,25 +265,46 @@ ServerEvents.recipes(event => {
         .itemOutputs('2x gtceu:nano_processor_assembly')
         .duration(200).EUt(600)))
 
+    // Quantum: takes the EV nano assembly (linear) + qbit/nano dies.
     highCircuit('quantum_processor_ev', 1, r => clean(r
-        .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', chip('ev', 'qbit_cpu', 1), chip('ev', 'nano_cpu', 1),
-            '12x gtceu:smd_capacitor', '12x gtceu:smd_transistor', '12x gtceu:fine_platinum_iridium_wire')
+        .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', 'gtceu:nano_processor_assembly', chip('ev', 'qbit_cpu', 1),
+            chip('ev', 'nano_cpu', 1), '12x gtceu:smd_capacitor', '12x gtceu:fine_platinum_iridium_wire')
         .itemOutputs('2x gtceu:quantum_processor')
         .duration(200).EUt(2400)))
 
     highCircuit('quantum_processor_ev_asmd', 1, r => clean(r
-        .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', chip('ev', 'qbit_cpu', 1), chip('ev', 'nano_cpu', 1),
-            '3x gtceu:advanced_smd_capacitor', '3x gtceu:advanced_smd_transistor', '12x gtceu:fine_platinum_iridium_wire')
+        .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', 'gtceu:nano_processor_assembly', chip('ev', 'qbit_cpu', 1),
+            chip('ev', 'nano_cpu', 1), '3x gtceu:advanced_smd_capacitor', '12x gtceu:fine_platinum_iridium_wire')
         .itemOutputs('2x gtceu:quantum_processor')
         .duration(100).EUt(2400)))
 
+    // SoC shortcut, linearised: takes the EV nano assembly too.
     highCircuit('quantum_processor_ev_soc', 1, r => clean(r
-        .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', chip('ev', 'advanced_soc', 1), '12x gtceu:fine_platinum_iridium_wire',
-            '8x gtceu:titanium_bolt')
+        .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', 'gtceu:nano_processor_assembly', chip('ev', 'advanced_soc', 1),
+            '12x gtceu:fine_platinum_iridium_wire', '8x gtceu:titanium_bolt')
         .itemOutputs('4x gtceu:quantum_processor')
         .duration(50).EUt(38400)))
 
-    // ================================= IV (tungstensteel + tungsten) =================================
+    // ---- EV lean (Stage 2 @LuV end, gate: vpu_chip) ----
+    newHighCircuit('workstation_ev_lean', 2, r => clean(r
+        .itemInputs('gtceu:plastic_printed_circuit_board', 'gtceu:micro_processor_assembly', 'af9:asic_package',
+            'af9:vpu_chip', '4x gtceu:fine_platinum_wire', '4x gtceu:titanium_bolt')
+        .itemOutputs('2x gtceu:micro_processor_computer')
+        .duration(200).EUt(VA[GTValues.MV])))
+
+    newHighCircuit('nano_processor_assembly_ev_lean', 2, r => clean(r
+        .itemInputs('gtceu:epoxy_printed_circuit_board', 'gtceu:nano_processor', chip('ev', 'soc', 1),
+            'af9:vpu_chip', '4x gtceu:fine_platinum_iridium_wire')
+        .itemOutputs('4x gtceu:nano_processor_assembly')
+        .duration(200).EUt(600)))
+
+    newHighCircuit('quantum_processor_ev_lean', 1, r => clean(r
+        .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', 'gtceu:nano_processor_assembly', chip('ev', 'qbit_cpu', 1),
+            'af9:vpu_chip', '3x gtceu:fine_platinum_iridium_wire')
+        .itemOutputs('4x gtceu:quantum_processor')
+        .duration(100).EUt(2400)))
+
+    // ================================= 6. IV (EV -> IV) =================================
     highCircuit('mainframe_iv', 4, r => clean(r
         .itemInputs('2x gtceu:tungsten_steel_frame', '2x gtceu:micro_processor_computer', '8x #gtceu:inductors', '16x #gtceu:capacitors',
             chip('iv', 'ram', 16), '16x gtceu:tungsten_single_wire')
@@ -274,14 +341,39 @@ ServerEvents.recipes(event => {
         .itemOutputs('2x gtceu:quantum_processor_assembly')
         .duration(200).EUt(2400)))
 
+    // Crystal: takes the IV quantum assembly (linear) + crystal/nano dies.
     highCircuit('crystal_processor_iv', 1, r => clean(r
-        .itemInputs('gtceu:multilayer_fiber_reinforced_printed_circuit_board', 'gtceu:crystal_cpu', chip('iv', 'nano_cpu', 2),
-            '6x gtceu:advanced_smd_capacitor', '6x gtceu:advanced_smd_transistor', '8x gtceu:fine_tungsten_steel_wire')
+        .itemInputs('gtceu:multilayer_fiber_reinforced_printed_circuit_board', 'gtceu:quantum_processor_assembly',
+            'gtceu:crystal_cpu', chip('iv', 'nano_cpu', 2), '6x gtceu:advanced_smd_capacitor', '8x gtceu:fine_tungsten_steel_wire')
         .itemOutputs('2x gtceu:crystal_processor')
         .duration(200).EUt(9600)))
 
-    // ================================= LuV (osmiridium + NbTi + rhodium-plated palladium) ===============
-    // (Nano Mainframe: the pack's own Assembly Line recipe)
+    // ---- IV lean (Stage 2 @LuV end, gate: vpu_chip; cache via edram packages) ----
+    newHighCircuit('mainframe_iv_lean', 4, r => clean(r
+        .itemInputs('2x gtceu:tungsten_steel_frame', 'gtceu:micro_processor_computer', '4x af9:edram_cpu_package',
+            'af9:vpu_chip', '4x gtceu:tungsten_single_wire')
+        .itemOutputs('2x gtceu:micro_processor_mainframe')
+        .duration(400).EUt(VA[GTValues.HV])))
+
+    newHighCircuit('nano_computer_iv_lean', 2, r => clean(r
+        .itemInputs('gtceu:epoxy_printed_circuit_board', 'gtceu:nano_processor_assembly', chip('iv', 'nor', 4),
+            '2x af9:edram_cpu_package', 'af9:vpu_chip', '4x gtceu:fine_tungsten_steel_wire')
+        .itemOutputs('2x gtceu:nano_processor_computer')
+        .duration(200).EUt(600)))
+
+    newHighCircuit('quantum_assembly_iv_lean', 2, r => clean(r
+        .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', 'gtceu:quantum_processor', '2x af9:edram_soc_package',
+            'af9:vpu_chip', '4x gtceu:fine_tungsten_steel_wire')
+        .itemOutputs('4x gtceu:quantum_processor_assembly')
+        .duration(200).EUt(2400)))
+
+    newHighCircuit('crystal_processor_iv_lean', 1, r => clean(r
+        .itemInputs('gtceu:multilayer_fiber_reinforced_printed_circuit_board', 'gtceu:quantum_processor_assembly',
+            'gtceu:crystal_cpu', 'af9:vpu_chip', '2x gtceu:fine_tungsten_steel_wire')
+        .itemOutputs('4x gtceu:crystal_processor')
+        .duration(100).EUt(9600)))
+
+    // ================================= 7. LuV (IV -> LuV) =================================
     highCircuit('quantum_computer_luv', 2, r => clean(r
         .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', '2x gtceu:quantum_processor_assembly', '8x gtceu:smd_diode',
             chip('luv', 'nor', 4), chip('luv', 'ram', 16), '32x gtceu:fine_osmiridium_wire')
@@ -300,20 +392,21 @@ ServerEvents.recipes(event => {
         .itemOutputs('2x gtceu:crystal_processor_assembly')
         .duration(400).EUt(9600)))
 
+    // Wetware: takes the LuV crystal assembly (linear) + NPU/crystal/nano dies.
     livingCircuit('wetware_processor_luv', 1, r => clean(r
-        .itemInputs('gtceu:neuro_processing_unit', 'gtceu:crystal_cpu', chip('luv', 'nano_cpu', 1), '8x gtceu:advanced_smd_capacitor',
-            '8x gtceu:advanced_smd_transistor', '8x gtceu:fine_niobium_titanium_wire')
+        .itemInputs('gtceu:neuro_processing_unit', 'gtceu:crystal_processor_assembly', 'gtceu:crystal_cpu', chip('luv', 'nano_cpu', 1),
+            '8x gtceu:advanced_smd_capacitor', '8x gtceu:fine_niobium_titanium_wire')
         .itemOutputs('2x gtceu:wetware_processor')
         .duration(200).EUt(38400)))
 
+    // Wetware SoC, linearised: LuV-native VPU does the discretes, still takes the assembly.
     livingCircuit('wetware_processor_luv_soc', 1, r => clean(r
-        .itemInputs('gtceu:neuro_processing_unit', chip('luv', 'highly_advanced_soc', 1), '8x gtceu:fine_niobium_titanium_wire',
-            '8x gtceu:rhodium_plated_palladium_bolt')
+        .itemInputs('gtceu:neuro_processing_unit', 'gtceu:crystal_processor_assembly', 'af9:vpu_chip',
+            '8x gtceu:fine_niobium_titanium_wire', '8x gtceu:rhodium_plated_palladium_bolt')
         .itemOutputs('4x gtceu:wetware_processor')
         .duration(100).EUt(150000)))
 
-    // ---- eDRAM packages (af9:edram_cpu/soc_package): extra, faster recipes beside the RAM ones ----
-    // A package is a CPU or SoC die with its eDRAM cache on one laminate; one replaces four RAM chips, in half the time
+    // eDRAM cache variants: extra, faster recipes beside the RAM ones.
     newHighCircuit('quantum_computer_luv_edram', 2, r => clean(r
         .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', '2x gtceu:quantum_processor_assembly', '8x gtceu:smd_diode',
             chip('luv', 'nor', 4), '4x af9:edram_cpu_package', '32x gtceu:fine_osmiridium_wire')
@@ -331,14 +424,155 @@ ServerEvents.recipes(event => {
             '8x gtceu:advanced_smd_capacitor', '6x af9:edram_soc_package', '16x gtceu:fine_niobium_titanium_wire')
         .itemOutputs('2x gtceu:crystal_processor_assembly')
         .duration(200).EUt(9600)))
-    // (the Nano Mainframe's eDRAM version: the pack's own Assembly Line recipe)
 
-    // ================================= UV + UHV =================================
-    // UV wetware supercomputer: GT's circuit assembler recipe replaced with a living-soldered version (reflow would
-    // kill the cells; quantanium's UHV use moves to the plasma solder condensation in solders.js).
+    // Nano Mainframe: the pack's own Assembly Line recipe (IV nano computer -> LuV).
+    event.remove({ id: 'gtceu:assembly_line/nano_processor_mainframe' })
+    event.recipes.gtceu.assembly_line('af9:nano_mainframe_luv')
+        .itemInputs(
+            '2x gtceu:tungsten_steel_frame',
+            '2x gtceu:nano_processor_computer',
+            '4x gtceu:quantum_processor_computer',
+            '8x af9:edram_soc_package',
+            '16x gtceu:fine_niobium_titanium_wire',
+            '16x gtceu:rhodium_plated_palladium_bolt')
+        .inputFluids(
+            Fluid.of('gtceu:high_grade_solder', 576),
+            Fluid.of('gtceu:polybenzimidazole', 576))
+        .itemOutputs('gtceu:nano_processor_mainframe')
+        .stationResearch(b => b
+            .researchStack(Item.of('gtceu:nano_processor_computer'))
+            .CWUt(32)
+            .EUt(VA[GTValues.IV]))
+        .duration(1200)
+        .EUt(VA[GTValues.LuV])
+
+    // ---- LuV lean (Stage 3 @UHV end, gate: tpu_chip). Packages over loose RAM,
+    // quarter metals, 2x output. ----
+    newHighCircuit('quantum_computer_luv_lean', 2, r => clean(r
+        .itemInputs('gtceu:fiber_reinforced_printed_circuit_board', 'gtceu:quantum_processor_assembly',
+            '2x af9:edram_cpu_package', 'af9:tpu_chip', '8x gtceu:fine_osmiridium_wire')
+        .itemOutputs('2x gtceu:quantum_processor_computer')
+        .duration(200).EUt(2400)))
+
+    newHighCircuit('crystal_assembly_luv_lean', 2, r => clean(r
+        .itemInputs('gtceu:multilayer_fiber_reinforced_printed_circuit_board', 'gtceu:crystal_processor',
+            '3x af9:edram_soc_package', 'af9:tpu_chip', '4x gtceu:fine_niobium_titanium_wire')
+        .itemOutputs('4x gtceu:crystal_processor_assembly')
+        .duration(200).EUt(9600)))
+
+    newLivingCircuit('wetware_processor_luv_lean', 1, r => clean(r
+        .itemInputs('gtceu:neuro_processing_unit', 'gtceu:crystal_processor_assembly', 'af9:vpu_chip',
+            'af9:tpu_chip', '2x gtceu:fine_niobium_titanium_wire')
+        .itemOutputs('4x gtceu:wetware_processor')
+        .duration(100).EUt(38400)))
+
+    // ================================= 8. ZPM (LuV -> ZPM) =================================
+    // GT's ZPM recipes are replaced wholesale: crystal computer (assembler), quantum
+    // mainframe (assembly line), wetware assembly (assembler). All take LuV circuits.
+    // Both id shapes are removed (GT's exact suffix per tier is version-dependent;
+    // removing a missing id is a harmless no-op, leaving one would be a bypass).
+    ;['crystal_processor_computer', 'crystal_processor_computer_zpm'].forEach(id => {
+        event.remove({ id: `gtceu:circuit_assembler/${id}` })
+        event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
+    })
+    ;['quantum_processor_mainframe', 'quantum_processor_mainframe_zpm'].forEach(id => {
+        event.remove({ id: `gtceu:assembly_line/${id}` })
+    })
+    ;['wetware_processor_assembly', 'wetware_processor_assembly_zpm'].forEach(id => {
+        event.remove({ id: `gtceu:circuit_assembler/${id}` })
+        event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
+    })
+
+    // Crystal computer: LuV crystal assembly + ZPM-native HASoC + NbTi.
+    highCircuit('crystal_computer_zpm', 2, r => clean(r
+        .itemInputs('gtceu:multilayer_fiber_reinforced_printed_circuit_board', '2x gtceu:crystal_processor_assembly',
+            chip('zpm', 'highly_advanced_soc', 2), '8x gtceu:advanced_smd_capacitor', '16x gtceu:fine_niobium_titanium_wire')
+        .itemOutputs('gtceu:crystal_processor_computer')
+        .duration(400).EUt(VA[GTValues.IV])))
+
+    // Quantum mainframe (AL): LuV quantum computer + ZPM crystal computer + TMD logic.
+    assemblyLine('quantum_mainframe_zpm', r => r
+        .itemInputs(
+            '2x gtceu:tritanium_frame',
+            '2x gtceu:quantum_processor_computer',
+            '2x gtceu:crystal_processor_computer',
+            '8x af9:tmd_logic_chip',
+            '16x gtceu:fine_naquadah_alloy_wire',
+            '8x gtceu:tritanium_bolt')
+        .inputFluids(
+            Fluid.of('gtceu:high_grade_solder', 576),
+            Fluid.of('gtceu:polybenzimidazole', 576))
+        .itemOutputs('gtceu:quantum_processor_mainframe')
+        .stationResearch(b => b
+            .researchStack(Item.of('gtceu:quantum_processor_computer'))
+            .CWUt(48)
+            .EUt(VA[GTValues.LuV]))
+        .duration(1200)
+        .EUt(VA[GTValues.ZPM]))
+
+    // Wetware assembly: LuV wetware + ZPM crystal computer + NPU, living solder.
+    livingCircuit('wetware_assembly_zpm', 2, r => clean(r
+        .itemInputs('2x gtceu:wetware_processor', 'gtceu:crystal_processor_computer', 'gtceu:neuro_processing_unit',
+            '8x gtceu:advanced_smd_capacitor', '16x gtceu:fine_naquadah_alloy_wire')
+        .itemOutputs('gtceu:wetware_processor_assembly')
+        .duration(400).EUt(VA[GTValues.LuV])))
+
+    // ---- ZPM lean (Stage 3 @UHV end, gate: tpu_chip + quantanium) ----
+    newHighCircuit('crystal_computer_zpm_lean', 2, r => clean(r
+        .itemInputs('gtceu:multilayer_fiber_reinforced_printed_circuit_board', 'gtceu:crystal_processor_assembly',
+            chip('zpm', 'highly_advanced_soc', 2), 'af9:tpu_chip', '4x gtceu:fine_niobium_titanium_wire')
+        .itemOutputs('2x gtceu:crystal_processor_computer')
+        .duration(200).EUt(VA[GTValues.IV])))
+
+    event.recipes.gtceu.assembly_line('af9:quantum_mainframe_zpm_lean')
+        .itemInputs(
+            '2x gtceu:tritanium_frame',
+            'gtceu:quantum_processor_computer',
+            'gtceu:crystal_processor_computer',
+            '4x af9:tmd_logic_chip',
+            'af9:tpu_chip',
+            'gtceu:quantanium_dust',
+            '8x gtceu:fine_naquadah_alloy_wire')
+        .inputFluids(
+            Fluid.of('gtceu:high_grade_solder', 288),
+            Fluid.of('gtceu:polybenzimidazole', 288))
+        .itemOutputs('2x gtceu:quantum_processor_mainframe')
+        .duration(600)
+        .EUt(VA[GTValues.ZPM])
+
+    newLivingCircuit('wetware_assembly_zpm_lean', 2, r => clean(r
+        .itemInputs('gtceu:wetware_processor', 'gtceu:crystal_processor_computer', 'af9:tpu_chip',
+            '4x gtceu:fine_naquadah_alloy_wire')
+        .itemOutputs('2x gtceu:wetware_processor_assembly')
+        .duration(200).EUt(VA[GTValues.LuV])))
+
+    // ================================= 9. UV (ZPM -> UV) =================================
+    // Crystal mainframe (AL): ZPM crystal computer + UV-native TPU.
+    event.remove({ id: 'gtceu:assembly_line/crystal_processor_mainframe' })
+    event.remove({ id: 'gtceu:assembly_line/crystal_processor_mainframe_uv' })
+    assemblyLine('crystal_mainframe_uv', r => r
+        .itemInputs(
+            '2x gtceu:tritanium_frame',
+            '2x gtceu:crystal_processor_computer',
+            '4x af9:tpu_chip',
+            '8x af9:memristor_chip',
+            '16x gtceu:fine_tritanium_wire',
+            '8x gtceu:europium_plate')
+        .inputFluids(
+            Fluid.of('gtceu:high_grade_solder', 1152),
+            Fluid.of('gtceu:polybenzimidazole', 1152))
+        .itemOutputs('gtceu:crystal_processor_mainframe')
+        .stationResearch(b => b
+            .researchStack(Item.of('gtceu:crystal_processor_computer'))
+            .CWUt(64)
+            .EUt(VA[GTValues.ZPM]))
+        .duration(1600)
+        .EUt(VA[GTValues.UV]))
+
+    // Wetware supercomputer: ZPM wetware assembly + living solder, sterile.
+    event.remove({ id: 'gtceu:circuit_assembler/wetware_processor_computer' })
     event.remove({ id: 'gtceu:circuit_assembler/wetware_processor_computer_uv' })
     event.remove({ id: 'gtceu:circuit_assembler/wetware_processor_computer_uv_soldering_alloy' })
-
     event.recipes.gtceu.circuit_assembler('af9:wetware_processor_computer_living')
         .itemInputs(
             'gtceu:wetware_printed_circuit_board',
@@ -352,14 +586,38 @@ ServerEvents.recipes(event => {
         .duration(400)
         .EUt(VA[GTValues.UV])
 
-    // UHV wetware mainframe (photonic-only): GT's assembly line (tritanium frame, 2x wetware computer, 5x 32x SMD,
-    // 64x PBI foil, 32x RAM, 16x double ENTED wire, europium plates) is replaced with a photonic-only line:
-    // photonic ICs (processors) + spin-logic chips (memory), 10x wetware
-    // supercomputers, 64x double ENTED wire and 128x PBI foil. Same research as GT (scan the wetware
-    // supercomputer, 96 CWU/t at UV) and UV power. Soldered with plasma solder (half the amount: atomic deposition
-    // wastes nothing); the faster plasma_soldering version runs in the Orbital Array Mk2 (extended, in orbit).
-    event.remove({ id: 'gtceu:assembly_line/wetware_mainframe_uhv' })
+    // ---- UV lean (Stage 3 @UHV end, gate: tpu_chip + quantanium) ----
+    event.recipes.gtceu.assembly_line('af9:crystal_mainframe_uv_lean')
+        .itemInputs(
+            '2x gtceu:tritanium_frame',
+            'gtceu:crystal_processor_computer',
+            '2x af9:tpu_chip',
+            '4x af9:memristor_chip',
+            'gtceu:quantanium_dust',
+            '8x gtceu:fine_tritanium_wire')
+        .inputFluids(
+            Fluid.of('gtceu:high_grade_solder', 576),
+            Fluid.of('gtceu:polybenzimidazole', 576))
+        .itemOutputs('2x gtceu:crystal_processor_mainframe')
+        .duration(800)
+        .EUt(VA[GTValues.UV])
 
+    event.recipes.gtceu.circuit_assembler('af9:wetware_processor_computer_lean_living')
+        .itemInputs(
+            'gtceu:wetware_printed_circuit_board',
+            'gtceu:wetware_processor_assembly',
+            'af9:tpu_chip',
+            '4x gtceu:advanced_smd_capacitor',
+            '8x gtceu:fine_tritanium_wire')
+        .inputFluids(Fluid.of('gtceu:living_solder', 144))
+        .itemOutputs('2x gtceu:wetware_processor_computer')
+        .cleanroom(CleanroomType.STERILE_CLEANROOM)
+        .duration(200)
+        .EUt(VA[GTValues.UV])
+
+    // ================================= 10. UHV (UV -> UHV) =================================
+    // UHV wetware mainframe (photonic-only): 10x UV supercomputers + photonic/spin dies.
+    event.remove({ id: 'gtceu:assembly_line/wetware_mainframe_uhv' })
     event.recipes.gtceu.assembly_line('af9:wetware_mainframe_uhv')
         .itemInputs(
             '2x gtceu:tritanium_frame',
@@ -380,4 +638,188 @@ ServerEvents.recipes(event => {
             .EUt(VA[GTValues.UV]))
         .duration(2000)
         .EUt(VA[GTValues.UV])
+
+    // ---- UHV lean (Stage 4 @XPS end, gate: photonic + spin packages) ----
+    event.recipes.gtceu.assembly_line('af9:wetware_mainframe_uhv_lean')
+        .itemInputs(
+            '2x gtceu:tritanium_frame',
+            '5x gtceu:wetware_processor_computer',
+            '8x af9:photonic_package',
+            '32x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire',
+            '64x gtceu:polybenzimidazole_foil',
+            '4x gtceu:europium_plate')
+        .inputFluids(
+            Fluid.of('gtceu:plasma_solder', 720),
+            Fluid.of('gtceu:polybenzimidazole', 576))
+        .itemOutputs('2x gtceu:wetware_processor_mainframe')
+        .duration(1000)
+        .EUt(VA[GTValues.UV])
+
+    // ================================= 11. XPS (UHV -> XPS) =================================
+    // XPS processor (AL, UHV): UHV mainframe recombined with photonics + sanguinite wire.
+    assemblyLine('xps_processor', r => r
+        .itemInputs(
+            '2x gtceu:tritanium_frame',
+            '2x gtceu:wetware_processor_mainframe',
+            '16x af9:photonic_ic_chip',
+            '8x af9:spin_logic_chip',
+            '16x gtceu:fine_sanguinite_wire',
+            '8x gtceu:neutronium_plate')
+        .inputFluids(
+            Fluid.of('gtceu:plasma_solder', 720),
+            Fluid.of('gtceu:polybenzimidazole', 576))
+        .itemOutputs('af9:xps_processor')
+        .stationResearch(b => b
+            .researchStack(Item.of('gtceu:wetware_processor_mainframe'))
+            .CWUt(128)
+            .EUt(VA[GTValues.UHV]))
+        .duration(2000)
+        .EUt(VA[GTValues.UHV]))
+
+    // XPS mainframe (AL, UHV): 2x XPS processor + quantanium + memristors.
+    assemblyLine('xps_processor_mainframe', r => r
+        .itemInputs(
+            '4x gtceu:tritanium_frame',
+            '2x af9:xps_processor',
+            '8x af9:photonic_package',
+            '16x af9:memristor_chip',
+            '32x gtceu:fine_sanguinite_wire',
+            '16x gtceu:quantanium_dust')
+        .inputFluids(
+            Fluid.of('gtceu:plasma_solder', 1440),
+            Fluid.of('gtceu:polybenzimidazole', 1152))
+        .itemOutputs('af9:xps_processor_mainframe')
+        .stationResearch(b => b
+            .researchStack(Item.of('af9:xps_processor'))
+            .CWUt(160)
+            .EUt(VA[GTValues.UHV]))
+        .duration(2400)
+        .EUt(VA[GTValues.UHV]))
+
+    // ---- XPS lean (Stage 4 @XPS end for the processor, Stage 5 @NVM end for the
+    // mainframe): half the frames, packages over loose dies. ----
+    event.recipes.gtceu.assembly_line('af9:xps_processor_lean')
+        .itemInputs(
+            '2x gtceu:tritanium_frame',
+            'gtceu:wetware_processor_mainframe',
+            '4x af9:photonic_package',
+            '8x gtceu:fine_sanguinite_wire',
+            '4x gtceu:neutronium_plate')
+        .inputFluids(
+            Fluid.of('gtceu:plasma_solder', 360),
+            Fluid.of('gtceu:polybenzimidazole', 288))
+        .itemOutputs('2x af9:xps_processor')
+        .duration(1000)
+        .EUt(VA[GTValues.UHV])
+
+    event.recipes.gtceu.assembly_line('af9:xps_processor_mainframe_lean')
+        .itemInputs(
+            '2x gtceu:tritanium_frame',
+            'af9:xps_processor',
+            '4x af9:photonic_package',
+            '8x af9:memristor_chip',
+            'af9:quantum_dot_ic_chip',
+            '16x gtceu:fine_sanguinite_wire')
+        .inputFluids(
+            Fluid.of('gtceu:plasma_solder', 720),
+            Fluid.of('gtceu:polybenzimidazole', 576))
+        .itemOutputs('2x af9:xps_processor_mainframe')
+        .duration(1200)
+        .EUt(VA[GTValues.UHV])
+
+    // ================================= 12. NVM (XPS -> NVM, top of the ladder) =========
+    // NVM processor (AL, UHV): XPS mainframe + memristive + quantum-dot memory.
+    assemblyLine('nvm_processor', r => r
+        .itemInputs(
+            '4x gtceu:tritanium_frame',
+            '2x af9:xps_processor_mainframe',
+            '32x af9:memristor_chip',
+            '16x af9:quantum_dot_ic_chip',
+            '8x af9:tpu_chip',
+            '32x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire')
+        .inputFluids(
+            Fluid.of('gtceu:plasma_solder', 1440),
+            Fluid.of('gtceu:polybenzimidazole', 1152))
+        .itemOutputs('af9:nvm_processor')
+        .stationResearch(b => b
+            .researchStack(Item.of('af9:xps_processor_mainframe'))
+            .CWUt(192)
+            .EUt(VA[GTValues.UHV]))
+        .duration(2400)
+        .EUt(VA[GTValues.UHV]))
+
+    // NVM mainframe (AL, UHV): top of the ladder. Memory that computes.
+    assemblyLine('nvm_processor_mainframe', r => r
+        .itemInputs(
+            '8x gtceu:tritanium_frame',
+            '2x af9:nvm_processor',
+            '32x af9:memristor_chip',
+            '32x af9:quantum_dot_ic_chip',
+            '16x af9:tpu_chip',
+            '64x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire')
+        .inputFluids(
+            Fluid.of('gtceu:plasma_solder', 2880),
+            Fluid.of('gtceu:polybenzimidazole', 2304))
+        .itemOutputs('af9:nvm_processor_mainframe')
+        .stationResearch(b => b
+            .researchStack(Item.of('af9:nvm_processor'))
+            .CWUt(256)
+            .EUt(VA[GTValues.UHV]))
+        .duration(3200)
+        .EUt(VA[GTValues.UHV]))
+
+    // ---- NVM lean (Stage 5 @NVM end): the ladder at its most efficient. ----
+    event.recipes.gtceu.assembly_line('af9:nvm_processor_lean')
+        .itemInputs(
+            '2x gtceu:tritanium_frame',
+            'af9:xps_processor_mainframe',
+            '16x af9:memristor_chip',
+            '8x af9:quantum_dot_ic_chip',
+            '4x af9:tpu_chip',
+            '16x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire')
+        .inputFluids(
+            Fluid.of('gtceu:plasma_solder', 720),
+            Fluid.of('gtceu:polybenzimidazole', 576))
+        .itemOutputs('2x af9:nvm_processor')
+        .duration(1200)
+        .EUt(VA[GTValues.UHV])
+
+    event.recipes.gtceu.assembly_line('af9:nvm_processor_mainframe_lean')
+        .itemInputs(
+            '4x gtceu:tritanium_frame',
+            'af9:nvm_processor',
+            '16x af9:memristor_chip',
+            '16x af9:quantum_dot_ic_chip',
+            '8x af9:tpu_chip',
+            '32x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire')
+        .inputFluids(
+            Fluid.of('gtceu:plasma_solder', 1440),
+            Fluid.of('gtceu:polybenzimidazole', 1152))
+        .itemOutputs('2x af9:nvm_processor_mainframe')
+        .duration(1600)
+        .EUt(VA[GTValues.UHV])
+
+    // ================================= 13. packages =================================
+    // Silicon interposers: dies flip-chipped to a laminate with tier wire. The circuit
+    // takes one package instead of 4-16 loose chips; the litho stays the cost.
+    event.recipes.gtceu.assembler('af9:asic_package')
+        .itemInputs('af9:asic_chip', '2x gtceu:ram_chip', 'gtceu:epoxy_plate', '4x gtceu:fine_gold_wire')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 72))
+        .itemOutputs('af9:asic_package')
+        .duration(400)
+        .EUt(VA[GTValues.HV])
+        .cleanroom(CleanroomType.CLEANROOM)
+
+    event.recipes.gtceu.assembler('af9:photonic_package')
+        .itemInputs('af9:photonic_ic_chip', '2x af9:spin_logic_chip', 'gtceu:europium_plate', '4x gtceu:fine_sanguinite_wire')
+        .inputFluids(Fluid.of('gtceu:plasma_solder', 36))
+        .itemOutputs('af9:photonic_package')
+        .duration(400)
+        .EUt(VA[GTValues.UHV])
+        .cleanroom(CleanroomType.CLEANROOM)
+})
+
+ServerEvents.tags('item', event => {
+    event.add('gtceu:circuits/xps', ['af9:xps_processor', 'af9:xps_processor_mainframe'])
+    event.add('gtceu:circuits/nvm', ['af9:nvm_processor', 'af9:nvm_processor_mainframe'])
 })

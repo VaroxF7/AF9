@@ -30,6 +30,7 @@ item af9:apu_wafer
 item af9:arf_excimer_laser
 item af9:asic_chip
 item af9:asic_euv_reticle
+item af9:asic_package
 item af9:asic_psm_reticle
 item af9:asic_reticle
 item af9:asic_wafer
@@ -156,6 +157,8 @@ item af9:neutronium_seed_crystal
 item af9:nor_euv_reticle
 item af9:nor_psm_reticle
 item af9:nor_reticle
+item af9:nvm_processor
+item af9:nvm_processor_mainframe
 item af9:oil_regolith
 item af9:phase_shift_mask_blank
 item af9:phosphorus_melt_charge
@@ -165,6 +168,7 @@ item af9:photonic_ic_chip
 item af9:photonic_ic_euv_reticle
 item af9:photonic_ic_reticle
 item af9:photonic_ic_wafer
+item af9:photonic_package
 item af9:plascrete_filter_casing
 item af9:plascrete_pipe_casing
 item af9:qgp_trap
@@ -237,6 +241,8 @@ item af9:vpu_chip
 item af9:vpu_euv_reticle
 item af9:vpu_reticle
 item af9:vpu_wafer
+item af9:xps_processor
+item af9:xps_processor_mainframe
 material gtceu:acetaldehyde
 material gtceu:acetone_cyanohydrin
 material gtceu:acetoxyacetophenone
