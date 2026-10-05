@@ -1,8 +1,8 @@
 // AF9 - The end of GT's uranium veins (asteroid_fission.js has the rest of the chain; spec: docs/asteroid-fission.md).
 //
-// The Asteroid Field's own ores (brannerite, pentlandite, magnetite, cooperite) are not GT ore veins any more: af9-core's
-// AsteroidOres grows them into the rock as the asteroids are made. A standard GT vein is a small blob at one random height,
-// which in rocks hanging anywhere in 250 blocks of height lay in the void or cut the rock in a thin slab.
+// The belts' own ores (brannerite, pentlandite, magnetite, cooperite) are GT dike veins now (vein_belts.js):
+// vertical dikes piercing every rock of their column at every height. A standard GT blob at one random height
+// would mostly miss the floating rocks or cut one in a thin slab, which is why the field used custom-grown ore noise before.
 //
 // This file is named to load AFTER mining_dim_ores.js: that script of the pack runs modifyAll over every GT vein and
 // moves it to the Mining dimension, so a change made before it could be overwritten. Server scripts load in alphabetical order.

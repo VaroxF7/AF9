@@ -181,13 +181,14 @@ startup = 'kubejs/startup_scripts/gtceu/asteroid_fission.js'
 server = 'kubejs/server_scripts/mods/gtceu/asteroid_fission.js'
 feature = 'af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java'
 rock_m = code(feature, r'BlockState rockAt\(.*?\n    }', 'rockAt')
-# the ore layer of the Asteroid Field (AF9Space): its stones are a block tag, its dimension a constant
+# the ore layer of the two belts (AF9Space): its stones are a block tag, its dimensions constants
 space = 'af9-core/src/main/java/com/af9/core/space/AF9Space.java'
 rock_tag = 'af9-core/src/main/resources/data/af9/tags/blocks/asteroid_rock.json'
-layer_m = code(space, r'new SimpleWorldGenLayer\(ORE_LAYER, \(\) -> new TagMatchTest\(ASTEROID_ROCK\), Set\.of\(ASTEROID_FIELD_DIMENSION\)\)',
-               'the ore layer of the Asteroid Field')
+layer_m = code(space, r'new SimpleWorldGenLayer\(ORE_LAYER, \(\) -> new TagMatchTest\(ASTEROID_ROCK\),\s*Set\.of\(ASTEROID_FIELD_DIMENSION, CERES_DIMENSION\)\)',
+               'the ore layer of the belts')
 tag_m = code(space, r'ASTEROID_ROCK = BlockTags\.create\(new ResourceLocation\(AF9Core\.MOD_ID,\s*"asteroid_rock"\)\)', 'the tag of the layer\'s stones')
 layer_dim_m = code(space, r'ASTEROID_FIELD_DIMENSION = new ResourceLocation\(AF9Core\.MOD_ID,\s*"(\w+)"\)', 'the dimension of the ore layer')
+ceres_dim_m = code(space, r'CERES_DIMENSION = new ResourceLocation\(AF9Core\.MOD_ID,\s*"(\w+)"\)', 'the Ceres dimension')
 if rock_m and layer_m and tag_m:
     checked += 1
     rock = sorted({'minecraft:' + b.lower() for b in re.findall(r'Blocks\.([A-Z_]+)\.defaultBlockState', rock_m.group(0))})
@@ -226,8 +227,16 @@ for n, planet in planets.items():
         report(f'planets/{n}.json: its orbit {planet["orbit"]} is no planet of AF9', code='X4')
 space = {p['dimension'] for p in planets.values() if 'orbit' not in p}
 used_dims = set(re.findall(r"\.dimensions\('([^']+)'\)", read(startup) + read(server)))
+# veins may name several dimensions in one call: .dimensions('a', 'b')
+for args in re.findall(r"\.dimensions\(([^)]+)\)", read(startup) + read(server)):
+    for m in args.split(','):
+        m = m.strip().strip("'\"")
+        if m:
+            used_dims.add(m)
 if layer_dim_m:
     used_dims.add('af9:' + layer_dim_m.group(1))
+if 'ceres_dim_m' in dir() and ceres_dim_m:
+    used_dims.add('af9:' + ceres_dim_m.group(1))
 for d in sorted(used_dims):
     checked += 1
     if d not in dims:

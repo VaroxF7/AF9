@@ -1,6 +1,7 @@
 package com.af9.core.machine;
 
 import com.af9.core.client.render.LightRingRender;
+import com.af9.core.client.render.LithoChamberRender;
 import com.af9.core.client.render.ModeFluidRender;
 import com.af9.core.client.render.SpaceElevatorRender;
 
@@ -97,7 +98,7 @@ public final class AF9MachineModels {
     }
 
     /**
-     * As above, the ring running inside the machine: {@code wall} blocks out from the housing's inner face (the Particle
+     * As above, the ring running inside its machine: {@code wall} blocks out from the housing's inner face (the Particle
      * Accelerator's, through its magnets). The blocks hide it, it glows out through the glass; the lightning leaps off
      * the inner face into the middle and the sparks spit off it.
      */
@@ -110,5 +111,20 @@ public final class AF9MachineModels {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(
                         () -> LightRingRender.create(up, back, radius, thickness, axis, arcs, wall)));
+    }
+
+    /**
+     * GT's workable casing model plus the lithography exposure chamber ({@link LithoChamberRender}): violet UV
+     * fill, the wafer exposing die by die, the scanning laser and the wafer robot on its slide. The machine must
+     * implement {@link ILithoChamberMachine} and have a block entity renderer ({@code .hasBER(true)}).
+     *
+     * @param up   chamber centre along the controller's up
+     * @param back chamber centre behind the controller
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithChamber(ResourceLocation casing,
+                                                                             ResourceLocation overlay, float up,
+                                                                             float back) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(() -> LithoChamberRender.create(up, back)));
     }
 }

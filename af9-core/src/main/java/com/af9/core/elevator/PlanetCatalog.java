@@ -121,6 +121,15 @@ public final class PlanetCatalog {
         add(list, 9, 7, GTMaterials.Radon, 128);
         // LXA-1, the far dark's light exotic for Sanguinite (docs/uhv-superconductor.md): 64 buckets a Mk-IV mission
         add(list, 9, 8, af9Fluid("lxa_1"), 64);
+        // Ceres volatiles: the lower belt's exosphere gases, richer cuts than the same fluids nearer home
+        // (type 5 holds methane, ethane, helium, neon, argon and krypton; type 6 holds xenon)
+        add(list, 9, 9, GTMaterials.Methane, 2_200);
+        add(list, 9, 10, GTMaterials.Ethane, 1_500);
+        add(list, 9, 11, GTMaterials.Helium, 1_800);
+        add(list, 9, 12, GTMaterials.Argon, 64);
+        add(list, 9, 13, GTMaterials.Neon, 64);
+        add(list, 9, 14, GTMaterials.Krypton, 16);
+        add(list, 9, 15, GTMaterials.Xenon, 32);
         return List.copyOf(list);
     }
 

@@ -2,8 +2,9 @@ package com.af9.core.client;
 
 import com.af9.core.AF9Core;
 import com.af9.core.client.render.LightRingRender;
-import com.af9.core.client.render.SpaceElevatorRender;
+import com.af9.core.client.render.LithoChamberRender;
 import com.af9.core.client.render.ModeFluidRender;
+import com.af9.core.client.render.SpaceElevatorRender;
 import com.af9.core.compat.emi.EmiAcceleratorCompat;
 import com.af9.core.wafer.WaferContamination;
 import com.af9.core.wireless.WirelessLink;
@@ -32,6 +33,7 @@ public final class AF9Client {
     public static void init() {
         ModeFluidRender.register();
         LightRingRender.register();
+        LithoChamberRender.register();
         SpaceElevatorRender.register();
         // every item is registered by client setup, and EMI has not loaded its list yet
         FMLJavaModLoadingContext.get().getModEventBus()

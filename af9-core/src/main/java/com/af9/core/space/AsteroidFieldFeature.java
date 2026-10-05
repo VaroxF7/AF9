@@ -25,10 +25,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * The asteroids of the Asteroid Field (af9:asteroid_field), a void dimension: <b>clusters</b>, each a large island with
+ * The asteroids of the two void belts (af9:asteroid_field and af9:ceres): <b>clusters</b>, each a large island with
  * a swarm of smaller rocks around it at every height of a range of about 85 blocks, and empty space between the
  * clusters (the nearest island is about 100 blocks from an island's edge; about 5 blocks of rock in a column of the whole
  * 300-block height).
+ * <p>
+ * The upper belt ({@link Belt#FIELD}, af9:asteroid_field) is the original field; the lower belt ({@link Belt#CERES},
+ * af9:ceres) is denser with smaller islands and a darker, more basaltic stone mix, and holds no temples: the mining
+ * belt below the temple field. Each belt has its own layout (its own salts), so the same XZ holds different rocks in
+ * each dimension.
  * <p>
  * Every chunk draws every cluster that reaches into it and fills only its own part, so the rocks come out whole
  * whatever order the chunks are generated in. A cluster is fixed by the world seed and the square cell of
@@ -45,12 +50,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Every rock is an ellipsoid whose surface is pushed in and out by two layers of simplex noise.
  * <p>
  * The rock is a mix of andesite, tuff, basalt and blackstone (by a slow noise, so it comes in patches): the stones
- * GregTech has ore blocks for: where an ore's noise is high ({@link AsteroidOres}) the stone is GT's ore block of it,
- * at every height, not in GT's flat veins. In pockets of it (a second noise, about 7 % of the rock) the stone is {@link AF9Space#OIL_REGOLITH}, the sand-like,
+ * GT's ore veins grow into (GT dike veins, like quantanium: vertical dikes piercing every rock of their column, at
+ * every height, not GT's flat blobs). In pockets of it (a second noise, about 7 % of the rock) the stone is {@link AF9Space#OIL_REGOLITH}, the sand-like,
  * oil-soaked rock all of the game's oil comes from. Ad Astra builds a space station at y = 100; rocks hang around it
  * at any height.
  * <p>
- * Temples ({@link TempleLayout}): the island of a cluster holds a temple (the biggest size that fits, a grand temple in all
+ * Temples ({@link TempleLayout}, upper belt only): the island of a cluster holds a temple (the biggest size that fits, a grand temple in all
  * but the smallest islands), a large satellite most of the time (60 %), a medium one now and then (25 %, a shrine); pebbles
  * and small rocks never. The hall is carved out of the rock and lined with polished blackstone brick, the corridor from it
  * runs out to a gate on the surface, in front of the gate a forecourt with pillars and two glowing towers stands out into
@@ -61,6 +66,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * rock that overlaps a temple's rock never closes its corridor.
  */
 public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
+
+    /** Which belt this instance makes: the upper field or the lower Ceres belt. */
+    public enum Belt { FIELD, CERES }
+
+    private final Belt belt;
 
     /** Lowest and highest y a rock's centre can have. */
     public static final int CENTER_MIN_Y = 5;
@@ -117,6 +127,25 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     private static final int CLUSTER_REACH = (int) Math.ceil(
             (ISLAND_MAX_R * 1.2 + SATELLITE_DISTANCE + 28 * MAX_STRETCH) * MAX_BULGE) + MARGIN + 4;
 
+    /** The Ceres belt's layout: denser cells, smaller islands, a tighter swarm (about 13 clusters per km2). */
+    private static final int CERES_CELL = 240;
+    private static final double CERES_CLUSTER_CHANCE = 0.75;
+    private static final double CERES_DRIFT = 70;
+    private static final double CERES_LIFT = 45;
+    private static final int CERES_ISLAND_MIN_R = 30;
+    private static final int CERES_ISLAND_MAX_R = 55;
+    private static final double CERES_ISLAND_FLAT_MIN = 0.50;
+    private static final double CERES_ISLAND_FLAT_MAX = 0.75;
+    private static final int CERES_MIN_SATELLITES = 10;
+    private static final int CERES_MAX_SATELLITES = 20;
+    private static final double CERES_SATELLITE_DISTANCE = 70;
+    private static final double CERES_SATELLITE_SPREAD_Y = 35;
+    private static final int CERES_CLUSTER_REACH = (int) Math.ceil(
+            (CERES_ISLAND_MAX_R * 1.2 + CERES_SATELLITE_DISTANCE + 28 * MAX_STRETCH) * MAX_BULGE) + MARGIN + 4;
+    /** Salt so the Ceres belt's clusters differ from the upper field's at the same XZ (and its drift too). */
+    private static final long CERES_SALT = 0x0CE5E5BE11L;
+    private static final long CERES_DRIFT_SALT = 0x5DEE5A1FL;
+
     /**
      * Above this value of the pocket noise the rock is Oil Regolith: about 7 % of it, in separate deposits of some hundreds of
      * blocks. (It was 0.38 at a scale of 0.07: a fifth of the rock, and the pockets ran into each other.)
@@ -150,33 +179,113 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     /** A cluster: its centre, its rocks (the island first) and the rock that would hold its temple. */
     private record Cluster(double x, double z, List<Spec> specs, Spec host) {}
 
-    /** The square of a grid of the temples, in a world. */
-    private record Region(long seed, int x, int z) {}
+    /** The square of a grid of the temples, in a world and a belt. */
+    private record Region(long seed, Belt belt, int x, int z) {}
 
     private static final long NO_ROCK = Long.MIN_VALUE;
     /** The rock that holds the temple of a region (its noise seed, or {@link #NO_ROCK}): a pure function, kept for speed. */
     private static final Map<Region, Long> TEMPLE_ROCKS = new ConcurrentHashMap<>();
-    private static final AtomicBoolean LOGGED = new AtomicBoolean();
+    private static final AtomicBoolean LOGGED_FIELD = new AtomicBoolean();
+    private static final AtomicBoolean LOGGED_CERES = new AtomicBoolean();
 
     private static final Direction[] ENTRANCES = { Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST };
     private static final int SATELLITE_WEIGHT = 28 + 40 + 24 + 8;
 
-    /** The slow noise that lifts and sinks regions: made once per world seed. */
-    private static volatile Drift drift;
+    /** Above this value of the pocket noise the Ceres rock is Oil Regolith: slightly richer than the upper field. */
+    private static final double CERES_OIL_POCKET = 0.60;
+
+    /** The slow noise that lifts and sinks regions: made once per world seed and belt. */
+    private static final Map<Belt, Drift> DRIFTS = new ConcurrentHashMap<>();
 
     private record Drift(long seed, SimplexNoise noise) {}
 
-    private static SimplexNoise driftNoise(long seed) {
-        Drift current = drift;
-        if (current == null || current.seed != seed) {
-            current = new Drift(seed, new SimplexNoise(new XoroshiroRandomSource(seed ^ 0x5DEECE66DL)));
-            drift = current;
+    private SimplexNoise driftNoise(long seed) {
+        long salted = belt == Belt.CERES ? seed ^ CERES_DRIFT_SALT : seed;
+        Drift current = DRIFTS.get(belt);
+        if (current == null || current.seed != salted) {
+            current = new Drift(salted, new SimplexNoise(new XoroshiroRandomSource(salted ^ 0x5DEECE66DL)));
+            DRIFTS.put(belt, current);
         }
         return current.noise;
     }
 
     public AsteroidFieldFeature() {
+        this(Belt.FIELD);
+    }
+
+    public AsteroidFieldFeature(Belt belt) {
         super(NoneFeatureConfiguration.CODEC);
+        this.belt = belt;
+    }
+
+    private boolean isCeres() {
+        return belt == Belt.CERES;
+    }
+
+    private int cell() {
+        return isCeres() ? CERES_CELL : CELL;
+    }
+
+    private double clusterChance() {
+        return isCeres() ? CERES_CLUSTER_CHANCE : CLUSTER_CHANCE;
+    }
+
+    private double drift() {
+        return isCeres() ? CERES_DRIFT : DRIFT;
+    }
+
+    private double lift() {
+        return isCeres() ? CERES_LIFT : LIFT;
+    }
+
+    private int clusterReach() {
+        return isCeres() ? CERES_CLUSTER_REACH : CLUSTER_REACH;
+    }
+
+    private double oilPocket() {
+        return isCeres() ? CERES_OIL_POCKET : OIL_POCKET;
+    }
+
+    private int islandMinR() {
+        return isCeres() ? CERES_ISLAND_MIN_R : ISLAND_MIN_R;
+    }
+
+    private int islandMaxR() {
+        return isCeres() ? CERES_ISLAND_MAX_R : ISLAND_MAX_R;
+    }
+
+    private double islandFlatMin() {
+        return isCeres() ? CERES_ISLAND_FLAT_MIN : ISLAND_FLAT_MIN;
+    }
+
+    private double islandFlatMax() {
+        return isCeres() ? CERES_ISLAND_FLAT_MAX : ISLAND_FLAT_MAX;
+    }
+
+    private int minSatellites() {
+        return isCeres() ? CERES_MIN_SATELLITES : MIN_SATELLITES;
+    }
+
+    private int maxSatellites() {
+        return isCeres() ? CERES_MAX_SATELLITES : MAX_SATELLITES;
+    }
+
+    private double satelliteDistance() {
+        return isCeres() ? CERES_SATELLITE_DISTANCE : SATELLITE_DISTANCE;
+    }
+
+    private double satelliteSpreadY() {
+        return isCeres() ? CERES_SATELLITE_SPREAD_Y : SATELLITE_SPREAD_Y;
+    }
+
+    /** A well-mixed seed of one cell (the Ceres belt salts its own, so its layout differs at the same XZ). */
+    private long cellSeed(long seed, int cellX, int cellZ) {
+        long salted = isCeres() ? seed ^ CERES_SALT : seed;
+        long hash = salted ^ 0x9E3779B97F4A7C15L;
+        hash ^= cellX * 0xC2B2AE3D27D4EB4FL;
+        hash = mix(hash);
+        hash ^= cellZ * 0x165667B19E3779F9L;
+        return mix(hash);
     }
 
     @Override
@@ -186,15 +295,21 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         int chunkMinX = origin.getX() & ~15;
         int chunkMinZ = origin.getZ() & ~15;
         long seed = level.getSeed();
-        if (LOGGED.compareAndSet(false, true)) {
-            AF9Core.LOGGER.info("AF9 Asteroid Field: a cluster in {} % of the cells of {} blocks, temples on a grid of {} "
-                    + "chunks (separation {}, within {} blocks of the point), oil regolith above noise {}",
-                    (int) (CLUSTER_CHANCE * 100), CELL, TEMPLE_SPACING, TEMPLE_SEPARATION, (int) TEMPLE_RANGE, OIL_POCKET);
+        AtomicBoolean logged = isCeres() ? LOGGED_CERES : LOGGED_FIELD;
+        if (logged.compareAndSet(false, true)) {
+            AF9Core.LOGGER.info("AF9 {}: a cluster in {} % of the cells of {} blocks, {}oil regolith above noise {}",
+                    isCeres() ? "Ceres belt" : "Asteroid Field",
+                    (int) (clusterChance() * 100), cell(),
+                    isCeres() ? "no temples, " : "temples on a grid of " + TEMPLE_SPACING
+                            + " chunks (separation " + TEMPLE_SEPARATION + ", within " + (int) TEMPLE_RANGE + " blocks), ",
+                    oilPocket());
         }
-        int cellMinX = Mth.floorDiv(chunkMinX - CLUSTER_REACH, CELL);
-        int cellMaxX = Mth.floorDiv(chunkMinX + 15 + CLUSTER_REACH, CELL);
-        int cellMinZ = Mth.floorDiv(chunkMinZ - CLUSTER_REACH, CELL);
-        int cellMaxZ = Mth.floorDiv(chunkMinZ + 15 + CLUSTER_REACH, CELL);
+        int reach = clusterReach();
+        int cellSize = cell();
+        int cellMinX = Mth.floorDiv(chunkMinX - reach, cellSize);
+        int cellMaxX = Mth.floorDiv(chunkMinX + 15 + reach, cellSize);
+        int cellMinZ = Mth.floorDiv(chunkMinZ - reach, cellSize);
+        int cellMaxZ = Mth.floorDiv(chunkMinZ + 15 + reach, cellSize);
         List<Rock> rocks = new ArrayList<>();
         for (int cellX = cellMinX; cellX <= cellMaxX; cellX++) {
             for (int cellZ = cellMinZ; cellZ <= cellMaxZ; cellZ++) {
@@ -214,13 +329,14 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     /** The cluster of one cell (if it has one): the rocks of it that reach into the chunk, each with its temple if it has one. */
-    private static void collectCluster(List<Rock> rocks, long seed, int cellX, int cellZ, int chunkMinX,
+    private void collectCluster(List<Rock> rocks, long seed, int cellX, int cellZ, int chunkMinX,
                                        int chunkMinZ) {
         Cluster cluster = clusterOf(seed, cellX, cellZ);
         if (cluster == null) return;
         for (Spec spec : cluster.specs) {
             if (reaches(spec.x, spec.z, spec.radiusX, spec.radiusZ, chunkMinX, chunkMinZ)) {
-                rocks.add(new Rock(spec, spec == cluster.host && clusterHasTemple(seed, cluster), seed));
+                rocks.add(new Rock(spec, spec == cluster.host && clusterHasTemple(seed, cluster), belt,
+                        oilPocket()));
             }
         }
     }
@@ -229,29 +345,31 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
      * The cluster of one cell, or null: all of it from the world seed and the cell, a pure function (every parameter of every
      * satellite is drawn, so the next does not depend on the one before).
      */
-    private static Cluster clusterOf(long seed, int cellX, int cellZ) {
+    private Cluster clusterOf(long seed, int cellX, int cellZ) {
+        int cellSize = cell();
         RandomSource random = new XoroshiroRandomSource(cellSeed(seed, cellX, cellZ));
-        if (random.nextDouble() >= CLUSTER_CHANCE) return null;
-        double centerX = cellX * (double) CELL + random.nextInt(CELL) + 0.5;
-        double centerZ = cellZ * (double) CELL + random.nextInt(CELL) + 0.5;
+        if (random.nextDouble() >= clusterChance()) return null;
+        double centerX = cellX * (double) cellSize + random.nextInt(cellSize) + 0.5;
+        double centerZ = cellZ * (double) cellSize + random.nextInt(cellSize) + 0.5;
         // the band's middle, lifted or sunk by the region and by this cluster; the satellites need room both ways
         double middle = (CENTER_MIN_Y + CENTER_MAX_Y) / 2.0;
-        double lift = driftNoise(seed).getValue(centerX * DRIFT_SCALE, centerZ * DRIFT_SCALE) * DRIFT +
-                (random.nextDouble() * 2.0 - 1.0) * LIFT;
-        double centerY = Mth.clamp(middle + lift, CENTER_MIN_Y + SATELLITE_SPREAD_Y,
-                CENTER_MAX_Y - SATELLITE_SPREAD_Y);
+        double spreadY = satelliteSpreadY();
+        double lift = driftNoise(seed).getValue(centerX * DRIFT_SCALE, centerZ * DRIFT_SCALE) * drift() +
+                (random.nextDouble() * 2.0 - 1.0) * lift();
+        double centerY = Mth.clamp(middle + lift, CENTER_MIN_Y + spreadY,
+                CENTER_MAX_Y - spreadY);
 
         List<Spec> specs = new ArrayList<>();
         // the island
-        double islandR = ISLAND_MIN_R + random.nextDouble() * (ISLAND_MAX_R - ISLAND_MIN_R);
+        double islandR = islandMinR() + random.nextDouble() * (islandMaxR() - islandMinR());
         double islandX = islandR * (0.8 + random.nextDouble() * 0.4);
         double islandZ = islandR * (0.8 + random.nextDouble() * 0.4);
-        double islandY = islandR * (ISLAND_FLAT_MIN + random.nextDouble() * (ISLAND_FLAT_MAX - ISLAND_FLAT_MIN));
+        double islandY = islandR * (islandFlatMin() + random.nextDouble() * (islandFlatMax() - islandFlatMin()));
         long islandNoise = random.nextLong();
         specs.add(new Spec(islandNoise, centerX, centerY, centerZ, islandX, islandY, islandZ, ISLAND_RANK));
 
         // the satellites
-        int count = MIN_SATELLITES + random.nextInt(MAX_SATELLITES - MIN_SATELLITES + 1);
+        int count = minSatellites() + random.nextInt(maxSatellites() - minSatellites() + 1);
         for (int i = 0; i < count; i++) {
             Satellite kind = SATELLITES[0];
             int roll = random.nextInt(SATELLITE_WEIGHT);
@@ -263,8 +381,8 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
                 roll -= candidate.weight;
             }
             double angle = random.nextDouble() * Math.PI * 2;
-            double distance = islandR * 1.05 + random.nextDouble() * SATELLITE_DISTANCE;
-            double dy = (random.nextDouble() * 2.0 - 1.0) * SATELLITE_SPREAD_Y;
+            double distance = islandR * 1.05 + random.nextDouble() * satelliteDistance();
+            double dy = (random.nextDouble() * 2.0 - 1.0) * spreadY;
             double size = Math.pow(random.nextDouble(), 1.6);
             double radius = kind.minR + size * (kind.maxR - kind.minR);
             double radiusX = radius * (0.75 + random.nextDouble() * 0.5);
@@ -291,7 +409,9 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     /** Whether the cluster holds the temple of one of the grid's regions whose candidate point is within reach of its centre. */
-    private static boolean clusterHasTemple(long seed, Cluster cluster) {
+    private boolean clusterHasTemple(long seed, Cluster cluster) {
+        // the Ceres belt is the mining belt: no temples, only the upper field has them
+        if (isCeres()) return false;
         int size = TEMPLE_SPACING * 16;
         // a candidate point lies in the first (spacing - separation) chunks of its region: at most this far from its corner
         int offset = (TEMPLE_SPACING - TEMPLE_SEPARATION) * 16;
@@ -307,8 +427,8 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         return false;
     }
 
-    private static long templeRock(long seed, int regionX, int regionZ) {
-        Region key = new Region(seed, regionX, regionZ);
+    private long templeRock(long seed, int regionX, int regionZ) {
+        Region key = new Region(seed, belt, regionX, regionZ);
         Long known = TEMPLE_ROCKS.get(key);
         if (known != null) return known;
         long found = searchTempleRock(seed, regionX, regionZ);
@@ -318,16 +438,17 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     /** The rock of the region's temple: the host of the cluster whose centre is nearest to the candidate point. */
-    private static long searchTempleRock(long seed, int regionX, int regionZ) {
+    private long searchTempleRock(long seed, int regionX, int regionZ) {
         RandomSource random = new XoroshiroRandomSource(cellSeed(seed ^ TEMPLE_SALT, regionX, regionZ));
         int spread = TEMPLE_SPACING - TEMPLE_SEPARATION;
         double pointX = (regionX * (double) TEMPLE_SPACING + random.nextInt(spread)) * 16 + 8;
         double pointZ = (regionZ * (double) TEMPLE_SPACING + random.nextInt(spread)) * 16 + 8;
         int range = (int) Math.ceil(TEMPLE_RANGE);
+        int cellSize = cell();
         Cluster best = null;
         double bestDistance = 0;
-        for (int cellX = Mth.floorDiv(Mth.floor(pointX) - range, CELL); cellX <= Mth.floorDiv(Mth.floor(pointX) + range, CELL); cellX++) {
-            for (int cellZ = Mth.floorDiv(Mth.floor(pointZ) - range, CELL); cellZ <= Mth.floorDiv(Mth.floor(pointZ) + range, CELL); cellZ++) {
+        for (int cellX = Mth.floorDiv(Mth.floor(pointX) - range, cellSize); cellX <= Mth.floorDiv(Mth.floor(pointX) + range, cellSize); cellX++) {
+            for (int cellZ = Mth.floorDiv(Mth.floor(pointZ) - range, cellSize); cellZ <= Mth.floorDiv(Mth.floor(pointZ) + range, cellSize); cellZ++) {
                 Cluster cluster = clusterOf(seed, cellX, cellZ);
                 if (cluster == null) continue;
                 double distance = Math.hypot(cluster.x - pointX, cluster.z - pointZ);
@@ -348,21 +469,22 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
                 centerZ + reachZ >= chunkMinZ && centerZ - reachZ < chunkMinZ + 16;
     }
 
-    /** One rock: its shape (an ellipsoid with a lumpy surface) and its stone (with pockets of Oil Regolith and the ores). */
+    /** One rock: its shape (an ellipsoid with a lumpy surface) and its stone (with pockets of Oil Regolith). */
     private static final class Rock {
 
         final long noiseSeed;
-        /** The world's seed: the ores' noises are of the world, not of the rock ({@link AsteroidOres}). */
-        private final long worldSeed;
         final double centerX, centerY, centerZ, radiusX, radiusY, radiusZ;
-        /** The temple inside the rock, or null. */
+        /** The temple inside the rock, or null (the Ceres belt never has one). */
         final TempleLayout temple;
         private final SimplexNoise shape, detail, stone, pocket;
         private final BlockState regolith;
         private final double shapeScale, detailScale;
+        private final Belt belt;
+        private final double oilPocket;
 
-        Rock(Spec spec, boolean hasTemple, long worldSeed) {
-            this.worldSeed = worldSeed;
+        Rock(Spec spec, boolean hasTemple, Belt belt, double oilPocket) {
+            this.belt = belt;
+            this.oilPocket = oilPocket;
             this.noiseSeed = spec.noiseSeed;
             this.centerX = spec.x;
             this.centerY = spec.y;
@@ -407,10 +529,10 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         }
 
         BlockState stoneAt(int x, int y, int z) {
-            boolean oily = pocket.getValue(x * OIL_POCKET_SCALE, y * OIL_POCKET_SCALE, z * OIL_POCKET_SCALE) > OIL_POCKET;
+            boolean oily = pocket.getValue(x * OIL_POCKET_SCALE, y * OIL_POCKET_SCALE, z * OIL_POCKET_SCALE) > oilPocket;
             if (oily) return regolith;
-            // the stone of the patch, or its ore where an ore's noise is high
-            return AsteroidOres.oreAt(worldSeed, x, y, z, rockAt(stone.getValue(x * 0.09, y * 0.09, z * 0.09)));
+            // GT's dike veins grow the ore into this stone afterwards; the rock itself is plain stone
+            return rockAt(stone.getValue(x * 0.09, y * 0.09, z * 0.09), belt);
         }
     }
 
@@ -490,23 +612,24 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         };
     }
 
-    /** The stone of a patch: darker blackstone and basalt, lighter andesite and tuff. */
-    private static BlockState rockAt(double noise) {
+    /**
+     * The stone of a patch: the upper field runs darker blackstone and basalt against lighter andesite and tuff;
+     * the Ceres belt runs more basalt and blackstone (a darker, more primitive belt).
+     */
+    private static BlockState rockAt(double noise, Belt belt) {
+        if (belt == Belt.CERES) {
+            if (noise < -0.20) return Blocks.BLACKSTONE.defaultBlockState();
+            if (noise < 0.25) return Blocks.BASALT.defaultBlockState();
+            if (noise < 0.60) return Blocks.ANDESITE.defaultBlockState();
+            return Blocks.TUFF.defaultBlockState();
+        }
         if (noise < -0.35) return Blocks.BLACKSTONE.defaultBlockState();
         if (noise < 0.15) return Blocks.ANDESITE.defaultBlockState();
         if (noise < 0.55) return Blocks.TUFF.defaultBlockState();
         return Blocks.BASALT.defaultBlockState();
     }
 
-    /** A well-mixed seed of one cell (the finalizer of MurmurHash3 over the world seed and the cell). */
-    private static long cellSeed(long seed, int cellX, int cellZ) {
-        long hash = seed ^ 0x9E3779B97F4A7C15L;
-        hash ^= cellX * 0xC2B2AE3D27D4EB4FL;
-        hash = mix(hash);
-        hash ^= cellZ * 0x165667B19E3779F9L;
-        return mix(hash);
-    }
-
+    /** A well-mixed seed (the finalizer of MurmurHash3 over the seed and the cell). */
     private static long mix(long value) {
         value ^= value >>> 33;
         value *= 0xFF51AFD7ED558CCDL;

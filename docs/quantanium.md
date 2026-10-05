@@ -30,14 +30,13 @@ is `material.gtceu.quantanium` in `kubejs/assets/gtceu/lang/en_us.json`
 
 ## 3. The vein
 
-`af9:quantanium_vein`: a dike in the field's own layer (`af9_asteroid`,
+`af9:quantanium_vein`: a dike in the belts' own layer (`af9_asteroid`,
 `af9-core/src/main/java/com/af9/core/space/AF9Space.java`), dimensions
-`af9:asteroid_field`, height 5-270 (the rocks' whole band,
+`af9:asteroid_field` and `af9:ceres`, height 5-270 (the rocks' whole band,
 `af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`).
 
 Dikes, not blobs: a standard GT blob at one random height mostly misses the
-floating rocks or cuts one in a thin slab (`af9-core/.../space/AsteroidOres.java`
-says why the field's own ores grow by noise instead). A vertical dike pierces
+floating rocks or cuts one in a thin slab. A vertical dike pierces
 every rock of its column. `discardChanceOnAirExposure` is 0.0: every asteroid
 is exposed to the void, the default would eat the vein.
 

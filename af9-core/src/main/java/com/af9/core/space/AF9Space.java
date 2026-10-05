@@ -25,9 +25,11 @@ import net.minecraftforge.registries.RegistryObject;
 import java.util.Set;
 
 /**
- * Space: the world generation of the Asteroid Field (data/af9: dimension af9:asteroid_field, the biome of the same
- * name that carries the feature, the planets af9:ceres and af9:asteroid_field for Ad Astra). Spec:
- * docs/asteroid-fission.md.
+ * Space: the world generation of the Asteroid Field and the Ceres belt (data/af9: dimensions af9:asteroid_field and
+ * af9:ceres, the biomes of the same names that carry the features, the planets af9:ceres and af9:asteroid_field for
+ * Ad Astra). Both dimensions are voids with asteroid clusters ({@link AsteroidFieldFeature}, two belts with their own
+ * layout and stone mix); GT's ore veins grow into the rock, the prospector and the Fluid Drilling Rig find GT's fluid
+ * deposits there. Spec: docs/asteroid-fission.md.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
 public final class AF9Space {
@@ -52,23 +54,31 @@ public final class AF9Space {
     public static final RegistryObject<AsteroidFieldFeature> ASTEROID_FIELD = FEATURES.register("asteroid_field",
             AsteroidFieldFeature::new);
 
+    /** The asteroids of the Ceres belt; placed by data/af9/worldgen/placed_feature/ceres_field.json. */
+    public static final RegistryObject<AsteroidFieldFeature> CERES_FIELD = FEATURES.register("ceres_field",
+            () -> new AsteroidFieldFeature(AsteroidFieldFeature.Belt.CERES));
+
     /** The dimension of the Asteroid Field (data/af9/dimension). */
     public static final ResourceLocation ASTEROID_FIELD_DIMENSION = new ResourceLocation(AF9Core.MOD_ID,
             "asteroid_field");
+    /** The dimension of the Ceres belt (data/af9/dimension): a second void asteroid field below the first. */
+    public static final ResourceLocation CERES_DIMENSION = new ResourceLocation(AF9Core.MOD_ID,
+            "ceres");
     /**
      * The rock of the asteroids: the four stones GT has ore blocks for, which {@link AsteroidFieldFeature} builds them
      * of (data/af9/tags/blocks/asteroid_rock.json).
      */
     public static final TagKey<Block> ASTEROID_ROCK = BlockTags.create(new ResourceLocation(AF9Core.MOD_ID,
             "asteroid_rock"));
-    /** The layer GT's ore veins grow into in the Asteroid Field (the veins: KubeJS, asteroid_fission.js). */
+    /** The layer GT's ore veins grow into in both belts (the veins: KubeJS, vein_*_belt / vein_quantanium). */
     public static final String ORE_LAYER = "af9_asteroid";
 
     private AF9Space() {}
 
     /** GregTech collects its addons' ore layers ({@link com.af9.core.AF9Addon}); a layer registers itself. */
     public static void registerWorldgenLayers() {
-        new SimpleWorldGenLayer(ORE_LAYER, () -> new TagMatchTest(ASTEROID_ROCK), Set.of(ASTEROID_FIELD_DIMENSION));
+        new SimpleWorldGenLayer(ORE_LAYER, () -> new TagMatchTest(ASTEROID_ROCK),
+                Set.of(ASTEROID_FIELD_DIMENSION, CERES_DIMENSION));
     }
 
     private static void fillCreativeTabs(BuildCreativeModeTabContentsEvent event) {

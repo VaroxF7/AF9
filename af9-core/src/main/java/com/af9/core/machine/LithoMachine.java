@@ -68,7 +68,8 @@ import java.util.List;
  * this roll decides.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1; GT uses it too
-public abstract class LithoMachine extends WorkableElectricMultiblockMachine implements IPowerGated {
+public abstract class LithoMachine extends WorkableElectricMultiblockMachine
+        implements IPowerGated, ILithoChamberMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(LithoMachine.class,
             WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
@@ -636,5 +637,42 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine imp
             }
         }
         return null;
+    }
+
+    //////////////////////////////////////
+    // ******** Exposure chamber *******//
+    //////////////////////////////////////
+
+    /**
+     * The exposure chamber render (Mk1 stepper, Mk2 tube): lit while a print runs, in the active mode's colour.
+     * Progress follows the print (smooth with {@code partialTick}); -1 idle. When GT has not synced a duration
+     * yet the render falls back to its own loop, so the chamber still animates while working.
+     */
+    @Override
+    public boolean isChamberFormed() {
+        return isFormed();
+    }
+
+    @Override
+    public boolean isChamberLit() {
+        return isFormed() && getRecipeLogic().isWorking();
+    }
+
+    @Override
+    public int getChamberColor() {
+        LithoMode active = getActiveMode();
+        return active != null ? active.argb : 0xFFB978FF;
+    }
+
+    @Override
+    public float getChamberProgress(float partialTick) {
+        if (!getRecipeLogic().isWorking()) return -1F;
+        int duration = getRecipeLogic().getDuration();
+        if (duration > 0) {
+            float p = (getRecipeLogic().getProgress() + partialTick) / duration;
+            return Math.max(0F, Math.min(1F, p));
+        }
+        // not synced yet: loop so the laser still sweeps while working
+        return ((getOffsetTimer() + partialTick) % 360F) / 360F;
     }
 }

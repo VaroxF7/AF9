@@ -132,6 +132,11 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .shapeInfos(definition => $PhotolithographyLineMachine.versionShapes(definition))
         .workableCasingModel('gtceu:block/casings/cleanroom/plascrete',
             'gtceu:block/multiblock/gcym/large_engraving_laser')
+        // exposure chamber inside the stepper (af9-core LithoChamberRender): UV fill, wafer, scanning laser
+        // and wafer robot on its slide, following the print's progress; centre of the lens (6 behind controller)
+        .model($LithoMachineModels.workableCasingWithChamber('gtceu:block/casings/cleanroom/plascrete',
+            'gtceu:block/multiblock/gcym/large_engraving_laser', 0, 6))
+        .hasBER(true)
 
     // Photolithography Scanner (Mk2): a step-and-scan tool for 80 and 65 nm, a cleanroom tube 3 x 3 of plascrete, 10
     // long at version 1 and 12 at version 2. Aisles front (controller) -> back, rows bottom -> top: the front with the
@@ -184,6 +189,11 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             $PhotolithographyLineMachine.MK2))
         .workableCasingModel('gtceu:block/casings/cleanroom/plascrete',
             'gtceu:block/multiblock/gcym/large_engraving_laser')
+        // exposure chamber inside the tube (af9-core LithoChamberRender): UV fill, wafer, scanning laser and
+        // wafer robot on its slide, following the print's progress; front window section (2.5 behind controller)
+        .model($LithoMachineModels.workableCasingWithChamber('gtceu:block/casings/cleanroom/plascrete',
+            'gtceu:block/multiblock/gcym/large_engraving_laser', 0, 2.5))
+        .hasBER(true)
 
     // Orbital Lithography Station: a 25 x 25 platform, 18 high. The top deck of inert PTFE casing carries the
     // controller and the hatches; under it lie the stress-proof deck plate, the shock-proof exposure deck (cross

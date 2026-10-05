@@ -80,7 +80,7 @@ Instead of an asteroid an expedition can go to a **planet** and bring home a **f
 | 6 | MK-III | deuterium 1,568, tritium 240, ammonia 240, xenon 16, ethylene 1,792 |
 | 7 | MK-III | hydrofluoric acid 672, fluorine 1,792, nitrogen 1,792, oxygen 1,792 |
 | 8 | MK-IV | hydrogen 1,568, liquid air 875, molten copper 672, distilled water 17,920, radon 64, molten tin 672 |
-| 9 (AF9) | MK-IV | bio diesel 1,400, bioethanol 1,792, benzene 1,400, chloroform 896, chlorobenzene 1,120, hydrogen sulfide 784, radon 128 |
+| 9 (AF9) | MK-IV | bio diesel 1,400, bioethanol 1,792, benzene 1,400, chloroform 896, chlorobenzene 1,120, hydrogen sulfide 784, radon 128, methane 2,200, ethane 1,500, helium 1,800, argon 64, neon 64, krypton 16, xenon 32 |
 
 GTNH's gas types keep their numbers (`PlanetCatalog`: planet type 5, gas type 2 is helium-3). Three of GTNH's fluids are not there:
 ender goo (3, 1), extra heavy oil (3, 2) and GalaxySpace's unknown water (8, 4), which GregTech does not have here. The argon and the

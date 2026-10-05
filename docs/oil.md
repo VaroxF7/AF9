@@ -1,7 +1,7 @@
 # Oil
 
 Oil is no longer found in the ground of the Overworld. It comes from **Oil Regolith**, a sand-like rock in the asteroids, and the
-Asteroid Field's fluid deposits hold nitrogen, oxygen, heavy water and acids.
+two belts' fluid deposits hold nitrogen, oxygen, heavy water, acids (the upper field) and volatile gases (Ceres).
 
 Code: `af9-core` `com.af9.core.space` (`OilRegolithBlock`, `AF9Space`, `AsteroidFieldFeature`),
 `registry/AF9Materials` (the fluids), `kubejs/server_scripts/mods/gtceu/oil.js` (the chain),
@@ -48,9 +48,10 @@ From LuV on, ethylene (and propene with it) goes mass-scale without any oil or f
 methanol-to-olefins chain (wood + water + power, green-chemistry §7) carries polyethylene
 demand until the Space Elevator's ethylene missions.
 
-## 4. The asteroids' fluid deposits
+## 4. The belts' fluid deposits
 
-GT's bedrock fluid veins (the prospector finds them, the Fluid Drilling Rig drills them) in `af9:asteroid_field`, one per region,
+GT's bedrock fluid veins (the prospector finds them, the Fluid Drilling Rig drills them): `af9:asteroid_field`
+holds the acid belt's deposits, `af9:ceres` the lower belt's volatiles (its thin exosphere), one per region,
 chosen by weight:
 
 | Deposit | Fluid | Weight | Yield (mB/s) |
@@ -64,6 +65,14 @@ chosen by weight:
 | `af9:void_hydrofluoric_acid` | hydrofluoric acid | 10 | 100-250 |
 | `af9:void_phosphoric_acid` | phosphoric acid | 10 | 100-250 |
 | `af9:void_acetic_acid` | acetic acid | 8 | 100-250 |
+| `af9:ceres_hydrogen` | hydrogen | 40 | 250-600 |
+| `af9:ceres_helium` | helium | 30 | 200-500 |
+| `af9:ceres_methane` | methane | 30 | 200-500 |
+| `af9:ceres_argon` | argon | 20 | 100-300 |
+| `af9:ceres_carbon_dioxide` | carbon dioxide | 20 | 150-350 |
+| `af9:ceres_neon` | neon | 12 | 50-150 |
+| `af9:ceres_krypton` | krypton | 8 | 40-120 |
+| `af9:ceres_xenon` | xenon | 6 | 30-100 |
 
 Each depletes by 1 % a drilling cycle with a 1 in 100 chance, down to 25 mB/s. **Heavy Water** (D2O) is AF9's material (GT has deuterium and no
 heavy water); an electrolyzer turns 1,000 mB into 2,000 mB deuterium and 1,000 mB oxygen.

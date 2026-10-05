@@ -1,11 +1,11 @@
 {
-  "type": "ad_astra:moon",
+  "type": "af9:ceres",
   "generator": {
     "type": "minecraft:noise",
-    "settings": "ad_astra:moon",
     "biome_source": {
       "type": "minecraft:fixed",
-      "biome": "ad_astra:lunar_wastelands"
-    }
+      "biome": "af9:ceres"
+    },
+    "settings": "ad_astra:orbit"
   }
 }

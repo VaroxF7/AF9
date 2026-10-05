@@ -1,4 +1,4 @@
-// AF9 - The world's oil is switched off and the Asteroid Field gets fluid deposits (GT's bedrock fluid veins, found by
+// AF9 - The world's oil is switched off and the two belts get fluid deposits (GT's bedrock fluid veins, found by
 // the prospector and drilled with the Fluid Drilling Rig). Spec: docs/oil.md
 //
 // Named to load after the pack's own scripts (alphabetical order; mining_dim_ores.js rewrites every ore vein).
@@ -32,64 +32,81 @@ GTCEuServerEvents.fluidVeins(event => {
     console.info(`vein_oil.js: ${off} oil fluid veins removed`)
 
     // ---- The asteroids' deposits: void fluids, rich in nitrogen, oxygen, heavy water and acids ----
+    // af9:asteroid_field is the acid belt; af9:ceres below it is the volatile belt (its thin exosphere:
+    // hydrogen, helium, methane and the noble gases). One deposit per 8x8-chunk region, chosen by weight.
     const fluidOf = id => () => $OilForgeRegistries.FLUIDS.getValue(new $OilResourceLocation(id))
-    // [id, fluid, weight, min yield, max yield]
+    // [id, fluid, weight, min yield, max yield, dimension]
+    const field = 'af9:asteroid_field'
+    const ceres = 'af9:ceres'
     const deposits = [
-        ['nitrogen', 'gtceu:nitrogen', 40, 250, 600],
-        ['oxygen', 'gtceu:oxygen', 40, 250, 600],
-        ['heavy_water', 'gtceu:heavy_water', 20, 100, 300],
-        ['sulfuric_acid', 'gtceu:sulfuric_acid', 20, 150, 350],
-        ['hydrochloric_acid', 'gtceu:hydrochloric_acid', 15, 150, 350],
-        ['nitric_acid', 'gtceu:nitric_acid', 15, 150, 350],
-        ['hydrofluoric_acid', 'gtceu:hydrofluoric_acid', 10, 100, 250],
-        ['phosphoric_acid', 'gtceu:phosphoric_acid', 10, 100, 250],
-        ['acetic_acid', 'gtceu:acetic_acid', 8, 100, 250],
+        ['void_nitrogen', 'gtceu:nitrogen', 40, 250, 600, field],
+        ['void_oxygen', 'gtceu:oxygen', 40, 250, 600, field],
+        ['void_heavy_water', 'gtceu:heavy_water', 20, 100, 300, field],
+        ['void_sulfuric_acid', 'gtceu:sulfuric_acid', 20, 150, 350, field],
+        ['void_hydrochloric_acid', 'gtceu:hydrochloric_acid', 15, 150, 350, field],
+        ['void_nitric_acid', 'gtceu:nitric_acid', 15, 150, 350, field],
+        ['void_hydrofluoric_acid', 'gtceu:hydrofluoric_acid', 10, 100, 250, field],
+        ['void_phosphoric_acid', 'gtceu:phosphoric_acid', 10, 100, 250, field],
+        ['void_acetic_acid', 'gtceu:acetic_acid', 8, 100, 250, field],
         // Ares gas, the rust-red wisp Sanguinite needs (docs/uhv-superconductor.md): rarer than the acids
-        ['ares_gas', 'gtceu:ares_gas', 8, 100, 250]
+        ['void_ares_gas', 'gtceu:ares_gas', 8, 100, 250, field],
+        // Ceres volatiles: the lower belt's exosphere gases
+        ['ceres_hydrogen', 'gtceu:hydrogen', 40, 250, 600, ceres],
+        ['ceres_helium', 'gtceu:helium', 30, 200, 500, ceres],
+        ['ceres_methane', 'gtceu:methane', 30, 200, 500, ceres],
+        ['ceres_argon', 'gtceu:argon', 20, 100, 300, ceres],
+        ['ceres_carbon_dioxide', 'gtceu:carbon_dioxide', 20, 150, 350, ceres],
+        ['ceres_neon', 'gtceu:neon', 12, 50, 150, ceres],
+        ['ceres_krypton', 'gtceu:krypton', 8, 40, 120, ceres],
+        ['ceres_xenon', 'gtceu:xenon', 6, 30, 100, ceres]
     ]
     let registered = 0
-    deposits.forEach(([name, fluid, weight, minYield, maxYield]) => {
+    deposits.forEach(([name, fluid, weight, minYield, maxYield, dimension]) => {
         // a fluid that does not exist would be a deposit of nothing that the prospector draws as nothing
         const found = $OilForgeRegistries.FLUIDS.getValue(new $OilResourceLocation(fluid))
         if (found === null || String($OilForgeRegistries.FLUIDS.getKey(found)) !== fluid) {
-            console.error(`vein_oil.js: the deposit af9:void_${name} holds ${fluid}, which is not a fluid`)
+            console.error(`vein_oil.js: the deposit af9:${name} holds ${fluid}, which is not a fluid`)
         }
         registered++
-        event.add(`af9:void_${name}`, builder => {
+        event.add(`af9:${name}`, builder => {
             builder.fluid(fluidOf(fluid))
                 .weight(weight)
                 .yield(minYield, maxYield)
                 .depletionAmount(1)
                 .depletionChance(100)
                 .depletedYield(25)
-                .dimensions('af9:asteroid_field')
+                .dimensions(dimension)
         })
     })
-    console.info(`vein_oil.js: ${registered} fluid deposits registered for af9:asteroid_field`)
+    console.info(`vein_oil.js: ${registered} fluid deposits registered for the belts`)
 })
 
 // ---- Chunks that were looked at before the deposits existed ----
-// GT decides a chunk's vein once and saves it with the world. A chunk of the Asteroid Field that was prospected (or
-// drilled) while the dimension had no deposits is saved as "no fluid" for good, and so shows nothing even now. Forget those
+// GT decides a chunk's vein once and saves it with the world. A chunk of the belts that was prospected (or
+// drilled) while its dimension had no deposits is saved as "no fluid" for good, and so shows nothing even now. Forget those
 // entries when the world loads: the next look at the chunk rolls a deposit.
 ServerEvents.loaded(event => {
     // var, not const: Rhino keeps a const of a nested block once for the whole script (see rockets.js)
     try {
-        // by its id: with a ResourceKey Rhino cannot choose between the server's getLevel and KubeJS's own
-        var level = event.server.getLevel('af9:asteroid_field')
-        if (level === null) return
-        var data = $OilVeinData.getOrCreate(level)
         var forgotten = 0
-        oilListOf(data.veinFluids.keySet()).forEach(chunk => {
-            if (data.veinFluids.get(chunk).getDefinition() === null) {
-                data.veinFluids.remove(chunk)
-                forgotten++
-            }
+        ;['af9:asteroid_field', 'af9:ceres'].forEach(dim => {
+            // by its id: with a ResourceKey Rhino cannot choose between the server's getLevel and KubeJS's own
+            var level = event.server.getLevel(dim)
+            if (level === null) return
+            var data = $OilVeinData.getOrCreate(level)
+            var dimForgotten = 0
+            oilListOf(data.veinFluids.keySet()).forEach(chunk => {
+                if (data.veinFluids.get(chunk).getDefinition() === null) {
+                    data.veinFluids.remove(chunk)
+                    dimForgotten++
+                }
+            })
+            if (dimForgotten > 0) data.setDirty()
+            forgotten += dimForgotten
         })
-        if (forgotten > 0) data.setDirty()
-        console.info(`vein_oil.js: ${forgotten} empty fluid veins of af9:asteroid_field forgotten`)
+        console.info(`vein_oil.js: ${forgotten} empty fluid veins of the belts forgotten`)
     } catch (error) {
-        console.error(`vein_oil.js: could not look at the fluid veins of af9:asteroid_field: ${error}`)
+        console.error(`vein_oil.js: could not look at the fluid veins of the belts: ${error}`)
     }
 })
 
