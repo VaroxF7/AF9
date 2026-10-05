@@ -60,6 +60,8 @@ lm = root / 'af9-core/src/main/java/com/af9/core/litho/LithoMode.java'
 lm.write_text(lm.read_text(encoding='utf-8').replace('"photoresist", 200, Machine.LINE', '"photoresist", 201, Machine.LINE', 1), encoding='utf-8')   # X2
 af = root / 'af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java'
 af.write_text(af.read_text(encoding='utf-8').replace('Blocks.TUFF.defaultBlockState()', 'Blocks.SMOOTH_BASALT.defaultBlockState()', 1), encoding='utf-8')   # X4: a rock the ore layer does not know
+ob = root / 'af9-core/src/main/java/com/af9/core/machine/OrbitalLithographyMachine.java'
+ob.write_text(ob.read_text(encoding='utf-8').replace('solid(up)', 'up', 1), encoding='utf-8')   # P1: a preview page that can carry null cells
 lt = root / 'af9-core/src/main/resources/data/af9/loot_tables/chests/ancient_temple.json'
 lt.write_text(lt.read_text(encoding='utf-8').replace('gtceu:raw_brannerite', 'gtceu:raw_brannerit', 1), encoding='utf-8')   # X4: an item in a loot table that does not exist
 # --- docs: a path that is gone, a section that does not exist
@@ -91,6 +93,8 @@ D="$(python3 "$TMP/tools/lint/docs.py" "$TMP" 2>&1)"
 check docs "$D" D1 D3
 J="$(python3 "$TMP/tools/lint/links.py" "$TMP" 2>&1)"
 check links "$J" J1 J2
+P="$(python3 "$TMP/tools/lint/previews.py" "$TMP" 2>&1)"
+check previews "$P" P1
 if [ "${SELFTEST_VERBOSE:-}" = 1 ]; then echo "$S" | grep -E "selftest|^(ERROR|WARN)" | head -50; echo "$Q" | head -20; echo "$A" | head -20; fi
 if [ "$fail" = 0 ]; then echo "selftest ok: every planted mistake was found"; else
   echo "--- scripts"; echo "$S" | head -60; echo "--- quests"; echo "$Q" | head -30; echo "--- assets"; echo "$A" | head -30; fi

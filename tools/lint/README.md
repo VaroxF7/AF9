@@ -1,6 +1,6 @@
 # AF9 lint
 
-Six linters that read the repository the way the game would and say what is wrong before anybody has to start Minecraft.
+Seven linters that read the repository the way the game would and say what is wrong before anybody has to start Minecraft.
 Nothing of GT or Minecraft runs: the scripts load against stubs, the Java is only scanned for names, and what AF9 Core
 registers is read from a list that its dev run writes (see "The registry list").
 
@@ -21,6 +21,7 @@ The CI workflow (job `lint`) runs `run.sh --selftest` before it builds (`.github
 | `facts.py` | the recipes (`scripts.js --dump`), the quest lang | numbers in quest texts that the recipes decide |
 | `docs.py` | README.md, docs/*.md | stale paths, dead links, sections that do not exist |
 | `links.py` | the `Java.loadClass` calls of the scripts, AF9 Core's (and GT's) Java sources | classes and static members that do not exist |
+| `previews.py` | AF9 Core's Java sources | multiblock preview pages that can carry null cells |
 | `selftest.sh` | all of the above, on a scratch copy | proves each rule still finds its mistake |
 
 ## Rules
@@ -103,6 +104,12 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
 |---|---|---|
 | J1 | `Java.loadClass('com.af9...')` of a class that is not in AF9 Core (with `GT_SRC` also GT's) | the script stops with an error at startup; rename the class in the script when you rename it in Java |
 | J2 | `$Class.MEMBER` in a script where the Java source of the class does not mention MEMBER | a typo in a static field or method name; copy it from the Java source |
+
+### Previews (`previews.py`)
+
+| code | what it finds | how to avoid it |
+|---|---|---|
+| P1 | `new MultiblockShapeInfo(<array>)` where the array is neither GTCEu's own `getPreview(...)` output (or a variable assigned from it) nor passed through a null-sanitizer like `solid(...)` | GTCEu's preview widget dereferences every cell with no null check: one null cell aborts the whole JEI registration and every GTCEu recipe vanishes (October 2026: the Orbital Array Mk2's second preview page did exactly this). Fill holes with `BlockInfo.EMPTY` before constructing the page |
 
 ## Data (`data/`)
 

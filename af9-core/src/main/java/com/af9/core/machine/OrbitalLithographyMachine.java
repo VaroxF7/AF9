@@ -762,7 +762,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             turn = previewTurn(pattern);
         } catch (ReflectiveOperationException e) {
             AF9Core.LOGGER.warn("Orbital station preview: cannot turn GT's preview, showing it as GT draws it", e);
-            return List.of(new MultiblockShapeInfo(north));
+            return List.of(new MultiblockShapeInfo(solid(north)));
         }
         int sx = north.length, sy = north[0].length, sz = north[0][0].length;
         int[] min = { Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE };
