@@ -28,7 +28,16 @@ GTCEuServerEvents.oreVeins(event => {
             .dimensions('ad_astra:moon')
             .heightRangeUniform(40, 120)
             .standardVeinGenerator(generator => {
+                // all three stone variants: GT syncs the vein registry to every client on login, and its codec
+                // reads each of them (a missing one NPEs the sync and the join dies as "invalid player data").
+                // Only the stone ore ever generates (the layer matches moon stone and moon sand alone).
                 generator.withBlock(oreIn($MoonTagPrefix.ore))
+                generator.withNetherBlock(oreIn($MoonTagPrefix.oreNetherrack))
+                try {
+                    generator.deepBlock = oreIn($MoonTagPrefix.oreDeepslate)
+                } catch (error) {
+                    console.warn(`vein_moon.js: the artemite vein keeps stone ore in deepslate: ${error}`)
+                }
             })
     })
 })
