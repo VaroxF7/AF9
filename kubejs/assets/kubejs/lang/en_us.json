@@ -7488,7 +7488,7 @@
 	"af9.quest.circuits_only.nvmTier": "NVM Age",
 	"af9.quest.circuits_only.nvmIntro": "NVM is the top of the ladder: memristor chips + quantum-dot ICs + TPU chips in plasma mainframes. Memory that computes at the ultimate tier.",
 	"af9.quest.circuits_only.lore": "This questline maps every circuit tier from LV through NVM, showing what circuit is needed for what and what is needed for each circuit. Follow the linear ladder to understand the full circuit progression.",
-	"af9.quest.circuits_only.loreTitle": "Circuit Progression Lore"
+	"af9.quest.circuits_only.loreTitle": "Circuit Progression Lore",
 	"af9.quest.litho.intro.title": "Semiconductor Fab",
 	"af9.quest.litho.intro.subtitle": "From quartzite to 1 nm chips",
 	"af9.quest.litho.intro.1": "In AF9 every chip wafer is &eprinted&r, not laser-engraved. This chapter is the whole fab, left to right: one &6lithography node&r per voltage tier sits on the middle row as a big hexagon.",
