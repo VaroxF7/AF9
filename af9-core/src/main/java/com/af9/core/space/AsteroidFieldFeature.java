@@ -30,10 +30,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * clusters (the nearest island is about 100 blocks from an island's edge; about 5 blocks of rock in a column of the whole
  * 300-block height).
  * <p>
- * The upper belt ({@link Belt#FIELD}, af9:asteroid_field) is the original field; the lower belt ({@link Belt#CERES},
- * af9:ceres) is denser with smaller islands and a darker, more basaltic stone mix, and holds no temples: the mining
- * belt below the temple field. Each belt has its own layout (its own salts), so the same XZ holds different rocks in
- * each dimension.
+ * The two belts are different regions, not two copies: the upper belt ({@link Belt#FIELD}, af9:asteroid_field) is the
+ * exotic temple field, its rocks pale granite, diorite, deepslate and end stone in dramatic shapes (tall spires, wide
+ * discs and jagged shard clusters with a faceted, crystalline surface); the lower belt ({@link Belt#CERES}, af9:ceres)
+ * is the dark volcanic mining belt, its rocks andesite, tuff, basalt and blackstone in flat lens lumps, denser with
+ * smaller islands and no temples. Each belt has its own layout (its own salts), so the same XZ holds different rocks
+ * in each dimension.
  * <p>
  * Every chunk draws every cluster that reaches into it and fills only its own part, so the rocks come out whole
  * whatever order the chunks are generated in. A cluster is fixed by the world seed and the square cell of
@@ -41,17 +43,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * it). Its height is the middle of the band plus a slow noise over the plane ({@link #DRIFT}: whole regions lie higher
  * or lower) and a random lift, so clusters hang at all heights, not in one flat band like the End's islands.
  * <ul>
- * <li>the island: a flattened ellipsoid with radii of {@link #ISLAND_MIN_R} to {@link #ISLAND_MAX_R} blocks, big enough
- * for a whole ore vein;</li>
+ * <li>the island: a flattened lens in the Ceres belt (radii {@link #ISLAND_MIN_R} to {@link #ISLAND_MAX_R} blocks,
+ * big enough for a whole ore vein); in the upper field one of three shapes ({@link Archetype}): a tall
+ * {@code SPIRE}, a wide flat {@code DISC} or a {@code SHARD} cluster's broken crown;</li>
  * <li>the satellites ({@link #SATELLITES} classes, {@code MIN_SATELLITES} to {@code MAX_SATELLITES} of them): rocks
  * from pebbles to 28 blocks of radius, around the island at a distance of its edge to 85 blocks beyond, anywhere in
- * {@link #SATELLITE_SPREAD_Y} blocks above and below the island.</li>
+ * {@link #SATELLITE_SPREAD_Y} blocks above and below the island (needles above the spires, chips in the discs'
+ * plane, splinters round the shards).</li>
  * </ul>
- * Every rock is an ellipsoid whose surface is pushed in and out by two layers of simplex noise.
+ * Every rock is an ellipsoid whose surface is pushed in and out by two layers of simplex noise: smooth lumps in the
+ * Ceres belt, sharp ridged facets in the upper field (a crystalline look).
  * <p>
- * The rock is a mix of andesite, tuff, basalt and blackstone (by a slow noise, so it comes in patches): the stones
- * GT's ore veins grow into (GT dike veins, like quantanium: vertical dikes piercing every rock of their column, at
- * every height, not GT's flat blobs). In pockets of it (a second noise, about 7 % of the rock) the stone is {@link AF9Space#OIL_REGOLITH}, the sand-like,
+ * The rock comes in patches, by a slow noise: the stones GT's ore veins grow into (GT dike veins: vertical dikes
+ * piercing every rock of their column, at every height, not GT's flat blobs). In pockets of it (a second noise, about
+ * 7 % of the rock) the stone is {@link AF9Space#OIL_REGOLITH}, the sand-like,
  * oil-soaked rock all of the game's oil comes from. Ad Astra builds a space station at y = 100; rocks hang around it
  * at any height.
  * <p>
@@ -97,8 +102,10 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     private static final double SATELLITE_DISTANCE = 85;
     private static final double SATELLITE_SPREAD_Y = 42;
 
-    /** Largest stretch of a rock's radius along one axis. */
+    /** Largest stretch of a Ceres rock's radius along one axis (the upper field's splinters stretch to 1.5). */
     private static final double MAX_STRETCH = 1.25;
+    /** Largest stretch of an upper-field rock's radius along one axis. */
+    private static final double FIELD_MAX_STRETCH = 1.5;
     /** Largest bulge of the surface: 1 + the two noise layers' amplitudes (0.25 and 0.10). */
     private static final double MAX_BULGE = 1.35;
     /**
@@ -122,10 +129,19 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     private static final long TEMPLE_SALT = 0x3C6EF372FE94F82AL;
     /**
      * Blocks from a cluster's centre that any of its rocks can reach: the island's radius, a satellite at the end of
-     * its range and its own radius, each with the stretch and the bulge. (Plus a margin.)
+     * its range and its own radius, each with the stretch and the bulge. (Plus a margin.) The upper field's discs
+     * spread wider and its splinters stretch further, so its reach is its own.
      */
     private static final int CLUSTER_REACH = (int) Math.ceil(
-            (ISLAND_MAX_R * 1.2 + SATELLITE_DISTANCE + 28 * MAX_STRETCH) * MAX_BULGE) + MARGIN + 4;
+            (ISLAND_MAX_R * 1.3 + SATELLITE_DISTANCE + 28 * FIELD_MAX_STRETCH) * MAX_BULGE) + MARGIN + 4;
+
+    /**
+     * A shape of the upper field's clusters: a tall spire island with needles above it, a wide flat disc with chips
+     * in its plane, or a shard cluster (a broken crown of splinters). The Ceres belt always builds lenses
+     * ({@link #LENS}). Drawn from the cell's random right after the cluster chance, so it is fixed by the world seed
+     * and the cell like everything else.
+     */
+    public enum Archetype { LENS, SPIRE, DISC, SHARD }
 
     /** The Ceres belt's layout: denser cells, smaller islands, a tighter swarm (about 13 clusters per km2). */
     private static final int CERES_CELL = 240;
@@ -176,8 +192,8 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         }
     }
 
-    /** A cluster: its centre, its rocks (the island first) and the rock that would hold its temple. */
-    private record Cluster(double x, double z, List<Spec> specs, Spec host) {}
+    /** A cluster: its centre, its rocks (the island first), the rock that would hold its temple, and its shape. */
+    private record Cluster(double x, double z, List<Spec> specs, Spec host, Archetype archetype) {}
 
     /** The square of a grid of the temples, in a world and a belt. */
     private record Region(long seed, Belt belt, int x, int z) {}
@@ -336,7 +352,7 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         for (Spec spec : cluster.specs) {
             if (reaches(spec.x, spec.z, spec.radiusX, spec.radiusZ, chunkMinX, chunkMinZ)) {
                 rocks.add(new Rock(spec, spec == cluster.host && clusterHasTemple(seed, cluster), belt,
-                        oilPocket()));
+                        oilPocket(), cluster.archetype()));
             }
         }
     }
@@ -349,6 +365,12 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         int cellSize = cell();
         RandomSource random = new XoroshiroRandomSource(cellSeed(seed, cellX, cellZ));
         if (random.nextDouble() >= clusterChance()) return null;
+        // the upper field's shape: spires, discs and shard clusters; the Ceres belt always builds lenses
+        Archetype archetype = Archetype.LENS;
+        if (!isCeres()) {
+            double shape = random.nextDouble();
+            archetype = shape < 0.40 ? Archetype.SPIRE : shape < 0.75 ? Archetype.DISC : Archetype.SHARD;
+        }
         double centerX = cellX * (double) cellSize + random.nextInt(cellSize) + 0.5;
         double centerZ = cellZ * (double) cellSize + random.nextInt(cellSize) + 0.5;
         // the band's middle, lifted or sunk by the region and by this cluster; the satellites need room both ways
@@ -360,16 +382,34 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
                 CENTER_MAX_Y - spreadY);
 
         List<Spec> specs = new ArrayList<>();
-        // the island
+        // the island: a lens in the Ceres belt, a spire, a disc or a shard crown in the upper field
         double islandR = islandMinR() + random.nextDouble() * (islandMaxR() - islandMinR());
-        double islandX = islandR * (0.8 + random.nextDouble() * 0.4);
-        double islandZ = islandR * (0.8 + random.nextDouble() * 0.4);
-        double islandY = islandR * (islandFlatMin() + random.nextDouble() * (islandFlatMax() - islandFlatMin()));
+        double islandX;
+        double islandZ;
+        double islandY;
+        if (archetype == Archetype.SPIRE) {
+            islandX = islandR * (0.75 + random.nextDouble() * 0.30);
+            islandZ = islandR * (0.75 + random.nextDouble() * 0.30);
+            islandY = islandR * (1.7 + random.nextDouble() * 0.6);
+        } else if (archetype == Archetype.DISC) {
+            islandX = islandR * (1.0 + random.nextDouble() * 0.3);
+            islandZ = islandR * (1.0 + random.nextDouble() * 0.3);
+            islandY = islandR * (0.22 + random.nextDouble() * 0.13);
+        } else if (archetype == Archetype.SHARD) {
+            islandX = islandR * (0.7 + random.nextDouble() * 0.3);
+            islandZ = islandR * (0.7 + random.nextDouble() * 0.3);
+            islandY = islandR * (0.6 + random.nextDouble() * 0.4);
+        } else {
+            islandX = islandR * (0.8 + random.nextDouble() * 0.4);
+            islandZ = islandR * (0.8 + random.nextDouble() * 0.4);
+            islandY = islandR * (islandFlatMin() + random.nextDouble() * (islandFlatMax() - islandFlatMin()));
+        }
         long islandNoise = random.nextLong();
         specs.add(new Spec(islandNoise, centerX, centerY, centerZ, islandX, islandY, islandZ, ISLAND_RANK));
 
-        // the satellites
+        // the satellites: needles over the spires, chips in the discs' plane, splinters round the shards
         int count = minSatellites() + random.nextInt(maxSatellites() - minSatellites() + 1);
+        if (archetype == Archetype.SHARD) count = Math.min(MAX_SATELLITES, count + 6);
         for (int i = 0; i < count; i++) {
             Satellite kind = SATELLITES[0];
             int roll = random.nextInt(SATELLITE_WEIGHT);
@@ -383,11 +423,29 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
             double angle = random.nextDouble() * Math.PI * 2;
             double distance = islandR * 1.05 + random.nextDouble() * satelliteDistance();
             double dy = (random.nextDouble() * 2.0 - 1.0) * spreadY;
+            if (archetype == Archetype.DISC) dy *= 0.45;
             double size = Math.pow(random.nextDouble(), 1.6);
             double radius = kind.minR + size * (kind.maxR - kind.minR);
-            double radiusX = radius * (0.75 + random.nextDouble() * 0.5);
-            double radiusY = radius * (0.60 + random.nextDouble() * 0.5);
-            double radiusZ = radius * (0.75 + random.nextDouble() * 0.5);
+            double radiusX;
+            double radiusY;
+            double radiusZ;
+            if (archetype == Archetype.SPIRE) {
+                radiusX = radius * (0.55 + random.nextDouble() * 0.4);
+                radiusY = radius * (1.2 + random.nextDouble() * 0.9);
+                radiusZ = radius * (0.55 + random.nextDouble() * 0.4);
+            } else if (archetype == Archetype.DISC) {
+                radiusX = radius * (0.75 + random.nextDouble() * 0.5);
+                radiusY = radius * (0.35 + random.nextDouble() * 0.3);
+                radiusZ = radius * (0.75 + random.nextDouble() * 0.5);
+            } else if (archetype == Archetype.SHARD) {
+                radiusX = radius * (0.5 + random.nextDouble() * 1.0);
+                radiusY = radius * (0.5 + random.nextDouble() * 1.0);
+                radiusZ = radius * (0.5 + random.nextDouble() * 1.0);
+            } else {
+                radiusX = radius * (0.75 + random.nextDouble() * 0.5);
+                radiusY = radius * (0.60 + random.nextDouble() * 0.5);
+                radiusZ = radius * (0.75 + random.nextDouble() * 0.5);
+            }
             long noiseSeed = random.nextLong();
             double x = centerX + Math.cos(angle) * distance;
             double z = centerZ + Math.sin(angle) * distance;
@@ -405,7 +463,7 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
                 }
             }
         }
-        return new Cluster(centerX, centerZ, specs, host);
+        return new Cluster(centerX, centerZ, specs, host, archetype);
     }
 
     /** Whether the cluster holds the temple of one of the grid's regions whose candidate point is within reach of its centre. */
@@ -481,10 +539,13 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
         private final double shapeScale, detailScale;
         private final Belt belt;
         private final double oilPocket;
+        /** The upper field's shape (spires, discs and shards with a ridged surface); LENS in the Ceres belt. */
+        private final Archetype archetype;
 
-        Rock(Spec spec, boolean hasTemple, Belt belt, double oilPocket) {
+        Rock(Spec spec, boolean hasTemple, Belt belt, double oilPocket, Archetype archetype) {
             this.belt = belt;
             this.oilPocket = oilPocket;
+            this.archetype = archetype;
             this.noiseSeed = spec.noiseSeed;
             this.centerX = spec.x;
             this.centerY = spec.y;
@@ -523,8 +584,16 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
             double dz = (z + 0.5 - centerZ) / radiusZ;
             double distanceSquared = dx * dx + dy * dy + dz * dz;
             if (distanceSquared > MAX_BULGE * MAX_BULGE) return false;
-            double bulge = 1.0 + 0.25 * shape.getValue(x * shapeScale, y * shapeScale, z * shapeScale) +
-                    0.10 * detail.getValue(x * detailScale, y * detailScale, z * detailScale);
+            double bulge;
+            if (archetype == Archetype.LENS) {
+                bulge = 1.0 + 0.25 * shape.getValue(x * shapeScale, y * shapeScale, z * shapeScale) +
+                        0.10 * detail.getValue(x * detailScale, y * detailScale, z * detailScale);
+            } else {
+                // a ridged, faceted surface: sharp crests like cut crystal, not smooth lumps
+                double ridge = 1.0 - Math.abs(shape.getValue(x * shapeScale, y * shapeScale, z * shapeScale));
+                double facet = 1.0 - Math.abs(detail.getValue(x * detailScale, y * detailScale, z * detailScale));
+                bulge = 1.0 + 0.30 * (ridge - 0.55) + 0.12 * (facet - 0.55);
+            }
             return distanceSquared < bulge * bulge;
         }
 
@@ -613,8 +682,9 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     /**
-     * The stone of a patch: the upper field runs darker blackstone and basalt against lighter andesite and tuff;
-     * the Ceres belt runs more basalt and blackstone (a darker, more primitive belt).
+     * The stone of a patch, by belt: the Ceres belt runs dark volcanic rock (blackstone and basalt against lighter
+     * andesite and tuff); the upper field runs pale exotic rock (granite and diorite against dark deepslate and
+     * pale end stone). Both are stones of the ore layer, so GT's dike veins grow into either.
      */
     private static BlockState rockAt(double noise, Belt belt) {
         if (belt == Belt.CERES) {
@@ -623,10 +693,10 @@ public class AsteroidFieldFeature extends Feature<NoneFeatureConfiguration> {
             if (noise < 0.60) return Blocks.ANDESITE.defaultBlockState();
             return Blocks.TUFF.defaultBlockState();
         }
-        if (noise < -0.35) return Blocks.BLACKSTONE.defaultBlockState();
-        if (noise < 0.15) return Blocks.ANDESITE.defaultBlockState();
-        if (noise < 0.55) return Blocks.TUFF.defaultBlockState();
-        return Blocks.BASALT.defaultBlockState();
+        if (noise < -0.30) return Blocks.DEEPSLATE.defaultBlockState();
+        if (noise < 0.10) return Blocks.GRANITE.defaultBlockState();
+        if (noise < 0.50) return Blocks.DIORITE.defaultBlockState();
+        return Blocks.END_STONE.defaultBlockState();
     }
 
     /** A well-mixed seed (the finalizer of MurmurHash3 over the seed and the cell). */

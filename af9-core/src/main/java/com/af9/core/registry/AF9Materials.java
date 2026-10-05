@@ -66,6 +66,7 @@ public final class AF9Materials {
         electronicsMetallurgy();
         fabChemistry();
         lithoProcess();
+        moonSilicon();
         oil();
         particleAccelerator();
         photolithography();
@@ -378,9 +379,6 @@ public final class AF9Materials {
         liquid("silicon_tetrachloride", 0xd2d8d6, "SiCl4");  // STC, bp 58 C
         gas("dichlorosilane", 0xe2e7e4, "SiH2Cl2");  // DCS, bp 8 C
         gas("boron_trichloride", 0xd9e3d0, "BCl3");  // the boron impurity, bp 13 C
-        liquid("electronic_grade_trichlorosilane", 0xe8eef0, "SiHCl3");  // 9N, boron/phosphorus adsorbed
-        gas("siemens_feed_gas", 0xd8e2e8, "(SiHCl3)(H2)4");  // TCS vapour in hydrogen
-        gas("siemens_vent_gas", 0xc4ccc4, "(H2)(HCl)(SiHCl3)(SiCl4)");  // off-gas of the bell-jar reactor
         metal("polysilicon", 0x8a93a3, "Si");  // Siemens rods, 11N
         liquid("silicon_etchant", 0xe8e0a8, "(HNO3)(HF)(CH3COOH)");  // mixed-acid chunk etch
         dust("electronic_grade_silicon", 0x9aa6b8, "Si");  // etched poly chunks, CZ charge
@@ -529,6 +527,47 @@ public final class AF9Materials {
         dust("gst_alloy", 0x8a7a96, "Ge2Sb2Te5");
         // Quantum dots: CdSe nanocrystals in solution
         liquid("quantum_dot_colloid", 0xe0503c, "(CdSe)n(C8H10)");
+    }
+
+    /**
+     * The Moon's silicon: Artemite, the lunar borate that dopes the first silicon boules, and the Moon Sand chain
+     * behind every polysilicon. Artemite generates only on the Moon (vein_moon.js); Moon Sand is blended from sand
+     * silica and L-01, the light cut of Lunar Air, the Moon's own air (a bedrock fluid drilled there, or a far-dark
+     * elevator mission). Recipes: fab_chemistry.js (sand silica, moon sand, the polysilicon bath, lunar air
+     * distillation), boule_melting.js (the dopant). Spec: docs/semiconductor-factory.md
+     */
+    private static void moonSilicon() {
+        // Artemite: a calcium-sodium borate of the lunar highlands, named for Artemis. The p-type dopant of the
+        // silicon melt charges and seed crystals (a tiny pile per charge, like boron was). Formulas only (no
+        // components), so GT adds no electrolyzer or centrifuge shortcut past the ore chain. Crushing gives two
+        // crushed ores per ore.
+        add(material("artemite")
+                .dust().ore(2, 1)
+                .color(0xcfd8ec).secondaryColor(0x7a86c8)
+                .iconSet(MaterialIconSet.SHINY)
+                .formula("(Ca,Na)2B4O7")
+                .addOreByproducts(GTMaterials.Aluminium, GTMaterials.Calcium, GTMaterials.Silicon));
+
+        // Moon Sand: regolith silica activated with L-01. The only polysilicon there is: a chemical bath under
+        // oxygen turns it into polysilicon dust (fab_chemistry.js numbers: a sand block is 8 polysilicon).
+        add(material("moon_sand")
+                .dust()
+                .color(0xb0aca4)
+                .iconSet(MaterialIconSet.ROUGH)
+                .formula("(SiO2)(L01)"));
+
+        // Lunar Air: the Moon's thin exosphere, bottled by the fluid drilling rig (vein_oil.js). Distilled like the
+        // other airs: argon and radon off the sides, L-01 as the light product.
+        add(material("lunar_air")
+                .gas()
+                .color(0xd6e8f5)
+                .formula("(Ar)(He)(L01)"));
+
+        // L-01: Lunar Air's light cut. A chemical reactor binds it into sand silica, which is what makes Moon Sand.
+        add(material("l_01")
+                .gas()
+                .color(0x7df0d0)
+                .formula("L-01"));
     }
 
     /**
@@ -731,11 +770,13 @@ public final class AF9Materials {
     }
 
     /**
-     * Sanguinite: the bright-red UHV superconductor, smelted in the Rotary Hearth Furnace
-     * ({@code gtceu:mega_blast_furnace}). Neutronium and tritanium dusts are blended with hydrogen, Ares gas from the
-     * Martian asteroid field and LXA-1 from the Space Elevator's far-dark missions (Large Chemical Reactor), then the
-     * blend is smelted under supercooled endion at 13000 K (EBF/RHF, circuit 10, 4A UV, 60 s) into the hot ingot, which
-     * the Bulk Blast Chiller cools. Recipes: uhv_superconductor.js, vein_oil.js (Ares deposit), PlanetCatalog (LXA-1).
+     * Sanguinite: the bright-red UHV superconductor, smelted in the Sanguinite Hearth Furnace
+     * ({@code gtceu:sanguinite_hearth_furnace}, a standalone Rotary-Hearth copy running only
+     * {@code gtceu:sanguinite_hearth}: the EBF cannot smelt it, the auto EBF recipe is removed). Neutronium and
+     * tritanium dusts are blended with hydrogen, Ares gas from the Martian asteroid field and LXA-1 from the Space
+     * Elevator's far-dark missions (Large Chemical Reactor), then the blend is smelted under supercooled endion at
+     * 13000 K (preheated hearth, circuit 10, 4A UV, 60 s) into the hot ingot, which the Bulk Blast Chiller cools.
+     * Recipes: uhv_superconductor.js, vein_oil.js (Ares deposit), PlanetCatalog (LXA-1).
      * Spec: docs/uhv-superconductor.md
      */
     private static void uhvSuperconductor() {
@@ -821,7 +862,7 @@ public final class AF9Materials {
     /**
      * Quantanium: the ore that unlocks UHV. A metal of the Asteroid Field and nothing else: it has no GT vein anywhere
      * else, no other source, and no recipe takes it yet (the UHV hulls and circuits that will need it come
-     * separately). Furnace-smeltable, so the gate is finding the ore, not a coil tier. The vein: vein_quantanium.js.
+     * separately). Furnace-smeltable, so the gate is finding the ore, not a coil tier. The vein: vein_field.js.
      * Spec: docs/quantanium.md
      */
     private static void quantanium() {

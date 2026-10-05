@@ -64,14 +64,26 @@ public final class AF9Space {
     /** The dimension of the Ceres belt (data/af9/dimension): a second void asteroid field below the first. */
     public static final ResourceLocation CERES_DIMENSION = new ResourceLocation(AF9Core.MOD_ID,
             "ceres");
+    /** Earth's Moon (Ad Astra): Artemite generates nowhere else. */
+    public static final ResourceLocation MOON_DIMENSION = new ResourceLocation("ad_astra",
+            "moon");
     /**
-     * The rock of the asteroids: the four stones GT has ore blocks for, which {@link AsteroidFieldFeature} builds them
-     * of (data/af9/tags/blocks/asteroid_rock.json).
+     * The rock of the asteroids: the four volcanic stones of the Ceres belt and the four exotic stones of the upper
+     * field, which {@link AsteroidFieldFeature} builds them of (data/af9/tags/blocks/asteroid_rock.json).
      */
     public static final TagKey<Block> ASTEROID_ROCK = BlockTags.create(new ResourceLocation(AF9Core.MOD_ID,
             "asteroid_rock"));
-    /** The layer GT's ore veins grow into in both belts (the veins: KubeJS, vein_*_belt / vein_quantanium). */
+    /** The layer GT's ore veins grow into in both belts (the veins: KubeJS, vein_ceres / vein_field). */
     public static final String ORE_LAYER = "af9_asteroid";
+
+    /**
+     * The Moon's rock: Ad Astra's moon stone and moon sand, which {@link AsteroidFieldFeature} never builds
+     * (the Moon has terrain of its own) but GT's Artemite vein grows into (data/af9/tags/blocks/moon_rock.json).
+     */
+    public static final TagKey<Block> MOON_ROCK = BlockTags.create(new ResourceLocation(AF9Core.MOD_ID,
+            "moon_rock"));
+    /** The layer GT's Moon veins grow into (the veins: KubeJS, vein_moon.js). */
+    public static final String MOON_LAYER = "af9_moon";
 
     private AF9Space() {}
 
@@ -79,6 +91,7 @@ public final class AF9Space {
     public static void registerWorldgenLayers() {
         new SimpleWorldGenLayer(ORE_LAYER, () -> new TagMatchTest(ASTEROID_ROCK),
                 Set.of(ASTEROID_FIELD_DIMENSION, CERES_DIMENSION));
+        new SimpleWorldGenLayer(MOON_LAYER, () -> new TagMatchTest(MOON_ROCK), Set.of(MOON_DIMENSION));
     }
 
     private static void fillCreativeTabs(BuildCreativeModeTabContentsEvent event) {

@@ -36,7 +36,7 @@ See Appendix A for the full map. The numbers live in three places that must agre
 
 ## 0.3 One-paragraph mental model
 
-Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Siemens polysilicon → melt charges + seed crystal (SMC) → boule (EBF Boule Melting) → cutter blank wafer of one of nine substrates → Coater Track (HMDS prime, BARC, resist, TARC, bake: the blank becomes a coated wafer, §6.5b) → Photolithography Line (built in 8 versions like the Assembly Line's lengths; the mode is the substrate: 350 nm silicon … 7 nm strange matter; a reticle of the node's mask class + developer, rinse water, clean air, etch plasma + the mode's laser gas / immersion water / HfCl4 / tin) → GT's chip wafers (as many as the substrate yields) or broken wafers, decided by the machine's vacuum, cooling and computation (§5.4, §18) → cutter dies → circuit assembler. Higher substrates print every lower substrate's chips too and give more chip wafers per blank. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion → EUV 13.5 nm → high-NA EUV) and the resist made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate → tin-oxo EUV resist); the 1 nm chromodynium node is an X-ray free-electron laser in orbit. Wafers taken into a player's inventory get contaminated unless the player wears gloves or stands in a clean Cleanroom.
+Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Moon Sand polysilicon → melt charges + seed crystal (SMC) → boule (EBF Boule Melting) → cutter blank wafer of one of nine substrates → Coater Track (HMDS prime, BARC, resist, TARC, bake: the blank becomes a coated wafer, §6.5b) → Photolithography Line (built in 8 versions like the Assembly Line's lengths; the mode is the substrate: 350 nm silicon … 7 nm strange matter; a reticle of the node's mask class + developer, rinse water, clean air, etch plasma + the mode's laser gas / immersion water / HfCl4 / tin) → GT's chip wafers (as many as the substrate yields) or broken wafers, decided by the machine's vacuum, cooling and computation (§5.4, §18) → cutter dies → circuit assembler. Higher substrates print every lower substrate's chips too and give more chip wafers per blank. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion → EUV 13.5 nm → high-NA EUV) and the resist made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate → tin-oxo EUV resist); the 1 nm chromodynium node is an X-ray free-electron laser in orbit. Wafers taken into a player's inventory get contaminated unless the player wears gloves or stands in a clean Cleanroom.
 
 ---
 
@@ -81,7 +81,10 @@ Net: SiO2 + 2C -> Si(l) + 2CO(g)
 
 ### Minecraft map
 
-No Siemens unit in GTCEuM 1.20.1; AF9 simulates it (§6.12): hydrochlorination → `crude_chlorosilanes` → distillation (TCS/STC/DCS/BCl3) → carbon polishing → `siemens_feed_gas` → CVD bell jar (SMC thermal furnace) → `polysilicon` + vent gas → recovery and STC conversion (closed loop), STC also to fumed silica or TEOS. FBR is not modelled.
+No Siemens unit in GTCEuM 1.20.1, and AF9 does not build one either: polysilicon comes only from Moon Sand (§6.12).
+The chlorosilane line survives without it: hydrochlorination → `crude_chlorosilanes` → distillation (TCS/STC/DCS/BCl3),
+DCS + STC back to TCS by redistribution, TCS and STC to fumed silica or TEOS, BCl3 to boron for magnets and dielectrics.
+FBR is not modelled.
 
 ## 1.4 Stage 3 — Crystal growth (Czochralski CZ, >90% wafers)
 
@@ -94,7 +97,7 @@ No Siemens unit in GTCEuM 1.20.1; AF9 simulates it (§6.12): hydrochlorination �
 - Alternative: Float Zone (FZ) — no crucible, RF coil, Oi 10-100× lower, resistivity to >5000 ohm-cm, limited to ~75-200mm, for power/RF/detectors. No B-O LID.
 - Anatomy: seed (Dash neck) → shoulder → body (prime) → tail (dislocated, high dopant) → heel residue. Yield target >80%.
 - Failures: loss of zero-dislocation (twinning/slip), swirl/COPs/voids (V/G control), O/dopant striations, crucible devitrification particles.
-- Minecraft map: melt charges (`electronic_grade_silicon` = etched poly chunks + boron from the BCl3 cut for p-type, or phosphorus for n-type; SMC blending), a seed crystal (SMC crystal growth) and a crucible (fused quartz; tritanium for the exotic melts) go into the EBF's **Boule Melting** mode under argon / xenon / endion (§12). `gtceu:silicon_boule` = p-type CZ boule, `gtceu:phosphorus_boule` = n-type.
+- Minecraft map: melt charges (`electronic_grade_silicon` = etched poly chunks + Artemite from the Moon for p-type, or phosphorus for n-type; SMC blending), a seed crystal (SMC crystal growth) and a crucible (fused quartz; tritanium for the exotic melts) go into the EBF's **Boule Melting** mode under argon / xenon / endion (§12). `gtceu:silicon_boule` = p-type CZ boule, `gtceu:phosphorus_boule` = n-type.
 
 ## 1.5 Stage 4 — Wafering (ingot → wafer)
 
@@ -758,7 +761,7 @@ Layout, left to right by voltage tier:
   coater track (MV); from the HV Cleanroom: fluorine, triflic acid, rare gases, KrF gas and laser, resist building
   blocks, PHOST, PAG, KrF resist, the SMC multiblocks (HV); methacrylates, ArF resist, ArF gas and laser, ultrapure water
   (EV); zircon/hafnium; tin tetrachloride, EUV resist, EUV light source, dry resist cartridge, orbital station parts.
-- **Below: silicon and substrates** — MG-Si, chlorosilanes, Siemens polysilicon, EGS, HF, silicon charge/seed/crucible,
+- **Below: silicon and substrates** — MG-Si, chlorosilanes, Moon Sand polysilicon, Lunar Air, Artemite, EGS, HF, silicon charge/seed/crucible,
   then a "substrate highway" of melt charges (phosphorus ... chromodynium) with their boules; cryostat, coolant hatch,
   particle accelerator, transmuted neutronium, QGP, strange matter, chromodynium, tritanium crucible, Endion coils.
 - **Quest links** show the GT quests of the voltage chapters that belong to the flow (MV laser engraver, silicon boule,
@@ -798,27 +801,41 @@ Verification done for this design (re-run on every change, see §10): a reachabi
 
 ## 6.12 Line 1 — Electronic-grade silicon (MV)
 
-Real route: quartz → submerged-arc MG-Si (98-99 %) → fluidized-bed hydrochlorination → chlorosilane distillation → Siemens bell-jar CVD (1100 °C, closed loop with vent-gas recovery and STC conversion) → etched poly chunks → Czochralski. The boron that MG-Si carries ends up as BCl3 in the light ends, which is where AF9 takes its p-type dopant from.
+Real route: quartz → submerged-arc MG-Si (98-99 %) → fluidized-bed hydrochlorination → chlorosilane distillation → Siemens bell-jar CVD (1100 °C, closed loop with vent-gas recovery and STC conversion) → etched poly chunks → Czochralski. AF9 skips the bell jar: polysilicon comes only from Moon Sand (below), and the p-type dopant is Artemite, the lunar borate, not the boron of the BCl3 cut (that boron goes to magnets and dielectrics).
 
 ```text
 af9:high_purity_quartz (wet) quartzite_dust + 250 hydrochloric_acid → high_purity_quartz_dust + 250 diluted_hydrochloric_acid | 200t LV
 af9:metallurgical_grade_silicon (calcination) high_purity_quartz_dust + 2x coke_dust → metallurgical_grade_silicon_dust + 2000 carbon_monoxide | 400t MV | 1800K
 af9:crude_chlorosilanes (synthesis) NC copper_dust + metallurgical_grade_silicon_dust + 3000 hydrochloric_acid → 1000 crude_chlorosilanes + 1000 hydrogen | 300t MV
 af9:chlorosilane_distillation (column) 1000 crude_chlorosilanes → 850 trichlorosilane + 100 silicon_tetrachloride + 40 dichlorosilane + 10 boron_trichloride | 300t MV
-af9:electronic_grade_trichlorosilane (purify) NC activated_carbon_dust + 1000 trichlorosilane → 1000 electronic_grade_trichlorosilane | 200t MV
 af9:dichlorosilane_redistribution (synthesis) NC activated_carbon_dust + 1000 dichlorosilane + 1000 silicon_tetrachloride → 2000 trichlorosilane | 200t MV
 af9:boron_from_trichloride (synthesis) 1000 boron_trichloride + 3000 hydrogen → boron_dust + 3000 hydrochloric_acid | 200t MV
-af9:siemens_feed_gas (blending) 1000 electronic_grade_trichlorosilane + 4000 hydrogen → 5000 siemens_feed_gas | 100t LV
-af9:siemens_polysilicon (CVD) 10000 siemens_feed_gas → polysilicon_ingot + 8000 siemens_vent_gas | 1600t HV | 1400K
-af9:siemens_vent_gas_recovery (column) 8000 siemens_vent_gas → 6000 hydrogen + 1000 hydrochloric_acid + 600 trichlorosilane + 400 silicon_tetrachloride | 400t MV
-af9:silicon_tetrachloride_hydroconversion (synthesis) circuit 1 + 1000 silicon_tetrachloride + 1000 hydrogen → 1000 trichlorosilane + 1000 hydrochloric_acid | 300t MV
+af9:silicon_tetrachloride_hydroconversion: gone (it fed the Siemens loop).
 af9:fumed_silica (synthesis) circuit 2 + 1000 silicon_tetrachloride + 2000 hydrogen + 2000 oxygen → silicon_dioxide_dust + 4000 hydrochloric_acid | 200t MV
+af9:tcs_fumed_silica (synthesis) circuit 3 + 1000 trichlorosilane + 2000 hydrogen + 2000 oxygen → silicon_dioxide_dust + 4000 hydrochloric_acid | 200t MV
 af9:silicon_etchant (blending) 1000 nitric_acid + 1000 hydrofluoric_acid → 2000 silicon_etchant | 100t LV
 af9:electronic_grade_silicon (wet) polysilicon_dust + 100 silicon_etchant → electronic_grade_silicon_dust | 100t MV
-(boules: melt charges, seed crystals and Boule Melting — §12)
+(Moon Sand polysilicon, Lunar Air and Artemite — below; boules: melt charges, seed crystals and Boule Melting — §12)
 ```
 
-Mass balance: per polysilicon ingot the Siemens reactor takes 2000 TCS; the vent gas returns 600 TCS + 400 STC (→ TCS), so one ingot costs ~1000 TCS ≈ 1 MG-Si. STC can instead become fumed silica (circuit 2) or TEOS (§6.15). At MV the two distillations run in the SMC Fractionating Still, one cut per circuit; the SMC Rectification Column (HV) runs them whole.
+Moon Sand polysilicon (MV): the only polysilicon there is. Sand is crushed to silica, L-01 (the light cut of
+Lunar Air) is bound into it as Moon Sand, and a chemical bath under oxygen turns Moon Sand into polysilicon dust.
+Ad Astra moon sand grinds straight to Moon Sand dust, so the first wafers start with a shovel on the Moon; the L-01
+chain takes over after. Artemite, the lunar borate, dopes the charges p-type (a tiny pile each, like boron did).
+
+```text
+af9:sand_silica (macerator) sand → 2x silicon_dioxide_dust | 100t LV
+af9:moon_sand_grinding (macerator) ad_astra:moon_sand → moon_sand_dust | 100t LV
+af9:moon_sand (synthesis) 2x silicon_dioxide_dust + 1000 l_01 → 2x moon_sand_dust | 200t MV
+af9:moon_sand_polysilicon (wet) moon_sand_dust + 1000 oxygen → 4x polysilicon_dust | 200t MV
+af9:distill_lunar_air (distillation tower) 4000 lunar_air → 2600 l_01 + 1000 argon + 160 radon | 600t MV
+af9:artemite_vein (Moon) clusterSize 24, weight 45, density 0.8, no air discard, layer af9_moon, y 40-120
+```
+
+Mass balance: a sand block is 8 polysilicon (2 silica → 2 Moon Sand → 8 poly). Lunar Air is drilled on the Moon
+(`af9:lunar_air`, the only deposit there) or shipped on a Mk-IV liquid mission; the elevator also draws Artemite
+(a tier-1 layer: every drone). At MV the chlorosilane distillation runs in the SMC Fractionating Still, one cut per
+circuit; the SMC Rectification Column (HV) runs it whole.
 
 ## 6.13 Line 2 — Fluorochemicals (HF at MV, fluorine and triflic acid at HV)
 
@@ -959,8 +976,10 @@ Side chains (fab modes of §11 in brackets, GT machines in capitals): air → [p
              DMDCS+CH3Cl+Mg → TMCS → +NH3 → HMDS → +N2 → hmds_vapor;
              phenol+CH2O → novolac, naphthalene+HNO3+NH3 → DNQ, +xylene → photoresist (i-line, 350 nm);
              quartzite → [wet HCl] HPQ → [calcination +coke] MG-Si → [synthesis +HCl, Cu] crude chlorosilanes → [column/still] TCS / STC / DCS / BCl3
-               → [purify carbon] EG-TCS → [blending +H2] feed → [CVD Siemens] polysilicon + vent gas → [column/still] H2, HCl, TCS, STC (loop)
-               → [macerator] → [wet HNA etch] EGS → melt charges + seeds (+ boron from BCl3) → [EBF Boule Melting, argon] silicon boule;
+               → TCS/STC [synthesis flame] fumed silica, BCl3 [synthesis +H2] boron (magnets, dielectrics);
+             sand → [macerator] silica + [tower Lunar Air] L-01 → [synthesis] Moon Sand → [wet +O2] polysilicon
+               (or moon sand → [macerator] Moon Sand, the first wafers)
+               → [macerator] → [wet HNA etch] EGS → melt charges + seeds (+ Artemite from the Moon) → [EBF Boule Melting, argon] silicon boule;
              fluorite + H2SO4 → crude HF → [column/still] AHF → KF → KF·2HF → [electrolysis, carbon] crude F2 → [purify NaF] F2;
              CH4+SO3 → MSA → [+SOCl2] MsCl → [+KF] MsF → [+HF, ECF Ni] CF3SO2F → [+KOH] KOTf → [+H2SO4] triflic acid;
              cryogenic supercooled air → [cryo column / still] N2, O2, crude Ar (→ deoxo → Ar), crude Ne (→ Pt/charcoal → [cryo column] Ne + He),
@@ -1077,16 +1096,16 @@ Slot layout = items in, items out, fluids in, fluids out. A single block's slots
 | Type | Layout | Recipes (by EU/t tier) | What runs there |
 |---|---|---|---|
 | `fab_synthesis` | 3/2/4/3 | 61 (21 MV, 35 HV, 5 EV) | every reaction step: chlorosilanes, HF, KF, MSA → triflic acid, Pd/C, TEOS, TS-1, hydrazine → AIBN, PHOST route, Boc2O, PAG, THF, tributylamine, PO → PGMEA, MMA/MAA/tBMA, methacrylate resin, hopcalite, Formox, novolac, DNQ, HMDS, TMACl |
-| `fab_blending` | 3/2/4/3 | 11 (4 LV, 2 MV, 4 HV, 1 EV) | Siemens feed gas, HNA etchant, KF·2HF and Simons electrolytes, excimer premixes, unfiltered resists, i-line resist, HMDS vapour, TMACl solution |
-| `fab_wet_processing` | 3/2/4/3 | 3 | HCl quartz leach, HNA poly etch, molecular sieve (hydrothermal) |
-| `fab_distillation` | 1/1/2/6 | 4 | chlorosilanes, Siemens vent gas, anhydrous HF, Zr/Hf split (column only) |
+| `fab_blending` | 3/2/4/3 | 10 (3 LV, 2 MV, 4 HV, 1 EV) | HNA etchant, KF·2HF and Simons electrolytes, excimer premixes, unfiltered resists, i-line resist, HMDS vapour, TMACl solution |
+| `fab_wet_processing` | 3/2/4/3 | 4 | HCl quartz leach, HNA poly etch, molecular sieve (hydrothermal), Moon Sand polysilicon bath |
+| `fab_distillation` | 1/1/2/6 | 3 | chlorosilanes, anhydrous HF, Zr/Hf split (column only) |
 | `fab_cryogenic_rectification` | 1/1/2/6 | 3 | air (N2, O2, crude Ar, crude Ne, Kr/Xe), Ne/He, Kr/Xe |
 | `fab_fractionation` | 2/1/3/2 | 21 (16 LV, 5 MV) | one cut per run of each distillation / cryogenic recipe except the Zr/Hf split: circuit = cut number, EU/t ÷ 4, time × 2, the other cuts are lost (GT's distillery rule) |
-| `fab_purification` | 2/1/3/2 | 17 | XCDA (8 steps), carbon-bed TCS polish, NaF scrub of F2, argon deoxo, neon purification, Kr/Xe burner and drier, resist filtration, ultrapure water |
+| `fab_purification` | 2/1/3/2 | 16 | XCDA (8 steps), NaF scrub of F2, argon deoxo, neon purification, Kr/Xe burner and drier, resist filtration, ultrapure water |
 | `fab_electrolysis` | 2/2/3/4 | 2 | KF·2HF → F2, TMACl → TMAH developer |
 | `fab_electrofluorination` | 2/2/3/4 | 1 | Simons ECF → CF3SO2F |
 | `fab_calcination` | 3/2/2/2 | 5 | MG-Si (carbothermic reduction), NaHF2 and spent-acid regeneration, MoO3 roast, iron molybdate |
-| `fab_cvd` | 3/2/2/2 | 1 | Siemens polysilicon |
+| `fab_cvd` | 3/2/2/2 | 7 | aluminium and silicon nitride, tungsten diselenide, boron nitride, MoSi mirror, phase-shift and EUV mask blanks |
 | `fab_crystal_growth` | 3/2/2/2 | 4 | seed crystals for the eight boules (§12) |
 
 Clean room: every non-thermal recipe from HV power on has `cleanroom(CLEANROOM)` (60 recipes). Single blocks need a GT Cleanroom for them; the four multiblocks with filter casings bring their own. Thermal recipes carry `blastFurnaceTemp` and never need a clean room.
@@ -1171,7 +1190,7 @@ A boule is **ten times the material** of GT's old boule, and so it fits the EBF'
 
 | Boule | Charge (SMC blending, per charge = GT's old boule) | Seed (SMC crystal growth) | Gas | Temp | EU/t (tier × amps) | Time | Crucible | → wafers |
 |---|---|---|---|---|---|---|---|---|
-| `gtceu:silicon_boule` | 32 EGS + tiny boron (MV) | 4 EGS + tiny boron, 100 Ar | 2500 Ar | 1784 K | MV × 2 | 9000t | fused quartz | 16 (GT) |
+| `gtceu:silicon_boule` | 32 EGS + tiny Artemite (MV) | 4 EGS + tiny Artemite, 100 Ar | 2500 Ar | 1784 K | MV × 2 | 9000t | fused quartz | 16 (GT) |
 | `gtceu:phosphorus_boule` | 64 EGS + 8 phosphorus (HV) | 4 EGS + small P, 200 Ar | 10000 Ar | 2484 K | HV × 4 | 12000t | fused quartz | 32 (GT) |
 | `gtceu:naquadah_boule` | 144 EGS + naquadah + GaAs (EV) | small Nq, 400 Ar | 80000 Ar | 5400 K | EV × 4 | 22500t | fused quartz | 64 (GT) |
 | `af9:trinium_boule` | 192 EGS + 2 trinium + GaAs (IV) | small trinium, 400 Ar | 80000 Ar | 6000 K | IV × 4 | 24000t | fused quartz | 64 |
@@ -1424,7 +1443,7 @@ kubejs/server_scripts/mods/gtceu/boule_melting.js  # Ender Air → endion, endio
 kubejs/server_scripts/mods/gtceu/cryogenics.js     # cryostat + coolant hatch crafting, dense cooling + supercooling
 kubejs/server_scripts/mods/gtceu/particle_accelerator.js # accelerator + consumables crafting, neutron irradiation, ion collision, quark synthesis
 kubejs/server_scripts/mods/gtceu/electronics_metallurgy.js # zircon chain, zircon sands ore vein
-kubejs/server_scripts/mods/gtceu/fab_chemistry.js  # lines 1-5 (§6.12-6.16): Siemens polysilicon + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
+kubejs/server_scripts/mods/gtceu/fab_chemistry.js  # lines 1-5 (§6.12-6.16): Moon Sand polysilicon + Lunar Air + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
 kubejs/startup_scripts/gtceu/fab_machines.js       # §11: 12 fab recipe types (slot layouts), 4 SMC single-block families (MV-LuV), 4 SMC multiblocks (structures, modifiers)
 kubejs/server_scripts/mods/gtceu/fab_machines.js   # §11: crafting of the SMC machines
 kubejs/server_scripts/mods/gtceu/circuits_af9.js    # all of AF9's circuit crafting: alloy mixers (Al-Si, Kovar, Pt-Ir), MV circuits without transistors/diodes, HV-LuV circuits (plain chips + tier metals), eDRAM versions

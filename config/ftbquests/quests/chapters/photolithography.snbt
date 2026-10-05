@@ -667,11 +667,11 @@
 		{
 			dependencies: ["537954CC8B44A7F2"]
 			description: [
-				"{af9.quest.litho.siemens.1}"
+				"{af9.quest.litho.moonsand.1}"
 				""
-				"{af9.quest.litho.siemens.2}"
+				"{af9.quest.litho.moonsand.2}"
 				""
-				"{af9.quest.litho.siemens.3}"
+				"{af9.quest.litho.moonsand.3}"
 			]
 			id: "59BCAC9DD7CB7325"
 			rewards: [{
@@ -679,27 +679,26 @@
 				type: "xp"
 				xp: 100
 			}]
-			subtitle: "{af9.quest.litho.siemens.subtitle}"
+			subtitle: "{af9.quest.litho.moonsand.subtitle}"
 			tasks: [
 				{
-					amount: 1000L
-					fluid: "gtceu:electronic_grade_trichlorosilane"
 					id: "6084F5E71F0F89EE"
-					type: "fluid"
-				}
-				{
-					amount: 1000L
-					fluid: "gtceu:siemens_feed_gas"
-					id: "10837438C5BD54D9"
-					type: "fluid"
-				}
-				{
-					id: "436D18180C7D1528"
-					item: "gtceu:polysilicon_ingot"
+					item: "gtceu:moon_sand_dust"
 					type: "item"
 				}
+				{
+					id: "10837438C5BD54D9"
+					item: "gtceu:polysilicon_dust"
+					type: "item"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:lunar_air"
+					id: "436D18180C7D1528"
+					type: "fluid"
+				}
 			]
-			title: "{af9.quest.litho.siemens.title}"
+			title: "{af9.quest.litho.moonsand.title}"
 			x: 4.5d
 			y: 4.5d
 		}

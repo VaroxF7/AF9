@@ -29,7 +29,7 @@ import java.util.TreeMap;
  * <p>
  * An ore is a material with GT's ore property. Its tier is the lowest tier of the world-gen layers of the veins that hold it:
  * <ol>
- * <li>stone and deepslate: the Overworld;</li>
+ * <li>stone, deepslate and the Moon ({@code af9_moon}): the Overworld and the Moon;</li>
  * <li>netherrack: the Nether;</li>
  * <li>end stone: the End;</li>
  * <li>the {@code af9_asteroid} layer: the Asteroid Field.</li>
@@ -48,7 +48,7 @@ public final class OreCatalog {
     /** The tier of a world-gen layer by its key. */
     public static int tierOfLayer(String key) {
         return switch (key) {
-            case "stone", "deepslate" -> 1;
+            case "stone", "deepslate", "af9_moon" -> 1;
             case "netherrack" -> 2;
             case "endstone" -> 3;
             case "af9_asteroid" -> 4;

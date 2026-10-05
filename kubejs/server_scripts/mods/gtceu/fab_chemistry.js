@@ -70,14 +70,7 @@ ServerEvents.recipes(event => {
          Fluid.of('gtceu:dichlorosilane', 40), Fluid.of('gtceu:boron_trichloride', 10)],
         300, MV)
 
-    // Polishing to 9N: the last boron and phosphorus chlorides adsorb on activated carbon
-    gt.fab_purification('af9:electronic_grade_trichlorosilane')
-        .notConsumable('gtceu:activated_carbon_dust')
-        .inputFluids(Fluid.of('gtceu:trichlorosilane', 1000))
-        .outputFluids(Fluid.of('gtceu:electronic_grade_trichlorosilane', 1000))
-        .duration(200)
-        .EUt(MV)
-
+    // Polishing to 9N is gone with the Siemens unit (below): TCS now burns to fumed silica instead.
     // Redistribution over the carbon bed: SiH2Cl2 + SiCl4 -> 2 SiHCl3
     gt.fab_synthesis('af9:dichlorosilane_redistribution')
         .notConsumable('gtceu:activated_carbon_dust')
@@ -94,40 +87,22 @@ ServerEvents.recipes(event => {
         .duration(200)
         .EUt(MV)
 
-    // Siemens process: TCS vapour in hydrogen over resistively heated silicon rods in a bell jar, 1100 C, for days.
-    // SiHCl3 + H2 -> Si + 3 HCl and 4 SiHCl3 -> Si + 3 SiCl4 + 2 H2. Half the TCS leaves unreacted in the vent gas.
-    gt.fab_blending('af9:siemens_feed_gas')
-        .inputFluids(Fluid.of('gtceu:electronic_grade_trichlorosilane', 1000), Fluid.of('gtceu:hydrogen', 4000))
-        .outputFluids(Fluid.of('gtceu:siemens_feed_gas', 5000))
-        .duration(100)
-        .EUt(LV)
-
-    gt.fab_cvd('af9:siemens_polysilicon')
-        .inputFluids(Fluid.of('gtceu:siemens_feed_gas', 10000))
-        .itemOutputs('gtceu:polysilicon_ingot')
-        .outputFluids(Fluid.of('gtceu:siemens_vent_gas', 8000))
-        .blastFurnaceTemp(1400)
-        .duration(1600)
-        .EUt(HV)
-
-    // Vent gas recovery (condensation, HCl absorption, carbon adsorption): everything goes back into the loop
-    column('fab_distillation', 'af9:siemens_vent_gas_recovery', Fluid.of('gtceu:siemens_vent_gas', 8000),
-        [Fluid.of('gtceu:hydrogen', 6000), Fluid.of('gtceu:hydrochloric_acid', 1000),
-         Fluid.of('gtceu:trichlorosilane', 600), Fluid.of('gtceu:silicon_tetrachloride', 400)],
-        400, MV)
-
-    // STC converter, 1000 C: SiCl4 + H2 -> SiHCl3 + HCl (the closed-loop Siemens plant)
-    gt.fab_synthesis('af9:silicon_tetrachloride_hydroconversion')
-        .circuit(1)
-        .inputFluids(Fluid.of('gtceu:silicon_tetrachloride', 1000), Fluid.of('gtceu:hydrogen', 1000))
-        .outputFluids(Fluid.of('gtceu:trichlorosilane', 1000), Fluid.of('gtceu:hydrochloric_acid', 1000))
-        .duration(300)
-        .EUt(MV)
+    // Polysilicon comes only from Moon Sand now (below): the Siemens bell jar, its feed gas, the vent gas
+    // recovery and the STC hydroconversion loop are gone. TCS burns to fumed silica instead (circuit 3).
 
     // Or burn it in a hydrogen flame into fumed silica: SiCl4 + 2 H2 + O2 -> SiO2 + 4 HCl
     gt.fab_synthesis('af9:fumed_silica')
         .circuit(2)
         .inputFluids(Fluid.of('gtceu:silicon_tetrachloride', 1000), Fluid.of('gtceu:hydrogen', 2000), Fluid.of('gtceu:oxygen', 2000))
+        .itemOutputs('gtceu:silicon_dioxide_dust')
+        .outputFluids(Fluid.of('gtceu:hydrochloric_acid', 4000))
+        .duration(200)
+        .EUt(MV)
+
+    // TCS burns the same way (the Siemens unit is gone, so TCS has no CVD to go to)
+    gt.fab_synthesis('af9:tcs_fumed_silica')
+        .circuit(3)
+        .inputFluids(Fluid.of('gtceu:trichlorosilane', 1000), Fluid.of('gtceu:hydrogen', 2000), Fluid.of('gtceu:oxygen', 2000))
         .itemOutputs('gtceu:silicon_dioxide_dust')
         .outputFluids(Fluid.of('gtceu:hydrochloric_acid', 4000))
         .duration(200)
@@ -148,8 +123,53 @@ ServerEvents.recipes(event => {
         .EUt(MV)
 
     // Czochralski growth: the boules are pulled in the EBF's Boule Melting mode from melt charges (the electronic-grade
-    // silicon above with its dopants, SMC blending), a seed crystal (SMC crystal growth) and a crucible. Boron = p-type
+    // silicon above with its dopants, SMC blending), a seed crystal (SMC crystal growth) and a crucible. Artemite = p-type
     // (the CMOS substrate, ppm-level), phosphorus = n-type. All in boule_melting.js.
+
+    // =============================================================================================================
+    // 1b. MOON SAND POLYSILICON (MV): the only polysilicon there is. Sand is crushed to silica, L-01 (the light
+    // cut of Lunar Air, the Moon's air) is bound into it as Moon Sand, and a chemical bath under oxygen turns
+    // Moon Sand into polysilicon dust: a sand block is 8 polysilicon. Ad Astra moon sand grinds straight to
+    // Moon Sand dust (the first wafers: a shovel on the Moon, then the L-01 chain takes over).
+    // =============================================================================================================
+
+    // Nomifactory-style: sand is just silica waiting to be crushed
+    event.recipes.gtceu.macerator('af9:sand_silica')
+        .itemInputs('minecraft:sand')
+        .itemOutputs('2x gtceu:silicon_dioxide_dust')
+        .duration(100)
+        .EUt(LV)
+
+    // The Moon's own sand grinds straight to Moon Sand dust
+    event.recipes.gtceu.macerator('af9:moon_sand_grinding')
+        .itemInputs('ad_astra:moon_sand')
+        .itemOutputs('gtceu:moon_sand_dust')
+        .duration(100)
+        .EUt(LV)
+
+    // L-01 activation: silica + the light lunar gas -> Moon Sand
+    gt.fab_synthesis('af9:moon_sand')
+        .itemInputs('2x gtceu:silicon_dioxide_dust')
+        .inputFluids(Fluid.of('gtceu:l_01', 1000))
+        .itemOutputs('2x gtceu:moon_sand_dust')
+        .duration(200)
+        .EUt(MV)
+
+    // The bath: Moon Sand under oxygen -> polysilicon dust
+    gt.fab_wet_processing('af9:moon_sand_polysilicon')
+        .itemInputs('gtceu:moon_sand_dust')
+        .inputFluids(Fluid.of('gtceu:oxygen', 1000))
+        .itemOutputs('4x gtceu:polysilicon_dust')
+        .duration(200)
+        .EUt(MV)
+
+    // Lunar Air distillation (distillation tower, like liquid Ender Air): argon and radon off the sides,
+    // L-01 as the light product
+    event.recipes.gtceu.distillation_tower('af9:distill_lunar_air')
+        .inputFluids(Fluid.of('gtceu:lunar_air', 4000))
+        .outputFluids(Fluid.of('gtceu:l_01', 2600), Fluid.of('gtceu:argon', 1000), Fluid.of('gtceu:radon', 160))
+        .duration(600)
+        .EUt(MV)
 
     // =============================================================================================================
     // 2. FLUOROCHEMICALS: fluorspar -> HF (MV) -> fluorine by KF.2HF electrolysis (HV); triflic acid by Simons ECF

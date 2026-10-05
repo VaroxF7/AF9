@@ -30,7 +30,8 @@ public abstract class ConsoleWidget extends Widget {
             STATUS_PAUSED = 4, STATUS_MAINTENANCE = 5, STATUS_LOCKED = 6, STATUS_NO_ORBIT = 7, STATUS_NO_COOLANT = 8,
             STATUS_PUMPING_DOWN = 9, STATUS_NO_COMPUTATION = 10, STATUS_NO_DATA = 11, STATUS_NO_RETICLE = 12,
             STATUS_STARTING_UP = 13, STATUS_NO_LIGHT = 14, STATUS_NO_COOLING = 15, STATUS_NO_SKY = 16,
-            STATUS_NO_MODULE = 17, STATUS_NO_DRONE = 18, STATUS_NO_FUEL = 19, STATUS_OUTPUT_FULL = 20;
+            STATUS_NO_MODULE = 17, STATUS_NO_DRONE = 18, STATUS_NO_FUEL = 19, STATUS_OUTPUT_FULL = 20,
+            STATUS_NO_DIMENSION = 21;
 
     protected ConsoleWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
@@ -211,7 +212,8 @@ public abstract class ConsoleWidget extends Widget {
             case STATUS_IDLE -> WARN;
             case STATUS_NO_POWER, STATUS_MAINTENANCE, STATUS_LOCKED, STATUS_NO_ORBIT, STATUS_NO_COOLANT,
                     STATUS_NO_COMPUTATION, STATUS_NO_DATA, STATUS_NO_RETICLE, STATUS_NO_LIGHT, STATUS_NO_COOLING,
-                    STATUS_NO_SKY, STATUS_NO_MODULE, STATUS_NO_DRONE, STATUS_NO_FUEL, STATUS_OUTPUT_FULL ->
+                    STATUS_NO_SKY, STATUS_NO_MODULE, STATUS_NO_DRONE, STATUS_NO_FUEL, STATUS_OUTPUT_FULL,
+                    STATUS_NO_DIMENSION ->
                 BAD;
             case STATUS_PAUSED, STATUS_PUMPING_DOWN, STATUS_STARTING_UP -> INFO;
             default -> MUTED;

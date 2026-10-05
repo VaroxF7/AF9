@@ -74,8 +74,8 @@ ServerEvents.recipes(event => {
     // most 4A, what two normal energy hatches give the EBF; a bigger multiplier makes the run longer instead.
     const BOULE_MAX_AMPS = 4
     const boules = [
-        { id: 'silicon', charge: [`32x ${EG_SI}`, 'gtceu:tiny_boron_dust'], chargeTier: GTValues.MV,
-            seed: [`4x ${EG_SI}`, 'gtceu:tiny_boron_dust'], seedGas: ['gtceu:argon', 100],
+        { id: 'silicon', charge: [`32x ${EG_SI}`, 'gtceu:tiny_artemite_dust'], chargeTier: GTValues.MV,
+            seed: [`4x ${EG_SI}`, 'gtceu:tiny_artemite_dust'], seedGas: ['gtceu:argon', 100],
             gas: ['gtceu:argon', 2500], temp: 1784, duration: 9000, eu: [GTValues.MV, 2], crucible: 'fused_quartz',
             boule: 'gtceu:silicon_boule' },
         { id: 'phosphorus', charge: [`64x ${EG_SI}`, '8x gtceu:phosphorus_dust'], chargeTier: GTValues.HV,

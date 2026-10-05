@@ -21,7 +21,7 @@ what the **Fusion Reactor Mk1** needs, and that is what the whole update is for.
 ```text
 Ad Astra rocket (gregified parts, Aluminised Hydrolox)
    -> Ceres, its space = the Asteroid Field (af9:asteroid_field)      station built through Ad Astra's planet menu
-         -> Brannerite ore in the asteroids (GT dike veins in both belts)
+         -> Brannerite ore in the Ceres asteroids (GT dike veins)
              -> purified dust -> leach (uranyl sulfate) -> yellowcake -> reduction (EBF, hydrogen) -> uranium dust
                   -> (UF6 -> GT's enrichment -> U-235 dust)
                   -> pellets (EBF) -> fuel rod (assembler, zirconium)
@@ -35,12 +35,12 @@ Ad Astra rocket (gregified parts, Aluminised Hydrolox)
 ## 2.1 Dimensions and planets (Ad Astra)
 
 Ad Astra lists a **planet** in its menu only if it has an orbit; a pure space dimension (an orbit) is not selectable by itself.
-Both belts are voids, and Ceres is the landable one:
+The two belts are different regions, not two copies:
 
 | Planet (`af9-core/src/main/resources/data/af9/planets/`) | Dimension | Is | Tier | Gravity | Orbit |
 |---|---|---|---|---|---|
-| `ceres.json` | `af9:ceres` | void belt: the Ceres asteroids, denser with smaller islands (no temples) | 2 | 0 | `af9:asteroid_field` |
-| `asteroid_field.json` | `af9:asteroid_field` | void belt: the temple-field asteroids, the stations | 2 | 0 | none |
+| `ceres.json` | `af9:ceres` | void belt: dark volcanic asteroids (andesite, tuff, basalt, blackstone) in flat lenses, denser with smaller islands, no temples; the fission ores | 2 | 0 | `af9:asteroid_field` |
+| `asteroid_field.json` | `af9:asteroid_field` | void belt: pale exotic asteroids (granite, diorite, deepslate, end stone) as spires, discs and shard clusters; the temples and the exotic ores, the stations | 2 | 0 | none |
 
 The menu shows **Ceres** (tier 2: Mars's tier). *Land* goes to the Ceres belt; *Construct Space Station* builds the station in the
 field, at the chunk the rocket is over, at y = 100 (Ad Astra's rule). Falling out of the field drops a player into the Ceres belt (Ad
@@ -55,7 +55,10 @@ Astra's below-world rule for space dimensions).
   placed feature `af9:asteroid_field` (decoration step 0, before GT's ore placement which runs at the tail of the same step).
   `worldgen/biome/ceres.json` is the same with the placed feature `af9:ceres_field`.
 - Both features are `AsteroidFieldFeature` (`Belt.FIELD` and `Belt.CERES`): the Ceres belt uses denser cells (240 blocks,
-  75 % hold a cluster) with smaller islands (30-55 blocks) and a darker, more basaltic stone mix, and no temples.
+  75 % hold a cluster) with smaller lens islands (30-55 blocks) in andesite, tuff, basalt and blackstone, and no temples.
+  The upper field keeps the wide cells (300 blocks, 65 %) with big islands (45-75 blocks) in granite, diorite, deepslate
+  and end stone, shaped as spires, discs and shard clusters (`Archetype`, drawn from the cell's random) with a ridged,
+  faceted surface.
 - The space station recipe `af9-core/src/main/resources/data/af9/recipes/asteroid_field_space_station.json`: 64 titanium
   plates, 32 stainless steel plates, 32 aluminium plates, 32 titanium rods.
 
@@ -70,15 +73,15 @@ seed and the square *cell* of 300 blocks it belongs to (a cell holds one with a 
 
 | Part | Size | Where |
 |---|---|---|
-| the island | radius 45-75 blocks (each axis x0.8-1.2), vertically 0.45-0.70 of that: a flattened lump | the cluster's centre |
-| satellites, 12-24 | pebbles r 2-4 (28 %), small 4-8 (40 %), medium 9-16 (24 %), large 18-28 (8 %) | from the island's edge to **85** blocks beyond it, anywhere in **42** blocks above or below the island: a band of about 84 blocks |
+| the island | radius 45-75 blocks; a spire (40 %: 1.7-2.3x as tall as wide), a disc (35 %: 1.0-1.3x as wide, 0.22-0.35 as tall) or a shard crown (25 %) | the cluster's centre |
+| satellites, 12-24 (shards +6) | pebbles r 2-4 (28 %), small 4-8 (40 %), medium 9-16 (24 %), large 18-28 (8 %) | from the island's edge to **85** blocks beyond it, anywhere in **42** blocks above or below the island (discs: a flatter swarm, x0.45): needles over spires, chips in the discs' plane, splinters round the shards |
 
 The cluster's height is the middle of the band (y 5..270; the station is at y = 100) plus a slow noise over the plane (`DRIFT`: +-90 blocks,
 features about 420 blocks wide: whole regions lie higher or lower) and a random lift (+-55), so clusters hang at all heights, not in one flat band
-like the End's islands. The radius of a satellite leans to the small end (`random^1.6`), each axis is stretched by 0.75-1.25 (vertically 0.6-1.1)
-and the surface of every rock is pushed in and out by two layers of simplex noise (amplitudes 0.25 and 0.10). About 5 blocks of rock in a column
+like the End's islands. The radius of a satellite leans to the small end (`random^1.6`); the surface of every rock is pushed in and out by two
+layers of ridged simplex noise (sharp crests like cut crystal, amplitudes 0.30 and 0.12 over a 0.55 middle). About 5 blocks of rock in a column
 of the 300-block band (measured over 2,000 x 2,000 blocks: 4.5-5.5): mostly empty space, and the rock that there is lies together, so a vein
-finds an island to grow in.
+finds an island to grow in. (Ceres keeps the old smooth lenses: each axis stretched 0.75-1.25, vertically 0.6-1.1, smooth noise 0.25 and 0.10.)
 
 **Spacing.** Two things set how far apart things are, both constants in the Java:
 
@@ -99,7 +102,8 @@ finds an island to grow in.
 A rock's shape and size do not depend on its place, so a change of the spacing moves the clusters but does not change a cluster. Chunks that
 were generated before keep their old rocks; for the first look use a new world or unexplored space.
 
-The rock is andesite, tuff, basalt and blackstone, by a slow noise in patches. These are four of the stones GT has ore blocks for;
+The rock comes in patches, by a slow noise. The Ceres belt is andesite, tuff, basalt and blackstone; the upper field
+is granite, diorite, deepslate and end stone. All eight are stones GT has ore blocks for;
 the ore layer targets exactly them (the block tag `af9:asteroid_rock`, `AF9Space`; lint X4).
 
 ## 2.2b Ancient temples (`TempleLayout`)
@@ -156,22 +160,27 @@ the ore layer, so no vein grows into a wall. Chests face the entrance and hold l
 Lint X4 checks that the tables named by `TempleLayout` exist and that every `af9:` chip and `gtceu:raw_` ore in them is real
 (an unknown item makes Minecraft drop the whole table without a word).
 
-## 2.3 The ore (GT dike veins)
+## 2.3 The ore (GT dike veins, split by belt)
 
-The ores are **GT dike veins** (`kubejs/server_scripts/mods/gtceu/vein_belts.js`, quantanium in `vein_quantanium.js`),
-in the belts' own layer (`af9_asteroid`, `AF9Space`; its stones are the block tag `af9:asteroid_rock`): vertical dikes
-wherever the rock is, piercing every rock of their column at every height. Dikes, not blobs: a standard GT blob at one
-random height mostly misses the floating rocks or cuts one in a thin slab, in rocks that hang anywhere in 250 blocks
-of height.
+The ores are **GT dike veins** in the belts' own layer (`af9_asteroid`, `AF9Space`; its stones are the block tag
+`af9:asteroid_rock`, all eight belt stones): vertical dikes wherever the rock is, piercing every rock of their column
+at every height. Dikes, not blobs: a standard GT blob at one random height mostly misses the floating rocks or cuts
+one in a thin slab, in rocks that hang anywhere in 250 blocks of height. GT resolves the ore block from the stone the
+dike replaces, so the same vein form works in both palettes.
 
 - **How:** one dike per ore (`GTDikeBlockDefinition`, y 5-270, the rocks' whole band), `clusterSize` 16 (fits the medium
   rocks and up), `density` 1.0 (rock the dike hits is solid ore), `discardChanceOnAirExposure` 0.0 (every asteroid is
-  exposed to the void, the default would eat the vein), `dimensions` both belts. GT replaces the asteroid stone with
-  its ore block of that stone after the feature places the rock (same decoration step, ore placement at its tail).
-- **Veins and weights** (weight sets both the worldgen share and the Mk-IV elevator's share, `af9_asteroid` is tier 4):
-  brannerite 80 (~9 % of the rock, the uranium ore), pentlandite 40 and magnetite 40 (~4.5 % each), cooperite 22
-  (~2.5 %), quantanium 60 (the UHV ore, `docs/quantanium.md`). Oil Regolith pockets (about 7 % of the rock, richer in
-  the Ceres belt) are checked first and hold no ore.
+  exposed to the void, the default would eat the vein), `dimensions` the belt that holds it. GT replaces the asteroid
+  stone with its ore block of that stone after the feature places the rock (same decoration step, ore placement at its
+  tail).
+- **Ceres, the fission belt** (`vein_ceres.js`, `dimensions` `af9:ceres`): brannerite 80 (~9 % of the rock, the uranium
+  ore), pentlandite 45 and magnetite 45 (~4.5 % each), cooperite 25 (~2.5 %). Oil Regolith pockets (richer here) hold
+  no ore.
+- **The field, the exotic belt** (`vein_field.js`, `dimensions` `af9:asteroid_field`): naquadah 65, platinum 45,
+  quantanium 60 (the UHV ore, `docs/quantanium.md`), iridium 22 (a small treasure). Every dike is a single pure ore, so
+  the field's naquadah leaks no plutonium: the reactor chain stays the only way to it (§6).
+- **Weights** set both the worldgen share and the Mk-IV elevator's share (`af9_asteroid` is tier 4; naquadah, platinum
+  and iridium also have lower-tier veins elsewhere, so lesser drones still find them off the belts).
 - **Knobs:** the weights and `clusterSize` in the vein scripts. A GT material or ore block that is missing logs the
   script's error and that vein stays empty.
 - GT's layer `af9_asteroid` covers both dimensions (lint X4 checks the tag against the feature and both dimensions
@@ -294,10 +303,12 @@ reflection, so AF9 Core needs nothing of the mod to build. The server script put
 | Separation | Centrifuge, EV | 3,000 mB dissolved spent fuel | 1 plutonium dust, 8 uranium dust; chances: plutonium-241 30 %, 2 tiny U-235 60 %, neodymium 15 %, molybdenum 15 %; 2,000 mB nitric acid back |
 
 **Closed:** GT's `centrifuge/uranium_238_separation` (tiny plutonium) and `centrifuge/plutonium_239_separation` (Pu-241), the void
-miner's circuit 5 (pitchblende, uraninite) and the raw plutonium in circuit 6, and every ore vein with pitchblende or uraninite
-(`modifyAll`: weight 0, wherever the pack put them). GT's **naquadah vein** (`gtceu:naquadah_vein`) held plutonium: `vein_asteroid.js` makes it a raw
-naquadah vein (a standard generator with the naquadah ore blocks of the stone, deepslate and netherrack; layer, dimension, height, size and weight stay).
-Plutonium that is already in the world from it can no longer be turned into Pu-241.
+miner's circuit 5 (pitchblende, uraninite) and the raw plutonium in circuit 6, and every ore vein with pitchblende, uraninite
+or naquadah (`modifyAll`: weight 0, wherever the pack put them — GT's **naquadah vein** (`gtceu:naquadah_vein`) held plutonium
+besides the naquadah). The upper field's dike (`vein_field.js`) is the only naquadah left in worldgen, and it is pure
+naquadah, so the reactor chain stays the only way to plutonium. Naquadah stays renewable two ways: the void miner (End
+and Asteroids modes, standing in the dimension) and the space elevator (the belt veins are tier 4: the Mk-IV drone).
+Plutonium that is already in the world from the old vein can no longer be turned into Pu-241.
 
 **Fusion Reactor Mk1** (`kubejs/server_scripts/mods/gtceu/fusion_reactor.js`, `af9:fusion_reactor_mk1`, Assembly Line, LuV): GT's
 recipe is removed by output and replaced: a superconducting coil, 4 ZPM circuits, **3 double plates of plutonium-241** (GT: 1),
@@ -327,8 +338,8 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 
 1. the world: that `af9:asteroid_field` loads (a planet menu entry for Ceres, the station button), how the asteroids look and how
    much ore a vein leaves (§2.3);
-2. the dikes in the rock (brannerite, pentlandite, magnetite, cooperite, quantanium) piercing the islands
-   top to bottom, at every height, not in slabs;
+2. the dikes in the rock (brannerite and the metals in Ceres; naquadah, platinum, quantanium and iridium in the
+   field) piercing the islands top to bottom, at every height, not in slabs;
 3. the radiation warning above the hotbar, with and without a hazmat suit (GT's hazard system must be on);
 4. the FX-1 in the multiblock preview, one fuel cycle, a Large Steam Turbine on the steam;
 5. Extreme Reactors, if installed: the log line `Extreme Reactors: could not ...` means the vapor was not registered;
@@ -353,8 +364,8 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `kubejs/server_scripts/mods/gtceu/fusion_reactor.js` | the Fusion Reactor Mk1 |
 | `kubejs/server_scripts/mods/gtceu/miner.js` | the void miner without uranium and plutonium |
 | `af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`, `AF9Space.java` | the asteroids of both belts and their registration |
-| `kubejs/server_scripts/mods/gtceu/vein_belts.js` | the brannerite, pentlandite, magnetite and cooperite dike veins of both belts |
-| `kubejs/server_scripts/mods/gtceu/vein_quantanium.js` | the quantanium dike vein of both belts |
+| `kubejs/server_scripts/mods/gtceu/vein_ceres.js` | the brannerite, pentlandite, magnetite and cooperite dike veins of Ceres |
+| `kubejs/server_scripts/mods/gtceu/vein_field.js` | the naquadah, platinum, quantanium and iridium dike veins of the upper field |
 | `af9-core/src/main/java/com/af9/core/space/TempleLayout.java` | the ancient temples (geometry, no Minecraft classes) |
 | `af9-core/src/main/resources/data/af9/loot_tables/chests/` | the loot of the temples and shrines |
 | `af9-core/src/main/java/com/af9/core/radiation/RadiationWatch.java` | the radiation warning |

@@ -7,8 +7,12 @@ gtceu:zircon_dust
 gtceu:brannerite_dust
 gtceu:quantanium_dust
 gtceu:quantanium
-# fluid deposits of the Asteroid Field (vein_oil.js), drilled with the Fluid Drilling Rig
+gtceu:artemite_dust
+gtceu:artemite
+gtceu:tiny_artemite_dust
+# fluid deposits of the belts and the Moon (vein_oil.js), drilled with the Fluid Drilling Rig
 gtceu:heavy_water
 gtceu:ares_gas
+gtceu:lunar_air
 # Space Elevator far-dark liquid mission (PlanetCatalog planet type 9)
 gtceu:lxa_1

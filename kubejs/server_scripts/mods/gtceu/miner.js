@@ -36,6 +36,10 @@ ServerEvents.recipes((event) => {
         .duration(800)
 
     // The data sticks are gone: the void miner picks its dimension with the machine mode, not with a data item.
+    // And it mines standing in it: every recipe carries GT's dimension condition, so a mode only runs in its own
+    // dimension (the Overworld mode also in the Mining Dimension, Asteroids in either belt). The screen names the
+    // wrong dimension (VoidMinerMachine.STATUS_NO_DIMENSION); the dimension lists live here and, for the screen,
+    // in VoidMinerMachine.MODE_DIMENSIONS: change both together.
     // One recipe per table entry: [outputs (all counts x10 of GT's), circuit, id]. The id names the FIRST ore's
     // material. Circuit 8 of the overworld also opens on chalcopyrite, so the circuit number disambiguates it.
     const overworld_raw_ores =
@@ -139,6 +143,8 @@ ServerEvents.recipes((event) => {
     overworld_raw_ores.forEach((overworld_ore) => {
         let recipe = gtr.void_mining_overworld(overworld_ore[2])
             .inputFluids("gtceu:drilling_fluid 1000")
+            .dimension('minecraft:overworld', true)
+            .dimension('allthemodium:mining', true)
             .circuit(overworld_ore[1])
             .EUt(GTValues.VA[GTValues.EV])
             .duration(20)
@@ -202,6 +208,7 @@ ServerEvents.recipes((event) => {
     nether_raw_ores.forEach((nether_ore) => {
         let recipe = gtr.void_mining_nether(nether_ore[2])
             .inputFluids("gtceu:drilling_fluid 1000")
+            .dimension('minecraft:the_nether')
             .circuit(nether_ore[1])
             .EUt(2 * GTValues.VA[GTValues.EV])
             .duration(20)
@@ -237,6 +244,7 @@ ServerEvents.recipes((event) => {
     end_raw_ores.forEach((end_ore) => {
         let recipe = gtr.void_mining_end(end_ore[2])
             .inputFluids("gtceu:drilling_fluid 1000")
+            .dimension('minecraft:the_end')
             .circuit(end_ore[1])
             .EUt(GTValues.VA[GTValues.IV])
             .duration(20)
@@ -264,6 +272,8 @@ ServerEvents.recipes((event) => {
     asteroids_raw_ores.forEach((asteroids_ore) => {
         let recipe = gtr.void_mining_asteroids(asteroids_ore[2])
             .inputFluids("gtceu:drilling_fluid 1000")
+            .dimension('af9:asteroid_field', true)
+            .dimension('af9:ceres', true)
             .circuit(asteroids_ore[1])
             .EUt(GTValues.VA[GTValues.IV])
             .duration(20)

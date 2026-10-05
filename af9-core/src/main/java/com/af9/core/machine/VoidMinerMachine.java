@@ -38,6 +38,10 @@ import java.util.StringJoiner;
  * End, Asteroids; recipe types {@code void_mining_*}, defined in
  * {@code kubejs/startup_scripts/gtceu/void_mining.js}): a programmed circuit picks the ore in the area, drilling
  * fluid goes in, tenfold raw ore comes out for the same time and energy. No data sticks.
+ * <p>
+ * It mines standing in it: every recipe carries GT's dimension condition ({@code miner.js}), so a mode only runs in
+ * its own dimension — Overworld also in the Mining Dimension, Asteroids in either belt. A formed miner in the wrong
+ * dimension reports {@link ConsoleWidget#STATUS_NO_DIMENSION}.
  * <ul>
  * <li>Its own screen in the Orbital Lithography Station's layout: {@link VoidMinerConsoleWidget} in a
  * {@link SidePanelsUIWidget}.</li>
@@ -56,6 +60,16 @@ public class VoidMinerMachine extends ProcessMachine {
     /** Their lang keys ("gtceu.&lt;type&gt;"; "+ .short" is the short name, "+ .desc" the description). */
     public static final String[] RECIPE_TYPE_KEYS = { "gtceu.void_mining_overworld", "gtceu.void_mining_nether",
             "gtceu.void_mining_end", "gtceu.void_mining_asteroids" };
+    /**
+     * The dimensions a mode mines in, in mode order (dimension ids): the same lists the recipes' dimension
+     * conditions name ({@code kubejs/server_scripts/mods/gtceu/miner.js}). Change both together; the screen reads
+     * this side.
+     */
+    public static final String[][] MODE_DIMENSIONS = {
+            { "minecraft:overworld", "allthemodium:mining" },
+            { "minecraft:the_nether" },
+            { "minecraft:the_end" },
+            { "af9:asteroid_field", "af9:ceres" } };
 
     /** Runs completed, for the screen's counter. */
     @Persisted
@@ -112,7 +126,7 @@ public class VoidMinerMachine extends ProcessMachine {
         var tooltips = multiblock.getTooltipBuilder();
         multiblock.setTooltipBuilder((stack, lines) -> {
             if (tooltips != null) tooltips.accept(stack, lines);
-            for (int i = 0; i < 3; i++) lines.add(Component.translatable("af9.void_miner.tooltip." + i));
+            for (int i = 0; i < 4; i++) lines.add(Component.translatable("af9.void_miner.tooltip." + i));
         });
     }
 
@@ -141,6 +155,38 @@ public class VoidMinerMachine extends ProcessMachine {
     //////////////////////////////////////
     // *********** Runs ************//
     //////////////////////////////////////
+
+    /** Whether the miner stands in a dimension its active area mines in ({@link #MODE_DIMENSIONS}). */
+    public boolean dimensionMatches() {
+        GTRecipeType[] types = getRecipeTypes();
+        if (types.length == 0) return true;
+        int active = Math.max(0, Math.min(types.length - 1, getActiveRecipeType()));
+        String path = types[active].registryName.getPath();
+        String[] allowed = null;
+        for (int i = 0; i < RECIPE_TYPES.length && i < MODE_DIMENSIONS.length; i++) {
+            if (RECIPE_TYPES[i].equals(path)) {
+                allowed = MODE_DIMENSIONS[i];
+                break;
+            }
+        }
+        if (allowed == null) return true;
+        var level = getLevel();
+        if (level == null) return true;
+        String dimension = level.dimension().location().toString();
+        for (String id : allowed) {
+            if (id.equals(dimension)) return true;
+        }
+        return false;
+    }
+
+    @Override
+    public int getStatus() {
+        int status = super.getStatus();
+        if ((status == ConsoleWidget.STATUS_IDLE || status == ConsoleWidget.STATUS_NO_POWER) && !dimensionMatches()) {
+            return ConsoleWidget.STATUS_NO_DIMENSION;
+        }
+        return status;
+    }
 
     @Override
     public void afterWorking() {

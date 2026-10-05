@@ -23,6 +23,7 @@
     "af9.voidminer.hint.3": "Die Luken liefern weniger als ein Durchlauf braucht.",
     "af9.voidminer.hint.4": "Ausgeschaltet: Schalter drücken.",
     "af9.voidminer.hint.5": "Die Wartungsluke braucht Aufmerksamkeit.",
+    "af9.voidminer.hint.21": "Falsche Dimension für dieses Gebiet: es baut nur in seiner eigenen Dimension ab (siehe Gebietskacheln).",
     "af9.recipe.voidminer.area": "Gebiet: %s",
     "af9.recipe.voidminer.chance": "Jedes Erz mit den alten Chancen, zehnfach"
 }

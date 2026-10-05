@@ -261,6 +261,7 @@ material gtceu:ammonium_hexachlororuthenate
 material gtceu:ares_gas
 material gtceu:arf_excimer_gas
 material gtceu:arf_photoresist
+material gtceu:artemite ore
 material gtceu:azobisisobutyronitrile
 material gtceu:barc
 material gtceu:bioethanol
@@ -292,7 +293,6 @@ material gtceu:dichlorosilane
 material gtceu:diphenyl_sulfoxide
 material gtceu:dry_air
 material gtceu:electronic_grade_silicon
-material gtceu:electronic_grade_trichlorosilane
 material gtceu:endion
 material gtceu:endionite
 material gtceu:etch_plasma_gas
@@ -320,10 +320,12 @@ material gtceu:kovar
 material gtceu:krf_excimer_gas
 material gtceu:krf_photoresist
 material gtceu:krypton_xenon_concentrate
+material gtceu:l_01
 material gtceu:lactic_acid
 material gtceu:lactonitrile
 material gtceu:lithium_niobate
 material gtceu:living_solder
+material gtceu:lunar_air
 material gtceu:lxa_1
 material gtceu:maleic_anhydride
 material gtceu:mana_diesel
@@ -336,6 +338,7 @@ material gtceu:methanesulfonyl_chloride
 material gtceu:methanesulfonyl_fluoride
 material gtceu:methyl_methacrylate
 material gtceu:molybdenum_trioxide
+material gtceu:moon_sand
 material gtceu:neon_helium_mixture
 material gtceu:nitronaphthalene
 material gtceu:novolac_resin
@@ -381,8 +384,6 @@ material gtceu:sc1_solution
 material gtceu:sc2_solution
 material gtceu:shiny_diesel
 material gtceu:shiny_oil
-material gtceu:siemens_feed_gas
-material gtceu:siemens_vent_gas
 material gtceu:silicon_etchant
 material gtceu:silicon_nitride
 material gtceu:silicon_tetrachloride

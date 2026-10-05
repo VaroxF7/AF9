@@ -40,16 +40,30 @@
 		{
 			dependencies: ["53436C602A427DBE"]
 			description: ["{af9.quest.chem.siemens.1}" "" "{af9.quest.chem.siemens.2}" "" "{af9.quest.chem.siemens.3}"]
-			icon: "gtceu:polysilicon_ingot"
+			icon: "gtceu:moon_sand_dust"
 			id: "2580A0F9326E2BA5"
 			rewards: [{ id: "4A89E22941665EB4" type: "xp" xp: 25 }]
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.siemens.subtitle}"
-			tasks: [{ id: "0D8C54EEED3B8B24" item: "gtceu:polysilicon_ingot" type: "item" } { id: "7095621F6C980245" item: "gtceu:electronic_grade_silicon_dust" type: "item" }]
+			tasks: [{ id: "0D8C54EEED3B8B24" item: "gtceu:moon_sand_dust" type: "item" } { id: "7095621F6C980245" item: "gtceu:polysilicon_dust" type: "item" }]
 			title: "{af9.quest.chem.siemens.title}"
 			x: 0.0d
 			y: 0.0d
+		}
+		{
+			dependencies: ["2580A0F9326E2BA5"]
+			description: ["{af9.quest.chem.artemite.1}" "" "{af9.quest.chem.artemite.2}"]
+			icon: "gtceu:raw_artemite"
+			id: "57E3C91D4F6B82A4"
+			rewards: [{ id: "09D41E7B083F5A60" type: "xp" xp: 25 }]
+			shape: "square"
+			size: 1.0d
+			subtitle: "{af9.quest.chem.artemite.subtitle}"
+			tasks: [{ id: "25B72C0D91A44F3E" item: "gtceu:raw_artemite" type: "item" } { id: "38C04F6E12D97A51" item: "gtceu:artemite_dust" type: "item" }]
+			title: "{af9.quest.chem.artemite.title}"
+			x: 1.5d
+			y: 1.5d
 		}
 		{
 			dependencies: ["2580A0F9326E2BA5"]

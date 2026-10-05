@@ -73,7 +73,7 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 | 🛰️ Space Elevator | GTNH's 35×35×43 (ext. 47×47) tower, Mining Drones + Modules, ore expeditions + GTNH Space Pumping liquid missions | [`docs/space-elevator.md`](docs/space-elevator.md) |
 | ⚗️ Platinum-group refinery | matte → leach → chloride liquor → Pt/Pd/Au, then Ru/Os via tetroxides, Ir/Rh last — in GT's own machines | [`docs/platinum-group-metals.md`](docs/platinum-group-metals.md) |
 | 🛢️ Oil, off-world | Overworld oil off; Oil Regolith in asteroids → Impure → Shiny → Oil/Heavy Oil; fluids drilled in the Field | [`docs/oil.md`](docs/oil.md) |
-| 🔴 Sanguinite | bright-red UHV superconductor (lossless UV 4A): Nt/Ti dusts + H₂ + Ares gas + LXA-1 → Rotary Hearth Furnace under supercooled endion (13,000 K, 4A UV, 60 s) → Bulk Blast Chiller | [`docs/uhv-superconductor.md`](docs/uhv-superconductor.md) |
+| 🔴 Sanguinite | bright-red UHV superconductor (lossless UV 4A): Nt/Ti dusts + H₂ + Ares gas + LXA-1 → Sanguinite Hearth Furnace under supercooled endion (preheated 13,000 K, 4A UV, 60 s; EBF cannot smelt it) → Bulk Blast Chiller | [`docs/uhv-superconductor.md`](docs/uhv-superconductor.md) |
 | 🧹 Lint | `bash tools/lint/run.sh` checks recipes, multiblocks, quests, textures, lang without starting the game | [`tools/lint/README.md`](tools/lint/README.md) · [`docs/review-findings.md`](docs/review-findings.md) |
 
 Plus the supporting machines: **SMC fab family** (chemistry / separation / electrochemistry / thermal,
@@ -93,8 +93,9 @@ Machine logic: [`af9-core/README.md`](af9-core/README.md) (classes `litho/*`, `f
 
 ```text
 high-purity quartz → MG-Si (SMC thermal, coke, 1800 K)
-  → hydrochlorination → crude chlorosilanes → distillation (TCS/STC/DCS/BCl3)
-  → siemens feed gas → CVD bell jar (SMC thermal) → polysilicon
+  → hydrochlorination → crude chlorosilanes → distillation (TCS/STC/DCS/BCl3 → fumed silica, boron)
+sand → silica + L-01 (from Lunar Air, drilled on the Moon) → Moon Sand → O2 bath → polysilicon
+  (+ Artemite dopant, mined on the Moon)
   → melt charge + seed + crucible → EBF Boule Melting (argon/xenon/endion) → CZ boule
   → cutter → blank wafer (one of 9 substrates)
   → Coater Track: HMDS prime → BARC → resist → TARC → bake (solvent distilled back)

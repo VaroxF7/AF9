@@ -34,6 +34,7 @@ GTCEuServerEvents.fluidVeins(event => {
     // ---- The asteroids' deposits: void fluids, rich in nitrogen, oxygen, heavy water and acids ----
     // af9:asteroid_field is the acid belt; af9:ceres below it is the volatile belt (its thin exosphere:
     // hydrogen, helium, methane and the noble gases). One deposit per 8x8-chunk region, chosen by weight.
+    // The Moon holds Lunar Air alone: the air of the Moon Sand chain (docs/semiconductor-factory.md).
     const fluidOf = id => () => $OilForgeRegistries.FLUIDS.getValue(new $OilResourceLocation(id))
     // [id, fluid, weight, min yield, max yield, dimension]
     const field = 'af9:asteroid_field'
@@ -58,7 +59,9 @@ GTCEuServerEvents.fluidVeins(event => {
         ['ceres_carbon_dioxide', 'gtceu:carbon_dioxide', 20, 150, 350, ceres],
         ['ceres_neon', 'gtceu:neon', 12, 50, 150, ceres],
         ['ceres_krypton', 'gtceu:krypton', 8, 40, 120, ceres],
-        ['ceres_xenon', 'gtceu:xenon', 6, 30, 100, ceres]
+        ['ceres_xenon', 'gtceu:xenon', 6, 30, 100, ceres],
+        // Lunar Air, the Moon's air: the only deposit there, so every prospected chunk holds it
+        ['lunar_air', 'gtceu:lunar_air', 100, 250, 600, 'ad_astra:moon']
     ]
     let registered = 0
     deposits.forEach(([name, fluid, weight, minYield, maxYield, dimension]) => {
@@ -89,7 +92,7 @@ ServerEvents.loaded(event => {
     // var, not const: Rhino keeps a const of a nested block once for the whole script (see rockets.js)
     try {
         var forgotten = 0
-        ;['af9:asteroid_field', 'af9:ceres'].forEach(dim => {
+        ;['af9:asteroid_field', 'af9:ceres', 'ad_astra:moon'].forEach(dim => {
             // by its id: with a ResourceKey Rhino cannot choose between the server's getLevel and KubeJS's own
             var level = event.server.getLevel(dim)
             if (level === null) return

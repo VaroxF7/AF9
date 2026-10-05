@@ -1,12 +1,14 @@
 # Quantanium
 
 Quantanium (`Qn`) is the ore that unlocks UHV. It lives in one place only: the
-Asteroid Field, as a GT dike vein. Nothing else holds it, and no recipe takes
+upper Asteroid Field, as a GT dike vein beside naquadah, platinum and iridium.
+Nothing else holds it, and no recipe takes
 it yet: the UHV hulls and circuits that will need it are a separate change, as
 is the quest that asks for the first raw ore.
 
 Code: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (the material, `quantanium()`),
-`kubejs/server_scripts/mods/gtceu/vein_quantanium.js` (the vein).
+`kubejs/server_scripts/mods/gtceu/vein_field.js` (the vein, with the field's
+other three).
 
 ## 1. Reachability audit (was it reachable before?)
 
@@ -32,7 +34,8 @@ is `material.gtceu.quantanium` in `kubejs/assets/gtceu/lang/en_us.json`
 
 `af9:quantanium_vein`: a dike in the belts' own layer (`af9_asteroid`,
 `af9-core/src/main/java/com/af9/core/space/AF9Space.java`), dimensions
-`af9:asteroid_field` and `af9:ceres`, height 5-270 (the rocks' whole band,
+`af9:asteroid_field` (the upper field only; Ceres holds the fission veins),
+height 5-270 (the rocks' whole band,
 `af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`).
 
 Dikes, not blobs: a standard GT blob at one random height mostly misses the

@@ -6,6 +6,7 @@ import com.af9.core.machine.LithoConsoleWidget;
 import com.af9.core.machine.LithoMachine;
 import com.af9.core.machine.OrbitalLithographyMachine;
 import com.af9.core.machine.ProcessMachine;
+import com.af9.core.machine.SanguiniteHearthMachine;
 import com.af9.core.machine.console.ConsoleWidget;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
@@ -41,7 +42,8 @@ import java.util.Locale;
  * <li>lithography machines: the vacuum cleanliness bar, what is printed (product, node, substrate), the run-time bar,
  * the break chance and the line version; GT's own run-time bar is left out for them;</li>
  * <li>process machines (cryostat, accelerator): status and mode, what is made, the run-time bar and the machine's own
- * readouts (the same lines as its console).</li>
+ * readouts (the same lines as its console);</li>
+ * <li>the Sanguinite Hearth Furnace: hearth heat bar with its preheat state, then the run-time bar.</li>
  * </ul>
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
@@ -98,6 +100,16 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             tag.putBoolean("multiOn", litho.isMultiPatterning());
             tag.putInt("vacuum", litho.getVacuumState());
             tag.putString("product", product == null ? "" : "item:" + product);
+            tag.putInt("progress", logic.isWorking() ? logic.getProgress() : 0);
+            tag.putInt("duration", logic.isWorking() ? logic.getDuration() : 0);
+        } else if (machine instanceof SanguiniteHearthMachine hearth) {
+            var logic = hearth.getRecipeLogic();
+            tag.putString("kind", "hearth");
+            tag.putInt("status", hearth.getRecipeLogic().isWorking() ? ConsoleWidget.STATUS_RUNNING :
+                    ConsoleWidget.STATUS_IDLE);
+            tag.putInt("heat", hearth.getHearthHeat());
+            tag.putInt("maxHeat", Math.max(SanguiniteHearthMachine.HEARTH_TEMP, hearth.getMaxHeat()));
+            tag.putBoolean("preheated", hearth.isPreheated());
             tag.putInt("progress", logic.isWorking() ? logic.getProgress() : 0);
             tag.putInt("duration", logic.isWorking() ? logic.getDuration() : 0);
         } else if (machine instanceof ProcessMachine process) {
@@ -185,6 +197,22 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             if (opc >= 0) {
                 tooltip.add(Component.translatable("af9.jade.tuning", Math.round(opc * 100) + "%")
                         .withStyle(ChatFormatting.GRAY));
+            }
+        } else if (tag.getString("kind").equals("hearth")) {
+            tooltip.add(statusLine(status, Component.translatable("af9.jade.hearth_mode")
+                    .withStyle(ChatFormatting.RED)));
+            int heat = tag.getInt("heat");
+            int maxHeat = Math.max(1, tag.getInt("maxHeat"));
+            double need = SanguiniteHearthMachine.HEARTH_TEMP;
+            Component heatText = Component.translatable("af9.jade.hearth_heat",
+                    String.format(Locale.ROOT, "%,d", heat), String.format(Locale.ROOT, "%,d", (int) need));
+            tooltip.add(helper.progress((float) Math.max(0, Math.min(1, heat / (double) maxHeat)), heatText,
+                    helper.progressStyle().color(tag.getBoolean("preheated") ? 0xFF4ADE80 : 0xFFFBBF24).textColor(-1),
+                    box(), true));
+            if (running) {
+                tooltip.add(runtime(helper, progress, duration, 0xFFFF1A1A));
+            } else if (!tag.getBoolean("preheated")) {
+                tooltip.add(Component.translatable("af9.jade.preheating").withStyle(ChatFormatting.GRAY));
             }
         } else {
             tooltip.add(statusLine(status, Component.translatable(tag.getString("modeKey"))

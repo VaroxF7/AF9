@@ -130,6 +130,9 @@ public final class PlanetCatalog {
         add(list, 9, 13, GTMaterials.Neon, 64);
         add(list, 9, 14, GTMaterials.Krypton, 16);
         add(list, 9, 15, GTMaterials.Xenon, 32);
+        // Lunar Air, the Moon's air for the Moon Sand chain (docs/semiconductor-factory.md): 1,200 buckets a Mk-IV
+        // mission (drilling it on the Moon is the earlier way, vein_oil.js)
+        add(list, 9, 16, af9Fluid("lunar_air"), 1_200);
         return List.copyOf(list);
     }
 
