@@ -17,8 +17,6 @@
 
 const $SanguiniteHearthMachine = Java.loadClass('com.af9.core.machine.SanguiniteHearthMachine')
 const $HearthDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
-// the GCYM casings live in GTBlocks' sister registry (GTBlocks has no high-temperature smelting casing)
-const $HearthCasings = Java.loadClass('com.gregtechceu.gtceu.common.data.GCYMBlocks')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // 14 crude sanguinite + circuit 10 in, supercooled endion in, 14 hot ingots out. The temperature rides along
@@ -32,6 +30,11 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 })
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
+    // Loaded here, not at the top: forcing the casing holder's class init while KubeJS itself is still
+    // constructing (before GT's materials exist) kills GTBlocks' own init with an NPE. In this callback
+    // the registries are up. (The GCYM casings live in GTBlocks' sister registry: GTBlocks has no
+    // high-temperature smelting casing.)
+    const $HearthCasings = Java.loadClass('com.gregtechceu.gtceu.common.data.GCYMBlocks')
     const tooltips = (key, count) => {
         const lines = []
         for (let i = 0; i < count; i++) lines.push(Component.translatable(`${key}.${i}`))
