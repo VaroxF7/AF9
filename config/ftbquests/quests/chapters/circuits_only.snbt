@@ -1,0 +1,239 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "circuits_only"
+	group: "1DA67E79B40AB130"
+	icon: "gtceu:lv_machine_hull"
+	id: "CIRCUITS_ONLY_NEW"
+	order_index: 14
+	progression_mode: "flexible"
+	quest_links: [
+		{
+			id: "circuits"
+			linked_quest: "circuits"
+			x: 0.0d
+			y: 0.0d
+		}
+	]
+	quests: [
+		{
+			description: [
+				"{atm9.quest.gregtech.circuits.desc}"
+			]
+			id: "circuits_intro"
+			rewards: [{
+				id: "xp"
+				xp: 50
+			}]
+			tasks: [{
+				id: "checkmark"
+			}]
+			title: "{atm9.quest.gregtech.circuits.intro}"
+		}
+		{
+			dependencies: ["circuits_intro"]
+			description: [
+				"{af9.quest.circuits.lvIntro}"
+			]
+			id: "lvTier"
+			rewards: [{
+				id: "gtceu:lv_machine_hull"
+			}]
+			tasks: [{
+				id: "lvTierTask"
+				item: "gtceu:lv_machine_hull"
+				type: "item"
+			}]
+			x: -4.0d
+			y: -7.5d
+		}
+		{
+			dependencies: ["lvTier"]
+			description: [
+				"{af9.quest.circuits.mvIntro}"
+			]
+			id: "mvTier"
+			rewards: [{
+				id: "gtceu:mv_machine_hull"
+			}]
+			tasks: [{
+				id: "mvTierTask"
+				item: "gtceu:mv_machine_hull"
+				type: "item"
+			}]
+			x: -3.0d
+			y: -7.5d
+		}
+		{
+			dependencies: ["mvTier"]
+			description: [
+				"{af9.quest.circuits.hvIntro}"
+			]
+			id: "hvTier"
+			rewards: [{
+				id: "gtceu:hv_machine_hull"
+			}]
+			tasks: [{
+				id: "hvTierTask"
+				item: "gtceu:hv_machine_hull"
+				type: "item"
+			}]
+			x: -2.0d
+			y: -7.5d
+		}
+		{
+			dependencies: ["hvTier"]
+			description: [
+				"{af9.quest.circuits.evIntro}"
+			]
+			id: "evTier"
+			rewards: [{
+				id: "gtceu:ev_machine_hull"
+			}]
+			tasks: [{
+				id: "evTierTask"
+				item: "gtceu:ev_machine_hull"
+				type: "item"
+			}]
+			x: -1.0d
+			y: -7.5d
+		}
+		{
+			dependencies: ["evTier"]
+			description: [
+				"{af9.quest.circuits.ivIntro}"
+			]
+			id: "ivTier"
+			rewards: [{
+				id: "gtceu:iv_machine_hull"
+			}]
+			tasks: [{
+				id: "ivTierTask"
+				item: "gtceu:iv_machine_hull"
+				type: "item"
+			}]
+			x: 0.0d
+			y: -7.5d
+		}
+		{
+			dependencies: ["ivTier"]
+			description: [
+				"{af9.quest.circuits.luvIntro}"
+			]
+			id: "luvTier"
+			rewards: [{
+				id: "gtceu:luv_machine_hull"
+			}]
+			tasks: [{
+				id: "luvTierTask"
+				item: "gtceu:luv_machine_hull"
+				type: "item"
+			}]
+			x: 1.0d
+			y: -7.5d
+		}
+		{
+			dependencies: ["luvTier"]
+			description: [
+				"{af9.quest.circuits.zpmIntro}"
+			]
+			id: "zpmTier"
+			rewards: [{
+				id: "gtceu:zpm_machine_hull"
+			}]
+			tasks: [{
+				id: "zpmTierTask"
+				item: "gtceu:zpm_machine_hull"
+				type: "item"
+			}]
+			x: 2.0d
+			y: -7.5d
+		}
+		{
+			dependencies: ["zpmTier"]
+			description: [
+				"{af9.quest.circuits.uvIntro}"
+			]
+			id: "uvTier"
+			rewards: [{
+				id: "gtceu:uv_machine_hull"
+			}]
+			tasks: [{
+				id: "uvTierTask"
+				item: "gtceu:uv_machine_hull"
+				type: "item"
+			}]
+			x: 3.0d
+			y: -7.5d
+		}
+		{
+			dependencies: ["uvTier"]
+			description: [
+				"{af9.quest.circuits.uhvIntro}"
+			]
+			id: "uhvTier"
+			rewards: [{
+				id: "gtceu:uhv_machine_hull"
+			}]
+			tasks: [{
+				id: "uhvTierTask"
+				item: "gtceu:uhv_machine_hull"
+				type: "item"
+			}]
+			x: 4.0d
+			y: -7.5d
+		}
+		{
+			dependencies: ["uhvTier"]
+			description: [
+				"{af9.quest.circuits.beyondIntro}"
+			]
+			id: "xpsTier"
+			rewards: [{
+				id: "af9:xps_processor"
+			}]
+			tasks: [{
+				id: "xpsTierTask"
+				item: "af9:xps_processor"
+				type: "item"
+			}]
+			x: 5.0d
+			y: -7.5d
+		}
+		{
+			dependencies: ["xpsTier"]
+			description: [
+				"{af9.quest.circuits.nvmIntro}"
+			]
+			id: "nvmTier"
+			rewards: [{
+				id: "af9:nvm_processor"
+			}]
+			tasks: [{
+				id: "nvmTierTask"
+				item: "af9:nvm_processor"
+				type: "item"
+			}]
+			x: 6.0d
+			y: -7.5d
+		}
+		{
+			dependencies: ["nvmTier"]
+			description: [
+				"{af9.quest.circuits.lore}"
+			]
+			id: "circuitsLore"
+			rewards: [{
+				id: "xp"
+				xp: 250
+			}]
+			tasks: [{
+				id: "checkmark"
+			}]
+			title: "{af9.quest.circuits.loreTitle}"
+			x: 7.0d
+			y: -7.5d
+		}
+	]
+	title: "{atm9.chapters.37.title}"
+}
