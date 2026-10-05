@@ -17,6 +17,8 @@
 
 const $SanguiniteHearthMachine = Java.loadClass('com.af9.core.machine.SanguiniteHearthMachine')
 const $HearthDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
+// the GCYM casings live in GTBlocks' sister registry (GTBlocks has no high-temperature smelting casing)
+const $HearthCasings = Java.loadClass('com.gregtechceu.gtceu.common.data.GCYMBlocks')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // 14 crude sanguinite + circuit 10 in, supercooled endion in, 14 hot ingots out. The temperature rides along
@@ -48,7 +50,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // 14-ingot prints; perfect overclocks above that; then batch mode. EBF recipes never run here (own type).
         .recipeModifiers([$SanguiniteHearthMachine.HEARTH_GATE, GTRecipeModifiers.PARALLEL_HATCH,
             GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
-        .appearanceBlock(GTBlocks.CASING_HIGH_TEMPERATURE_SMELTING)
+        .appearanceBlock($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING)
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.sanguinite_hearth_furnace.tooltip', 9))
         .pattern(definition => FactoryBlockPattern.start($HearthDirection.FRONT, $HearthDirection.UP,
             $HearthDirection.RIGHT)
@@ -107,7 +109,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             // hatches and buses go on any high-temperature smelting casing (maximums only, the AF9 convention;
             // GT's 360-casing minimum is dropped)
-            .where('X', Predicates.blocks(GTBlocks.CASING_HIGH_TEMPERATURE_SMELTING.get())
+            .where('X', Predicates.blocks($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING.get())
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2))
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
@@ -117,7 +119,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('C', Predicates.heatingCoils())
             .where('M', Predicates.abilities(PartAbility.MUFFLER))
             .where('F', Predicates.blocks('gtceu:naquadah_alloy_frame'))
-            .where('H', Predicates.blocks(GTBlocks.CASING_HIGH_TEMPERATURE_SMELTING.get()))
+            .where('H', Predicates.blocks($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING.get()))
             .where('T', Predicates.blocks('gtceu:robust_machine_casing'))
             .where('B', Predicates.blocks(GTBlocks.FIREBOX_TUNGSTENSTEEL.get()))
             .where('P', Predicates.blocks('gtceu:tungstensteel_pipe_casing'))
