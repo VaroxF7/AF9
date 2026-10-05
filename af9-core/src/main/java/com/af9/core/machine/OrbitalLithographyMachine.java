@@ -324,6 +324,22 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return pages;
     }
 
+    /**
+     * A preview page with no holes: GTCEu's preview widget dereferences every cell with no null check, and a
+     * single null cell aborts the whole JEI registration (every GTCEu recipe vanishes). Fill whatever is left
+     * empty with GT's own empty cell, which is also what its previews use for air.
+     */
+    private static BlockInfo[][][] solid(BlockInfo[][][] cells) {
+        for (int x = 0; x < cells.length; x++) {
+            for (int y = 0; y < cells[x].length; y++) {
+                for (int z = 0; z < cells[x][y].length; z++) {
+                    if (cells[x][y][z] == null) cells[x][y][z] = BlockInfo.EMPTY;
+                }
+            }
+        }
+        return cells;
+    }
+
     /** The preview of an arbitrary pattern, turned into the controller-up orientation like previewShapes does. */
     private static MultiblockShapeInfo turnedPreview(BlockPattern pattern,
                                                      MultiblockMachineDefinition definition) {
@@ -335,7 +351,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             turn = previewTurn(pattern);
         } catch (ReflectiveOperationException e) {
             AF9Core.LOGGER.warn("Orbital array preview: cannot turn GT's preview, showing it as GT draws it", e);
-            return new MultiblockShapeInfo(north);
+            return new MultiblockShapeInfo(solid(north));
         }
         int sx = north.length, sy = north[0].length, sz = north[0][0].length;
         int[] min = { Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE };
@@ -363,7 +379,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
                 }
             }
         }
-        return new MultiblockShapeInfo(up);
+        return new MultiblockShapeInfo(solid(up));
     }
 
     public boolean isExtended() {
@@ -774,7 +790,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
                 }
             }
         }
-        return List.of(new MultiblockShapeInfo(up));
+        return List.of(new MultiblockShapeInfo(solid(up)));
     }
 
     /** The linear map from GT's preview (facing north) to the controller-up orientation, as a 3x3 matrix. */
