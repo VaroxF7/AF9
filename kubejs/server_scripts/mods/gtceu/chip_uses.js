@@ -11,11 +11,14 @@ ServerEvents.recipes(event => {
     })
 
     // ---- RF Transceiver: the radio of every wireless link ----
-    // AE2's Wireless Receiver, the part of the Wireless Access Point and of every wireless terminal
-    event.remove({ id: 'ae2:network/wireless_part' })
-    event.shaped('ae2:wireless_receiver', [' F ', 'IQI', 'IRI'], {
-        F: 'ae2:fluix_pearl', I: '#forge:ingots/iron', Q: 'ae2:quartz_fiber', R: 'af9:rf_transceiver_chip'
-    }).id('af9:ae2/wireless_receiver')
+    // AE2's Wireless Receiver, the part of the Wireless Access Point and of every wireless terminal.
+    // Guarded: AE2 is not in the dev run (run/mods), an unguarded shaped() fails the recipe event.
+    if (Platform.isLoaded('ae2')) {
+        event.remove({ id: 'ae2:network/wireless_part' })
+        event.shaped('ae2:wireless_receiver', [' F ', 'IQI', 'IRI'], {
+            F: 'ae2:fluix_pearl', I: '#forge:ingots/iron', Q: 'ae2:quartz_fiber', R: 'af9:rf_transceiver_chip'
+        }).id('af9:ae2/wireless_receiver')
+    }
 
     // ---- MCU: the small controller in GT's logic parts ----
     // GT's logic covers take one (they had no circuit: the lever / redstone parts and an iron plate)

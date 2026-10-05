@@ -115,9 +115,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .workableCasingModel("gtceu:block/casings/gcym/atomic_casing",
             "gtceu:block/multiblock/assembly_line")
 
-        event.create('energy_input_hatch', 'custom').tiers(GTValues.MAX)
+        event.create('micro_universe_energy_input_hatch', 'custom').tiers(GTValues.MAX)
             .definition((tier, builder) => {
-                builder.rotationState(RotationState.ALL)
+                builder.langValue('Micro Universe Energy Input Hatch')
+                    .rotationState(RotationState.ALL)
                     .abilities(PartAbility.INPUT_ENERGY)
                     ['overlayTieredHullModel(java.lang.String)']("energy_input_hatch")
             }).machine((holder) => { return new $EnergyHatchPartMachine(holder, GTValues.MAX, $IO.IN, 2) })
