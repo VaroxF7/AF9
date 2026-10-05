@@ -142,12 +142,12 @@ ServerEvents.recipes((event) => {
 
     overworld_raw_ores.forEach((overworld_ore) => {
         let recipe = gtr.void_mining_overworld(overworld_ore[2])
-            .inputFluids("gtceu:drilling_fluid 1000")
+            .inputFluids("gtceu:drilling_fluid 2000")
             .dimension('minecraft:overworld', true)
             .dimension('allthemodium:mining', true)
             .circuit(overworld_ore[1])
             .EUt(GTValues.VA[GTValues.EV])
-            .duration(20)
+            .duration(1200)
         let output = overworld_ore[0]
         output.forEach(item => {
             recipe.chancedOutput(item, 2000, 0)
@@ -207,11 +207,11 @@ ServerEvents.recipes((event) => {
 
     nether_raw_ores.forEach((nether_ore) => {
         let recipe = gtr.void_mining_nether(nether_ore[2])
-            .inputFluids("gtceu:drilling_fluid 1000")
+            .inputFluids("gtceu:drilling_fluid 2000")
             .dimension('minecraft:the_nether')
             .circuit(nether_ore[1])
             .EUt(2 * GTValues.VA[GTValues.EV])
-            .duration(20)
+            .duration(1200)
         let output = nether_ore[0]
         output.forEach(item => {
             recipe.chancedOutput(item, 2000, 0)
@@ -243,11 +243,11 @@ ServerEvents.recipes((event) => {
 
     end_raw_ores.forEach((end_ore) => {
         let recipe = gtr.void_mining_end(end_ore[2])
-            .inputFluids("gtceu:drilling_fluid 1000")
+            .inputFluids("gtceu:drilling_fluid 2000")
             .dimension('minecraft:the_end')
             .circuit(end_ore[1])
             .EUt(GTValues.VA[GTValues.IV])
-            .duration(20)
+            .duration(1200)
         let output = end_ore[0]
         output.forEach(item => {
             recipe.chancedOutput(item, 2000, 0)
@@ -271,12 +271,12 @@ ServerEvents.recipes((event) => {
 
     asteroids_raw_ores.forEach((asteroids_ore) => {
         let recipe = gtr.void_mining_asteroids(asteroids_ore[2])
-            .inputFluids("gtceu:drilling_fluid 1000")
+            .inputFluids("gtceu:drilling_fluid 2000")
             .dimension('af9:asteroid_field', true)
             .dimension('af9:ceres', true)
             .circuit(asteroids_ore[1])
             .EUt(GTValues.VA[GTValues.IV])
-            .duration(20)
+            .duration(1200)
         let output = asteroids_ore[0]
         output.forEach(item => {
             recipe.chancedOutput(item, 2000, 0)

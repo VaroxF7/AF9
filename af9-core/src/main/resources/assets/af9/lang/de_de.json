@@ -3,11 +3,6 @@
     "af9.voidminer.console.select": "Gebiet wechseln",
     "af9.voidminer.console.switch_tooltip": "An/Aus",
     "af9.voidminer.console.reset_tooltip": "Zähler zurücksetzen",
-    "af9.voidminer.console.mode": "Gebiet",
-    "af9.voidminer.mode.0": "EV",
-    "af9.voidminer.mode.1": "2x EV",
-    "af9.voidminer.mode.2": "IV",
-    "af9.voidminer.mode.3": "IV",
     "af9.voidminer.console.recipe": "Rezept",
     "af9.voidminer.console.no_recipe": "Noch kein Durchlauf",
     "af9.voidminer.console.energy": "Energie pro Durchlauf",
@@ -23,7 +18,6 @@
     "af9.voidminer.hint.3": "Die Luken liefern weniger als ein Durchlauf braucht.",
     "af9.voidminer.hint.4": "Ausgeschaltet: Schalter drücken.",
     "af9.voidminer.hint.5": "Die Wartungsluke braucht Aufmerksamkeit.",
-    "af9.voidminer.hint.21": "Falsche Dimension für dieses Gebiet: es baut nur in seiner eigenen Dimension ab (siehe Gebietskacheln).",
     "af9.recipe.voidminer.area": "Gebiet: %s",
     "af9.recipe.voidminer.chance": "Jedes Erz mit den alten Chancen, zehnfach"
 }

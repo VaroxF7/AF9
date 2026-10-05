@@ -61,7 +61,6 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
 
     // last state sent to / received by the client
     private int status = -1;
-    private int mode;
     private int tier;
     private int progress;
     private int duration;
@@ -79,26 +78,10 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
         this.machine = machine;
     }
 
-    /** The page: this console, a button over each mode tile, the on/off switch and the counter reset. */
+    /** The page: this console, the on/off switch and the counter reset. */
     public static WidgetGroup createPage(VoidMinerMachine machine) {
         var page = new WidgetGroup(0, 0, WIDTH, HEIGHT);
         page.addWidget(new VoidMinerConsoleWidget(machine, 0, 0));
-        GTRecipeType[] types = machine.getRecipeTypes();
-        for (int i = 0; i < types.length; i++) {
-            int index = i;
-            var tile = new ButtonWidget(tileX(i, types.length), TILE_Y, tileWidth(types.length), TILE_H,
-                    IGuiTexture.EMPTY, click -> {
-                        if (click.isRemote || machine.getActiveRecipeType() == index) return;
-                        // as GT's mode button: switch, then let the recipe logic look again
-                        machine.setActiveRecipeType(index);
-                        machine.getRecipeLogic().updateTickSubscription();
-                    });
-            tile.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
-            tile.setHoverTooltips(Component.translatable(ProcessMachine.modeKey(types[i])),
-                    Component.translatable(ProcessMachine.modeKey(types[i]) + ".desc"),
-                    Component.translatable("af9.voidminer.console.select"));
-            page.addWidget(tile);
-        }
         var power = new ButtonWidget(SWITCH_X, SWITCH_Y, SWITCH_W, SWITCH_H, IGuiTexture.EMPTY, click -> {
             if (!click.isRemote) machine.setWorkingEnabled(!machine.isWorkingEnabled());
         });
@@ -129,10 +112,10 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
     @Override
     protected boolean sample() {
         var logic = machine.getRecipeLogic();
-        int[] now = { machine.getStatus(), machine.getActiveRecipeType(), machine.isFormed() ? machine.getTier() : -1,
+        int[] now = { machine.getStatus(), machine.isFormed() ? machine.getTier() : -1,
                 logic.isWorking() ? logic.getProgress() : 0, logic.isWorking() ? logic.getDuration() : 0,
                 machine.isWorkingEnabled() ? 1 : 0 };
-        int[] before = { status, mode, tier, progress, duration, workingEnabled ? 1 : 0 };
+        int[] before = { status, tier, progress, duration, workingEnabled ? 1 : 0 };
         long[] nowLong = { machine.getAvailableEUt(), machine.getNeededEUt(), machine.getEnergyPerRun(),
                 machine.getRuns() };
         long[] beforeLong = { available, needed, energyPerRun, runs };
@@ -141,11 +124,10 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
         boolean changed = !Arrays.equals(now, before) || !Arrays.equals(nowLong, beforeLong) ||
                 !Objects.equals(newIn, recipeIn) || !Objects.equals(newOut, recipeOut);
         status = now[0];
-        mode = now[1];
-        tier = now[2];
-        progress = now[3];
-        duration = now[4];
-        workingEnabled = now[5] == 1;
+        tier = now[1];
+        progress = now[2];
+        duration = now[3];
+        workingEnabled = now[4];
         available = nowLong[0];
         needed = nowLong[1];
         energyPerRun = nowLong[2];
@@ -157,7 +139,7 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
 
     @Override
     protected void writeState(FriendlyByteBuf buffer) {
-        for (int value : new int[] { status, mode, tier, progress, duration }) buffer.writeVarInt(value);
+        for (int value : new int[] { status, tier, progress, duration }) buffer.writeVarInt(value);
         buffer.writeBoolean(workingEnabled);
         for (long value : new long[] { available, needed, energyPerRun, runs }) buffer.writeVarLong(value);
         buffer.writeUtf(recipeIn);
@@ -167,7 +149,6 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
     @Override
     protected void readState(FriendlyByteBuf buffer) {
         status = buffer.readVarInt();
-        mode = buffer.readVarInt();
         tier = buffer.readVarInt();
         progress = buffer.readVarInt();
         duration = buffer.readVarInt();
@@ -181,12 +162,13 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
     }
 
     private int modeColor() {
-        return machine.modeColor(mode);
+        GTRecipeType[] types = machine.getRecipeTypes();
+        return machine.modeColor(0);
     }
 
     private String modeKey() {
         GTRecipeType[] types = machine.getRecipeTypes();
-        return ProcessMachine.modeKey(types[Mth.clamp(mode, 0, types.length - 1)]);
+        return ProcessMachine.modeKey(types[0]);
     }
 
     //////////////////////////////////////
@@ -213,15 +195,6 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
         border(graphics, x, y, FIELD_W, FIELD_H, EDGE);
         for (int gx = x + 12; gx < x + FIELD_W; gx += 16) graphics.fill(gx, y + 1, gx + 1, y + FIELD_H - 1, 0x0CFFFFFF);
         for (int gy = y + 12; gy < y + FIELD_H; gy += 16) graphics.fill(x + 1, gy, x + FIELD_W - 1, gy + 1, 0x0CFFFFFF);
-
-        GTRecipeType[] types = machine.getRecipeTypes();
-        for (int i = 0; i < types.length; i++) {
-            String key = ProcessMachine.modeKey(types[i]);
-            drawTile(graphics, getPosition().x + tileX(i, types.length), y + TILE_Y - FIELD_Y, tileWidth(types.length),
-                    TILE_H, Component.translatable(key + ".short").getString(),
-                    Component.translatable("af9.voidminer.mode." + i).getString(), machine.modeColor(i),
-                    i == mode, status != STATUS_OFFLINE, false);
-        }
 
         boolean running = status == STATUS_RUNNING;
         double fraction = duration <= 0 ? 0 : Math.min(1.0, (progress + (running ? partialTicks : 0)) / duration);
@@ -396,8 +369,6 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
         @OnlyIn(Dist.CLIENT)
         private void drawProcess(GuiGraphics graphics, int x, int y, int w) {
             boolean running = console.status == STATUS_RUNNING;
-            row(graphics, x, y, w, "af9.voidminer.console.mode",
-                    Component.translatable(console.modeKey() + ".short").getString(), console.modeColor());
             row(graphics, x, y + 10, w, "af9.console.power",
                     compact(console.available) + "/" + (console.needed > 0 ? compact(console.needed) : "-"),
                     console.needed <= 0 || console.available >= console.needed ? TEXT : BAD);

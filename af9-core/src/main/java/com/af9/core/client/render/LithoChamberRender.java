@@ -162,62 +162,41 @@ public class LithoChamberRender extends DynamicRender<ILithoChamberMachine, Lith
         }
         SolidBox.box(solid, mat, frame, -0.16F, -0.34F, 0.86F, 0.16F, -0.06F, 1.0F, 0x141B2A); // output bus port
         SolidBox.box(solid, mat, frame, -0.12F, -0.28F, 0.94F, 0.12F, -0.12F, 1.0F, 0x0B0F17);
-        if (working && progress >= EXPOSE_END) {
-            float t = (progress - EXPOSE_END) / (1 - EXPOSE_END);
-            quad(glow, mat, frame, -0.12F, -0.28F, 0.93F, 0.12F, -0.12F, 0.93F, cr, cg, cb,
-                    0.35F + 0.4F * t);
-        }
-
-        // --- arm + wafer + laser state from the print progress ---
+        // --- arm + wafer + laser state (time-based loop, independent of progress) ---
         float carriageZ = SLIDE_FRONT;
         boolean waferOnStage = false;
         boolean waferOnArm = false;
         float waferX = 0, waferY = WAFER_Y, waferZ = 0;
         float waferAlpha = 1F;
-        boolean beamOn = false;
+        boolean beamOn = working;
         float spotX = 0, spotZ = 0;
         float exposed = 0;
 
-        if (!working) {
-            carriageZ = SLIDE_FRONT;
-        } else if (progress < LOAD_END) {
-            float t = smooth(progress / LOAD_END);
-            carriageZ = Mth.lerp(t, SLIDE_FRONT, 0F);
-            waferOnArm = true;
-            waferX = 0;
-            waferY = HELD_Y;
-            waferZ = carriageZ;
-        } else if (progress < EXPOSE_END) {
-            carriageZ = SLIDE_FRONT;
-            waferOnStage = true;
-            exposed = (progress - LOAD_END) / (EXPOSE_END - LOAD_END);
-            float[] spot = dieSpot(exposed);
-            spotX = spot[0];
-            spotZ = spot[1];
-            beamOn = true;
-        } else {
-            float t = smooth((progress - EXPOSE_END) / (1 - EXPOSE_END));
+        if (working) {
+            // time-based oscillation: sweep from gearbox right (SLIDE_FRONT) to left (SLIDE_BACK) and back
+            float cycle = (float) (time * 2 % (2 * Math.PI));
+            float t = (Math.sin(cycle) + 1) / 2F; // 0 to 1 based on sine wave
             carriageZ = Mth.lerp(t, SLIDE_FRONT, SLIDE_BACK);
-            if (t < 0.3F) {
-                waferOnStage = true;
-                exposed = 1F;
-                spotX = 0;
-                spotZ = 0.2F;
-                beamOn = t < 0.12F;
-            } else {
+
+            // wafer is on the arm during the back-half of the sweep, on stage during front-half
+            if (t < 0.5F) {
                 waferOnArm = true;
-                waferX = 0;
                 waferY = HELD_Y;
                 waferZ = carriageZ;
+                waferAlpha = 1F;
+            } else {
+                waferOnStage = true;
+                waferY = WAFER_Y;
+                waferZ = 0;
+                waferAlpha = 1F;
                 exposed = 1F;
-                if (t > 0.82F) waferAlpha = Math.max(0F, 1F - (t - 0.82F) / 0.18F);
             }
         }
 
         // --- robot arm on its slide ---
         drawArm(solid, glow, mat, frame, carriageZ, waferOnArm, cr, cg, cb, time, working);
 
-        // --- wafer: on stage (exposing die by die) or riding the gripper into/out of sight ---
+        // --- wafer: on stage or on arm ---
         if (waferOnStage) {
             drawWafer(solid, glow, mat, frame, 0, WAFER_Y, 0, exposed, beamOn, cr, cg, cb, 1F, time);
         } else if (waferOnArm && waferAlpha > 0.01F) {
@@ -225,7 +204,7 @@ public class LithoChamberRender extends DynamicRender<ILithoChamberMachine, Lith
                     time);
         }
 
-        // --- exposure head + beam that writes the wafer ---
+// --- exposure head + beam that writes the wafer ---
         if (beamOn) {
             float headX = spotX;
             float headZ = spotZ;
@@ -247,7 +226,8 @@ public class LithoChamberRender extends DynamicRender<ILithoChamberMachine, Lith
                     spotZ + 0.09F, cr, cg, cb, 0.55F);
             // faint EUV glare cone under the head
             quadCone(beam, mat, frame, headX, HEAD_Y - 0.05F, spotX, WAFER_Y, headZ, 0.10F, cr, cg, cb, 0.18F);
-        } else if (working && waferOnArm) {
+        }
+        if (working && waferOnArm) {
             // gripper beacon while carrying
             quad(glow, mat, frame, waferX - 0.04F, waferY + 0.05F, waferZ - 0.04F, waferX + 0.04F, waferY + 0.051F,
                     waferZ + 0.04F, cr, cg, cb, 0.6F);
