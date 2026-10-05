@@ -175,7 +175,7 @@ public class LithoChamberRender extends DynamicRender<ILithoChamberMachine, Lith
         if (working) {
             // time-based oscillation: sweep from gearbox right (SLIDE_FRONT) to left (SLIDE_BACK) and back
             float cycle = (float) (time * 2 % (2 * Math.PI));
-            float t = (Math.sin(cycle) + 1) / 2F; // 0 to 1 based on sine wave
+            float t = (float) ((Math.sin(cycle) + 1) / 2F); // 0 to 1 based on sine wave
             carriageZ = Mth.lerp(t, SLIDE_FRONT, SLIDE_BACK);
 
             // wafer is on the arm during the back-half of the sweep, on stage during front-half

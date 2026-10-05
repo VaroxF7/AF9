@@ -127,7 +127,7 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
         tier = now[1];
         progress = now[2];
         duration = now[3];
-        workingEnabled = now[4];
+        workingEnabled = now[4] != 0;
         available = nowLong[0];
         needed = nowLong[1];
         energyPerRun = nowLong[2];
