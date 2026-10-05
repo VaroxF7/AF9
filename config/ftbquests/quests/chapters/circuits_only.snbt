@@ -4,13 +4,13 @@
 	filename: "circuits_only"
 	group: "1DA67E79B40AB130"
 	icon: "gtceu:lv_machine_hull"
-	id: "CIRCUITS_ONLY_NEW"
+	id: "0000000000000001"
 	order_index: 14
 	progression_mode: "flexible"
 	quest_links: [
 		{
-			id: "circuits"
-			linked_quest: "circuits"
+			id: "0000000000000002"
+			linked_quest: "0000000000000003"
 			x: 0.0d
 			y: 0.0d
 		}
@@ -20,27 +20,31 @@
 			description: [
 				"{atm9.quest.gregtech.circuits.desc}"
 			]
-			id: "circuits_intro"
+			id: "0000000000000003"
 			rewards: [{
-				id: "xp"
+				id: "0000000000000004"
 				xp: 50
+				type: "item"
 			}]
 			tasks: [{
-				id: "checkmark"
+				id: "0000000000000005"
+				type: "item"
 			}]
 			title: "{atm9.quest.gregtech.circuits.intro}"
+			x: 0.0d
+			y: 0.0d
 		}
 		{
-			dependencies: ["circuits_intro"]
+			dependencies: ["0000000000000003"]
 			description: [
 				"{af9.quest.circuits.lvIntro}"
 			]
-			id: "lvTier"
+			id: "0000000000000006"
 			rewards: [{
 				id: "gtceu:lv_machine_hull"
 			}]
 			tasks: [{
-				id: "lvTierTask"
+				id: "0000000000000008"
 				item: "gtceu:lv_machine_hull"
 				type: "item"
 			}]
@@ -48,16 +52,16 @@
 			y: -7.5d
 		}
 		{
-			dependencies: ["lvTier"]
+			dependencies: ["0000000000000006"]
 			description: [
 				"{af9.quest.circuits.mvIntro}"
 			]
-			id: "mvTier"
+			id: "0000000000000009"
 			rewards: [{
 				id: "gtceu:mv_machine_hull"
 			}]
 			tasks: [{
-				id: "mvTierTask"
+				id: "000000000000000B"
 				item: "gtceu:mv_machine_hull"
 				type: "item"
 			}]
@@ -65,16 +69,16 @@
 			y: -7.5d
 		}
 		{
-			dependencies: ["mvTier"]
+			dependencies: ["0000000000000009"]
 			description: [
 				"{af9.quest.circuits.hvIntro}"
 			]
-			id: "hvTier"
+			id: "000000000000000C"
 			rewards: [{
 				id: "gtceu:hv_machine_hull"
 			}]
 			tasks: [{
-				id: "hvTierTask"
+				id: "000000000000000E"
 				item: "gtceu:hv_machine_hull"
 				type: "item"
 			}]
@@ -82,16 +86,16 @@
 			y: -7.5d
 		}
 		{
-			dependencies: ["hvTier"]
+			dependencies: ["000000000000000C"]
 			description: [
 				"{af9.quest.circuits.evIntro}"
 			]
-			id: "evTier"
+			id: "000000000000000F"
 			rewards: [{
 				id: "gtceu:ev_machine_hull"
 			}]
 			tasks: [{
-				id: "evTierTask"
+				id: "0000000000000011"
 				item: "gtceu:ev_machine_hull"
 				type: "item"
 			}]
@@ -99,16 +103,16 @@
 			y: -7.5d
 		}
 		{
-			dependencies: ["evTier"]
+			dependencies: ["000000000000000F"]
 			description: [
 				"{af9.quest.circuits.ivIntro}"
 			]
-			id: "ivTier"
+			id: "0000000000000012"
 			rewards: [{
 				id: "gtceu:iv_machine_hull"
 			}]
 			tasks: [{
-				id: "ivTierTask"
+				id: "0000000000000014"
 				item: "gtceu:iv_machine_hull"
 				type: "item"
 			}]
@@ -116,16 +120,16 @@
 			y: -7.5d
 		}
 		{
-			dependencies: ["ivTier"]
+			dependencies: ["0000000000000012"]
 			description: [
 				"{af9.quest.circuits.luvIntro}"
 			]
-			id: "luvTier"
+			id: "0000000000000015"
 			rewards: [{
 				id: "gtceu:luv_machine_hull"
 			}]
 			tasks: [{
-				id: "luvTierTask"
+				id: "0000000000000017"
 				item: "gtceu:luv_machine_hull"
 				type: "item"
 			}]
@@ -133,16 +137,16 @@
 			y: -7.5d
 		}
 		{
-			dependencies: ["luvTier"]
+			dependencies: ["0000000000000015"]
 			description: [
 				"{af9.quest.circuits.zpmIntro}"
 			]
-			id: "zpmTier"
+			id: "0000000000000018"
 			rewards: [{
 				id: "gtceu:zpm_machine_hull"
 			}]
 			tasks: [{
-				id: "zpmTierTask"
+				id: "000000000000001A"
 				item: "gtceu:zpm_machine_hull"
 				type: "item"
 			}]
@@ -150,16 +154,16 @@
 			y: -7.5d
 		}
 		{
-			dependencies: ["zpmTier"]
+			dependencies: ["0000000000000018"]
 			description: [
 				"{af9.quest.circuits.uvIntro}"
 			]
-			id: "uvTier"
+			id: "000000000000001B"
 			rewards: [{
 				id: "gtceu:uv_machine_hull"
 			}]
 			tasks: [{
-				id: "uvTierTask"
+				id: "000000000000001D"
 				item: "gtceu:uv_machine_hull"
 				type: "item"
 			}]
@@ -167,16 +171,16 @@
 			y: -7.5d
 		}
 		{
-			dependencies: ["uvTier"]
+			dependencies: ["000000000000001B"]
 			description: [
 				"{af9.quest.circuits.uhvIntro}"
 			]
-			id: "uhvTier"
+			id: "000000000000001E"
 			rewards: [{
 				id: "gtceu:uhv_machine_hull"
 			}]
 			tasks: [{
-				id: "uhvTierTask"
+				id: "0000000000000020"
 				item: "gtceu:uhv_machine_hull"
 				type: "item"
 			}]
@@ -184,16 +188,16 @@
 			y: -7.5d
 		}
 		{
-			dependencies: ["uhvTier"]
+			dependencies: ["000000000000001E"]
 			description: [
 				"{af9.quest.circuits.beyondIntro}"
 			]
-			id: "xpsTier"
+			id: "0000000000000021"
 			rewards: [{
 				id: "af9:xps_processor"
 			}]
 			tasks: [{
-				id: "xpsTierTask"
+				id: "0000000000000023"
 				item: "af9:xps_processor"
 				type: "item"
 			}]
@@ -201,16 +205,16 @@
 			y: -7.5d
 		}
 		{
-			dependencies: ["xpsTier"]
+			dependencies: ["0000000000000021"]
 			description: [
 				"{af9.quest.circuits.nvmIntro}"
 			]
-			id: "nvmTier"
+			id: "0000000000000024"
 			rewards: [{
 				id: "af9:nvm_processor"
 			}]
 			tasks: [{
-				id: "nvmTierTask"
+				id: "0000000000000026"
 				item: "af9:nvm_processor"
 				type: "item"
 			}]
@@ -218,17 +222,19 @@
 			y: -7.5d
 		}
 		{
-			dependencies: ["nvmTier"]
+			dependencies: ["0000000000000024"]
 			description: [
 				"{af9.quest.circuits.lore}"
 			]
-			id: "circuitsLore"
+			id: "0000000000000027"
 			rewards: [{
-				id: "xp"
+				id: "0000000000000028"
 				xp: 250
+				type: "item"
 			}]
 			tasks: [{
-				id: "checkmark"
+				id: "0000000000000029"
+				type: "item"
 			}]
 			title: "{af9.quest.circuits.loreTitle}"
 			x: 7.0d
