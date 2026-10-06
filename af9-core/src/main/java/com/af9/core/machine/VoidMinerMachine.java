@@ -88,16 +88,41 @@ public class VoidMinerMachine extends ProcessMachine {
         return COLORS[Math.max(0, Math.min(COLORS.length - 1, index))];
     }
 
+    /** Base tier - HV. Override in subclasses for higher tiers. */
+    public int getActiveRecipeType() {
+        return getActiveRecipeType();
+    }
+
+    /** Output multiplier for this tier. Override in subclasses. */
+    public int getOutputMultiplier() {
+        return 1;
+    }
+
+    /** Speed multiplier for this tier (denominator). Override in subclasses. */
+    public int getSpeedMultiplier() {
+        return 3;
+    }
+
     /**
      * Common setup, before any machine is created: takes over GT's void miner definition (block, pattern and
      * structure stay exactly as they are) and adds the four AF9 areas as its modes, this class as its machine and
-     * AF9's tooltips.
+     * AF9's tooltips. Also registers MK2 and MK3 variants.
      */
     @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
     public static void install() {
-        MachineDefinition definition = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", "void_miner"));
+        installVoidMiner("void_miner", VoidMinerMachine::new, "af9.void_miner.tooltip");
+        installVoidMiner("void_miner_mk2", VoidMinerMachineMK2::new, "af9.void_miner_mk2.tooltip");
+        installVoidMiner("void_miner_mk3", VoidMinerMachineMK3::new, "af9.void_miner_mk3.tooltip");
+    }
+
+    /**
+     * Installs a void miner variant with the given id, machine supplier, and tooltip prefix.
+     */
+    @SuppressWarnings("removal")
+    private static void installVoidMiner(String id, java.util.function.Supplier<VoidMinerMachine> supplier, String tooltipPrefix) {
+        MachineDefinition definition = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", id));
         if (!(definition instanceof MultiblockMachineDefinition multiblock)) {
-            AF9Core.LOGGER.warn("gtceu:void_miner is not a multiblock - is the base pack loaded?");
+            AF9Core.LOGGER.warn("gtceu:{} is not a multiblock - is the base pack loaded?", id);
             return;
         }
         List<GTRecipeType> types = new ArrayList<>(Arrays.asList(multiblock.getRecipeTypes()));
@@ -111,11 +136,11 @@ public class VoidMinerMachine extends ProcessMachine {
             if (!types.contains(type)) types.add(type);
         }
         multiblock.setRecipeTypes(types.toArray(GTRecipeType[]::new));
-        multiblock.setMachineSupplier(VoidMinerMachine::new);
+        multiblock.setMachineSupplier(supplier);
         var tooltips = multiblock.getTooltipBuilder();
         multiblock.setTooltipBuilder((stack, lines) -> {
             if (tooltips != null) tooltips.accept(stack, lines);
-            for (int i = 0; i < 4; i++) lines.add(Component.translatable("af9.void_miner.tooltip." + i));
+            for (int i = 0; i < 4; i++) lines.add(Component.translatable(tooltipPrefix + "." + i));
         });
     }
 
@@ -125,7 +150,17 @@ public class VoidMinerMachine extends ProcessMachine {
      */
     @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
     public static void registerRecipeInfo() {
-        MachineDefinition definition = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", "void_miner"));
+        registerRecipeInfoFor("void_miner", "af9.void_miner.tooltip");
+        registerRecipeInfoFor("void_miner_mk2", "af9.void_miner_mk2.tooltip");
+        registerRecipeInfoFor("void_miner_mk3", "af9.void_miner_mk3.tooltip");
+    }
+
+    /**
+     * Registers recipe info for a void miner variant.
+     */
+    @SuppressWarnings("removal")
+    private static void registerRecipeInfoFor(String id, String tooltipPrefix) {
+        MachineDefinition definition = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", id));
         for (String path : RECIPE_TYPES) {
             GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", path));
             if (type == null) {

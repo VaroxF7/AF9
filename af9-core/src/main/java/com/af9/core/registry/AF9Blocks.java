@@ -51,6 +51,10 @@ public final class AF9Blocks {
     public static final RegistryObject<Block> ARF_EXCIMER_LASER = block("arf_excimer_laser", SoundType.METAL, 6F, 0, 0);
     /** Laser-produced plasma: CO2 laser pulses hit tin droplets, a multilayer collector mirror gathers the light. */
     public static final RegistryObject<Block> EUV_LIGHT_SOURCE = block("euv_light_source", SoundType.METAL, 6F, 9, 0);
+    /** MK2 Void Miner (blue, IV) - higher tier, faster, more parallel outputs. */
+    public static final RegistryObject<Block> VOID_MINER_MK2 = block("void_miner_mk2", SoundType.METAL, 12F, 0, 4);
+    /** MK3 Void Miner (white/silver, LuV) - top tier, even faster, more parallel outputs. */
+    public static final RegistryObject<Block> VOID_MINER_MK3 = block("void_miner_mk3", SoundType.METAL, 12F, 0, 4);
     /**
      * A fan filter unit in a plascrete frame, from MV parts: the lithography machines' ceiling. A GT cleanroom filter
      * as well ({@link com.af9.core.pattern.AF9Filters}: ISO 5, like GT's Filter Casing).
