@@ -8,7 +8,7 @@ tasks.register('bumpVersion') {
         def versionLine = content.split(/\r?\n/).find { it.trim().startsWith('mod_version=') }
         if (versionLine) {
             def versionPart = versionLine.trim().split('=')[1]
-            def parts = versionPart.split('.')
+            def parts = versionPart.split('\\.')
             if (parts.size() >= 3) {
                 def major = parts[0] as int
                 def minor = parts[1] as int
