@@ -19,3 +19,6 @@ shock_proof_cutting_casing
 # titanium and tungsten steel
 [a-z_]+_drum
 (crushed|purified|refined)_[a-z_]+_ore
+# frames: TagPrefix.frameGt (prefix name "frame", default id pattern "%s_frame") makes <material>_frame for every
+# material with GENERATE_FRAME (titanium, steel, tungsten steel) - the block FluidDrillMachine's pattern takes
+[a-z_]+_frame

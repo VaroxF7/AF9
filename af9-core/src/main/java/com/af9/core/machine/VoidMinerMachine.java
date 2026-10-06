@@ -41,6 +41,13 @@ import java.util.StringJoiner;
  * {@code kubejs/startup_scripts/gtceu/void_mining.js}): a programmed circuit picks the ore in the area, drilling
  * fluid goes in, tenfold raw ore comes out for the same time and energy. No data sticks.
  * <p>
+ * MK2 and MK3 are separate machine definitions ({@code gtceu:void_miner_mk2}, {@code gtceu:void_miner_mk3}) created
+ * by KubeJS ({@code kubejs/startup_scripts/gtceu/void_mining.js}); {@link #install} wires them up here just like the
+ * base miner — machine supplier, tooltip lines, and each with its own recipe-type set
+ * ({@link VoidMinerMachineMK2#RECIPE_TYPES}, {@link VoidMinerMachineMK3#RECIPE_TYPES}). Their tier behaviour (MK2:
+ * 2x output and power at half the duration, MK3: 3x at a third) is data in the KubeJS recipes
+ * ({@code kubejs/server_scripts/mods/gtceu/miner.js}), never in Java.
+ * <p>
  * It mines standing in it: every recipe carries GT's dimension condition ({@code miner.js}), so a mode only runs in
  * its own dimension — Overworld also in the Mining Dimension, Asteroids in either belt. A formed miner in the wrong
  * dimension reports {@link ConsoleWidget#STATUS_NO_DIMENSION}.
@@ -59,9 +66,6 @@ public class VoidMinerMachine extends ProcessMachine {
     /** The miner's recipe types, in mode order (gtceu namespace). */
     public static final String[] RECIPE_TYPES = { "void_mining_overworld", "void_mining_nether", "void_mining_end",
             "void_mining_asteroids" };
-    /** Their lang keys ("gtceu.&lt;type&gt;"; "+ .short" is the short name, "+ .desc" the description). */
-    public static final String[] RECIPE_TYPE_KEYS = { "gtceu.void_mining_overworld", "gtceu.void_mining_nether",
-            "gtceu.void_mining_end", "gtceu.void_mining_asteroids" };
     /** Runs completed, for the screen's counter. */
     @Persisted
     private long runs;
@@ -90,45 +94,37 @@ public class VoidMinerMachine extends ProcessMachine {
         return COLORS[Math.max(0, Math.min(COLORS.length - 1, index))];
     }
 
-    /** Base tier - HV. Override in subclasses for higher tiers. */
-    public int getActiveRecipeType() {
-        return getActiveRecipeType();
-    }
-
-    /** Output multiplier for this tier. Override in subclasses. */
-    public int getOutputMultiplier() {
-        return 1;
-    }
-
-    /** Speed multiplier for this tier (denominator). Override in subclasses. */
-    public int getSpeedMultiplier() {
-        return 3;
-    }
-
     /**
      * Common setup, before any machine is created: takes over GT's void miner definition (block, pattern and
      * structure stay exactly as they are) and adds the four AF9 areas as its modes, this class as its machine and
-     * AF9's tooltips. Also registers MK2 and MK3 variants.
+     * AF9's tooltip lines. MK2 and MK3, separate KubeJS machine definitions, are wired up the same way, each with
+     * its own recipe types and tooltip prefix.
      */
     @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
     public static void install() {
-        installVoidMiner("void_miner", VoidMinerMachine::new, "af9.void_miner.tooltip");
-        installVoidMiner("void_miner_mk2", holder -> new VoidMinerMachineMK2(holder), "af9.void_miner_mk2.tooltip");
-        installVoidMiner("void_miner_mk3", holder -> new VoidMinerMachineMK3(holder), "af9.void_miner_mk3.tooltip");
+        installVoidMiner("void_miner", VoidMinerMachine::new, "af9.void_miner.tooltip", RECIPE_TYPES);
+        installVoidMiner("void_miner_mk2", VoidMinerMachineMK2::new, "af9.void_miner_mk2.tooltip",
+                VoidMinerMachineMK2.RECIPE_TYPES);
+        installVoidMiner("void_miner_mk3", VoidMinerMachineMK3::new, "af9.void_miner_mk3.tooltip",
+                VoidMinerMachineMK3.RECIPE_TYPES);
     }
 
     /**
-     * Installs a void miner variant with the given id, machine constructor, and tooltip prefix.
+     * Installs a void miner variant with the given id, machine constructor, tooltip prefix and recipe types: the
+     * variant's own types are appended to whatever its definition already runs (the base miner keeps ATM9's), and
+     * its machine and tooltip lines are set.
      */
     @SuppressWarnings("removal")
-    private static void installVoidMiner(String id, java.util.function.Function<IMachineBlockEntity, ? extends VoidMinerMachine> constructor, String tooltipPrefix) {
+    private static void installVoidMiner(String id,
+            java.util.function.Function<IMachineBlockEntity, ? extends VoidMinerMachine> constructor,
+            String tooltipPrefix, String[] recipeTypes) {
         MachineDefinition definition = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", id));
         if (!(definition instanceof MultiblockMachineDefinition multiblock)) {
             AF9Core.LOGGER.warn("gtceu:{} is not a multiblock - is the base pack loaded?", id);
             return;
         }
         List<GTRecipeType> types = new ArrayList<>(Arrays.asList(multiblock.getRecipeTypes()));
-        for (String path : RECIPE_TYPES) {
+        for (String path : recipeTypes) {
             GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", path));
             if (type == null) {
                 AF9Core.LOGGER.warn("Recipe type gtceu:{} not found - is the AF9 KubeJS startup script loaded?",
@@ -148,26 +144,27 @@ public class VoidMinerMachine extends ProcessMachine {
     }
 
     /**
-     * Common setup: the miner's recipe types get their area named on their EMI / JEI pages, and the controller as
-     * their icon where GT left none.
+     * Common setup: each variant's own recipe types get their area named on their EMI / JEI pages, and that
+     * variant's controller as their icon where GT left none.
      */
     @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
     public static void registerRecipeInfo() {
-        registerRecipeInfoFor("void_miner", "af9.void_miner.tooltip");
-        registerRecipeInfoFor("void_miner_mk2", "af9.void_miner_mk2.tooltip");
-        registerRecipeInfoFor("void_miner_mk3", "af9.void_miner_mk3.tooltip");
+        registerRecipeInfoFor("void_miner", RECIPE_TYPES);
+        registerRecipeInfoFor("void_miner_mk2", VoidMinerMachineMK2.RECIPE_TYPES);
+        registerRecipeInfoFor("void_miner_mk3", VoidMinerMachineMK3.RECIPE_TYPES);
     }
 
-    /** The recipe types already given their data info; all three variants share them, so register only once. */
+    /** The recipe types already given their data info; each type is registered only once. */
     private static final Set<String> RECIPE_INFO_DONE = new HashSet<>();
 
     /**
-     * Registers recipe info for a void miner variant.
+     * Registers recipe info for a void miner variant: every recipe type it runs gets its area named on its
+     * EMI / JEI page and the variant's controller as its icon where GT left none.
      */
     @SuppressWarnings("removal")
-    private static void registerRecipeInfoFor(String id, String tooltipPrefix) {
+    private static void registerRecipeInfoFor(String id, String[] recipeTypes) {
         MachineDefinition definition = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", id));
-        for (String path : RECIPE_TYPES) {
+        for (String path : recipeTypes) {
             GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", path));
             if (type == null) {
                 AF9Core.LOGGER.warn("Recipe type gtceu:{} not found - is the AF9 KubeJS startup script loaded?",

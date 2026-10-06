@@ -1,37 +1,29 @@
 package com.af9.core.machine;
 
-import com.af9.core.AF9Core;
-
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
-import com.gregtechceu.gtceu.api.recipe.GTRecipe;
-import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
-import com.gregtechceu.gtceu.api.registry.GTRegistries;
 
-import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import static com.gregtechceu.gtceu.api.GTValues.IV;
-import static com.gregtechceu.gtceu.api.GTValues.LuV;
-
 /**
- * MK3 Void Miner (white/silver, LuV tier) - top tier, fastest, maximum parallel outputs.
+ * MK3 Void Miner (white/silver, LuV-class): its own machine definition ({@code gtceu:void_miner_mk3}) created by
+ * KubeJS ({@code kubejs/startup_scripts/gtceu/void_mining.js}), running its own recipe types
+ * ({@link #RECIPE_TYPES}). What sets it apart from the base miner — 3x output and power draw at a third of the
+ * duration — is data, not code: the numbers live in the KubeJS recipes ({@code kubejs/server_scripts/mods/gtceu/
+ * miner.js}) and are picked up by {@link VoidMinerMachine#install} / {@link VoidMinerMachine#registerRecipeInfo},
+ * which wire the definition's machine supplier, tooltip lines and recipe pages up. This class only gives the
+ * machine its identity: field holder, screen title and the silver mode colours of its areas.
  */
 public class VoidMinerMachineMK3 extends VoidMinerMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             VoidMinerMachineMK3.class, VoidMinerMachine.MANAGED_FIELD_HOLDER);
 
-    /** Highest tier colors - white/silver theme for MK3. */
+    /** MK3's areas in white/silver, one shade per mode, instead of the base miner's colours. */
     private static final int[] COLORS_MK3 = { 0xFFF8FAFC, 0xFFE2E8F0, 0xFFCBD5E1, 0xFF94A3B8 };
+
+    /** The MK3's recipe types, in mode order (gtceu namespace). */
+    public static final String[] RECIPE_TYPES = { "void_mining_overworld_mk3", "void_mining_nether_mk3",
+            "void_mining_end_mk3", "void_mining_asteroids_mk3" };
 
     public VoidMinerMachineMK3(IMachineBlockEntity holder) {
         super(holder);
@@ -50,23 +42,5 @@ public class VoidMinerMachineMK3 extends VoidMinerMachine {
     @Override
     public int modeColor(int index) {
         return COLORS_MK3[Math.max(0, Math.min(COLORS_MK3.length - 1, index))];
-    }
-
-    @Override
-    public int getActiveRecipeType() {
-        // MK3 runs at LuV tier base
-        return Math.max(LuV, super.getActiveRecipeType());
-    }
-
-    /** MK3 has 3x output multiplier */
-    @Override
-    public int getOutputMultiplier() {
-        return 3;
-    }
-
-    /** MK3 runs 50% faster */
-    @Override
-    public int getSpeedMultiplier() {
-        return 6; // 6/4 = 1.5x speed
     }
 }

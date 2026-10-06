@@ -495,6 +495,8 @@
     "af9.radiation.unprotected": "no hazmat suit",
     "vapor.af9.supercritical_steam": "Supercritical Steam",
     "af9.voidminer.console.title": "Void Miner",
+    "af9.voidminer.mk2.console.title": "Void Miner MK2",
+    "af9.voidminer.mk3.console.title": "Void Miner MK3",
     "af9.voidminer.console.select": "Switch area",
     "af9.voidminer.console.switch_tooltip": "On/off",
     "af9.voidminer.console.reset_tooltip": "Reset the run counter",

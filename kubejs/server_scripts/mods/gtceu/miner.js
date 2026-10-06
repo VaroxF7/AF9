@@ -2,9 +2,14 @@ ServerEvents.recipes((event) => {
     const gtr = event.recipes.gtceu
 
     // AF9: the void miner runs four AF9 modes now (void_mining_overworld, void_mining_nether, void_mining_end,
-    // void_mining_asteroids). GT's and ATM's recipes of the old void_miner and world_data_scanner types go; only
-    // af9: ids may remain. The removal mirrors the repo's event.remove({ id: ... }) filter style (boule_melting.js):
-    // no precedent removes whole types, so the foreign ids are collected first and removed one by one.
+    // void_mining_asteroids) - and three machines run them. MK1 (gtceu:void_miner) takes the base types; MK2
+    // (gtceu:void_miner_mk2) and MK3 (gtceu:void_miner_mk3) take their own _mk2 / _mk3 copies of the same four
+    // (recipe types registered in kubejs/startup_scripts/gtceu/void_mining.js), so a machine only ever sees the
+    // recipes of its own tier: MK2 gives 2x every output at 2x EU/t for 600 ticks, MK3 3x at 3x EU/t for 400
+    // ticks - the same energy per ore, drawn faster and at more power. GT's and ATM's recipes of the old void_miner
+    // and world_data_scanner types go; only af9: ids may remain. The removal mirrors the repo's
+    // event.remove({ id: ... }) filter style (boule_melting.js): no precedent removes whole types, so the foreign
+    // ids are collected first and removed one by one.
     const foreign = []
     event.forEachRecipe({ type: "gtceu:void_miner" }, (recipe) => {
         let id = String(recipe.getId())
@@ -35,13 +40,82 @@ ServerEvents.recipes((event) => {
         .EUt(GTValues.VA[GTValues.HV])
         .duration(800)
 
+    // MK2 and MK3 assemble from the tier below plus that tier's parts (field generator, circuits, plates, the ASIC
+    // again): 800 ticks each, at the tier's own voltage. The recipe ids are the machine ids; the KubeJS startup
+    // script registers both machines (along with the _mk2 / _mk3 recipe types).
+    // GT's tungsten steel material is tungsten_steel, so its plate is gtceu:tungsten_steel_plate: the material ids
+    // keep their underscore (as in particle_accelerator.js, niobium_titanium_plate).
+    gtr.assembler("gtceu:void_miner_mk2")
+        .itemInputs("gtceu:void_miner",
+            "4x gtceu:ev_field_generator",
+            "4x #gtceu:circuits/ev",
+            "4x af9:asic_chip", // AF9: the mining ASIC (chip_uses.js)
+            "4x gtceu:tungsten_plate")
+        .inputFluids("gtceu:soldering_alloy 1440")
+        .itemOutputs("gtceu:void_miner_mk2")
+        .EUt(GTValues.VA[GTValues.EV])
+        .duration(800)
+
+    gtr.assembler("gtceu:void_miner_mk3")
+        .itemInputs("gtceu:void_miner_mk2",
+            "4x gtceu:luv_field_generator",
+            "4x #gtceu:circuits/luv",
+            "4x af9:asic_chip", // AF9: the mining ASIC (chip_uses.js)
+            "4x gtceu:tungsten_steel_plate")
+        .inputFluids("gtceu:soldering_alloy 1440")
+        .itemOutputs("gtceu:void_miner_mk3")
+        .EUt(GTValues.VA[GTValues.IV])
+        .duration(800)
+
     // The data sticks are gone: the void miner picks its dimension with the machine mode, not with a data item.
-    // And it mines standing in it: every recipe carries GT's dimension condition, so a mode only runs in its own
-    // dimension (the Overworld mode also in the Mining Dimension, Asteroids in either belt). The screen names the
-    // wrong dimension (VoidMinerMachine.STATUS_NO_DIMENSION); the dimension lists live here and, for the screen,
-    // in VoidMinerMachine.MODE_DIMENSIONS: change both together.
+    // And it mines standing in it: every recipe carries GT's dimension condition, written NON-reversed for each
+    // dimension of the mode. GT ORs conditions of one type, and a reversed one reads "the machine is NOT there" -
+    // two reversed conditions (the form this file used to have) are true anywhere, so every mode ran in every
+    // dimension. The lists are the *_dimensions consts below; a formed miner standing in the wrong one has no
+    // recipe to run and its console reports VoidMinerMachine's STATUS_NO_DIMENSION instead.
+    const overworld_dimensions = ['minecraft:overworld', 'allthemodium:mining']
+    const nether_dimensions = ['minecraft:the_nether']
+    const end_dimensions = ['minecraft:the_end']
+    const asteroids_dimensions = ['af9:asteroid_field', 'af9:ceres']
+
+    // emitRecipes(typeBase, table, euT, dimensions, m): the tables are MK1's, m scales them (counts and EUt up,
+    // duration down: 1200 / m ticks), so each ore costs the same energy however the tier draws it. Drilling fluid,
+    // circuit, chances and dimensions stay as the table says. The recipe type is typeBase plus '' / '_mk2' /
+    // '_mk3' - gtceu:void_miner runs the four base types, void_miner_mk2 and void_miner_mk3 the suffixed copies.
+    function emitRecipes(typeBase, table, euT, dimensions, m) {
+        const suffix = m === 1 ? '' : '_mk' + m
+        const type = typeBase + suffix
+        table.forEach((entry) => {
+            let recipe = gtr[type](entry[2] + suffix)
+                .inputFluids("gtceu:drilling_fluid 2000")
+            dimensions.forEach((dimension) => {
+                recipe.dimension(dimension)
+            })
+            recipe.circuit(entry[1])
+                .EUt(euT * m)
+                .duration(1200 / m)
+            entry[0].forEach((line) => {
+                recipe.chancedOutput(scaleCount(line, m), 2000, 0)
+            })
+        })
+    }
+
+    // "30x gtceu:raw_bentonite" -> "60x gtceu:raw_bentonite" at m = 2: the table strings carry MK1's counts
+    function scaleCount(line, m) {
+        if (m === 1) return line
+        const counted = line.match(/^(\d+)x\s+(.+)$/)
+        return counted ? String(Number(counted[1]) * m) + 'x ' + counted[2] : line
+    }
+
     // One recipe per table entry: [outputs (all counts x10 of GT's), circuit, id]. The id names the FIRST ore's
     // material. Circuit 8 of the overworld also opens on chalcopyrite, so the circuit number disambiguates it.
+    // Each table is written ONCE, in MK1 counts, and emitted once per tier by emitRecipes() above: MK1 as written,
+    // MK2 with every count and the EUt times 2 for 600 ticks, MK3 with times 3 for 400 ticks. The tier suffix
+    // (_mk2 / _mk3) goes on the recipe id too - the base keeps af9:vm_..., two types would otherwise hold recipes
+    // with one id (lint R1).
+    // MK1, MK2, MK3: the multipliers every table is emitted with
+    const tier_multipliers = [1, 2, 3]
+
     const overworld_raw_ores =
         [[["30x gtceu:raw_bentonite",
             "20x gtceu:raw_magnetite",
@@ -138,19 +212,9 @@ ServerEvents.recipes((event) => {
             "40x gtceu:raw_cobaltite",
             "20x gtceu:raw_pentlandite"], "22", "af9:vm_overworld_garnierite"]]
 
-    overworld_raw_ores.forEach((overworld_ore) => {
-        let recipe = gtr.void_mining_overworld(overworld_ore[2])
-            .inputFluids("gtceu:drilling_fluid 2000")
-            .dimension('minecraft:overworld', true)
-            .dimension('allthemodium:mining', true)
-            .circuit(overworld_ore[1])
-            .EUt(GTValues.VA[GTValues.EV])
-            .duration(1200)
-        let output = overworld_ore[0]
-        output.forEach(item => {
-            recipe.chancedOutput(item, 2000, 0)
-        })
-    })
+    // Overworld: the Mining Dimension counts as the Overworld, hence both dimensions in the list
+    tier_multipliers.forEach((m) => emitRecipes("void_mining_overworld", overworld_raw_ores,
+        GTValues.VA[GTValues.EV], overworld_dimensions, m))
     const nether_raw_ores =
         [[["140x gtceu:raw_tetrahedrite",
             "70x minecraft:raw_copper",
@@ -203,18 +267,9 @@ ServerEvents.recipes((event) => {
             "100x gtceu:raw_pyrite",
             "50x gtceu:raw_sphalerite"], "12", "af9:vm_nether_sulfur"]]
 
-    nether_raw_ores.forEach((nether_ore) => {
-        let recipe = gtr.void_mining_nether(nether_ore[2])
-            .inputFluids("gtceu:drilling_fluid 2000")
-            .dimension('minecraft:the_nether')
-            .circuit(nether_ore[1])
-            .EUt(2 * GTValues.VA[GTValues.EV])
-            .duration(1200)
-        let output = nether_ore[0]
-        output.forEach(item => {
-            recipe.chancedOutput(item, 2000, 0)
-        })
-    })
+    // Nether: the mode is the Nether alone
+    tier_multipliers.forEach((m) => emitRecipes("void_mining_nether", nether_raw_ores,
+        2 * GTValues.VA[GTValues.EV], nether_dimensions, m))
 
     const end_raw_ores =
         [[["90x gtceu:raw_magnetite",
@@ -239,18 +294,9 @@ ServerEvents.recipes((event) => {
         // plutonium come from the Asteroid Field now (asteroid_fission.js), no void miner makes them
         [["90x gtceu:raw_naquadah"], "6", "af9:vm_end_naquadah"]]
 
-    end_raw_ores.forEach((end_ore) => {
-        let recipe = gtr.void_mining_end(end_ore[2])
-            .inputFluids("gtceu:drilling_fluid 2000")
-            .dimension('minecraft:the_end')
-            .circuit(end_ore[1])
-            .EUt(GTValues.VA[GTValues.IV])
-            .duration(1200)
-        let output = end_ore[0]
-        output.forEach(item => {
-            recipe.chancedOutput(item, 2000, 0)
-        })
-    })
+    // End: the mode is the End alone
+    tier_multipliers.forEach((m) => emitRecipes("void_mining_end", end_raw_ores,
+        GTValues.VA[GTValues.IV], end_dimensions, m))
 
     const asteroids_raw_ores =
         [[["40x gtceu:raw_brannerite"], "1", "af9:vm_asteroids_brannerite"],
@@ -267,17 +313,7 @@ ServerEvents.recipes((event) => {
 
         [["40x af9:oil_regolith"], "7", "af9:vm_asteroids_oil_regolith"]]
 
-    asteroids_raw_ores.forEach((asteroids_ore) => {
-        let recipe = gtr.void_mining_asteroids(asteroids_ore[2])
-            .inputFluids("gtceu:drilling_fluid 2000")
-            .dimension('af9:asteroid_field', true)
-            .dimension('af9:ceres', true)
-            .circuit(asteroids_ore[1])
-            .EUt(GTValues.VA[GTValues.IV])
-            .duration(1200)
-        let output = asteroids_ore[0]
-        output.forEach(item => {
-            recipe.chancedOutput(item, 2000, 0)
-        })
-    })
+    // Asteroids: the belt and Ceres are one area, the machine may stand in either
+    tier_multipliers.forEach((m) => emitRecipes("void_mining_asteroids", asteroids_raw_ores,
+        GTValues.VA[GTValues.IV], asteroids_dimensions, m))
 })

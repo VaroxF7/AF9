@@ -1,5 +1,7 @@
 {
     "af9.voidminer.console.title": "Void-Miner",
+    "af9.voidminer.mk2.console.title": "Void-Miner MK2",
+    "af9.voidminer.mk3.console.title": "Void-Miner MK3",
     "af9.voidminer.console.select": "Gebiet wechseln",
     "af9.voidminer.console.switch_tooltip": "An/Aus",
     "af9.voidminer.console.reset_tooltip": "Zähler zurücksetzen",

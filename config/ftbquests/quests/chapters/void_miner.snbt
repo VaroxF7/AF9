@@ -115,6 +115,58 @@
 			x: 9.0d
 			y: 0.0d
 		}
+		{
+			dependencies: ["7DCAE35A2C3059C3"]
+			description: [
+				"{af9.quest.vm.mk2.1}"
+			]
+			icon: "gtceu:void_miner_mk2"
+			id: "22D8A2C2A0F18263"
+			rewards: [{
+				id: "796A4B1A6080B82F"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.vm.mk2.subtitle}"
+			tasks: [
+				{
+					id: "6E7CD77FB598638D"
+					item: "gtceu:void_miner_mk2"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.vm.mk2.title}"
+			x: 6.0d
+			y: 2.5d
+		}
+		{
+			dependencies: ["22D8A2C2A0F18263"]
+			description: [
+				"{af9.quest.vm.mk3.1}"
+			]
+			icon: "gtceu:void_miner_mk3"
+			id: "159CE979F18B8915"
+			rewards: [{
+				id: "667E8E16287450D1"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.vm.mk3.subtitle}"
+			tasks: [
+				{
+					id: "054AA4DB65045780"
+					item: "gtceu:void_miner_mk3"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.vm.mk3.title}"
+			x: 9.0d
+			y: 2.5d
+		}
 	]
 	subtitle: ["{af9.quest.vm.chapter.subtitle}"]
 	title: "{af9.quest.vm.chapter.title}"
