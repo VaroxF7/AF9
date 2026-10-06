@@ -111,15 +111,15 @@ public class VoidMinerMachine extends ProcessMachine {
     @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
     public static void install() {
         installVoidMiner("void_miner", VoidMinerMachine::new, "af9.void_miner.tooltip");
-        installVoidMiner("void_miner_mk2", VoidMinerMachineMK2::new, "af9.void_miner_mk2.tooltip");
-        installVoidMiner("void_miner_mk3", VoidMinerMachineMK3::new, "af9.void_miner_mk3.tooltip");
+        installVoidMiner("void_miner_mk2", holder -> new VoidMinerMachineMK2(holder), "af9.void_miner_mk2.tooltip");
+        installVoidMiner("void_miner_mk3", holder -> new VoidMinerMachineMK3(holder), "af9.void_miner_mk3.tooltip");
     }
 
     /**
-     * Installs a void miner variant with the given id, machine supplier, and tooltip prefix.
+     * Installs a void miner variant with the given id, machine constructor, and tooltip prefix.
      */
     @SuppressWarnings("removal")
-    private static void installVoidMiner(String id, java.util.function.Supplier<VoidMinerMachine> supplier, String tooltipPrefix) {
+    private static void installVoidMiner(String id, java.util.function.Function<IMachineBlockEntity, ? extends VoidMinerMachine> constructor, String tooltipPrefix) {
         MachineDefinition definition = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", id));
         if (!(definition instanceof MultiblockMachineDefinition multiblock)) {
             AF9Core.LOGGER.warn("gtceu:{} is not a multiblock - is the base pack loaded?", id);
@@ -136,7 +136,8 @@ public class VoidMinerMachine extends ProcessMachine {
             if (!types.contains(type)) types.add(type);
         }
         multiblock.setRecipeTypes(types.toArray(GTRecipeType[]::new));
-        multiblock.setMachineSupplier(supplier);
+        // Use lambda to properly cast to Function<IMachineBlockEntity, MetaMachine>
+        multiblock.setMachineSupplier(holder -> constructor.apply(holder));
         var tooltips = multiblock.getTooltipBuilder();
         multiblock.setTooltipBuilder((stack, lines) -> {
             if (tooltips != null) tooltips.accept(stack, lines);
