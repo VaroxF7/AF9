@@ -29,7 +29,9 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringJoiner;
 
 /**
@@ -156,6 +158,9 @@ public class VoidMinerMachine extends ProcessMachine {
         registerRecipeInfoFor("void_miner_mk3", "af9.void_miner_mk3.tooltip");
     }
 
+    /** The recipe types already given their data info; all three variants share them, so register only once. */
+    private static final Set<String> RECIPE_INFO_DONE = new HashSet<>();
+
     /**
      * Registers recipe info for a void miner variant.
      */
@@ -169,10 +174,11 @@ public class VoidMinerMachine extends ProcessMachine {
                         path);
                 continue;
             }
-            // rendered as plain labels, so the texts must not contain '%'
-            type.addDataInfo(data -> Component.translatable("af9.recipe.voidminer.area",
-                    Component.translatable(ProcessMachine.modeKey(type) + ".short")).getString());
-            type.addDataInfo(data -> Component.translatable("af9.recipe.voidminer.chance").getString());
+            if (RECIPE_INFO_DONE.add(path)) {
+                // rendered as plain labels, so the texts must not contain '%'
+                type.addDataInfo(data -> Component.translatable("af9.recipe.voidminer.area",
+                        Component.translatable(ProcessMachine.modeKey(type) + ".short")).getString());
+            }
             if (type.getIconSupplier() == null && definition != null) type.setIconSupplier(definition::asStack);
         }
     }

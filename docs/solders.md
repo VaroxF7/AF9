@@ -42,9 +42,10 @@ chromodynium recipes). GT's own extractor melts the dust to the fluid the solder
 
 `gtceu:plasma_soldering` (new recipe type, 10 items / 1 out / 2 fluids, chain in `solders.js`): runs only on
 the Orbital Lithography Array Mk2 — extended 35x35 pattern, in orbit (`PLASMA_GATE` in af9-core checks orbit +
-extended + full EU/t + sealed start-up). `af9:wetware_mainframe_uhv_plasma`: the same photonic UHV mainframe bill
-as the assembly line version with half the plasma solder (720 vs 1440 mB) in half the time (1000 vs 2000 ticks) at
-UHV. The assembly line version stays as the pre-Mk2 path.
+extended + full EU/t + sealed start-up). `af9:wetware_mainframe_uhv_plasma`: the photonic UHV mainframe bill
+(10 UV supercomputers + photonic/spin dies), 720 mB plasma solder, 1000 ticks at UHV — the only way to a
+`gtceu:wetware_processor_mainframe` (both assembly line versions, `af9:wetware_mainframe_uhv` and
+`af9:wetware_mainframe_uhv_lean`, were removed).
 
 ## 4. Array Mk2 (extended, like the Space Elevator's sizes)
 

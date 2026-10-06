@@ -514,7 +514,6 @@
     "af9.voidminer.hint.4": "Switched off: press the switch.",
     "af9.voidminer.hint.5": "The maintenance hatch needs attention.",
     "af9.recipe.voidminer.area": "Area: %s",
-    "af9.recipe.voidminer.chance": "Each ore at the old chances, tenfold",
     "item.af9.fx_fuel_pellet": "FX-1 Fuel Pellet",
     "item.af9.fx_fuel_pellet.tooltip.0": "§7Sintered uranium oxide: natural uranium with U-235 to start the chain reaction.",
     "item.af9.fx_fuel_pellet.tooltip.1": "§cRadioactive.",

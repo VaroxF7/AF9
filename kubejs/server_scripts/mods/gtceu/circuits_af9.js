@@ -616,44 +616,9 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.UV])
 
     // ================================= 10. UHV (UV -> UHV) =================================
-    // UHV wetware mainframe (photonic-only): 10x UV supercomputers + photonic/spin dies.
+    // UHV wetware mainframe: no assembly line version left (both AF9 bills removed); GT's own stays off.
+    // The only path is plasma soldering in the Orbital Array Mk2 (solders.js).
     event.remove({ id: 'gtceu:assembly_line/wetware_mainframe_uhv' })
-    event.recipes.gtceu.assembly_line('af9:wetware_mainframe_uhv')
-        .itemInputs(
-            '2x gtceu:tritanium_frame',
-            '10x gtceu:wetware_processor_computer',
-            '64x af9:photonic_ic_chip',
-            '16x af9:photonic_ic_chip',
-            '32x af9:spin_logic_chip',
-            '64x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire',
-            '128x gtceu:polybenzimidazole_foil',
-            '8x gtceu:europium_plate')
-        .inputFluids(
-            Fluid.of('gtceu:plasma_solder', 1440),
-            Fluid.of('gtceu:polybenzimidazole', 1152))
-        .itemOutputs('gtceu:wetware_processor_mainframe')
-        .stationResearch(b => b
-            .researchStack(Item.of('gtceu:wetware_processor_computer'))
-            .CWUt(96)
-            .EUt(VA[GTValues.UV]))
-        .duration(2000)
-        .EUt(VA[GTValues.UV])
-
-    // ---- UHV lean (Stage 4 @XPS end, gate: photonic + spin packages) ----
-    event.recipes.gtceu.assembly_line('af9:wetware_mainframe_uhv_lean')
-        .itemInputs(
-            '2x gtceu:tritanium_frame',
-            '5x gtceu:wetware_processor_computer',
-            '8x af9:photonic_package',
-            '32x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire',
-            '64x gtceu:polybenzimidazole_foil',
-            '4x gtceu:europium_plate')
-        .inputFluids(
-            Fluid.of('gtceu:plasma_solder', 720),
-            Fluid.of('gtceu:polybenzimidazole', 576))
-        .itemOutputs('2x gtceu:wetware_processor_mainframe')
-        .duration(1000)
-        .EUt(VA[GTValues.UV])
 
     // ================================= 11. XPS (UHV -> XPS) =================================
     // XPS processor (AL, UHV): UHV mainframe recombined with photonics + sanguinite wire.

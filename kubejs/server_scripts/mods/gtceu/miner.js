@@ -129,8 +129,6 @@ ServerEvents.recipes((event) => {
             "80x gtceu:raw_asbestos",
             "40x gtceu:raw_diatomite"], "19", "af9:vm_overworld_cassiterite_sand"],
 
-        [["120x gtceu:raw_oilsands"], "20", "af9:vm_overworld_oilsands"],
-
         [["60x gtceu:raw_graphite",
             "40x gtceu:raw_diamond",
             "20x gtceu:raw_coal"], "21", "af9:vm_overworld_graphite"],

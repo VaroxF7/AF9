@@ -1357,7 +1357,7 @@ Six chips beyond §5.3b, one per family the finer substrates open up, printed an
 
 The layers are made in the fab machines (`af9:aluminium_nitride`, `lithium_niobate`, `silicon_nitride`, `cobalt_iron_boron`, `tungsten_diselenide`, `boron_nitride`, `gst_alloy`, `quantum_dot_colloid`: thermal steps in the thermal furnace, the rest from HV power on in a clean room) and are taken, with the chips, by the uses below. The reticles and cuts of the strange-matter chips run at UV (no UHV machine needed). Tier of each family: the substrate's.
 
-**Uses.** The **wireless energy hatches** (EV-UHV) take a SAW filter and 2 aluminium nitride films on top (`wireless_energy.js`). The pack's UHV wetware mainframe takes photonic ICs and spin-logic chips (`circuits_af9.js`).
+**Uses.** The **wireless energy hatches** (EV-UHV) take a SAW filter and 2 aluminium nitride films on top (`wireless_energy.js`). The pack's UHV wetware mainframe takes photonic ICs and spin-logic chips (`solders.js`, plasma soldering).
 
 ## 18.8 The Coater Track, coated wafers, the etch plasma
 

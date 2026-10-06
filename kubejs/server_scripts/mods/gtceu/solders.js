@@ -37,9 +37,9 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.UHV], 4)
 
     // ---- Plasma atomic soldering: the UHV wetware mainframe in the Orbital Array Mk2 ----
-    // Same photonic bill as the assembly line version (circuits_af9.js) but deposited ion-by-ion in orbit: half the
-    // plasma solder, half the time. plasma_soldering slots: 10 items, 1 out, 2 fluids in. Runs only extended + orbit
-    // (af9-core PLASMA_GATE); the assembly line version stays as the pre-Mk2 path.
+    // The photonic bill (10 UV supercomputers + photonic/spin dies), deposited ion-by-ion in orbit.
+    // plasma_soldering slots: 10 items, 1 out, 2 fluids in. Runs only extended + orbit (af9-core PLASMA_GATE);
+    // it is the only path to the mainframe — both assembly line versions are gone (circuits_af9.js).
     event.recipes.gtceu.plasma_soldering('af9:wetware_mainframe_uhv_plasma')
         .itemInputs(
             '2x gtceu:tritanium_frame',
