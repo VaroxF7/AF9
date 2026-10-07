@@ -2,6 +2,7 @@ package com.af9.core;
 
 import com.af9.core.registry.AF9TagPrefixes;
 import com.af9.core.space.AF9Space;
+import com.af9.core.staged.StagedCovers;
 
 import com.gregtechceu.gtceu.api.addon.GTAddon;
 import com.gregtechceu.gtceu.api.addon.IGTAddon;
@@ -36,6 +37,16 @@ public class AF9Addon implements IGTAddon {
     @Override
     public void registerTagPrefixes() {
         AF9TagPrefixes.init();
+    }
+
+    /**
+     * GregTech calls this while it builds {@code GTCovers} and before it freezes the cover registry, so the step
+     * detector cover has to be registered here: registering it from the cover item's own class load (an item
+     * RegisterEvent) is already too late.
+     */
+    @Override
+    public void registerCovers() {
+        StagedCovers.init();
     }
 
     @Override

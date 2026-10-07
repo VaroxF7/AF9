@@ -1,0 +1,45 @@
+{
+  "orbital_station": {
+    "subtitle": "af9.subtitle.orbital_station",
+    "sounds": [
+      { "name": "minecraft:block/beacon/ambient", "pitch": 0.5, "volume": 1.0, "attenuation_distance": 48 }
+    ]
+  },
+  "orbital_station_pulse": {
+    "subtitle": "af9.subtitle.orbital_station_pulse",
+    "sounds": [
+      { "name": "minecraft:mob/warden/heartbeat_1", "pitch": 0.5, "volume": 1.0, "attenuation_distance": 40 },
+      { "name": "minecraft:mob/warden/heartbeat_2", "pitch": 0.5, "volume": 1.0, "attenuation_distance": 40 },
+      { "name": "minecraft:mob/warden/heartbeat_3", "pitch": 0.5, "volume": 1.0, "attenuation_distance": 40 },
+      { "name": "minecraft:mob/warden/heartbeat_4", "pitch": 0.5, "volume": 1.0, "attenuation_distance": 40 }
+    ]
+  },
+  "orbital_station_ignite": {
+    "subtitle": "af9.subtitle.orbital_station_ignite",
+    "sounds": [
+      { "name": "minecraft:block/end_portal/endportal", "pitch": 0.6, "volume": 0.8, "attenuation_distance": 64 }
+    ]
+  },
+  "particle_accelerator": {
+    "subtitle": "af9.subtitle.particle_accelerator",
+    "sounds": [
+      { "name": "minecraft:block/beacon/ambient", "pitch": 1.4, "volume": 0.9, "attenuation_distance": 48 }
+    ]
+  },
+  "particle_accelerator_ignite": {
+    "subtitle": "af9.subtitle.particle_accelerator_ignite",
+    "sounds": [
+      { "name": "minecraft:block/respawn_anchor/charge1", "pitch": 0.7, "volume": 1.0, "attenuation_distance": 64 },
+      { "name": "minecraft:block/respawn_anchor/charge2", "pitch": 0.7, "volume": 1.0, "attenuation_distance": 64 },
+      { "name": "minecraft:block/respawn_anchor/charge3", "pitch": 0.7, "volume": 1.0, "attenuation_distance": 64 }
+    ]
+  },
+  "particle_accelerator_pass": {
+    "subtitle": "af9.subtitle.particle_accelerator_pass",
+    "sounds": [
+      { "name": "minecraft:item/trident/riptide1", "pitch": 1.5, "volume": 0.3, "attenuation_distance": 40 },
+      { "name": "minecraft:item/trident/riptide2", "pitch": 1.5, "volume": 0.3, "attenuation_distance": 40 },
+      { "name": "minecraft:item/trident/riptide3", "pitch": 1.5, "volume": 0.3, "attenuation_distance": 40 }
+    ]
+  }
+}

@@ -14,9 +14,10 @@ import java.util.function.Supplier;
 
 /**
  * AF9's covers, registered the way GT registers its own (see {@code GTCovers}): the definition goes straight into
- * {@link GTRegistries#COVERS}. The cover item ({@code AF9Items}) keeps this class loaded; {@link #init} only exists
- * so common setup states the dependency out loud. The renderer reuses GT's activity detector texture, so the cover
- * needs no art of its own.
+ * {@link GTRegistries#COVERS}. GregTech freezes that registry at the end of its cover pass, so this class has to be
+ * loaded from {@code AF9Addon#registerCovers}, which GT calls inside that pass; the cover item
+ * ({@code AF9Items}) then only reads the already-registered definition. The renderer reuses GT's activity detector
+ * texture, so the cover needs no art of its own.
  */
 public final class StagedCovers {
 
@@ -36,6 +37,6 @@ public final class StagedCovers {
         return definition;
     }
 
-    /** Common setup; also triggers the class load when nothing referenced the item yet. */
+    /** Loads this class (and so registers the cover) from GregTech's cover pass. */
     public static void init() {}
 }

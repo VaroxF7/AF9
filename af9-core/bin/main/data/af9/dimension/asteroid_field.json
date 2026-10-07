@@ -1,0 +1,11 @@
+{
+  "type": "af9:asteroid_field",
+  "generator": {
+    "type": "minecraft:noise",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "af9:asteroid_field"
+    },
+    "settings": "ad_astra:orbit"
+  }
+}
