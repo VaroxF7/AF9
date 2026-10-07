@@ -216,6 +216,7 @@ item af9:spin_logic_chip
 item af9:spin_logic_euv_reticle
 item af9:spin_logic_reticle
 item af9:spin_logic_wafer
+item af9:staged_step_detector
 item af9:strange_matter_boule
 item af9:strange_matter_melt_charge
 item af9:strange_matter_seed_crystal

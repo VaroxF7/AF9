@@ -142,6 +142,8 @@ dependencies {
     modCompileOnly("top.theillusivec4.curios:curios-forge:${curios_version}:api")
     // the orbital station's magnetic field (optional at runtime)
     modCompileOnly("earth.terrarium.adastra:ad_astra-forge-${minecraft_version}:${ad_astra_version}") { transitive = false }
+    // org.jetbrains.annotations on the staged recipe API: GT depends on them but its jar is transitive = false
+    compileOnly 'org.jetbrains:annotations:24.1.0'
 
     // dev runs only: the mods AF9 Core needs at runtime that are not on a maven above, taken from a pack instance
     if (project.hasProperty('af9Instance')) {

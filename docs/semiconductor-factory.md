@@ -1380,6 +1380,15 @@ No glass passes 13.5 nm light, so every optic of an EUV tool is a mirror: `af9:m
 
 A **screwdriver on the controller** of a Line or Scanner (not while a print runs) switches multi-patterning: the machine then prints the mode **one version above its own** (a V2 line the 100 nm mode, a V1 scanner 65 nm), exposing every layer twice: **2× the run time, 1.5× the break chance, 2× the OPC demand** (`LithoMode.MULTI_PATTERNING_*`, `LithoMachine.isMultiPatterned`, `LITHO_VERSION`). The consoles show **MP x2** in their tuning line, Jade a "Multi-patterned" line. The Orbital Station has no versions and no multi-patterning.
 
+# 19. Staged Assembly
+
+The **Staged Assembly** (`gtceu:staged_assembly`, LV recipes and up, crafted at LV) builds its recipes in **stages**: one authored recipe carries every stage's inputs, and the machine runs the stages one after the other. A stage only starts with **exactly its inputs** in the hatches (programmed circuits aside) — pre-loading later stages blocks the craft with "Staged inputs are not the only inputs in the machine." The console shows the stage ("Step 2/4"), what the waiting stage takes, the final product and the finished crafts; the cancel button aborts the running craft (consumed inputs are lost). Jade renders the same lines; EMI shows one column of inputs per stage with the totals. The **staged step detector** cover (`af9:staged_step_detector`) emits the running stage as redstone (step 1 is 1, 0 while idle).
+
+- Machine: 3 × 3 × 4 of solid steel with a glass band, controller front-bottom-centre; parts optional with a maximum (2 energy, 2+2 item buses, 2 fluid hatches, 1 maintenance); modifiers `OC_PERFECT`.
+- Recipes (`staged_assembly.js`): the `staged()` helper appends every layer's inputs in order and records the layer map in the recipe's data (`af9_staged`: layers with durations and content indices, plus globals that go into every stage, e.g. energy-side fluids). Limits the EMI page fits: 1-7 layers, at most 5 item + fluid inputs per layer. Only `gtceu:staged_assembly` recipes may carry the tag; the machine ignores anything else.
+- Java: `staged/StagedRecipeData` (the tag shape), `staged/StagedRecipes` (root → per-step recipes, cached per recipe object), `staged/StagedRecipeLogic` (only staged recipes match, step chaining, exact-inputs rule, root id + stage index persist), `machine/StagedAssemblyMachine` (console, Jade lines, final product, recipe info), `staged/StagedStepDetectorCover` + `staged/StagedCovers`, `compat/xei/StagedRecipeUI` (the per-stage columns, installed in common setup).
+- Demo content (proves the mechanics, both LV/MV): `af9:staged_demo_arm` (LV robot arm in 3 item-only stages) and `af9:staged_demo_conveyor` (MV conveyor module in 2 stages over a frame + lubricant that run through both).
+
 # Appendix A. File map
 
 ```text
@@ -1425,7 +1434,12 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → 
   machine/fab/FabMultiblockMachine     # SMC multiblocks: built-in clean room from filter casings, PTFE-pipe parallels, counters, console
   machine/fab/FabTieredMachine         # SMC single blocks: GT slot page + console strip, furnace temperature per tier
   machine/fab/FabConsoleWidget         # the fab console (full for multiblocks, strip for single blocks)
-af9-core/src/main/java/com/af9/core/registry/AF9Items.java  # every plain item, af9:<id>: new blank substrates, coated, broken + contaminated wafers, AF9's chips, the reticles, charges, seeds, crucibles, new boules, the drones
+  staged/StagedRecipeData, StagedRecipes # §19: the af9_staged tag shape; root recipe -> per-step recipes (cached)
+  staged/StagedRecipeLogic             # §19: only staged recipes match, step chaining, exact-inputs rule, persisted root + stage
+  machine/StagedAssemblyMachine        # §19: the Staged Assembly (console stage lines, final product, cancel, recipe info)
+  staged/StagedStepDetectorCover, StagedCovers # §19: the step detector cover (redstone = stage) and its registration
+  compat/xei/StagedRecipeUI            # §19: the staged recipes' EMI page (one column of inputs per stage)
+af9-core/src/main/java/com/af9/core/registry/AF9Items.java  # every plain item, af9:<id>: new blank substrates, coated, broken + contaminated wafers, AF9's chips, the reticles, charges, seeds, crucibles, new boules, the drones, the staged step detector
 af9-core/src/main/java/com/af9/core/registry/AF9Blocks.java # every plain block: the light sources, the plascrete casings, the Endion coils, the Space Elevator's blocks
 af9-core/src/main/java/com/af9/core/registry/AF9Remaps.java # worlds from before October 2026: kubejs:<id> is taken for af9:<id>
 af9-core/src/main/java/com/af9/core/registry/AF9Materials.java # every material (gtceu:<name>), a method a topic: the litho, XCDA and resist chemistry, the 72 of the fab chemistry, tier alloys and zircon, endion, the dense and supercooled fluids, strange matter and chromodynium
@@ -1438,10 +1452,12 @@ kubejs/startup_scripts/gtceu/photolithography.js   # 9 recipe types, both litho 
 kubejs/startup_scripts/gtceu/boule_melting.js      # recipe type boule_melting
 kubejs/startup_scripts/gtceu/cryogenics.js         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches HV-UHV
 kubejs/startup_scripts/gtceu/particle_accelerator.js # 3 recipe types, the Particle Accelerator ring
+kubejs/startup_scripts/gtceu/staged_assembly.js # §19: the staged_assembly recipe type + the Staged Assembly structure
 kubejs/server_scripts/mods/gtceu/photolithography.js # AF9_WAFERS table + wafer tags, machine/light-source crafting, XCDA/i-line/EUV chemistry, prints, derived wafers, cutting, reclaim/clean, removals
 kubejs/server_scripts/mods/gtceu/boule_melting.js  # Ender Air → endion, endionite, coils, crucibles, charges/seeds/boules, new boule cutting, GT boule removals
 kubejs/server_scripts/mods/gtceu/cryogenics.js     # cryostat + coolant hatch crafting, dense cooling + supercooling
 kubejs/server_scripts/mods/gtceu/particle_accelerator.js # accelerator + consumables crafting, neutron irradiation, ion collision, quark synthesis
+kubejs/server_scripts/mods/gtceu/staged_assembly.js # §19: the staged() authoring helper, the two demo recipes
 kubejs/server_scripts/mods/gtceu/electronics_metallurgy.js # zircon chain, zircon sands ore vein
 kubejs/server_scripts/mods/gtceu/fab_chemistry.js  # lines 1-5 (§6.12-6.16): Moon Sand polysilicon + Lunar Air + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
 kubejs/startup_scripts/gtceu/fab_machines.js       # §11: 12 fab recipe types (slot layouts), 4 SMC single-block families (MV-LuV), 4 SMC multiblocks (structures, modifiers)

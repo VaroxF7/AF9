@@ -1,6 +1,10 @@
 package com.af9.core.registry;
 
 import com.af9.core.AF9Core;
+import com.af9.core.staged.StagedCovers;
+
+import com.gregtechceu.gtceu.api.item.ComponentItem;
+import com.gregtechceu.gtceu.common.item.CoverPlaceBehavior;
 
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -139,6 +143,13 @@ public final class AF9Items {
 
         // ---- Space Elevator ----
         for (int tier = 1; tier <= DRONES; tier++) item(DRONE + tier, 1, 3);
+
+        // ---- Staged Assembly: the step detector cover (a ComponentItem, so it can place the cover) ----
+        ITEMS.register("staged_step_detector", () -> {
+            ComponentItem item = ComponentItem.create(new Item.Properties().stacksTo(64));
+            item.attachComponents(new CoverPlaceBehavior(StagedCovers.STAGED_STEP_DETECTOR));
+            return item;
+        });
 
         // ---- Wafers ----
         for (String wafer : NEW_WAFERS) item(wafer + "_wafer", 64, 0);

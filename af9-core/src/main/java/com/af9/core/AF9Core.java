@@ -3,12 +3,14 @@ package com.af9.core;
 import com.af9.core.blast.BouleMelting;
 import com.af9.core.client.AF9Client;
 import com.af9.core.common.AF9Sounds;
+import com.af9.core.compat.xei.StagedRecipeUI;
 import com.af9.core.compat.adastra.AdAstraCompat;
 import com.af9.core.compat.extremereactors.ExtremeReactorsCompat;
 import com.af9.core.elevator.SpaceElevatorMachine;
 import com.af9.core.fab.FabRecipeInfo;
 import com.af9.core.machine.ParticleAcceleratorMachine;
 import com.af9.core.machine.PhotolithographyLineMachine;
+import com.af9.core.machine.StagedAssemblyMachine;
 import com.af9.core.machine.VoidMinerMachine;
 import com.af9.core.network.AF9Network;
 import com.af9.core.pattern.AF9Filters;
@@ -17,6 +19,7 @@ import com.af9.core.registry.AF9Items;
 import com.af9.core.registry.AF9Materials;
 import com.af9.core.registry.AF9Tabs;
 import com.af9.core.space.AF9Space;
+import com.af9.core.staged.StagedCovers;
 
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 
@@ -77,6 +80,10 @@ public class AF9Core {
         // Void Miner, rebuilt: GT's controller block and structure stay, AF9 takes over the definition
         event.enqueueWork(VoidMinerMachine::install);
         event.enqueueWork(VoidMinerMachine::registerRecipeInfo);
+        // Staged Assembly: the step detector cover, the staged recipe pages and their JEI / EMI look
+        event.enqueueWork(StagedCovers::init);
+        event.enqueueWork(StagedAssemblyMachine::registerRecipeInfo);
+        event.enqueueWork(StagedRecipeUI::install);
         // the blocks exist now; structures are only checked later
         event.enqueueWork(AF9Filters::register);
         // the orbital station's magnetic field sets gravity through Ad Astra
