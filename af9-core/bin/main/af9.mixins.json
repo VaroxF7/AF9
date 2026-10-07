@@ -1,0 +1,14 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "com.af9.core.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "af9.refmap.json",
+  "client": [
+    "client.LevelRendererCloudsMixin"
+  ],
+  "mixins": [],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
