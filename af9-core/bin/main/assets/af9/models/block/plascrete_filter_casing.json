@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "af9:block/plascrete_filter_casing"
+  }
+}
