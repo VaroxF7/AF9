@@ -412,7 +412,8 @@ const SHAPES = ['dust', 'small_dust', 'tiny_dust', 'ingot', 'hot_ingot', 'plate'
 function materialOfItem(name) {
     // <mat>_<shape>, <prefix>_<mat>_<shape>, small_/tiny_ prefixes, fine_<mat>_wire
     let n = name
-    for (const p of ['small_', 'tiny_', 'fine_', 'long_', 'dense_', 'double_', 'hot_', 'raw_', 'crushed_', 'purified_', 'impure_', 'pure_',
+    for (const p of ['small_', 'tiny_', 'fine_', 'long_', 'dense_', 'ultradense_', 'double_', 'hot_', 'raw_',
+        'crushed_', 'purified_', 'impure_', 'pure_',
         'refined_', 'flawed_', 'flawless_', 'exquisite_', 'chipped_']) {
         if (n.startsWith(p)) { n = n.slice(p.length); break }
     }
