@@ -1,0 +1,3113 @@
+From dc4d5b689dbd4721c6ab40ee9a3758882b363194 Mon Sep 17 00:00:00 2001
+From: Janne <149310259+VaroxF7@users.noreply.github.com>
+Date: Wed, 7 Oct 2026 16:55:52 +0200
+Subject: [PATCH 1/2] Layered (staged) recipe support
+
+Backport of staged/layered crafting onto 7.2.0: a recipe type
+flag (.setLayered()), per-stage recipe splitting at build time
+(.layeredRecipe() in Java and KubeJS), step-by-step execution
+(LayeredRecipeLogic), a per-stage JEI/EMI page, controller text,
+Jade info and a step detector cover. Unrelated Star Technology
+changes (parallel types, failure reasons, chance defaults) were
+deliberately left out; only additive, layered-only hunks were taken.
+---
+ .../resources/assets/gtceu/lang/en_us.json    |   13 +
+ .../gtceu/api/codec/GTCodecUtils.java         |   19 +
+ .../multiblock/IMaintenanceMachine.java       |   15 +
+ ...eredWorkableElectricMultiblockMachine.java |   94 ++
+ .../multiblock/MultiblockDisplayText.java     |  130 +++
+ ...eredWorkableElectricMultiblockMachine.java |   69 ++
+ .../gtceu/api/recipe/GTRecipeType.java        |   34 +
+ .../gtceu/api/recipe/LayeredRecipeHelper.java |  268 +++++
+ .../api/recipe/modifier/ModifierFunction.java |    7 +
+ .../api/recipe/ui/LayeredRecipeUIHelper.java  |  285 +++++
+ .../detector/LayeredStepDetectorCover.java    |   40 +
+ .../gtceu/common/data/GTCovers.java           |    2 +
+ .../gtceu/common/data/GTItems.java            |    5 +
+ .../machine/trait/LayeredRecipeLogic.java     |  287 +++++
+ .../gtceu/data/lang/IntegrationLang.java      |    2 +
+ .../gtceu/data/lang/LangHandler.java          |   17 +
+ .../data/recipe/builder/GTRecipeBuilder.java  |   27 +-
+ .../recipe/builder/LayeredRecipeInfo.java     | 1015 +++++++++++++++++
+ .../gtceu/integration/jade/GTJadePlugin.java  |    2 +
+ .../jade/provider/LayeredRecipeProvider.java  |  122 ++
+ .../jade/provider/RecipeOutputProvider.java   |   46 +-
+ .../kjs/builders/GTRecipeTypeBuilder.java     |    7 +
+ .../kjs/recipe/GTRecipeSchema.java            |   18 +-
+ .../block/cover/layered_step_detector.png     |  Bin 0 -> 324 bytes
+ .../cover/layered_step_detector_emissive.png  |  Bin 0 -> 312 bytes
+ .../layered_step_detector_emissive.png.mcmeta |    5 +
+ .../item/layered_step_detector_cover.png      |  Bin 0 -> 354 bytes
+ 27 files changed, 2505 insertions(+), 24 deletions(-)
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/LayeredWorkableElectricMultiblockMachine.java
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/TieredLayeredWorkableElectricMultiblockMachine.java
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/api/recipe/LayeredRecipeHelper.java
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/api/recipe/ui/LayeredRecipeUIHelper.java
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/common/cover/detector/LayeredStepDetectorCover.java
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/common/machine/trait/LayeredRecipeLogic.java
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/data/recipe/builder/LayeredRecipeInfo.java
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/integration/jade/provider/LayeredRecipeProvider.java
+ create mode 100644 src/main/resources/assets/gtceu/textures/block/cover/layered_step_detector.png
+ create mode 100644 src/main/resources/assets/gtceu/textures/block/cover/layered_step_detector_emissive.png
+ create mode 100644 src/main/resources/assets/gtceu/textures/block/cover/layered_step_detector_emissive.png.mcmeta
+ create mode 100644 src/main/resources/assets/gtceu/textures/item/layered_step_detector_cover.png
+
+diff --git a/src/generated/resources/assets/gtceu/lang/en_us.json b/src/generated/resources/assets/gtceu/lang/en_us.json
+index ebf4a0b..e396bff 100644
+--- a/src/generated/resources/assets/gtceu/lang/en_us.json
++++ b/src/generated/resources/assets/gtceu/lang/en_us.json
+@@ -1911,6 +1911,7 @@
+   "config.jade.plugin_gtceu.energy_converter_provider": "[GTCEu] Energy Converter Mode",
+   "config.jade.plugin_gtceu.exhaust_vent_info": "[GTCEu] Exhaust Vent Info",
+   "config.jade.plugin_gtceu.hazard_cleaner_provider": "[GTCEu] Hazard Cleaner",
++  "config.jade.plugin_gtceu.layered_recipe_info": "[GTCEu] Layered Recipe Info",
+   "config.jade.plugin_gtceu.machine_mode": "[GTCEu] Machine Mode",
+   "config.jade.plugin_gtceu.maintenance_info": "[GTCEu] Maintenance Info",
+   "config.jade.plugin_gtceu.me_pattern_buffer": "[GTCEu] Pattern Buffer Info",
+@@ -3339,6 +3340,12 @@
+   "gtceu.multiblock.large_miner.vent": "Venting Blocked!",
+   "gtceu.multiblock.large_miner.working": "Working...",
+   "gtceu.multiblock.large_turbine.description": "Large Turbines are multiblocks that generate power from steam, gases, and plasma by having them spin the turbine's rotor. Energy output is based on rotor efficiency and current speed of turbine. Gearbox casings are used in the center of the structure.",
++  "gtceu.multiblock.layered.cancel": "Cancel",
++  "gtceu.multiblock.layered.final_step_outputs": "Final Step Outputs:",
++  "gtceu.multiblock.layered.next_step_inputs": "Next Step Inputs:",
++  "gtceu.multiblock.layered.progress": "Total Progress: %ss / %ss (%s%%)",
++  "gtceu.multiblock.layered.recipe_contents_line": "%s x §e%s§r",
++  "gtceu.multiblock.layered.step": "Current Step: %s/%s",
+   "gtceu.multiblock.luv_fusion_reactor.description": "The Fusion Reactor MK 1 is a large multiblock structure used for fusing elements into heavier ones. It can only use LuV, ZPM, and UV Energy Hatches. For every Hatch it has, its buffer increases by 10M EU, and has a maximum of 160M.",
+   "gtceu.multiblock.max_energy_per_tick": "Max EU/t: §a%s (%s§r)",
+   "gtceu.multiblock.max_energy_per_tick_amps": "Max EU/t: %s (%sA %s)",
+@@ -3694,6 +3701,8 @@
+   "gtceu.recipe.eu_inverted": "Generation: %s A @ %s",
+   "gtceu.recipe.eu_to_start": "EU To Start: %sEU%s",
+   "gtceu.recipe.explosive": "Explosive: %s",
++  "gtceu.recipe.layered.step": "Step %s",
++  "gtceu.recipe.layered.timeout": "Timeout: %ss",
+   "gtceu.recipe.max_eu": "Max. EU: %s EU",
+   "gtceu.recipe.not_consumed": "Does not get consumed in the process",
+   "gtceu.recipe.research": "Requires Research",
+@@ -3707,6 +3716,7 @@
+   "gtceu.recipe_logic.insufficient_fuel": "Insufficient Fuel",
+   "gtceu.recipe_logic.insufficient_in": "Insufficient Inputs",
+   "gtceu.recipe_logic.insufficient_out": "Insufficient Outputs",
++  "gtceu.recipe_logic.layered_inputs": "Layer inputs aren't the only inputs in the machine.",
+   "gtceu.recipe_logic.no_capabilities": "Machine has no Capabilities",
+   "gtceu.recipe_logic.no_contents": "Recipe has no Contents",
+   "gtceu.recipe_memory_widget.tooltip.0": "§7Left click to automatically input this recipe into the crafting grid",
+@@ -3834,6 +3844,8 @@
+   "gtceu.top.invalid_structure": "Structure Incomplete",
+   "gtceu.top.item_auto_output": "Item Output: %s",
+   "gtceu.top.link_cover.color": "Color:",
++  "gtceu.top.layered_recipe.final": "Final Step Outputs:",
++  "gtceu.top.layered_recipe.step": "Recipe Step %s of %s",
+   "gtceu.top.machine_mode": "Machine Mode: ",
+   "gtceu.top.maintenance.crowbar": "That doesn't belong there",
+   "gtceu.top.maintenance.hard_hammer": "Plating is dented",
+@@ -4295,6 +4307,7 @@
+   "item.gtceu.lapotronic_energy_orb_cluster.tooltip": "§7Reusable Battery",
+   "item.gtceu.large_pipe_casting_mold": "Casting Mold (Large Pipe)",
+   "item.gtceu.large_pipe_extruder_mold": "Extruder Mold (Large Pipe)",
++  "item.gtceu.layered_step_detector_cover": "Layered Step Detector",
+   "item.gtceu.light_blue_dye_spray_can": "Spray Can (Light Blue)",
+   "item.gtceu.light_blue_glass_lens": "Glass Lens (Light Blue)",
+   "item.gtceu.light_gray_dye_spray_can": "Spray Can (Light Gray)",
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/codec/GTCodecUtils.java b/src/main/java/com/gregtechceu/gtceu/api/codec/GTCodecUtils.java
+index a3ae378..33f8ae1 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/codec/GTCodecUtils.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/codec/GTCodecUtils.java
+@@ -5,11 +5,30 @@ import net.minecraft.util.ExtraCodecs;
+ import com.mojang.datafixers.util.Either;
+ import com.mojang.serialization.Codec;
+ import com.mojang.serialization.DataResult;
++import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
++import it.unimi.dsi.fastutil.ints.Int2IntMap;
++import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
++import it.unimi.dsi.fastutil.ints.IntIntPair;
+ 
++import java.util.List;
+ import java.util.function.Function;
++import java.util.stream.Collectors;
+ 
+ public class GTCodecUtils {
+ 
++    public static final Codec<IntIntPair> INT_INT_PAIR_CODEC = Codec.INT.listOf().comapFlatMap(
++            integers -> integers.size() == 2 ?
++                    DataResult.success(new IntIntImmutablePair(integers.get(0), integers.get(1))) :
++                    DataResult.error(() -> "Invalid pair size."),
++            pair -> List.of(pair.keyInt(), pair.valueInt()));
++
++    public static final Codec<Int2IntMap> INT2INT_MAP_CODEC = INT_INT_PAIR_CODEC.listOf().xmap(
++            pairs -> new Int2IntArrayMap(
++                    pairs.stream().collect(Collectors.toUnmodifiableMap(IntIntPair::keyInt, IntIntPair::valueInt))),
++            map -> map.int2IntEntrySet().stream()
++                    .map(entry -> new IntIntImmutablePair(entry.getIntKey(), entry.getIntValue()))
++                    .collect(Collectors.toUnmodifiableList()));
++
+     public static final Codec<Long> NON_NEGATIVE_LONG = longRangeWithMessage(0, Long.MAX_VALUE,
+             (val) -> "Value must be non-negative: " + val);
+     public static final Codec<Long> POSITIVE_LONG = longRangeWithMessage(1, Long.MAX_VALUE,
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/feature/multiblock/IMaintenanceMachine.java b/src/main/java/com/gregtechceu/gtceu/api/machine/feature/multiblock/IMaintenanceMachine.java
+index c97053b..f14ba76 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/feature/multiblock/IMaintenanceMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/feature/multiblock/IMaintenanceMachine.java
+@@ -6,6 +6,7 @@ import com.gregtechceu.gtceu.api.gui.fancy.IFancyTooltip;
+ import com.gregtechceu.gtceu.api.gui.fancy.TooltipsPanel;
+ import com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties;
+ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
++import com.gregtechceu.gtceu.api.recipe.LayeredRecipeHelper;
+ import com.gregtechceu.gtceu.config.ConfigHolder;
+ 
+ import net.minecraft.ChatFormatting;
+@@ -14,6 +15,7 @@ import net.minecraft.network.chat.Style;
+ import net.minecraft.world.level.block.state.properties.BooleanProperty;
+ 
+ import java.util.ArrayList;
++import java.util.List;
+ 
+ public interface IMaintenanceMachine extends IMultiPart {
+ 
+@@ -143,6 +145,19 @@ public interface IMaintenanceMachine extends IMultiPart {
+             if (durationMultiplier != 1) {
+                 recipe = recipe.copy();
+                 recipe.duration = (int) (recipe.duration * durationMultiplier);
++                if (LayeredRecipeHelper.hasLayeredSteps(recipe)) {
++                    var steps = LayeredRecipeHelper.getLayeredSteps(recipe);
++                    if (steps != null) {
++                        recipe.data = recipe.data.copy();
++                        List<GTRecipe> modifiedSteps = new ArrayList<>(steps.size());
++                        for (var step : steps) {
++                            step = step.copy();
++                            step.duration = (int) (step.duration * durationMultiplier);
++                            modifiedSteps.add(step);
++                        }
++                        LayeredRecipeHelper.setLayeredSteps(recipe, modifiedSteps);
++                    }
++                }
+             }
+         }
+         return recipe;
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/LayeredWorkableElectricMultiblockMachine.java b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/LayeredWorkableElectricMultiblockMachine.java
+new file mode 100644
+index 0000000..30e4b0a
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/LayeredWorkableElectricMultiblockMachine.java
+@@ -0,0 +1,94 @@
++package com.gregtechceu.gtceu.api.machine.multiblock;
++
++import com.gregtechceu.gtceu.api.capability.IParallelHatch;
++import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
++import com.gregtechceu.gtceu.api.machine.feature.multiblock.IDisplayUIMachine;
++import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
++import com.gregtechceu.gtceu.common.machine.trait.LayeredRecipeLogic;
++
++import com.lowdragmc.lowdraglib.gui.util.ClickData;
++import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
++
++import net.minecraft.MethodsReturnNonnullByDefault;
++import net.minecraft.network.chat.Component;
++
++import java.util.List;
++
++import javax.annotation.ParametersAreNonnullByDefault;
++
++@ParametersAreNonnullByDefault
++@MethodsReturnNonnullByDefault
++public class LayeredWorkableElectricMultiblockMachine extends WorkableElectricMultiblockMachine
++                                                      implements IDisplayUIMachine {
++
++    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
++            LayeredWorkableElectricMultiblockMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
++
++    public LayeredWorkableElectricMultiblockMachine(IMachineBlockEntity holder, Object... args) {
++        super(holder, args);
++    }
++
++    @Override
++    public ManagedFieldHolder getFieldHolder() {
++        return MANAGED_FIELD_HOLDER;
++    }
++
++    @Override
++    public LayeredRecipeLogic getRecipeLogic() {
++        return (LayeredRecipeLogic) super.getRecipeLogic();
++    }
++
++    @Override
++    protected RecipeLogic createRecipeLogic(Object... args) {
++        return new LayeredRecipeLogic(this);
++    }
++
++    @Override
++    public void addDisplayText(List<Component> textList) {
++        var logic = getRecipeLogic();
++        int numParallels;
++        boolean exact = false;
++
++        var initialStep = logic.getFirstLayer();
++        if (recipeLogic.isActive() && recipeLogic.getLastRecipe() != null) {
++            numParallels = recipeLogic.getLastRecipe().parallels;
++            exact = true;
++        } else if (initialStep != null) {
++            numParallels = initialStep.parallels;
++            exact = true;
++        } else {
++            numParallels = getParallelHatch()
++                    .map(IParallelHatch::getCurrentParallel)
++                    .orElse(0);
++        }
++
++        MultiblockDisplayText.builder(textList, isFormed())
++                .setWorkingStatus(logic.isWorkingEnabled(), logic.isActive())
++                .addEnergyUsageLine(energyContainer)
++                .addEnergyTierLine(tier)
++                .addMachineModeLine(getRecipeType(), getRecipeTypes().length > 1)
++                .addParallelsLine(numParallels, exact)
++                .addWorkingStatusLine()
++                .addProgressLine(logic.getProgress(), logic.getMaxProgress(), logic.getProgressPercent())
++                .addLayeredSteps(logic)
++                .addLayeredTotalProgress(logic)
++                .addLayeredFinalStepOutputs(logic)
++                .addLayeredNextStepInputs(logic);
++
++        getDefinition().getAdditionalDisplay().accept(this, textList);
++
++        for (var part : this.getParts()) {
++            part.addMultiText(textList);
++        }
++    }
++
++    @Override
++    public void handleDisplayClick(String componentData, ClickData clickData) {
++        super.handleDisplayClick(componentData, clickData);
++        if (clickData.isRemote) return;
++
++        if (componentData.equals("layered_cancel")) {
++            getRecipeLogic().resetRecipeLogic();
++        }
++    }
++}
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText.java b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText.java
+index 62d3a57..91c0d1b 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText.java
+@@ -9,10 +9,13 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
+ import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
+ import com.gregtechceu.gtceu.api.recipe.ingredient.IntProviderFluidIngredient;
+ import com.gregtechceu.gtceu.api.recipe.ingredient.IntProviderIngredient;
++import com.gregtechceu.gtceu.common.machine.trait.LayeredRecipeLogic;
+ import com.gregtechceu.gtceu.config.ConfigHolder;
+ import com.gregtechceu.gtceu.utils.FormattingUtil;
+ import com.gregtechceu.gtceu.utils.GTUtil;
+ 
++import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
++
+ import net.minecraft.ChatFormatting;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.network.chat.HoverEvent;
+@@ -642,5 +645,132 @@ public class MultiblockDisplayText {
+                     FormattingUtil.formatNumbers(euOutput)).withStyle(ChatFormatting.GRAY));
+             return this;
+         }
++
++        public Builder addLayeredSteps(LayeredRecipeLogic logic) {
++            var layers = logic.getLayeredRecipeSize();
++            var step = logic.getLayeredRecipeLayerIndex();
++            if (!isStructureFormed || layers == 0)
++                return this;
++
++            textList.add(Component.literal(""));
++            textList.add(Component.translatable("gtceu.multiblock.layered.step", step + 1, layers));
++            return this;
++        }
++
++        public Builder addLayeredTotalProgress(LayeredRecipeLogic logic) {
++            var layers = logic.getLayeredRecipe();
++            if (!isStructureFormed || layers.isEmpty())
++                return this;
++
++            var step = logic.getLayeredRecipeLayerIndex();
++            var totalDuration = (int) layers.stream().map(l -> l.duration).reduce(0, Integer::sum);
++            var totalProgress = logic.getProgress() + layers.stream()
++                    .limit(step)
++                    .map(l -> l.duration).reduce(0, Integer::sum);
++
++            var progressPercent = totalDuration == 0 ? 0.0 : totalProgress / (totalDuration * 1.0);
++
++            var currentProgress = (int) (progressPercent * 100);
++            var currentInSec = totalProgress / 20.0;
++            var maxInSec = totalDuration / 20.0;
++
++            textList.add(Component.literal(""));
++            textList.add(Component.translatable("gtceu.multiblock.layered.progress",
++                    String.format("%.2f", (float) currentInSec),
++                    String.format("%.2f", (float) maxInSec), currentProgress));
++            return this;
++        }
++
++        public Builder addLayeredNextStepInputs(LayeredRecipeLogic logic) {
++            var recipe = logic.getNextLayeredRecipe();
++            if (!isStructureFormed || recipe == null)
++                return this;
++
++            textList.add(Component.literal(""));
++            textList.add(Component.translatable("gtceu.multiblock.layered.next_step_inputs")
++                    .append(ComponentPanelWidget.withButton(Component.literal(" [")
++                            .append(Component.translatable("gtceu.multiblock.layered.cancel"))
++                            .append(Component.literal("]")), "layered_cancel")));
++
++            var itemInputs = recipe.getInputContents(ItemRecipeCapability.CAP);
++            var fluidInputs = recipe.getInputContents(FluidRecipeCapability.CAP);
++
++            for (var item : itemInputs) {
++                ItemStack stack;
++                if (item.content instanceof IntProviderIngredient provider) {
++                    stack = provider.getMaxSizeStack();
++                } else {
++                    var stacks = ItemRecipeCapability.CAP.of(item.content).getItems();
++                    if (stacks.length == 0) continue;
++                    stack = stacks[0];
++                }
++                textList.add(Component.translatable("gtceu.multiblock.layered.recipe_contents_line",
++                        stack.getHoverName(), FormattingUtil.formatNumberReadable(stack.getCount())));
++            }
++
++            for (var fluid : fluidInputs) {
++                FluidStack stack;
++                if (fluid.content instanceof IntProviderFluidIngredient provider) {
++                    stack = provider.getMaxSizeStack();
++                } else {
++                    var stacks = FluidRecipeCapability.CAP.of(fluid.content).getStacks();
++                    if (stacks.length == 0) continue;
++                    stack = stacks[0];
++                }
++                textList.add(Component.translatable("gtceu.multiblock.layered.recipe_contents_line",
++                        stack.getDisplayName(), FormattingUtil.formatBuckets(stack.getAmount())));
++            }
++            return this;
++        }
++
++        public Builder addLayeredFinalStepOutputs(LayeredRecipeLogic logic) {
++            var recipe = logic.getLastLayer();
++            if (!isStructureFormed || recipe == null)
++                return this;
++
++            textList.add(Component.literal(""));
++            textList.add(Component.translatable("gtceu.multiblock.layered.final_step_outputs"));
++
++            var itemOutputs = recipe.getOutputContents(ItemRecipeCapability.CAP);
++            var fluidOutputs = recipe.getOutputContents(FluidRecipeCapability.CAP);
++
++            for (var item : itemOutputs) {
++                ItemStack stack;
++                Component displaycount;
++                if (item.content instanceof IntProviderIngredient provider) {
++                    stack = provider.getMaxSizeStack();
++                    displaycount = Component.translatable("gtceu.gui.content.range",
++                            provider.getCountProvider().getMinValue(),
++                            provider.getCountProvider().getMaxValue());
++                } else {
++                    var stacks = ItemRecipeCapability.CAP.of(item.content).getItems();
++                    if (stacks.length == 0) continue;
++                    stack = stacks[0];
++                    displaycount = Component.literal(String.valueOf(stack.getCount()));
++                }
++
++                textList.add(Component.translatable("gtceu.multiblock.layered.recipe_contents_line",
++                        stack.getHoverName(), displaycount));
++            }
++
++            for (var fluid : fluidOutputs) {
++                FluidStack stack;
++                Component displaycount;
++                if (fluid.content instanceof IntProviderFluidIngredient provider) {
++                    stack = provider.getMaxSizeStack();
++                    displaycount = Component.translatable("gtceu.gui.content.range",
++                            provider.getCountProvider().getMinValue(),
++                            provider.getCountProvider().getMaxValue());
++                } else {
++                    var stacks = FluidRecipeCapability.CAP.of(fluid.content).getStacks();
++                    if (stacks.length == 0) continue;
++                    stack = stacks[0];
++                    displaycount = Component.literal(String.valueOf(stack.getAmount()));
++                }
++                textList.add(Component.translatable("gtceu.multiblock.layered.recipe_contents_line",
++                        stack.getDisplayName(), displaycount));
++            }
++            return this;
++        }
+     }
+ }
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/TieredLayeredWorkableElectricMultiblockMachine.java b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/TieredLayeredWorkableElectricMultiblockMachine.java
+new file mode 100644
+index 0000000..c0cfb79
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/TieredLayeredWorkableElectricMultiblockMachine.java
+@@ -0,0 +1,69 @@
++package com.gregtechceu.gtceu.api.machine.multiblock;
++
++import com.gregtechceu.gtceu.api.GTValues;
++import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
++import com.gregtechceu.gtceu.api.machine.feature.IOverclockMachine;
++import com.gregtechceu.gtceu.api.machine.feature.ITieredMachine;
++
++import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
++import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
++
++import net.minecraft.MethodsReturnNonnullByDefault;
++
++import lombok.Getter;
++
++import javax.annotation.ParametersAreNonnullByDefault;
++
++@ParametersAreNonnullByDefault
++@MethodsReturnNonnullByDefault
++public class TieredLayeredWorkableElectricMultiblockMachine extends LayeredWorkableElectricMultiblockMachine
++                                                            implements ITieredMachine, IOverclockMachine {
++
++    protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
++            TieredLayeredWorkableElectricMultiblockMachine.class,
++            WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
++
++    private final int tier;
++
++    @Persisted
++    @Getter
++    protected int overclockTier;
++
++    public TieredLayeredWorkableElectricMultiblockMachine(IMachineBlockEntity holder, int tier, Object... args) {
++        super(holder, args);
++        this.tier = tier;
++    }
++
++    @Override
++    public ManagedFieldHolder getFieldHolder() {
++        return MANAGED_FIELD_HOLDER;
++    }
++
++    @Override
++    public int getMinOverclockTier() {
++        return 0;
++    }
++
++    @Override
++    public void setOverclockTier(int tier) {
++        if (!isRemote() && tier >= getMinOverclockTier() && tier <= getMaxOverclockTier()) {
++            this.overclockTier = tier;
++            this.recipeLogic.markLastRecipeDirty();
++        }
++    }
++
++    @Override
++    public long getOverclockVoltage() {
++        return Math.min(GTValues.V[getOverclockTier()], super.getOverclockVoltage());
++    }
++
++    @Override
++    public int getTier() {
++        return Math.min(tier, super.getTier());
++    }
++
++    @Override
++    public long getMaxVoltage() {
++        return Math.min(GTValues.V[tier], super.getMaxVoltage());
++    }
++}
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java b/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java
+index 8ed88d3..3cd41a0 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java
+@@ -7,6 +7,8 @@ import com.gregtechceu.gtceu.api.recipe.category.GTRecipeCategory;
+ import com.gregtechceu.gtceu.api.recipe.chance.boost.ChanceBoostFunction;
+ import com.gregtechceu.gtceu.api.recipe.lookup.GTRecipeLookup;
+ import com.gregtechceu.gtceu.api.recipe.ui.GTRecipeTypeUI;
++import com.gregtechceu.gtceu.api.recipe.ui.LayeredRecipeUIHelper;
++import com.gregtechceu.gtceu.api.registry.GTRegistries;
+ import com.gregtechceu.gtceu.api.sound.SoundEntry;
+ import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
+ import com.gregtechceu.gtceu.utils.FormattingUtil;
+@@ -78,6 +80,8 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
+     @Getter
+     private final GTRecipeCategory category;
+     @Getter
++    private GTRecipeCategory syntheticCategory;
++    @Getter
+     private final Map<GTRecipeCategory, Set<GTRecipe>> categoryMap = new Object2ObjectOpenHashMap<>();
+     @Getter
+     private final GTRecipeLookup lookup = new GTRecipeLookup(this);
+@@ -92,6 +96,8 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
+     private final List<ICustomRecipeLogic> customRecipeLogicRunners = new ArrayList<>();
+     @Getter
+     private int minRecipeConditions = 0;
++    @Getter
++    private boolean layered;
+ 
+     public GTRecipeType(ResourceLocation registryName, String group, RecipeType<?>... proxyRecipes) {
+         this.registryName = registryName;
+@@ -106,6 +112,30 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
+         this.proxyRecipes = map;
+     }
+ 
++    public GTRecipeType enableSyntheticCategory() {
++        if (syntheticCategory == null) {
++            syntheticCategory = new GTRecipeCategory(registryName.withSuffix("_synthetic").getPath(), this);
++            syntheticCategory.setXEIVisible(false);
++            GTRegistries.RECIPE_CATEGORIES.register(syntheticCategory.registryKey, syntheticCategory);
++        }
++
++        resetSyntheticCategories();
++        return this;
++    }
++
++    public void resetSyntheticCategories() {
++        // always add both categories to the categoryMap even if they don't have recipes
++        categoryMap.computeIfAbsent(category, (k) -> new ObjectLinkedOpenHashSet<>());
++        categoryMap.computeIfAbsent(syntheticCategory, (k) -> new ObjectLinkedOpenHashSet<>());
++    }
++
++    public GTRecipeType setLayered() {
++        enableSyntheticCategory();
++        recipeUI = LayeredRecipeUIHelper.createRecipeUI(this);
++        layered = true;
++        return this;
++    }
++
+     public GTRecipeType setMaxIOSize(int maxInputs, int maxOutputs, int maxFluidInputs, int maxFluidOutputs) {
+         return setMaxSize(IO.IN, ItemRecipeCapability.CAP, maxInputs)
+                 .setMaxSize(IO.IN, FluidRecipeCapability.CAP, maxFluidInputs)
+@@ -303,6 +333,10 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
+         for (ICustomRecipeLogic logic : customRecipeLogicRunners) {
+             logic.buildRepresentativeRecipes();
+         }
++
++        if (layered) {
++            LayeredRecipeHelper.buildRepresentativeRecipes(this);
++        }
+     }
+ 
+     public void addToMainCategory(GTRecipe recipe) {
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/recipe/LayeredRecipeHelper.java b/src/main/java/com/gregtechceu/gtceu/api/recipe/LayeredRecipeHelper.java
+new file mode 100644
+index 0000000..6642325
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/api/recipe/LayeredRecipeHelper.java
+@@ -0,0 +1,268 @@
++package com.gregtechceu.gtceu.api.recipe;
++
++import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
++import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
++import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
++import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
++import com.gregtechceu.gtceu.api.recipe.content.Content;
++import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
++import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
++import com.gregtechceu.gtceu.data.recipe.builder.LayeredRecipeInfo;
++
++import net.minecraft.nbt.CompoundTag;
++import net.minecraft.nbt.NbtOps;
++import net.minecraft.resources.ResourceLocation;
++import net.minecraft.world.item.crafting.Ingredient;
++
++import com.google.common.collect.Streams;
++import com.mojang.serialization.Codec;
++import com.mojang.serialization.MapCodec;
++import com.mojang.serialization.codecs.RecordCodecBuilder;
++import it.unimi.dsi.fastutil.ints.Int2IntMap;
++import org.jetbrains.annotations.Nullable;
++
++import java.util.*;
++import java.util.stream.Collectors;
++import java.util.stream.IntStream;
++import java.util.stream.Stream;
++
++public class LayeredRecipeHelper {
++
++    // root recipe keys
++    public static final String KEY_LAYERED_STEPS = "layered_steps"; // List<GTRecipe>
++    public static final String KEY_LAYERED_XEI = "layered_xei"; // GTRecipe
++    public static final String KEY_LAYERED_INFO = "layered_info"; // LayeredRecipeInfo
++
++    // single layer keys
++    public static final String KEY_IS_LAYER = "is_layer"; // boolean
++    public static final String KEY_LAYER_STEP = "layer_step"; // int
++    public static final String KEY_LAYER_TIMEOUT = "layer_timeout"; // int
++
++    public static boolean hasLayeredSteps(GTRecipe recipe) {
++        return recipe.data.contains(KEY_LAYERED_STEPS);
++    }
++
++    public static int getLayerTimeout(GTRecipe recipe) {
++        return recipe.data.getInt(KEY_LAYER_TIMEOUT);
++    }
++
++    public static @Nullable List<GTRecipe> getLayeredSteps(GTRecipe recipe) {
++        return getLayeredSteps(recipe.data);
++    }
++
++    public static @Nullable List<GTRecipe> getLayeredSteps(CompoundTag recipeData) {
++        var serialized = recipeData.get(KEY_LAYERED_STEPS);
++        if (serialized == null) return null;
++        return RECIPE_WITH_ID_CODEC.listOf().parse(NbtOps.INSTANCE, serialized).result().orElse(null);
++    }
++
++    public static void setLayeredSteps(GTRecipe recipe, List<GTRecipe> layers) {
++        var serialized = RECIPE_WITH_ID_CODEC.listOf().encodeStart(NbtOps.INSTANCE, layers).result().orElseThrow();
++        recipe.data.put(KEY_LAYERED_STEPS, serialized);
++    }
++
++    public static @Nullable GTRecipe getXeiLayeredRecipe(GTRecipe recipe) {
++        return getXeiLayeredRecipe(recipe.data);
++    }
++
++    public static @Nullable GTRecipe getXeiLayeredRecipe(CompoundTag recipeData) {
++        if (!recipeData.contains(KEY_LAYERED_XEI)) return null;
++        var serialized = recipeData.get(KEY_LAYERED_XEI);
++        return RECIPE_WITH_ID_CODEC.parse(NbtOps.INSTANCE, serialized).result().orElse(null);
++    }
++
++    public static @Nullable List<GTRecipe> calculateRecipeSteps(GTRecipe recipe) {
++        var layeredInfo = parseRecipeInfo(recipe);
++        if (layeredInfo == null) return null;
++        var base = createBaseRecipe(recipe, layeredInfo);
++        return IntStream.range(0, layeredInfo.layers().size())
++                .mapToObj((index) -> createStepRecipe(recipe, base, layeredInfo, index))
++                .toList();
++    }
++
++    public static void applyLayeredRecipeModifications(GTRecipeBuilder builder) {
++        if (!builder.data.contains(KEY_LAYERED_INFO)) return;
++
++        var layers = calculateRecipeSteps(builder.buildRawRecipe());
++        assert layers != null;
++
++        var serializedSteps = RECIPE_WITH_ID_CODEC.listOf().encodeStart(NbtOps.INSTANCE, layers).result().orElseThrow();
++
++        var xeiBuilder = GTRecipeBuilder.of(builder.id.withPrefix("/"), builder.recipeType)
++                .addData(KEY_LAYERED_STEPS, serializedSteps)
++                .EUt(layers.get(0).getInputEUt().getTotalEU())
++                .inputItems(layers.stream().flatMap(l -> getLayerData(ItemRecipeCapability.CAP, l.inputs))
++                        .toArray(Ingredient[]::new))
++                .output(ItemRecipeCapability.CAP, layers.stream()
++                        .flatMap(l -> getLayerData(ItemRecipeCapability.CAP, l.outputs))
++                        .toArray(Ingredient[]::new))
++                .inputFluids(layers.stream().flatMap(l -> getLayerData(FluidRecipeCapability.CAP, l.inputs))
++                        .toArray(FluidIngredient[]::new))
++                .outputFluids(layers.stream().flatMap(l -> getLayerData(FluidRecipeCapability.CAP, l.outputs))
++                        .toArray(FluidIngredient[]::new))
++                .perTick(true)
++                .inputItems(layers.stream().flatMap(l -> getLayerData(ItemRecipeCapability.CAP, l.tickInputs))
++                        .toArray(Ingredient[]::new))
++                .output(ItemRecipeCapability.CAP, layers.stream()
++                        .flatMap(l -> getLayerData(ItemRecipeCapability.CAP, l.tickOutputs))
++                        .toArray(Ingredient[]::new))
++                .inputFluids(layers.stream().flatMap(l -> getLayerData(FluidRecipeCapability.CAP, l.tickInputs))
++                        .toArray(FluidIngredient[]::new))
++                .outputFluids(
++                        layers.stream().flatMap(l -> getLayerData(FluidRecipeCapability.CAP, l.tickOutputs))
++                                .toArray(FluidIngredient[]::new))
++                .duration(layers.stream().reduce(0, (sum, layer) -> sum + layer.duration, Integer::sum));
++        for (var condition : layers.get(0).conditions) {
++            xeiBuilder.addCondition(condition);
++        }
++        var xei = xeiBuilder.buildRawRecipe();
++
++        var serializedXei = RECIPE_WITH_ID_CODEC.encodeStart(NbtOps.INSTANCE, xei).result().orElseThrow();
++
++        resetRecipeBuilderContents(builder, layers.get(0), layers.get(layers.size() - 1));
++        builder.category(builder.recipeType.getSyntheticCategory());
++        builder.data.remove("is_layer");
++        builder.data.put(KEY_LAYERED_STEPS, serializedSteps);
++        builder.data.put(KEY_LAYERED_XEI, serializedXei);
++    }
++
++    private static <T> Stream<T> getLayerData(RecipeCapability<T> cap, Map<RecipeCapability<?>, List<Content>> map) {
++        return map.getOrDefault(cap, Collections.emptyList()).stream().map(content -> cap.of(content.getContent()));
++    }
++
++    public static void buildRepresentativeRecipes(GTRecipeType recipeType) {
++        assert recipeType.isLayered();
++
++        var category = recipeType.getCategory();
++        for (var recipe : recipeType.getRecipesInCategory(recipeType.getSyntheticCategory())) {
++            var original = LayeredRecipeHelper.getXeiLayeredRecipe(recipe);
++            if (original == null) continue;
++            category.addRecipe(original);
++        }
++    }
++
++    private static void resetRecipeBuilderContents(GTRecipeBuilder builder, GTRecipe firstStep, GTRecipe lastStep) {
++        builder.input.clear();
++        firstStep.inputs.forEach((k, v) -> builder.input.put(k, new ArrayList<>(v)));
++        builder.output.clear();
++        lastStep.outputs.forEach((k, v) -> builder.output.put(k, new ArrayList<>(v)));
++        builder.tickInput.clear();
++        firstStep.tickInputs.forEach((k, v) -> builder.tickInput.put(k, new ArrayList<>(v)));
++        builder.tickOutput.clear();
++        firstStep.tickOutputs.forEach((k, v) -> builder.tickOutput.put(k, new ArrayList<>(v)));
++        builder.inputChanceLogic.clear();
++        builder.inputChanceLogic.putAll(firstStep.inputChanceLogics);
++        builder.outputChanceLogic.clear();
++        builder.outputChanceLogic.putAll(lastStep.outputChanceLogics);
++        builder.tickInputChanceLogic.clear();
++        builder.tickInputChanceLogic.putAll(firstStep.tickInputChanceLogics);
++        builder.tickOutputChanceLogic.clear();
++        builder.tickOutputChanceLogic.putAll(firstStep.tickOutputChanceLogics);
++        builder.conditions.clear();
++        builder.conditions.addAll(firstStep.conditions);
++        builder.data = firstStep.data.copy();
++        builder.duration = firstStep.duration;
++        builder.recipeCategory = firstStep.recipeCategory;
++        builder.perTick = false;
++        builder.chance = ChanceLogic.getMaxChancedValue();
++        builder.maxChance = ChanceLogic.getMaxChancedValue();
++        builder.tierChanceBoost = 0;
++        builder.addMaterialInfo(false, false);
++        builder.onSave = null;
++        builder.researchRecipeEntries().clear();
++        builder.setTempItemStacks(new ArrayList<>());
++        builder.setTempItemMaterialStacks(new ArrayList<>());
++        builder.setTempFluidMaterialStacks(new ArrayList<>());
++    }
++
++    private static Map<RecipeCapability<?>, List<Content>> copyLayeredInputs(Map<RecipeCapability<?>, List<Content>> inputMap,
++                                                                             Map<RecipeCapability<?>, Int2IntMap> layeredInputMap,
++                                                                             int recipeStep) {
++        var dest = new IdentityHashMap<RecipeCapability<?>, List<Content>>();
++        for (var entry : inputMap.entrySet()) {
++            var capability = entry.getKey();
++            var contents = entry.getValue();
++            var layerInput = layeredInputMap.get(capability);
++            if (layerInput == null) {
++                if (recipeStep == -1) {
++                    dest.put(capability, contents);
++                }
++                continue;
++            }
++            dest.put(capability, IntStream.range(0, contents.size()).boxed()
++                    .flatMap(index -> layerInput.getOrDefault((int) index, -1) == recipeStep ?
++                            Stream.of(contents.get(index)) : Stream.of())
++                    .collect(Collectors.toList()));
++        }
++        return dest;
++    }
++
++    private static GTRecipe createStepRecipe(GTRecipe fullRecipe, GTRecipe baseRecipe, LayeredRecipeInfo layeredInfo,
++                                             int recipeStep) {
++        var copy = baseRecipe.copy();
++        copy.setId(copy.id.withSuffix("/step" + (recipeStep + 1)));
++        for (var entry : copyLayeredInputs(fullRecipe.inputs, layeredInfo.input(), recipeStep).entrySet()) {
++            copy.inputs.merge(entry.getKey(), entry.getValue(),
++                    (contents1, contents2) -> Streams.concat(contents1.stream(), contents2.stream()).toList());
++        }
++        for (var entry : copyLayeredInputs(fullRecipe.tickInputs, layeredInfo.tickInput(), recipeStep).entrySet()) {
++            copy.tickInputs.merge(entry.getKey(), entry.getValue(),
++                    (contents1, contents2) -> Streams.concat(contents1.stream(), contents2.stream()).toList());
++        }
++        if (recipeStep == layeredInfo.layers().size() - 1) {
++            copy.outputs.putAll(fullRecipe.outputs);
++        }
++        var layer = layeredInfo.layers().get(recipeStep);
++        if (layer.duration() > 0) copy.duration = layer.duration();
++
++        copy.data = copy.data.copy();
++        copy.data.putInt(KEY_LAYER_STEP, recipeStep);
++        copy.data.putInt(KEY_LAYER_TIMEOUT, layer.timeout());
++        return copy;
++    }
++
++    private static GTRecipe createBaseRecipe(GTRecipe fullRecipe, LayeredRecipeInfo layeredInfo) {
++        var copiedData = fullRecipe.data.copy();
++        copiedData.remove(KEY_LAYERED_INFO);
++        copiedData.putBoolean(KEY_IS_LAYER, true);
++
++        return new GTRecipe(
++                fullRecipe.recipeType, fullRecipe.id,
++                copyLayeredInputs(fullRecipe.inputs, layeredInfo.input(), -1),
++                new IdentityHashMap<>(),
++                copyLayeredInputs(fullRecipe.tickInputs, layeredInfo.tickInput(), -1),
++                new IdentityHashMap<>(),
++                fullRecipe.inputChanceLogics,
++                new IdentityHashMap<>(),
++                fullRecipe.tickInputChanceLogics,
++                new IdentityHashMap<>(),
++                fullRecipe.conditions,
++                fullRecipe.ingredientActions,
++                copiedData,
++                fullRecipe.duration,
++                fullRecipe.recipeCategory);
++    }
++
++    public static @Nullable LayeredRecipeInfo parseRecipeInfo(CompoundTag data) {
++        var layeredInfoTag = data.get(KEY_LAYERED_INFO);
++        return LayeredRecipeInfo.CODEC.parse(NbtOps.INSTANCE, layeredInfoTag).result().orElse(null);
++    }
++
++    public static @Nullable LayeredRecipeInfo parseRecipeInfo(GTRecipe recipe) {
++        return parseRecipeInfo(recipe.data);
++    }
++
++    public static final Codec<GTRecipe> RECIPE_WITH_ID_CODEC = RecordCodecBuilder.create(instance -> instance.group(
++            ResourceLocation.CODEC.fieldOf("id").forGetter(recipe -> recipe.id),
++            Codec.INT.fieldOf("parallels").forGetter(recipe -> recipe.parallels),
++            Codec.INT.fieldOf("batchParallels").forGetter(recipe -> recipe.batchParallels),
++            Codec.INT.fieldOf("ocLevel").forGetter(recipe -> recipe.ocLevel),
++            ((MapCodec.MapCodecCodec<GTRecipe>) GTRecipeSerializer.CODEC).codec().forGetter(recipe -> recipe))
++            .apply(instance, (id, parallels, batchParallels, ocLevel, recipe) -> {
++                recipe.parallels = parallels;
++                recipe.batchParallels = batchParallels;
++                recipe.ocLevel = ocLevel;
++                recipe.setId(id);
++                return recipe;
++            }));
++}
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/recipe/modifier/ModifierFunction.java b/src/main/java/com/gregtechceu/gtceu/api/recipe/modifier/ModifierFunction.java
+index 7400f87..7cd914a 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/recipe/modifier/ModifierFunction.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/recipe/modifier/ModifierFunction.java
+@@ -3,6 +3,7 @@ package com.gregtechceu.gtceu.api.recipe.modifier;
+ import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability;
+ import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
+ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
++import com.gregtechceu.gtceu.api.recipe.LayeredRecipeHelper;
+ import com.gregtechceu.gtceu.api.recipe.RecipeCondition;
+ import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
+ import com.gregtechceu.gtceu.api.recipe.content.Content;
+@@ -20,6 +21,7 @@ import java.util.Arrays;
+ import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
++import java.util.Optional;
+ 
+ /**
+  * Represents a function that accepts a GTRecipe and returns a modified version of the GTRecipe, or null.
+@@ -172,6 +174,11 @@ public interface ModifierFunction {
+                     EnergyStack eut = EURecipeCapability.CAP.copyWithModifier(preEUt.stack(), eutModifier);
+                     EURecipeCapability.putEUContent(preEUt.isInput() ? copied.tickInputs : copied.tickOutputs, eut);
+                 }
++                Optional.ofNullable(LayeredRecipeHelper.getLayeredSteps(copied)).ifPresent(steps -> {
++                    copied.data = copied.data.copy();
++                    LayeredRecipeHelper.setLayeredSteps(copied,
++                            steps.stream().map(layer -> build().apply(layer)).toList());
++                });
+                 return copied;
+             };
+         }
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/recipe/ui/LayeredRecipeUIHelper.java b/src/main/java/com/gregtechceu/gtceu/api/recipe/ui/LayeredRecipeUIHelper.java
+new file mode 100644
+index 0000000..ed69197
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/api/recipe/ui/LayeredRecipeUIHelper.java
+@@ -0,0 +1,285 @@
++package com.gregtechceu.gtceu.api.recipe.ui;
++
++import com.gregtechceu.gtceu.GTCEu;
++import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
++import com.gregtechceu.gtceu.api.capability.recipe.IO;
++import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
++import com.gregtechceu.gtceu.api.gui.GuiTextures;
++import com.gregtechceu.gtceu.api.gui.editor.IEditableUI;
++import com.gregtechceu.gtceu.api.recipe.GTRecipe;
++import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
++import com.gregtechceu.gtceu.api.recipe.LayeredRecipeHelper;
++import com.gregtechceu.gtceu.api.recipe.category.GTRecipeCategory;
++import com.gregtechceu.gtceu.api.recipe.content.Content;
++import com.gregtechceu.gtceu.integration.emi.recipe.GTRecipeEMICategory;
++import com.gregtechceu.gtceu.integration.jei.recipe.GTRecipeJEICategory;
++import com.gregtechceu.gtceu.integration.rei.recipe.GTRecipeREICategory;
++import com.gregtechceu.gtceu.integration.xei.widgets.GTRecipeWidget;
++import com.gregtechceu.gtceu.utils.FormattingUtil;
++
++import com.lowdragmc.lowdraglib.gui.texture.ColorRectTexture;
++import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup;
++import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
++import com.lowdragmc.lowdraglib.gui.texture.ProgressTexture;
++import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
++import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
++import com.lowdragmc.lowdraglib.gui.widget.ProgressWidget;
++import com.lowdragmc.lowdraglib.gui.widget.Widget;
++import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
++import com.lowdragmc.lowdraglib.jei.JEIPlugin;
++
++import net.minecraft.network.chat.Component;
++
++import com.google.common.collect.Tables;
++import dev.emi.emi.api.EmiApi;
++import me.shedaniel.rei.api.client.view.ViewSearchBuilder;
++
++import java.util.ArrayList;
++import java.util.EnumMap;
++import java.util.LinkedHashMap;
++import java.util.List;
++import java.util.stream.Collectors;
++
++import static com.lowdragmc.lowdraglib.gui.texture.ProgressTexture.FillDirection.LEFT_TO_RIGHT;
++
++public class LayeredRecipeUIHelper {
++
++    private static final int LAYERED_GUI_WIDTH = 164;
++    private static final int LAYERED_GUI_HEIGHT = 128;
++
++    public static GTRecipeTypeUI createRecipeUI(GTRecipeType recipeType) {
++        var ui = new GTRecipeTypeUI(recipeType) {
++
++            @Override
++            public IEditableUI<WidgetGroup, RecipeHolder> createEditableUITemplate(boolean isSteam,
++                                                                                   boolean isHighPressure) {
++                return new IEditableUI.Normal<>(
++                        () -> new WidgetGroup(0, 0, LAYERED_GUI_WIDTH, LAYERED_GUI_HEIGHT),
++                        (container, recipeHolder) -> {});
++            }
++        };
++        ui.setUiBuilder(LayeredRecipeUIHelper::buildLayeredUI);
++        return ui;
++    }
++
++    public static void buildLayeredUI(GTRecipe rootRecipe, WidgetGroup widgetGroup) {
++        var recipeWidget = (GTRecipeWidget) widgetGroup;
++
++        var group = (WidgetGroup) recipeWidget.getFirstWidgetById(GTRecipeWidget.RECIPE_CONTENT_GROUP_ID_REGEX);
++        assert group != null;
++        group.clearAllWidgets();
++
++        new UIBuilder(recipeWidget, group, rootRecipe).build();
++    }
++
++    private static class UIBuilder {
++
++        private final GTRecipeWidget recipeWidget;
++        private final WidgetGroup group;
++        private final GTRecipe rootRecipe;
++        private final GTRecipeTypeUI recipeUI;
++
++        UIBuilder(GTRecipeWidget recipeWidget, WidgetGroup group, GTRecipe rootRecipe) {
++            this.recipeWidget = recipeWidget;
++            this.group = group;
++            this.rootRecipe = rootRecipe;
++            recipeUI = rootRecipe.recipeType.getRecipeUI();
++        }
++
++        private void build() {
++            var steps = LayeredRecipeHelper.getLayeredSteps(rootRecipe);
++            if (steps == null) return;
++
++            var centerX = LAYERED_GUI_WIDTH / 2f;
++            var sliceWidth = 20f;
++            var startX = centerX - (steps.size() / 2f) * sliceWidth + 1f;
++            var inputsHeight = 0;
++
++            for (var recipeStep = 0; recipeStep < steps.size(); recipeStep++) {
++                var posX = startX + recipeStep * sliceWidth;
++                var recipe = steps.get(recipeStep);
++                var inputHeight = buildStepInput((int) posX, recipeStep, getRecipeHolder(recipe), recipe,
++                        LayeredRecipeHelper.getLayerTimeout(recipe));
++                if (inputHeight > inputsHeight) inputsHeight = inputHeight;
++            }
++
++            var bottomY = inputsHeight + 2;
++
++            var progressBarTexture = new ProgressTexture(GuiTextures.PROGRESS_BAR_ARROW.getSubTexture(0, 0, 1, 0.5),
++                    GuiTextures.PROGRESS_BAR_ARROW.getSubTexture(0, 0.5, 1, 0.5))
++                    .setFillDirection(LEFT_TO_RIGHT);
++            progressBarTexture.rotate(90f);
++            var outputsEndX = centerX + (steps.size() / 2f) * sliceWidth + 1f;
++            var progressWidget = new ProgressWidget(ProgressWidget.JEIProgress,
++                    (int) (outputsEndX - 21f), bottomY, 20, 20, progressBarTexture);
++            group.addWidget(progressWidget);
++
++            progressWidget.setProgressSupplier(ProgressWidget.JEIProgress);
++            if (GTCEu.Mods.isREILoaded() || GTCEu.Mods.isJEILoaded() || GTCEu.Mods.isEMILoaded()) {
++                group.addWidget(new ButtonWidget(progressWidget.getPosition().x, progressWidget.getPosition().y,
++                        progressWidget.getSize().width, progressWidget.getSize().height, IGuiTexture.EMPTY, cd -> {
++                            if (cd.isRemote) {
++                                if (GTCEu.Mods.isREILoaded()) {
++                                    ViewSearchBuilder.builder().addCategories(
++                                            rootRecipe.getType().getCategories().stream()
++                                                    .filter(GTRecipeCategory::isXEIVisible)
++                                                    .map(GTRecipeREICategory::machineCategory)
++                                                    .collect(Collectors.toList()))
++                                            .open();
++                                } else if (GTCEu.Mods.isJEILoaded()) {
++                                    JEIPlugin.jeiRuntime.getRecipesGui().showTypes(
++                                            rootRecipe.getType().getCategories().stream()
++                                                    .filter(GTRecipeCategory::isXEIVisible)
++                                                    .map(GTRecipeJEICategory::machineType)
++                                                    .collect(Collectors.toList()));
++                                } else if (GTCEu.Mods.isEMILoaded()) {
++                                    EmiApi.displayRecipeCategory(
++                                            GTRecipeEMICategory.machineCategory(rootRecipe.getType().getCategory()));
++                                }
++                            }
++                        }).setHoverTooltips("gtceu.recipe_type.show_recipes"));
++            }
++
++            var recipe = steps.get(steps.size() - 1);
++            buildStepOutput(outputsEndX, bottomY + 22, getRecipeHolder(recipe), recipe);
++        }
++
++        private GTRecipeTypeUI.RecipeHolder getRecipeHolder(GTRecipe recipe) {
++            @SuppressWarnings("UnstableApiUsage")
++            var storages = Tables.newCustomTable(new EnumMap<>(IO.class),
++                    LinkedHashMap<RecipeCapability<?>, Object>::new);
++            @SuppressWarnings("UnstableApiUsage")
++            var extraStorages = Tables.newCustomTable(new EnumMap<>(IO.class),
++                    LinkedHashMap<RecipeCapability<?>, List<Content>>::new);
++            recipeWidget.collectStorage(storages, extraStorages, recipe);
++
++            return new GTRecipeTypeUI.RecipeHolder(ProgressWidget.JEIProgress, storages, recipe.data,
++                    recipe.conditions, false, false);
++        }
++
++        private void buildStepOutput(float outputsEndX, int posY, GTRecipeTypeUI.RecipeHolder recipeHolder,
++                                     GTRecipe recipe) {
++            var slots = new ArrayList<Widget>();
++
++            for (var entry : recipeHolder.storages().row(IO.OUT).entrySet()) {
++                var cap = entry.getKey();
++                if (cap.getWidgetClass() == null) {
++                    continue;
++                }
++                var object = entry.getValue();
++                var contents = recipe.getOutputContents(cap);
++                for (var index = 0; index < contents.size(); index++) {
++                    var isLast = index == contents.size() - 1;
++                    var slot = buildSlot(IO.OUT, recipe, recipeHolder, cap, object, index, contents.get(index), isLast);
++                    slots.add(slot);
++                }
++                var tickContents = recipe.getTickOutputContents(cap);
++                for (var i = 0; i < tickContents.size(); i++) {
++                    var index = i + contents.size();
++                    var isLast = i == tickContents.size() - 1;
++                    var slot = buildSlot(IO.OUT, recipe, recipeHolder, cap, object, index, tickContents.get(i), isLast);
++                    slots.add(slot);
++                }
++            }
++
++            var slotWidth = 18f;
++            var startX = outputsEndX - slots.size() * slotWidth - 2;
++            for (var slotIndex = 0; slotIndex < slots.size(); slotIndex++) {
++                var posX = startX + slotIndex * slotWidth;
++                var slot = slots.get(slotIndex);
++                slot.setSelfPosition((int) posX, posY);
++                group.addWidget(slot);
++            }
++        }
++
++        private int buildStepInput(int posX, int recipeStep, GTRecipeTypeUI.RecipeHolder recipeHolder, GTRecipe recipe,
++                                   int timeout) {
++            var stepInfo = getLayerInfo(recipe, timeout);
++
++            var slotSize = 18;
++            var posY = 2;
++
++            group.addWidget(new Widget(posX, posY, slotSize, 11).setBackground(new ColorRectTexture(0xffa8a8a8)));
++            var numeral = new LabelWidget(posX + 2, posY + 2,
++                    Component.literal(FormattingUtil.toRomanNumeral(recipeStep + 1)));
++            numeral.setDropShadow(true);
++            numeral.setHoverTooltips(getLayerInfoTooltips(recipeStep, stepInfo));
++            group.addWidget(numeral);
++
++            posY += 11 + 2;
++
++            for (var entry : recipeHolder.storages().row(IO.IN).entrySet()) {
++                var cap = entry.getKey();
++                if (cap.getWidgetClass() == null) {
++                    continue;
++                }
++                var object = entry.getValue();
++                var contents = recipe.getInputContents(cap);
++                for (var index = 0; index < contents.size(); index++) {
++                    var isLast = index == contents.size() - 1;
++                    var slot = buildSlot(IO.IN, recipe, recipeHolder, cap, object, index, contents.get(index), isLast);
++                    slot.setSelfPosition(posX, posY);
++                    group.addWidget(slot);
++                    posY += slotSize;
++                }
++                var tickContents = recipe.getTickInputContents(cap);
++                for (var i = 0; i < tickContents.size(); i++) {
++                    var index = i + contents.size();
++                    var isLast = i == tickContents.size() - 1;
++                    var slot = buildSlot(IO.IN, recipe, recipeHolder, cap, object, index, tickContents.get(i), isLast);
++                    slot.setSelfPosition(posX, posY);
++                    group.addWidget(slot);
++                    posY += slotSize;
++                }
++            }
++            return posY;
++        }
++
++        private IGuiTexture getOverlaysForSlot(GTRecipeTypeUI recipeUI, boolean isOutput,
++                                               RecipeCapability<?> capability, boolean isLast) {
++            IGuiTexture base = capability == FluidRecipeCapability.CAP ? GuiTextures.FLUID_SLOT : GuiTextures.SLOT;
++            byte overlayKey = (byte) ((isOutput ? 2 : 0) + (capability == FluidRecipeCapability.CAP ? 1 : 0) +
++                    (isLast ? 4 : 0));
++            if (recipeUI.getSlotOverlays().containsKey(overlayKey)) {
++                return new GuiTextureGroup(base, recipeUI.getSlotOverlays().get(overlayKey));
++            }
++            return base;
++        }
++
++        private Widget buildSlot(IO io, GTRecipe recipe, GTRecipeTypeUI.RecipeHolder recipeHolder,
++                                 RecipeCapability<?> cap, Object storage,
++                                 int storageIndex, Content recipeInput, boolean isLast) {
++            var slot = cap.createWidget();
++            assert slot != null;
++            slot.setBackground(getOverlaysForSlot(recipeUI, io == IO.OUT, cap, isLast));
++            cap.applyWidgetInfo(slot, storageIndex, true, io, recipeHolder, recipe.getType(), recipe, recipeInput,
++                    storage, 0, 0);
++            slot.setOverlay(recipeInput.createOverlay(false, 0, 0, recipe.getType().getChanceFunction()));
++            return slot;
++        }
++
++        private record LayerInfo(int duration, int timeout, long euTotal) {}
++
++        private List<Component> getLayerInfoTooltips(int recipeStep, LayerInfo stepInfo) {
++            var result = new ArrayList<Component>();
++
++            result.add(Component.translatable("gtceu.recipe.layered.step", Integer.toString(recipeStep + 1)));
++            result.add(Component.translatable("gtceu.recipe.duration",
++                    FormattingUtil.formatNumbers(stepInfo.duration / 20f)));
++            result.add(Component.translatable("gtceu.recipe.total", FormattingUtil.formatNumbers(stepInfo.euTotal)));
++            if (stepInfo.timeout > 0) {
++                result.add(Component.translatable("gtceu.recipe.layered.timeout",
++                        FormattingUtil.formatNumbers(stepInfo.timeout / 20f)));
++            }
++            return result;
++        }
++
++        private LayerInfo getLayerInfo(GTRecipe recipe, int timeout) {
++            var EUt = recipe.getInputEUt();
++            var duration = recipe.duration;
++
++            var euTotal = EUt.getTotalEU() * duration;
++            return new LayerInfo(duration, timeout, euTotal);
++        }
++    }
++}
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/cover/detector/LayeredStepDetectorCover.java b/src/main/java/com/gregtechceu/gtceu/common/cover/detector/LayeredStepDetectorCover.java
+new file mode 100644
+index 0000000..6eb7a9a
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/common/cover/detector/LayeredStepDetectorCover.java
+@@ -0,0 +1,40 @@
++package com.gregtechceu.gtceu.common.cover.detector;
++
++import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper;
++import com.gregtechceu.gtceu.api.capability.ICoverable;
++import com.gregtechceu.gtceu.api.cover.CoverDefinition;
++import com.gregtechceu.gtceu.common.machine.trait.LayeredRecipeLogic;
++
++import net.minecraft.MethodsReturnNonnullByDefault;
++import net.minecraft.core.Direction;
++
++import javax.annotation.ParametersAreNonnullByDefault;
++
++@ParametersAreNonnullByDefault
++@MethodsReturnNonnullByDefault
++public class LayeredStepDetectorCover extends DetectorCover {
++
++    public LayeredStepDetectorCover(CoverDefinition definition, ICoverable coverHolder, Direction attachedSide) {
++        super(definition, coverHolder, attachedSide);
++    }
++
++    @Override
++    public boolean canAttach() {
++        if (coverHolder.getLevel() == null) return false;
++        return super.canAttach() && GTCapabilityHelper.getRecipeLogic(coverHolder.getLevel(), coverHolder.getPos(),
++                attachedSide) instanceof LayeredRecipeLogic;
++    }
++
++    @Override
++    protected void update() {
++        if (this.coverHolder.getOffsetTimer() % 20 != 0) {
++            return;
++        }
++
++        var recipeLogic = GTCapabilityHelper.getRecipeLogic(coverHolder.getLevel(), coverHolder.getPos(),
++                attachedSide);
++        var layeredStep = recipeLogic instanceof LayeredRecipeLogic layeredRecipeLogic ?
++                layeredRecipeLogic.getCoverRedstoneOutput() : 0;
++        setRedstoneSignalOutput(isInverted() ? 15 - layeredStep : layeredStep);
++    }
++}
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/GTCovers.java b/src/main/java/com/gregtechceu/gtceu/common/data/GTCovers.java
+index 1e6b45c..7f1658d 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/GTCovers.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/GTCovers.java
+@@ -106,6 +106,8 @@ public class GTCovers {
+             AdvancedEnergyDetectorCover::new);
+     public final static CoverDefinition MAINTENANCE_DETECTOR = register("maintenance_detector",
+             MaintenanceDetectorCover::new);
++    public final static CoverDefinition LAYERED_STEP_DETECTOR = register("layered_step_detector",
++            LayeredStepDetectorCover::new);
+ 
+     // Solar Panels
+     public final static CoverDefinition SOLAR_PANEL_BASIC = register("solar_panel", CoverSolarPanel::new);
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/GTItems.java b/src/main/java/com/gregtechceu/gtceu/common/data/GTItems.java
+index 759188c..946f4ab 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/GTItems.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/GTItems.java
+@@ -1835,6 +1835,11 @@ public class GTItems {
+             .lang("Activity Detector")
+             .onRegister(attach(new CoverPlaceBehavior(GTCovers.ACTIVITY_DETECTOR)))
+             .register();
++    public static ItemEntry<ComponentItem> COVER_LAYERED_STEP_DETECTOR = REGISTRATE
++            .item("layered_step_detector_cover", ComponentItem::create)
++            .lang("Layered Step Detector")
++            .onRegister(attach(new CoverPlaceBehavior(GTCovers.LAYERED_STEP_DETECTOR)))
++            .register();
+     public static ItemEntry<ComponentItem> COVER_ACTIVITY_DETECTOR_ADVANCED = REGISTRATE
+             .item("advanced_activity_detector_cover", ComponentItem::create)
+             .lang("Advanced Activity Detector")
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/trait/LayeredRecipeLogic.java b/src/main/java/com/gregtechceu/gtceu/common/machine/trait/LayeredRecipeLogic.java
+new file mode 100644
+index 0000000..4ee86cc
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/trait/LayeredRecipeLogic.java
+@@ -0,0 +1,287 @@
++package com.gregtechceu.gtceu.common.machine.trait;
++
++import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
++import com.gregtechceu.gtceu.api.capability.recipe.IO;
++import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
++import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
++import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
++import com.gregtechceu.gtceu.api.recipe.ActionResult;
++import com.gregtechceu.gtceu.api.recipe.GTRecipe;
++import com.gregtechceu.gtceu.api.recipe.LayeredRecipeHelper;
++import com.gregtechceu.gtceu.common.data.GTItems;
++import com.gregtechceu.gtceu.utils.FluidStackHashStrategy;
++import com.gregtechceu.gtceu.utils.ItemStackHashStrategy;
++
++import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
++import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
++import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
++
++import net.minecraft.network.chat.Component;
++import net.minecraft.util.Mth;
++import net.minecraft.world.item.ItemStack;
++import net.minecraftforge.fluids.FluidStack;
++
++import it.unimi.dsi.fastutil.objects.Object2LongOpenCustomHashMap;
++import lombok.Getter;
++import org.jetbrains.annotations.NotNull;
++import org.jetbrains.annotations.Nullable;
++
++import java.util.*;
++
++public class LayeredRecipeLogic extends RecipeLogic {
++
++    @Persisted
++    @DescSynced
++    @NotNull
++    private final List<GTRecipe> layeredRecipe = Collections.synchronizedList(new ArrayList<>());
++
++    @Persisted
++    @DescSynced
++    @Getter
++    private int layeredRecipeLayerIndex = -1;
++
++    @Nullable
++    @Getter
++    @Persisted
++    protected GTRecipe lastOriginLayeredRecipe;
++
++    public static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(LayeredRecipeLogic.class,
++            RecipeLogic.MANAGED_FIELD_HOLDER);
++
++    public LayeredRecipeLogic(IRecipeLogicMachine machine) {
++        super(machine);
++    }
++
++    @Override
++    public ManagedFieldHolder getFieldHolder() {
++        return MANAGED_FIELD_HOLDER;
++    }
++
++    public @Nullable GTRecipe getFirstLayer() {
++        if (layeredRecipe.isEmpty()) return null;
++        return layeredRecipe.get(0);
++    }
++
++    public @Nullable GTRecipe getLastLayer() {
++        if (layeredRecipe.isEmpty()) return null;
++        return layeredRecipe.get(layeredRecipe.size() - 1);
++    }
++
++    public int getLayeredRecipeSize() {
++        return layeredRecipe.size();
++    }
++
++    public @NotNull List<GTRecipe> getLayeredRecipe() {
++        return List.copyOf(layeredRecipe);
++    }
++
++    public @Nullable GTRecipe getCurrentLayer() {
++        if (layeredRecipeLayerIndex < 0 || layeredRecipeLayerIndex >= layeredRecipe.size()) {
++            return null;
++        }
++        return layeredRecipe.get(layeredRecipeLayerIndex);
++    }
++
++    public int getCoverRedstoneOutput() {
++        var result = layeredRecipeLayerIndex + (lastRecipe == null ? 0 : 1);
++        if (result == layeredRecipe.size()) {
++            result = 0;
++        }
++        return Mth.clamp(result, 0, 15);
++    }
++
++    public GTRecipe getNextLayeredRecipe() {
++        if (layeredRecipeLayerIndex < 0 || layeredRecipe.isEmpty()) {
++            return null;
++        }
++        if (lastRecipe == null) {
++            // not running and waiting for inputs
++            return layeredRecipe.get(layeredRecipeLayerIndex);
++        }
++        if (layeredRecipeLayerIndex < layeredRecipe.size() - 1) {
++            return layeredRecipe.get(layeredRecipeLayerIndex + 1);
++        }
++        return null;
++    }
++
++    @Override
++    public void interruptRecipe() {
++        machine.afterWorking();
++        setStatus(Status.IDLE);
++        progress = 0;
++        duration = 0;
++        layeredRecipeLayerIndex = -1;
++        layeredRecipe.clear();
++        lastRecipe = null;
++    }
++
++    @Override
++    public void resetRecipeLogic() {
++        super.resetRecipeLogic();
++        layeredRecipeLayerIndex = -1;
++        layeredRecipe.clear();
++        lastOriginLayeredRecipe = null;
++    }
++
++    @Override
++    public void onRecipeFinish() {
++        machine.afterWorking();
++        if (lastRecipe == null) return;
++
++        var finishedLastStep = false;
++        if (!layeredRecipe.isEmpty() && lastRecipe.data.getBoolean("is_layer")) {
++            // we were doing a recipe layer
++            layeredRecipeLayerIndex++;
++            if (layeredRecipe.size() == layeredRecipeLayerIndex) {
++                layeredRecipe.clear();
++                layeredRecipeLayerIndex = -1;
++                finishedLastStep = true;
++            }
++        }
++
++        runAttempt = 0;
++        runDelay = 0;
++        consecutiveRecipes++;
++        handleRecipeIO(lastRecipe, IO.OUT);
++
++        if (suspendAfterFinish) {
++            setStatus(Status.SUSPEND);
++            consecutiveRecipes = 0;
++            progress = 0;
++            duration = 0;
++            isActive = false;
++            lastRecipe = null;
++            return;
++        }
++
++        if (finishedLastStep) {
++            // try the first step again, but attempt to modify
++            GTRecipe retryRecipe = null;
++            if (lastOriginLayeredRecipe != null && machine.alwaysTryModifyRecipe()) {
++                retryRecipe = machine.fullModifyRecipe(lastOriginLayeredRecipe);
++            } else if (!layeredRecipe.isEmpty()) {
++                retryRecipe = layeredRecipe.get(0);
++            }
++
++            if (retryRecipe != null && checkRecipe(retryRecipe).isSuccess()) {
++                layeredRecipeLayerIndex = 0;
++                setupRecipe(retryRecipe);
++                return;
++            }
++        } else {
++            // try the subsequent step, which is already transformed
++            var nextStepRecipe = layeredRecipe.get(layeredRecipeLayerIndex);
++            var recipeMatch = checkRecipe(nextStepRecipe);
++            if (recipeMatch.isSuccess()) {
++                setupRecipe(nextStepRecipe);
++                return;
++            }
++        }
++
++        setStatus(Status.IDLE);
++        lastRecipe = null; // never rely on lastRecipe checks
++        consecutiveRecipes = 0;
++        progress = 0;
++        duration = 0;
++        isActive = false;
++    }
++
++    @Override
++    public @NotNull Iterator<GTRecipe> searchRecipe() {
++        if (!layeredRecipe.isEmpty()) {
++            return Collections.singleton(layeredRecipe.get(layeredRecipeLayerIndex)).iterator();
++        }
++        return machine.getRecipeType().searchRecipe(machine, r -> {
++            // TODO: maybe add support for running non-layered recipes as well
++            // ignore non-layered recipes
++            if (!LayeredRecipeHelper.hasLayeredSteps(r)) return false;
++            return matchRecipe(r).isSuccess();
++        });
++    }
++
++    @Override
++    public void setupRecipe(GTRecipe recipe) {
++        if (LayeredRecipeHelper.hasLayeredSteps(recipe)) {
++            // we are starting a layered craft
++            layeredRecipe.clear();
++            var steps = LayeredRecipeHelper.getLayeredSteps(recipe);
++            if (steps != null) {
++                layeredRecipe.addAll(steps);
++            }
++            layeredRecipeLayerIndex = 0;
++            recipe = layeredRecipe.isEmpty() ? recipe : layeredRecipe.get(0);
++        } else if (!recipe.data.getBoolean("is_layer")) {
++            // non-layered recipe: should never happen
++            layeredRecipe.clear();
++            layeredRecipeLayerIndex = -1;
++        }
++        // otherwise we are just doing a subsequent layer
++        super.setupRecipe(recipe);
++        recipeDirty = true; // always mark dirty, we have custom retry logic
++    }
++
++    @Override
++    public boolean checkMatchedRecipeAvailable(GTRecipe match) {
++        var isAlreadyModified = match.data.getBoolean("is_layer");
++        var modified = isAlreadyModified ? match : machine.fullModifyRecipe(match);
++
++        if (modified != null) {
++            var recipeMatch = checkRecipe(modified);
++            if (recipeMatch.isSuccess()) {
++                setupRecipe(modified);
++            }
++
++            if (lastRecipe != null && getStatus() == Status.WORKING) {
++                // only store the lastOriginRecipe if it's an initial recipe, not a subsequent layer
++                if (!isAlreadyModified) lastOriginLayeredRecipe = match;
++                lastOriginRecipe = null;
++                lastFailedMatches = null;
++                return true;
++            }
++        }
++        return false;
++    }
++
++    @Override
++    protected ActionResult checkRecipe(GTRecipe recipe) {
++        // normal match first
++        var normalMatch = super.checkRecipe(recipe);
++        if (!normalMatch.isSuccess()) return normalMatch;
++
++        var inputItems = new Object2LongOpenCustomHashMap<>(ItemStackHashStrategy.comparingAllButCount());
++        machine.getCapabilitiesFlat(IO.IN, ItemRecipeCapability.CAP).stream()
++                .flatMap(s -> s.getContents().stream())
++                .filter(ItemStack.class::isInstance).map(ItemStack.class::cast)
++                .filter(s -> !s.isEmpty() && !s.is(GTItems.PROGRAMMED_CIRCUIT.get()))
++                .forEach(s -> inputItems.addTo(s, s.getCount()));
++
++        for (var rawContent : recipe.getInputContents(ItemRecipeCapability.CAP)) {
++            var content = ItemRecipeCapability.CAP.of(rawContent.getContent());
++            inputItems.keySet().stream().filter(content).forEach(inputItems::removeLong);
++        }
++
++        if (!inputItems.isEmpty()) {
++            return ActionResult.fail(Component.translatable("gtceu.recipe_logic.layered_inputs"),
++                    null, IO.IN);
++        }
++
++        var inputFluids = new Object2LongOpenCustomHashMap<>(FluidStackHashStrategy.comparingAllButAmount());
++        machine.getCapabilitiesFlat(IO.IN, FluidRecipeCapability.CAP).stream()
++                .flatMap(s -> s.getContents().stream())
++                .filter(FluidStack.class::isInstance).map(FluidStack.class::cast)
++                .filter(s -> !s.isEmpty())
++                .forEach(s -> inputFluids.addTo(s, s.getAmount()));
++
++        for (var rawContent : recipe.getInputContents(FluidRecipeCapability.CAP)) {
++            var content = FluidRecipeCapability.CAP.of(rawContent.getContent());
++            inputFluids.keySet().stream().filter(content).forEach(inputFluids::removeLong);
++        }
++
++        if (!inputFluids.isEmpty()) {
++            return ActionResult.fail(Component.translatable("gtceu.recipe_logic.layered_inputs"),
++                    null, IO.IN);
++        }
++
++        return ActionResult.SUCCESS;
++    }
++}
+diff --git a/src/main/java/com/gregtechceu/gtceu/data/lang/IntegrationLang.java b/src/main/java/com/gregtechceu/gtceu/data/lang/IntegrationLang.java
+index f53652d..350aa2f 100644
+--- a/src/main/java/com/gregtechceu/gtceu/data/lang/IntegrationLang.java
++++ b/src/main/java/com/gregtechceu/gtceu/data/lang/IntegrationLang.java
+@@ -86,6 +86,8 @@ public class IntegrationLang {
+         provider.add("gtceu.top.cable_amperage", "Amperage: ");
+         provider.add("gtceu.top.exhaust_vent_direction", "Exhaust Vent: %s");
+         provider.add("gtceu.top.exhaust_vent_blocked", "Blocked");
++        provider.add("gtceu.top.layered_recipe.step", "Recipe Step %s of %s");
++        provider.add("gtceu.top.layered_recipe.final", "Final Step Outputs:");
+         provider.add("gtceu.top.machine_mode", "Machine Mode: ");
+         provider.add("gtceu.top.stained", "Colored: %s");
+         provider.add("gtceu.top.buffer_not_bound", "Buffer Not Currently Bound");
+diff --git a/src/main/java/com/gregtechceu/gtceu/data/lang/LangHandler.java b/src/main/java/com/gregtechceu/gtceu/data/lang/LangHandler.java
+index 701a785..471640c 100644
+--- a/src/main/java/com/gregtechceu/gtceu/data/lang/LangHandler.java
++++ b/src/main/java/com/gregtechceu/gtceu/data/lang/LangHandler.java
+@@ -499,6 +499,13 @@ public class LangHandler {
+         multilineLang(provider, "cover.advanced_detector.latch.disabled",
+                 "Behavior: Continuous\n\n" + detectorLatchDescription);
+ 
++        provider.add("cover.layered_step_detector.label", "Layered Step Detector");
++        var layeredStepDetectorInvertDescription = "Toggle to invert the redstone logic\nBy default, redstone is emitted when the machine is processing a layered recipe, and stops emitting when it is not processing any layered recipes";
++        multilineLang(provider, "cover.layered_step_detector.invert.enabled",
++                "Output: Inverted\n\n" + layeredStepDetectorInvertDescription);
++        multilineLang(provider, "cover.layered_step_detector.invert.disabled",
++                "Output: Normal\n\n" + layeredStepDetectorInvertDescription);
++
+         provider.add("cover.advanced_energy_detector.label", "Advanced Energy Detector");
+         provider.add("cover.advanced_energy_detector.min", "Min");
+         provider.add("cover.advanced_energy_detector.max", "Max");
+@@ -930,6 +937,8 @@ public class LangHandler {
+         provider.add("gtceu.recipe.temperature", "Temp: %sK");
+         provider.add("gtceu.recipe.coil.tier", "Coil: %s");
+         provider.add("gtceu.recipe.explosive", "Explosive: %s");
++        provider.add("gtceu.recipe.layered.step", "Step %s");
++        provider.add("gtceu.recipe.layered.timeout", "Timeout: %ss");
+         provider.add("gtceu.recipe.eu_to_start", "EU To Start: %sEU%s");
+         provider.add("gtceu.recipe.dimensions", "Dimensions: %s");
+         provider.add("gtceu.recipe.cleanroom", "Requires %s");
+@@ -1092,6 +1101,12 @@ public class LangHandler {
+         provider.add("gtceu.machine.batch_disabled", "Batching Disabled");
+         provider.add("gtceu.multiblock.progress_percent", "Progress: %s%%");
+         provider.add("gtceu.multiblock.progress", "Progress: %ss / %ss (%s%%)");
++        provider.add("gtceu.multiblock.layered.progress", "Total Progress: %ss / %ss (%s%%)");
++        provider.add("gtceu.multiblock.layered.step", "Current Step: %s/%s");
++        provider.add("gtceu.multiblock.layered.recipe_contents_line", "%s x §e%s§r");
++        provider.add("gtceu.multiblock.layered.next_step_inputs", "Next Step Inputs:");
++        provider.add("gtceu.multiblock.layered.cancel", "Cancel");
++        provider.add("gtceu.multiblock.layered.final_step_outputs", "Final Step Outputs:");
+         provider.add("gtceu.multiblock.output_line.0", "%s x §e%s§r (%ss/ea)");
+         provider.add("gtceu.multiblock.output_line.1", "%s x §e%s§r (%s/s)");
+         provider.add("gtceu.multiblock.output_line.2", "%s ≈ §e%s§r (%ss/ea)");
+@@ -1208,6 +1223,7 @@ public class LangHandler {
+         provider.add("config.jade.plugin_gtceu.electric_container_provider", "[GTCEu] Electric Container");
+         provider.add("config.jade.plugin_gtceu.recipe_logic_provider", "[GTCEu] Recipe Logic");
+         provider.add("config.jade.plugin_gtceu.hazard_cleaner_provider", "[GTCEu] Hazard Cleaner");
++        provider.add("config.jade.plugin_gtceu.layered_recipe_info", "[GTCEu] Layered Recipe Info");
+         provider.add("config.jade.plugin_gtceu.recipe_output_info", "[GTCEu] Recipe Output Info");
+         provider.add("config.jade.plugin_gtceu.auto_output_info", "[GTCEu] Auto Output Info");
+         provider.add("config.jade.plugin_gtceu.cable_info", "[GTCEu] Cable Info");
+@@ -1237,6 +1253,7 @@ public class LangHandler {
+         provider.add("gtceu.recipe_logic.condition_fails", "Condition Fails");
+         provider.add("gtceu.recipe_logic.no_contents", "Recipe has no Contents");
+         provider.add("gtceu.recipe_logic.no_capabilities", "Machine has no Capabilities");
++        provider.add("gtceu.recipe_logic.layered_inputs", "Layer inputs aren't the only inputs in the machine.");
+         provider.add("gtceu.gui.cover_setting.title", "Cover Settings");
+         provider.add("gtceu.gui.output_setting.title", "Output Settings");
+         provider.add("gtceu.gui.circuit.title", "Circuit Settings");
+diff --git a/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java b/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java
+index 7822909..617581f 100644
+--- a/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java
++++ b/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java
+@@ -16,9 +16,9 @@ import com.gregtechceu.gtceu.api.item.component.IDataItem;
+ import com.gregtechceu.gtceu.api.machine.MachineDefinition;
+ import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType;
+ import com.gregtechceu.gtceu.api.recipe.*;
++import com.gregtechceu.gtceu.api.recipe.LayeredRecipeHelper;
+ import com.gregtechceu.gtceu.api.recipe.category.GTRecipeCategory;
+-import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
+-import com.gregtechceu.gtceu.api.recipe.content.Content;
++import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;import com.gregtechceu.gtceu.api.recipe.content.Content;
+ import com.gregtechceu.gtceu.api.recipe.ingredient.*;
+ import com.gregtechceu.gtceu.api.registry.GTRegistries;
+ import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
+@@ -1392,11 +1392,27 @@ public class GTRecipeBuilder {
+         return this;
+     }
+ 
++    public GTRecipeBuilder setTempItemStacks(List<ItemStack> stacks) {
++        tempItemStacks = stacks;
++        return this;
++    }
++
+     public GTRecipeBuilder setTempFluidMaterialStacks(List<MaterialStack> stacks) {
+         tempFluidStacks = stacks;
+         return this;
+     }
+ 
++    public GTRecipeBuilder layeredRecipe(Consumer<LayeredRecipeInfo.Builder> config) {
++        if (!recipeType.isLayered()) {
++            GTCEu.LOGGER.error("Can't use layeredRecipe on a non-layered recipe type");
++            return this;
++        }
++        var layered = new LayeredRecipeInfo.Builder(this);
++        config.accept(layered);
++        layered.apply();
++        return this;
++    }
++
+     public void toJson(JsonObject json) {
+         var ops = RegistryOps.create(JsonOps.INSTANCE, GTRegistries.builtinRegistry());
+         JsonObject serialized = GTRecipeSerializer.CODEC.encodeStart(ops, buildRawRecipe())
+@@ -1429,6 +1445,10 @@ public class GTRecipeBuilder {
+     }
+ 
+     public FinishedRecipe build() {
++        if (data.contains("layered_info")) {
++            LayeredRecipeHelper.applyLayeredRecipeModifications(this);
++        }
++
+         return new FinishedRecipe() {
+ 
+             @Override
+@@ -1596,6 +1616,9 @@ public class GTRecipeBuilder {
+                                           boolean isInput,
+                                           Map<RecipeCapability<?>, List<Content>> table,
+                                           int addedEntries) {
++        // Layered recipes may exceed input sizes
++        if (recipeType.isLayered() || this.data.contains("layered_info")) return;
++
+         var recipeCapabilityMax = isInput ? recipeType.maxInputs : recipeType.maxOutputs;
+         if (!recipeCapabilityMax.containsKey(capability)) return;
+ 
+diff --git a/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/LayeredRecipeInfo.java b/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/LayeredRecipeInfo.java
+new file mode 100644
+index 0000000..7b139ed
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/LayeredRecipeInfo.java
+@@ -0,0 +1,1015 @@
++package com.gregtechceu.gtceu.data.recipe.builder;
++
++import com.gregtechceu.gtceu.GTCEu;
++import com.gregtechceu.gtceu.api.GTValues;
++import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability;
++import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
++import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
++import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
++import com.gregtechceu.gtceu.api.codec.GTCodecUtils;
++import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
++import com.gregtechceu.gtceu.api.data.chemical.material.ItemMaterialData;
++import com.gregtechceu.gtceu.api.data.chemical.material.Material;
++import com.gregtechceu.gtceu.api.data.chemical.material.stack.MaterialEntry;
++import com.gregtechceu.gtceu.api.data.chemical.material.stack.MaterialStack;
++import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
++import com.gregtechceu.gtceu.api.data.tag.TagUtil;
++import com.gregtechceu.gtceu.api.machine.MachineDefinition;
++import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
++import com.gregtechceu.gtceu.api.recipe.content.Content;
++import com.gregtechceu.gtceu.api.recipe.ingredient.*;
++import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour;
++import com.gregtechceu.gtceu.integration.kjs.recipe.GTRecipeSchema;
++import com.gregtechceu.gtceu.integration.kjs.recipe.components.CapabilityMap;
++import com.gregtechceu.gtceu.integration.kjs.recipe.components.ExtendedOutputItem;
++import com.gregtechceu.gtceu.integration.kjs.recipe.components.GTRecipeComponents;
++
++import net.minecraft.MethodsReturnNonnullByDefault;
++import net.minecraft.core.registries.BuiltInRegistries;
++import net.minecraft.nbt.NbtOps;
++import net.minecraft.tags.TagKey;
++import net.minecraft.util.valueproviders.IntProvider;
++import net.minecraft.util.valueproviders.UniformInt;
++import net.minecraft.world.item.Item;
++import net.minecraft.world.item.ItemStack;
++import net.minecraft.world.item.crafting.Ingredient;
++import net.minecraft.world.level.ItemLike;
++import net.minecraft.world.level.material.Fluid;
++import net.minecraftforge.common.crafting.StrictNBTIngredient;
++import net.minecraftforge.fluids.FluidStack;
++
++import com.mojang.serialization.Codec;
++import com.mojang.serialization.codecs.RecordCodecBuilder;
++import dev.latvian.mods.kubejs.fluid.FluidStackJS;
++import dev.latvian.mods.kubejs.item.InputItem;
++import dev.latvian.mods.kubejs.item.OutputItem;
++import dev.latvian.mods.kubejs.recipe.RecipeExceptionJS;
++import dev.latvian.mods.rhino.util.HideFromJS;
++import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
++import it.unimi.dsi.fastutil.ints.Int2IntMap;
++import lombok.Setter;
++import lombok.experimental.Accessors;
++import org.apache.commons.lang3.ArrayUtils;
++import org.jetbrains.annotations.NotNull;
++
++import java.util.*;
++import java.util.function.BooleanSupplier;
++import java.util.function.Supplier;
++import java.util.stream.IntStream;
++
++import javax.annotation.ParametersAreNonnullByDefault;
++
++public record LayeredRecipeInfo(List<Layer> layers, Map<RecipeCapability<?>, Int2IntMap> input,
++                                Map<RecipeCapability<?>, Int2IntMap> tickInput) {
++
++    public static final Codec<LayeredRecipeInfo> CODEC = RecordCodecBuilder.create(instance -> instance.group(
++            Layer.CODEC.listOf().fieldOf("layers").forGetter(LayeredRecipeInfo::layers),
++            Codec.unboundedMap(RecipeCapability.DIRECT_CODEC, GTCodecUtils.INT2INT_MAP_CODEC).fieldOf("input")
++                    .forGetter(LayeredRecipeInfo::input),
++            Codec.unboundedMap(RecipeCapability.DIRECT_CODEC, GTCodecUtils.INT2INT_MAP_CODEC).fieldOf("tickInput")
++                    .forGetter(LayeredRecipeInfo::tickInput))
++            .apply(instance, LayeredRecipeInfo::new));
++
++    public record Layer(int duration, int timeout) {
++
++        public static final Codec<Layer> CODEC = RecordCodecBuilder.create(instance -> instance.group(
++                Codec.INT.fieldOf("duration").forGetter(Layer::duration),
++                Codec.INT.fieldOf("timeout").forGetter(Layer::timeout)).apply(instance, Layer::new));
++    }
++
++    @Accessors(chain = true, fluent = true)
++    public static class JSBuilder {
++
++        private final GTRecipeSchema.GTRecipeJS recipeJS;
++
++        private final List<Builder.Layer> layers = new ArrayList<>();
++
++        public Map<RecipeCapability<?>, List<Content>> input = new IdentityHashMap<>();
++        public Map<RecipeCapability<?>, List<Content>> tickInput = new IdentityHashMap<>();
++
++        public List<MaterialStack> itemMaterialStacks = new ArrayList<>();
++        public List<MaterialStack> fluidMaterialStacks = new ArrayList<>();
++        public List<ItemStack> tempItemStacks = new ArrayList<>();
++
++        @Setter
++        public boolean perTick;
++        @Setter
++        public int chance = ChanceLogic.getMaxChancedValue();
++        @Setter
++        public int maxChance = ChanceLogic.getMaxChancedValue();
++        @Setter
++        public int tierChanceBoost = 0;
++        @Setter
++        public int duration = -1;
++        @Setter
++        public int timeout = -1;
++
++        public JSBuilder(GTRecipeSchema.GTRecipeJS recipeJS) {
++            this.recipeJS = recipeJS;
++        }
++
++        public JSBuilder next() {
++            if (input.isEmpty() && !tickInput.isEmpty()) return this;
++
++            layers.add(new Builder.Layer(new IdentityHashMap<>(input), new IdentityHashMap<>(tickInput), duration,
++                    timeout));
++
++            input.clear();
++            tickInput.clear();
++            perTick = false;
++            chance = ChanceLogic.getMaxChancedValue();
++            maxChance = ChanceLogic.getMaxChancedValue();
++            tierChanceBoost = 0;
++            duration = -1;
++            timeout = -1;
++
++            return this;
++        }
++
++        public <T> JSBuilder input(RecipeCapability<T> capability, Object... obj) {
++            var t = (perTick ? tickInput : input);
++            var newContents = Arrays.stream(obj).map(this::makeContent).toList();
++            t.computeIfAbsent(capability, c -> new ArrayList<>()).addAll(newContents);
++            return this;
++        }
++
++        public JSBuilder inputEU(EnergyStack eu) {
++            return input(EURecipeCapability.CAP, eu);
++        }
++
++        public JSBuilder inputEU(long voltage, long amperage) {
++            return inputEU(new EnergyStack(voltage, amperage));
++        }
++
++        public JSBuilder EUt(EnergyStack.WithIO eu) {
++            if (eu.isEmpty()) {
++                throw new RecipeExceptionJS(String.format("EUt can't be explicitly set to 0, id: %s", recipeJS.id));
++            }
++            if (eu.amperage() < 1) {
++                throw new RecipeExceptionJS(String.format("Amperage must be a positive integer, id: %s", recipeJS.id));
++            }
++            if (eu.isOutput()) {
++                throw new RecipeExceptionJS(String.format("EUt can't be output, id: %s", recipeJS.id));
++            }
++            var lastPerTick = perTick;
++            perTick = true;
++            inputEU(eu.stack());
++            perTick = lastPerTick;
++            return this;
++        }
++
++        public JSBuilder EUt(long voltage, long amperage) {
++            return EUt(EnergyStack.WithIO.fromVA(voltage, amperage));
++        }
++
++        public JSBuilder itemInputs(InputItem... inputs) {
++            return inputItems(inputs);
++        }
++
++        public JSBuilder itemInput(MaterialEntry input) {
++            return inputItems(input);
++        }
++
++        public JSBuilder itemInput(MaterialEntry input, int count) {
++            return inputItems(input, count);
++        }
++
++        public JSBuilder inputItems(InputItem... inputs) {
++            validateItems("input", inputs);
++
++            for (var stack : inputs) {
++                // test simple item that have pure singular material stack
++                var matStack = ChemicalHelper.getMaterialStack(stack.ingredient.getItems()[0].getItem());
++                // test item that has multiple material stacks
++                var matInfo = ChemicalHelper.getMaterialInfo(stack.ingredient.getItems()[0].getItem());
++                if (chance == maxChance && chance != 0) {
++                    if (!matStack.isEmpty()) {
++                        itemMaterialStacks.add(matStack.multiply(stack.count));
++                    }
++                    if (matInfo != null) {
++                        for (var ms : matInfo.getMaterials()) {
++                            itemMaterialStacks.add(ms.multiply(stack.count));
++                        }
++                    } else {
++                        tempItemStacks.add(stack.ingredient.getItems()[0].copyWithCount(stack.count));
++                    }
++                }
++            }
++            return input(ItemRecipeCapability.CAP, (Object[]) inputs);
++        }
++
++        public JSBuilder inputItems(ItemStack... inputs) {
++            validateItems("input", inputs);
++
++            for (ItemStack itemStack : inputs) {
++                if (itemStack.isEmpty()) {
++                    throw new RecipeExceptionJS(String.format("Input items is empty, id: %s", recipeJS.id));
++                }
++                gatherMaterialInfoFromStacks(itemStack);
++            }
++            return input(ItemRecipeCapability.CAP,
++                    Arrays.stream(inputs)
++                            .map(stack -> InputItem.of(
++                                    stack.hasTag() ? StrictNBTIngredient.of(stack) : Ingredient.of(stack),
++                                    stack.getCount()))
++                            .toArray());
++        }
++
++        public JSBuilder inputItems(TagKey<Item> tag, int amount) {
++            return inputItems(InputItem.of(Ingredient.of(tag), amount));
++        }
++
++        public JSBuilder inputItems(Item input, int amount) {
++            return inputItems(new ItemStack(input, amount));
++        }
++
++        public JSBuilder inputItems(Item input) {
++            return inputItems(InputItem.of(Ingredient.of(input), 1));
++        }
++
++        public JSBuilder inputItems(Supplier<? extends Item> input) {
++            return inputItems(input.get());
++        }
++
++        public JSBuilder inputItems(Supplier<? extends Item> input, int amount) {
++            return inputItems(new ItemStack(input.get(), amount));
++        }
++
++        public JSBuilder inputItems(TagPrefix orePrefix, Material material) {
++            return inputItems(orePrefix, material, 1);
++        }
++
++        public JSBuilder inputItems(MaterialEntry input) {
++            return inputItems(input.tagPrefix(), input.material(), 1);
++        }
++
++        public JSBuilder inputItems(MaterialEntry input, int count) {
++            return inputItems(input.tagPrefix(), input.material(), count);
++        }
++
++        public JSBuilder inputItems(TagPrefix orePrefix, Material material, int count) {
++            itemMaterialStacks.add(new MaterialStack(material, orePrefix.getMaterialAmount(material) * count));
++            return inputItems(ChemicalHelper.getTag(orePrefix, material), count);
++        }
++
++        public JSBuilder inputItems(MachineDefinition machine) {
++            return inputItems(machine, 1);
++        }
++
++        public JSBuilder inputItems(MachineDefinition machine, int count) {
++            return inputItems(machine.asStack(count));
++        }
++
++        public JSBuilder itemInputsRanged(ExtendedOutputItem ingredient, int min, int max) {
++            return inputItemsRanged(ingredient.ingredient.getInner(), min, max);
++        }
++
++        public JSBuilder inputItemsRanged(Ingredient ingredient, int min, int max) {
++            validateItems("ranged input", ingredient);
++            return input(ItemRecipeCapability.CAP, new ExtendedOutputItem(ingredient, 1, UniformInt.of(min, max)));
++        }
++
++        public JSBuilder inputItemsRanged(ItemStack stack, int min, int max) {
++            validateItems("ranged input", stack);
++            return input(ItemRecipeCapability.CAP, new ExtendedOutputItem(stack, UniformInt.of(min, max)));
++        }
++
++        public JSBuilder itemInputsRanged(TagPrefix orePrefix, Material material, int min, int max) {
++            return inputItemsRanged(ChemicalHelper.get(orePrefix, material), min, max);
++        }
++
++        public JSBuilder notConsumable(InputItem itemStack) {
++            validateItems("not consumable", itemStack);
++
++            int lastChance = this.chance;
++            this.chance = 0;
++            inputItems(itemStack);
++            this.chance = lastChance;
++            return this;
++        }
++
++        public JSBuilder notConsumable(TagPrefix orePrefix, Material material) {
++            validateItems("not consumable", orePrefix);
++
++            int lastChance = this.chance;
++            this.chance = 0;
++            inputItems(orePrefix, material);
++            this.chance = lastChance;
++            return this;
++        }
++
++        public JSBuilder notConsumableFluid(GTRecipeComponents.FluidIngredientJS fluid) {
++            validateFluids("not consumable", fluid);
++
++            int lastChance = this.chance;
++            this.chance = 0;
++            inputFluids(fluid);
++            this.chance = lastChance;
++            return this;
++        }
++
++        public JSBuilder chancedInput(InputItem stack, int chance, int tierChanceBoost) {
++            validateItems("chanced input", stack);
++
++            if (0 >= chance || chance > ChanceLogic.getMaxChancedValue()) {
++                throw new RecipeExceptionJS(
++                        String.format("Chance cannot be less or equal to 0 or more than %s, Actual: %s, id: %s",
++                                ChanceLogic.getMaxChancedValue(), chance, recipeJS.id));
++            }
++            int lastChance = this.chance;
++            int lastTierChanceBoost = this.tierChanceBoost;
++            this.chance = chance;
++            this.tierChanceBoost = tierChanceBoost;
++            inputItems(stack);
++            this.chance = lastChance;
++            this.tierChanceBoost = lastTierChanceBoost;
++            return this;
++        }
++
++        public JSBuilder chancedFluidInput(GTRecipeComponents.FluidIngredientJS stack, int chance,
++                                           int tierChanceBoost) {
++            validateFluids("chanced input", stack);
++
++            if (0 >= chance || chance > ChanceLogic.getMaxChancedValue()) {
++                throw new RecipeExceptionJS(
++                        String.format("Chance cannot be less or equal to 0 or more than %s, Actual: %s, id: %s",
++                                ChanceLogic.getMaxChancedValue(), chance, recipeJS.id));
++            }
++            int lastChance = this.chance;
++            int lastTierChanceBoost = this.tierChanceBoost;
++            this.chance = chance;
++            this.tierChanceBoost = tierChanceBoost;
++            inputFluids(stack);
++            this.chance = lastChance;
++            this.tierChanceBoost = lastTierChanceBoost;
++            return this;
++        }
++
++        public JSBuilder fluidInputs(GTRecipeComponents.FluidIngredientJS... inputs) {
++            return inputFluids(inputs);
++        }
++
++        public JSBuilder inputFluids(GTRecipeComponents.FluidIngredientJS... inputs) {
++            validateFluids("input", inputs);
++
++            for (var fluidIng : inputs) {
++                for (var stack : fluidIng.ingredient().getStacks()) {
++                    var mat = ChemicalHelper.getMaterial(stack.getFluid());
++                    if (!mat.isNull()) {
++                        fluidMaterialStacks.add(new MaterialStack(mat,
++                                ((long) stack.getAmount() * GTValues.M) / GTValues.L));
++                    }
++                }
++            }
++            return input(FluidRecipeCapability.CAP, (Object[]) inputs);
++        }
++
++        public JSBuilder inputFluidsRanged(FluidStackJS input, int min, int max) {
++            return inputFluidsRanged(input, UniformInt.of(min, max));
++        }
++
++        public JSBuilder inputFluidsRanged(FluidStackJS input, IntProvider range) {
++            validateFluids("ranged input", input);
++            FluidStack stack = new FluidStack(input.getFluid(), (int) input.getAmount(), input.getNbt());
++            return input(FluidRecipeCapability.CAP,
++                    IntProviderFluidIngredient.of(FluidIngredient.of(stack), range));
++        }
++
++        private Content makeContent(Object o) {
++            return new Content(o, chance, maxChance, tierChanceBoost);
++        }
++
++        @HideFromJS
++        public void apply() {
++            next();
++
++            var info = new LayeredRecipeInfo(
++                    layers.stream().map(layer -> new LayeredRecipeInfo.Layer(layer.duration(), layer.timeout()))
++                            .toList(),
++                    new IdentityHashMap<>(),
++                    new IdentityHashMap<>());
++
++            var layerIndex = 0;
++            for (var layer : layers) {
++                var allInputs = recipeJS.getValue(GTRecipeSchema.ALL_INPUTS);
++                if (allInputs == null)
++                    recipeJS.setValue(GTRecipeSchema.ALL_INPUTS, allInputs = new CapabilityMap());
++
++                var allTickInputs = recipeJS.getValue(GTRecipeSchema.ALL_TICK_INPUTS);
++                if (allTickInputs == null)
++                    recipeJS.setValue(GTRecipeSchema.ALL_TICK_INPUTS, allTickInputs = new CapabilityMap());
++
++                applyLayer(layerIndex, layer.input(), allInputs, info.input());
++                applyLayer(layerIndex, layer.tickInput(), allTickInputs, info.tickInput());
++                layerIndex++;
++            }
++
++            var layeredData = LayeredRecipeInfo.CODEC.encodeStart(NbtOps.INSTANCE, info).result().orElseThrow();
++            recipeJS.addData("layered_info", layeredData);
++        }
++
++        private void applyLayer(int layerIndex, Map<RecipeCapability<?>, List<Content>> layer,
++                                CapabilityMap cMap,
++                                Map<RecipeCapability<?>, Int2IntMap> cLayerMap) {
++            for (var entry : layer.entrySet()) {
++                var capability = entry.getKey();
++                var contents = entry.getValue();
++
++                var cMapCap = cMap.get(capability);
++                var indexStart = cMapCap != null ? cMapCap.length : 0;
++                cMap.put(capability, ArrayUtils.addAll(cMapCap, contents.toArray(Content[]::new)));
++                var indexEnd = indexStart + contents.size();
++                var layerMap = cLayerMap.computeIfAbsent(capability, c -> new Int2IntArrayMap());
++                IntStream.range(indexStart, indexEnd).forEach((index) -> layerMap.put(index, layerIndex));
++            }
++        }
++
++        private void validateItems(@NotNull String type, InputItem... items) {
++            for (var stack : items) {
++                if (stack == null || stack.isEmpty()) {
++                    throw new RecipeExceptionJS(
++                            String.format("Invalid or empty %s item (recipe ID: %s)", type, recipeJS.id));
++                }
++            }
++        }
++
++        private void validateItems(@NotNull String type, ItemStack... stacks) {
++            for (var stack : stacks) {
++                if (stack == null || stack.isEmpty()) {
++                    throw new RecipeExceptionJS(
++                            String.format("Invalid or empty %s item (recipe ID: %s)", type, recipeJS.id));
++                }
++            }
++        }
++
++        private void validateItems(@NotNull String type, Ingredient... ingredients) {
++            for (var ingredient : ingredients) {
++                if (ingredient == null || ingredient.isEmpty()) {
++                    throw new RecipeExceptionJS(
++                            String.format("Invalid or empty %s item (recipe ID: %s)", type, recipeJS.id));
++                }
++            }
++        }
++
++        private void validateItems(@NotNull String type, OutputItem... items) {
++            for (var item : items) {
++                if (item == null || item.item == null || item.item.isEmpty()) {
++                    throw new RecipeExceptionJS(
++                            String.format("Invalid or empty %s item (recipe ID: %s)", type, recipeJS.id));
++                }
++            }
++        }
++
++        private void validateItems(@NotNull String type, TagPrefix... items) {
++            for (var item : items) {
++                if (item == null || item.isEmpty()) {
++                    throw new RecipeExceptionJS(
++                            String.format("Invalid or empty %s item (recipe ID: %s)", type, recipeJS.id));
++                }
++            }
++        }
++
++        private void validateFluids(@NotNull String type, GTRecipeComponents.FluidIngredientJS... fluids) {
++            for (var fluid : fluids) {
++                if (fluid == null || fluid.ingredient() == null || fluid.ingredient().getStacks() == null) {
++                    throw new RecipeExceptionJS(
++                            String.format("Invalid or empty %s fluid (recipe ID: %s)", type, recipeJS.id));
++                }
++
++                for (var stack : fluid.ingredient().getStacks()) {
++                    if (stack == null || stack.isEmpty()) {
++                        throw new RecipeExceptionJS(
++                                String.format("Invalid or empty %s fluid (recipe ID: %s)", type, recipeJS.id));
++                    }
++                }
++            }
++        }
++
++        private void validateFluids(@NotNull String type, FluidStackJS... stacks) {
++            for (var stack : stacks) {
++                if (stack == null || stack.getFluidStack() == null || stack.getFluidStack().isEmpty()) {
++                    throw new RecipeExceptionJS(
++                            String.format("Invalid or empty %s fluid (recipe ID: %s)", type, recipeJS.id));
++                }
++            }
++        }
++
++        private void gatherMaterialInfoFromStacks(ItemStack itemStack) {
++            // test simple item that have pure singular material stack
++            var matStack = ChemicalHelper.getMaterialStack(itemStack);
++            // test item that has multiple material stacks
++            var matInfo = ChemicalHelper.getMaterialInfo(itemStack);
++            if (chance == maxChance && chance != 0) {
++                if (!matStack.isEmpty()) {
++                    itemMaterialStacks.add(matStack.multiply(itemStack.getCount()));
++                }
++                if (matInfo != null) {
++                    for (var ms : matInfo.getMaterials()) {
++                        itemMaterialStacks.add(ms.multiply(itemStack.getCount()));
++                    }
++                } else {
++                    tempItemStacks.add(itemStack);
++                }
++            }
++        }
++    }
++
++    @ParametersAreNonnullByDefault
++    @MethodsReturnNonnullByDefault
++    @Accessors(chain = true, fluent = true)
++    public static class Builder {
++
++        private final GTRecipeBuilder recipeBuilder;
++
++        private final List<Layer> layers = new ArrayList<>();
++
++        public Map<RecipeCapability<?>, List<Content>> input = new IdentityHashMap<>();
++        public Map<RecipeCapability<?>, List<Content>> tickInput = new IdentityHashMap<>();
++
++        private List<ItemStack> tempItemStacks = new ArrayList<>();
++        private List<MaterialStack> tempItemMaterialStacks = new ArrayList<>();
++        private List<MaterialStack> tempFluidStacks = new ArrayList<>();
++
++        @Setter
++        public int chance = ChanceLogic.getMaxChancedValue();
++        @Setter
++        public int maxChance = ChanceLogic.getMaxChancedValue();
++        @Setter
++        public boolean perTick;
++        @Setter
++        public int duration = -1;
++        @Setter
++        public int timeout = -1;
++
++        public Builder(GTRecipeBuilder recipeBuilder) {
++            this.recipeBuilder = recipeBuilder;
++        }
++
++        public Builder next() {
++            if (input.isEmpty() && !tickInput.isEmpty()) return this;
++
++            layers.add(new Layer(
++                    new IdentityHashMap<>(input),
++                    new IdentityHashMap<>(tickInput),
++                    duration,
++                    timeout));
++
++            input.clear();
++            tickInput.clear();
++            perTick = false;
++            duration = -1;
++            timeout = -1;
++
++            return this;
++        }
++
++        public <T> Builder input(RecipeCapability<T> capability, T obj) {
++            var t = (perTick ? tickInput : input);
++            t.computeIfAbsent(capability, c -> new ArrayList<>()).add(makeContent(capability.of(obj)));
++            return this;
++        }
++
++        public <T> Builder input(RecipeCapability<T> capability, T... obj) {
++            var t = (perTick ? tickInput : input);
++            t.computeIfAbsent(capability, c -> new ArrayList<>())
++                    .addAll(Arrays.stream(obj).map(capability::of).map(this::makeContent).toList());
++            return this;
++        }
++
++        public Builder inputEU(long eu) {
++            return inputEU(eu, 1);
++        }
++
++        public Builder inputEU(long voltage, long amperage) {
++            return input(EURecipeCapability.CAP, new EnergyStack(voltage, amperage));
++        }
++
++        public Builder EUt(long eu) {
++            return EUt(eu, 1);
++        }
++
++        public Builder EUt(long voltage, long amperage) {
++            if (voltage <= 0) {
++                GTCEu.LOGGER.error("EUt can't be explicitly set to 0 or to a negative value, id: {}", recipeBuilder.id);
++            }
++            if (amperage < 1) {
++                GTCEu.LOGGER.error("Amperage must be a positive integer, id: {}", recipeBuilder.id);
++            }
++            if (voltage < 0) {
++                GTCEu.LOGGER.error("EUt can't must be a positive integer, id: {}", recipeBuilder.id);
++            }
++            var lastPerTick = perTick;
++            perTick = true;
++            tickInput.remove(EURecipeCapability.CAP);
++            inputEU(voltage, amperage);
++            perTick = lastPerTick;
++            return this;
++        }
++
++        public Builder inputItems(Object input) {
++            if (input instanceof Item item) {
++                return inputItems(item);
++            } else if (input instanceof Supplier<?> supplier && supplier.get() instanceof ItemLike item) {
++                return inputItems(item.asItem());
++            } else if (input instanceof ItemStack stack) {
++                return inputItems(stack);
++            } else if (input instanceof Ingredient ingredient) {
++                return inputItems(ingredient);
++            } else if (input instanceof MaterialEntry entry) {
++                return inputItems(entry);
++            } else if (input instanceof TagKey<?> tag) {
++                return inputItems((TagKey<Item>) tag);
++            } else if (input instanceof MachineDefinition machine) {
++                return inputItems(machine);
++            } else {
++                GTCEu.LOGGER.error("""
++                        Input item is not one of:
++                        Item, Supplier<Item>, ItemStack, Ingredient, MaterialEntry, TagKey<Item>, MachineDefinition
++                        id: {}""", recipeBuilder.id);
++                return this;
++            }
++        }
++
++        public Builder inputItems(Object input, int count) {
++            if (input instanceof Item item) {
++                return inputItems(item, count);
++            } else if (input instanceof Supplier<?> supplier && supplier.get() instanceof ItemLike item) {
++                return inputItems(item.asItem(), count);
++            } else if (input instanceof ItemStack stack) {
++                return inputItems(stack.copyWithCount(count));
++            } else if (input instanceof Ingredient ingredient) {
++                return inputItems(ingredient, count);
++            } else if (input instanceof MaterialEntry entry) {
++                return inputItems(entry, count);
++            } else if (input instanceof TagKey<?> tag) {
++                return inputItems((TagKey<Item>) tag, count);
++            } else if (input instanceof MachineDefinition machine) {
++                return inputItems(machine, count);
++            } else {
++                GTCEu.LOGGER.error("""
++                        Input item is not one of:
++                        Item, Supplier<Item>, ItemStack, Ingredient, MaterialEntry, TagKey<Item>, MachineDefinition
++                        id: {}""", recipeBuilder.id);
++                return this;
++            }
++        }
++
++        public Builder inputItems(Ingredient inputs) {
++            if (missingIngredientError(0, ItemRecipeCapability.CAP, inputs::isEmpty)) {
++                return this;
++            }
++            return input(ItemRecipeCapability.CAP, inputs);
++        }
++
++        public Builder inputItems(Ingredient... inputs) {
++            List<Ingredient> ingredients = new ArrayList<>();
++            for (int i = 0; i < inputs.length; i++) {
++                var ingredient = inputs[i];
++                if (missingIngredientError(i, ItemRecipeCapability.CAP, ingredient::isEmpty)) {
++                    return this;
++                } else {
++                    ingredients.add(ingredient);
++                }
++            }
++            return input(ItemRecipeCapability.CAP, ingredients.toArray(Ingredient[]::new));
++        }
++
++        public Builder inputItems(Ingredient inputs, int count) {
++            if (missingIngredientError(0, ItemRecipeCapability.CAP, inputs::isEmpty)) {
++                return this;
++            }
++            return input(ItemRecipeCapability.CAP, SizedIngredient.create(inputs, count));
++        }
++
++        public Builder inputItems(ItemStack input) {
++            if (missingIngredientError(0, ItemRecipeCapability.CAP, input::isEmpty)) {
++                return this;
++            }
++            gatherMaterialInfoFromStack(input);
++            return input(ItemRecipeCapability.CAP, SizedIngredient.create(input));
++        }
++
++        public Builder inputItems(ItemStack... inputs) {
++            List<Ingredient> ingredients = new ArrayList<>();
++            for (int i = 0; i < inputs.length; i++) {
++                ItemStack itemStack = inputs[i];
++                if (missingIngredientError(i, ItemRecipeCapability.CAP, itemStack::isEmpty)) {
++                    return this;
++                } else {
++                    gatherMaterialInfoFromStack(itemStack);
++                    ingredients.add(SizedIngredient.create(itemStack));
++                }
++            }
++            return input(ItemRecipeCapability.CAP, ingredients.toArray(Ingredient[]::new));
++        }
++
++        public Builder inputItems(TagKey<Item> tag, int amount) {
++            return inputItems(SizedIngredient.create(tag, amount));
++        }
++
++        public Builder inputItems(TagKey<Item> tag) {
++            return inputItems(tag, 1);
++        }
++
++        public Builder inputItems(Item input, int amount) {
++            return inputItems(new ItemStack(input, amount));
++        }
++
++        public Builder inputItems(Item input) {
++            return inputItems(input, 1);
++        }
++
++        public Builder inputItems(Supplier<? extends Item> input) {
++            return inputItems(input.get());
++        }
++
++        public Builder inputItems(Supplier<? extends Item> input, int amount) {
++            return inputItems(input.get(), amount);
++        }
++
++        public Builder inputItems(TagPrefix orePrefix, Material material) {
++            return inputItems(orePrefix, material, 1);
++        }
++
++        public Builder inputItems(MaterialEntry input) {
++            return inputItems(input, 1);
++        }
++
++        public Builder inputItems(MaterialEntry input, int count) {
++            return inputItems(input.tagPrefix(), input.material(), count);
++        }
++
++        public Builder inputItems(TagPrefix tagPrefix, @NotNull Material material, int count) {
++            if (tagPrefix.isEmpty() || material.isNull()) {
++                GTCEu.LOGGER.error(
++                        "Tried to set input item stack that doesn't exist, id: {}, TagPrefix: {}, Material: {}, Count: {}",
++                        recipeBuilder.id, tagPrefix, material, count);
++                return this;
++            } else {
++                tempItemMaterialStacks.add(new MaterialStack(material, tagPrefix.getMaterialAmount(material) * count));
++                tagPrefix.secondaryMaterials().forEach(mat -> tempItemMaterialStacks.add(mat.multiply(count)));
++            }
++            TagKey<Item> tag = ChemicalHelper.getTag(tagPrefix, material);
++            if (tag != null) {
++                return inputItems(tag, count);
++            } else {
++                var item = ChemicalHelper.get(tagPrefix, material, count);
++                if (item.isEmpty()) {
++                    GTCEu.LOGGER.error(
++                            "Tried to set input item stack that doesn't exist, id: {}, TagPrefix: {}, Material: {}, Count: {}",
++                            recipeBuilder.id, tagPrefix, material, count);
++                }
++                return input(ItemRecipeCapability.CAP, SizedIngredient.create(item));
++            }
++        }
++
++        public Builder inputItems(MachineDefinition machine) {
++            return inputItems(machine, 1);
++        }
++
++        public Builder inputItems(MachineDefinition machine, int count) {
++            return inputItems(machine.asStack(count));
++        }
++
++        public Builder inputItemRanged(IntProviderIngredient provider) {
++            return inputItems(provider);
++        }
++
++        public Builder inputItemsRanged(ItemStack input, IntProvider intProvider) {
++            return inputItemRanged(IntProviderIngredient.of(input, intProvider));
++        }
++
++        public Builder inputItemsRanged(Item input, IntProvider intProvider) {
++            return inputItemsRanged(new ItemStack(input), intProvider);
++        }
++
++        public Builder inputItemsRanged(Supplier<? extends ItemLike> input, IntProvider intProvider) {
++            return inputItemsRanged(new ItemStack(input.get().asItem()), intProvider);
++        }
++
++        public Builder inputItemsRanged(TagPrefix orePrefix, Material material, IntProvider intProvider) {
++            var item = ChemicalHelper.get(orePrefix, material, 1);
++            if (item.isEmpty()) {
++                GTCEu.LOGGER.error(
++                        "Tried to set input ranged item stack that doesn't exist, TagPrefix: {}, Material: {}",
++                        orePrefix, material);
++            }
++            return inputItemsRanged(item, intProvider);
++        }
++
++        public Builder inputItemsRanged(MachineDefinition machine, IntProvider intProvider) {
++            return inputItemsRanged(machine.asStack(), intProvider);
++        }
++
++        public Builder notConsumable(ItemStack itemStack) {
++            int lastChance = this.chance;
++            this.chance = 0;
++            inputItems(itemStack);
++            this.chance = lastChance;
++            return this;
++        }
++
++        public Builder notConsumable(Ingredient ingredient) {
++            int lastChance = this.chance;
++            this.chance = 0;
++            inputItems(ingredient);
++            this.chance = lastChance;
++            return this;
++        }
++
++        public Builder notConsumable(Item item) {
++            int lastChance = this.chance;
++            this.chance = 0;
++            inputItems(item);
++            this.chance = lastChance;
++            return this;
++        }
++
++        public Builder notConsumable(Supplier<? extends Item> item) {
++            int lastChance = this.chance;
++            this.chance = 0;
++            inputItems(item);
++            this.chance = lastChance;
++            return this;
++        }
++
++        public Builder notConsumable(TagPrefix orePrefix, Material material) {
++            int lastChance = this.chance;
++            this.chance = 0;
++            inputItems(orePrefix, material);
++            this.chance = lastChance;
++            return this;
++        }
++
++        public Builder notConsumable(TagPrefix orePrefix, Material material, int count) {
++            int lastChance = this.chance;
++            this.chance = 0;
++            inputItems(orePrefix, material, count);
++            this.chance = lastChance;
++            return this;
++        }
++
++        public Builder notConsumableFluid(FluidStack fluid) {
++            return notConsumableFluid(FluidIngredient.of(
++                    TagUtil.createFluidTag(BuiltInRegistries.FLUID.getKey(fluid.getFluid()).getPath()),
++                    fluid.getAmount()));
++        }
++
++        public Builder notConsumableFluid(FluidIngredient ingredient) {
++            int lastChance = this.chance;
++            this.chance = 0;
++            inputFluids(ingredient);
++            this.chance = lastChance;
++            return this;
++        }
++
++        public Builder circuitMeta(int configuration) {
++            if (configuration < 0 || configuration > IntCircuitBehaviour.CIRCUIT_MAX) {
++                GTCEu.LOGGER.error("Circuit configuration must be in the bounds 0 - 32");
++            }
++            return notConsumable(IntCircuitIngredient.of(configuration));
++        }
++
++        public Builder inputFluids(@NotNull Material material, int amount) {
++            return inputFluids(material.getFluid(amount));
++        }
++
++        public Builder inputFluids(FluidStack input) {
++            if (missingIngredientError(0, FluidRecipeCapability.CAP, input::isEmpty)) {
++                return this;
++            }
++            var matStack = ChemicalHelper.getMaterial(input.getFluid());
++            if (!matStack.isNull() && chance != 0 && chance == maxChance) {
++                tempFluidStacks.add(new MaterialStack(matStack, input.getAmount() * GTValues.M / GTValues.L));
++            }
++            return input(FluidRecipeCapability.CAP, FluidIngredient.of(
++                    TagUtil.createFluidTag(BuiltInRegistries.FLUID.getKey(input.getFluid()).getPath()),
++                    input.getAmount(), input.getTag()));
++        }
++
++        public Builder inputFluids(FluidStack... inputs) {
++            List<FluidIngredient> ingredients = new ArrayList<>();
++            for (int i = 0; i < inputs.length; i++) {
++                FluidStack fluid = inputs[i];
++                if (missingIngredientError(i, FluidRecipeCapability.CAP, fluid::isEmpty)) {
++                    return this;
++                } else {
++                    var matStack = ChemicalHelper.getMaterial(fluid.getFluid());
++                    if (!matStack.isNull()) {
++                        if (chance == maxChance && chance != 0) {
++                            tempFluidStacks
++                                    .add(new MaterialStack(matStack, fluid.getAmount() * GTValues.M / GTValues.L));
++                        }
++                    }
++
++                    TagKey<Fluid> tag = TagUtil
++                            .createFluidTag(BuiltInRegistries.FLUID.getKey(fluid.getFluid()).getPath());
++                    ingredients.add(FluidIngredient.of(tag, fluid.getAmount(), fluid.getTag()));
++                }
++            }
++            return input(FluidRecipeCapability.CAP, ingredients.toArray(FluidIngredient[]::new));
++        }
++
++        public Builder inputFluidsRanged(IntProviderFluidIngredient provider) {
++            return inputFluids(provider);
++        }
++
++        protected Builder inputFluidsRanged(FluidIngredient input, IntProvider intProvider) {
++            return inputFluidsRanged(IntProviderFluidIngredient.of(input, intProvider));
++        }
++
++        public Builder inputFluidsRanged(FluidStack input, IntProvider intProvider) {
++            return inputFluidsRanged(FluidIngredient.of(input), intProvider);
++        }
++
++        public Builder inputFluids(FluidIngredient... inputs) {
++            return input(FluidRecipeCapability.CAP, inputs);
++        }
++
++        protected boolean missingIngredientError(int index, RecipeCapability<?> cap, BooleanSupplier empty) {
++            if (empty.getAsBoolean()) {
++                String io = perTick ? "Tick input" : "Input";
++                GTCEu.LOGGER.error("{} {} {} of recipe {} is empty", io, cap.name, index, recipeBuilder.id);
++                return true;
++            }
++            return false;
++        }
++
++        private void gatherMaterialInfoFromStack(ItemStack input) {
++            var matInfo = ItemMaterialData.getMaterialInfo(input.getItem());
++            var unresolvedMatInfo = ItemMaterialData.UNRESOLVED_ITEM_MATERIAL_INFO.get(input);
++            if (chance == maxChance && chance != 0) {
++                if (unresolvedMatInfo != null) {
++                    tempItemStacks.add(input);
++                }
++                if (matInfo != null) {
++                    for (var matStack : matInfo.getMaterials()) {
++                        tempItemMaterialStacks.add(matStack.multiply(input.getCount()));
++                    }
++                } else if (unresolvedMatInfo == null) {
++                    tempItemStacks.add(input);
++                }
++
++            }
++        }
++
++        protected Content makeContent(Object o) {
++            return new Content(o, chance, maxChance, 0);
++        }
++
++        public void apply() {
++            next();
++
++            var info = new LayeredRecipeInfo(
++                    layers.stream().map(layer -> new LayeredRecipeInfo.Layer(layer.duration(), layer.timeout()))
++                            .toList(),
++                    new IdentityHashMap<>(),
++                    new IdentityHashMap<>());
++
++            var layerIndex = 0;
++            for (var layer : layers) {
++                applyLayer(layerIndex, layer.input(), recipeBuilder.input, info.input());
++                applyLayer(layerIndex, layer.tickInput(), recipeBuilder.tickInput, info.tickInput());
++                layerIndex++;
++            }
++
++            recipeBuilder.data.put("layered_info",
++                    LayeredRecipeInfo.CODEC.encodeStart(NbtOps.INSTANCE, info).result().orElseThrow());
++        }
++
++        private void warnTooManyIngredients(RecipeCapability<?> capability, boolean isInput, int layer, int totalSize) {
++            // TODO: decide if we wan't to use it or no
++            var recipeCapabilityMax = isInput ? recipeBuilder.recipeType.maxInputs :
++                    recipeBuilder.recipeType.maxOutputs;
++            if (!recipeCapabilityMax.containsKey(capability)) return;
++            int max = recipeCapabilityMax.getInt(capability);
++            if (totalSize > max) {
++                String io = isInput ? "inputs" : "outputs";
++                GTCEu.LOGGER.warn(
++                        "Layer {} of recipe {} is trying to add more {} than its recipe type can support, Max {} {}: {}",
++                        layer, recipeBuilder.id, io, capability.name, io, max);
++            }
++        }
++
++        private void applyLayer(int layerIndex, Map<RecipeCapability<?>, List<Content>> layer,
++                                Map<RecipeCapability<?>, List<Content>> cMap,
++                                Map<RecipeCapability<?>, Int2IntMap> cLayerMap) {
++            for (var entry : layer.entrySet()) {
++                var capability = entry.getKey();
++                var contents = entry.getValue();
++
++                var indexStart = cMap.containsKey(capability) ? cMap.get(capability).size() : 0;
++                cMap.computeIfAbsent(capability, c -> new ArrayList<>()).addAll(contents);
++                var indexEnd = indexStart + contents.size();
++                var layerMap = cLayerMap.computeIfAbsent(capability, c -> new Int2IntArrayMap());
++                IntStream.range(indexStart, indexEnd).forEach((index) -> layerMap.put(index, layerIndex));
++            }
++        }
++
++        public record Layer(
++                            Map<RecipeCapability<?>, List<Content>> input,
++                            Map<RecipeCapability<?>, List<Content>> tickInput,
++                            int duration,
++                            int timeout) {}
++    }
++}
+diff --git a/src/main/java/com/gregtechceu/gtceu/integration/jade/GTJadePlugin.java b/src/main/java/com/gregtechceu/gtceu/integration/jade/GTJadePlugin.java
+index b1ca1bb..f002af4 100644
+--- a/src/main/java/com/gregtechceu/gtceu/integration/jade/GTJadePlugin.java
++++ b/src/main/java/com/gregtechceu/gtceu/integration/jade/GTJadePlugin.java
+@@ -31,6 +31,7 @@ public class GTJadePlugin implements IWailaPlugin {
+         registration.registerBlockDataProvider(new RecipeLogicProvider(), BlockEntity.class);
+         registration.registerBlockDataProvider(new ParallelProvider(), BlockEntity.class);
+         registration.registerBlockDataProvider(new RecipeOutputProvider(), BlockEntity.class);
++        registration.registerBlockDataProvider(new LayeredRecipeProvider(), BlockEntity.class);
+         registration.registerBlockDataProvider(new MultiblockStructureProvider(), BlockEntity.class);
+         registration.registerBlockDataProvider(new MaintenanceBlockProvider(), BlockEntity.class);
+         registration.registerBlockDataProvider(new ExhaustVentBlockProvider(), BlockEntity.class);
+@@ -62,6 +63,7 @@ public class GTJadePlugin implements IWailaPlugin {
+         registration.registerBlockComponent(new RecipeLogicProvider(), Block.class);
+         registration.registerBlockComponent(new ParallelProvider(), Block.class);
+         registration.registerBlockComponent(new RecipeOutputProvider(), Block.class);
++        registration.registerBlockComponent(new LayeredRecipeProvider(), Block.class);
+         registration.registerBlockComponent(new MultiblockStructureProvider(), Block.class);
+         registration.registerBlockComponent(new MaintenanceBlockProvider(), Block.class);
+         registration.registerBlockComponent(new ExhaustVentBlockProvider(), Block.class);
+diff --git a/src/main/java/com/gregtechceu/gtceu/integration/jade/provider/LayeredRecipeProvider.java b/src/main/java/com/gregtechceu/gtceu/integration/jade/provider/LayeredRecipeProvider.java
+new file mode 100644
+index 0000000..10ecfc2
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/integration/jade/provider/LayeredRecipeProvider.java
+@@ -0,0 +1,122 @@
++package com.gregtechceu.gtceu.integration.jade.provider;
++
++import com.gregtechceu.gtceu.GTCEu;
++import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper;
++import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
++import com.gregtechceu.gtceu.api.recipe.ingredient.IntProviderFluidIngredient;
++import com.gregtechceu.gtceu.api.recipe.ingredient.IntProviderIngredient;
++import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
++import com.gregtechceu.gtceu.common.machine.trait.LayeredRecipeLogic;
++import com.gregtechceu.gtceu.utils.GTUtil;
++
++import net.minecraft.core.BlockPos;
++import net.minecraft.core.Direction;
++import net.minecraft.nbt.CompoundTag;
++import net.minecraft.nbt.ListTag;
++import net.minecraft.nbt.NbtOps;
++import net.minecraft.nbt.Tag;
++import net.minecraft.network.chat.Component;
++import net.minecraft.world.entity.player.Player;
++import net.minecraft.world.item.crafting.Ingredient;
++import net.minecraft.world.level.Level;
++import net.minecraft.world.level.block.entity.BlockEntity;
++import net.minecraftforge.fluids.FluidStack;
++
++import com.google.gson.JsonObject;
++import com.mojang.serialization.JsonOps;
++import org.jetbrains.annotations.Nullable;
++import snownee.jade.api.BlockAccessor;
++import snownee.jade.api.ITooltip;
++import snownee.jade.api.config.IPluginConfig;
++
++import java.util.ArrayList;
++import java.util.List;
++
++public class LayeredRecipeProvider extends CapabilityBlockProvider<LayeredRecipeLogic> {
++
++    public LayeredRecipeProvider() {
++        super(GTCEu.id("layered_recipe_info"));
++    }
++
++    @Override
++    protected @Nullable LayeredRecipeLogic getCapability(Level level, BlockPos pos, @Nullable Direction side) {
++        return GTCapabilityHelper.getRecipeLogic(level, pos, side) instanceof LayeredRecipeLogic logic ? logic : null;
++    }
++
++    @Override
++    protected void write(CompoundTag data, LayeredRecipeLogic recipeLogic) {
++        var layeredSteps = recipeLogic.getLayeredRecipe();
++
++        if (!layeredSteps.isEmpty()) {
++            data.putBoolean("HasRecipe", true);
++
++            data.putInt("Index", recipeLogic.getLayeredRecipeLayerIndex());
++            data.putInt("NumSteps", layeredSteps.size());
++
++            var lastRecipe = layeredSteps.get(layeredSteps.size() - 1);
++            var tagsPair = RecipeOutputProvider.gatherRecipeItemAndFluidsOutput(lastRecipe);
++            if (!tagsPair.getFirst().isEmpty()) {
++                data.put("OutputItems", tagsPair.getFirst());
++            }
++            if (!tagsPair.getSecond().isEmpty()) {
++                data.put("OutputFluids", tagsPair.getSecond());
++            }
++        } else {
++            data.putBoolean("HasRecipe", false);
++        }
++    }
++
++    @Override
++    protected void addTooltip(CompoundTag capData, ITooltip tooltip, Player player, BlockAccessor block,
++                              BlockEntity blockEntity, IPluginConfig config) {
++        if (!capData.getBoolean("HasRecipe")) return;
++
++        tooltip.add(Component.translatable("gtceu.top.layered_recipe.step", capData.getInt("Index") + 1,
++                capData.getInt("NumSteps")));
++
++        if (!tooltip.get(GTCEu.id("recipeoutput")).isEmpty()) return;
++
++        List<Ingredient> outputItems = new ArrayList<>();
++        if (capData.contains("OutputItems", Tag.TAG_LIST)) {
++            ListTag itemTags = capData.getList("OutputItems", Tag.TAG_COMPOUND);
++            if (!itemTags.isEmpty()) {
++                for (Tag tag : itemTags) {
++                    if (tag instanceof CompoundTag tCompoundTag) {
++                        if (tCompoundTag.contains("count_provider")) {
++                            var ingredient = IntProviderIngredient.SERIALIZER
++                                    .parse((JsonObject) NbtOps.INSTANCE.convertTo(JsonOps.INSTANCE, tCompoundTag));
++                            outputItems.add(ingredient);
++                        } else {
++                            var stack = GTUtil.loadItemStack(tCompoundTag);
++                            if (!stack.isEmpty()) {
++                                outputItems.add(SizedIngredient.create(stack));
++                            }
++                        }
++                    }
++                }
++            }
++        }
++        List<FluidIngredient> outputFluids = new ArrayList<>();
++        if (capData.contains("OutputFluids", Tag.TAG_LIST)) {
++            ListTag fluidTags = capData.getList("OutputFluids", Tag.TAG_COMPOUND);
++            for (Tag tag : fluidTags) {
++                if (tag instanceof CompoundTag tCompoundTag) {
++                    if (tCompoundTag.contains("count_provider")) {
++                        var ingredient = IntProviderFluidIngredient.fromNBT(tCompoundTag);
++                        outputFluids.add(ingredient);
++                    } else {
++                        var stack = FluidStack.loadFluidStackFromNBT(tCompoundTag);
++                        if (!stack.isEmpty()) {
++                            outputFluids.add(FluidIngredient.of(stack));
++                        }
++                    }
++                }
++            }
++        }
++        if (!outputItems.isEmpty() || !outputFluids.isEmpty()) {
++            tooltip.add(Component.translatable("gtceu.top.layered_recipe.final"));
++        }
++        RecipeOutputProvider.addItemTooltips(tooltip, outputItems);
++        RecipeOutputProvider.addFluidTooltips(tooltip, outputFluids);
++    }
++}
+diff --git a/src/main/java/com/gregtechceu/gtceu/integration/jade/provider/RecipeOutputProvider.java b/src/main/java/com/gregtechceu/gtceu/integration/jade/provider/RecipeOutputProvider.java
+index 23c38d2..63243c4 100644
+--- a/src/main/java/com/gregtechceu/gtceu/integration/jade/provider/RecipeOutputProvider.java
++++ b/src/main/java/com/gregtechceu/gtceu/integration/jade/provider/RecipeOutputProvider.java
+@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper;
+ import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
+ import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
+ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
++import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+ import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
+ import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
+ import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
+@@ -33,6 +34,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
+ import net.minecraftforge.fluids.FluidStack;
+ 
+ import com.google.gson.JsonObject;
++import com.mojang.datafixers.util.Pair;
+ import com.mojang.serialization.JsonOps;
+ import org.jetbrains.annotations.Nullable;
+ import snownee.jade.api.BlockAccessor;
+@@ -62,12 +64,24 @@ public class RecipeOutputProvider extends CapabilityBlockProvider<RecipeLogic> {
+             data.putBoolean("Working", recipeLogic.isWorking());
+             var recipe = recipeLogic.getLastRecipe();
+             if (recipe != null) {
+-                int recipeTier = RecipeHelper.getPreOCRecipeEuTier(recipe);
+-                int chanceTier = recipeTier + recipe.ocLevel;
+-                var function = recipe.getType().getChanceFunction();
+-                var itemContents = recipe.getOutputContents(ItemRecipeCapability.CAP);
+-                var fluidContents = recipe.getOutputContents(FluidRecipeCapability.CAP);
+-                int runs = recipe.parallels * recipe.batchParallels;
++                var tagsPair = gatherRecipeItemAndFluidsOutput(recipe);
++                if (!tagsPair.getFirst().isEmpty()) {
++                    data.put("OutputItems", tagsPair.getFirst());
++                }
++                if (!tagsPair.getSecond().isEmpty()) {
++                    data.put("OutputFluids", tagsPair.getSecond());
++                }
++            }
++        }
++    }
++
++    public static Pair<ListTag, ListTag> gatherRecipeItemAndFluidsOutput(GTRecipe recipe) {
++        int recipeTier = RecipeHelper.getPreOCRecipeEuTier(recipe);
++        int chanceTier = recipeTier + recipe.ocLevel;
++        var function = recipe.getType().getChanceFunction();
++        var itemContents = recipe.getOutputContents(ItemRecipeCapability.CAP);
++        var fluidContents = recipe.getOutputContents(FluidRecipeCapability.CAP);
++        int runs = recipe.parallels * recipe.batchParallels;
+ 
+                 ListTag itemTags = new ListTag();
+                 for (var item : itemContents) {
+@@ -99,10 +113,6 @@ public class RecipeOutputProvider extends CapabilityBlockProvider<RecipeLogic> {
+                     itemTags.add(itemTag);
+                 }
+ 
+-                if (!itemTags.isEmpty()) {
+-                    data.put("OutputItems", itemTags);
+-                }
+-
+                 ListTag fluidTags = new ListTag();
+                 for (var fluid : fluidContents) {
+                     CompoundTag fluidTag;
+@@ -135,11 +145,7 @@ public class RecipeOutputProvider extends CapabilityBlockProvider<RecipeLogic> {
+                     fluidTags.add(fluidTag);
+                 }
+ 
+-                if (!fluidTags.isEmpty()) {
+-                    data.put("OutputFluids", fluidTags);
+-                }
+-            }
+-        }
++                return Pair.of(itemTags, fluidTags);
+     }
+ 
+     @Override
+@@ -191,7 +197,7 @@ public class RecipeOutputProvider extends CapabilityBlockProvider<RecipeLogic> {
+         }
+     }
+ 
+-    private void addItemTooltips(ITooltip iTooltip, List<Ingredient> outputItems) {
++    public static void addItemTooltips(ITooltip iTooltip, List<Ingredient> outputItems) {
+         IElementHelper helper = iTooltip.getElementHelper();
+         for (Ingredient itemOutput : outputItems) {
+             if (itemOutput != null && !itemOutput.isEmpty()) {
+@@ -217,7 +223,7 @@ public class RecipeOutputProvider extends CapabilityBlockProvider<RecipeLogic> {
+         }
+     }
+ 
+-    private void addFluidTooltips(ITooltip iTooltip, List<FluidIngredient> outputFluids) {
++    public static void addFluidTooltips(ITooltip iTooltip, List<FluidIngredient> outputFluids) {
+         for (FluidIngredient fluidOutput : outputFluids) {
+             if (fluidOutput != null && !fluidOutput.isEmpty()) {
+                 FluidStack stack;
+@@ -241,15 +247,15 @@ public class RecipeOutputProvider extends CapabilityBlockProvider<RecipeLogic> {
+         }
+     }
+ 
+-    private Component getItemName(ItemStack stack) {
++    public static Component getItemName(ItemStack stack) {
+         return stack.getDisplayName().copy().withStyle(ChatFormatting.WHITE);
+     }
+ 
+-    private Component getFluidName(FluidStack stack) {
++    public static Component getFluidName(FluidStack stack) {
+         return ComponentUtils.wrapInSquareBrackets(stack.getDisplayName()).withStyle(ChatFormatting.WHITE);
+     }
+ 
+-    private JadeFluidObject getFluid(FluidStack stack) {
++    public static JadeFluidObject getFluid(FluidStack stack) {
+         return JadeFluidObject.of(stack.getFluid(), stack.getAmount());
+     }
+ }
+diff --git a/src/main/java/com/gregtechceu/gtceu/integration/kjs/builders/GTRecipeTypeBuilder.java b/src/main/java/com/gregtechceu/gtceu/integration/kjs/builders/GTRecipeTypeBuilder.java
+index cc3e4a9..50c35d7 100644
+--- a/src/main/java/com/gregtechceu/gtceu/integration/kjs/builders/GTRecipeTypeBuilder.java
++++ b/src/main/java/com/gregtechceu/gtceu/integration/kjs/builders/GTRecipeTypeBuilder.java
+@@ -44,6 +44,7 @@ public class GTRecipeTypeBuilder extends BuilderBase<GTRecipeType> {
+     private Supplier<ItemStack> iconSupplier;
+     @Nullable
+     protected BiConsumer<GTRecipe, WidgetGroup> uiBuilder;
++    private boolean layered;
+ 
+     public GTRecipeTypeBuilder(ResourceLocation i) {
+         super(i);
+@@ -147,6 +148,11 @@ public class GTRecipeTypeBuilder extends BuilderBase<GTRecipeType> {
+         return this;
+     }
+ 
++    public GTRecipeTypeBuilder setLayered() {
++        this.layered = true;
++        return this;
++    }
++
+     @Override
+     public GTRecipeType register() {
+         var type = GTRecipeTypes.register(name, category);
+@@ -162,6 +168,7 @@ public class GTRecipeTypeBuilder extends BuilderBase<GTRecipeType> {
+         type.setSmallRecipeMap(smallRecipeMap);
+         type.setIconSupplier(iconSupplier);
+         type.setUiBuilder(uiBuilder);
++        if (layered) type.setLayered();
+         return value = type;
+     }
+ }
+diff --git a/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java b/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java
+index 898beb7..987b6f6 100644
+--- a/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java
++++ b/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java
+@@ -24,6 +24,7 @@ import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour;
+ import com.gregtechceu.gtceu.common.recipe.condition.*;
+ import com.gregtechceu.gtceu.config.ConfigHolder;
+ import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
++import com.gregtechceu.gtceu.data.recipe.builder.LayeredRecipeInfo;
+ import com.gregtechceu.gtceu.integration.kjs.recipe.components.CapabilityMap;
+ import com.gregtechceu.gtceu.integration.kjs.recipe.components.ExtendedOutputItem;
+ import com.gregtechceu.gtceu.integration.kjs.recipe.components.GTRecipeComponents;
+@@ -126,7 +127,7 @@ public interface GTRecipeSchema {
+             }
+             if (map != null) {
+                 var recipeType = GTRegistries.RECIPE_TYPES.get(this.type.id);
+-                if (map.get(capability) != null &&
++                if (!recipeType.isLayered() && map.get(capability) != null &&
+                         map.get(capability).length + obj.length > recipeType.getMaxInputs(capability)) {
+                     ConsoleJS.SERVER.warn(String.format(
+                             "Trying to add more inputs than RecipeType can support, id: %s, Max %s%sInputs: %s",
+@@ -151,7 +152,7 @@ public interface GTRecipeSchema {
+             }
+             if (map != null) {
+                 var recipeType = GTRegistries.RECIPE_TYPES.get(this.type.id);
+-                if (map.get(capability) != null &&
++                if (!recipeType.isLayered() && map.get(capability) != null &&
+                         map.get(capability).length + obj.length > recipeType.getMaxOutputs(capability)) {
+                     ConsoleJS.SERVER.warn(String.format(
+                             "Trying to add more outputs than RecipeType can support, id: %s, Max %s%sOutputs: %s",
+@@ -1079,6 +1080,19 @@ public interface GTRecipeSchema {
+             return this;
+         }
+ 
++        public GTRecipeJS layeredRecipe(Consumer<LayeredRecipeInfo.JSBuilder> config) {
++            var recipeType = GTRegistries.RECIPE_TYPES.get(type.id);
++            assert recipeType != null;
++            if (!recipeType.isLayered()) {
++                GTCEu.LOGGER.error("Can't use layeredRecipe on a non-layered recipe type");
++                return this;
++            }
++            var layered = new LayeredRecipeInfo.JSBuilder(this);
++            config.accept(layered);
++            layered.apply();
++            return this;
++        }
++
+         /*
+          * KubeJS overrides
+          */
+diff --git a/src/main/resources/assets/gtceu/textures/block/cover/layered_step_detector.png b/src/main/resources/assets/gtceu/textures/block/cover/layered_step_detector.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..f7d4f9e7ee0fc8c7f30d43adc05ae355a357d286
+GIT binary patch
+literal 324
+zcmV-K0lWT*P)<h;3K|Lk000e1NJLTq000mG000mO1^@s6AM^iV0003ANkl<ZI8UXM
+zFVBKd6viK`gJ^(iGM`N&#o`xmBfIed93AL)_XDu`1+0X(yoG4E)s5)pAlQViJ9oll
+zqB1!R&V7FOIe+d517kE$j|N~_){SAdZGU9ud9L$CQD|)o5Qd>nmSy=C!nrt(UjamP
+z^E?lH!#jX!nmU)JDU?!e2Q?teGMuHvEC^aI4pD?f5PS!)y{S@KJQt#Y{QEvGL~tCZ
+zpM&c|x)cH|J^@(walj=UrPOj3ZG^zi_w{!#0GBXPs=2YQVIM^p6M=}hf!$4XT~|-x
+zPfDz|+g20#-&Y4UfXCGpJi@A~x*hN)@*dQO48v#`EP9S4NxC<2&?^7>s0P2rJF{WB
+W5l+ZrE&u=k07*qoM6N<$f&c){!-Yct
+
+literal 0
+HcmV?d00001
+
+diff --git a/src/main/resources/assets/gtceu/textures/block/cover/layered_step_detector_emissive.png b/src/main/resources/assets/gtceu/textures/block/cover/layered_step_detector_emissive.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..2872ae5ad746f9bff2673862cc8d0df3964b36da
+GIT binary patch
+literal 312
+zcmV-80muG{P)<h;3K|Lk000e1NJLTq000mG004jp1^@s60+s0^0002}Nkl<ZXhZE-
+zNe+WB3>>$g;og3v&)~>QIP#3<A<dn8-%+`;=!!tHl_Evea0Gjj3^OBxpzxBye*7!I
+z4bVNlk9Ps|IJ;;3EplK0_V5!V46qx4+yJ(!HD3XoygRUlLl2~GYC1o56atv9XdrHY
+zrQ#4kM4kVtL~;;eV8x9Qh*djRkOw*-OIwf!sz@Tt1BW0OC|jAyLH?_x(zj5_e9!~A
+zE13^QAT^v1Jc_JTiJq-LYj}jMBCV1<P(>CgnGXgeX*nM_Ttzc&WhMvtwa*7ULWBVd
+zY4tx+ghnP3g+w7uj-eOG0d+tx@YDA_K`;}UiOfW1;?FYi4!Meaf$};my#N3J07*qo
+KM6N<$f&c&*AbI2f
+
+literal 0
+HcmV?d00001
+
+diff --git a/src/main/resources/assets/gtceu/textures/block/cover/layered_step_detector_emissive.png.mcmeta b/src/main/resources/assets/gtceu/textures/block/cover/layered_step_detector_emissive.png.mcmeta
+new file mode 100644
+index 0000000..60af678
+--- /dev/null
++++ b/src/main/resources/assets/gtceu/textures/block/cover/layered_step_detector_emissive.png.mcmeta
+@@ -0,0 +1,5 @@
++{
++   "animation":{
++      "frametime":4
++   }
++}
+\ No newline at end of file
+diff --git a/src/main/resources/assets/gtceu/textures/item/layered_step_detector_cover.png b/src/main/resources/assets/gtceu/textures/item/layered_step_detector_cover.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..0e8931f682e9719439928c6ddfe61322472dfe89
+GIT binary patch
+literal 354
+zcmV-o0iFJdP)<h;3K|Lk000e1NJLTq000mG000mO1^@s6AM^iV0003gNkl<ZI8UWh
+zL286B6n%EB+d@2mbXmv&bX(ACICR+)1bcxli-F#u(7<eUTL^SHxE(Oit?pZXXu^b1
+zLHZ#?^Z$E!@ADJkpAlW+Ip;t0ueA=&UCmP77M5jcfqO$K6?uZHs#fvSG}&B|B%p6v
+zN-3)}An3XdS(a@I8HNFjG4y>O5)?&YnT;`cl@gD29T3%0Le{kfQ{5E-Ss2IB6A=1Y
+z2v1Tq%{BokAPc16Q)}Fu0DT912mu100lbx^&F6W(Y{3z<T7$m;?@z#&5V&s|tHcp-
+z&dL9J56Caw_}#YN!tLRJ<6jR*#U{anl(zUX+}UaqT@Og!R?y99nqDg)pc|NZo)O0}
+zXkUxKf}8QZqwFWq0U2ZVO&DVqAJbBPv2c%)Us71y5y;4@1^@s607*qoM6N<$g2qsl
+A^Z)<=
+
+literal 0
+HcmV?d00001
+
+-- 
+2.54.0.windows.1
+

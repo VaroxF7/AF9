@@ -1,0 +1,26 @@
+From 9a38d9f904473f0edc515c386066f12bcd632a31 Mon Sep 17 00:00:00 2001
+From: Janne <149310259+VaroxF7@users.noreply.github.com>
+Date: Wed, 7 Oct 2026 16:56:04 +0200
+Subject: [PATCH 2/2] Version 7.2.0-af9.1 to keep the fork out of upstream
+ caches
+
+---
+ gradle.properties | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 71151df..da54b2f 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.2.0
++mod_version = 7.2.0-af9.1
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+-- 
+2.54.0.windows.1
+
