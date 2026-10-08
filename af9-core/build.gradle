@@ -80,7 +80,7 @@ repositories {
 }
 
 // GregTech: the AF9 fork (gtceu_fork_version, built from ../gtceu-fork: upstream's release plus the patches there) is the
-// dependency AF9 Core is built against. Where it is not in mavenLocal yet this build publishes it first (gtceu-fork/build.sh);
+// dependency AF9 Core is built against. Where it is not in mavenLocal yet, or was published from other patches, this build publishes it first (gtceu-fork/build.sh);
 // gtceu_fork_maven names another maven (a URL or a folder) to take it from instead. -Paf9SkipForkBuild skips building it and
 // falls back to the release it is based on (gtceu_version, from the GTCEu maven; AF9 Core only uses GT's released API, so that
 // compiles too), -Paf9RequireFork stops the build where the fork is missing.
@@ -96,8 +96,15 @@ if (forkMaven) {
     }
 }
 def forkPath = "com/gregtechceu/gtceu/gtceu-${minecraft_version}/${gtceuFork}"
+def forkSources = ['../gtceu-fork/upstream.properties'] + (file('../gtceu-fork/patches').listFiles()?.findAll { it.name.endsWith('.patch') }?.sort { it.name }?.collect { it.path } ?: [])
+def forkStamp = java.security.MessageDigest.getInstance('SHA-256').with { md ->
+    forkSources.each { md.update(file(it).bytes) }
+    md.digest().encodeHex().toString()
+}
+def forkStampFile = new File(repositories.getByName('MavenLocal').url.path, "${forkPath}/af9-fork.stamp")
 def forkAvailable = {
-    new File(repositories.getByName('MavenLocal').url.path, forkPath).isDirectory() ||
+    // published from these patches, or taken from another maven
+    (forkStampFile.exists() && forkStampFile.text.trim() == forkStamp) ||
             (forkMaven && (forkMaven.startsWith('http') || new File(forkMaven, forkPath).isDirectory()))
 }
 def forkScript = file('../gtceu-fork/build.sh')
@@ -105,6 +112,8 @@ if (gtceuFork && !forkAvailable() && !project.hasProperty('af9SkipForkBuild') &&
     logger.lifecycle("Building the AF9 fork of GTCEu ${gtceuFork} (gtceu-fork/build.sh)")
     def proc = new ProcessBuilder('bash', forkScript.absolutePath, gtceuFork).inheritIO().start()
     if (proc.waitFor() != 0) throw new GradleException("building the GTCEu fork ${gtceuFork} failed")
+    forkStampFile.parentFile.mkdirs()
+    forkStampFile.text = forkStamp
 }
 def gtceuForkPublished = gtceuFork && forkAvailable()
 if (project.hasProperty('af9RequireFork') && !gtceuForkPublished) {

@@ -2,8 +2,8 @@ name: Build AF9 Core
 
 # Runs on pushes to main (and by hand from the Actions tab).
 # 0. lint:    tools/lint (recipes, multiblocks, quests, textures, lang) and its self-test; an error stops the build
-# 1. build:   builds the AF9 Core mod (af9-core/), artifact "af9-core"
-# 2. package: artifact "AF9-update": mods/af9-core-*.jar + kubejs/ and config/ from this commit + AF9_BUILD.txt (the commit).
+# 1. build:   builds the GTCEu fork (gtceu-fork/, artifact "gtceu-fork") and the AF9 Core mod (af9-core/, artifact "af9-core")
+# 2. package: artifact "AF9-update": mods/af9-core-*.jar + mods/gtceu-*.jar (the fork) + kubejs/ and config/ from this commit + AF9_BUILD.txt (the commit).
 #             Extract it into the instance folder (next to mods/) and let it overwrite.
 on:
   push:
@@ -66,6 +66,20 @@ jobs:
           path: af9-core/build/libs/*.jar
           if-no-files-found: error
 
+      # the fork the build published to mavenLocal: the pack runs it instead of the GTCEu release
+      - name: Collect the GTCEu fork jar
+        run: |
+          version="$(grep '^gtceu_fork_version=' gradle.properties | cut -d= -f2)"
+          mkdir -p ../fork-jar
+          find ~/.m2/repository/com/gregtechceu/gtceu -name "gtceu-*-${version}.jar" | head -1 | xargs -I{} cp {} ../fork-jar/
+          ls -l ../fork-jar
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gtceu-fork
+          path: fork-jar/*.jar
+          if-no-files-found: error
+
   package:
     needs: build
     runs-on: ubuntu-latest
@@ -77,9 +91,15 @@ jobs:
           name: af9-core
           path: jar
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: gtceu-fork
+          path: fork
+
       - name: Assemble the instance update
         run: |
           mkdir -p update/mods
+          cp fork/*.jar update/mods/
           cp "$(ls jar/*.jar | grep -vE -- '-(sources|dev|slim)\.jar$' | head -1)" update/mods/
           cp -r kubejs config update/
           # which build this is: the file lands in the instance folder with the rest, so you can tell what you run
