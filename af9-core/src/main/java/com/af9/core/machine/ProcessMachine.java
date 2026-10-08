@@ -65,6 +65,16 @@ public abstract class ProcessMachine extends WorkableElectricMultiblockMachine i
     /** Machine-specific console / Jade lines (server side; translated on the client). */
     public abstract List<Component> infoLines();
 
+    /** How many of {@link #infoLines()} the console shows: it is that much taller for more than the usual four. */
+    public int consoleLines() {
+        return 4;
+    }
+
+    /** The Jade tooltip's lines: the console's, unless a machine says less there. */
+    public List<Component> jadeLines() {
+        return infoLines();
+    }
+
     @Override
     public Widget createUIWidget() {
         return ProcessConsoleWidget.create(this);

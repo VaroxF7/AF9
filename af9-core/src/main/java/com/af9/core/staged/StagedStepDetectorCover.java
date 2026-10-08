@@ -11,8 +11,10 @@ import net.minecraft.core.Direction;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
- * Cover that emits the running staged craft's step as redstone (step 1 is 1, up to 15; 0 while idle), inverted with
- * a screwdriver like every detector cover. Only attaches to machines running {@link StagedRecipeLogic}.
+ * Cover that emits the running staged craft's step as redstone, like Star Technology's Layered Step Detector: the
+ * number of the step to feed next (the steps begun, the running one counted; up to 15), and 0 on the last step and
+ * while idle. Inverted with a screwdriver like every detector cover. Only attaches to machines running
+ * {@link StagedRecipeLogic}.
  */
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
@@ -35,9 +37,8 @@ public class StagedStepDetectorCover extends DetectorCover {
 
         int output = 0;
         if (coverHolder.getLevel() != null && GTCapabilityHelper.getRecipeLogic(coverHolder.getLevel(),
-                coverHolder.getPos(), attachedSide) instanceof StagedRecipeLogic staged &&
-                staged.hasStagedCraft()) {
-            output = Math.min(15, Math.max(0, staged.getStageIndex()) + 1);
+                coverHolder.getPos(), attachedSide) instanceof StagedRecipeLogic staged) {
+            output = staged.getCoverRedstoneOutput();
         }
         setRedstoneSignalOutput(isInverted() ? 15 - output : output);
     }

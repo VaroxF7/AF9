@@ -3,12 +3,15 @@ package com.af9.core.staged;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.ActionResult;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
+import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.common.data.GTItems;
 import com.gregtechceu.gtceu.utils.FluidStackHashStrategy;
 import com.gregtechceu.gtceu.utils.ItemStackHashStrategy;
@@ -17,22 +20,29 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.fluids.FluidStack;
 
 import it.unimi.dsi.fastutil.objects.ObjectOpenCustomHashSet;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 /**
- * Runs staged recipes one step at a time: only recipes carrying {@code af9_staged} data are ever considered, the
+ * Runs staged recipes one step at a time, the way Star Technology's layered recipes run (the {@code
+ * LayeredRecipeLogic} of its GTCEu fork): only recipes carrying {@code af9_staged} data are ever considered, the
  * first matching step starts the craft, and each finished step chains into the next. A step only matches while the
  * machine holds exactly its inputs (programmed circuits aside) — anything more fails the step, so the player feeds
  * the craft stage by stage instead of dumping everything in at once.
+ * <p>
+ * A craft is modified once, when it starts: the machine's modifier for the first step (overclocks, parallels) is
+ * applied to every step, so the whole craft runs on the same overclock and the same parallel count, as it does there
+ * (its fork passes the root's modifier down to the layers).
  * <p>
  * The steps live only in memory ({@link #stagedSteps}); what persists is the root id and the stage index, and every
  * computed step carries both stamps, so the sequence rebuilds itself after a reload.
@@ -52,7 +62,7 @@ public class StagedRecipeLogic extends RecipeLogic {
     @Persisted
     private long craftsCompleted;
 
-    /** The running craft's steps, in order; empty when idle. */
+    /** The running craft's steps, modified, in order; empty when idle. */
     private List<GTRecipe> stagedSteps = List.of();
     /** The running craft's root recipe, for the repeat run after the last step. */
     private GTRecipe stagedRootRecipe;
@@ -68,7 +78,7 @@ public class StagedRecipeLogic extends RecipeLogic {
 
     /** True while a staged craft is loaded (running or waiting for the next step's inputs). */
     public boolean hasStagedCraft() {
-        return !stagedSteps.isEmpty();
+        return !craft().isEmpty();
     }
 
     public int getStageIndex() {
@@ -76,7 +86,7 @@ public class StagedRecipeLogic extends RecipeLogic {
     }
 
     public int getStageCount() {
-        return stagedSteps.size();
+        return craft().size();
     }
 
     public long getCraftsCompleted() {
@@ -84,7 +94,49 @@ public class StagedRecipeLogic extends RecipeLogic {
     }
 
     public List<GTRecipe> getStagedSteps() {
-        return stagedSteps;
+        return craft();
+    }
+
+    /** The craft's last step, the one with the outputs; null when idle. */
+    public GTRecipe getLastStep() {
+        List<GTRecipe> steps = craft();
+        return steps.isEmpty() ? null : steps.get(steps.size() - 1);
+    }
+
+    /**
+     * The step whose inputs go in next: the one the craft waits for, or the one after the running step; null when
+     * idle and on the last step.
+     */
+    public GTRecipe getNextStep() {
+        List<GTRecipe> steps = craft();
+        if (stagedIndex < 0 || steps.isEmpty()) return null;
+        if (lastRecipe == null) return steps.get(Math.min(stagedIndex, steps.size() - 1));
+        return stagedIndex < steps.size() - 1 ? steps.get(stagedIndex + 1) : null;
+    }
+
+    /** Ticks of all steps of the craft together. */
+    public int getCraftDuration() {
+        int total = 0;
+        for (GTRecipe step : craft()) total += step.duration;
+        return total;
+    }
+
+    /** Ticks of the craft done: the finished steps and the running one's progress. */
+    public int getCraftProgress() {
+        List<GTRecipe> steps = craft();
+        int done = getProgress();
+        for (int i = 0; i < stagedIndex && i < steps.size(); i++) done += steps.get(i).duration;
+        return done;
+    }
+
+    /**
+     * The step detector cover's signal: the steps begun (the running one counts), so the number of the step to feed
+     * next, and 0 again on the last step and while idle.
+     */
+    public int getCoverRedstoneOutput() {
+        int result = stagedIndex + (lastRecipe == null ? 0 : 1);
+        if (result == craft().size()) result = 0;
+        return Mth.clamp(result, 0, 15);
     }
 
     /** Aborts the running craft (the console's cancel button); already-consumed inputs are not refunded. */
@@ -94,55 +146,54 @@ public class StagedRecipeLogic extends RecipeLogic {
 
     @Override
     public Iterator<GTRecipe> searchRecipe() {
-        if (!stagedSteps.isEmpty()) {
-            if (stagedIndex < 0 || stagedIndex >= stagedSteps.size()) return Collections.emptyIterator();
-            return Collections.singleton(stagedSteps.get(stagedIndex)).iterator();
+        List<GTRecipe> steps = craft();
+        if (!steps.isEmpty()) {
+            if (stagedIndex < 0 || stagedIndex >= steps.size()) return Collections.emptyIterator();
+            return Collections.singleton(steps.get(stagedIndex)).iterator();
         }
-        // after a reload the steps are gone but the persisted step knows its root
-        if (lastRecipe != null && StagedRecipes.isStep(lastRecipe) && restoreSteps(lastRecipe)) {
-            return Collections.singleton(stagedSteps.get(stagedIndex)).iterator();
-        }
-        // fresh craft: the first staged recipe whose first step matches
+        // a fresh craft: every staged recipe whose first step matches
+        List<GTRecipe> matches = new ArrayList<>();
         for (GTRecipe root : StagedRecipes.allRecipes(machine.getRecipeType())) {
             if (!StagedRecipeData.isStaged(root)) continue;
-            List<GTRecipe> steps = StagedRecipes.getSteps(root);
-            if (steps.isEmpty()) continue;
-            if (matchRecipe(steps.get(0)).isSuccess()) {
-                return Collections.singleton(steps.get(0)).iterator();
-            }
+            List<GTRecipe> first = StagedRecipes.getSteps(root);
+            if (!first.isEmpty() && matchRecipe(first.get(0)).isSuccess()) matches.add(first.get(0));
         }
-        return Collections.emptyIterator();
+        return matches.iterator();
+    }
+
+    @Override
+    public boolean checkMatchedRecipeAvailable(GTRecipe match) {
+        GTRecipe run = match;
+        GTRecipe root = null;
+        List<GTRecipe> fresh = null;
+        if (stagedSteps.isEmpty()) {
+            // a craft begins: its steps are modified here, all with the first step's modifier
+            root = StagedRecipes.findRoot(machine.getRecipeType(), match.data.getString(StagedRecipes.KEY_ROOT));
+            fresh = root == null ? null : modifiedSteps(root);
+            if (fresh == null) return false;
+            run = fresh.get(0);
+        }
+        // otherwise a later step of the running craft, modified with it
+
+        if (checkRecipe(run).isSuccess()) {
+            if (fresh != null) load(root, fresh, 0);
+            setupRecipe(run);
+            // the machine or its inputs refused it after all: no craft began
+            if (fresh != null && lastRecipe != run) clearStaged();
+        }
+        if (lastRecipe != null && getStatus() == Status.WORKING) {
+            lastOriginRecipe = null;
+            lastFailedMatches = null;
+            return true;
+        }
+        return false;
     }
 
     @Override
     public void setupRecipe(GTRecipe recipe) {
-        // a computed step carries the root's tag as a stamp: only a non-step is a root
-        GTRecipe root = !StagedRecipes.isStep(recipe) && StagedRecipeData.isStaged(recipe) ? recipe : null;
-        if (root == null && StagedRecipes.isStep(recipe)) {
-            root = StagedRecipes.findRoot(machine.getRecipeType(), recipe.data.getString(StagedRecipes.KEY_ROOT));
-        }
-        if (root != null) {
-            List<GTRecipe> steps = StagedRecipes.getSteps(root);
-            if (!steps.isEmpty()) {
-                stagedSteps = steps;
-                stagedRootRecipe = root;
-                stagedRoot = root.id == null ? "" : root.id.toString();
-                stagedIndex = StagedRecipes.isStep(recipe)
-                        ? Math.max(0, Math.min(steps.size() - 1, recipe.data.getInt(StagedRecipes.KEY_STAGE)))
-                        : 0;
-                if (!StagedRecipes.isStep(recipe)) {
-                    // a fresh start names the root: run its first step (already modified, if it came that way)
-                    recipe = stagedSteps.get(stagedIndex);
-                }
-                // otherwise the passed (possibly overclocked) step runs as-is
-            } else {
-                clearStaged();
-            }
-        } else {
-            // not a staged recipe: this machine never yields one, but never carry stale steps
-            clearStaged();
-        }
         super.setupRecipe(recipe);
+        // never run a step again from GT's "same recipe again" shortcut: the next one is chosen in onRecipeFinish
+        recipeDirty = true;
     }
 
     @Override
@@ -152,7 +203,9 @@ public class StagedRecipeLogic extends RecipeLogic {
 
         boolean finishedLast = false;
         if (StagedRecipes.isStep(lastRecipe)) {
-            if (stagedSteps.isEmpty() && !restoreSteps(lastRecipe)) {
+            // after a reload the running step is all there is: its stamps rebuild the craft
+            if (craft().isEmpty() && !restore(lastRecipe.data.getString(StagedRecipes.KEY_ROOT),
+                    lastRecipe.data.getInt(StagedRecipes.KEY_STAGE))) {
                 clearStaged();
             } else {
                 stagedIndex++;
@@ -166,6 +219,10 @@ public class StagedRecipeLogic extends RecipeLogic {
         handleRecipeIO(lastRecipe, IO.OUT);
 
         if (suspendAfterFinish) {
+            if (finishedLast) {
+                craftsCompleted++;
+                clearStaged();
+            }
             setStatus(Status.SUSPEND);
             consecutiveRecipes = 0;
             progress = 0;
@@ -176,33 +233,30 @@ public class StagedRecipeLogic extends RecipeLogic {
         }
 
         if (finishedLast) {
-            // the craft is done: clear first, then offer the same craft again when its first step still matches
+            // the craft is done: clear first, then start the same craft again when its first step still matches
             craftsCompleted++;
             GTRecipe root = stagedRootRecipe;
             String rootId = stagedRoot;
             clearStaged();
             if (root == null) root = StagedRecipes.findRoot(machine.getRecipeType(), rootId);
-            if (root != null) {
-                List<GTRecipe> steps = StagedRecipes.getSteps(root);
-                if (!steps.isEmpty()) {
-                    GTRecipe retry = machine.fullModifyRecipe(steps.get(0));
-                    if (retry != null && checkRecipe(retry).isSuccess()) {
-                        setupRecipe(retry);
-                        return;
-                    }
-                }
+            List<GTRecipe> again = root == null ? null : modifiedSteps(root);
+            if (again != null && checkRecipe(again.get(0)).isSuccess()) {
+                load(root, again, 0);
+                setupRecipe(again.get(0));
+                if (lastRecipe == again.get(0)) return;
+                clearStaged();
             }
         } else if (!stagedSteps.isEmpty()) {
-            // the next step, modified like every other run (overclocks and all)
-            GTRecipe next = machine.fullModifyRecipe(stagedSteps.get(stagedIndex));
-            if (next != null && checkRecipe(next).isSuccess()) {
+            // the next step, already modified with the craft
+            GTRecipe next = stagedSteps.get(stagedIndex);
+            if (checkRecipe(next).isSuccess()) {
                 setupRecipe(next);
-                return;
+                if (lastRecipe == next) return;
             }
         }
 
         setStatus(Status.IDLE);
-        lastRecipe = null;
+        lastRecipe = null; // a step never runs again from lastRecipe
         consecutiveRecipes = 0;
         progress = 0;
         duration = 0;
@@ -247,10 +301,15 @@ public class StagedRecipeLogic extends RecipeLogic {
         return ActionResult.SUCCESS;
     }
 
+    /** A craft that is interrupted (the structure broke) is lost, the running step included. */
     @Override
     public void interruptRecipe() {
+        machine.afterWorking();
+        setStatus(Status.IDLE);
+        progress = 0;
+        duration = 0;
+        lastRecipe = null;
         clearStaged();
-        super.interruptRecipe();
     }
 
     @Override
@@ -259,24 +318,55 @@ public class StagedRecipeLogic extends RecipeLogic {
         super.resetRecipeLogic();
     }
 
-    /** Rebuilds the in-memory sequence from a persisted step; false when its root recipe is gone. */
-    private boolean restoreSteps(GTRecipe step) {
-        GTRecipe root = StagedRecipes.findRoot(machine.getRecipeType(),
-                step.data.getString(StagedRecipes.KEY_ROOT));
+    /**
+     * The running craft's steps. After a reload they are gone while the root id and the stage are still there: they
+     * are built again from those (and, should the machine not be able to modify them yet, on a later call).
+     */
+    private List<GTRecipe> craft() {
+        if (stagedSteps.isEmpty() && stagedIndex >= 0 && !stagedRoot.isEmpty() && !machine.self().isRemote()) {
+            restore(stagedRoot, stagedIndex);
+        }
+        return stagedSteps;
+    }
+
+    /** Rebuilds the craft of a root id at a stage; false when it cannot be (clears it when its recipe is gone). */
+    private boolean restore(String rootId, int stage) {
+        GTRecipe root = StagedRecipes.findRoot(machine.getRecipeType(), rootId);
         if (root == null) {
             clearStaged();
             return false;
         }
+        List<GTRecipe> steps = modifiedSteps(root);
+        if (steps == null) return false;
+        load(root, steps, Mth.clamp(stage, 0, steps.size() - 1));
+        return true;
+    }
+
+    /**
+     * A root's steps as the machine runs them: each with the machine's modifier for the first step, so one overclock
+     * and one parallel count for the whole craft. Null when the machine cannot run it (or it has no steps).
+     */
+    private List<GTRecipe> modifiedSteps(GTRecipe root) {
         List<GTRecipe> steps = StagedRecipes.getSteps(root);
-        if (steps.isEmpty()) {
-            clearStaged();
-            return false;
+        if (steps.isEmpty()) return null;
+        MetaMachine self = machine.self();
+        var limits = machine.getOutputLimits();
+        ModifierFunction modifier = self.getDefinition().getRecipeModifier()
+                .getModifier(self, RecipeHelper.trimRecipeOutputs(steps.get(0), limits));
+        List<GTRecipe> modified = new ArrayList<>(steps.size());
+        for (GTRecipe step : steps) {
+            GTRecipe result = modifier.apply(RecipeHelper.trimRecipeOutputs(step, limits));
+            if (result == null) return null;
+            modified.add(result);
         }
+        return modified;
+    }
+
+    private void load(GTRecipe root, List<GTRecipe> steps, int stage) {
         stagedSteps = steps;
         stagedRootRecipe = root;
         stagedRoot = root.id == null ? "" : root.id.toString();
-        stagedIndex = Math.max(0, Math.min(steps.size() - 1, step.data.getInt(StagedRecipes.KEY_STAGE)));
-        return true;
+        stagedIndex = stage;
     }
 
     private void clearStaged() {

@@ -121,7 +121,7 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             tag.putInt("progress", logic.isWorking() ? logic.getProgress() : 0);
             tag.putInt("duration", logic.isWorking() ? logic.getDuration() : 0);
             ListTag lines = new ListTag();
-            for (Component line : process.infoLines()) lines.add(StringTag.valueOf(Component.Serializer.toJson(line)));
+            for (Component line : process.jadeLines()) lines.add(StringTag.valueOf(Component.Serializer.toJson(line)));
             tag.put("lines", lines);
         } else {
             return;
