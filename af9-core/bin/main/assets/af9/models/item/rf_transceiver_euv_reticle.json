@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "af9:item/rf_transceiver_euv_reticle"
-  }
-}

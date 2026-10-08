@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "af9:block/space_mining_module_mk1"
-  }
-}

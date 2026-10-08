@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "af9:item/wafers/quantum_dot_ic_wafer"
-  }
-}

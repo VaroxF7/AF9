@@ -1,8 +1,0 @@
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "gtceu:item/material_sets/strange_matter/empty",
-    "layer1": "gtceu:item/material_sets/strange_matter/empty",
-    "layer2": "gtceu:item/material_sets/strange_matter/dust_tiny_overlay"
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "parent": "gtceu:block/cube_2_layer/all",
-  "textures": {
-    "bot_all": "af9:block/coils/resonant_endion_coil",
-    "top_all": "af9:block/coils/resonant_endion_coil_bloom"
-  }
-}

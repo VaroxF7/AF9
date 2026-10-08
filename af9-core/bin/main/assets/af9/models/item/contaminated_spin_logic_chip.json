@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "af9:item/chips/contaminated_spin_logic_chip"
-  }
-}

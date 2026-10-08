@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "af9:block/coils/resonant_endion_coil"
-  }
-}

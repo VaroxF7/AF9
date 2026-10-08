@@ -5,3 +5,7 @@ run/
 *.iml
 .idea/
 .vscode/
+# Eclipse / VS Code Java output
+bin/
+# redirected build output (./gradlew build > build_log.txt)
+/*.txt

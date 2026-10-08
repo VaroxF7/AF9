@@ -1,6 +1,0 @@
-{
-  "parent": "gtceu:item/material_sets/shiny/plate_ultradense",
-  "textures": {
-    "layer2": "gtceu:item/material_sets/bright/plate_ultradense_overlay"
-  }
-}

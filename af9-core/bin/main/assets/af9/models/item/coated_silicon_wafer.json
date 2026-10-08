@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "af9:item/wafers/coated_silicon_wafer"
-  }
-}
