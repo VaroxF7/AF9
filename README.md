@@ -56,7 +56,7 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 | GregTech CEu Modern | **7.2.0** |
 | KubeJS | 2001.6.5-build.16 |
 | Ad Astra | 1.15.20 (Asteroid Field is Ad Astra data) |
-| AF9 Core | `0.1.0`, mod id `af9` (Forge mod, JDK 17) |
+| AF9 Core | version in `af9-core/gradle.properties` (bumped by each jar build), mod id `af9` (Forge mod, JDK 17) |
 | Optional | Jade, Curios (gloves), Extreme Reactors (supercritical steam vapor), EMI Accelerator (cache-safe) |
 | GTCEu config | `enableCleanroom=true`, `cleanMultiblocks=false`, `enableMaintenance=true`, `highTierContent=false`, `orderedAssemblyLineItems=true` |
 | Convention | `gtceu:` = base GregTech + everything AF9 registers through GT/KubeJS · `af9:` = AF9 Core items, dimensions, recipe ids. **No NBT anywhere in the chip chain.** |
