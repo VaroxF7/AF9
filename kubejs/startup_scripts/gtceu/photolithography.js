@@ -56,11 +56,19 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound($LithoSounds.ORBITAL_STATION)
     // plasma atomic soldering (UHV+ circuits, ion-by-ion deposition with plasma solder, no reflow): up to 10 item
-    // inputs (the UHV mainframe's 9), 1 out, plasma solder + PBI in. Runs only on the Array Mk2 (extended, in orbit).
+    // inputs (the UHV mainframe's 9), 1 out, plasma solder + PBI in. Runs only on the Array Mk2 (extended, in orbit, aligned).
     event.create('plasma_soldering')
         .category('multiblock')
         .setEUIO('in')
         .setMaxIOSize(10, 1, 2, 0)
+        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+        .setSound($LithoSounds.ORBITAL_STATION)
+    // Pico fabrication (the Pico circuit line: board, cleansed board, CPU, organized circuit, casing, rack): up to 6
+    // item inputs, 1 out, 2 fluids in, computation through the hatch. Runs only on the Array Mk2 (extended, aligned).
+    event.create('pico_fabrication')
+        .category('multiblock')
+        .setEUIO('in')
+        .setMaxIOSize(6, 1, 2, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound($LithoSounds.ORBITAL_STATION)
 })
@@ -349,15 +357,18 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .rotationState(RotationState.ALL)
         .allowExtendedFacing(true)
         .recipeTypes(['lithography_50nm', 'lithography_20nm', 'lithography_7nm', 'orbital_lithography',
-            'plasma_soldering'].map(id => GTRecipeTypes.get(id)))
+            'plasma_soldering', 'pico_fabrication'].map(id => GTRecipeTypes.get(id)))
         // LITHO_GATE: only in orbit, with the recipe's full EU/t, a sealed vacuum and (researched prints) a data hatch;
         // STRIP_BROKEN: the break roll decides; COOLANT: adds the coolant (faster with a better one);
-        // PLASMA_GATE: plasma soldering only in orbit on the Array Mk2 (extended); perfect overclocks; then batch
+        // MK2_GATE: plasma soldering and Pico fabrication only in orbit on the Array Mk2 (extended) once its beams are
+        // aligned (the 1 nm prints check the same in the station's own gate); FOCUS: the Mk2's focus bonus (shorter
+        // runs; its break-chance share is in the station's machineBreakFactor); perfect overclocks; then batch
         // mode (GT's: once overclocked below 5 s, several prints in one run, the coolant too). No parallel hatch.
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN, $OrbitalLithographyMachine.COOLANT,
-            $OrbitalLithographyMachine.PLASMA_GATE, GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
+            $OrbitalLithographyMachine.MK2_GATE, $OrbitalLithographyMachine.FOCUS, GTRecipeModifiers.OC_PERFECT,
+            GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:inert_machine_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 15))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 18))
         .pattern(definition => {
             // GT asks for this once: both sizes are built, the extended one is the machine's own to switch to
             $OrbitalLithographyMachine.setExtendedPattern(orbitalPattern(definition, orbitalMk2Slices()))

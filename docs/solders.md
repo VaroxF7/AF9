@@ -41,7 +41,7 @@ plasma solder dust + 8 empty magnetic traps, 2400 ticks at 4A UHV (same pattern 
 chromodynium recipes). GT's own extractor melts the dust to the fluid the soldering type consumes.
 
 `gtceu:plasma_soldering` (new recipe type, 10 items / 1 out / 2 fluids, chain in `solders.js`): runs only on
-the Orbital Lithography Array Mk2 — extended 35x35 pattern, in orbit (`PLASMA_GATE` in af9-core checks orbit +
+the Orbital Lithography Array Mk2 — extended 35x35 pattern, in orbit (`MK2_GATE` in af9-core checks orbit +
 extended + full EU/t + sealed start-up). `af9:wetware_mainframe_uhv_plasma`: the photonic UHV mainframe bill
 (10 UV supercomputers + photonic/spin dies), 720 mB plasma solder, 1000 ticks at UHV — the only way to a
 `gtceu:wetware_processor_mainframe` (both assembly line versions, `af9:wetware_mainframe_uhv` and
@@ -59,3 +59,54 @@ rim. `orbitalMk2Slices()` builds it cell by cell from `ORBITAL_BASIC` for every 
 carries over. Light ring radius 9.6 → 13.6 (0.8 of the rim, as in the basic station; `RING_RADIUS_MK2`, read dynamically
 through `ringRadius()` so one model serves both; burn distance, magnetic field box and render bounding box follow
 the size; plasma soldering glows plasma-violet, hotter with bloom).
+
+## 5. What only the Mk2 runs, and its beam focus
+
+The extended station is the only one that runs **the 1 nm prints** (chromodynium, `LithoMode.N1`; `canPrint` and the
+console's MK2 ONLY), **plasma soldering** and the new **Pico fabrication** (`pico_fabrication`, §6). The recipes carry
+`MK2_GATE` (orbit, extended, aligned, the full EU/t, a started-up station); the 1 nm prints check the same in
+`canPrint` / `canRun`. A basic station shows MK2 ONLY for them.
+
+**Beam focus** (`OrbitalLithographyMachine.focus`, 0-1000, the console's BEAM FOCUS bar) is the Mk2's setup and its upkeep:
+
+| Rule | Numbers (per half second, the station's tick interval) |
+|---|---|
+| builds up while formed on the extended size, switched on, started up and in orbit | +5 (1 % a second) |
+| extra gain from computation the hatches can supply beyond what the running recipe draws | up to +10, full at 64 CWU/t spare |
+| a running recipe drifts it down | -12 |
+| every finished run | -30 |
+| off, unpowered or out of orbit | -2 |
+| lost with the structure and when the size is switched | 0 |
+
+The Mk2's own work starts from **25 %** (ALIGNING until then). Above **60 % (sharp)** runs take 0.9x as long and every
+print's break chance is 0.8x; above **90 % (locked)** 0.8x and 0.6x (`FOCUS` modifier, `machineBreakFactor`). The numbers
+make the challenge: with no spare computation a running recipe loses 1.4 % a second, so a line without a pause needs an
+HPCA of roughly 45 CWU/t more than the recipe draws to hold its focus (a 1 nm print draws 96), and a station that runs dry
+has to re-align before the next run: from nothing 25 s on its own, about 8 s with the HPCA's spare computation.
+
+**Focus lock** (an option: sneak + screwdriver on the controller, `focusLockOption`, kept when the size is switched): once
+the focus is full and the lock is on, it **latches** (`focusLocked`) and stays full until the structure is broken or the
+size is switched: no drift, no cost per run, no loss while the station is off. The price is a **supplemental power
+connection**: every half second an energy hatch of the station that is *not the laser hatch* pays 2,048 EU/t of its
+own buffer (`supplementalPaid`; an EV hatch or better on a full amp), so the lock needs a hatch of its own beside the
+laser hatch that carries the 1 nm print. Without it for 5 s (10 intervals) the lock lets go: the focus stays full and
+then follows the ordinary rules (drift, runs). The console shows FOCUS · LOCK ARMED while the option waits for a full
+focus and "latched" once it holds.
+
+## 6. Pico circuits
+
+GTNH's Pico components as the XPS tier's own circuit line, made by `pico_fabrication` on the Mk2 only (6 items, 1 out, 2
+fluids, computation; UHV; `circuits_af9.js` §11b):
+
+| Recipe | Takes (besides plasma solder / PBI / water) | CWU/t |
+|---|---|---|
+| `af9:pico_board` | wetware board, 2 chromodynium plates, 4 fine sanguinite wire | 32 |
+| `af9:cleansed_pico_board` | pico board, 2,000 mB distilled water, 1,000 mB argon | 32 |
+| `af9:pico_cpu` | cleansed board, 2 TPU, 4 memristor, 4 quantum-dot chips, 2 chromodynium plates | 64 |
+| `af9:organized_pico_circuit` | pico CPU, 8 photonic IC, 8 spin-logic chips, 8 fine sanguinite wire | 96 |
+| `af9:processed_pico_circuit_casing` | 2 chromodynium plates, tritanium frame, 16 PBI foil | 32 |
+| `af9:pico_circuit_rack` | 4 organized circuits, casing, 32 fine sanguinite wire | 128 |
+
+They are inputs of the ladder above: the XPS processor takes 2 Pico CPUs (lean: 1), the XPS mainframe 2 organized circuits
+(lean: 1), the NVM processor a rack and the NVM mainframe 2 (lean: 1 each). Textures are GTNH's
+(`tools/textures/gtnh_pico/`).

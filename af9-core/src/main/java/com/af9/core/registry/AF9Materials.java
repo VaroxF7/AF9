@@ -601,8 +601,10 @@ public final class AF9Materials {
      */
     private static void particleAccelerator() {
         // stable strangelets: up, down and strange quarks in one bag
+        // (the plasma of strange matter and of chromodynium is what the Plasma Forge forges: dtpf.js)
         add(material("strange_matter")
                 .dust()
+                .plasma()
                 .color(0x8a1e6a).secondaryColor(0x2a0033)
                 .iconSet(STRANGE_MATTER)
                 .formula("(uds)n"));
@@ -611,6 +613,7 @@ public final class AF9Materials {
         add(material("chromodynium")
                 .ingot()
                 .fluid()
+                .plasma()
                 .color(0xff3c78).secondaryColor(0x3cffb4)
                 .iconSet(CHROMODYNIUM)
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL, MaterialFlags.GENERATE_ROD,

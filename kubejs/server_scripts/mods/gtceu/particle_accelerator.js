@@ -14,6 +14,8 @@ ServerEvents.tags('fluid', event => {
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
+    // UHV recipes draw 100 A of UHV power (XPS 300 A, NVM 1,000 A: circuits_af9.js), see docs/dyson-swarm.md
+    const UHV_AMPS = 100
 
     // ---- The accelerator and its parts ----
     event.recipes.gtceu.assembler('af9:particle_accelerator')
@@ -60,11 +62,11 @@ ServerEvents.recipes(event => {
         .inputFluids('#af9:coolant/xenon 4000')
         .itemOutputs('gtceu:strange_matter_dust', '4x af9:magnetic_trap')
         .duration(1200)
-        .EUt(VA[GTValues.UHV], 2)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
     event.recipes.gtceu.quark_synthesis('af9:chromodynium_dust')
         .itemInputs('8x af9:qgp_trap', 'gtceu:strange_matter_dust')
         .inputFluids('#af9:coolant/endion 4000')
         .itemOutputs('gtceu:chromodynium_dust', '8x af9:magnetic_trap')
         .duration(2400)
-        .EUt(VA[GTValues.UHV], 4)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
 })

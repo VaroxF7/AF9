@@ -69,6 +69,46 @@ ServerEvents.recipes((event) => {
         .EUt(GTValues.VA[GTValues.IV])
         .duration(800)
 
+    // The casings of the MK2 and MK3 structures (GTNH's: startup_scripts/gtceu/void_mining.js). A frame and plates of the
+    // structure's metal make the bolted casing, more plates the rebolted one; the mining casings and the item pipe casing
+    // take a stable titanium casing, the metal and (mining casings) motors.
+    // (a programmed circuit each: they share plates and frames with the Space Elevator's recipes, and a machine holding
+    // both would run either; lint R7)
+    const casing = (id, circuit, out, inputs) => {
+        gtr.assembler(`af9:${id}`)
+            .itemInputs(...inputs)
+            .circuit(circuit)
+            .itemOutputs(out)
+            .duration(200)
+            .EUt(GTValues.VA[GTValues.EV])
+    }
+    casing('bolted_naquadah_alloy_casing', 20, '2x af9:bolted_naquadah_alloy_casing',
+        ['4x gtceu:naquadah_alloy_plate', 'gtceu:naquadah_alloy_frame'])
+    casing('rebolted_naquadah_alloy_casing', 21, '2x af9:rebolted_naquadah_alloy_casing',
+        ['2x af9:bolted_naquadah_alloy_casing', '4x gtceu:naquadah_alloy_plate'])
+    casing('black_plutonium_item_pipe_casing', 22, 'af9:black_plutonium_item_pipe_casing',
+        ['gtceu:stable_machine_casing', '4x gtceu:tungsten_steel_plate', '2x gtceu:naquadah_alloy_plate'])
+    casing('mining_black_plutonium_casing', 23, 'af9:mining_black_plutonium_casing',
+        ['gtceu:stable_machine_casing', '4x gtceu:naquadah_alloy_plate', '2x gtceu:ev_electric_motor'])
+    gtr.assembler('af9:bolted_iridium_casing')
+        .itemInputs('4x gtceu:iridium_plate', 'gtceu:tritanium_frame')
+        .circuit(24)
+        .itemOutputs('2x af9:bolted_iridium_casing')
+        .duration(200)
+        .EUt(GTValues.VA[GTValues.IV])
+    gtr.assembler('af9:rebolted_iridium_casing')
+        .itemInputs('2x af9:bolted_iridium_casing', '4x gtceu:iridium_plate')
+        .circuit(25)
+        .itemOutputs('2x af9:rebolted_iridium_casing')
+        .duration(200)
+        .EUt(GTValues.VA[GTValues.IV])
+    gtr.assembler('af9:mining_neutronium_casing')
+        .itemInputs('gtceu:stable_machine_casing', '4x gtceu:neutronium_plate', '2x gtceu:iv_electric_motor')
+        .circuit(26)
+        .itemOutputs('af9:mining_neutronium_casing')
+        .duration(200)
+        .EUt(GTValues.VA[GTValues.IV])
+
     // The data sticks are gone: the void miner picks its dimension with the machine mode, not with a data item.
     // And it mines standing in it: every recipe carries GT's dimension condition, written NON-reversed for each
     // dimension of the mode. GT ORs conditions of one type, and a reversed one reads "the machine is NOT there" -

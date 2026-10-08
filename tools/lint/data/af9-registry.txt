@@ -1,12 +1,28 @@
 # What AF9 Core registers: written by its dev run, read by the linters. Not edited by hand unless the run
 # is out of reach (it needs a pack instance); see tools/lint/README.md, "The registry list".
 block af9:arf_excimer_laser
+block af9:black_plutonium_item_pipe_casing
+block af9:bolted_iridium_casing
+block af9:bolted_naquadah_alloy_casing
+block af9:dyson_control_casing
+block af9:dyson_control_primary
+block af9:dyson_control_secondary
+block af9:dyson_control_toroid
+block af9:dyson_deployment_casing
+block af9:dyson_deployment_core
+block af9:dyson_deployment_magnet
+block af9:dyson_receiver_casing
+block af9:dyson_receiver_dish
 block af9:endion_coil_block
 block af9:euv_light_source
 block af9:krf_excimer_laser
+block af9:mining_black_plutonium_casing
+block af9:mining_neutronium_casing
 block af9:oil_regolith
 block af9:plascrete_filter_casing
 block af9:plascrete_pipe_casing
+block af9:rebolted_iridium_casing
+block af9:rebolted_naquadah_alloy_casing
 block af9:resonant_endion_coil_block
 block af9:space_elevator_base_casing
 block af9:space_elevator_cable
@@ -22,6 +38,7 @@ block af9:space_mining_module_mk3
 block af9:ultra_high_strength_concrete_floor
 item af9:advanced_soc_euv_reticle
 item af9:advanced_soc_reticle
+item af9:allthemodium_sail
 item af9:apu_chip
 item af9:apu_euv_reticle
 item af9:apu_psm_reticle
@@ -35,6 +52,9 @@ item af9:asic_psm_reticle
 item af9:asic_reticle
 item af9:asic_wafer
 item af9:beryllium_spallation_target
+item af9:black_plutonium_item_pipe_casing
+item af9:bolted_iridium_casing
+item af9:bolted_naquadah_alloy_casing
 item af9:broken_chromodynium_wafer
 item af9:broken_naquadah_wafer
 item af9:broken_naquadria_wafer
@@ -47,7 +67,9 @@ item af9:broken_trinium_wafer
 item af9:chromodynium_boule
 item af9:chromodynium_melt_charge
 item af9:chromodynium_seed_crystal
+item af9:chromodynium_star_matter_tritan_alloy_sail
 item af9:chromodynium_wafer
+item af9:cleansed_pico_board
 item af9:coated_naquadah_wafer
 item af9:coated_naquadria_wafer
 item af9:coated_neutronium_wafer
@@ -100,6 +122,15 @@ item af9:cpu_euv_reticle
 item af9:cpu_psm_reticle
 item af9:cpu_reticle
 item af9:dry_resist_cartridge
+item af9:dyson_control_casing
+item af9:dyson_control_primary
+item af9:dyson_control_secondary
+item af9:dyson_control_toroid
+item af9:dyson_deployment_casing
+item af9:dyson_deployment_core
+item af9:dyson_deployment_magnet
+item af9:dyson_receiver_casing
+item af9:dyson_receiver_dish
 item af9:edram_chip
 item af9:edram_cpu_package
 item af9:edram_euv_reticle
@@ -134,6 +165,8 @@ item af9:mcu_wafer
 item af9:memristor_chip
 item af9:memristor_reticle
 item af9:memristor_wafer
+item af9:mining_black_plutonium_casing
+item af9:mining_neutronium_casing
 item af9:mo_si_mirror
 item af9:molecular_sieve
 item af9:mpic_euv_reticle
@@ -160,6 +193,7 @@ item af9:nor_reticle
 item af9:nvm_processor
 item af9:nvm_processor_mainframe
 item af9:oil_regolith
+item af9:organized_pico_circuit
 item af9:phase_shift_mask_blank
 item af9:phosphorus_melt_charge
 item af9:phosphorus_seed_crystal
@@ -169,8 +203,12 @@ item af9:photonic_ic_euv_reticle
 item af9:photonic_ic_reticle
 item af9:photonic_ic_wafer
 item af9:photonic_package
+item af9:pico_board
+item af9:pico_circuit_rack
+item af9:pico_cpu
 item af9:plascrete_filter_casing
 item af9:plascrete_pipe_casing
+item af9:processed_pico_circuit_casing
 item af9:qgp_trap
 item af9:quantum_dot_ic_chip
 item af9:quantum_dot_ic_reticle
@@ -178,6 +216,8 @@ item af9:quantum_dot_ic_wafer
 item af9:ram_euv_reticle
 item af9:ram_psm_reticle
 item af9:ram_reticle
+item af9:rebolted_iridium_casing
+item af9:rebolted_naquadah_alloy_casing
 item af9:resonant_endion_coil_block
 item af9:rf_transceiver_chip
 item af9:rf_transceiver_euv_reticle
@@ -238,6 +278,7 @@ item af9:ulpic_euv_reticle
 item af9:ulpic_psm_reticle
 item af9:ulpic_reticle
 item af9:ultra_high_strength_concrete_floor
+item af9:unobtainium_alloy_sail
 item af9:vpu_chip
 item af9:vpu_euv_reticle
 item af9:vpu_reticle

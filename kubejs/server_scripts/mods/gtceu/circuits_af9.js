@@ -40,6 +40,10 @@
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
+    // The circuits past UHV are made at UHV voltage on a lot of amps: XPS 300 A, NVM 1,000 A (UHV recipes of the other
+    // scripts take 100 A). That is what the Dyson Swarm's power is for (docs/dyson-swarm.md).
+    const XPS_AMPS = 300
+    const NVM_AMPS = 1000
 
     // ================================= 1. helpers =================================
     const newCircuit = (id, solder, build) => {
@@ -629,7 +633,8 @@ ServerEvents.recipes(event => {
             '16x af9:photonic_ic_chip',
             '8x af9:spin_logic_chip',
             '16x gtceu:fine_sanguinite_wire',
-            '8x gtceu:neutronium_plate')
+            '8x gtceu:neutronium_plate',
+            '2x af9:pico_cpu')
         .inputFluids(
             Fluid.of('gtceu:plasma_solder', 720),
             Fluid.of('gtceu:polybenzimidazole', 576))
@@ -639,7 +644,7 @@ ServerEvents.recipes(event => {
             .CWUt(128)
             .EUt(VA[GTValues.UHV]))
         .duration(2000)
-        .EUt(VA[GTValues.UHV]))
+        .EUt(VA[GTValues.UHV], XPS_AMPS))
 
     // XPS mainframe (AL, UHV): 2x XPS processor + quantanium + memristors.
     assemblyLine('xps_processor_mainframe', r => r
@@ -649,7 +654,8 @@ ServerEvents.recipes(event => {
             '8x af9:photonic_package',
             '16x af9:memristor_chip',
             '32x gtceu:fine_sanguinite_wire',
-            '16x gtceu:quantanium_dust')
+            '16x gtceu:quantanium_dust',
+            '2x af9:organized_pico_circuit')
         .inputFluids(
             Fluid.of('gtceu:plasma_solder', 1440),
             Fluid.of('gtceu:polybenzimidazole', 1152))
@@ -659,7 +665,7 @@ ServerEvents.recipes(event => {
             .CWUt(160)
             .EUt(VA[GTValues.UHV]))
         .duration(2400)
-        .EUt(VA[GTValues.UHV]))
+        .EUt(VA[GTValues.UHV], XPS_AMPS))
 
     // ---- XPS lean (Stage 4 @XPS end for the processor, Stage 5 @NVM end for the
     // mainframe): half the frames, packages over loose dies. ----
@@ -669,13 +675,14 @@ ServerEvents.recipes(event => {
             'gtceu:wetware_processor_mainframe',
             '4x af9:photonic_package',
             '8x gtceu:fine_sanguinite_wire',
-            '4x gtceu:neutronium_plate')
+            '4x gtceu:neutronium_plate',
+            'af9:pico_cpu')
         .inputFluids(
             Fluid.of('gtceu:plasma_solder', 360),
             Fluid.of('gtceu:polybenzimidazole', 288))
         .itemOutputs('2x af9:xps_processor')
         .duration(1000)
-        .EUt(VA[GTValues.UHV])
+        .EUt(VA[GTValues.UHV], XPS_AMPS)
 
     event.recipes.gtceu.assembly_line('af9:xps_processor_mainframe_lean')
         .itemInputs(
@@ -684,13 +691,59 @@ ServerEvents.recipes(event => {
             '4x af9:photonic_package',
             '8x af9:memristor_chip',
             'af9:quantum_dot_ic_chip',
-            '16x gtceu:fine_sanguinite_wire')
+            '16x gtceu:fine_sanguinite_wire',
+            'af9:organized_pico_circuit')
         .inputFluids(
             Fluid.of('gtceu:plasma_solder', 720),
             Fluid.of('gtceu:polybenzimidazole', 576))
         .itemOutputs('2x af9:xps_processor_mainframe')
         .duration(1200)
-        .EUt(VA[GTValues.UHV])
+        .EUt(VA[GTValues.UHV], XPS_AMPS)
+
+    // ================================= 11b. Pico circuits (the XPS tier's own line) =================================
+    // GTNH's Pico components, made only on the Orbital Array Mk2 (pico_fabrication: extended, in orbit, beams aligned;
+    // up to 6 items and 2 fluids a recipe, computation through the hatch) from chromodynium and the finest chips.
+    // They feed the XPS processors (Pico CPU, organized Pico circuit) and the NVM ones (the rack).
+    const pico = (id, spec) => {
+        const r = event.recipes.gtceu.pico_fabrication(`af9:${id}`)
+            .itemInputs(...spec.items)
+            .itemOutputs(spec.out)
+            .CWUt(spec.cwu)
+            .duration(spec.duration)
+            .EUt(VA[GTValues.UHV], XPS_AMPS)
+        spec.fluids.forEach(f => r.inputFluids(f))
+    }
+    // the board: a wetware board traced in chromodynium
+    pico('pico_board', {
+        items: ['gtceu:wetware_printed_circuit_board', '2x gtceu:chromodynium_plate', '4x gtceu:fine_sanguinite_wire'],
+        fluids: [Fluid.of('gtceu:plasma_solder', 144)],
+        out: 'af9:pico_board', cwu: 32, duration: 400 })
+    // cleansed in ultrapure water and noble gas, every stray particle gone
+    pico('cleansed_pico_board', {
+        items: ['af9:pico_board'],
+        fluids: [Fluid.of('gtceu:distilled_water', 2000), Fluid.of('gtceu:argon', 1000)],
+        out: 'af9:cleansed_pico_board', cwu: 32, duration: 300 })
+    // the CPU: the memory and compute dies of the NVM tier set on the clean board
+    pico('pico_cpu', {
+        items: ['af9:cleansed_pico_board', '2x af9:tpu_chip', '4x af9:memristor_chip', '4x af9:quantum_dot_ic_chip',
+            '2x gtceu:chromodynium_plate'],
+        fluids: [Fluid.of('gtceu:plasma_solder', 576), Fluid.of('gtceu:polybenzimidazole', 288)],
+        out: 'af9:pico_cpu', cwu: 64, duration: 800 })
+    // the CPU with its photonic and spin-logic dies put in order
+    pico('organized_pico_circuit', {
+        items: ['af9:pico_cpu', '8x af9:photonic_ic_chip', '8x af9:spin_logic_chip', '8x gtceu:fine_sanguinite_wire'],
+        fluids: [Fluid.of('gtceu:plasma_solder', 288), Fluid.of('gtceu:polybenzimidazole', 144)],
+        out: 'af9:organized_pico_circuit', cwu: 96, duration: 600 })
+    // the housing of the rack
+    pico('processed_pico_circuit_casing', {
+        items: ['2x gtceu:chromodynium_plate', 'gtceu:tritanium_frame', '16x gtceu:polybenzimidazole_foil'],
+        fluids: [Fluid.of('gtceu:polybenzimidazole', 576)],
+        out: 'af9:processed_pico_circuit_casing', cwu: 32, duration: 400 })
+    // four organized circuits in their casing
+    pico('pico_circuit_rack', {
+        items: ['4x af9:organized_pico_circuit', 'af9:processed_pico_circuit_casing', '32x gtceu:fine_sanguinite_wire'],
+        fluids: [Fluid.of('gtceu:plasma_solder', 1440), Fluid.of('gtceu:polybenzimidazole', 1152)],
+        out: 'af9:pico_circuit_rack', cwu: 128, duration: 1200 })
 
     // ================================= 12. NVM (XPS -> NVM, top of the ladder) =========
     // NVM processor (AL, UHV): XPS mainframe + memristive + quantum-dot memory.
@@ -701,7 +754,8 @@ ServerEvents.recipes(event => {
             '32x af9:memristor_chip',
             '16x af9:quantum_dot_ic_chip',
             '8x af9:tpu_chip',
-            '32x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire')
+            '32x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire',
+            'af9:pico_circuit_rack')
         .inputFluids(
             Fluid.of('gtceu:plasma_solder', 1440),
             Fluid.of('gtceu:polybenzimidazole', 1152))
@@ -711,7 +765,7 @@ ServerEvents.recipes(event => {
             .CWUt(192)
             .EUt(VA[GTValues.UHV]))
         .duration(2400)
-        .EUt(VA[GTValues.UHV]))
+        .EUt(VA[GTValues.UHV], NVM_AMPS))
 
     // NVM mainframe (AL, UHV): top of the ladder. Memory that computes.
     assemblyLine('nvm_processor_mainframe', r => r
@@ -721,7 +775,8 @@ ServerEvents.recipes(event => {
             '32x af9:memristor_chip',
             '32x af9:quantum_dot_ic_chip',
             '16x af9:tpu_chip',
-            '64x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire')
+            '64x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire',
+            '2x af9:pico_circuit_rack')
         .inputFluids(
             Fluid.of('gtceu:plasma_solder', 2880),
             Fluid.of('gtceu:polybenzimidazole', 2304))
@@ -731,7 +786,7 @@ ServerEvents.recipes(event => {
             .CWUt(256)
             .EUt(VA[GTValues.UHV]))
         .duration(3200)
-        .EUt(VA[GTValues.UHV]))
+        .EUt(VA[GTValues.UHV], NVM_AMPS))
 
     // ---- NVM lean (Stage 5 @NVM end): the ladder at its most efficient. ----
     event.recipes.gtceu.assembly_line('af9:nvm_processor_lean')
@@ -741,13 +796,14 @@ ServerEvents.recipes(event => {
             '16x af9:memristor_chip',
             '8x af9:quantum_dot_ic_chip',
             '4x af9:tpu_chip',
-            '16x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire')
+            '16x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire',
+            'af9:pico_circuit_rack')
         .inputFluids(
             Fluid.of('gtceu:plasma_solder', 720),
             Fluid.of('gtceu:polybenzimidazole', 576))
         .itemOutputs('2x af9:nvm_processor')
         .duration(1200)
-        .EUt(VA[GTValues.UHV])
+        .EUt(VA[GTValues.UHV], NVM_AMPS)
 
     event.recipes.gtceu.assembly_line('af9:nvm_processor_mainframe_lean')
         .itemInputs(
@@ -756,13 +812,14 @@ ServerEvents.recipes(event => {
             '16x af9:memristor_chip',
             '16x af9:quantum_dot_ic_chip',
             '8x af9:tpu_chip',
-            '32x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire')
+            '32x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire',
+            'af9:pico_circuit_rack')
         .inputFluids(
             Fluid.of('gtceu:plasma_solder', 1440),
             Fluid.of('gtceu:polybenzimidazole', 1152))
         .itemOutputs('2x af9:nvm_processor_mainframe')
         .duration(1600)
-        .EUt(VA[GTValues.UHV])
+        .EUt(VA[GTValues.UHV], NVM_AMPS)
 
     // ================================= 13. packages =================================
     // Silicon interposers: dies flip-chipped to a laminate with tier wire. The circuit

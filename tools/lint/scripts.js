@@ -423,10 +423,21 @@ function materialOfItem(name) {
 const MATERIALS_FILE = 'af9-core/src/main/java/com/af9/core/registry/AF9Materials.java'
 af9.material.forEach(id => { if (!state.materials.has(id)) state.materials.set(id, { id, file: MATERIALS_FILE }) })
 const af9Materials = new Set(state.materials.keys())
+// the materials AF9 Core gives a plasma (`.plasma()` in AF9Materials): their fluid is <material>_plasma
+const af9Plasma = new Set()
+try {
+    fs.readFileSync(MATERIALS_FILE, 'utf8').split('add(material("').slice(1).forEach(chunk => {
+        const id = chunk.slice(0, chunk.indexOf('"'))
+        const body = chunk.split(/\n\s*add\(/)[0]
+        if (body.includes('.plasma()')) af9Plasma.add(id)
+    })
+} catch (e) { /* no sources: nothing known */ }
 function gtceuKnown(id) {
     const name = id.replace(/^gtceu:/, '')
     if (gtNames.has(name) || gtNames.has(baseOf(name)) || gtPatterns.some(r => r.test(name)) || packIds.has(name) || packIds.has(baseOf(name))) return true
     if (gtMaterials.has(name) || af9Materials.has(name)) return true
+    const plasma = name.match(/^(\w+)_plasma$/)
+    if (plasma && af9Plasma.has(plasma[1])) return true
     const mat = materialOfItem(name)
     if (gtMaterials.has(mat) || af9Materials.has(mat) || gtMaterials.has(baseOf(mat)) || af9Materials.has(baseOf(mat))) return true
     // machines AF9 registers (tiered: <tier>_<id>)

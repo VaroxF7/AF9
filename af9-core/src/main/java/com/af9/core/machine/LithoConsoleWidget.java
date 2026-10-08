@@ -69,6 +69,10 @@ public class LithoConsoleWidget extends ConsoleWidget {
     private int opc = -1;
     /** The shown mode's prints are multi-patterned (exposed twice, one version above the machine's own). */
     private boolean multi;
+    /** The Array Mk2's beam focus, permille; -1 on machines without one. */
+    private int focus = -1;
+    /** The focus lock: 0 off, 1 armed, 2 latched. */
+    private int focusLock;
     private String product = "";
 
     public LithoConsoleWidget(LithoMachine machine, int x, int y) {
@@ -175,6 +179,8 @@ public class LithoConsoleWidget extends ConsoleWidget {
         double opcRatio = machine.getOpcRatio(active, logic.isWorking());
         int newOpc = opcRatio < 0 ? -1 : (int) Math.round(opcRatio * 100);
         boolean newMulti = machine.isMultiPatterned(active);
+        int newFocus = machine.focusPermille();
+        int newFocusLock = machine.focusLockState();
         int newCoolant = -1;
         if (machine instanceof OrbitalLithographyMachine station && active.minCoolant() != null) {
             Coolant used = station.currentCoolant(active);
@@ -186,7 +192,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
                 newPrinted != printed ||
                 newBroken != broken || newVacuum != vacuum || newCoolant != coolant ||
                 newCoolCapacity != coolCapacity || newCoolLoad != coolLoad || newCoolSteps != coolSteps ||
-                newCoolLapsed != coolLapsed || newOpc != opc || newMulti != multi ||
+                newCoolLapsed != coolLapsed || newOpc != opc || newMulti != multi || newFocus != focus || newFocusLock != focusLock ||
                 !Objects.equals(newProduct, product);
         status = newStatus;
         mode = newMode;
@@ -207,6 +213,8 @@ public class LithoConsoleWidget extends ConsoleWidget {
         coolLapsed = newCoolLapsed;
         opc = newOpc;
         multi = newMulti;
+        focus = newFocus;
+        focusLock = newFocusLock;
         product = newProduct;
         return changed;
     }
@@ -232,6 +240,8 @@ public class LithoConsoleWidget extends ConsoleWidget {
         buffer.writeBoolean(coolLapsed);
         buffer.writeVarInt(opc + 1);
         buffer.writeBoolean(multi);
+        buffer.writeVarInt(focus + 1);
+        buffer.writeVarInt(focusLock);
         buffer.writeUtf(product);
     }
 
@@ -256,6 +266,8 @@ public class LithoConsoleWidget extends ConsoleWidget {
         coolLapsed = buffer.readBoolean();
         opc = buffer.readVarInt() - 1;
         multi = buffer.readBoolean();
+        focus = buffer.readVarInt() - 1;
+        focusLock = buffer.readVarInt();
         product = buffer.readUtf();
     }
 
@@ -339,6 +351,22 @@ public class LithoConsoleWidget extends ConsoleWidget {
             String quality = (multi ? Component.translatable("af9.litho.console.multipatterned").getString() + "  " : "") +
                     (opc >= 0 ? Component.translatable("af9.litho.console.opc", opc).getString() : "");
             drawSmall(graphics, quality, lx, y0 + 84, MUTED, false);
+        }
+        // Array Mk2: the beam focus (aligns before the Mk2's own work starts, drifts while it runs)
+        if (focus >= 0) {
+            int tierColor = focus >= OrbitalLithographyMachine.FOCUS_LOCKED ? GOOD :
+                    focus >= OrbitalLithographyMachine.FOCUS_SHARP ? INFO :
+                            focus >= OrbitalLithographyMachine.FOCUS_READY ? WARN : BAD;
+            String tierKey = focus >= OrbitalLithographyMachine.FOCUS_LOCKED ? "af9.litho.console.focus.locked" :
+                    focus >= OrbitalLithographyMachine.FOCUS_SHARP ? "af9.litho.console.focus.sharp" :
+                            focus >= OrbitalLithographyMachine.FOCUS_READY ? "af9.litho.console.focus.ready" :
+                                    "af9.litho.console.focus.aligning";
+            drawSmall(graphics, Component.translatable(focusLock == 0 ? "af9.litho.console.focus" :
+                    "af9.litho.console.focus_lock").getString(), lx, y0 + 90, MUTED, false);
+            if (focusLock == 2) tierKey = "af9.litho.console.focus.latched";
+            String focusText = Math.round(focus / 10.0) + "%  " + Component.translatable(tierKey).getString();
+            drawSmall(graphics, focusText, lx + lw - font.width(focusText) * 3 / 4, y0 + 90, tierColor, false);
+            bar(graphics, lx, y0 + 97, lw, 3, focus / (double) OrbitalLithographyMachine.FOCUS_MAX, tierColor);
         }
         // Line and Scanner: the air conditioning against the print's heat load
         if (coolLoad > 0) {

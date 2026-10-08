@@ -2433,6 +2433,8 @@
 				"{af9.quest.litho.n1.4}"
 				""
 				"{af9.quest.litho.n1.5}"
+				""
+				"{af9.quest.litho.n1.6}"
 			]
 			icon: "gtceu:orbital_lithography_station"
 			id: "75590392393A5E38"
@@ -3343,6 +3345,8 @@
 				"{af9.quest.litho.arrayMk2.2}"
 				""
 				"{af9.quest.litho.arrayMk2.3}"
+				""
+				"{af9.quest.litho.arrayMk2.4}"
 			]
 			icon: "gtceu:orbital_lithography_station"
 			id: "6CE41B00ED10F945"
@@ -3368,6 +3372,111 @@
 			]
 			title: "{af9.quest.litho.arrayMk2.title}"
 			x: 54.0d
+			y: -6.0d
+		}
+		{
+			dependencies: ["6CE41B00ED10F945"]
+			description: [
+				"{af9.quest.litho.pico.1}"
+				""
+				"{af9.quest.litho.pico.2}"
+				""
+				"{af9.quest.litho.pico.3}"
+			]
+			icon: "af9:pico_cpu"
+			id: "1DA3BD197A5A074C"
+			rewards: [{
+				id: "213D626E0749A8B4"
+				type: "xp"
+				xp: 500
+			}]
+			shape: "hexagon"
+			size: 1.5d
+			subtitle: "{af9.quest.litho.pico.subtitle}"
+			tasks: [
+				{
+					id: "37753A5981F08FA7"
+					item: "af9:pico_cpu"
+					type: "item"
+				}
+				{
+					id: "226DFCC999A4B2DE"
+					item: "af9:pico_circuit_rack"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.pico.title}"
+			x: 58.5d
+			y: -6.0d
+		}
+		{
+			dependencies: ["6CE41B00ED10F945"]
+			description: [
+				"{af9.quest.dtpf.1}"
+				""
+				"{af9.quest.dtpf.2}"
+				""
+				"{af9.quest.dtpf.3}"
+			]
+			icon: "gtceu:dtpf"
+			id: "3AFDDA6BF2ED5B61"
+			rewards: [{
+				id: "43AC875789A5B9B1"
+				type: "xp"
+				xp: 500
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.dtpf.subtitle}"
+			tasks: [
+				{
+					id: "0460622F9103BDF9"
+					item: "gtceu:dtpf"
+					type: "item"
+				}
+				{
+					id: "054A555E324DB9BB"
+					item: "gtceu:chromodynium_plate"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.dtpf.title}"
+			x: 62.5d
+			y: -6.0d
+		}
+		{
+			dependencies: ["3AFDDA6BF2ED5B61"]
+			description: [
+				"{af9.quest.dyson.1}"
+				""
+				"{af9.quest.dyson.2}"
+				""
+				"{af9.quest.dyson.3}"
+			]
+			icon: "gtceu:dyson_swarm"
+			id: "7C2E94B1A05D3F68"
+			rewards: [{
+				id: "5B8D1E07C3A92F46"
+				type: "xp"
+				xp: 500
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.dyson.subtitle}"
+			tasks: [
+				{
+					id: "1F6A0C93D8B4E725"
+					item: "gtceu:dyson_swarm"
+					type: "item"
+				}
+				{
+					id: "29D47B5E6C1A8F03"
+					item: "af9:chromodynium_star_matter_tritan_alloy_sail"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.dyson.title}"
+			x: 66.5d
 			y: -6.0d
 		}
 	]

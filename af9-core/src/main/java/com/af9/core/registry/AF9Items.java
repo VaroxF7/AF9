@@ -1,6 +1,7 @@
 package com.af9.core.registry;
 
 import com.af9.core.AF9Core;
+import com.af9.core.machine.DysonSails;
 import com.af9.core.staged.StagedCovers;
 
 import com.gregtechceu.gtceu.api.item.ComponentItem;
@@ -115,6 +116,14 @@ public final class AF9Items {
         item("xps_processor_mainframe", 64, 1);
         item("nvm_processor", 64, 1);
         item("nvm_processor_mainframe", 64, 1);
+        // Pico circuits: the XPS tier's own circuit line (GTNH's Pico components), made only on the orbital station's
+        // Mk2 (pico_fabrication); the XPS and NVM processors take them (circuits_af9.js)
+        item("pico_board", 64, 1);
+        item("cleansed_pico_board", 64, 1);
+        item("pico_cpu", 64, 1);
+        item("organized_pico_circuit", 64, 1);
+        item("processed_pico_circuit_casing", 64, 1);
+        item("pico_circuit_rack", 64, 1);
 
         // ---- Particle Accelerator ----
         item("beryllium_spallation_target", 64, 1);
@@ -143,6 +152,9 @@ public final class AF9Items {
 
         // ---- Space Elevator ----
         for (int tier = 1; tier <= DRONES; tier++) item(DRONE + tier, 1, 3);
+
+        // ---- Dyson Swarm: the sails (the swarm's modules in GTNH). Tiers and yields: DysonSwarmMachine ----
+        for (String sail : DysonSails.IDS) item(sail, 64, 2);
 
         // ---- Staged Assembly: the step detector cover (a ComponentItem, so it can place the cover) ----
         ITEMS.register("staged_step_detector", () -> {
