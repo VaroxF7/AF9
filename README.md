@@ -334,12 +334,10 @@ cd af9-core
 ```
 
 Needs **JDK 17**. Versions are pinned in `af9-core/gradle.properties` to what GTCEu 7.2.0 was
-built against — bump them together with the pack. The AF9 fork of GTCEu (`gtceu_fork_version`) is the
-dependency the mod compiles against: `build.gradle` takes it from mavenLocal (`./gradlew publishToMavenLocal` in
-`../GregTech-Modern-AF9`) or from `gtceu_fork_maven` (a URL or folder), and falls back to the GTCEu 7.2.0 release
-where it has neither (`-Paf9RequireFork` stops the build instead). CI builds the fork first when the repository
-variable `GTCEU_FORK_REPO` (`owner/name`, optionally `GTCEU_FORK_REF`, and the secret `GTCEU_FORK_TOKEN` for a private
-repository) is set.
+built against — bump them together with the pack. The AF9 fork of GTCEu lives in this repository too
+([`gtceu-fork/`](gtceu-fork/README.md): upstream's 7.2.0 release plus a patch series) and is the dependency the mod
+compiles against: the build publishes it to mavenLocal first where it is not there yet (`-Paf9SkipForkBuild` falls back
+to the GTCEu 7.2.0 release, `-Paf9RequireFork` fails where the fork is missing). CI does the same.
 
 ## Lint & CI
 

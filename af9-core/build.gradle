@@ -79,11 +79,11 @@ repositories {
     }
 }
 
-// GregTech: the AF9 fork (gtceu_fork_version) is the dependency AF9 Core is built against. It is found in mavenLocal
-// (./gradlew publishToMavenLocal in the fork's checkout; CI does that first, see the workflow) or in the maven the
-// gtceu_fork_maven property names (a URL or a folder). Where neither has it the build falls back to the release it is
-// based on (gtceu_version, from the GTCEu maven): AF9 Core only uses GT's released API, so that compiles too. With
-// -Paf9RequireFork (what CI sets once the fork is configured) a missing fork stops the build instead.
+// GregTech: the AF9 fork (gtceu_fork_version, built from ../gtceu-fork: upstream's release plus the patches there) is the
+// dependency AF9 Core is built against. Where it is not in mavenLocal yet this build publishes it first (gtceu-fork/build.sh);
+// gtceu_fork_maven names another maven (a URL or a folder) to take it from instead. -Paf9SkipForkBuild skips building it and
+// falls back to the release it is based on (gtceu_version, from the GTCEu maven; AF9 Core only uses GT's released API, so that
+// compiles too), -Paf9RequireFork stops the build where the fork is missing.
 def gtceuFork = project.findProperty('gtceu_fork_version')
 def forkMaven = project.findProperty('gtceu_fork_maven')
 if (forkMaven) {
@@ -96,9 +96,17 @@ if (forkMaven) {
     }
 }
 def forkPath = "com/gregtechceu/gtceu/gtceu-${minecraft_version}/${gtceuFork}"
-def gtceuForkPublished = gtceuFork && (new File(repositories.getByName('MavenLocal').url.path, forkPath).isDirectory() ||
-        (forkMaven && !forkMaven.startsWith('http') && new File(forkMaven, forkPath).isDirectory()) ||
-        (forkMaven && forkMaven.startsWith('http')))
+def forkAvailable = {
+    new File(repositories.getByName('MavenLocal').url.path, forkPath).isDirectory() ||
+            (forkMaven && (forkMaven.startsWith('http') || new File(forkMaven, forkPath).isDirectory()))
+}
+def forkScript = file('../gtceu-fork/build.sh')
+if (gtceuFork && !forkAvailable() && !project.hasProperty('af9SkipForkBuild') && forkScript.exists()) {
+    logger.lifecycle("Building the AF9 fork of GTCEu ${gtceuFork} (gtceu-fork/build.sh)")
+    def proc = new ProcessBuilder('bash', forkScript.absolutePath, gtceuFork).inheritIO().start()
+    if (proc.waitFor() != 0) throw new GradleException("building the GTCEu fork ${gtceuFork} failed")
+}
+def gtceuForkPublished = gtceuFork && forkAvailable()
 if (project.hasProperty('af9RequireFork') && !gtceuForkPublished) {
     throw new GradleException("GTCEu ${gtceuFork} (the AF9 fork) is not in mavenLocal or gtceu_fork_maven, and the build requires it")
 }
