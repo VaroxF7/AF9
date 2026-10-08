@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "af9:block/dyson_control_toroid_top",
+    "side": "af9:block/dyson_control_toroid"
+  }
+}

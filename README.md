@@ -75,6 +75,7 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 | 🛢️ Oil, off-world | Overworld oil off; Oil Regolith in asteroids → Impure → Shiny → Oil/Heavy Oil; fluids drilled in the Field | [`docs/oil.md`](docs/oil.md) |
 | 🔴 Sanguinite | bright-red UHV superconductor (lossless UV 4A): Nt/Ti dusts + H₂ + Ares gas + LXA-1 → Sanguinite Hearth Furnace under supercooled endion (preheated 13,000 K, 4A UV, 60 s; EBF cannot smelt it) → Bulk Blast Chiller | [`docs/uhv-superconductor.md`](docs/uhv-superconductor.md) |
 | 🔥 Plasma Forge (DTPF) | a 37×29×37 industrial skeleton of lattice pylons, diagonal struts and beams (after GTNH's, built differently) that forges strange matter and chromodynium plasma back into matter, with a running-time ramp: −50 % EU/t, −25 % time after 30 min | [`docs/dtpf.md`](docs/dtpf.md) |
+| ☀️ Dyson Swarm | GTNH Intergalactic's Dyson Swarm, copied block for block: three sails (Allthemodium 100 %, Unobtainium Alloy 200 %, Chromodynium Star Matter Tritan Alloy 350 %) feed a power plant for the UHV+ lines, which take 100 A (UHV), 300 A (XPS) and 1,000 A (NVM) of UHV power | [`docs/dyson-swarm.md`](docs/dyson-swarm.md) |
 | 🧹 Lint | `bash tools/lint/run.sh` checks recipes, multiblocks, quests, textures, lang without starting the game | [`tools/lint/README.md`](tools/lint/README.md) · [`docs/review-findings.md`](docs/review-findings.md) |
 
 Plus the supporting machines: **SMC fab family** (chemistry / separation / electrochemistry / thermal,
@@ -394,5 +395,5 @@ GregTech CEu Modern · GregTech: New Horizons (Space Elevator structure/logic, p
 structure re-expressed; the Space Elevator block textures are GTNH Intergalactic's, in GTCEu's connected-texture
 format by `tools/textures/space_elevator.py`, originals in `tools/textures/gtnh_space_elevator/`; the Pico circuit components are GTNH's textures too,
 `tools/textures/gtnh_pico/`; so are the Void Miner MK2 / MK3 casings and faces and their structures, `tools/textures/gtnh_void_miner/`, and the
-DTPF's controller face, `tools/textures/gtnh_dtpf/`) · Ad Astra · KubeJS · LDLib · Jade · Curios ·
+DTPF's controller face, `tools/textures/gtnh_dtpf/`; the Dyson Swarm's casings, face and sail, `tools/textures/gtnh_dyson_swarm/`) · Ad Astra · KubeJS · LDLib · Jade · Curios ·
 Extreme Reactors · EMI. Upstream pack: AllTheMods ATM-9.

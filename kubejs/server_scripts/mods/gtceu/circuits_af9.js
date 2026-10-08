@@ -40,6 +40,10 @@
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
+    // The circuits past UHV are made at UHV voltage on a lot of amps: XPS 300 A, NVM 1,000 A (UHV recipes of the other
+    // scripts take 100 A). That is what the Dyson Swarm's power is for (docs/dyson-swarm.md).
+    const XPS_AMPS = 300
+    const NVM_AMPS = 1000
 
     // ================================= 1. helpers =================================
     const newCircuit = (id, solder, build) => {
@@ -640,7 +644,7 @@ ServerEvents.recipes(event => {
             .CWUt(128)
             .EUt(VA[GTValues.UHV]))
         .duration(2000)
-        .EUt(VA[GTValues.UHV]))
+        .EUt(VA[GTValues.UHV], XPS_AMPS))
 
     // XPS mainframe (AL, UHV): 2x XPS processor + quantanium + memristors.
     assemblyLine('xps_processor_mainframe', r => r
@@ -661,7 +665,7 @@ ServerEvents.recipes(event => {
             .CWUt(160)
             .EUt(VA[GTValues.UHV]))
         .duration(2400)
-        .EUt(VA[GTValues.UHV]))
+        .EUt(VA[GTValues.UHV], XPS_AMPS))
 
     // ---- XPS lean (Stage 4 @XPS end for the processor, Stage 5 @NVM end for the
     // mainframe): half the frames, packages over loose dies. ----
@@ -678,7 +682,7 @@ ServerEvents.recipes(event => {
             Fluid.of('gtceu:polybenzimidazole', 288))
         .itemOutputs('2x af9:xps_processor')
         .duration(1000)
-        .EUt(VA[GTValues.UHV])
+        .EUt(VA[GTValues.UHV], XPS_AMPS)
 
     event.recipes.gtceu.assembly_line('af9:xps_processor_mainframe_lean')
         .itemInputs(
@@ -694,7 +698,7 @@ ServerEvents.recipes(event => {
             Fluid.of('gtceu:polybenzimidazole', 576))
         .itemOutputs('2x af9:xps_processor_mainframe')
         .duration(1200)
-        .EUt(VA[GTValues.UHV])
+        .EUt(VA[GTValues.UHV], XPS_AMPS)
 
     // ================================= 11b. Pico circuits (the XPS tier's own line) =================================
     // GTNH's Pico components, made only on the Orbital Array Mk2 (pico_fabrication: extended, in orbit, beams aligned;
@@ -706,7 +710,7 @@ ServerEvents.recipes(event => {
             .itemOutputs(spec.out)
             .CWUt(spec.cwu)
             .duration(spec.duration)
-            .EUt(VA[GTValues.UHV])
+            .EUt(VA[GTValues.UHV], XPS_AMPS)
         spec.fluids.forEach(f => r.inputFluids(f))
     }
     // the board: a wetware board traced in chromodynium
@@ -761,7 +765,7 @@ ServerEvents.recipes(event => {
             .CWUt(192)
             .EUt(VA[GTValues.UHV]))
         .duration(2400)
-        .EUt(VA[GTValues.UHV]))
+        .EUt(VA[GTValues.UHV], NVM_AMPS))
 
     // NVM mainframe (AL, UHV): top of the ladder. Memory that computes.
     assemblyLine('nvm_processor_mainframe', r => r
@@ -782,7 +786,7 @@ ServerEvents.recipes(event => {
             .CWUt(256)
             .EUt(VA[GTValues.UHV]))
         .duration(3200)
-        .EUt(VA[GTValues.UHV]))
+        .EUt(VA[GTValues.UHV], NVM_AMPS))
 
     // ---- NVM lean (Stage 5 @NVM end): the ladder at its most efficient. ----
     event.recipes.gtceu.assembly_line('af9:nvm_processor_lean')
@@ -799,7 +803,7 @@ ServerEvents.recipes(event => {
             Fluid.of('gtceu:polybenzimidazole', 576))
         .itemOutputs('2x af9:nvm_processor')
         .duration(1200)
-        .EUt(VA[GTValues.UHV])
+        .EUt(VA[GTValues.UHV], NVM_AMPS)
 
     event.recipes.gtceu.assembly_line('af9:nvm_processor_mainframe_lean')
         .itemInputs(
@@ -815,7 +819,7 @@ ServerEvents.recipes(event => {
             Fluid.of('gtceu:polybenzimidazole', 1152))
         .itemOutputs('2x af9:nvm_processor_mainframe')
         .duration(1600)
-        .EUt(VA[GTValues.UHV])
+        .EUt(VA[GTValues.UHV], NVM_AMPS)
 
     // ================================= 13. packages =================================
     // Silicon interposers: dies flip-chipped to a laminate with tier wire. The circuit

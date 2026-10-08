@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "af9:item/dyson/chromodynium_star_matter_tritan_alloy_sail"
+  }
+}

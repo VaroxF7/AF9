@@ -3444,6 +3444,41 @@
 			x: 62.5d
 			y: -6.0d
 		}
+		{
+			dependencies: ["3AFDDA6BF2ED5B61"]
+			description: [
+				"{af9.quest.dyson.1}"
+				""
+				"{af9.quest.dyson.2}"
+				""
+				"{af9.quest.dyson.3}"
+			]
+			icon: "gtceu:dyson_swarm"
+			id: "7C2E94B1A05D3F68"
+			rewards: [{
+				id: "5B8D1E07C3A92F46"
+				type: "xp"
+				xp: 500
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.dyson.subtitle}"
+			tasks: [
+				{
+					id: "1F6A0C93D8B4E725"
+					item: "gtceu:dyson_swarm"
+					type: "item"
+				}
+				{
+					id: "29D47B5E6C1A8F03"
+					item: "af9:chromodynium_star_matter_tritan_alloy_sail"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.dyson.title}"
+			x: 66.5d
+			y: -6.0d
+		}
 	]
 	subtitle: ["{af9.quest.litho.chapter.subtitle}"]
 	title: "{af9.quest.litho.chapter.title}"

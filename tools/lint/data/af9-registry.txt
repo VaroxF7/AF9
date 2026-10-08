@@ -4,6 +4,15 @@ block af9:arf_excimer_laser
 block af9:black_plutonium_item_pipe_casing
 block af9:bolted_iridium_casing
 block af9:bolted_naquadah_alloy_casing
+block af9:dyson_control_casing
+block af9:dyson_control_primary
+block af9:dyson_control_secondary
+block af9:dyson_control_toroid
+block af9:dyson_deployment_casing
+block af9:dyson_deployment_core
+block af9:dyson_deployment_magnet
+block af9:dyson_receiver_casing
+block af9:dyson_receiver_dish
 block af9:endion_coil_block
 block af9:euv_light_source
 block af9:krf_excimer_laser
@@ -29,6 +38,7 @@ block af9:space_mining_module_mk3
 block af9:ultra_high_strength_concrete_floor
 item af9:advanced_soc_euv_reticle
 item af9:advanced_soc_reticle
+item af9:allthemodium_sail
 item af9:apu_chip
 item af9:apu_euv_reticle
 item af9:apu_psm_reticle
@@ -57,6 +67,7 @@ item af9:broken_trinium_wafer
 item af9:chromodynium_boule
 item af9:chromodynium_melt_charge
 item af9:chromodynium_seed_crystal
+item af9:chromodynium_star_matter_tritan_alloy_sail
 item af9:chromodynium_wafer
 item af9:cleansed_pico_board
 item af9:coated_naquadah_wafer
@@ -111,6 +122,15 @@ item af9:cpu_euv_reticle
 item af9:cpu_psm_reticle
 item af9:cpu_reticle
 item af9:dry_resist_cartridge
+item af9:dyson_control_casing
+item af9:dyson_control_primary
+item af9:dyson_control_secondary
+item af9:dyson_control_toroid
+item af9:dyson_deployment_casing
+item af9:dyson_deployment_core
+item af9:dyson_deployment_magnet
+item af9:dyson_receiver_casing
+item af9:dyson_receiver_dish
 item af9:edram_chip
 item af9:edram_cpu_package
 item af9:edram_euv_reticle
@@ -258,6 +278,7 @@ item af9:ulpic_euv_reticle
 item af9:ulpic_psm_reticle
 item af9:ulpic_reticle
 item af9:ultra_high_strength_concrete_floor
+item af9:unobtainium_alloy_sail
 item af9:vpu_chip
 item af9:vpu_euv_reticle
 item af9:vpu_reticle

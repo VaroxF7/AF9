@@ -32,7 +32,7 @@ The controller is in the front wall, two up (the face is GTNH's DTPF overlay). T
   its run time by up to **-25 %**. A broken structure starts cold. The console and Jade show the ramp.
 * Perfect overclocks.
 
-## 3. The recipes (`plasma_forge`, 6 items, 6 items out, 6 fluids, 3 fluids out; UHV, 2 A)
+## 3. The recipes (`plasma_forge`, 6 items, 6 items out, 6 fluids, 3 fluids out; UHV voltage, 100 A)
 
 | Recipe | Takes | Gives |
 |---|---|---|

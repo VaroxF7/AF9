@@ -12,6 +12,8 @@
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
+    // UHV recipes draw 100 A of UHV power (XPS 300 A, NVM 1,000 A: circuits_af9.js), see docs/dyson-swarm.md
+    const UHV_AMPS = 100
 
     // ---- Living solder: sterile incubation (chemical reactor, UV, sterile cleanroom) ----
     // Stem cells in sterilized growth medium + mutagen, scaffolded on silver nanowires: a conductive bio-hydrogel
@@ -34,7 +36,7 @@ ServerEvents.recipes(event => {
         .inputFluids('#af9:coolant/endion 4000')
         .itemOutputs('gtceu:plasma_solder_dust', '8x af9:magnetic_trap')
         .duration(2400)
-        .EUt(VA[GTValues.UHV], 4)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
 
     // ---- Plasma atomic soldering: the UHV wetware mainframe in the Orbital Array Mk2 ----
     // The photonic bill (10 UV supercomputers + photonic/spin dies), deposited ion-by-ion in orbit.
@@ -55,5 +57,5 @@ ServerEvents.recipes(event => {
             Fluid.of('gtceu:polybenzimidazole', 1152))
         .itemOutputs('gtceu:wetware_processor_mainframe')
         .duration(1000)
-        .EUt(VA[GTValues.UHV])
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
 })

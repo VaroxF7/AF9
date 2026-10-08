@@ -1,6 +1,7 @@
 package com.af9.core.registry;
 
 import com.af9.core.AF9Core;
+import com.af9.core.machine.DysonSails;
 import com.af9.core.staged.StagedCovers;
 
 import com.gregtechceu.gtceu.api.item.ComponentItem;
@@ -151,6 +152,9 @@ public final class AF9Items {
 
         // ---- Space Elevator ----
         for (int tier = 1; tier <= DRONES; tier++) item(DRONE + tier, 1, 3);
+
+        // ---- Dyson Swarm: the sails (the swarm's modules in GTNH). Tiers and yields: DysonSwarmMachine ----
+        for (String sail : DysonSails.IDS) item(sail, 64, 2);
 
         // ---- Staged Assembly: the step detector cover (a ComponentItem, so it can place the cover) ----
         ITEMS.register("staged_step_detector", () -> {
