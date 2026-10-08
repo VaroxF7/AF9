@@ -2,8 +2,10 @@ package com.af9.core.staged;
 
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 
+import net.minecraft.nbt.CollectionTag;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NumericTag;
 import net.minecraft.nbt.Tag;
 
 import java.util.ArrayList;
@@ -81,11 +83,17 @@ public final class StagedRecipeData {
         return root;
     }
 
+    /**
+     * The numbers under a key, whatever list they arrive as: a recipe goes through JSON on its way from KubeJS, and
+     * that turns a list of small numbers into a byte array (and one of larger numbers into another kind).
+     */
     private static List<Integer> ints(CompoundTag tag, String key) {
         List<Integer> out = new ArrayList<>();
-        if (!tag.contains(key, Tag.TAG_LIST)) return out;
-        ListTag list = tag.getList(key, Tag.TAG_INT);
-        for (int i = 0; i < list.size(); i++) out.add(list.getInt(i));
+        if (tag.get(key) instanceof CollectionTag<?> list) {
+            for (Tag value : list) {
+                if (value instanceof NumericTag number) out.add(number.getAsInt());
+            }
+        }
         return out;
     }
 
