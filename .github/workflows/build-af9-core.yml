@@ -53,10 +53,30 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # The AF9 fork of GTCEu is the dependency AF9 Core compiles against (gtceu_fork_version). Set the repository variable
+      # GTCEU_FORK_REPO (owner/name of the fork; the secret GTCEU_FORK_TOKEN too when it is private) and CI builds the fork
+      # from source, publishes it to mavenLocal and requires it for the build. Without the variable the build compiles
+      # against the GTCEu release the fork is based on.
+      - name: Check out the GTCEu fork
+        if: ${{ vars.GTCEU_FORK_REPO != '' }}
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.GTCEU_FORK_REPO }}
+          ref: ${{ vars.GTCEU_FORK_REF }}
+          token: ${{ secrets.GTCEU_FORK_TOKEN || github.token }}
+          path: gtceu-fork
+
+      - name: Build and publish the GTCEu fork
+        if: ${{ vars.GTCEU_FORK_REPO != '' }}
+        working-directory: gtceu-fork
+        run: |
+          chmod +x gradlew
+          ./gradlew publishToMavenLocal -x test --stacktrace
+
       - name: Build
         run: |
           chmod +x gradlew
-          ./gradlew build --stacktrace
+          ./gradlew build --stacktrace ${{ vars.GTCEU_FORK_REPO != '' && '-Paf9RequireFork' || '' }}
 
       - uses: actions/upload-artifact@v4
         with:

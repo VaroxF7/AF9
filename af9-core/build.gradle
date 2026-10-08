@@ -79,15 +79,32 @@ repositories {
     }
 }
 
-// GregTech: the AF9 fork (gtceu_fork_version) where it has been published to mavenLocal, else the release it is built on
-// (gtceu_version, from the GTCEu maven). CI has no fork; AF9 Core only uses GT's released API, so both compile it.
+// GregTech: the AF9 fork (gtceu_fork_version) is the dependency AF9 Core is built against. It is found in mavenLocal
+// (./gradlew publishToMavenLocal in the fork's checkout; CI does that first, see the workflow) or in the maven the
+// gtceu_fork_maven property names (a URL or a folder). Where neither has it the build falls back to the release it is
+// based on (gtceu_version, from the GTCEu maven): AF9 Core only uses GT's released API, so that compiles too. With
+// -Paf9RequireFork (what CI sets once the fork is configured) a missing fork stops the build instead.
 def gtceuFork = project.findProperty('gtceu_fork_version')
-def gtceuForkPublished = gtceuFork && new File(repositories.getByName('MavenLocal').url.path,
-        "com/gregtechceu/gtceu/gtceu-${minecraft_version}/${gtceuFork}").isDirectory()
-ext.gtceu_build_version = gtceuForkPublished ? gtceuFork : gtceu_version
-if (gtceuFork && !gtceuForkPublished) {
-    logger.lifecycle("GTCEu ${gtceuFork} is not in mavenLocal: building against GTCEu ${gtceu_version}")
+def forkMaven = project.findProperty('gtceu_fork_maven')
+if (forkMaven) {
+    repositories {
+        maven {
+            name = 'GTCEu AF9 fork'
+            url = forkMaven
+            content { includeGroup 'com.gregtechceu.gtceu' }
+        }
+    }
 }
+def forkPath = "com/gregtechceu/gtceu/gtceu-${minecraft_version}/${gtceuFork}"
+def gtceuForkPublished = gtceuFork && (new File(repositories.getByName('MavenLocal').url.path, forkPath).isDirectory() ||
+        (forkMaven && !forkMaven.startsWith('http') && new File(forkMaven, forkPath).isDirectory()) ||
+        (forkMaven && forkMaven.startsWith('http')))
+if (project.hasProperty('af9RequireFork') && !gtceuForkPublished) {
+    throw new GradleException("GTCEu ${gtceuFork} (the AF9 fork) is not in mavenLocal or gtceu_fork_maven, and the build requires it")
+}
+ext.gtceu_build_version = gtceuForkPublished ? gtceuFork : gtceu_version
+logger.lifecycle(gtceuForkPublished ? "Building against the AF9 fork of GTCEu ${gtceuFork}" :
+        "GTCEu ${gtceuFork} is not available: building against GTCEu ${gtceu_version}")
 
 version = project.findProperty('mod_version') ?: '0.1.0'
 group = maven_group
