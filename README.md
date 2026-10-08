@@ -74,6 +74,7 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 | ⚗️ Platinum-group refinery | matte → leach → chloride liquor → Pt/Pd/Au, then Ru/Os via tetroxides, Ir/Rh last — in GT's own machines | [`docs/platinum-group-metals.md`](docs/platinum-group-metals.md) |
 | 🛢️ Oil, off-world | Overworld oil off; Oil Regolith in asteroids → Impure → Shiny → Oil/Heavy Oil; fluids drilled in the Field | [`docs/oil.md`](docs/oil.md) |
 | 🔴 Sanguinite | bright-red UHV superconductor (lossless UV 4A): Nt/Ti dusts + H₂ + Ares gas + LXA-1 → Sanguinite Hearth Furnace under supercooled endion (preheated 13,000 K, 4A UV, 60 s; EBF cannot smelt it) → Bulk Blast Chiller | [`docs/uhv-superconductor.md`](docs/uhv-superconductor.md) |
+| 🔥 Plasma Forge (DTPF) | a 33×27×33 hall (after GTNH's, built differently) that forges strange matter and chromodynium plasma back into matter, with a running-time ramp: −50 % EU/t, −25 % time after 30 min | [`docs/dtpf.md`](docs/dtpf.md) |
 | 🧹 Lint | `bash tools/lint/run.sh` checks recipes, multiblocks, quests, textures, lang without starting the game | [`tools/lint/README.md`](tools/lint/README.md) · [`docs/review-findings.md`](docs/review-findings.md) |
 
 Plus the supporting machines: **SMC fab family** (chemistry / separation / electrochemistry / thermal,
@@ -392,5 +393,6 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 GregTech CEu Modern · GregTech: New Horizons (Space Elevator structure/logic, platline method —
 structure re-expressed; the Space Elevator block textures are GTNH Intergalactic's, in GTCEu's connected-texture
 format by `tools/textures/space_elevator.py`, originals in `tools/textures/gtnh_space_elevator/`; the Pico circuit components are GTNH's textures too,
-`tools/textures/gtnh_pico/`; so are the Void Miner MK2 / MK3 casings and faces and their structures, `tools/textures/gtnh_void_miner/`) · Ad Astra · KubeJS · LDLib · Jade · Curios ·
+`tools/textures/gtnh_pico/`; so are the Void Miner MK2 / MK3 casings and faces and their structures, `tools/textures/gtnh_void_miner/`, and the
+DTPF's controller face, `tools/textures/gtnh_dtpf/`) · Ad Astra · KubeJS · LDLib · Jade · Curios ·
 Extreme Reactors · EMI. Upstream pack: AllTheMods ATM-9.

@@ -3409,6 +3409,41 @@
 			x: 58.5d
 			y: -6.0d
 		}
+		{
+			dependencies: ["6CE41B00ED10F945"]
+			description: [
+				"{af9.quest.dtpf.1}"
+				""
+				"{af9.quest.dtpf.2}"
+				""
+				"{af9.quest.dtpf.3}"
+			]
+			icon: "gtceu:dtpf"
+			id: "3AFDDA6BF2ED5B61"
+			rewards: [{
+				id: "43AC875789A5B9B1"
+				type: "xp"
+				xp: 500
+			}]
+			shape: "hexagon"
+			size: 2.0d
+			subtitle: "{af9.quest.dtpf.subtitle}"
+			tasks: [
+				{
+					id: "0460622F9103BDF9"
+					item: "gtceu:dtpf"
+					type: "item"
+				}
+				{
+					id: "054A555E324DB9BB"
+					item: "gtceu:chromodynium_plate"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.dtpf.title}"
+			x: 62.5d
+			y: -6.0d
+		}
 	]
 	subtitle: ["{af9.quest.litho.chapter.subtitle}"]
 	title: "{af9.quest.litho.chapter.title}"
