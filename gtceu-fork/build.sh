@@ -9,6 +9,15 @@ repo="$(grep '^repo=' "$here/upstream.properties" | cut -d= -f2-)"
 tag="$(grep '^tag=' "$here/upstream.properties" | cut -d= -f2-)"
 work="${AF9_FORK_WORK:-$here/.build}"
 
+# a checkout with work in it (changes or commits not yet exported to patches/) is never thrown away
+if [ -d "$work/.git" ]; then
+    applied=$(ls "$here"/patches/*.patch 2>/dev/null | wc -l)
+    ahead=$(git -C "$work" rev-list --count "$tag"..HEAD 2>/dev/null || echo 0)
+    if [ -n "$(git -C "$work" status --porcelain)" ] || [ "$ahead" -gt "$applied" ]; then
+        echo "gtceu-fork/.build has changes that are not in patches/: run gtceu-fork/export-patches.sh first" >&2
+        exit 1
+    fi
+fi
 rm -rf "$work"
 git clone --quiet --depth 1 --branch "$tag" "$repo" "$work"
 cd "$work"
