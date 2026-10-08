@@ -84,6 +84,15 @@ make the challenge: with no spare computation a running recipe loses 1.4 % a sec
 HPCA of roughly 45 CWU/t more than the recipe draws to hold its focus (a 1 nm print draws 96), and a station that runs dry
 has to re-align before the next run: from nothing 25 s on its own, about 8 s with the HPCA's spare computation.
 
+**Focus lock** (an option: sneak + screwdriver on the controller, `focusLockOption`, kept when the size is switched): once
+the focus is full and the lock is on, it **latches** (`focusLocked`) and stays full until the structure is broken or the
+size is switched: no drift, no cost per run, no loss while the station is off. The price is a **supplemental power
+connection**: every half second an energy hatch of the station that is *not the laser hatch* pays 2,048 EU/t of its
+own buffer (`supplementalPaid`; an EV hatch or better on a full amp), so the lock needs a hatch of its own beside the
+laser hatch that carries the 1 nm print. Without it for 5 s (10 intervals) the lock lets go: the focus stays full and
+then follows the ordinary rules (drift, runs). The console shows FOCUS · LOCK ARMED while the option waits for a full
+focus and "latched" once it holds.
+
 ## 6. Pico circuits
 
 GTNH's Pico components as the XPS tier's own circuit line, made by `pico_fabrication` on the Mk2 only (6 items, 1 out, 2

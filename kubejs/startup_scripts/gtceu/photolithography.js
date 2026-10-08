@@ -368,7 +368,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             $OrbitalLithographyMachine.MK2_GATE, $OrbitalLithographyMachine.FOCUS, GTRecipeModifiers.OC_PERFECT,
             GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:inert_machine_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 17))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 18))
         .pattern(definition => {
             // GT asks for this once: both sizes are built, the extended one is the machine's own to switch to
             $OrbitalLithographyMachine.setExtendedPattern(orbitalPattern(definition, orbitalMk2Slices()))

@@ -241,6 +241,11 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine
         return ConsoleWidget.STATUS_PUMPING_DOWN;
     }
 
+    /** The Array Mk2's focus lock: 0 off, 1 armed (the option is on), 2 latched; 0 where the machine has none. */
+    public int focusLockState() {
+        return 0;
+    }
+
     /** The Array Mk2's beam focus in permille (0-1000), -1 where the machine has none. */
     public int focusPermille() {
         return -1;

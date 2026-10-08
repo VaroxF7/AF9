@@ -34,6 +34,7 @@ import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.OpticalComputationHatchMachine;
 
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
@@ -145,6 +146,14 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     private static final int FOCUS_GAIN = 5, FOCUS_GAIN_SPARE = 10, FOCUS_SPARE_FULL = 64, FOCUS_DRIFT = 12,
             FOCUS_LOSS_IDLE = 2, FOCUS_PER_RUN = 30;
     /** Run time and break chance factors at sharp and at locked focus. */
+    /**
+     * The supplemental power connection of the focus lock: an energy hatch (not the laser hatch, which carries the
+     * main power) pays {@code SUPPLEMENT_EUT} for every tick, once an interval, out of its own buffer, so it has to
+     * be an EV hatch or better on a full amp. Missing for {@code LOCK_GRACE_INTERVALS} intervals in a row (5 s), the
+     * lock lets go; the focus stays full and then follows the usual rules.
+     */
+    public static final int SUPPLEMENT_EUT = 2048;
+    private static final int LOCK_GRACE_INTERVALS = 10;
     private static final double FOCUS_SHARP_SPEED = 0.9, FOCUS_LOCKED_SPEED = 0.8, FOCUS_SHARP_BREAK = 0.8,
             FOCUS_LOCKED_BREAK = 0.6;
 
@@ -252,11 +261,22 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * {@link #FOCUS_PER_RUN}: the drift is covered only by computation beyond what the running recipe draws, so a
      * line that runs without a pause needs an HPCA with room to spare;</li>
      * <li>sharp and locked focus shorten every run and lower every print's break chance
-     * ({@link #focusSpeedFactor}, {@link #focusBreakFactor}); it is lost with the structure.</li>
+     * ({@link #focusSpeedFactor}, {@link #focusBreakFactor}); it is lost with the structure;</li>
+     * <li>the focus lock, an option (sneak + screwdriver on the controller): once the focus is full it latches and
+     * stays full, with no drift and no cost per run, until the structure is broken — as long as a supplemental power
+     * connection pays for it ({@link #supplementalPaid}).</li>
      * </ul>
      */
     @Persisted
     private int focus;
+    /** The focus lock is switched on (an option; sneak + screwdriver). */
+    @Persisted
+    private boolean focusLockOption;
+    /** The focus latched: full and held, until the structure breaks (or the supplemental power stays away). */
+    @Persisted
+    private boolean focusLocked;
+    /** Intervals in a row the supplemental power was missing while latched. */
+    private int lockUnpaid;
 
     /** Magnetic field on (formed, switched on, powered); synced for the client's gravity. */
     @DescSynced
@@ -460,6 +480,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         if (this.extended == extended) return;
         this.extended = extended;
         focus = 0;
+        focusLocked = false;
+        lockUnpaid = 0;
         fieldBox = null;
         markDirty();
         if (isFormed() && getLevel() instanceof ServerLevel serverLevel) {
@@ -475,6 +497,14 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     protected InteractionResult onScrewdriverClick(Player player, InteractionHand hand, Direction side,
                                                    BlockHitResult hit) {
         if (isRemote()) return InteractionResult.SUCCESS;
+        if (player.isShiftKeyDown()) {
+            // the focus lock option; it only means something on the Mk2, and is kept when the size is switched
+            focusLockOption = !focusLockOption;
+            markDirty();
+            player.displayClientMessage(Component.translatable(focusLockOption ? "af9.orbital_array.lock.on" :
+                    "af9.orbital_array.lock.off", SUPPLEMENT_EUT), true);
+            return InteractionResult.SUCCESS;
+        }
         if (getRecipeLogic().isWorking()) {
             player.displayClientMessage(Component.translatable("af9.orbital_array.mk2.busy"), true);
             return InteractionResult.SUCCESS;
@@ -651,8 +681,22 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      */
     private void updateFocus() {
         int before = focus;
+        boolean lockedBefore = focusLocked;
         if (!extended || !isFormed()) {
             focus = 0;
+            focusLocked = false;
+            lockUnpaid = 0;
+        } else if (focusLocked) {
+            // latched: full and held for as long as the supplemental power comes (and the option stays on)
+            if (!focusLockOption) {
+                focusLocked = false;
+            } else if (supplementalPaid()) {
+                lockUnpaid = 0;
+                focus = FOCUS_MAX;
+            } else if (++lockUnpaid >= LOCK_GRACE_INTERVALS) {
+                focusLocked = false;
+                lockUnpaid = 0;
+            }
         } else if (startupTicks < STARTUP_TICKS || !isInOrbit() || !getRecipeLogic().isWorkingEnabled()) {
             focus = Math.max(0, focus - FOCUS_LOSS_IDLE);
         } else {
@@ -660,15 +704,40 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             int spare = Math.max(0, availableComputation() - runningComputation());
             int gain = FOCUS_GAIN + Math.min(FOCUS_GAIN_SPARE, spare * FOCUS_GAIN_SPARE / FOCUS_SPARE_FULL);
             focus = Math.max(0, Math.min(FOCUS_MAX, focus + gain - (running ? FOCUS_DRIFT : 0)));
+            // full, and the option on: latch, if the supplemental power can be had
+            if (focusLockOption && focus >= FOCUS_MAX && supplementalPaid()) {
+                focusLocked = true;
+                lockUnpaid = 0;
+            }
         }
-        if (focus != before) markDirty();
+        if (focus != before || focusLocked != lockedBefore) markDirty();
+    }
+
+    /**
+     * Takes one interval of the lock's supplemental power from an energy hatch that holds it: the hatches of the
+     * station that are not the laser hatch, so the lock needs a connection of its own beside the main power.
+     */
+    private boolean supplementalPaid() {
+        long need = (long) SUPPLEMENT_EUT * VACUUM_INTERVAL;
+        for (IMultiPart part : getParts()) {
+            if (part instanceof EnergyHatchPartMachine hatch && hatch.energyContainer.getEnergyStored() >= need) {
+                hatch.energyContainer.removeEnergy(need);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public int focusLockState() {
+        return !extended ? 0 : focusLocked ? 2 : focusLockOption ? 1 : 0;
     }
 
     /** Every finished run knocks the beams a little out of focus (Mk2). */
     @Override
     public void afterWorking() {
         super.afterWorking();
-        if (extended && focus > 0) {
+        if (extended && focus > 0 && !focusLocked) {
             focus = Math.max(0, focus - FOCUS_PER_RUN);
             markDirty();
         }
@@ -697,6 +766,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         startupTicks = 0;
         unpoweredTicks = 0;
         focus = 0;
+        focusLocked = false;
+        lockUnpaid = 0;
     }
 
     //////////////////////////////////////
