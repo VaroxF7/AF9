@@ -944,7 +944,7 @@
 				}
 			]
 			title: "{af9.quest.litho.dicing.title}"
-			x: 12.75d
+			x: 12.0d
 			y: 4.5d
 		}
 		{
@@ -3410,7 +3410,7 @@
 			y: -6.0d
 		}
 		{
-			dependencies: ["6CE41B00ED10F945"]
+			dependencies: ["1DA3BD197A5A074C"]
 			description: [
 				"{af9.quest.dtpf.1}"
 				""
