@@ -94,6 +94,10 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.HV])
 
     // ---- 3. The reactor ----
+    // The controller: an EV hull between the coolant pumps, lead shielding at the sides, EV circuits in the corners
+    event.shaped('gtceu:fx1_reactor', ['CPC', 'LHL', 'CPC'], {
+        C: '#gtceu:circuits/ev', P: 'gtceu:ev_electric_pump', L: 'gtceu:lead_plate', H: 'gtceu:ev_machine_hull'
+    }).id('af9:fx1_reactor')
     // One rod per 1,200 ticks (a minute); 61,440 mB of supercritical steam (51 mB/t, 4,096 EU/t in four Large Steam
     // Turbines at full rotor power) for 640 mB of water, EV: 1,920 EU/t. The coolant goes through the core and comes out
     // hot, in equal amounts. Overclocking (IV hatches) runs it faster.

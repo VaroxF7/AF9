@@ -87,6 +87,16 @@ ServerEvents.recipes(event => {
         recipe.EUt(spec.eu)
     }
 
+    // ---- The machine and its cover ----
+    // The controller, crafted at LV like GT's assembler: robot arms, conveyors and LV circuits around an LV assembler
+    event.shaped('gtceu:staged_assembly', ['RCR', 'VAV', 'WCW'], {
+        R: 'gtceu:lv_robot_arm', C: '#gtceu:circuits/lv', V: 'gtceu:lv_conveyor_module', A: 'gtceu:lv_assembler',
+        W: 'gtceu:tin_single_cable'
+    }).id('af9:staged_assembly')
+    // The staged step detector: GT's activity detector cover that reads the stage, a comparator for the signal strength
+    event.shapeless('af9:staged_step_detector', ['gtceu:activity_detector_cover', 'minecraft:comparator'])
+        .id('af9:staged_step_detector')
+
     // ---- Demo: an LV robot arm in three stages (items only) ----
     staged('af9:staged_demo_arm', {
         eu: VA[GTValues.LV],
