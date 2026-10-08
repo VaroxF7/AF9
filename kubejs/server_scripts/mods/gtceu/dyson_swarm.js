@@ -24,7 +24,7 @@ ServerEvents.recipes(event => {
     // four casings from plates and a frame, one circuit each (so JEI keeps the recipes apart)
     const casing = (out, circuit, items, fluid) => {
         const r = event.recipes.gtceu.assembler(`af9:${out}`)
-            .itemInputs(...items)
+            .itemInputs(items)
             .circuit(circuit)
             .itemOutputs(`4x af9:${out}`)
             .duration(200)
@@ -47,8 +47,8 @@ ServerEvents.recipes(event => {
     // sails(id, amps, spec): an Assembly Line recipe at UHV voltage on the tier's amps; 16 sails a run
     const sails = (id, amps, spec) => {
         const r = event.recipes.gtceu.assembly_line(`af9:${id}`)
-            .itemInputs(...spec.items)
-            .inputFluids(...spec.fluids)
+            .itemInputs(spec.items)
+            .inputFluids(spec.fluids)
             .itemOutputs(`16x af9:${id}`)
             .duration(spec.duration)
             .EUt(VA[GTValues.UHV], amps)

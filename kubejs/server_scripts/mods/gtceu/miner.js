@@ -76,7 +76,7 @@ ServerEvents.recipes((event) => {
     // both would run either; lint R7)
     const casing = (id, circuit, out, inputs) => {
         gtr.assembler(`af9:${id}`)
-            .itemInputs(...inputs)
+            .itemInputs(inputs)
             .circuit(circuit)
             .itemOutputs(out)
             .duration(200)

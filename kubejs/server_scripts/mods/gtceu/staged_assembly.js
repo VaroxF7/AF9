@@ -82,7 +82,7 @@ ServerEvents.recipes(event => {
         tag.put('globalItems', intList(globalItems))
         tag.put('globalFluids', intList(globalFluids))
         recipe.addData('af9_staged', tag)
-        recipe.itemOutputs(...spec.outputs)
+        recipe.itemOutputs(spec.outputs)
         recipe.duration(duration)
         recipe.EUt(spec.eu)
     }

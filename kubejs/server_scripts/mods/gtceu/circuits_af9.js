@@ -706,7 +706,7 @@ ServerEvents.recipes(event => {
     // They feed the XPS processors (Pico CPU, organized Pico circuit) and the NVM ones (the rack).
     const pico = (id, spec) => {
         const r = event.recipes.gtceu.pico_fabrication(`af9:${id}`)
-            .itemInputs(...spec.items)
+            .itemInputs(spec.items)
             .itemOutputs(spec.out)
             .CWUt(spec.cwu)
             .duration(spec.duration)
