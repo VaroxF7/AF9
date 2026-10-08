@@ -209,8 +209,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // 7 and 1 nm draw computation (computation hatch) and need their research (data hatch). While switched on and
     // powered its magnetic field gives the space around it normal gravity (Ad Astra; af9-core OrbitalField).
     // Array Mk2 (extended, 35 x 35, a screwdriver on the controller switches sizes like the Space Elevator's screen
-    // switch): the same platform with a larger circular rim + cross spokes (same blocks) and a larger light ring
-    // (radius 14.6, af9-core RING_RADIUS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
+    // switch): the same platform, the core as it is and the rim, trusses and beams' ends moved 5 blocks out (below),
+    // and a larger light ring (radius 13.6, af9-core RING_RADIUS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
     // UHV+ circuits deposited ion-by-ion with plasma solder, in orbit.
     const ORBITAL_BASIC = [
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         '],
@@ -239,46 +239,70 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ']
     ]
-    // Array Mk2: the basic 25 x 25 centred in 35 x 35 (offset 5), plus a larger circular rim + cross spokes in the
-    // outer band (same blocks as the level: O on the top deck, D on the sturdy ring, C elsewhere; mast/air levels
-    // stay empty so the mast stands free). Rim band radius 14.5-17.5 about the centre (17, 17); spokes on x/z = 17.
-    const ORBITAL_PAD = 5
-    const ORBITAL_MK2 = 35
-    const orbitalLevelFill = row => {
-        if (row.includes('O') || row.includes('K')) return 'O'
-        if (row.includes('D')) return 'D'
-        if (row.includes('C') || row.includes('L') || row.includes('H') || row.includes('F')) return 'C'
-        return ' '
+    // Array Mk2: the same platform, bigger. The core is the basic station exactly as it is (everything within 9 blocks of
+    // the controller's axis: mast, cone, hatches, the middle of the beams), centred in 35 x 35; the rim - the sturdy
+    // and non-conducting rings, the shock-proof beams' ends and the trusses - is the original's moved 5 blocks out, so
+    // it keeps its thickness and its look (rim radius 12 -> 17; the light ring 9.6 -> 13.6, the same 0.8 of the rim, clears it by 1.2); the
+    // beams run on between them (the original's axis beams, 1-3 wide, at radius 9). Built cell by cell from ORBITAL_BASIC
+    // for every level, so a change to the basic station carries over. Rows bottom -> top as ORBITAL_BASIC: [aisle][level].
+    const ORBITAL_MK2 = 35      // the Mk2's size, its centre at 17
+    const ORBITAL_CORE = 9      // within this radius the basic station is copied as it is
+    const ORBITAL_GROW = 5      // how far the rim moves out
+    const ORBITAL_NEAR = 3      // within this many blocks of an axis the rim moves out straight (no stretch of the beams)
+    const orbitalBasicAt = (level, dx, dz) => {
+        const sx = Math.floor(dx + 0.5) + 12, sz = Math.floor(dz + 0.5) + 12
+        return sx >= 0 && sx < 25 && sz >= 0 && sz < 25 ? ORBITAL_BASIC[sz][level].charAt(sx) : ' '
+    }
+    // the rim away from the axes: the cell's four quarters each look up the original at the radius 5 less; a thin ring of
+    // the original (one block, stepping diagonally) would break when stretched onto the longer circle, so one hit is enough
+    const orbitalRimCell = (level, dx, dz) => {
+        const votes = {}
+        ;[-0.25, 0.25].forEach(ox => {
+            ;[-0.25, 0.25].forEach(oz => {
+                const x = dx + ox, z = dz + oz
+                const r = Math.sqrt(x * x + z * z)
+                const scale = (r - ORBITAL_GROW) / r
+                const ch = orbitalBasicAt(level, x * scale, z * scale)
+                if (ch !== ' ') votes[ch] = (votes[ch] || 0) + 1
+            })
+        })
+        let best = ' '
+        let most = 0
+        'DOKCFHLABC'.split('').forEach(ch => {        // on a tie the first of these (the sturdy ring over the rest)
+            if ((votes[ch] || 0) > most) { best = ch; most = votes[ch] }
+        })
+        return best
+    }
+    const orbitalMk2Cell = (level, dx, dz) => {
+        const r = Math.sqrt(dx * dx + dz * dz)
+        if (r <= ORBITAL_CORE) return orbitalBasicAt(level, dx, dz)
+        if (r <= ORBITAL_CORE + ORBITAL_GROW) {
+            // between the core and the rim only the axis beams run on: the original's cross-section at the core's edge
+            if (Math.abs(dx) <= 1) return orbitalBasicAt(level, dx, dz > 0 ? ORBITAL_CORE : -ORBITAL_CORE)
+            if (Math.abs(dz) <= 1) return orbitalBasicAt(level, dx > 0 ? ORBITAL_CORE : -ORBITAL_CORE, dz)
+            return ' '
+        }
+        if (Math.abs(dx) <= ORBITAL_NEAR && Math.abs(dz) > Math.abs(dx)) {
+            return orbitalBasicAt(level, dx, dz > 0 ? dz - ORBITAL_GROW : dz + ORBITAL_GROW)
+        }
+        if (Math.abs(dz) <= ORBITAL_NEAR && Math.abs(dx) > Math.abs(dz)) {
+            return orbitalBasicAt(level, dx > 0 ? dx - ORBITAL_GROW : dx + ORBITAL_GROW, dz)
+        }
+        return orbitalRimCell(level, dx, dz)
     }
     // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop
     // bodies use callbacks (a const in a callback is new each call; lint rule S3)
-    const orbitalMk2Row = (az, ay) => {
-        const inCoreZ = az >= ORBITAL_PAD && az < ORBITAL_PAD + 25
-        const levelRow = inCoreZ ? ORBITAL_BASIC[az - ORBITAL_PAD][ay] : ORBITAL_BASIC[12][ay]
-        const fill = orbitalLevelFill(levelRow)
-        if (fill === ' ') {
-            return inCoreZ ? '     ' + levelRow + '     ' : '                                   '
-        }
-        let row = ''
-        Array.from({ length: ORBITAL_MK2 }).forEach((_, ax) => {
-            const inCoreX = ax >= ORBITAL_PAD && ax < ORBITAL_PAD + 25
-            if (inCoreX && inCoreZ) {
-                row += levelRow.charAt(ax - ORBITAL_PAD)
-                return
-            }
-            const dx = ax - 17, dz = az - 17
-            const dist = Math.sqrt(dx * dx + dz * dz)
-            const onRim = dist >= 14.5 && dist <= 17.5
-            const onSpoke = ax === 17 || az === 17
-            row += (onRim || onSpoke) ? fill : ' '
-        })
-        return row
-    }
     const orbitalMk2Slices = () => {
         const slices = []
         Array.from({ length: ORBITAL_MK2 }).forEach((_, az) => {
             const aisle = []
-            Array.from({ length: 18 }).forEach((_, ay) => { aisle.push(orbitalMk2Row(az, ay)) })
+            Array.from({ length: 18 }).forEach((_, level) => {
+                let row = ''
+                Array.from({ length: ORBITAL_MK2 }).forEach((_, ax) => {
+                    row += orbitalMk2Cell(level, ax - 17, az - 17)
+                })
+                aisle.push(row)
+            })
             slices.push(aisle)
         })
         return slices
@@ -342,7 +366,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',
             'gtceu:block/multiblock/fusion_reactor')
         // the same model plus the light ring: centre 3 behind the controller (below, as it faces up), radius 9.6
-        // (14.6 on the Array Mk2, af9-core reads the size through ringRadius), tube 0.25, lying across the
+        // (13.6 on the Array Mk2, af9-core reads the size through ringRadius), tube 0.25, lying across the
         // controller's front axis. The numbers live in af9-core (RING_*), which also burns whatever touches the lit
         // ring. Plasma soldering glows hotter (ringGlow 2, af9-core).
         .model($LithoMachineModels.workableCasingWithLightRing('gtceu:block/casings/solid/machine_casing_inert_ptfe',

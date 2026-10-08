@@ -51,8 +51,11 @@ extended + full EU/t + sealed start-up). `af9:wetware_mainframe_uhv_plasma`: the
 
 Same controller, two sizes (basic 25x25 / extended 35x35), switched with a screwdriver on the controller between
 runs (af9-core `setExtended`, like the Elevator's size switch; the KubeJS pattern hands the extended one over with
-`setExtendedPattern`, previews show both). Same structure scaled out: the basic 25x25 centred (offset 5) plus a
-larger circular rim (radius 14.5-17.5) + cross spokes in the outer band, same blocks per level (O top deck, D sturdy
-ring, C elsewhere; mast/air levels stay empty). Light ring radius 9.6 → 14.6 (`RING_RADIUS_MK2`, read dynamically
+`setExtendedPattern`, previews show both). The same platform, bigger: the core (everything within 9 blocks of the
+controller's axis: mast, cone, top deck with the hatches, the middle of the beams) is the basic station as it is, centred in
+35x35; the rim (the sturdy and non-conducting rings, the trusses, the ends of the shock-proof beams) is the original's
+moved 5 blocks out (radius 12 → 17) with its thickness and look, and the original's axis beams run on between core and
+rim. `orbitalMk2Slices()` builds it cell by cell from `ORBITAL_BASIC` for every level, so a change to the basic station
+carries over. Light ring radius 9.6 → 13.6 (0.8 of the rim, as in the basic station; `RING_RADIUS_MK2`, read dynamically
 through `ringRadius()` so one model serves both; burn distance, magnetic field box and render bounding box follow
 the size; plasma soldering glows plasma-violet, hotter with bloom).

@@ -107,7 +107,7 @@
     "af9.orbital_lithography_station.tooltip.10": "§7Parts only on the §fPTFE top deck§7, optional with a maximum: §f1§7 laser, §f3§7 energy, §f8§7 fluid, §f2§7 coolant, §f1§7 computation, §f1§7 data, buses, §f1§7 maintenance.",
     "af9.orbital_lithography_station.tooltip.11": "§7A §f25x25§7 platform, §f18§7 deep: GCYM casings, HSS-S trusses and an HSS-G undulator mast. A light ring glows while it prints: §cdo not touch it§7.",
     "af9.orbital_lithography_station.tooltip.12": "§aPerfect overclocks§7, §fbatch mode§7: prints overclocked below 5s run several at once. Every wafer rolls its own break.",
-    "af9.orbital_lithography_station.tooltip.13": "§dArray Mk2§7: a §fscrewdriver§7 on the controller switches to the §f35x35§7 extended platform (larger rim, larger light ring). Only the Mk2 runs §dplasma atomic soldering§7.",
+    "af9.orbital_lithography_station.tooltip.13": "§dArray Mk2§7: a §fscrewdriver§7 on the controller switches to the §f35x35§7 extended platform (the same station with its rim, trusses and beams moved out, and a larger light ring). Only the Mk2 runs §dplasma atomic soldering§7.",
     "af9.orbital_lithography_station.tooltip.14": "§dPlasma soldering§7 (gtceu:plasma_soldering, in orbit, Mk2 only): UHV+ circuits deposited ion-by-ion with §dPlasma Solder§7, no reflow. The ring glows §dplasma-violet§7 and hotter.",
     "gtceu.sanguinite_hearth": "Sanguinite Hearth",
     "af9.sanguinite_hearth_furnace.tooltip.0": "§7A §fRotary Hearth Furnace§7 rebuilt as a standalone multi: the same §f13x17x13§7 hearth, running only §cSanguinite§7.",

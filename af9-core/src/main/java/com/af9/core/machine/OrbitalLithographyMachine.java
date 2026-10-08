@@ -120,7 +120,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * The Array Mk2 (extended pattern): the same station with a larger ring, same structure scaled out. The light
      * ring grows with the rim so it stays just inside it; the burn distance and tube stay the same.
      */
-    public static final float RING_RADIUS_MK2 = 14.6F;
+    public static final float RING_RADIUS_MK2 = 13.6F;
     /** Distance from the ring's core line within which it burns: the tube and its hottest glow. */
     public static final double RING_BURN = RING_THICKNESS * 2.5;
     /** Damage of the ring: nothing survives it (totems aside). */
