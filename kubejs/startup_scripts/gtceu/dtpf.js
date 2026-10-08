@@ -2,19 +2,19 @@
 // Machine logic: af9-core PlasmaForgeMachine (the running-time ramp: the longer it runs without a pause, the cheaper and
 // faster it forges). Recipes: server_scripts/mods/gtceu/dtpf.js. Spec: docs/dtpf.md
 //
-// The structure is AF9's own, not GTNH's: a 37 x 29 x 37 square hall of beams. Rows bottom -> top, aisles back -> front
-// (the controller's, in the front gatehouse, last). From the ground up:
-//   * the foundation: a square of stable casing with diagonals and two square rings of coils and casing inlaid, a plinth;
-//   * the wall: a square ring of fusion casing four blocks high round its edge, a gate in the middle of each side (the
-//     front one closed round the controller) framed by a gatehouse of two columns and a lintel with a coil keystone;
-//     every block of the wall may be a hatch;
-//   * four corner pylons, 5 x 5 shafts with coil bands and glass slits, a 3 x 3 neck and a spire 27 high;
-//   * the plasma core in the middle: a 9 x 9 cuboid, 16 high, of fusion casing with glass windows and coil rings, a
-//     plasma bar of glass in its middle, a crown and a needle;
+// The structure is AF9's own, not GTNH's: a 37 x 29 x 37 industrial skeleton, all beams and bracing. Rows bottom -> top,
+// aisles back -> front (the controller's, in the front wall, last). From the ground up:
+//   * the foundation: a square of stable casing with diagonals and two square rings of coils and casing inlaid;
+//   * the wall: a plain low square ring of fusion casing on its edge, a gate in the middle of each side (the front one
+//     closed round the controller); every block of it may be a hatch;
+//   * four corner pylons: open lattice towers, 5 x 5, of four 2 x 2 posts with ring girders every 6 blocks and X bracing
+//     in every face, capped by a flat slab and a coil;
+//   * the plasma core in the middle: a 9 x 9 box, 16 high, of fusion casing with glass windows and coil rings, a glass
+//     plasma bar up its middle, a flat roof with four exhaust stacks and a hub post;
 //   * the supports: from every pylon two diagonal struts cross on their way to the core, one from the top of the pylon to
-//     the foot of the core, one from its waist to the core's crown;
+//     the foot of the core, one from its waist to the core's roof;
 //   * two square rings of beams hung between the struts at the core's middle, on four spokes from the core;
-//   * the top: a frame of beams joining the pylon tops, and a diagonal cross of beams over the core to its needle.
+//   * the top: box girders joining the pylon tops, and a diagonal cross of beams over the core.
 // The cell function below is the whole design; the aisles are built from it.
 
 const $PlasmaForgeMachine = Java.loadClass('com.af9.core.machine.PlasmaForgeMachine')
@@ -39,8 +39,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     const DTPF_SIZE = 37        // the hall's width and depth, its centre at 18
     const DTPF_HEIGHT = 29
     const DTPF_CENTRE = 18
-    // The design: the block at x, y, z (y up, z towards the front) as a letter of the pattern. S controller, B foundation,
-    // W wall (hatches), F beams and struts, G glass, K coils, T rings and caps, H pylons and gatehouses; a space is nothing.
+    // The design: the block at x, y, z (y up, z towards the front) as a letter of the pattern. S controller, B posts and
+    // foundation, W wall (hatches), F beams and struts, G glass, K coils, T girders and slabs; a space is nothing.
     // distance from a point to a segment, and how far along it the nearest point is (0-1)
         const distSeg = (px, py, pz, ax, ay, az, bx, by, bz) => {
         const vx = bx - ax, vy = by - ay, vz = bz - az
@@ -52,28 +52,28 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         const dx = x - DTPF_CENTRE, dz = z - DTPF_CENTRE
         const ax = Math.abs(dx), az = Math.abs(dz)
         const cheb = Math.max(ax, az)
-        // the controller, in the front gatehouse's wall
+        // the controller, in the front wall
         if (x === DTPF_CENTRE && z === DTPF_SIZE - 1 && y === 2) return 'S'
-        // ---- the four corner pylons: a 5 x 5 shaft, a 3 x 3 neck, a spire
+        // ---- the four corner pylons: open lattice towers, 5 x 5, flat topped
         const ex = ax - 15, ez = az - 15, pe = Math.max(Math.abs(ex), Math.abs(ez))
-        if (pe <= 2 && y >= 1 && y <= 27) {
-            if (y <= 16) {
-                if (pe < 2) return ' '
-                if (y % 5 === 0) return 'K'
-                return (Math.abs(ex) === 2 && Math.abs(ez) === 2) ? 'H' : ((y % 5 === 2 || y % 5 === 3) && (ex === 0 || ez === 0)) ? 'G' : 'H'
+        if (pe <= 2 && y >= 1 && y <= 26) {
+            if (y >= 24) return y <= 25 ? 'T' : (ex === 0 && ez === 0 ? (y === 26 ? 'K' : ' ') : ' ')
+            const post = Math.abs(ex) >= 1 && Math.abs(ez) >= 1                          // the four 2 x 2 posts
+            if (post) return (y % 6 === 0) ? 'T' : 'B'
+            if (pe === 2) {
+                if (y % 6 === 0) return 'T'                                              // the ring girders
+                const u = Math.abs(ex) === 2 ? ez : ex, h = y % 6                        // X bracing in every face
+                if (Math.abs(u) <= 1 && (u === h - 3 || u === 3 - h)) return 'F'
             }
-            if (y <= 22) { return pe <= 1 ? (pe === 1 ? ((y % 3 === 0) ? 'K' : 'H') : ' ') : ' ' }
-            if (pe === 0) return (y <= 24) ? 'H' : (y % 2 === 0 ? 'K' : 'G')
             return ' '
         }
-        // ---- the diagonal supports: two struts a corner, crossing: top of the pylon down to the core's foot, and the pylon's
-        // waist up to the core's crown
-        let d1 = distSeg(ax, y, az, 15, 21, 15, 5, 5, 5), d2 = distSeg(ax, y, az, 15, 9, 15, 4, 20, 4)
+        // ---- the diagonal supports: two struts a corner, crossing
+        const d1 = distSeg(ax, y, az, 15, 21, 15, 5, 5, 5), d2 = distSeg(ax, y, az, 15, 9, 15, 4, 20, 4)
         if (d1[0] <= 1.45 || d2[0] <= 1.45) {
             const d = d1[0] <= 1.45 ? d1 : d2
             return (d[0] > 0.9 && Math.floor(d[1] * 9) % 3 === 0) ? 'K' : 'F'
         }
-        // ---- the central plasma core: a 9 x 9 cuboid with windows, coil rings and a plasma bar in its middle
+        // ---- the plasma core: a 9 x 9 box with windows and coil rings, a plasma bar, a flat roof with four exhaust stacks
         if (cheb <= 4 && y >= 2 && y <= 17) {
             if (ax === 0 && az === 0 && y >= 3) return 'G'
             if (y === 2) return 'T'
@@ -84,37 +84,34 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             return 'F'
         }
         if (y === 18 && cheb <= 4) return 'T'
-        if (y === 19 && cheb <= 2) return 'T'
-        if (ax === 0 && az === 0 && y >= 20 && y <= 26) return y % 2 === 0 ? 'K' : 'G'
-        // ---- the top frame joining the pylons, and the cross of diagonal beams over the core
-        if (y >= 21 && y <= 22 && cheb <= 16 && ((az >= 14 && az <= 16 && ax <= 13) || (ax >= 14 && ax <= 16 && az <= 13))) {
-            return ((ax + az) % 6 === 0 && y === 22) ? 'K' : 'F'
+        if (y >= 19 && y <= 22 && ax === 3 && az === 3) return y === 22 ? 'K' : 'F'            // the stacks
+        if (ax === 0 && az === 0 && y >= 19 && y <= 24) return y === 24 ? 'K' : 'F'            // the hub post
+        // ---- the top: box girders along the pylon tops, and a diagonal cross of beams over the core
+        if (y >= 21 && y <= 23 && cheb <= 16 && ((az === 15 && ax <= 13) || (ax === 15 && az <= 13))) {
+            const along = az === 15 ? ax : az
+            if (y === 21 || y === 23) return 'F'
+            return along % 2 === 0 ? 'F' : ' '                                                  // verticals every second block
         }
-        if (y === 25 && cheb <= 14 && Math.abs(ax - az) <= 1) return Math.abs(ax - az) === 0 && (ax % 4 === 0) ? 'K' : 'F'
-        if (y === 26 && cheb <= 12 && Math.abs(ax - az) === 0 && cheb > 2) return 'T'
+        if (y === 25 && cheb <= 14 && Math.abs(ax - az) <= 1) return (Math.abs(ax - az) === 0 && ax % 4 === 0) ? 'K' : 'F'
+        if (y === 24 && cheb <= 3) return 'T'
         // ---- two square rings of beams, hung between the struts, with spokes to the core
         if ((y === 11 || y === 12) && cheb === 9 && ax <= 9 && az <= 9) return 'T'
         if ((y === 12 || y === 13) && cheb === 12) return 'T'
         if (y === 12 && (ax === 0 || az === 0) && cheb >= 5 && cheb <= 8) return 'F'
-        // ---- the gatehouses: columns and a lintel round every gate, the front one round the controller
-        const side = Math.max(ax, az)
-        const alongSide = ax >= az ? az : ax        // the offset along the wall
-        if (cheb >= 17 && cheb <= 18 && alongSide >= 3 && alongSide <= 4 && y >= 1 && y <= 8) return 'H'
-        if (cheb >= 17 && cheb <= 18 && alongSide <= 4 && y >= 8 && y <= 9) return (alongSide === 0 && y === 9) ? 'K' : 'F'
-        // ---- the wall: a square ring four high on the foundation's edge; every block of it may be a hatch
-        if (cheb === 18 && y >= 1 && y <= 4) {
+        // ---- the wall: a plain low square, gates (no frames) in the middle of the sides, a girder along its top
+        if (cheb === 18 && y >= 1 && y <= 3) {
+            const alongSide = ax >= az ? az : ax
             const front = dz > 0 && az >= ax
-            if (!front && alongSide <= 2 && y <= 3) return ' '       // the gates (the front one is closed)
-            return (y === 4 && alongSide % 4 === 0) ? 'K' : 'W'
+            if (!front && alongSide <= 2 && y <= 2) return ' '
+            return (y === 3 && alongSide % 6 === 0) ? 'K' : 'W'
         }
-        // ---- the foundation: a stepped square with inlaid diagonals and rings, and the core's plinth
+        // ---- the foundation
         if (y === 0 && cheb <= 18) {
             if (ax === az && cheb >= 6 && cheb <= 15) return 'K'
             if (cheb === 12 || cheb === 6) return 'T'
             return 'B'
         }
-        if (y === 1 && cheb <= 7 && cheb >= 5) return 'B'
-        if (y === 1 && cheb < 5 && cheb >= 0) return 'B'
+        if (y === 1 && cheb <= 7) return 'B'
         return ' '
     }
     // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop bodies
@@ -164,7 +161,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .where('T', Predicates.blocks('gtceu:fusion_casing_mk3'))
                 .where('G', Predicates.blocks('gtceu:fusion_glass'))
                 .where('K', Predicates.blocks('gtceu:superconducting_coil'))
-                .where('H', Predicates.blocks('gtceu:high_temperature_smelting_casing'))
                 .build()
         })
         // the controller: fusion casing with GTNH's DTPF face (kubejs assets, overlay_front*)
