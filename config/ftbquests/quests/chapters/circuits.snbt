@@ -636,7 +636,7 @@
 			}]
 			title: "{af9.quest.circuits.xpsAge}"
 			x: -5.0d
-			y: 3.0d
+			y: 3.5d
 		}
 		{
 			disable_toast: true
@@ -649,7 +649,7 @@
 			}]
 			title: "{af9.quest.circuits.nvmAge}"
 			x: -5.0d
-			y: 4.0d
+			y: 4.5d
 		}
 		{
 			disable_toast: true

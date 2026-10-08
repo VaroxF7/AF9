@@ -35,7 +35,7 @@ import java.util.Objects;
 /**
  * The Void Miner's screen, the Orbital Lithography Station's layout (see {@link SidePanelsUIWidget}):
  * <ul>
- * <li>left, the shaft from above: the four areas as tiles (click one to switch), the drill descending while a run
+ * <li>left, the shaft from above (the area is the dimension the miner stands in), the drill descending while a run
  * is on, ore sparks rising off the rock, the state and the run-time bar;</li>
  * <li>right, the run: the area, the recipe's items (in, out), energy per run, the on/off switch, the run counter
  * and a hint for the current state;</li>
@@ -61,6 +61,8 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
 
     // last state sent to / received by the client
     private int status = -1;
+    /** Index of the active recipe type among the miner's. */
+    private int mode;
     private int tier;
     private int progress;
     private int duration;
@@ -112,10 +114,10 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
     @Override
     protected boolean sample() {
         var logic = machine.getRecipeLogic();
-        int[] now = { machine.getStatus(), machine.isFormed() ? machine.getTier() : -1,
+        int[] now = { machine.getStatus(), machine.getActiveRecipeType(), machine.isFormed() ? machine.getTier() : -1,
                 logic.isWorking() ? logic.getProgress() : 0, logic.isWorking() ? logic.getDuration() : 0,
                 machine.isWorkingEnabled() ? 1 : 0 };
-        int[] before = { status, tier, progress, duration, workingEnabled ? 1 : 0 };
+        int[] before = { status, mode, tier, progress, duration, workingEnabled ? 1 : 0 };
         long[] nowLong = { machine.getAvailableEUt(), machine.getNeededEUt(), machine.getEnergyPerRun(),
                 machine.getRuns() };
         long[] beforeLong = { available, needed, energyPerRun, runs };
@@ -124,10 +126,11 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
         boolean changed = !Arrays.equals(now, before) || !Arrays.equals(nowLong, beforeLong) ||
                 !Objects.equals(newIn, recipeIn) || !Objects.equals(newOut, recipeOut);
         status = now[0];
-        tier = now[1];
-        progress = now[2];
-        duration = now[3];
-        workingEnabled = now[4] != 0;
+        mode = now[1];
+        tier = now[2];
+        progress = now[3];
+        duration = now[4];
+        workingEnabled = now[5] != 0;
         available = nowLong[0];
         needed = nowLong[1];
         energyPerRun = nowLong[2];
@@ -139,7 +142,7 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
 
     @Override
     protected void writeState(FriendlyByteBuf buffer) {
-        for (int value : new int[] { status, tier, progress, duration }) buffer.writeVarInt(value);
+        for (int value : new int[] { status, mode, tier, progress, duration }) buffer.writeVarInt(value);
         buffer.writeBoolean(workingEnabled);
         for (long value : new long[] { available, needed, energyPerRun, runs }) buffer.writeVarLong(value);
         buffer.writeUtf(recipeIn);
@@ -149,6 +152,7 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
     @Override
     protected void readState(FriendlyByteBuf buffer) {
         status = buffer.readVarInt();
+        mode = buffer.readVarInt();
         tier = buffer.readVarInt();
         progress = buffer.readVarInt();
         duration = buffer.readVarInt();
@@ -161,14 +165,18 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
         recipeOut = buffer.readUtf();
     }
 
-    private int modeColor() {
+    /** The active recipe type (the area the miner works in). */
+    private GTRecipeType activeType() {
         GTRecipeType[] types = machine.getRecipeTypes();
-        return machine.modeColor(0);
+        return types[Math.max(0, Math.min(types.length - 1, mode))];
+    }
+
+    private int modeColor() {
+        return machine.modeColor(Math.max(0, VoidMinerMachine.areaOf(activeType())));
     }
 
     private String modeKey() {
-        GTRecipeType[] types = machine.getRecipeTypes();
-        return ProcessMachine.modeKey(types[0]);
+        return ProcessMachine.modeKey(activeType());
     }
 
     //////////////////////////////////////
@@ -369,6 +377,8 @@ public class VoidMinerConsoleWidget extends ConsoleWidget {
         @OnlyIn(Dist.CLIENT)
         private void drawProcess(GuiGraphics graphics, int x, int y, int w) {
             boolean running = console.status == STATUS_RUNNING;
+            row(graphics, x, y, w, "af9.voidminer.console.mode",
+                    Component.translatable(console.modeKey() + ".short").getString(), console.modeColor());
             row(graphics, x, y + 10, w, "af9.console.power",
                     compact(console.available) + "/" + (console.needed > 0 ? compact(console.needed) : "-"),
                     console.needed <= 0 || console.available >= console.needed ? TEXT : BAD);

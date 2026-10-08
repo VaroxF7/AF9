@@ -49,8 +49,10 @@ import java.util.StringJoiner;
  * ({@code kubejs/server_scripts/mods/gtceu/miner.js}), never in Java.
  * <p>
  * It mines standing in it: every recipe carries GT's dimension condition ({@code miner.js}), so a mode only runs in
- * its own dimension — Overworld also in the Mining Dimension, Asteroids in either belt. A formed miner in the wrong
- * dimension reports {@link ConsoleWidget#STATUS_NO_DIMENSION}.
+ * its own dimension — Overworld also in the Mining Dimension, Asteroids in either belt. That makes the dimension
+ * the mode: when the structure forms, the miner switches itself to the area of the dimension it stands in
+ * ({@link #selectArea}); there is nothing to set by hand. A formed miner in none of the four dimensions reports
+ * {@link ConsoleWidget#STATUS_NO_DIMENSION}.
  * <ul>
  * <li>Its own screen in the Orbital Lithography Station's layout: {@link VoidMinerConsoleWidget} in a
  * {@link SidePanelsUIWidget}.</li>
@@ -66,6 +68,15 @@ public class VoidMinerMachine extends ProcessMachine {
     /** The miner's recipe types, in mode order (gtceu namespace). */
     public static final String[] RECIPE_TYPES = { "void_mining_overworld", "void_mining_nether", "void_mining_end",
             "void_mining_asteroids" };
+    /**
+     * The dimensions each area mines in, in area order: the lists of the recipes' dimension conditions
+     * ({@code kubejs/server_scripts/mods/gtceu/miner.js}). Change both together.
+     */
+    public static final String[][] AREA_DIMENSIONS = {
+            { "minecraft:overworld", "allthemodium:mining" },
+            { "minecraft:the_nether" },
+            { "minecraft:the_end" },
+            { "af9:asteroid_field", "af9:ceres" } };
     /** Runs completed, for the screen's counter. */
     @Persisted
     private long runs;
@@ -87,6 +98,56 @@ public class VoidMinerMachine extends ProcessMachine {
     @Override
     public int modeColor(int index) {
         return modeColorOf(index);
+    }
+
+    /**
+     * The area (0-3, the order of {@link #RECIPE_TYPES}) a recipe type mines, whichever miner runs it (the
+     * {@code _mk2} / {@code _mk3} copies included), or -1 for a type that is none of the four (the pack's old one).
+     */
+    public static int areaOf(GTRecipeType type) {
+        String path = type.registryName.getPath().replaceAll("_mk[23]$", "");
+        for (int i = 0; i < RECIPE_TYPES.length; i++) {
+            if (RECIPE_TYPES[i].equals(path)) return i;
+        }
+        return -1;
+    }
+
+    /**
+     * The index, among this miner's recipe types, of the area of the dimension it stands in; -1 when that is none
+     * of the four.
+     */
+    public int typeIndexHere() {
+        var level = getLevel();
+        if (level == null) return -1;
+        String dimension = level.dimension().location().toString();
+        GTRecipeType[] types = getRecipeTypes();
+        for (int i = 0; i < types.length; i++) {
+            int area = areaOf(types[i]);
+            if (area < 0) continue;
+            for (String id : AREA_DIMENSIONS[area]) {
+                if (id.equals(dimension)) return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Switches to the area of the dimension the miner stands in, then lets the recipe logic look again. Without it
+     * the miner would stay on its first recipe type (the base miner's is the pack's old one, which has no recipes).
+     */
+    public void selectArea() {
+        if (isRemote()) return;
+        int wanted = typeIndexHere();
+        if (wanted >= 0 && wanted != getActiveRecipeType()) {
+            setActiveRecipeType(wanted);
+            getRecipeLogic().updateTickSubscription();
+        }
+    }
+
+    @Override
+    public void onStructureFormed() {
+        super.onStructureFormed();
+        selectArea();
     }
 
     /** ARGB colour of an area (recipe type index): overworld green, nether red, end amber, asteroids violet. */
@@ -186,7 +247,11 @@ public class VoidMinerMachine extends ProcessMachine {
 
     @Override
     public int getStatus() {
-        return super.getStatus();
+        int status = super.getStatus();
+        if ((status == ConsoleWidget.STATUS_IDLE || status == ConsoleWidget.STATUS_NO_POWER) && typeIndexHere() < 0) {
+            return ConsoleWidget.STATUS_NO_DIMENSION;
+        }
+        return status;
     }
 
     @Override

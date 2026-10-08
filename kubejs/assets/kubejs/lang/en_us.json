@@ -8263,7 +8263,7 @@
 	"af9.quest.vm.intro.title": "Mining the Void",
 	"af9.quest.vm.intro.subtitle": "Ten times the ore",
 	"af9.quest.vm.intro.1": "The &6Void Miner&r is rebuilt: its recipes live in AF9 files now, its modes pick the rock — &aOverworld&r, &cNether&r, &eEnd&r and &dAsteroids&r — and every run brings &eten times the ore&r for the same time and energy. It only mines standing in its area's dimension: build it there (Overworld also runs in the Mining Dimension, Asteroids in either belt).",
-	"af9.quest.vm.intro.2": "Set the mode on its screen, set the ore with a &bprogrammed circuit&r, feed &fdrilling fluid&r.",
+	"af9.quest.vm.intro.2": "It picks its area by itself from the dimension it stands in; set the ore with a &bprogrammed circuit&r, feed &fdrilling fluid&r.",
 	"af9.quest.vm.miner.title": "The Miner",
 	"af9.quest.vm.miner.subtitle": "Mid HV",
 	"af9.quest.vm.miner.1": "Assembler (&6HV&r): GT's LV, MV and HV miners, LV/MV/HV field generators, HV circuits, 4 mining ASICs, titanium plates, soldering alloy.",

@@ -5,8 +5,10 @@ ServerEvents.recipes((event) => {
     // void_mining_asteroids) - and three machines run them. MK1 (gtceu:void_miner) takes the base types; MK2
     // (gtceu:void_miner_mk2) and MK3 (gtceu:void_miner_mk3) take their own _mk2 / _mk3 copies of the same four
     // (recipe types registered in kubejs/startup_scripts/gtceu/void_mining.js), so a machine only ever sees the
-    // recipes of its own tier: MK2 gives 2x every output at 2x EU/t for 600 ticks, MK3 3x at 3x EU/t for 400
-    // ticks - the same energy per ore, drawn faster and at more power. GT's and ATM's recipes of the old void_miner
+    // recipes of its own tier: MK2 gives 2x every output at 2 A for 600 ticks, MK3 3x at 3 A for 400
+    // ticks - the same energy per ore, drawn faster and at more power. The extra power is amperage, not voltage: a
+    // recipe keeps the base miner's voltage, so every tier runs on the hatches of its area (x2 / x3 voltage would put
+    // MK2's End and MK3's Overworld a whole hatch tier higher). GT's and ATM's recipes of the old void_miner
     // and world_data_scanner types go; only af9: ids may remain. The removal mirrors the repo's
     // event.remove({ id: ... }) filter style (boule_melting.js): no precedent removes whole types, so the foreign
     // ids are collected first and removed one by one.
@@ -78,7 +80,7 @@ ServerEvents.recipes((event) => {
     const end_dimensions = ['minecraft:the_end']
     const asteroids_dimensions = ['af9:asteroid_field', 'af9:ceres']
 
-    // emitRecipes(typeBase, table, euT, dimensions, m): the tables are MK1's, m scales them (counts and EUt up,
+    // emitRecipes(typeBase, table, euT, dimensions, m): the tables are MK1's, m scales them (counts and amperage up,
     // duration down: 1200 / m ticks), so each ore costs the same energy however the tier draws it. Drilling fluid,
     // circuit, chances and dimensions stay as the table says. The recipe type is typeBase plus '' / '_mk2' /
     // '_mk3' - gtceu:void_miner runs the four base types, void_miner_mk2 and void_miner_mk3 the suffixed copies.
@@ -92,7 +94,7 @@ ServerEvents.recipes((event) => {
                 recipe.dimension(dimension)
             })
             recipe.circuit(entry[1])
-                .EUt(euT * m)
+                .EUt(euT, m)
                 .duration(1200 / m)
             entry[0].forEach((line) => {
                 recipe.chancedOutput(scaleCount(line, m), 2000, 0)
@@ -110,7 +112,7 @@ ServerEvents.recipes((event) => {
     // One recipe per table entry: [outputs (all counts x10 of GT's), circuit, id]. The id names the FIRST ore's
     // material. Circuit 8 of the overworld also opens on chalcopyrite, so the circuit number disambiguates it.
     // Each table is written ONCE, in MK1 counts, and emitted once per tier by emitRecipes() above: MK1 as written,
-    // MK2 with every count and the EUt times 2 for 600 ticks, MK3 with times 3 for 400 ticks. The tier suffix
+    // MK2 with every count and the amperage times 2 for 600 ticks, MK3 with times 3 for 400 ticks. The tier suffix
     // (_mk2 / _mk3) goes on the recipe id too - the base keeps af9:vm_..., two types would otherwise hold recipes
     // with one id (lint R1).
     // MK1, MK2, MK3: the multipliers every table is emitted with
