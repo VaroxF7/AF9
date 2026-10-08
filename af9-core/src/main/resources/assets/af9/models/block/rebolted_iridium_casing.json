@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "af9:block/rebolted_iridium_casing"
+  }
+}

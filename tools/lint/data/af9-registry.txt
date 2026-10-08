@@ -1,12 +1,19 @@
 # What AF9 Core registers: written by its dev run, read by the linters. Not edited by hand unless the run
 # is out of reach (it needs a pack instance); see tools/lint/README.md, "The registry list".
 block af9:arf_excimer_laser
+block af9:black_plutonium_item_pipe_casing
+block af9:bolted_iridium_casing
+block af9:bolted_naquadah_alloy_casing
 block af9:endion_coil_block
 block af9:euv_light_source
 block af9:krf_excimer_laser
+block af9:mining_black_plutonium_casing
+block af9:mining_neutronium_casing
 block af9:oil_regolith
 block af9:plascrete_filter_casing
 block af9:plascrete_pipe_casing
+block af9:rebolted_iridium_casing
+block af9:rebolted_naquadah_alloy_casing
 block af9:resonant_endion_coil_block
 block af9:space_elevator_base_casing
 block af9:space_elevator_cable
@@ -35,6 +42,9 @@ item af9:asic_psm_reticle
 item af9:asic_reticle
 item af9:asic_wafer
 item af9:beryllium_spallation_target
+item af9:black_plutonium_item_pipe_casing
+item af9:bolted_iridium_casing
+item af9:bolted_naquadah_alloy_casing
 item af9:broken_chromodynium_wafer
 item af9:broken_naquadah_wafer
 item af9:broken_naquadria_wafer
@@ -135,6 +145,8 @@ item af9:mcu_wafer
 item af9:memristor_chip
 item af9:memristor_reticle
 item af9:memristor_wafer
+item af9:mining_black_plutonium_casing
+item af9:mining_neutronium_casing
 item af9:mo_si_mirror
 item af9:molecular_sieve
 item af9:mpic_euv_reticle
@@ -184,6 +196,8 @@ item af9:quantum_dot_ic_wafer
 item af9:ram_euv_reticle
 item af9:ram_psm_reticle
 item af9:ram_reticle
+item af9:rebolted_iridium_casing
+item af9:rebolted_naquadah_alloy_casing
 item af9:resonant_endion_coil_block
 item af9:rf_transceiver_chip
 item af9:rf_transceiver_euv_reticle

@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "af9:block/bolted_naquadah_alloy_casing"
+  }
+}

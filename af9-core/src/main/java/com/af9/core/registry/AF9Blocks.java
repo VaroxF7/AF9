@@ -76,6 +76,15 @@ public final class AF9Blocks {
         block("space_elevator_base_casing", SoundType.METAL, 12F, 0, 0);
         block("space_elevator_internal_structure", SoundType.METAL, 12F, 0, 0);
         block("ultra_high_strength_concrete_floor", SoundType.STONE, 12F, 0, 0);
+        // ---- Void Miner MK2 / MK3: GTNH's mining casings, item pipe casing and bolted casings of their structures ----
+        block("mining_black_plutonium_casing", SoundType.METAL, 12F, 0, 0);
+        block("black_plutonium_item_pipe_casing", SoundType.METAL, 12F, 0, 0);
+        block("bolted_naquadah_alloy_casing", SoundType.METAL, 12F, 0, 0);
+        block("rebolted_naquadah_alloy_casing", SoundType.METAL, 12F, 0, 0);
+        block("mining_neutronium_casing", SoundType.METAL, 12F, 0, 0);
+        block("bolted_iridium_casing", SoundType.METAL, 12F, 0, 0);
+        block("rebolted_iridium_casing", SoundType.METAL, 12F, 0, 0);
+
         for (int tier = 1; tier <= MOTORS; tier++) block(MOTOR + tier, SoundType.METAL, 12F, 0, 2);
         for (int tier = 1; tier <= MODULES; tier++) block(MODULE + tier, SoundType.METAL, 12F, 0, 2);
     }
