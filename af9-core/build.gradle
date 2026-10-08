@@ -79,6 +79,16 @@ repositories {
     }
 }
 
+// GregTech: the AF9 fork (gtceu_fork_version) where it has been published to mavenLocal, else the release it is built on
+// (gtceu_version, from the GTCEu maven). CI has no fork; AF9 Core only uses GT's released API, so both compile it.
+def gtceuFork = project.findProperty('gtceu_fork_version')
+def gtceuForkPublished = gtceuFork && new File(repositories.getByName('MavenLocal').url.path,
+        "com/gregtechceu/gtceu/gtceu-${minecraft_version}/${gtceuFork}").isDirectory()
+ext.gtceu_build_version = gtceuForkPublished ? gtceuFork : gtceu_version
+if (gtceuFork && !gtceuForkPublished) {
+    logger.lifecycle("GTCEu ${gtceuFork} is not in mavenLocal: building against GTCEu ${gtceu_version}")
+}
+
 version = project.findProperty('mod_version') ?: '0.1.0'
 group = maven_group
 base { archivesName = archives_base_name }
@@ -131,7 +141,7 @@ legacyForge {
 
 dependencies {
     // GregTech and the libraries its API exposes
-    modImplementation("com.gregtechceu.gtceu:gtceu-${minecraft_version}:${gtceu_version}:slim") { transitive = false }
+    modImplementation("com.gregtechceu.gtceu:gtceu-${minecraft_version}:${gtceu_build_version}:slim") { transitive = false }
     modImplementation("com.lowdragmc.ldlib:ldlib-forge-${minecraft_version}:${ldlib_version}") { transitive = false }
     modImplementation("com.tterrag.registrate:Registrate:${registrate_version}")
     modImplementation("dev.toma.configuration:configuration-forge-${minecraft_version}:${configuration_version}")
@@ -183,10 +193,6 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
-tasks.named('jar', Jar).configure {
-    manifest.attributes(['MixinConfigs': 'af9.mixins.json'])
-    finalizedBy 'reobfJar'
-}
 tasks.withType(JavaCompile).configureEach {
     options.encoding = "UTF-8"
     options.release.set(17)

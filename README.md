@@ -332,7 +332,9 @@ cd af9-core
 ```
 
 Needs **JDK 17**. Versions are pinned in `af9-core/gradle.properties` to what GTCEu 7.2.0 was
-built against — bump them together with the pack.
+built against — bump them together with the pack. With the AF9 fork of GTCEu (`gtceu_fork_version`)
+published to mavenLocal (`./gradlew publishToMavenLocal` in `../GregTech-Modern-AF9`), the build compiles
+against the fork; without it (CI) against the GTCEu 7.2.0 release.
 
 ## Lint & CI
 
