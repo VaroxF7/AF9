@@ -5,11 +5,12 @@ Nichts davon wurde in Minecraft gestartet (siehe „Grenzen"); geprüft wurde mi
 
 ## 1. Kurzfassung
 
-* Ich habe **sechs Prüfprogramme** gebaut (`tools/lint/`, Aufruf `bash tools/lint/run.sh`). Sie laden die KubeJS-Skripte
+* Ich habe **sechs Prüfprogramme** gebaut (`tools/lint/`, Aufruf `bash tools/lint/run.sh --selftest`). Sie laden die KubeJS-Skripte
   gegen Attrappen von GT/Minecraft (nichts davon läuft wirklich), lesen die Quest-Dateien (SNBT), die Texturen, Modelle,
   Lang-Dateien, den Java-Quelltext und die Dokumente und melden **was im Spiel kaputt wäre**: fehlende Namen, doppelte Ids,
   Recipes die nie laufen können, Multiblocks die sich nicht bauen lassen, Quests die sich nie freischalten, Texte die lügen.
 * Die Prüfung läuft jetzt bei **jedem Build in GitHub Actions** (Job `lint` vor `build`); ein Fehler stoppt den Build.
+  Ein **Selbsttest** (`tools/lint/selftest.sh`) baut rund 40 Fehler absichtlich in eine Kopie des Repos und prüft, dass jede
   Regel ihren Fehler noch findet. Er hat unterwegs auch einen Fehler in meiner eigenen Arbeit gefunden (Fund 9).
 * Auf dem Stand von `origin/main` (vor dieser Durchsicht) fanden die Werkzeuge **1 Fehler und 14 Warnungen**: 1× Rezept sprengt
   die Slots seiner Maschine (Void Miner), 8× Cleanroom-Regel verletzt, 2× mehrdeutige Rezepte, 2× Maschine ohne Namen,
@@ -29,7 +30,7 @@ Nichts davon wurde in Minecraft gestartet (siehe „Grenzen"); geprüft wurde mi
 | `facts.py` | Zahlen in Quest-Texten gegen die Recipes, Java-`LithoMode` gegen die Print-Recipes | X1 X2 |
 | `docs.py` | Pfade, Links, Abschnittsverweise in README und `docs/` | D1–D3 |
 | `links.py` | die `Java.loadClass`-Aufrufe der Skripte gegen den Java-Quelltext (J3, die `kubejs:`-Ids, die das Java erwartete, entfiel, seit AF9 Core die Blöcke und Items selbst registriert) | J1 J2 |
-
+| `selftest.sh` | prüft die Prüfer | – |
 
 Jede Regel mit Bedeutung und Gegenmaßnahme steht in `tools/lint/README.md`. Nebenprodukte: `tools/textures/` (die Skripte, die
 die Texturen der neuen Items zeichnen) und `tools/lint/update-gt-lists.py` (frische Namenslisten aus einem GT-Checkout).
@@ -48,6 +49,7 @@ die Texturen der neuen Items zeichnen) und `tools/lint/update-gt-lists.py` (fris
 | 6 | Quest | Quest-Positionen: Eine neue Quest lag auf dem Link einer anderen (zweimal) | verdeckter Link | ja: andere Position | **Q4** (nur AF9-Quests; die Überlappungen der ATM9-Kapitel sind nicht unsere) |
 | 7 | Repo | `kubejs/startup_scripts/gtceu/micro_universe_orb.js` ist eine **Datei von AllTheMods** (Kopfzeile „All Rights Reserved"), ihre Recipes-Datei existiert nicht mehr, ihre Multiblock-Definition verstößt gegen unsere Regeln (Mindestanzahl, `autoAbilities`) | Block-/Maschinen-Ids ohne Recipe; rechtlich fremder Inhalt im Repo | **nicht angefasst** (deine Entscheidung) | **F1** meldet jede Datei mit ATM-Kopfzeile; fremde Dateien nicht in das Overlay kopieren, sondern nur unsere ändern. Vorschlag: löschen oder bewusst behalten |
 | 8 | Prüfer | `scripts.js --json` schnitt die Ausgabe bei 64 KB ab (Node beendet sich vor dem Leeren der Pipe); `assets.py` fiel dann **stillschweigend** auf „kein Register" zurück und prüfte KubeJS-Namen nicht mehr | die Prüfung wäre in CI grün gewesen, ohne etwas zu prüfen | ja: kein `process.exit` mehr; fehlendes Register ist jetzt ein **Fehler** | Ein Prüfer muss laut scheitern. Der Selbsttest prüft das indirekt (er findet A5/A1 nur mit Register) |
+| 9 | Prüfer | `quests.py` stürzte ab, nachdem ich das Format des Registers geändert hatte | der Selbsttest schlug an | ja | genau dafür gibt es `selftest.sh` in CI |
 | 10 | Prüfer | Falschmeldungen: GT-Blöcke aus Schleifen (Spulen, Linsen, Rohre, Lampen, GCYM-Gehäuse), `%`-Zeichen in Texten, `world_data_scanner` aus dem ATM-Pack | Lärm, der echte Funde versteckt | ja: `data/gt-patterns.txt`, `data/pack.txt`, Minecraft-genaue `%`-Regel | Listen pflegen statt Meldungen zu ignorieren |
 | 11 | Prüfer | Die erste Fassung von R3 sah `shaped`/`shapeless`-Rezepte nicht (alle Plascrete-Blöcke galten als „ohne Rezept") | Falschmeldung | ja: Crafting-Rezepte werden aufgenommen und auf Ids geprüft | – |
 | 12 | Recipes | Die drei **Sub-atomic-Karten** (CPU, GPU, RAM) brauchten **zwei Fluide** (Lötzinn + Quantenpunkt-Kolloid) im `assembler`. GT 7.2.0 hat dort **nur einen Fluid-Slot** (ich hatte irrtümlich angenommen, der Assembler habe zwei) | die Rezepte hätten sich in keinem Einzelblock-Assembler ausführen lassen: die Sub-atomic-Karten wären nicht herstellbar | ja: im Circuit Assembler, das Kolloid ersetzt das Lötzinn (Quantenpunkte werden gedruckt, nicht gelötet) | **R2** kennt jetzt auch die Slots von GTs eigenen Rezepttypen (`data/gt-recipe-slots.txt`, aus dem GT-Quelltext); vorher prüfte es nur unsere Typen |
@@ -80,7 +82,7 @@ Das sind keine Fehler im Bestand, sondern Fehler, die die neuen Features gehabt 
 
 ## 5. Regeln, die daraus folgen (Checkliste vor jedem Commit)
 
-1. `bash tools/lint/run.sh` (dasselbe läuft in CI; ohne die GT-Textur-Prüfung, Neuaufbau der Listen mit `update-gt-lists.py`; `GT_SRC=<GT-Checkout>` prüft zusätzlich GTs eigene Texturen und
+1. `bash tools/lint/run.sh --selftest` (dasselbe läuft in CI; ohne die GT-Textur-Prüfung, Neuaufbau der Listen mit `update-gt-lists.py`; `GT_SRC=<GT-Checkout>` prüft zusätzlich GTs eigene Texturen und
    Lang-Schlüssel).
 2. Neue Maschine / Material / Rezepttyp / Item → Name in der Definition (`langValue`, `displayName`) oder im Lang-File.
 3. Neues `fab_*`-Rezept ab HV → `.cleanroom(CleanroomType.CLEANROOM)`, außer es hat `.blastFurnaceTemp()`.
@@ -94,6 +96,7 @@ Das sind keine Fehler im Bestand, sondern Fehler, die die neuen Features gehabt 
 7. Multiblock → nur Maximalzahlen (`setMaxGlobalLimited(max, preview)`), kein `autoAbilities`, jedes Zeichen im Muster hat ein
    `where()`.
 8. Regeln, die nur in der Doku stehen, in einen Check überführen (so wurde aus der Cleanroom-Regel R9).
+9. Wird ein Prüfer geändert: `selftest.sh` laufen lassen und den neuen Fehler dort einbauen.
 
 ## 6. Bewusst offen / nicht gebaut
 
