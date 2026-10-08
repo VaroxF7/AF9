@@ -155,9 +155,12 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
         group.addWidget(arrow);
         // the machine frame's tooltip: which machine prints this node
         var machine = new Widget(BOX_X, CENTER_Y - BOX_SIZE / 2, BOX_SIZE, BOX_SIZE);
-        machine.setHoverTooltips(Component.translatable("block.gtceu." + LithoFlowWidget.machineId(mode)),
-                Component.translatable("af9.recipe.litho_page.node", mode.nodeNm,
-                        Component.translatable("af9.litho.light." + mode.light)));
+        List<Component> hover = new ArrayList<>();
+        hover.add(Component.translatable("block.gtceu." + LithoFlowWidget.machineId(mode)));
+        hover.add(Component.translatable("af9.recipe.litho_page.node", mode.nodeNm,
+                Component.translatable("af9.litho.light." + mode.light)));
+        if (mode.mk2Only()) hover.add(Component.translatable("af9.recipe.litho_page.mk2_only"));
+        machine.setHoverTooltips(hover);
         group.addWidget(machine);
         return group;
     }

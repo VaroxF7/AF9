@@ -137,6 +137,11 @@ public enum LithoMode {
         return machine == Machine.ORBITAL;
     }
 
+    /** Printed only by the station's extended size, the Orbital Array Mk2 (beams aligned): the 1 nm node. */
+    public boolean mk2Only() {
+        return this == N1;
+    }
+
     public String recipeTypeId() {
         return isXfel() ? "orbital_lithography" : "lithography_" + id;
     }

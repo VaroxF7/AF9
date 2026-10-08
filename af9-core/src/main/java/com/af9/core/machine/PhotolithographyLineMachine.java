@@ -309,8 +309,9 @@ public class PhotolithographyLineMachine extends LithoMachine {
             // rendered as plain labels, so the texts must not contain '%'
             Component light = Component.translatable("af9.litho.light." + mode.light);
             switch (mode.machine) {
-                case ORBITAL -> type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node_orbital",
-                        mode.nodeNm, light).getString());
+                case ORBITAL -> type.addDataInfo(data -> Component.translatable(mode.mk2Only() ?
+                        "af9.recipe.litho_node_orbital_mk2" : "af9.recipe.litho_node_orbital", mode.nodeNm, light)
+                        .getString());
                 case SCANNER -> type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node_scanner",
                         mode.nodeNm, light, mode.level()).getString());
                 default -> type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node", mode.nodeNm,

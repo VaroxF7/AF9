@@ -138,6 +138,7 @@
     "af9.orbital_array.mk2.on": "Array Mk2 (extended) switched on: rebuild as 35x35",
     "af9.orbital_array.mk2.off": "Basic station switched on: rebuild as 25x25",
     "af9.orbital_array.mk2.busy": "Stop the run before switching sizes",
+    "af9.orbital_array.mode_mk2_only": "Orbital Array Mk2 only: switch the station to its extended size first (a screwdriver on the controller)",
     "af9.orbital_array.lock.on": "Focus lock on: once the beams are fully focused they latch until the station is broken. It needs a supplemental power connection: an EV or better energy hatch (not the laser hatch) with %s EU/t spare.",
     "af9.orbital_array.lock.off": "Focus lock off: the focus drifts and has to be held by computation",
     "gtceu.plasma_soldering": "Plasma Soldering",
