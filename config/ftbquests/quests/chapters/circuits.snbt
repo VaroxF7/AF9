@@ -634,7 +634,7 @@
 				item: "af9:xps_processor_mainframe"
 				type: "item"
 			}]
-			title: "XPS Age"
+			title: "{af9.quest.circuits.xpsAge}"
 			x: -5.0d
 			y: 3.0d
 		}
@@ -647,7 +647,7 @@
 				item: "af9:nvm_processor_mainframe"
 				type: "item"
 			}]
-			title: "NVM Age"
+			title: "{af9.quest.circuits.nvmAge}"
 			x: -5.0d
 			y: 4.0d
 		}

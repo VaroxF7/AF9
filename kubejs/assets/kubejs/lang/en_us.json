@@ -7460,6 +7460,8 @@
 	"af9.quest.zpm.uhpic": "&6AF9:&r UHPIC wafers: HPIC wafers + 8 indium gallium phosphide + 576 mB naquadah in the Chemical Reactor (Cleanroom), GT's recipe.",
 	"af9.quest.zpm.naqwafer": "&6AF9:&r the naquadah boule is pulled in the EBF's Boule Melting mode from naquadah melt charges at 5400 K (see the &6Photolithography&r chapter). Naquadah is the &b100 nm&r substrate: 8 silicon-class chip wafers per blank, and the cutter gets 64 blanks from a boule.",
 	"af9.quest.uv.hasoc": "Engrave a &eHASoC Reticle&r (black lens) and print HASoC wafers on neutronium in &650 nm&r mode or finer. It will help us immensely as we continue forwards.",
+	"af9.quest.circuits.xpsAge": "XPS Age",
+	"af9.quest.circuits.nvmAge": "NVM Age",
 	"af9.quest.circuits.metals": "&6AF9:&r each tier's circuits are built from the metals in that tier's column below.",
 	"af9.quest.litho.intro.title": "Semiconductor Fab",
 	"af9.quest.litho.intro.subtitle": "From quartzite to 1 nm chips",
