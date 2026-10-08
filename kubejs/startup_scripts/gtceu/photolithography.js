@@ -299,14 +299,15 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         return orbitalRimCell(level, dx, dz)
     }
     // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop
-    // bodies use callbacks (a const in a callback is new each call; lint rule S3)
+    // bodies use callbacks (a const in a callback is new each call; lint rule S3). Array(n).fill(0), not
+    // Array.from({ length: n }): Rhino's Array.from leaves n holes, and forEach skips holes
     const orbitalMk2Slices = () => {
         const slices = []
-        Array.from({ length: ORBITAL_MK2 }).forEach((_, az) => {
+        Array(ORBITAL_MK2).fill(0).forEach((_, az) => {
             const aisle = []
-            Array.from({ length: 18 }).forEach((_, level) => {
+            Array(18).fill(0).forEach((_, level) => {
                 let row = ''
-                Array.from({ length: ORBITAL_MK2 }).forEach((_, ax) => {
+                Array(ORBITAL_MK2).fill(0).forEach((_, ax) => {
                     row += orbitalMk2Cell(level, ax - 17, az - 17)
                 })
                 aisle.push(row)

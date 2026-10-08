@@ -115,14 +115,15 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         return ' '
     }
     // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop bodies
-    // use callbacks (a const in a callback is new each call; lint rule S3)
+    // use callbacks (a const in a callback is new each call; lint rule S3). Array(n).fill(0), not Array.from({ length: n }):
+    // Rhino's Array.from leaves n holes, and forEach skips holes
     const dtpfAisles = () => {
         const aisles = []
-        Array.from({ length: DTPF_SIZE }).forEach((_, z) => {
+        Array(DTPF_SIZE).fill(0).forEach((_, z) => {
             const rows = []
-            Array.from({ length: DTPF_HEIGHT }).forEach((_, y) => {
+            Array(DTPF_HEIGHT).fill(0).forEach((_, y) => {
                 let row = ''
-                Array.from({ length: DTPF_SIZE }).forEach((_, x) => { row += dtpfCell(x, y, z) })
+                Array(DTPF_SIZE).fill(0).forEach((_, x) => { row += dtpfCell(x, y, z) })
                 rows.push(row)
             })
             aisles.push(rows)
