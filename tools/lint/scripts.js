@@ -293,6 +293,40 @@ function loopConsts(source) {
     return lines
 }
 
+// S6, S7: what Node (this linter) runs and Rhino does not. S6: spread / rest syntax (`f(...list)`), which Rhino does not
+// parse, so the whole script fails to load; S7: `Array.from({ length: n })`, which Rhino fills with n holes that forEach
+// and map skip, so the loop body never runs. Returns [line, code, message] for each, comments and strings left out.
+function rhinoTraps(source) {
+    let code = '', i = 0
+    const skip = (end, escapes) => {    // a comment or a string: its text does not count, its line breaks do
+        const start = i
+        i++
+        while (i < source.length && !source.startsWith(end, i)) {
+            if (escapes && source[i] === '\\') i++
+            i++
+        }
+        i = Math.min(source.length, i + end.length)
+        code += source.slice(start, i).replace(/[^\n]/g, ' ')
+    }
+    while (i < source.length) {
+        const c = source[i]
+        if (source.startsWith('//', i)) skip('\n', false)
+        else if (source.startsWith('/*', i)) skip('*/', false)
+        else if (c === '\'' || c === '"' || c === '`') skip(c, true)
+        else { code += c; i++ }
+    }
+    const found = []
+    code.split('\n').forEach((text, n) => {
+        if (text.includes('...')) {
+            found.push([n + 1, 'S6', 'spread / rest syntax (...): Rhino does not parse it, the script does not load'])
+        }
+        if (/Array\.from\(\s*\{\s*length\b/.test(text)) {
+            found.push([n + 1, 'S7', 'Array.from({ length: n }): Rhino leaves n holes, forEach and map skip them'])
+        }
+    })
+    return found
+}
+
 function run(file) {
     state.currentFile = path.relative(root, file)
     if (/authored by AllTheMods/.test(read(file).slice(0, 400))) {
@@ -301,6 +335,9 @@ function run(file) {
     }
     for (const line of loopConsts(read(file))) {
         report('ERROR', 'S3', `line ${line}: a const declared in a loop's body (Rhino keeps it at its first pass's value)`, state.currentFile)
+    }
+    for (const [line, code, message] of rhinoTraps(read(file))) {
+        report('ERROR', code, `line ${line}: ${message}`, state.currentFile)
     }
     try {
         vm.runInContext(read(file), vmctx, { filename: state.currentFile })
