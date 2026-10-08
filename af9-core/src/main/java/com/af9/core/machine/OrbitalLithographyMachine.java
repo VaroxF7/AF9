@@ -640,10 +640,9 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     // ********* Beam focus **********//
     //////////////////////////////////////
 
-    /** Types only the Array Mk2 runs besides the 1 nm prints: plasma soldering and Pico fabrication. */
+    /** The type only the Array Mk2 runs besides the 1 nm prints: plasma soldering. */
     public static boolean isMk2Type(GTRecipeType type) {
-        String path = type.registryName.getPath();
-        return path.equals("plasma_soldering") || path.equals("pico_fabrication");
+        return type.registryName.getPath().equals("plasma_soldering");
     }
 
     /** Every mode the basic station cannot run: the 1 nm prints and the Mk2's own types. */

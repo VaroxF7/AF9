@@ -63,14 +63,6 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setMaxIOSize(10, 1, 2, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound($LithoSounds.ORBITAL_STATION)
-    // Pico fabrication (the Pico circuit line: board, cleansed board, CPU, organized circuit, casing, rack): up to 6
-    // item inputs, 1 out, 2 fluids in, computation through the hatch. Runs only on the Array Mk2 (extended, aligned).
-    event.create('pico_fabrication')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(6, 1, 2, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound($LithoSounds.ORBITAL_STATION)
 })
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
@@ -358,10 +350,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .rotationState(RotationState.ALL)
         .allowExtendedFacing(true)
         .recipeTypes(['lithography_50nm', 'lithography_20nm', 'lithography_7nm', 'orbital_lithography',
-            'plasma_soldering', 'pico_fabrication'].map(id => GTRecipeTypes.get(id)))
+            'plasma_soldering'].map(id => GTRecipeTypes.get(id)))
         // LITHO_GATE: only in orbit, with the recipe's full EU/t, a sealed vacuum and (researched prints) a data hatch;
         // STRIP_BROKEN: the break roll decides; COOLANT: adds the coolant (faster with a better one);
-        // MK2_GATE: plasma soldering and Pico fabrication only in orbit on the Array Mk2 (extended) once its beams are
+        // MK2_GATE: plasma soldering only in orbit on the Array Mk2 (extended) once its beams are
         // aligned (the 1 nm prints check the same in the station's own gate); FOCUS: the Mk2's focus bonus (shorter
         // runs; its break-chance share is in the station's machineBreakFactor); perfect overclocks; then batch
         // mode (GT's: once overclocked below 5 s, several prints in one run, the coolant too). No parallel hatch.

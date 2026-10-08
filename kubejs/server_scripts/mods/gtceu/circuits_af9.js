@@ -34,16 +34,16 @@
 //   8. ZPM normal (crystal computer, quantum mainframe AL, wetware assembly) + ZPM lean (Stage 3)
 //   9. UV normal (crystal mainframe AL, wetware computer) + UV lean (Stage 3)
 //   10. UHV normal (wetware mainframe AL + plasma Mk2 path) + UHV lean (Stage 4)
-//   11. Pico circuits; the XPS and NVM recipes that were here are out for now
+//   11. Pico circuits (Advanced Circuit Manufacturer); the XPS and NVM recipes that were here are out for now
 //   13. packages (asic_package, photonic_package; edram packages live in photolithography.js)
 //   14. tags (gtceu:circuits/xps, gtceu:circuits/nvm)
 // Everything else is GT's own. Spec: docs/semiconductor-factory.md
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
-    // The circuits past UHV are made at UHV voltage on a lot of amps: XPS 300 A, NVM 1,000 A (UHV recipes of the other
-    // scripts take 100 A). That is what the Dyson Swarm's power is for (docs/dyson-swarm.md).
-    const XPS_AMPS = 300
+    // The Pico circuits are made at UHV voltage on a lot of amps: 300 A (UHV recipes of the other scripts take 100 A).
+    // That is what the Dyson Swarm's power is for (docs/dyson-swarm.md).
+    const PICO_AMPS = 300
 
     // ================================= 1. helpers =================================
     const newCircuit = (id, solder, build) => {
@@ -624,22 +624,23 @@ ServerEvents.recipes(event => {
     // The only path is plasma soldering in the Orbital Array Mk2 (solders.js).
     event.remove({ id: 'gtceu:assembly_line/wetware_mainframe_uhv' })
 
-    // ================================= 11b. Pico circuits (the XPS tier's own line) =================================
-    // GTNH's Pico components, made only on the Orbital Array Mk2 (pico_fabrication: extended, in orbit, beams aligned;
-    // up to 6 items and 2 fluids a recipe, computation through the hatch) from chromodynium and the finest chips.
-    // They feed the XPS processors (Pico CPU, organized Pico circuit) and the NVM ones (the rack).
+    // ================================= 11. Pico circuits =================================
+    // GTNH's Pico components, made in the Advanced Circuit Manufacturer (advanced_circuit_manufacturer: up to 16 items
+    // and 4 fluids a recipe, computation through its hatch, UHV on 300 A through its laser hatch) from chromodynium
+    // and the finest chips. The XPS and NVM processors that took them are out for now (see the header), so nothing
+    // takes a Pico circuit at the moment.
     const pico = (id, spec) => {
-        const r = event.recipes.gtceu.pico_fabrication(`af9:${id}`)
+        const r = event.recipes.gtceu.advanced_circuit_manufacturer(`af9:${id}`)
             .itemInputs(spec.items)
             .itemOutputs(spec.out)
             .CWUt(spec.cwu)
             .duration(spec.duration)
-            .EUt(VA[GTValues.UHV], XPS_AMPS)
+            .EUt(VA[GTValues.UHV], PICO_AMPS)
         spec.fluids.forEach(f => r.inputFluids(f))
     }
-    // the board: a wetware board traced in chromodynium
+    // the board: a wetware board traced in fine chromodynium wire
     pico('pico_board', {
-        items: ['gtceu:wetware_printed_circuit_board', '2x gtceu:chromodynium_plate', '4x gtceu:fine_sanguinite_wire'],
+        items: ['gtceu:wetware_printed_circuit_board', '2x gtceu:chromodynium_plate', '8x gtceu:fine_chromodynium_wire'],
         fluids: [Fluid.of('gtceu:plasma_solder', 144)],
         out: 'af9:pico_board', cwu: 32, duration: 400 })
     // cleansed in ultrapure water and noble gas, every stray particle gone
@@ -647,10 +648,10 @@ ServerEvents.recipes(event => {
         items: ['af9:pico_board'],
         fluids: [Fluid.of('gtceu:distilled_water', 2000), Fluid.of('gtceu:argon', 1000)],
         out: 'af9:cleansed_pico_board', cwu: 32, duration: 300 })
-    // the CPU: the memory and compute dies of the NVM tier set on the clean board
+    // the CPU: the memory and compute dies of the NVM tier set on the clean board, bonded with fine chromodynium wire
     pico('pico_cpu', {
         items: ['af9:cleansed_pico_board', '2x af9:tpu_chip', '4x af9:memristor_chip', '4x af9:quantum_dot_ic_chip',
-            '2x gtceu:chromodynium_plate'],
+            '2x gtceu:chromodynium_plate', '16x gtceu:fine_chromodynium_wire'],
         fluids: [Fluid.of('gtceu:plasma_solder', 576), Fluid.of('gtceu:polybenzimidazole', 288)],
         out: 'af9:pico_cpu', cwu: 64, duration: 800 })
     // the CPU with its photonic and spin-logic dies put in order

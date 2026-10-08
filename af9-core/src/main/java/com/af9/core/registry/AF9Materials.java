@@ -616,8 +616,9 @@ public final class AF9Materials {
                 .plasma()
                 .color(0xff3c78).secondaryColor(0x3cffb4)
                 .iconSet(CHROMODYNIUM)
+                // the fine wire: the traces and bond wires of the Pico circuits
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL, MaterialFlags.GENERATE_ROD,
-                        MaterialFlags.GENERATE_FRAME)
+                        MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_FINE_WIRE)
                 .blastTemp(12000, GasTier.HIGHEST, GTValues.VA[GTValues.UHV], 2400)
                 .formula("Qc"));
     }
