@@ -177,7 +177,15 @@ def is_referenced(p):
         path = os.path.relpath(p, AF9_TEX).replace(os.sep, '/')[:-4]
         # named whole ("af9:block/machines/x"), or put together from a folder and a name ("block/coils/" + id)
         return path in named_in_code or os.path.basename(path) in named_in_code
-    return False
+    ns, _, path = os.path.relpath(p, KJS).replace(os.sep, '/')[:-4].partition('/textures/')
+    folder = path.rpartition('/')[0]
+    # a machine's overlay folder ("gtceu:block/multiblock/void_miner_mk2": GT reads its overlay_front*.png)
+    if folder and re.search(r'["\']' + re.escape(f'{ns}:{folder}') + r'["\']', named_in_code):
+        return True
+    # a material's own fluid texture: FluidBuilder().customStill() reads gtceu:block/fluids/fluid.<material>
+    fluid = re.fullmatch(r'block/fluids/fluid\.(\w+)', path)
+    return bool(fluid and re.search(r'material\("' + fluid.group(1) + r'"\)\s*\.\w+\(new FluidBuilder\(\)\.customStill\(\)',
+                                    named_in_code))
 
 
 # every png under the kubejs assets and among AF9 Core's textures
