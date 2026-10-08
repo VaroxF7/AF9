@@ -2433,6 +2433,8 @@
 				"{af9.quest.litho.n1.4}"
 				""
 				"{af9.quest.litho.n1.5}"
+				""
+				"{af9.quest.litho.n1.6}"
 			]
 			icon: "gtceu:orbital_lithography_station"
 			id: "75590392393A5E38"
@@ -3343,6 +3345,8 @@
 				"{af9.quest.litho.arrayMk2.2}"
 				""
 				"{af9.quest.litho.arrayMk2.3}"
+				""
+				"{af9.quest.litho.arrayMk2.4}"
 			]
 			icon: "gtceu:orbital_lithography_station"
 			id: "6CE41B00ED10F945"
@@ -3368,6 +3372,41 @@
 			]
 			title: "{af9.quest.litho.arrayMk2.title}"
 			x: 54.0d
+			y: -6.0d
+		}
+		{
+			dependencies: ["6CE41B00ED10F945"]
+			description: [
+				"{af9.quest.litho.pico.1}"
+				""
+				"{af9.quest.litho.pico.2}"
+				""
+				"{af9.quest.litho.pico.3}"
+			]
+			icon: "af9:pico_cpu"
+			id: "1DA3BD197A5A074C"
+			rewards: [{
+				id: "213D626E0749A8B4"
+				type: "xp"
+				xp: 500
+			}]
+			shape: "hexagon"
+			size: 1.5d
+			subtitle: "{af9.quest.litho.pico.subtitle}"
+			tasks: [
+				{
+					id: "37753A5981F08FA7"
+					item: "af9:pico_cpu"
+					type: "item"
+				}
+				{
+					id: "226DFCC999A4B2DE"
+					item: "af9:pico_circuit_rack"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.litho.pico.title}"
+			x: 58.5d
 			y: -6.0d
 		}
 	]

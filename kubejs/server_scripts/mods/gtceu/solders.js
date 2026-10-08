@@ -38,7 +38,7 @@ ServerEvents.recipes(event => {
 
     // ---- Plasma atomic soldering: the UHV wetware mainframe in the Orbital Array Mk2 ----
     // The photonic bill (10 UV supercomputers + photonic/spin dies), deposited ion-by-ion in orbit.
-    // plasma_soldering slots: 10 items, 1 out, 2 fluids in. Runs only extended + orbit (af9-core PLASMA_GATE);
+    // plasma_soldering slots: 10 items, 1 out, 2 fluids in. Runs only extended + orbit + aligned (af9-core MK2_GATE);
     // it is the only path to the mainframe — both assembly line versions are gone (circuits_af9.js).
     event.recipes.gtceu.plasma_soldering('af9:wetware_mainframe_uhv_plasma')
         .itemInputs(

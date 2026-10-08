@@ -115,6 +115,14 @@ public final class AF9Items {
         item("xps_processor_mainframe", 64, 1);
         item("nvm_processor", 64, 1);
         item("nvm_processor_mainframe", 64, 1);
+        // Pico circuits: the XPS tier's own circuit line (GTNH's Pico components), made only on the orbital station's
+        // Mk2 (pico_fabrication); the XPS and NVM processors take them (circuits_af9.js)
+        item("pico_board", 64, 1);
+        item("cleansed_pico_board", 64, 1);
+        item("pico_cpu", 64, 1);
+        item("organized_pico_circuit", 64, 1);
+        item("processed_pico_circuit_casing", 64, 1);
+        item("pico_circuit_rack", 64, 1);
 
         // ---- Particle Accelerator ----
         item("beryllium_spallation_target", 64, 1);

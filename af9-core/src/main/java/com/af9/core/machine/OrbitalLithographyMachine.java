@@ -28,6 +28,7 @@ import com.gregtechceu.gtceu.api.pattern.MultiblockWorldSavedData;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
@@ -134,6 +135,19 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     /** Recipe data key of the coolant a run uses (the coolant's id). */
     public static final String COOLANT_TAG = "af9_coolant";
 
+    /** Beam focus (permille): full, the least the Mk2's own recipes start from, the bonus levels. */
+    public static final int FOCUS_MAX = 1000, FOCUS_READY = 250, FOCUS_SHARP = 600, FOCUS_LOCKED = 900;
+    /**
+     * Per {@link #VACUUM_INTERVAL} ticks (half a second): gain, the extra gain from spare computation (full at
+     * {@link #FOCUS_SPARE_FULL} CWU/t spare), the drift of a running recipe, the loss while the station is off or
+     * unpowered; and the cost of a finished run.
+     */
+    private static final int FOCUS_GAIN = 5, FOCUS_GAIN_SPARE = 10, FOCUS_SPARE_FULL = 64, FOCUS_DRIFT = 12,
+            FOCUS_LOSS_IDLE = 2, FOCUS_PER_RUN = 30;
+    /** Run time and break chance factors at sharp and at locked focus. */
+    private static final double FOCUS_SHARP_SPEED = 0.9, FOCUS_LOCKED_SPEED = 0.8, FOCUS_SHARP_BREAK = 0.8,
+            FOCUS_LOCKED_BREAK = 0.6;
+
     /**
      * The pattern of the extended Array Mk2. The startup script builds it together with the basic one (the machine
      * definition's own pattern) and hands it over, the first time GT asks for the definition's pattern — like the
@@ -176,20 +190,39 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     };
 
     /**
-     * Plasma atomic soldering gate (gtceu:plasma_soldering): runs only in orbit, only on the Array Mk2 (extended),
-     * with the recipe's full EU/t and a sealed start-up. Litho prints keep their own gate
-     * ({@link LithoMachine#LITHO_GATE}); this one is for the solder type, which has no LithoMode.
+     * The gate of the types only the Array Mk2 runs (plasma soldering, Pico fabrication; the 1 nm prints have the
+     * station's own checks): in orbit, on the extended size, aligned ({@link #FOCUS_READY}), with the recipe's full
+     * EU/t and a sealed start-up. Litho prints keep their own gate ({@link LithoMachine#LITHO_GATE}); these types
+     * have no LithoMode.
      */
-    public static final RecipeModifier PLASMA_GATE = (machine, recipe) -> {
+    public static final RecipeModifier MK2_GATE = (machine, recipe) -> {
         if (!(machine instanceof OrbitalLithographyMachine station)) {
             return RecipeModifier.nullWrongType(OrbitalLithographyMachine.class, machine);
         }
-        if (!"plasma_soldering".equals(recipe.recipeType.registryName.getPath())) return ModifierFunction.IDENTITY;
+        if (!isMk2Type(recipe.recipeType)) return ModifierFunction.IDENTITY;
         if (!station.isInOrbit()) return ModifierFunction.NULL;
         if (!station.isExtended()) return ModifierFunction.NULL;
+        if (station.focus < FOCUS_READY) return ModifierFunction.NULL;
         if (station.getAvailableEUt() < RecipeHelper.getRealEUt(recipe).getTotalEU()) return ModifierFunction.NULL;
         if (!station.isVacuumSealed()) return ModifierFunction.NULL;
         return ModifierFunction.IDENTITY;
+    };
+
+    /**
+     * The focus bonus of the Array Mk2: a run is shorter the sharper the beams are ({@link #focusSpeedFactor}). Place
+     * it before the overclocks, which then work from the shortened run.
+     */
+    public static final RecipeModifier FOCUS = (machine, recipe) -> {
+        if (!(machine instanceof OrbitalLithographyMachine station)) {
+            return RecipeModifier.nullWrongType(OrbitalLithographyMachine.class, machine);
+        }
+        double factor = station.focusSpeedFactor();
+        if (factor >= 1) return ModifierFunction.IDENTITY;
+        return modified -> {
+            GTRecipe sharpened = modified.copy();
+            sharpened.duration = Math.max(1, (int) Math.round(sharpened.duration * factor));
+            return sharpened;
+        };
     };
 
     /** The EUV Light Source item the 20 and 7 nm prints keep (not consumed). */
@@ -207,6 +240,23 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     /** The reticle slot of the station's screen: the photomask of the chip to print, kept. Same access as the EUV slot. */
     @Persisted
     public final NotifiableItemStackHandler reticleSlot;
+
+    /**
+     * The Array Mk2's beam focus, 0 to {@link #FOCUS_MAX} (permille). It is the Mk2's setup and its upkeep:
+     * <ul>
+     * <li>it builds up while the station is formed on the extended size, switched on, started up and in orbit
+     * ({@link #FOCUS_GAIN} per {@link #VACUUM_INTERVAL} ticks), faster with computation to spare on the hatches;</li>
+     * <li>the Mk2's own work (1 nm prints, plasma soldering, Pico fabrication) starts only from
+     * {@link #FOCUS_READY}; the console says ALIGNING until then;</li>
+     * <li>a running recipe drifts it down ({@link #FOCUS_DRIFT} per interval) and every finished run costs
+     * {@link #FOCUS_PER_RUN}: the drift is covered only by computation beyond what the running recipe draws, so a
+     * line that runs without a pause needs an HPCA with room to spare;</li>
+     * <li>sharp and locked focus shorten every run and lower every print's break chance
+     * ({@link #focusSpeedFactor}, {@link #focusBreakFactor}); it is lost with the structure.</li>
+     * </ul>
+     */
+    @Persisted
+    private int focus;
 
     /** Magnetic field on (formed, switched on, powered); synced for the client's gravity. */
     @DescSynced
@@ -253,6 +303,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     /** A print runs only with its reticle in the reticle slot (GT would also take one from an input bus). */
     @Override
     public boolean canRun(GTRecipe recipe) {
+        if (LithoMode.of(recipe.recipeType) == LithoMode.N1 && focus < FOCUS_READY) return false;
         Item reticle = reticleOf(recipe);
         return reticle == null || reticleSlot.getStackInSlot(0).is(reticle);
     }
@@ -274,15 +325,30 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return LithoMode.ORBITAL_MODES;
     }
 
+    /** The 1 nm prints (chromodynium) are the Array Mk2's alone. */
     @Override
     public boolean canPrint(LithoMode mode) {
-        return mode.onOrbitalStation() && isInOrbit();
+        return mode.onOrbitalStation() && isInOrbit() && (mode != LithoMode.N1 || extended);
     }
 
     @Override
     public int blockedStatus(LithoMode mode) {
+        GTRecipeType type = getRecipeType();
+        if (LithoMode.of(type) == null) {
+            // plasma soldering, Pico fabrication: no node, reticle or coolant to ask for
+            if (!isInOrbit()) return ConsoleWidget.STATUS_NO_ORBIT;
+            if (isMk2Type(type)) {
+                if (!extended) return ConsoleWidget.STATUS_MK2_ONLY;
+                if (focus < FOCUS_READY) return ConsoleWidget.STATUS_ALIGNING;
+            }
+            return -1;
+        }
         if (!mode.onOrbitalStation()) return ConsoleWidget.STATUS_LOCKED;
         if (!isInOrbit()) return ConsoleWidget.STATUS_NO_ORBIT;
+        if (mode == LithoMode.N1) {
+            if (!extended) return ConsoleWidget.STATUS_MK2_ONLY;
+            if (focus < FOCUS_READY) return ConsoleWidget.STATUS_ALIGNING;
+        }
         if (reticleSlot.getStackInSlot(0).isEmpty()) return ConsoleWidget.STATUS_NO_RETICLE;
         // a computation hatch alone is not enough: something (an HPCA) has to supply the node's CWU/t through it
         if (mode.computation() > 0 && availableComputation() < mode.computation()) {
@@ -393,6 +459,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public void setExtended(boolean extended) {
         if (this.extended == extended) return;
         this.extended = extended;
+        focus = 0;
         fieldBox = null;
         markDirty();
         if (isFormed() && getLevel() instanceof ServerLevel serverLevel) {
@@ -530,7 +597,81 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         // a run that ran: the coolant it was started with; the next print: the one it would take now
         GTRecipe run = measured ? getRecipeLogic().getLastRecipe() : null;
         Coolant coolant = run != null ? coolantOf(run) : chooseCoolant(mode);
-        return coolant == null ? 1 : Math.pow(Coolant.BREAK_FACTOR, coolant.steps(mode));
+        double cooled = coolant == null ? 1 : Math.pow(Coolant.BREAK_FACTOR, coolant.steps(mode));
+        return cooled * focusBreakFactor();
+    }
+
+    //////////////////////////////////////
+    // ********* Beam focus **********//
+    //////////////////////////////////////
+
+    /** Types only the Array Mk2 runs besides the 1 nm prints: plasma soldering and Pico fabrication. */
+    public static boolean isMk2Type(GTRecipeType type) {
+        String path = type.registryName.getPath();
+        return path.equals("plasma_soldering") || path.equals("pico_fabrication");
+    }
+
+    public int getFocus() {
+        return focus;
+    }
+
+    @Override
+    public int focusPermille() {
+        return extended && isFormed() ? focus : -1;
+    }
+
+    /** Run time factor of the Mk2's focus: sharp 0.9, locked 0.8 (1 on the basic station). */
+    public double focusSpeedFactor() {
+        if (!extended) return 1;
+        return focus >= FOCUS_LOCKED ? FOCUS_LOCKED_SPEED : focus >= FOCUS_SHARP ? FOCUS_SHARP_SPEED : 1;
+    }
+
+    /** Break chance factor of the Mk2's focus: sharp 0.8, locked 0.6 (1 on the basic station). */
+    public double focusBreakFactor() {
+        if (!extended) return 1;
+        return focus >= FOCUS_LOCKED ? FOCUS_LOCKED_BREAK : focus >= FOCUS_SHARP ? FOCUS_SHARP_BREAK : 1;
+    }
+
+    /** CWU/t the running recipe draws from the computation hatches (0 if it draws none). */
+    private int runningComputation() {
+        GTRecipe run = getRecipeLogic().isWorking() ? getRecipeLogic().getLastRecipe() : null;
+        if (run == null) return 0;
+        int sum = 0;
+        for (Content content : run.tickInputs.getOrDefault(CWURecipeCapability.CAP, List.of())) {
+            sum += CWURecipeCapability.CAP.of(content.content);
+        }
+        return sum;
+    }
+
+    /**
+     * The focus, every {@link #VACUUM_INTERVAL} ticks: gone off the extended size and with the structure; slowly lost
+     * while switched off, unpowered or out of orbit; else gained, and drifted down by a running recipe. The extra
+     * gain comes from computation the hatches can supply beyond what the running recipe draws, so keeping a long
+     * line focused takes an HPCA bigger than the prints need.
+     */
+    private void updateFocus() {
+        int before = focus;
+        if (!extended || !isFormed()) {
+            focus = 0;
+        } else if (startupTicks < STARTUP_TICKS || !isInOrbit() || !getRecipeLogic().isWorkingEnabled()) {
+            focus = Math.max(0, focus - FOCUS_LOSS_IDLE);
+        } else {
+            boolean running = getRecipeLogic().isWorking();
+            int spare = Math.max(0, availableComputation() - runningComputation());
+            int gain = FOCUS_GAIN + Math.min(FOCUS_GAIN_SPARE, spare * FOCUS_GAIN_SPARE / FOCUS_SPARE_FULL);
+            focus = Math.max(0, Math.min(FOCUS_MAX, focus + gain - (running ? FOCUS_DRIFT : 0)));
+        }
+        if (focus != before) markDirty();
+    }
+
+    /** Every finished run knocks the beams a little out of focus (Mk2). */
+    @Override
+    public void afterWorking() {
+        super.afterWorking();
+        if (extended && focus > 0) {
+            focus = Math.max(0, focus - FOCUS_PER_RUN);
+            markDirty();
+        }
     }
 
     //////////////////////////////////////
@@ -555,6 +696,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         fieldActive = false;
         startupTicks = 0;
         unpoweredTicks = 0;
+        focus = 0;
     }
 
     //////////////////////////////////////
@@ -585,6 +727,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         }
         fieldActive = on && startupTicks > 0;
         if (startupTicks != before) markDirty();
+        updateFocus();
     }
 
     /** Start-up progress, 0 to 100. */

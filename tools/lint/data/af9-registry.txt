@@ -48,6 +48,7 @@ item af9:chromodynium_boule
 item af9:chromodynium_melt_charge
 item af9:chromodynium_seed_crystal
 item af9:chromodynium_wafer
+item af9:cleansed_pico_board
 item af9:coated_naquadah_wafer
 item af9:coated_naquadria_wafer
 item af9:coated_neutronium_wafer
@@ -160,6 +161,7 @@ item af9:nor_reticle
 item af9:nvm_processor
 item af9:nvm_processor_mainframe
 item af9:oil_regolith
+item af9:organized_pico_circuit
 item af9:phase_shift_mask_blank
 item af9:phosphorus_melt_charge
 item af9:phosphorus_seed_crystal
@@ -169,8 +171,12 @@ item af9:photonic_ic_euv_reticle
 item af9:photonic_ic_reticle
 item af9:photonic_ic_wafer
 item af9:photonic_package
+item af9:pico_board
+item af9:pico_circuit_rack
+item af9:pico_cpu
 item af9:plascrete_filter_casing
 item af9:plascrete_pipe_casing
+item af9:processed_pico_circuit_casing
 item af9:qgp_trap
 item af9:quantum_dot_ic_chip
 item af9:quantum_dot_ic_reticle

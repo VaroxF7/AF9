@@ -241,6 +241,11 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine
         return ConsoleWidget.STATUS_PUMPING_DOWN;
     }
 
+    /** The Array Mk2's beam focus in permille (0-1000), -1 where the machine has none. */
+    public int focusPermille() {
+        return -1;
+    }
+
     /** Why the active mode cannot run, as a console status code, or -1 if it can. */
     public int blockedStatus(LithoMode mode) {
         if (!canPrint(mode)) return ConsoleWidget.STATUS_LOCKED;
