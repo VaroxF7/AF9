@@ -390,5 +390,6 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 ## Credits
 
 GregTech CEu Modern · GregTech: New Horizons (Space Elevator structure/logic, platline method —
-structure re-expressed, models/textures made by hand) · Ad Astra · KubeJS · LDLib · Jade · Curios ·
+structure re-expressed; the Space Elevator block textures are GTNH Intergalactic's, in GTCEu's connected-texture
+format by `tools/textures/space_elevator.py`, originals in `tools/textures/gtnh_space_elevator/`) · Ad Astra · KubeJS · LDLib · Jade · Curios ·
 Extreme Reactors · EMI. Upstream pack: AllTheMods ATM-9.

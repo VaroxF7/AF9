@@ -1,6 +1,7 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "all": "af9:block/space_elevator_motor_mk5"
+    "end": "af9:block/space_elevator_motor_top",
+    "side": "af9:block/space_elevator_motor_mk5"
   }
 }

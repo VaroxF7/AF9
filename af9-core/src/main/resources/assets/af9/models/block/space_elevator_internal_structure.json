@@ -1,6 +1,7 @@
 {
-  "parent": "minecraft:block/cube_all",
+  "parent": "minecraft:block/cube_column",
   "textures": {
-    "all": "gtceu:block/casings/solid/machine_casing_shock_proof_cutting"
+    "end": "af9:block/space_elevator_internal_structure_top",
+    "side": "af9:block/space_elevator_internal_structure"
   }
 }
