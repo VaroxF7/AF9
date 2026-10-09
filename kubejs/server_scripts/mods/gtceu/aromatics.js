@@ -36,7 +36,7 @@ ServerEvents.recipes(event => {
     // ---- Electrophilic chlorination over ferric chloride: mono (circuit 1) and di (circuit 2) ----
     // The circuits are load-bearing: the mono recipe's inputs are inside the di recipe's (lint R7)
     event.recipes.gtceu.chemical_reactor('af9:chlorobenzene_synthesis')
-        .notConsumable('gtceu:iron_iii_chloride_dust')
+        .notConsumableFluid(Fluid.of('gtceu:iron_iii_chloride', 100))
         .circuit(1)
         .inputFluids(Fluid.of('gtceu:benzene', 1000), Fluid.of('gtceu:chlorine', 1000))
         .outputFluids(Fluid.of('gtceu:chlorobenzene', 1000), Fluid.of('gtceu:hydrochloric_acid', 1000))
@@ -44,7 +44,7 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.MV])
 
     event.recipes.gtceu.chemical_reactor('af9:dichlorobenzene_synthesis')
-        .notConsumable('gtceu:iron_iii_chloride_dust')
+        .notConsumableFluid(Fluid.of('gtceu:iron_iii_chloride', 100))
         .circuit(2)
         .inputFluids(Fluid.of('gtceu:benzene', 1000), Fluid.of('gtceu:chlorine', 2000))
         .outputFluids(Fluid.of('gtceu:dichlorobenzene', 1000), Fluid.of('gtceu:hydrochloric_acid', 2000))
