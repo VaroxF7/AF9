@@ -3,10 +3,10 @@
 [![Build AF9 Core](https://github.com/VaroxF7/AF9/actions/workflows/build-af9-core.yml/badge.svg)](https://github.com/VaroxF7/AF9/actions/workflows/build-af9-core.yml)
 ![Minecraft 1.20.1](https://img.shields.io/badge/minecraft-1.20.1-green)
 ![Forge 47.4.0](https://img.shields.io/badge/forge-47.4.0-orange)
-![GTCEu 7.2.0](https://img.shields.io/badge/GTCEu-7.2.0-blue)
+![GTCEu 7.5.3](https://img.shields.io/badge/GTCEu-7.5.3-blue)
 ![JDK 17](https://img.shields.io/badge/JDK-17-red)
 
-**AF9 turns a GregTech CEu Modern (7.2.0) pack on Minecraft 1.20.1 / Forge into a semiconductor factory:**
+**AF9 turns a GregTech CEu Modern (7.5.3) pack on Minecraft 1.20.1 / Forge into a semiconductor factory:**
 quartz → polysilicon → Czochralski boules → wafers → real fab chemistry → lithography from
 **350&nbsp;nm down to 1&nbsp;nm** → AF9's own chips and circuits → the computation that feeds it all.
 Around the fab: uranium only from asteroids, a fission reactor, a ZPM space elevator that mines
@@ -53,7 +53,7 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 | | |
 |---|---|
 | Minecraft / Forge | 1.20.1 / 47.4.0 |
-| GregTech CEu Modern | **7.2.0** |
+| GregTech CEu Modern | **7.5.3** |
 | KubeJS | 2001.6.5-build.16 |
 | Ad Astra | 1.15.20 (Asteroid Field is Ad Astra data) |
 | AF9 Core | version in `af9-core/gradle.properties` (bumped by each jar build), mod id `af9` (Forge mod, JDK 17) |
@@ -323,7 +323,7 @@ Key scripts: `photolithography.js` + `wafers.js` + `litho_process.js` (nodes mus
    `af9-core-*.jar`. `AF9_BUILD.txt` records the commit.
 3. Manual: put `af9-core-<version>.jar` into `mods/`, copy `kubejs/` + `config/` over the
    instance's own. **Every client and server needs the jar** (KubeJS scripts load its classes).
-4. Needs: GregTech CEu Modern **7.2.0**, Ad Astra **1.15** (Asteroid Field data). Jade + Curios optional.
+4. Needs: GregTech CEu Modern **7.5.3**, Ad Astra **1.15** (Asteroid Field data). Jade + Curios optional.
 
 ## Build (develop)
 
@@ -333,11 +333,11 @@ cd af9-core
 # jar → af9-core/build/libs/af9-core-<version>.jar
 ```
 
-Needs **JDK 17**. Versions are pinned in `af9-core/gradle.properties` to what GTCEu 7.2.0 was
+Needs **JDK 17**. Versions are pinned in `af9-core/gradle.properties` to what GTCEu 7.5.3 was
 built against — bump them together with the pack. The AF9 fork of GTCEu lives in this repository too
-([`gtceu-fork/`](gtceu-fork/README.md): upstream's 7.2.0 release plus a patch series) and is the dependency the mod
+([`gtceu-fork/`](gtceu-fork/README.md): upstream's 7.5.3 release plus a patch series) and is the dependency the mod
 compiles against: the build publishes it to mavenLocal first where it is not there yet (`-Paf9SkipForkBuild` falls back
-to the GTCEu 7.2.0 release, `-Paf9RequireFork` fails where the fork is missing). CI does the same.
+to the GTCEu 7.5.3 release, `-Paf9RequireFork` fails where the fork is missing). CI does the same.
 
 ## Lint & CI
 
@@ -364,7 +364,7 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 
 ## Requirements & compatibility
 
-- **Hard:** MC 1.20.1, Forge 47.4.0, GTCEu 7.2.0, Ad Astra 1.15.20, KubeJS 2001.6.5-build.16, JDK 17.
+- **Hard:** MC 1.20.1, Forge 47.4.0, GTCEu 7.5.3, Ad Astra 1.15.20, KubeJS 2001.6.5-build.16, JDK 17.
 - **Soft:** Jade (controller tooltips: vacuum, status, mode, runtime), Curios (wafer gloves in
   `hands` slot), Extreme Reactors (supercritical steam registered as vapor via IMC+reflection —
   AF9 builds without it), EMI Accelerator (AF9 hashes the registry and clears its cache on change).

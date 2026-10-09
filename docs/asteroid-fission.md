@@ -3,7 +3,7 @@ title: "AF9 Asteroid Fission: the Asteroid Field, Brannerite, the FX-1 Reactor, 
 branch: "main"
 minecraft: "1.20.1"
 forge: "47.4.0"
-gtceu: "7.2.0 (GregTech CEu Modern)"
+gtceu: "7.5.3 (GregTech CEu Modern)"
 ad_astra: "1.15.20"
 af9_core: "0.1.0 (mod_id `af9`)"
 status: "Implemented. Java compiles on CI, the lint suite (run.sh --selftest) passes; nothing of it has been started in the game yet (§9 lists what to look at first)."

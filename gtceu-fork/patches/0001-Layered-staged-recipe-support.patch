@@ -1,18 +1,11 @@
-From dc4d5b689dbd4721c6ab40ee9a3758882b363194 Mon Sep 17 00:00:00 2001
-From: Janne <149310259+VaroxF7@users.noreply.github.com>
-Date: Wed, 7 Oct 2026 16:55:52 +0200
+From e015733b76368c9f83ab8b63e89bfb0e04f4a58a Mon Sep 17 00:00:00 2001
+From: AF9 <a@b>
+Date: Fri, 9 Oct 2026 07:07:06 +0000
 Subject: [PATCH 1/2] Layered (staged) recipe support
 
-Backport of staged/layered crafting onto 7.2.0: a recipe type
-flag (.setLayered()), per-stage recipe splitting at build time
-(.layeredRecipe() in Java and KubeJS), step-by-step execution
-(LayeredRecipeLogic), a per-stage JEI/EMI page, controller text,
-Jade info and a step detector cover. Unrelated Star Technology
-changes (parallel types, failure reasons, chance defaults) were
-deliberately left out; only additive, layered-only hunks were taken.
 ---
  .../resources/assets/gtceu/lang/en_us.json    |   13 +
- .../gtceu/api/codec/GTCodecUtils.java         |   19 +
+ .../gtceu/api/codec/GTCodecUtils.java         |    6 +
  .../multiblock/IMaintenanceMachine.java       |   15 +
  ...eredWorkableElectricMultiblockMachine.java |   94 ++
  .../multiblock/MultiblockDisplayText.java     |  130 +++
@@ -26,19 +19,20 @@ deliberately left out; only additive, layered-only hunks were taken.
  .../gtceu/common/data/GTItems.java            |    5 +
  .../machine/trait/LayeredRecipeLogic.java     |  287 +++++
  .../gtceu/data/lang/IntegrationLang.java      |    2 +
- .../gtceu/data/lang/LangHandler.java          |   17 +
- .../data/recipe/builder/GTRecipeBuilder.java  |   27 +-
+ .../gtceu/data/lang/LangHandler.java          |   16 +
+ .../gtceu/data/lang/RecipeLogicLang.java      |    1 +
+ .../data/recipe/builder/GTRecipeBuilder.java  |   24 +
  .../recipe/builder/LayeredRecipeInfo.java     | 1015 +++++++++++++++++
  .../gtceu/integration/jade/GTJadePlugin.java  |    2 +
  .../jade/provider/LayeredRecipeProvider.java  |  122 ++
- .../jade/provider/RecipeOutputProvider.java   |   46 +-
+ .../jade/provider/RecipeOutputProvider.java   |   34 +-
  .../kjs/builders/GTRecipeTypeBuilder.java     |    7 +
  .../kjs/recipe/GTRecipeSchema.java            |   18 +-
  .../block/cover/layered_step_detector.png     |  Bin 0 -> 324 bytes
  .../cover/layered_step_detector_emissive.png  |  Bin 0 -> 312 bytes
  .../layered_step_detector_emissive.png.mcmeta |    5 +
  .../item/layered_step_detector_cover.png      |  Bin 0 -> 354 bytes
- 27 files changed, 2505 insertions(+), 24 deletions(-)
+ 28 files changed, 2485 insertions(+), 16 deletions(-)
  create mode 100644 src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/LayeredWorkableElectricMultiblockMachine.java
  create mode 100644 src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/TieredLayeredWorkableElectricMultiblockMachine.java
  create mode 100644 src/main/java/com/gregtechceu/gtceu/api/recipe/LayeredRecipeHelper.java
@@ -53,18 +47,18 @@ deliberately left out; only additive, layered-only hunks were taken.
  create mode 100644 src/main/resources/assets/gtceu/textures/item/layered_step_detector_cover.png
 
 diff --git a/src/generated/resources/assets/gtceu/lang/en_us.json b/src/generated/resources/assets/gtceu/lang/en_us.json
-index ebf4a0b..e396bff 100644
+index 8396c85..2973cae 100644
 --- a/src/generated/resources/assets/gtceu/lang/en_us.json
 +++ b/src/generated/resources/assets/gtceu/lang/en_us.json
-@@ -1911,6 +1911,7 @@
+@@ -1930,6 +1930,7 @@
    "config.jade.plugin_gtceu.energy_converter_provider": "[GTCEu] Energy Converter Mode",
    "config.jade.plugin_gtceu.exhaust_vent_info": "[GTCEu] Exhaust Vent Info",
    "config.jade.plugin_gtceu.hazard_cleaner_provider": "[GTCEu] Hazard Cleaner",
 +  "config.jade.plugin_gtceu.layered_recipe_info": "[GTCEu] Layered Recipe Info",
+   "config.jade.plugin_gtceu.ldp_endpoint": "[GTCEu] Long Distance Pipeline Endpoint Info",
    "config.jade.plugin_gtceu.machine_mode": "[GTCEu] Machine Mode",
    "config.jade.plugin_gtceu.maintenance_info": "[GTCEu] Maintenance Info",
-   "config.jade.plugin_gtceu.me_pattern_buffer": "[GTCEu] Pattern Buffer Info",
-@@ -3339,6 +3340,12 @@
+@@ -3384,6 +3385,12 @@
    "gtceu.multiblock.large_miner.vent": "Venting Blocked!",
    "gtceu.multiblock.large_miner.working": "Working...",
    "gtceu.multiblock.large_turbine.description": "Large Turbines are multiblocks that generate power from steam, gases, and plasma by having them spin the turbine's rotor. Energy output is based on rotor efficiency and current speed of turbine. Gearbox casings are used in the center of the structure.",
@@ -77,7 +71,7 @@ index ebf4a0b..e396bff 100644
    "gtceu.multiblock.luv_fusion_reactor.description": "The Fusion Reactor MK 1 is a large multiblock structure used for fusing elements into heavier ones. It can only use LuV, ZPM, and UV Energy Hatches. For every Hatch it has, its buffer increases by 10M EU, and has a maximum of 160M.",
    "gtceu.multiblock.max_energy_per_tick": "Max EU/t: §a%s (%s§r)",
    "gtceu.multiblock.max_energy_per_tick_amps": "Max EU/t: %s (%sA %s)",
-@@ -3694,6 +3701,8 @@
+@@ -3748,6 +3755,8 @@
    "gtceu.recipe.eu_inverted": "Generation: %s A @ %s",
    "gtceu.recipe.eu_to_start": "EU To Start: %sEU%s",
    "gtceu.recipe.explosive": "Explosive: %s",
@@ -86,24 +80,24 @@ index ebf4a0b..e396bff 100644
    "gtceu.recipe.max_eu": "Max. EU: %s EU",
    "gtceu.recipe.not_consumed": "Does not get consumed in the process",
    "gtceu.recipe.research": "Requires Research",
-@@ -3707,6 +3716,7 @@
+@@ -3761,6 +3770,7 @@
    "gtceu.recipe_logic.insufficient_fuel": "Insufficient Fuel",
    "gtceu.recipe_logic.insufficient_in": "Insufficient Inputs",
    "gtceu.recipe_logic.insufficient_out": "Insufficient Outputs",
 +  "gtceu.recipe_logic.layered_inputs": "Layer inputs aren't the only inputs in the machine.",
    "gtceu.recipe_logic.no_capabilities": "Machine has no Capabilities",
    "gtceu.recipe_logic.no_contents": "Recipe has no Contents",
-   "gtceu.recipe_memory_widget.tooltip.0": "§7Left click to automatically input this recipe into the crafting grid",
-@@ -3834,6 +3844,8 @@
-   "gtceu.top.invalid_structure": "Structure Incomplete",
-   "gtceu.top.item_auto_output": "Item Output: %s",
+   "gtceu.recipe_logic.recipe_waiting": "Recipe Waiting: ",
+@@ -3898,6 +3908,8 @@
+   "gtceu.top.ldp_endpoint.not_formed": "§cPipeline Incomplete§r",
+   "gtceu.top.ldp_endpoint.output_direction": "Output Direction: %s",
    "gtceu.top.link_cover.color": "Color:",
 +  "gtceu.top.layered_recipe.final": "Final Step Outputs:",
 +  "gtceu.top.layered_recipe.step": "Recipe Step %s of %s",
    "gtceu.top.machine_mode": "Machine Mode: ",
    "gtceu.top.maintenance.crowbar": "That doesn't belong there",
    "gtceu.top.maintenance.hard_hammer": "Plating is dented",
-@@ -4295,6 +4307,7 @@
+@@ -4359,6 +4371,7 @@
    "item.gtceu.lapotronic_energy_orb_cluster.tooltip": "§7Reusable Battery",
    "item.gtceu.large_pipe_casting_mold": "Casting Mold (Large Pipe)",
    "item.gtceu.large_pipe_extruder_mold": "Extruder Mold (Large Pipe)",
@@ -112,40 +106,25 @@ index ebf4a0b..e396bff 100644
    "item.gtceu.light_blue_glass_lens": "Glass Lens (Light Blue)",
    "item.gtceu.light_gray_dye_spray_can": "Spray Can (Light Gray)",
 diff --git a/src/main/java/com/gregtechceu/gtceu/api/codec/GTCodecUtils.java b/src/main/java/com/gregtechceu/gtceu/api/codec/GTCodecUtils.java
-index a3ae378..33f8ae1 100644
+index 36577fd..244c0f6 100644
 --- a/src/main/java/com/gregtechceu/gtceu/api/codec/GTCodecUtils.java
 +++ b/src/main/java/com/gregtechceu/gtceu/api/codec/GTCodecUtils.java
-@@ -5,11 +5,30 @@ import net.minecraft.util.ExtraCodecs;
- import com.mojang.datafixers.util.Either;
+@@ -8,9 +8,15 @@ import com.mojang.datafixers.util.Either;
+ import com.mojang.datafixers.util.Pair;
  import com.mojang.serialization.Codec;
  import com.mojang.serialization.DataResult;
 +import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 +import it.unimi.dsi.fastutil.ints.Int2IntMap;
 +import it.unimi.dsi.fastutil.ints.IntIntImmutablePair;
 +import it.unimi.dsi.fastutil.ints.IntIntPair;
+ import com.mojang.serialization.DynamicOps;
  
 +import java.util.List;
  import java.util.function.Function;
 +import java.util.stream.Collectors;
+ import java.util.function.Supplier;
  
- public class GTCodecUtils {
- 
-+    public static final Codec<IntIntPair> INT_INT_PAIR_CODEC = Codec.INT.listOf().comapFlatMap(
-+            integers -> integers.size() == 2 ?
-+                    DataResult.success(new IntIntImmutablePair(integers.get(0), integers.get(1))) :
-+                    DataResult.error(() -> "Invalid pair size."),
-+            pair -> List.of(pair.keyInt(), pair.valueInt()));
-+
-+    public static final Codec<Int2IntMap> INT2INT_MAP_CODEC = INT_INT_PAIR_CODEC.listOf().xmap(
-+            pairs -> new Int2IntArrayMap(
-+                    pairs.stream().collect(Collectors.toUnmodifiableMap(IntIntPair::keyInt, IntIntPair::valueInt))),
-+            map -> map.int2IntEntrySet().stream()
-+                    .map(entry -> new IntIntImmutablePair(entry.getIntKey(), entry.getIntValue()))
-+                    .collect(Collectors.toUnmodifiableList()));
-+
-     public static final Codec<Long> NON_NEGATIVE_LONG = longRangeWithMessage(0, Long.MAX_VALUE,
-             (val) -> "Value must be non-negative: " + val);
-     public static final Codec<Long> POSITIVE_LONG = longRangeWithMessage(1, Long.MAX_VALUE,
+ public final class GTCodecUtils {
 diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/feature/multiblock/IMaintenanceMachine.java b/src/main/java/com/gregtechceu/gtceu/api/machine/feature/multiblock/IMaintenanceMachine.java
 index c97053b..f14ba76 100644
 --- a/src/main/java/com/gregtechceu/gtceu/api/machine/feature/multiblock/IMaintenanceMachine.java
@@ -287,10 +266,10 @@ index 0000000..30e4b0a
 +    }
 +}
 diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText.java b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText.java
-index 62d3a57..91c0d1b 100644
+index 1b9abeb..ce6b41c 100644
 --- a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText.java
 +++ b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/MultiblockDisplayText.java
-@@ -9,10 +9,13 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
+@@ -10,10 +10,13 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
  import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
  import com.gregtechceu.gtceu.api.recipe.ingredient.IntProviderFluidIngredient;
  import com.gregtechceu.gtceu.api.recipe.ingredient.IntProviderIngredient;
@@ -304,7 +283,7 @@ index 62d3a57..91c0d1b 100644
  import net.minecraft.ChatFormatting;
  import net.minecraft.network.chat.Component;
  import net.minecraft.network.chat.HoverEvent;
-@@ -642,5 +645,132 @@ public class MultiblockDisplayText {
+@@ -717,5 +720,132 @@ public class MultiblockDisplayText {
                      FormattingUtil.formatNumbers(euOutput)).withStyle(ChatFormatting.GRAY));
              return this;
          }
@@ -513,28 +492,28 @@ index 0000000..c0cfb79
 +    }
 +}
 diff --git a/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java b/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java
-index 8ed88d3..3cd41a0 100644
+index 5999abb..a4adc63 100644
 --- a/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java
 +++ b/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java
-@@ -7,6 +7,8 @@ import com.gregtechceu.gtceu.api.recipe.category.GTRecipeCategory;
- import com.gregtechceu.gtceu.api.recipe.chance.boost.ChanceBoostFunction;
- import com.gregtechceu.gtceu.api.recipe.lookup.GTRecipeLookup;
+@@ -8,6 +8,8 @@ import com.gregtechceu.gtceu.api.recipe.chance.boost.ChanceBoostFunction;
+ import com.gregtechceu.gtceu.api.recipe.lookup.RecipeAdditionHandler;
+ import com.gregtechceu.gtceu.api.recipe.lookup.RecipeDB;
  import com.gregtechceu.gtceu.api.recipe.ui.GTRecipeTypeUI;
 +import com.gregtechceu.gtceu.api.recipe.ui.LayeredRecipeUIHelper;
 +import com.gregtechceu.gtceu.api.registry.GTRegistries;
  import com.gregtechceu.gtceu.api.sound.SoundEntry;
  import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
  import com.gregtechceu.gtceu.utils.FormattingUtil;
-@@ -78,6 +80,8 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
+@@ -80,6 +82,8 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
      @Getter
      private final GTRecipeCategory category;
      @Getter
 +    private GTRecipeCategory syntheticCategory;
 +    @Getter
      private final Map<GTRecipeCategory, Set<GTRecipe>> categoryMap = new Object2ObjectOpenHashMap<>();
-     @Getter
-     private final GTRecipeLookup lookup = new GTRecipeLookup(this);
-@@ -92,6 +96,8 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
+     private final RecipeDB db = new RecipeDB();
+     @ApiStatus.Internal
+@@ -96,6 +100,8 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
      private final List<ICustomRecipeLogic> customRecipeLogicRunners = new ArrayList<>();
      @Getter
      private int minRecipeConditions = 0;
@@ -543,7 +522,7 @@ index 8ed88d3..3cd41a0 100644
  
      public GTRecipeType(ResourceLocation registryName, String group, RecipeType<?>... proxyRecipes) {
          this.registryName = registryName;
-@@ -106,6 +112,30 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
+@@ -110,6 +116,30 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
          this.proxyRecipes = map;
      }
  
@@ -574,7 +553,7 @@ index 8ed88d3..3cd41a0 100644
      public GTRecipeType setMaxIOSize(int maxInputs, int maxOutputs, int maxFluidInputs, int maxFluidOutputs) {
          return setMaxSize(IO.IN, ItemRecipeCapability.CAP, maxInputs)
                  .setMaxSize(IO.IN, FluidRecipeCapability.CAP, maxFluidInputs)
-@@ -303,6 +333,10 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
+@@ -310,6 +340,10 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
          for (ICustomRecipeLogic logic : customRecipeLogicRunners) {
              logic.buildRepresentativeRecipes();
          }
@@ -860,7 +839,7 @@ index 0000000..6642325
 +            }));
 +}
 diff --git a/src/main/java/com/gregtechceu/gtceu/api/recipe/modifier/ModifierFunction.java b/src/main/java/com/gregtechceu/gtceu/api/recipe/modifier/ModifierFunction.java
-index 7400f87..7cd914a 100644
+index 35067a3..5707951 100644
 --- a/src/main/java/com/gregtechceu/gtceu/api/recipe/modifier/ModifierFunction.java
 +++ b/src/main/java/com/gregtechceu/gtceu/api/recipe/modifier/ModifierFunction.java
 @@ -3,6 +3,7 @@ package com.gregtechceu.gtceu.api.recipe.modifier;
@@ -871,7 +850,7 @@ index 7400f87..7cd914a 100644
  import com.gregtechceu.gtceu.api.recipe.RecipeCondition;
  import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
  import com.gregtechceu.gtceu.api.recipe.content.Content;
-@@ -20,6 +21,7 @@ import java.util.Arrays;
+@@ -22,6 +23,7 @@ import java.util.Arrays;
  import java.util.HashMap;
  import java.util.List;
  import java.util.Map;
@@ -879,7 +858,7 @@ index 7400f87..7cd914a 100644
  
  /**
   * Represents a function that accepts a GTRecipe and returns a modified version of the GTRecipe, or null.
-@@ -172,6 +174,11 @@ public interface ModifierFunction {
+@@ -198,6 +200,11 @@ public interface ModifierFunction {
                      EnergyStack eut = EURecipeCapability.CAP.copyWithModifier(preEUt.stack(), eutModifier);
                      EURecipeCapability.putEUContent(preEUt.isInput() ? copied.tickInputs : copied.tickOutputs, eut);
                  }
@@ -1242,7 +1221,7 @@ index 1e6b45c..7f1658d 100644
      // Solar Panels
      public final static CoverDefinition SOLAR_PANEL_BASIC = register("solar_panel", CoverSolarPanel::new);
 diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/GTItems.java b/src/main/java/com/gregtechceu/gtceu/common/data/GTItems.java
-index 759188c..946f4ab 100644
+index 64cac05..a97e448 100644
 --- a/src/main/java/com/gregtechceu/gtceu/common/data/GTItems.java
 +++ b/src/main/java/com/gregtechceu/gtceu/common/data/GTItems.java
 @@ -1835,6 +1835,11 @@ public class GTItems {
@@ -1551,7 +1530,7 @@ index 0000000..4ee86cc
 +    }
 +}
 diff --git a/src/main/java/com/gregtechceu/gtceu/data/lang/IntegrationLang.java b/src/main/java/com/gregtechceu/gtceu/data/lang/IntegrationLang.java
-index f53652d..350aa2f 100644
+index 633cae3..2b28140 100644
 --- a/src/main/java/com/gregtechceu/gtceu/data/lang/IntegrationLang.java
 +++ b/src/main/java/com/gregtechceu/gtceu/data/lang/IntegrationLang.java
 @@ -86,6 +86,8 @@ public class IntegrationLang {
@@ -1564,10 +1543,10 @@ index f53652d..350aa2f 100644
          provider.add("gtceu.top.stained", "Colored: %s");
          provider.add("gtceu.top.buffer_not_bound", "Buffer Not Currently Bound");
 diff --git a/src/main/java/com/gregtechceu/gtceu/data/lang/LangHandler.java b/src/main/java/com/gregtechceu/gtceu/data/lang/LangHandler.java
-index 701a785..471640c 100644
+index d1b343c..3608849 100644
 --- a/src/main/java/com/gregtechceu/gtceu/data/lang/LangHandler.java
 +++ b/src/main/java/com/gregtechceu/gtceu/data/lang/LangHandler.java
-@@ -499,6 +499,13 @@ public class LangHandler {
+@@ -509,6 +509,13 @@ public class LangHandler {
          multilineLang(provider, "cover.advanced_detector.latch.disabled",
                  "Behavior: Continuous\n\n" + detectorLatchDescription);
  
@@ -1581,8 +1560,8 @@ index 701a785..471640c 100644
          provider.add("cover.advanced_energy_detector.label", "Advanced Energy Detector");
          provider.add("cover.advanced_energy_detector.min", "Min");
          provider.add("cover.advanced_energy_detector.max", "Max");
-@@ -930,6 +937,8 @@ public class LangHandler {
-         provider.add("gtceu.recipe.temperature", "Temp: %sK");
+@@ -957,6 +964,8 @@ public class LangHandler {
+         provider.add("gtceu.recipe.temperature", "Temp: %s");
          provider.add("gtceu.recipe.coil.tier", "Coil: %s");
          provider.add("gtceu.recipe.explosive", "Explosive: %s");
 +        provider.add("gtceu.recipe.layered.step", "Step %s");
@@ -1590,7 +1569,7 @@ index 701a785..471640c 100644
          provider.add("gtceu.recipe.eu_to_start", "EU To Start: %sEU%s");
          provider.add("gtceu.recipe.dimensions", "Dimensions: %s");
          provider.add("gtceu.recipe.cleanroom", "Requires %s");
-@@ -1092,6 +1101,12 @@ public class LangHandler {
+@@ -1122,6 +1131,12 @@ public class LangHandler {
          provider.add("gtceu.machine.batch_disabled", "Batching Disabled");
          provider.add("gtceu.multiblock.progress_percent", "Progress: %s%%");
          provider.add("gtceu.multiblock.progress", "Progress: %ss / %ss (%s%%)");
@@ -1603,7 +1582,7 @@ index 701a785..471640c 100644
          provider.add("gtceu.multiblock.output_line.0", "%s x §e%s§r (%ss/ea)");
          provider.add("gtceu.multiblock.output_line.1", "%s x §e%s§r (%s/s)");
          provider.add("gtceu.multiblock.output_line.2", "%s ≈ §e%s§r (%ss/ea)");
-@@ -1208,6 +1223,7 @@ public class LangHandler {
+@@ -1243,6 +1258,7 @@ public class LangHandler {
          provider.add("config.jade.plugin_gtceu.electric_container_provider", "[GTCEu] Electric Container");
          provider.add("config.jade.plugin_gtceu.recipe_logic_provider", "[GTCEu] Recipe Logic");
          provider.add("config.jade.plugin_gtceu.hazard_cleaner_provider", "[GTCEu] Hazard Cleaner");
@@ -1611,31 +1590,31 @@ index 701a785..471640c 100644
          provider.add("config.jade.plugin_gtceu.recipe_output_info", "[GTCEu] Recipe Output Info");
          provider.add("config.jade.plugin_gtceu.auto_output_info", "[GTCEu] Auto Output Info");
          provider.add("config.jade.plugin_gtceu.cable_info", "[GTCEu] Cable Info");
-@@ -1237,6 +1253,7 @@ public class LangHandler {
+diff --git a/src/main/java/com/gregtechceu/gtceu/data/lang/RecipeLogicLang.java b/src/main/java/com/gregtechceu/gtceu/data/lang/RecipeLogicLang.java
+index 3146df4..317fb3f 100644
+--- a/src/main/java/com/gregtechceu/gtceu/data/lang/RecipeLogicLang.java
++++ b/src/main/java/com/gregtechceu/gtceu/data/lang/RecipeLogicLang.java
+@@ -19,6 +19,7 @@ public class RecipeLogicLang {
          provider.add("gtceu.recipe_logic.condition_fails", "Condition Fails");
          provider.add("gtceu.recipe_logic.no_contents", "Recipe has no Contents");
          provider.add("gtceu.recipe_logic.no_capabilities", "Machine has no Capabilities");
 +        provider.add("gtceu.recipe_logic.layered_inputs", "Layer inputs aren't the only inputs in the machine.");
-         provider.add("gtceu.gui.cover_setting.title", "Cover Settings");
-         provider.add("gtceu.gui.output_setting.title", "Output Settings");
-         provider.add("gtceu.gui.circuit.title", "Circuit Settings");
+     }
+ 
+     private static void initModifierLang(RegistrateLangProvider provider) {
 diff --git a/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java b/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java
-index 7822909..617581f 100644
+index eb97eff..5c91079 100644
 --- a/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java
 +++ b/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java
-@@ -16,9 +16,9 @@ import com.gregtechceu.gtceu.api.item.component.IDataItem;
+@@ -16,6 +16,7 @@ import com.gregtechceu.gtceu.api.item.component.IDataItem;
  import com.gregtechceu.gtceu.api.machine.MachineDefinition;
  import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType;
  import com.gregtechceu.gtceu.api.recipe.*;
 +import com.gregtechceu.gtceu.api.recipe.LayeredRecipeHelper;
  import com.gregtechceu.gtceu.api.recipe.category.GTRecipeCategory;
--import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
--import com.gregtechceu.gtceu.api.recipe.content.Content;
-+import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;import com.gregtechceu.gtceu.api.recipe.content.Content;
- import com.gregtechceu.gtceu.api.recipe.ingredient.*;
- import com.gregtechceu.gtceu.api.registry.GTRegistries;
- import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
-@@ -1392,11 +1392,27 @@ public class GTRecipeBuilder {
+ import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
+ import com.gregtechceu.gtceu.api.recipe.content.Content;
+@@ -1585,6 +1586,11 @@ public class GTRecipeBuilder {
          return this;
      }
  
@@ -1646,6 +1625,8 @@ index 7822909..617581f 100644
 +
      public GTRecipeBuilder setTempFluidMaterialStacks(List<MaterialStack> stacks) {
          tempFluidStacks = stacks;
+         return this;
+@@ -1595,6 +1601,17 @@ public class GTRecipeBuilder {
          return this;
      }
  
@@ -1663,7 +1644,7 @@ index 7822909..617581f 100644
      public void toJson(JsonObject json) {
          var ops = RegistryOps.create(JsonOps.INSTANCE, GTRegistries.builtinRegistry());
          JsonObject serialized = GTRecipeSerializer.CODEC.encodeStart(ops, buildRawRecipe())
-@@ -1429,6 +1445,10 @@ public class GTRecipeBuilder {
+@@ -1627,6 +1644,10 @@ public class GTRecipeBuilder {
      }
  
      public FinishedRecipe build() {
@@ -1674,7 +1655,7 @@ index 7822909..617581f 100644
          return new FinishedRecipe() {
  
              @Override
-@@ -1596,6 +1616,9 @@ public class GTRecipeBuilder {
+@@ -1812,6 +1833,9 @@ public class GTRecipeBuilder {
                                            boolean isInput,
                                            Map<RecipeCapability<?>, List<Content>> table,
                                            int addedEntries) {
@@ -2706,7 +2687,7 @@ index 0000000..7b139ed
 +    }
 +}
 diff --git a/src/main/java/com/gregtechceu/gtceu/integration/jade/GTJadePlugin.java b/src/main/java/com/gregtechceu/gtceu/integration/jade/GTJadePlugin.java
-index b1ca1bb..f002af4 100644
+index d281056..a565700 100644
 --- a/src/main/java/com/gregtechceu/gtceu/integration/jade/GTJadePlugin.java
 +++ b/src/main/java/com/gregtechceu/gtceu/integration/jade/GTJadePlugin.java
 @@ -31,6 +31,7 @@ public class GTJadePlugin implements IWailaPlugin {
@@ -2717,7 +2698,7 @@ index b1ca1bb..f002af4 100644
          registration.registerBlockDataProvider(new MultiblockStructureProvider(), BlockEntity.class);
          registration.registerBlockDataProvider(new MaintenanceBlockProvider(), BlockEntity.class);
          registration.registerBlockDataProvider(new ExhaustVentBlockProvider(), BlockEntity.class);
-@@ -62,6 +63,7 @@ public class GTJadePlugin implements IWailaPlugin {
+@@ -64,6 +65,7 @@ public class GTJadePlugin implements IWailaPlugin {
          registration.registerBlockComponent(new RecipeLogicProvider(), Block.class);
          registration.registerBlockComponent(new ParallelProvider(), Block.class);
          registration.registerBlockComponent(new RecipeOutputProvider(), Block.class);
@@ -2854,7 +2835,7 @@ index 0000000..10ecfc2
 +    }
 +}
 diff --git a/src/main/java/com/gregtechceu/gtceu/integration/jade/provider/RecipeOutputProvider.java b/src/main/java/com/gregtechceu/gtceu/integration/jade/provider/RecipeOutputProvider.java
-index 23c38d2..63243c4 100644
+index e01867d..37445787 100644
 --- a/src/main/java/com/gregtechceu/gtceu/integration/jade/provider/RecipeOutputProvider.java
 +++ b/src/main/java/com/gregtechceu/gtceu/integration/jade/provider/RecipeOutputProvider.java
 @@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.api.capability.GTCapabilityHelper;
@@ -2873,16 +2854,10 @@ index 23c38d2..63243c4 100644
  import com.mojang.serialization.JsonOps;
  import org.jetbrains.annotations.Nullable;
  import snownee.jade.api.BlockAccessor;
-@@ -62,12 +64,24 @@ public class RecipeOutputProvider extends CapabilityBlockProvider<RecipeLogic> {
+@@ -62,6 +64,18 @@ public class RecipeOutputProvider extends CapabilityBlockProvider<RecipeLogic> {
              data.putBoolean("Working", recipeLogic.isWorking());
              var recipe = recipeLogic.getLastRecipe();
              if (recipe != null) {
--                int recipeTier = RecipeHelper.getPreOCRecipeEuTier(recipe);
--                int chanceTier = recipeTier + recipe.ocLevel;
--                var function = recipe.getType().getChanceFunction();
--                var itemContents = recipe.getOutputContents(ItemRecipeCapability.CAP);
--                var fluidContents = recipe.getOutputContents(FluidRecipeCapability.CAP);
--                int runs = recipe.parallels * recipe.batchParallels;
 +                var tagsPair = gatherRecipeItemAndFluidsOutput(recipe);
 +                if (!tagsPair.getFirst().isEmpty()) {
 +                    data.put("OutputItems", tagsPair.getFirst());
@@ -2895,15 +2870,9 @@ index 23c38d2..63243c4 100644
 +    }
 +
 +    public static Pair<ListTag, ListTag> gatherRecipeItemAndFluidsOutput(GTRecipe recipe) {
-+        int recipeTier = RecipeHelper.getPreOCRecipeEuTier(recipe);
-+        int chanceTier = recipeTier + recipe.ocLevel;
-+        var function = recipe.getType().getChanceFunction();
-+        var itemContents = recipe.getOutputContents(ItemRecipeCapability.CAP);
-+        var fluidContents = recipe.getOutputContents(FluidRecipeCapability.CAP);
-+        int runs = recipe.parallels * recipe.batchParallels;
- 
-                 ListTag itemTags = new ListTag();
-                 for (var item : itemContents) {
+                 int recipeTier = RecipeHelper.getPreOCRecipeEuTier(recipe);
+                 int chanceTier = recipeTier + recipe.ocLevel;
+                 var function = recipe.getType().getChanceFunction();
 @@ -99,10 +113,6 @@ public class RecipeOutputProvider extends CapabilityBlockProvider<RecipeLogic> {
                      itemTags.add(itemTag);
                  }
@@ -2998,18 +2967,18 @@ index cc3e4a9..50c35d7 100644
      }
  }
 diff --git a/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java b/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java
-index 898beb7..987b6f6 100644
+index bf2faab..152b964 100644
 --- a/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java
 +++ b/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java
-@@ -24,6 +24,7 @@ import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour;
- import com.gregtechceu.gtceu.common.recipe.condition.*;
- import com.gregtechceu.gtceu.config.ConfigHolder;
+@@ -27,6 +27,7 @@ import com.gregtechceu.gtceu.config.ConfigHolder;
+ import com.gregtechceu.gtceu.core.mixins.IngredientAccessor;
+ import com.gregtechceu.gtceu.core.mixins.TagValueAccessor;
  import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 +import com.gregtechceu.gtceu.data.recipe.builder.LayeredRecipeInfo;
  import com.gregtechceu.gtceu.integration.kjs.recipe.components.CapabilityMap;
  import com.gregtechceu.gtceu.integration.kjs.recipe.components.ExtendedOutputItem;
  import com.gregtechceu.gtceu.integration.kjs.recipe.components.GTRecipeComponents;
-@@ -126,7 +127,7 @@ public interface GTRecipeSchema {
+@@ -132,7 +133,7 @@ public interface GTRecipeSchema {
              }
              if (map != null) {
                  var recipeType = GTRegistries.RECIPE_TYPES.get(this.type.id);
@@ -3018,7 +2987,7 @@ index 898beb7..987b6f6 100644
                          map.get(capability).length + obj.length > recipeType.getMaxInputs(capability)) {
                      ConsoleJS.SERVER.warn(String.format(
                              "Trying to add more inputs than RecipeType can support, id: %s, Max %s%sInputs: %s",
-@@ -151,7 +152,7 @@ public interface GTRecipeSchema {
+@@ -157,7 +158,7 @@ public interface GTRecipeSchema {
              }
              if (map != null) {
                  var recipeType = GTRegistries.RECIPE_TYPES.get(this.type.id);
@@ -3027,8 +2996,8 @@ index 898beb7..987b6f6 100644
                          map.get(capability).length + obj.length > recipeType.getMaxOutputs(capability)) {
                      ConsoleJS.SERVER.warn(String.format(
                              "Trying to add more outputs than RecipeType can support, id: %s, Max %s%sOutputs: %s",
-@@ -1079,6 +1080,19 @@ public interface GTRecipeSchema {
-             return this;
+@@ -1241,6 +1242,19 @@ public interface GTRecipeSchema {
+             }
          }
  
 +        public GTRecipeJS layeredRecipe(Consumer<LayeredRecipeInfo.JSBuilder> config) {
@@ -3109,5 +3078,5 @@ literal 0
 HcmV?d00001
 
 -- 
-2.54.0.windows.1
+2.43.0
 

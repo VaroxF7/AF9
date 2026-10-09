@@ -1,6 +1,6 @@
 # AF9 Core
 
-Forge mod (1.20.1, GTCEu 7.2.0) with the pack's own blocks, items and materials and the machine logic KubeJS can't
+Forge mod (1.20.1, GTCEu 7.5.3) with the pack's own blocks, items and materials and the machine logic KubeJS can't
 provide on its own. Machines, recipe types and recipes stay in `../kubejs`; KubeJS plugs the Java classes in via
 `.machine(...)`.
 
@@ -66,4 +66,4 @@ gradlew build
 The jar lands in `build/libs/af9-core-<version>.jar` and goes into the instance's `mods/` folder.
 Every AF9 client and server needs it, because the KubeJS scripts load its classes.
 
-Versions are pinned in `gradle.properties` to what GTCEu 7.2.0 was built against; bump them together with the pack.
+Versions are pinned in `gradle.properties` to what GTCEu 7.5.3 was built against; bump them together with the pack.

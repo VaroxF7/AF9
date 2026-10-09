@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds the AF9 fork of GTCEu and publishes it to mavenLocal: upstream's release (upstream.properties) with the patches of
-# patches/ applied. Usage: gtceu-fork/build.sh <version>   (af9-core's gtceu_fork_version, e.g. 7.2.0-af9.1)
+# patches/ applied. Usage: gtceu-fork/build.sh <version>   (af9-core's gtceu_fork_version, e.g. 7.5.3-af9.1)
 # af9-core's build runs this itself where the fork is not in mavenLocal yet; run it by hand to rebuild after a patch change.
 set -euo pipefail
 version="${1:?usage: build.sh <fork version>}"
