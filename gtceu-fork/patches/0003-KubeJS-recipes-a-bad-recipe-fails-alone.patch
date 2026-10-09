@@ -1,0 +1,416 @@
+From 826ee9a8f56aafe843cb3099a6a40476d707b68f Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 9 Oct 2026 14:29:00 +0200
+Subject: [PATCH 3/3] KubeJS recipes: a bad recipe fails alone
+
+GT 7.5 throws from the recipe builders on an unknown or empty item / fluid, and KubeJS (2001.6.5-build.16) posts
+the recipe event without an exception handler: the first throw ended the event, and every recipe script after the
+one that threw added nothing. A pack whose scripts were written for 7.2 (which took such a recipe and let it fail
+on its own) lost most of its recipes to one stale id.
+
+- GTRecipeSchema: the item / fluid validation reports the id and leaves the builder call; the recipe fails with
+  that message when it is built (KubeJS counts it as a failed recipe), the script goes on.
+- RecipesEventJSMixin: the recipe event is posted with an exception handler, so any other error in a recipe script
+  ends that script only.
+- Version 7.5.3-af9.2.
+---
+ gradle.properties                             |  2 +-
+ .../gtceu/core/mixins/GTMixinPlugin.java      |  1 +
+ .../mixins/kubejs/RecipesEventJSMixin.java    | 31 ++++++
+ .../kjs/recipe/GTRecipeSchema.java            | 97 ++++++++++++-------
+ src/main/resources/gtceu.mixins.json          |  1 +
+ 5 files changed, 94 insertions(+), 38 deletions(-)
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/core/mixins/kubejs/RecipesEventJSMixin.java
+
+diff --git a/gradle.properties b/gradle.properties
+index b2df9bb..12c573a 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.1
++mod_version = 7.5.3-af9.2
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/core/mixins/GTMixinPlugin.java b/src/main/java/com/gregtechceu/gtceu/core/mixins/GTMixinPlugin.java
+index a6a55a1..3b03249 100644
+--- a/src/main/java/com/gregtechceu/gtceu/core/mixins/GTMixinPlugin.java
++++ b/src/main/java/com/gregtechceu/gtceu/core/mixins/GTMixinPlugin.java
+@@ -37,6 +37,7 @@ public class GTMixinPlugin implements IMixinConfigPlugin {
+         addModCompatMixin("ftbchunks");
+         addModCompatMixin("xaerominimap");
+         addModCompatMixin("xaeroworldmap");
++        addModCompatMixin("kubejs");
+     }
+ 
+     @Override
+diff --git a/src/main/java/com/gregtechceu/gtceu/core/mixins/kubejs/RecipesEventJSMixin.java b/src/main/java/com/gregtechceu/gtceu/core/mixins/kubejs/RecipesEventJSMixin.java
+new file mode 100644
+index 0000000..377e904
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/core/mixins/kubejs/RecipesEventJSMixin.java
+@@ -0,0 +1,31 @@
++package com.gregtechceu.gtceu.core.mixins.kubejs;
++
++import dev.latvian.mods.kubejs.event.EventHandler;
++import dev.latvian.mods.kubejs.event.EventJS;
++import dev.latvian.mods.kubejs.event.EventResult;
++import dev.latvian.mods.kubejs.recipe.RecipesEventJS;
++import dev.latvian.mods.kubejs.script.ScriptTypeHolder;
++import dev.latvian.mods.kubejs.util.ConsoleJS;
++import org.spongepowered.asm.mixin.Mixin;
++import org.spongepowered.asm.mixin.injection.At;
++import org.spongepowered.asm.mixin.injection.Redirect;
++
++/**
++ * AF9: KubeJS posts its recipe event without an exception handler, so the first recipe script that throws (GT's
++ * builders throw on a bad value) ends the event for every script after it: their recipes are simply not there. With a
++ * handler, the script that threw ends where it threw, the error names it, and the next script runs.
++ */
++@Mixin(value = RecipesEventJS.class, remap = false)
++public class RecipesEventJSMixin {
++
++    @Redirect(method = "post",
++              at = @At(value = "INVOKE",
++                       target = "Ldev/latvian/mods/kubejs/event/EventHandler;post(Ldev/latvian/mods/kubejs/script/ScriptTypeHolder;Ldev/latvian/mods/kubejs/event/EventJS;)Ldev/latvian/mods/kubejs/event/EventResult;"))
++    private EventResult gtceu$postRecipeEvent(EventHandler handler, ScriptTypeHolder type, EventJS event) {
++        return handler.post(type, event, (posted, container, error) -> {
++            ConsoleJS.SERVER.error("Error in recipe script " + container + ": its recipes after this are missing",
++                    error);
++            return null;
++        });
++    }
++}
+diff --git a/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java b/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java
+index 152b964..4615b40 100644
+--- a/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java
++++ b/src/main/java/com/gregtechceu/gtceu/integration/kjs/recipe/GTRecipeSchema.java
+@@ -101,6 +101,8 @@ public interface GTRecipeSchema {
+         @Getter
+         private final Collection<GTRecipeBuilder.ResearchRecipeEntry> researchRecipeEntries = new ArrayList<>();
+         private boolean generatingRecipes = true;
++        // AF9: the first unknown or empty item / fluid named for this recipe (see invalid())
++        private String invalidContent;
+ 
+         // material stacks that are from already resolved inputs
+         public List<MaterialStack> itemMaterialStacks = new ArrayList<>();
+@@ -268,7 +270,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS inputItems(InputItem... inputs) {
+-            validateItems("input", inputs);
++            if (!validateItems("input", inputs)) return this;
+ 
+             for (var stack : inputs) {
+                 // test simple item that have pure singular material stack
+@@ -292,7 +294,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS inputItems(ItemStack... inputs) {
+-            validateItems("input", inputs);
++            if (!validateItems("input", inputs)) return this;
+ 
+             for (ItemStack itemStack : inputs) {
+                 if (itemStack.isEmpty()) {
+@@ -358,12 +360,12 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS inputItemsRanged(Ingredient ingredient, int min, int max) {
+-            validateItems("ranged input", ingredient);
++            if (!validateItems("ranged input", ingredient)) return this;
+             return input(ItemRecipeCapability.CAP, new ExtendedOutputItem(ingredient, 1, UniformInt.of(min, max)));
+         }
+ 
+         public GTRecipeJS inputItemsRanged(ItemStack stack, int min, int max) {
+-            validateItems("ranged input", stack);
++            if (!validateItems("ranged input", stack)) return this;
+             return input(ItemRecipeCapability.CAP, new ExtendedOutputItem(stack, UniformInt.of(min, max)));
+         }
+ 
+@@ -393,7 +395,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS outputItems(ExtendedOutputItem... outputs) {
+-            validateItems("output", outputs);
++            if (!validateItems("output", outputs)) return this;
+             for (ExtendedOutputItem itemStack : outputs) {
+                 if (itemStack.isEmpty()) {
+                     throw new RecipeExceptionJS(String.format("Output items is empty, id: %s", id));
+@@ -431,12 +433,12 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS outputItemsRanged(Ingredient ingredient, int min, int max) {
+-            validateItems("ranged output", ingredient);
++            if (!validateItems("ranged output", ingredient)) return this;
+             return output(ItemRecipeCapability.CAP, new ExtendedOutputItem(ingredient, 1, UniformInt.of(min, max)));
+         }
+ 
+         public GTRecipeJS outputItemsRanged(ItemStack stack, int min, int max) {
+-            validateItems("ranged output", stack);
++            if (!validateItems("ranged output", stack)) return this;
+             return output(ItemRecipeCapability.CAP, new ExtendedOutputItem(stack, UniformInt.of(min, max)));
+         }
+ 
+@@ -445,7 +447,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS notConsumable(InputItem itemStack) {
+-            validateItems("not consumable", itemStack);
++            if (!validateItems("not consumable", itemStack)) return this;
+ 
+             int lastChance = this.chance;
+             this.chance = 0;
+@@ -455,7 +457,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS notConsumable(TagPrefix orePrefix, Material material) {
+-            validateItems("not consumable", orePrefix);
++            if (!validateItems("not consumable", orePrefix)) return this;
+ 
+             int lastChance = this.chance;
+             this.chance = 0;
+@@ -465,7 +467,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS notConsumableFluid(GTRecipeComponents.FluidIngredientJS fluid) {
+-            validateFluids("not consumable", fluid);
++            if (!validateFluids("not consumable", fluid)) return this;
+ 
+             int lastChance = this.chance;
+             this.chance = 0;
+@@ -482,7 +484,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS chancedInput(InputItem stack, int chance, int tierChanceBoost) {
+-            validateItems("chanced input", stack);
++            if (!validateItems("chanced input", stack)) return this;
+ 
+             if (0 >= chance || chance > ChanceLogic.getMaxChancedValue()) {
+                 throw new RecipeExceptionJS(
+@@ -501,7 +503,7 @@ public interface GTRecipeSchema {
+ 
+         public GTRecipeJS chancedFluidInput(GTRecipeComponents.FluidIngredientJS stack, int chance,
+                                             int tierChanceBoost) {
+-            validateFluids("chanced input", stack);
++            if (!validateFluids("chanced input", stack)) return this;
+ 
+             if (0 >= chance || chance > ChanceLogic.getMaxChancedValue()) {
+                 throw new RecipeExceptionJS(
+@@ -519,7 +521,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS chancedOutput(ExtendedOutputItem stack, int chance, int tierChanceBoost) {
+-            validateItems("chanced output", stack);
++            if (!validateItems("chanced output", stack)) return this;
+ 
+             if (0 >= chance || chance > ChanceLogic.getMaxChancedValue()) {
+                 throw new RecipeExceptionJS(
+@@ -546,7 +548,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS chancedOutput(ExtendedOutputItem stack, String fraction, int tierChanceBoost) {
+-            validateItems("chanced output", stack);
++            if (!validateItems("chanced output", stack)) return this;
+ 
+             String[] split = fraction.split("/");
+             if (split.length > 2) {
+@@ -617,7 +619,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS chancedFluidOutput(FluidStackJS stack, int chance, int tierChanceBoost) {
+-            validateFluids("chanced output", stack);
++            if (!validateFluids("chanced output", stack)) return this;
+ 
+             if (0 >= chance || chance > ChanceLogic.getMaxChancedValue()) {
+                 throw new RecipeExceptionJS(
+@@ -635,7 +637,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS chancedFluidOutput(FluidStackJS stack, String fraction, int tierChanceBoost) {
+-            validateFluids("chanced output", stack);
++            if (!validateFluids("chanced output", stack)) return this;
+ 
+             if (stack.getAmount() == 0) {
+                 return this;
+@@ -745,7 +747,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS inputFluids(GTRecipeComponents.FluidIngredientJS... inputs) {
+-            validateFluids("input", inputs);
++            if (!validateFluids("input", inputs)) return this;
+ 
+             for (var fluidIng : inputs) {
+                 for (var stack : fluidIng.ingredient().getStacks()) {
+@@ -764,14 +766,14 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS inputFluidsRanged(FluidStackJS input, IntProvider range) {
+-            validateFluids("ranged input", input);
++            if (!validateFluids("ranged input", input)) return this;
+             FluidStack stack = new FluidStack(input.getFluid(), (int) input.getAmount(), input.getNbt());
+             return input(FluidRecipeCapability.CAP,
+                     IntProviderFluidIngredient.of(FluidIngredient.of(stack), range));
+         }
+ 
+         public GTRecipeJS outputFluids(FluidStackJS... outputs) {
+-            validateFluids("output", outputs);
++            if (!validateFluids("output", outputs)) return this;
+             return output(FluidRecipeCapability.CAP, (Object[]) outputs);
+         }
+ 
+@@ -780,7 +782,7 @@ public interface GTRecipeSchema {
+         }
+ 
+         public GTRecipeJS outputFluidsRanged(FluidStackJS output, IntProvider range) {
+-            validateFluids("ranged output", output);
++            if (!validateFluids("ranged output", output)) return this;
+             FluidStack stack = new FluidStack(output.getFluid(), (int) output.getAmount(), output.getNbt());
+             return output(FluidRecipeCapability.CAP,
+                     IntProviderFluidIngredient.of(FluidIngredient.of(stack), range));
+@@ -790,10 +792,21 @@ public interface GTRecipeSchema {
+         // ********** VALIDATION ***********//
+         //////////////////////////////////////
+ 
+-        private void validateItems(@NotNull String type, InputItem... items) {
++        /**
++         * AF9: reports an unknown or empty item / fluid named for this recipe. The recipe fails with it when it is
++         * built (the way an unknown id failed before GT 7.5) instead of the builder call throwing: KubeJS ends the
++         * whole recipe event on a throw, for every script after the one that threw.
++         */
++        private boolean invalid(String message) {
++            if (invalidContent == null) invalidContent = message;
++            ConsoleJS.SERVER.error(message);
++            return false;
++        }
++
++        private boolean validateItems(@NotNull String type, InputItem... items) {
+             for (var stack : items) {
+                 if (stack == null || stack.isEmpty()) {
+-                    throw new RecipeExceptionJS(String.format("Invalid or empty %s item (recipe ID: %s)", type, id));
++                    return invalid(String.format("Invalid or empty %s item (recipe ID: %s)", type, id));
+                 }
+                 if (stack.ingredient.getItems().length == 0) {
+                     String tagInfo = "";
+@@ -801,53 +814,58 @@ public interface GTRecipeSchema {
+                     if (values.length == 1 && values[0] instanceof Ingredient.TagValue tagValue) {
+                         tagInfo = " (empty or unknown tag: #" + ((TagValueAccessor) tagValue).getTag().location() + ")";
+                     }
+-                    throw new RecipeExceptionJS(
++                    return invalid(
+                             String.format("Invalid or empty %s item (recipe ID: %s)%s", type, id, tagInfo));
+                 }
+             }
++            return true;
+         }
+ 
+-        private void validateItems(@NotNull String type, ItemStack... stacks) {
++        private boolean validateItems(@NotNull String type, ItemStack... stacks) {
+             for (var stack : stacks) {
+                 if (stack == null || stack.isEmpty()) {
+-                    throw new RecipeExceptionJS(String.format("Invalid or empty %s item (recipe ID: %s)", type, id));
++                    return invalid(String.format("Invalid or empty %s item (recipe ID: %s)", type, id));
+                 }
+             }
++            return true;
+         }
+ 
+-        private void validateItems(@NotNull String type, Ingredient... ingredients) {
++        private boolean validateItems(@NotNull String type, Ingredient... ingredients) {
+             for (var ingredient : ingredients) {
+                 if (ingredient == null || ingredient.isEmpty()) {
+-                    throw new RecipeExceptionJS(String.format("Invalid or empty %s item (recipe ID: %s)", type, id));
++                    return invalid(String.format("Invalid or empty %s item (recipe ID: %s)", type, id));
+                 }
+             }
++            return true;
+         }
+ 
+-        private void validateItems(@NotNull String type, OutputItem... items) {
++        private boolean validateItems(@NotNull String type, OutputItem... items) {
+             for (var item : items) {
+                 if (item == null || item.item == null || item.item.isEmpty()) {
+-                    throw new RecipeExceptionJS(String.format("Invalid or empty %s item (recipe ID: %s)", type, id));
++                    return invalid(String.format("Invalid or empty %s item (recipe ID: %s)", type, id));
+                 }
+             }
++            return true;
+         }
+ 
+-        private void validateItems(@NotNull String type, TagPrefix... items) {
++        private boolean validateItems(@NotNull String type, TagPrefix... items) {
+             for (var item : items) {
+                 if (item == null || item.isEmpty()) {
+-                    throw new RecipeExceptionJS(String.format("Invalid or empty %s item (recipe ID: %s)", type, id));
++                    return invalid(String.format("Invalid or empty %s item (recipe ID: %s)", type, id));
+                 }
+             }
++            return true;
+         }
+ 
+-        private void validateFluids(@NotNull String type, GTRecipeComponents.FluidIngredientJS... fluids) {
++        private boolean validateFluids(@NotNull String type, GTRecipeComponents.FluidIngredientJS... fluids) {
+             for (var fluid : fluids) {
+                 if (fluid == null || fluid.ingredient() == null || fluid.ingredient().getStacks() == null) {
+-                    throw new RecipeExceptionJS(String.format("Invalid or empty %s fluid (recipe ID: %s)", type, id));
++                    return invalid(String.format("Invalid or empty %s fluid (recipe ID: %s)", type, id));
+                 }
+ 
+                 for (var stack : fluid.ingredient().getStacks()) {
+                     if (stack == null || stack.isEmpty()) {
+-                        throw new RecipeExceptionJS(
++                        return invalid(
+                                 String.format("Invalid or empty %s fluid (recipe ID: %s)", type, id));
+                     }
+                 }
+@@ -857,18 +875,20 @@ public interface GTRecipeSchema {
+                     if (values.length == 1 && values[0] instanceof FluidIngredient.TagValue tagValue) {
+                         tagInfo = " (empty or unknown tag: #" + tagValue.tag().location() + ")";
+                     }
+-                    throw new RecipeExceptionJS(String.format(
++                    return invalid(String.format(
+                             "Invalid or empty %s fluid (recipe ID: %s)%s", type, id, tagInfo));
+                 }
+             }
++            return true;
+         }
+ 
+-        private void validateFluids(@NotNull String type, FluidStackJS... stacks) {
++        private boolean validateFluids(@NotNull String type, FluidStackJS... stacks) {
+             for (var stack : stacks) {
+                 if (stack == null || stack.getFluidStack() == null || stack.getFluidStack().isEmpty()) {
+-                    throw new RecipeExceptionJS(String.format("Invalid or empty %s fluid (recipe ID: %s)", type, id));
++                    return invalid(String.format("Invalid or empty %s fluid (recipe ID: %s)", type, id));
+                 }
+             }
++            return true;
+         }
+ 
+         //////////////////////////////////////
+@@ -1272,6 +1292,9 @@ public interface GTRecipeSchema {
+ 
+         @Override
+         public @Nullable Recipe<?> createRecipe() {
++            if (invalidContent != null) {
++                throw new RecipeExceptionJS(invalidContent);
++            }
+             if (onSave != null) {
+                 onSave.accept(this);
+             }
+diff --git a/src/main/resources/gtceu.mixins.json b/src/main/resources/gtceu.mixins.json
+index a2a18c3..acebcf7 100644
+--- a/src/main/resources/gtceu.mixins.json
++++ b/src/main/resources/gtceu.mixins.json
+@@ -77,6 +77,7 @@
+         "ldlib.SyncUtilsMixin",
+         "registrate.AbstractRegistrateAccessor",
+         "registrate.RegistrateDataProviderAccessor",
++        "kubejs.RecipesEventJSMixin",
+         "rei.InputSlotCrafterMixin",
+         "rei.RecipeFinderMixin",
+         "top.ConfigMixin"
+-- 
+2.54.0.windows.1
+
