@@ -38,9 +38,20 @@ The controller is in the front wall, two up (the face is GTNH's DTPF overlay). T
 |---|---|---|
 | `af9:dtpf/strange_matter_plasma` | 8 strange matter dust, 2,000 mB Endion | 2,000 mB strange matter plasma |
 | `af9:dtpf/chromodynium_plasma` | 4 chromodynium dust, 4,000 mB Endion | 2,000 mB chromodynium plasma |
+| `af9:dtpf/anti_matter_plasma` | 8 anti-matter dust, 2,000 mB Endion | 2,000 mB Anti Matter Plasma |
+| `af9:dtpf/superstate_star_matter_plasma` | 4 superstate star matter dust, 4,000 mB Endion | 2,000 mB Superstate Star Matter Plasma |
 | `af9:dtpf/chromodynium_plates` | 2,000 mB chromodynium plasma | 6 chromodynium plates (4 dust: 1.5x) |
+| `af9:dtpf/superstate_star_matter_plates` | 2,000 mB superstate star matter plasma | 6 superstate star matter plates (4 dust: 1.5x) |
 | `af9:dtpf/tritanium_plates` | 4 tritanium ingots, 500 mB strange matter plasma | 6 tritanium plates |
 | `af9:dtpf/neutronium_plates` | 4 neutronium ingots, 1,000 mB strange matter plasma | 6 neutronium plates |
 
-The two plasmas are AF9 Core's fluids `gtceu:strange_matter_plasma` and `gtceu:chromodynium_plasma` (`.plasma()` on the
+The four plasmas are AF9 Core's fluids `gtceu:strange_matter_plasma`, `gtceu:chromodynium_plasma`,
+`gtceu:anti_matter_plasma` and `gtceu:superstate_star_matter_plasma` (`.plasma()` on the
 materials). The controller is made in the assembler (`af9:dtpf`, UV).
+
+## 4. AI Acceleration Card
+
+`af9:ai_acceleration_card` (AF9 Core `registry/AF9Items`): TPU and memristor on a wetware board,
+traced in 128 fine sanguinite wire. UHV circuit assembler, plasma solder canonical (tin stays as a dead
+budget option), clean room — `af9:ai_acceleration_card` in `kubejs/server_scripts/mods/gtceu/circuits_af9.js`.
+The compute card of the new DTPF: its recipes take the card.

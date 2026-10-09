@@ -602,10 +602,10 @@ lens colours (own reticle; the colours of one class's chips differ, so a blank +
 chrome  ilc red, ram green, cpu light_blue, ulpic blue, lpic orange, simple_soc cyan, nand gray, nor pink, mpic brown, soc yellow,
         rf_transceiver lime, apu magenta, mcu white, asic light_gray
 psm     advanced_soc orange, saw_filter red, edram green, mram blue, feram yellow, photonic_ic cyan, vpu purple, spin_logic lime
-euv     highly_advanced_soc black, tpu orange, tmd_logic pink, memristor cyan, quantum_dot_ic yellow
+euv     highly_advanced_soc black, tpu orange, tmd_logic pink, memristor cyan, quantum_dot_ic yellow, qram magenta, qlos lime
 ```
 
-A print takes the reticle of its node's class (`AF9_WAFERS.reticleItem(chip, maskClass(substrate))`); the 1 nm prints and their research (the Research Station scans the EUV reticle) the EUV one. Why a master and not the lens for the finer classes: there are 16 lens colours, but 22 chips with a PSM reticle and 27 with an EUV one.
+A print takes the reticle of its node's class (`AF9_WAFERS.reticleItem(chip, maskClass(substrate))`); the 1 nm prints and their research (the Research Station scans the EUV reticle) the EUV one. Why a master and not the lens for the finer classes: there are 16 lens colours, but 22 chips with a PSM reticle and 29 with an EUV one.
 
 eDRAM packages (gtceu:assembler, IV, clean room): `gtceu:cpu_chip` or `gtceu:soc` + 2x `af9:edram_chip` + `gtceu:epoxy_plate` + 4x `gtceu:fine_gold_wire` + 72mB `gtceu:soldering_alloy` → `af9:edram_cpu_package` / `af9:edram_soc_package` | 400t.
 
@@ -1253,10 +1253,13 @@ Screen (the orbital station's layout, `SidePanelsUIWidget` + `AcceleratorConsole
 | `gtceu:ion_collision` | magnetic trap + 16 lead ingots → `af9:qgp_trap` | 2000 supercooled argon | UV × 4 | 600t |
 | `gtceu:quark_synthesis` | 4 QGP traps + neutronium dust → `gtceu:strange_matter_dust` + 4 traps | 4000 supercooled xenon | UHV × 2 | 1200t |
 | `gtceu:quark_synthesis` | 8 QGP traps + strange matter dust → `gtceu:chromodynium_dust` + 8 traps | 4000 supercooled endion | UHV × 4 | 2400t |
+| `gtceu:quark_synthesis` | 12 QGP traps + chromodynium dust → `gtceu:anti_quark_dust` + 12 traps | 6000 supercooled endion | UHV × 4 | 3200t |
+| `gtceu:quark_synthesis` | 16 QGP traps + anti-quark dust → `gtceu:anti_matter_dust` + 16 traps | 8000 supercooled endion | UHV × 4 | 3600t |
+| `gtceu:quark_synthesis` | 24 QGP traps + anti-matter dust → `gtceu:superstate_star_matter_dust` + 24 traps | 8000 supercooled endion | UHV × 4 | 4000t |
 
 Coolant grades: a recipe takes its coolant or any colder one. It asks for the grade's fluid tag (`#af9:coolant/<grade> <mB>`, set in the server script's `ServerEvents.tags('fluid')`): `af9:coolant/hydrogen` holds all four supercooled fluids, `.../argon` argon, xenon and endion, `.../xenon` xenon and endion, `.../endion` endion. EMI cycles through them in the coolant slot, and its hover says "Supercooled Argon or any colder one".
 
-Materials: `strange_matter` (dust, "(uds)n"), `chromodynium` (ingot, 12000 K EBF, plate/foil/rod/frame, "Qc"), each with its own animated icon set (GT icon sets `strange_matter` and `chromodynium`, children of `shiny`; af9-core `assets/gtceu/.../material_sets/<set>`: an item model per shape whose untinted top layer is the animated art, the tinted layers empty; Chromodynium's block and frame grey, tinted by GT): Strange Matter a dark violet void with twinkling glints (32 frames), Chromodynium a pearl metal with a sheen sweeping through its colour charge, pink, orange, yellow, mint (24 frames), both at 2 ticks a frame; their wafers, boules, melt charges and seed crystals carry the same effects over their own art. Items: `af9:beryllium_spallation_target` (4 Be plates + 2 tungstensteel plates, LuV), `af9:magnetic_trap` (ZPM field generator + 4 NbTi plates + 2 tungstensteel plates, ZPM), `af9:qgp_trap`. Console: mode tiles NEUTRONS / COLLIDER / QUARKS, beam energy (1 GeV at ZPM, ×2 per tier), coolant fluid + amount (NO COOLANT status when dry), beam on/off, run-time bar.
+Materials: `strange_matter` (dust, "(uds)n"), `chromodynium` (ingot, 12000 K EBF, plate/foil/rod/frame, "Qc"), `anti_quark` (dust, "Aq"), `anti_matter` (dust + plasma, "(Aq)n"), `superstate_star_matter` (ingot, 15000 K EBF, plate/foil/rod/frame, "Ss"), each with its own animated icon set (GT icon sets `strange_matter` and `chromodynium`, children of `shiny`; af9-core `assets/gtceu/.../material_sets/<set>`: an item model per shape whose untinted top layer is the animated art, the tinted layers empty; Chromodynium's block and frame grey, tinted by GT): Strange Matter a dark violet void with twinkling glints (32 frames), Chromodynium a pearl metal with a sheen sweeping through its colour charge, pink, orange, yellow, mint (24 frames), both at 2 ticks a frame; their wafers, boules, melt charges and seed crystals carry the same effects over their own art. Items: `af9:beryllium_spallation_target` (4 Be plates + 2 tungstensteel plates, LuV), `af9:magnetic_trap` (ZPM field generator + 4 NbTi plates + 2 tungstensteel plates, ZPM), `af9:qgp_trap`. Console: mode tiles NEUTRONS / COLLIDER / QUARKS, beam energy (1 GeV at ZPM, ×2 per tier), coolant fluid + amount (NO COOLANT status when dry), beam on/off, run-time bar.
 
 # 15. Wafer and chip contamination
 
@@ -1344,7 +1347,7 @@ All in the SMC fab machines (§11), recipes in `server_scripts/mods/gtceu/litho_
 
 ## 18.7 The new chip families
 
-Six chips beyond §5.3b, one per family the finer substrates open up, printed and cut like the others (`chips.js`, `AF9_WAFERS.chips`; textures made on the existing chips' shared shading, each substrate's palette, a 6 × 6 glyph):
+Eight chips beyond §5.3b, one per family the finer substrates open up, printed and cut like the others (`chips.js`, `AF9_WAFERS.chips`; textures made on the existing chips' shared shading, each substrate's palette, a 6 × 6 glyph):
 
 | Chip | Family | Own substrate | Reticle (lens / blank) | Dies | Functional layer (chain) |
 |---|---|---|---|---|---|
@@ -1354,6 +1357,8 @@ Six chips beyond §5.3b, one per family the finer substrates open up, printed an
 | `tmd_logic` | 2D materials | neutronium, 50 nm (ZPM) | pink / EUV | 6 | tungsten diselenide, hexagonal boron nitride (+ molybdenite, graphene from GT) |
 | `memristor` | neuromorphic (ReRAM, PCM) | transmuted neutronium, 20 nm (UV) | cyan / EUV | 8 | GST alloy (Ge2Sb2Te5) |
 | `quantum_dot_ic` | sub-atomic (quantum dots, SET) | strange matter, 7 nm (UHV) | yellow / EUV | 4 | CdSe quantum-dot colloid |
+| `qram` | quantum aligned memory (QRAM) | strange matter, 7 nm (UHV) | magenta / EUV | 8 | CdSe quantum-dot colloid (shared) |
+| `qlos` | quantum-dot CPU (QLOS) | strange matter, 7 nm (UHV) | lime / EUV | 4 | CdSe quantum-dot colloid (shared) |
 
 The layers are made in the fab machines (`af9:aluminium_nitride`, `lithium_niobate`, `silicon_nitride`, `cobalt_iron_boron`, `tungsten_diselenide`, `boron_nitride`, `gst_alloy`, `quantum_dot_colloid`: thermal steps in the thermal furnace, the rest from HV power on in a clean room) and are taken, with the chips, by the uses below. The reticles and cuts of the strange-matter chips run at UV (no UHV machine needed). Tier of each family: the substrate's.
 
