@@ -39,7 +39,7 @@ The CI workflow (job `lint`) runs `run.sh --selftest` before it builds (`.github
 | S1 | error | a script threw while loading (typo, undefined name) | run the linter before pushing; the first line of the message is the JS error. A stub that is missing (a new GT global) goes into `ctx` in `scripts.js` |
 | F1 | warn | a file with the AllTheMods licence header is in this repo | files of the base pack are not ours to ship; do not copy them into the overlay |
 | R1 | error | the same recipe id twice in one recipe type (the second silently replaces the first) | give every recipe a unique `af9:` id; generate ids from the loop variable |
-| R2 | error | more items / fluids than the machine's slots: AF9's types (`setMaxIOSize`) and GT's (`data/gt-recipe-slots.txt`, from GT 7.2.0: the **assembler has 9 item and ONE fluid slot**, the circuit assembler 6 and one) | check `[items in, items out, fluids in, fluids out]` of the type; circuits and not-consumed items count |
+| R2 | error | more items / fluids than the machine's slots: AF9's types (`setMaxIOSize`) and GT's (`data/gt-recipe-slots.txt`, from GT 7.5.3: the **assembler has 9 item and ONE fluid slot**, the circuit assembler 6 and one) | check `[items in, items out, fluids in, fluids out]` of the type; circuits and not-consumed items count |
 | R3 | error / warn | an id nobody defines: an `af9:` item, block or fluid that AF9 Core does not register (the registry list), a `gtceu:` name that GT does not have, a `kubejs:` item that is not the base pack's | copy the id from the registration, not from memory; `gtceu:<material>_<shape>` needs the material to have that shape |
 | R4 | warn | a recipe type that exists nowhere | the type is spelled `event.recipes.gtceu.<type>`; register new types in `startup_scripts` |
 | R5 | warn | an AF9 item that a recipe takes and no recipe makes | add the recipe that makes it, or (world / loot / quest / Java source) one line in `data/sources.txt` |
@@ -117,7 +117,7 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
 ## Data (`data/`)
 
 * `gt-names.txt`, `gt-materials.txt`, `gt-recipe-types.txt`, `gt-recipe-slots.txt`: the ids and recipe slots GT defines, made by
-  `python3 tools/lint/update-gt-lists.py <GT checkout>` from **GT 7.2.0** (tag `v.7.2.0-1.20.1`, the version the pack runs): clone that
+  `python3 tools/lint/update-gt-lists.py <GT checkout>` from **GT 7.5.3** (tag `v7.5.3-1.20.1`, the version the pack runs): clone that
   tag, not a branch head, or names of a newer GT pass the lint that the pack does not have. The name lists over-approximate (every
   string literal of the registration code), so a `gtceu:` finding means "no such name anywhere", a missing finding does not prove it exists.
 * `gt-patterns.txt`: regular expressions for ids that loops in GT make (coil blocks, lenses, pipes, lamps, flawless gems ...).

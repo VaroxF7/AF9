@@ -607,6 +607,7 @@ trinium_sulfide
 tritanium
 tritium
 trona
+tuff
 tungstate
 tungsten
 tungsten_carbide

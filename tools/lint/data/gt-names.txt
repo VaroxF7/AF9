@@ -76,6 +76,7 @@ bf
 bio_chaff
 bio_hazard_sign_block
 biome
+biome_tag
 blacklight
 block
 block_breaker
@@ -154,6 +155,10 @@ coke_oven_brick
 coke_oven_bricks
 coke_oven_hatch
 color
+color1
+color2
+color3
+color4
 combine
 combustion
 combustion_generator
@@ -179,6 +184,7 @@ copper_tin_vein
 copper_vein
 corrosion_proof_casing
 count
+cover
 cpu_chip
 cpu_wafer
 cracker
@@ -203,6 +209,7 @@ cupronickel
 cut
 cutter
 cylinder_casting_mold
+d
 dark_concrete
 data
 data_access_hatch
@@ -382,6 +389,7 @@ heat_sink
 heat_vent
 heatproof_machine_casing
 heavy_oil_deposit
+height
 heracles_quest
 high_performance_computation_array
 high_power_casing
@@ -516,6 +524,8 @@ laser_safe_engraving_casing
 lathe
 lava_deposit
 layer0
+layered_step_detector
+layered_step_detector_cover
 light_concrete
 light_oil_deposit
 lighter_open
@@ -614,6 +624,8 @@ mineral_sand_vein
 mixer
 mob_infestation_hazard_sign_block
 mob_spawner_hazard_sign_block
+models
+module
 molybdenum_disilicide_coil_block
 molybdenum_vein
 monazite_vein
@@ -691,6 +703,7 @@ normal_pipe_casting_mold
 normal_pipe_extruder_mold
 nugget_casting_mold
 null
+num
 obf
 object_holder
 oil_deposit
@@ -716,6 +729,7 @@ output_bus
 output_hatch
 output_hatch_4x
 output_hatch_9x
+overlay_pipe
 overlay_pipe_4x
 overlay_pipe_9x
 overlay_pipe_in_emissive
@@ -727,6 +741,7 @@ paracetamol_pill
 parallel_hatch
 particle
 path
+payload
 petri_dish
 petrified_foam
 phenolic_circuit_board
@@ -770,6 +785,7 @@ purple_drink
 pyrolyse_oven
 qbit_cpu_chip
 qbit_cpu_wafer
+quad
 quantum_chest
 quantum_eye
 quantum_processor
@@ -796,6 +812,7 @@ raw_oil_sprout
 rawtypes
 reaction_safe_mixing_casing
 recipes
+rect
 red_granite
 red_granite_blob
 redstone
@@ -946,6 +963,7 @@ target
 tempered_glass
 terminal
 tetrahedrite_vein
+text
 text_module
 the_end
 the_nether
@@ -1067,6 +1085,7 @@ wetware_processor
 wetware_processor_assembly
 wetware_processor_computer
 wetware_processor_mainframe
+width
 windmill_a
 windmill_b
 wire_extruder_mold
@@ -1081,7 +1100,15 @@ wooden_tank_valve
 world_accelerator
 wrench
 x
+x1
+x2
+x3
+x4
 y
+y1
+y2
+y3
+y4
 yellow_stripes_block_a
 yellow_stripes_block_b
 zero_point_module
