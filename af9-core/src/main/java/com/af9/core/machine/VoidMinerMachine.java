@@ -10,7 +10,10 @@ import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.IRecipeHandler;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
+import com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CircuitFancyConfigurator;
+import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
@@ -101,9 +104,26 @@ public class VoidMinerMachine extends ProcessMachine {
     private long circuitTime = -1;
     private int circuitNow = -1;
 
+    /**
+     * The miner's own programmed circuit, set from the button above the void button on its screen (the mouse wheel on it
+     * turns the number): the recipes take it like one in an input bus, so the miner needs no bus for it.
+     */
+    @Persisted
+    protected final NotifiableItemStackHandler circuitSlot;
+
     public VoidMinerMachine(IMachineBlockEntity holder) {
         super(holder);
+        this.circuitSlot = new NotifiableItemStackHandler(this, 1, IO.IN, IO.NONE)
+                .setFilter(IntCircuitBehaviour::isIntegratedCircuit).shouldSearchContent(false);
     }
+
+    /** The circuit button, on top of the void button (the panel stacks the buttons in the order they are added). */
+    @Override
+    public void attachConfigurators(ConfiguratorPanel configuratorPanel) {
+        configuratorPanel.attachConfigurators(new CircuitFancyConfigurator(circuitSlot.storage));
+        super.attachConfigurators(configuratorPanel);
+    }
+
 
     @Override
     public ManagedFieldHolder getFieldHolder() {
@@ -253,6 +273,7 @@ public class VoidMinerMachine extends ProcessMachine {
                 continue;
             }
             if (RECIPE_INFO_DONE.add(path)) {
+                VoidMiningRecipeUI.install(type);
                 // rendered as plain labels, so the texts must not contain '%'
                 type.addDataInfo(data -> Component.translatable("af9.recipe.voidminer.area",
                         Component.translatable(ProcessMachine.modeKey(type) + ".short")).getString());
