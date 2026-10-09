@@ -146,8 +146,8 @@
     "af9.sanguinite_hearth_furnace.tooltip.0": "§7A §fRotary Hearth Furnace§7 rebuilt as a standalone multi: the same §f13x17x13§7 hearth, running only §cSanguinite§7.",
     "af9.sanguinite_hearth_furnace.tooltip.1": "§cNeither the EBF nor the Rotary Hearth can smelt sanguinite§7: the molten print lives on §fgtceu:sanguinite_hearth§7 only.",
     "af9.sanguinite_hearth_furnace.tooltip.2": "§6A heat mass, not an instant furnace§7: it preheats toward its coils' maximum (§fcoil temp + 100K per hatch tier above MV§7) in §f300s§7 while on and powered (§fLuV+§7).",
-    "af9.sanguinite_hearth_furnace.tooltip.3": "§7Prints only start §fpreheated§7 (§f10800 K, Tritanium§7): a cold hearth waits once, then an enabled, powered hearth §aholds its heat§7 in readiness and smelts back-to-back.",
-    "af9.sanguinite_hearth_furnace.tooltip.4": "§7Tritanium coils (§f10800 K§7) with ZPM hatches reach §f11300 K§7: just past the smelt. Breaking the structure §cvents it to 0 K§7.",
+    "af9.sanguinite_hearth_furnace.tooltip.3": "§7Prints only start §fpreheated§7 (§f6000 K, HSS-S§7): a cold hearth waits once, then an enabled, powered hearth §aholds its heat§7 in readiness and smelts back-to-back.",
+    "af9.sanguinite_hearth_furnace.tooltip.4": "§7HSS-S coils (§f6000 K§7) with ZPM hatches reach §f6500 K§7: just past the smelt. Breaking the structure §cvents it to 0 K§7.",
     "af9.sanguinite_hearth_furnace.tooltip.5": "§7Smelt: §fdusts + circuit 8 + coolant§7 (supercooled, Coolant Hatch) -> §c1000 mB molten§7, §fZPM§7, §f60s§7; §f+ helium§7 runs twice as fast. The Vacuum Freezer casts it under supercooled hydrogen.",
     "af9.sanguinite_hearth_furnace.tooltip.6": "§7Automate it: keep it §fon under power§7 (ME level emitter on the dust stock, or a clock) and it stays hot and self-starts.",
     "af9.sanguinite_hearth_furnace.tooltip.7": "§7Up to §f1 parallel hatch§7 multiplies the molten prints. §aPerfect OC§7, §fbatch mode§7. Readiness heaters draw §f4A LuV§7 on top.",
@@ -560,5 +560,8 @@
     "material.gtceu.shiny_diesel": "Shiny Diesel",
     "material.gtceu.chloromethane_diesel": "Chloromethane Diesel",
     "material.gtceu.mana_diesel": "Mana Diesel",
-    "material.gtceu.dichloromethane": "Dichloromethane"
+    "material.gtceu.dichloromethane": "Dichloromethane",
+    "material.gtceu.anti_quark": "Anti Quark",
+    "material.gtceu.anti_matter": "Anti Matter",
+    "material.gtceu.superstate_star_matter": "Superstate Star Matter"
 }

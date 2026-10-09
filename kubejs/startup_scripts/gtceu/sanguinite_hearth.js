@@ -9,11 +9,11 @@
 //   - the hearth is a heat mass: it preheats toward its coils' maximum (coil temperature + 100 K per energy hatch
 //     tier above MV, the EBF's own display maths) over 300 seconds while switched on and powered (at least LuV),
 //     and cools over 500 seconds without power or while switched off. Prints only start preheated (HEARTH_GATE:
-//     10800 K, Tritanium coils), so a cold hearth makes you wait once, then an enabled, powered hearth holds its
+//     6000 K, HSS-S coils), so a cold hearth makes you wait once, then an enabled, powered hearth holds its
 //     heat in readiness on 4 A of LuV and back-to-back smelts start at once. Breaking the structure vents it to 0 K.
 //   - automate it by keeping it switched on under power (an ME level emitter on the dust stock, or a clock) and
 //     feeding it through the buses: a parallel hatch multiplies the molten prints, batch mode folds overclocked
-//     runs. Tritanium coils (10800 K) with ZPM hatches reach 11300 K: just past the smelt.
+//     runs. HSS-S coils (6000 K) with ZPM hatches reach 6500 K: just past the smelt.
 //   - coolant: supercooled fluids only, through Coolant Hatches (recipe fluid_in_0, its own JEI slot like the
 //     Particle Accelerator); helium boosts the print through normal fluid hatches (fluid_in_1).
 
@@ -24,7 +24,7 @@ const $HearthCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHat
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // Dusts + circuit 8 in, coolant (fluid_in_0) + optional helium (fluid_in_1) in, 1000 mB molten out.
     // The temperature rides along as the recipe's blastFurnaceTemp (coil display + CoilWorkable gate);
-    // the hearth's own heat is HEARTH_GATE (10800 K). JEI: SanguiniteHearthRecipeUI (coolant slot + coil).
+    // the hearth's own heat is HEARTH_GATE (6000 K). JEI: SanguiniteHearthRecipeUI (coolant slot + coil).
     event.create('sanguinite_hearth')
         .category('multiblock')
         .setEUIO('in')
@@ -53,7 +53,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .langValue('Sanguinite Hearth Furnace')
         .rotationState(RotationState.ALL)
         .recipeTypes([GTRecipeTypes.get('sanguinite_hearth')])
-        // HEARTH_GATE: only preheated (10800 K, Tritanium) with the recipe's full EU/t; a parallel hatch
+        // HEARTH_GATE: only preheated (6000 K, HSS-S) with the recipe's full EU/t; a parallel hatch
         // multiplies the molten prints; perfect overclocks above that; then batch mode. EBF recipes never
         // run here (own type).
         .recipeModifiers([$SanguiniteHearthMachine.HEARTH_GATE, GTRecipeModifiers.PARALLEL_HATCH,

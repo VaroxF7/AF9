@@ -6,7 +6,7 @@
 //   1. Large Chemical Reactor: 4 neutronium + 10 tritanium dusts, hydrogen, Ares gas (Martian asteroid field,
 //      vein_oil.js) and LXA-1 (Space Elevator far-dark mission, PlanetCatalog) -> 14 crude sanguinite dust.
 //   2. Sanguinite Hearth Furnace: tin alloy + barium + europium + titanium + electrum + crude dusts, circuit 8,
-//      coolant (supercooled, Coolant Hatch, fluid_in_0) -> 1000 mB molten sanguinite at 10800 K (Tritanium coils,
+//      coolant (supercooled, Coolant Hatch, fluid_in_0) -> 1000 mB molten sanguinite at 6000 K (HSS-S coils,
 //      ZPM, 60 s). Helium version adds 1000 mB helium (fluid_in_1) and runs twice as fast. The hearth preheats
 //      first (HEARTH_GATE, 300 s at LuV, 4A LuV readiness, vents to 0 K).
 //   3. Vacuum Freezer: 144 mB molten + 1000 mB supercooled hydrogen (+ ingot mold, not consumed) -> sanguinite
@@ -36,7 +36,7 @@ ServerEvents.recipes(event => {
     event.remove({ id: 'gtceu:vacuum_freezer/cool_hot_sanguinite_ingot' })
 
     // ---- 2. The smelt: dusts to molten sanguinite in the Sanguinite Hearth Furnace ----
-    // ZPM, 60 s, circuit 8, Tritanium coils (10800 K). Coolant first (fluid_in_0, Coolant Hatch only):
+    // ZPM, 60 s, circuit 8, HSS-S coils (6000 K). Coolant first (fluid_in_0, Coolant Hatch only):
     // supercooled hydrogen or any colder grade; helium version is the same plus helium, twice as fast.
     const hearthDusts = ['64x gtceu:tin_alloy_dust', '64x gtceu:tin_alloy_dust', '4x gtceu:barium_dust',
         '8x gtceu:europium_dust', '32x gtceu:titanium_dust', '16x gtceu:electrum_dust',
@@ -46,7 +46,7 @@ ServerEvents.recipes(event => {
         .circuit(8)
         .inputFluids('#af9:coolant/hydrogen 1000')
         .outputFluids(Fluid.of('gtceu:sanguinite', 1000))
-        .blastFurnaceTemp(10800)
+        .blastFurnaceTemp(6000)
         .duration(1200)
         .EUt(VA[GTValues.ZPM])
     event.recipes.gtceu.sanguinite_hearth('af9:molten_sanguinite_helium')
@@ -54,7 +54,7 @@ ServerEvents.recipes(event => {
         .circuit(8)
         .inputFluids('#af9:coolant/hydrogen 1000', Fluid.of('gtceu:helium', 1000))
         .outputFluids(Fluid.of('gtceu:sanguinite', 1000))
-        .blastFurnaceTemp(10800)
+        .blastFurnaceTemp(6000)
         .duration(600)
         .EUt(VA[GTValues.ZPM])
 
