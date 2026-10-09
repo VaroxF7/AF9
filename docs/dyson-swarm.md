@@ -38,7 +38,7 @@ Textures are GTNH Intergalactic's (`tools/textures/gtnh_dyson_swarm/`, `tools/te
 | Sail | Yield | Made from (Assembly Line, UHV voltage) |
 | --- | --- | --- |
 | `af9:allthemodium_sail` | 100 % | Allthemodium plate, photonic dies, neutronium plate; **100 A** |
-| `af9:unobtainium_alloy_sail` | 200 % | Allthemodium sails, Unobtainium-Vibranium alloy plate, spin logic dies; **300 A** |
+| `af9:unobtainium_alloy_sail` | 200 % | Allthemodium sails, Unobtainium plate, spin logic dies; **300 A** |
 | `af9:chromodynium_star_matter_tritan_alloy_sail` | 350 % | Unobtainium Alloy sails, chromodynium and tritanium plate, memristors, strange matter plasma (the DTPF's); **1,000 A** |
 
 16 sails a run. Put them in an input bus: the swarm takes them (up to 10,000 in all) and they stay.

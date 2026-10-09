@@ -396,5 +396,5 @@ GregTech CEu Modern · GregTech: New Horizons (Space Elevator structure/logic, p
 structure re-expressed; the Space Elevator block textures are GTNH Intergalactic's, in GTCEu's connected-texture
 format by `tools/textures/space_elevator.py`, originals in `tools/textures/gtnh_space_elevator/`; the Pico circuit components are GTNH's textures too,
 `tools/textures/gtnh_pico/`; so are the Void Miner MK2 / MK3 casings and faces and their structures, `tools/textures/gtnh_void_miner/`, and the
-DTPF's controller face, `tools/textures/gtnh_dtpf/`; the Dyson Swarm's casings, face and sail, `tools/textures/gtnh_dyson_swarm/`) · Ad Astra · KubeJS · LDLib · Jade · Curios ·
+DTPF's controller face, `tools/textures/gtnh_dtpf/`; the Dyson Swarm's casings, face and sail, `tools/textures/gtnh_dyson_swarm/`; the Hyper-Intensity Laser Engraver's casing and face, `tools/textures/gtnh_hile/`) · Ad Astra · KubeJS · LDLib · Jade · Curios ·
 Extreme Reactors · EMI. Upstream pack: AllTheMods ATM-9.

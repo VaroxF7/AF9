@@ -16,6 +16,8 @@ block af9:dyson_receiver_dish
 block af9:endion_coil_block
 block af9:euv_light_source
 block af9:krf_excimer_laser
+block af9:laser_containment_casing
+block af9:laser_resistant_plate
 block af9:mining_black_plutonium_casing
 block af9:mining_neutronium_casing
 block af9:oil_regolith
@@ -153,6 +155,8 @@ item af9:ilc_euv_reticle
 item af9:ilc_psm_reticle
 item af9:ilc_reticle
 item af9:krf_excimer_laser
+item af9:laser_containment_casing
+item af9:laser_resistant_plate
 item af9:lpic_euv_reticle
 item af9:lpic_psm_reticle
 item af9:lpic_reticle

@@ -56,7 +56,8 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound($LithoSounds.ORBITAL_STATION)
     // plasma atomic soldering (UHV+ circuits, ion-by-ion deposition with plasma solder, no reflow): up to 10 item
-    // inputs (the UHV mainframe's 9), 1 out, plasma solder + PBI in. Runs only on the Array Mk2 (extended, in orbit, aligned).
+    // inputs (the UHV mainframe's 9), 1 out, plasma solder + PBI in. Runs in the Hyper-Intensity Laser Engraver
+    // (hile.js).
     event.create('plasma_soldering')
         .category('multiblock')
         .setEUIO('in')
@@ -349,11 +350,11 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .machine(holder => new $OrbitalLithographyMachine(holder))
         .rotationState(RotationState.ALL)
         .allowExtendedFacing(true)
-        .recipeTypes(['lithography_50nm', 'lithography_20nm', 'lithography_7nm', 'orbital_lithography',
-            'plasma_soldering'].map(id => GTRecipeTypes.get(id)))
+        .recipeTypes(['lithography_50nm', 'lithography_20nm', 'lithography_7nm', 'orbital_lithography']
+            .map(id => GTRecipeTypes.get(id)))
         // LITHO_GATE: only in orbit, with the recipe's full EU/t, a sealed vacuum and (researched prints) a data hatch;
         // STRIP_BROKEN: the break roll decides; COOLANT: adds the coolant (faster with a better one);
-        // MK2_GATE: plasma soldering only in orbit on the Array Mk2 (extended) once its beams are
+        // MK2_GATE: the Mk2's own types only in orbit on the Array Mk2 (extended) once its beams are
         // aligned (the 1 nm prints check the same in the station's own gate); FOCUS: the Mk2's focus bonus (shorter
         // runs; its break-chance share is in the station's machineBreakFactor); perfect overclocks; then batch
         // mode (GT's: once overclocked below 5 s, several prints in one run, the coolant too). No parallel hatch.

@@ -97,6 +97,10 @@ public final class AF9Blocks {
         block("dyson_control_secondary", SoundType.METAL, 12F, 0, 0);
         block("dyson_control_toroid", SoundType.METAL, 12F, 0, 0);
 
+        // ---- Hyper-Intensity Laser Engraver: GTNH's Laser Containment Casing and the plate the beam lands on ----
+        block("laser_containment_casing", SoundType.METAL, 12F, 0, 0);
+        block("laser_resistant_plate", SoundType.METAL, 12F, 0, 0);
+
         for (int tier = 1; tier <= MOTORS; tier++) block(MOTOR + tier, SoundType.METAL, 12F, 0, 2);
         for (int tier = 1; tier <= MODULES; tier++) block(MODULE + tier, SoundType.METAL, 12F, 0, 2);
     }

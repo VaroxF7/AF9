@@ -17,6 +17,8 @@
     "af9:endion_coil_block",
     "af9:euv_light_source",
     "af9:krf_excimer_laser",
+    "af9:laser_containment_casing",
+    "af9:laser_resistant_plate",
     "af9:mining_black_plutonium_casing",
     "af9:mining_neutronium_casing",
     "af9:plascrete_filter_casing",

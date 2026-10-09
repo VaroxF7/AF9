@@ -1,6 +1,6 @@
 // AF9 - Soldering alloys: the pack's own solders beyond GT's tin and soldering alloy.
 // Materials: af9-core, registry/AF9Materials (solders()). Uses: circuits_af9.js (HV-UV + wetware),
-// plasma_soldering (UHV atomic soldering in the Orbital Array Mk2). Spec: docs/solders.md
+// plasma_soldering (UHV atomic soldering in the Hyper-Intensity Laser Engraver). Spec: docs/solders.md
 //
 //   high_grade_solder  HV-UV circuits, replaces soldering alloy (tin stays as budget option).
 //                      Mixer at MV (one tier below its first users) + GT's EBF from the blast property.
@@ -38,9 +38,9 @@ ServerEvents.recipes(event => {
         .duration(2400)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
 
-    // ---- Plasma atomic soldering: the UHV wetware mainframe in the Orbital Array Mk2 ----
-    // The photonic bill (10 UV supercomputers + photonic/spin dies), deposited ion-by-ion in orbit.
-    // plasma_soldering slots: 10 items, 1 out, 2 fluids in. Runs only extended + orbit + aligned (af9-core MK2_GATE);
+    // ---- Plasma atomic soldering: the UHV wetware mainframe in the Hyper-Intensity Laser Engraver ----
+    // The photonic bill (10 UV supercomputers + photonic/spin dies), deposited ion-by-ion under the engraver's laser.
+    // plasma_soldering slots: 10 items, 1 out, 2 fluids in.
     // it is the only path to the mainframe — both assembly line versions are gone (circuits_af9.js).
     event.recipes.gtceu.plasma_soldering('af9:wetware_mainframe_uhv_plasma')
         .itemInputs(

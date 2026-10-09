@@ -13,7 +13,7 @@ ServerEvents.recipes(event => {
 
     // the Allthemodium mod's plates: the lowest sail's, and the alloy's of the middle one
     const ALLTHEMODIUM_PLATE = 'allthemodium:allthemodium_plate'
-    const ALLOY_PLATE = 'allthemodium:unobtainium_vibranium_alloy_plate'
+    const ALLOY_PLATE = 'allthemodium:unobtainium_plate'
 
     // ---- 1. Controller and casings ----
     event.shaped('gtceu:dyson_swarm', ['ESE', 'FHF', 'CPC'], {

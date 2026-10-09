@@ -40,9 +40,10 @@ soldering — ion-by-ion deposition, no reflow, nothing wasted.
 plasma solder dust + 8 empty magnetic traps, 2400 ticks at 4A UHV (same pattern as the strange matter /
 chromodynium recipes). GT's own extractor melts the dust to the fluid the soldering type consumes.
 
-`gtceu:plasma_soldering` (new recipe type, 10 items / 1 out / 2 fluids, chain in `solders.js`): runs only on
-the Orbital Lithography Array Mk2 — extended 35x35 pattern, in orbit (`MK2_GATE` in af9-core checks orbit +
-extended + full EU/t + sealed start-up). `af9:wetware_mainframe_uhv_plasma`: the photonic UHV mainframe bill
+`gtceu:plasma_soldering` (new recipe type, 10 items / 1 out / 2 fluids, chain in `solders.js`): runs only in the
+**Hyper-Intensity Laser Engraver** (`gtceu:hyper_intensity_laser_engraver`, `startup_scripts/gtceu/hile.js`: GTNH's
+Industrial Laser Engraver, 5x5x5, a laser target hatch on top, a glass shaft and the Laser Resistant Plate under it;
+perfect overclocks, parallel hatch). It left the Orbital Lithography Array Mk2. `af9:wetware_mainframe_uhv_plasma`: the photonic UHV mainframe bill
 (10 UV supercomputers + photonic/spin dies), 720 mB plasma solder, 1000 ticks at UHV — the only way to a
 `gtceu:wetware_processor_mainframe` (both assembly line versions, `af9:wetware_mainframe_uhv` and
 `af9:wetware_mainframe_uhv_lean`, were removed).
@@ -63,7 +64,7 @@ the size; plasma soldering glows plasma-violet, hotter with bloom).
 ## 5. What only the Mk2 runs, and its beam focus
 
 The extended station is the only one that runs **the 1 nm prints** (chromodynium, `LithoMode.N1`; `canPrint` and the
-console's MK2 ONLY), **plasma soldering** and the new **Pico fabrication** (`pico_fabrication`, §6). The recipes carry
+console's MK2 ONLY), and the Mk2's own recipe types (**Pico fabrication**, `pico_fabrication`, §6; plasma soldering is the Laser Engraver's now). The recipes carry
 `MK2_GATE` (orbit, extended, aligned, the full EU/t, a started-up station); the 1 nm prints check the same in
 `canPrint` / `canRun`. A basic station shows MK2 ONLY for them.
 
