@@ -41,7 +41,8 @@ Textures are GTNH Intergalactic's (`tools/textures/gtnh_dyson_swarm/`, `tools/te
 | `af9:unobtainium_alloy_sail` | 200 % | Allthemodium sails, Unobtainium plate, spin logic dies; **300 A** |
 | `af9:chromodynium_star_matter_tritan_alloy_sail` | 350 % | Unobtainium Alloy sails, chromodynium and tritanium plate, memristors, strange matter plasma (the DTPF's); **1,000 A** |
 
-16 sails a run. Put them in an input bus: the swarm takes them (up to 10,000 in all) and they stay.
+16 sails a run, and every sail recipe has to be **researched** first (the Research Station scans the sail below it, or the photonic package for the first, with 96 / 128 / 192 CWU/t of computation).
+Put them in an input bus: the swarm takes them (up to 10,000 in all) and they stay. A **plunger** right-clicked on the controller takes them back, lowest tier first, as many as the plunger has uses left (sneak to drop what does not fit the inventory).
 
 ## 4. The cycle
 
@@ -55,3 +56,7 @@ Textures are GTNH Intergalactic's (`tools/textures/gtnh_dyson_swarm/`, `tools/te
 * **Light**: Overworld 100 %, Moon 100 %, Mars 81 %, Venus 176 %, Mercury 161 %, Glacio 32 %, the orbit of Earth 110 %, of Mars 89 %,
   of Venus 194 %; the asteroid field 61 %; the Nether and the Mining dimension none; any other dimension 100 %.
 * The console and Jade show the sails by tier, the light, the output and the loss per cycle.
+
+## 5. The recipe page
+
+The swarm's page in JEI / EMI (`gtceu:dyson_swarm`) has a slider for the number of sails (0 to 10,000) and shows what that many sails of each tier make in EU/t.
