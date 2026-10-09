@@ -41,7 +41,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
  */
 public class VoidMiningRecipeUI extends GTRecipeTypeUI {
 
-    public static final int WIDTH = 176, GRID_X = 7, GRID_Y = 30, COLUMNS = 9, ROWS = 5;
+    public static final int WIDTH = 176, GRID_X = 52, GRID_Y = 30, COLUMNS = 4, ROWS = 2;
     public static final int BOTTOM_Y = GRID_Y + 18 * ROWS + 6;
     public static final int HEIGHT = BOTTOM_Y + 18 + 6;
     public static final String BACKDROP_ID = "af9_void_mining_backdrop";
@@ -103,6 +103,11 @@ public class VoidMiningRecipeUI extends GTRecipeTypeUI {
     public void appendJEIUI(GTRecipe recipe, WidgetGroup widgetGroup) {
         super.appendJEIUI(recipe, widgetGroup);
         if (FMLEnvironment.dist != Dist.CLIENT) return;
+        // GT's own dimension markers of the recipe's conditions sit in the corner of the page, one on the other: the page's
+        // own markers (above) say it, so GT's go (the slots of the recipe itself are in the page's group, not here)
+        for (Widget widget : new java.util.ArrayList<>(widgetGroup.widgets)) {
+            if (widget instanceof SlotWidget) widgetGroup.removeWidget(widget);
+        }
         Widget backdrop = findBackdrop(widgetGroup);
         if (backdrop == null || backdrop.getParent() == null) return;
         int area = VoidMinerMachine.areaOf(type);
@@ -118,8 +123,6 @@ public class VoidMiningRecipeUI extends GTRecipeTypeUI {
             SlotWidget slot = new SlotWidget(handler, 0, x, 4, false, false);
             slot.setBackgroundTexture(GuiTextures.SLOT);
             slot.setIngredientIO(IngredientIO.INPUT);
-            slot.setOnAddedTooltips((widget, tooltips) -> tooltips.add(Component.literal(dimension)
-                    .withStyle(ChatFormatting.AQUA)));
             backdrop.getParent().addWidget(slot);
             x += 20;
         }

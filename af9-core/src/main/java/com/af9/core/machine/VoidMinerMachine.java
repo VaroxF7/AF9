@@ -276,9 +276,7 @@ public class VoidMinerMachine extends ProcessMachine {
             }
             if (RECIPE_INFO_DONE.add(path)) {
                 VoidMiningRecipeUI.install(type);
-                // rendered as plain labels, so the texts must not contain '%'
-                type.addDataInfo(data -> Component.translatable("af9.recipe.voidminer.area",
-                        Component.translatable(ProcessMachine.modeKey(type) + ".short")).getString());
+                // (no "Area" line: the page's dimension markers say it)
             }
             if (type.getIconSupplier() == null && definition != null) type.setIconSupplier(definition::asStack);
         }
