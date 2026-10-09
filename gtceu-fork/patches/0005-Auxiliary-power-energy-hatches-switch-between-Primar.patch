@@ -1,0 +1,378 @@
+From fe37e86471436256b42fbcf9a77fe31887b2a83b Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 9 Oct 2026 17:58:11 +0200
+Subject: [PATCH 5/5] Auxiliary power: energy hatches switch between Primary
+ and Auxiliary, multiblocks draw auxiliary power for the recipes that ask for
+ it
+
+- EnergyHatchPartMachine: an input hatch has a power mode (screwdriver). Auxiliary hatches are no recipe handlers: the
+  machine's recipes do not draw on them.
+- WorkableMultiblockMachine: a recipe's data af9_aux_eut (EU/t) is drawn from the auxiliary hatches while it runs and has
+  to be there to start; a machine can add a base demand (getBaseAuxiliaryEUt). The handlers are collected again when a
+  hatch changes its mode.
+- Power Management: a side tab on every multiblock's screen with the primary and the auxiliary power.
+- The recipe viewers' EU line says the auxiliary power in its tooltip.
+Version 7.5.3-af9.4.
+---
+ gradle.properties                             |  2 +-
+ .../PowerManagementFancyTab.java              | 95 +++++++++++++++++++
+ .../api/machine/feature/IFancyUIMachine.java  |  5 +
+ .../WorkableElectricMultiblockMachine.java    |  9 ++
+ .../multiblock/WorkableMultiblockMachine.java | 66 +++++++++++++
+ .../part/EnergyHatchPartMachine.java          | 52 ++++++++++
+ .../xei/widgets/GTRecipeWidget.java           | 12 ++-
+ 7 files changed, 239 insertions(+), 2 deletions(-)
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java
+
+diff --git a/gradle.properties b/gradle.properties
+index ddf573f..8fca6f0 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.3
++mod_version = 7.5.3-af9.4
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java b/src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java
+new file mode 100644
+index 0000000..4a1dbba
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java
+@@ -0,0 +1,95 @@
++package com.gregtechceu.gtceu.api.machine.fancyconfigurator;
++
++import com.gregtechceu.gtceu.api.GTValues;
++import com.gregtechceu.gtceu.api.gui.GuiTextures;
++import com.gregtechceu.gtceu.api.gui.fancy.FancyMachineUIWidget;
++import com.gregtechceu.gtceu.api.gui.fancy.IFancyUIProvider;
++import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
++import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine;
++import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
++import com.gregtechceu.gtceu.utils.FormattingUtil;
++import com.gregtechceu.gtceu.utils.GTUtil;
++
++import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
++import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
++import com.lowdragmc.lowdraglib.gui.widget.Widget;
++import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
++
++import net.minecraft.ChatFormatting;
++import net.minecraft.network.chat.Component;
++
++import java.util.List;
++
++/**
++ * AF9: the "Power Management" tab of every multiblock's screen: the primary power (the energy hatches that run the recipes)
++ * and the auxiliary power (the energy hatches switched to Auxiliary, which keep the machine at its working temperature).
++ */
++public class PowerManagementFancyTab implements IFancyUIProvider {
++
++    private final WorkableMultiblockMachine machine;
++
++    public PowerManagementFancyTab(WorkableMultiblockMachine machine) {
++        this.machine = machine;
++    }
++
++    @Override
++    public Component getTitle() {
++        return Component.translatable("af9.power.title");
++    }
++
++    @Override
++    public IGuiTexture getTabIcon() {
++        return GuiTextures.BUTTON_POWER.getSubTexture(0, 0, 1, 0.5);
++    }
++
++    @Override
++    public List<Component> getTabTooltips() {
++        return List.of(Component.translatable("af9.power.title"));
++    }
++
++    @Override
++    public Widget createMainPage(FancyMachineUIWidget widget) {
++        var group = new WidgetGroup(0, 0, 150, 130);
++        group.setBackground(GuiTextures.BACKGROUND_INVERSE);
++        group.addWidget(new ComponentPanelWidget(6, 6, this::lines)
++                .textSupplier(machine.isRemote() ? null : this::lines).setMaxWidthLimit(138));
++        return group;
++    }
++
++    private void lines(List<Component> out) {
++        out.add(Component.translatable("af9.power.title").withStyle(ChatFormatting.WHITE, ChatFormatting.UNDERLINE));
++        out.add(Component.empty());
++        out.add(Component.translatable("af9.power.primary").withStyle(ChatFormatting.AQUA));
++        if (machine instanceof WorkableElectricMultiblockMachine electric && electric.isFormed() &&
++                electric.getEnergyContainer() != null && electric.getEnergyContainer().getInputVoltage() > 0) {
++            var container = electric.getEnergyContainer();
++            int tier = Math.max(0, Math.min(GTValues.MAX, GTUtil.getFloorTierByVoltage(container.getInputVoltage())));
++            out.add(Component.translatable("af9.power.supply", GTValues.VNF[tier],
++                    FormattingUtil.formatNumbers(container.getInputAmperage())));
++            var recipe = electric.getRecipeLogic().isWorking() ? electric.getRecipeLogic().getLastRecipe() : null;
++            long eut = recipe == null ? 0 : RecipeHelper.getRealEUt(recipe).getTotalEU();
++            out.add(Component.translatable("af9.power.draw", FormattingUtil.formatNumbers(eut)));
++        } else {
++            out.add(Component.translatable("af9.power.none").withStyle(ChatFormatting.GRAY));
++        }
++        out.add(Component.empty());
++        out.add(Component.translatable("af9.power.auxiliary").withStyle(ChatFormatting.GOLD));
++        int hatches = machine.getAuxiliaryHatches().size();
++        long need = machine.getAuxiliaryEUt();
++        long stored = machine.getAuxiliaryStored();
++        if (hatches == 0) {
++            out.add(Component.translatable("af9.power.aux_none").withStyle(ChatFormatting.GRAY));
++        } else {
++            out.add(Component.translatable("af9.power.aux_hatches", hatches));
++            out.add(Component.translatable("af9.power.aux_stored", FormattingUtil.formatNumbers(stored)));
++        }
++        if (need > 0) {
++            out.add(Component.translatable("af9.power.aux_need", FormattingUtil.formatNumbers(need))
++                    .withStyle(stored >= need ? ChatFormatting.GREEN : ChatFormatting.RED));
++        } else {
++            out.add(Component.translatable("af9.power.aux_idle").withStyle(ChatFormatting.GRAY));
++        }
++        out.add(Component.empty());
++        out.add(Component.translatable("af9.power.hint").withStyle(ChatFormatting.DARK_GRAY));
++    }
++}
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/feature/IFancyUIMachine.java b/src/main/java/com/gregtechceu/gtceu/api/machine/feature/IFancyUIMachine.java
+index 99d38a9..5f68c6e 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/feature/IFancyUIMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/feature/IFancyUIMachine.java
+@@ -106,6 +106,11 @@ public interface IFancyUIMachine extends IUIMachine, IFancyUIProvider {
+         var directionalConfigurator = CombinedDirectionalFancyConfigurator.of(self(), self());
+         if (directionalConfigurator != null)
+             sideTabs.attachSubTab(directionalConfigurator);
++        // AF9: Power Management on every multiblock
++        if (this instanceof com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine workable) {
++            sideTabs.attachSubTab(
++                    new com.gregtechceu.gtceu.api.machine.fancyconfigurator.PowerManagementFancyTab(workable));
++        }
+     }
+ 
+     @Override
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableElectricMultiblockMachine.java b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableElectricMultiblockMachine.java
+index 1273ced..22b8b07 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableElectricMultiblockMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableElectricMultiblockMachine.java
+@@ -72,6 +72,15 @@ public class WorkableElectricMultiblockMachine extends WorkableMultiblockMachine
+         this.tier = 0;
+     }
+ 
++    @Override
++    protected void collectRecipeHandlers() {
++        super.collectRecipeHandlers();
++        if (isFormed()) {
++            this.energyContainer = getEnergyContainer();
++            this.tier = GTUtil.getFloorTierByVoltage(getMaxVoltage());
++        }
++    }
++
+     @Override
+     public void onStructureFormed() {
+         super.onStructureFormed();
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableMultiblockMachine.java b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableMultiblockMachine.java
+index 5d15879..744ccb3 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableMultiblockMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableMultiblockMachine.java
+@@ -122,6 +122,15 @@ public abstract class WorkableMultiblockMachine extends MultiblockControllerMach
+         super.onStructureFormed();
+         // attach parts' traits
+         activeBlocks = getMultiblockState().getMatchContext().getOrDefault("vaBlocks", LongSets.emptySet());
++        collectRecipeHandlers();
++    }
++
++    /** AF9: collects the recipe handlers of the parts again (an energy hatch changed its power mode). */
++    public void rebuildRecipeHandlers() {
++        if (isFormed()) collectRecipeHandlers();
++    }
++
++    protected void collectRecipeHandlers() {
+         capabilitiesProxy.clear();
+         capabilitiesFlat.clear();
+         traitSubscriptions.forEach(ISubscription::unsubscribe);
+@@ -262,8 +271,63 @@ public abstract class WorkableMultiblockMachine extends MultiblockControllerMach
+         IWorkableMultiController.super.afterWorking();
+     }
+ 
++    // ---- AF9: auxiliary power ----
++
++    /** The recipe data key of the auxiliary power (EU/t) a recipe asks for while it runs. */
++    public static final String AUXILIARY_EUT = "af9_aux_eut";
++
++    public static long auxiliaryEUtOf(@Nullable GTRecipe recipe) {
++        return recipe == null ? 0 : recipe.data.getLong(AUXILIARY_EUT);
++    }
++
++    /** What a machine keeps drawing from its auxiliary hatches whatever it runs (a heat mass, a vacuum): 0 by default. */
++    protected long getBaseAuxiliaryEUt() {
++        return 0;
++    }
++
++    /** The auxiliary EU/t the machine needs now: its base and the running recipe's, the higher. */
++    public long getAuxiliaryEUt() {
++        GTRecipe running = recipeLogic.isWorking() ? recipeLogic.getLastRecipe() : null;
++        return Math.max(getBaseAuxiliaryEUt(), auxiliaryEUtOf(running));
++    }
++
++    public List<com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine> getAuxiliaryHatches() {
++        List<com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine> hatches = new ArrayList<>();
++        for (IMultiPart part : getParts()) {
++            if (part instanceof com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine hatch &&
++                    hatch.isAuxiliaryInput()) {
++                hatches.add(hatch);
++            }
++        }
++        return hatches;
++    }
++
++    public long getAuxiliaryStored() {
++        long stored = 0;
++        for (var hatch : getAuxiliaryHatches()) stored += hatch.energyContainer.getEnergyStored();
++        return stored;
++    }
++
++    /** Takes EU from the auxiliary hatches; false (and nothing taken) when they hold less. */
++    public boolean drawAuxiliary(long eut) {
++        if (eut <= 0) return true;
++        if (getAuxiliaryStored() < eut) return false;
++        long left = eut;
++        for (var hatch : getAuxiliaryHatches()) {
++            long take = Math.min(left, hatch.energyContainer.getEnergyStored());
++            if (take > 0) {
++                hatch.energyContainer.changeEnergy(-take);
++                left -= take;
++            }
++            if (left <= 0) break;
++        }
++        return true;
++    }
++
+     @Override
+     public boolean beforeWorking(@Nullable GTRecipe recipe) {
++        long auxiliary = Math.max(getBaseAuxiliaryEUt(), auxiliaryEUtOf(recipe));
++        if (auxiliary > 0 && getAuxiliaryStored() < auxiliary) return false;
+         for (IMultiPart part : getParts()) {
+             if (!part.beforeWorking(this)) {
+                 return false;
+@@ -274,6 +338,8 @@ public abstract class WorkableMultiblockMachine extends MultiblockControllerMach
+ 
+     @Override
+     public boolean onWorking() {
++        // the machine cools down without its auxiliary power: the run is lost
++        if (!drawAuxiliary(getAuxiliaryEUt())) return false;
+         for (IMultiPart part : getParts()) {
+             if (!part.onWorking(this)) {
+                 return false;
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java
+index a322535..fc053b2 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java
+@@ -9,10 +9,18 @@ import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredIOPartMachine;
+ import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
+ import com.gregtechceu.gtceu.config.ConfigHolder;
+ 
++import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
+ import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
+ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+ 
++import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
++import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine;
++import com.gregtechceu.gtceu.api.machine.trait.RecipeHandlerList;
++
+ import net.minecraft.MethodsReturnNonnullByDefault;
++import net.minecraft.core.Direction;
++import net.minecraft.network.chat.Component;
++import net.minecraft.world.InteractionResult;
+ import net.minecraft.world.InteractionHand;
+ import net.minecraft.world.entity.player.Player;
+ import net.minecraft.world.phys.BlockHitResult;
+@@ -33,6 +41,15 @@ public class EnergyHatchPartMachine extends TieredIOPartMachine implements IExpl
+     protected TickableSubscription explosionSub;
+     @Getter
+     protected int amperage;
++    /**
++     * AF9: the hatch's power mode. Primary (the default) feeds the recipes of the machine it is in; Auxiliary keeps the
++     * machine at its working temperature (the recipes that ask for auxiliary power) and no recipe draws on it.
++     * Switched with a screwdriver.
++     */
++    @Getter
++    @Persisted
++    @DescSynced
++    protected boolean auxiliary;
+ 
+     public EnergyHatchPartMachine(IMachineBlockEntity holder, int tier, IO io, int amperage, Object... args) {
+         super(holder, tier, io);
+@@ -64,6 +81,41 @@ public class EnergyHatchPartMachine extends TieredIOPartMachine implements IExpl
+         return container;
+     }
+ 
++    public void setAuxiliary(boolean auxiliary) {
++        if (this.auxiliary == auxiliary) return;
++        this.auxiliary = auxiliary;
++        if (!isRemote()) {
++            for (IMultiController controller : new java.util.ArrayList<>(getControllers())) {
++                if (controller instanceof WorkableMultiblockMachine workable) workable.rebuildRecipeHandlers();
++            }
++        }
++    }
++
++    /** Whether this is an input hatch set to Auxiliary. */
++    public boolean isAuxiliaryInput() {
++        return auxiliary && io == IO.IN;
++    }
++
++    /** An auxiliary hatch is no part of the primary power: the recipes do not see it. */
++    @Override
++    public java.util.List<RecipeHandlerList> getRecipeHandlers() {
++        return auxiliary && io == IO.IN ? java.util.List.of() : super.getRecipeHandlers();
++    }
++
++    @Override
++    protected InteractionResult onScrewdriverClick(Player playerIn, InteractionHand hand, Direction gridSide,
++                                                   BlockHitResult hitResult) {
++        if (io != IO.IN || playerIn.isShiftKeyDown()) {
++            return super.onScrewdriverClick(playerIn, hand, gridSide, hitResult);
++        }
++        if (!isRemote()) {
++            setAuxiliary(!auxiliary);
++            playerIn.displayClientMessage(Component.translatable(auxiliary ? "af9.power.hatch_aux" :
++                    "af9.power.hatch_primary"), true);
++        }
++        return InteractionResult.sidedSuccess(isRemote());
++    }
++
+     @Override
+     public boolean shouldOpenUI(Player player, InteractionHand hand, BlockHitResult hit) {
+         return false;
+diff --git a/src/main/java/com/gregtechceu/gtceu/integration/xei/widgets/GTRecipeWidget.java b/src/main/java/com/gregtechceu/gtceu/integration/xei/widgets/GTRecipeWidget.java
+index f08ffa5..375eee2 100644
+--- a/src/main/java/com/gregtechceu/gtceu/integration/xei/widgets/GTRecipeWidget.java
++++ b/src/main/java/com/gregtechceu/gtceu/integration/xei/widgets/GTRecipeWidget.java
+@@ -167,9 +167,19 @@ public class GTRecipeWidget extends WidgetGroup {
+                     .withStyle(ChatFormatting.UNDERLINE);
+             recipeVoltageText = new LabelWidget(3 - xOffset, textsY, text).setTextColor(-1)
+                     .setDropShadow(true);
+-            recipeVoltageText.setHoverTooltips(
++            List<Component> voltageTooltips = new java.util.ArrayList<>();
++            voltageTooltips.add(
+                     Component.translatable("gtceu.recipe.eu.total", FormattingUtil.formatNumbers(EUt.getTotalEU()))
+                             .withStyle(ChatFormatting.UNDERLINE));
++            // AF9: the auxiliary power the recipe also asks for, only here
++            long auxiliary = recipe.data.getLong("af9_aux_eut");
++            if (auxiliary > 0) {
++                voltageTooltips.add(Component.translatable("af9.power.recipe_auxiliary",
++                        FormattingUtil.formatNumbers(auxiliary)).withStyle(ChatFormatting.GOLD));
++                voltageTooltips.add(Component.translatable("af9.power.recipe_auxiliary_hint")
++                        .withStyle(ChatFormatting.GRAY));
++            }
++            recipeVoltageText.setHoverTooltips(voltageTooltips);
+             if (recipeVoltageText != null) {
+                 addWidget(recipeVoltageText);
+             }
+-- 
+2.54.0.windows.1
+
