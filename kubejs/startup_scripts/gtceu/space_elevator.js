@@ -33,11 +33,12 @@ const SE_EXPEDITIONS = [2, 4, 8]
 const SE_PLANETS = [3, 5, 7, 8]
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // a Mining Drone (not used up), hydrogen and the coolant in; the ore is made when a run starts (SpaceElevatorMachine)
+    // a Mining Drone (not used up), a drill head and a crate (both used up), hydrogen and the coolant in; the ore is made when
+    // a run starts (SpaceElevatorMachine)
     event.create('space_mining')
         .category('multiblock')
         .setEUIO('in')
-        .setMaxIOSize(1, 1, 2, 0)
+        .setMaxIOSize(3, 1, 2, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC)
     // the same flights for a planet's fluid, the liquid missions: the fluid is put in when a run starts, the one picked on
@@ -650,6 +651,8 @@ const sePattern = (definition, slices) => {
     // input hatches, with the hydrogen. The fluid of a liquid mission goes to fluid output hatches
     const energy = Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2)
     const laser = Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0)
+    // the computation the modules need (the elevator's screen says how much): data hatches for the optical cables
+    const computation = Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(2, 0)
     const itemsIn = Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1)
     const coolant = Predicates.abilities($ElevatorCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(4, 1)
     const fluidsOut = Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(6, 1)
@@ -661,6 +664,7 @@ const sePattern = (definition, slices) => {
     // expedition needs)
     $SpaceElevator.zpmFirst(energy)
     $SpaceElevator.zpmFirst(laser)
+    $SpaceElevator.zpmFirst(computation)
     $SpaceElevator.zpmFirst(itemsIn)
     $SpaceElevator.zpmFirst(coolant)
     $SpaceElevator.zpmFirst(fluidsOut)
@@ -670,7 +674,7 @@ const sePattern = (definition, slices) => {
     // every kind that is not full. So each kind gets its maximum less that of the kind before it, and the maximums have to
     // rise along the list (a kind whose maximum is no higher than that of the kind before it is never built): 4 energy
     // hatches, and 2 input buses, 2 Coolant Hatches, 2 fluid output hatches, 2 fluid input hatches and 4 output buses
-    const power = energy.or(laser)
+    const power = energy.or(laser).or(computation)
     const buses = itemsIn.or(coolant).or(fluidsOut).or(fluidsIn).or(itemsOut)
     return pattern
         .where('S', Predicates.controller(Predicates.blocks(definition.get())))

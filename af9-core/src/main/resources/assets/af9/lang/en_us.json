@@ -460,6 +460,8 @@
     "af9.space_elevator.hint.20.liquid": "No room for the fluid: add or empty fluid output hatches (an ME one takes any run).",
     "af9.recipe.space_mining.fuel": "FUEL",
     "af9.recipe.space_mining.coolant": "COOLANT",
+    "af9.space_elevator.display.computation": "Computation: %s / %s CWU/t",
+    "af9.space_elevator.display.supply": "%s x %s needs per second: hydrogen %s mB, %s %s mB",
     "af9.recipe.space_mining.drone": "DRONE",
     "af9.recipe.space_mining.grid": "ORES THIS DRONE'S ASTEROIDS HOLD",
     "af9.recipe.space_pumping.grid": "FLUIDS THIS DRONE REACHES",

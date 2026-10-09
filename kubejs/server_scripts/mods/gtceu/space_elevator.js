@@ -16,15 +16,18 @@ ServerEvents.recipes(event => {
     // ---- The expeditions: drone tier, hydrogen (mB), coolant, coolant (mB), amps of ZPM, seconds ----
     // 50 to 100 buckets of each. ZPM recipes of several amps (as the Particle Accelerator's): Mk1 runs on one 4A ZPM
     // hatch, Mk2 on two, Mk3 on four, Mk4 on lasers.
+    // plus what an expedition uses up: a drill head and a crate for the ore (GT's, the rarer the ore the drone reaches the
+    // harder the drill head; the crate holds the cargo). The numbers are also in af9-core SpaceElevatorMachine.REQUIREMENTS
     const expeditions = [
-        [1, 64000, 'gtceu:supercooled_hydrogen', 50000, 4, 180],
-        [2, 80000, 'gtceu:supercooled_argon', 64000, 8, 240],
-        [3, 96000, 'gtceu:supercooled_xenon', 80000, 16, 300],
-        [4, 100000, 'gtceu:supercooled_endion', 100000, 32, 360]
+        [1, 64000, 'gtceu:supercooled_hydrogen', 50000, 4, 180, 'gtceu:tungsten_carbide_drill_head', 'gtceu:stainless_steel_crate'],
+        [2, 80000, 'gtceu:supercooled_argon', 64000, 8, 240, 'gtceu:hsse_drill_head', 'gtceu:titanium_crate'],
+        [3, 96000, 'gtceu:supercooled_xenon', 80000, 16, 300, 'gtceu:naquadah_alloy_drill_head', 'gtceu:tungsten_steel_crate'],
+        [4, 100000, 'gtceu:supercooled_endion', 100000, 32, 360, 'gtceu:neutronium_drill_head', 'gtceu:tungsten_steel_crate']
     ]
-    expeditions.forEach(([tier, hydrogen, coolant, coolantMb, amps, seconds]) => {
+    expeditions.forEach(([tier, hydrogen, coolant, coolantMb, amps, seconds, drill, crate]) => {
         event.recipes.gtceu.space_mining(`af9:space_mining_mk${tier}`)
             .notConsumable(`af9:space_mining_drone_mk${tier}`)
+            .itemInputs(drill, crate)
             .inputFluids(Fluid.of('gtceu:hydrogen', hydrogen))
             .inputFluids(Fluid.of(coolant, coolantMb))
             .duration(seconds * 20)

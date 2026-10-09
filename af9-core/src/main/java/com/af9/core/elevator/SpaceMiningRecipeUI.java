@@ -69,7 +69,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
      * {@link #ORE_ROWS} rows for the ores (a drone's asteroids hold more than that on a big server: they take turns in
      * the slots), as many rows as the table has for the fluids.
      */
-    public static final int TOP_Y = 4, MARKER_X = 79, DRONE_X = 101, FLUIDS_X = 4;
+    public static final int TOP_Y = 4, MARKER_X = 79, DRONE_X = 101, FLUIDS_X = 4, DRILL_X = 121, CRATE_X = 141;
     public static final int GRID_X = 7, GRID_Y = 48, GRID_COLUMNS = 9, ORE_ROWS = 5;
     public static final String FLOW_ID = "af9_space_mining_flow";
 
@@ -119,6 +119,13 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         group.addWidget(flow);
         slot(group, ItemRecipeCapability.CAP, IO.IN, 0, DRONE_X, TOP_Y,
                 getOverlaysForSlot(false, ItemRecipeCapability.CAP, true, false, false));
+        // what a run uses up: a drill head and a crate
+        if (!liquid && type.maxInputs.getInt(ItemRecipeCapability.CAP) >= 3) {
+            slot(group, ItemRecipeCapability.CAP, IO.IN, 1, DRILL_X, TOP_Y,
+                    getOverlaysForSlot(false, ItemRecipeCapability.CAP, false, false, false));
+            slot(group, ItemRecipeCapability.CAP, IO.IN, 2, CRATE_X, TOP_Y,
+                    getOverlaysForSlot(false, ItemRecipeCapability.CAP, false, false, false));
+        }
         for (int i = 0; i < fluids; i++) {
             // the second fluid is the coolant, not a fluid like the others: its slot in ice on dark frost
             boolean coolant = i == 1;

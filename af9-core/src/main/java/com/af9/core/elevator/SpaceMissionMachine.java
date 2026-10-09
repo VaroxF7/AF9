@@ -188,12 +188,6 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
             }
             SpaceMiningRecipeUI.install(type, name.equals(LIQUID_RECIPE_TYPE));
         }
-        // the modules fly the missions for the tower: the recipe viewers list the tower as their workstation, not them
-        for (var definition : GTRegistries.MACHINES) {
-            if (definition.getId().getPath().startsWith("space_mining_module_mk")) {
-                definition.setHiddenFromRecipeViewers(true);
-            }
-        }
     }
 
     /** Re-modify every run: each expedition goes to a new asteroid, and the mission may have been changed. */

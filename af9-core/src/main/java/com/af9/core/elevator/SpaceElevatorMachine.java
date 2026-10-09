@@ -13,6 +13,7 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.block.MetaMachineBlock;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
+import com.gregtechceu.gtceu.utils.FormattingUtil;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.IRecipeHandler;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
@@ -61,6 +62,7 @@ import com.lowdragmc.lowdraglib.utils.BlockInfo;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
@@ -150,6 +152,18 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     private static final int[] MODULE_SLOTS = { 6, 12, 15, 18, 24 };
     /** Expeditions a Mining Module of each tier flies at once (GTNH's parallels). */
     static final int[] MODULE_EXPEDITIONS = { 2, 4, 8 };
+    /** Computation (CWU/t) a powered Mining Module of each tier needs from the tower's data hatches. */
+    static final long[] MODULE_COMPUTATION = { 20, 60, 120 };
+    /**
+     * What an expedition of a module's tier (its drone's, the same number) takes: hydrogen (mB), coolant (mB), the coolant's
+     * fluid and the seconds it lasts. The same as the recipes' (server_scripts/mods/gtceu/space_elevator.js): change both.
+     */
+    private record Requirement(long hydrogen, long coolant, String coolantFluid, int seconds) {}
+
+    private static final Requirement[] REQUIREMENTS = {
+            new Requirement(64000, 50000, "gtceu:supercooled_hydrogen", 180),
+            new Requirement(80000, 64000, "gtceu:supercooled_argon", 240),
+            new Requirement(96000, 80000, "gtceu:supercooled_xenon", 300) };
 
 
     /**
@@ -184,6 +198,10 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     private int modules, poweredModules, expeditions;
     /** The highest tier among the Mining Modules in the slots, 0 without one. */
     private int topModule;
+    /** Powered modules of each tier, the computation they need (CWU/t) and the computation the data hatches give. */
+    private final int[] poweredOfTier = new int[MODULE_TIERS + 1];
+    private long computationNeed;
+    private long computationHave;
     /** Where the modules stand that this tower connected (disconnected when it breaks). */
     private final LongList connectedModules = new LongArrayList();
     private TickableSubscription powerSubs;
@@ -537,6 +555,8 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         modules = tiers.size();
         poweredModules = 0;
         expeditions = 0;
+        computationNeed = 0;
+        Arrays.fill(poweredOfTier, 0);
         topModule = 0;
         for (int tier = MODULE_TIERS; tier >= 1 && topModule == 0; tier--) {
             if (ofTier[tier] > 0) topModule = tier;
@@ -545,6 +565,8 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
             int powered = Math.min(ofTier[tier], slots - poweredModules);
             poweredModules += powered;
             expeditions += powered * MODULE_EXPEDITIONS[tier - 1];
+            poweredOfTier[tier] = powered;
+            computationNeed += powered * MODULE_COMPUTATION[tier - 1];
         }
     }
 
@@ -606,9 +628,34 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         return poweredModules;
     }
 
-    /** Expeditions the powered modules fly at once. */
+    /** Expeditions the powered modules fly at once: none while the data hatches give less computation than they need. */
     public int getExpeditions() {
-        return expeditions;
+        return isComputationMet() ? expeditions : 0;
+    }
+
+    /** Whether the data hatches give the computation the powered modules need (always where no module is powered). */
+    public boolean isComputationMet() {
+        return computationNeed <= 0 || computationHave >= computationNeed;
+    }
+
+    public long getComputationNeed() {
+        return computationNeed;
+    }
+
+    public long getComputationHave() {
+        return computationHave;
+    }
+
+    /** CWU/t the data hatches can give right now. */
+    private long computationOfHatches() {
+        long total = 0;
+        for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN,
+                com.gregtechceu.gtceu.api.capability.recipe.CWURecipeCapability.CAP)) {
+            if (handler instanceof com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider provider) {
+                total += Math.max(0, provider.getMaxCWUt(new ArrayList<>()));
+            }
+        }
+        return total;
     }
 
     /** The highest tier among the Mining Modules in the slots (it needs motors of its tier), 0 without one. */
@@ -627,7 +674,9 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
      */
     private void powerTick() {
         Level level = getLevel();
-        if (level == null || !isFormed() || energyContainer == null) return;
+        if (level == null || !isFormed()) return;
+        if (getOffsetTimer() % 20 == 0) computationHave = computationOfHatches();
+        if (energyContainer == null) return;
         for (long pos : connectedModules) {
             if (!(MetaMachine.getMachine(level, BlockPos.of(pos)) instanceof SpaceModuleMachine module) ||
                     !module.isPowered()) {
@@ -654,6 +703,20 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         textList.add(Component.translatable("af9.space_elevator.display.motors", mark(motorTier),
                 moduleSlots(motorTier)));
         textList.add(Component.translatable("af9.space_elevator.display.modules", poweredModules, modules, expeditions));
+        // what the modules in the slots need to be provided with: the computation, and per tier the hydrogen and coolant
+        textList.add(Component.translatable("af9.space_elevator.display.computation",
+                FormattingUtil.formatNumbers(computationHave), FormattingUtil.formatNumbers(computationNeed))
+                .withStyle(isComputationMet() ? ChatFormatting.GREEN : ChatFormatting.RED));
+        for (int tier = 1; tier <= MODULE_TIERS; tier++) {
+            if (poweredOfTier[tier] <= 0) continue;
+            Requirement need = REQUIREMENTS[tier - 1];
+            long flights = (long) poweredOfTier[tier] * MODULE_EXPEDITIONS[tier - 1];
+            Fluid coolant = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(need.coolantFluid()));
+            textList.add(Component.translatable("af9.space_elevator.display.supply", mark(tier), poweredOfTier[tier],
+                    FormattingUtil.formatNumbers(flights * need.hydrogen() / need.seconds()),
+                    coolant == null ? need.coolantFluid() : coolant.getFluidType().getDescription(),
+                    FormattingUtil.formatNumbers(flights * need.coolant() / need.seconds())));
+        }
         textList.add(isSkyClear() ? Component.translatable("af9.space_elevator.display.sky") :
                 Component.translatable("af9.space_elevator.display.no_sky"));
         // the size switch: a click turns the structure to the other size and has it checked again
