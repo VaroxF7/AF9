@@ -1,6 +1,6 @@
-From e015733b76368c9f83ab8b63e89bfb0e04f4a58a Mon Sep 17 00:00:00 2001
+From 5cd89931077590f8a7b9946d38f557eb32776996 Mon Sep 17 00:00:00 2001
 From: AF9 <a@b>
-Date: Fri, 9 Oct 2026 07:07:06 +0000
+Date: Fri, 9 Oct 2026 07:23:20 +0000
 Subject: [PATCH 1/2] Layered (staged) recipe support
 
 ---
@@ -21,7 +21,7 @@ Subject: [PATCH 1/2] Layered (staged) recipe support
  .../gtceu/data/lang/IntegrationLang.java      |    2 +
  .../gtceu/data/lang/LangHandler.java          |   16 +
  .../gtceu/data/lang/RecipeLogicLang.java      |    1 +
- .../data/recipe/builder/GTRecipeBuilder.java  |   24 +
+ .../data/recipe/builder/GTRecipeBuilder.java  |   19 +
  .../recipe/builder/LayeredRecipeInfo.java     | 1015 +++++++++++++++++
  .../gtceu/integration/jade/GTJadePlugin.java  |    2 +
  .../jade/provider/LayeredRecipeProvider.java  |  122 ++
@@ -32,7 +32,7 @@ Subject: [PATCH 1/2] Layered (staged) recipe support
  .../cover/layered_step_detector_emissive.png  |  Bin 0 -> 312 bytes
  .../layered_step_detector_emissive.png.mcmeta |    5 +
  .../item/layered_step_detector_cover.png      |  Bin 0 -> 354 bytes
- 28 files changed, 2485 insertions(+), 16 deletions(-)
+ 28 files changed, 2480 insertions(+), 16 deletions(-)
  create mode 100644 src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/LayeredWorkableElectricMultiblockMachine.java
  create mode 100644 src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/TieredLayeredWorkableElectricMultiblockMachine.java
  create mode 100644 src/main/java/com/gregtechceu/gtceu/api/recipe/LayeredRecipeHelper.java
@@ -1603,7 +1603,7 @@ index 3146df4..317fb3f 100644
  
      private static void initModifierLang(RegistrateLangProvider provider) {
 diff --git a/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java b/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java
-index eb97eff..5c91079 100644
+index eb97eff..e12516b 100644
 --- a/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java
 +++ b/src/main/java/com/gregtechceu/gtceu/data/recipe/builder/GTRecipeBuilder.java
 @@ -16,6 +16,7 @@ import com.gregtechceu.gtceu.api.item.component.IDataItem;
@@ -1614,19 +1614,7 @@ index eb97eff..5c91079 100644
  import com.gregtechceu.gtceu.api.recipe.category.GTRecipeCategory;
  import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
  import com.gregtechceu.gtceu.api.recipe.content.Content;
-@@ -1585,6 +1586,11 @@ public class GTRecipeBuilder {
-         return this;
-     }
- 
-+    public GTRecipeBuilder setTempItemStacks(List<ItemStack> stacks) {
-+        tempItemStacks = stacks;
-+        return this;
-+    }
-+
-     public GTRecipeBuilder setTempFluidMaterialStacks(List<MaterialStack> stacks) {
-         tempFluidStacks = stacks;
-         return this;
-@@ -1595,6 +1601,17 @@ public class GTRecipeBuilder {
+@@ -1595,6 +1596,17 @@ public class GTRecipeBuilder {
          return this;
      }
  
@@ -1644,7 +1632,7 @@ index eb97eff..5c91079 100644
      public void toJson(JsonObject json) {
          var ops = RegistryOps.create(JsonOps.INSTANCE, GTRegistries.builtinRegistry());
          JsonObject serialized = GTRecipeSerializer.CODEC.encodeStart(ops, buildRawRecipe())
-@@ -1627,6 +1644,10 @@ public class GTRecipeBuilder {
+@@ -1627,6 +1639,10 @@ public class GTRecipeBuilder {
      }
  
      public FinishedRecipe build() {
@@ -1655,7 +1643,7 @@ index eb97eff..5c91079 100644
          return new FinishedRecipe() {
  
              @Override
-@@ -1812,6 +1833,9 @@ public class GTRecipeBuilder {
+@@ -1812,6 +1828,9 @@ public class GTRecipeBuilder {
                                            boolean isInput,
                                            Map<RecipeCapability<?>, List<Content>> table,
                                            int addedEntries) {
