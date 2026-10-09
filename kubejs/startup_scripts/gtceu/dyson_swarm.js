@@ -18,7 +18,8 @@
 
 const $DysonSwarmMachine = Java.loadClass('com.af9.core.machine.DysonSwarmMachine')
 const $LabelWidget = Java.loadClass('com.lowdragmc.lowdraglib.gui.widget.LabelWidget')
-const $SliderWidget = Java.loadClass('com.lowdragmc.lowdraglib.gui.widget.SliderWidget')
+// AF9 Core's own slider: LDLib has none
+const $SliderWidget = Java.loadClass('com.af9.core.machine.console.SliderWidget')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // one cycle: an hour on supercooled hydrogen, the power is the machine's (DysonSwarmMachine.SWARM)
