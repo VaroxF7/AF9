@@ -48,8 +48,8 @@ ServerEvents.recipes(event => {
     // researched first (the Research Station scans the research item into a data stick, with computation: spec.cwu)
     const sails = (id, amps, spec) => {
         event.recipes.gtceu.assembly_line(`af9:${id}`)
-            .itemInputs(...spec.items)
-            .inputFluids(...spec.fluids)
+            .itemInputs(spec.items)
+            .inputFluids(spec.fluids)
             .itemOutputs(`16x af9:${id}`)
             .duration(spec.duration)
             .EUt(VA[GTValues.UHV], amps)
