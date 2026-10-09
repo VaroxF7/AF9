@@ -43,6 +43,7 @@ public final class AF9Materials {
      */
     private static final MaterialIconSet STRANGE_MATTER = new MaterialIconSet("strange_matter", MaterialIconSet.SHINY);
     private static final MaterialIconSet CHROMODYNIUM = new MaterialIconSet("chromodynium", MaterialIconSet.SHINY);
+    private static final MaterialIconSet IDONTKNOWIUM = new MaterialIconSet("idontknowium", MaterialIconSet.SHINY);
     private static final MaterialIconSet ANTI_MATTER = new MaterialIconSet("anti_matter", MaterialIconSet.SHINY);
     private static final MaterialIconSet SUPERSTATE_STAR_MATTER = new MaterialIconSet("superstate_star_matter",
             MaterialIconSet.SHINY);
@@ -681,9 +682,10 @@ public final class AF9Materials {
         // matter and anti-matter plasma (fusion_reactor.js)
         add(material("idontknowium")
                 .dust()
-                .plasma(new FluidBuilder().state(FluidState.PLASMA).temperature(12000))
-                .color(0xb0ff3c).secondaryColor(0xff3cd2)
-                .iconSet(MaterialIconSet.SHINY)
+                // its own animated texture (fluid.idontknowium_plasma.png), no tint on top of it; tools/textures/idontknowium.py
+                .plasma(new FluidBuilder().state(FluidState.PLASMA).temperature(12000).customStill().disableColor())
+                .color(0x28aaff).secondaryColor(0xff3cd2)
+                .iconSet(IDONTKNOWIUM)
                 .formula("Idk"));
     }
 
