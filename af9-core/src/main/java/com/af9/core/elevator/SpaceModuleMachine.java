@@ -170,6 +170,13 @@ public class SpaceModuleMachine extends SpaceMissionMachine {
         return !isPowered() || parent == null ? 0 : parent.getAvailableEUt();
     }
 
+    /** A module overclocks to the voltage of its tower's hatches. */
+    @Override
+    public long overclockVoltage() {
+        SpaceElevatorMachine parent = parent();
+        return !isPowered() || parent == null ? 0 : parent.getOverclockVoltage();
+    }
+
     @Override
     public boolean isSkyClear() {
         SpaceElevatorMachine parent = parent();

@@ -37,6 +37,7 @@ import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
+import com.gregtechceu.gtceu.utils.GTUtil;
 import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
@@ -240,6 +241,11 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
                         data.getInt("af9_module")).getString());
             }
         }
+    }
+
+    /** The voltage the machine overclocks to: the hatches' (a module: those of its tower), 0 for none. */
+    public long overclockVoltage() {
+        return 0;
     }
 
     /** Re-modify every run: each expedition goes to a new asteroid, and the mission may have been changed. */
@@ -622,10 +628,20 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
         int code = liquid ? cargo.code() : 0;
         RecipeCapability<?> kind = liquid ? FluidRecipeCapability.CAP : ItemRecipeCapability.CAP;
         List<Content> outputs = liquid ? List.of(content(cargo, runs)) : contents(ores, runs);
+        // overclocked as far as the tower's hatches go in voltage and carry in power: each overclock four times the EU/t, half
+        // the time (the inputs stay the same)
+        int recipeTier = GTUtil.getTierByVoltage(RecipeHelper.getRealEUt(recipe).voltage());
+        int maxTier = GTUtil.getOCTierByVoltage(elevator.overclockVoltage());
+        int overclocks = 0;
+        while (recipeTier + overclocks < maxTier && recipe.duration >> (overclocks + 1) >= 1 &&
+                (double) runs * eut * Math.pow(4, overclocks + 1) <= elevator.getAvailableEUt()) {
+            overclocks++;
+        }
         // the inputs and the EU/t of every expedition (the drone is not used up: it is not multiplied)
         ModifierFunction parallel = ModifierFunction.builder()
                 .modifyAllContents(ContentModifier.multiplier(runs))
-                .eutMultiplier(runs)
+                .eutMultiplier(runs * Math.pow(4, overclocks))
+                .durationMultiplier(Math.pow(0.5, overclocks))
                 .parallels(runs)
                 .build();
         return modified -> {

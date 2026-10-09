@@ -10,6 +10,7 @@
 
 const $VoidMinerMachineMK2 = Java.loadClass('com.af9.core.machine.VoidMinerMachineMK2')
 const $VoidMinerMachineMK3 = Java.loadClass('com.af9.core.machine.VoidMinerMachineMK3')
+const $AmperageOverclock = Java.loadClass('com.af9.core.machine.AmperageOverclock')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     const types = [
@@ -98,7 +99,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('void_mining_overworld_mk2'), GTRecipeTypes.get('void_mining_nether_mk2'),
             GTRecipeTypes.get('void_mining_end_mk2'), GTRecipeTypes.get('void_mining_asteroids_mk2')])
-        .recipeModifier(GTRecipeModifiers.OC_NON_PERFECT)
+        .recipeModifier($AmperageOverclock.OC)
         .appearanceBlock(() => Block.getBlock('af9:mining_black_plutonium_casing'))
         .pattern(definition => minerPattern(definition, MK2_SHAPE, mk2Parts()))
         .workableCasingModel('af9:block/mining_black_plutonium_casing', 'gtceu:block/multiblock/void_miner_mk2')
@@ -109,7 +110,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('void_mining_overworld_mk3'), GTRecipeTypes.get('void_mining_nether_mk3'),
             GTRecipeTypes.get('void_mining_end_mk3'), GTRecipeTypes.get('void_mining_asteroids_mk3')])
-        .recipeModifier(GTRecipeModifiers.OC_NON_PERFECT)
+        .recipeModifier($AmperageOverclock.OC)
         .appearanceBlock(() => Block.getBlock('af9:mining_neutronium_casing'))
         .pattern(definition => minerPattern(definition, MK3_SHAPE, mk3Parts()))
         .workableCasingModel('af9:block/mining_neutronium_casing', 'gtceu:block/multiblock/void_miner_mk3')

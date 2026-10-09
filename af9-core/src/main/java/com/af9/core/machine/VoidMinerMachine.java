@@ -235,6 +235,8 @@ public class VoidMinerMachine extends ProcessMachine {
             if (!types.contains(type)) types.add(type);
         }
         multiblock.setRecipeTypes(types.toArray(GTRecipeType[]::new));
+        // all three overclock the voltage of one amp (the MK2 and MK3 recipes draw 2 and 3 A)
+        multiblock.setRecipeModifier(AmperageOverclock.OC);
         // Use lambda to properly cast to Function<IMachineBlockEntity, MetaMachine>
         multiblock.setMachineSupplier(holder -> constructor.apply(holder));
         var tooltips = multiblock.getTooltipBuilder();
