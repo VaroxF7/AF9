@@ -789,11 +789,11 @@ public final class AF9Materials {
     /**
      * Sanguinite: the bright-red UHV superconductor, smelted in the Sanguinite Hearth Furnace
      * ({@code gtceu:sanguinite_hearth_furnace}, a standalone Rotary-Hearth copy running only
-     * {@code gtceu:sanguinite_hearth}: the EBF cannot smelt it, the auto EBF recipe is removed). Neutronium and
-     * tritanium dusts are blended with hydrogen, Ares gas from the Martian asteroid field and LXA-1 from the Space
-     * Elevator's far-dark missions (Large Chemical Reactor), then the blend is smelted under supercooled endion at
-     * 13000 K (preheated hearth, circuit 10, 4A UV, 60 s) into the hot ingot, which the Bulk Blast Chiller cools.
-     * Recipes: uhv_superconductor.js, vein_oil.js (Ares deposit), PlanetCatalog (LXA-1).
+     * {@code gtceu:sanguinite_hearth}: the EBF cannot smelt it, the auto EBF/hot-ingot recipes are removed).
+     * Tin alloy, barium, europium, titanium, electrum and crude sanguinite dusts are smelted at Tritanium-coil
+     * heat into molten sanguinite (normal + helium-boosted prints, circuit 8, ZPM, 60 s), which the vacuum
+     * freezer casts into ingots under supercooled hydrogen. The hearth only holds its heat on coolant
+     * (Coolant Hatches) plus 4A LuV heating. Recipes: uhv_superconductor.js.
      * Spec: docs/uhv-superconductor.md
      */
     private static void uhvSuperconductor() {
@@ -818,10 +818,13 @@ public final class AF9Materials {
                 .iconSet(MaterialIconSet.ROUGH)
                 .formula("(Nt4Ke10MrsLx)"));
 
-        // Sanguinite: blood-red, lossless at UV 4A. The blast property gives GT's own dust-to-hot EBF recipe (13000 K,
-        // Resonant Endion Coils only, at UHV) and the vacuum-freezer cooling the Bulk Blast Chiller runs; the real
-        // chain smelts the crude blend under supercooled endion instead (uhv_superconductor.js). The cable property
-        // with no loss makes it the UHV superconductor wire.
+        // Sanguinite: blood-red, lossless at UV 4A. No blast property and no components, so GT adds no
+        // dust-to-hot EBF print, no mixer/centrifuge/electrolyzer shortcut past the hearth: the hearth smelts
+        // dusts straight to the molten fluid (uhv_superconductor.js, blastFurnaceTemp on the recipe for the
+        // coil display), and the vacuum freezer casts it under supercooled hydrogen. GT still derives the
+        // standard molten <-> ingot solidifier/extractor prints from ingot+fluid; the server scripts remove
+        // the plain solidifier so only the supercooled casting runs. The cable property with no loss makes
+        // it the UHV superconductor wire.
         add(material("sanguinite")
                 .ingot().fluid()
                 .color(0xff1a1a).secondaryColor(0x5c0a0a)
@@ -829,7 +832,6 @@ public final class AF9Materials {
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD,
                         MaterialFlags.GENERATE_FINE_WIRE, MaterialFlags.GENERATE_FOIL)
                 .cableProperties(GTValues.VA[GTValues.UV], 4, 0, true)
-                .blastTemp(13000, GasTier.HIGHEST, GTValues.VA[GTValues.UHV], 1200)
                 .formula("(Nt2Ke5)"));
     }
 
