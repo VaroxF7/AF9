@@ -1,0 +1,42 @@
+From 6d00ea62ebabee2e8b25a772a16161fa96b4ea8c Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 9 Oct 2026 20:50:14 +0200
+Subject: [PATCH 8/8] Assembly Line takes a laser hatch too (7.5.3-af9.7)
+
+An input laser hatch (up to 1) beside the energy hatches (up to 2) in the line's energy casings; the wireless energy receivers are energy hatches and fit already. The energy hatch minimum of 1 is gone, so a line with only a laser hatch forms.
+---
+ gradle.properties                                             | 2 +-
+ .../gtceu/common/data/machines/GTMultiMachines.java           | 4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 5e92d9e..86f1ac0 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.6
++mod_version = 7.5.3-af9.7
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+index 019c13f..6fcb2f6 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+@@ -550,7 +550,9 @@ public class GTMultiMachines {
+                                     .addTooltips(Component.translatable("gtceu.multiblock.pattern.location_end")))
+                     .where('Y',
+                             blocks(CASING_STEEL_SOLID.get()).or(Predicates.abilities(PartAbility.INPUT_ENERGY)
+-                                    .setMinGlobalLimited(1).setMaxGlobalLimited(2)))
++                                    .setMaxGlobalLimited(2))
++                                    // AF9: a laser hatch too (the wireless energy receivers are energy hatches already)
++                                    .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1)))
+                     .where('I', blocks(ITEM_IMPORT_BUS[0].getBlock()))
+                     .where('G', blocks(CASING_GRATE.get()))
+                     .where('A', blocks(CASING_ASSEMBLY_CONTROL.get()))
+-- 
+2.54.0.windows.1
+
