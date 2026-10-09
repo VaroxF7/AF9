@@ -2,6 +2,9 @@
 # Recipe types of the base pack's machines
 world_data_scanner
 void_miner
+ore_processing_plant
+ore_bathing_plant
+ore_sifting_plant
 # items its startup scripts register
 kubejs:overworld_data
 kubejs:nether_data
