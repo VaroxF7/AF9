@@ -7,7 +7,11 @@
   "client": [
     "client.LevelRendererCloudsMixin"
   ],
-  "mixins": [],
+  "mixins": [
+    "powah.OrbRecipeMixin",
+    "powah.OrbRecipeSerializerMixin",
+    "powah.OrbTileMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

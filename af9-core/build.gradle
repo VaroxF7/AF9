@@ -131,6 +131,10 @@ base { archivesName = archives_base_name }
 java { sourceCompatibility = targetCompatibility = JavaVersion.VERSION_17 }
 
 sourceSets {
+    // compile only, not in the jar: the few signatures of Powah that the mixins of AF9 Core (com.af9.core.mixin.powah) name
+    stubs {
+        java.srcDir 'src/stubs/java'
+    }
     // dev runs only, not in the jar: writes down what the game has registered (RegistryDump)
     devtest {
         compileClasspath += sourceSets.main.output
@@ -146,6 +150,7 @@ configurations {
 legacyForge {
     version = project.minecraft_version + '-' + project.forge_version
     addModdingDependenciesTo(sourceSets.devtest)
+    addModdingDependenciesTo(sourceSets.stubs)
 
     parchment {
         mappingsVersion = project.mapping_version
@@ -200,7 +205,15 @@ dependencies {
         modRuntimeOnly "af9.instance:kubejs-forge:2001.6.5-build.16"
         modRuntimeOnly "af9.instance:rhino-forge:2001.2.3-build.10"
         modRuntimeOnly "af9.instance:architectury:9.2.14-forge"
+        // Powah, when the instance has it: the mixins of com.af9.core.mixin.powah are applied to its classes in the dev run
+        if (file("${project.property('af9Instance')}/mods/Powah-5.0.11.jar").exists()) {
+            modRuntimeOnly "af9.instance:Powah:5.0.11"
+            modRuntimeOnly "af9.instance:cloth-config:11.1.136-forge"
+        }
     }
+
+    // Powah's signatures for the mixins (compile only)
+    compileOnly sourceSets.stubs.output
 
     // Mixin refmaps
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'

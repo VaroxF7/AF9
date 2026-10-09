@@ -5,6 +5,7 @@ import com.af9.core.client.AF9Client;
 import com.af9.core.common.AF9Sounds;
 import com.af9.core.compat.xei.StagedRecipeUI;
 import com.af9.core.compat.adastra.AdAstraCompat;
+import com.af9.core.compat.powah.OrbInteraction;
 import com.af9.core.compat.extremereactors.ExtremeReactorsCompat;
 import com.af9.core.elevator.SpaceMissionMachine;
 import com.af9.core.fab.FabRecipeInfo;
@@ -25,6 +26,8 @@ import com.af9.core.space.AF9Space;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -68,6 +71,10 @@ public class AF9Core {
         AF9Space.register(FMLJavaModLoadingContext.get().getModEventBus());
         // supercritical steam in Extreme Reactors' turbines (only with Extreme Reactors loaded)
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ExtremeReactorsCompat::enqueue);
+        // Powah's Energizing Orb takes counted ingredients (the mixins in com.af9.core.mixin.powah; the hand click here)
+        if (ModList.get().isLoaded("powah")) {
+            MinecraftForge.EVENT_BUS.addListener(OrbInteraction::onRightClickBlock);
+        }
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AF9Config.SPEC);
         if (FMLEnvironment.dist == Dist.CLIENT) AF9Client.init();
     }
@@ -94,6 +101,7 @@ public class AF9Core {
         event.enqueueWork(AF9Filters::register);
         // the orbital station's magnetic field sets gravity through Ad Astra
         event.enqueueWork(AdAstraCompat::init);
+        if (ModList.get().isLoaded("powah")) event.enqueueWork(OrbInteraction::verify);
         // the orbital ring's death screen
         event.enqueueWork(AF9Network::register);
     }
