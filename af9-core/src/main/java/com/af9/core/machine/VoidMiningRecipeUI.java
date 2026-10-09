@@ -41,7 +41,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
  */
 public class VoidMiningRecipeUI extends GTRecipeTypeUI {
 
-    public static final int WIDTH = 176, GRID_X = 52, GRID_Y = 30, COLUMNS = 4, ROWS = 2;
+    public static final int WIDTH = 176, GRID_X = 52, GRID_Y = 48, COLUMNS = 4, ROWS = 2;
     public static final int BOTTOM_Y = GRID_Y + 18 * ROWS + 6;
     public static final int HEIGHT = BOTTOM_Y + 18 + 6;
     public static final String BACKDROP_ID = "af9_void_mining_backdrop";
@@ -74,11 +74,11 @@ public class VoidMiningRecipeUI extends GTRecipeTypeUI {
         Backdrop backdrop = new Backdrop();
         backdrop.setId(BACKDROP_ID);
         group.addWidget(backdrop);
-        slot(group, ItemRecipeCapability.CAP, IO.IN, 0, 58, BOTTOM_Y,
+        slot(group, ItemRecipeCapability.CAP, IO.IN, 0, 68, BOTTOM_Y,
                 getOverlaysForSlot(false, ItemRecipeCapability.CAP, true, false, false));
-        slot(group, FluidRecipeCapability.CAP, IO.IN, 0, 80, BOTTOM_Y,
+        slot(group, FluidRecipeCapability.CAP, IO.IN, 0, 90, BOTTOM_Y,
                 getOverlaysForSlot(false, FluidRecipeCapability.CAP, false, false, false));
-        var arrow = new ProgressWidget(ProgressWidget.JEIProgress, 106, BOTTOM_Y - 1, 20, 20, getProgressBarTexture());
+        var arrow = new ProgressWidget(ProgressWidget.JEIProgress, (WIDTH - 12) / 2, 24, 12, 22, DownArrow.texture());
         arrow.setId("progress");
         group.addWidget(arrow);
         // the recipe's ores are the first slots of the frame
@@ -147,10 +147,6 @@ public class VoidMiningRecipeUI extends GTRecipeTypeUI {
         public void drawInBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
             int x0 = getPosition().x;
             int y0 = getPosition().y;
-            // the tube from the markers down to the grid
-            int centre = x0 + WIDTH / 2;
-            graphics.fill(centre - 3, y0 + 22, centre + 3, y0 + GRID_Y - 1, 0xFF373737);
-            graphics.fill(centre - 2, y0 + 22, centre + 2, y0 + GRID_Y - 2, 0xFFFFFFFF);
             // the empty slots of the frame
             for (int row = 0; row < ROWS; row++) {
                 for (int column = 0; column < COLUMNS; column++) {

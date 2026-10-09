@@ -136,8 +136,8 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
                             new ColorBorderTexture(1, AcceleratorFlowWidget.ICE)) :
                     getOverlaysForSlot(false, FluidRecipeCapability.CAP, false, false, false));
         }
-        var arrow = new ProgressWidget(ProgressWidget.JEIProgress, MARKER_X - 1, TOP_Y + 20, 20, 20,
-                getProgressBarTexture());
+        var arrow = new ProgressWidget(ProgressWidget.JEIProgress, MARKER_X + 3, TOP_Y + 20, 12, 22,
+                com.af9.core.machine.DownArrow.texture());
         arrow.setId("progress");
         group.addWidget(arrow);
         return group;
