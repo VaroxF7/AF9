@@ -13,7 +13,12 @@
 	id: "560EF4C38DEACA03"
 	order_index: 12
 	progression_mode: "flexible"
-	quest_links: [ ]
+	quest_links: [{
+		id: "5D69F1B108CE703D"
+		linked_quest: "4FB74E442E3E3598"
+		x: -3.0d
+		y: -5.5d
+	}]
 	quests: [
 		{
 			disable_toast: true

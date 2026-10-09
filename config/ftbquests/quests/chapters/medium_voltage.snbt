@@ -1763,6 +1763,37 @@
 			x: 5.5d
 			y: 3.0d
 		}
+		{
+			dependencies: ["262AE37765B139BE"]
+			description: [
+				"{af9.quest.mv.create.1}"
+				""
+				"{af9.quest.mv.create.2}"
+				""
+				"{af9.quest.mv.create.3}"
+			]
+			id: "4FB74E442E3E3598"
+			rewards: [{
+				id: "384BA9DE1D13FDA9"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "61132A6639268057"
+					item: "create:mechanical_press"
+					type: "item"
+				}
+				{
+					id: "43D851812C52EC1A"
+					item: "create:deployer"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.mvCreate}"
+			x: -6.0d
+			y: 0.2d
+		}
 	]
 	title: "{atm9.chapters.28.title}"
 }

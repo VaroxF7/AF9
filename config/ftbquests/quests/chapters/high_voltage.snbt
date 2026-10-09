@@ -1160,7 +1160,7 @@
 		}
 		{
 			dependencies: ["70C952B8FF3418F6"]
-			description: [""]
+			description: ["{af9.quest.hv.emitter}"]
 			id: "7D2033E579767AF8"
 			optional: true
 			rewards: [
@@ -1322,6 +1322,172 @@
 			title: "{af9.quest.title.hvMetals}"
 			x: 6.5d
 			y: 4.0d
+		}
+		{
+			dependencies: ["51D7534BBA00287A"]
+			description: [
+				"{af9.quest.hv.orb.1}"
+				""
+				"{af9.quest.hv.orb.2}"
+			]
+			id: "03F47F98A3BFB659"
+			rewards: [{
+				id: "778404E251925003"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "5A28BF3836EC69EC"
+					item: "powah:energizing_orb"
+					type: "item"
+				}
+				{
+					id: "792F85045E902DE2"
+					item: "powah:energizing_rod_starter"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.hvOrb}"
+			x: 6.5d
+			y: 5.5d
+		}
+		{
+			dependencies: ["03F47F98A3BFB659"]
+			description: [
+				"{af9.quest.hv.steel}"
+			]
+			id: "496053D517807CEA"
+			rewards: [{
+				id: "2B150BDF4A327E06"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [
+				{
+					id: "6765593D11873D37"
+					item: "powah:steel_energized"
+					type: "item"
+				}
+				{
+					id: "5E29E9E91ED0AEFE"
+					item: "powah:dielectric_paste"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.hvSteel}"
+			x: 6.5d
+			y: 7.0d
+		}
+		{
+			dependencies: ["496053D517807CEA"]
+			description: [
+				"{af9.quest.hv.motor.1}"
+				""
+				"{af9.quest.hv.motor.2}"
+			]
+			id: "42B1F0202B6063CF"
+			rewards: [{
+				id: "746735B076763F83"
+				type: "xp"
+				xp: 150
+			}]
+			tasks: [
+				{
+					id: "24D7965D74E7B6AD"
+					item: "gtceu:hv_electric_motor"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.hvMotor}"
+			x: 8.0d
+			y: 7.0d
+		}
+		{
+			dependencies: ["42B1F0202B6063CF"]
+			description: [
+				"{af9.quest.hv.parts}"
+			]
+			id: "60C785A384308E16"
+			rewards: [{
+				id: "1B37E15D55218578"
+				type: "xp"
+				xp: 150
+			}]
+			tasks: [
+				{
+					id: "7B6C91EF035952A3"
+					item: "gtceu:hv_electric_piston"
+					type: "item"
+				}
+				{
+					id: "6AD1D5B5FBAF5EC2"
+					item: "gtceu:hv_electric_pump"
+					type: "item"
+				}
+				{
+					id: "6E547C86C9E16642"
+					item: "gtceu:hv_conveyor_module"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.hvParts}"
+			x: 9.5d
+			y: 7.0d
+		}
+		{
+			dependencies: ["60C785A384308E16"]
+			description: [
+				"{af9.quest.hv.arm}"
+			]
+			id: "7EE239D9DD7BC6C1"
+			rewards: [{
+				id: "180A36828ECD99FB"
+				type: "xp"
+				xp: 150
+			}]
+			tasks: [
+				{
+					id: "32861D621F675FE6"
+					item: "gtceu:hv_robot_arm"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.hvArm}"
+			x: 11.0d
+			y: 7.0d
+		}
+		{
+			dependencies: ["496053D517807CEA"]
+			description: [
+				"{af9.quest.hv.sensors}"
+			]
+			id: "05FFB47F233099B3"
+			rewards: [{
+				id: "53CAD298AEDC9520"
+				type: "xp"
+				xp: 150
+			}]
+			tasks: [
+				{
+					id: "54BD4B77665B63FE"
+					item: "gtceu:hv_emitter"
+					type: "item"
+				}
+				{
+					id: "1ECC0FF63C581140"
+					item: "gtceu:hv_sensor"
+					type: "item"
+				}
+				{
+					id: "5AB61460A9D0059E"
+					item: "gtceu:hv_field_generator"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.hvSensors}"
+			x: 8.0d
+			y: 8.5d
 		}
 	]
 	title: "{atm9.chapters.29.title}"
