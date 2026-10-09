@@ -120,6 +120,11 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
   `python3 tools/lint/update-gt-lists.py <GT checkout>` from **GT 7.5.3** (tag `v7.5.3-1.20.1`, the version the pack runs): clone that
   tag, not a branch head, or names of a newer GT pass the lint that the pack does not have. The name lists over-approximate (every
   string literal of the registration code), so a `gtceu:` finding means "no such name anywhere", a missing finding does not prove it exists.
+* `gt-dev-only.txt`: the `gtceu:` items a dev run registers and the pack's game does not: the parts above UV, the electric
+  machines above UV and the hatches above UHV of GT's high-tier content (off in the pack; outside production GT turns it on by
+  itself, so the headless run and the lists above have them), and the flawed / chipped gems. Made by comparing the dev run's
+  registry dump (`-Paf9Dump`) with the item registry in a played world's `level.dat` (`fml` > `Registries` > `minecraft:item`).
+  A recipe naming one is an R3 error: GT 7.5 refuses the recipe.
 * `gt-patterns.txt`: regular expressions for ids that loops in GT make (coil blocks, lenses, pipes, lamps, flawless gems ...).
 * `pack.txt`: what the base pack (ATM9's KubeJS and mods, which this repo is laid over) provides and GT's lists lack.
 * `sources.txt`: ids a recipe may take that no recipe makes (Java makes them, the world, a quest, the creative tab).

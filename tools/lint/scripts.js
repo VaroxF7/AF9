@@ -17,7 +17,7 @@
 //   R2  a recipe over the slots of its machine (items / fluids in and out, the not-consumed ones and circuits count)
 //   R3  an item, block or fluid id nobody defines: af9: not in the list of what AF9 Core registers
 //       (tools/lint/data/af9-registry.txt), gtceu: neither an AF9 material nor a name in GT's lists (tools/lint/data),
-//       kubejs: not an item of the base pack
+//       or one GT registers only with its high-tier content (gt-dev-only.txt), kubejs: not an item of the base pack
 //   R4  a recipe type that is neither AF9's nor GT's
 //   R5  an AF9 material, fluid or item a recipe takes that no recipe makes (nor a tag or a loot source)
 //   R6  an AF9 material or item registered that no recipe makes or takes (dead content)
@@ -41,6 +41,9 @@ const lines = f => fs.existsSync(f) ? read(f).split('\n').map(s => s.trim()).fil
 const DATA = path.join(__dirname, 'data')
 const gtMaterials = new Set(lines(path.join(DATA, 'gt-materials.txt')))
 const gtNames = new Set(lines(path.join(DATA, 'gt-names.txt')))
+// GT names the dev run has and the pack's game has not (the parts and machines of GT's high-tier content, which is off in the
+// pack: outside production GT turns it on by itself, so a headless check passes them)
+const gtDevOnly = new Set(lines(path.join(DATA, 'gt-dev-only.txt')).filter(l => !l.startsWith('#')))
 const gtPatterns = lines(path.join(DATA, 'gt-patterns.txt')).filter(l => !l.startsWith('#')).map(r => new RegExp('^(?:' + r + ')$'))
 const gtSlots = new Map(lines(path.join(DATA, 'gt-recipe-slots.txt')).map(l => l.split(' ')).map(([n, ...v]) => [n, v.map(Number)]))
 const gtTypes = new Set(lines(path.join(DATA, 'gt-recipe-types.txt')))
@@ -623,7 +626,10 @@ const checkId = (id, where, role) => {
         const kind = role.startsWith('fluid') ? 'fluid' : 'item'
         if (!af9[kind].has(name)) report('ERROR', 'R3', `${role} ${id}: AF9 Core registers no such ${kind} (tools/lint/data/af9-registry.txt)`, where)
     }
-    else if (ns === 'gtceu') { if (!gtceuKnown(id)) report('WARN', 'R3', `${role} ${id}: not an AF9 material nor a name in GT's lists`, where) }
+    else if (ns === 'gtceu') {
+        if (gtDevOnly.has(name)) report('ERROR', 'R3', `${role} ${id}: the pack's game has no such item (GT registers it only with its high-tier content, which is off; tools/lint/data/gt-dev-only.txt)`, where)
+        else if (!gtceuKnown(id)) report('WARN', 'R3', `${role} ${id}: not an AF9 material nor a name in GT's lists`, where)
+    }
 }
 const reported = new Set()
 state.recipes.forEach(r => {
