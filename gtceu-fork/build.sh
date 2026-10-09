@@ -29,5 +29,10 @@ for patch in "$here"/patches/*.patch; do
     git am --quiet --3way "$patch"
 done
 chmod +x gradlew
-./gradlew publishToMavenLocal -Pmod_version="$version" -x test --stacktrace
+log="$(mktemp)"
+if ! ./gradlew publishToMavenLocal -Pmod_version="$version" -x test > "$log" 2>&1; then
+    echo "---- the fork's build failed: its errors ----" >&2
+    grep -E -A6 "error:|What went wrong|FAILED" "$log" | grep -v "^\s*at " | head -120 >&2
+    exit 1
+fi
 echo "GTCEu fork $version published to mavenLocal"
