@@ -469,7 +469,7 @@ try {
     fs.readFileSync(MATERIALS_FILE, 'utf8').split('add(material("').slice(1).forEach(chunk => {
         const id = chunk.slice(0, chunk.indexOf('"'))
         const body = chunk.split(/\n\s*add\(/)[0]
-        if (body.includes('.plasma()')) af9Plasma.add(id)
+        if (body.includes('.plasma(')) af9Plasma.add(id)
     })
 } catch (e) { /* no sources: nothing known */ }
 function gtceuKnown(id) {

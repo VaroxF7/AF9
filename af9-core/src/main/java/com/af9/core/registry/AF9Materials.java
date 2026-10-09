@@ -12,6 +12,7 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.DustProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.IngotProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.fluids.FluidBuilder;
+import com.gregtechceu.gtceu.api.fluids.FluidState;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import java.util.ArrayList;
@@ -675,6 +676,15 @@ public final class AF9Materials {
                         MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_FINE_WIRE)
                 .blastTemp(15000, GasTier.HIGHEST, GTValues.VA[GTValues.UHV], 3200)
                 .formula("Ss"));
+
+        // Idontknowium: nobody knows what it is. Only its plasma exists, 12,000 K, made in the Mega Fusion Reactor from star
+        // matter and anti-matter plasma (fusion_reactor.js)
+        add(material("idontknowium")
+                .dust()
+                .plasma(new FluidBuilder().state(FluidState.PLASMA).temperature(12000))
+                .color(0xb0ff3c).secondaryColor(0xff3cd2)
+                .iconSet(MaterialIconSet.SHINY)
+                .formula("Idk"));
     }
 
     /**

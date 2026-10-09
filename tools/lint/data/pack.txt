@@ -21,3 +21,7 @@ gtceu:uv_256a_laser_source_hatch
 gtceu:uhv_1024a_laser_target_hatch
 gtceu:uhv_1024a_laser_source_hatch
 gtceu:nickel_plasma
+gtceu:stainless_steel_crate
+gtceu:titanium_crate
+gtceu:tungsten_steel_crate
+gtceu:star_matter_plasma

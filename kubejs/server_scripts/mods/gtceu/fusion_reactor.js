@@ -47,3 +47,14 @@ ServerEvents.recipes(event => {
     }
     reactor.duration(1000).EUt(VA[GTValues.LuV])
 })
+
+// Idontknowium Plasma (12,000 K): the Mega Fusion Reactor (the pack's, gtceu:mega_fusion_reactor) fuses star matter plasma with
+// anti-matter plasma (the Plasma Forge makes it: dtpf.js). The same voltage as the star matter's recipe, a bigger start.
+ServerEvents.recipes(event => {
+    event.recipes.gtceu.mega_fusion_reactor('af9:idontknowium_plasma')
+        .inputFluids(Fluid.of('gtceu:star_matter_plasma', 2000), Fluid.of('gtceu:anti_matter_plasma', 2000))
+        .outputFluids(Fluid.of('gtceu:idontknowium_plasma', 1000))
+        .duration(128)
+        .EUt(GTValues.VA[GTValues.UV])
+        .fusionStartEU(900000000)
+})

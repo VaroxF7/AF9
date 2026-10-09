@@ -43,8 +43,8 @@ block af9:space_elevator_motor_mk5
 block af9:ultra_high_strength_concrete_floor
 item af9:advanced_soc_euv_reticle
 item af9:advanced_soc_reticle
-item af9:allthemodium_sail
 item af9:ai_acceleration_card
+item af9:allthemodium_sail
 item af9:amber_cloud
 item af9:apu_chip
 item af9:apu_euv_reticle
@@ -382,6 +382,7 @@ material gtceu:hot_sodium_potassium
 material gtceu:hydrazine
 material gtceu:hydrazobisisobutyronitrile
 material gtceu:hydroxyacetophenone
+material gtceu:idontknowium
 material gtceu:impure_oil
 material gtceu:iron_molybdate
 material gtceu:irradiated_fuel
