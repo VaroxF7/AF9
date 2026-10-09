@@ -11,6 +11,23 @@ drone slot, what it lacks; `OreCatalog`: GT's ores and veins; `PlanetCatalog`: t
 `kubejs/startup_scripts/gtceu/space_elevator.js` (blocks, drones, the two recipe types, the machine and its structure),
 `kubejs/server_scripts/mods/gtceu/space_elevator.js` (crafting and the expeditions).
 
+## 0. The modules are machines of their own (sub-multiblocks)
+
+As in GTNH the elevator flies nothing itself. The work is done by its **Mining Modules** (`gtceu:space_mining_module_mk1..3`,
+`SpaceModuleMachine`): each is a small multiblock, a **controller** that stands in a module slot of the tower, with
+
+* its **own screen** (the console of sections 5 and 6: drone slot, mission picker, what it lacks, counters, size switch),
+* its **own drone** and its **own hatches**, in the casings round it (up to 2 item and 2 fluid inputs, 2 Coolant Hatches, 4 item and 4
+  fluid outputs; the ore or the fluid of its missions goes to *its* output hatches),
+* its **own energy buffer**, filled every tick from the tower's energy and laser hatches (`SpaceElevatorMachine.powerTick`): the
+  expeditions' energy is taken from that buffer.
+
+The tower finds the modules when it forms and **connects** them (`SpaceModuleMachine.connect`): which motors it has, how many slots they
+power, and whether this module is powered (the best tiers first, up to the slots, never above the motors' tier). A module that is
+not powered stays dark; one outside a formed tower is not connected and does nothing. The tower's own screen shows the motors,
+the modules and the size switch; everything about drones and missions below is on the **module's** screen. Where the text below says
+"the elevator" for a drone, a hatch, a mission or a screen, it means the module.
+
 ## 1. How it works
 
 `gtceu:space_elevator` runs the recipe type `gtceu:space_mining`: a **Mining Drone** (`af9:space_mining_drone_mk1..4`, **not used
@@ -91,7 +108,7 @@ supercooled xenon): GTNH's numbers, kept as they are.
 
 As in GTNH the elevator itself does nothing: its **modules** do the work, and its **motors** say how many of them.
 
-* A **Space Mining Module** (`gtceu:space_mining_module_mk1..3`, a block) in a **module slot** of the tower flies expeditions:
+* A **Space Mining Module** (`gtceu:space_mining_module_mk1..3`, a controller of its own) in a **module slot** of the tower flies expeditions:
   **MK-I 2 at once, MK-II 4, MK-III 8** (GTNH's parallels). Without a powered module nothing flies.
 * The **motors' tier** (the 88 motors round the shaft, all of one tier, `af9:space_elevator_motor_mk1..5`) powers
   **6 / 12 / 15 / 18 / 24 module slots** (MK-I to MK-V, GTNH's numbers), and only modules of **its own tier or lower** (a MK-III module
@@ -307,10 +324,10 @@ when it starts: **the ores this drone's asteroids hold**, taking turns in nine s
 
 ## 7. Not done
 
-GTNH's modules are machines of their own (mining, pumping, assembler; each with its own buses, drone, parameters and an asteroid filter); here a
-module is a block that makes the elevator fly more expeditions, the buses and the drone are the elevator's, and there are only Mining Modules.
+GTNH's modules are machines of their own (mining, pumping, assembler; each with its own buses, drone, parameters and an asteroid filter); here
+the Mining Module is such a machine too (section 0: own screen, drone, hatches and energy buffer), but there are only Mining Modules, and no asteroid filter or parameters.
 GTNH's Space Pumping Module pumps all the time beside the mining, for energy alone, up to four fluids at once, set by parameters; here its
-fluids are liquid missions of the elevator itself, one kind of mission at a time, picked on the screen. There is no assembler module.
+fluids are liquid missions of the module itself, one kind of mission at a time, picked on its screen. There is no assembler module.
 GTNH's elevator also has a galaxy map for travel, and plasma, drill tips, rods and computation as inputs; here it runs on hydrogen and a coolant
 and has no travel function. GTNH's screen (a TecTech controller's, with its parameters) is not rebuilt: the elevator has AF9's console
 (section 5). GTNH's climber model and textures are GTNH's own and are not used: the climber, the cable and the block textures are made by
