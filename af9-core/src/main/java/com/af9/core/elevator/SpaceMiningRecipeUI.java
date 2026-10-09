@@ -56,11 +56,15 @@ import java.util.List;
  */
 public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
 
-    public static final int WIDTH = 176, HEIGHT = 76;
-    /** Layout: the drone and the two fluids, the scene, the arrow, the ores (so many columns and rows of slots). */
-    public static final int IN_X = 4, DRONE_Y = 2, HYDROGEN_Y = 27, COOLANT_Y = 53;
-    public static final int SCENE_X = 38, SCENE_W = 54, ARROW_X = 95, ARROW_Y = 28;
-    public static final int ORES_X = 118, ORES_Y = 4, ORE_COLUMNS = 3, ORE_ROWS = 3;
+    public static final int WIDTH = 176;
+    /**
+     * Layout, as GTNH's Eye of Harmony page: a row of inputs (the drone, the hydrogen, the coolant) and the arrow on top,
+     * under them a panel of slots, one for each ore (or each fluid) the drone can bring: {@link #GRID_COLUMNS} wide,
+     * {@link #ORE_ROWS} rows for the ores (a drone's asteroids hold more than that on a big server: they take turns in
+     * the slots), as many rows as the table has for the fluids.
+     */
+    public static final int IN_X = 4, IN_Y = 4, ARROW_X = 70, ARROW_Y = 4;
+    public static final int GRID_X = 7, GRID_Y = 46, GRID_COLUMNS = 9, ORE_ROWS = 7;
     public static final String FLOW_ID = "af9_space_mining_flow";
 
     private final GTRecipeType type;
@@ -90,19 +94,29 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         return new IEditableUI.Normal<>(this::layout, gt::setupUI);
     }
 
+    /** Rows of the grid: the ores' fixed, the fluids as many as the table needs. */
+    private int rows() {
+        if (!liquid) return ORE_ROWS;
+        return Math.max(1, (PlanetCatalog.all().size() + GRID_COLUMNS - 1) / GRID_COLUMNS);
+    }
+
+    private int height() {
+        return GRID_Y + 18 * rows() + 6;
+    }
+
     private WidgetGroup layout() {
         int fluids = Math.min(2, type.maxInputs.getInt(FluidRecipeCapability.CAP));
-        WidgetGroup group = new WidgetGroup(0, 0, WIDTH, HEIGHT);
-        // the scene and the pipes first: the slots draw over them
-        SpaceMiningFlowWidget flow = new SpaceMiningFlowWidget(liquid);
+        WidgetGroup group = new WidgetGroup(0, 0, WIDTH, height());
+        // the panel first: the slots draw over it
+        SpaceMiningFlowWidget flow = new SpaceMiningFlowWidget(liquid, height());
         flow.setId(FLOW_ID);
         group.addWidget(flow);
-        slot(group, ItemRecipeCapability.CAP, IO.IN, 0, IN_X, DRONE_Y,
+        slot(group, ItemRecipeCapability.CAP, IO.IN, 0, IN_X, IN_Y,
                 getOverlaysForSlot(false, ItemRecipeCapability.CAP, true, false, false));
         for (int i = 0; i < fluids; i++) {
             // the second fluid is the coolant, not a fluid like the others: its slot in ice on dark frost
             boolean coolant = i == 1;
-            slot(group, FluidRecipeCapability.CAP, IO.IN, i, IN_X, coolant ? COOLANT_Y : HYDROGEN_Y, coolant ?
+            slot(group, FluidRecipeCapability.CAP, IO.IN, i, IN_X + (coolant ? 44 : 22), IN_Y, coolant ?
                     new GuiTextureGroup(new ColorRectTexture(0xFF0B2530),
                             new ColorBorderTexture(1, AcceleratorFlowWidget.ICE)) :
                     getOverlaysForSlot(false, FluidRecipeCapability.CAP, false, false, false));
@@ -161,14 +175,14 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
 
     /** Nine slots the ores take turns in: every ore is an output the recipe viewers know. */
     private static void addOres(WidgetGroup group, int tier, List<ItemStack> ores) {
-        int slots = ORE_COLUMNS * ORE_ROWS;
+        int slots = GRID_COLUMNS * ORE_ROWS;
         List<List<ItemStack>> turns = new ArrayList<>();
         for (int i = 0; i < slots; i++) turns.add(new ArrayList<>());
         for (int i = 0; i < ores.size(); i++) turns.get(i % slots).add(ores.get(i));
         CycleItemStackHandler handler = new CycleItemStackHandler(turns);
         for (int i = 0; i < slots; i++) {
-            SlotWidget slot = new SlotWidget(handler, i, ORES_X + 18 * (i % ORE_COLUMNS),
-                    ORES_Y + 18 * (i / ORE_COLUMNS), false, false);
+            SlotWidget slot = new SlotWidget(handler, i, GRID_X + 18 * (i % GRID_COLUMNS),
+                    GRID_Y + 18 * (i / GRID_COLUMNS), false, false);
             slot.setBackgroundTexture(GuiTextures.SLOT);
             slot.setIngredientIO(IngredientIO.OUTPUT);
             slot.setOnAddedTooltips((widget, tooltips) -> {
@@ -188,7 +202,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
      */
     private static void addFluids(WidgetGroup group, int tier) {
         List<PlanetCatalog.Cargo> cargoes = PlanetCatalog.reach(tier);
-        int slots = Math.min(ORE_COLUMNS * ORE_ROWS, cargoes.size());
+        int slots = Math.max(1, cargoes.size());
         List<List<FluidStack>> turns = new ArrayList<>();
         for (int i = 0; i < slots; i++) turns.add(new ArrayList<>());
         for (int i = 0; i < cargoes.size(); i++) {
@@ -197,8 +211,8 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         }
         CycleFluidStackHandler handler = new CycleFluidStackHandler(turns);
         for (int i = 0; i < slots; i++) {
-            TankWidget tank = new TankWidget(handler, i, ORES_X + 18 * (i % ORE_COLUMNS),
-                    ORES_Y + 18 * (i / ORE_COLUMNS), false, false);
+            TankWidget tank = new TankWidget(handler, i, GRID_X + 18 * (i % GRID_COLUMNS),
+                    GRID_Y + 18 * (i / GRID_COLUMNS), false, false);
             tank.setBackground(GuiTextures.FLUID_SLOT);
             tank.setIngredientIO(IngredientIO.OUTPUT);
             tank.setOnAddedTooltips((widget, tooltips) -> {

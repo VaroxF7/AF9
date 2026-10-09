@@ -703,8 +703,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // upright only, as GTNH's
         .allowExtendedFacing(false)
         .allowFlip(false)
-        // the elevator itself runs no recipe: its Mining Modules fly the missions (GTNH's design)
-        .recipeTypes([GTRecipeTypes.get('space_module')])
+        // the elevator itself runs no recipe: its Mining Modules fly the missions (GTNH's design). The missions are listed
+        // here all the same, so the recipe viewers show them on the tower (SpaceElevatorMachine.attachSideTabs: no mode tab)
+        .recipeTypes([GTRecipeTypes.get('space_module'), GTRecipeTypes.get('space_mining'),
+            GTRecipeTypes.get('space_pumping')])
         .appearanceBlock(() => Block.getBlock('af9:space_elevator_base_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_elevator.tooltip', 11))
         .pattern(definition => {

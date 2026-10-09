@@ -21,6 +21,7 @@ import com.gregtechceu.gtceu.api.gui.fancy.TabsWidget;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
+import com.gregtechceu.gtceu.api.gui.fancy.TabsWidget;
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CombinedDirectionalFancyConfigurator;
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
@@ -110,6 +111,17 @@ import java.util.stream.IntStream;
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
 public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine implements ISpaceElevatorMachine,
         IPowerGated {
+
+    /**
+     * The tower lists the missions its modules fly among its recipe types (so the recipe viewers show them on the tower),
+     * but runs none of them: no machine mode tab for the list.
+     */
+    @Override
+    public void attachSideTabs(TabsWidget sideTabs) {
+        sideTabs.setMainTab(this);
+        var directional = CombinedDirectionalFancyConfigurator.of(self(), self());
+        if (directional != null) sideTabs.attachSubTab(directional);
+    }
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             SpaceElevatorMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
