@@ -37,6 +37,8 @@ public final class AF9Client {
         LithoChamberRender.register();
         SpaceElevatorRender.register();
         LaserEngraverRender.register();
+        // the map of Ad Astra's planet screen gets AF9's bodies
+        AdAstraMap.register();
         // every item is registered by client setup, and EMI has not loaded its list yet
         FMLJavaModLoadingContext.get().getModEventBus()
                 .addListener((FMLClientSetupEvent event) -> EmiAcceleratorCompat.checkCache());
