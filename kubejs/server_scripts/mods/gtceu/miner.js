@@ -340,20 +340,22 @@ ServerEvents.recipes((event) => {
     tier_multipliers.forEach((m) => emitRecipes("void_mining_end", end_raw_ores,
         GTValues.VA[GTValues.IV], end_dimensions, m))
 
+    // The belt is a rocket and a space suit away and gives one ore a circuit, where the End gives up to four: its stacks are
+    // larger for it (raised by half on 2026-10-09: naquadah 140 against the End's 90, cooperite and platinum 30 against 20)
     const asteroids_raw_ores =
-        [[["40x gtceu:raw_brannerite"], "1", "af9:vm_asteroids_brannerite"],
+        [[["60x gtceu:raw_brannerite"], "1", "af9:vm_asteroids_brannerite"],
 
-        [["90x gtceu:raw_magnetite"], "2", "af9:vm_asteroids_magnetite"],
+        [["140x gtceu:raw_magnetite"], "2", "af9:vm_asteroids_magnetite"],
 
-        [["40x gtceu:raw_pentlandite"], "3", "af9:vm_asteroids_pentlandite"],
+        [["60x gtceu:raw_pentlandite"], "3", "af9:vm_asteroids_pentlandite"],
 
-        [["20x gtceu:raw_cooperite"], "4", "af9:vm_asteroids_cooperite"],
+        [["30x gtceu:raw_cooperite"], "4", "af9:vm_asteroids_cooperite"],
 
-        [["90x gtceu:raw_naquadah"], "5", "af9:vm_asteroids_naquadah"],
+        [["140x gtceu:raw_naquadah"], "5", "af9:vm_asteroids_naquadah"],
 
-        [["20x gtceu:raw_platinum"], "6", "af9:vm_asteroids_platinum"],
+        [["30x gtceu:raw_platinum"], "6", "af9:vm_asteroids_platinum"],
 
-        [["40x af9:oil_regolith"], "7", "af9:vm_asteroids_oil_regolith"]]
+        [["60x af9:oil_regolith"], "7", "af9:vm_asteroids_oil_regolith"]]
 
     // Asteroids: the belt and Ceres are one area, the machine may stand in either
     tier_multipliers.forEach((m) => emitRecipes("void_mining_asteroids", asteroids_raw_ores,
