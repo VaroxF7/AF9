@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=up": { "model": "af9:block/energizing_orb_mk2", "x": 180 },
+    "facing=down": { "model": "af9:block/energizing_orb_mk2" },
+    "facing=south": { "model": "af9:block/energizing_orb_mk2", "x": 90 },
+    "facing=north": { "model": "af9:block/energizing_orb_mk2", "x": 90, "y": 180 },
+    "facing=east": { "model": "af9:block/energizing_orb_mk2", "x": 90, "y": 270 },
+    "facing=west": { "model": "af9:block/energizing_orb_mk2", "x": 90, "y": 90 }
+  }
+}

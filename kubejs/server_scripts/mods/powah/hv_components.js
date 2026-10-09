@@ -1,8 +1,9 @@
 // AF9 - the HV components in Powah's Energizing Orb, a second way beside GT's own recipes (the crafting table and the
 // assembler stay; nothing is taken away).
 //
-// Why: from HV on, a component is a pile of parts (a motor: nine items). Powah's orb takes a stack per slot (AF9 Core's
-// patch of Powah: an ingredient may say "count"), so the parts go in as they are and the orb gives the finished component
+// Why: from HV on, a component is a pile of parts (a motor: nine items). The orb takes a stack per slot (AF9 Core's patch
+// of Powah: an ingredient may say "count"; the Energizing Orb Mk2, orb_mk2.js, is the orb with a screen to put them in
+// through), so the parts go in as they are and the orb gives the finished component
 // when its rods have charged it. The recipes are cheaper than GT's by a part or two and take a Powah material as the
 // glue (energized steel, dielectric paste: iron and gold, and the orb itself, from the first Powah hours): a small detour
 // through Powah, not a second factory. The charge scales with the rods round the orb, more rods, a shorter wait.

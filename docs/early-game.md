@@ -22,15 +22,19 @@ is done changes.
 ## 2. HV components in Powah's Energizing Orb
 
 From HV on, a component is a pile of parts: a motor is nine items. Powah's orb takes one item per slot, so AF9 Core
-patches it:
+patches it and adds a Mk2 with a screen:
 
 - a recipe's ingredient may say `"count": 4`; the orb then wants four of it in a slot (up to a stack) and takes exactly
   that many when the craft is done (a surplus stays in the slot);
-- a click with an item that one of the orb's recipes wants several of puts that many into a slot, or tops up the slot that
-  holds it. Anything else is Powah's own click (one item; an empty hand takes the contents out);
+- the **Energizing Orb Mk2** (`af9:energizing_orb_mk2`) is Powah's orb with a screen: right-click it, six slots hold a
+  stack each, the product comes out of its own slot (shift-click), a bar shows the charge. It is a subclass of Powah's
+  orb block and tile, so energizing rods find and charge it and the wrench works on it; its slots are on the item
+  handler, so hoppers, pipes and AE2 (interfaces, import and export buses) reach them. Craft: Powah's orb in the
+  middle, 2 MV motors, 2 good electronic circuits, 4 steel plates (`kubejs/server_scripts/mods/powah/orb_mk2.js`);
 - recipe viewers (JEI, EMI) show the counts.
 
-Powah's own recipes (one of each) are not changed.
+Powah's own orb and its recipes (one of each) are not changed; the plain orb also takes the counted recipes when a hopper
+or a pipe fills its slots.
 
 | component | in the orb | GT's assembler recipe |
 |---|---|---|
@@ -56,7 +60,8 @@ rods, a shorter wait. Powah's config ratio for energizing scales these like its 
   5.0.11. The three that touch the recipe's packet are required; a different Powah version that renames those methods
   stops the game at launch with the mixin's message instead of sending a broken packet. `OrbInteraction.verify` logs
   "Powah's Energizing Orb takes counted ingredients" at startup when the patch applied.
-- Powah's signatures are compile-time stubs in `af9-core/src/stubs` (a source set that does not go into the jar).
+- Powah's signatures are compile-time stubs in `af9-core/src/stubs` (a source set that does not go into the jar); the Mk2's
+  classes extend them (`OrbMk2Block`, `OrbMk2Tile`, the renderer), so they only load with Powah present.
 - The dev run takes Powah and Cloth Config from the instance when `-Paf9Instance` has them, so the headless run applies the
   mixins too.
 
@@ -64,7 +69,7 @@ rods, a shorter wait. Powah's config ratio for energizing scales these like its 
 
 - **Medium Voltage** chapter: "Circuits on the Belt" (the deployer and the press), after the MV start quest; it is also
   linked into the **Circuits** chapter between the basic and the good electronic circuit.
-- **High Voltage** chapter, a branch under "HV Circuit Metals": "Components in the Orb" (the orb and a rod), "Energized
+- **High Voltage** chapter, a branch under "HV Circuit Metals": "Components in the Orb" (the Mk2 orb and a rod), "Energized
   Steel", "The Motor, Faster", "Piston, Pump and Conveyor", "Robot Arm" and "Emitter, Sensor, Field Generator". The
   existing emitter quest names the orb recipe too.
 - The texts are `af9.quest.mv.create.*`, `af9.quest.hv.*` in `kubejs/assets/kubejs/lang/en_us.json`.

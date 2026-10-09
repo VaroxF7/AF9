@@ -1195,5 +1195,8 @@
     "af9.recipe.staged.extra_inputs": "Staged inputs are not the only inputs in the machine.",
     "af9.recipe.staged.step": "Step %s",
     "item.af9.staged_step_detector": "Staged Step Detector",
+    "block.af9.energizing_orb_mk2": "Energizing Orb Mk2",
+    "af9.orb_mk2.charge": "%s / %s RF",
+    "af9.orb_mk2.no_recipe": "No recipe for these parts",
     "itemGroup.af9": "AF9"
 }

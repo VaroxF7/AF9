@@ -5,7 +5,8 @@ import com.af9.core.client.AF9Client;
 import com.af9.core.common.AF9Sounds;
 import com.af9.core.compat.xei.StagedRecipeUI;
 import com.af9.core.compat.adastra.AdAstraCompat;
-import com.af9.core.compat.powah.OrbInteraction;
+import com.af9.core.compat.powah.OrbMk2;
+import com.af9.core.compat.powah.client.OrbMk2Client;
 import com.af9.core.compat.extremereactors.ExtremeReactorsCompat;
 import com.af9.core.elevator.SpaceMissionMachine;
 import com.af9.core.fab.FabRecipeInfo;
@@ -26,7 +27,6 @@ import com.af9.core.space.AF9Space;
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -71,9 +71,10 @@ public class AF9Core {
         AF9Space.register(FMLJavaModLoadingContext.get().getModEventBus());
         // supercritical steam in Extreme Reactors' turbines (only with Extreme Reactors loaded)
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ExtremeReactorsCompat::enqueue);
-        // Powah's Energizing Orb takes counted ingredients (the mixins in com.af9.core.mixin.powah; the hand click here)
+        // Powah's Energizing Orb takes counted ingredients (the mixins in com.af9.core.mixin.powah) and has a Mk2 with a screen
         if (ModList.get().isLoaded("powah")) {
-            MinecraftForge.EVENT_BUS.addListener(OrbInteraction::onRightClickBlock);
+            OrbMk2.register(FMLJavaModLoadingContext.get().getModEventBus());
+            if (FMLEnvironment.dist == Dist.CLIENT) OrbMk2Client.init(FMLJavaModLoadingContext.get().getModEventBus());
         }
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, AF9Config.SPEC);
         if (FMLEnvironment.dist == Dist.CLIENT) AF9Client.init();
@@ -101,7 +102,7 @@ public class AF9Core {
         event.enqueueWork(AF9Filters::register);
         // the orbital station's magnetic field sets gravity through Ad Astra
         event.enqueueWork(AdAstraCompat::init);
-        if (ModList.get().isLoaded("powah")) event.enqueueWork(OrbInteraction::verify);
+        if (ModList.get().isLoaded("powah")) event.enqueueWork(OrbMk2::verify);
         // the orbital ring's death screen
         event.enqueueWork(AF9Network::register);
     }

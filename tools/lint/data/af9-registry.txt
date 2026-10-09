@@ -16,6 +16,7 @@ block af9:dyson_deployment_magnet
 block af9:dyson_receiver_casing
 block af9:dyson_receiver_dish
 block af9:endion_coil_block
+block af9:energizing_orb_mk2
 block af9:euv_light_source
 block af9:krf_excimer_laser
 block af9:laser_containment_casing
@@ -150,6 +151,7 @@ item af9:edram_reticle
 item af9:edram_soc_package
 item af9:edram_wafer
 item af9:endion_coil_block
+item af9:energizing_orb_mk2
 item af9:euv_light_source
 item af9:euv_mask_blank
 item af9:feram_chip
