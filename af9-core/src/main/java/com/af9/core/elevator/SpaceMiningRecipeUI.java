@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.RecipeCapability;
+import com.gregtechceu.gtceu.api.data.DimensionMarker;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.WidgetUtils;
 import com.gregtechceu.gtceu.api.gui.editor.IEditableUI;
@@ -16,6 +17,8 @@ import com.gregtechceu.gtceu.api.gui.widget.TankWidget;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.ui.GTRecipeTypeUI;
+import com.gregtechceu.gtceu.api.registry.GTRegistries;
+import com.gregtechceu.gtceu.api.transfer.item.CustomItemStackHandler;
 import com.gregtechceu.gtceu.integration.xei.handlers.fluid.CycleFluidStackHandler;
 import com.gregtechceu.gtceu.integration.xei.handlers.item.CycleItemStackHandler;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
@@ -24,6 +27,7 @@ import com.lowdragmc.lowdraglib.gui.texture.ColorBorderTexture;
 import com.lowdragmc.lowdraglib.gui.texture.ColorRectTexture;
 import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup;
 import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
+import com.lowdragmc.lowdraglib.gui.texture.TextTexture;
 import com.lowdragmc.lowdraglib.gui.widget.ProgressWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
@@ -32,6 +36,8 @@ import com.lowdragmc.lowdraglib.utils.Position;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fluids.FluidStack;
@@ -63,8 +69,8 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
      * {@link #ORE_ROWS} rows for the ores (a drone's asteroids hold more than that on a big server: they take turns in
      * the slots), as many rows as the table has for the fluids.
      */
-    public static final int TOP_Y = 4;
-    public static final int GRID_X = 7, GRID_Y = 30, GRID_COLUMNS = 9, ORE_ROWS = 5;
+    public static final int TOP_Y = 4, MARKER_X = 79, DRONE_X = 101, FLUIDS_X = 4;
+    public static final int GRID_X = 7, GRID_Y = 48, GRID_COLUMNS = 9, ORE_ROWS = 5;
     public static final String FLOW_ID = "af9_space_mining_flow";
 
     private final GTRecipeType type;
@@ -100,13 +106,8 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         return Math.max(1, Math.min(ORE_ROWS, (PlanetCatalog.all().size() + GRID_COLUMNS - 1) / GRID_COLUMNS));
     }
 
-    /** The row under the grid: the fuel, the coolant and the arrow. */
-    private int bottomY() {
-        return GRID_Y + 18 * rows() + 6;
-    }
-
     private int height() {
-        return bottomY() + 18 + 6;
+        return GRID_Y + 18 * rows() + 6;
     }
 
     private WidgetGroup layout() {
@@ -116,17 +117,17 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         SpaceMiningFlowWidget flow = new SpaceMiningFlowWidget(liquid, height(), rows());
         flow.setId(FLOW_ID);
         group.addWidget(flow);
-        slot(group, ItemRecipeCapability.CAP, IO.IN, 0, (WIDTH - 18) / 2, TOP_Y,
+        slot(group, ItemRecipeCapability.CAP, IO.IN, 0, DRONE_X, TOP_Y,
                 getOverlaysForSlot(false, ItemRecipeCapability.CAP, true, false, false));
         for (int i = 0; i < fluids; i++) {
             // the second fluid is the coolant, not a fluid like the others: its slot in ice on dark frost
             boolean coolant = i == 1;
-            slot(group, FluidRecipeCapability.CAP, IO.IN, i, (coolant ? 80 : 58), bottomY(), coolant ?
+            slot(group, FluidRecipeCapability.CAP, IO.IN, i, FLUIDS_X + (coolant ? 0 : 20), TOP_Y, coolant ?
                     new GuiTextureGroup(new ColorRectTexture(0xFF0B2530),
                             new ColorBorderTexture(1, AcceleratorFlowWidget.ICE)) :
                     getOverlaysForSlot(false, FluidRecipeCapability.CAP, false, false, false));
         }
-        var arrow = new ProgressWidget(ProgressWidget.JEIProgress, 106, bottomY() - 1, 20, 20,
+        var arrow = new ProgressWidget(ProgressWidget.JEIProgress, MARKER_X - 1, TOP_Y + 20, 20, 20,
                 getProgressBarTexture());
         arrow.setId("progress");
         group.addWidget(arrow);
@@ -161,6 +162,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
             flow.setTier(tier);
             // into the page's own group: GT builds that anew when the page is redrawn, the slots with it
             if (flow.getParent() != null && FMLEnvironment.dist == Dist.CLIENT) {
+                addMarker(flow.getParent(), tier);
                 if (liquid) addFluids(flow.getParent(), tier);
                 else addOres(flow.getParent(), tier, reach(tier));
             }
@@ -168,17 +170,31 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         super.appendJEIUI(recipe, widgetGroup);
     }
 
-    /** The ores a drone tier's asteroids hold, as items (the raw ores), from the veins the client knows. */
+    /** The dimension marker where the drone used to be: the asteroid field, or the planet of the drone's tier. */
+    private void addMarker(WidgetGroup group, int tier) {
+        String[] planets = { "ad_astra:moon", "af9:zephyr", "af9:kronos", "af9:helios" };
+        String dimension = liquid ? planets[Math.max(0, Math.min(planets.length - 1, tier - 1))] : "af9:asteroid_field";
+        DimensionMarker marker = GTRegistries.DIMENSION_MARKERS.getOrDefault(ResourceLocation.tryParse(dimension), null);
+        CustomItemStackHandler handler = new CustomItemStackHandler(1);
+        handler.setStackInSlot(0, marker == null ? new ItemStack(Items.BARRIER) : marker.getIcon());
+        SlotWidget slot = new SlotWidget(handler, 0, MARKER_X, TOP_Y, false, false);
+        slot.setBackgroundTexture(GuiTextures.SLOT);
+        slot.setOnAddedTooltips((widget, tooltips) -> tooltips.add(Component.literal(dimension)
+                .withStyle(ChatFormatting.AQUA)));
+        group.addWidget(slot);
+    }
+
+    /** The ores only this drone tier brings, as items (the raw ores), from the veins the client knows. */
     private static List<ItemStack> reach(int tier) {
         List<ItemStack> ores = new ArrayList<>();
-        for (String material : OreCatalog.reach(tier, ClientOreVeins.get())) {
+        for (String material : OreCatalog.only(tier, ClientOreVeins.get())) {
             ItemStack ore = OreCatalog.ore(material, 1);
-            if (ore != null) ores.add(ore.copyWithCount(Math.max(1, SpaceMissionMachine.maxStacks(tier) * 64)));
+            if (ore != null) ores.add(ore);
         }
         return ores;
     }
 
-    /** Nine slots the ores take turns in: every ore is an output the recipe viewers know. */
+    /** One slot a ore, each with the range an expedition brings of it ("0-1024"); more ores than slots take turns. */
     private static void addOres(WidgetGroup group, int tier, List<ItemStack> ores) {
         int slots = GRID_COLUMNS * ORE_ROWS;
         List<List<ItemStack>> turns = new ArrayList<>();
@@ -190,6 +206,9 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
                     GRID_Y + 18 * (i / GRID_COLUMNS), false, false);
             slot.setBackgroundTexture(GuiTextures.SLOT);
             slot.setIngredientIO(IngredientIO.OUTPUT);
+            // the amount is a range, not the stack size the item shows: "0-1024"
+            slot.setOverlay(new TextTexture("0-" + SpaceMissionMachine.maxStacks(tier) * 64).scale(0.5F)
+                    .transform(0F, 5F));
             slot.setOnAddedTooltips((widget, tooltips) -> {
                 tooltips.add(Component.translatable("af9.recipe.space_mining.ore_tooltip.0")
                         .withStyle(ChatFormatting.AQUA));
@@ -206,7 +225,10 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
      * viewers know.
      */
     private static void addFluids(WidgetGroup group, int tier) {
-        List<PlanetCatalog.Cargo> cargoes = PlanetCatalog.reach(tier);
+        List<PlanetCatalog.Cargo> cargoes = new ArrayList<>();
+        for (PlanetCatalog.Cargo cargo : PlanetCatalog.all()) {
+            if (cargo.drone() == tier || (tier >= 4 && cargo.drone() > 4)) cargoes.add(cargo);
+        }
         int slots = Math.max(1, Math.min(GRID_COLUMNS * ORE_ROWS, cargoes.size()));
         List<List<FluidStack>> turns = new ArrayList<>();
         for (int i = 0; i < slots; i++) turns.add(new ArrayList<>());

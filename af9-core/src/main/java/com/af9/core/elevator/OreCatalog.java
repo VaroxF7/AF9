@@ -146,6 +146,19 @@ public final class OreCatalog {
     }
 
     /**
+     * The ores only a drone of this tier brings: those of the veins of exactly its tier (and for the best drone the exotic
+     * ones). The recipe page of a tier lists these, so each ore is on the page of the drone that first reaches it.
+     */
+    public static List<String> only(int tier, Iterable<Map.Entry<ResourceLocation, GTOreDefinition>> source) {
+        Set<String> names = new LinkedHashSet<>();
+        for (Vein vein : veins(source)) {
+            if (vein.tier() == tier) names.addAll(vein.materials());
+        }
+        if (tier >= TIERS) names.addAll(exotics(source));
+        return new ArrayList<>(names);
+    }
+
+    /**
      * The item an asteroid gives for an ore: its raw ore, else its crushed ore, or null when the ore has neither (then
      * there is nothing to mine).
      */

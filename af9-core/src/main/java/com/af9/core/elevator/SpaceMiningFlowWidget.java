@@ -14,7 +14,7 @@ import static com.af9.core.elevator.SpaceMiningRecipeUI.*;
 
 /**
  * The drawing behind a Space Elevator expedition's slots ({@link SpaceMiningRecipeUI}), as GTNH's Eye of Harmony page: nothing
- * but the empty slots of the grid, a short tube from the drone at the top down to it, and the drone's tier ("T3") on its slot.
+ * but the empty slots of the grid, and the drone's tier ("T3") on its slot.
  */
 public class SpaceMiningFlowWidget extends Widget {
 
@@ -37,11 +37,6 @@ public class SpaceMiningFlowWidget extends Widget {
         int x0 = getPosition().x;
         int y0 = getPosition().y;
 
-        // the tube from the drone to the grid
-        int centre = x0 + WIDTH / 2;
-        graphics.fill(centre - 3, y0 + TOP_Y + 18, centre + 3, y0 + GRID_Y - 1, 0xFF373737);
-        graphics.fill(centre - 2, y0 + TOP_Y + 18, centre + 2, y0 + GRID_Y - 2, 0xFFFFFFFF);
-
         // the empty slots of the grid
         for (int row = 0; row < rows; row++) {
             for (int column = 0; column < GRID_COLUMNS; column++) {
@@ -57,7 +52,7 @@ public class SpaceMiningFlowWidget extends Widget {
         String label = "T" + tier;
         Font font = Minecraft.getInstance().font;
         graphics.pose().pushPose();
-        graphics.pose().translate(centre - 8, y0 + TOP_Y + 11, 200);
+        graphics.pose().translate(x0 + DRONE_X + 1, y0 + TOP_Y + 11, 200);
         graphics.pose().scale(0.75F, 0.75F, 1F);
         graphics.drawString(font, label, 0, 0, SpaceElevatorConsoleWidget.tierColor(tier), true);
         graphics.pose().popPose();
