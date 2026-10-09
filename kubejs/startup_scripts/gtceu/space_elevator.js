@@ -20,6 +20,7 @@ const $SpaceElevator = Java.loadClass('com.af9.core.elevator.SpaceElevatorMachin
 const $ElevatorModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $ElevatorDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 const $ElevatorCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
+const $SpaceModule = Java.loadClass('com.af9.core.elevator.SpaceModuleMachine')
 
 const SE_ROMAN = ['I', 'II', 'III', 'IV', 'V']
 // module slots the motors of each tier power, expeditions a Mining Module of each tier flies at once (GTNH's numbers; the
@@ -44,6 +45,13 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .category('multiblock')
         .setEUIO('in')
         .setMaxIOSize(1, 0, 2, 1)
+        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+        .setSound(GTSoundEntries.ARC)
+    // the modules are controllers of their own, but run no recipes: the elevator flies the missions (SpaceModuleMachine)
+    event.create('space_module')
+        .category('multiblock')
+        .setEUIO('in')
+        .setMaxIOSize(1, 1, 1, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC)
 })
@@ -712,4 +720,32 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .model($ElevatorModels.workableCasingWithSpaceElevator('af9:block/space_elevator_base_casing',
             'gtceu:block/multiblock/fusion_reactor', $SpaceElevator.CABLE_UP, $SpaceElevator.CABLE_BACK))
         .hasBER(true)
+
+    // ---- The Mining Modules: GTNH's elevator modules, each a small multiblock of its own that stands in a module slot ('I' above)
+    // and is connected by the tower (SpaceModuleMachine). Its structure is the slot's casings above and below it (where the
+    // slot's hatches go, the same parts as the tower's); the sides are the tower's business.
+    ;['I', 'II', 'III'].forEach((roman, index) => {
+        const tier = index + 1
+        event.create(`space_mining_module_mk${tier}`, 'multiblock')
+            .langValue(`Space Mining Module MK-${roman}`)
+            .machine(holder => new $SpaceModule(holder, tier))
+            .rotationState(RotationState.NON_Y_AXIS)
+            .recipeTypes([GTRecipeTypes.get('space_module')])
+            .appearanceBlock(() => Block.getBlock('af9:space_elevator_base_casing'))
+            ['tooltips(net.minecraft.network.chat.Component[])'](tooltips(`af9.space_mining_module_mk${tier}.tooltip`, 4))
+            .pattern(definition => {
+                const slotPart = Predicates.blocks('af9:space_elevator_base_casing')
+                    .or(Predicates.abilities(PartAbility.IMPORT_ITEMS, PartAbility.EXPORT_ITEMS,
+                        PartAbility.IMPORT_FLUIDS, PartAbility.EXPORT_FLUIDS, PartAbility.INPUT_ENERGY,
+                        PartAbility.INPUT_LASER, $ElevatorCoolantHatch.COOLANT_INPUT))
+                return FactoryBlockPattern.start()
+                    .aisle(' M ', ' S ', ' M ')
+                    .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+                    .where('M', slotPart)
+                    .where(' ', Predicates.any())
+                    .build()
+            })
+            .workableCasingModel('af9:block/space_elevator_base_casing',
+                `gtceu:block/multiblock/space_mining_module_mk${tier}`)
+    })
 })

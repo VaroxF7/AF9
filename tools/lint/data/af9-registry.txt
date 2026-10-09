@@ -34,9 +34,6 @@ block af9:space_elevator_motor_mk2
 block af9:space_elevator_motor_mk3
 block af9:space_elevator_motor_mk4
 block af9:space_elevator_motor_mk5
-block af9:space_mining_module_mk1
-block af9:space_mining_module_mk2
-block af9:space_mining_module_mk3
 block af9:ultra_high_strength_concrete_floor
 item af9:advanced_soc_euv_reticle
 item af9:advanced_soc_reticle
@@ -253,9 +250,6 @@ item af9:space_mining_drone_mk1
 item af9:space_mining_drone_mk2
 item af9:space_mining_drone_mk3
 item af9:space_mining_drone_mk4
-item af9:space_mining_module_mk1
-item af9:space_mining_module_mk2
-item af9:space_mining_module_mk3
 item af9:spin_logic_chip
 item af9:spin_logic_euv_reticle
 item af9:spin_logic_reticle

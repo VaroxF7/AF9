@@ -129,18 +129,6 @@ def cable():
     return face
 
 
-def module(tier):
-    """A mining module: GTNH's support-structure plate with the miner module's pickaxe and one pip per tier."""
-    plate = load('SupportStructure_Side').copy()
-    glyph = load('OVERLAY_SIDE_MINER_MODULE')
-    plate.alpha_composite(glyph)
-    tint = [(0x4F, 0xC3, 0xF7, 255), (0x66, 0xE0, 0x8A, 255), (0xFF, 0xB3, 0x47, 255)][tier - 1]
-    for i in range(tier):
-        for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1)):
-            plate.putpixel((5 + i * 3 + dx, 13 + dy - 1), tint)
-    return plate
-
-
 def main():
     os.makedirs(OUT, exist_ok=True)
     previews = {}
@@ -154,9 +142,6 @@ def main():
     for tier in range(1, 6):
         previews['motor_%d' % tier] = connected('space_elevator_motor_mk%d' % tier, load('MotorT%d_Side' % tier), 5, 0, lane)
     save(cable(), 'space_elevator_cable')
-    for tier in range(1, 4):
-        save(module(tier), 'space_mining_module_mk%d' % tier)
-    save(load('SupportStructure'), 'space_mining_module_top')
     if '--preview' in sys.argv:
         dest = sys.argv[sys.argv.index('--preview') + 1]
         os.makedirs(dest, exist_ok=True)

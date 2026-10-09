@@ -240,7 +240,7 @@
 				""
 				"{af9.quest.se.module1.2}"
 			]
-			icon: "af9:space_mining_module_mk1"
+			icon: "gtceu:space_mining_module_mk1"
 			id: "6899E431B966F3DA"
 			rewards: [{
 				id: "3F121EBA72BA0C87"
@@ -253,7 +253,7 @@
 			tasks: [
 				{
 					id: "5C90224E52DA2B9B"
-					item: "af9:space_mining_module_mk1"
+					item: "gtceu:space_mining_module_mk1"
 					type: "item"
 				}
 			]
@@ -512,7 +512,7 @@
 			description: [
 				"{af9.quest.se.module2.1}"
 			]
-			icon: "af9:space_mining_module_mk2"
+			icon: "gtceu:space_mining_module_mk2"
 			id: "1F64A663255C46EB"
 			rewards: [{
 				id: "7D4BC859D3DB6B7F"
@@ -525,7 +525,7 @@
 			tasks: [
 				{
 					id: "68AB48F9B81507A1"
-					item: "af9:space_mining_module_mk2"
+					item: "gtceu:space_mining_module_mk2"
 					type: "item"
 				}
 			]
@@ -565,7 +565,7 @@
 			description: [
 				"{af9.quest.se.module3.1}"
 			]
-			icon: "af9:space_mining_module_mk3"
+			icon: "gtceu:space_mining_module_mk3"
 			id: "2FCCC57F8F4A6F0D"
 			rewards: [{
 				id: "4111537FD1834D6E"
@@ -578,7 +578,7 @@
 			tasks: [
 				{
 					id: "5A3EF56BDB989C69"
-					item: "af9:space_mining_module_mk3"
+					item: "gtceu:space_mining_module_mk3"
 					type: "item"
 				}
 			]

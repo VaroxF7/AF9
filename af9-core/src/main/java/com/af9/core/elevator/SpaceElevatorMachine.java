@@ -11,6 +11,7 @@ import com.af9.core.registry.AF9Items;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.block.MetaMachineBlock;
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.IRecipeHandler;
@@ -74,6 +75,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -135,16 +138,18 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     public static final int MOTOR_TIERS = AF9Blocks.MOTORS;
     private static final String[] ROMAN = { "I", "II", "III", "IV", "V" };
     private static final String MOTOR = AF9Blocks.MOTOR;
-    /** The Mining Module tiers there are: {@code af9:space_mining_module_mk1} to {@code mk3}. */
+    /** The Mining Module tiers there are: {@code gtceu:space_mining_module_mk1} to {@code mk3} (machines: {@link SpaceModuleMachine}). */
     public static final int MODULE_TIERS = AF9Blocks.MODULES;
     private static final String MODULE = AF9Blocks.MODULE;
     /** The pattern check's notes (GT's match context): the motor tier, the tiers of the modules found. */
     private static final String MOTOR_KEY = "SpaceElevatorMotor";
     private static final String MODULES_KEY = "SpaceElevatorModules";
+    /** Where the modules found stand (block positions as longs, in the order of the tiers noted in {@link #MODULES_KEY}). */
+    private static final String MODULE_POS_KEY = "SpaceElevatorModulePositions";
     /** Module slots the motors of each tier power (GTNH's). */
     private static final int[] MODULE_SLOTS = { 6, 12, 15, 18, 24 };
     /** Expeditions a Mining Module of each tier flies at once (GTNH's parallels). */
-    private static final int[] MODULE_EXPEDITIONS = { 2, 4, 8 };
+    static final int[] MODULE_EXPEDITIONS = { 2, 4, 8 };
 
     /** Stacks of ore an expedition of each drone tier brings home: at least and at most. */
     private static final int[] MIN_STACKS = { 8, 12, 16, 24 };
@@ -222,6 +227,8 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     private int modules, poweredModules, expeditions;
     /** The highest tier among the Mining Modules in the slots, 0 without one. */
     private int topModule;
+    /** Where the modules stand that this tower connected (disconnected when it breaks). */
+    private final LongList connectedModules = new LongArrayList();
     /** The cargo of the run tried last had no room in the outputs: the run waits for room (the screen says so). */
     private boolean outputFull;
     /** The sky above the cable is looked at once a second: when, and what was seen. */
@@ -469,14 +476,36 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
                 .addTooltips(Component.translatable("af9.space_elevator.error.motors"));
     }
 
-    /** A Mining Module in a module slot, any tier; the check notes them all down ({@link #onStructureFormed}). */
+    /** The tier of a Mining Module controller ({@code gtceu:space_mining_module_mk<tier>}), 0 for any other block. */
+    private static int moduleTierOf(BlockState state) {
+        ResourceLocation key = ForgeRegistries.BLOCKS.getKey(state.getBlock());
+        if (key == null || !key.getNamespace().equals("gtceu") || !key.getPath().startsWith(MODULE)) return 0;
+        try {
+            return Integer.parseInt(key.getPath().substring(MODULE.length()));
+        } catch (NumberFormatException exception) {
+            return 0;
+        }
+    }
+
+    private static BlockInfo[] moduleCandidates() {
+        return IntStream.rangeClosed(1, MODULE_TIERS)
+                .mapToObj(tier -> ForgeRegistries.BLOCKS.getValue(new ResourceLocation("gtceu", MODULE + tier)))
+                .filter(block -> block != null && block != Blocks.AIR)
+                .map(BlockInfo::fromBlock).toArray(BlockInfo[]::new);
+    }
+
+    /**
+     * A Mining Module in a module slot, any tier: a small multiblock of its own ({@link SpaceModuleMachine}), as in GTNH. The
+     * check notes them all down, tier and place ({@link #onStructureFormed}), and connects them.
+     */
     public static TraceabilityPredicate modules() {
         return new TraceabilityPredicate(state -> {
-            int tier = tierOf(state.getBlockState(), MODULE);
+            int tier = moduleTierOf(state.getBlockState());
             if (tier < 1 || tier > MODULE_TIERS) return false;
             state.getMatchContext().getOrCreate(MODULES_KEY, IntArrayList::new).add(tier);
+            state.getMatchContext().getOrCreate(MODULE_POS_KEY, LongArrayList::new).add(state.getPos().asLong());
             return true;
-        }, () -> candidates(MODULE, MODULE_TIERS))
+        }, SpaceElevatorMachine::moduleCandidates)
                 .addTooltips(Component.translatable("af9.space_elevator.pattern.module"));
     }
 
@@ -534,6 +563,7 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         motorTier = context.getOrDefault(MOTOR_KEY, 0);
         IntList found = context.get(MODULES_KEY);
         countModules(found == null ? IntList.of() : found);
+        connectModules(found == null ? IntList.of() : found, context.get(MODULE_POS_KEY));
         if (getLevel() instanceof ServerLevel) {
             // a liquid mission whose fluid is not there any more: back to the asteroids
             if (isLiquidMission() && PlanetCatalog.find(planetType, gasType) == null) setMission(0, 0);
@@ -549,6 +579,7 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
+        disconnectModules();
         motorTier = 0;
         modules = poweredModules = expeditions = topModule = 0;
         outputFull = false;
@@ -584,6 +615,44 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
             poweredModules += powered;
             expeditions += powered * MODULE_EXPEDITIONS[tier - 1];
         }
+    }
+
+    /**
+     * Tells every module the tower found that it is part of it: the motors' tier, the slots they power, and whether this module
+     * is one of the powered ones (the same choice as {@link #countModules}: the best tiers first, the motors' tier at most).
+     */
+    private void connectModules(IntList tiers, LongList positions) {
+        disconnectModules();
+        if (positions == null || positions.size() != tiers.size() || getLevel() == null) return;
+        int slots = moduleSlots(motorTier);
+        boolean[] powered = new boolean[tiers.size()];
+        int count = 0;
+        for (int tier = Math.min(motorTier, MODULE_TIERS); tier >= 1 && count < slots; tier--) {
+            for (int i = 0; i < tiers.size() && count < slots; i++) {
+                if (tiers.getInt(i) == tier) {
+                    powered[i] = true;
+                    count++;
+                }
+            }
+        }
+        for (int i = 0; i < positions.size(); i++) {
+            if (MetaMachine.getMachine(getLevel(), BlockPos.of(positions.getLong(i))) instanceof SpaceModuleMachine module) {
+                module.connect(motorTier, slots, powered[i]);
+                connectedModules.add(positions.getLong(i));
+            }
+        }
+    }
+
+    private void disconnectModules() {
+        Level level = getLevel();
+        if (level != null) {
+            for (long pos : connectedModules) {
+                if (MetaMachine.getMachine(level, BlockPos.of(pos)) instanceof SpaceModuleMachine module) {
+                    module.disconnect();
+                }
+            }
+        }
+        connectedModules.clear();
     }
 
     /** A tier as the blocks and the drones are named: MK-I to MK-V ("-" for no tier). */
