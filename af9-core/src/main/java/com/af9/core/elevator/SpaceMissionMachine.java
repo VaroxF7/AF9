@@ -129,6 +129,8 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
     public static final String ASTEROID_TAG = "af9_asteroid";
     /** Recipe data key of the fluid a liquid run brings ({@link PlanetCatalog.Cargo#code()}). */
     public static final String CARGO_TAG = "af9_cargo";
+    /** Recipe data key that marks an ore expedition whose asteroid the recipe's circuit picks. */
+    public static final String EXPEDITION_TAG = "af9_expedition";
 
     /**
      * The Mining Drone slot of the elevator's screen: a recipe input (GT reads the controller's own handlers as it
@@ -158,10 +160,56 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
 
     /** The cargo of the run tried last had no room in the outputs: the run waits for room (the screen says so). */
     private boolean outputFull;
+    /**
+     * The programmed circuit of the module, set with the button on the left of its screen: its number picks the ore of the
+     * drone's tier (the recipe with that circuit). A recipe input like a circuit in a bus, so the module needs no bus for it.
+     */
+    @Persisted
+    protected final NotifiableItemStackHandler circuitSlot;
 
     protected SpaceMissionMachine(IMachineBlockEntity holder) {
         super(holder);
         droneSlot = new NotifiableItemStackHandler(this, 1, IO.IN, IO.NONE).setFilter(SpaceMissionMachine::isDrone);
+        circuitSlot = new NotifiableItemStackHandler(this, 1, IO.IN, IO.NONE)
+                .setFilter(com.gregtechceu.gtceu.common.item.IntCircuitBehaviour::isIntegratedCircuit).shouldSearchContent(false);
+    }
+
+    /** The circuit button, on top of the others on the left of the screen. */
+    @Override
+    public void attachConfigurators(com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel configuratorPanel) {
+        configuratorPanel.attachConfigurators(
+                new com.gregtechceu.gtceu.api.machine.fancyconfigurator.CircuitFancyConfigurator(circuitSlot.storage));
+        super.attachConfigurators(configuratorPanel);
+    }
+
+    /** The programmed circuit set on the screen, -1 for none. */
+    public int circuitSet() {
+        ItemStack stack = circuitSlot.getStackInSlot(0);
+        return com.gregtechceu.gtceu.common.item.IntCircuitBehaviour.isIntegratedCircuit(stack) ? com.gregtechceu.gtceu.common.item.IntCircuitBehaviour.getCircuitConfiguration(stack) : -1;
+    }
+
+    /** The circuit a recipe asks for, -1 for none. */
+    public static int circuitOf(GTRecipe recipe) {
+        for (Content content : recipe.inputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
+            for (ItemStack stack : ItemRecipeCapability.CAP.of(content.content).getItems()) {
+                if (com.gregtechceu.gtceu.common.item.IntCircuitBehaviour.isIntegratedCircuit(stack)) return com.gregtechceu.gtceu.common.item.IntCircuitBehaviour.getCircuitConfiguration(stack);
+            }
+        }
+        return -1;
+    }
+
+    /** Whether an ore expedition of the drone and the circuit set exists. */
+    public boolean hasOreRecipe(int drone) {
+        Level level = getLevel();
+        if (level == null || drone < 1) return false;
+        int circuit = circuitSet();
+        for (GTRecipe recipe : level.getRecipeManager().getAllRecipesFor(getRecipeType())) {
+            if (droneTier(recipe) == drone && circuitOf(recipe) == circuit &&
+                    circuit <= OreCatalog.veinIds(drone).size()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** Broken controller: the drone drops. */
@@ -187,6 +235,10 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
                 continue;
             }
             SpaceMiningRecipeUI.install(type, name.equals(LIQUID_RECIPE_TYPE));
+            if (!name.equals(LIQUID_RECIPE_TYPE)) {
+                type.addDataInfo(data -> Component.translatable("af9.recipe.space_mining.module",
+                        data.getInt("af9_module")).getString());
+            }
         }
     }
 
@@ -428,6 +480,7 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
         if (getAvailableEUt() < needs.eut()) return ConsoleWidget.STATUS_NO_POWER;
         if (stockOf(GTMaterials.Hydrogen.getFluid()) < needs.hydrogen()) return ConsoleWidget.STATUS_NO_FUEL;
         if (stockOf(needs.coolant()) < needs.coolantAmount()) return ConsoleWidget.STATUS_NO_COOLANT;
+        if (!liquid && !hasOreRecipe(drone)) return ConsoleWidget.STATUS_NO_DATA;
         RecipeCapability<?> kind = liquid ? FluidRecipeCapability.CAP : ItemRecipeCapability.CAP;
         if (outputFull || getCapabilitiesFlat(IO.OUT, kind).isEmpty()) return ConsoleWidget.STATUS_OUTPUT_FULL;
         return ConsoleWidget.STATUS_IDLE;
@@ -534,6 +587,10 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
                 !elevator.isSkyClear()) {
             return ModifierFunction.NULL;
         }
+        // a module flies the drones of its own tier and below (the MK-3 module also the MK-4 drone)
+        if (elevator instanceof SpaceModuleMachine module && module.getModuleTier() < Math.min(tier, 3)) {
+            return ModifierFunction.NULL;
+        }
         boolean liquid = elevator.isLiquidMission();
         PlanetCatalog.Cargo cargo = elevator.chosenCargo();
         if (liquid && (cargo == null || cargo.drone() > tier)) return ModifierFunction.NULL;
@@ -552,7 +609,8 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
         } else {
             RandomSource random = elevator.getLevel() != null ? elevator.getLevel().getRandom() :
                     RandomSource.create();
-            ores = asteroid(tier, random, where);
+            ores = recipeOre(recipe, random, where);
+            if (ores == null) ores = asteroid(tier, random, where);
             if (ores.isEmpty()) return ModifierFunction.NULL;
             one.outputs.put(ItemRecipeCapability.CAP, contents(ores, 1));
         }
@@ -595,6 +653,41 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
 
     public static int maxStacks(int tier) {
         return MAX_STACKS[Math.max(1, Math.min(tier, MAX_STACKS.length)) - 1];
+    }
+
+    /**
+     * The asteroid of a recipe that names its own (data {@code af9_vein}, and {@code af9_min} / {@code af9_max} stacks): that
+     * vein's ores in the drone tier's number of stacks, about half of them the main ore. Null for a recipe that does not,
+     * which then flies to a random asteroid.
+     */
+    private static List<ItemStack> recipeOre(GTRecipe recipe, RandomSource random, StringBuilder name) {
+        if (!recipe.data.contains(EXPEDITION_TAG)) return null;
+        // the n-th asteroid of the drone's tier, n the recipe's circuit
+        List<String> veins = OreCatalog.veinIds(droneTier(recipe));
+        int circuit = circuitOf(recipe);
+        if (circuit < 1 || circuit > veins.size()) return List.of();
+        String id = veins.get(circuit - 1);
+        int tier = Math.min(Math.max(droneTier(recipe), 1), MIN_STACKS.length);
+        int min = MIN_STACKS[tier - 1];
+        int max = MAX_STACKS[tier - 1];
+        int stacks = min + random.nextInt(max - min + 1);
+        List<String> materials = new ArrayList<>(OreCatalog.veinMaterials(id));
+        if (OreCatalog.EXOTIC.equals(id)) {
+            List<String> bag = new ArrayList<>(materials);
+            materials.clear();
+            while (materials.size() < EXOTIC_ORES && !bag.isEmpty()) materials.add(bag.remove(random.nextInt(bag.size())));
+        }
+        name.append(id);
+        List<ItemStack> result = new ArrayList<>();
+        int main = materials.size() <= 1 ? stacks : Math.max(1, (int) Math.round(stacks * MAIN_SHARE));
+        int others = Math.max(1, materials.size() - 1);
+        for (int i = 0; i < materials.size(); i++) {
+            int share = i == 0 ? main : (stacks - main) / others;
+            if (i == 1) share += (stacks - main) - share * others;
+            ItemStack ore = share < 1 ? null : OreCatalog.ore(materials.get(i), share * STACK);
+            if (ore != null) result.add(ore);
+        }
+        return result;
     }
 
     /** The ore of an asteroid as a recipe's item outputs, {@code times} over. */

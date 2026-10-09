@@ -38,7 +38,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     event.create('space_mining')
         .category('multiblock')
         .setEUIO('in')
-        .setMaxIOSize(3, 1, 2, 0)
+        .setMaxIOSize(4, 1, 2, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC)
     // the same flights for a planet's fluid, the liquid missions: the fluid is put in when a run starts, the one picked on

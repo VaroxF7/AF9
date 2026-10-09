@@ -11,6 +11,7 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 
+import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import java.util.List;
 
 /**
@@ -110,6 +111,23 @@ public class SpaceModuleMachine extends SpaceMissionMachine {
         this.motorTier = motorTier;
         this.slots = slots;
         markDirty();
+    }
+
+    /**
+     * The outputs of a module are the tower's: its ore and its fluid go to the output buses and hatches of the elevator it
+     * stands in, in one place whatever the number of modules. Where the tower has none the module keeps its own.
+     */
+    @Override
+    protected void collectRecipeHandlers() {
+        super.collectRecipeHandlers();
+        SpaceElevatorMachine parent = parent();
+        if (parent == null) return;
+        var lists = parent.getCapabilitiesProxy().get(IO.OUT);
+        if (lists == null || lists.isEmpty()) return;
+        var shared = new java.util.ArrayList<>(lists);
+        getCapabilitiesProxy().remove(IO.OUT);
+        getCapabilitiesFlat().remove(IO.OUT);
+        for (var list : shared) addHandlerList(list);
     }
 
     /** The elevator broke or does not have this module in its structure any more. */

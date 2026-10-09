@@ -145,6 +145,57 @@ public final class OreCatalog {
         return new ArrayList<>(names);
     }
 
+    /** The id of the exotic asteroid among the veins ({@link #veinIds}). */
+    public static final String EXOTIC = "exotic";
+
+    /**
+     * The asteroids a drone of this tier first reaches, by vein id (alphabetical, so a programmed circuit's number keeps its
+     * asteroid) and, for the best drone, the exotic one: one expedition recipe each (server_scripts/mods/gtceu/space_elevator.js).
+     */
+    public static List<String> veinIds(int tier) {
+        return veinIds(tier, GTRegistries.ORE_VEINS.entries());
+    }
+
+    /** The same, of the veins given (the client's, for the recipe pages). */
+    public static List<String> veinIds(int tier, Iterable<Map.Entry<ResourceLocation, GTOreDefinition>> source) {
+        List<String> ids = new ArrayList<>();
+        for (Vein vein : veins(source)) {
+            if (vein.tier() == tier && !ids.contains(vein.id())) ids.add(vein.id());
+        }
+        java.util.Collections.sort(ids);
+        if (tier >= TIERS && !exotics(source).isEmpty()) ids.add(EXOTIC);
+        return ids;
+    }
+
+    /** The ore materials of an asteroid: its vein's, or all the exotic ones. */
+    public static List<String> veinMaterials(String id) {
+        return veinMaterials(id, GTRegistries.ORE_VEINS.entries());
+    }
+
+    public static List<String> veinMaterials(String id, Iterable<Map.Entry<ResourceLocation, GTOreDefinition>> source) {
+        if (EXOTIC.equals(id)) return exotics(source);
+        for (Vein vein : veins(source)) {
+            if (vein.id().equals(id)) return vein.materials();
+        }
+        return List.of();
+    }
+
+    /** The item ids of an asteroid's ores (the raw ore, else the crushed one), the main ore first. */
+    public static List<String> veinOreItems(String id) {
+        return veinOreItems(id, GTRegistries.ORE_VEINS.entries());
+    }
+
+    public static List<String> veinOreItems(String id, Iterable<Map.Entry<ResourceLocation, GTOreDefinition>> source) {
+        List<String> ids = new ArrayList<>();
+        for (String material : veinMaterials(id, source)) {
+            ItemStack stack = ore(material, 1);
+            if (stack == null) continue;
+            String item = idOf(stack);
+            if (!ids.contains(item)) ids.add(item);
+        }
+        return ids;
+    }
+
     /**
      * The ores only a drone of this tier brings: those of the veins of exactly its tier (and for the best drone the exotic
      * ones). The recipe page of a tier lists these, so each ore is on the page of the drone that first reaches it.

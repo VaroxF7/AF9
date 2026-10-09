@@ -332,3 +332,19 @@ GTNH's elevator also has a galaxy map for travel, and plasma, drill tips, rods a
 and has no travel function. GTNH's screen (a TecTech controller's, with its parameters) is not rebuilt: the elevator has AF9's console
 (section 5). GTNH's climber model and textures are GTNH's own and are not used: the climber, the cable and the block textures are made by
 hand after pictures (section 4).
+
+## Ore expeditions per asteroid (the module rework)
+
+* **One recipe a programmed circuit.** A module takes the circuit set with the button on the left of its screen: its number
+  is the asteroid, the n-th of the veins the drone's tier first reaches (alphabetical; the exotic one last, MK-4). Recipes:
+  `af9:space_mining_mk<tier>_<n>` (`server_scripts/mods/gtceu/space_elevator.js`, `ASTEROIDS` counts them: 24 / 12 / 4 / 8 now).
+  A run brings a random number of stacks of the vein's ores (the tier's 8-16 / 12-24 / 16-32 / 24-48, half of them the main ore).
+  The recipe pages list the ores of that asteroid with their ranges.
+* **Used up:** a drill head and a crate (MK-1 tungsten carbide / stainless steel, MK-2 HSS-E / titanium, MK-3 naquadah alloy /
+  tungsten steel, MK-4 neutronium / tungsten steel). The drone is not used up.
+* **Modules:** a module flies the drones of its own tier and below (the MK-3 module also the MK-4 drone). Each flies its own
+  recipe, as many at once as the tower's motors power.
+* **Outputs:** the ore (and the fluid of a liquid mission) goes to the **tower's** output buses and hatches, not the module's;
+  a module keeps its own only where the tower has none.
+* **Computation:** the tower needs data hatches: 20 / 60 / 120 CWU/t for each powered MK-1 / MK-2 / MK-3 module. Its screen
+  says how much it has and how much hydrogen and coolant the modules in the slots need a second.

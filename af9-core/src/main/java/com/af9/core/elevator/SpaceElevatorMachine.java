@@ -591,6 +591,8 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         for (int i = 0; i < positions.size(); i++) {
             if (MetaMachine.getMachine(getLevel(), BlockPos.of(positions.getLong(i))) instanceof SpaceModuleMachine module) {
                 module.connect(getPos().asLong(), motorTier, slots, powered[i]);
+                // the tower's output buses are the module's: take them again whenever the tower is checked
+                module.rebuildRecipeHandlers();
                 connectedModules.add(positions.getLong(i));
             }
         }

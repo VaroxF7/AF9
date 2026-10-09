@@ -16,22 +16,35 @@ ServerEvents.recipes(event => {
     // ---- The expeditions: drone tier, hydrogen (mB), coolant, coolant (mB), amps of ZPM, seconds ----
     // 50 to 100 buckets of each. ZPM recipes of several amps (as the Particle Accelerator's): Mk1 runs on one 4A ZPM
     // hatch, Mk2 on two, Mk3 on four, Mk4 on lasers.
-    // plus what an expedition uses up: a drill head and a crate for the ore (GT's, the rarer the ore the drone reaches the
-    // harder the drill head; the crate holds the cargo). The numbers are also in af9-core SpaceElevatorMachine.REQUIREMENTS
+    // [drone tier, hydrogen mB, coolant, coolant mB, amps of ZPM, seconds, drill head, crate]. The ore expeditions use up a drill
+    // head and a crate (GT's; the rarer the ore the drone reaches the harder the drill head). The numbers are also in af9-core
+    // SpaceElevatorMachine.REQUIREMENTS
     const expeditions = [
         [1, 64000, 'gtceu:supercooled_hydrogen', 50000, 4, 180, 'gtceu:tungsten_carbide_drill_head', 'gtceu:stainless_steel_crate'],
         [2, 80000, 'gtceu:supercooled_argon', 64000, 8, 240, 'gtceu:hsse_drill_head', 'gtceu:titanium_crate'],
         [3, 96000, 'gtceu:supercooled_xenon', 80000, 16, 300, 'gtceu:naquadah_alloy_drill_head', 'gtceu:tungsten_steel_crate'],
         [4, 100000, 'gtceu:supercooled_endion', 100000, 32, 360, 'gtceu:neutronium_drill_head', 'gtceu:tungsten_steel_crate']
     ]
+    // One ore expedition recipe a programmed circuit of the drone's tier: the circuit's number picks the asteroid, the n-th of
+    // the veins that tier first reaches (alphabetical, the exotic one last: af9-core OreCatalog.veinIds; the veins are not
+    // registered yet while the recipes load, so the recipes only count). ASTEROIDS holds how many there are of each tier now;
+    // a circuit past them flies nowhere. The run brings a random number of stacks between the tier's least and most
+    // (af9-core SpaceMissionMachine.MIN_STACKS / MAX_STACKS), about half of them the vein's main ore; the recipe pages list the
+    // ores (client side, with their ranges).
+    const ASTEROIDS = { 1: 24, 2: 12, 3: 4, 4: 8 }
     expeditions.forEach(([tier, hydrogen, coolant, coolantMb, amps, seconds, drill, crate]) => {
-        event.recipes.gtceu.space_mining(`af9:space_mining_mk${tier}`)
-            .notConsumable(`af9:space_mining_drone_mk${tier}`)
-            .itemInputs(drill, crate)
-            .inputFluids(Fluid.of('gtceu:hydrogen', hydrogen))
-            .inputFluids(Fluid.of(coolant, coolantMb))
-            .duration(seconds * 20)
-            .EUt(VA[GTValues.ZPM], amps)
+        for (let circuit = 1; circuit <= ASTEROIDS[tier]; circuit++) {
+            event.recipes.gtceu.space_mining(`af9:space_mining_mk${tier}_${circuit}`)
+                .notConsumable(`af9:space_mining_drone_mk${tier}`)
+                .circuit(circuit)
+                .itemInputs(drill, crate)
+                .inputFluids(Fluid.of('gtceu:hydrogen', hydrogen))
+                .inputFluids(Fluid.of(coolant, coolantMb))
+                .addData('af9_expedition', 1)
+                .addData('af9_module', Math.min(tier, 3))
+                .duration(seconds * 20)
+                .EUt(VA[GTValues.ZPM], amps)
+        }
         event.recipes.gtceu.space_pumping(`af9:space_pumping_mk${tier}`)
             .notConsumable(`af9:space_mining_drone_mk${tier}`)
             .inputFluids(Fluid.of('gtceu:hydrogen', hydrogen))

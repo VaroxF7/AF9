@@ -69,7 +69,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
      * {@link #ORE_ROWS} rows for the ores (a drone's asteroids hold more than that on a big server: they take turns in
      * the slots), as many rows as the table has for the fluids.
      */
-    public static final int TOP_Y = 4, MARKER_X = 79, DRONE_X = 101, FLUIDS_X = 4, DRILL_X = 121, CRATE_X = 141;
+    public static final int TOP_Y = 4, MARKER_X = 79, DRONE_X = 101, FLUIDS_X = 4, CIRCUIT_X = 119, DRILL_X = 137, CRATE_X = 155;
     public static final int GRID_X = 7, GRID_Y = 48, GRID_COLUMNS = 9, ORE_ROWS = 5;
     public static final String FLOW_ID = "af9_space_mining_flow";
 
@@ -119,11 +119,13 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         group.addWidget(flow);
         slot(group, ItemRecipeCapability.CAP, IO.IN, 0, DRONE_X, TOP_Y,
                 getOverlaysForSlot(false, ItemRecipeCapability.CAP, true, false, false));
-        // what a run uses up: a drill head and a crate
-        if (!liquid && type.maxInputs.getInt(ItemRecipeCapability.CAP) >= 3) {
-            slot(group, ItemRecipeCapability.CAP, IO.IN, 1, DRILL_X, TOP_Y,
+        // the circuit that picks the asteroid, and what a run uses up: a drill head and a crate
+        if (!liquid && type.maxInputs.getInt(ItemRecipeCapability.CAP) >= 4) {
+            slot(group, ItemRecipeCapability.CAP, IO.IN, 1, CIRCUIT_X, TOP_Y,
+                    getOverlaysForSlot(false, ItemRecipeCapability.CAP, true, false, false));
+            slot(group, ItemRecipeCapability.CAP, IO.IN, 2, DRILL_X, TOP_Y,
                     getOverlaysForSlot(false, ItemRecipeCapability.CAP, false, false, false));
-            slot(group, ItemRecipeCapability.CAP, IO.IN, 2, CRATE_X, TOP_Y,
+            slot(group, ItemRecipeCapability.CAP, IO.IN, 3, CRATE_X, TOP_Y,
                     getOverlaysForSlot(false, ItemRecipeCapability.CAP, false, false, false));
         }
         for (int i = 0; i < fluids; i++) {
@@ -171,7 +173,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
             if (flow.getParent() != null && FMLEnvironment.dist == Dist.CLIENT) {
                 addMarker(flow.getParent(), tier);
                 if (liquid) addFluids(flow.getParent(), tier);
-                else addOres(flow.getParent(), tier, reach(tier));
+                else addAsteroid(flow.getParent(), tier, SpaceMissionMachine.circuitOf(recipe));
             }
         });
         super.appendJEIUI(recipe, widgetGroup);
@@ -191,38 +193,39 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         group.addWidget(slot);
     }
 
-    /** The ores only this drone tier brings, as items (the raw ores), from the veins the client knows. */
-    private static List<ItemStack> reach(int tier) {
-        List<ItemStack> ores = new ArrayList<>();
-        for (String material : OreCatalog.only(tier, ClientOreVeins.get())) {
-            ItemStack ore = OreCatalog.ore(material, 1);
-            if (ore != null) ores.add(ore);
+    /**
+     * The ores of the asteroid this recipe's circuit picks (the n-th of the drone tier's, as the run counts them: the veins
+     * the client knows), one slot each with what a run brings of it as a range; nothing while the circuit has no asteroid.
+     */
+    private static void addAsteroid(WidgetGroup group, int tier, int circuit) {
+        var source = ClientOreVeins.get();
+        List<String> veins = OreCatalog.veinIds(tier, source);
+        if (circuit < 1 || circuit > veins.size()) return;
+        List<String> ores = OreCatalog.veinOreItems(veins.get(circuit - 1), source);
+        int least = SpaceMissionMachine.minStacks(tier), most = SpaceMissionMachine.maxStacks(tier);
+        int count = Math.min(ores.size(), GRID_COLUMNS * ORE_ROWS);
+        List<ItemStack> stacks = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            var item = net.minecraftforge.registries.ForgeRegistries.ITEMS.getValue(new ResourceLocation(ores.get(i)));
+            stacks.add(item == null ? ItemStack.EMPTY : new ItemStack(item));
         }
-        return ores;
-    }
-
-    /** One slot a ore, each with the range an expedition brings of it ("0-1024"); more ores than slots take turns. */
-    private static void addOres(WidgetGroup group, int tier, List<ItemStack> ores) {
-        int slots = GRID_COLUMNS * ORE_ROWS;
-        List<List<ItemStack>> turns = new ArrayList<>();
-        for (int i = 0; i < slots; i++) turns.add(new ArrayList<>());
-        for (int i = 0; i < ores.size(); i++) turns.get(i % slots).add(ores.get(i));
-        CycleItemStackHandler handler = new CycleItemStackHandler(turns);
-        for (int i = 0; i < slots; i++) {
+        CustomItemStackHandler handler = new CustomItemStackHandler(Math.max(1, count));
+        for (int i = 0; i < count; i++) handler.setStackInSlot(i, stacks.get(i));
+        for (int i = 0; i < count; i++) {
+            // the main ore half of the stacks, the others share the rest (SpaceMissionMachine.recipeOre)
+            boolean alone = ores.size() == 1;
+            int others = Math.max(1, ores.size() - 1);
+            int lo = i == 0 ? (alone ? least : least / 2) : Math.max(1, (least - least / 2) / others);
+            int hi = i == 0 ? (alone ? most : most / 2) : Math.max(lo, (most - most / 2) / others);
             SlotWidget slot = new SlotWidget(handler, i, GRID_X + 18 * (i % GRID_COLUMNS),
                     GRID_Y + 18 * (i / GRID_COLUMNS), false, false);
             slot.setBackgroundTexture(GuiTextures.SLOT);
             slot.setIngredientIO(IngredientIO.OUTPUT);
-            // the amount is a range, not the stack size the item shows: "0-1024"
-            slot.setOverlay(new TextTexture("0-" + SpaceMissionMachine.maxStacks(tier) * 64).scale(0.5F)
-                    .transform(0F, 5F));
-            slot.setOnAddedTooltips((widget, tooltips) -> {
-                tooltips.add(Component.translatable("af9.recipe.space_mining.ore_tooltip.0")
-                        .withStyle(ChatFormatting.AQUA));
-                tooltips.add(Component.translatable("af9.recipe.space_mining.ore_tooltip.1",
-                        SpaceMissionMachine.minStacks(tier), SpaceMissionMachine.maxStacks(tier))
-                        .withStyle(ChatFormatting.GRAY));
-            });
+            // the amount is a range, not the stack size the item shows
+            slot.setOverlay(new TextTexture(lo * 64 + "-" + hi * 64).scale(0.5F).transform(0F, 5F));
+            slot.setOnAddedTooltips((widget, tooltips) -> tooltips.add(
+                    Component.translatable("af9.recipe.space_mining.ore_tooltip.1", least, most)
+                            .withStyle(ChatFormatting.GRAY)));
             group.addWidget(slot);
         }
     }
