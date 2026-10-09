@@ -301,6 +301,12 @@ public final class AF9Materials {
                     GTValues.VA[GTValues.HV], 800, GTValues.VA[GTValues.HV], 200));
         }
 
+        // The ZPM and UV circuits bond with fine naquadah alloy wire (circuits_af9.js); GT's naquadah alloy has wires and
+        // foil but no fine wire. GT makes it in the wiremill from this flag.
+        if (!GTMaterials.NaquadahAlloy.hasFlag(MaterialFlags.GENERATE_FINE_WIRE)) {
+            GTMaterials.NaquadahAlloy.addFlags(MaterialFlags.GENERATE_FINE_WIRE);
+        }
+
         // ---- Circuit alloys (mixed in server_scripts, melted in the EBF) ----
         // MV: aluminium wedge-bonding wire (the silicon keeps it from work-softening). Aluminium is the MV metal.
         // EBF at MV voltage, which two LV hatches can supply.
@@ -484,6 +490,13 @@ public final class AF9Materials {
      * docs/semiconductor-factory.md §18
      */
     private static void lithoProcess() {
+        // GT defines germanium, selenium and tellurium as bare elements with no items. The functional layers below take
+        // them as dusts (tungsten diselenide, the Ge2Sb2Te5 alloy, the CdSe quantum dots): give them one. Without it
+        // those recipes name an item that does not exist, which GT 7.5 refuses (and with it every recipe after them).
+        for (Material element : new Material[] { GTMaterials.Germanium, GTMaterials.Selenium, GTMaterials.Tellurium }) {
+            if (!element.hasProperty(PropertyKey.DUST)) element.setProperty(PropertyKey.DUST, new DustProperty());
+        }
+
         // RCA clean, the wafer cleaning every fab starts with: SC-1 (ammonia, peroxide, water, 1:1:5) lifts particles
         // and organics, SC-2 (HCl, peroxide, water, 1:1:6) takes the metal ions off. Piranha (SPM, 3:1 sulfuric acid
         // to peroxide) strips baked resist and heavy organics.
