@@ -132,9 +132,12 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     /** The station's extent: 12 blocks to each side of the controller, 17 behind it (below, when it faces up). */
     public static final int HALF_WIDTH = 12;
     public static final int DEPTH = 17;
-    /** The Mk2 extended array's extent: 17 to each side, 17 behind (a 35x35 platform, like the Elevator's 35x35). */
+    /**
+     * The Mk2 extended array's extent: 17 to each side, 17 + 12 behind (a 35x35 platform, like the Elevator's 35x35, and its undulator
+     * spire 12 blocks longer than the basic station's mast: startup_scripts/gtceu/photolithography.js ORBITAL_SPIRE).
+     */
     public static final int HALF_WIDTH_MK2 = 17;
-    public static final int DEPTH_MK2 = 17;
+    public static final int DEPTH_MK2 = 17 + 12;
     /** Recipe data key of the coolant a run uses (the coolant's id). */
     public static final String COOLANT_TAG = "af9_coolant";
 

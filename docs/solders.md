@@ -57,7 +57,7 @@ controller's axis: mast, cone, top deck with the hatches, the middle of the beam
 35x35; the rim (the sturdy and non-conducting rings, the trusses, the ends of the shock-proof beams) is the original's
 moved 5 blocks out (radius 12 → 17) with its thickness and look, and the original's axis beams run on between core and
 rim. `orbitalMk2Slices()` builds it cell by cell from `ORBITAL_BASIC` for every level, so a change to the basic station
-carries over. Light ring radius 9.6 → 13.6 (0.8 of the rim, as in the basic station; `RING_RADIUS_MK2`, read dynamically
+carries over. The rim's rings are not stretched out of the original's cells: off the axes the original's rim is three plain rings, so each is a band of radii moved out by 5 (`orbitalBands`), which comes out round and solid. The undulator spire (the mast under the deck) hangs `ORBITAL_SPIRE` = 12 blocks lower than the basic station's (30 levels in all; `DEPTH_MK2` = 29: the gravity field covers it). Light ring radius 9.6 → 13.6 (0.8 of the rim, as in the basic station; `RING_RADIUS_MK2`, read dynamically
 through `ringRadius()` so one model serves both; burn distance, magnetic field box and render bounding box follow
 the size; plasma soldering glows plasma-violet, hotter with bloom).
 

@@ -250,27 +250,46 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     const ORBITAL_CORE = 9      // within this radius the basic station is copied as it is
     const ORBITAL_GROW = 5      // how far the rim moves out
     const ORBITAL_NEAR = 3      // within this many blocks of an axis the rim moves out straight (no stretch of the beams)
+    const ORBITAL_SPIRE = 12    // the Mk2's undulator spire hangs this many blocks lower than the basic station's mast (af9-core DEPTH_MK2)
     const orbitalBasicAt = (level, dx, dz) => {
         const sx = Math.floor(dx + 0.5) + 12, sz = Math.floor(dz + 0.5) + 12
         return sx >= 0 && sx < 25 && sz >= 0 && sz < 25 ? ORBITAL_BASIC[sz][level].charAt(sx) : ' '
     }
-    // the rim away from the axes: the cell's four quarters each look up the original at the radius 5 less; a thin ring of
-    // the original (one block, stepping diagonally) would break when stretched onto the longer circle, so one hit is enough
-    const orbitalRimCell = (level, dx, dz) => {
-        const votes = {}
-        ;[-0.25, 0.25].forEach(ox => {
-            ;[-0.25, 0.25].forEach(oz => {
-                const x = dx + ox, z = dz + oz
-                const r = Math.sqrt(x * x + z * z)
-                const scale = (r - ORBITAL_GROW) / r
-                const ch = orbitalBasicAt(level, x * scale, z * scale)
-                if (ch !== ' ') votes[ch] = (votes[ch] || 0) + 1
+    // The rim away from the axes is made from the original's rings, not stretched out of them: off the axes the original's rim is
+    // three plain rings (levels 13 and 15 a ring of non-conducting casing, level 14 a ring of sturdy casing round another of
+    // non-conducting), so each ring is a band of radii (the radii of the centres of its cells in the original), and the Mk2's
+    // ring is the same band moved out by ORBITAL_GROW. A cell of the Mk2 is in a ring when its centre lies in the band: the rings
+    // come out round and as thick all the way round (resampling the original's cells, a thin ring broke into blobs and gaps).
+    const orbitalBands = {}
+    Array(18).fill(0).forEach((_, level) => {
+        Array(25).fill(0).forEach((_, z) => {
+            Array(25).fill(0).forEach((_, x) => {
+                const ch = ORBITAL_BASIC[z][level].charAt(x)
+                const dx = x - 12, dz = z - 12
+                const r = Math.sqrt(dx * dx + dz * dz)
+                if (ch === ' ' || r <= ORBITAL_CORE || Math.abs(dx) <= ORBITAL_NEAR || Math.abs(dz) <= ORBITAL_NEAR) return
+                orbitalBands[level] = orbitalBands[level] || {}
+                const band = orbitalBands[level][ch]
+                if (band) {
+                    band[0] = Math.min(band[0], r)
+                    band[1] = Math.max(band[1], r)
+                } else {
+                    orbitalBands[level][ch] = [r, r]
+                }
             })
         })
+    })
+    const orbitalRimCell = (level, dx, dz) => {
+        const bands = orbitalBands[level]
+        if (!bands) return ' '
+        const r = Math.sqrt(dx * dx + dz * dz) - ORBITAL_GROW
         let best = ' '
-        let most = 0
-        'DOKCFHLABC'.split('').forEach(ch => {        // on a tie the first of these (the sturdy ring over the rest)
-            if ((votes[ch] || 0) > most) { best = ch; most = votes[ch] }
+        'DOKCFHLABC'.split('').forEach(ch => {        // the sturdy ring before the rest, where two bands meet
+            if (best !== ' ' || !bands[ch]) return
+            // a ring of one cell needs a band about one block wide to come out solid all the way round
+            // (and two rings side by side overlap a little, so no cell between them is left out)
+            const pad = Math.max(0.01, (1 - (bands[ch][1] - bands[ch][0])) / 2) + (Object.keys(bands).length > 1 ? 0.12 : 0)
+            if (r >= bands[ch][0] - pad && r <= bands[ch][1] + pad) best = ch
         })
         return best
     }
@@ -298,12 +317,15 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         const slices = []
         Array(ORBITAL_MK2).fill(0).forEach((_, az) => {
             const aisle = []
-            Array(18).fill(0).forEach((_, level) => {
-                let row = ''
+            Array(18 + ORBITAL_SPIRE).fill(0).forEach((_, row) => {
+                const level = row - ORBITAL_SPIRE
+                let line = ''
                 Array(ORBITAL_MK2).fill(0).forEach((_, ax) => {
-                    row += orbitalMk2Cell(level, ax - 17, az - 17)
+                    // under the basic station's own bottom level only the spire goes on: a column of HSS-E frame
+                    // on the axis (the tip of the original's mast is the same plain frame)
+                    line += level < 0 ? (ax === 17 && az === 17 ? 'A' : ' ') : orbitalMk2Cell(level, ax - 17, az - 17)
                 })
-                aisle.push(row)
+                aisle.push(line)
             })
             slices.push(aisle)
         })
