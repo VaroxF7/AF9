@@ -19,15 +19,13 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * The Dyson Swarm's cycle in EMI / JEI: the hydrogen it takes and the arrow, then a slider for the number of sails in the swarm
- * and what that many sails of each tier give, all inside the page (GT's own lines of time, total and generation come under it).
+ * and what that many sails of each tier give in amps of UHV, all inside the page (GT's own lines of time, total and
+ * generation come under it).
  */
 public class DysonSwarmRecipeUI extends GTRecipeTypeUI {
 
     public static final int WIDTH = 176, HEIGHT = 104;
-    private static final long EU_PER_SAIL = 262144L;
-    private static final String[] TIER_NAMES = { "Allthemodium", "Unobtainium Alloy", "Star Matter Tritan Alloy" };
-    private static final double[] YIELD = { 1.0, 2.0, 3.5 };
-    private static final int MAX_SAILS = 10000;
+    private static final int MAX_SAILS = DysonSwarmMachine.MAX_SAILS;
 
     private final GTRecipeType type;
     /** The slider's number of sails; each page keeps its own while it is open. */
@@ -73,11 +71,12 @@ public class DysonSwarmRecipeUI extends GTRecipeTypeUI {
         slider.setRange(0, MAX_SAILS);
         slider.setValue(MAX_SAILS);
         group.addWidget(slider);
-        group.addWidget(Labels.live(8, 54, () -> grouped(sails) + " sails of one tier give:"));
-        for (int i = 0; i < TIER_NAMES.length; i++) {
+        group.addWidget(Labels.live(8, 54, () -> grouped(sails) + " sails of one tier give (A of UHV):"));
+        for (int i = 0; i < DysonSails.NAMES.length; i++) {
             int tier = i;
-            group.addWidget(Labels.live(8, 66 + 11 * i,
-                    () -> TIER_NAMES[tier] + ": " + grouped(Math.round(sails * EU_PER_SAIL * YIELD[tier])) + " EU/t"));
+            group.addWidget(Labels.live(8, 66 + 11 * i, () -> DysonSails.NAMES[tier] + ": " +
+                    grouped(Math.round((double) DysonSails.euPerTick((long) sails * DysonSails.PERCENT[tier]) /
+                            DysonSwarmMachine.BASE_EUT)) + " A"));
         }
         return group;
     }

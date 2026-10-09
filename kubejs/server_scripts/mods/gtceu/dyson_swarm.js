@@ -1,11 +1,12 @@
 // AF9 - the Dyson Swarm: its controller and casings, the three sails and the cycle (machine: startup_scripts/gtceu/dyson_swarm.js;
 // sails and machine logic: af9-core DysonSwarmMachine, DysonSails). Spec: docs/dyson-swarm.md
 //
-// 1. Controller and casings of GTNH Intergalactic's Dyson Swarm, built from the pack's UHV materials
+// 1. Controller, casings and the Dyson Output Hatch of GTNH Intergalactic's Dyson Swarm, built from the pack's UHV materials
 // 2. The sails, lowest to highest: Allthemodium (100 % of the base yield), Unobtainium Alloy (200 %) and Chromodynium Star
 //    Matter Tritan Alloy (350 %). Each tier is made from the sails of the tier below, so the better sails are upgrades. They
 //    are researched Assembly Line recipes at UHV voltage on 100 / 300 / 1,000 A (the same amps as the UHV / XPS / NVM circuits)
-// 3. The cycle: an hour of supercooled hydrogen for the receiver. The power is the sails' (DysonSwarmMachine.SWARM)
+// 3. The cycle: an hour of supercooled hydrogen for the receiver. The power is the sails' added up (DysonSwarmMachine.SWARM),
+//    10,000 A of UHV at most; there are no collisions, the sails stay
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
@@ -21,6 +22,16 @@ ServerEvents.recipes(event => {
         E: 'gtceu:uv_emitter', S: 'gtceu:uv_sensor', F: 'gtceu:uv_field_generator', H: 'gtceu:uhv_machine_hull',
         C: '#gtceu:circuits/uhv', P: 'gtceu:uv_electric_pump'
     }).id('af9:dyson_swarm')
+
+    // the Dyson Output Hatch (UHV, 10,000 A): a 1,024 A laser source hatch in a UHV hull, with field generators and tritanium
+    event.recipes.gtceu.assembler('af9:uhv_dyson_output_hatch')
+        .itemInputs('gtceu:uhv_machine_hull', 'gtceu:uhv_1024a_laser_source_hatch', '2x gtceu:uv_field_generator',
+            '4x gtceu:tritanium_plate')
+        .circuit(10)
+        .inputFluids(Fluid.of('gtceu:polybenzimidazole', 1152))
+        .itemOutputs('gtceu:uhv_dyson_output_hatch')
+        .duration(400)
+        .EUt(VA[GTValues.UHV])
 
     // four casings from plates and a frame, one circuit each (so JEI keeps the recipes apart)
     const casing = (out, circuit, items, fluid) => {
@@ -81,8 +92,8 @@ ServerEvents.recipes(event => {
         research: 'af9:unobtainium_alloy_sail', cwu: 192, duration: 1200 })
 
     // ---- 3. The cycle ----
-    // An hour on supercooled hydrogen (360 B) for the receiver. The EU/t is the machine's: V[UHV] here, scaled to what the
-    // sails catch (DysonSwarmMachine.SWARM).
+    // An hour of generating on supercooled hydrogen (360 B) for the receiver. The EU/t is the machine's: V[UHV] here, scaled
+    // to what the sails catch (DysonSwarmMachine.SWARM).
     event.recipes.gtceu.dyson_swarm('af9:dyson_swarm_cycle')
         .inputFluids(Fluid.of('gtceu:supercooled_hydrogen', 360000))
         .duration(72000)

@@ -1,5 +1,6 @@
-// AF9 - the Dyson Swarm: a power plant that catches starlight with sails. Machine logic: af9-core DysonSwarmMachine (sails in
-// the input buses fly on in the swarm, the receiver turns what they catch into power). Recipe: server_scripts/mods/gtceu/dyson_swarm.js.
+// AF9 - the Dyson Swarm: a power plant that catches starlight with sails, and the Dyson Output Hatch it puts its power into.
+// Machine logic: af9-core DysonSwarmMachine (sails in the input buses fly on in the swarm, the receiver turns what they catch
+// into power), DysonOutputHatchPartMachine, DysonStars (one swarm to a star). Recipe: server_scripts/mods/gtceu/dyson_swarm.js.
 // Spec: docs/dyson-swarm.md
 //
 // The structure is GTNH Intergalactic's Dyson Swarm (gtnhintergalactic.tile.multi.TileEntityDysonSwarm), block for block:
@@ -8,15 +9,16 @@
 // counts checked against its tooltip), aisles back -> front, rows bottom -> top; the original's casings
 // are af9-core blocks (dyson_*), its frames GT's, its air ('A') must stay empty:
 //   S controller   U concrete floor      A air (the receiver's sphere)   D receiver dish
-//   E receiver base casing: a hatch spot for the power OUTPUT (energy or laser)
+//   E receiver base casing: a hatch spot for the power OUTPUT (the Dyson Output Hatch)
 //   X receiver base casing      F HSS-S frame   G titanium frame   K tritanium frame (the UHV superconductor base's)
 //   H stable casing (the original's Hermetic Casing X)   C coil
 //   I deployment unit casing: a hatch spot for the sails (input bus) and the coolant (input hatch)
 //   Z deployment unit casing    J core   M superconducting magnet
-//   O command centre casing: a hatch spot for the computation (data) hatch
+//   O command centre casing: a hatch spot for the maintenance hatch
 //   Y command centre casing    P primary windings   R secondary windings   T toroid casing
 
 const $DysonSwarmMachine = Java.loadClass('com.af9.core.machine.DysonSwarmMachine')
+const $DysonOutputHatch = Java.loadClass('com.af9.core.machine.part.DysonOutputHatchPartMachine')
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // one cycle: an hour on supercooled hydrogen, the power is the machine's (DysonSwarmMachine.SWARM)
     event.create('dyson_swarm')
@@ -66,13 +68,11 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .pattern(definition => {
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
             const receiver = Predicates.blocks('af9:dyson_receiver_casing')
-                .or(Predicates.abilities(PartAbility.OUTPUT_ENERGY).setMaxGlobalLimited(8, 2))
-                .or(Predicates.abilities(PartAbility.OUTPUT_LASER).setMaxGlobalLimited(8, 2))
+                .or(Predicates.abilities($DysonOutputHatch.DYSON_OUTPUT).setMaxGlobalLimited(8, 2))
             const deployment = Predicates.blocks('af9:dyson_deployment_casing')
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(4, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(4, 1))
             const command = Predicates.blocks('af9:dyson_control_casing')
-                .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
             let pattern = FactoryBlockPattern.start()
             SWARM_SHAPE.forEach(aisle => { pattern = pattern.aisle(aisle) })
@@ -102,4 +102,18 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         })
         // the controller: the receiver casing with GTNH's Dyson Swarm face (kubejs assets, overlay_front*)
         .workableCasingModel('af9:block/dyson_receiver_casing', 'gtceu:block/multiblock/dyson_swarm')
+
+    // Dyson Output Hatch: the swarm's only power output. UHV, 10,000 A (a full swarm of the best sails); it feeds a Power
+    // Substation touching it straight into the substation's bank. Single tier: gtceu:uhv_dyson_output_hatch
+    event.create('dyson_output_hatch', 'custom')
+        .tiers(GTValues.UHV)
+        .machine((holder, tier) => new $DysonOutputHatch(holder, tier))
+        .definition((tier, builder) => {
+            builder
+                .langValue('Dyson Output Hatch')
+                .rotationState(RotationState.ALL)
+                .abilities($DysonOutputHatch.DYSON_OUTPUT)
+                ['overlayTieredHullModel(java.lang.String)']('energy_output_hatch_64a')
+                ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dyson_output_hatch.tooltip', 4))
+        })
 })
