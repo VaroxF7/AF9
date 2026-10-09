@@ -401,6 +401,7 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
         sideTabs.setMainTab(this);
         var directional = CombinedDirectionalFancyConfigurator.of(self(), self());
         if (directional != null) sideTabs.attachSubTab(directional);
+        sideTabs.attachSubTab(new com.gregtechceu.gtceu.api.machine.fancyconfigurator.PowerManagementFancyTab(this));
     }
 
     //////////////////////////////////////

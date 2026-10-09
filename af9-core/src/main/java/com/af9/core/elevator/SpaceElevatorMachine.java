@@ -121,6 +121,7 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         sideTabs.setMainTab(this);
         var directional = CombinedDirectionalFancyConfigurator.of(self(), self());
         if (directional != null) sideTabs.attachSubTab(directional);
+        sideTabs.attachSubTab(new com.gregtechceu.gtceu.api.machine.fancyconfigurator.PowerManagementFancyTab(this));
     }
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(

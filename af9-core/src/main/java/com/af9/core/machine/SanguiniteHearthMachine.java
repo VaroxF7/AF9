@@ -118,10 +118,14 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
         int max = getMaxHeat();
         boolean working = getRecipeLogic().isWorking();
         long drain = heaterDrainPerInterval();
-        boolean powered = energyContainer != null && drain > 0 && energyContainer.getEnergyStored() >= drain &&
-                isHeatingTier();
+        // the heaters draw on the auxiliary hatches where there are any (energy hatches switched to Auxiliary), else on the
+        // primary ones as before
+        boolean auxiliary = !getAuxiliaryHatches().isEmpty();
+        boolean powered = energyContainer != null && drain > 0 && isHeatingTier() &&
+                (auxiliary ? getAuxiliaryStored() >= drain : energyContainer.getEnergyStored() >= drain);
         if ((getRecipeLogic().isWorkingEnabled() || working) && powered) {
-            energyContainer.removeEnergy(drain);
+            if (auxiliary) drawAuxiliary(drain);
+            else energyContainer.removeEnergy(drain);
             // a running print holds at least its heat; an idle hearth climbs toward the coils' maximum
             hearthHeat = Math.min(max, hearthHeat + Math.max(1, max * HEAT_INTERVAL / (20 * PREHEAT_SECONDS)));
         } else {
