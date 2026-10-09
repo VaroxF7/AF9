@@ -3,6 +3,7 @@ package com.af9.core.machine.console;
 import com.af9.core.elevator.ClimberRide;
 import com.af9.core.elevator.PlanetCatalog;
 import com.af9.core.elevator.SpaceElevatorMachine;
+import com.af9.core.elevator.SpaceMissionMachine;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
@@ -95,7 +96,7 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
     /** Drones drawn on a run at most (a run can be of many more expeditions). */
     private static final int SHOWN_DRONES = 8;
 
-    private final SpaceElevatorMachine machine;
+    private final SpaceMissionMachine machine;
 
     // last state sent to / received by the client
     private int status = -1;
@@ -141,7 +142,7 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
     /** The ore of the run: "id*count" per item. */
     private String ore = "";
 
-    public SpaceElevatorConsoleWidget(SpaceElevatorMachine machine, int x, int y) {
+    public SpaceElevatorConsoleWidget(SpaceMissionMachine machine, int x, int y) {
         super(x, y, WIDTH, HEIGHT);
         this.machine = machine;
     }
@@ -151,7 +152,7 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
      * switch, the size switch and the counter reset. The slot works on the handler's storage: the handler refuses
      * inserts (no pipe access).
      */
-    public static WidgetGroup createPage(SpaceElevatorMachine machine) {
+    public static WidgetGroup createPage(SpaceMissionMachine machine) {
         var page = new WidgetGroup(0, 0, WIDTH, HEIGHT);
         var console = new SpaceElevatorConsoleWidget(machine, 0, 0);
         page.addWidget(console);
@@ -222,14 +223,14 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
     }
 
     /** What a drone's expedition takes and brings: its tile's tooltip. */
-    private static List<Component> tileTooltip(SpaceElevatorMachine machine, int tier) {
+    private static List<Component> tileTooltip(SpaceMissionMachine machine, int tier) {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.translatable("af9.space_elevator.console.drone", SpaceElevatorMachine.mark(tier)));
         lines.add(Component.translatable("af9.space_elevator.console.tile.reach." + tier)
                 .withStyle(ChatFormatting.GRAY));
         lines.add(Component.translatable("af9.space_elevator.console.tile.planets." + tier)
                 .withStyle(ChatFormatting.GRAY));
-        SpaceElevatorMachine.Expedition needs = machine.expedition(tier);
+        SpaceMissionMachine.Expedition needs = machine.expedition(tier);
         if (needs != null) {
             lines.add(Component.translatable("af9.space_elevator.console.tile.hydrogen", needs.hydrogen() / 1000)
                     .withStyle(ChatFormatting.AQUA));
@@ -243,7 +244,7 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
                     .withStyle(ChatFormatting.GRAY));
         }
         lines.add(Component.translatable("af9.space_elevator.console.tile.stacks",
-                SpaceElevatorMachine.minStacks(tier), SpaceElevatorMachine.maxStacks(tier))
+                SpaceMissionMachine.minStacks(tier), SpaceMissionMachine.maxStacks(tier))
                 .withStyle(ChatFormatting.GREEN));
         lines.add(Component.translatable("af9.space_elevator.console.tile.pick").withStyle(ChatFormatting.DARK_GRAY));
         return lines;
@@ -275,7 +276,7 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
         var logic = machine.getRecipeLogic();
         boolean formed = machine.isFormed();
         int chosen = machine.chosenDrone();
-        SpaceElevatorMachine.Expedition needs = machine.expedition(chosen);
+        SpaceMissionMachine.Expedition needs = machine.expedition(chosen);
         long eut = needs == null ? 0 : needs.eut();
         long newAvailable = machine.getAvailableEUt();
         long hydrogenStock = machine.stockOf(GTMaterials.Hydrogen.getFluid());

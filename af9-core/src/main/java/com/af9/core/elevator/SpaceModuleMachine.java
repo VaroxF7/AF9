@@ -1,46 +1,73 @@
 package com.af9.core.elevator;
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
 
+import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
 /**
  * A Space Elevator Mining Module as its own small multiblock, as GTNH's modules are (gtnhintergalactic's
- * TileEntityModuleBase): a controller that stands in one of the tower's module slots, with its own structure (the casings
- * above and below it, where the slot's hatches go) and its own screen. It does not work on its own: the elevator it stands
- * in finds it when the tower forms and <b>connects</b> it ({@link #connect}), telling it whether the motors power it. A
- * module the motors do not power (a tier above the motors', or more modules than the motors have slots for) stays dark, one that
- * is flies {@link SpaceElevatorMachine#MODULE_EXPEDITIONS its tier's} expeditions at once in the elevator's runs.
+ * TileEntityModuleBase / TileEntityModuleMiner): a controller that stands in one of the tower's module slots, with its own
+ * structure (the casings above and below it, where the slot's hatches go), its own drone, its own hatches and its own screen. It
+ * <b>flies the missions</b> ({@link SpaceMissionMachine}), {@link SpaceElevatorMachine#MODULE_EXPEDITIONS its tier's} expeditions
+ * at once, with the hydrogen and coolant of its hatches and the ore or fluid going to its hatches.
+ * <p>
+ * The elevator it stands in connects it when the tower forms ({@link #connect}), telling it whether the motors power it, and
+ * charges its energy buffer every tick ({@link SpaceElevatorMachine}): the module takes the energy of its expeditions from that
+ * buffer, as GTNH's modules do. A module the motors do not power (a tier above the motors', or more modules than the motors have
+ * slots for) stays dark.
  * <p>
  * Made in KubeJS ({@code startup_scripts/gtceu/space_elevator.js}, {@code gtceu:space_mining_module_mk1} to {@code mk3}); the tier
  * is the machine's own.
  */
-public class SpaceModuleMachine extends WorkableElectricMultiblockMachine {
+public class SpaceModuleMachine extends SpaceMissionMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(SpaceModuleMachine.class,
-            WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
+            SpaceMissionMachine.MANAGED_FIELD_HOLDER);
+
+    /**
+     * The energy buffer: a recipe's energy is taken from it, the elevator fills it. Room for this many ticks of the biggest
+     * mission a module flies (8 expeditions of a Mk-IV drone, 32 A of ZPM each).
+     */
+    private static final long MAX_EUT = 8L * 32L * 122_880L;
+    private static final long BUFFER = MAX_EUT * 40L;
 
     /** Module tier, 1 to 3. */
     private final int tier;
-    /** Set by the elevator this module stands in; server side. */
     @Persisted
+    public final NotifiableEnergyContainer buffer;
+    /** Set by the elevator this module stands in. */
+    @Persisted
+    @DescSynced
     private boolean connected;
     @Persisted
+    @DescSynced
     private boolean powered;
     @Persisted
+    @DescSynced
     private int motorTier;
     @Persisted
+    @DescSynced
     private int slots;
+    /** The elevator's block position as a long, {@link Long#MIN_VALUE} for none. */
+    @Persisted
+    @DescSynced
+    private long elevator = Long.MIN_VALUE;
 
     public SpaceModuleMachine(IMachineBlockEntity holder, int tier) {
         super(holder);
         this.tier = tier;
+        // it takes energy from the elevator only: nothing flows in from a cable (no side takes energy), what a recipe
+        // takes comes out of the stored energy
+        buffer = NotifiableEnergyContainer.receiverContainer(this, BUFFER, 1L, 1L);
     }
 
     @Override
@@ -57,13 +84,28 @@ public class SpaceModuleMachine extends WorkableElectricMultiblockMachine {
         return SpaceElevatorMachine.MODULE_EXPEDITIONS[tier - 1];
     }
 
+    //////////////////////////////////////
+    // ********* The elevator *********//
+    //////////////////////////////////////
+
+    /** The elevator this module stands in, null while it is not connected (or not loaded). */
+    public SpaceElevatorMachine parent() {
+        if (!connected || elevator == Long.MIN_VALUE || getLevel() == null) return null;
+        return MetaMachine.getMachine(getLevel(), BlockPos.of(elevator)) instanceof SpaceElevatorMachine machine ?
+                machine : null;
+    }
+
     /**
-     * The elevator found this module in its structure: the motors it has (their tier), the slots they power and whether this
-     * module is one of those they power.
+     * The elevator found this module in its structure: where it is, the motors it has (their tier), the slots they power and
+     * whether this module is one of those they power.
      */
-    public void connect(int motorTier, int slots, boolean powered) {
-        if (connected && powered == this.powered && motorTier == this.motorTier && slots == this.slots) return;
+    public void connect(long elevatorPos, int motorTier, int slots, boolean powered) {
+        if (connected && elevatorPos == elevator && powered == this.powered && motorTier == this.motorTier &&
+                slots == this.slots) {
+            return;
+        }
         connected = true;
+        elevator = elevatorPos;
         this.powered = powered;
         this.motorTier = motorTier;
         this.slots = slots;
@@ -77,6 +119,7 @@ public class SpaceModuleMachine extends WorkableElectricMultiblockMachine {
         powered = false;
         motorTier = 0;
         slots = 0;
+        elevator = Long.MIN_VALUE;
         markDirty();
     }
 
@@ -88,25 +131,80 @@ public class SpaceModuleMachine extends WorkableElectricMultiblockMachine {
         return connected && powered;
     }
 
+    /** Room in the energy buffer. */
+    public long energyRoom() {
+        return buffer.getEnergyCapacity() - buffer.getEnergyStored();
+    }
+
+    /** The elevator puts energy in the buffer. */
+    public void receiveEnergy(long amount) {
+        buffer.changeEnergy(amount);
+    }
+
+    //////////////////////////////////////
+    // ********* The mission **********//
+    //////////////////////////////////////
+
+    /** What the elevator can give at once: what its hatches carry. */
+    @Override
+    public long getAvailableEUt() {
+        SpaceElevatorMachine parent = parent();
+        return !isPowered() || parent == null ? 0 : parent.getAvailableEUt();
+    }
+
+    @Override
+    public boolean isSkyClear() {
+        SpaceElevatorMachine parent = parent();
+        return parent != null && parent.isSkyClear();
+    }
+
+    @Override
+    public int getExpeditions() {
+        return isPowered() ? expeditions() : 0;
+    }
+
+    @Override
+    public int getMotorTier() {
+        return connected ? motorTier : 0;
+    }
+
+    @Override
+    public int getModules() {
+        SpaceElevatorMachine parent = parent();
+        return parent == null ? 0 : parent.getModules();
+    }
+
+    @Override
+    public int getPoweredModules() {
+        SpaceElevatorMachine parent = parent();
+        return parent == null ? 0 : parent.getPoweredModules();
+    }
+
+    @Override
+    public int getTopModule() {
+        return connected ? tier : 0;
+    }
+
+    @Override
+    public boolean isExtended() {
+        SpaceElevatorMachine parent = parent();
+        return parent != null && parent.isExtended();
+    }
+
+    @Override
+    public void setExtended(boolean extended) {
+        SpaceElevatorMachine parent = parent();
+        if (parent != null) parent.setExtended(extended);
+    }
+
+    @Override
+    public float climberHeight(float partialTick) {
+        SpaceElevatorMachine parent = parent();
+        return parent == null ? 0F : parent.climberHeight(partialTick);
+    }
+
     @Override
     public void addDisplayText(List<Component> textList) {
-        textList.add(Component.translatable("af9.space_module.title", SpaceElevatorMachine.mark(tier)));
-        if (!isFormed()) {
-            textList.add(Component.translatable("af9.space_module.not_formed"));
-            return;
-        }
-        if (!connected) {
-            textList.add(Component.translatable("af9.space_module.no_elevator"));
-            return;
-        }
-        textList.add(Component.translatable("af9.space_module.motors", SpaceElevatorMachine.mark(motorTier), slots));
-        if (powered) {
-            textList.add(Component.translatable("af9.space_module.powered", expeditions()));
-        } else if (tier > motorTier) {
-            textList.add(Component.translatable("af9.space_module.needs_motors", SpaceElevatorMachine.mark(tier)));
-        } else {
-            textList.add(Component.translatable("af9.space_module.no_slot"));
-        }
         super.addDisplayText(textList);
     }
 }

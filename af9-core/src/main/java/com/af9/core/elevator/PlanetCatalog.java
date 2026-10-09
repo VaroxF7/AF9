@@ -20,7 +20,7 @@ import java.util.List;
  * and GalaxySpace's unknown water (8, 4).
  * <p>
  * GTNH pumps the amount every second, for energy alone; here it is what one mission brings, a flight of minutes with
- * the drone's hydrogen, coolant and energy ({@link SpaceElevatorMachine#MISSION}). The drone says how far a mission
+ * the drone's hydrogen, coolant and energy ({@link SpaceMissionMachine#MISSION}). The drone says how far a mission
  * goes ({@link #droneFor}); the fluid is picked on the elevator's screen.
  * <p>
  * Planet type 9 is AF9's own (GTNH's table ends at 8): the far dark, reached by the Mk-IV, bringing home the fluids

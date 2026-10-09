@@ -129,7 +129,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
      */
     @Override
     public void appendJEIUI(GTRecipe recipe, WidgetGroup widgetGroup) {
-        int tier = SpaceElevatorMachine.droneTier(recipe);
+        int tier = SpaceMissionMachine.droneTier(recipe);
         WidgetUtils.widgetByIdForEach(widgetGroup, "^" + FluidRecipeCapability.CAP.slotName(IO.IN, 1) + "$",
                 TankWidget.class, tank -> AcceleratorRecipeUI.addTooltips(tank, tooltips -> {
                     tooltips.add(Component.literal("\u2744 ").append(
@@ -175,7 +175,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
                 tooltips.add(Component.translatable("af9.recipe.space_mining.ore_tooltip.0")
                         .withStyle(ChatFormatting.AQUA));
                 tooltips.add(Component.translatable("af9.recipe.space_mining.ore_tooltip.1",
-                        SpaceElevatorMachine.minStacks(tier), SpaceElevatorMachine.maxStacks(tier))
+                        SpaceMissionMachine.minStacks(tier), SpaceMissionMachine.maxStacks(tier))
                         .withStyle(ChatFormatting.GRAY));
             });
             group.addWidget(slot);

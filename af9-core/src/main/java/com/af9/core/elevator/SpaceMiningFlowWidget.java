@@ -132,8 +132,8 @@ public class SpaceMiningFlowWidget extends Widget {
         // under the slots: the stacks an expedition of this drone brings, or that a liquid mission brings one fluid
         int middle = x0 + ORES_X + 9 * ORE_COLUMNS;
         String first = liquid ? Component.translatable("af9.recipe.space_pumping.one").getString() :
-                Component.translatable("af9.recipe.space_mining.stacks", SpaceElevatorMachine.minStacks(tier),
-                        SpaceElevatorMachine.maxStacks(tier)).getString();
+                Component.translatable("af9.recipe.space_mining.stacks", SpaceMissionMachine.minStacks(tier),
+                        SpaceMissionMachine.maxStacks(tier)).getString();
         String second = Component.translatable(liquid ? "af9.recipe.space_pumping.pick" :
                 "af9.recipe.space_mining.ore").getString();
         drawSmallCentered(graphics, first, middle, y0 + ORES_Y + 18 * ORE_ROWS + 3, 0xFFFFFFFF);

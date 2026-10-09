@@ -50,6 +50,8 @@ import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
+import com.lowdragmc.lowdraglib.gui.util.ClickData;
+import com.lowdragmc.lowdraglib.gui.widget.ComponentPanelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
@@ -87,42 +89,27 @@ import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 /**
- * Space Elevator (GTNH's, docs/space-elevator.md): a tower on a cable that reaches into space. A Mining Drone (not used
- * up) in the drone slot of its screen ({@link #droneSlot}; or in an input bus), hydrogen in the fluid hatches, a
- * supercooled coolant in the Coolant Hatches (to GT fluid input hatches as the others: the recipe takes its fluids from
- * all of them) and a very great deal of energy send an expedition to a random asteroid; when it is back the output
- * buses hold its ore, tens of stacks of raw ore.
+ * Space Elevator (GTNH's, docs/space-elevator.md): a tower on a cable that reaches into space. As in GTNH it does no work
+ * itself: it is the structure that holds the Mining Modules ({@link SpaceModuleMachine}, small multiblocks in its module slots),
+ * powers them from its energy hatches and lets them fly expeditions. The modules have the drone, the hydrogen and coolant
+ * hatches and the output of the missions ({@link SpaceMissionMachine}).
  * <p>
  * The structure is GTNH's (the startup script {@code startup_scripts/gtceu/space_elevator.js} holds it): its blocks
  * with rules of their own are checked here. The {@link #motors() motors} round the shaft are all of one tier, the
  * elevator's; the {@link #cable() cable} block on top of the shaft needs open sky above it; the module slots hold
  * {@link #modules() Mining Modules}. It has GTNH's two sizes: the basic tower, and the extended one with a ring round
- * its foot and twelve more module slots, switched on the screen ({@link #setExtended}; {@link #getPattern()}).
+ * its foot and twelve more module slots, switched on its screen ({@link #setExtended}; {@link #getPattern()}).
  * <p>
- * As in GTNH the modules do the work: a Mining Module flies 2, 4 or 8 expeditions at once (MK-I to MK-III), each with the
- * recipe's full hydrogen, coolant and energy, all to the same asteroid. The motors' tier powers 6, 12, 15, 18 or 24 module
- * slots, and only modules of its own tier or lower. Without a powered module nothing flies.
- * <p>
- * The asteroid is made from one of GT's ore veins (weighted by the vein's weight, among the veins of the drone's tier and
- * below; the best drone also finds the exotic asteroid, whose ores no vein holds): about half the stacks are the vein's
- * main ore, the rest are shared by its other ores. Re-rolled for every run ({@link #MISSION}); the recipes themselves
- * (KubeJS: {@code server_scripts/mods/gtceu/space_elevator.js}) only name the drone, the fluids and the energy.
- * <p>
- * Instead of the asteroids a mission can go to a planet and bring home a fluid: a <b>liquid mission</b>
- * ({@link PlanetCatalog}: GTNH's Space Pumping table), picked on the screen ({@link #setMission}). It takes the same
- * drone, hydrogen, coolant and energy as the drone's ore mission and is flown by the same modules; its fluid goes to
- * the fluid output hatches. The elevator flies one kind of mission at a time: the kind is its recipe type that is on
- * ({@code space_mining} or {@code space_pumping}).
+ * The motors' tier powers 6, 12, 15, 18 or 24 module slots, and only modules of its own tier or lower. The elevator finds its
+ * modules when it forms, connects them ({@link SpaceModuleMachine#connect}) and, every tick, moves the energy its hatches hold
+ * into the buffers of the powered ones ({@link #powerTick}).
  * <p>
  * While the structure is formed the cable runs up into the sky and the climber rides it as GTNH's does
  * ({@link ClimberRide}; drawn by {@link com.af9.core.client.render.SpaceElevatorRender}).
- * <p>
- * Its screen is a console in the Orbital Lithography Station's layout ({@link SpaceElevatorConsoleWidget}); what it
- * shows, and above all what the elevator lacks when nothing flies, comes from {@link #getStatus()}.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
 public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine implements ISpaceElevatorMachine,
-        IPowerGated, IMachineLife {
+        IPowerGated {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             SpaceElevatorMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
@@ -151,24 +138,6 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     /** Expeditions a Mining Module of each tier flies at once (GTNH's parallels). */
     static final int[] MODULE_EXPEDITIONS = { 2, 4, 8 };
 
-    /** Stacks of ore an expedition of each drone tier brings home: at least and at most. */
-    private static final int[] MIN_STACKS = { 8, 12, 16, 24 };
-    private static final int[] MAX_STACKS = { 16, 24, 32, 48 };
-    private static final int STACK = 64;
-    /** The share of the stacks of the vein's main ore. */
-    private static final double MAIN_SHARE = 0.5;
-    /** How many of the exotic ores one exotic asteroid holds, and its share of the Mk4 draws (1 in this many). */
-    private static final int EXOTIC_ORES = 3;
-    private static final int EXOTIC_ONE_IN = 6;
-    private static final String DRONE = AF9Items.DRONE;
-    /** The recipe type of the expeditions ({@code gtceu:space_mining}, from the startup script). */
-    public static final String RECIPE_TYPE = "space_mining";
-    /** The recipe type of the liquid missions ({@code gtceu:space_pumping}): the same flights, for a planet's fluid. */
-    public static final String LIQUID_RECIPE_TYPE = "space_pumping";
-    /** Recipe data key of the asteroid a run flies to (the vein it is made from, or "exotic"). */
-    public static final String ASTEROID_TAG = "af9_asteroid";
-    /** Recipe data key of the fluid a liquid run brings ({@link PlanetCatalog.Cargo#code()}). */
-    public static final String CARGO_TAG = "af9_cargo";
 
     /**
      * The pattern of the extended structure. The startup script builds it together with the basic one (the machine
@@ -196,31 +165,6 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     @Persisted
     private boolean climberDown;
     private TickableSubscription climberSubs;
-    /**
-     * The Mining Drone slot of the elevator's screen: a recipe input (GT reads the controller's own handlers as it
-     * reads an input bus), kept there: a drone is not used up. No pipe access (capability IO NONE), which also makes the
-     * handler itself refuse inserts: the screen's slot works on its {@code storage}.
-     */
-    @Persisted
-    public final NotifiableItemStackHandler droneSlot;
-    /**
-     * The fluid picked for the liquid missions: GTNH's planet type and gas type ({@link PlanetCatalog}), 0 and 0 while
-     * the elevator mines the asteroids.
-     */
-    @Persisted
-    private int planetType;
-    @Persisted
-    private int gasType;
-    /**
-     * Expeditions flown, items of ore and millibuckets of fluid brought home since the counters were reset (the screen
-     * shows them).
-     */
-    @Persisted
-    private long flown;
-    @Persisted
-    private long mined;
-    @Persisted
-    private long pumped;
     /** The tier of the motors round the shaft (1 to 5), 0 while not formed. */
     private int motorTier;
     /** Mining Modules in the module slots, those of them the motors power, and the expeditions these fly at once. */
@@ -229,47 +173,19 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     private int topModule;
     /** Where the modules stand that this tower connected (disconnected when it breaks). */
     private final LongList connectedModules = new LongArrayList();
-    /** The cargo of the run tried last had no room in the outputs: the run waits for room (the screen says so). */
-    private boolean outputFull;
+    private TickableSubscription powerSubs;
     /** The sky above the cable is looked at once a second: when, and what was seen. */
     private long skyChecked = Long.MIN_VALUE / 2;
     private boolean skyClear;
 
+
     public SpaceElevatorMachine(IMachineBlockEntity holder) {
         super(holder);
-        droneSlot = new NotifiableItemStackHandler(this, 1, IO.IN, IO.NONE).setFilter(SpaceElevatorMachine::isDrone);
-    }
-
-    /** Broken controller: the drone drops. */
-    @Override
-    public void onMachineRemoved() {
-        clearInventory(droneSlot.storage);
     }
 
     @Override
     public ManagedFieldHolder getFieldHolder() {
         return MANAGED_FIELD_HOLDER;
-    }
-
-    /**
-     * Common setup: the missions get their own EMI / JEI pages ({@link SpaceMiningRecipeUI}: the drone and the fluids
-     * piped into the tower, and the ores the drone's asteroids hold or the fluids of the planets it reaches).
-     */
-    public static void registerRecipeInfo() {
-        for (String name : new String[] { RECIPE_TYPE, LIQUID_RECIPE_TYPE }) {
-            GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", name));
-            if (type == null) {
-                AF9Core.LOGGER.warn("Recipe type gtceu:{} not found", name);
-                continue;
-            }
-            SpaceMiningRecipeUI.install(type, name.equals(LIQUID_RECIPE_TYPE));
-        }
-    }
-
-    /** Re-modify every run: each expedition goes to a new asteroid, and the mission may have been changed. */
-    @Override
-    public boolean alwaysTryModifyRecipe() {
-        return true;
     }
 
     @Override
@@ -565,14 +481,13 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         countModules(found == null ? IntList.of() : found);
         connectModules(found == null ? IntList.of() : found, context.get(MODULE_POS_KEY));
         if (getLevel() instanceof ServerLevel) {
-            // a liquid mission whose fluid is not there any more: back to the asteroids
-            if (isLiquidMission() && PlanetCatalog.find(planetType, gasType) == null) setMission(0, 0);
             // a tower that forms calls its climber down from orbit; one that was formed before has it already
             if (!climberDown) {
                 climberDown = true;
                 startRide(ClimberRide.FORMATION);
             }
             climberSubs = subscribeServerTick(climberSubs, this::climberTick);
+            powerSubs = subscribeServerTick(powerSubs, this::powerTick);
         }
     }
 
@@ -582,9 +497,12 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         disconnectModules();
         motorTier = 0;
         modules = poweredModules = expeditions = topModule = 0;
-        outputFull = false;
         skyChecked = Long.MIN_VALUE / 2;
         unsubscribeClimber();
+        if (powerSubs != null) {
+            powerSubs.unsubscribe();
+            powerSubs = null;
+        }
         climberDown = false;
         climberRide = ClimberRide.NONE;
         climberTurn = 0F;
@@ -637,7 +555,7 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         }
         for (int i = 0; i < positions.size(); i++) {
             if (MetaMachine.getMachine(getLevel(), BlockPos.of(positions.getLong(i))) instanceof SpaceModuleMachine module) {
-                module.connect(motorTier, slots, powered[i]);
+                module.connect(getPos().asLong(), motorTier, slots, powered[i]);
                 connectedModules.add(positions.getLong(i));
             }
         }
@@ -685,454 +603,28 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         return topModule;
     }
 
+
     //////////////////////////////////////
-    // ************ Drone *************//
+    // ************* Power ************//
     //////////////////////////////////////
-
-    /** A Mining Drone ({@code af9:space_mining_drone_mk<n>}). */
-    public static boolean isDrone(ItemStack stack) {
-        return droneTierOf(stack) > 0;
-    }
-
-    /** The tier of a Mining Drone (1 to 4), 0 for anything else. */
-    public static int droneTierOf(ItemStack stack) {
-        if (stack.isEmpty()) return 0;
-        ResourceLocation key = ForgeRegistries.ITEMS.getKey(stack.getItem());
-        if (key == null || !key.getNamespace().equals(AF9Core.MOD_ID) || !key.getPath().startsWith(DRONE)) return 0;
-        try {
-            return Integer.parseInt(key.getPath().substring(DRONE.length()));
-        } catch (NumberFormatException exception) {
-            return 0;
-        }
-    }
-
-    /** Whether the drone slot of the screen holds a drone. */
-    public boolean isDroneInSlot() {
-        return isDrone(droneSlot.getStackInSlot(0));
-    }
 
     /**
-     * The tier of the drone that flies: the one in the screen's slot; with that slot empty, the best one in the input
-     * buses. 0: there is none. Only this drone's expedition runs ({@link #ASTEROID}), so a second drone in a bus does
-     * not make GT pick between them.
+     * Server, every tick of a formed tower: the energy its hatches hold goes into the buffers of the powered modules (as much
+     * as each has room for), as GTNH's elevator charges its modules.
      */
-    public int chosenDrone() {
-        int slot = droneTierOf(droneSlot.getStackInSlot(0));
-        if (slot > 0 || !isFormed()) return slot;
-        int best = 0;
-        for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, ItemRecipeCapability.CAP)) {
-            for (Object content : handler.getContents()) {
-                if (content instanceof ItemStack stack) best = Math.max(best, droneTierOf(stack));
-            }
-        }
-        return best;
-    }
-
-    /** What one expedition of a drone tier takes: its recipe's inputs. */
-    public record Expedition(int tier, int hydrogen, Fluid coolant, int coolantAmount, long voltage, long amperage,
-                             int duration) {
-
-        public long eut() {
-            return voltage * amperage;
-        }
-    }
-
-    /**
-     * The expedition of a drone tier, read from its recipe (server and client both hold the recipes); null when no
-     * recipe sends that drone.
-     */
-    public Expedition expedition(int tier) {
+    private void powerTick() {
         Level level = getLevel();
-        if (level == null || tier < 1) return null;
-        for (GTRecipe recipe : level.getRecipeManager().getAllRecipesFor(getRecipeType())) {
-            if (droneTier(recipe) != tier) continue;
-            int hydrogen = 0, coolantAmount = 0;
-            Fluid coolant = Fluids.EMPTY;
-            for (Content content : recipe.inputs.getOrDefault(FluidRecipeCapability.CAP, List.of())) {
-                FluidStack[] stacks = FluidRecipeCapability.CAP.of(content.content).getStacks();
-                if (stacks.length == 0) continue;
-                if (isHydrogen(stacks[0].getFluid())) {
-                    hydrogen += stacks[0].getAmount();
-                } else {
-                    coolant = stacks[0].getFluid();
-                    coolantAmount += stacks[0].getAmount();
-                }
+        if (level == null || !isFormed() || energyContainer == null) return;
+        for (long pos : connectedModules) {
+            if (!(MetaMachine.getMachine(level, BlockPos.of(pos)) instanceof SpaceModuleMachine module) ||
+                    !module.isPowered()) {
+                continue;
             }
-            EnergyStack energy = RecipeHelper.getRealEUt(recipe);
-            return new Expedition(tier, hydrogen, coolant, coolantAmount, energy.voltage(), energy.amperage(),
-                    recipe.duration);
+            long take = Math.min(module.energyRoom(), energyContainer.getEnergyStored());
+            if (take <= 0) continue;
+            long removed = -energyContainer.changeEnergy(-take);
+            if (removed > 0) module.receiveEnergy(removed);
         }
-        return null;
-    }
-
-    /** The expeditions' fuel. */
-    public static boolean isHydrogen(Fluid fluid) {
-        return fluid.isSame(GTMaterials.Hydrogen.getFluid());
-    }
-
-    /**
-     * Millibuckets of a fluid in the fluid input hatches (hydrogen: {@link #isHydrogen}), the Coolant Hatches among
-     * them.
-     */
-    public long stockOf(Fluid fluid) {
-        if (!isFormed()) return 0;
-        long total = 0;
-        for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, FluidRecipeCapability.CAP)) {
-            for (Object content : handler.getContents()) {
-                if (content instanceof FluidStack stack && stack.getFluid().isSame(fluid)) total += stack.getAmount();
-            }
-        }
-        return total;
-    }
-
-    //////////////////////////////////////
-    // *********** Mission ************//
-    //////////////////////////////////////
-
-    /** Whether the mission that is picked is a liquid one: the recipe type that is on says so. */
-    public boolean isLiquidMission() {
-        return LIQUID_RECIPE_TYPE.equals(getRecipeType().registryName.getPath());
-    }
-
-    /** GTNH's planet type and gas type of the fluid picked for the liquid missions, 0 while the asteroids are mined. */
-    public int getPlanetType() {
-        return planetType;
-    }
-
-    public int getGasType() {
-        return gasType;
-    }
-
-    /** The fluid a liquid mission brings: the one picked on the screen. Null on an ore mission. */
-    public PlanetCatalog.Cargo chosenCargo() {
-        return isLiquidMission() ? PlanetCatalog.find(planetType, gasType) : null;
-    }
-
-    /**
-     * Picks the mission: a planet type and a gas type of {@link PlanetCatalog} for a liquid mission, anything else for
-     * the asteroids. A run that is on flies to its end; what was drawn for the mission before does not start.
-     */
-    public void setMission(int planet, int gas) {
-        PlanetCatalog.Cargo cargo = PlanetCatalog.find(planet, gas);
-        int type = typeIndex(cargo == null ? RECIPE_TYPE : LIQUID_RECIPE_TYPE);
-        // no such recipe type: the startup script is not loaded
-        if (type < 0) return;
-        planetType = cargo == null ? 0 : planet;
-        gasType = cargo == null ? 0 : gas;
-        setActiveRecipeType(type);
-        outputFull = false;
-        recipeLogic.markLastRecipeDirty();
-        markDirty();
-    }
-
-    private int typeIndex(String name) {
-        GTRecipeType[] types = getRecipeTypes();
-        for (int i = 0; i < types.length; i++) {
-            if (types[i].registryName.getPath().equals(name)) return i;
-        }
-        return -1;
-    }
-
-    /** The screen's target selector: the asteroids, then the planet types from the nearest, round and round. */
-    public void cycleTarget(int step) {
-        List<Integer> planets = PlanetCatalog.planets();
-        int index = isLiquidMission() ? planets.indexOf(planetType) + 1 : 0;
-        index = Math.floorMod(index + step, planets.size() + 1);
-        if (index == 0) {
-            setMission(0, 0);
-        } else {
-            int planet = planets.get(index - 1);
-            setMission(planet, PlanetCatalog.of(planet).get(0).gas());
-        }
-    }
-
-    /** The screen's fluid selector: the fluids of the planet type that is picked, round and round. */
-    public void cycleCargo(int step) {
-        PlanetCatalog.Cargo cargo = chosenCargo();
-        if (cargo == null) return;
-        List<PlanetCatalog.Cargo> cargoes = PlanetCatalog.of(planetType);
-        int index = Math.floorMod(cargoes.indexOf(cargo) + step, cargoes.size());
-        setMission(planetType, cargoes.get(index).gas());
-    }
-
-    /** GT's own mode tab (it would switch the recipe type) is left out: the mission is picked on the console. */
-    @Override
-    public void attachSideTabs(TabsWidget sideTabs) {
-        sideTabs.setMainTab(this);
-        var directional = CombinedDirectionalFancyConfigurator.of(self(), self());
-        if (directional != null) sideTabs.attachSubTab(directional);
-    }
-
-    //////////////////////////////////////
-    // ************ Status ************//
-    //////////////////////////////////////
-
-    /**
-     * What the elevator is doing or, while nothing flies, the first thing it lacks ({@link ConsoleWidget}'s status
-     * codes): its console shows it and names what to do about it. In the order a run needs things: the structure, the
-     * switch, the sky above the cable, a powered module, a drone (for a liquid mission one that reaches the planet), the
-     * energy and the fluids of one expedition, room for its ore or its fluid.
-     */
-    public int getStatus() {
-        if (!isFormed()) return ConsoleWidget.STATUS_OFFLINE;
-        if (!recipeLogic.isWorkingEnabled()) return ConsoleWidget.STATUS_PAUSED;
-        if (recipeLogic.isWorking()) return ConsoleWidget.STATUS_RUNNING;
-        // a run that is on and out of energy
-        if (recipeLogic.isWaiting()) return ConsoleWidget.STATUS_NO_POWER;
-        if (!isSkyClear()) return ConsoleWidget.STATUS_NO_SKY;
-        if (expeditions <= 0) return ConsoleWidget.STATUS_NO_MODULE;
-        int drone = chosenDrone();
-        Expedition needs = expedition(drone);
-        if (needs == null) return ConsoleWidget.STATUS_NO_DRONE;
-        boolean liquid = isLiquidMission();
-        if (liquid) {
-            // the planet that is picked lies beyond the drone
-            PlanetCatalog.Cargo cargo = chosenCargo();
-            if (cargo == null || cargo.drone() > drone) return ConsoleWidget.STATUS_NO_DRONE;
-        }
-        if (getAvailableEUt() < needs.eut()) return ConsoleWidget.STATUS_NO_POWER;
-        if (stockOf(GTMaterials.Hydrogen.getFluid()) < needs.hydrogen()) return ConsoleWidget.STATUS_NO_FUEL;
-        if (stockOf(needs.coolant()) < needs.coolantAmount()) return ConsoleWidget.STATUS_NO_COOLANT;
-        RecipeCapability<?> kind = liquid ? FluidRecipeCapability.CAP : ItemRecipeCapability.CAP;
-        if (outputFull || getCapabilitiesFlat(IO.OUT, kind).isEmpty()) return ConsoleWidget.STATUS_OUTPUT_FULL;
-        return ConsoleWidget.STATUS_IDLE;
-    }
-
-    /** Expeditions of the run that is on, 0 while nothing flies. */
-    public int flyingExpeditions() {
-        GTRecipe run = recipeLogic.isWorking() ? recipeLogic.getLastRecipe() : null;
-        return run == null ? 0 : Math.max(1, run.parallels);
-    }
-
-    /** The asteroid of the run that is on (the vein it is made from, or "exotic"), "" while nothing flies. */
-    public String flyingAsteroid() {
-        GTRecipe run = recipeLogic.isWorking() ? recipeLogic.getLastRecipe() : null;
-        return run == null ? "" : run.data.getString(ASTEROID_TAG);
-    }
-
-    /** The fluid of the liquid run that is on ({@link PlanetCatalog.Cargo#code()}), 0 on an ore run or with none. */
-    public int flyingCargo() {
-        GTRecipe run = recipeLogic.isWorking() ? recipeLogic.getLastRecipe() : null;
-        return run == null ? 0 : run.data.getInt(CARGO_TAG);
-    }
-
-    /** The ore of the run that is on, for the screen: "id*count;id*count" ("" while nothing flies). */
-    public String flyingOre() {
-        GTRecipe run = recipeLogic.isWorking() ? recipeLogic.getLastRecipe() : null;
-        if (run == null) return "";
-        StringBuilder text = new StringBuilder();
-        for (Content content : run.outputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
-            Ingredient ingredient = ItemRecipeCapability.CAP.of(content.content);
-            ItemStack[] items = ingredient.getItems();
-            if (items.length == 0) continue;
-            ResourceLocation id = ForgeRegistries.ITEMS.getKey(items[0].getItem());
-            if (id == null) continue;
-            if (text.length() > 0) text.append(';');
-            text.append(id).append('*').append(countOf(ingredient));
-        }
-        return text.toString();
-    }
-
-    private static int countOf(Ingredient ingredient) {
-        if (ingredient instanceof SizedIngredient sized) return sized.getAmount();
-        ItemStack[] items = ingredient.getItems();
-        return items.length == 0 ? 0 : items[0].getCount();
-    }
-
-    /** Expeditions flown since the counters were reset. */
-    public long getFlown() {
-        return flown;
-    }
-
-    /** Items of ore brought home since the counters were reset. */
-    public long getMined() {
-        return mined;
-    }
-
-    /** Millibuckets of fluid brought home since the counters were reset. */
-    public long getPumped() {
-        return pumped;
-    }
-
-    public void resetCounters() {
-        flown = 0;
-        mined = 0;
-        pumped = 0;
-        markDirty();
-    }
-
-    /** A run is over: its expeditions and their ore or fluid go on the counters. */
-    @Override
-    public void afterWorking() {
-        super.afterWorking();
-        GTRecipe run = recipeLogic.getLastRecipe();
-        if (run == null) return;
-        flown += Math.max(1, run.parallels);
-        for (Content content : run.outputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
-            mined += countOf(ItemRecipeCapability.CAP.of(content.content));
-        }
-        for (Content content : run.outputs.getOrDefault(FluidRecipeCapability.CAP, List.of())) {
-            pumped += FluidRecipeCapability.CAP.of(content.content).getAmount();
-        }
-        markDirty();
-    }
-
-    //////////////////////////////////////
-    // *********** Missions ***********//
-    //////////////////////////////////////
-
-    /**
-     * Starts a run of as many missions at once as the powered Mining Modules fly, the hatches can supply in full
-     * (EU/t), the hydrogen and the coolant last for and the outputs have room for, while the cable is free, and gives
-     * it its cargo (the recipe's own outputs are dropped). An ore mission gets its asteroid: the ore the run puts out,
-     * the same asteroid for every expedition of the run. A liquid mission gets the fluid picked on the screen,
-     * {@link PlanetCatalog}'s amount of it an expedition, if the drone reaches its planet. Only the kind of mission
-     * that is picked runs (the recipe type that is on), with the {@link #chosenDrone() chosen drone}.
-     */
-    public static final RecipeModifier MISSION = (machine, recipe) -> {
-        if (!(machine instanceof SpaceElevatorMachine elevator)) {
-            return RecipeModifier.nullWrongType(SpaceElevatorMachine.class, machine);
-        }
-        long eut = RecipeHelper.getRealEUt(recipe).getTotalEU();
-        int tier = droneTier(recipe);
-        if (tier < 1 || eut < 1 || recipe.recipeType != elevator.getRecipeType() || tier != elevator.chosenDrone() ||
-                !elevator.isSkyClear()) {
-            return ModifierFunction.NULL;
-        }
-        boolean liquid = elevator.isLiquidMission();
-        PlanetCatalog.Cargo cargo = elevator.chosenCargo();
-        if (liquid && (cargo == null || cargo.drone() > tier)) return ModifierFunction.NULL;
-        int limit = (int) Math.min(elevator.expeditions, elevator.getAvailableEUt() / eut);
-        if (limit < 1) return ModifierFunction.NULL;
-        int runs = ParallelLogic.getParallelAmountWithoutEU(machine, recipe, limit);
-        if (runs < 1) return ModifierFunction.NULL;
-        // the cargo of one expedition
-        GTRecipe one = recipe.copy();
-        List<ItemStack> ores = List.of();
-        StringBuilder where = new StringBuilder();
-        if (liquid) {
-            // a run's fluid is one stack: an int of millibuckets
-            runs = Math.min(runs, Integer.MAX_VALUE / cargo.millibuckets());
-            one.outputs.put(FluidRecipeCapability.CAP, List.of(content(cargo, 1)));
-        } else {
-            RandomSource random = elevator.getLevel() != null ? elevator.getLevel().getRandom() :
-                    RandomSource.create();
-            ores = asteroid(tier, random, where);
-            if (ores.isEmpty()) return ModifierFunction.NULL;
-            one.outputs.put(ItemRecipeCapability.CAP, contents(ores, 1));
-        }
-        // as many of them as the outputs can take the cargo of; not even one: the run waits for room
-        runs = ParallelLogic.limitByOutputMerging(elevator, one, runs, elevator::canVoidRecipeOutputs, List.of());
-        elevator.outputFull = runs < 1;
-        if (runs < 1) return ModifierFunction.NULL;
-        String name = where.toString();
-        int code = liquid ? cargo.code() : 0;
-        RecipeCapability<?> kind = liquid ? FluidRecipeCapability.CAP : ItemRecipeCapability.CAP;
-        List<Content> outputs = liquid ? List.of(content(cargo, runs)) : contents(ores, runs);
-        // the inputs and the EU/t of every expedition (the drone is not used up: it is not multiplied)
-        ModifierFunction parallel = ModifierFunction.builder()
-                .modifyAllContents(ContentModifier.multiplier(runs))
-                .eutMultiplier(runs)
-                .parallels(runs)
-                .build();
-        return modified -> {
-            GTRecipe result = parallel.apply(modified);
-            if (result == null) return null;
-            result.outputs.put(kind, outputs);
-            // where the run goes is carried with it (the builder shares the data tag with the recipe it was made from)
-            result.data = result.data.copy();
-            if (liquid) result.data.putInt(CARGO_TAG, code);
-            else result.data.putString(ASTEROID_TAG, name);
-            return result;
-        };
-    };
-
-    /** A liquid mission's fluid as a recipe's fluid output, {@code times} over. */
-    private static Content content(PlanetCatalog.Cargo cargo, int times) {
-        return new Content(FluidIngredient.of(new FluidStack(cargo.fluid(), cargo.millibuckets() * times)),
-                ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0);
-    }
-
-    /** Stacks of ore an expedition of a drone tier brings home at least, and at most. */
-    public static int minStacks(int tier) {
-        return MIN_STACKS[Math.max(1, Math.min(tier, MIN_STACKS.length)) - 1];
-    }
-
-    public static int maxStacks(int tier) {
-        return MAX_STACKS[Math.max(1, Math.min(tier, MAX_STACKS.length)) - 1];
-    }
-
-    /** The ore of an asteroid as a recipe's item outputs, {@code times} over. */
-    private static List<Content> contents(List<ItemStack> ores, int times) {
-        List<Content> result = new ArrayList<>();
-        for (ItemStack ore : ores) {
-            result.add(new Content(SizedIngredient.create(ore.copyWithCount(ore.getCount() * times)),
-                    ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0));
-        }
-        return result;
-    }
-
-    /** The tier of the Mining Drone a recipe takes ({@code space_mining_drone_mk<n>}), 0 if there is none. */
-    public static int droneTier(GTRecipe recipe) {
-        for (Content content : recipe.inputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
-            if (!(content.content instanceof Ingredient ingredient)) continue;
-            for (ItemStack stack : ingredient.getItems()) {
-                int tier = droneTierOf(stack);
-                if (tier > 0) return tier;
-            }
-        }
-        return 0;
-    }
-
-    /**
-     * The ore of one expedition of a drone tier, one stack an ore (its count the whole of it, stacks of 64 times);
-     * {@code name} gets where it went.
-     */
-    static List<ItemStack> asteroid(int tier, RandomSource random, StringBuilder name) {
-        int index = Math.min(tier, MIN_STACKS.length) - 1;
-        int stacks = MIN_STACKS[index] + random.nextInt(MAX_STACKS[index] - MIN_STACKS[index] + 1);
-        List<String> materials = new ArrayList<>();
-        List<OreCatalog.Vein> pool = new ArrayList<>();
-        int weight = 0;
-        for (OreCatalog.Vein vein : OreCatalog.veins()) {
-            if (vein.tier() <= tier) {
-                pool.add(vein);
-                weight += vein.weight();
-            }
-        }
-        List<String> exotics = OreCatalog.exotics();
-        boolean exotic = !exotics.isEmpty() &&
-                (pool.isEmpty() || tier >= OreCatalog.TIERS && random.nextInt(EXOTIC_ONE_IN) == 0);
-        if (exotic) {
-            name.append("exotic");
-            List<String> bag = new ArrayList<>(exotics);
-            while (materials.size() < EXOTIC_ORES && !bag.isEmpty()) {
-                materials.add(bag.remove(random.nextInt(bag.size())));
-            }
-        } else if (!pool.isEmpty()) {
-            int roll = random.nextInt(weight);
-            OreCatalog.Vein picked = pool.get(0);
-            for (OreCatalog.Vein vein : pool) {
-                if (roll < vein.weight()) {
-                    picked = vein;
-                    break;
-                }
-                roll -= vein.weight();
-            }
-            name.append(picked.id());
-            materials.addAll(picked.materials());
-        }
-        List<ItemStack> result = new ArrayList<>();
-        int main = materials.size() <= 1 ? stacks : Math.max(1, (int) Math.round(stacks * MAIN_SHARE));
-        int others = Math.max(1, materials.size() - 1);
-        for (int i = 0; i < materials.size(); i++) {
-            int share = i == 0 ? main : (stacks - main) / others;
-            if (i == 1) share += (stacks - main) - share * others;
-            // nothing when GT has no item of the ore, or the ore got no stack
-            ItemStack ore = share < 1 ? null : OreCatalog.ore(materials.get(i), share * STACK);
-            if (ore != null) result.add(ore);
-        }
-        return result;
     }
 
     //////////////////////////////////////
@@ -1140,17 +632,25 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     //////////////////////////////////////
 
     @Override
-    public Widget createUIWidget() {
-        return SpaceElevatorConsoleWidget.createPage(this);
+    public void addDisplayText(List<Component> textList) {
+        textList.add(Component.translatable("af9.space_elevator.display.title"));
+        if (!isFormed()) {
+            textList.add(Component.translatable("af9.space_elevator.display.not_formed"));
+            return;
+        }
+        textList.add(Component.translatable("af9.space_elevator.display.motors", mark(motorTier),
+                moduleSlots(motorTier)));
+        textList.add(Component.translatable("af9.space_elevator.display.modules", poweredModules, modules, expeditions));
+        textList.add(isSkyClear() ? Component.translatable("af9.space_elevator.display.sky") :
+                Component.translatable("af9.space_elevator.display.no_sky"));
+        // the size switch: a click turns the structure to the other size and has it checked again
+        textList.add(ComponentPanelWidget.withButton(Component.translatable(extended ?
+                "af9.space_elevator.display.extended" : "af9.space_elevator.display.basic"), "size"));
+        super.addDisplayText(textList);
     }
 
-    /** GT's machine screen with the elevator's page and a panel on each side of the player inventory. */
     @Override
-    public ModularUI createUI(Player entityPlayer) {
-        return new ModularUI(SidePanelsUIWidget.width(SpaceElevatorConsoleWidget.WIDTH),
-                SidePanelsUIWidget.height(SpaceElevatorConsoleWidget.HEIGHT), this, entityPlayer)
-                .widget(new SidePanelsUIWidget<>(this, SpaceElevatorConsoleWidget.WIDTH,
-                        SpaceElevatorConsoleWidget.HEIGHT, SpaceElevatorConsoleWidget.class,
-                        SpaceElevatorConsoleWidget.SidePanel::new));
+    public void handleDisplayClick(String componentData, ClickData clickData) {
+        if ("size".equals(componentData) && !clickData.isRemote) setExtended(!extended);
     }
 }

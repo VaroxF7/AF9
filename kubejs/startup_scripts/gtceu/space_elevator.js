@@ -21,6 +21,7 @@ const $ElevatorModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $ElevatorDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 const $ElevatorCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $SpaceModule = Java.loadClass('com.af9.core.elevator.SpaceModuleMachine')
+const $SpaceMission = Java.loadClass('com.af9.core.elevator.SpaceMissionMachine')
 
 const SE_ROMAN = ['I', 'II', 'III', 'IV', 'V']
 // module slots the motors of each tier power, expeditions a Mining Module of each tier flies at once (GTNH's numbers; the
@@ -702,9 +703,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // upright only, as GTNH's
         .allowExtendedFacing(false)
         .allowFlip(false)
-        // the two kinds of mission: the one that is on is picked on the screen (the first one, ore, to begin with)
-        .recipeTypes([GTRecipeTypes.get('space_mining'), GTRecipeTypes.get('space_pumping')])
-        .recipeModifiers([$SpaceElevator.MISSION])
+        // the elevator itself runs no recipe: its Mining Modules fly the missions (GTNH's design)
+        .recipeTypes([GTRecipeTypes.get('space_module')])
         .appearanceBlock(() => Block.getBlock('af9:space_elevator_base_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_elevator.tooltip', 11))
         .pattern(definition => {
@@ -722,27 +722,35 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .hasBER(true)
 
     // ---- The Mining Modules: GTNH's elevator modules, each a small multiblock of its own that stands in a module slot ('I' above)
-    // and is connected by the tower (SpaceModuleMachine). Its structure is the slot's casings above and below it (where the
-    // slot's hatches go, the same parts as the tower's); the sides are the tower's business.
+    // and flies the missions (af9-core SpaceModuleMachine: the drone, the fuel and the coolant in its hatches, the cargo out of
+    // them, the energy from the buffer the elevator fills). Its structure is the slot's casings round it, where the slot's
+    // hatches go: the same parts as the tower's; the side towards the shaft is the tower's business. Parts have a maximum only,
+    // never a required count (setMaxGlobalLimited(max, preview count)); the two sides are alike, so the module forms whichever
+    // way it faces.
     ;['I', 'II', 'III'].forEach((roman, index) => {
         const tier = index + 1
         event.create(`space_mining_module_mk${tier}`, 'multiblock')
             .langValue(`Space Mining Module MK-${roman}`)
             .machine(holder => new $SpaceModule(holder, tier))
             .rotationState(RotationState.NON_Y_AXIS)
-            .recipeTypes([GTRecipeTypes.get('space_module')])
+            .recipeTypes([GTRecipeTypes.get('space_mining'), GTRecipeTypes.get('space_pumping')])
+            // the missions only (the modifier is the engine: drone, asteroid or planet, expeditions at once)
+            .recipeModifiers([$SpaceMission.MISSION])
             .appearanceBlock(() => Block.getBlock('af9:space_elevator_base_casing'))
             ['tooltips(net.minecraft.network.chat.Component[])'](tooltips(`af9.space_mining_module_mk${tier}.tooltip`, 4))
             .pattern(definition => {
                 const slotPart = Predicates.blocks('af9:space_elevator_base_casing')
-                    .or(Predicates.abilities(PartAbility.IMPORT_ITEMS, PartAbility.EXPORT_ITEMS,
-                        PartAbility.IMPORT_FLUIDS, PartAbility.EXPORT_FLUIDS, PartAbility.INPUT_ENERGY,
-                        PartAbility.INPUT_LASER, $ElevatorCoolantHatch.COOLANT_INPUT))
+                    .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                    .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(4, 1))
+                    .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(2, 1))
+                    .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(4, 1))
+                    .or(Predicates.abilities($ElevatorCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
+                    // what else the tower has in the slot's casings (energy hatches and the like) is not the module's
+                    .or(Predicates.any())
                 return FactoryBlockPattern.start()
-                    .aisle(' M ', ' S ', ' M ')
+                    .aisle('MMM', 'MSM', 'MMM')
                     .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                     .where('M', slotPart)
-                    .where(' ', Predicates.any())
                     .build()
             })
             .workableCasingModel('af9:block/space_elevator_base_casing',

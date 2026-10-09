@@ -6,7 +6,7 @@ import com.af9.core.common.AF9Sounds;
 import com.af9.core.compat.xei.StagedRecipeUI;
 import com.af9.core.compat.adastra.AdAstraCompat;
 import com.af9.core.compat.extremereactors.ExtremeReactorsCompat;
-import com.af9.core.elevator.SpaceElevatorMachine;
+import com.af9.core.elevator.SpaceMissionMachine;
 import com.af9.core.fab.FabRecipeInfo;
 import com.af9.core.machine.ParticleAcceleratorMachine;
 import com.af9.core.machine.PhotolithographyLineMachine;
@@ -72,7 +72,7 @@ public class AF9Core {
         // GT recipe types are registered (by KubeJS) before common setup; touch them on the main thread
         event.enqueueWork(PhotolithographyLineMachine::registerRecipeInfo);
         event.enqueueWork(ParticleAcceleratorMachine::registerRecipeInfo);
-        event.enqueueWork(SpaceElevatorMachine::registerRecipeInfo);
+        event.enqueueWork(SpaceMissionMachine::registerRecipeInfo);
         event.enqueueWork(FabRecipeInfo::register);
         // Boule Melting: second mode of GT's Electric Blast Furnace (before any machine is created)
         event.enqueueWork(BouleMelting::install);
