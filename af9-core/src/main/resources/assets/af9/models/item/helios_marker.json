@@ -1,0 +1,13 @@
+{
+  "parent": "minecraft:block/cube",
+  "gui_light": "front",
+  "textures": {
+    "down": "af9:block/dim_markers/helios/down",
+    "east": "af9:block/dim_markers/helios/east",
+    "north": "af9:block/dim_markers/helios/north",
+    "south": "af9:block/dim_markers/helios/south",
+    "up": "af9:block/dim_markers/helios/up",
+    "west": "af9:block/dim_markers/helios/west",
+    "particle": "#north"
+  }
+}

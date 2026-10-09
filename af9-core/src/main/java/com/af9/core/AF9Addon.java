@@ -1,5 +1,6 @@
 package com.af9.core;
 
+import com.af9.core.registry.AF9DimensionMarkers;
 import com.af9.core.registry.AF9TagPrefixes;
 import com.af9.core.space.AF9Space;
 import com.af9.core.staged.StagedCovers;
@@ -26,8 +27,14 @@ public class AF9Addon implements IGTAddon {
         return AF9Core.REGISTRATE;
     }
 
+    /**
+     * GregTech calls this right after it has registered its own dimension markers and closed their registry, still
+     * inside its own start-up: the one place the registry opens for AF9's markers.
+     */
     @Override
-    public void initializeAddon() {}
+    public void initializeAddon() {
+        AF9DimensionMarkers.bind();
+    }
 
     @Override
     public String addonModId() {

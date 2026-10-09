@@ -57,6 +57,7 @@ item af9:asic_package
 item af9:asic_psm_reticle
 item af9:asic_reticle
 item af9:asic_wafer
+item af9:asteroid_field_marker
 item af9:beryllium_spallation_target
 item af9:black_plutonium_item_pipe_casing
 item af9:bolted_iridium_casing
@@ -70,6 +71,7 @@ item af9:broken_silicon_wafer
 item af9:broken_strange_matter_wafer
 item af9:broken_transmuted_neutronium_wafer
 item af9:broken_trinium_wafer
+item af9:ceres_marker
 item af9:chromodynium_boule
 item af9:chromodynium_melt_charge
 item af9:chromodynium_seed_crystal
@@ -155,11 +157,13 @@ item af9:fused_quartz_crucible
 item af9:fx_fuel_pellet
 item af9:fx_fuel_rod
 item af9:fx_spent_fuel_rod
+item af9:helios_marker
 item af9:highly_advanced_soc_reticle
 item af9:ilc_euv_reticle
 item af9:ilc_psm_reticle
 item af9:ilc_reticle
 item af9:krf_excimer_laser
+item af9:kronos_marker
 item af9:laser_containment_casing
 item af9:laser_resistant_plate
 item af9:lpic_euv_reticle
@@ -175,9 +179,11 @@ item af9:memristor_chip
 item af9:memristor_reticle
 item af9:memristor_wafer
 item af9:mining_black_plutonium_casing
+item af9:mining_dimension_marker
 item af9:mining_neutronium_casing
 item af9:mo_si_mirror
 item af9:molecular_sieve
+item af9:moon_marker
 item af9:mpic_euv_reticle
 item af9:mpic_psm_reticle
 item af9:mpic_reticle
@@ -295,6 +301,7 @@ item af9:vpu_reticle
 item af9:vpu_wafer
 item af9:xps_processor
 item af9:xps_processor_mainframe
+item af9:zephyr_marker
 material gtceu:acetaldehyde
 material gtceu:acetone_cyanohydrin
 material gtceu:acetoxyacetophenone

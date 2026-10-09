@@ -1,0 +1,116 @@
+{
+  "parent": "minecraft:block/block",
+  "gui_light": "front",
+  "textures": {
+    "down": "af9:block/dim_markers/kronos/down",
+    "east": "af9:block/dim_markers/kronos/east",
+    "north": "af9:block/dim_markers/kronos/north",
+    "south": "af9:block/dim_markers/kronos/south",
+    "up": "af9:block/dim_markers/kronos/up",
+    "west": "af9:block/dim_markers/kronos/west",
+    "particle": "#north",
+    "ring": "af9:block/dim_markers/kronos/ring"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        4,
+        4
+      ],
+      "to": [
+        12,
+        12,
+        12
+      ],
+      "faces": {
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#down"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#east"
+        },
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#north"
+        },
+        "south": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#south"
+        },
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#up"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#west"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        7.5,
+        0
+      ],
+      "to": [
+        16,
+        8.5,
+        16
+      ],
+      "faces": {
+        "up": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#ring"
+        },
+        "down": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#ring"
+        }
+      }
+    }
+  ]
+}

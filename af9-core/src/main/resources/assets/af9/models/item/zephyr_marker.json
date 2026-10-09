@@ -1,0 +1,13 @@
+{
+  "parent": "minecraft:block/cube",
+  "gui_light": "front",
+  "textures": {
+    "down": "af9:block/dim_markers/zephyr/down",
+    "east": "af9:block/dim_markers/zephyr/east",
+    "north": "af9:block/dim_markers/zephyr/north",
+    "south": "af9:block/dim_markers/zephyr/south",
+    "up": "af9:block/dim_markers/zephyr/up",
+    "west": "af9:block/dim_markers/zephyr/west",
+    "particle": "#north"
+  }
+}

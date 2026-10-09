@@ -1,0 +1,13 @@
+{
+  "parent": "minecraft:block/cube",
+  "gui_light": "front",
+  "textures": {
+    "down": "af9:block/dim_markers/ceres/down",
+    "east": "af9:block/dim_markers/ceres/east",
+    "north": "af9:block/dim_markers/ceres/north",
+    "south": "af9:block/dim_markers/ceres/south",
+    "up": "af9:block/dim_markers/ceres/up",
+    "west": "af9:block/dim_markers/ceres/west",
+    "particle": "#north"
+  }
+}

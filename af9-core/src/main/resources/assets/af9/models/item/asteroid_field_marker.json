@@ -1,0 +1,13 @@
+{
+  "parent": "minecraft:block/cube",
+  "gui_light": "front",
+  "textures": {
+    "down": "af9:block/dim_markers/asteroid_field/down",
+    "east": "af9:block/dim_markers/asteroid_field/east",
+    "north": "af9:block/dim_markers/asteroid_field/north",
+    "south": "af9:block/dim_markers/asteroid_field/south",
+    "up": "af9:block/dim_markers/asteroid_field/up",
+    "west": "af9:block/dim_markers/asteroid_field/west",
+    "particle": "#north"
+  }
+}

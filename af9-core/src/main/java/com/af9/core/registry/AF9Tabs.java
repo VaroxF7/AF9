@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * The AF9 creative tab: everything the pack adds, in one place. First the blocks, then the plain items in the order
  * they are registered in ({@link AF9Blocks}, {@link AF9Items}), the Oil Regolith, and after them
- * whatever else is registered under {@code af9:}, by id.
+ * whatever else is registered under {@code af9:}, by id. The dimension markers ({@link AF9DimensionMarkers}) stay out.
  */
 public final class AF9Tabs {
 
@@ -51,6 +51,8 @@ public final class AF9Tabs {
         ids.sort(null);
         for (ResourceLocation id : ids) items.add(ForgeRegistries.ITEMS.getValue(id));
         items.remove(Items.AIR);
+        // the dimension markers are icons of GregTech's recipe pages, not things to hold
+        items.removeIf(AF9DimensionMarkers::isMarker);
         List<ItemStack> stacks = new ArrayList<>(items.size());
         for (Item item : items) stacks.add(new ItemStack(item));
         return stacks;

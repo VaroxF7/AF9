@@ -16,3 +16,5 @@ gtceu:ares_gas
 gtceu:lunar_air
 # Space Elevator far-dark liquid mission (PlanetCatalog planet type 9)
 gtceu:lxa_1
+# the dimension markers: icons of GregTech's dimension slots, nothing to craft (registry/AF9DimensionMarkers)
+af9:*_marker
