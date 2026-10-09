@@ -1,6 +1,7 @@
 package com.af9.core.client;
 
 import com.af9.core.AF9Core;
+import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.LithoChamberRender;
 import com.af9.core.client.render.ModeFluidRender;
@@ -35,6 +36,7 @@ public final class AF9Client {
         LightRingRender.register();
         LithoChamberRender.register();
         SpaceElevatorRender.register();
+        LaserEngraverRender.register();
         // every item is registered by client setup, and EMI has not loaded its list yet
         FMLJavaModLoadingContext.get().getModEventBus()
                 .addListener((FMLClientSetupEvent event) -> EmiAcceleratorCompat.checkCache());

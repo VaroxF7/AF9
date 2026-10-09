@@ -8,6 +8,9 @@
 //   S controller (front, bottom centre)   C Laser Containment Casing: any of them may be a hatch
 //   F tungstensteel frame   G glass (any of three tiers)   R Laser Resistant Plate   L laser target hatch (above the glass)
 
+const $LaserEngraverMachine = Java.loadClass('com.af9.core.machine.LaserEngraverMachine')
+const $HileModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
+
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []
@@ -25,6 +28,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
 
     event.create('hyper_intensity_laser_engraver', 'multiblock')
         .langValue('Hyper-Intensity Laser Engraver')
+        .machine(holder => new $LaserEngraverMachine(holder))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('plasma_soldering')])
         // a parallel hatch multiplies the runs; perfect overclocks
@@ -56,5 +60,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .build()
         })
         // the controller: GTNH's engraver face (kubejs assets, overlay_front*)
-        .workableCasingModel('af9:block/laser_containment_casing', 'gtceu:block/multiblock/hile')
+        // and its beam while it works: down the shaft one block behind the controller, from the plate (1 block above the
+        // controller's floor) to the laser hatch's face (4); af9-core LaserEngraverRender
+        .model($HileModels.workableCasingWithLaserBeam('af9:block/laser_containment_casing',
+            'gtceu:block/multiblock/hile', 1, 1, 4))
+        .hasBER(true)
 })

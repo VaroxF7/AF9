@@ -1,5 +1,6 @@
 package com.af9.core.machine;
 
+import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.LithoChamberRender;
 import com.af9.core.client.render.ModeFluidRender;
@@ -39,6 +40,22 @@ public final class AF9MachineModels {
                 new ResourceLocation(String.valueOf(fluid))));
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(() -> ModeFluidRender.create(fluids)));
+    }
+
+    /**
+     * GT's workable casing model plus the Hyper-Intensity Laser Engraver's beam while it works
+     * ({@link LaserEngraverRender}). The machine must implement {@link ILaserEngraverMachine} and have a block entity
+     * renderer ({@code .hasBER(true)}).
+     *
+     * @param back   how far behind the controller the shaft is
+     * @param bottom height of the beam's foot above the controller block's floor
+     * @param top    height of the beam's start
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithLaserBeam(ResourceLocation casing,
+                                                                               ResourceLocation overlay, float back,
+                                                                               float bottom, float top) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(() -> LaserEngraverRender.create(back, bottom, top)));
     }
 
     /**
