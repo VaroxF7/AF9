@@ -585,13 +585,13 @@
 		{
 			dependencies: ["53E4EA2998891934"]
 			description: ["{af9.quest.chem.sansmelt.1}" "" "{af9.quest.chem.sansmelt.2}"]
-			icon: "gtceu:hot_sanguinite_ingot"
+			icon: "gtceu:sanguinite_ingot"
 			id: "5B3D4B0D2190CCE6"
 			rewards: [{ id: "07C27E61B6151821" type: "xp" xp: 50 }]
 			shape: "circle"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.sansmelt.subtitle}"
-			tasks: [{ id: "4A4FE97CF12F146A" item: "gtceu:crude_sanguinite_dust" type: "item" } { id: "5FEAFB61F2C8023F" item: "gtceu:hot_sanguinite_ingot" type: "item" }]
+			tasks: [{ id: "4A4FE97CF12F146A" item: "gtceu:crude_sanguinite_dust" type: "item" } { id: "5FEAFB61F2C8023F" item: "gtceu:sanguinite_ingot" type: "item" }]
 			title: "{af9.quest.chem.sansmelt.title}"
 			x: 21.0d
 			y: 12.0d

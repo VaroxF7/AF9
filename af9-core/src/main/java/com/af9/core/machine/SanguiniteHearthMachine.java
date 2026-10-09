@@ -18,34 +18,35 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
  * Controller logic of the Sanguinite Hearth Furnace (structure and recipe type in
  * {@code kubejs/startup_scripts/gtceu/sanguinite_hearth.js}): a standalone copy of GT's Rotary Hearth Furnace
  * ({@code gtceu:mega_blast_furnace}) that runs only its own recipe type ({@code gtceu:sanguinite_hearth}), never the
- * EBF family. The EBF cannot smelt sanguinite at all: the hot-ingot print lives on the hearth's type, and the
- * material's auto EBF recipe is removed.
+ * EBF family. The EBF cannot smelt sanguinite at all: the molten print lives on the hearth's type, and the
+ * material's auto EBF/hot-ingot recipes are removed.
  * <p>
  * The hearth is a thermal mass, not an instant furnace: it preheats toward its coils' maximum
  * ({@link #getMaxHeat()}, coil temperature plus 100 K per energy hatch tier above MV, like the EBF's display) in
  * {@link #PREHEAT_SECONDS} while switched on and powered (the heaters draw {@link #heaterDrainPerInterval()} on top
- * of everything, like the lithography pumps), and cools over {@link #COOL_SECONDS} without power or while switched
- * off. A print only starts preheated ({@link #HEARTH_GATE}); between runs an enabled, powered hearth holds its heat
- * on a trickle, so back-to-back smelts start at once and a cold hearth makes you wait. Breaking the structure vents
- * it back to room temperature.
+ * of everything: 4 A of LuV minimum, the readiness heat), and cools over {@link #COOL_SECONDS} without power or
+ * while switched off. A print only starts preheated ({@link #HEARTH_GATE}); between runs an enabled, powered hearth
+ * holds its heat in readiness, so back-to-back smelts start at once and a cold hearth makes you wait. Breaking the
+ * structure vents it back to 0 K. Heating needs at least LuV hatches: below that the hearth only cools.
  * <p>
- * Automation angles: keep it switched on under power with an ME level emitter on the crude stock (or a clock) and it
- * stays hot and self-starts; a parallel hatch multiplies the 14-ingot prints; batch mode folds overclocked runs.
+ * Automation angles: keep it switched on under power with an ME level emitter on the dust stock (or a clock) and it
+ * stays hot and self-starts; a parallel hatch multiplies the molten prints; batch mode folds overclocked runs.
+ * Coolant (supercooled fluids, Coolant Hatches) is a recipe input and shows as its own JEI slot.
  */
 public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             SanguiniteHearthMachine.class, CoilWorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
 
-    /** Hearth temperature a print needs (K): the sanguinite smelt. */
-    public static final int HEARTH_TEMP = 13000;
+    /** Hearth temperature a print needs (K): the molten sanguinite smelt (Tritanium coils). */
+    public static final int HEARTH_TEMP = 10800;
     /** Seconds from cold to full heat while powered, and back to cold without power. */
-    public static final int PREHEAT_SECONDS = 60;
-    public static final int COOL_SECONDS = 240;
+    public static final int PREHEAT_SECONDS = 300;
+    public static final int COOL_SECONDS = 500;
     /** Ticks between two heat updates. */
     public static final int HEAT_INTERVAL = 10;
-    /** Room temperature the hearth vents back to. */
-    public static final int AMBIENT_K = 20;
+    /** Cold hearth the structure resets to when broken. */
+    public static final int AMBIENT_K = 0;
 
     /**
      * Only starts a print on a preheated hearth whose hatches can supply its EU/t. GT keeps retrying a gated recipe,
@@ -117,7 +118,8 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
         int max = getMaxHeat();
         boolean working = getRecipeLogic().isWorking();
         long drain = heaterDrainPerInterval();
-        boolean powered = energyContainer != null && drain > 0 && energyContainer.getEnergyStored() >= drain;
+        boolean powered = energyContainer != null && drain > 0 && energyContainer.getEnergyStored() >= drain &&
+                isHeatingTier();
         if ((getRecipeLogic().isWorkingEnabled() || working) && powered) {
             energyContainer.removeEnergy(drain);
             // a running print holds at least its heat; an idle hearth climbs toward the coils' maximum
@@ -128,14 +130,21 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
         if (hearthHeat != before) markDirty();
     }
 
-    /** The heaters draw 1/8 A of the hatch voltage, like the lithography pumps. */
+    /** Heating needs at least LuV hatches: below that the hearth only cools, never climbs. */
+    public boolean isHeatingTier() {
+        if (energyContainer == null) return false;
+        return GTUtil.getTierByVoltage(energyContainer.getInputVoltage()) >= GTValues.LuV;
+    }
+
+    /** Readiness heat: 4 A of LuV minimum, drawn whenever enabled (or running) to climb or hold the heat. */
     public long heaterDrainPerInterval() {
-        return energyContainer == null ? 0 : energyContainer.getHighestInputVoltage() / 8 * HEAT_INTERVAL;
+        if (energyContainer == null) return 0;
+        return 4L * GTValues.VA[GTValues.LuV] * HEAT_INTERVAL;
     }
 
     /**
      * Hottest the hearth gets: the coils' temperature plus 100 K per energy hatch tier above MV (the EBF's own
-     * display maths). Resonant Endion coils (12,600 K) with UV hatches reach 13,100 K: just past the smelt.
+     * display maths). Tritanium coils (10,800 K) with ZPM hatches reach 11,300 K: just past the smelt.
      */
     public int getMaxHeat() {
         if (!isFormed() || energyContainer == null) return AMBIENT_K;
