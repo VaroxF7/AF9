@@ -44,9 +44,10 @@ ServerEvents.recipes(event => {
     // ---- Machines ----
     // The hearth controller: a Rotary Hearth controller refitted with a UHV hull, field generators and an
     // endion quench loop. Assembled at UHV.
+    // (UV parts: GT has no parts above UV while its high-tier content is off, as it is in the pack)
     event.recipes.gtceu.assembler('af9:sanguinite_hearth_furnace')
-        .itemInputs('gtceu:mega_blast_furnace', 'gtceu:uhv_machine_hull', '4x gtceu:uhv_field_generator',
-            '4x #gtceu:circuits/uhv', '4x gtceu:uhv_sensor', '4x gtceu:uhv_electric_pump',
+        .itemInputs('gtceu:mega_blast_furnace', 'gtceu:uhv_machine_hull', '4x gtceu:uv_field_generator',
+            '4x #gtceu:circuits/uhv', '4x gtceu:uv_sensor', '4x gtceu:uv_electric_pump',
             '8x gtceu:naquadah_alloy_plate')
         .inputFluids(Fluid.of('gtceu:supercooled_endion', 4000))
         .itemOutputs('gtceu:sanguinite_hearth_furnace')

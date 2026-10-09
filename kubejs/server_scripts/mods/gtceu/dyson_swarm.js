@@ -16,9 +16,10 @@ ServerEvents.recipes(event => {
     const ALLOY_PLATE = 'allthemodium:unobtainium_plate'
 
     // ---- 1. Controller and casings ----
+    // (UV parts: GT has no parts above UV while its high-tier content is off, as it is in the pack)
     event.shaped('gtceu:dyson_swarm', ['ESE', 'FHF', 'CPC'], {
-        E: 'gtceu:uhv_emitter', S: 'gtceu:uhv_sensor', F: 'gtceu:uhv_field_generator', H: 'gtceu:uhv_machine_hull',
-        C: '#gtceu:circuits/uhv', P: 'gtceu:uhv_electric_pump'
+        E: 'gtceu:uv_emitter', S: 'gtceu:uv_sensor', F: 'gtceu:uv_field_generator', H: 'gtceu:uhv_machine_hull',
+        C: '#gtceu:circuits/uhv', P: 'gtceu:uv_electric_pump'
     }).id('af9:dyson_swarm')
 
     // four casings from plates and a frame, one circuit each (so JEI keeps the recipes apart)
