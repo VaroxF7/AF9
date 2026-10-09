@@ -44,11 +44,9 @@ public class SpaceMiningFlowWidget extends Widget {
         int color = SpaceElevatorConsoleWidget.tierColor(tier);
 
         // the names of the inputs, under their slots
-        drawSmall(graphics, Component.translatable("af9.recipe.space_mining.drone").getString(), x0 + IN_X, y0 + 24,
-                color);
-        drawSmall(graphics, Component.translatable("af9.recipe.space_mining.fuel").getString(), x0 + IN_X + 22,
+        drawSmall(graphics, Component.translatable("af9.recipe.space_mining.fuel").getString(), x0 + IN_X + 34,
                 y0 + 24, LABEL);
-        drawSmall(graphics, Component.translatable("af9.recipe.space_mining.coolant").getString(), x0 + IN_X + 44,
+        drawSmall(graphics, Component.translatable("af9.recipe.space_mining.coolant").getString(), x0 + IN_X + 68,
                 y0 + 24, 0xFF7DD3FC);
 
         // what an expedition brings, beside the arrow
@@ -57,8 +55,8 @@ public class SpaceMiningFlowWidget extends Widget {
                         SpaceMissionMachine.maxStacks(tier)).getString();
         String second = Component.translatable(liquid ? "af9.recipe.space_pumping.pick" :
                 "af9.recipe.space_mining.ore").getString();
-        drawSmall(graphics, first, x0 + ARROW_X + 26, y0 + 9, 0xFFFFFFFF);
-        drawSmall(graphics, second, x0 + ARROW_X + 26, y0 + 17, LABEL);
+        drawSmall(graphics, first, x0 + ARROW_X + 24, y0 + 9, 0xFFFFFFFF);
+        drawSmall(graphics, second, x0 + ARROW_X + 24, y0 + 17, LABEL);
 
         // the panel of the outputs, with its heading
         graphics.fill(x0 + 2, y0 + GRID_Y - 12, x0 + WIDTH - 2, y0 + height - 2, PANEL);

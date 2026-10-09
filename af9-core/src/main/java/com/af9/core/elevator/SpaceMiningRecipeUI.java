@@ -63,7 +63,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
      * {@link #ORE_ROWS} rows for the ores (a drone's asteroids hold more than that on a big server: they take turns in
      * the slots), as many rows as the table has for the fluids.
      */
-    public static final int IN_X = 4, IN_Y = 4, ARROW_X = 70, ARROW_Y = 4;
+    public static final int IN_X = 4, IN_Y = 4, ARROW_X = 98, ARROW_Y = 4;
     public static final int GRID_X = 7, GRID_Y = 46, GRID_COLUMNS = 9, ORE_ROWS = 7;
     public static final String FLOW_ID = "af9_space_mining_flow";
 
@@ -116,7 +116,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         for (int i = 0; i < fluids; i++) {
             // the second fluid is the coolant, not a fluid like the others: its slot in ice on dark frost
             boolean coolant = i == 1;
-            slot(group, FluidRecipeCapability.CAP, IO.IN, i, IN_X + (coolant ? 44 : 22), IN_Y, coolant ?
+            slot(group, FluidRecipeCapability.CAP, IO.IN, i, IN_X + (coolant ? 68 : 34), IN_Y, coolant ?
                     new GuiTextureGroup(new ColorRectTexture(0xFF0B2530),
                             new ColorBorderTexture(1, AcceleratorFlowWidget.ICE)) :
                     getOverlaysForSlot(false, FluidRecipeCapability.CAP, false, false, false));
