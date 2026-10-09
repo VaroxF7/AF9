@@ -63,7 +63,8 @@ public class SidePanelsUIWidget<C extends ConsoleWidget> extends FancyMachineUIW
         int invW = playerInventory.getSize().width;
         int height = playerInventory.getSize().height - 6;
         int right = invX + invW + 4;
-        addWidget(process = panels.create(console, false, 4, invY + 2, invX - 8, height));
-        addWidget(system = panels.create(console, true, right, invY + 2, getSize().width - right - 4, height));
+        // first in the list: drawn before everything else, so an opened page (the circuit's, the mode list) covers the panels
+        addWidget(0, process = panels.create(console, false, 4, invY + 2, invX - 8, height));
+        addWidget(0, system = panels.create(console, true, right, invY + 2, getSize().width - right - 4, height));
     }
 }
