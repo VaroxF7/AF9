@@ -285,7 +285,8 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
             drawTile(graphics, getPosition().x + tileX(i, modes.size()), y + TILE_Y - FIELD_Y,
                     tileWidth(modes.size()), TILE_H, tileMode.nodeNm + "nm",
                     Component.translatable("af9.litho.substrate_short." + tileMode.substrate).getString(),
-                    tileMode.argb, tileMode == active, status != STATUS_OFFLINE, false);
+                    tileMode.argb, tileMode == active,
+                    status != STATUS_OFFLINE && (!tileMode.mk2Only() || machine.isExtended()), false);
         }
 
         boolean running = status == STATUS_RUNNING;

@@ -173,7 +173,8 @@ public class LithoFlowWidget extends Widget {
         // the node above it, the machine below it (under the frame's glow and the manifold's end)
         drawSmallCentered(graphics, mode.nodeNm + " nm", bx + BOX_SIZE / 2, by - 9, node);
         drawSmallCentered(graphics, Component.translatable("af9.recipe.litho_page.machine." +
-                mode.machine.name().toLowerCase(Locale.ROOT)).getString(), bx + BOX_SIZE / 2, by + BOX_SIZE + 5, LABEL);
+                mode.machine.name().toLowerCase(Locale.ROOT) + (mode.mk2Only() ? "_mk2" : "")).getString(),
+                bx + BOX_SIZE / 2, by + BOX_SIZE + 5, LABEL);
         super.drawInBackground(graphics, mouseX, mouseY, partialTicks);
     }
 

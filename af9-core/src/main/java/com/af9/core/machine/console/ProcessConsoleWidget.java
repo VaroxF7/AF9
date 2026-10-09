@@ -32,11 +32,13 @@ import java.util.Objects;
 public class ProcessConsoleWidget extends ConsoleWidget {
 
     public static final int WIDTH = 220;
+    /** With the usual four readout lines; {@link #heightOf} for a machine with more. */
     public static final int HEIGHT = 128;
     public static final int TILE_Y = 18;
     public static final int TILE_H = 18;
     public static final int TILE_GAP = 2;
-    private static final int MAX_LINES = 4;
+    private static final int USUAL_LINES = 4;
+    private static final int LINE_H = 8;
 
     private final ProcessMachine machine;
 
@@ -52,13 +54,18 @@ public class ProcessConsoleWidget extends ConsoleWidget {
     private List<Component> lines = new ArrayList<>();
 
     public ProcessConsoleWidget(ProcessMachine machine, int x, int y) {
-        super(x, y, WIDTH, HEIGHT);
+        super(x, y, WIDTH, heightOf(machine));
         this.machine = machine;
+    }
+
+    /** The console's height for a machine: a readout line more is a line's height more. */
+    public static int heightOf(ProcessMachine machine) {
+        return HEIGHT + Math.max(0, machine.consoleLines() - USUAL_LINES) * LINE_H;
     }
 
     /** The console with a hover area per mode tile (tooltip only: the tiles show the mode, GT's side tab sets it). */
     public static WidgetGroup create(ProcessMachine machine) {
-        var group = new WidgetGroup(0, 0, WIDTH, HEIGHT);
+        var group = new WidgetGroup(0, 0, WIDTH, heightOf(machine));
         group.addWidget(new ProcessConsoleWidget(machine, 0, 0));
         GTRecipeType[] types = machine.getRecipeTypes();
         for (int i = 0; i < types.length; i++) {
@@ -94,7 +101,8 @@ public class ProcessConsoleWidget extends ConsoleWidget {
         long newCoolant = machine.usesCoolant() ? machine.getCoolantAmount() : 0;
         String newOutput = machine.getCurrentOutput();
         List<Component> newLines = machine.infoLines();
-        if (newLines.size() > MAX_LINES) newLines = newLines.subList(0, MAX_LINES);
+        int maxLines = Math.max(USUAL_LINES, machine.consoleLines());
+        if (newLines.size() > maxLines) newLines = newLines.subList(0, maxLines);
         boolean changed = newStatus != status || newMode != mode || newAvailable != available ||
                 newNeeded != needed || newProgress != progress || newDuration != duration || newCoolant != coolant ||
                 !Objects.equals(newOutput, output) || !newLines.equals(lines);
@@ -183,10 +191,11 @@ public class ProcessConsoleWidget extends ConsoleWidget {
         drawSmall(graphics, Component.translatable("af9.console.output").getString(), rx, y0 + 42, MUTED, false);
         drawOutput(graphics, rx, y0 + 49, rw);
         for (int i = 0; i < lines.size(); i++) {
-            drawSmall(graphics, fit(lines.get(i).getString(), rw * 4 / 3), rx, y0 + 68 + i * 8, TEXT, false);
+            drawSmall(graphics, fit(lines.get(i).getString(), rw * 4 / 3), rx, y0 + 68 + i * LINE_H, TEXT, false);
         }
 
-        drawRuntime(graphics, x0 + 6, y0 + 101, WIDTH - 12, progress, duration, status == STATUS_RUNNING, accent);
+        drawRuntime(graphics, x0 + 6, y0 + 101 + getSize().height - HEIGHT, WIDTH - 12, progress, duration,
+                status == STATUS_RUNNING, accent);
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -5,6 +5,8 @@ StartupEvents.registry('item', event => {
     for (let i = 0; i < 2; i++) {
         const selftestKept = i                                   // S3: a const in a loop's body (Rhino keeps the first)
     }
+    Math.max(...[1, 2])                                          // S6: spread syntax (Rhino does not parse it)
+    Array.from({ length: 2 }).forEach(() => {})                  // S7: Rhino leaves holes, the body never runs
 })
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {

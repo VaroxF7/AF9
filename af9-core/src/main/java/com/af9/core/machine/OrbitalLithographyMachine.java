@@ -17,8 +17,10 @@ import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.IRecipeHandler;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
+import com.gregtechceu.gtceu.api.gui.fancy.TabsWidget;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
+import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CombinedDirectionalFancyConfigurator;
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
@@ -166,6 +168,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
 
     /** Whether the Array Mk2 (extended) size is switched on: persisted like the Elevator's size switch. */
     @Persisted
+    @DescSynced
     private boolean extended;
 
     /**
@@ -348,7 +351,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     /** The 1 nm prints (chromodynium) are the Array Mk2's alone. */
     @Override
     public boolean canPrint(LithoMode mode) {
-        return mode.onOrbitalStation() && isInOrbit() && (mode != LithoMode.N1 || extended);
+        return mode.onOrbitalStation() && isInOrbit() && (!mode.mk2Only() || extended);
     }
 
     @Override
@@ -479,6 +482,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public void setExtended(boolean extended) {
         if (this.extended == extended) return;
         this.extended = extended;
+        // the basic station does not stay in a mode of the Mk2
+        if (!extended && isMk2Only(getRecipeType())) super.setActiveRecipeType(0);
         focus = 0;
         focusLocked = false;
         lockUnpaid = 0;
@@ -635,10 +640,39 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     // ********* Beam focus **********//
     //////////////////////////////////////
 
-    /** Types only the Array Mk2 runs besides the 1 nm prints: plasma soldering and Pico fabrication. */
+    /** The type only the Array Mk2 runs besides the 1 nm prints: plasma soldering. */
     public static boolean isMk2Type(GTRecipeType type) {
-        String path = type.registryName.getPath();
-        return path.equals("plasma_soldering") || path.equals("pico_fabrication");
+        return type.registryName.getPath().equals("plasma_soldering");
+    }
+
+    /** Every mode the basic station cannot run: the 1 nm prints and the Mk2's own types. */
+    public static boolean isMk2Only(GTRecipeType type) {
+        LithoMode mode = LithoMode.of(type);
+        return mode != null ? mode.mk2Only() : isMk2Type(type);
+    }
+
+    /** Whether a mode (recipe type index) is shut right now: one of the Array Mk2's, on the basic station. */
+    public boolean isModeLocked(int index) {
+        GTRecipeType[] types = getRecipeTypes();
+        return !extended && index >= 0 && index < types.length && isMk2Only(types[index]);
+    }
+
+    /**
+     * The mode tab does not offer the Mk2's modes on the basic station ({@link OrbitalModeTab}); this keeps them shut
+     * for everything else that sets a mode. The client only follows what the server sends.
+     */
+    @Override
+    public void setActiveRecipeType(int type) {
+        if (!isRemote() && isModeLocked(type)) return;
+        super.setActiveRecipeType(type);
+    }
+
+    @Override
+    public void attachSideTabs(TabsWidget sideTabs) {
+        sideTabs.setMainTab(this);
+        sideTabs.attachSubTab(new OrbitalModeTab(this));
+        var directional = CombinedDirectionalFancyConfigurator.of(self(), self());
+        if (directional != null) sideTabs.attachSubTab(directional);
     }
 
     public int getFocus() {
