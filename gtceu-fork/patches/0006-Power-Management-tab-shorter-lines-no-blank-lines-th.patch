@@ -1,0 +1,70 @@
+From 2b2e6b6a7c9264df9a4aaf530047cf85181de65e Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 9 Oct 2026 18:21:21 +0200
+Subject: [PATCH 6/6] Power Management tab: shorter lines, no blank lines, the
+ hint in the tab tooltip, a panel that fits (7.5.3-af9.5)
+
+---
+ gradle.properties                                         | 2 +-
+ .../fancyconfigurator/PowerManagementFancyTab.java        | 8 ++------
+ 2 files changed, 3 insertions(+), 7 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 8fca6f0..94cd63a 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.4
++mod_version = 7.5.3-af9.5
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java b/src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java
+index 4a1dbba..3222fc6 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java
+@@ -44,12 +44,12 @@ public class PowerManagementFancyTab implements IFancyUIProvider {
+ 
+     @Override
+     public List<Component> getTabTooltips() {
+-        return List.of(Component.translatable("af9.power.title"));
++        return List.of(Component.translatable("af9.power.title"), Component.translatable("af9.power.hint"));
+     }
+ 
+     @Override
+     public Widget createMainPage(FancyMachineUIWidget widget) {
+-        var group = new WidgetGroup(0, 0, 150, 130);
++        var group = new WidgetGroup(0, 0, 150, 100);
+         group.setBackground(GuiTextures.BACKGROUND_INVERSE);
+         group.addWidget(new ComponentPanelWidget(6, 6, this::lines)
+                 .textSupplier(machine.isRemote() ? null : this::lines).setMaxWidthLimit(138));
+@@ -58,7 +58,6 @@ public class PowerManagementFancyTab implements IFancyUIProvider {
+ 
+     private void lines(List<Component> out) {
+         out.add(Component.translatable("af9.power.title").withStyle(ChatFormatting.WHITE, ChatFormatting.UNDERLINE));
+-        out.add(Component.empty());
+         out.add(Component.translatable("af9.power.primary").withStyle(ChatFormatting.AQUA));
+         if (machine instanceof WorkableElectricMultiblockMachine electric && electric.isFormed() &&
+                 electric.getEnergyContainer() != null && electric.getEnergyContainer().getInputVoltage() > 0) {
+@@ -72,7 +71,6 @@ public class PowerManagementFancyTab implements IFancyUIProvider {
+         } else {
+             out.add(Component.translatable("af9.power.none").withStyle(ChatFormatting.GRAY));
+         }
+-        out.add(Component.empty());
+         out.add(Component.translatable("af9.power.auxiliary").withStyle(ChatFormatting.GOLD));
+         int hatches = machine.getAuxiliaryHatches().size();
+         long need = machine.getAuxiliaryEUt();
+@@ -89,7 +87,5 @@ public class PowerManagementFancyTab implements IFancyUIProvider {
+         } else {
+             out.add(Component.translatable("af9.power.aux_idle").withStyle(ChatFormatting.GRAY));
+         }
+-        out.add(Component.empty());
+-        out.add(Component.translatable("af9.power.hint").withStyle(ChatFormatting.DARK_GRAY));
+     }
+ }
+-- 
+2.54.0.windows.1
+
