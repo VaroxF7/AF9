@@ -156,11 +156,6 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
         var page = new WidgetGroup(0, 0, WIDTH, HEIGHT);
         var console = new SpaceElevatorConsoleWidget(machine, 0, 0);
         page.addWidget(console);
-        for (int i = 0; i < DRONES; i++) {
-            var tile = new Widget(tileX(i), TILE_Y, tileWidth(), TILE_H);
-            tile.setHoverTooltips(tileTooltip(machine, i + 1));
-            page.addWidget(tile);
-        }
         // the mission: the target through the asteroids and the planet types, the fluid through the planet's fluids
         for (int step : new int[] { -1, 1 }) {
             page.addWidget(arrow(step < 0 ? ARROW_LEFT_X : ARROW_RIGHT_X, TARGET_Y, TARGET_H,
@@ -170,16 +165,6 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
                             .withStyle(ChatFormatting.GRAY),
                     Component.translatable("af9.space_elevator.console.target_tooltip.2")
                             .withStyle(ChatFormatting.DARK_GRAY)));
-        }
-        console.cargoArrows = new Widget[2];
-        for (int i = 0; i < 2; i++) {
-            int step = i == 0 ? -1 : 1;
-            console.cargoArrows[i] = arrow(i == 0 ? ARROW_LEFT_X : ARROW_RIGHT_X, ORE_Y, CARGO_H,
-                    () -> machine.cycleCargo(step),
-                    Component.translatable("af9.space_elevator.console.cargo_tooltip.0"),
-                    Component.translatable("af9.space_elevator.console.cargo_tooltip.1")
-                            .withStyle(ChatFormatting.GRAY));
-            page.addWidget(console.cargoArrows[i]);
         }
         page.addWidget(new SlotWidget(machine.droneSlot.storage, 0, SLOT_X, SLOT_Y, true, true)
                 .setBackgroundTexture(GuiTextures.SLOT)
@@ -414,7 +399,6 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
         int y0 = getPosition().y;
         graphics.fill(x0, y0, x0 + WIDTH, y0 + HEIGHT, BG);
         border(graphics, x0, y0, WIDTH, HEIGHT, EDGE);
-        for (Widget arrow : cargoArrows) arrow.setVisible(liquid);
         drawField(graphics, x0 + FIELD_X, y0 + FIELD_Y, partialTicks);
         drawPanel(graphics, x0 + PANEL_X, y0 + PANEL_Y);
         super.drawInBackground(graphics, mouseX, mouseY, partialTicks);
@@ -443,13 +427,6 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
             int sy = y + 28 + Math.floorMod(i * 104729 + 71, GROUND_Y - FIELD_Y - 34);
             boolean twinkle = (now / 400 + i * 3L) % 11 == 0;
             graphics.fill(sx, sy, sx + 1, sy + 1, twinkle ? 0xFFFFFFFF : i % 3 == 0 ? 0x66FFFFFF : 0x33FFFFFF);
-        }
-
-        for (int i = 0; i < DRONES; i++) {
-            drawTile(graphics, x0 + tileX(i), y + TILE_Y - FIELD_Y, tileWidth(), TILE_H,
-                    SpaceElevatorMachine.mark(i + 1),
-                    Component.translatable("af9.space_elevator.console.reach." + (i + 1)).getString(),
-                    tierColor(i + 1), drone == i + 1, formed, false);
         }
 
         // the ground, and the tower on it: a frame that tapers to the cable
@@ -582,38 +559,6 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
                 Component.translatable("af9.space_elevator.console.target.planet", planet).getString() :
                 Component.translatable("af9.space_elevator.console.target.asteroids").getString();
         drawSmall(graphics, target, x + PANEL_W / 2, ty + 2, liquid ? LIQUID : TEXT, true);
-
-        // under it the fluid picked, with the buckets a mission brings (a liquid run that is still on after the
-        // asteroids were picked: its fluid); on an ore mission the ore of the run, in stacks
-        PlanetCatalog.Cargo shown = liquid ? cargo() : running ? PlanetCatalog.byCode(runCargo) : null;
-        List<ItemStack> ores = stacks(ore);
-        int cy = y0 + ORE_Y;
-        if (shown != null) {
-            if (liquid) {
-                drawArrow(graphics, x0 + ARROW_LEFT_X, cy, CARGO_H, false);
-                drawArrow(graphics, x0 + ARROW_RIGHT_X, cy, CARGO_H, true);
-            }
-            drawFluid(graphics, shown.fluid(), x + 18, cy);
-            // a planet beyond the drone that would fly
-            boolean beyond = liquid && drone > 0 && drone < shown.drone();
-            int textX = x + 38, textWidth = (x0 + ARROW_RIGHT_X - 3 - textX) * 4 / 3;
-            drawSmall(graphics, fit(fluidName(shown.fluid()), textWidth), textX, cy + 1, beyond ? WARN : TEXT, false);
-            String amount = running && runCargo == shown.code() ?
-                    Component.translatable("af9.space_elevator.console.cargo.run",
-                            compact((long) shown.buckets() * Math.max(1, flying))).getString() :
-                    beyond ? Component.translatable("af9.space_elevator.console.cargo.needs",
-                            SpaceElevatorMachine.mark(shown.drone())).getString() :
-                            Component.translatable("af9.space_elevator.console.cargo.each",
-                                    FormattingUtil.formatNumbers(shown.buckets())).getString();
-            drawSmall(graphics, fit(amount, textWidth), textX, cy + 9, beyond ? BAD : MUTED, false);
-        } else if (!running || ores.isEmpty()) {
-            drawSmall(graphics, Component.translatable("af9.space_elevator.console.nothing").getString(), x + 5,
-                    cy + 5, DIM, false);
-        } else {
-            for (int i = 0; i < Math.min(ORES, ores.size()); i++) {
-                drawOre(graphics, font, ores.get(i), x + 5 + i * 20, cy);
-            }
-        }
 
         // beside the drone slot: where the drone is, and the expeditions that fly of those the modules could
         int rx = x0 + SLOT_X + 23, rw = PANEL_X + PANEL_W - 5 - (SLOT_X + 23);

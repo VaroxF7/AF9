@@ -397,7 +397,11 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
 
     /** The fluid a liquid mission brings: the one picked on the screen. Null on an ore mission. */
     public PlanetCatalog.Cargo chosenCargo() {
-        return isLiquidMission() ? PlanetCatalog.find(planetType, gasType) : null;
+        if (!isLiquidMission()) return null;
+        // the planet is picked on the screen, its fluid by the programmed circuit (the n-th of the planet's, the first without one)
+        List<PlanetCatalog.Cargo> cargoes = PlanetCatalog.of(planetType);
+        if (cargoes.isEmpty()) return null;
+        return cargoes.get(Math.max(0, Math.min(circuitSet() - 1, cargoes.size() - 1)));
     }
 
     /**
