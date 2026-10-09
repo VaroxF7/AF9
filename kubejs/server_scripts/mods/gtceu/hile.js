@@ -12,13 +12,13 @@ ServerEvents.recipes(event => {
 
     // the casing: tungstensteel and tritanium round an emitter's lens; the plate: the same in neutronium
     event.recipes.gtceu.assembler('af9:laser_containment_casing')
-        .itemInputs('4x gtceu:tungsten_steel_plate', '2x gtceu:tritanium_plate', 'gtceu:tungstensteel_frame')
+        .itemInputs('4x gtceu:tungsten_steel_plate', '2x gtceu:tritanium_plate', 'gtceu:tungsten_steel_frame')
         .circuit(1)
         .itemOutputs('4x af9:laser_containment_casing')
         .duration(200)
         .EUt(VA[GTValues.EV])
     event.recipes.gtceu.assembler('af9:laser_resistant_plate')
-        .itemInputs('4x gtceu:neutronium_plate', '2x gtceu:tritanium_plate', 'gtceu:tungstensteel_frame')
+        .itemInputs('4x gtceu:neutronium_plate', '2x gtceu:tritanium_plate', 'gtceu:tungsten_steel_frame')
         .circuit(2)
         .itemOutputs('2x af9:laser_resistant_plate')
         .duration(300)
