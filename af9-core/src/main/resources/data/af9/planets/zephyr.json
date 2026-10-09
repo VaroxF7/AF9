@@ -1,0 +1,10 @@
+{
+  "dimension": "af9:zephyr",
+  "gravity": 2.6,
+  "orbit": "af9:zephyr_orbit",
+  "oxygen": false,
+  "solar_power": 4,
+  "solar_system": "ad_astra:solar_system",
+  "temperature": -110,
+  "tier": 3
+}

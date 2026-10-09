@@ -1,0 +1,30 @@
+{
+  "type": "af9:helios",
+  "generator": {
+    "type": "minecraft:flat",
+    "settings": {
+      "biome": "af9:helios",
+      "features": false,
+      "lakes": false,
+      "structure_overrides": [],
+      "layers": [
+        {
+          "block": "minecraft:bedrock",
+          "height": 1
+        },
+        {
+          "block": "minecraft:magma_block",
+          "height": 40
+        },
+        {
+          "block": "minecraft:orange_concrete",
+          "height": 6
+        },
+        {
+          "block": "minecraft:yellow_concrete",
+          "height": 6
+        }
+      ]
+    }
+  }
+}
