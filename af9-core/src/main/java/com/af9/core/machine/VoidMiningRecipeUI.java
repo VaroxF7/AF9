@@ -41,8 +41,9 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
  */
 public class VoidMiningRecipeUI extends GTRecipeTypeUI {
 
-    public static final int WIDTH = 176, GRID_X = 7, GRID_Y = 46, COLUMNS = 9, ROWS = 5;
-    public static final int HEIGHT = GRID_Y + 18 * ROWS + 8;
+    public static final int WIDTH = 176, GRID_X = 7, GRID_Y = 30, COLUMNS = 9, ROWS = 5;
+    public static final int BOTTOM_Y = GRID_Y + 18 * ROWS + 6;
+    public static final int HEIGHT = BOTTOM_Y + 18 + 6;
     public static final String BACKDROP_ID = "af9_void_mining_backdrop";
 
     private final GTRecipeType type;
@@ -73,11 +74,11 @@ public class VoidMiningRecipeUI extends GTRecipeTypeUI {
         Backdrop backdrop = new Backdrop();
         backdrop.setId(BACKDROP_ID);
         group.addWidget(backdrop);
-        slot(group, ItemRecipeCapability.CAP, IO.IN, 0, 8, 6,
+        slot(group, ItemRecipeCapability.CAP, IO.IN, 0, 58, BOTTOM_Y,
                 getOverlaysForSlot(false, ItemRecipeCapability.CAP, true, false, false));
-        slot(group, FluidRecipeCapability.CAP, IO.IN, 0, 40, 6,
+        slot(group, FluidRecipeCapability.CAP, IO.IN, 0, 80, BOTTOM_Y,
                 getOverlaysForSlot(false, FluidRecipeCapability.CAP, false, false, false));
-        var arrow = new ProgressWidget(ProgressWidget.JEIProgress, 70, 6, 20, 20, getProgressBarTexture());
+        var arrow = new ProgressWidget(ProgressWidget.JEIProgress, 106, BOTTOM_Y - 1, 20, 20, getProgressBarTexture());
         arrow.setId("progress");
         group.addWidget(arrow);
         // the recipe's ores are the first slots of the frame
@@ -107,14 +108,14 @@ public class VoidMiningRecipeUI extends GTRecipeTypeUI {
         int area = VoidMinerMachine.areaOf(type);
         if (area < 0) return;
         String[] dimensions = VoidMinerMachine.AREA_DIMENSIONS[area];
-        int x = WIDTH - 8 - 20 * dimensions.length;
+        int x = (WIDTH - 20 * dimensions.length + 2) / 2;
         for (String dimension : dimensions) {
             DimensionMarker marker = GTRegistries.DIMENSION_MARKERS.getOrDefault(ResourceLocation.tryParse(dimension),
                     null);
             ItemStack icon = marker == null ? new ItemStack(Items.BARRIER) : marker.getIcon();
             CustomItemStackHandler handler = new CustomItemStackHandler(1);
             handler.setStackInSlot(0, icon);
-            SlotWidget slot = new SlotWidget(handler, 0, x, 6, false, false);
+            SlotWidget slot = new SlotWidget(handler, 0, x, 4, false, false);
             slot.setBackgroundTexture(GuiTextures.SLOT);
             slot.setIngredientIO(IngredientIO.INPUT);
             slot.setOnAddedTooltips((widget, tooltips) -> tooltips.add(Component.literal(dimension)
@@ -143,18 +144,10 @@ public class VoidMiningRecipeUI extends GTRecipeTypeUI {
         public void drawInBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
             int x0 = getPosition().x;
             int y0 = getPosition().y;
-            drawSmall(graphics, Component.translatable("af9.recipe.voidminer.circuit").getString(), x0 + 6, y0 + 26,
-                    0xFFB8C2D6);
-            drawSmall(graphics, Component.translatable("af9.recipe.voidminer.fluid").getString(), x0 + 40, y0 + 26,
-                    0xFFB8C2D6);
-            int top = y0 + GRID_Y - 12;
-            graphics.fill(x0 + 2, top, x0 + WIDTH - 2, y0 + HEIGHT - 2, 0xFF070A11);
-            graphics.fill(x0 + 2, top, x0 + WIDTH - 2, top + 1, 0xFF25324A);
-            graphics.fill(x0 + 2, y0 + HEIGHT - 3, x0 + WIDTH - 2, y0 + HEIGHT - 2, 0xFF25324A);
-            graphics.fill(x0 + 2, top, x0 + 3, y0 + HEIGHT - 2, 0xFF25324A);
-            graphics.fill(x0 + WIDTH - 3, top, x0 + WIDTH - 2, y0 + HEIGHT - 2, 0xFF25324A);
-            drawSmall(graphics, Component.translatable("af9.recipe.voidminer.ores").getString(), x0 + 6, top + 4,
-                    0xFFFFFFFF);
+            // the tube from the markers down to the grid
+            int centre = x0 + WIDTH / 2;
+            graphics.fill(centre - 3, y0 + 22, centre + 3, y0 + GRID_Y - 1, 0xFF373737);
+            graphics.fill(centre - 2, y0 + 22, centre + 2, y0 + GRID_Y - 2, 0xFFFFFFFF);
             // the empty slots of the frame
             for (int row = 0; row < ROWS; row++) {
                 for (int column = 0; column < COLUMNS; column++) {

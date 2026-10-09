@@ -63,8 +63,8 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
      * {@link #ORE_ROWS} rows for the ores (a drone's asteroids hold more than that on a big server: they take turns in
      * the slots), as many rows as the table has for the fluids.
      */
-    public static final int IN_X = 4, IN_Y = 4, ARROW_X = 98, ARROW_Y = 4;
-    public static final int GRID_X = 7, GRID_Y = 46, GRID_COLUMNS = 9, ORE_ROWS = 5;
+    public static final int TOP_Y = 4;
+    public static final int GRID_X = 7, GRID_Y = 30, GRID_COLUMNS = 9, ORE_ROWS = 5;
     public static final String FLOW_ID = "af9_space_mining_flow";
 
     private final GTRecipeType type;
@@ -100,28 +100,33 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         return Math.max(1, Math.min(ORE_ROWS, (PlanetCatalog.all().size() + GRID_COLUMNS - 1) / GRID_COLUMNS));
     }
 
-    private int height() {
+    /** The row under the grid: the fuel, the coolant and the arrow. */
+    private int bottomY() {
         return GRID_Y + 18 * rows() + 6;
+    }
+
+    private int height() {
+        return bottomY() + 18 + 6;
     }
 
     private WidgetGroup layout() {
         int fluids = Math.min(2, type.maxInputs.getInt(FluidRecipeCapability.CAP));
         WidgetGroup group = new WidgetGroup(0, 0, WIDTH, height());
         // the panel first: the slots draw over it
-        SpaceMiningFlowWidget flow = new SpaceMiningFlowWidget(liquid, height());
+        SpaceMiningFlowWidget flow = new SpaceMiningFlowWidget(liquid, height(), rows());
         flow.setId(FLOW_ID);
         group.addWidget(flow);
-        slot(group, ItemRecipeCapability.CAP, IO.IN, 0, IN_X, IN_Y,
+        slot(group, ItemRecipeCapability.CAP, IO.IN, 0, (WIDTH - 18) / 2, TOP_Y,
                 getOverlaysForSlot(false, ItemRecipeCapability.CAP, true, false, false));
         for (int i = 0; i < fluids; i++) {
             // the second fluid is the coolant, not a fluid like the others: its slot in ice on dark frost
             boolean coolant = i == 1;
-            slot(group, FluidRecipeCapability.CAP, IO.IN, i, IN_X + (coolant ? 68 : 34), IN_Y, coolant ?
+            slot(group, FluidRecipeCapability.CAP, IO.IN, i, (coolant ? 80 : 58), bottomY(), coolant ?
                     new GuiTextureGroup(new ColorRectTexture(0xFF0B2530),
                             new ColorBorderTexture(1, AcceleratorFlowWidget.ICE)) :
                     getOverlaysForSlot(false, FluidRecipeCapability.CAP, false, false, false));
         }
-        var arrow = new ProgressWidget(ProgressWidget.JEIProgress, ARROW_X, ARROW_Y, 20, 20,
+        var arrow = new ProgressWidget(ProgressWidget.JEIProgress, 106, bottomY() - 1, 20, 20,
                 getProgressBarTexture());
         arrow.setId("progress");
         group.addWidget(arrow);
@@ -168,7 +173,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         List<ItemStack> ores = new ArrayList<>();
         for (String material : OreCatalog.reach(tier, ClientOreVeins.get())) {
             ItemStack ore = OreCatalog.ore(material, 1);
-            if (ore != null) ores.add(ore);
+            if (ore != null) ores.add(ore.copyWithCount(Math.max(1, SpaceMissionMachine.maxStacks(tier) * 64)));
         }
         return ores;
     }
