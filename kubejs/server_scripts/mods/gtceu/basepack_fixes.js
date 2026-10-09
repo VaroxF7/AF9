@@ -1,36 +1,24 @@
 // priority: -100
 // AF9 - Fixes for three broken base-pack (ATM9) GT recipes.
 //
-// GT 7.5 refuses a recipe that names an item the game does not have (the base pack
-// was written for GT 7.2), and KubeJS counts each as a failed recipe:
+// GT 7.5 refuses a recipe that names an item the game does not have (the base pack was written for GT 7.2), and KubeJS shows
+// each as a script error in game. The cure is in the base pack's own two files, which this repository does not hold, so the
+// instance copies carry these edits (AF9's sync leaves them alone as "edited"; a fresh pack needs them once):
 //
-//  1. gtceu:micro_universe_collector/max_energy_hatch
-//     (mods/gtceu/micro_universe_orb_recipes.js#117): outputs
-//     gtceu:max_energy_input_hatch, which GT only registers with its high-tier
-//     content. That content is off in this pack (highTierContent=false;
-//     tools/lint/data/gt-dev-only.txt), and the MAX tier is not part of AF9's
-//     progression, so the recipe is disabled here.
+//  1. mods/gtceu/micro_universe_orb_recipes.js: the recipe gtceu:micro_universe_collector/max_energy_hatch outputs
+//     '1x gtceu:max_energy_input_hatch' (GT's MAX hatch, only with high-tier content). The Micro Universe's own hatch is
+//     gtceu:max_micro_universe_energy_input_hatch (startup_scripts/gtceu/micro_universe_orb.js): output that instead.
+//  2. mods/gtceu/ore_processing_plant_recipes.js: the two ore sifting recipes kubejs:ore_sifting_plant/nether_quartz and
+//     ..._silked output 'minecraft:nether_quartz' (not an item): 'minecraft:quartz' instead (the 2 occurrences).
 //
-//  2. kubejs:ore_sifting_plant/nether_quartz and
-//  3. kubejs:ore_sifting_plant/nether_quartz_silked
-//     (mods/gtceu/ore_processing_plant_recipes.js#38): chanced output
-//     minecraft:nether_quartz, which does not exist. The quartz gem is
-//     minecraft:quartz (the base pack's own certus quartz recipes use that).
-//     Both are re-added below with minecraft:quartz.
-//
-// The base pack files still carry the typos upstream; until ATM9 fixes them they
-// still log their own failures. This override runs after them (priority -100) so
-// the game has the corrected recipes and no MAX-hatch recipe.
+// Where a pack still has the unedited files, this script (it runs after them) adds the two sifting recipes with minecraft:quartz;
+// the MAX hatch recipe has nothing to add (it only exists once the file is edited). Where the files are edited it does nothing.
 
 ServerEvents.recipes(event => {
-    // ---- 1. MAX energy hatch: disabled (MAX tier off in this pack) ----
-    event.remove({ id: 'gtceu:micro_universe_collector/max_energy_hatch' })
 
     // ---- 2-3. Nether quartz sifting: corrected (minecraft:quartz) ----
-    // The broken base-pack recipes failed to build, so these removes are no-ops
-    // until upstream fixes the typo; the re-adds below are what the game runs.
-    event.remove({ id: 'kubejs:ore_sifting_plant/nether_quartz' })
-    event.remove({ id: 'kubejs:ore_sifting_plant/nether_quartz_silked' })
+    // Added only where the base pack's own two recipes did not build (unedited files).
+    if (event.countRecipes({ id: 'kubejs:ore_sifting_plant/nether_quartz' }) > 0) return
 
     // Nether quartz, crushed (raw): stone dust out, quartzite and quartz
     // byproducts. Numbers are the base pack's own (chances in hundredths of a
