@@ -1,34 +1,11 @@
 {
   "type": "af9:kronos",
   "generator": {
-    "type": "minecraft:flat",
-    "settings": {
-      "biome": "af9:kronos",
-      "features": false,
-      "lakes": false,
-      "structure_overrides": [],
-      "layers": [
-        {
-          "block": "minecraft:bedrock",
-          "height": 1
-        },
-        {
-          "block": "minecraft:light_gray_terracotta",
-          "height": 24
-        },
-        {
-          "block": "minecraft:yellow_terracotta",
-          "height": 16
-        },
-        {
-          "block": "minecraft:white_concrete",
-          "height": 12
-        },
-        {
-          "block": "minecraft:sand",
-          "height": 6
-        }
-      ]
-    }
+    "type": "minecraft:noise",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "af9:kronos"
+    },
+    "settings": "af9:kronos"
   }
 }

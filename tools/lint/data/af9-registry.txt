@@ -1,9 +1,11 @@
 # What AF9 Core registers: written by its dev run, read by the linters. Not edited by hand unless the run
 # is out of reach (it needs a pack instance); see tools/lint/README.md, "The registry list".
+block af9:amber_cloud
 block af9:arf_excimer_laser
 block af9:black_plutonium_item_pipe_casing
 block af9:bolted_iridium_casing
 block af9:bolted_naquadah_alloy_casing
+block af9:core_plasma
 block af9:dyson_control_casing
 block af9:dyson_control_primary
 block af9:dyson_control_secondary
@@ -20,12 +22,16 @@ block af9:laser_containment_casing
 block af9:laser_resistant_plate
 block af9:mining_black_plutonium_casing
 block af9:mining_neutronium_casing
+block af9:ochre_cloud
 block af9:oil_regolith
+block af9:pale_cloud
 block af9:plascrete_filter_casing
 block af9:plascrete_pipe_casing
+block af9:plasma_cloud
 block af9:rebolted_iridium_casing
 block af9:rebolted_naquadah_alloy_casing
 block af9:resonant_endion_coil_block
+block af9:rust_cloud
 block af9:space_elevator_base_casing
 block af9:space_elevator_cable
 block af9:space_elevator_internal_structure
@@ -38,6 +44,7 @@ block af9:ultra_high_strength_concrete_floor
 item af9:advanced_soc_euv_reticle
 item af9:advanced_soc_reticle
 item af9:allthemodium_sail
+item af9:amber_cloud
 item af9:apu_chip
 item af9:apu_euv_reticle
 item af9:apu_psm_reticle
@@ -117,6 +124,7 @@ item af9:contaminated_trinium_wafer
 item af9:contaminated_uhpic_chip
 item af9:contaminated_ulpic_chip
 item af9:contaminated_vpu_chip
+item af9:core_plasma
 item af9:cpu_euv_reticle
 item af9:cpu_psm_reticle
 item af9:cpu_reticle
@@ -193,8 +201,10 @@ item af9:nor_psm_reticle
 item af9:nor_reticle
 item af9:nvm_processor
 item af9:nvm_processor_mainframe
+item af9:ochre_cloud
 item af9:oil_regolith
 item af9:organized_pico_circuit
+item af9:pale_cloud
 item af9:phase_shift_mask_blank
 item af9:phosphorus_melt_charge
 item af9:phosphorus_seed_crystal
@@ -209,6 +219,7 @@ item af9:pico_circuit_rack
 item af9:pico_cpu
 item af9:plascrete_filter_casing
 item af9:plascrete_pipe_casing
+item af9:plasma_cloud
 item af9:processed_pico_circuit_casing
 item af9:qgp_trap
 item af9:quantum_dot_ic_chip
@@ -225,6 +236,7 @@ item af9:rf_transceiver_euv_reticle
 item af9:rf_transceiver_psm_reticle
 item af9:rf_transceiver_reticle
 item af9:rf_transceiver_wafer
+item af9:rust_cloud
 item af9:saturated_molecular_sieve
 item af9:saw_filter_chip
 item af9:saw_filter_euv_reticle

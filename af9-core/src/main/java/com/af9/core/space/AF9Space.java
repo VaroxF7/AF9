@@ -50,6 +50,74 @@ public final class AF9Space {
     public static final RegistryObject<Item> OIL_REGOLITH_ITEM = ITEMS.register("oil_regolith",
             () -> new BlockItem(OIL_REGOLITH.get(), new Item.Properties()));
 
+
+    /**
+     * The clouds of the gas giants (amber and rust: Zephyr; pale and ochre: Kronos) and the plasma of the Sun (Helios):
+     * the blocks of data/af9/worldgen/noise_settings. Translucent, soft, no drops.
+     */
+    public static final RegistryObject<Block> AMBER_CLOUD = BLOCKS.register("amber_cloud",
+            () -> new GasCloudBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_ORANGE)
+                    .strength(0.3f)
+                    .sound(SoundType.WOOL)
+                    .noOcclusion()
+                    .isViewBlocking((state, level, pos) -> false)
+                    .isSuffocating((state, level, pos) -> false), false));
+    public static final RegistryObject<Item> AMBER_CLOUD_ITEM = ITEMS.register("amber_cloud",
+            () -> new BlockItem(AMBER_CLOUD.get(), new Item.Properties()));
+    public static final RegistryObject<Block> RUST_CLOUD = BLOCKS.register("rust_cloud",
+            () -> new GasCloudBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_ORANGE)
+                    .strength(0.3f)
+                    .sound(SoundType.WOOL)
+                    .noOcclusion()
+                    .isViewBlocking((state, level, pos) -> false)
+                    .isSuffocating((state, level, pos) -> false), false));
+    public static final RegistryObject<Item> RUST_CLOUD_ITEM = ITEMS.register("rust_cloud",
+            () -> new BlockItem(RUST_CLOUD.get(), new Item.Properties()));
+    public static final RegistryObject<Block> PALE_CLOUD = BLOCKS.register("pale_cloud",
+            () -> new GasCloudBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_WHITE)
+                    .strength(0.3f)
+                    .sound(SoundType.WOOL)
+                    .noOcclusion()
+                    .isViewBlocking((state, level, pos) -> false)
+                    .isSuffocating((state, level, pos) -> false), false));
+    public static final RegistryObject<Item> PALE_CLOUD_ITEM = ITEMS.register("pale_cloud",
+            () -> new BlockItem(PALE_CLOUD.get(), new Item.Properties()));
+    public static final RegistryObject<Block> OCHRE_CLOUD = BLOCKS.register("ochre_cloud",
+            () -> new GasCloudBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.TERRACOTTA_YELLOW)
+                    .strength(0.3f)
+                    .sound(SoundType.WOOL)
+                    .noOcclusion()
+                    .isViewBlocking((state, level, pos) -> false)
+                    .isSuffocating((state, level, pos) -> false), false));
+    public static final RegistryObject<Item> OCHRE_CLOUD_ITEM = ITEMS.register("ochre_cloud",
+            () -> new BlockItem(OCHRE_CLOUD.get(), new Item.Properties()));
+    public static final RegistryObject<Block> PLASMA_CLOUD = BLOCKS.register("plasma_cloud",
+            () -> new GasCloudBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_YELLOW)
+                    .strength(0.3f)
+                    .sound(SoundType.WOOL)
+                    .noOcclusion()
+                    .lightLevel(state -> 15)
+                    .isViewBlocking((state, level, pos) -> false)
+                    .isSuffocating((state, level, pos) -> false), true));
+    public static final RegistryObject<Item> PLASMA_CLOUD_ITEM = ITEMS.register("plasma_cloud",
+            () -> new BlockItem(PLASMA_CLOUD.get(), new Item.Properties()));
+    public static final RegistryObject<Block> CORE_PLASMA = BLOCKS.register("core_plasma",
+            () -> new GasCloudBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_ORANGE)
+                    .strength(0.3f)
+                    .sound(SoundType.WOOL)
+                    .noOcclusion()
+                    .lightLevel(state -> 15)
+                    .isViewBlocking((state, level, pos) -> false)
+                    .isSuffocating((state, level, pos) -> false), true));
+    public static final RegistryObject<Item> CORE_PLASMA_ITEM = ITEMS.register("core_plasma",
+            () -> new BlockItem(CORE_PLASMA.get(), new Item.Properties()));
+
     /** The asteroids; placed by data/af9/worldgen/placed_feature/asteroid_field.json. */
     public static final RegistryObject<AsteroidFieldFeature> ASTEROID_FIELD = FEATURES.register("asteroid_field",
             AsteroidFieldFeature::new);
@@ -95,7 +163,14 @@ public final class AF9Space {
     }
 
     private static void fillCreativeTabs(BuildCreativeModeTabContentsEvent event) {
-        if (event.getTabKey() == CreativeModeTabs.NATURAL_BLOCKS) event.accept(OIL_REGOLITH_ITEM);
+        if (event.getTabKey() != CreativeModeTabs.NATURAL_BLOCKS) return;
+        event.accept(OIL_REGOLITH_ITEM);
+        event.accept(AMBER_CLOUD_ITEM);
+        event.accept(RUST_CLOUD_ITEM);
+        event.accept(PALE_CLOUD_ITEM);
+        event.accept(OCHRE_CLOUD_ITEM);
+        event.accept(PLASMA_CLOUD_ITEM);
+        event.accept(CORE_PLASMA_ITEM);
     }
 
     public static void register(IEventBus modEventBus) {
