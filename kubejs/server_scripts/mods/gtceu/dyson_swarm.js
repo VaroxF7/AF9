@@ -4,7 +4,7 @@
 // 1. Controller and casings of GTNH Intergalactic's Dyson Swarm, built from the pack's UHV materials
 // 2. The sails, lowest to highest: Allthemodium (100 % of the base yield), Unobtainium Alloy (200 %) and Chromodynium Star
 //    Matter Tritan Alloy (350 %). Each tier is made from the sails of the tier below, so the better sails are upgrades. They
-//    are Assembly Line recipes at UHV voltage on 100 / 300 / 1,000 A (the same amps as the UHV / XPS / NVM circuits)
+//    are researched Assembly Line recipes at UHV voltage on 100 / 300 / 1,000 A (the same amps as the UHV / XPS / NVM circuits)
 // 3. The cycle: an hour of supercooled hydrogen for the receiver. The power is the sails' (DysonSwarmMachine.SWARM)
 
 ServerEvents.recipes(event => {
@@ -44,34 +44,39 @@ ServerEvents.recipes(event => {
     casing('dyson_control_toroid', 9, ['4x gtceu:tritanium_plate', '16x gtceu:fine_sanguinite_wire', 'gtceu:tritanium_frame'])
 
     // ---- 2. The sails ----
-    // sails(id, amps, spec): an Assembly Line recipe at UHV voltage on the tier's amps; 16 sails a run
+    // sails(id, amps, spec): an Assembly Line recipe at UHV voltage on the tier's amps; 16 sails a run. Every sail has to be
+    // researched first (the Research Station scans the research item into a data stick, with computation: spec.cwu)
     const sails = (id, amps, spec) => {
-        const r = event.recipes.gtceu.assembly_line(`af9:${id}`)
-            .itemInputs(spec.items)
-            .inputFluids(spec.fluids)
+        event.recipes.gtceu.assembly_line(`af9:${id}`)
+            .itemInputs(...spec.items)
+            .inputFluids(...spec.fluids)
             .itemOutputs(`16x af9:${id}`)
             .duration(spec.duration)
             .EUt(VA[GTValues.UHV], amps)
+            .stationResearch(b => b
+                .researchStack(Item.of(spec.research))
+                .CWUt(spec.cwu)
+                .EUt(VA[GTValues.UHV]))
     }
     // Allthemodium: 100 % - photonic dies bonded to Allthemodium sheet under a neutronium frame
     sails('allthemodium_sail', 100, {
         items: [`16x ${ALLTHEMODIUM_PLATE}`, '16x af9:photonic_ic_chip', '4x gtceu:neutronium_plate',
             '8x gtceu:fine_sanguinite_wire'],
         fluids: [Fluid.of('gtceu:plasma_solder', 576), Fluid.of('gtceu:polybenzimidazole', 576)],
-        duration: 600 })
+        research: 'af9:photonic_package', cwu: 96, duration: 600 })
     // Unobtainium Alloy: 200 % - an Allthemodium sail each, re-laid on the alloy sheet with spin logic
     sails('unobtainium_alloy_sail', 300, {
         items: ['16x af9:allthemodium_sail', `16x ${ALLOY_PLATE}`, '16x af9:spin_logic_chip',
             '8x gtceu:neutronium_plate'],
         fluids: [Fluid.of('gtceu:plasma_solder', 1152), Fluid.of('gtceu:polybenzimidazole', 1152)],
-        duration: 900 })
+        research: 'af9:allthemodium_sail', cwu: 128, duration: 900 })
     // Chromodynium Star Matter Tritan Alloy: 350 % - an alloy sail each, plated in chromodynium and tritanium, forged
-    // under the plasma of strange matter
+    // under the plasma of strange matter; the most computation to research
     sails('chromodynium_star_matter_tritan_alloy_sail', 1000, {
         items: ['16x af9:unobtainium_alloy_sail', '16x gtceu:chromodynium_plate', '16x gtceu:tritanium_plate',
             '16x af9:memristor_chip'],
         fluids: [Fluid.of('gtceu:strange_matter_plasma', 1152), Fluid.of('gtceu:plasma_solder', 1728)],
-        duration: 1200 })
+        research: 'af9:unobtainium_alloy_sail', cwu: 192, duration: 1200 })
 
     // ---- 3. The cycle ----
     // An hour on supercooled hydrogen (360 B) for the receiver. The EU/t is the machine's: V[UHV] here, scaled to what the

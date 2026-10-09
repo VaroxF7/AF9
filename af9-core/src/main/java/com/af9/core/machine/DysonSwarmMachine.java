@@ -7,18 +7,27 @@ import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.IRecipeHandler;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.feature.IInteractedMachine;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
+import com.gregtechceu.gtceu.data.recipe.CustomTags;
 
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -36,9 +45,10 @@ import java.util.Map;
  * swarm stands in ({@link #lightFactor()}); at most {@value #MAX_SAILS} sails fly. Every hour a cycle runs on
  * supercooled hydrogen for the receiver, and at its end some of the sails are lost to collisions
  * (GTNH's formula, {@link #destroyedShare}): more sails collide more, computation (a computation hatch) steers them
- * clear.
+ * clear. A plunger on the controller takes the sails back (what the player can carry, all of them while sneaking: the
+ * rest drops), like GTNH's.
  */
-public class DysonSwarmMachine extends ProcessMachine {
+public class DysonSwarmMachine extends ProcessMachine implements IInteractedMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(DysonSwarmMachine.class,
             ProcessMachine.MANAGED_FIELD_HOLDER);
@@ -167,6 +177,41 @@ public class DysonSwarmMachine extends ProcessMachine {
             }
         }
         if (changed) markDirty();
+    }
+
+    /**
+     * A plunger on the controller recalls sails, lowest tier first, as many as the plunger has uses left (a plunger
+     * without durability: all of them). Sneaking drops what does not fit the inventory on the ground.
+     */
+    @Override
+    public InteractionResult onUse(BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand,
+                                   BlockHitResult hit) {
+        ItemStack tool = player.getItemInHand(hand);
+        if (!tool.is(CustomTags.PLUNGERS) || totalSails() <= 0) return InteractionResult.PASS;
+        if (world.isClientSide) return InteractionResult.SUCCESS;
+        int budget = tool.isDamageableItem() ? tool.getMaxDamage() - tool.getDamageValue() : Integer.MAX_VALUE;
+        int taken = 0;
+        for (int tier = 0; tier < DysonSails.IDS.length && budget > 0; tier++) {
+            int count = Math.min(sails(tier), budget);
+            Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation("af9", DysonSails.IDS[tier]));
+            while (count > 0 && item != null) {
+                ItemStack stack = new ItemStack(item, Math.min(count, item.getMaxStackSize()));
+                int size = stack.getCount();
+                if (!player.getInventory().add(stack)) {
+                    if (!player.isShiftKeyDown()) break;
+                    player.drop(stack, false);
+                }
+                count -= size;
+                budget -= size;
+                taken += size;
+                setSails(tier, sails(tier) - size);
+            }
+        }
+        if (taken > 0) {
+            if (tool.isDamageableItem()) tool.hurtAndBreak(taken, player, p -> p.broadcastBreakEvent(hand));
+            markDirty();
+        }
+        return InteractionResult.CONSUME;
     }
 
     /** The tier (0-2) of a sail, -1 for anything else. */

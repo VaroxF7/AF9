@@ -17,6 +17,8 @@
 //   Y command centre casing    P primary windings   R secondary windings   T toroid casing
 
 const $DysonSwarmMachine = Java.loadClass('com.af9.core.machine.DysonSwarmMachine')
+const $LabelWidget = Java.loadClass('com.lowdragmc.lowdraglib.gui.widget.LabelWidget')
+const $SliderWidget = Java.loadClass('com.lowdragmc.lowdraglib.gui.widget.SliderWidget')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // one cycle: an hour on supercooled hydrogen, the power is the machine's (DysonSwarmMachine.SWARM)
@@ -26,6 +28,27 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setMaxIOSize(0, 0, 1, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC)
+        // the recipe page: what a swarm of N sails of one tier makes, N set with the slider (a swarm of a mix is the sum)
+        .setUiBuilder((recipe, group) => {
+            const EU_PER_SAIL = 262144
+            const tiers = [['Allthemodium', 1.0], ['Unobtainium Alloy', 2.0], ['Star Matter Tritan Alloy', 3.5]]
+            const state = { n: 10000 }
+            const grouped = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+            group.addWidget(new $LabelWidget(4, 58, 'Sails in the swarm (slide):'))
+            try {
+                const slider = new $SliderWidget(v => { state.n = Math.round(v) }, 4, 70, 150, 10)
+                slider.setRange(0, 10000)
+                slider.setValue(10000)
+                group.addWidget(slider)
+            } catch (e) {
+                console.warn('dyson_swarm page: no slider (' + e + ')')
+            }
+            group.addWidget(new $LabelWidget(4, 84, () => grouped(state.n) + ' sails of one tier give:'))
+            tiers.forEach((tier, i) => {
+                group.addWidget(new $LabelWidget(4, 96 + i * 11,
+                    () => tier[0] + ': ' + grouped(state.n * EU_PER_SAIL * tier[1]) + ' EU/t'))
+            })
+        })
 })
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
@@ -62,7 +85,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // the sails set the power; no overclocking (a generator)
         .recipeModifiers([$DysonSwarmMachine.SWARM])
         .appearanceBlock(() => Block.getBlock('af9:dyson_receiver_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dyson_swarm.tooltip', 6))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dyson_swarm.tooltip', 7))
         .pattern(definition => {
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
             const receiver = Predicates.blocks('af9:dyson_receiver_casing')

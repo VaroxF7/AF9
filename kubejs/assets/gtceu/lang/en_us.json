@@ -129,6 +129,7 @@
     "af9.dyson_swarm.tooltip.3": "§7At the end of a cycle collisions destroy some sails: more sails collide more, a §fcomputation hatch§7 steers them clear (GTNH's formula).",
     "af9.dyson_swarm.tooltip.4": "§7Hatch spots: §fpower output§7 (energy or laser source) in the receiver base, §fsail bus and coolant hatch§7 in the deployment unit base, §fcomputation§7 in the command centre base.",
     "af9.dyson_swarm.tooltip.5": "§7Feeds the §fUHV+ lines§7: UHV recipes take §f100 A§7 of UHV power, XPS §f300 A§7, NVM §f1,000 A§7.",
+    "af9.dyson_swarm.tooltip.6": "§7A §fplunger§7 on the controller takes sails back (lowest tier first, as many as it has uses left; sneak to drop what does not fit).",
     "gtceu.sanguinite_hearth": "Sanguinite Hearth",
     "af9.sanguinite_hearth_furnace.tooltip.0": "§7A §fRotary Hearth Furnace§7 rebuilt as a standalone multi: the same §f13x17x13§7 hearth, running only §cSanguinite§7.",
     "af9.sanguinite_hearth_furnace.tooltip.1": "§cNeither the EBF nor the Rotary Hearth can smelt sanguinite§7: the hot-ingot print lives on §fgtceu:sanguinite_hearth§7 only.",
