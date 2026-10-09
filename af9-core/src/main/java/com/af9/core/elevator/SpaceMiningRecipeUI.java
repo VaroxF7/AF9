@@ -64,7 +64,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
      * the slots), as many rows as the table has for the fluids.
      */
     public static final int IN_X = 4, IN_Y = 4, ARROW_X = 98, ARROW_Y = 4;
-    public static final int GRID_X = 7, GRID_Y = 46, GRID_COLUMNS = 9, ORE_ROWS = 7;
+    public static final int GRID_X = 7, GRID_Y = 46, GRID_COLUMNS = 9, ORE_ROWS = 5;
     public static final String FLOW_ID = "af9_space_mining_flow";
 
     private final GTRecipeType type;
@@ -97,7 +97,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
     /** Rows of the grid: the ores' fixed, the fluids as many as the table needs. */
     private int rows() {
         if (!liquid) return ORE_ROWS;
-        return Math.max(1, (PlanetCatalog.all().size() + GRID_COLUMNS - 1) / GRID_COLUMNS);
+        return Math.max(1, Math.min(ORE_ROWS, (PlanetCatalog.all().size() + GRID_COLUMNS - 1) / GRID_COLUMNS));
     }
 
     private int height() {
@@ -202,7 +202,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
      */
     private static void addFluids(WidgetGroup group, int tier) {
         List<PlanetCatalog.Cargo> cargoes = PlanetCatalog.reach(tier);
-        int slots = Math.max(1, cargoes.size());
+        int slots = Math.max(1, Math.min(GRID_COLUMNS * ORE_ROWS, cargoes.size()));
         List<List<FluidStack>> turns = new ArrayList<>();
         for (int i = 0; i < slots; i++) turns.add(new ArrayList<>());
         for (int i = 0; i < cargoes.size(); i++) {
