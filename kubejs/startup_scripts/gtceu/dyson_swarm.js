@@ -17,11 +17,6 @@
 //   Y command centre casing    P primary windings   R secondary windings   T toroid casing
 
 const $DysonSwarmMachine = Java.loadClass('com.af9.core.machine.DysonSwarmMachine')
-// AF9 Core's labels (LDLib's LabelWidget takes a String or a Component in one place: Rhino cannot choose for a script's
-// string, and the page does not build) and its own slider (LDLib has none)
-const $Labels = Java.loadClass('com.af9.core.machine.console.Labels')
-const $SliderWidget = Java.loadClass('com.af9.core.machine.console.SliderWidget')
-
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // one cycle: an hour on supercooled hydrogen, the power is the machine's (DysonSwarmMachine.SWARM)
     event.create('dyson_swarm')
@@ -30,23 +25,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setMaxIOSize(0, 0, 1, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC)
-        // the recipe page: what a swarm of N sails of one tier makes, N set with the slider (a swarm of a mix is the sum)
-        .setUiBuilder((recipe, group) => {
-            const EU_PER_SAIL = 262144
-            const tiers = [['Allthemodium', 1.0], ['Unobtainium Alloy', 2.0], ['Star Matter Tritan Alloy', 3.5]]
-            const state = { n: 10000 }
-            const grouped = n => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ',')
-            group.addWidget($Labels.of(4, 58, 'Sails in the swarm (slide):'))
-            const slider = new $SliderWidget(v => { state.n = Math.round(v) }, 4, 70, 150, 10)
-            slider.setRange(0, 10000)
-            slider.setValue(10000)
-            group.addWidget(slider)
-            group.addWidget($Labels.live(4, 84, () => grouped(state.n) + ' sails of one tier give:'))
-            tiers.forEach((tier, i) => {
-                group.addWidget($Labels.live(4, 96 + i * 11,
-                    () => tier[0] + ': ' + grouped(state.n * EU_PER_SAIL * tier[1]) + ' EU/t'))
-            })
-        })
+        // the recipe page, with its slider: af9-core DysonSwarmRecipeUI
 })
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {

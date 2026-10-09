@@ -79,6 +79,8 @@ public class AF9Core {
         event.enqueueWork(SanguiniteHearthRecipeUI::install);
         event.enqueueWork(SpaceMissionMachine::registerRecipeInfo);
         event.enqueueWork(FabRecipeInfo::register);
+        // the Dyson Swarm's recipe page: the slider and what the sails give
+        event.enqueueWork(com.af9.core.machine.DysonSwarmRecipeUI::install);
         // Boule Melting: second mode of GT's Electric Blast Furnace (before any machine is created)
         event.enqueueWork(BouleMelting::install);
         // Void Miner, rebuilt: GT's controller block and structure stay, AF9 takes over the definition
