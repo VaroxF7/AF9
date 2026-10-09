@@ -58,7 +58,7 @@ jobs:
         run: |
           chmod +x gradlew
           # the build publishes the fork (gtceu-fork/) to mavenLocal first and compiles against it
-          ./gradlew build --stacktrace -Paf9RequireFork
+          ./gradlew build -Paf9RequireFork
 
       - uses: actions/upload-artifact@v4
         with:
