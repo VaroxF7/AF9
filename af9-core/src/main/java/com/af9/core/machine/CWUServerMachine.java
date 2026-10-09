@@ -188,7 +188,7 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
      * The lights for a server's definition (KubeJS, instead of an overlay model): its model properties and a model
      * per state, the tier's hull under {@code af9:block/machine/cwu_server_<offline|idle|busy|busy_alt>}.
      */
-    public static void lightsModel(MachineBuilder<?> builder) {
+    public static void lightsModel(MachineBuilder<?, ?> builder) {
         builder.modelProperty(LIGHTS, Lights.IDLE);
         builder.modelProperty(ALT_LIGHTS, false);
         builder.model((ctx, prov, model) -> {

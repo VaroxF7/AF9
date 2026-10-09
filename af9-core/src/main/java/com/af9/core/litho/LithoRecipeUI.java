@@ -228,10 +228,10 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
     }
 
     /** The recipe's research entries (none when GT's research is off). */
-    private static List<ResearchData.ResearchEntry> researchEntries(List<RecipeCondition> conditions) {
+    private static List<ResearchData.ResearchEntry> researchEntries(List<? extends RecipeCondition<?>> conditions) {
         if (conditions == null || !ConfigHolder.INSTANCE.machines.enableResearch) return List.of();
         List<ResearchData.ResearchEntry> entries = new ArrayList<>();
-        for (RecipeCondition condition : conditions) {
+        for (RecipeCondition<?> condition : conditions) {
             if (!(condition instanceof ResearchCondition research) || research.data == null) continue;
             for (ResearchData.ResearchEntry entry : research.data) entries.add(entry);
         }
