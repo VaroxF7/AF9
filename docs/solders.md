@@ -40,7 +40,7 @@ soldering — ion-by-ion deposition, no reflow, nothing wasted.
 plasma solder dust + 8 empty magnetic traps, 2400 ticks at 4A UHV (same pattern as the strange matter /
 chromodynium recipes). GT's own extractor melts the dust to the fluid the soldering type consumes.
 
-`gtceu:plasma_soldering` (new recipe type, 10 items / 1 out / 2 fluids, chain in `solders.js`): runs only in the
+`gtceu:plasma_soldering` (new recipe type, 9 items / 1 out / 2 fluids, chain in `solders.js`): runs only in the
 **Hyper-Intensity Laser Engraver** (`gtceu:hyper_intensity_laser_engraver`, `startup_scripts/gtceu/hile.js`: GTNH's
 Industrial Laser Engraver, 5x5x5, a laser target hatch on top, a glass shaft and the Laser Resistant Plate under it;
 perfect overclocks, parallel hatch). It left the Orbital Lithography Array Mk2. `af9:wetware_mainframe_uhv_plasma`: the photonic UHV mainframe bill
