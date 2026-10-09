@@ -69,4 +69,28 @@ ServerEvents.recipes(event => {
         .itemOutputs('gtceu:chromodynium_dust', '8x af9:magnetic_trap')
         .duration(2400)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
+
+    // ---- Antimatter: past chromodynium, into the superstate ----
+    // the anti-quark: chromodynium broken back down with quark-gluon plasma, the quark of anti-matter
+    event.recipes.gtceu.quark_synthesis('af9:anti_quark_dust')
+        .itemInputs('12x af9:qgp_trap', 'gtceu:chromodynium_dust')
+        .inputFluids('#af9:coolant/endion 6000')
+        .itemOutputs('gtceu:anti_quark_dust', '12x af9:magnetic_trap')
+        .duration(3200)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
+    // anti-matter: anti-quarks condensed with quark-gluon plasma (the DTPF ionises it to Anti Matter Plasma)
+    event.recipes.gtceu.quark_synthesis('af9:anti_matter_dust')
+        .itemInputs('16x af9:qgp_trap', 'gtceu:anti_quark_dust')
+        .inputFluids('#af9:coolant/endion 8000')
+        .itemOutputs('gtceu:anti_matter_dust', '16x af9:magnetic_trap')
+        .duration(3600)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
+    // superstate star matter: anti-matter condensed with quark-gluon plasma, the state past plasma
+    // (the DTPF ionises it to Superstate Star Matter Plasma and forges it back into plates)
+    event.recipes.gtceu.quark_synthesis('af9:superstate_star_matter_dust')
+        .itemInputs('24x af9:qgp_trap', 'gtceu:anti_matter_dust')
+        .inputFluids('#af9:coolant/endion 8000')
+        .itemOutputs('gtceu:superstate_star_matter_dust', '24x af9:magnetic_trap')
+        .duration(4000)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
 })

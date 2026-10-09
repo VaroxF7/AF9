@@ -33,7 +33,7 @@
 //   7. LuV normal (incl. pack Nano Mainframe AL) + LuV lean (Stage 3)
 //   8. ZPM normal (crystal computer, quantum mainframe AL, wetware assembly) + ZPM lean (Stage 3)
 //   9. UV normal (crystal mainframe AL, wetware computer) + UV lean (Stage 3)
-//   10. UHV normal (wetware mainframe AL + plasma Mk2 path) + UHV lean (Stage 4)
+//   10. UHV normal (wetware mainframe AL + plasma Mk2 path) + UHV lean (Stage 4) + AI Acceleration Card
 //   11. Pico circuits (Advanced Circuit Manufacturer); the XPS and NVM recipes that were here are out for now
 //   13. packages (asic_package, photonic_package; edram packages live in photolithography.js)
 //   14. tags (gtceu:circuits/xps, gtceu:circuits/nvm)
@@ -623,6 +623,15 @@ ServerEvents.recipes(event => {
     // UHV wetware mainframe: no assembly line version left (both AF9 bills removed); GT's own stays off.
     // The only path is plasma soldering in the Orbital Array Mk2 (solders.js).
     event.remove({ id: 'gtceu:assembly_line/wetware_mainframe_uhv' })
+
+    // AI Acceleration Card: TPU + memristor on a wetware board, traced in 128 fine sanguinite wire.
+    // UHV circuit assembler, plasma solder canonical (tin stays as dead budget option). The compute
+    // card of the new DTPF (docs/dtpf.md).
+    newPlasmaCircuit('ai_acceleration_card', 4, r => clean(r
+        .itemInputs('gtceu:wetware_printed_circuit_board', 'af9:tpu_chip', 'af9:memristor_chip',
+            '128x gtceu:fine_sanguinite_wire')
+        .itemOutputs('af9:ai_acceleration_card')
+        .duration(600).EUt(VA[GTValues.UHV])))
 
     // ================================= 11. Pico circuits =================================
     // GTNH's Pico components, made in the Advanced Circuit Manufacturer (advanced_circuit_manufacturer: up to 16 items

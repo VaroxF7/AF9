@@ -90,7 +90,9 @@ const AF9_WAFERS = (() => {
         own('spin_logic', 4, 'lime', 8),
         own('tmd_logic', 5, 'pink', 6),
         own('memristor', 6, 'cyan', 8),
-        own('quantum_dot_ic', 7, 'yellow', 4)
+        own('quantum_dot_ic', 7, 'yellow', 4),
+        own('qram', 7, 'magenta', 8),
+        own('qlos', 7, 'lime', 4)
     ]
     const chip = id => {
         const found = chips.filter(c => c.id === id)[0]

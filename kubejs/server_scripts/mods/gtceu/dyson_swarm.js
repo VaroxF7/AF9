@@ -51,7 +51,7 @@ ServerEvents.recipes(event => {
     const sails = (id, amps, spec) => {
         event.recipes.gtceu.assembly_line(`af9:${id}`)
             .itemInputs(spec.items.concat(['64x gtceu:carbon_fiber_mesh', '64x gtceu:carbon_fiber_mesh',
-                '64x gtceu:fine_sanguinite_wire', '64x gtceu:fine_sanguinite_wire']))
+                '64x gtceu:fine_sanguinite_wire', '64x gtceu:fine_sanguinite_wire', '64x gtceu:fine_sanguinite_wire']))
             .inputFluids(spec.fluids)
             .itemOutputs(`af9:${id}`)
             .duration(spec.duration)

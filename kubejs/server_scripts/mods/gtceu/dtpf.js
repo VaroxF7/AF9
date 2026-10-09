@@ -1,7 +1,7 @@
 // AF9 - the Dimensionally Transcendent Plasma Forge: its recipe and what it makes (machine and structure:
 // startup_scripts/gtceu/dtpf.js, af9-core PlasmaForgeMachine). Spec: docs/dtpf.md
 //
-// Two plasmas, ionised here from their dust and Endion, and forged back into matter with a yield above what the
+// Four plasmas, ionised here from their dust and Endion, and forged back into matter with a yield above what the
 // furnaces give: the forge's own pull. The running-time ramp (-50 % EU/t, -25 % time after half an hour) comes on top.
 
 ServerEvents.recipes(event => {
@@ -32,6 +32,18 @@ ServerEvents.recipes(event => {
         .outputFluids(Fluid.of('gtceu:chromodynium_plasma', 2000))
         .duration(800)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
+    forge.plasma_forge('af9:dtpf/anti_matter_plasma')
+        .itemInputs('8x gtceu:anti_matter_dust')
+        .inputFluids(Fluid.of('gtceu:endion', 2000))
+        .outputFluids(Fluid.of('gtceu:anti_matter_plasma', 2000))
+        .duration(800)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
+    forge.plasma_forge('af9:dtpf/superstate_star_matter_plasma')
+        .itemInputs('4x gtceu:superstate_star_matter_dust')
+        .inputFluids(Fluid.of('gtceu:endion', 4000))
+        .outputFluids(Fluid.of('gtceu:superstate_star_matter_plasma', 2000))
+        .duration(1000)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
 
     // ---- Forging: plasma back into matter, half as much again as the dust it came from ----
     // 2,000 mB of chromodynium plasma (4 dust) -> 6 plates
@@ -39,6 +51,12 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:chromodynium_plasma', 2000))
         .itemOutputs('6x gtceu:chromodynium_plate')
         .duration(400)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
+    // 2,000 mB of superstate star matter plasma (4 dust) -> 6 plates
+    forge.plasma_forge('af9:dtpf/superstate_star_matter_plates')
+        .inputFluids(Fluid.of('gtceu:superstate_star_matter_plasma', 2000))
+        .itemOutputs('6x gtceu:superstate_star_matter_plate')
+        .duration(500)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
     // strange matter plasma hardens tritanium: 4 ingots -> 6 plates
     forge.plasma_forge('af9:dtpf/tritanium_plates')

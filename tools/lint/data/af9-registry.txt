@@ -44,6 +44,7 @@ block af9:ultra_high_strength_concrete_floor
 item af9:advanced_soc_euv_reticle
 item af9:advanced_soc_reticle
 item af9:allthemodium_sail
+item af9:ai_acceleration_card
 item af9:amber_cloud
 item af9:apu_chip
 item af9:apu_euv_reticle
@@ -110,6 +111,8 @@ item af9:contaminated_nor_memory_chip
 item af9:contaminated_phosphorus_wafer
 item af9:contaminated_photonic_ic_chip
 item af9:contaminated_qbit_cpu_chip
+item af9:contaminated_qlos_chip
+item af9:contaminated_qram_chip
 item af9:contaminated_quantum_dot_ic_chip
 item af9:contaminated_ram_chip
 item af9:contaminated_rf_transceiver_chip
@@ -228,6 +231,12 @@ item af9:plascrete_pipe_casing
 item af9:plasma_cloud
 item af9:processed_pico_circuit_casing
 item af9:qgp_trap
+item af9:qlos_chip
+item af9:qlos_reticle
+item af9:qlos_wafer
+item af9:qram_chip
+item af9:qram_reticle
+item af9:qram_wafer
 item af9:quantum_dot_ic_chip
 item af9:quantum_dot_ic_reticle
 item af9:quantum_dot_ic_wafer
@@ -317,6 +326,8 @@ material gtceu:ammonium_hexachloroiridate
 material gtceu:ammonium_hexachloroosmate
 material gtceu:ammonium_hexachloroplatinate
 material gtceu:ammonium_hexachlororuthenate
+material gtceu:anti_matter
+material gtceu:anti_quark
 material gtceu:ares_gas
 material gtceu:arf_excimer_gas
 material gtceu:arf_photoresist
@@ -461,6 +472,7 @@ material gtceu:supercooled_endion
 material gtceu:supercooled_hydrogen
 material gtceu:supercooled_xenon
 material gtceu:supercritical_steam
+material gtceu:superstate_star_matter
 material gtceu:tarc
 material gtceu:tboc_polyhydroxystyrene
 material gtceu:tert_butanol
