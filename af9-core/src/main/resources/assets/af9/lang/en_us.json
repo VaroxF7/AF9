@@ -513,6 +513,7 @@
     "af9.dtpf.console.warming": "Warming up",
     "af9.dtpf.console.cooling": "Cooling down",
     "af9.dtpf.console.cold": "Cold",
+    "af9.tooltip.page": "Page %s / %s: hold Shift and scroll",
     "af9.dyson_swarm.console.title": "Dyson Swarm",
     "af9.dyson_swarm.console.sails": "Sails: %s / %s",
     "af9.dyson_swarm.console.tiers": "Allthemodium %s, Alloy %s, Star Matter %s",
