@@ -164,7 +164,7 @@ const event = {
     recipes: { gtceu, minecraft: new Proxy({}, { get: () => () => recorder(() => {}) }) },
     shaped: (out, pattern, keys) => crafting('crafting_shaped', out, Object.values(keys || {})),
     shapeless: (out, ins) => crafting('crafting_shapeless', out, ins), smelting: () => recorder(() => {}),
-    remove() {}, replaceInput() {}, replaceOutput() {}, forEachRecipe() {}, custom: () => recorder(() => {}),
+    remove() {}, replaceInput() {}, replaceOutput() {}, forEachRecipe() {}, countRecipes: () => 0, custom: () => recorder(() => {}),
     add() {}, get: () => ({ add() {} })
 }
 
