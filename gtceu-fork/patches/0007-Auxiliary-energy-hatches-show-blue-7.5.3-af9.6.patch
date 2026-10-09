@@ -1,0 +1,55 @@
+From e471d81e94bd26dcfb57c3279a30546d888a6848 Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 9 Oct 2026 18:25:03 +0200
+Subject: [PATCH 7/7] Auxiliary energy hatches show blue (7.5.3-af9.6)
+
+---
+ gradle.properties                                             | 2 +-
+ .../machine/multiblock/part/EnergyHatchPartMachine.java       | 4 ++++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 94cd63a..5e92d9e 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.5
++mod_version = 7.5.3-af9.6
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java
+index fc053b2..7a5d41a 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java
+@@ -11,6 +11,7 @@ import com.gregtechceu.gtceu.config.ConfigHolder;
+ 
+ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
+ import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
++import com.lowdragmc.lowdraglib.syncdata.annotation.RequireRerender;
+ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+ 
+ import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
+@@ -49,6 +50,7 @@ public class EnergyHatchPartMachine extends TieredIOPartMachine implements IExpl
+     @Getter
+     @Persisted
+     @DescSynced
++    @RequireRerender
+     protected boolean auxiliary;
+ 
+     public EnergyHatchPartMachine(IMachineBlockEntity holder, int tier, IO io, int amperage, Object... args) {
+@@ -156,6 +158,8 @@ public class EnergyHatchPartMachine extends TieredIOPartMachine implements IExpl
+     @Override
+     public int tintColor(int index) {
+         if (index == 2) {
++            // AF9: an auxiliary hatch shows blue
++            if (auxiliary && io == IO.IN) return 0x2F7BFF;
+             return GTValues.VC[getTier()];
+         }
+         return super.tintColor(index);
+-- 
+2.54.0.windows.1
+
