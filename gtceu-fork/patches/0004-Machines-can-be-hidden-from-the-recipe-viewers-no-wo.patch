@@ -1,0 +1,84 @@
+From 6c9a629f6ee995a469b29aff1c1c37df1c7d7a14 Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 9 Oct 2026 16:20:05 +0200
+Subject: [PATCH 4/4] Machines can be hidden from the recipe viewers: no
+ workstation entry in JEI, EMI or REI
+
+A machine that runs the recipes of another machine's missions (the Space Elevator's modules) is not listed as a workstation
+of their recipe types: the other machine is. Version 7.5.3-af9.3.
+---
+ gradle.properties                                            | 2 +-
+ .../com/gregtechceu/gtceu/api/machine/MachineDefinition.java | 5 +++++
+ .../gtceu/integration/emi/recipe/GTRecipeEMICategory.java    | 1 +
+ .../gtceu/integration/jei/recipe/GTRecipeJEICategory.java    | 1 +
+ .../gtceu/integration/rei/recipe/GTRecipeREICategory.java    | 1 +
+ 5 files changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 12c573a..ddf573f 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.2
++mod_version = 7.5.3-af9.3
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/MachineDefinition.java b/src/main/java/com/gregtechceu/gtceu/api/machine/MachineDefinition.java
+index 73db180..b28b1c8 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/MachineDefinition.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/MachineDefinition.java
+@@ -67,6 +67,11 @@ public class MachineDefinition implements Supplier<IMachineBlock> {
+     @Getter
+     @Setter
+     private int tier;
++    // AF9: a machine the recipe viewers (JEI, EMI, REI) do not list as a workstation of its recipe types: it runs them for
++    // another machine that is listed instead
++    @Getter
++    @Setter
++    private boolean hiddenFromRecipeViewers;
+     @Getter
+     @Setter
+     private int defaultPaintingColor;
+diff --git a/src/main/java/com/gregtechceu/gtceu/integration/emi/recipe/GTRecipeEMICategory.java b/src/main/java/com/gregtechceu/gtceu/integration/emi/recipe/GTRecipeEMICategory.java
+index f2b9ab4..f911c26 100644
+--- a/src/main/java/com/gregtechceu/gtceu/integration/emi/recipe/GTRecipeEMICategory.java
++++ b/src/main/java/com/gregtechceu/gtceu/integration/emi/recipe/GTRecipeEMICategory.java
+@@ -79,6 +79,7 @@ public class GTRecipeEMICategory extends EmiRecipeCategory {
+                 .stream()
+                 .sorted(sortDefinition)
+                 .toList()) {
++            if (machine.isHiddenFromRecipeViewers()) continue;
+             for (GTRecipeType type : machine.getRecipeTypes()) {
+                 for (GTRecipeCategory category : type.getCategories()) {
+                     if (!category.isXEIVisible() && !GTCEu.isDev()) continue;
+diff --git a/src/main/java/com/gregtechceu/gtceu/integration/jei/recipe/GTRecipeJEICategory.java b/src/main/java/com/gregtechceu/gtceu/integration/jei/recipe/GTRecipeJEICategory.java
+index 93d359f..622ccea 100644
+--- a/src/main/java/com/gregtechceu/gtceu/integration/jei/recipe/GTRecipeJEICategory.java
++++ b/src/main/java/com/gregtechceu/gtceu/integration/jei/recipe/GTRecipeJEICategory.java
+@@ -78,6 +78,7 @@ public class GTRecipeJEICategory extends ModularUIRecipeCategory<GTRecipe> {
+ 
+     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+         for (MachineDefinition machine : GTRegistries.MACHINES) {
++            if (machine.isHiddenFromRecipeViewers()) continue;
+             for (GTRecipeType type : machine.getRecipeTypes()) {
+                 for (GTRecipeCategory category : type.getCategories()) {
+                     if (!category.isXEIVisible() && !GTCEu.isDev()) continue;
+diff --git a/src/main/java/com/gregtechceu/gtceu/integration/rei/recipe/GTRecipeREICategory.java b/src/main/java/com/gregtechceu/gtceu/integration/rei/recipe/GTRecipeREICategory.java
+index b79a00e..019406a 100644
+--- a/src/main/java/com/gregtechceu/gtceu/integration/rei/recipe/GTRecipeREICategory.java
++++ b/src/main/java/com/gregtechceu/gtceu/integration/rei/recipe/GTRecipeREICategory.java
+@@ -76,6 +76,7 @@ public class GTRecipeREICategory extends ModularUIDisplayCategory<GTRecipeDispla
+ 
+     public static void registerWorkStations(CategoryRegistry registry) {
+         for (MachineDefinition machine : GTRegistries.MACHINES) {
++            if (machine.isHiddenFromRecipeViewers()) continue;
+             for (GTRecipeType type : machine.getRecipeTypes()) {
+                 for (GTRecipeCategory category : type.getCategories()) {
+                     if (!category.isXEIVisible() && !GTCEu.isDev()) continue;
+-- 
+2.54.0.windows.1
+
