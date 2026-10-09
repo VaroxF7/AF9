@@ -40,7 +40,7 @@ ServerEvents.recipes(event => {
 
     // ---- Plasma atomic soldering: the UHV wetware mainframe in the Hyper-Intensity Laser Engraver ----
     // The photonic bill (10 UV supercomputers + photonic/spin dies), deposited ion-by-ion under the engraver's laser.
-    // plasma_soldering slots: 10 items, 1 out, 2 fluids in.
+    // plasma_soldering slots: 9 items, 1 out, 2 fluids in.
     // it is the only path to the mainframe — both assembly line versions are gone (circuits_af9.js).
     event.recipes.gtceu.plasma_soldering('af9:wetware_mainframe_uhv_plasma')
         .itemInputs(

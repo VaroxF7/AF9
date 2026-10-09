@@ -5,9 +5,10 @@ ServerEvents.recipes(event => {
     const VA = GTValues.VA
 
     // the controller: a UHV hull with emitters and field generators, under the engraver's own optics
-    // (UV parts: GT has no parts above UV while its high-tier content is off, as it is in the pack)
+    // (UV parts and circuits: GT has no parts above UV while its high-tier content is off, as it is in the pack;
+    // the engraver has to be buildable before the first UHV circuit it solders)
     event.shaped('gtceu:hyper_intensity_laser_engraver', ['EFE', 'CHC', 'PRP'], {
-        E: 'gtceu:uv_emitter', F: 'gtceu:uv_field_generator', C: '#gtceu:circuits/uhv', H: 'gtceu:uhv_machine_hull',
+        E: 'gtceu:uv_emitter', F: 'gtceu:uv_field_generator', C: '#gtceu:circuits/uv', H: 'gtceu:uhv_machine_hull',
         P: 'gtceu:uv_electric_piston', R: 'gtceu:uv_robot_arm'
     }).id('af9:hyper_intensity_laser_engraver')
 

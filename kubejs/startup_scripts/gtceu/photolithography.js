@@ -55,13 +55,13 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setMaxIOSize(3, 2, 0, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound($LithoSounds.ORBITAL_STATION)
-    // plasma atomic soldering (UHV+ circuits, ion-by-ion deposition with plasma solder, no reflow): up to 10 item
-    // inputs (the UHV mainframe's 9), 1 out, plasma solder + PBI in. Runs in the Hyper-Intensity Laser Engraver
+    // plasma atomic soldering (UHV+ circuits, ion-by-ion deposition with plasma solder, no reflow): up to 9 item
+    // inputs (the UHV mainframe's 8), 1 out, plasma solder + PBI in. Runs in the Hyper-Intensity Laser Engraver
     // (hile.js).
     event.create('plasma_soldering')
         .category('multiblock')
         .setEUIO('in')
-        .setMaxIOSize(10, 1, 2, 0)
+        .setMaxIOSize(9, 1, 2, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound($LithoSounds.ORBITAL_STATION)
 })
