@@ -110,7 +110,9 @@ def forkAvailable = {
 def forkScript = file('../gtceu-fork/build.sh')
 if (gtceuFork && !forkAvailable() && !project.hasProperty('af9SkipForkBuild') && forkScript.exists()) {
     logger.lifecycle("Building the AF9 fork of GTCEu ${gtceuFork} (gtceu-fork/build.sh)")
-    def proc = new ProcessBuilder('bash', forkScript.absolutePath, gtceuFork).inheritIO().start()
+    // the child's output goes through this build's log (the daemon's own stdout is not the console)
+    def proc = new ProcessBuilder('bash', forkScript.absolutePath, gtceuFork).redirectErrorStream(true).start()
+    proc.inputStream.eachLine { logger.lifecycle(it) }
     if (proc.waitFor() != 0) throw new GradleException("building the GTCEu fork ${gtceuFork} failed")
     forkStampFile.parentFile.mkdirs()
     forkStampFile.text = forkStamp
