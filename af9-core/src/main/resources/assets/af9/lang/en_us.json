@@ -258,7 +258,7 @@
     "af9.recipe.boule_endion_bonus": "Endion coils: -25 pct time, 2 parallel; Resonant: -50 pct, 4",
     "af9.recipe.hearth_temperature": "Temperature: %sK",
     "af9.recipe.hearth_coil": "Coil: %s or better",
-    "af9.recipe.hearth_heating": "Readiness: 4A LuV heating, 300s preheat, holds while on",
+    "af9.recipe.hearth_heating": "Heating: 4A LuV, 300s preheat",
     "af9.recipe.hearth_page.coolant": "Coolant",
     "af9.recipe.hearth_page.coolant_grade": "%s or any colder one",
     "af9.recipe.hearth_page.coolant_hatch": "Only through a Coolant Hatch: supercooled fluids only",
