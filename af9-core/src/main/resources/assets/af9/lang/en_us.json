@@ -611,7 +611,7 @@
     "af9.power.recipe_auxiliary_hint": "From an energy hatch set to Auxiliary, while the recipe runs.",
     "af9.recipe.voidminer.circuit": "CIRCUIT",
     "af9.recipe.voidminer.fluid": "FLUID",
-    "af9.recipe.voidminer.ores": "ORES OF A RUN",
+    "af9.recipe.voidminer.ores": "ORES OF THIS RUN",
     "af9.recipe.voidminer.chart": "EVERY CIRCUIT OF THIS AREA",
     "af9.recipe.voidminer.chart_tooltip": "Programmed circuit %s",
     "item.af9.fx_fuel_pellet": "FX-1 Fuel Pellet",
