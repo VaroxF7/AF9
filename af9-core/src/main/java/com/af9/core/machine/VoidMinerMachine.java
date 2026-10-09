@@ -4,7 +4,11 @@ import com.af9.core.AF9Core;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.SidePanelsUIWidget;
 import com.af9.core.machine.console.VoidMinerConsoleWidget;
+import com.af9.core.staged.StagedRecipes;
 
+import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
+import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.capability.recipe.IRecipeHandler;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
@@ -14,7 +18,9 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
+import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
+import com.gregtechceu.gtceu.common.item.IntCircuitBehaviour;
 
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
@@ -25,6 +31,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
@@ -33,6 +40,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.TreeMap;
 
 /**
  * The Void Miner, rebuilt: GT's controller block and structure stay exactly as they are ({@link #install} only
@@ -55,7 +63,9 @@ import java.util.StringJoiner;
  * {@link ConsoleWidget#STATUS_NO_DIMENSION}.
  * <ul>
  * <li>Its own screen in the Orbital Lithography Station's layout: {@link VoidMinerConsoleWidget} in a
- * {@link SidePanelsUIWidget}.</li>
+ * {@link SidePanelsUIWidget}. It lists the area's ores by their circuit ({@link #oreChart}) and says what a run still
+ * waits for: the circuit in the buses ({@link #circuitSet}), the drilling fluid in the hatches
+ * ({@link #fluidAvailable}).</li>
  * <li>Its recipe pages name the area ({@link #registerRecipeInfo}).</li>
  * </ul>
  */
@@ -77,9 +87,19 @@ public class VoidMinerMachine extends ProcessMachine {
             { "minecraft:the_nether" },
             { "minecraft:the_end" },
             { "af9:asteroid_field", "af9:ceres" } };
+    /** Ticks after which the ore chart is read anew (the recipes change with a data reload). */
+    private static final int CHART_REFRESH = 100;
     /** Runs completed, for the screen's counter. */
     @Persisted
     private long runs;
+    /** The recipes of the active area by their circuit, and the chart the screen lists them in. */
+    private final TreeMap<Integer, GTRecipe> chartRecipes = new TreeMap<>();
+    private GTRecipeType chartType;
+    private long chartTime;
+    private String chart = "";
+    /** The circuit in the buses as of this tick (the screen asks several times a tick). */
+    private long circuitTime = -1;
+    private int circuitNow = -1;
 
     public VoidMinerMachine(IMachineBlockEntity holder) {
         super(holder);
@@ -268,33 +288,151 @@ public class VoidMinerMachine extends ProcessMachine {
         runs = 0;
     }
 
-    /** EU of one run of the running (or last) recipe. */
+    /** EU of one run: of the running recipe as it runs, else of the recipe the circuit in the buses picks. */
     public long getEnergyPerRun() {
-        GTRecipe recipe = getRecipeLogic().getLastRecipe();
+        GTRecipe recipe = getRecipeLogic().isWorking() ? getRecipeLogic().getLastRecipe() : selectedRecipe();
         return recipe == null ? 0 : RecipeHelper.getRealEUt(recipe).getTotalEU() * recipe.duration;
     }
 
-    /**
-     * The items of the recipe the screen shows (the running one, else the last run of the active mode), "id*count"
-     * joined by ";": its inputs or its outputs, at most three.
-     */
-    public String shownRecipeItems(boolean inputs) {
-        GTRecipe recipe = getRecipeLogic().getLastRecipe();
-        if (recipe == null || recipe.recipeType != getRecipeType()) return "";
-        List<Content> contents = (inputs ? recipe.inputs : recipe.outputs)
-                .getOrDefault(ItemRecipeCapability.CAP, List.of());
-        StringJoiner joined = new StringJoiner(";");
-        int shown = 0;
-        for (Content content : contents) {
-            if (shown >= 3) break;
-            ItemStack[] stacks = ItemRecipeCapability.CAP.of(content.content).getItems();
-            if (stacks.length == 0 || stacks[0].isEmpty()) continue;
-            ResourceLocation id = ForgeRegistries.ITEMS.getKey(stacks[0].getItem());
-            if (id == null) continue;
-            joined.add(id + "*" + stacks[0].getCount());
-            shown++;
+    //////////////////////////////////////
+    // ********* Ore chart **********//
+    //////////////////////////////////////
+
+    /** Reads the active area's recipes by their circuit, when the area changed or the last look is old. */
+    private void refreshChart() {
+        GTRecipeType type = getRecipeType();
+        long now = getOffsetTimer();
+        if (type == chartType && now >= chartTime && now - chartTime < CHART_REFRESH) return;
+        chartType = type;
+        chartTime = now;
+        chartRecipes.clear();
+        for (GTRecipe recipe : StagedRecipes.allRecipes(type)) {
+            int circuit = circuitOf(recipe);
+            if (circuit >= 0) chartRecipes.putIfAbsent(circuit, recipe);
         }
-        return joined.toString();
+        StringJoiner entries = new StringJoiner(";");
+        for (var entry : chartRecipes.entrySet()) {
+            StringJoiner ores = new StringJoiner(",");
+            for (Content content : entry.getValue().outputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
+                ItemStack[] stacks = ItemRecipeCapability.CAP.of(content.content).getItems();
+                if (stacks.length == 0 || stacks[0].isEmpty()) continue;
+                ResourceLocation id = ForgeRegistries.ITEMS.getKey(stacks[0].getItem());
+                if (id == null) continue;
+                int percent = content.maxChance <= 0 ? 100 : Math.round(100F * content.chance / content.maxChance);
+                ores.add(id + "*" + stacks[0].getCount() + "*" + percent);
+            }
+            entries.add(entry.getKey() + "=" + ores);
+        }
+        chart = entries.toString();
+    }
+
+    /**
+     * The ores of the active area, for the screen: "circuit=id*count*percent,..." per recipe, joined by ";", in the
+     * order of the circuits. The percent is the chance a run brings that stack.
+     */
+    public String oreChart() {
+        refreshChart();
+        return chart;
+    }
+
+    /** The programmed circuit a recipe asks for, -1 when it asks for none. */
+    private static int circuitOf(GTRecipe recipe) {
+        for (Content content : recipe.inputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
+            for (ItemStack stack : ItemRecipeCapability.CAP.of(content.content).getItems()) {
+                if (IntCircuitBehaviour.isIntegratedCircuit(stack)) {
+                    return IntCircuitBehaviour.getCircuitConfiguration(stack);
+                }
+            }
+        }
+        return -1;
+    }
+
+    /** The programmed circuit in the input buses (their circuit slots included), -1 when there is none. */
+    public int circuitSet() {
+        long now = getOffsetTimer();
+        if (now != circuitTime) {
+            circuitTime = now;
+            circuitNow = findCircuit();
+        }
+        return circuitNow;
+    }
+
+    private int findCircuit() {
+        if (!isFormed()) return -1;
+        for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, ItemRecipeCapability.CAP)) {
+            for (Object content : handler.getContents()) {
+                if (content instanceof ItemStack stack && IntCircuitBehaviour.isIntegratedCircuit(stack)) {
+                    return IntCircuitBehaviour.getCircuitConfiguration(stack);
+                }
+            }
+        }
+        return -1;
+    }
+
+    /** The circuit of the running recipe, -1 while nothing runs. */
+    public int circuitRunning() {
+        GTRecipe recipe = getRecipeLogic().getLastRecipe();
+        return recipe == null || !getRecipeLogic().isWorking() ? -1 : circuitOf(recipe);
+    }
+
+    /** The recipe of the active area the circuit in the buses picks, null when there is none. */
+    private GTRecipe selectedRecipe() {
+        refreshChart();
+        return chartRecipes.get(circuitSet());
+    }
+
+    /** The voltage tier of the recipe the circuit in the buses picks, -1 when it picks none. */
+    public int tierNeeded() {
+        GTRecipe recipe = selectedRecipe();
+        return recipe == null ? -1 : RecipeHelper.getRecipeEUtTier(recipe);
+    }
+
+    /** EU/t of the running recipe, else of the one the circuit in the buses picks. */
+    @Override
+    public long getNeededEUt() {
+        if (getRecipeLogic().isWorking()) return super.getNeededEUt();
+        GTRecipe recipe = selectedRecipe();
+        return recipe == null ? 0 : RecipeHelper.getRealEUt(recipe).getTotalEU();
+    }
+
+    /** The recipe the fluid figures are of: the selected one, else any of the area (they all drill alike). */
+    private GTRecipe fluidRecipe() {
+        GTRecipe recipe = selectedRecipe();
+        return recipe != null || chartRecipes.isEmpty() ? recipe : chartRecipes.firstEntry().getValue();
+    }
+
+    /** mB of drilling fluid a run takes, 0 when the area has no recipe. */
+    public long fluidNeeded() {
+        GTRecipe recipe = fluidRecipe();
+        if (recipe == null) return 0;
+        long amount = 0;
+        for (Content content : recipe.inputs.getOrDefault(FluidRecipeCapability.CAP, List.of())) {
+            amount += FluidRecipeCapability.CAP.of(content.content).getAmount();
+        }
+        return amount;
+    }
+
+    /** mB of the fluid a run takes in the input hatches. */
+    public long fluidAvailable() {
+        GTRecipe recipe = fluidRecipe();
+        if (recipe == null || !isFormed()) return 0;
+        List<FluidIngredient> wanted = new ArrayList<>();
+        for (Content content : recipe.inputs.getOrDefault(FluidRecipeCapability.CAP, List.of())) {
+            wanted.add(FluidRecipeCapability.CAP.of(content.content));
+        }
+        long amount = 0;
+        for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, FluidRecipeCapability.CAP)) {
+            for (Object content : handler.getContents()) {
+                if (!(content instanceof FluidStack stack)) continue;
+                for (FluidIngredient ingredient : wanted) {
+                    if (ingredient.test(stack)) {
+                        amount += stack.getAmount();
+                        break;
+                    }
+                }
+            }
+        }
+        return amount;
     }
 
     //////////////////////////////////////
