@@ -155,6 +155,9 @@ public final class AF9Items {
             }
         }
 
+        // ---- Create: the circuit under assembly (server_scripts/mods/gtceu/early_circuits.js) ----
+        item("incomplete_circuit", 1, 0);
+
         // ---- Space Elevator ----
         for (int tier = 1; tier <= DRONES; tier++) item(DRONE + tier, 1, 3);
 

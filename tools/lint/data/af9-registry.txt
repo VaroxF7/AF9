@@ -165,6 +165,7 @@ item af9:highly_advanced_soc_reticle
 item af9:ilc_euv_reticle
 item af9:ilc_psm_reticle
 item af9:ilc_reticle
+item af9:incomplete_circuit
 item af9:krf_excimer_laser
 item af9:kronos_marker
 item af9:laser_containment_casing
