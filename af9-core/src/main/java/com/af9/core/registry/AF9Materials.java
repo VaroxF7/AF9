@@ -42,6 +42,9 @@ public final class AF9Materials {
      */
     private static final MaterialIconSet STRANGE_MATTER = new MaterialIconSet("strange_matter", MaterialIconSet.SHINY);
     private static final MaterialIconSet CHROMODYNIUM = new MaterialIconSet("chromodynium", MaterialIconSet.SHINY);
+    private static final MaterialIconSet ANTI_MATTER = new MaterialIconSet("anti_matter", MaterialIconSet.SHINY);
+    private static final MaterialIconSet SUPERSTATE_STAR_MATTER = new MaterialIconSet("superstate_star_matter",
+            MaterialIconSet.SHINY);
 
     private static final List<Material> ALL = new ArrayList<>();
 
@@ -69,6 +72,7 @@ public final class AF9Materials {
         moonSilicon();
         oil();
         particleAccelerator();
+        antimatter();
         photolithography();
         platinumGroup();
         quantanium();
@@ -637,6 +641,43 @@ public final class AF9Materials {
     }
 
     /**
+     * Antimatter and the superstate: past chromodynium. The Particle Accelerator condenses quark-gluon plasma with
+     * chromodynium into anti-quarks, then with anti-quarks into anti-matter, then with anti-matter into superstate
+     * star matter, the next quark-level state (recipes: particle_accelerator.js). The Plasma Forge ionises
+     * anti-matter and superstate dust into Anti Matter Plasma and Superstate Star Matter Plasma and forges the
+     * superstate plasma back into plates (recipes: dtpf.js).
+     */
+    private static void antimatter() {
+        // the anti-quark: the quark of anti-matter (dust only, like a quark flavour)
+        add(material("anti_quark")
+                .dust()
+                .color(0x00e5ff).secondaryColor(0xff00e5)
+                .iconSet(ANTI_MATTER)
+                .formula("Aq"));
+
+        // stabilised anti-quarks in one bag, past strange matter
+        // (its plasma is what the Plasma Forge forges: dtpf.js)
+        add(material("anti_matter")
+                .dust()
+                .plasma()
+                .color(0x7a00ff).secondaryColor(0x00fff2)
+                .iconSet(ANTI_MATTER)
+                .formula("(Aq)n"));
+
+        // the superstate: star matter held past plasma, the metal past chromodynium
+        add(material("superstate_star_matter")
+                .ingot()
+                .fluid()
+                .plasma()
+                .color(0xfff200).secondaryColor(0xff6a00)
+                .iconSet(SUPERSTATE_STAR_MATTER)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL, MaterialFlags.GENERATE_ROD,
+                        MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_FINE_WIRE)
+                .blastTemp(15000, GasTier.HIGHEST, GTValues.VA[GTValues.UHV], 3200)
+                .formula("Ss"));
+    }
+
+    /**
      * Photolithography: the extreme clean dry air of the exposure tools, the HMDS adhesion promoter, the DNQ-novolac
      * resist and its developer (350 nm), and the metal-oxide EUV resist (20 and 7 nm). The KrF and ArF resists are in
      * {@link #fabChemistry}. Recipes: photolithography.js. Spec: docs/semiconductor-factory.md
@@ -790,8 +831,8 @@ public final class AF9Materials {
      * Sanguinite: the bright-red UHV superconductor, smelted in the Sanguinite Hearth Furnace
      * ({@code gtceu:sanguinite_hearth_furnace}, a standalone Rotary-Hearth copy running only
      * {@code gtceu:sanguinite_hearth}: the EBF cannot smelt it, the auto EBF/hot-ingot recipes are removed).
-     * Tin alloy, barium, europium, titanium, electrum and crude sanguinite dusts are smelted at Tritanium-coil
-     * heat into molten sanguinite (normal + helium-boosted prints, circuit 8, ZPM, 60 s), which the vacuum
+     * Tin alloy, barium, europium, titanium, electrum and crude sanguinite dusts are smelted at
+     * 6000 K into molten sanguinite (normal + helium-boosted prints, circuit 8, ZPM, 60 s), which the vacuum
      * freezer casts into ingots under supercooled hydrogen. The hearth only holds its heat on coolant
      * (Coolant Hatches) plus 4A LuV heating. Recipes: uhv_superconductor.js.
      * Spec: docs/uhv-superconductor.md
@@ -820,13 +861,14 @@ public final class AF9Materials {
 
         // Sanguinite: blood-red, lossless at UV 4A. No blast property and no components, so GT adds no
         // dust-to-hot EBF print, no mixer/centrifuge/electrolyzer shortcut past the hearth: the hearth smelts
-        // dusts straight to the molten fluid (uhv_superconductor.js, blastFurnaceTemp on the recipe for the
-        // coil display), and the vacuum freezer casts it under supercooled hydrogen. GT still derives the
-        // standard molten <-> ingot solidifier/extractor prints from ingot+fluid; the server scripts remove
-        // the plain solidifier so only the supercooled casting runs. The cable property with no loss makes
-        // it the UHV superconductor wire.
+        // dusts straight to the molten fluid (uhv_superconductor.js, blastFurnaceTemp 6000 K on the recipe for
+        // the coil display), and the vacuum freezer casts it under supercooled hydrogen. The fluid itself is
+        // molten (6000 K, liquid(6000)): without a blast property GT would leave it at the 1200 K dust default.
+        // GT still derives the standard molten <-> ingot solidifier/extractor prints from ingot+fluid; the
+        // server scripts remove the plain solidifier so only the supercooled casting runs. The cable property
+        // with no loss makes it the UHV superconductor wire.
         add(material("sanguinite")
-                .ingot().fluid()
+                .ingot().liquid(6000)
                 .color(0xff1a1a).secondaryColor(0x5c0a0a)
                 .iconSet(MaterialIconSet.SHINY)
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD,

@@ -38,8 +38,8 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             SanguiniteHearthMachine.class, CoilWorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
 
-    /** Hearth temperature a print needs (K): the molten sanguinite smelt (Tritanium coils). */
-    public static final int HEARTH_TEMP = 10800;
+    /** Hearth temperature a print needs (K): the molten sanguinite smelt (HSS-S coils, 6000 K). */
+    public static final int HEARTH_TEMP = 6000;
     /** Seconds from cold to full heat while powered, and back to cold without power. */
     public static final int PREHEAT_SECONDS = 300;
     public static final int COOL_SECONDS = 500;
@@ -148,7 +148,7 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
 
     /**
      * Hottest the hearth gets: the coils' temperature plus 100 K per energy hatch tier above MV (the EBF's own
-     * display maths). Tritanium coils (10,800 K) with ZPM hatches reach 11,300 K: just past the smelt.
+     * display maths). HSS-S coils (6000 K) with ZPM hatches reach 6500 K: just past the smelt.
      */
     public int getMaxHeat() {
         if (!isFormed() || energyContainer == null) return AMBIENT_K;

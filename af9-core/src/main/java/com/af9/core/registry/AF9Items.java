@@ -48,10 +48,11 @@ public final class AF9Items {
      * chip. RF Transceiver, APU and MCU are silicon chips (350 nm), the ASIC phosphorus (200 nm), eDRAM, MRAM and
      * FeRAM trinium (80 nm), the VPU naquadria (65 nm), the TPU transmuted neutronium; then the families the finer
      * substrates open up: SAW Filter (naquadah), Photonic IC (trinium), Spin Logic (naquadria), TMD Logic (neutronium),
-     * Memristor (transmuted neutronium), Quantum-Dot IC (strange matter).
+     * Memristor (transmuted neutronium), Quantum-Dot IC (strange matter), QRAM and QLOS (strange matter).
      */
     private static final String[] CHIPS = { "rf_transceiver", "apu", "mcu", "asic", "edram", "mram", "feram", "vpu",
-            "tpu", "saw_filter", "photonic_ic", "spin_logic", "tmd_logic", "memristor", "quantum_dot_ic" };
+            "tpu", "saw_filter", "photonic_ic", "spin_logic", "tmd_logic", "memristor", "quantum_dot_ic", "qram",
+            "qlos" };
     /**
      * The printed chips and the index of each one's own substrate ({@link #SUBSTRATES}): it says the class of the
      * chip's own reticle. Keep it in sync with maskClass() in AF9_WAFERS (server script).
@@ -61,7 +62,8 @@ public final class AF9Items {
             { "rf_transceiver", 0 }, { "apu", 0 }, { "mcu", 0 }, { "nand", 1 }, { "nor", 1 }, { "mpic", 1 },
             { "soc", 1 }, { "asic", 1 }, { "advanced_soc", 2 }, { "saw_filter", 2 }, { "edram", 3 }, { "mram", 3 },
             { "feram", 3 }, { "photonic_ic", 3 }, { "vpu", 4 }, { "spin_logic", 4 }, { "highly_advanced_soc", 5 },
-            { "tmd_logic", 5 }, { "tpu", 6 }, { "memristor", 6 }, { "quantum_dot_ic", 7 } };
+            { "tmd_logic", 5 }, { "tpu", 6 }, { "memristor", 6 }, { "quantum_dot_ic", 7 }, { "qram", 7 },
+            { "qlos", 7 } };
     /**
      * The mask classes, by the light they fit: chrome-on-quartz (350 and 200 nm), MoSi phase-shift (100, 80 and
      * 65 nm), reflective EUV (50 nm and finer). The class of a chip's own reticle has no suffix in the item's id.
@@ -124,6 +126,9 @@ public final class AF9Items {
         item("organized_pico_circuit", 64, 1);
         item("processed_pico_circuit_casing", 64, 1);
         item("pico_circuit_rack", 64, 1);
+        // AI Acceleration Card: TPU + memristor on a wetware board, traced in fine sanguinite wire
+        // (circuits_af9.js, UHV); the compute card of the new DTPF (docs/dtpf.md).
+        item("ai_acceleration_card", 64, 1);
 
         // ---- Particle Accelerator ----
         item("beryllium_spallation_target", 64, 1);
