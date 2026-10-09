@@ -41,7 +41,7 @@ Textures are GTNH Intergalactic's (`tools/textures/gtnh_dyson_swarm/`, `tools/te
 | `af9:unobtainium_alloy_sail` | 200 % | Allthemodium sails, Unobtainium plate, spin logic dies; **300 A** |
 | `af9:chromodynium_star_matter_tritan_alloy_sail` | 350 % | Unobtainium Alloy sails, chromodynium and tritanium plate, memristors, strange matter plasma (the DTPF's); **1,000 A** |
 
-16 sails a run, and every sail recipe has to be **researched** first (the Research Station scans the sail below it, or the photonic package for the first, with 96 / 128 / 192 CWU/t of computation).
+One sail a run (30 s, 45 s and 60 s; each takes 128 carbon fiber mesh and 128 fine sanguinite wire; the chromodynium sail also 10,000 mB plasma solder and 1,000 mB nickel plasma), and every sail recipe has to be **researched** first (the Research Station scans the sail below it, or the photonic package for the first, with 96 / 128 / 192 CWU/t of computation).
 Put them in an input bus: the swarm takes them (up to 10,000 in all) and they stay. A **plunger** right-clicked on the controller takes them back, lowest tier first, as many as the plunger has uses left (sneak to drop what does not fit the inventory).
 
 ## 4. The cycle

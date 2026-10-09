@@ -45,13 +45,15 @@ ServerEvents.recipes(event => {
     casing('dyson_control_toroid', 9, ['4x gtceu:tritanium_plate', '16x gtceu:fine_sanguinite_wire', 'gtceu:tritanium_frame'])
 
     // ---- 2. The sails ----
-    // sails(id, amps, spec): an Assembly Line recipe at UHV voltage on the tier's amps; 16 sails a run. Every sail has to be
-    // researched first (the Research Station scans the research item into a data stick, with computation: spec.cwu)
+    // sails(id, amps, spec): an Assembly Line recipe at UHV voltage on the tier's amps, ONE sail a run. Every sail has to be
+    // researched first (the Research Station scans the research item into a data stick, with computation: spec.cwu).
+    // Each tier takes 128 carbon fiber mesh and 128 fine sanguinite wire (two stacks of 64 each: a bus slot holds 64)
     const sails = (id, amps, spec) => {
         event.recipes.gtceu.assembly_line(`af9:${id}`)
-            .itemInputs(spec.items)
+            .itemInputs(spec.items.concat(['64x gtceu:carbon_fiber_mesh', '64x gtceu:carbon_fiber_mesh',
+                '64x gtceu:fine_sanguinite_wire', '64x gtceu:fine_sanguinite_wire']))
             .inputFluids(spec.fluids)
-            .itemOutputs(`16x af9:${id}`)
+            .itemOutputs(`af9:${id}`)
             .duration(spec.duration)
             .EUt(VA[GTValues.UHV], amps)
             .stationResearch(b => b
@@ -59,24 +61,23 @@ ServerEvents.recipes(event => {
                 .CWUt(spec.cwu)
                 .EUt(VA[GTValues.UHV]))
     }
-    // Allthemodium: 100 % - photonic dies bonded to Allthemodium sheet under a neutronium frame
+    // Allthemodium: 100 % - 30 s: plates, photonic dies and neutronium under the mesh and the wire
     sails('allthemodium_sail', 100, {
-        items: [`16x ${ALLTHEMODIUM_PLATE}`, '16x af9:photonic_ic_chip', '4x gtceu:neutronium_plate',
-            '8x gtceu:fine_sanguinite_wire'],
+        items: [`16x ${ALLTHEMODIUM_PLATE}`, '16x af9:photonic_ic_chip', '8x gtceu:neutronium_plate'],
         fluids: [Fluid.of('gtceu:plasma_solder', 576), Fluid.of('gtceu:polybenzimidazole', 576)],
         research: 'af9:photonic_package', cwu: 96, duration: 600 })
-    // Unobtainium Alloy: 200 % - an Allthemodium sail each, re-laid on the alloy sheet with spin logic
+    // Unobtainium Alloy: 200 % - 45 s: the Allthemodium sail re-laid on the alloy sheet with spin logic
     sails('unobtainium_alloy_sail', 300, {
-        items: ['16x af9:allthemodium_sail', `16x ${ALLOY_PLATE}`, '16x af9:spin_logic_chip',
-            '8x gtceu:neutronium_plate'],
+        items: ['af9:allthemodium_sail', `16x ${ALLOY_PLATE}`, '16x af9:spin_logic_chip', '16x gtceu:neutronium_plate'],
         fluids: [Fluid.of('gtceu:plasma_solder', 1152), Fluid.of('gtceu:polybenzimidazole', 1152)],
         research: 'af9:allthemodium_sail', cwu: 128, duration: 900 })
-    // Chromodynium Star Matter Tritan Alloy: 350 % - an alloy sail each, plated in chromodynium and tritanium, forged
-    // under the plasma of strange matter; the most computation to research
+    // Chromodynium Star Matter Tritan Alloy: 350 % - 60 s: the alloy sail plated in chromodynium and tritanium under the plasma
+    // of strange matter, soldered with 10,000 mB plasma solder and 1,000 mB nickel plasma a sail; the most computation to research
     sails('chromodynium_star_matter_tritan_alloy_sail', 1000, {
-        items: ['16x af9:unobtainium_alloy_sail', '16x gtceu:chromodynium_plate', '16x gtceu:tritanium_plate',
+        items: ['af9:unobtainium_alloy_sail', '16x gtceu:chromodynium_plate', '16x gtceu:tritanium_plate',
             '16x af9:memristor_chip'],
-        fluids: [Fluid.of('gtceu:strange_matter_plasma', 1152), Fluid.of('gtceu:plasma_solder', 1728)],
+        fluids: [Fluid.of('gtceu:strange_matter_plasma', 1152), Fluid.of('gtceu:plasma_solder', 10000),
+            Fluid.of('gtceu:nickel_plasma', 1000)],
         research: 'af9:unobtainium_alloy_sail', cwu: 192, duration: 1200 })
 
     // ---- 3. The cycle ----
