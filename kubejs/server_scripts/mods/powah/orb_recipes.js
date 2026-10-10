@@ -30,7 +30,7 @@
 // scales with the rods round the orb, more rods, a shorter wait.
 //
 // Shaping: an extruder mold in one slot (it stays) and the material in the other, at GT's ratios and a flat
-// charge. Every material of the pack works: the recipes generate from the forge tags, so a future material joins
+// charge, never under 10000 FE a craft (the big parts cost more). Every material of the pack works: the recipes generate from the forge tags, so a future material joins
 // by itself. The mold is GT's, except the screw's: GT has none, so it is AF9's (af9:screw_extruder_mold).
 
 ServerEvents.recipes(event => {
@@ -281,11 +281,11 @@ ServerEvents.recipes(event => {
     ], 1280000, 'gtceu:hv_field_generator')
 
     // ---- Shaping (generated from the forge tags; a future material joins by itself) ----
-    //   rod         1 ingot + rod mold           -> 2 rods          (2000 FE)
-    //   bolt        1 ingot + bolt mold          -> 8 bolts         (2000 FE)
-    //   screw       1 bolt + screw mold          -> 1 screw         (1000 FE)
+    //   rod         1 ingot + rod mold           -> 2 rods         (10000 FE)
+    //   bolt        1 ingot + bolt mold          -> 8 bolts        (10000 FE)
+    //   screw       1 bolt + screw mold          -> 1 screw        (10000 FE)
     //   gear        4 ingots + gear mold         -> 1 gear         (12000 FE)
-    //   small gear  1 ingot + small gear mold    -> 1 small gear    (3000 FE)
+    //   small gear  1 ingot + small gear mold    -> 1 small gear   (10000 FE)
     //   rotor       4 ingots + rotor mold        -> 1 rotor        (16000 FE)
 
     // The ids of a forge tag, as a set (id -> true). Empty when the tag cannot be read (the linter's stubs).
@@ -338,11 +338,11 @@ ServerEvents.recipes(event => {
         })
     }
 
-    shape('rod', 'gtceu:rod_extruder_mold', 'ingot', 1, '', 'rod', 2, 2000)
-    shape('bolt', 'gtceu:bolt_extruder_mold', 'ingot', 1, '', 'bolt', 8, 2000)
-    shape('screw', 'af9:screw_extruder_mold', 'bolt', 1, '', 'screw', 1, 1000)
+    shape('rod', 'gtceu:rod_extruder_mold', 'ingot', 1, '', 'rod', 2, 10000)
+    shape('bolt', 'gtceu:bolt_extruder_mold', 'ingot', 1, '', 'bolt', 8, 10000)
+    shape('screw', 'af9:screw_extruder_mold', 'bolt', 1, '', 'screw', 1, 10000)
     shape('gear', 'gtceu:gear_extruder_mold', 'ingot', 4, '', 'gear', 1, 12000)
-    shape('small_gear', 'gtceu:small_gear_extruder_mold', 'ingot', 1, 'small_', 'gear', 1, 3000)
+    shape('small_gear', 'gtceu:small_gear_extruder_mold', 'ingot', 1, 'small_', 'gear', 1, 10000)
     shape('rotor', 'gtceu:rotor_extruder_mold', 'ingot', 4, '', 'rotor', 1, 16000)
     // (only in the game: the linter's stubs read no tags, and its output has to stay what the quest linter parses)
     if (shapedCount[0] > 0) {
