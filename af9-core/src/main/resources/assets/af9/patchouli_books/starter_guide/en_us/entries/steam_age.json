@@ -14,7 +14,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(bold)Bronze, plates, wood.$() Copper and tin dust, 3 to 1, in a heated mixer make bronze dust; smelt it as usual. Ingots go through the Create press for $(bold)plates$(). A log in a millstone gives 2 wood dust. Water comes from Create's mechanical pump, not the primitive pump."
+      "text": "$(bold)Bronze, plates, wood.$() Copper and tin dust, 3 to 1, in a heated mixer make bronze dust; smelt it as usual. Ingots go through the Create press for $(bold)plates$(). A log in a millstone gives 2 wood dust, and the press makes a wood dust into a wood plank. Water comes from Create's mechanical pump, not the primitive pump."
     },
     {
       "type": "patchouli:text",

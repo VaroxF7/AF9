@@ -241,6 +241,15 @@ ServerEvents.recipes(event => {
         results: [{ item: 'gtceu:wood_dust', count: 2 }]
     }).id('af9:create/wood_dust_milling')
 
+    // Wood plank (GT's wood plate: the board and the hull plate of the early machines): was the steam compressor's work
+    // (removed), the press does it: 1 wood dust under the press gives 1 wood plank. A plank item of the game does not
+    // count: a log makes 2 dust in the millstone, 2 planks, the cheap GT balance.
+    event.custom({
+        type: 'create:pressing',
+        ingredients: [{ tag: 'forge:dusts/wood' }],
+        results: [{ item: 'gtceu:wood_plate' }]
+    }).id('af9:create/wood_plate_pressing')
+
     // Plant balls (was: steam compressor): the compactor squeezes garden
     // waste. Three greens, 4 plants each, matching the latex garden.
     const greens = ['minecraft:vine', 'minecraft:sugar_cane', 'minecraft:kelp']

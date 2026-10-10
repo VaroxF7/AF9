@@ -26,7 +26,7 @@ iron + coke -> mixer, superheated -> steel (1 iron + 2 coke -> 1 steel;
   with calcite flux 1 iron + 1 coke + 1 calcite -> 2 steel)
 copper + tin dusts -> mixer, heated -> bronze dust 4 (3:1, smelt as usual)
 ingots -> press -> plates (iron, wrought iron, bronze, steel, copper, tin)
-any log -> millstone -> 2 wood dust
+any log -> millstone -> 2 wood dust; wood dust -> press -> wood plank (GT's wood plate)
 4 vines / sugar cane / kelp -> compactor -> plant ball
 sticky resin -> press -> 3 raw rubber dust;
   3 raw rubber + sulfur -> mixer, heated -> rubber ingot
