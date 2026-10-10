@@ -8,7 +8,8 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.Item;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Collection;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -155,29 +156,34 @@ public final class OrbRecipes {
         return -1;
     }
 
-    private static RecipeManager moldManager;
-    private static int moldRecipes = -1;
-    private static Set<Item> moldItems = Set.of();
+    /** The molds per recipe manager (the client's and the server's are different ones); cleared when recipes reload. */
+    private static final Map<RecipeManager, Set<Item>> MOLDS = new WeakHashMap<>();
 
-    /** Every item some orb recipe keeps (an ingredient with {@code nc}): the molds. Cached per recipe manager. */
+    /** Forget the cached molds (the recipes were reloaded or synced). */
+    public static synchronized void invalidateMolds() {
+        MOLDS.clear();
+    }
+
+    /**
+     * Every item some orb recipe keeps (an ingredient with {@code nc}): the molds. Built once per recipe manager and
+     * recipe load: a tooltip asks for every item of the game (a recipe viewer lists ninety thousand), so this must not look
+     * at the recipes again on each call.
+     */
     public static synchronized Set<Item> molds(RecipeManager manager) {
-        Collection<Recipe<?>> all = manager.getRecipes();
-        if (manager != moldManager || all.size() != moldRecipes) {
-            Set<Item> set = new HashSet<>();
-            for (Recipe<?> recipe : all) {
-                if (!(recipe instanceof OrbCounts counts)) continue;
-                boolean[] nc = counts.af9Nc();
-                List<Ingredient> ingredients = recipe.getIngredients();
-                for (int i = 0; i < ingredients.size() && i < nc.length; i++) {
-                    if (!nc[i]) continue;
-                    for (ItemStack stack : ingredients.get(i).getItems()) set.add(stack.getItem());
-                }
+        Set<Item> cached = MOLDS.get(manager);
+        if (cached != null) return cached;
+        Set<Item> set = new HashSet<>();
+        for (Recipe<?> recipe : manager.getRecipes()) {
+            if (!(recipe instanceof OrbCounts counts)) continue;
+            boolean[] nc = counts.af9Nc();
+            List<Ingredient> ingredients = recipe.getIngredients();
+            for (int i = 0; i < ingredients.size() && i < nc.length; i++) {
+                if (!nc[i]) continue;
+                for (ItemStack stack : ingredients.get(i).getItems()) set.add(stack.getItem());
             }
-            moldItems = set;
-            moldManager = manager;
-            moldRecipes = all.size();
         }
-        return moldItems;
+        MOLDS.put(manager, set);
+        return set;
     }
 
     /** Whether the item is a mold of some orb recipe. */
