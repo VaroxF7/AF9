@@ -326,5 +326,8 @@ ServerEvents.recipes(event => {
     shape('gear', 'gtceu:gear_extruder_mold', 'ingot', 4, '', 'gear', 1, 12000)
     shape('small_gear', 'gtceu:small_gear_extruder_mold', 'ingot', 1, 'small_', 'gear', 1, 3000)
     shape('rotor', 'gtceu:rotor_extruder_mold', 'ingot', 4, '', 'rotor', 1, 16000)
-    console.info('[af9] orb shaping: ' + shapedCount[0] + ' recipes (rods, bolts, screws, gears, small gears, rotors)')
+    // (only in the game: the linter's stubs read no tags, and its output has to stay what the quest linter parses)
+    if (shapedCount[0] > 0) {
+        console.info('[af9] orb shaping: ' + shapedCount[0] + ' recipes (rods, bolts, screws, gears, small gears, rotors)')
+    }
 })
