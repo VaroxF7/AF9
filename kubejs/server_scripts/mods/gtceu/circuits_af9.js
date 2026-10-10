@@ -116,13 +116,7 @@ ServerEvents.recipes(event => {
         event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
     })
 
-    event.shaped('gtceu:good_electronic_circuit', ['VPV', 'CBC', 'WCW'], {
-        V: 'create:electron_tube',
-        P: 'gtceu:steel_plate',
-        C: 'gtceu:basic_electronic_circuit',
-        B: 'gtceu:phenolic_printed_circuit_board',
-        W: 'gtceu:copper_single_wire'
-    }).id('af9:shaped/good_electronic_circuit')
+    // (no crafting table recipe: by hand it is the Create sequenced assembly of early_circuits.js)
 
     circuitAssembler('good_electronic_circuit', recipe => recipe
         .itemInputs(
