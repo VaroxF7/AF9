@@ -175,6 +175,35 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
                 .setFilter(com.gregtechceu.gtceu.common.item.IntCircuitBehaviour::isIntegratedCircuit).shouldSearchContent(false);
     }
 
+    /**
+     * GT matches a recipe inside one colour group of input handlers: the hatches and buses are in the group of their paint
+     * (the default paint is a colour), the machine's own slots in the undyed one. The drone and the circuit of the screen are
+     * in the second, the drill head and the crate in a bus in the first: no group has them all and the recipe never starts
+     * ("Insufficient Inputs: Item" for the drone and the circuit). The undyed lists take the paint of the first painted one.
+     */
+    @Override
+    protected void collectRecipeHandlers() {
+        super.collectRecipeHandlers();
+        alignInputGroups();
+    }
+
+    /** Puts the undyed input lists (the machine's own slots) into the group of the painted ones. */
+    protected void alignInputGroups() {
+        var lists = getCapabilitiesProxy().get(IO.IN);
+        if (lists == null || lists.isEmpty()) return;
+        int color = -1;
+        for (var list : lists) {
+            if (list.getColor() != -1 && !list.isDistinct()) {
+                color = list.getColor();
+                break;
+            }
+        }
+        if (color == -1) return;
+        for (var list : lists) {
+            if (list.getColor() == -1 && !list.isDistinct()) list.setColor(color);
+        }
+    }
+
     /** The circuit button, on top of the others on the left of the screen. */
     @Override
     public void attachConfigurators(com.gregtechceu.gtceu.api.gui.fancy.ConfiguratorPanel configuratorPanel) {

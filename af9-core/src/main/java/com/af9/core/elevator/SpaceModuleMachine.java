@@ -135,6 +135,9 @@ public class SpaceModuleMachine extends SpaceMissionMachine {
             var inputs = parent.getCapabilitiesProxy().get(io);
             if (inputs == null || inputs.isEmpty()) continue;
             for (var list : new java.util.ArrayList<>(inputs)) {
+                // the tower's buses and hatches, not the slots of its own screen (the drone and the circuit of a module are
+                // set on the module)
+                if (isTraitListOf(list, parent)) continue;
                 var own = getCapabilitiesProxy().get(list.getHandlerIO());
                 if (own == null || !own.contains(list)) {
                     addHandlerList(list);
@@ -143,6 +146,22 @@ public class SpaceModuleMachine extends SpaceMissionMachine {
                 }
             }
         }
+        // the module's own slots and the tower's buses in one group (see SpaceMissionMachine#collectRecipeHandlers)
+        alignInputGroups();
+    }
+
+    /** Whether a handler list is made of traits of a machine itself (not of one of its parts). */
+    private static boolean isTraitListOf(com.gregtechceu.gtceu.api.machine.trait.RecipeHandlerList list,
+                                         com.gregtechceu.gtceu.api.machine.MetaMachine machine) {
+        for (var handlers : list.getHandlerMap().values()) {
+            for (var handler : handlers) {
+                if (handler instanceof com.gregtechceu.gtceu.api.machine.trait.MachineTrait trait &&
+                        trait.getMachine() == machine) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /** The elevator broke or does not have this module in its structure any more. */
