@@ -62,8 +62,8 @@ public class DropPodEntity extends Entity {
     private static final double TOUCHDOWN = 0.07;
     /** From this height above the ground the thrusters fire. */
     private static final double BRAKING_HEIGHT = 32.0;
-    /** Ticks of the countdown once the player's screen is clear (5 s). */
-    public static final int AUTO_TICKS = 100;
+    /** Ticks of the countdown once the player's screen is clear (20 s). */
+    public static final int AUTO_TICKS = 400;
     /** The rider is safe from falls and walls this long after the last tick in the pod (10 s). */
     public static final int SAFE_TICKS = 200;
     /** Persistent player data: the game time until which fall and wall damage is cancelled. */

@@ -11,10 +11,12 @@ come down. The idea is Supersymmetry's arrival; the implementation is AF9's own 
   dropped. Spectator players skip it, creative players arrive in a pod too (`includeCreative`), and so do other dimensions than
   the Overworld skip it. `/af9 droppod [player]` (operators) sends a player down again, in any world.
 * **Where from**: `dropPod.height` blocks above the spawn (250), never above the build limit.
-* **The wait**: the pod hangs in the sky and the player is in it while the world loads. Once the loading screen is gone the title
-  "AF9" and the line "Press SPACE to launch (automatic in n)" appear. The client tells the server the screen is clear, and
-  the **server** counts the 5 seconds (the pod launches by itself at the end; the number shown is the server's); SPACE
-  launches at once. If the server never hears from the client it lets go by itself after 5 minutes.
+* **The wait**: the pod hangs in the sky and the player is in it while the world loads. Once the loading screen is gone the
+  welcome screen opens: "Welcome to AF9!" letter by letter (dropping in, colours running through it, a glint sweeping along),
+  sparks rising, and a pixel **Launch [SPACE]** button (a click, SPACE or Enter launches at once). The client tells the server the
+  screen is clear, and the **server** counts **20 seconds** (the pod launches by itself at the end; the bar and number shown are
+  the server's). Esc closes the screen (SPACE still works without it). If the server never hears from the client it lets go by
+  itself after 5 minutes.
 * **The fall**: terminal speed 0.5 blocks a tick (10 blocks a second, so about 24 s from 250), flames and smoke from the four
   thrusters pointing down (Ad Astra's rocket engine sound loops while they burn, and its launch sound plays at take-off; vanilla's firework sounds when Ad Astra is absent). The rider is locked in from the first moment (hanging, falling, landing) until the pod opens by itself: a dismount (shift) is
   cancelled on the server, so there is no way out before the automatic dismount. The rider takes **no fall, wall or crush damage** while in the pod and for 10 s after it.

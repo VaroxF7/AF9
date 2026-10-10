@@ -36,13 +36,13 @@ public final class DropPodClientEvents {
             return;
         }
         // a loading screen or any menu: the player has not seen the pod yet
+        if (mc.screen != null && !readySent) return;
         if (mc.screen != null) return;
         if (!readySent) {
             readySent = true;
             AF9Network.CHANNEL.sendToServer(new DropPodReleasePacket(false));
-            mc.gui.setTimes(10, 100, 30);
-            mc.gui.setTitle(Component.translatable("af9.drop_pod.title"));
-            mc.gui.setSubtitle(Component.translatable("af9.drop_pod.subtitle"));
+            // the welcome screen (Esc closes it; SPACE and the overlay line below work without it)
+            mc.setScreen(new DropPodScreen());
         }
         int left = pod.countdownTicks();
         int seconds = left < 0 ? (DropPodEntity.AUTO_TICKS + 19) / 20 : (left + 19) / 20;
