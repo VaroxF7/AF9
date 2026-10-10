@@ -234,6 +234,13 @@ ServerEvents.recipes(event => {
         }).id('af9:create/' + plate.split(':')[1] + '_pressing')
     })
 
+    // Rubber sheet (GT's rubber plate: cables, pumps, conveyors): a rubber ingot under the press, 1 for 1 like the metals.
+    event.custom({
+        type: 'create:pressing',
+        ingredients: [{ tag: 'forge:ingots/rubber' }],
+        results: [{ item: 'gtceu:rubber_plate' }]
+    }).id('af9:create/rubber_plate_pressing')
+
     // Wood dust (was: steam macerator): the millstone grinds any log.
     event.custom({
         type: 'create:milling',

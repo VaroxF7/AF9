@@ -28,7 +28,7 @@ copper + tin dusts -> mixer, heated -> bronze dust 4 (3:1, smelt as usual)
 ingots -> press -> plates (iron, wrought iron, bronze, steel, copper, tin)
 any log -> millstone -> 2 wood dust; wood dust -> press -> wood plank (GT's wood plate)
 4 vines / sugar cane / kelp -> compactor -> plant ball
-sticky resin -> press -> 3 raw rubber dust;
+sticky resin -> press -> 3 raw rubber dust; rubber ingot -> press -> rubber sheet (GT's rubber plate);
   3 raw rubber + sulfur -> mixer, heated -> rubber ingot
 water: Create's pumps (mechanical pump, hose pulley), not the primitive pump
 ```
