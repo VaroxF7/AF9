@@ -201,10 +201,42 @@ ServerEvents.recipes(event => {
     // own 3:1 ratio -> 4 bronze dust, smelt as usual.
     event.custom({
         type: 'create:mixing',
-        ingredients: [{ item: 'gtceu:copper_dust' }, { item: 'gtceu:copper_dust' }, { item: 'gtceu:copper_dust' }, { item: 'gtceu:tin_dust' }],
+        ingredients: [{ tag: 'forge:dusts/copper' }, { tag: 'forge:dusts/copper' }, { tag: 'forge:dusts/copper' }, { tag: 'forge:dusts/tin' }],
         results: [{ item: 'gtceu:bronze_dust', count: 4 }],
         heatRequirement: 'heated'
     }).id('af9:create/bronze_dust_from_copper_and_tin')
+
+    // The other alloys of GT's LV and ULV mixer (the basin takes at most 9 items): the dusts in GT's own ratios, every input
+    // by its forge tag. Cold for the red and blue alloys, heated for the brasses and bronzes, superheated for the steels.
+    // (Soldering alloy, 6 tin + 3 lead + 1 antimony, does not fit the basin and stays GT's.)
+    const alloyMix = (id, heat, inputs, count) => {
+        const ingredients = []
+        inputs.forEach(pair => {
+            for (let i = 0; i < pair[1]; i++) ingredients.push({ tag: 'forge:dusts/' + pair[0] })
+        })
+        const recipe = {
+            type: 'create:mixing',
+            ingredients: ingredients,
+            results: [{ item: 'gtceu:' + id + '_dust', count: count }]
+        }
+        if (heat) recipe.heatRequirement = heat
+        event.custom(recipe).id('af9:create/' + id + '_dust_mixing')
+    }
+    alloyMix('red_alloy', null, [['copper', 1], ['redstone', 4]], 1)
+    alloyMix('electrotine', null, [['redstone', 1], ['electrum', 1]], 1)
+    alloyMix('blue_alloy', null, [['silver', 1], ['electrotine', 4]], 1)
+    alloyMix('electrum', 'heated', [['gold', 1], ['silver', 1]], 2)
+    alloyMix('invar', 'heated', [['iron', 2], ['nickel', 1]], 3)
+    alloyMix('brass', 'heated', [['copper', 3], ['zinc', 1]], 4)
+    alloyMix('cupronickel', 'heated', [['copper', 1], ['nickel', 1]], 2)
+    alloyMix('potin', 'heated', [['copper', 6], ['tin', 2], ['lead', 1]], 9)
+    alloyMix('bismuth_bronze', 'heated', [['bismuth', 1], ['brass', 4]], 5)
+    alloyMix('black_bronze', 'heated', [['copper', 3], ['electrum', 2]], 5)
+    alloyMix('cobalt_brass', 'heated', [['brass', 7], ['aluminium', 1], ['cobalt', 1]], 9)
+    alloyMix('black_steel', 'superheated', [['black_bronze', 1], ['nickel', 1], ['steel', 3]], 5)
+    alloyMix('red_steel', 'superheated', [['rose_gold', 1], ['brass', 1], ['black_steel', 4], ['steel', 2]], 8)
+    alloyMix('blue_steel', 'superheated', [['sterling_silver', 1], ['bismuth_bronze', 1], ['black_steel', 4],
+        ['steel', 2]], 8)
 
     // Plates (was: steam forge hammer): the press flattens one ingot into
     // one plate for every early metal.

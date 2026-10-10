@@ -25,6 +25,8 @@ coal -> mixer, superheated -> coke + creosote (2 coal -> 2 coke + 1,000 mB)
 iron + coke -> mixer, superheated -> steel (1 iron + 2 coke -> 1 steel;
   with calcite flux 1 iron + 1 coke + 1 calcite -> 2 steel)
 copper + tin dusts -> mixer, heated -> bronze dust 4 (3:1, smelt as usual)
+the other LV/ULV alloys likewise, GT's ratios, inputs by tag: red alloy, electrotine, blue alloy (cold); electrum, invar,
+  brass, cupronickel, potin, bismuth bronze, black bronze, cobalt brass (heated); black, red and blue steel (superheated)
 ingots -> press -> plates (iron, wrought iron, bronze, steel, copper, tin)
 any log -> millstone -> 2 wood dust; wood dust -> press -> wood plank (GT's wood plate)
 4 vines / sugar cane / kelp -> compactor -> plant ball
