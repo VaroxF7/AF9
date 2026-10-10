@@ -28,7 +28,7 @@ ServerEvents.recipes(event => {
         event.custom({
             type: 'create:sequenced_assembly',
             ingredient: { item: base },
-            transitional_item: { item: TRANSIT },
+            transitionalItem: { item: TRANSIT },
             sequence: steps,
             results: [{ item: output, count: count }],
             loops: 1
