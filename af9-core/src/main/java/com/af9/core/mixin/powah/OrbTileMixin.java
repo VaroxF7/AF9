@@ -11,6 +11,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -36,6 +37,13 @@ public abstract class OrbTileMixin {
     @Shadow
     private boolean containRecipe;
 
+    @Shadow
+    private void checkRecipe() {}
+
+    /** Set when a craft finished inside fillEnergy: Powah zeroes the energy buffer after it, so the orb looks again. */
+    @Unique
+    private boolean af9$crafted;
+
     /** A recipe with counted ingredients runs in the Mk2 only: the plain orb drops it again after its own look for a recipe. */
     @Inject(method = "checkRecipe()V", at = @At("TAIL"), remap = false)
     private void af9$countedOnlyInMk2(CallbackInfo ci) {
@@ -58,7 +66,20 @@ public abstract class OrbTileMixin {
             target = "Lowmii/powah/lib/logistics/inventory/Inventory;setStackInSlot(ILnet/minecraft/world/item/ItemStack;)V"),
             remap = false)
     private void af9$stackProduct(Inventory inventory, int slot, ItemStack result) {
+        af9$crafted = true;
         inventory.setStackInSlot(slot, slot == 0 ? OrbRecipes.addProduct(inventory.getStackInSlot(0), result) : result);
+    }
+
+    /**
+     * Powah ends a craft by zeroing the energy buffer, after the inventory change already looked for the next recipe. With
+     * products stacking in the output slot the same inputs can match again, so the buffer is set up for it here: without
+     * this the orb sat at no capacity after its first craft and did nothing more.
+     */
+    @Inject(method = "fillEnergy(J)J", at = @At("TAIL"), remap = false)
+    private void af9$nextCraft(long amount, CallbackInfoReturnable<Long> cir) {
+        if (!af9$crafted) return;
+        af9$crafted = false;
+        checkRecipe();
     }
 
     @Redirect(method = "fillEnergy(J)J", at = @At(value = "INVOKE",
