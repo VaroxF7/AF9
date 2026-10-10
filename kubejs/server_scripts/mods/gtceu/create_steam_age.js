@@ -261,6 +261,19 @@ ServerEvents.recipes(event => {
         }).id('af9:create/plant_ball_from_' + plant.split(':')[1])
     })
 
+    // Sticky resin from sunflower oil (the oil of Thermal Extra, a fluid, and the bottled oil of Maiden's Merrymaking, an
+    // item): the basin mixes 250 mB of the fluid into 1 resin, the press wrings the bottle (the bottle comes back).
+    event.custom({
+        type: 'create:mixing',
+        ingredients: [{ fluid: 'thermal_extra:sunflower_oil', amount: 250 }],
+        results: [{ item: 'gtceu:sticky_resin' }]
+    }).id('af9:create/sticky_resin_from_sunflower_oil')
+    event.custom({
+        type: 'create:pressing',
+        ingredients: [{ item: 'maidensmerrymaking:sunflower_oil' }],
+        results: [{ item: 'gtceu:sticky_resin' }, { item: 'minecraft:glass_bottle' }]
+    }).id('af9:create/sticky_resin_from_sunflower_oil_bottle')
+
     // Rubber (was: steam extractor + steam alloy smelter): the press wrings
     // 3 raw rubber dust out of one resin, then heated mixing vulcanizes
     // 3 raw + 1 sulfur into solid rubber, GT's own 3:1 numbers.

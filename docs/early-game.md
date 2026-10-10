@@ -41,7 +41,9 @@ takes 4 sand + 4 clay -> 2 bricks, was 1 + 1 -> 2).
 
 Boards and wires by Create (`early_circuits.js`): wood dust + 50 mB glue in a basin -> phenolic board; a phenolic board +
 8 silver wires in a basin -> good (phenolic printed) board; the saw cuts an ingot into 2 single (1x) wires, for every metal
-that has them (the forge tag of the ingot).
+that has them (the forge tag of the ingot); fine wires (copper, silver, gold, annealed copper) by Create Crafts &
+Additions' rolling mill: a 1x wire gives 4, an ingot 8. Sticky resin also from sunflower oil (Thermal Extra's fluid:
+250 mB in a basin; Maiden's Merrymaking's bottle under the press).
 
 ## 1. LV and MV circuits with Create
 

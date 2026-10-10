@@ -73,6 +73,22 @@ ServerEvents.recipes(event => {
         }).id('af9:create/wire_' + metal)
     })
 
+    // ---- fine wires: Create Crafts & Additions' rolling mill (GT's wiremill ratios: a 1x wire gives 4, an ingot 8) ----
+    ;['copper', 'silver', 'gold', 'annealed_copper'].forEach(metal => {
+        const fine = 'gtceu:fine_' + metal + '_wire'
+        if (!Item.exists(fine)) return
+        event.custom({
+            type: 'createaddition:rolling',
+            input: { item: 'gtceu:' + metal + '_single_wire' },
+            result: { item: fine, count: 4 }
+        }).id('af9:create/fine_wire_' + metal + '_from_wire')
+        event.custom({
+            type: 'createaddition:rolling',
+            input: { tag: 'forge:ingots/' + metal },
+            result: { item: fine, count: 8 }
+        }).id('af9:create/fine_wire_' + metal + '_from_ingot')
+    })
+
     assembly('af9:create/basic_electronic_circuit', 'gtceu:resin_circuit_board', [
         deploy('gtceu:resistor'),
         deploy('gtceu:resistor'),
