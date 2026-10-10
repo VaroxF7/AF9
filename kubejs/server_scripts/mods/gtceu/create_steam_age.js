@@ -188,16 +188,8 @@ ServerEvents.recipes(event => {
     event.shapeless('create:electron_tube', ['gtceu:vacuum_tube', 'create:polished_rose_quartz'])
         .id('af9:shapeless/electron_tube')
 
-    // LV basic circuit with electron tubes: shaped + assembler, same shape
-    // and numbers as GT's, only the tube changes (1 tube shaped, 2 tubes
-    // in the assembler for 2 circuits).
-    event.shaped('gtceu:basic_electronic_circuit', ['RPR', 'EBE', 'CCC'], {
-        R: 'gtceu:resistor',
-        P: 'gtceu:steel_plate',
-        E: 'create:electron_tube',
-        B: 'gtceu:resin_circuit_board',
-        C: 'gtceu:red_alloy_single_wire'
-    }).id('af9:shaped/basic_electronic_circuit')
+    // LV basic circuit with electron tubes in the circuit assembler: GT's numbers, only the tube changes (2 tubes for
+    // 2 circuits). By hand it is the Create sequenced assembly (early_circuits.js); there is no crafting table recipe.
     event.recipes.gtceu.circuit_assembler('af9:electronic_circuit_lv_electron')
         .itemInputs('gtceu:resin_circuit_board', '2x gtceu:resistor', '2x gtceu:red_alloy_single_wire', '2x create:electron_tube')
         .itemOutputs('2x gtceu:basic_electronic_circuit')
