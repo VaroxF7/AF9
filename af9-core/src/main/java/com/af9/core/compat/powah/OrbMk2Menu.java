@@ -27,9 +27,9 @@ public class OrbMk2Menu extends AbstractContainerMenu {
 
     // positions in the picture (the screen draws the same)
     public static final int INPUT_X = 30;
-    public static final int INPUT_Y = 20;
+    public static final int INPUT_Y = 18;
     public static final int PRODUCT_X = 134;
-    public static final int PRODUCT_Y = 29;
+    public static final int PRODUCT_Y = 28;
 
     private final Container container;
     private final ContainerData data;
@@ -46,10 +46,10 @@ public class OrbMk2Menu extends AbstractContainerMenu {
         }
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
-                addSlot(new Slot(playerInventory, 9 + row * 9 + col, 8 + col * 18, 84 + row * 18));
+                addSlot(new Slot(playerInventory, 9 + row * 9 + col, 8 + col * 18, 94 + row * 18));
             }
         }
-        for (int col = 0; col < 9; col++) addSlot(new Slot(playerInventory, col, 8 + col * 18, 142));
+        for (int col = 0; col < 9; col++) addSlot(new Slot(playerInventory, col, 8 + col * 18, 152));
         addDataSlots(data);
     }
 

@@ -25,15 +25,15 @@ public class OrbMk2Screen extends AbstractContainerScreen<OrbMk2Menu> {
     private static final int BAR_DONE = 0xFF6BFF6B;
 
     private static final int BAR_X = 30;
-    private static final int BAR_Y = 62;
+    private static final int BAR_Y = 68;
     private static final int BAR_W = 116;
     private static final int BAR_H = 8;
 
     public OrbMk2Screen(OrbMk2Menu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         imageWidth = 176;
-        imageHeight = 166;
-        inventoryLabelY = 73;
+        imageHeight = 176;
+        inventoryLabelY = 83;
     }
 
     @Override
@@ -58,13 +58,13 @@ public class OrbMk2Screen extends AbstractContainerScreen<OrbMk2Menu> {
         }
         slotFrame(graphics, x + OrbMk2Menu.PRODUCT_X, y + OrbMk2Menu.PRODUCT_Y);
         for (int row = 0; row < 3; row++) {
-            for (int col = 0; col < 9; col++) slotFrame(graphics, x + 8 + col * 18, y + 84 + row * 18);
+            for (int col = 0; col < 9; col++) slotFrame(graphics, x + 8 + col * 18, y + 94 + row * 18);
         }
-        for (int col = 0; col < 9; col++) slotFrame(graphics, x + 8 + col * 18, y + 142);
+        for (int col = 0; col < 9; col++) slotFrame(graphics, x + 8 + col * 18, y + 152);
 
         // an arrow from the inputs to the product
         int ax = x + 92;
-        int ay = y + 33;
+        int ay = y + 31;
         graphics.fill(ax, ay + 3, ax + 24, ay + 7, DARK);
         for (int i = 0; i < 5; i++) graphics.fill(ax + 24 + i, ay + 5 - (4 - i), ax + 25 + i, ay + 5 + (4 - i) + 1, DARK);
 
