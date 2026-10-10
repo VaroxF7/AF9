@@ -36,6 +36,9 @@ public class DropPodEntity extends Entity {
 
     private static final EntityDataAccessor<Boolean> LANDED = SynchedEntityData.defineId(DropPodEntity.class,
             EntityDataSerializers.BOOLEAN);
+    /** Whether the pod has been let go of: until then it hangs in the sky (the player is still loading, or has not pressed). */
+    private static final EntityDataAccessor<Boolean> RELEASED = SynchedEntityData.defineId(DropPodEntity.class,
+            EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> SINCE_LANDING = SynchedEntityData.defineId(DropPodEntity.class,
             EntityDataSerializers.INT);
 
@@ -47,6 +50,12 @@ public class DropPodEntity extends Entity {
     private static final int FLIGHT_TICKS = 160;
     /** The speed it falls at, blocks a tick (10 blocks a second). */
     private static final double TERMINAL = 0.5;
+    /** The speed it touches down at: the thrusters brake it to this over the last 30 blocks (1.4 blocks a second). */
+    private static final double TOUCHDOWN = 0.07;
+    /** From this height above the ground the thrusters fire. */
+    private static final double BRAKING_HEIGHT = 32.0;
+    /** The pod lets go by itself after this many ticks, whatever the client does (5 minutes). */
+    private static final int HOLD_TIMEOUT = 6000;
     /** Blocks softer than this are flattened by a falling or rising pod. */
     private static final float SOFT = 0.3F;
 
@@ -61,6 +70,15 @@ public class DropPodEntity extends Entity {
 
     public void setRider(UUID rider) {
         this.rider = rider;
+    }
+
+    public boolean isReleased() {
+        return entityData.get(RELEASED);
+    }
+
+    /** Lets the hanging pod go. */
+    public void release() {
+        entityData.set(RELEASED, true);
     }
 
     public boolean hasLanded() {
@@ -87,12 +105,15 @@ public class DropPodEntity extends Entity {
     @Override
     protected void defineSynchedData() {
         entityData.define(LANDED, false);
+        entityData.define(RELEASED, false);
         entityData.define(SINCE_LANDING, 0);
     }
 
     @Override
     protected void readAdditionalSaveData(CompoundTag tag) {
         entityData.set(LANDED, tag.getBoolean("Landed"));
+        // a pod saved before it could hang is simply let go
+        entityData.set(RELEASED, !tag.contains("Released") || tag.getBoolean("Released"));
         entityData.set(SINCE_LANDING, tag.getInt("SinceLanding"));
         if (tag.hasUUID("Rider")) rider = tag.getUUID("Rider");
     }
@@ -100,6 +121,7 @@ public class DropPodEntity extends Entity {
     @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
         tag.putBoolean("Landed", hasLanded());
+        tag.putBoolean("Released", isReleased());
         tag.putInt("SinceLanding", ticksSinceLanding());
         if (rider != null) tag.putUUID("Rider", rider);
     }
@@ -169,13 +191,22 @@ public class DropPodEntity extends Entity {
                     && !player.isSpectator() && player.isAlive()) {
                 player.startRiding(this, true);
             }
+            if (!isReleased()) {
+                // hanging in the sky: nothing moves until the player is ready (or five minutes have passed)
+                setDeltaMovement(Vec3.ZERO);
+                if (tickCount > HOLD_TIMEOUT) release();
+                return;
+            }
             flattenSoft(-1.0);
-            double vy = Mth.lerp(0.1, getDeltaMovement().y, -TERMINAL);
+            double target = descentSpeed(groundDistance());
+            double vy = Mth.lerp(0.15, getDeltaMovement().y, -target);
             setDeltaMovement(0, vy, 0);
             move(MoverType.SELF, getDeltaMovement());
-            if (tickCount % 6 == 0) {
-                level.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_BLAST_FAR,
-                        SoundSource.NEUTRAL, 3.0F, 0.5F);
+            boolean braking = target < TERMINAL * 0.95;
+            if (tickCount % (braking ? 4 : 6) == 0) {
+                level.playSound(null, getX(), getY(), getZ(),
+                        braking ? SoundEvents.FIREWORK_ROCKET_LAUNCH : SoundEvents.FIREWORK_ROCKET_BLAST_FAR,
+                        SoundSource.NEUTRAL, braking ? 1.5F : 3.0F, braking ? 0.7F : 0.5F);
             }
             if (onGround() || (isInWaterOrBubble() && tickCount > 20) || isInLava()) land(level);
             if (getY() < level.getMinBuildHeight()) discard();
@@ -211,12 +242,36 @@ public class DropPodEntity extends Entity {
         BlockPos below = BlockPos.containing(getX(), getY() - 0.2, getZ());
         BlockState state = level.getBlockState(below);
         if (!state.isAir()) {
-            level.playSound(null, getX(), getY(), getZ(), state.getSoundType().getBreakSound(), SoundSource.BLOCKS,
-                    state.getSoundType().getVolume() * 3.0F, 0.2F);
-            level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), getX(), getY() + 0.1, getZ(), 60,
-                    1.0, 0.1, 1.0, 0.15);
+            level.playSound(null, getX(), getY(), getZ(), state.getSoundType().getPlaceSound(), SoundSource.BLOCKS,
+                    state.getSoundType().getVolume() * 1.5F, 0.5F);
+            level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, state), getX(), getY() + 0.1, getZ(), 30,
+                    1.0, 0.1, 1.0, 0.08);
         }
-        level.playSound(null, getX(), getY(), getZ(), SoundEvents.GENERIC_EXPLODE, SoundSource.NEUTRAL, 1.2F, 0.6F);
+        // a soft touchdown: the legs settle, no crash
+        level.playSound(null, getX(), getY(), getZ(), SoundEvents.IRON_TRAPDOOR_CLOSE, SoundSource.NEUTRAL, 1.5F, 0.5F);
+    }
+
+    /** Blocks between the pod's feet and the first solid or liquid block below it (48 at most). */
+    private double groundDistance() {
+        Level level = level();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(Mth.floor(getX()), 0, Mth.floor(getZ()));
+        int top = Mth.floor(getY());
+        for (int d = 0; d <= 48; d++) {
+            int y = top - d - 1;
+            if (y < level.getMinBuildHeight()) break;
+            pos.setY(y);
+            BlockState state = level.getBlockState(pos);
+            if (!state.getCollisionShape(level, pos).isEmpty() || !state.getFluidState().isEmpty()) {
+                return Math.max(0, getY() - (y + 1));
+            }
+        }
+        return 48;
+    }
+
+    /** The speed the thrusters hold at a height: terminal above 32 blocks, a walking pace at the ground. */
+    private static double descentSpeed(double height) {
+        double t = Mth.clamp((height - 3.0) / (BRAKING_HEIGHT - 3.0), 0, 1);
+        return TOUCHDOWN + (TERMINAL - TOUCHDOWN) * t * t;
     }
 
     /** Flattens the soft blocks in the 3 x 3 a pod's size away: below it falling, above it rising. */
@@ -254,15 +309,18 @@ public class DropPodEntity extends Entity {
     //////////////////////////////////////
 
     private void clientTick() {
-        boolean falling = !hasLanded();
+        boolean falling = isReleased() && !hasLanded();
         boolean rising = hasLanded() && ticksSinceLanding() >= TAKEOFF_TICKS;
+        boolean braking = false;
         if (falling) {
             // predict the fall between the server's updates
-            setDeltaMovement(0, Mth.lerp(0.1, getDeltaMovement().y, -TERMINAL), 0);
+            double target = descentSpeed(groundDistance());
+            braking = target < TERMINAL * 0.95;
+            setDeltaMovement(0, Mth.lerp(0.15, getDeltaMovement().y, -target), 0);
             move(MoverType.SELF, getDeltaMovement());
         }
         if (falling || rising) {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < (braking ? 8 : 4); i++) {
                 double side = (i & 1) == 0 ? 0.55 : -0.55;
                 double front = (i & 2) == 0 ? 0.55 : -0.55;
                 level().addParticle(ParticleTypes.FLAME, getX() + side, getY() + 0.1, getZ() + front,

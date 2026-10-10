@@ -29,6 +29,11 @@ public final class AF9Network {
                 .decoder(RingDeathPacket::decode)
                 .consumerMainThread(RingDeathPacket::handle)
                 .add();
+        CHANNEL.messageBuilder(DropPodReleasePacket.class, 1, NetworkDirection.PLAY_TO_SERVER)
+                .encoder(DropPodReleasePacket::encode)
+                .decoder(DropPodReleasePacket::decode)
+                .consumerMainThread(DropPodReleasePacket::handle)
+                .add();
     }
 
     /** The player was killed by an orbital station's light ring: show its death screen. */

@@ -10,14 +10,19 @@ come down. The idea is Supersymmetry's arrival; the implementation is AF9's own 
   and a play time of zero is checked as well, so players who have already played in a world the pack is added to are never
   dropped. Spectator players skip it, creative players arrive in a pod too (`includeCreative`), and so do other dimensions than
   the Overworld skip it. `/af9 droppod [player]` (operators) sends a player down again, in any world.
-* **Where from**: `dropPod.height` blocks above the spawn (250), never above the build limit. A title says "AF9" and the pod's line.
+* **Where from**: `dropPod.height` blocks above the spawn (250), never above the build limit.
+* **The wait**: the pod hangs in the sky and the player is in it while the world loads. Once the loading screen is gone the title
+  "AF9" and the line "Press SPACE to launch (automatic in n)" appear; SPACE launches at once, and the pod launches by itself 6 s
+  after the screen cleared (the client tells the server; the server lets go by itself after 5 minutes if it never hears).
 * **The fall**: terminal speed 0.5 blocks a tick (10 blocks a second, so about 24 s from 250), flames and smoke from the four
   thrusters, a rumble every 6 ticks. The rider cannot get out: a dismount is undone while the pod falls, and the rider takes no
   fall damage.
+* **The thrusters**: no crash. From 32 blocks above the ground (the first solid or liquid block below) the pod brakes by itself,
+  flames and a roar from the thrusters, down to a walking pace (about 1.4 blocks a second) at the ground: a soft touchdown.
 * **Soft blocks**: the pod flattens whatever is under it in a 3 x 3 with a hardness under 0.3 (leaves, plants, snow, carpets)
   and drops nothing; anything harder it lands on.
-* **Landing**: on the ground, or on water or lava; a block-break sound of the block under it, a burst of its particles, a
-  thump. The door slides up and the restraint swings away. The rider is let go of 1.5 s after landing.
+* **Landing**: on the ground, or on water or lava; the sound of the block under it, a few of its particles, the
+  legs settling. The door slides up and the restraint swings away. The rider is let go of 1.5 s after landing.
 * **Lift-off**: 7 s after landing the pod flies up, faster and faster, through soft blocks; under anything hard it just
   disappears. It never explodes and breaks nothing but the soft blocks. It is gone above the build limit.
 * A player who logs out in the fall is put back in the pod when they come back (it is saved with its chunk).

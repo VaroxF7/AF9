@@ -8,9 +8,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
-import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
-import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
@@ -94,7 +91,9 @@ public final class AF9DropPod {
         private static int send(CommandSourceStack source, ServerPlayer player) {
             if (!(player.level() instanceof ServerLevel level)) return 0;
             player.stopRiding();
-            drop(player, level);
+            DropPodEntity pod = drop(player, level);
+            // the player is in the world already: no waiting for the loading screen
+            if (pod != null) pod.release();
             source.sendSuccess(() -> Component.translatable("af9.drop_pod.sent", player.getDisplayName()), true);
             return 1;
         }
@@ -107,7 +106,7 @@ public final class AF9DropPod {
         }
 
         /** Takes the player to the top of the sky above them, in a pod, with the title on their screen. */
-        private static void drop(ServerPlayer player, ServerLevel level) {
+        private static DropPodEntity drop(ServerPlayer player, ServerLevel level) {
             int height = AF9Config.DROP_POD_HEIGHT.get();
             double y = Math.min(level.getMaxBuildHeight() - 6, player.getY() + height);
             // players who join together each get a column of their own: a pod of another is never within 5 blocks
@@ -122,16 +121,12 @@ public final class AF9DropPod {
             player.teleportTo(level, x, y, z, player.getYRot(), 0);
 
             DropPodEntity pod = DROP_POD.get().create(level);
-            if (pod == null) return;
+            if (pod == null) return null;
             pod.moveTo(x, y, z, player.getYRot(), 0);
             pod.setRider(player.getUUID());
             level.addFreshEntity(pod);
             player.startRiding(pod, true);
-
-            player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 30));
-            player.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("af9.drop_pod.title")));
-            player.connection.send(
-                    new ClientboundSetSubtitleTextPacket(Component.translatable("af9.drop_pod.subtitle")));
+            return pod;
         }
     }
 }
