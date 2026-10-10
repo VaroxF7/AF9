@@ -2,8 +2,11 @@ package com.af9.core.droppod;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -21,6 +24,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.network.NetworkHooks;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.UUID;
 
@@ -330,27 +334,48 @@ public class DropPodEntity extends Entity {
     // ************ Client ***********//
     //////////////////////////////////////
 
+    private double spread() {
+        return Mth.nextDouble(random, -0.05, 0.05);
+    }
+
+    private static ParticleOptions flameCache;
+    private static ParticleOptions smokeCache;
+
+    /** Ad Astra's particle of that name (the pack has it), or the vanilla one when it is not there. */
+    private static ParticleOptions exhaust(String name, ParticleOptions fallback) {
+        boolean flame = name.equals("large_flame");
+        ParticleOptions cached = flame ? flameCache : smokeCache;
+        if (cached != null) return cached;
+        ParticleType<?> type = ForgeRegistries.PARTICLE_TYPES.getValue(new ResourceLocation("ad_astra", name));
+        ParticleOptions chosen = type instanceof ParticleOptions options ? options : fallback;
+        if (flame) flameCache = chosen;
+        else smokeCache = chosen;
+        return chosen;
+    }
+
     private void clientTick() {
         boolean falling = isReleased() && !hasLanded();
         boolean rising = hasLanded() && ticksSinceLanding() >= TAKEOFF_TICKS;
-        boolean braking = false;
         if (falling) {
             // predict the fall between the server's updates
             double target = descentSpeed(groundDistance());
-            braking = target < TERMINAL * 0.95;
             setDeltaMovement(0, Mth.lerp(0.15, getDeltaMovement().y, -target), 0);
             move(MoverType.SELF, getDeltaMovement());
         }
         if (falling || rising) {
-            for (int i = 0; i < (braking ? 8 : 4); i++) {
-                double side = (i & 1) == 0 ? 0.5 : -0.5;
-                double front = (i & 2) == 0 ? 0.5 : -0.5;
-                // the exhaust goes down, hard when the thrusters brake
-                double jet = braking || rising ? -0.55 : -0.3;
-                level().addParticle(ParticleTypes.FLAME, getX() + side, getY() + 0.05, getZ() + front,
-                        random.nextGaussian() * 0.02, jet, random.nextGaussian() * 0.02);
-                level().addParticle(ParticleTypes.LARGE_SMOKE, getX() + side, getY() + 0.05, getZ() + front,
-                        random.nextGaussian() * 0.03, jet * 0.8, random.nextGaussian() * 0.03);
+            // Ad Astra's rocket exhaust: its own large flame and large smoke particles from a point under the engine,
+            // 20 and 5 a tick with a tiny random velocity in every direction (they stay where they are made, and the
+            // pod leaves them behind). Four thrusters share that amount.
+            ParticleOptions flame = exhaust("large_flame", ParticleTypes.FLAME);
+            ParticleOptions smoke = exhaust("large_smoke", ParticleTypes.LARGE_SMOKE);
+            for (int thruster = 0; thruster < 4; thruster++) {
+                double x = getX() + ((thruster & 1) == 0 ? 0.5 : -0.5);
+                double y = getY() - 0.1;
+                double z = getZ() + ((thruster & 2) == 0 ? 0.5 : -0.5);
+                for (int i = 0; i < 5; i++) {
+                    level().addParticle(flame, x, y, z, spread(), spread(), spread());
+                }
+                level().addParticle(smoke, x, y, z, spread(), spread(), spread());
             }
         } else if (ticksSinceLanding() < 40 && random.nextInt(3) == 0) {
             level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, getX() + random.nextGaussian() * 0.5,
