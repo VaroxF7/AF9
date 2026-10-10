@@ -37,12 +37,12 @@ ServerEvents.recipes(event => {
         .EUt(320)
 
     // ---- 2. Uranium ----
-    // The leach: sulfuric acid takes the uranium out of the purified ore (the titanium stays behind as rutile, thorium
-    // too in small amounts). Two dust of ore per two ore dust: 1000 mB of solution.
+    // The leach: sulfuric acid takes the uranium out of the purified ore (its titanium stays behind in the residue:
+    // titanium comes from Mars sand only; thorium comes along in small amounts). Two dust of ore per two ore dust:
+    // 1000 mB of solution.
     event.recipes.gtceu.chemical_reactor('af9:brannerite_leach')
         .itemInputs('2x gtceu:brannerite_dust')
         .inputFluids(Fluid.of('gtceu:sulfuric_acid', 2000))
-        .itemOutputs('gtceu:rutile_dust')
         .chancedOutput('gtceu:thorium_dust', 1500, 0)
         .outputFluids(Fluid.of('gtceu:uranyl_sulfate_solution', 1000))
         .duration(240)

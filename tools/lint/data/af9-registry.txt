@@ -360,6 +360,7 @@ material gtceu:dense_argon
 material gtceu:dense_endion
 material gtceu:dense_hydrogen
 material gtceu:dense_xenon
+material gtceu:desh
 material gtceu:di_tert_butyl_dicarbonate
 material gtceu:diazonaphthoquinone
 material gtceu:dichloromethane

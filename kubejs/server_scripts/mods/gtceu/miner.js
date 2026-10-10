@@ -35,8 +35,8 @@ ServerEvents.recipes((event) => {
             "4x #gtceu:circuits/hv",
             "4x af9:asic_chip", // AF9: the mining ASIC (chip_uses.js)
             // (the assembler has 9 item slots: with the ASIC the recipe had 10 and could not be loaded; the long titanium
-            // rod is gone, the plates stay)
-            "4x gtceu:titanium_plate")
+            // rod is gone, the plates are stainless now: titanium comes from Mars sand only, after this machine)
+            "4x gtceu:stainless_steel_plate")
         .inputFluids("gtceu:soldering_alloy 1440")
         .itemOutputs("gtceu:void_miner")
         .EUt(GTValues.VA[GTValues.HV])
@@ -52,7 +52,7 @@ ServerEvents.recipes((event) => {
             "4x gtceu:ev_field_generator",
             "4x #gtceu:circuits/ev",
             "4x af9:asic_chip", // AF9: the mining ASIC (chip_uses.js)
-            "4x gtceu:tungsten_plate")
+            "4x gtceu:titanium_plate")
         .inputFluids("gtceu:soldering_alloy 1440")
         .itemOutputs("gtceu:void_miner_mk2")
         .EUt(GTValues.VA[GTValues.EV])
@@ -319,8 +319,7 @@ ServerEvents.recipes((event) => {
             "60x gtceu:raw_chromite",
             "30x minecraft:raw_gold"], "1", "af9:vm_end_magnetite"],
 
-        [["80x gtceu:raw_bauxite",
-            "40x gtceu:raw_ilmenite",
+        [["120x gtceu:raw_bauxite",
             "40x gtceu:raw_aluminium"], "2", "af9:vm_end_bauxite"],
 
         [["30x gtceu:raw_bornite",
@@ -328,9 +327,8 @@ ServerEvents.recipes((event) => {
             "20x gtceu:raw_platinum",
             "10x gtceu:raw_palladium"], "3", "af9:vm_end_bornite"],
 
-        [["60x gtceu:raw_scheelite",
-            "40x gtceu:raw_tungstate",
-            "20x gtceu:raw_lithium"], "4", "af9:vm_end_scheelite"],
+        // Circuit 4 was scheelite, tungstate and lithium: tungsten comes from Venus sand only now
+        // (planet_metals.js); lithium still comes from the overworld rock salt mode below
 
         // Circuit 5 was pitchblende and uraninite, and circuit 6 carried raw plutonium with the naquadah: uranium and
         // plutonium come from the Asteroid Field now (asteroid_fission.js), no void miner makes them

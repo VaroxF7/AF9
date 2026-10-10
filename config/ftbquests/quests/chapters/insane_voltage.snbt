@@ -1541,14 +1541,14 @@
 				{
 					count: 16
 					id: "4E0E2BD8FB1470F5"
-					item: "gtceu:raw_tungstate"
+					item: "ad_astra:venus_sand"
 					random_bonus: 16
 					type: "item"
 				}
 				{
 					count: 16
 					id: "7D8D05AF9F7547FF"
-					item: "gtceu:raw_scheelite"
+					item: "gtceu:scheelite_dust"
 					random_bonus: 16
 					type: "item"
 				}
@@ -1572,14 +1572,14 @@
 				{
 					count: 16
 					id: "2E226ED22CDBCC65"
-					item: "gtceu:raw_tungstate"
+					item: "ad_astra:venus_sand"
 					random_bonus: 16
 					type: "item"
 				}
 				{
 					count: 16
 					id: "1C24E6A8D8B2A4A8"
-					item: "gtceu:raw_scheelite"
+					item: "gtceu:scheelite_dust"
 					random_bonus: 16
 					type: "item"
 				}

@@ -431,12 +431,6 @@
 					id: "47B8F3B5151A67E2"
 					type: "fluid"
 				}
-				{
-					count: 4L
-					id: "1871B12CBA2B6565"
-					item: "gtceu:rutile_dust"
-					type: "item"
-				}
 			]
 			title: "{af9.quest.fx.leach.title}"
 			x: 21.0d

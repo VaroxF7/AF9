@@ -59,9 +59,8 @@ GTCEuServerEvents.oreVeins(event => {
             .biomes('#allthemodium:mining_features/mining_biomes')
             .heightRangeUniform(129, 248)
             .dikeVeinGenerator(generator => generator
-                .withBlock(dike('zircon', 4))
-                .withBlock(dike('ilmenite', 2))
-                .withBlock(dike('monazite', 1))
+                .withBlock(dike('zircon', 5))
+                .withBlock(dike('monazite', 2))
                 .withBlock(dike('almandine', 1)))
     })
 })

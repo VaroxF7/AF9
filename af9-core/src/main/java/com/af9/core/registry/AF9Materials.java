@@ -76,6 +76,7 @@ public final class AF9Materials {
         lithoProcess();
         moonSilicon();
         oil();
+        planetMetals();
         particleAccelerator();
         antimatter();
         photolithography();
@@ -169,14 +170,15 @@ public final class AF9Materials {
     private static void asteroidFission() {
         // ---- The ore and the uranium chain ----
         // Formulas only (no components), so GT adds no electrolyzer or centrifuge shortcut past the chain.
-        // Brannerite: uranium, titanium and rare earths in one oxide. Crushing gives two crushed ores per ore.
+        // Brannerite: uranium, titanium and rare earths in one oxide. Crushing gives two crushed ores per ore. Its
+        // titanium stays in the residue (no rutile by-product): titanium comes from Mars sand only (planet_metals.js).
         add(material("brannerite")
                 .dust().ore(2, 1)
                 .color(0x4a4636).secondaryColor(0xd2c24a)
                 .iconSet(MaterialIconSet.RADIOACTIVE)
                 .formula("(U,Ca,Ce)(Ti,Fe)2O6")
                 .radioactiveHazard(0.6F)
-                .addOreByproducts(GTMaterials.Rutile, GTMaterials.Thorium, GTMaterials.Neodymium));
+                .addOreByproducts(GTMaterials.Thorium, GTMaterials.Neodymium, GTMaterials.Iron));
 
         // The acid leach of the ore: uranyl sulfate in solution, and the ammonia precipitates it as yellowcake
         add(material("uranyl_sulfate_solution")
@@ -613,6 +615,22 @@ public final class AF9Materials {
                 .gas()
                 .color(0x7df0d0)
                 .formula("L-01"));
+    }
+
+    /**
+     * The planet metals: Desh, the Moon's orange structural metal (Ad Astra's Moon Desh Ore; the tier 2 rockets are
+     * built from it). A plain metal with plates, rods, bolts and screws (GT makes the parts and their recipes);
+     * formulas only (no components), so GT adds no electrolyzer or centrifuge shortcut past the ore. It smelts like
+     * Ad Astra smelts it (no blast furnace); the rocket hulls stay Ad Astra's blocks (ad_astra:desh_block). Recipes:
+     * planet_metals.js. Spec: docs/asteroid-fission.md
+     */
+    private static void planetMetals() {
+        add(material("desh")
+                .ingot()
+                .color(0xc47a3a).iconSet(MaterialIconSet.METALLIC)
+                .formula("Ds")
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD,
+                        MaterialFlags.GENERATE_BOLT_SCREW));
     }
 
     /**

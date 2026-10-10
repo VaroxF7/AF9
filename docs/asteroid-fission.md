@@ -188,8 +188,8 @@ dike replaces, so the same vein form works in both palettes.
   against `data/af9/dimension`).
 - `kubejs/server_scripts/mods/gtceu/vein_asteroid.js` only switches the pitchblende and uraninite veins off (weight 0)
   and makes the naquadah vein raw naquadah only.
-- **Brannerite** (`(U,Ca,Ce)(Ti,Fe)2O6`): dust and ore, two crushed ores per ore, by-products rutile, thorium, neodymium, GT's
-  radioactive hazard x0.6. No components, so GT adds no electrolyzer or centrifuge shortcut.
+- **Brannerite** (`(U,Ca,Ce)(Ti,Fe)2O6`): dust and ore, two crushed ores per ore, by-products thorium, neodymium and iron (no rutile: its titanium stays in the
+  residue, titanium comes from Mars sand only), GT's radioactive hazard x0.6. No components, so GT adds no electrolyzer or centrifuge shortcut.
 
 # 3. Rockets and propellant
 
@@ -198,19 +198,19 @@ dike replaces, so the same vein form works in both palettes.
 Ad Astra's crafting recipes for the rocket parts, the NASA Workbench, the Launch Pad, the Rover and the four rockets (the
 workbench's own recipes) are removed. Everything is a GT machine recipe now, **the rockets themselves too**: the item graph is kept
 (nose cone, fins, engine frame, an engine and a tank per tier that take the previous tier's), the parts are assembler recipes, and
-the rocket is an assembler recipe (tiers 1 and 2) or an Assembly Line recipe (tiers 3 and 4). The NASA Workbench is still made but
+the rocket is an assembler recipe (tiers 1 to 3) or an Assembly Line recipe (tier 4). The NASA Workbench is still made but
 has no recipes left (it would have none to show).
 
 | Rocket | Metal (parts, hull blocks) | GT tier of the parts | Chip in the engine | Engine / tank | Rocket made in | Reaches |
 |---|---|---|---|---|---|---|
 | 1 | stainless steel | LV (expensive MV assembler) | 4x LV circuits | `steel_engine`, `steel_tank` | Assembler, MV | Moon |
-| 2 | titanium | EV | ASIC | `desh_engine`, `desh_tank` | Assembler, EV | Mars, Ceres, the Asteroid Field |
-| 3 | tungsten steel | IV | MRAM | `ostrum_engine`, `ostrum_tank` | Assembly Line, IV | Venus, Mercury |
+| 2 | Desh (the Moon's metal; hull blocks are Ad Astra's) | HV | ASIC | `desh_engine`, `desh_tank` | Assembler, HV | Mars, Ceres, the Asteroid Field |
+| 3 | titanium (from Mars sand) | EV | 2x EV circuits | `ostrum_engine`, `ostrum_tank` | Assembler, EV | Venus, Mercury |
 | 4 | HSS-E | LuV | VPU | `calorite_engine`, `calorite_tank` | Assembly Line, LuV | Glacio |
 
 The rocket (`af9:tier_<n>_rocket`): the nose cone, six hull blocks of the tier's metal, four fins, two tanks, the engine and two robot
-arms of the tier (LV for tier 1); tier 1 adds 1,152 mB soldering alloy (800 ticks), tier 2 576 mB (600 ticks); tiers 3 and 4 add four circuits of the tier and 576 / 1,152 mB
-soldering alloy, and are researched on the previous rocket (a Scanner of the tier below scans it into a data stick, 1,200 ticks,
+arms of the tier (LV for tier 1); tier 1 adds 1,152 mB soldering alloy (800 ticks), tiers 2 and 3 576 mB (600 ticks); tier 4 adds four circuits of the tier and 1,152 mB
+soldering alloy, and is researched on the previous rocket (a Scanner of the tier below scans it into a data stick, 1,200 ticks,
 `scannerResearch`: GT's own mechanism, so a data stick is enough and the research is made once per world). The Rover
 (`af9:tier_1_rover`, Assembler EV) takes a desh engine, two wheels, a radio, a large gas tank, titanium blocks and plates and two EV
 motors.
@@ -250,8 +250,8 @@ diesel and biodiesel).
 
 | Step | Machine, tier | Takes | Gives |
 |---|---|---|---|
-| (ore processing) | GT's: macerator, ore washer, centrifuge ... | Brannerite ore | purified Brannerite dust (and rutile, thorium, neodymium) |
-| Leach | Chemical Reactor, MV | 2 Brannerite dust, 2,000 mB sulfuric acid | 1,000 mB Uranyl Sulfate Solution, rutile dust, 15 % thorium dust |
+| (ore processing) | GT's: macerator, ore washer, centrifuge ... | Brannerite ore | purified Brannerite dust (and thorium, neodymium, iron) |
+| Leach | Chemical Reactor, MV | 2 Brannerite dust, 2,000 mB sulfuric acid | 1,000 mB Uranyl Sulfate Solution, 15 % thorium dust |
 | Precipitation | Chemical Reactor, MV | 1,000 mB uranyl sulfate, 1,000 mB ammonia | 3 Yellowcake, 1,000 mB diluted sulfuric acid |
 | UF6 | Chemical Reactor, MV | 3 yellowcake, 4,000 mB hydrofluoric acid, 2,000 mB fluorine | 1,000 mB uranium hexafluoride, 2,000 mB water |
 | (enrichment) | GT's centrifuge and electrolyzer | UF6 | U-235 and U-238 dust |
@@ -376,3 +376,21 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `af9-core/src/main/resources/data/af9/` | dimensions, dimension type, biome, features, planets, the station recipe |
 | `af9-core/src/main/resources/assets/af9/textures/item/fx_fuel_pellet.png`, `fx_fuel_rod.png`, `fx_spent_fuel_rod.png` | the three items |
 | `config/ftbquests/quests/chapters/asteroid_fission.snbt` | the quests |
+
+# 7. The planet metals (`planet_metals.js`, `vein_planets.js`)
+
+Each rocket tier flies on the metal of the world before it, and titanium and tungsten start on the planets that need them:
+
+| Metal | Source | Chain |
+|---|---|---|
+| **Desh** (AF9 material `desh`: plates, rods, bolts, screws) | Moon Desh Ore, Ad Astra's raw desh; macerator to 2 GT dust, furnace to ingot; the two ingots (Ad Astra's, GT's) swap by a shapeless recipe | tier 2 rocket parts (HV) |
+| **Titanium** | **Mars Sand** only: electromagnetic separator (4 sand: ilmenite + 3 silica, MV) or sulfuric acid leach (HV Chemical Reactor, 3 ilmenite per 4 sand); GT's chain on from there (rutile, TiCl4, Kroll) | tier 3 rocket, EV machines, the Void Miner MK2 |
+| **Tungsten** | **Venus Sand** only: washing (a chance of scheelite) or the acid leach (2 scheelite per 4 sand); GT's chain on from there (tungstic acid, electrolysis) | tier 4 parts, IV and up |
+
+Closed on Earth: the GT veins holding ilmenite, rutile, scheelite or tungstate (weight 0, by id or by material, AF9's own veins
+spared), the zircon dike's ilmenite (zircon and monazite only now), the Void Miner's End mode (bauxite without ilmenite, no scheelite
+mode), the bauxite electrolysis and sludge centrifuging and end stone's tungstate (rutile and tungstate are gone from their outputs),
+and brannerite's rutile (leach and ore by-product). The Void Miner MK1 uses stainless plates, MK2 titanium. Kept on purpose: chromite,
+quartzite, bauxite, magnesite and olivine, and salt (stainless steel, sensors, aluminium, the magnesium loop, sodium and chlorine).
+The 200 nm prints (and the ASIC, so the tier 2 rocket) need propylene oxide before Mars: the chlorohydrin route makes it from
+propene, chlorine and water; the titania HPPO route stays the clean upgrade.

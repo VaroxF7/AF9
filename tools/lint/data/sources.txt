@@ -3,6 +3,9 @@
 # contaminated wafers and chips: AF9 Core's WaferContamination turns them out of a player's inventory
 af9:contaminated_*
 # ores
+# the Moon's Desh Ore: Ad Astra's world ore, smelted or macerated (planet_metals.js)
+ad_astra:raw_desh
+ad_astra:desh_ingot
 gtceu:zircon_dust
 gtceu:brannerite_dust
 gtceu:quantanium_dust
