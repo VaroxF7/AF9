@@ -213,6 +213,34 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
         return false;
     }
 
+    /**
+     * Whether the item inputs an ore expedition of the drone and the circuit set uses up (the drill head and the crate) are in
+     * the item input buses. The drone and the circuit are kept, they are not counted.
+     */
+    public boolean hasPartsFor(int drone) {
+        Level level = getLevel();
+        if (level == null || drone < 1) return false;
+        int circuit = circuitSet();
+        for (GTRecipe recipe : level.getRecipeManager().getAllRecipesFor(getRecipeType())) {
+            if (droneTier(recipe) != drone || circuitOf(recipe) != circuit) continue;
+            for (Content content : recipe.inputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
+                if (content.chance == 0) continue;
+                Ingredient ingredient = ItemRecipeCapability.CAP.of(content.content);
+                if (ingredient.isEmpty()) continue;
+                int needed = ingredient instanceof SizedIngredient sized ? sized.getAmount() : 1;
+                long have = 0;
+                for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, ItemRecipeCapability.CAP)) {
+                    for (Object held : handler.getContents()) {
+                        if (held instanceof ItemStack stack && ingredient.test(stack)) have += stack.getCount();
+                    }
+                }
+                if (have < needed) return false;
+            }
+            return true;
+        }
+        return true;
+    }
+
     /** Broken controller: the drone drops. */
     @Override
     public void onMachineRemoved() {
@@ -491,6 +519,8 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
         if (stockOf(GTMaterials.Hydrogen.getFluid()) < needs.hydrogen()) return ConsoleWidget.STATUS_NO_FUEL;
         if (stockOf(needs.coolant()) < needs.coolantAmount()) return ConsoleWidget.STATUS_NO_COOLANT;
         if (!liquid && !hasOreRecipe(drone)) return ConsoleWidget.STATUS_NO_DATA;
+        // the drill head and the crate an ore expedition uses up, in an item input bus of the tower or of the module
+        if (!liquid && !hasPartsFor(drone)) return ConsoleWidget.STATUS_NO_PARTS;
         RecipeCapability<?> kind = liquid ? FluidRecipeCapability.CAP : ItemRecipeCapability.CAP;
         if (outputFull || getCapabilitiesFlat(IO.OUT, kind).isEmpty()) return ConsoleWidget.STATUS_OUTPUT_FULL;
         return ConsoleWidget.STATUS_IDLE;

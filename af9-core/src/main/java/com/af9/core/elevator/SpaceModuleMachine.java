@@ -136,7 +136,11 @@ public class SpaceModuleMachine extends SpaceMissionMachine {
             if (inputs == null || inputs.isEmpty()) continue;
             for (var list : new java.util.ArrayList<>(inputs)) {
                 var own = getCapabilitiesProxy().get(list.getHandlerIO());
-                if (own == null || !own.contains(list)) addHandlerList(list);
+                if (own == null || !own.contains(list)) {
+                    addHandlerList(list);
+                    // a change in the tower's hatch wakes this module's recipe search, as one of its own parts would
+                    traitSubscriptions.add(list.subscribe(recipeLogic::updateTickSubscription));
+                }
             }
         }
     }

@@ -499,6 +499,8 @@
     "af9.console.status.23": "MK2 ONLY",
     "af9.console.status.24": "STAR TAKEN",
     "af9.console.status.25": "NO STAR",
+    "af9.console.status.26": "NO DRILL / CRATE",
+    "af9.space_elevator.hint.26": "An ore expedition uses up a drill head and a crate (the drone's tier sets which: MK-IV takes a Neutronium Drill Head and a Tungsten Steel Crate). Put them in an item input bus of the tower or of the module.",
     "af9.litho.console.cooling": "AIR COOLING",
     "af9.litho.console.cooling_short": "AC %s/%s",
     "af9.litho.console.cooling_lapsed": "COOLING LOST POWER",
