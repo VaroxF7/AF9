@@ -270,12 +270,18 @@ ServerEvents.recipes(event => {
     //   rotor       4 ingots + rotor mold        -> 1 rotor        (16000 FE)
 
     // The ids of a forge tag, as a set (id -> true). Empty when the tag cannot be read (the linter's stubs).
+    // (No const or let inside: Rhino keeps a const of a nested block once for the whole script, so the second call
+    // died with "redeclaration of var ing" and no shaping recipe was made at all; var is function scoped.)
     const tagSet = tag => {
-        const set = {}
+        var set = {}
+        var ing, ids, it
         try {
-            const ing = Ingredient.of('#' + tag)
-            if (ing == null || typeof ing.kjs$getItemIds !== 'function') return set
-            const it = ing.kjs$getItemIds().iterator()
+            ing = Ingredient.of('#' + tag)
+            if (ing == null) return set
+            if (typeof ing.kjs$getItemIds === 'function') ids = ing.kjs$getItemIds()
+            else if (typeof ing.getItemIds === 'function') ids = ing.getItemIds()
+            else return set
+            it = ids.iterator()
             while (it.hasNext()) set[String(it.next())] = true
         } catch (e) {
             console.error('[af9] shaping: cannot read tag #' + tag + ': ' + e)
@@ -294,6 +300,7 @@ ServerEvents.recipes(event => {
     }
 
     // One shaping recipe per material that has both ends: the input part and the output part.
+    const shapedCount = [0]
     const shape = (name, mold, inputSuffix, inputCount, outPrefix, outSuffix, outCount, energy) => {
         const seen = {}
         Object.keys(ingots).forEach(ingotId => {
@@ -308,6 +315,7 @@ ServerEvents.recipes(event => {
             if (inputSuffix === 'bolt' && !parts.bolt[input]) return
             const inputItem = inputCount > 1 ? { item: input, count: inputCount } : { item: input }
             orb(name + '_' + mat, [inputItem, keep(mold)], energy, out, outCount)
+            shapedCount[0]++
         })
     }
 
@@ -317,4 +325,5 @@ ServerEvents.recipes(event => {
     shape('gear', 'gtceu:gear_extruder_mold', 'ingot', 4, '', 'gear', 1, 12000)
     shape('small_gear', 'gtceu:small_gear_extruder_mold', 'ingot', 1, 'small_', 'gear', 1, 3000)
     shape('rotor', 'gtceu:rotor_extruder_mold', 'ingot', 4, '', 'rotor', 1, 16000)
+    console.info('[af9] orb shaping: ' + shapedCount[0] + ' recipes (rods, bolts, screws, gears, small gears, rotors)')
 })
