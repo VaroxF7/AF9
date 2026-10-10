@@ -76,7 +76,7 @@ checked for ids (Q1, Q2) and for `{af9...}` texts.
 
 | code | what it finds | how to avoid it |
 |---|---|---|
-| A2 | a texture that is not square (or a stack of squares with an `.mcmeta`), a broken `.mcmeta`, a frametime that is not a positive integer, `frames` that point past the strip, LDLib `connection` textures that are missing | a strip's height is `frames x width`; validate JSON before committing |
+| A2 | a texture that is not square (or a stack of squares with an `.mcmeta`; an entity's sheet under `textures/entity` may be any shape), a broken `.mcmeta`, a frametime that is not a positive integer, `frames` that point past the strip, LDLib `connection` textures that are missing | a strip's height is `frames x width`; validate JSON before committing |
 | A3 | an item or block texture that no model, script or Java source names | note only |
 | A4 | a lang file that is not valid JSON, a key twice, a value that is not a string, a colour code `&x` Minecraft does not know, a **`%d`** / `%f` / `%` at the end of a value | Minecraft reads `%s`, `%1$s` and `%%` only; a text with another `%x` shows its key. `20 % faster` (a space after the `%`) is fine |
 | A5 | a machine, material or recipe type without a name | `langValue(...)` in the script, or the lang key (`gtceu.<type>` for a recipe type, `material.gtceu.<id>` for a material) |

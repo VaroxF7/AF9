@@ -232,7 +232,8 @@ for dp, _, fs in [w for top in (KJS, AF9_TEX) for w in os.walk(top)]:
                         break
                 if frames < 2:
                     report('WARN', 'A2', 'an .mcmeta animation on a texture with a single frame', rel(p))
-            elif w != h:
+            elif w != h and f'{os.sep}textures{os.sep}entity{os.sep}' not in p:
+                # an entity's sheet is as big as its model's unfolded boxes, square or not
                 report('ERROR', 'A2', f'texture {w}x{h} is not square and has no .mcmeta animation', rel(p))
             elif w % 16 != 0 and w not in (8, 4):
                 report('WARN', 'A2', f'texture {w}x{h}: not a multiple of 16', rel(p))

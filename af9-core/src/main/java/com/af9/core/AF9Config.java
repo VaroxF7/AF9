@@ -16,6 +16,10 @@ public final class AF9Config {
     public static final ForgeConfigSpec.BooleanValue LITHO_AIR_COOLING;
     /** Whether players get a warning above the hotbar near radioactive material. */
     public static final ForgeConfigSpec.BooleanValue RADIATION_HINTS;
+    /** Whether a player who joins a world for the first time arrives in a drop pod. */
+    public static final ForgeConfigSpec.BooleanValue DROP_POD;
+    /** How far above their spawn the pod starts (it is kept under the build limit). */
+    public static final ForgeConfigSpec.IntValue DROP_POD_HEIGHT;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -49,6 +53,17 @@ public final class AF9Config {
         RADIATION_HINTS = builder
                 .comment("Warn above the hotbar when radioactive material is near.")
                 .define("hints", true);
+        builder.pop();
+        builder.comment("Arrival: a player who joins a world for the first time is taken to the sky above their spawn",
+                "and comes down in a drop pod (docs/drop-pod.md). Creative and spectator players, players who",
+                "have played before and other dimensions than the Overworld skip it.")
+                .push("dropPod");
+        DROP_POD = builder
+                .comment("Arrive in a drop pod on the first join.")
+                .define("onFirstJoin", true);
+        DROP_POD_HEIGHT = builder
+                .comment("Blocks above the spawn the pod starts from (it never starts above the build limit).")
+                .defineInRange("height", 250, 40, 1000);
         builder.pop();
         SPEC = builder.build();
     }

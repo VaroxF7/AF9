@@ -8,6 +8,7 @@ import com.af9.core.compat.adastra.AdAstraCompat;
 import com.af9.core.compat.powah.OrbMk2;
 import com.af9.core.compat.powah.client.OrbMk2Client;
 import com.af9.core.compat.extremereactors.ExtremeReactorsCompat;
+import com.af9.core.droppod.AF9DropPod;
 import com.af9.core.elevator.SpaceMissionMachine;
 import com.af9.core.fab.FabRecipeInfo;
 import com.af9.core.machine.ParticleAcceleratorMachine;
@@ -67,6 +68,8 @@ public class AF9Core {
         // the cube planets of GregTech's dimension slots (bound to their dimensions in AF9Addon.initializeAddon)
         AF9DimensionMarkers.register(FMLJavaModLoadingContext.get().getModEventBus());
         AF9Tabs.register(FMLJavaModLoadingContext.get().getModEventBus());
+        // the drop pod a new player arrives in
+        AF9DropPod.register(FMLJavaModLoadingContext.get().getModEventBus());
         // the Asteroid Field's feature
         AF9Space.register(FMLJavaModLoadingContext.get().getModEventBus());
         // supercritical steam in Extreme Reactors' turbines (only with Extreme Reactors loaded)

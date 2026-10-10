@@ -1,0 +1,112 @@
+package com.af9.core.droppod;
+
+import com.af9.core.AF9Config;
+import com.af9.core.AF9Core;
+
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
+
+/**
+ * The drop pod a new player arrives in. A player who joins a world for the first time (a play time of zero, and not
+ * yet marked) is taken to the top of the sky above their spawn, set in a {@link DropPodEntity} and let fall: the pod
+ * flattens the leaves, lands, opens and lifts off again. Creative and spectator players skip it, and so does every
+ * player who has already played in a world the pack is added to. Settings: {@link AF9Config} ({@code dropPod}).
+ * Spec: docs/drop-pod.md
+ */
+public final class AF9DropPod {
+
+    private static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES,
+            AF9Core.MOD_ID);
+
+    public static final RegistryObject<EntityType<DropPodEntity>> DROP_POD = ENTITIES.register("drop_pod",
+            () -> EntityType.Builder.<DropPodEntity>of(DropPodEntity::new, MobCategory.MISC)
+                    .sized(1.8F, 3.0F)
+                    .clientTrackingRange(16)
+                    .updateInterval(1)
+                    .fireImmune()
+                    .build("drop_pod"));
+
+    /** The marker on a player who has had their drop (Forge's persisted player data, kept through death). */
+    private static final String ARRIVED = "af9_drop_pod_arrived";
+
+    private AF9DropPod() {}
+
+    public static void register(IEventBus modBus) {
+        ENTITIES.register(modBus);
+    }
+
+    @Mod.EventBusSubscriber(modid = AF9Core.MOD_ID)
+    public static final class Events {
+
+        private Events() {}
+
+        @SubscribeEvent
+        public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
+            if (!(event.getEntity() instanceof ServerPlayer player)) return;
+            if (!AF9Config.DROP_POD.get()) return;
+            CompoundTag persisted = player.getPersistentData().getCompound(Player.PERSISTED_NBT_TAG);
+            if (persisted.getBoolean(ARRIVED)) return;
+            // marked either way: a player who skips it now (creative, or already played) never gets it later
+            persisted.putBoolean(ARRIVED, true);
+            player.getPersistentData().put(Player.PERSISTED_NBT_TAG, persisted);
+
+            boolean newPlayer = player.getStats().getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)) == 0;
+            if (!newPlayer || player.isCreative() || player.isSpectator()) return;
+            if (!(player.level() instanceof ServerLevel level) || level.dimension() != Level.OVERWORLD) return;
+            drop(player, level);
+        }
+
+        /** Whether a pod (falling, landed or lifting off) is already within 5 blocks of the column. */
+        private static boolean crowded(ServerLevel level, double x, double z) {
+            AABB column = new AABB(x - 5, level.getMinBuildHeight(), z - 5, x + 5, level.getMaxBuildHeight() + 64,
+                    z + 5);
+            return !level.getEntitiesOfClass(DropPodEntity.class, column).isEmpty();
+        }
+
+        /** Takes the player to the top of the sky above them, in a pod, with the title on their screen. */
+        private static void drop(ServerPlayer player, ServerLevel level) {
+            int height = AF9Config.DROP_POD_HEIGHT.get();
+            double y = Math.min(level.getMaxBuildHeight() - 6, player.getY() + height);
+            // players who join together each get a column of their own: a pod of another is never within 5 blocks
+            double x = player.getX();
+            double z = player.getZ();
+            for (int i = 0; i < 16 && crowded(level, x, z); i++) {
+                double angle = i * 2.4;
+                double radius = 6 + i * 1.5;
+                x = player.getX() + Math.cos(angle) * radius;
+                z = player.getZ() + Math.sin(angle) * radius;
+            }
+            player.teleportTo(level, x, y, z, player.getYRot(), 0);
+
+            DropPodEntity pod = DROP_POD.get().create(level);
+            if (pod == null) return;
+            pod.moveTo(x, y, z, player.getYRot(), 0);
+            pod.setRider(player.getUUID());
+            level.addFreshEntity(pod);
+            player.startRiding(pod, true);
+
+            player.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 30));
+            player.connection.send(new ClientboundSetTitleTextPacket(Component.translatable("af9.drop_pod.title")));
+            player.connection.send(
+                    new ClientboundSetSubtitleTextPacket(Component.translatable("af9.drop_pod.subtitle")));
+        }
+    }
+}
