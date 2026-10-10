@@ -4,6 +4,7 @@ import com.af9.core.elevator.ClimberRide;
 import com.af9.core.elevator.PlanetCatalog;
 import com.af9.core.elevator.SpaceElevatorMachine;
 import com.af9.core.elevator.SpaceMissionMachine;
+import com.af9.core.elevator.SpaceModuleMachine;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
@@ -187,7 +188,8 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
                 Component.translatable("af9.space_elevator.console.size_tooltip.2").withStyle(ChatFormatting.GRAY),
                 Component.translatable("af9.space_elevator.console.size_tooltip.3")
                         .withStyle(ChatFormatting.DARK_GRAY));
-        page.addWidget(size);
+        // a module's console has no size switch: the tower's size is set on the tower
+        if (!(machine instanceof SpaceModuleMachine)) page.addWidget(size);
         var reset = new ButtonWidget(RESET_X, RESET_Y, RESET_W, RESET_H, IGuiTexture.EMPTY, click -> {
             if (!click.isRemote) machine.resetCounters();
         });
@@ -580,11 +582,13 @@ public class SpaceElevatorConsoleWidget extends ConsoleWidget {
                 "af9.orbital.console.offline").getString();
         graphics.drawString(font, switchText, sx + 7 + (SWITCH_W - 7 - font.width(switchText)) / 2, sy + 4,
                 workingEnabled ? GOOD : MUTED, false);
-        // the size switch: the structure the elevator is checked for
-        int bx = x0 + SIZE_X;
-        graphics.fill(bx, sy, bx + SIZE_W, sy + SWITCH_H, extended ? withAlpha(INFO, 0x28) : 0xFF0B0F17);
-        border(graphics, bx, sy, SIZE_W, SWITCH_H, extended ? INFO : DIM);
-        drawSmall(graphics, extended ? "47x47" : "35x35", bx + SIZE_W / 2, sy + 5, extended ? INFO : MUTED, true);
+        // the size switch: the structure the elevator is checked for (the tower's: a module has none)
+        if (!(machine instanceof SpaceModuleMachine)) {
+            int bx = x0 + SIZE_X;
+            graphics.fill(bx, sy, bx + SIZE_W, sy + SWITCH_H, extended ? withAlpha(INFO, 0x28) : 0xFF0B0F17);
+            border(graphics, bx, sy, SIZE_W, SWITCH_H, extended ? INFO : DIM);
+            drawSmall(graphics, extended ? "47x47" : "35x35", bx + SIZE_W / 2, sy + 5, extended ? INFO : MUTED, true);
+        }
 
         // the counters
         drawSmall(graphics, Component.translatable("af9.space_elevator.console.flown").getString(), x + 5, y + 97,
