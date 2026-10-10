@@ -9,12 +9,14 @@
 // orb('hv_conveyor_module_molded', [
 //     item('gtceu:hv_electric_motor', 2),
 //     item('gtceu:gold_single_cable', 1),
-//     item('gtceu:rubber_plate', 4),
+//     tag('forge:plates/rubber', 4),
 //     keep('gtceu:plate_extruder_mold')
 // ], 256000, 'gtceu:hv_conveyor_module')
 //
-// Helpers: item(id, count) is a consumed input (count 1 or missing takes one), keep(id) is an input the craft
-// keeps (a mold: matched but not consumed), circ(tier, count) is a circuit tag input. orb() writes the recipe;
+// Helpers: tag(name, count) is a consumed forge tag input (every material part: rods, plates, screws, rotors, small
+// gears, rings, gems, ender pearls: use the tag, not an id, so the part of any mod works), item(id, count) is a
+// consumed input by id (only for items that exist once: GT's cables, wires, pipes and machines, Powah's materials),
+// keep(id) is an input the craft keeps (a mold: matched but not consumed), circ(tier, count) is a circuit tag input. orb() writes the recipe;
 // a fifth argument is the output count (shaping: 1 ingot lasers into 2 rods, 8 bolts).
 //
 // Components: each takes everything GT's assembler recipe takes, in the same amounts (the orb is not a way to make a
@@ -33,6 +35,9 @@
 ServerEvents.recipes(event => {
     const item = (id, count) => (count > 1 ? { item: id, count: count } : { item: id })
     const keep = id => ({ item: id, nc: true })
+    // a forge tag input (a material part: rods, plates, screws ... of any mod): never a bare id, so every mod's copy
+    // of the part works. Items that exist once (GT's cables, wires, pipes, machines, Powah's crystals) stay ids.
+    const tag = (name, count) => (count > 1 ? { tag: name, count: count } : { tag: name })
     const circ = (tier, count) => ({ tag: 'gtceu:circuits/' + tier, count: count })
     const orb = (name, ingredients, energy, result, count) => {
         event.custom({
@@ -55,8 +60,8 @@ ServerEvents.recipes(event => {
 
     orb('lv_electric_motor', [
         item('gtceu:tin_single_cable', 2),
-        item('gtceu:steel_rod', 2),
-        item('gtceu:magnetic_steel_rod', 1),
+        tag('forge:rods/steel', 2),
+        tag('forge:rods/magnetic_steel', 1),
         item('gtceu:copper_single_wire', 4),
         item('powah:crystal_blazing', 1)
     ], 12800, 'gtceu:lv_electric_motor')
@@ -64,7 +69,7 @@ ServerEvents.recipes(event => {
     orb('lv_conveyor_module', [
         item('gtceu:lv_electric_motor', 2),
         item('gtceu:tin_single_cable', 1),
-        item('gtceu:rubber_plate', 6),
+        tag('forge:plates/rubber', 6),
         item('powah:dielectric_paste', 1)
     ], 16000, 'gtceu:lv_conveyor_module')
 
@@ -72,17 +77,17 @@ ServerEvents.recipes(event => {
         item('gtceu:lv_electric_motor', 1),
         item('gtceu:tin_single_cable', 1),
         item('gtceu:bronze_normal_fluid_pipe', 1),
-        item('gtceu:tin_screw', 1),
-        item('gtceu:tin_rotor', 1),
-        item('gtceu:rubber_ring', 2)
+        tag('forge:screws/tin', 1),
+        tag('forge:rotors/tin', 1),
+        tag('forge:rings/rubber', 2)
     ], 16000, 'gtceu:lv_electric_pump')
 
     orb('lv_electric_piston', [
         item('gtceu:lv_electric_motor', 1),
-        item('gtceu:steel_rod', 2),
+        tag('forge:rods/steel', 2),
         item('gtceu:tin_single_cable', 2),
-        item('gtceu:steel_plate', 3),
-        item('gtceu:small_steel_gear', 1),
+        tag('forge:plates/steel', 3),
+        tag('forge:small_gears/steel', 1),
         item('powah:crystal_blazing', 1)
     ], 19200, 'gtceu:lv_electric_piston')
 
@@ -91,27 +96,27 @@ ServerEvents.recipes(event => {
         item('gtceu:lv_electric_piston', 1),
         circ('lv', 1),
         item('gtceu:tin_single_cable', 3),
-        item('gtceu:steel_rod', 2),
+        tag('forge:rods/steel', 2),
         item('powah:crystal_blazing', 1)
     ], 38400, 'gtceu:lv_robot_arm')
 
     orb('lv_emitter', [
-        item('gtceu:brass_rod', 4),
+        tag('forge:rods/brass', 4),
         item('gtceu:tin_single_cable', 2),
         circ('lv', 2),
-        item('gtceu:quartzite_gem', 1)
+        tag('forge:gems/quartzite', 1)
     ], 28800, 'gtceu:lv_emitter')
 
     orb('lv_sensor', [
-        item('gtceu:brass_rod', 1),
-        item('gtceu:steel_plate', 4),
+        tag('forge:rods/brass', 1),
+        tag('forge:plates/steel', 4),
         circ('lv', 1),
-        item('gtceu:quartzite_gem', 1)
+        tag('forge:gems/quartzite', 1)
     ], 28800, 'gtceu:lv_sensor')
 
     orb('lv_field_generator', [
-        item('minecraft:ender_pearl', 1),
-        item('gtceu:steel_plate', 2),
+        tag('forge:ender_pearls', 1),
+        tag('forge:plates/steel', 2),
         circ('lv', 2),
         item('gtceu:manganese_phosphide_quadruple_wire', 4)
     ], 80000, 'gtceu:lv_field_generator')
@@ -128,8 +133,8 @@ ServerEvents.recipes(event => {
 
     orb('mv_electric_motor', [
         item('gtceu:copper_single_cable', 2),
-        item('gtceu:aluminium_rod', 2),
-        item('gtceu:magnetic_steel_rod', 1),
+        tag('forge:rods/aluminium', 2),
+        tag('forge:rods/magnetic_steel', 1),
         item('gtceu:cupronickel_double_wire', 4),
         item('powah:steel_energized', 1)
     ], 51200, 'gtceu:mv_electric_motor')
@@ -137,7 +142,7 @@ ServerEvents.recipes(event => {
     orb('mv_conveyor_module', [
         item('gtceu:mv_electric_motor', 2),
         item('gtceu:copper_single_cable', 1),
-        item('gtceu:rubber_plate', 6),
+        tag('forge:plates/rubber', 6),
         item('powah:dielectric_paste', 1)
     ], 64000, 'gtceu:mv_conveyor_module')
 
@@ -145,17 +150,17 @@ ServerEvents.recipes(event => {
         item('gtceu:mv_electric_motor', 1),
         item('gtceu:copper_single_cable', 1),
         item('gtceu:steel_normal_fluid_pipe', 1),
-        item('gtceu:bronze_screw', 1),
-        item('gtceu:bronze_rotor', 1),
-        item('gtceu:rubber_ring', 2)
+        tag('forge:screws/bronze', 1),
+        tag('forge:rotors/bronze', 1),
+        tag('forge:rings/rubber', 2)
     ], 64000, 'gtceu:mv_electric_pump')
 
     orb('mv_electric_piston', [
         item('gtceu:mv_electric_motor', 1),
-        item('gtceu:aluminium_rod', 2),
+        tag('forge:rods/aluminium', 2),
         item('gtceu:copper_single_cable', 2),
-        item('gtceu:aluminium_plate', 3),
-        item('gtceu:small_aluminium_gear', 1),
+        tag('forge:plates/aluminium', 3),
+        tag('forge:small_gears/aluminium', 1),
         item('powah:steel_energized', 1)
     ], 76800, 'gtceu:mv_electric_piston')
 
@@ -164,27 +169,27 @@ ServerEvents.recipes(event => {
         item('gtceu:mv_electric_piston', 1),
         circ('mv', 1),
         item('gtceu:copper_single_cable', 3),
-        item('gtceu:aluminium_rod', 2),
+        tag('forge:rods/aluminium', 2),
         item('powah:steel_energized', 1)
     ], 153600, 'gtceu:mv_robot_arm')
 
     orb('mv_emitter', [
-        item('gtceu:electrum_rod', 4),
+        tag('forge:rods/electrum', 4),
         item('gtceu:copper_single_cable', 2),
         circ('mv', 2),
-        item('gtceu:flawless_emerald_gem', 1)
+        tag('forge:flawless_gems/emerald', 1)
     ], 115200, 'gtceu:mv_emitter')
 
     orb('mv_sensor', [
-        item('gtceu:electrum_rod', 1),
-        item('gtceu:aluminium_plate', 4),
+        tag('forge:rods/electrum', 1),
+        tag('forge:plates/aluminium', 4),
         circ('mv', 1),
-        item('gtceu:flawless_emerald_gem', 1)
+        tag('forge:flawless_gems/emerald', 1)
     ], 115200, 'gtceu:mv_sensor')
 
     orb('mv_field_generator', [
         item('minecraft:ender_eye', 1),
-        item('gtceu:aluminium_plate', 2),
+        tag('forge:plates/aluminium', 2),
         circ('mv', 2),
         item('gtceu:magnesium_diboride_quadruple_wire', 4)
     ], 320000, 'gtceu:mv_field_generator')
@@ -201,16 +206,16 @@ ServerEvents.recipes(event => {
 
     orb('hv_electric_motor', [
         item('gtceu:silver_double_cable', 2),
-        item('gtceu:stainless_steel_rod', 2),
+        tag('forge:rods/stainless_steel', 2),
         item('powah:steel_energized', 1),
-        item('gtceu:magnetic_steel_rod', 1),
+        tag('forge:rods/magnetic_steel', 1),
         item('gtceu:electrum_double_wire', 4)
     ], 204800, 'gtceu:hv_electric_motor')
 
     orb('hv_conveyor_module', [
         item('gtceu:hv_electric_motor', 2),
         item('gtceu:gold_single_cable', 1),
-        item('gtceu:rubber_plate', 6),
+        tag('forge:plates/rubber', 6),
         item('powah:dielectric_paste', 1)
     ], 256000, 'gtceu:hv_conveyor_module')
 
@@ -218,17 +223,17 @@ ServerEvents.recipes(event => {
         item('gtceu:hv_electric_motor', 1),
         item('gtceu:gold_single_cable', 1),
         item('gtceu:stainless_steel_normal_fluid_pipe', 1),
-        item('gtceu:steel_screw', 1),
-        item('gtceu:steel_rotor', 1),
-        item('gtceu:rubber_ring', 2)
+        tag('forge:screws/steel', 1),
+        tag('forge:rotors/steel', 1),
+        tag('forge:rings/rubber', 2)
     ], 256000, 'gtceu:hv_electric_pump')
 
     orb('hv_electric_piston', [
         item('gtceu:hv_electric_motor', 1),
-        item('gtceu:stainless_steel_rod', 2),
+        tag('forge:rods/stainless_steel', 2),
         item('gtceu:gold_single_cable', 2),
-        item('gtceu:stainless_steel_plate', 3),
-        item('gtceu:small_stainless_steel_gear', 1),
+        tag('forge:plates/stainless_steel', 3),
+        tag('forge:small_gears/stainless_steel', 1),
         item('powah:steel_energized', 1)
     ], 307200, 'gtceu:hv_electric_piston')
 
@@ -237,27 +242,27 @@ ServerEvents.recipes(event => {
         item('gtceu:hv_electric_piston', 1),
         circ('hv', 1),
         item('gtceu:gold_single_cable', 3),
-        item('gtceu:stainless_steel_rod', 2),
+        tag('forge:rods/stainless_steel', 2),
         item('powah:steel_energized', 1)
     ], 614400, 'gtceu:hv_robot_arm')
 
     orb('hv_emitter', [
-        item('gtceu:chromium_rod', 4),
+        tag('forge:rods/chromium', 4),
         item('gtceu:gold_single_cable', 2),
         circ('hv', 2),
         item('minecraft:ender_eye', 1)
     ], 460800, 'gtceu:hv_emitter')
 
     orb('hv_sensor', [
-        item('gtceu:chromium_rod', 1),
-        item('gtceu:stainless_steel_plate', 4),
+        tag('forge:rods/chromium', 1),
+        tag('forge:plates/stainless_steel', 4),
         circ('hv', 1),
         item('minecraft:ender_eye', 1)
     ], 460800, 'gtceu:hv_sensor')
 
     orb('hv_field_generator', [
         item('gtceu:quantum_eye', 1),
-        item('gtceu:stainless_steel_plate', 2),
+        tag('forge:plates/stainless_steel', 2),
         circ('hv', 2),
         item('gtceu:mercury_barium_calcium_cuprate_quadruple_wire', 4)
     ], 1280000, 'gtceu:hv_field_generator')
@@ -311,10 +316,10 @@ ServerEvents.recipes(event => {
             seen[mat] = true
             const out = 'gtceu:' + outPrefix + mat + '_' + outSuffix
             if (!parts[name][out]) return
+            // the input is the tag of the material's part (any mod's ingot or bolt), not one id
             const input = 'gtceu:' + mat + '_' + inputSuffix
-            if (inputSuffix === 'rod' && !parts.rod[input]) return
             if (inputSuffix === 'bolt' && !parts.bolt[input]) return
-            const inputItem = inputCount > 1 ? { item: input, count: inputCount } : { item: input }
+            const inputItem = tag('forge:' + (inputSuffix === 'ingot' ? 'ingots' : 'bolts') + '/' + mat, inputCount)
             orb(name + '_' + mat, [inputItem, keep(mold)], energy, out, outCount)
             shapedCount[0]++
         })
