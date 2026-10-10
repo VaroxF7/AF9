@@ -8,21 +8,33 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-/** Client to server: the player in a hanging drop pod is ready (SPACE pressed, or the loading screen is long gone). */
+/**
+ * Client to server about the player's hanging drop pod: {@code now} false, the loading screen is gone and the player can
+ * see the pod (the server starts the launch countdown); {@code now} true, SPACE was pressed (launch).
+ */
 public final class DropPodReleasePacket {
 
-    public DropPodReleasePacket() {}
+    private final boolean now;
 
-    public static void encode(DropPodReleasePacket packet, FriendlyByteBuf buffer) {}
+    public DropPodReleasePacket(boolean now) {
+        this.now = now;
+    }
+
+    public static void encode(DropPodReleasePacket packet, FriendlyByteBuf buffer) {
+        buffer.writeBoolean(packet.now);
+    }
 
     public static DropPodReleasePacket decode(FriendlyByteBuf buffer) {
-        return new DropPodReleasePacket();
+        return new DropPodReleasePacket(buffer.readBoolean());
     }
 
     public static void handle(DropPodReleasePacket packet, Supplier<NetworkEvent.Context> context) {
         NetworkEvent.Context ctx = context.get();
         ServerPlayer player = ctx.getSender();
-        if (player != null && player.getVehicle() instanceof DropPodEntity pod && !pod.isReleased()) pod.release();
+        if (player != null && player.getVehicle() instanceof DropPodEntity pod && !pod.isReleased()) {
+            if (packet.now) pod.release();
+            else pod.startCountdown();
+        }
         ctx.setPacketHandled(true);
     }
 }

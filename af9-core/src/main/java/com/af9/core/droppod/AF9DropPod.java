@@ -16,7 +16,11 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -58,6 +62,18 @@ public final class AF9DropPod {
     public static final class Events {
 
         private Events() {}
+
+        /** The rider of a pod (and a few seconds after) takes no fall or wall damage: no death on the ground. */
+        @SubscribeEvent
+        public static void onAttack(LivingAttackEvent event) {
+            if (!(event.getEntity() instanceof ServerPlayer player)) return;
+            if (player.getPersistentData().getLong(DropPodEntity.SAFE_KEY) < player.level().getGameTime()) return;
+            DamageSource source = event.getSource();
+            if (source.is(DamageTypeTags.IS_FALL) || source.is(DamageTypes.IN_WALL)
+                    || source.is(DamageTypes.FLY_INTO_WALL) || source.is(DamageTypes.CRAMMING)) {
+                event.setCanceled(true);
+            }
+        }
 
         @SubscribeEvent
         public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {

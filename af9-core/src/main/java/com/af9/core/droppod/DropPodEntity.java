@@ -39,6 +39,9 @@ public class DropPodEntity extends Entity {
     /** Whether the pod has been let go of: until then it hangs in the sky (the player is still loading, or has not pressed). */
     private static final EntityDataAccessor<Boolean> RELEASED = SynchedEntityData.defineId(DropPodEntity.class,
             EntityDataSerializers.BOOLEAN);
+    /** Ticks until a hanging pod launches by itself: -1 while the player has not seen the pod yet (loading). */
+    private static final EntityDataAccessor<Integer> COUNTDOWN = SynchedEntityData.defineId(DropPodEntity.class,
+            EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> SINCE_LANDING = SynchedEntityData.defineId(DropPodEntity.class,
             EntityDataSerializers.INT);
 
@@ -54,6 +57,12 @@ public class DropPodEntity extends Entity {
     private static final double TOUCHDOWN = 0.07;
     /** From this height above the ground the thrusters fire. */
     private static final double BRAKING_HEIGHT = 32.0;
+    /** Ticks of the countdown once the player's screen is clear (5 s). */
+    public static final int AUTO_TICKS = 100;
+    /** The rider is safe from falls and walls this long after the last tick in the pod (10 s). */
+    public static final int SAFE_TICKS = 200;
+    /** Persistent player data: the game time until which fall and wall damage is cancelled. */
+    public static final String SAFE_KEY = "af9_pod_safe_until";
     /** The pod lets go by itself after this many ticks, whatever the client does (5 minutes). */
     private static final int HOLD_TIMEOUT = 6000;
     /** Blocks softer than this are flattened by a falling or rising pod. */
@@ -74,6 +83,16 @@ public class DropPodEntity extends Entity {
 
     public boolean isReleased() {
         return entityData.get(RELEASED);
+    }
+
+    /** Ticks left of the launch countdown, -1 before it began. */
+    public int countdownTicks() {
+        return entityData.get(COUNTDOWN);
+    }
+
+    /** The player's screen is clear: the launch countdown begins (once). */
+    public void startCountdown() {
+        if (entityData.get(COUNTDOWN) < 0) entityData.set(COUNTDOWN, AUTO_TICKS);
     }
 
     /** Lets the hanging pod go. */
@@ -106,6 +125,7 @@ public class DropPodEntity extends Entity {
     protected void defineSynchedData() {
         entityData.define(LANDED, false);
         entityData.define(RELEASED, false);
+        entityData.define(COUNTDOWN, -1);
         entityData.define(SINCE_LANDING, 0);
     }
 
@@ -157,7 +177,7 @@ public class DropPodEntity extends Entity {
 
     @Override
     public double getPassengersRidingOffset() {
-        return 0.65;
+        return 0.9;
     }
 
     /** The rider stands in the pod, it does not sit. */
@@ -183,7 +203,13 @@ public class DropPodEntity extends Entity {
 
     private void serverTick() {
         ServerLevel level = (ServerLevel) level();
-        for (Entity passenger : getPassengers()) passenger.fallDistance = 0;
+        for (Entity passenger : getPassengers()) {
+            passenger.fallDistance = 0;
+            // the rider takes no fall or wall damage while in the pod and for a few seconds after
+            if (passenger instanceof ServerPlayer player) {
+                player.getPersistentData().putLong(SAFE_KEY, level.getGameTime() + SAFE_TICKS);
+            }
+        }
 
         if (!hasLanded()) {
             // a rider who got out is put back while the pod falls
@@ -194,7 +220,9 @@ public class DropPodEntity extends Entity {
             if (!isReleased()) {
                 // hanging in the sky: nothing moves until the player is ready (or five minutes have passed)
                 setDeltaMovement(Vec3.ZERO);
-                if (tickCount > HOLD_TIMEOUT) release();
+                int left = entityData.get(COUNTDOWN);
+                if (left > 0) entityData.set(COUNTDOWN, left - 1);
+                if (left == 0 || tickCount > HOLD_TIMEOUT) release();
                 return;
             }
             flattenSoft(-1.0);
@@ -202,12 +230,6 @@ public class DropPodEntity extends Entity {
             double vy = Mth.lerp(0.15, getDeltaMovement().y, -target);
             setDeltaMovement(0, vy, 0);
             move(MoverType.SELF, getDeltaMovement());
-            boolean braking = target < TERMINAL * 0.95;
-            if (tickCount % (braking ? 4 : 6) == 0) {
-                level.playSound(null, getX(), getY(), getZ(),
-                        braking ? SoundEvents.FIREWORK_ROCKET_LAUNCH : SoundEvents.FIREWORK_ROCKET_BLAST_FAR,
-                        SoundSource.NEUTRAL, braking ? 1.5F : 3.0F, braking ? 0.7F : 0.5F);
-            }
             if (onGround() || (isInWaterOrBubble() && tickCount > 20) || isInLava()) land(level);
             if (getY() < level.getMinBuildHeight()) discard();
             return;
@@ -321,12 +343,14 @@ public class DropPodEntity extends Entity {
         }
         if (falling || rising) {
             for (int i = 0; i < (braking ? 8 : 4); i++) {
-                double side = (i & 1) == 0 ? 0.55 : -0.55;
-                double front = (i & 2) == 0 ? 0.55 : -0.55;
-                level().addParticle(ParticleTypes.FLAME, getX() + side, getY() + 0.1, getZ() + front,
-                        random.nextGaussian() * 0.02, falling ? 0.3 : -0.4, random.nextGaussian() * 0.02);
-                level().addParticle(ParticleTypes.LARGE_SMOKE, getX() + side, getY() + 0.1, getZ() + front,
-                        random.nextGaussian() * 0.03, falling ? 0.4 : -0.3, random.nextGaussian() * 0.03);
+                double side = (i & 1) == 0 ? 0.5 : -0.5;
+                double front = (i & 2) == 0 ? 0.5 : -0.5;
+                // the exhaust goes down, hard when the thrusters brake
+                double jet = braking || rising ? -0.55 : -0.3;
+                level().addParticle(ParticleTypes.FLAME, getX() + side, getY() + 0.05, getZ() + front,
+                        random.nextGaussian() * 0.02, jet, random.nextGaussian() * 0.02);
+                level().addParticle(ParticleTypes.LARGE_SMOKE, getX() + side, getY() + 0.05, getZ() + front,
+                        random.nextGaussian() * 0.03, jet * 0.8, random.nextGaussian() * 0.03);
             }
         } else if (ticksSinceLanding() < 40 && random.nextInt(3) == 0) {
             level().addParticle(ParticleTypes.CAMPFIRE_COSY_SMOKE, getX() + random.nextGaussian() * 0.5,
