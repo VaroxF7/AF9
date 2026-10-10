@@ -8,7 +8,7 @@
 //   LV  basic_electronic_circuit: a resin board, two resistors, two electron tubes and two red alloy wires, deployed one by
 //       one and pressed (2 circuits)
 //   MV  good_electronic_circuit: a phenolic board, two LV circuits, two electron tubes and two copper wires, deployed and
-//       pressed (1 circuit): the same parts as the circuit assembler's recipe (circuits_af9.js)
+//       laser cut with Create: Vintage Improvements' laser as the last step (1 circuit): the same parts as the circuit assembler's recipe (circuits_af9.js)
 //
 // The transitional item is af9:incomplete_circuit. Create is a mod of the pack: the recipes are plain Create JSON.
 //
@@ -29,6 +29,15 @@ ServerEvents.recipes(event => {
         type: 'create:pressing',
         ingredients: [{ item: TRANSIT }],
         results: [{ item: TRANSIT }]
+    })
+    // Create: Vintage Improvements' laser (a step of a sequenced assembly: it implements Create's assembly interface):
+    // it cuts with energy (FE) instead of pressing, and takes no more than maxChargeRate FE a tick.
+    const laser = (energy, maxChargeRate) => ({
+        type: 'vintageimprovements:laser_cutting',
+        ingredients: [{ item: TRANSIT }],
+        results: [{ item: TRANSIT }],
+        energy: energy,
+        maxChargeRate: maxChargeRate
     })
     const assembly = (id, base, steps, output, count) => {
         event.custom({
@@ -106,6 +115,6 @@ ServerEvents.recipes(event => {
         deploy('create:electron_tube'),
         deploy('gtceu:copper_single_wire'),
         deploy('gtceu:copper_single_wire'),
-        press()
+        laser(2000, 50)
     ], 'gtceu:good_electronic_circuit', 1)
 })

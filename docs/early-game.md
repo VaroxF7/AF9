@@ -54,7 +54,8 @@ A sequenced assembly: the board goes through deployers (a part each) and a press
 
 ```
 LV  resin board + 2 resistors + 2 electron tubes + 2 red alloy wires, pressed       -> 2 basic electronic circuits
-MV  phenolic board + 2 basic circuits + 2 electron tubes + 2 copper wires, pressed  -> 1 good electronic circuit
+MV  phenolic board + 2 basic circuits + 2 electron tubes + 2 copper wires, then laser cut (Create: Vintage Improvements'
+    laser, 2000 FE, max 50 FE/t as the last step instead of the press) -> 1 good electronic circuit
 ```
 
 Create's own electron tube recipe (polished rose quartz + iron sheet) is
