@@ -8,7 +8,8 @@ come down. The idea is Supersymmetry's arrival; the implementation is AF9's own 
 
 * **Who**: a player joining a world for the first time. The mark is kept in Forge's persisted player data (`af9_drop_pod_arrived`)
   and a play time of zero is checked as well, so players who have already played in a world the pack is added to are never
-  dropped. Creative and spectator players skip it, and so do other dimensions than the Overworld.
+  dropped. Spectator players skip it, creative players arrive in a pod too (`includeCreative`), and so do other dimensions than
+  the Overworld skip it. `/af9 droppod [player]` (operators) sends a player down again, in any world.
 * **Where from**: `dropPod.height` blocks above the spawn (250), never above the build limit. A title says "AF9" and the pod's line.
 * **The fall**: terminal speed 0.5 blocks a tick (10 blocks a second, so about 24 s from 250), flames and smoke from the four
   thrusters, a rumble every 6 ticks. The rider cannot get out: a dismount is undone while the pod falls, and the rider takes no
@@ -27,6 +28,7 @@ come down. The idea is Supersymmetry's arrival; the implementation is AF9's own 
 | --- | --- | --- |
 | `onFirstJoin` | true | the arrival at all |
 | `height` | 250 | blocks above the spawn, 40 to 1000 |
+| `includeCreative` | true | creative players arrive in a pod as well |
 
 ## 3. Not copied
 

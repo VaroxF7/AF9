@@ -31,7 +31,8 @@ ServerEvents.recipes(event => {
         }
     }
 
-    // the reaction in the Fusion Reactor and, on the Mega's rule, in the Mega Fusion Reactor
+    // the reaction in the Fusion Reactor; the base pack's hook copies it into the Mega Fusion Reactor (half the time, 1.5
+    // times the power; seen in the game: af9:mega_fusion_reactor/fusion/<id>), so it is not made twice
     const fusion = (id, a, b, out, duration, eut, start) => {
         attempt(id, () => {
             event.recipes.gtceu.fusion_reactor(`af9:fusion/${id}`)
@@ -39,14 +40,6 @@ ServerEvents.recipes(event => {
                 .outputFluids(out)
                 .duration(duration)
                 .EUt(eut)
-                .fusionStartEU(start)
-        })
-        attempt(`${id} (Mega)`, () => {
-            event.recipes.gtceu.mega_fusion_reactor(`af9:mega_fusion/${id}`)
-                .inputFluids(a, b)
-                .outputFluids(out)
-                .duration(Math.max(1, Math.floor(duration / 2)))
-                .EUt(Math.floor(eut * 1.5))
                 .fusionStartEU(start)
         })
     }

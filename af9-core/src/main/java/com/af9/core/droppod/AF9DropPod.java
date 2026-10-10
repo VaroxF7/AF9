@@ -3,6 +3,9 @@ package com.af9.core.droppod;
 import com.af9.core.AF9Config;
 import com.af9.core.AF9Core;
 
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
@@ -16,6 +19,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -69,9 +73,30 @@ public final class AF9DropPod {
             player.getPersistentData().put(Player.PERSISTED_NBT_TAG, persisted);
 
             boolean newPlayer = player.getStats().getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)) == 0;
-            if (!newPlayer || player.isCreative() || player.isSpectator()) return;
+            if (!newPlayer || player.isSpectator() || (player.isCreative() && !AF9Config.DROP_POD_CREATIVE.get())) {
+                return;
+            }
             if (!(player.level() instanceof ServerLevel level) || level.dimension() != Level.OVERWORLD) return;
             drop(player, level);
+        }
+
+        /** {@code /af9 droppod [player]}: an operator sends a player down again (any world, any time). */
+        @SubscribeEvent
+        public static void onCommands(RegisterCommandsEvent event) {
+            event.getDispatcher().register(Commands.literal("af9").requires(source -> source.hasPermission(2))
+                    .then(Commands.literal("droppod")
+                            .executes(context -> send(context.getSource(), context.getSource().getPlayerOrException()))
+                            .then(Commands.argument("player", EntityArgument.player())
+                                    .executes(context -> send(context.getSource(),
+                                            EntityArgument.getPlayer(context, "player"))))));
+        }
+
+        private static int send(CommandSourceStack source, ServerPlayer player) {
+            if (!(player.level() instanceof ServerLevel level)) return 0;
+            player.stopRiding();
+            drop(player, level);
+            source.sendSuccess(() -> Component.translatable("af9.drop_pod.sent", player.getDisplayName()), true);
+            return 1;
         }
 
         /** Whether a pod (falling, landed or lifting off) is already within 5 blocks of the column. */

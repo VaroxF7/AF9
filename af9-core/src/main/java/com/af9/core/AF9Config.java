@@ -20,6 +20,8 @@ public final class AF9Config {
     public static final ForgeConfigSpec.BooleanValue DROP_POD;
     /** How far above their spawn the pod starts (it is kept under the build limit). */
     public static final ForgeConfigSpec.IntValue DROP_POD_HEIGHT;
+    /** Whether players in creative mode arrive in a pod too (spectators never). */
+    public static final ForgeConfigSpec.BooleanValue DROP_POD_CREATIVE;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
@@ -64,6 +66,10 @@ public final class AF9Config {
         DROP_POD_HEIGHT = builder
                 .comment("Blocks above the spawn the pod starts from (it never starts above the build limit).")
                 .defineInRange("height", 250, 40, 1000);
+        DROP_POD_CREATIVE = builder
+                .comment("Players in creative mode arrive in a pod too (spectators never). Off: creative players skip it,",
+                        "and so do they for good: the arrival is only ever offered on the first join.")
+                .define("includeCreative", true);
         builder.pop();
         SPEC = builder.build();
     }
