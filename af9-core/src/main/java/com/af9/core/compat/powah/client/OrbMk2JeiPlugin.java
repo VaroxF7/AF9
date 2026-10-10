@@ -7,6 +7,9 @@ import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
+import mezz.jei.api.registration.IRecipeCategoryRegistration;
+import mezz.jei.api.registration.IRecipeRegistration;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
@@ -25,8 +28,22 @@ public class OrbMk2JeiPlugin implements IModPlugin {
     }
 
     @Override
+    public void registerCategories(IRecipeCategoryRegistration registration) {
+        if (!ModList.get().isLoaded("powah")) return;
+        registration.addRecipeCategories(new OrbMk2JeiCategory(registration.getJeiHelpers().getGuiHelper()));
+    }
+
+    @Override
+    public void registerRecipes(IRecipeRegistration registration) {
+        if (!ModList.get().isLoaded("powah") || Minecraft.getInstance().level == null) return;
+        registration.addRecipes(OrbMk2JeiCategory.TYPE,
+                OrbMk2JeiCategory.recipes(Minecraft.getInstance().level.getRecipeManager().getRecipes()));
+    }
+
+    @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         if (!ModList.get().isLoaded("powah")) return;
+        registration.addRecipeCatalyst(new ItemStack(OrbMk2.BLOCK.get()), OrbMk2JeiCategory.TYPE);
         try {
             // Powah's own category type, so that the recipes are the ones Powah registered
             Object type = Class.forName("owmii.powah.compat.jei.energizing.EnergizingCategory").getField("TYPE").get(null);

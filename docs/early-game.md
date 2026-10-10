@@ -71,7 +71,8 @@ patches it and adds a Mk2 with a screen:
 - **energizing rods by voltage** (`kubejs/server_scripts/mods/powah/energizing_rods.js`): up to LuV the best rod is the niotic
   one; the spirited rod takes a UV electric motor in its recipe (UV) and the nitro rod a UHV machine hull (UHV), the rest as in
   Powah;
-- recipe viewers (JEI, EMI) show the counts.
+- recipe viewers show the counts: JEI has an own "Energizing Orb Mk2" page (every slot with its count, the molds apart with a red NC,
+  the energy and the product); EMI shows them in Powah's page.
 
 Powah's own orb and its recipes (one of each) are not changed. A recipe with a counted ingredient (more than one of
 something) runs in the **Mk2 only**: a plain orb holding the same parts finds no recipe. In JEI the Mk2 is a catalyst of

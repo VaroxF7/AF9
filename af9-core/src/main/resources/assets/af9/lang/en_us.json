@@ -1214,5 +1214,6 @@
     "af9.orb_mk2.mold": "Mold",
     "af9.orb_mk2.nc": "NC: not consumed in the Energizing Orb",
     "af9.orb_mk2.nc_short": "NC",
+    "af9.orb_mk2.jei_energy": "%s FE",
     "itemGroup.af9": "AF9"
 }

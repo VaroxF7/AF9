@@ -70,6 +70,13 @@ repositories {
             includeGroup 'earth.terrarium.adastra'
         }
     }
+    maven { // JEI's API (the Energizing Orb Mk2's recipe page)
+        name = 'BlameJared'
+        url = 'https://maven.blamejared.com/'
+        content {
+            includeGroup 'mezz.jei'
+        }
+    }
     maven { // Jade (the same coordinates GTCEu builds against)
         name = 'Modrinth'
         url = 'https://api.modrinth.com/maven'
@@ -189,6 +196,9 @@ dependencies {
 
     // Jade tooltips of the AF9 machines (the pack runs a newer 11.x; the API used here is unchanged)
     modCompileOnly("maven.modrinth:jade:${jade_version}")
+    // JEI's API: the Energizing Orb Mk2 has its own recipe category (optional at runtime)
+    modCompileOnly("mezz.jei:jei-${minecraft_version}-common-api:${jei_version}") { transitive = false }
+    modCompileOnly("mezz.jei:jei-${minecraft_version}-forge-api:${jei_version}") { transitive = false }
     // gloves worn in a Curios slot protect wafers too (optional at runtime)
     modCompileOnly("top.theillusivec4.curios:curios-forge:${curios_version}:api")
     // the orbital station's magnetic field (optional at runtime)
