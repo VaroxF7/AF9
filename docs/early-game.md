@@ -33,8 +33,9 @@ patches it and adds a Mk2 with a screen:
   middle, 2 MV motors, 2 good electronic circuits, 4 steel plates (`kubejs/server_scripts/mods/powah/orb_mk2.js`);
 - recipe viewers (JEI, EMI) show the counts.
 
-Powah's own orb and its recipes (one of each) are not changed; the plain orb also takes the counted recipes when a hopper
-or a pipe fills its slots.
+Powah's own orb and its recipes (one of each) are not changed. A recipe with a counted ingredient (more than one of
+something) runs in the **Mk2 only**: a plain orb holding the same parts finds no recipe. In JEI the Mk2 is a catalyst of
+Powah's energizing category, so those recipes are listed under it.
 
 | component | in the orb | GT's assembler recipe |
 |---|---|---|

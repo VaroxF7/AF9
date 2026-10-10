@@ -16,7 +16,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import owmii.powah.block.energizing.EnergizingRecipe;
+import owmii.powah.lib.logistics.energy.Energy;
 import owmii.powah.lib.logistics.inventory.Inventory;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import com.af9.core.compat.powah.OrbMk2Tile;
 
 /**
  * The Energizing Orb with counted ingredients: its input slots hold a stack (Powah's slot limit is one), and a finished craft
@@ -28,6 +31,22 @@ public abstract class OrbTileMixin {
 
     @Shadow
     private EnergizingRecipe recipe;
+    @Shadow
+    private Energy buffer;
+    @Shadow
+    private boolean containRecipe;
+
+    /** A recipe with counted ingredients runs in the Mk2 only: the plain orb drops it again after its own look for a recipe. */
+    @Inject(method = "checkRecipe()V", at = @At("TAIL"), remap = false)
+    private void af9$countedOnlyInMk2(CallbackInfo ci) {
+        if (recipe == null || !containRecipe || (Object) this instanceof OrbMk2Tile) return;
+        if (!((OrbCounts) (Object) recipe).af9Counted()) return;
+        buffer.setCapacity(0L);
+        buffer.setStored(0L);
+        buffer.setTransfer(0L);
+        containRecipe = false;
+        recipe = null;
+    }
 
     @Inject(method = "getSlotLimit(I)I", at = @At("HEAD"), cancellable = true, remap = false)
     private void af9$stackSlots(int index, CallbackInfoReturnable<Integer> cir) {

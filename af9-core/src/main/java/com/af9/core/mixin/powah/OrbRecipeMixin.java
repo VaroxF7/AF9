@@ -38,6 +38,14 @@ public abstract class OrbRecipeMixin implements OrbCounts {
         af9$counts = counts;
     }
 
+    @Override
+    public boolean af9Counted() {
+        for (int count : af9$counts) {
+            if (count > 1) return true;
+        }
+        return false;
+    }
+
     @Inject(method = "matches(Lowmii/powah/lib/logistics/inventory/RecipeWrapper;Lnet/minecraft/world/level/Level;)Z",
             at = @At("HEAD"), cancellable = true, remap = false)
     private void af9$matches(RecipeWrapper inv, Level level, CallbackInfoReturnable<Boolean> cir) {

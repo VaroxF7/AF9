@@ -10,4 +10,16 @@ public class Energy {
     public long getCapacity() {
         return 0;
     }
+
+    public Energy setCapacity(long capacity) {
+        return this;
+    }
+
+    public Energy setStored(long stored) {
+        return this;
+    }
+
+    public Energy setTransfer(long transfer) {
+        return this;
+    }
 }

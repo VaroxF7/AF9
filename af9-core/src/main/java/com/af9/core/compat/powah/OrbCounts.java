@@ -10,4 +10,7 @@ public interface OrbCounts {
     int[] af9Counts();
 
     void af9SetCounts(int[] counts);
+
+    /** A recipe with an ingredient of more than one: it runs in the Energizing Orb Mk2 only. */
+    boolean af9Counted();
 }
