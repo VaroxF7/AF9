@@ -48,17 +48,20 @@ every GT vein to the Mining Dimension: this vein keeps the field (same reason
 as `kubejs/server_scripts/mods/gtceu/vein_asteroid.js`). No biomes filter.
 
 Tuning (verify in game with the prospector): `clusterSize` 16 fits the medium
-rocks and up; `density` 1.0, so hit rock is solid ore; `weight` 60 sets both
-the worldgen share and the elevator's share.
+rocks and up; `density` 1.0, so hit rock is solid ore; `weight` 30 sets both
+the worldgen share and the elevator's share. Missions bring a quarter share
+on top of that (the lean divisor, `docs/space-elevator.md`): a targeted
+quantanium run brings 6-12 stacks, not 24-48.
 
 ## 4. The Space Elevator
 
-No elevator code was needed. `af9-core/.../elevator/OreCatalog.java` tiers a
+`af9-core/.../elevator/OreCatalog.java` tiers a
 vein by its layer: `af9_asteroid` is tier 4, so only the Mk-IV drone draws
 this vein (no early-drone leak of a UHV material), weighted by its weight
 (`docs/space-elevator.md`). The vein also takes Quantanium out of the exotic
 pool (ores no vein holds, one Mk-IV run in six): it now has a dedicated
-asteroid instead of the lottery.
+asteroid instead of the lottery. Quantanium is a lean ore
+(`SpaceMissionMachine.LEAN_DIVISOR`): missions bring a quarter of its share.
 
 ## 5. Still open
 

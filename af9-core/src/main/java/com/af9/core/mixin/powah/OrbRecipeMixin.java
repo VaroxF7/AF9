@@ -28,6 +28,9 @@ public abstract class OrbRecipeMixin implements OrbCounts {
     @Unique
     private int[] af9$counts = new int[0];
 
+    @Unique
+    private boolean[] af9$nc = new boolean[0];
+
     @Override
     public int[] af9Counts() {
         return af9$counts;
@@ -39,9 +42,22 @@ public abstract class OrbRecipeMixin implements OrbCounts {
     }
 
     @Override
+    public boolean[] af9Nc() {
+        return af9$nc;
+    }
+
+    @Override
+    public void af9SetNc(boolean[] nc) {
+        af9$nc = nc;
+    }
+
+    @Override
     public boolean af9Counted() {
         for (int count : af9$counts) {
             if (count > 1) return true;
+        }
+        for (boolean keep : af9$nc) {
+            if (keep) return true;
         }
         return false;
     }

@@ -62,9 +62,10 @@ public abstract class OrbTileMixin {
         }
         List<Ingredient> ingredients = ((Recipe<?>) (Object) recipe).getIngredients();
         int[] counts = ((OrbCounts) (Object) recipe).af9Counts();
+        boolean[] nc = ((OrbCounts) (Object) recipe).af9Nc();
         ItemStack[] slots = new ItemStack[inventory.getSlots()];
         for (int i = 0; i < slots.length; i++) slots[i] = inventory.getStackInSlot(i);
-        ItemStack[] rest = OrbRecipes.consume(ingredients, counts, slots);
+        ItemStack[] rest = OrbRecipes.consume(ingredients, counts, nc, slots);
         // one change notice for all of it (Powah puts the product into slot 0 right after, which checks the orb again)
         inventory.setSendUpdates(false);
         for (int i = 0; i < rest.length; i++) inventory.setStackInSlot(i, rest[i]);

@@ -201,7 +201,20 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         var source = ClientOreVeins.get();
         List<String> veins = OreCatalog.veinIds(tier, source);
         if (circuit < 1 || circuit > veins.size()) return;
-        List<String> ores = OreCatalog.veinOreItems(veins.get(circuit - 1), source);
+        // the materials beside their items: a lean ore's range is its share after the divisor
+        // (SpaceMissionMachine.leanShare), so the page shows what the run brings
+        List<String> materials = new ArrayList<>();
+        List<String> ores = new ArrayList<>();
+        for (String material : OreCatalog.veinMaterials(veins.get(circuit - 1), source)) {
+            ItemStack probe = OreCatalog.ore(material, 1);
+            if (probe == null) continue;
+            var key = net.minecraftforge.registries.ForgeRegistries.ITEMS.getKey(probe.getItem());
+            if (key == null) continue;
+            String item = key.toString();
+            if (ores.contains(item)) continue;
+            materials.add(material);
+            ores.add(item);
+        }
         int least = SpaceMissionMachine.minStacks(tier), most = SpaceMissionMachine.maxStacks(tier);
         int count = Math.min(ores.size(), GRID_COLUMNS * ORE_ROWS);
         List<ItemStack> stacks = new ArrayList<>();
@@ -217,6 +230,8 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
             int others = Math.max(1, ores.size() - 1);
             int lo = i == 0 ? (alone ? least : least / 2) : Math.max(1, (least - least / 2) / others);
             int hi = i == 0 ? (alone ? most : most / 2) : Math.max(lo, (most - most / 2) / others);
+            lo = SpaceMissionMachine.leanShare(materials.get(i), lo);
+            hi = SpaceMissionMachine.leanShare(materials.get(i), Math.max(lo, hi));
             SlotWidget slot = new SlotWidget(handler, i, GRID_X + 18 * (i % GRID_COLUMNS),
                     GRID_Y + 18 * (i / GRID_COLUMNS), false, false);
             slot.setBackgroundTexture(GuiTextures.SLOT);

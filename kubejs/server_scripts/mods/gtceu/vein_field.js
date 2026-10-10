@@ -43,6 +43,6 @@ GTCEuServerEvents.oreVeins(event => {
     }
     fieldVein('af9:field_naquadah_vein', 'naquadah', 65)
     fieldVein('af9:field_platinum_vein', 'platinum', 45)
-    fieldVein('af9:quantanium_vein', 'quantanium', 60)
+    fieldVein('af9:quantanium_vein', 'quantanium', 30)
     fieldVein('af9:field_iridium_vein', 'iridium', 22)
 })

@@ -33,6 +33,7 @@ public abstract class OrbRecipeSerializerMixin {
         EnergizingRecipe recipe = cir.getReturnValue();
         if (recipe == null) return;
         ((OrbCounts) (Object) recipe).af9SetCounts(OrbRecipes.readCounts(GsonHelper.getAsJsonArray(json, "ingredients")));
+        ((OrbCounts) (Object) recipe).af9SetNc(OrbRecipes.readNc(GsonHelper.getAsJsonArray(json, "ingredients")));
     }
 
     @Inject(method = "toNetwork(Lnet/minecraft/network/FriendlyByteBuf;" +
@@ -41,6 +42,9 @@ public abstract class OrbRecipeSerializerMixin {
         int[] counts = ((OrbCounts) (Object) recipe).af9Counts();
         buffer.writeVarInt(counts.length);
         for (int count : counts) buffer.writeVarInt(count);
+        boolean[] nc = ((OrbCounts) (Object) recipe).af9Nc();
+        buffer.writeVarInt(nc.length);
+        for (boolean keep : nc) buffer.writeBoolean(keep);
     }
 
     @Inject(method = "fromNetwork(Lnet/minecraft/resources/ResourceLocation;Lnet/minecraft/network/FriendlyByteBuf;)" +
@@ -49,9 +53,12 @@ public abstract class OrbRecipeSerializerMixin {
                                        CallbackInfoReturnable<EnergizingRecipe> cir) {
         int[] counts = new int[buffer.readVarInt()];
         for (int i = 0; i < counts.length; i++) counts[i] = buffer.readVarInt();
+        boolean[] nc = new boolean[buffer.readVarInt()];
+        for (int i = 0; i < nc.length; i++) nc[i] = buffer.readBoolean();
         EnergizingRecipe recipe = cir.getReturnValue();
         if (recipe == null) return;
         ((OrbCounts) (Object) recipe).af9SetCounts(counts);
+        ((OrbCounts) (Object) recipe).af9SetNc(nc);
         // the client's ingredients are plain item lists by now (the server resolved tags): they take the counts for display
         NonNullList<Ingredient> ingredients = ((Recipe<?>) (Object) recipe).getIngredients();
         for (int i = 0; i < ingredients.size() && i < counts.length; i++) {

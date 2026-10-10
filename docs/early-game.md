@@ -1,10 +1,42 @@
-# Early game: Create circuits and Powah components
+# Early game: Create steam age, Create circuits and Powah components
 
-Two friendlier ways through the early game, both beside GT's own recipes (the crafting table, the circuit assembler and
-the assembler stay as they are; nothing is locked behind Create or Powah).
+The steam age runs on Create, not on GT's steam machines (removed: every
+LP/HP steam single-block, the primitive pump and the charcoal pile igniter;
+hidden from the recipe viewer, uncraftable). The coke oven and the primitive
+blast furnace stay as expensive bulk paths; Create is the main path. Turbines
+(LV+ power) are untouched.
 
-Code: `kubejs/server_scripts/mods/gtceu/early_circuits.js` (Create), `kubejs/server_scripts/mods/powah/hv_components.js`
+Code: `kubejs/server_scripts/mods/gtceu/create_steam_age.js` (Create steam
+age, molten glass, coke, steel, bricks, electron tubes, LV circuits),
+`kubejs/server_scripts/mods/gtceu/early_circuits.js` (Create),
+`kubejs/server_scripts/mods/powah/hv_components.js`
 (Powah) and AF9 Core's patch of Powah (`com.af9.core.mixin.powah`, `com.af9.core.compat.powah`).
+Client hiding: `kubejs/client_scripts/steam_hide.js`.
+
+## 0. Steam age on Create (no steam machines)
+
+```
+sand -> mixer, heated -> molten glass (gtceu:glass fluid)
+  stick + 144 mB molten glass -> spout -> glass tube
+glass tube + steel bolt + copper wire -> vacuum tube (assembler / crafting, GT's own)
+vacuum tube + polished rose quartz -> electron tube (deployer, or shapeless by hand)
+coal -> mixer, superheated -> coke + creosote (2 coal -> 2 coke + 1,000 mB)
+iron + coke -> mixer, superheated -> steel (1 iron + 2 coke -> 1 steel;
+  with calcite flux 1 iron + 1 coke + 1 calcite -> 2 steel)
+copper + tin dusts -> mixer, heated -> bronze dust 4 (3:1, smelt as usual)
+ingots -> press -> plates (iron, wrought iron, bronze, steel, copper, tin)
+any log -> millstone -> 2 wood dust
+4 vines / sugar cane / kelp -> compactor -> plant ball
+sticky resin -> press -> 3 raw rubber dust;
+  3 raw rubber + sulfur -> mixer, heated -> rubber ingot
+water: Create's pumps (mechanical pump, hose pulley), not the primitive pump
+```
+
+GT's way stays but costs far more: the primitive furnace takes 4x fuel for
+2x time (coke) and the EBF takes 2x iron with 5x oxygen, so Create is the
+cheap way and GT the bulk way. Coke oven bricks cost more too (5 clay +
+3 sand + form -> 2 compressed, was 3 + 4 -> 3; the alloy smelter shortcut
+takes 4 sand + 4 clay -> 2 bricks, was 1 + 1 -> 2).
 
 ## 1. LV and MV circuits with Create
 
@@ -12,9 +44,13 @@ A sequenced assembly: the board goes through deployers (a part each) and a press
 (`af9:incomplete_circuit`, the transitional item).
 
 ```
-LV  resin board + 2 resistors + 2 vacuum tubes + 2 red alloy wires, pressed       -> 2 basic electronic circuits
-MV  phenolic board + 2 basic circuits + 2 vacuum tubes + 2 copper wires, pressed  -> 1 good electronic circuit
+LV  resin board + 2 resistors + 2 electron tubes + 2 red alloy wires, pressed       -> 2 basic electronic circuits
+MV  phenolic board + 2 basic circuits + 2 electron tubes + 2 copper wires, pressed  -> 1 good electronic circuit
 ```
+
+Create's own electron tube recipe (polished rose quartz + iron sheet) is
+removed; the only tube is vacuum + polished rose quartz (above). The LV/MV
+assembler and crafting-table circuits take electron tubes too.
 
 The parts are the circuit assembler's own (`circuits_af9.js`), so nothing new is asked of the player: only where the work
 is done changes.
@@ -69,7 +105,10 @@ rods, a shorter wait. Powah's config ratio for energizing scales these like its 
 ## 3. Quests
 
 - **Medium Voltage** chapter: "Circuits on the Belt" (the deployer and the press), after the MV start quest; it is also
-  linked into the **Circuits** chapter between the basic and the good electronic circuit.
+  linked into the **Circuits** chapter between the basic and the good electronic circuit. Its fourth paragraph is the
+  whole steam-age-on-Create summary (glass spout, coke, steel, bronze, rubber, no steam machines).
+- **Circuits** chapter: new item quests for the &fglass tube&r (before the vacuum tube) and the &eelectron tube&r
+  (between the vacuum tube and the basic circuit); the basic circuit now depends on the electron tube.
 - **High Voltage** chapter, a branch under "HV Circuit Metals": "Components in the Orb" (the Mk2 orb and a rod), "Energized
   Steel", "The Motor, Faster", "Piston, Pump and Conveyor", "Robot Arm" and "Emitter, Sensor, Field Generator". The
   existing emitter quest names the orb recipe too.

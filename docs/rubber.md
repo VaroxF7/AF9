@@ -5,15 +5,16 @@ plants, and the rest of the rubber chemistry is GT's own (it never needed trees)
 
 Code: `kubejs/server_scripts/mods/gtceu/rubber.js` (the whole AF9 layer).
 
-## 1. Rubber: solid and liquid (steam age, 3 steps)
+## 1. Rubber: solid and liquid (steam age on Create, 3 steps)
 
 ```
-plant -> extractor, ULV (steam): 4x vine, 4x sugar cane, 4x kelp,
+plant -> extractor, ULV (LV machine now; steam extractors are removed): 4x vine, 4x sugar cane, 4x kelp,
   16x any leaves, 2x any saplings, or 1x slime ball -> 1 sticky resin
-sticky resin -> extractor, ULV (steam): 1 resin -> 3 raw rubber dust
-  (or centrifuge, LV: 1 resin -> 3 raw rubber + 100 mB glue + 15 % plant ball)
-raw rubber + sulfur -> alloy smelter, ULV (steam): 3 raw + 1 sulfur -> 1 rubber ingot (solid)
-  (or chemical reactor, LV: 9 raw + 1 sulfur -> 1,296 mB rubber fluid, the liquid rubber for cables)
+  (Create way: the garden plants press as usual; resin itself comes from the farm)
+sticky resin -> press (Create): 1 resin -> 3 raw rubber dust
+  (or extractor, ULV: same yield; or centrifuge, LV: 1 resin -> 3 raw rubber + 100 mB glue + 15 % plant ball)
+raw rubber + sulfur -> mixer, heated (Create): 3 raw + 1 sulfur -> 1 rubber ingot (solid)
+  (or alloy smelter, ULV; or chemical reactor, LV: 9 raw + 1 sulfur -> 1,296 mB rubber fluid, the liquid rubber for cables)
 ```
 
 The vulcanization recipes are GT's (`rubber_bar`, `rubber`, `rubber_sheet`):

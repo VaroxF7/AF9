@@ -17,7 +17,10 @@
 //   sensor   chromium rod, 3 stainless plates, HV circuit, ender eye                                    (GT: 4 plates)
 //   field    quantum eye, 2 stainless plates, 2 HV circuits, 3 quadruple wires                          (GT: 4 wires)
 //
-// The energy is in Powah's own unit, RF; the Powah config's energizing ratio scales it like its own recipes.
+// The energy is GT's assembler cost at the tier's voltage, converted 1 EU to 4 FE: at HV the assembler would run
+// 100 ticks at 512 EU/t (51200 EU), so the motor takes 204800 FE. The costlier parts scale from there the way the
+// old RF values did (conveyor and pump 1.25x, piston 1.5x, arm 3x, emitter and sensor 2.25x, field generator 6.25x).
+// LV and MV follow the same rule at their voltages (32 and 128 EU/t) in lv_mv_components.js.
 
 ServerEvents.recipes(event => {
     const item = (id, count) => (count > 1 ? { item: id, count: count } : { item: id })
@@ -40,14 +43,14 @@ ServerEvents.recipes(event => {
         ENERGIZED_STEEL,
         item('gtceu:magnetic_steel_rod', 1),
         item('gtceu:electrum_double_wire', 3)
-    ], 40000, 'gtceu:hv_electric_motor')
+    ], 204800, 'gtceu:hv_electric_motor')
 
     orb('hv_conveyor_module', [
         item('gtceu:hv_electric_motor', 2),
         item('gtceu:gold_single_cable', 1),
         item('gtceu:rubber_plate', 4),
         DIELECTRIC_PASTE
-    ], 50000, 'gtceu:hv_conveyor_module')
+    ], 256000, 'gtceu:hv_conveyor_module')
 
     orb('hv_electric_pump', [
         item('gtceu:hv_electric_motor', 1),
@@ -56,7 +59,7 @@ ServerEvents.recipes(event => {
         item('gtceu:steel_rotor', 1),
         item('gtceu:rubber_ring', 2),
         DIELECTRIC_PASTE
-    ], 50000, 'gtceu:hv_electric_pump')
+    ], 256000, 'gtceu:hv_electric_pump')
 
     orb('hv_electric_piston', [
         item('gtceu:hv_electric_motor', 1),
@@ -65,7 +68,7 @@ ServerEvents.recipes(event => {
         item('gtceu:stainless_steel_plate', 2),
         item('gtceu:small_stainless_steel_gear', 1),
         ENERGIZED_STEEL
-    ], 60000, 'gtceu:hv_electric_piston')
+    ], 307200, 'gtceu:hv_electric_piston')
 
     orb('hv_robot_arm', [
         item('gtceu:hv_electric_motor', 2),
@@ -74,26 +77,26 @@ ServerEvents.recipes(event => {
         item('gtceu:gold_single_cable', 2),
         item('gtceu:stainless_steel_rod', 1),
         ENERGIZED_STEEL
-    ], 120000, 'gtceu:hv_robot_arm')
+    ], 614400, 'gtceu:hv_robot_arm')
 
     orb('hv_emitter', [
         item('gtceu:chromium_rod', 3),
         item('gtceu:gold_single_cable', 2),
         circuit(2),
         item('minecraft:ender_eye', 1)
-    ], 90000, 'gtceu:hv_emitter')
+    ], 460800, 'gtceu:hv_emitter')
 
     orb('hv_sensor', [
         item('gtceu:chromium_rod', 1),
         item('gtceu:stainless_steel_plate', 3),
         circuit(1),
         item('minecraft:ender_eye', 1)
-    ], 90000, 'gtceu:hv_sensor')
+    ], 460800, 'gtceu:hv_sensor')
 
     orb('hv_field_generator', [
         item('gtceu:quantum_eye', 1),
         item('gtceu:stainless_steel_plate', 2),
         circuit(2),
         item('gtceu:mercury_barium_calcium_cuprate_quadruple_wire', 3)
-    ], 250000, 'gtceu:hv_field_generator')
+    ], 1280000, 'gtceu:hv_field_generator')
 })

@@ -471,7 +471,16 @@ try {
         const body = chunk.split(/\n\s*add\(/)[0]
         if (body.includes('.plasma(')) af9Plasma.add(id)
     })
+    // and the elements of GT it gives one (`fusionPlasmas()`: GTMaterials.Sulfur, GTMaterials.Plutonium241 ...)
+    const fusion = fs.readFileSync(MATERIALS_FILE, 'utf8').split('private static void fusionPlasmas()')[1]
+    if (fusion) {
+        const names = fusion.split('\n    }')[0].match(/GTMaterials\.(\w+)/g) || []
+        names.forEach(n => af9Plasma.add(n.slice('GTMaterials.'.length).replace(/([a-z])(\d)/g, '$1_$2')
+            .replace(/([a-z\d])([A-Z])/g, '$1_$2').toLowerCase()))
+    }
 } catch (e) { /* no sources: nothing known */ }
+// the eight elements GT itself gives a plasma (GTMaterials: helium ... americium)
+;['helium', 'nitrogen', 'oxygen', 'argon', 'iron', 'tin', 'nickel', 'americium'].forEach(e => af9Plasma.add(e))
 function gtceuKnown(id) {
     const name = id.replace(/^gtceu:/, '')
     if (gtNames.has(name) || gtNames.has(baseOf(name)) || gtPatterns.some(r => r.test(name)) || packIds.has(name) || packIds.has(baseOf(name))) return true

@@ -177,8 +177,9 @@ dike replaces, so the same vein form works in both palettes.
   ore), pentlandite 45 and magnetite 45 (~4.5 % each), cooperite 25 (~2.5 %). Oil Regolith pockets (richer here) hold
   no ore.
 - **The field, the exotic belt** (`vein_field.js`, `dimensions` `af9:asteroid_field`): naquadah 65, platinum 45,
-  quantanium 60 (the UHV ore, `docs/quantanium.md`), iridium 22 (a small treasure). Every dike is a single pure ore, so
-  the field's naquadah leaks no plutonium: the reactor chain stays the only way to it (§6).
+  quantanium 30 (the UHV ore, `docs/quantanium.md`), iridium 22 (a small treasure). Every dike is a single pure ore, so
+  the field's naquadah leaks no plutonium: the reactor chain stays the only way to it (§6). Quantanium missions also
+  bring a quarter share (the lean divisor, `docs/space-elevator.md`).
 - **Weights** set both the worldgen share and the Mk-IV elevator's share (`af9_asteroid` is tier 4; naquadah, platinum
   and iridium also have lower-tier veins elsewhere, so lesser drones still find them off the belts).
 - **Knobs:** the weights and `clusterSize` in the vein scripts. A GT material or ore block that is missing logs the

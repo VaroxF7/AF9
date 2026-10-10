@@ -9,10 +9,12 @@ import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty.GasTier;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.DustProperty;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.FluidProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.IngotProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.fluids.FluidBuilder;
 import com.gregtechceu.gtceu.api.fluids.FluidState;
+import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import java.util.ArrayList;
@@ -70,6 +72,7 @@ public final class AF9Materials {
         diesel();
         electronicsMetallurgy();
         fabChemistry();
+        fusionPlasmas();
         lithoProcess();
         moonSilicon();
         oil();
@@ -118,6 +121,29 @@ public final class AF9Materials {
 
     private static Material gas(String id, int color, String formula) {
         return add(material(id).gas().color(color).formula(formula));
+    }
+
+    /**
+     * Fusion power: the plasmas of GTNH's fusion reactions that GT has no plasma for. GT gives eight elements a plasma
+     * (helium, nitrogen, oxygen, argon, iron, tin, nickel, americium); GTNH's reactor also fuses sulfur, calcium, zinc,
+     * niobium, silver, bismuth, radon, lead, thorium and plutonium-241 plasma, which the plasma turbines burn.
+     * Recipes and fuel values: fusion_power.js. Spec: docs/fusion-power.md
+     */
+    private static void fusionPlasmas() {
+        for (Material element : new Material[] { GTMaterials.Sulfur, GTMaterials.Calcium, GTMaterials.Zinc,
+                GTMaterials.Niobium, GTMaterials.Silver, GTMaterials.Bismuth, GTMaterials.Radon, GTMaterials.Lead,
+                GTMaterials.Thorium, GTMaterials.Plutonium241 }) {
+            FluidProperty fluid = element.getProperty(PropertyKey.FLUID);
+            if (fluid == null) {
+                // sulfur and calcium have no fluid of their own: their plasma is their only one, like the quark
+                // matters'. A property is verified the moment it is set, so it is made with its plasma queued
+                element.setProperty(PropertyKey.FLUID,
+                        new FluidProperty(FluidStorageKeys.PLASMA, new FluidBuilder().state(FluidState.PLASMA)));
+            } else if (fluid.get(FluidStorageKeys.PLASMA) == null &&
+                    fluid.getQueuedBuilder(FluidStorageKeys.PLASMA) == null) {
+                fluid.enqueueRegistration(FluidStorageKeys.PLASMA, new FluidBuilder().state(FluidState.PLASMA));
+            }
+        }
     }
 
     /**
@@ -646,8 +672,9 @@ public final class AF9Materials {
      * Antimatter and the superstate: past chromodynium. The Particle Accelerator condenses quark-gluon plasma with
      * chromodynium into anti-quarks, then with anti-quarks into anti-matter, then with anti-matter into superstate
      * star matter, the next quark-level state (recipes: particle_accelerator.js). The Plasma Forge ionises
-     * anti-matter and superstate dust into Anti Matter Plasma and Superstate Star Matter Plasma and forges the
-     * superstate plasma back into plates (recipes: dtpf.js).
+     * superstate dust into Superstate Star Matter Plasma and forges it back into plates (recipes: dtpf.js); Anti
+     * Matter Plasma is fused from strange matter and chromodynium plasma in the Mega Fusion Reactor
+     * (fusion_reactor.js).
      */
     private static void antimatter() {
         // the anti-quark: the quark of anti-matter (dust only, like a quark flavour)
@@ -658,7 +685,7 @@ public final class AF9Materials {
                 .formula("Aq"));
 
         // stabilised anti-quarks in one bag, past strange matter
-        // (its plasma is what the Plasma Forge forges: dtpf.js)
+        // (its dust is the superstate's feedstock; its plasma is what the Mega Fusion Reactor fuses: fusion_reactor.js)
         add(material("anti_matter")
                 .dust()
                 .plasma()
@@ -678,8 +705,8 @@ public final class AF9Materials {
                 .blastTemp(15000, GasTier.HIGHEST, GTValues.VA[GTValues.UHV], 3200)
                 .formula("Ss"));
 
-        // Idontknowium: nobody knows what it is. Only its plasma exists, 12,000 K, made in the Mega Fusion Reactor from star
-        // matter and anti-matter plasma (fusion_reactor.js)
+        // Idontknowium: nobody knows what it is. Only its plasma exists, 12,000 K, forged in the Plasma Forge from star
+        // matter plasma and the anti-matter plasma the Mega Fusion Reactor fuses (dtpf.js, fusion_reactor.js)
         add(material("idontknowium")
                 .dust()
                 // its own animated texture (fluid.idontknowium_plasma.png), no tint on top of it; tools/textures/idontknowium.py

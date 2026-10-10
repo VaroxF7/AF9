@@ -38,16 +38,19 @@ The controller is in the front wall, two up (the face is GTNH's DTPF overlay). T
 |---|---|---|
 | `af9:dtpf/strange_matter_plasma` | 8 strange matter dust, 2,000 mB Endion | 2,000 mB strange matter plasma |
 | `af9:dtpf/chromodynium_plasma` | 4 chromodynium dust, 4,000 mB Endion | 2,000 mB chromodynium plasma |
-| `af9:dtpf/anti_matter_plasma` | 8 anti-matter dust, 2,000 mB Endion | 2,000 mB Anti Matter Plasma |
 | `af9:dtpf/superstate_star_matter_plasma` | 4 superstate star matter dust, 4,000 mB Endion | 2,000 mB Superstate Star Matter Plasma |
+| `af9:dtpf/idontknowium_plasma` | 2,000 mB star matter plasma, 2,000 mB anti-matter plasma (the Mega Fusion Reactor's both) | 1,000 mB Idontknowium Plasma (12,000 K) |
 | `af9:dtpf/chromodynium_plates` | 2,000 mB chromodynium plasma | 6 chromodynium plates (4 dust: 1.5x) |
 | `af9:dtpf/superstate_star_matter_plates` | 2,000 mB superstate star matter plasma | 6 superstate star matter plates (4 dust: 1.5x) |
 | `af9:dtpf/tritanium_plates` | 4 tritanium ingots, 500 mB strange matter plasma | 6 tritanium plates |
 | `af9:dtpf/neutronium_plates` | 4 neutronium ingots, 1,000 mB strange matter plasma | 6 neutronium plates |
 
-The four plasmas are AF9 Core's fluids `gtceu:strange_matter_plasma`, `gtceu:chromodynium_plasma`,
-`gtceu:anti_matter_plasma` and `gtceu:superstate_star_matter_plasma` (`.plasma()` on the
-materials). The controller is made in the assembler (`af9:dtpf`, UV).
+The plasmas are AF9 Core's fluids `gtceu:strange_matter_plasma`, `gtceu:chromodynium_plasma`,
+`gtceu:anti_matter_plasma`, `gtceu:superstate_star_matter_plasma` and `gtceu:idontknowium_plasma` (`.plasma()` on the
+materials). Three are ionised here from their dust; **Anti Matter Plasma is not**: the Mega Fusion Reactor fuses it from 4,000 mB
+strange matter plasma and 4,000 mB chromodynium plasma (2,000 mB, UEV voltage, `fusion_reactor.js`), and the forge then forges it
+with 2,000 mB of star matter plasma into **Idontknowium Plasma**. The anti-matter dust is the superstate's feedstock only.
+The controller is made in the assembler (`af9:dtpf`, UV).
 
 ## 4. AI Acceleration Card
 

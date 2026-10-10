@@ -45,6 +45,35 @@ public final class OrbRecipes {
         return Math.max(1, Math.min(MAX_COUNT, object.get("count").getAsInt()));
     }
 
+    /**
+     * Which of a recipe's {@code ingredients} stay in the orb after the craft (a mold: {@code "nc": true}). Same order
+     * and filtering as {@link #readCounts} (Powah drops empty ingredients, so the two run in step).
+     */
+    public static boolean[] readNc(JsonArray elements) {
+        List<Boolean> kept = new ArrayList<>();
+        for (JsonElement element : elements) {
+            if (Ingredient.fromJson(element).isEmpty()) continue;
+            kept.add(ncOf(element));
+        }
+        boolean[] out = new boolean[kept.size()];
+        for (int i = 0; i < out.length; i++) out[i] = kept.get(i);
+        return out;
+    }
+
+    private static boolean ncOf(JsonElement element) {
+        JsonObject object = element.isJsonObject() ? element.getAsJsonObject() : null;
+        if (object == null && element.isJsonArray() && !element.getAsJsonArray().isEmpty() &&
+                element.getAsJsonArray().get(0).isJsonObject()) {
+            object = element.getAsJsonArray().get(0).getAsJsonObject();
+        }
+        return object != null && object.has("nc") && object.get("nc").getAsBoolean();
+    }
+
+    /** Whether ingredient {@code index} stays in the orb after the craft. */
+    public static boolean kept(boolean[] nc, int index) {
+        return nc != null && index >= 0 && index < nc.length && nc[index];
+    }
+
     /** How many items ingredient {@code index} takes. */
     public static int required(int[] counts, int index) {
         return counts != null && index >= 0 && index < counts.length ? Math.max(1, counts[index]) : 1;
@@ -69,9 +98,10 @@ public final class OrbRecipes {
 
     /**
      * What stays in the orb's slots after a craft: each filled input slot gives up its ingredient's count (a hopper may have
-     * filled a slot with more). Index 0 is left to the caller (the product goes there).
+     * filled a slot with more), except the slots of ingredients the craft keeps (a mold). Index 0 is left to the caller
+     * (the product goes there).
      */
-    public static ItemStack[] consume(List<Ingredient> ingredients, int[] counts, ItemStack[] slots) {
+    public static ItemStack[] consume(List<Ingredient> ingredients, int[] counts, boolean[] nc, ItemStack[] slots) {
         ItemStack[] out = new ItemStack[slots.length];
         List<Integer> free = new ArrayList<>();
         for (int i = 0; i < ingredients.size(); i++) free.add(i);
@@ -81,6 +111,10 @@ public final class OrbRecipes {
             if (slot == 0 || stack.isEmpty()) continue;
             int index = take(ingredients, counts, free, stack);
             if (index < 0) continue;
+            if (kept(nc, index)) {
+                out[slot] = stack.copy();
+                continue;
+            }
             ItemStack rest = stack.copy();
             rest.shrink(required(counts, index));
             out[slot] = rest.isEmpty() ? ItemStack.EMPTY : rest;

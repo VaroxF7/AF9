@@ -97,7 +97,11 @@ Instead of an asteroid an expedition can go to a **planet** and bring home a **f
 | 6 | MK-III | deuterium 1,568, tritium 240, ammonia 240, xenon 16, ethylene 1,792 |
 | 7 | MK-III | hydrofluoric acid 672, fluorine 1,792, nitrogen 1,792, oxygen 1,792 |
 | 8 | MK-IV | hydrogen 1,568, liquid air 875, molten copper 672, distilled water 17,920, radon 64, molten tin 672 |
-| 9 (AF9) | MK-IV | bio diesel 1,400, bioethanol 1,792, benzene 1,400, chloroform 896, chlorobenzene 1,120, hydrogen sulfide 784, radon 128, methane 2,200, ethane 1,500, helium 1,800, argon 64, neon 64, krypton 16, xenon 32 |
+| 9 (AF9) | MK-IV | bio diesel 1,400, bioethanol 1,792, benzene 1,400, chloroform 896, chlorobenzene 1,120, hydrogen sulfide 784, radon 128, methane 2,200, ethane 1,500, helium 1,800, argon 64, neon 64, krypton 16, xenon 32, helium plasma 80, nitrogen plasma 20, oxygen plasma 12, iron plasma 2, argon plasma 24 |
+
+The last five of planet type 9 are the **termination shock**: plasma skimmed from the solar wind, in the 40 : 10 : 6 : 1 the Mega
+Fusion Reactor fuses star matter from (helium, nitrogen, oxygen and iron plasma), and argon plasma for the turbines
+(`docs/fusion-power.md`). A mission's 80 B of helium plasma is worth 6.5 GEU in a plasma turbine, the price of a Mk-IV flight.
 
 GTNH's gas types keep their numbers (`PlanetCatalog`: planet type 5, gas type 2 is helium-3). Three of GTNH's fluids are not there:
 ender goo (3, 1), extra heavy oil (3, 2) and GalaxySpace's unknown water (8, 4), which GregTech does not have here. The argon and the
@@ -129,7 +133,9 @@ MK-IV 18, MK-V all 24.
 `OreCatalog` lists every ore material of GT (a material with GT's ore property) and GT's ore veins (the registry of veins, those with a weight above
 0), each vein with its **tier**: the lowest tier of its world-gen layer (stone and deepslate 1, netherrack 2, end stone 3, the Asteroid Field's
 layer 4). An expedition of drone tier *n* picks one vein of tier *n* or lower, **weighted by the vein's weight**, and puts out its ores: half of the
-stacks are the vein's first ore, the rest are shared by its other ores. Ores that **no vein holds** (the veins GT lost to AF9: pitchblende and
+stacks are the vein's first ore, the rest are shared by its other ores. **Lean ores** (`SpaceMissionMachine.LEAN_DIVISOR`: quantanium, pitchblende,
+uraninite) bring a quarter of their share: the UHV gate and the two closed old uranium ways stay a trickle at full Mk-IV yields. Ores that **no vein holds**
+(the veins GT lost to AF9: pitchblende and
 uraninite, and any ore a mod adds without a vein) are the **exotic asteroid**'s: the Mk-IV draws it one run in six, three of those ores at random. So
 every ore GT has is mined here, and an ore another mod adds to GT needs no script.
 
@@ -339,7 +345,8 @@ hand after pictures (section 4).
 * **One recipe a programmed circuit.** A module takes the circuit set with the button on the left of its screen: its number
   is the asteroid, the n-th of the veins the drone's tier first reaches (alphabetical; the exotic one last, MK-4). Recipes:
   `af9:space_mining_mk<tier>_<n>` (`server_scripts/mods/gtceu/space_elevator.js`, `ASTEROIDS` counts them: 24 / 12 / 4 / 8 now).
-  A run brings a random number of stacks of the vein's ores (the tier's 8-16 / 12-24 / 16-32 / 24-48, half of them the main ore).
+  A run brings a random number of stacks of the vein's ores (the tier's 8-16 / 12-24 / 16-32 / 24-48, half of them the main ore;
+  lean ores — quantanium, pitchblende, uraninite — a quarter of their share, so a targeted quantanium run brings 6-12 stacks).
   The recipe pages list the ores of that asteroid with their ranges.
 * **Used up:** a drill head and a crate (MK-1 tungsten carbide / stainless steel, MK-2 HSS-E / titanium, MK-3 naquadah alloy /
   tungsten steel, MK-4 neutronium / tungsten steel). The drone is not used up.

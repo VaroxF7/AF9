@@ -5,6 +5,7 @@ void_miner
 ore_processing_plant
 ore_bathing_plant
 ore_sifting_plant
+mega_fusion_reactor
 # items its startup scripts register
 kubejs:overworld_data
 kubejs:nether_data

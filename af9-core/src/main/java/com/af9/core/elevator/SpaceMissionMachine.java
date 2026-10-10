@@ -95,7 +95,8 @@ import java.util.function.Supplier;
  * <p>
  * The asteroid is made from one of GT's ore veins (weighted by the vein's weight, among the veins of the drone's tier and
  * below; the best drone also finds the exotic asteroid, whose ores no vein holds): about half the stacks are the vein's
- * main ore, the rest are shared by its other ores. Re-rolled for every run ({@link #MISSION}); the recipes themselves
+ * main ore, the rest are shared by its other ores. Lean ores ({@link #LEAN_DIVISOR}: quantanium, pitchblende, uraninite)
+ * bring a quarter of their share. Re-rolled for every run ({@link #MISSION}); the recipes themselves
  * (KubeJS: {@code server_scripts/mods/gtceu/space_elevator.js}) only name the drone, the fluids and the energy.
  * <p>
  * Instead of the asteroids a mission can go to a planet and bring home a fluid: a <b>liquid mission</b>
@@ -118,6 +119,15 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
     private static final int STACK = 64;
     /** The share of the stacks of the vein's main ore. */
     private static final double MAIN_SHARE = 0.5;
+    /**
+     * Lean ores: materials whose elevator missions bring fewer stacks, as a divisor of their share. Quantanium is the
+     * UHV gate and would flood the pack at full Mk-IV yields (24-48 stacks of pure ore a mission); pitchblende and
+     * uraninite are the closed old uranium ways, kept as a trickle on the exotic asteroid only.
+     */
+    private static final java.util.Map<String, Integer> LEAN_DIVISOR = java.util.Map.of(
+            "quantanium", 4,
+            "uraninite", 4,
+            "pitchblende", 4);
     /** How many of the exotic ores one exotic asteroid holds, and its share of the Mk4 draws (1 in this many). */
     private static final int EXOTIC_ORES = 3;
     private static final int EXOTIC_ONE_IN = 6;
@@ -731,6 +741,20 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
         return MAX_STACKS[Math.max(1, Math.min(tier, MAX_STACKS.length)) - 1];
     }
 
+    /** The yield divisor of an ore material's elevator share: {@link #LEAN_DIVISOR} for lean ores, 1 for the rest. */
+    public static int leanDivisor(String material) {
+        return LEAN_DIVISOR.getOrDefault(material, 1);
+    }
+
+    /**
+     * A material's share of a mission's stacks after its lean divisor: at least one stack when it gets any, so a lean
+     * ore stays a trickle instead of vanishing from mixed asteroids.
+     */
+    public static int leanShare(String material, int share) {
+        int divisor = leanDivisor(material);
+        return divisor <= 1 ? share : Math.max(1, share / divisor);
+    }
+
     /**
      * The asteroid of a recipe that names its own (data {@code af9_vein}, and {@code af9_min} / {@code af9_max} stacks): that
      * vein's ores in the drone tier's number of stacks, about half of them the main ore. Null for a recipe that does not,
@@ -760,6 +784,7 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
         for (int i = 0; i < materials.size(); i++) {
             int share = i == 0 ? main : (stacks - main) / others;
             if (i == 1) share += (stacks - main) - share * others;
+            share = leanShare(materials.get(i), share);
             ItemStack ore = share < 1 ? null : OreCatalog.ore(materials.get(i), share * STACK);
             if (ore != null) result.add(ore);
         }
@@ -832,6 +857,7 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
         for (int i = 0; i < materials.size(); i++) {
             int share = i == 0 ? main : (stacks - main) / others;
             if (i == 1) share += (stacks - main) - share * others;
+            share = leanShare(materials.get(i), share);
             // nothing when GT has no item of the ore, or the ore got no stack
             ItemStack ore = share < 1 ? null : OreCatalog.ore(materials.get(i), share * STACK);
             if (ore != null) result.add(ore);

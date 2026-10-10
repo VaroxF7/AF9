@@ -78,7 +78,8 @@ ServerEvents.recipes(event => {
         .itemOutputs('gtceu:anti_quark_dust', '12x af9:magnetic_trap')
         .duration(3200)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
-    // anti-matter: anti-quarks condensed with quark-gluon plasma (the DTPF ionises it to Anti Matter Plasma)
+    // anti-matter: anti-quarks condensed with quark-gluon plasma (the superstate's feedstock; its plasma is fused from
+    // strange matter and chromodynium plasma in the Mega Fusion Reactor: fusion_reactor.js)
     event.recipes.gtceu.quark_synthesis('af9:anti_matter_dust')
         .itemInputs('16x af9:qgp_trap', 'gtceu:anti_quark_dust')
         .inputFluids('#af9:coolant/endion 8000')

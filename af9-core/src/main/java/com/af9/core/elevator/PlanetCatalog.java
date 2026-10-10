@@ -133,6 +133,14 @@ public final class PlanetCatalog {
         // Lunar Air, the Moon's air for the Moon Sand chain (docs/semiconductor-factory.md): 1,200 buckets a Mk-IV
         // mission (drilling it on the Moon is the earlier way, vein_oil.js)
         add(list, 9, 16, af9Fluid("lunar_air"), 1_200);
+        // The termination shock, where the Sun's wind ends: plasma skimmed straight out of the flare, for the Mega Fusion
+        // Reactor's star matter (helium, nitrogen, oxygen and iron plasma, 40 : 10 : 6 : 1 as that recipe takes them) and
+        // the plasma turbines (docs/fusion-power.md). Buckets a Mk-IV mission, a drone and its coolant like any other
+        add(list, 9, 17, fluid(GTMaterials.Helium, FluidStorageKeys.PLASMA), 80);
+        add(list, 9, 18, fluid(GTMaterials.Nitrogen, FluidStorageKeys.PLASMA), 20);
+        add(list, 9, 19, fluid(GTMaterials.Oxygen, FluidStorageKeys.PLASMA), 12);
+        add(list, 9, 20, fluid(GTMaterials.Iron, FluidStorageKeys.PLASMA), 2);
+        add(list, 9, 21, fluid(GTMaterials.Argon, FluidStorageKeys.PLASMA), 24);
         return List.copyOf(list);
     }
 

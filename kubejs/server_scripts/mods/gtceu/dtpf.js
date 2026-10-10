@@ -1,8 +1,10 @@
 // AF9 - the Dimensionally Transcendent Plasma Forge: its recipe and what it makes (machine and structure:
 // startup_scripts/gtceu/dtpf.js, af9-core PlasmaForgeMachine). Spec: docs/dtpf.md
 //
-// Four plasmas, ionised here from their dust and Endion, and forged back into matter with a yield above what the
-// furnaces give: the forge's own pull. The running-time ramp (-50 % EU/t, -25 % time after half an hour) comes on top.
+// Three plasmas ionised here from their dust and Endion, and forged back into matter with a yield above what the
+// furnaces give: the forge's own pull. Idontknowium plasma is forged here too, out of the star matter plasma and the
+// anti-matter plasma the Mega Fusion Reactor fuses (fusion_reactor.js). The running-time ramp (-50 % EU/t, -25 % time after
+// half an hour) comes on top.
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
@@ -30,12 +32,6 @@ ServerEvents.recipes(event => {
         .itemInputs('4x gtceu:chromodynium_dust')
         .inputFluids(Fluid.of('gtceu:endion', 4000))
         .outputFluids(Fluid.of('gtceu:chromodynium_plasma', 2000))
-        .duration(800)
-        .EUt(VA[GTValues.UHV], UHV_AMPS)
-    forge.plasma_forge('af9:dtpf/anti_matter_plasma')
-        .itemInputs('8x gtceu:anti_matter_dust')
-        .inputFluids(Fluid.of('gtceu:endion', 2000))
-        .outputFluids(Fluid.of('gtceu:anti_matter_plasma', 2000))
         .duration(800)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
     forge.plasma_forge('af9:dtpf/superstate_star_matter_plasma')
@@ -71,5 +67,13 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:strange_matter_plasma', 1000))
         .itemOutputs('6x gtceu:neutronium_plate')
         .duration(500)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
+
+    // ---- Idontknowium: nobody knows what it is. Star matter and anti-matter held together in the forge's field ----
+    // 2,000 mB star matter plasma (the Mega Fusion Reactor's) + 2,000 mB anti-matter plasma (the Mega's too) -> 1,000 mB at 12,000 K
+    forge.plasma_forge('af9:dtpf/idontknowium_plasma')
+        .inputFluids(Fluid.of('gtceu:star_matter_plasma', 2000), Fluid.of('gtceu:anti_matter_plasma', 2000))
+        .outputFluids(Fluid.of('gtceu:idontknowium_plasma', 1000))
+        .duration(1200)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
 })

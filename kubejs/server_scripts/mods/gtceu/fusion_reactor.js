@@ -48,13 +48,16 @@ ServerEvents.recipes(event => {
     reactor.duration(1000).EUt(VA[GTValues.LuV])
 })
 
-// Idontknowium Plasma (12,000 K): the Mega Fusion Reactor (the pack's, gtceu:mega_fusion_reactor) fuses star matter plasma with
-// anti-matter plasma (the Plasma Forge makes it: dtpf.js). The same voltage as the star matter's recipe, a bigger start.
+// Anti Matter Plasma: the Mega Fusion Reactor (the pack's, gtceu:mega_fusion_reactor) fuses the two quark plasmas the Plasma
+// Forge ionises (dtpf.js), strange matter and chromodynium, back down the Particle Accelerator's own line (strange matter ->
+// chromodynium -> anti-quark -> anti-matter). A UEV-voltage reaction, so only the Mega runs it, on the biggest start it can
+// hold: it has two energy hatches of 320 MEU each (the reactor's capacity is the hatches' count, FusionReactorMachine), so
+// 640 MEU. The plasma goes on to the Plasma Forge, which forges it with star matter plasma into Idontknowium plasma.
 ServerEvents.recipes(event => {
-    event.recipes.gtceu.mega_fusion_reactor('af9:idontknowium_plasma')
-        .inputFluids(Fluid.of('gtceu:star_matter_plasma', 2000), Fluid.of('gtceu:anti_matter_plasma', 2000))
-        .outputFluids(Fluid.of('gtceu:idontknowium_plasma', 1000))
-        .duration(128)
-        .EUt(GTValues.VA[GTValues.UV])
-        .fusionStartEU(900000000)
+    event.recipes.gtceu.mega_fusion_reactor('af9:anti_matter_plasma')
+        .inputFluids(Fluid.of('gtceu:strange_matter_plasma', 4000), Fluid.of('gtceu:chromodynium_plasma', 4000))
+        .outputFluids(Fluid.of('gtceu:anti_matter_plasma', 2000))
+        .duration(160)
+        .EUt(Math.floor(GTValues.VA[GTValues.UEV] / 2))
+        .fusionStartEU(640000000)
 })

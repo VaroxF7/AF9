@@ -108,7 +108,7 @@ ServerEvents.recipes(event => {
     })
 
     // ================================= 3. MV (LV -> MV, bootstrap) =================================
-    // Good Electronic stays chip-free (vacuum tubes): the line needs MV circuits first.
+    // Good Electronic stays chip-free (electron tubes): the line needs MV circuits first.
     const replacedGtRecipes = ['electronic_circuit_mv', 'integrated_circuit_mv', 'processor_mv']
     event.remove({ id: 'gtceu:shaped/electronic_circuit_mv' })
     replacedGtRecipes.forEach(id => {
@@ -117,7 +117,7 @@ ServerEvents.recipes(event => {
     })
 
     event.shaped('gtceu:good_electronic_circuit', ['VPV', 'CBC', 'WCW'], {
-        V: 'gtceu:vacuum_tube',
+        V: 'create:electron_tube',
         P: 'gtceu:steel_plate',
         C: 'gtceu:basic_electronic_circuit',
         B: 'gtceu:phenolic_printed_circuit_board',
@@ -128,7 +128,7 @@ ServerEvents.recipes(event => {
         .itemInputs(
             'gtceu:phenolic_printed_circuit_board',
             '2x gtceu:basic_electronic_circuit',
-            '2x gtceu:vacuum_tube',
+            '2x create:electron_tube',
             '2x gtceu:copper_single_wire')
         .itemOutputs('gtceu:good_electronic_circuit')
         .duration(300)
