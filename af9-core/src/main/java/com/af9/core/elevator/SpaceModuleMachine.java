@@ -123,11 +123,22 @@ public class SpaceModuleMachine extends SpaceMissionMachine {
         SpaceElevatorMachine parent = parent();
         if (parent == null) return;
         var lists = parent.getCapabilitiesProxy().get(IO.OUT);
-        if (lists == null || lists.isEmpty()) return;
-        var shared = new java.util.ArrayList<>(lists);
-        getCapabilitiesProxy().remove(IO.OUT);
-        getCapabilitiesFlat().remove(IO.OUT);
-        for (var list : shared) addHandlerList(list);
+        if (lists != null && !lists.isEmpty()) {
+            var shared = new java.util.ArrayList<>(lists);
+            getCapabilitiesProxy().remove(IO.OUT);
+            getCapabilitiesFlat().remove(IO.OUT);
+            for (var list : shared) addHandlerList(list);
+        }
+        // and its inputs are the tower's too: the hydrogen and the coolant (and the items) sit in the tower's hatches, in one
+        // place whatever the number of modules; what the module has of its own stays
+        for (IO io : new IO[] { IO.IN, IO.BOTH }) {
+            var inputs = parent.getCapabilitiesProxy().get(io);
+            if (inputs == null || inputs.isEmpty()) continue;
+            for (var list : new java.util.ArrayList<>(inputs)) {
+                var own = getCapabilitiesProxy().get(list.getHandlerIO());
+                if (own == null || !own.contains(list)) addHandlerList(list);
+            }
+        }
     }
 
     /** The elevator broke or does not have this module in its structure any more. */
