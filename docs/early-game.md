@@ -17,7 +17,8 @@ Client hiding: `kubejs/client_scripts/steam_hide.js`.
 
 ```
 sand -> mixer, heated -> molten glass (gtceu:glass fluid)
-  stick + 144 mB molten glass -> spout -> glass tube
+  glass tube mold + 144 mB molten glass -> spout -> filled mold -> press -> glass tube + the mold (never used up;
+  the mold: 4 iron nuggets + a stick)
 glass tube + steel bolt + copper wire -> vacuum tube (assembler / crafting, GT's own)
 vacuum tube + polished rose quartz -> electron tube (deployer, or shapeless by hand)
 coal -> mixer, superheated -> coke + creosote (2 coal -> 2 coke + 1,000 mB)
@@ -37,6 +38,10 @@ GT's way stays but costs far more: the primitive furnace takes 4x fuel for
 cheap way and GT the bulk way. Coke oven bricks cost more too (5 clay +
 3 sand + form -> 2 compressed, was 3 + 4 -> 3; the alloy smelter shortcut
 takes 4 sand + 4 clay -> 2 bricks, was 1 + 1 -> 2).
+
+Boards and wires by Create (`early_circuits.js`): wood dust + 50 mB glue in a basin -> phenolic board; a phenolic board +
+8 silver wires in a basin -> good (phenolic printed) board; the saw cuts an ingot into 2 single (1x) wires, for every metal
+that has them (the forge tag of the ingot).
 
 ## 1. LV and MV circuits with Create
 

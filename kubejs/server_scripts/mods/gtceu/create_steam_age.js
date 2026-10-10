@@ -84,13 +84,27 @@ ServerEvents.recipes(event => {
         heatRequirement: 'heated'
     }).id('af9:create/molten_glass_from_sand')
 
-    // Spout: a stick as the disposable mandrel + 144 mB molten glass -> tube.
-    // The stick is consumed (it chars away); sand is the only real cost.
+    // The glass tube mold (af9:glass_tube_mold) is a real mold, never used up: the spout pours 144 mB molten glass into it
+    // (a filled mold), the press turns the filled mold into a glass tube and gives the mold back. Sand is the only
+    // running cost; the mold is made once, from a stick and four iron nuggets.
+    event.shaped('af9:glass_tube_mold', [
+        'N N',
+        ' S ',
+        'N N'
+    ], {
+        N: '#forge:nuggets/iron',
+        S: 'minecraft:stick'
+    }).id('af9:create/glass_tube_mold')
     event.custom({
         type: 'create:filling',
-        ingredients: [{ item: 'minecraft:stick' }, { fluid: 'gtceu:glass', amount: 144 }],
-        results: [{ item: 'gtceu:glass_tube' }]
-    }).id('af9:create/glass_tube_spout')
+        ingredients: [{ item: 'af9:glass_tube_mold' }, { fluid: 'gtceu:glass', amount: 144 }],
+        results: [{ item: 'af9:glass_tube_mold_filled' }]
+    }).id('af9:create/glass_tube_mold_fill')
+    event.custom({
+        type: 'create:pressing',
+        ingredients: [{ item: 'af9:glass_tube_mold_filled' }],
+        results: [{ item: 'gtceu:glass_tube' }, { item: 'af9:glass_tube_mold' }]
+    }).id('af9:create/glass_tube_press')
 
     // ================= C. coke, steel, bricks =================
     // Coke without the coke oven: superheated mixing of coal. Matches the

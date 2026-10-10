@@ -168,6 +168,10 @@ public final class AF9Items {
         // GT's extruder molds cover the rod, bolt, gear, small gear and rotor; the screw mold is AF9's (GT has none).
         item("screw_extruder_mold", 64, 2);
 
+        // ---- Create: the mold of the glass tube (the spout fills it, the press empties it into a tube and the mold) ----
+        item("glass_tube_mold", 64, 2);
+        item("glass_tube_mold_filled", 64, 1);
+
         // ---- Staged Assembly: the step detector cover (a ComponentItem, so it can place the cover) ----
         ITEMS.register("staged_step_detector", () -> {
             ComponentItem item = ComponentItem.create(new Item.Properties().stacksTo(64));

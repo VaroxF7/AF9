@@ -260,6 +260,8 @@ item af9:saw_filter_chip
 item af9:saw_filter_euv_reticle
 item af9:saw_filter_reticle
 item af9:saw_filter_wafer
+item af9:glass_tube_mold
+item af9:glass_tube_mold_filled
 item af9:screw_extruder_mold
 item af9:silicon_melt_charge
 item af9:silicon_seed_crystal

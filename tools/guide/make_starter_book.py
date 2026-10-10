@@ -99,8 +99,8 @@ entry('steam_age', 'Road to the Steam Age', 'create:andesite_alloy', 3, [
     text('$(bold)Bronze, plates, wood.$() Copper and tin dust, 3 to 1, in a heated mixer make bronze dust; smelt it as '
          'usual. Ingots go through the Create press for $(bold)plates$(). A log in a millstone gives 2 wood dust. '
          'Water comes from Create\'s mechanical pump, not the primitive pump.'),
-    text('$(bold)Glass and tubes.$() Sand in a heated mixer gives molten glass; stick plus 144 mB through a spout makes '
-         'a glass tube. Glass tube, steel bolt and copper wire make a vacuum tube; with polished rose quartz it is an '
+    text('$(bold)Glass and tubes.$() Sand in a heated mixer gives molten glass; a glass tube mold (4 iron nuggets and a '
+         'stick, never used up) under the spout takes 144 mB and the press gives a glass tube and the mold back. Glass tube, steel bolt and copper wire make a vacuum tube; with polished rose quartz it is an '
          '$(bold)electron tube$(), the part of your first circuits.'),
     text('$(bold)Rubber.$() Rubber trees give sticky resin; resin pressed gives 3 raw rubber dust; with sulfur in a '
          'heated mixer it is a rubber ingot. Cables and many machine parts need it.$(br2)'
