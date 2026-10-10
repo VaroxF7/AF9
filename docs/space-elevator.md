@@ -109,19 +109,20 @@ supercooled xenon): GTNH's numbers, kept as they are.
 As in GTNH the elevator itself does nothing: its **modules** do the work, and its **motors** say how many of them.
 
 * A **Space Mining Module** (`gtceu:space_mining_module_mk1..3`, a controller of its own) in a **module slot** of the tower flies expeditions:
-  **MK-I 2 at once, MK-II 4, MK-III 8** (GTNH's parallels). Without a powered module nothing flies.
+  **one at once each** (no parallels: more modules fly more expeditions, a faster run comes from the overclock of the hatches' voltage,
+  like any GT machine). Without a powered module nothing flies.
 * The **motors' tier** (the 88 motors round the shaft, all of one tier, `af9:space_elevator_motor_mk1..5`) powers
   **6 / 12 / 15 / 18 / 24 module slots** (MK-I to MK-V, GTNH's numbers), and only modules of **its own tier or lower** (a MK-III module
   needs MK-III motors, and on lesser motors it does nothing: the screen says so). With more modules than slots the best ones are
   powered and the rest stand idle (GTNH refuses such a tower, and one with a module above its motors).
-* A run flies as many expeditions at once as the powered modules allow, the hatches can **supply in full** (EU/t), the hydrogen
-  and the coolant in the hatches **last for** and the output buses **have room for**: every expedition takes the recipe's full
-  hydrogen, coolant and EU/t, and all of a run go to the **same asteroid** (its ore times the expeditions). One drone serves them
-  all: it is not used up.
+* A module's run is **one expedition**: it takes the recipe's hydrogen, coolant and EU/t once, when the hatches can supply them in
+  full and the output buses have room, and it overclocks like any GT machine as far as the hatches' voltage and amps go (each
+  overclock: four times the EU/t, half the time; the amps of the recipe stay the amps). The drone is not used up.
 
-So one MK-I module with one 4A ZPM hatch flies a single Mk-I expedition; with 8A it flies two. Six MK-I modules on MK-I motors fly
-up to 12 at once, twelve MK-III modules on MK-III motors up to 96, on laser hatches. The basic tower has 12 module slots, the
-**extended** one 24 (section 2): MK-III motors power 15 of them, MK-IV 18, MK-V all 24.
+So one MK-I module flies one Mk-I expedition (4 A of ZPM at the recipe's voltage; a hatch of a higher voltage overclocks it, a
+shorter run at four times the EU/t per tier). Six MK-I modules on MK-I motors fly 6 at once, twelve MK-III modules on MK-III motors
+12, on laser hatches. The basic tower has 12 module slots, the **extended** one 24 (section 2): MK-III motors power 15 of them,
+MK-IV 18, MK-V all 24.
 
 ### Asteroids
 

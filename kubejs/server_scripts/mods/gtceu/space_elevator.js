@@ -124,7 +124,7 @@ ServerEvents.recipes(event => {
             .EUt(VA[GTValues.UV])
     })
 
-    // ---- The Mining Modules (in the module slots: 2, 4 and 8 expeditions at once): MK-I from ZPM parts, the next from
+    // ---- The Mining Modules (in the module slots: one expedition each at once, more modules fly more): MK-I from ZPM parts, the next from
     // the one before ----
     event.recipes.gtceu.assembler('gtceu:space_mining_module_mk1')
         .itemInputs('gtceu:zpm_machine_hull', '2x gtceu:zpm_robot_arm', '2x gtceu:zpm_sensor', '2x gtceu:zpm_emitter',

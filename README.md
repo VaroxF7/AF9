@@ -218,7 +218,7 @@ Full spec: [`docs/space-elevator.md`](docs/space-elevator.md). Structure block-f
 (`STRUCTURE_PIECE_MAIN`/`EXTENDED`), code `com.af9.core.elevator`.
 
 - **Tower:** 35×35×43, 2,711 blocks (extended ring 47×47, +12 module slots); motors MK-I…V power
-  6/12/15/18/24 module slots; modules MK-I/II/III fly 2/4/8 expeditions each; cable must see sky;
+  6/12/15/18/24 module slots; each module flies one expedition, overclocked like any GT machine (more modules, more expeditions); cable must see sky;
   animated cable (512 blocks) + climber rides on formation and every 100 s while online.
 - **Ore missions** (`gtceu:space_mining`): drone (not consumed) + hydrogen + supercooled coolant +
   full EU/t for minutes → **8–48 stacks of raw ore per expedition**, all expeditions of a run to the

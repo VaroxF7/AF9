@@ -7,7 +7,7 @@
 // supercooled coolant in the fluid hatches and 4 to 32 amps of ZPM energy for minutes send an expedition to a random
 // asteroid: the output buses hold its ore, tens of stacks of raw ore. The asteroids are made from GT's ore veins; the better
 // the drone, the more of them it reaches.
-// As in GTNH the work is the modules': Mining Modules in the module slots fly 2, 4 or 8 expeditions at once, and the motors'
+// As in GTNH the work is the modules': Mining Modules in the module slots fly one expedition each at once, and the motors'
 // tier says how many slots are powered.
 // Instead of an asteroid an expedition can go to a planet and bring home a fluid (a liquid mission, picked on the screen):
 // GTNH's Space Pumping table (af9-core, PlanetCatalog), the same drone, fluids and energy, into fluid output hatches.
@@ -27,7 +27,7 @@ const SE_ROMAN = ['I', 'II', 'III', 'IV', 'V']
 // module slots the motors of each tier power, expeditions a Mining Module of each tier flies at once (GTNH's numbers; the
 // machine's own are SpaceElevatorMachine.MODULE_SLOTS and MODULE_EXPEDITIONS)
 const SE_SLOTS = [6, 12, 15, 18, 24]
-const SE_EXPEDITIONS = [2, 4, 8]
+const SE_EXPEDITIONS = [1, 1, 1]
 // the farthest planet type a liquid mission of each drone tier reaches (GTNH's planet types 2 to 8; the machine's own is
 // PlanetCatalog.droneFor)
 const SE_PLANETS = [3, 5, 7, 8]

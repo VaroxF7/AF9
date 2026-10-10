@@ -150,8 +150,8 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     private static final String MODULE_POS_KEY = "SpaceElevatorModulePositions";
     /** Module slots the motors of each tier power (GTNH's). */
     private static final int[] MODULE_SLOTS = { 6, 12, 15, 18, 24 };
-    /** Expeditions a Mining Module of each tier flies at once (GTNH's parallels). */
-    static final int[] MODULE_EXPEDITIONS = { 2, 4, 8 };
+    /** Expeditions a Mining Module of each tier flies at once: one (no parallels; more modules fly more). */
+    static final int[] MODULE_EXPEDITIONS = { 1, 1, 1 };
     /** Computation (CWU/t) a powered Mining Module of each tier needs from the tower's data hatches. */
     static final long[] MODULE_COMPUTATION = { 20, 60, 120 };
     /**
