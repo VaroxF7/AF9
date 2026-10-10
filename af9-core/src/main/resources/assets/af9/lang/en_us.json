@@ -1211,5 +1211,8 @@
     "block.af9.energizing_orb_mk2": "Energizing Orb Mk2",
     "af9.orb_mk2.charge": "%s / %s RF",
     "af9.orb_mk2.no_recipe": "No recipe for these parts",
+    "af9.orb_mk2.mold": "Mold",
+    "af9.orb_mk2.nc": "NC: not consumed in the Energizing Orb",
+    "af9.orb_mk2.nc_short": "NC",
     "itemGroup.af9": "AF9"
 }

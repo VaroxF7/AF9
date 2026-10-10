@@ -22,6 +22,8 @@ public class OrbMk2Menu extends AbstractContainerMenu {
     public static final int PRODUCT = 0;
     public static final int FIRST_INPUT = 1;
     public static final int INPUTS = 6;
+    /** The mold slot: it takes the items recipes keep, and stays out of the six input slots. */
+    public static final int MOLD = 7;
     private static final int PLAYER_START = OrbMk2Container.SIZE;
     private static final int PLAYER_END = PLAYER_START + 36;
 
@@ -30,6 +32,8 @@ public class OrbMk2Menu extends AbstractContainerMenu {
     public static final int INPUT_Y = 18;
     public static final int PRODUCT_X = 134;
     public static final int PRODUCT_Y = 28;
+    public static final int MOLD_X = 8;
+    public static final int MOLD_Y = 36;
 
     private final Container container;
     private final ContainerData data;
@@ -44,6 +48,7 @@ public class OrbMk2Menu extends AbstractContainerMenu {
         for (int i = 0; i < INPUTS; i++) {
             addSlot(new InputSlot(container, FIRST_INPUT + i, INPUT_X + (i % 3) * 18, INPUT_Y + (i / 3) * 18));
         }
+        addSlot(new MoldSlot(container, MOLD, MOLD_X, MOLD_Y, playerInventory.player));
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
                 addSlot(new Slot(playerInventory, 9 + row * 9 + col, 8 + col * 18, 94 + row * 18));
@@ -91,6 +96,8 @@ public class OrbMk2Menu extends AbstractContainerMenu {
         if (index < PLAYER_START) {
             // out of the orb, into the inventory
             if (!moveItemStackTo(stack, PLAYER_START, PLAYER_END, true)) return ItemStack.EMPTY;
+        } else if (OrbRecipes.isMold(player.level(), stack) && moveItemStackTo(stack, MOLD, MOLD + 1, false)) {
+            // a mold goes to its own slot first
         } else if (!moveItemStackTo(stack, FIRST_INPUT, FIRST_INPUT + INPUTS, false)) {
             return ItemStack.EMPTY;
         }
@@ -112,6 +119,22 @@ public class OrbMk2Menu extends AbstractContainerMenu {
         @Override
         public boolean mayPlace(ItemStack stack) {
             return container.canPlaceItem(getContainerSlot(), stack);
+        }
+    }
+
+    /** The mold slot: only items some recipe keeps (the recipes are on both sides, so the client refuses too). */
+    private static final class MoldSlot extends Slot {
+
+        private final Player player;
+
+        MoldSlot(Container container, int index, int x, int y, Player player) {
+            super(container, index, x, y);
+            this.player = player;
+        }
+
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return OrbRecipes.isMold(player.level(), stack) && container.canPlaceItem(getContainerSlot(), stack);
         }
     }
 

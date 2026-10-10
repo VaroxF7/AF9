@@ -14,4 +14,6 @@ public abstract class Inventory {
     public abstract int getSlots();
 
     public abstract void setSendUpdates(boolean sendUpdates);
+
+    public abstract Inventory set(int size);
 }

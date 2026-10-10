@@ -6,12 +6,12 @@ import net.minecraft.world.item.ItemStack;
 import owmii.powah.lib.logistics.inventory.Inventory;
 
 /**
- * The orb's seven slots (0 the product, 1 to 6 the inputs) as a vanilla container for the menu. Every change goes through
+ * The orb's eight slots (0 the product, 1 to 6 the inputs, 7 the mold) as a vanilla container for the menu. Every change goes through
  * Powah's inventory, which tells the tile to look for a recipe again.
  */
 final class OrbMk2Container implements Container {
 
-    static final int SIZE = 7;
+    static final int SIZE = 8;
 
     private final OrbMk2Tile tile;
 
@@ -38,7 +38,7 @@ final class OrbMk2Container implements Container {
 
     @Override
     public ItemStack getItem(int slot) {
-        return inventory().getStackInSlot(slot);
+        return slot < inventory().getSlots() ? inventory().getStackInSlot(slot) : ItemStack.EMPTY;
     }
 
     @Override

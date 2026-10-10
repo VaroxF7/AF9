@@ -63,7 +63,8 @@ patches it and adds a Mk2 with a screen:
 - a recipe's ingredient may say `"count": 4`; the orb then wants four of it in a slot (up to a stack) and takes exactly
   that many when the craft is done (a surplus stays in the slot);
 - the **Energizing Orb Mk2** (`af9:energizing_orb_mk2`) is Powah's orb with a screen: right-click it, six slots hold a
-  stack each, the product comes out of its own slot (shift-click), a bar shows the charge. It is a subclass of Powah's
+  stack each, a seventh slot of its own takes the mold (only items some recipe keeps: a red "NC" line on their tooltip says
+  not consumed), the product comes out of its own slot (shift-click), a bar shows the charge. It is a subclass of Powah's
   orb block and tile, so energizing rods find and charge it and the wrench works on it; its slots are on the item
   handler, so hoppers, pipes and AE2 (interfaces, import and export buses) reach them. Craft: Powah's orb in the
   middle, 2 MV motors, 2 good electronic circuits, 4 steel plates (`kubejs/server_scripts/mods/powah/orb_mk2.js`);

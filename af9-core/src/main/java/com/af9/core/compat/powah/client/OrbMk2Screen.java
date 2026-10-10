@@ -57,6 +57,7 @@ public class OrbMk2Screen extends AbstractContainerScreen<OrbMk2Menu> {
             slotFrame(graphics, x + OrbMk2Menu.INPUT_X + (i % 3) * 18, y + OrbMk2Menu.INPUT_Y + (i / 3) * 18);
         }
         slotFrame(graphics, x + OrbMk2Menu.PRODUCT_X, y + OrbMk2Menu.PRODUCT_Y);
+        slotFrame(graphics, x + OrbMk2Menu.MOLD_X, y + OrbMk2Menu.MOLD_Y);
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) slotFrame(graphics, x + 8 + col * 18, y + 94 + row * 18);
         }
@@ -88,6 +89,11 @@ public class OrbMk2Screen extends AbstractContainerScreen<OrbMk2Menu> {
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         graphics.drawString(font, title, titleLabelX, titleLabelY, 0x404040, false);
         graphics.drawString(font, playerInventoryTitle, inventoryLabelX, inventoryLabelY, 0x404040, false);
+        // the mold slot: its name above, and below it the red NC (not consumed)
+        graphics.drawString(font, Component.translatable("af9.orb_mk2.mold"), OrbMk2Menu.MOLD_X - 1,
+                OrbMk2Menu.MOLD_Y - 11, 0x404040, false);
+        graphics.drawString(font, Component.translatable("af9.orb_mk2.nc_short"), OrbMk2Menu.MOLD_X + 3,
+                OrbMk2Menu.MOLD_Y + 19, 0xFFCC2222, false);
         Component line;
         if (menu.hasRecipe()) {
             line = Component.translatable("af9.orb_mk2.charge", format(menu.stored()), format(menu.required()));

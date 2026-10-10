@@ -2,6 +2,13 @@ package com.af9.core.compat.powah;
 
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.Item;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Collection;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -132,6 +139,36 @@ public final class OrbRecipes {
             }
         }
         return -1;
+    }
+
+    private static RecipeManager moldManager;
+    private static int moldRecipes = -1;
+    private static Set<Item> moldItems = Set.of();
+
+    /** Every item some orb recipe keeps (an ingredient with {@code nc}): the molds. Cached per recipe manager. */
+    public static synchronized Set<Item> molds(RecipeManager manager) {
+        Collection<Recipe<?>> all = manager.getRecipes();
+        if (manager != moldManager || all.size() != moldRecipes) {
+            Set<Item> set = new HashSet<>();
+            for (Recipe<?> recipe : all) {
+                if (!(recipe instanceof OrbCounts counts)) continue;
+                boolean[] nc = counts.af9Nc();
+                List<Ingredient> ingredients = recipe.getIngredients();
+                for (int i = 0; i < ingredients.size() && i < nc.length; i++) {
+                    if (!nc[i]) continue;
+                    for (ItemStack stack : ingredients.get(i).getItems()) set.add(stack.getItem());
+                }
+            }
+            moldItems = set;
+            moldManager = manager;
+            moldRecipes = all.size();
+        }
+        return moldItems;
+    }
+
+    /** Whether the item is a mold of some orb recipe. */
+    public static boolean isMold(Level level, ItemStack stack) {
+        return level != null && !stack.isEmpty() && molds(level.getRecipeManager()).contains(stack.getItem());
     }
 
     /** A copy of the ingredient whose stacks carry the count (what a recipe viewer shows). Only for concrete, client-side lists. */
