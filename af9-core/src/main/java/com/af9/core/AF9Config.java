@@ -23,6 +23,9 @@ public final class AF9Config {
     /** Whether players in creative mode arrive in a pod too (spectators never). */
     public static final ForgeConfigSpec.BooleanValue DROP_POD_CREATIVE;
 
+    /** Whether a player who joins a world for the first time gets the starter kit. */
+    public static final ForgeConfigSpec.BooleanValue STARTER_KIT;
+
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
         builder.comment("Wafers and chips in a player's inventory turn into contaminated ones (unless the player wears",
@@ -70,6 +73,13 @@ public final class AF9Config {
                 .comment("Players in creative mode arrive in a pod too (spectators never). Off: creative players skip it,",
                         "and so do they for good: the arrival is only ever offered on the first join.")
                 .define("includeCreative", true);
+        builder.pop();
+        builder.comment("Starter kit: a player who joins a world for the first time gets a charged HV prospector, a steel",
+                "mining hammer, the Forgotten Hat (worn), the starter guide book and 0 to 23 dried kelp.")
+                .push("starterKit");
+        STARTER_KIT = builder
+                .comment("Give the starter kit on the first join.")
+                .define("onFirstJoin", true);
         builder.pop();
         SPEC = builder.build();
     }

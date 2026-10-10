@@ -1,0 +1,20 @@
+{
+  "name": "Your kit",
+  "icon": "gtceu:prospector.hv",
+  "category": "af9:start",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Advanced Prospector (HV).$() Right-click to scan: a map of the ore veins around you opens (radius in chunks is on its tooltip). $(bold)Shift + right-click$() changes the mode: ores, fluids (oil and gas) and bedrock ore veins where the pack has them. It runs on its own battery, already full; charge it in a charger when it runs low."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The map marks the veins by the ore they hold. Copper, tin and iron are all you need for the Steam Age.$(br2)$(bold)Steel Mining Hammer.$() Breaks a $(bold)3 x 3$() area of what a pickaxe breaks (stone, ore, dirt). It costs durability for each block. It does not chop wood and you cannot punch ores out with hands."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Forgotten Hat.$() A hat from Quark, worn for the look. Take it off and put it on any time.$(br2)$(bold)Dried kelp.$() Eat it, or keep it: 4 kelp make a plant ball in the Create compactor, which you will want later."
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "Road to the Steam Age",
+  "icon": "create:andesite_alloy",
+  "category": "af9:start",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The steam age here runs on $(bold)Create$(), not on GregTech's steam machines (those are removed). The first goal: $(bold)steel and your first GT machine$(). The order:$(br2)$(li)Find copper, tin and iron with the prospector, mine them with the hammer$(br)$(li)Make a stone furnace or a Create blaze burner; smelt$(br)$(li)Build Create power: a water wheel or windmill, shafts, cogwheels"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Coke and steel.$() Coal in a Create mixer, $(bold)superheated$() (blaze burner on a blaze cake), makes coke and creosote (2 coal: 2 coke and 1000 mB). Iron plus coke in a superheated mixer makes $(bold)steel$() (1 iron and 2 coke give 1 steel; with calcite flux 1 iron, 1 coke and 1 calcite give 2 steel)."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Bronze, plates, wood.$() Copper and tin dust, 3 to 1, in a heated mixer make bronze dust; smelt it as usual. Ingots go through the Create press for $(bold)plates$(). A log in a millstone gives 2 wood dust. Water comes from Create's mechanical pump, not the primitive pump."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Glass and tubes.$() Sand in a heated mixer gives molten glass; stick plus 144 mB through a spout makes a glass tube. Glass tube, steel bolt and copper wire make a vacuum tube; with polished rose quartz it is an $(bold)electron tube$(), the part of your first circuits."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Rubber.$() Rubber trees give sticky resin; resin pressed gives 3 raw rubber dust; with sulfur in a heated mixer it is a rubber ingot. Cables and many machine parts need it.$(br2)The $(bold)LV circuits$() are made with Create too: a board goes through deployers and a press (see the quest book)."
+    }
+  ]
+}

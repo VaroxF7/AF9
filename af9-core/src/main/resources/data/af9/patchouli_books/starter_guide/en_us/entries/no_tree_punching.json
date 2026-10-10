@@ -1,0 +1,28 @@
+{
+  "name": "Wood without punching",
+  "icon": "minecraft:flint",
+  "category": "af9:start",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)1. Rocks.$() Small loose rocks lie on the ground (stone, andesite, granite, diorite, sandstone). Pick them up with your hands. Gravel is everywhere: dig it with the hammer or your hands, and $(bold)three gravel craft into two flint$()."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)2. Knap.$() Hold a $(bold)flint$() and use it on an exposed stone block: it breaks into $(bold)flint shards$(). Repeat until you have a handful (an axe takes 1, a pickaxe 4).$(br2)$(bold)3. Sticks.$() Break any $(bold)leaves$(): they drop sticks."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)4. Flint knife.$() In the crafting grid, a flint shard with a stick below it.$(br2)$(bold)5. Plant fibre.$() Cut tall grass (also leaves, saplings, flowers, wheat) with the knife. $(bold)Three fibres make a plant string$() (shapeless). Normal string works too."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)6. Flint axe.$() Top row: plant string, flint shard. Row below: stick on the left. This is the first tool that harvests wood: logs at last.$(br2)$(bold)7. Flint pickaxe$() (if you want one more): shard, string, shard; shard, stick, shard; stick below. Your Steel Mining Hammer already mines stone and ore, so you may skip this one."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "$(bold)Fire.$() A $(bold)fire starter$(): stick and plant string on the top row, flint shard and stick below, lights campfires and furnaces without flint and steel.$(br2)Logs do not make planks by hand either: you need the axe or a saw. Planks, sticks and a crafting table follow as usual from there."
+    }
+  ]
+}

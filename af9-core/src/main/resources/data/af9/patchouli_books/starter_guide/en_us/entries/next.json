@@ -1,0 +1,16 @@
+{
+  "name": "After the Steam Age",
+  "icon": "gtceu:lv_machine_hull",
+  "category": "af9:start",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Your first GT machine hull is the start of $(bold)LV$(). From there the quest book leads you: MV, then HV, where machine parts become heavy and Powah's Energizing Orb Mk2 makes them (counts in its recipes, molds in its own slot, marked with a red NC).$(br2)JEI (or your recipe viewer) shows every recipe: press $(bold)R$() on an item for how to make it and $(bold)U$() for what it makes."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Good habits: label your vein finds on a map, keep a chest of $(bold)every$() part type early, and build power before you build machines. Lost? Open the quest book, pick the chapter of the voltage you are on and do the quests in order.$(br2)Good luck, pilot."
+    }
+  ]
+}

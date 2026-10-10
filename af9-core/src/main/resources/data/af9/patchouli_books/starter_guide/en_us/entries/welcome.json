@@ -1,0 +1,16 @@
+{
+  "name": "Welcome to AF9",
+  "icon": "minecraft:compass",
+  "category": "af9:start",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "You came down in a drop pod with a kit. It holds:$(br)$(li)An $(bold)Advanced Prospector (HV)$(), fully charged$(br)$(li)A $(bold)Steel Mining Hammer$() (mines 3x3)$(br)$(li)The $(bold)Forgotten Hat$(), already on your head$(br)$(li)This guide$(br)$(li)0 to 23 $(bold)dried kelp$(), a random handful of food"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "This pack has $(bold)no tree punching$(): your hands cannot break logs. Do not waste time on trees yet, the next entry says how to get a tool that can.$(br2)The tech is GregTech (CEu) with Create for the steam age, Powah for power parts and a lot of space after that. The quest book has a chapter for every voltage."
+    }
+  ]
+}
