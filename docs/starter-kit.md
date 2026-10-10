@@ -13,8 +13,9 @@ Config: `starterKit.onFirstJoin` in `af9-common.toml`. A missing item is left ou
 
 ## The book
 
-`af9-core/src/main/resources/data/af9/patchouli_books/starter_guide/`: `book.json`, the category `start` and the entries
-in `en_us/entries/` (welcome, wood without punching, the kit, the road to the Steam Age, after it). The text is generated
+`af9-core/src/main/resources/data/af9/patchouli_books/starter_guide/book.json` (with `use_resource_pack`: Patchouli 1.20 wants
+the contents clientside) and in `af9-core/src/main/resources/assets/af9/patchouli_books/starter_guide/en_us/`: the category
+`start` and the entries in `entries/` (welcome, wood without punching, the kit, the road to the Steam Age, after it). The text is generated
 by `tools/guide/make_starter_book.py` (edit the text there and run it).
 
 The Steam Age entry follows `docs/early-game.md` (Create mixer, blaze burner, coke, steel, bronze, plates, glass tubes,

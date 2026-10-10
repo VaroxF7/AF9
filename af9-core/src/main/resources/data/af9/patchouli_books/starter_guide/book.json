@@ -2,7 +2,6 @@
   "name": "AF9 Starter Guide",
   "landing_text": "Welcome to AF9, pilot. This book says what to do first: your kit, getting wood without punching trees, and the road to the Steam Age.$(br2)Read the entries in order.",
   "version": 1,
-  "show_progress": false,
-  "book_texture": "patchouli:textures/gui/book_brown.png",
-  "creative_tab": "misc"
+  "use_resource_pack": true,
+  "show_progress": false
 }

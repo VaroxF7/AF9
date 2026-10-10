@@ -1,9 +1,11 @@
-"""Writes AF9's starter guide: a Patchouli book (data/af9/patchouli_books/starter_guide)."""
+"""Writes AF9's starter guide: a Patchouli book. Patchouli 1.20 wants book.json in data/af9/patchouli_books/starter_guide
+and everything else (categories, entries) in assets/af9/patchouli_books/starter_guide/en_us (use_resource_pack)."""
 import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2] / 'af9-core/src/main/resources/data/af9/patchouli_books/starter_guide'
-LANG = ROOT / 'en_us'
+ASSETS = ROOT.parents[3] / 'assets/af9/patchouli_books/starter_guide'
+LANG = ASSETS / 'en_us'
 CAT = 'af9:start'
 
 
@@ -28,9 +30,8 @@ write(ROOT / 'book.json', {
     'landing_text': 'Welcome to AF9, pilot. This book says what to do first: your kit, getting wood without punching '
                     'trees, and the road to the Steam Age.$(br2)Read the entries in order.',
     'version': 1,
+    'use_resource_pack': True,
     'show_progress': False,
-    'book_texture': 'patchouli:textures/gui/book_brown.png',
-    'creative_tab': 'misc',
 })
 
 write(LANG / 'categories' / 'start.json', {
