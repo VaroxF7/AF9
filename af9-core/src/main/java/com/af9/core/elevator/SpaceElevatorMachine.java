@@ -704,20 +704,24 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         }
         textList.add(Component.translatable("af9.space_elevator.display.motors", mark(motorTier),
                 moduleSlots(motorTier)));
-        textList.add(Component.translatable("af9.space_elevator.display.modules", poweredModules, modules, expeditions));
+        // short lines: the text panel clips what does not fit its width (about 30 characters), it does not scroll sideways
+        textList.add(Component.translatable("af9.space_elevator.display.modules", poweredModules, modules));
+        textList.add(Component.translatable("af9.space_elevator.display.expeditions", expeditions));
         // what the modules in the slots need to be provided with: the computation, and per tier the hydrogen and coolant
         textList.add(Component.translatable("af9.space_elevator.display.computation",
-                FormattingUtil.formatNumbers(computationHave), FormattingUtil.formatNumbers(computationNeed))
+                shortNumber(computationHave), shortNumber(computationNeed))
                 .withStyle(isComputationMet() ? ChatFormatting.GREEN : ChatFormatting.RED));
         for (int tier = 1; tier <= MODULE_TIERS; tier++) {
             if (poweredOfTier[tier] <= 0) continue;
             Requirement need = REQUIREMENTS[tier - 1];
             long flights = (long) poweredOfTier[tier] * MODULE_EXPEDITIONS[tier - 1];
             Fluid coolant = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(need.coolantFluid()));
-            textList.add(Component.translatable("af9.space_elevator.display.supply", mark(tier), poweredOfTier[tier],
-                    FormattingUtil.formatNumbers(flights * need.hydrogen() / need.seconds()),
+            textList.add(Component.translatable("af9.space_elevator.display.supply", mark(tier), poweredOfTier[tier]));
+            textList.add(Component.translatable("af9.space_elevator.display.supply.hydrogen",
+                    shortNumber(flights * need.hydrogen() / need.seconds())));
+            textList.add(Component.translatable("af9.space_elevator.display.supply.coolant",
                     coolant == null ? need.coolantFluid() : coolant.getFluidType().getDescription(),
-                    FormattingUtil.formatNumbers(flights * need.coolant() / need.seconds())));
+                    shortNumber(flights * need.coolant() / need.seconds())));
         }
         textList.add(isSkyClear() ? Component.translatable("af9.space_elevator.display.sky") :
                 Component.translatable("af9.space_elevator.display.no_sky"));
@@ -725,6 +729,19 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
         textList.add(ComponentPanelWidget.withButton(Component.translatable(extended ?
                 "af9.space_elevator.display.extended" : "af9.space_elevator.display.basic"), "size"));
         super.addDisplayText(textList);
+    }
+
+    /** A number for a line of the text panel: whole with thousands separators up to 99,999, then 1.2M / 3.4B / 5.6T. */
+    private static String shortNumber(long value) {
+        if (value < 100_000L) return FormattingUtil.formatNumbers(value);
+        String[] suffix = { "k", "M", "B", "T", "Q" };
+        double v = value;
+        int i = -1;
+        while (v >= 1000 && i < suffix.length - 1) {
+            v /= 1000;
+            i++;
+        }
+        return String.format(java.util.Locale.ROOT, v >= 100 ? "%.0f%s" : "%.1f%s", v, suffix[i]);
     }
 
     @Override
