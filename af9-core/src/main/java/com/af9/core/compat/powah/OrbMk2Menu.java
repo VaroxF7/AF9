@@ -109,7 +109,7 @@ public class OrbMk2Menu extends AbstractContainerMenu {
         return before;
     }
 
-    /** An input: any item while the product has not been taken. */
+    /** An input: any item (products wait in the output slot, they do not block it). */
     private static final class InputSlot extends Slot {
 
         InputSlot(Container container, int index, int x, int y) {

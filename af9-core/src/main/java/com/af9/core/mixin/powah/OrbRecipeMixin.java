@@ -5,6 +5,8 @@ import java.util.List;
 import com.af9.core.compat.powah.OrbCounts;
 import com.af9.core.compat.powah.OrbRecipes;
 
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.Level;
@@ -66,6 +68,7 @@ public abstract class OrbRecipeMixin implements OrbCounts {
             at = @At("HEAD"), cancellable = true, remap = false)
     private void af9$matches(RecipeWrapper inv, Level level, CallbackInfoReturnable<Boolean> cir) {
         List<Ingredient> ingredients = ((Recipe<?>) (Object) this).getIngredients();
-        cir.setReturnValue(OrbRecipes.matches(ingredients, af9$counts, inv));
+        ItemStack result = ((Recipe<?>) (Object) this).getResultItem(RegistryAccess.EMPTY);
+        cir.setReturnValue(OrbRecipes.matches(ingredients, af9$counts, inv, result));
     }
 }

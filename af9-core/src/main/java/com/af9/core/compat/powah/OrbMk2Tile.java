@@ -13,7 +13,7 @@ import owmii.powah.block.energizing.EnergizingOrbTile;
 
 /**
  * The Energizing Orb Mk2's block entity: Powah's orb tile (so its rods and wrench see an orb) that holds a stack in every
- * input slot, takes items while the product is out of the way, and has a menu. Powah's item handler capability sits on the
+ * input slot, takes items (also while products wait in the output slot), and has a menu. Powah's item handler capability sits on the
  * tile by its inventory interface: hoppers, pipes and AE2 reach the slots through it, with the slot limit and
  * {@link #canInsert} of this class. The product is taken out of slot 0 (an export bus or a hopper can).
  */
@@ -37,12 +37,13 @@ public class OrbMk2Tile extends EnergizingOrbTile implements MenuProvider {
     }
 
     /**
-     * Inputs while the product has been taken; a slot that holds the item takes more of it (stacking decides). The mold
-     * slot takes the items the recipes keep (molds) and nothing else.
+     * Inputs, also while products wait in the output slot (they stack there and the next craft adds to them); a slot that
+     * holds the item takes more of it (stacking decides). The mold slot takes the items the recipes keep (molds) and
+     * nothing else. The output slot takes nothing.
      */
     @Override
     public boolean canInsert(int index, ItemStack stack) {
-        if (index == 0 || !getInventory().getStackInSlot(0).isEmpty()) return false;
+        if (index == 0) return false;
         if (index == OrbMk2Menu.MOLD) return OrbRecipes.isMold(getLevel(), stack);
         return true;
     }

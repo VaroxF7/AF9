@@ -88,11 +88,11 @@ public final class OrbRecipes {
 
     /**
      * The orb's contents against a recipe: every filled input slot (1..) takes one ingredient it matches and holds at least
-     * that ingredient's count, every ingredient is taken, and nothing is in the output slot (0: a finished product waits to be
-     * collected). Powah's own check, with the counts.
+     * that ingredient's count, every ingredient is taken, and the output slot (0) is empty or holds the recipe's product with
+     * room for one more craft (products stack up to 64 there until they are collected). Powah's own check, with the counts.
      */
-    public static boolean matches(List<Ingredient> ingredients, int[] counts, Container inv) {
-        if (inv.getContainerSize() > 0 && !inv.getItem(0).isEmpty()) return false;
+    public static boolean matches(List<Ingredient> ingredients, int[] counts, Container inv, ItemStack result) {
+        if (inv.getContainerSize() > 0 && !inv.getItem(0).isEmpty() && !hasRoom(inv.getItem(0), result)) return false;
         List<Integer> free = new ArrayList<>();
         for (int i = 0; i < ingredients.size(); i++) free.add(i);
         for (int slot = 1; slot < inv.getContainerSize(); slot++) {
@@ -103,10 +103,24 @@ public final class OrbRecipes {
         return free.isEmpty();
     }
 
+    /** Whether {@code product} (the output slot's contents) is the recipe's result with room for another craft of it. */
+    public static boolean hasRoom(ItemStack product, ItemStack result) {
+        if (result == null || result.isEmpty() || !ItemStack.isSameItemSameTags(product, result)) return false;
+        return product.getCount() + result.getCount() <= Math.min(MAX_COUNT, result.getMaxStackSize());
+    }
+
+    /** The output slot after a craft: the product joins what is there (same item, room checked when the craft matched). */
+    public static ItemStack addProduct(ItemStack there, ItemStack result) {
+        if (there.isEmpty() || !ItemStack.isSameItemSameTags(there, result)) return result.copy();
+        ItemStack sum = there.copy();
+        sum.grow(result.getCount());
+        return sum;
+    }
+
     /**
      * What stays in the orb's slots after a craft: each filled input slot gives up its ingredient's count (a hopper may have
-     * filled a slot with more), except the slots of ingredients the craft keeps (a mold). Index 0 is left to the caller
-     * (the product goes there).
+     * filled a slot with more), except the slots of ingredients the craft keeps (a mold). Index 0 keeps what it holds (the
+     * caller adds the product to it).
      */
     public static ItemStack[] consume(List<Ingredient> ingredients, int[] counts, boolean[] nc, ItemStack[] slots) {
         ItemStack[] out = new ItemStack[slots.length];
@@ -114,7 +128,7 @@ public final class OrbRecipes {
         for (int i = 0; i < ingredients.size(); i++) free.add(i);
         for (int slot = 0; slot < slots.length; slot++) {
             ItemStack stack = slots[slot];
-            out[slot] = ItemStack.EMPTY;
+            out[slot] = slot == 0 ? stack.copy() : ItemStack.EMPTY; // the product waits where it is
             if (slot == 0 || stack.isEmpty()) continue;
             int index = take(ingredients, counts, free, stack);
             if (index < 0) continue;

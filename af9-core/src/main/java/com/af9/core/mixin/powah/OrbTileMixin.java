@@ -53,6 +53,14 @@ public abstract class OrbTileMixin {
         cir.setReturnValue(64);
     }
 
+    /** The finished product joins the output slot instead of replacing it: crafts stack up to 64 until collected. */
+    @Redirect(method = "fillEnergy(J)J", at = @At(value = "INVOKE",
+            target = "Lowmii/powah/lib/logistics/inventory/Inventory;setStackInSlot(ILnet/minecraft/world/item/ItemStack;)V"),
+            remap = false)
+    private void af9$stackProduct(Inventory inventory, int slot, ItemStack result) {
+        inventory.setStackInSlot(slot, slot == 0 ? OrbRecipes.addProduct(inventory.getStackInSlot(0), result) : result);
+    }
+
     @Redirect(method = "fillEnergy(J)J", at = @At(value = "INVOKE",
             target = "Lowmii/powah/lib/logistics/inventory/Inventory;clear()V"), remap = false)
     private void af9$takeCounts(Inventory inventory) {
