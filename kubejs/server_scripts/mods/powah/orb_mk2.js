@@ -10,7 +10,7 @@ ServerEvents.recipes(event => {
         'MOM',
         'PCP'
     ], {
-        P: 'gtceu:steel_plate',
+        P: '#forge:plates/steel',
         C: 'gtceu:good_electronic_circuit',
         M: 'gtceu:mv_electric_motor',
         O: 'powah:energizing_orb'

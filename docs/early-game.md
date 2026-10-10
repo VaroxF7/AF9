@@ -68,6 +68,9 @@ patches it and adds a Mk2 with a screen:
   orb block and tile, so energizing rods find and charge it and the wrench works on it; its slots are on the item
   handler, so hoppers, pipes and AE2 (interfaces, import and export buses) reach them. Craft: Powah's orb in the
   middle, 2 MV motors, 2 good electronic circuits, 4 steel plates (`kubejs/server_scripts/mods/powah/orb_mk2.js`);
+- **energizing rods by voltage** (`kubejs/server_scripts/mods/powah/energizing_rods.js`): up to LuV the best rod is the niotic
+  one; the spirited rod takes a UV electric motor in its recipe (UV) and the nitro rod a UHV machine hull (UHV), the rest as in
+  Powah;
 - recipe viewers (JEI, EMI) show the counts.
 
 Powah's own orb and its recipes (one of each) are not changed. A recipe with a counted ingredient (more than one of
