@@ -8493,7 +8493,7 @@
 	"af9.quest.title.hvSteel": "Energized Steel",
 	"af9.quest.hv.steel": "An iron and a gold ingot in the orb make 2 &eEnergized Steel&r (10,000 RF). It is the glue of the components: the motor, piston and robot arm take one in place of a part. &eDielectric Paste&r seals the pump and the conveyor.",
 	"af9.quest.title.hvMotor": "The Motor, Faster",
-	"af9.quest.hv.motor.1": "2 &7silver&r double cables, a stainless steel rod, energized steel, a magnetic steel rod and 3 electrum double wires in the orb (204,800 RF): an &eHV Electric Motor&r. A part fewer than the assembler's recipe.",
+	"af9.quest.hv.motor.1": "2 &7silver&r double cables, 2 stainless steel rods, energized steel, a magnetic steel rod and 4 electrum double wires in the orb (204,800 RF): an &eHV Electric Motor&r. Everything the assembler's recipe takes, and the energized steel on top; the orb saves the power.",
 	"af9.quest.hv.motor.2": "GT's assembler and crafting recipes stay; the orb is a second way.",
 	"af9.quest.title.hvParts": "Piston, Pump and Conveyor",
 	"af9.quest.hv.parts": "Each takes an HV motor, the rest is in the recipe viewer: &ePiston&r (307,200 RF) 2 stainless rods, 2 gold cables, 2 stainless plates, a small gear and energized steel. &ePump&r (256,000 RF) a gold cable, a stainless pipe, a steel rotor, 2 rubber rings and paste. &eConveyor&r (256,000 RF) 2 motors, a gold cable, 4 rubber plates and paste.",

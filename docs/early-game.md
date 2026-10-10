@@ -73,20 +73,21 @@ Powah's own orb and its recipes (one of each) are not changed. A recipe with a c
 something) runs in the **Mk2 only**: a plain orb holding the same parts finds no recipe. In JEI the Mk2 is a catalyst of
 Powah's energizing category, so those recipes are listed under it.
 
-| component | in the orb | GT's assembler recipe |
+| component | in the orb (HV) | GT's assembler recipe |
 |---|---|---|
-| motor | 2 silver double cables, stainless rod, energized steel, magnetic steel rod, 3 electrum double wires | 9 items |
-| conveyor | 2 HV motors, gold cable, 4 rubber plates, dielectric paste | 6 ingots of rubber |
-| pump | HV motor, gold cable, stainless pipe, steel rotor, 2 rubber rings, dielectric paste | and a steel screw |
-| piston | HV motor, 2 stainless rods, 2 gold cables, 2 stainless plates, small stainless gear, energized steel | 3 plates |
-| robot arm | 2 HV motors, HV piston, HV circuit, 2 gold cables, stainless rod, energized steel | 3 cables |
-| emitter | 3 chromium rods, 2 gold cables, 2 HV circuits, ender eye | 4 rods |
-| sensor | chromium rod, 3 stainless plates, HV circuit, ender eye | 4 plates |
-| field generator | quantum eye, 2 stainless plates, 2 HV circuits, 3 mercury barium calcium cuprate quadruple wires | 4 wires |
+| motor | 2 silver double cables, 2 stainless rods, magnetic steel rod, 4 electrum double wires, energized steel | the same, without the energized steel |
+| conveyor | 2 HV motors, gold cable, 6 rubber plates, dielectric paste | the same, without the paste |
+| pump | HV motor, gold cable, stainless pipe, steel screw, steel rotor, 2 rubber rings | the same |
+| piston | HV motor, 2 stainless rods, 2 gold cables, 3 stainless plates, small stainless gear, energized steel | the same, without the energized steel |
+| robot arm | 2 HV motors, HV piston, HV circuit, 3 gold cables, 2 stainless rods, energized steel | the same, without the energized steel |
+| emitter | 4 chromium rods, 2 gold cables, 2 HV circuits, ender eye | the same |
+| sensor | chromium rod, 4 stainless plates, HV circuit, ender eye | the same |
+| field generator | quantum eye, 2 stainless plates, 2 HV circuits, 4 mercury barium calcium cuprate quadruple wires | the same |
 
-Each is a part or two cheaper than GT's, and the motor, conveyor, pump, piston and arm take a Powah material
-(energized steel: iron and gold in the orb; dielectric paste) in place of a part. The charge is 40,000 RF for the
-motor up to 250,000 RF for the field generator; it scales with the rods around the orb (Powah's own rule), so more
+Each takes everything GT's assembler takes, in the same amounts: the orb is not a cheaper way to make a component. The
+motor, conveyor, piston and arm also take a Powah material (energized steel: iron and gold in the orb; dielectric paste)
+as the glue where a slot is left (the orb has six, the pump fills them). What the orb saves is **power**: the charge is
+40,000 RF for the motor up to 250,000 RF for the field generator; it scales with the rods around the orb (Powah's own rule), so more
 rods, a shorter wait. Powah's config ratio for energizing scales these like its own recipes.
 
 ### Notes for changing it

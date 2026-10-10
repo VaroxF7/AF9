@@ -17,10 +17,11 @@
 // keeps (a mold: matched but not consumed), circ(tier, count) is a circuit tag input. orb() writes the recipe;
 // a fifth argument is the output count (shaping: 1 ingot lasers into 2 rods, 8 bolts).
 //
-// Components: each is cheaper than GT's assembler recipe by a part or two and takes a Powah material as the glue,
-// a small detour through Powah, not a second factory. The glue steps up with the tier: LV glues with blazing
-// crystal (the basic orb's crystal) and dielectric paste (coal and clay), MV and HV with energized steel (iron
-// and gold) and paste. The energy is GT's assembler cost at the tier's voltage, converted 1 EU to 4 FE (LV 100
+// Components: each takes everything GT's assembler recipe takes, in the same amounts (the orb is not a way to make a
+// component cheaper in parts), and a Powah material as the glue where a slot is left (the orb has six): a small detour
+// through Powah, not a second factory. The glue steps up with the tier: LV glues with blazing crystal (the basic
+// orb's crystal) and dielectric paste (coal and clay), MV and HV with energized steel (iron and gold) and paste. What
+// the orb saves is power: the energy is GT's assembler cost at the tier's voltage, converted 1 EU to 4 FE (LV 100
 // ticks at 32 EU/t = 12800 FE for the motor, MV 51200, HV 204800); the costlier parts scale from there
 // (conveyor and pump 1.25x, piston 1.5x, arm 3x, emitter and sensor 2.25x, field generator 6.25x). The charge
 // scales with the rods round the orb, more rods, a shorter wait.
@@ -42,28 +43,28 @@ ServerEvents.recipes(event => {
         }).id('af9:powah/' + name)
     }
 
-    // ---- LV components (GT assembler: 2 tin cables, 2 steel rods, 1 magnetic rod, 4 copper wires, and so on) ----
-    //   motor    2 tin cables, 1 steel rod, 1 magnetic steel rod, 3 copper wires, blazing crystal       (GT: 9 items)
-    //   conveyor 2 motors, 1 tin cable, 4 rubber plates, dielectric paste                               (GT: 6 plates)
-    //   pump     motor, tin cable, bronze pipe, tin rotor, 2 rubber rings, dielectric paste             (GT: and a screw)
-    //   piston   motor, 2 steel rods, 2 tin cables, 2 steel plates, small gear, blazing crystal         (GT: 3 plates)
-    //   arm      2 motors, piston, LV circuit, 2 tin cables, steel rod, blazing crystal                 (GT: 3 cables)
-    //   emitter  3 brass rods, 2 tin cables, 2 LV circuits, quartzite                                   (GT: 4 rods)
-    //   sensor   brass rod, 3 steel plates, LV circuit, quartzite                                       (GT: 4 plates)
-    //   field    ender pearl, 2 steel plates, 2 LV circuits, 3 quadruple wires                          (GT: 4 wires)
+    // ---- LV components: GT's assembler ingredients in full, and a glue where a slot is left ----
+    //   motor    2 tin cables, 2 steel rods, 1 magnetic steel rod, 4 copper wires, blazing crystal
+    //   conveyor 2 motors, 1 tin cable, 6 rubber plates, dielectric paste
+    //   pump     motor, tin cable, bronze pipe, tin screw, tin rotor, 2 rubber rings (six slots: no glue)
+    //   piston   motor, 2 steel rods, 2 tin cables, 3 steel plates, small gear, blazing crystal
+    //   arm      2 motors, piston, LV circuit, 3 tin cables, 2 steel rods, blazing crystal
+    //   emitter  4 brass rods, 2 tin cables, 2 LV circuits, quartzite
+    //   sensor   brass rod, 4 steel plates, LV circuit, quartzite
+    //   field    ender pearl, 2 steel plates, 2 LV circuits, 4 quadruple wires
 
     orb('lv_electric_motor', [
         item('gtceu:tin_single_cable', 2),
-        item('gtceu:steel_rod', 1),
+        item('gtceu:steel_rod', 2),
         item('gtceu:magnetic_steel_rod', 1),
-        item('gtceu:copper_single_wire', 3),
+        item('gtceu:copper_single_wire', 4),
         item('powah:crystal_blazing', 1)
     ], 12800, 'gtceu:lv_electric_motor')
 
     orb('lv_conveyor_module', [
         item('gtceu:lv_electric_motor', 2),
         item('gtceu:tin_single_cable', 1),
-        item('gtceu:rubber_plate', 4),
+        item('gtceu:rubber_plate', 6),
         item('powah:dielectric_paste', 1)
     ], 16000, 'gtceu:lv_conveyor_module')
 
@@ -71,16 +72,16 @@ ServerEvents.recipes(event => {
         item('gtceu:lv_electric_motor', 1),
         item('gtceu:tin_single_cable', 1),
         item('gtceu:bronze_normal_fluid_pipe', 1),
+        item('gtceu:tin_screw', 1),
         item('gtceu:tin_rotor', 1),
-        item('gtceu:rubber_ring', 2),
-        item('powah:dielectric_paste', 1)
+        item('gtceu:rubber_ring', 2)
     ], 16000, 'gtceu:lv_electric_pump')
 
     orb('lv_electric_piston', [
         item('gtceu:lv_electric_motor', 1),
         item('gtceu:steel_rod', 2),
         item('gtceu:tin_single_cable', 2),
-        item('gtceu:steel_plate', 2),
+        item('gtceu:steel_plate', 3),
         item('gtceu:small_steel_gear', 1),
         item('powah:crystal_blazing', 1)
     ], 19200, 'gtceu:lv_electric_piston')
@@ -89,13 +90,13 @@ ServerEvents.recipes(event => {
         item('gtceu:lv_electric_motor', 2),
         item('gtceu:lv_electric_piston', 1),
         circ('lv', 1),
-        item('gtceu:tin_single_cable', 2),
-        item('gtceu:steel_rod', 1),
+        item('gtceu:tin_single_cable', 3),
+        item('gtceu:steel_rod', 2),
         item('powah:crystal_blazing', 1)
     ], 38400, 'gtceu:lv_robot_arm')
 
     orb('lv_emitter', [
-        item('gtceu:brass_rod', 3),
+        item('gtceu:brass_rod', 4),
         item('gtceu:tin_single_cable', 2),
         circ('lv', 2),
         item('gtceu:quartzite_gem', 1)
@@ -103,7 +104,7 @@ ServerEvents.recipes(event => {
 
     orb('lv_sensor', [
         item('gtceu:brass_rod', 1),
-        item('gtceu:steel_plate', 3),
+        item('gtceu:steel_plate', 4),
         circ('lv', 1),
         item('gtceu:quartzite_gem', 1)
     ], 28800, 'gtceu:lv_sensor')
@@ -112,31 +113,31 @@ ServerEvents.recipes(event => {
         item('minecraft:ender_pearl', 1),
         item('gtceu:steel_plate', 2),
         circ('lv', 2),
-        item('gtceu:manganese_phosphide_quadruple_wire', 3)
+        item('gtceu:manganese_phosphide_quadruple_wire', 4)
     ], 80000, 'gtceu:lv_field_generator')
 
-    // ---- MV components (GT assembler: 2 copper cables, 2 aluminium rods, 1 magnetic rod, 4 cupronickel wires) ----
-    //   motor    2 copper cables, 1 aluminium rod, 1 magnetic steel rod, 3 cupronickel wires, steel     (GT: 9 items)
-    //   conveyor 2 motors, 1 copper cable, 4 rubber plates, dielectric paste                            (GT: 6 plates)
-    //   pump     motor, copper cable, steel pipe, bronze rotor, 2 rubber rings, paste                   (GT: and a screw)
-    //   piston   motor, 2 aluminium rods, 2 copper cables, 2 aluminium plates, small gear, steel        (GT: 3 plates)
-    //   arm      2 motors, piston, MV circuit, 2 copper cables, aluminium rod, steel                    (GT: 3 cables)
-    //   emitter  3 electrum rods, 2 copper cables, 2 MV circuits, flawless emerald                     (GT: 4 rods)
-    //   sensor   electrum rod, 3 aluminium plates, MV circuit, flawless emerald                         (GT: 4 plates)
-    //   field    ender eye, 2 aluminium plates, 2 MV circuits, 3 quadruple wires                       (GT: 4 wires)
+    // ---- MV components: GT's assembler ingredients in full, and a glue where a slot is left ----
+    //   motor    2 copper cables, 2 aluminium rods, 1 magnetic steel rod, 4 cupronickel wires, energized steel
+    //   conveyor 2 motors, 1 copper cable, 6 rubber plates, dielectric paste
+    //   pump     motor, copper cable, steel pipe, bronze screw, bronze rotor, 2 rubber rings (six slots: no glue)
+    //   piston   motor, 2 aluminium rods, 2 copper cables, 3 aluminium plates, small gear, energized steel
+    //   arm      2 motors, piston, MV circuit, 3 copper cables, 2 aluminium rods, energized steel
+    //   emitter  4 electrum rods, 2 copper cables, 2 MV circuits, flawless emerald
+    //   sensor   electrum rod, 4 aluminium plates, MV circuit, flawless emerald
+    //   field    ender eye, 2 aluminium plates, 2 MV circuits, 4 quadruple wires
 
     orb('mv_electric_motor', [
         item('gtceu:copper_single_cable', 2),
-        item('gtceu:aluminium_rod', 1),
+        item('gtceu:aluminium_rod', 2),
         item('gtceu:magnetic_steel_rod', 1),
-        item('gtceu:cupronickel_double_wire', 3),
+        item('gtceu:cupronickel_double_wire', 4),
         item('powah:steel_energized', 1)
     ], 51200, 'gtceu:mv_electric_motor')
 
     orb('mv_conveyor_module', [
         item('gtceu:mv_electric_motor', 2),
         item('gtceu:copper_single_cable', 1),
-        item('gtceu:rubber_plate', 4),
+        item('gtceu:rubber_plate', 6),
         item('powah:dielectric_paste', 1)
     ], 64000, 'gtceu:mv_conveyor_module')
 
@@ -144,16 +145,16 @@ ServerEvents.recipes(event => {
         item('gtceu:mv_electric_motor', 1),
         item('gtceu:copper_single_cable', 1),
         item('gtceu:steel_normal_fluid_pipe', 1),
+        item('gtceu:bronze_screw', 1),
         item('gtceu:bronze_rotor', 1),
-        item('gtceu:rubber_ring', 2),
-        item('powah:dielectric_paste', 1)
+        item('gtceu:rubber_ring', 2)
     ], 64000, 'gtceu:mv_electric_pump')
 
     orb('mv_electric_piston', [
         item('gtceu:mv_electric_motor', 1),
         item('gtceu:aluminium_rod', 2),
         item('gtceu:copper_single_cable', 2),
-        item('gtceu:aluminium_plate', 2),
+        item('gtceu:aluminium_plate', 3),
         item('gtceu:small_aluminium_gear', 1),
         item('powah:steel_energized', 1)
     ], 76800, 'gtceu:mv_electric_piston')
@@ -162,13 +163,13 @@ ServerEvents.recipes(event => {
         item('gtceu:mv_electric_motor', 2),
         item('gtceu:mv_electric_piston', 1),
         circ('mv', 1),
-        item('gtceu:copper_single_cable', 2),
-        item('gtceu:aluminium_rod', 1),
+        item('gtceu:copper_single_cable', 3),
+        item('gtceu:aluminium_rod', 2),
         item('powah:steel_energized', 1)
     ], 153600, 'gtceu:mv_robot_arm')
 
     orb('mv_emitter', [
-        item('gtceu:electrum_rod', 3),
+        item('gtceu:electrum_rod', 4),
         item('gtceu:copper_single_cable', 2),
         circ('mv', 2),
         item('gtceu:flawless_emerald_gem', 1)
@@ -176,7 +177,7 @@ ServerEvents.recipes(event => {
 
     orb('mv_sensor', [
         item('gtceu:electrum_rod', 1),
-        item('gtceu:aluminium_plate', 3),
+        item('gtceu:aluminium_plate', 4),
         circ('mv', 1),
         item('gtceu:flawless_emerald_gem', 1)
     ], 115200, 'gtceu:mv_sensor')
@@ -185,31 +186,31 @@ ServerEvents.recipes(event => {
         item('minecraft:ender_eye', 1),
         item('gtceu:aluminium_plate', 2),
         circ('mv', 2),
-        item('gtceu:magnesium_diboride_quadruple_wire', 3)
+        item('gtceu:magnesium_diboride_quadruple_wire', 4)
     ], 320000, 'gtceu:mv_field_generator')
 
-    // ---- HV components (GT assembler: 2 silver cables, 2 stainless rods, 1 magnetic rod, 4 electrum wires) ----
-    //   motor    2 silver cable, 1 stainless rod, 1 energized steel, 1 magnetic rod, 3 electrum wire        (GT: 9 items)
-    //   conveyor 2 motors, 1 gold cable, 4 rubber plates, dielectric paste                                  (GT: 6 ingots of rubber)
-    //   pump     motor, gold cable, stainless pipe, steel rotor, 2 rubber rings, dielectric paste           (GT: and a screw)
-    //   piston   motor, 2 stainless rods, 2 gold cables, 2 stainless plates, small gear, energized steel    (GT: 3 plates)
-    //   arm      2 motors, piston, HV circuit, 2 gold cables, stainless rod, energized steel                (GT: 3 cables)
-    //   emitter  3 chromium rods, 2 gold cables, 2 HV circuits, ender eye                                   (GT: 4 rods)
-    //   sensor   chromium rod, 3 stainless plates, HV circuit, ender eye                                    (GT: 4 plates)
-    //   field    quantum eye, 2 stainless plates, 2 HV circuits, 3 quadruple wires                          (GT: 4 wires)
+    // ---- HV components: GT's assembler ingredients in full, and a glue where a slot is left ----
+    //   motor    2 silver double cables, 2 stainless rods, 1 magnetic steel rod, 4 electrum double wires, energized steel
+    //   conveyor 2 motors, 1 gold cable, 6 rubber plates, dielectric paste
+    //   pump     motor, gold cable, stainless pipe, steel screw, steel rotor, 2 rubber rings (six slots: no glue)
+    //   piston   motor, 2 stainless rods, 2 gold cables, 3 stainless plates, small gear, energized steel
+    //   arm      2 motors, piston, HV circuit, 3 gold cables, 2 stainless rods, energized steel
+    //   emitter  4 chromium rods, 2 gold cables, 2 HV circuits, ender eye
+    //   sensor   chromium rod, 4 stainless plates, HV circuit, ender eye
+    //   field    quantum eye, 2 stainless plates, 2 HV circuits, 4 quadruple wires
 
     orb('hv_electric_motor', [
         item('gtceu:silver_double_cable', 2),
-        item('gtceu:stainless_steel_rod', 1),
+        item('gtceu:stainless_steel_rod', 2),
         item('powah:steel_energized', 1),
         item('gtceu:magnetic_steel_rod', 1),
-        item('gtceu:electrum_double_wire', 3)
+        item('gtceu:electrum_double_wire', 4)
     ], 204800, 'gtceu:hv_electric_motor')
 
     orb('hv_conveyor_module', [
         item('gtceu:hv_electric_motor', 2),
         item('gtceu:gold_single_cable', 1),
-        item('gtceu:rubber_plate', 4),
+        item('gtceu:rubber_plate', 6),
         item('powah:dielectric_paste', 1)
     ], 256000, 'gtceu:hv_conveyor_module')
 
@@ -217,16 +218,16 @@ ServerEvents.recipes(event => {
         item('gtceu:hv_electric_motor', 1),
         item('gtceu:gold_single_cable', 1),
         item('gtceu:stainless_steel_normal_fluid_pipe', 1),
+        item('gtceu:steel_screw', 1),
         item('gtceu:steel_rotor', 1),
-        item('gtceu:rubber_ring', 2),
-        item('powah:dielectric_paste', 1)
+        item('gtceu:rubber_ring', 2)
     ], 256000, 'gtceu:hv_electric_pump')
 
     orb('hv_electric_piston', [
         item('gtceu:hv_electric_motor', 1),
         item('gtceu:stainless_steel_rod', 2),
         item('gtceu:gold_single_cable', 2),
-        item('gtceu:stainless_steel_plate', 2),
+        item('gtceu:stainless_steel_plate', 3),
         item('gtceu:small_stainless_steel_gear', 1),
         item('powah:steel_energized', 1)
     ], 307200, 'gtceu:hv_electric_piston')
@@ -235,13 +236,13 @@ ServerEvents.recipes(event => {
         item('gtceu:hv_electric_motor', 2),
         item('gtceu:hv_electric_piston', 1),
         circ('hv', 1),
-        item('gtceu:gold_single_cable', 2),
-        item('gtceu:stainless_steel_rod', 1),
+        item('gtceu:gold_single_cable', 3),
+        item('gtceu:stainless_steel_rod', 2),
         item('powah:steel_energized', 1)
     ], 614400, 'gtceu:hv_robot_arm')
 
     orb('hv_emitter', [
-        item('gtceu:chromium_rod', 3),
+        item('gtceu:chromium_rod', 4),
         item('gtceu:gold_single_cable', 2),
         circ('hv', 2),
         item('minecraft:ender_eye', 1)
@@ -249,7 +250,7 @@ ServerEvents.recipes(event => {
 
     orb('hv_sensor', [
         item('gtceu:chromium_rod', 1),
-        item('gtceu:stainless_steel_plate', 3),
+        item('gtceu:stainless_steel_plate', 4),
         circ('hv', 1),
         item('minecraft:ender_eye', 1)
     ], 460800, 'gtceu:hv_sensor')
@@ -258,7 +259,7 @@ ServerEvents.recipes(event => {
         item('gtceu:quantum_eye', 1),
         item('gtceu:stainless_steel_plate', 2),
         circ('hv', 2),
-        item('gtceu:mercury_barium_calcium_cuprate_quadruple_wire', 3)
+        item('gtceu:mercury_barium_calcium_cuprate_quadruple_wire', 4)
     ], 1280000, 'gtceu:hv_field_generator')
 
     // ---- Shaping (generated from the forge tags; a future material joins by itself) ----
