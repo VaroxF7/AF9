@@ -115,6 +115,7 @@ ServerEvents.recipes(event => {
         deploy('create:electron_tube'),
         deploy('gtceu:copper_single_wire'),
         deploy('gtceu:copper_single_wire'),
-        laser(2000, 50)
+        // the laser when Vintage Improvements is in the pack, else the press (the recipe never names a missing type)
+        Platform.isLoaded('vintageimprovements') ? laser(2000, 50) : press()
     ], 'gtceu:good_electronic_circuit', 1)
 })
