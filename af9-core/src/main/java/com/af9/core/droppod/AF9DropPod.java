@@ -19,6 +19,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.Entity;
+import net.minecraftforge.event.entity.EntityMountEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -75,6 +77,16 @@ public final class AF9DropPod {
             }
         }
 
+        /** Nobody gets out of a pod by themselves: a dismount is cancelled until the pod lets go. */
+        @SubscribeEvent
+        public static void onDismount(EntityMountEvent event) {
+            if (!event.isDismounting() || event.getLevel().isClientSide()) return;
+            if (!(event.getEntityBeingMounted() instanceof DropPodEntity pod) || pod.mayDismount()) return;
+            Entity rider = event.getEntityMounting();
+            if (rider instanceof ServerPlayer player && (!player.isAlive() || player.isRemoved())) return;
+            event.setCanceled(true);
+        }
+
         @SubscribeEvent
         public static void onLogin(PlayerEvent.PlayerLoggedInEvent event) {
             if (!(event.getEntity() instanceof ServerPlayer player)) return;
@@ -106,7 +118,8 @@ public final class AF9DropPod {
 
         private static int send(CommandSourceStack source, ServerPlayer player) {
             if (!(player.level() instanceof ServerLevel level)) return 0;
-            player.stopRiding();
+            if (player.getVehicle() instanceof DropPodEntity old) old.ejectPassengers();
+            else player.stopRiding();
             DropPodEntity pod = drop(player, level);
             // the player is in the world already: no waiting for the loading screen
             if (pod != null) pod.release();

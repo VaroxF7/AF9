@@ -35,7 +35,7 @@ import java.util.UUID;
  * thump, opens its door, lets its rider go after 1.5 s and lifts off again after 7 s. It never explodes and never
  * breaks anything hard: a pod that cannot lift off is simply gone.
  * <p>
- * The rider cannot leave it while it falls: a player who dismounts is put back (server side).
+ * The rider cannot leave it: a dismount is cancelled on the server until the pod opens (AF9DropPod.Events.onDismount).
  */
 public class DropPodEntity extends Entity {
 
@@ -88,6 +88,27 @@ public class DropPodEntity extends Entity {
 
     public boolean isReleased() {
         return entityData.get(RELEASED);
+    }
+
+    private boolean letGo;
+
+    /**
+     * Whether the rider may get out: only when the pod itself lets go (landed and opened, gone, or an operator's command).
+     * The dismount of a player (shift) is cancelled on the server otherwise, see {@link AF9DropPod.Events}.
+     */
+    public boolean mayDismount() {
+        return letGo || isRemoved();
+    }
+
+    /** The pod opens and the rider steps out (the only way out). */
+    @Override
+    public void ejectPassengers() {
+        letGo = true;
+        try {
+            super.ejectPassengers();
+        } finally {
+            letGo = false;
+        }
     }
 
     /** Ticks left of the launch countdown, -1 before it began. */
