@@ -14,6 +14,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -245,8 +246,10 @@ public class DropPodEntity extends Entity {
                 1.5F, 0.6F);
         if (since == RELEASE_TICKS) ejectPassengers();
         if (since == TAKEOFF_TICKS) {
-            level.playSound(null, getX(), getY(), getZ(), SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.NEUTRAL, 4.0F,
-                    0.5F);
+            // Ad Astra's rocket launch sound (vanilla's firework when Ad Astra is not there)
+            SoundEvent launch = ForgeRegistries.SOUND_EVENTS.getValue(new ResourceLocation("ad_astra", "rocket_launch"));
+            level.playSound(null, getX(), getY(), getZ(), launch != null ? launch : SoundEvents.FIREWORK_ROCKET_LAUNCH,
+                    SoundSource.NEUTRAL, launch != null ? 10.0F : 4.0F, 1.0F);
         }
         if (since >= TAKEOFF_TICKS) {
             // the lift-off: up, faster and faster, through soft blocks; anything hard above and the pod is just gone
@@ -334,6 +337,14 @@ public class DropPodEntity extends Entity {
     // ************ Client ***********//
     //////////////////////////////////////
 
+    private boolean soundStarted;
+    private boolean exhausting;
+
+    /** Client side: the thrusters are burning (the engine sound plays while this holds). */
+    public boolean isExhausting() {
+        return exhausting;
+    }
+
     private double spread() {
         return Mth.nextDouble(random, -0.05, 0.05);
     }
@@ -362,7 +373,13 @@ public class DropPodEntity extends Entity {
             setDeltaMovement(0, Mth.lerp(0.15, getDeltaMovement().y, -target), 0);
             move(MoverType.SELF, getDeltaMovement());
         }
+        exhausting = falling || rising;
+        if (!exhausting) soundStarted = false;
         if (falling || rising) {
+            if (!soundStarted) {
+                soundStarted = true;
+                com.af9.core.droppod.client.DropPodSound.start(this);
+            }
             // Ad Astra's rocket exhaust: its own large flame and large smoke particles from a point under the engine,
             // 20 and 5 a tick with a tiny random velocity in every direction (they stay where they are made, and the
             // pod leaves them behind). Four thrusters share that amount.

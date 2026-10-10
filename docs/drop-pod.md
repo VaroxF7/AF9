@@ -16,7 +16,7 @@ come down. The idea is Supersymmetry's arrival; the implementation is AF9's own 
   the **server** counts the 5 seconds (the pod launches by itself at the end; the number shown is the server's); SPACE
   launches at once. If the server never hears from the client it lets go by itself after 5 minutes.
 * **The fall**: terminal speed 0.5 blocks a tick (10 blocks a second, so about 24 s from 250), flames and smoke from the four
-  thrusters pointing down (no sound on the way: the launch sound at take-off only). The rider cannot get out: a dismount is undone
+  thrusters pointing down (Ad Astra's rocket engine sound loops while they burn, and its launch sound plays at take-off; vanilla's firework sounds when Ad Astra is absent). The rider cannot get out: a dismount is undone
   while the pod falls. The rider takes **no fall, wall or crush damage** while in the pod and for 10 s after it.
 * **The thrusters**: no crash. From 32 blocks above the ground (the first solid or liquid block below) the pod brakes by itself,
   flames and a roar from the thrusters, down to a walking pace (about 1.4 blocks a second) at the ground: a soft touchdown.
