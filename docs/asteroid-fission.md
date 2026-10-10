@@ -203,21 +203,23 @@ has no recipes left (it would have none to show).
 
 | Rocket | Metal (parts, hull blocks) | GT tier of the parts | Chip in the engine | Engine / tank | Rocket made in | Reaches |
 |---|---|---|---|---|---|---|
-| 1 | stainless steel | HV | MCU | `steel_engine`, `steel_tank` | Assembler, HV | Moon |
+| 1 | stainless steel | LV (expensive MV assembler) | 4x LV circuits | `steel_engine`, `steel_tank` | Assembler, MV | Moon |
 | 2 | titanium | EV | ASIC | `desh_engine`, `desh_tank` | Assembler, EV | Mars, Ceres, the Asteroid Field |
 | 3 | tungsten steel | IV | MRAM | `ostrum_engine`, `ostrum_tank` | Assembly Line, IV | Venus, Mercury |
 | 4 | HSS-E | LuV | VPU | `calorite_engine`, `calorite_tank` | Assembly Line, LuV | Glacio |
 
 The rocket (`af9:tier_<n>_rocket`): the nose cone, six hull blocks of the tier's metal, four fins, two tanks, the engine and two robot
-arms of the tier; tiers 1 and 2 add 576 mB soldering alloy (600 ticks); tiers 3 and 4 add four circuits of the tier and 576 / 1,152 mB
+arms of the tier (LV for tier 1); tier 1 adds 1,152 mB soldering alloy (800 ticks), tier 2 576 mB (600 ticks); tiers 3 and 4 add four circuits of the tier and 576 / 1,152 mB
 soldering alloy, and are researched on the previous rocket (a Scanner of the tier below scans it into a data stick, 1,200 ticks,
 `scannerResearch`: GT's own mechanism, so a data stick is enough and the research is made once per world). The Rover
 (`af9:tier_1_rover`, Assembler EV) takes a desh engine, two wheels, a radio, a large gas tank, titanium blocks and plates and two EV
 motors.
 
-An engine: the previous engine (the frame for tier 1), two pumps, a motor, 8 plates, 4 screws, two chips, 288 mB soldering alloy.
-A tank: the previous tank and a drum of the tier (tier 1: a drum and a pump), 8 plates and a fluid regulator. The nose cone takes a
-sensor and two MCUs, the fins stainless steel plates and rods. (The recipes carry programmed circuits where their inputs would
+An engine: the previous engine (the frame for tier 1), two pumps, a motor, 8 plates, 4 screws, two chips, 288 mB soldering alloy
+(tier 1: 12 plates, 8 screws, four LV circuits, 576 mB, 600 ticks).
+A tank: the previous tank and a drum of the tier (tier 1: a drum and a pump), 8 plates and a fluid regulator
+(tier 1: 12 plates and 288 mB soldering alloy, 500 ticks). The nose cone takes an LV sensor and two LV circuits,
+the fins stainless steel plates and rods. (The recipes carry programmed circuits where their inputs would
 overlap another assembler recipe: lint R7.)
 
 ## 3.2 Propellant
