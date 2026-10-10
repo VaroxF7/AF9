@@ -18,8 +18,8 @@ and the Crafting CPU Array (an AE2 crafting CPU as a multiblock) were taken out 
 
 `gtceu:<tier>_cwu_server`, LV to IV (`CWUServerMachine`, a GT `TieredEnergyMachine`; definition in
 `startup_scripts/gtceu/cwu_server.js`): a single block that turns EU into computation. It gives what is asked of it
-each tick, up to **LV 4, MV 8, HV 16, EV 32, IV 64 CWU/t** (`cwutFor`: 4 doubling each tier), and pays from its buffer
-(64 A of its voltage) `VA[tier] / max` EU per CWU: one amp of its tier at full output (MV 120 EU/t for 8 CWU/t), less
+each tick, up to **LV 1, MV 2, HV 3, EV 4, IV 5 CWU/t** (`cwutFor`: 1 at LV, one more each tier), and pays from its buffer
+(64 A of its voltage) `VA[tier] / max` EU per CWU: one amp of its tier at full output (MV 120 EU/t for 2 CWU/t), less
 when less is drawn; without the energy it gives what the energy covers. Power goes in on any side but the front (one
 amp). It is a GT computation source (`IOpticalComputationProvider`, every side), so it feeds everything:
 

@@ -203,7 +203,7 @@ hatches.
 
 | Source | Output | Notes |
 |---|---|---|
-| CWU Server LV→IV | 4 / 8 / 16 / 32 / 64 CWU/t | single block, EU→CWU (`VA/max` per CWU), front LEDs (red offline / green idle / blink busy) |
+| CWU Server LV→IV | 1 / 2 / 3 / 4 / 5 CWU/t | single block, EU→CWU (`VA/max` per CWU), front LEDs (red offline / green idle / blink busy) |
 
 Larger computation comes from GT's own HPCA.
 

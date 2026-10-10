@@ -4,7 +4,7 @@
 const $CWUServer = Java.loadClass('com.af9.core.machine.CWUServerMachine')
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
-    // CWU Server (LV-IV): turns EU into computation, 4 CWU/t at LV doubling to 64 at IV, one amp of its tier at full
+    // CWU Server (LV-IV): turns EU into computation, 1 CWU/t at LV, one more each tier, 5 at IV, one amp of its tier at full
     // output. A GT computation source: GT Optical Fiber Cable leads it away. Its front lights: a
     // steady red dot offline (off, unpowered or nothing to give to), steady green idle, blinking while it gives (two
     // patterns, scattered by position); the models come from af9-core

@@ -46,8 +46,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * CWU Server: a single-block machine that turns EU into computation, LV to IV ({@link #cwutFor}: LV 4, MV 8, HV 16, EV
- * 32, IV 64 CWU/t). It gives what is asked of it each tick up to that, and pays for it from its buffer: at full output
+ * CWU Server: a single-block machine that turns EU into computation, LV to IV ({@link #cwutFor}: LV 1, MV 2, HV 3, EV
+ * 4, IV 5 CWU/t). It gives what is asked of it each tick up to that, and pays for it from its buffer: at full output
  * one amp of its tier ({@code VA[tier]} EU/t), less when less is drawn. It is a GT computation source
  * ({@link IOpticalComputationProvider}, on every side): GT's Optical Fiber Cable leads it to a
  * reception hatch. Power goes in on any side but the front, which is its lights. A
@@ -85,9 +85,9 @@ public class CWUServerMachine extends TieredEnergyMachine implements IOpticalCom
         return MANAGED_FIELD_HOLDER;
     }
 
-    /** The CWU/t a server of a tier gives at most: 4 at LV, doubling each tier. */
+    /** The CWU/t a server of a tier gives at most: 1 at LV, one more each tier (IV 5). */
     public static int cwutFor(int tier) {
-        return 4 << Math.max(0, tier - GTValues.LV);
+        return 1 + Math.max(0, tier - GTValues.LV);
     }
 
     public int getMaxOutput() {
