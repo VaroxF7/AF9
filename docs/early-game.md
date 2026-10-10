@@ -9,7 +9,7 @@ blast furnace stay as expensive bulk paths; Create is the main path. Turbines
 Code: `kubejs/server_scripts/mods/gtceu/create_steam_age.js` (Create steam
 age, molten glass, coke, steel, bricks, electron tubes, LV circuits),
 `kubejs/server_scripts/mods/gtceu/early_circuits.js` (Create),
-`kubejs/server_scripts/mods/powah/hv_components.js`
+`kubejs/server_scripts/mods/powah/orb_recipes.js`
 (Powah) and AF9 Core's patch of Powah (`com.af9.core.mixin.powah`, `com.af9.core.compat.powah`).
 Client hiding: `kubejs/client_scripts/steam_hide.js`.
 

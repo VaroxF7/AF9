@@ -164,7 +164,7 @@ public final class AF9Items {
         // ---- Dyson Swarm: the sails (the swarm's modules in GTNH). Tiers and yields: DysonSwarmMachine ----
         for (String sail : DysonSails.IDS) item(sail, 64, 2);
 
-        // ---- Powah: the shaping molds of the Energizing Orb Mk2 (server_scripts/mods/powah/shaping.js) ----
+        // ---- Powah: the shaping molds of the Energizing Orb Mk2 (server_scripts/mods/powah/orb_recipes.js) ----
         // GT's extruder molds cover the rod, bolt, gear, small gear and rotor; the screw mold is AF9's (GT has none).
         item("screw_extruder_mold", 64, 2);
 

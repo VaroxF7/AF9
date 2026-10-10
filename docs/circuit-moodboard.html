@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AF9 Circuit Foundry — Moodboard</title>
+<title>AF9 Circuit Foundry — Progression Redesign Moodboard</title>
 <style>
   :root{
     --bg:#0e1218; --panel:#161c26; --panel2:#1c2431; --ink:#e8edf3;
     --muted:#9aa7b8; --line:#2a3546; --mono:ui-monospace,"Cascadia Mono",Consolas,Menlo,monospace;
+    --ok:#7ee2a8; --warn:#ffd88a; --bad:#ff7a93; --info:#8ecae6;
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
@@ -17,226 +18,292 @@
     background-size:28px 28px;}
   .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 60px}
   header.hero{border:1px solid var(--line);border-radius:14px;padding:26px 28px;
-    background:linear-gradient(135deg,#141b28,#101825 60%,#131a2b);}
-  header.hero h1{margin:0 0 4px;font-size:30px;letter-spacing:.5px}
+    background:linear-gradient(135deg,#141b28,#101825 60%,#1a1430);}
+  header.hero h1{margin:0 0 4px;font-size:29px;letter-spacing:.5px}
   header.hero h1 .thin{color:var(--muted);font-weight:400}
-  header.hero p{margin:6px 0;color:var(--muted);max-width:70ch}
-  header.hero code{font-family:var(--mono);font-size:12.5px;color:#c9d6e5}
+  header.hero p{margin:6px 0;color:var(--muted);max-width:74ch}
+  header.hero code,.card code,.tier code,td code,li code{font-family:var(--mono);font-size:12.5px;color:#c9d6e5}
   .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
   .pill{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:3px 11px;color:var(--muted);background:#10161f}
   .pill b{color:var(--ink)}
+  .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.6px;border-radius:6px;padding:1px 9px;vertical-align:1px;margin-right:6px}
+  .t-asis{background:#13202e;color:var(--info);border:1px solid #23405a}
+  .t-prop{background:#241d10;color:var(--warn);border:1px solid #5a431f}
+  .t-bug{background:#2b1218;color:var(--bad);border:1px solid #5c2230}
+  .t-ok{background:#10241a;color:var(--ok);border:1px solid #1f4d33}
+  .t-check{background:#221d33;color:#c4b5fd;border:1px solid #453a6b}
   h2.sec{margin:34px 0 4px;font-size:20px;letter-spacing:.4px}
-  p.sub{margin:0 0 14px;color:var(--muted);font-size:13.5px}
-  /* solder ribbon */
-  .ribbon{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:12px}
-  .ribbon div{padding:12px 14px;background:var(--panel);border-left:1px solid var(--line)}
-  .ribbon div:first-child{border-left:0}
-  .ribbon h3{margin:0 0 2px;font-size:14px}
-  .ribbon p{margin:0;font-size:12px;color:var(--muted)}
-  .ribbon .t1 h3{color:#c8d2de}.ribbon .t2 h3{color:#9fb3c8}.ribbon .t3 h3{color:#e9c46a}
-  .ribbon .t4 h3{color:#7ee2a8}.ribbon .t5 h3{color:#c77dff}
-  /* ladder */
+  p.sub{margin:0 0 14px;color:var(--muted);font-size:13.5px;max-width:90ch}
+  .card{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:14px 16px;margin-top:12px}
+  .card h3{margin:0 0 8px;font-size:15px}
+  .card p{margin:6px 0;font-size:13.5px;color:#cfd8e3}
+  .card ol,.card ul{margin:6px 0;padding-left:20px;font-size:13.5px;color:#cfd8e3}
+  .card li{margin:5px 0}
+  table.audit{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+  table.audit th,table.audit td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  table.audit th{background:var(--panel2);font-size:12px;letter-spacing:.5px;color:var(--muted)}
+  table.audit td:first-child{font-family:var(--mono);font-size:12px;white-space:nowrap}
   .ladder{display:flex;flex-direction:column;gap:14px;margin-top:12px}
-  .tier{display:grid;grid-template-columns:150px 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+  .tier{display:grid;grid-template-columns:158px 1fr;gap:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
   .badge{padding:16px 14px;color:#0b0e13;display:flex;flex-direction:column;gap:6px}
   .badge .t{font-size:22px;font-weight:800;letter-spacing:.5px}
-  .badge .v{font-size:12px;font-weight:700;opacity:.75}
-  .badge .m{font-size:11.5px;font-weight:600;background:rgba(0,0,0,.28);border-radius:6px;padding:4px 7px;line-height:1.4}
-  .badge .s{font-size:11.5px;font-weight:600}
-  .circuits{padding:12px 16px 14px}
-  .circuits ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
-  .circuits li{font-size:13.5px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
-  .circuits li b.c{font-family:var(--mono);font-size:13px}
-  .circuits code{font-family:var(--mono);font-size:12px;color:#b9c8da}
-  .circuits .arrow{color:var(--muted)}
-  .lean{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:1px 8px;margin-left:8px;vertical-align:1px;
-    background:#10241a;color:#7ee2a8;border:1px solid #1f4d33}
-  .gate{font-size:12.5px;color:var(--muted);margin-top:8px}
-  .gate code{font-family:var(--mono);color:#ffd88a}
-  /* stages + silicon */
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}
-  @media(max-width:860px){.tier{grid-template-columns:1fr}.badge{flex-direction:row;align-items:center;gap:12px}.grid2{grid-template-columns:1fr}.ribbon{grid-template-columns:1fr 1fr}}
-  .card{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:14px 16px}
-  .card h3{margin:0 0 8px;font-size:15px}
-  .card ol,.card ul{margin:0;padding-left:20px;font-size:13.5px;color:#cfd8e3}
-  .card li{margin:5px 0}
-  .card code{font-family:var(--mono);font-size:12px;color:#b9c8da}
-  .stage b{color:#ffd88a}
-  /* pico flow */
-  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:0;margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  .flow .step{flex:1 1 150px;padding:12px 12px 12px 20px;background:var(--panel);position:relative;font-size:12.5px}
-  .flow .step:not(:first-child){border-left:1px solid var(--line)}
-  .flow .step h4{margin:0 0 3px;font-size:13px;font-family:var(--mono);color:#00f5d4}
-  .flow .step p{margin:0;color:var(--muted)}
-  .flow .step p code{font-family:var(--mono);color:#b9c8da}
+  .badge .v{font-size:12px;font-weight:700;opacity:.78}
+  .badge .m{font-size:11.5px;font-weight:600;background:rgba(0,0,0,.28);border-radius:6px;padding:4px 7px;line-height:1.45}
+  .body{padding:12px 16px 14px;font-size:13.5px}
+  .body h4{margin:10px 0 4px;font-size:12px;letter-spacing:1px;color:var(--muted)}
+  .body h4:first-child{margin-top:0}
+  .body ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+  .body li{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+  .body p.note{margin:8px 0 0;color:var(--muted);font-size:12.5px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:860px){.tier{grid-template-columns:1fr}.badge{flex-direction:row;align-items:center;gap:12px}.grid2{grid-template-columns:1fr}}
   footer{margin-top:30px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px}
-  footer code{font-family:var(--mono)}
-  @media print{body{background:#fff;color:#111}.tier,.card,header.hero{break-inside:avoid}}
+  @media print{body{background:#fff;color:#111}.tier,.card{break-inside:avoid}}
 </style>
 </head>
 <body>
 <div class="wrap">
 
 <header class="hero">
-  <h1>Circuit Foundry <span class="thin">— how AF9 circuits are crafted &amp; what they need</span></h1>
-  <p>A moodboard of the linear ladder <code>LV → MV → HV → EV → IV → LuV → ZPM → UV → UHV → Pico</code>:
-  every normal circuit takes the tier below, the value sits in lithographed dies and packages,
-  and each finished stage unlocks a lean second recipe for everything beneath it.</p>
-  <p>Sources: <code>kubejs/server_scripts/mods/gtceu/circuits_af9.js</code> · spec <code>docs/semiconductor-factory.md</code> · solders <code>docs/solders.md</code></p>
+  <h1>Circuit Foundry <span class="thin">— progression redesign: bootstrap every tier, NVM builds the Hyper Dimensional Rocket Drive</span></h1>
+  <p>The pattern, repeated Steam → LuV: <b>ENTRY</b> (expensive first circuit of the tier, gated by the previous tier's
+  end-milestone, first craftable by hand) → <b>CARRY</b> (that circuit builds the whole tier) →
+  <b>MID-TIER milestone</b> (a new processing line unlocks a <b>cheap reprint</b> of the tier's circuits) →
+  <b>END milestone</b> (unlocks the next tier's entry). Past LuV the pattern ends: costs go
+  <b>exponential</b> (2× → 4× → 8–10× → 16× → 32× previous-tier circuits) all the way to NVM.</p>
+  <p>Pack goal: the NVM endgame is building the <code>Hyper Dimensional Rocket Drive</code> — it eats the top of this ladder.</p>
   <div class="legend">
-    <span class="pill"><b>Board</b> = carrier</span>
-    <span class="pill"><b>Dies / chips</b> = the value (lithography)</span>
-    <span class="pill"><b>Wire + bolts</b> = shrink every tier</span>
-    <span class="pill"><b>Prev-circuit</b> = linearity rule (never skipped)</span>
-    <span class="pill"><b>LEAN</b> = stage-end 2nd recipe: 1× prev, packages, ¼ metals, 2× out</span>
+    <span class="pill"><span class="tag t-asis">AS-IS</span>current pack, verified in repo</span>
+    <span class="pill"><span class="tag t-prop">PROPOSED</span>my take in this redesign</span>
+    <span class="pill"><span class="tag t-bug">DEADLOCK</span>progression break found</span>
+    <span class="pill"><span class="tag t-ok">CLEAR</span>checked, no deadlock</span>
+    <span class="pill"><span class="tag t-check">VERIFY</span>assumed GT-vanilla, confirm in game</span>
   </div>
 </header>
 
-<h2 class="sec">Solder ribbon — what wets what</h2>
-<p class="sub">Tin stays the budget option everywhere. Canonical solder hardens with the tiers.</p>
-<div class="ribbon">
-  <div class="t1"><h3>Tin</h3><p>budget everywhere, dead option past MV</p></div>
-  <div class="t2"><h3>Soldering alloy</h3><p>MV bootstrap only (high-grade EBF needs HV)</p></div>
-  <div class="t3"><h3>High-grade</h3><p>HV → UV canonical · 9Sn+Bi+In+Ag, MV mixer → HV EBF</p></div>
-  <div class="t4"><h3>Living</h3><p>wetware · stem cells + Ag + medium + mutagen, UV sterile</p></div>
-  <div class="t5"><h3>Plasma</h3><p>UHV+ atomic · 8 QGP + quantanium + endion, quark synthesis</p></div>
+<h2 class="sec">1 · Deadlock audit — read this first</h2>
+<p class="sub">Every tier entry was traced input-by-input to the tier that can actually craft it. One hard break found, in the current pack.</p>
+
+<div class="card">
+  <h3><span class="tag t-bug">DEADLOCK</span>The Silicon Paradox (exists today, blocks everything past MV)</h3>
+  <p>Six links, all verified in-repo:</p>
+  <ol>
+    <li>MV's <code>good_integrated_circuit</code> needs <code>ilc_chip</code>, MV's <code>micro_processor</code> needs <code>cpu/ram_chip</code> — <code>circuits_af9.js:138–161</code>.</li>
+    <li><code>ilc/ram/cpu</code> print only on <b>silicon</b> wafers (native substrate 0, N350 @ MV) — <code>photolithography.js:60–62</code>.</li>
+    <li>Silicon boules need <code>32× electronic-grade Si + tiny artemite dust</code>, and polysilicon comes <b>only from Moon Sand</b> — <code>boule_melting.js:77–80</code>, <code>fab_chemistry.js:90</code>.</li>
+    <li>Artemite generates <b>only on Earth's Moon</b> — <code>vein_moon.js:4–6</code>.</li>
+    <li>The Moon needs the T1 rocket: HV assembler, stainless steel, HV sensor, <b>2× <code>af9:mcu_chip</code></b> in the nose cone — <code>rockets.js</code> nose-cone recipe.</li>
+    <li><code>mcu_chip</code> is silicon-native (<code>photolithography.js:80</code>), and HV circuits need silicon dies (<code>circuits_af9.js:201–205</code>).</li>
+  </ol>
+  <p><b>Circle: silicon → Moon → silicon.</b> The only MV circuit buildable today is the chip-free tubed Good Electronic,
+  so MV machines and the EBF exist, but no silicon, no HV, no rocket — the pack stalls at end of MV.</p>
+  <p><span class="tag t-prop">PROPOSED</span><b>Earth intrinsic-silicon path (the mid-MV milestone):</b> a small MV Siemens route
+  (quartz → MG-Si → trichlorosilane → Siemens bell jar, ~¼ Moon yield) plus an <b>undoped CZ boule</b>
+  (EG-Si only, +50% time, half the wafers). The Moon keeps bulk polysilicon (8/block) and artemite p-doping
+  (full-yield premium boules) — Moon stays valuable, it just stops being a wall. Recipes self-gate on the material:
+  no quest gating needed, first <code>silicon_wafer</code> is the trigger.</p>
 </div>
 
-<h2 class="sec">The ladder — one card per tier</h2>
-<p class="sub">Machine · solder · circuits with their key inputs. Card colors are the chart's own.</p>
+<div class="card">
+  <h3>Tier-entry clearance table</h3>
+  <table class="audit">
+    <tr><th>Entry</th><th>Verdict</th><th>Why</th></tr>
+    <tr><td>LV · Basic Electronic (steel-gated)</td><td><span class="tag t-ok">CLEAR</span></td><td>Steel from Create superheated mixer in steam age (<code>create_steam_age.js</code>); tubes (vacuum tube + rose quartz), red alloy, resin all steam-age. Rule: keep a machine-free first craft (shaped + Create sequenced) in case the LV assembler itself needs LV circuits.</td></tr>
+    <tr><td>MV · Good Electronic (tubed, chip-free)</td><td><span class="tag t-ok">CLEAR</span></td><td>Steel plates + phenolic (as today, pre-MV proven) + LV circuits + tubes + Cu. Carries all MV machines incl. EBF and Line v1 (MV circuits + stainless, <code>photolithography.js:182</code>).</td></tr>
+    <tr><td>MV mid · Earth silicon</td><td><span class="tag t-prop">PROPOSED</span> fix above</td><td>Unblocks Line v1 N350 prints (cpu/ram/ilc) → cheap LV Microchip reprint + silicon Good Integrated. EBF on cupronickel (LV) covers 1784 K boule + stainless (standard GT).</td></tr>
+    <tr><td>HV · Advanced Integrated</td><td><span class="tag t-ok">CLEAR</span></td><td>2× MV + silicon dies (MV-printable) + transistors + Au + stainless bolts — today's inputs, all pre-HV. Milestone: stainless + EBF + silicon dies flowing.</td></tr>
+    <tr><td>HV mid · phosphorus</td><td><span class="tag t-check">VERIFY</span></td><td>Apatite (mining dim) → MV electrolyzer → P dust → HV boule (kanthal EBF, 2484 K) → Line v2 (KrF laser, HV — <code>photolithography.js:201</code>). Fallback if apatite timing slips: gate HV-mid on Moon apatite? No — that re-inverts; instead allow bone-meal phosphate path.</td></tr>
+    <tr><td>EV · Workstation</td><td><span class="tag t-check">VERIFY</span></td><td>2× HV + silicon dies + Pt wire + Ti bolts. Pt: End sheldonite (vanilla portal, no circuits) — GT-standard, confirm vein lives in mining dim or End. Ti: ilmenite/rutile EBF chain, standard.</td></tr>
+    <tr><td>EV mid · naquadah</td><td><span class="tag t-ok">CLEAR</span></td><td>T2 rocket (titanium, EV, ASIC — <code>rockets.js</code>) → field hand-mining (<code>vein_field.js</code>). Line v3 = ArF laser (EV — <code>photolithography.js:208</code>) → N100 prints (advanced_soc) → cheap HV reprint.</td></tr>
+    <tr><td>IV · Mainframe</td><td><span class="tag t-check">VERIFY</span></td><td>2× EV + phosphorus dies + W wire. W: scheelite/tungstate EBF chain, GT-standard. Scanner v1 crafted at IV (<code>photolithography.js:226</code>) — needs IV circuits, ordered after IV entry. Trinium dust source (mid-IV milestone) unconfirmed — see below.</td></tr>
+    <tr><td>LuV · Quantum Computer</td><td><span class="tag t-check">VERIFY</span></td><td>2× IV + P/Tri dies + osmiridium. Ir: field treasure (T2 ✓). Os: confirm source (Pt-group/ore) by LuV. Naquadria (mid-LuV, Scanner v2) source unconfirmed — VPU timing depends on it.</td></tr>
+    <tr><td>ZPM · Crystal Computer</td><td><span class="tag t-prop">PROPOSED</span> neutronium-proof order</td><td>Neutronium dust source unconfirmed → ZPM entry specified <b>without</b> HA-SoC (advanced_soc + NbTi instead). Orbital (ZPM, needs ZPM circuits + 8× VPU — stockpiled mid-LuV) prints N50 → TMD → Quantum Mainframe. If neutronium verifies early, HA-SoC goes back into the entry.</td></tr>
+  </table>
+  <p>Standing verify list for playtesting: apatite→P timing · End/mining-dim Pt timing · Ti chain · trinium source · naquadria source · neutronium source · osmium source · GaAs dopant (EV+ boules) · GT-vanilla EBF/assembler controller circuit acceptance.</p>
+</div>
+
+<h2 class="sec">2 · The new ladder, Steam → LuV</h2>
+<p class="sub">My take per tier: ENTRY (gate + first-by-hand + bulk) · CARRY (what it builds) · MID milestone → REPRINT · END milestone → next entry. Card colors are the chart's own.</p>
 <div class="ladder">
 
   <div class="tier">
-    <div class="badge" style="background:#8d99ae"><span class="t">LV</span><span class="v">BOOTSTRAP · GT's own</span><span class="m">Assembler / crafting · no cleanroom</span><span class="s">Vacuum tubes · Cu wire</span></div>
-    <div class="circuits"><ul>
-      <li><b class="c">basic electronic</b> <span class="arrow">→</span> <code>vacuum tube + Cu + phenolic</code> — chip-free seed of the line</li>
-      <li><b class="c">basic integrated</b> <span class="arrow">→</span> <code>basic electronic + Si dies</code></li>
-      <li><b class="c">microchip processor</b> <span class="arrow">→</span> <code>basic integrated + CPU/RAM dies</code> — linearity anchor for MV</li>
-    </ul></div>
+    <div class="badge" style="background:#8d99ae"><span class="t">STEAM</span><span class="v">CREATE · NO POWER</span><span class="m">Mixer (heated / superheated) · deployer · press</span></div>
+    <div class="body">
+      <h4>ENTRY — CREATE CIRCUIT <span class="tag t-prop">PROPOSED</span></h4>
+      <ul><li><b><code>af9:create_circuit</code></b> → <code>resin board + electron tubes + red alloy wire + andesite alloy</code>, sequenced — runs steam-age automation (PBF, coke oven, Create line itself).</li></ul>
+      <h4>END MILESTONE → <b>STEEL PROCESSING</b> <span class="tag t-asis">AS-IS</span></h4>
+      <ul><li><code>iron + coke + calcite flux → steel</code> (superheated mixer; coke oven / PBF stay as the slow bulk path) — steel unlocks the LV entry.</li></ul>
+    </div>
   </div>
 
   <div class="tier">
-    <div class="badge" style="background:#52b788"><span class="t">MV</span><span class="v">LV ASSEMBLER</span><span class="m">Circuit Assembler @ LV</span><span class="s">tin / soldering alloy</span></div>
-    <div class="circuits"><ul>
-      <li><b class="c">good electronic</b> <span class="arrow">→</span> <code>2× basic electronic + 2 vacuum tubes + Cu wire</code> (phenolic)</li>
-      <li><b class="c">good integrated</b> <span class="arrow">→</span> <code>2× basic integrated + 2 ILC + resistors + 4 Al-Si + 4 kovar bolts</code> → 2×</li>
-      <li><b class="c">microprocessor</b> <span class="arrow">→</span> <code>microchip + CPU + RAM + resistors + Al-Si</code> → 2× (plastic)</li>
-      <li><b class="c">microprocessor · APU</b> <span class="arrow">→</span> <code>microchip + APU die (does CPU+RAM)</code> → 3×</li>
-    </ul><p class="gate">MV LEAN <span class="lean">STAGE 1 · gate <code>af9:asic_chip</code> (200nm P)</span> — 1× prev circuit, no loose passives, ¼ wire, 2× output</p></div>
+    <div class="badge" style="background:#9aa7b4"><span class="t">LV</span><span class="v">FIRST ELECTRONICS</span><span class="m">Hand / Create first · LV assembler bulk</span></div>
+    <div class="body">
+      <h4>ENTRY — BASIC ELECTRONIC, steel-gated <span class="tag t-prop">PROPOSED</span></h4>
+      <ul>
+        <li><b><code>basic_electronic_circuit</code></b> → <code>steel plates + resin board + electron tubes + red alloy wire</code> — all three crafts (shaped, Create sequenced, LV assembler) consume steel, so the gate can't be bypassed.</li>
+        <li><b><code>basic_integrated_circuit</code> (tubed)</b> → <code>basic electronic + Cu wire + resistors + tubes</code> → 1×, pricey — no silicon anywhere in LV.</li>
+        <li><b><code>microchip_processor</code> (tubed)</b> → <code>plastic + basic integrated + tubes + wire</code> → 1×, pricey — this is the "expensive LV circuit" the silicon age later cheapens.</li>
+      </ul>
+      <h4>CARRY</h4>
+      <ul><li>Whole LV workshop (assembler, cutter, wiremill, macerator, furnace) on Basic Electronic.</li></ul>
+      <h4>END MILESTONE → steel hulls + first LV assembler → MV entry</h4>
+    </div>
   </div>
 
   <div class="tier">
-    <div class="badge" style="background:#e9c46a"><span class="t">HV</span><span class="v">LV–MV ASSEMBLER</span><span class="m">Circuit Assembler · cleanroom for nano</span><span class="s">tin / HIGH-GRADE</span></div>
-    <div class="circuits"><ul>
-      <li><b class="c">advanced integrated</b> <span class="arrow">→</span> <code>2× good integrated + ILC×2 + RAM×2 + transistors + Au + stainless bolts</code></li>
-      <li><b class="c">micro assembly</b> <span class="arrow">→</span> <code>2× microprocessor + inductors + capacitors + RAM×4 + Au</code> → 2× (plastic)</li>
-      <li><b class="c">nano processor</b> <span class="arrow">→</span> <code>micro assembly + nano_cpu + SMD + Au</code> → 2× · ASMD + SoC variants (SoC → 4×, epoxy)</li>
-    </ul><p class="gate">HV LEAN <span class="lean">STAGE 2 · gate <code>af9:vpu_chip</code> (65nm immersion)</span> — NAND dies + VPU, ¼ metals, 2× out</p></div>
+    <div class="badge" style="background:#52b788"><span class="t">MV</span><span class="v">LV ASSEMBLER · TIN/SOLDER</span><span class="m">Hand / Create first · assembler bulk</span></div>
+    <div class="body">
+      <h4>ENTRY — GOOD ELECTRONIC, tubed &amp; chip-free <span class="tag t-asis">AS-IS</span></h4>
+      <ul><li><b><code>good_electronic_circuit</code></b> → <code>steel + phenolic + 2× basic electronic + tubes + Cu</code> — today's recipe, proven pre-MV. <b>Carries every MV machine</b> (assembler, EBF, electrolyzer, Line v1, SMC furnace).</li></ul>
+      <h4>MID MILESTONE → <b>SILICON PROCESSING</b> (Earth fix) <span class="tag t-prop">PROPOSED</span></h4>
+      <ul>
+        <li>Quartz → HP quartz → MG-Si (SMC furnace) → trichlorosilane → <b>Earth Siemens</b> (NEW, MV, ~¼ Moon yield) → EG-Si → <b>undoped CZ</b> (NEW, MV EBF, +50% time, half wafers) → cutter → Line v1 N350 → <code>cpu / ram / ilc</code>.</li>
+        <li><b>REPRINT — cheap Microchip (Si)</b> → <code>plastic + basic integrated + cpu + ram + ¼ wire</code> → <b>4×</b>. The user's "cheaper LV circuit", exactly.</li>
+        <li><b>REPRINT — Good Integrated (Si)</b> → <code>phenolic + basic integrated + ilc + ¼ Al-Si/kovar</code> → <b>4×</b>.</li>
+      </ul>
+      <h4>END MILESTONE → stainless (EBF) + silicon dies flowing → HV entry</h4>
+    </div>
   </div>
 
   <div class="tier">
-    <div class="badge" style="background:#2a9d8f"><span class="t">EV</span><span class="v">MV ASSEMBLER</span><span class="m">Circuit Assembler · cleanroom</span><span class="s">tin / HIGH-GRADE · Pt → Pt-Ir</span></div>
-    <div class="circuits"><ul>
-      <li><b class="c">workstation</b> <span class="arrow">→</span> <code>2× micro assembly + diodes + RAM×4 + Pt + Ti bolts</code> (plastic)</li>
-      <li><b class="c">nano assembly</b> <span class="arrow">→</span> <code>2× nano + SMD L/C + RAM×8 + Pt-Ir</code> → 2× (+ASMD, epoxy)</li>
-      <li><b class="c">quantum processor</b> <span class="arrow">→</span> <code>nano assembly + qbit_cpu + nano_cpu + SMD C + Pt-Ir</code> → 2× (+ASMD, +SoC → 4×, fiber board)</li>
-    </ul><p class="gate">EV LEAN <span class="lean">STAGE 2 · gate <code>af9:vpu_chip</code></span> — ASIC package + SoC dies, ¼ metals</p></div>
+    <div class="badge" style="background:#e9c46a"><span class="t">HV</span><span class="v">MV ASSEMBLER · HIGH-GRADE</span><span class="m">Cleanroom from nano up</span></div>
+    <div class="body">
+      <h4>ENTRY — ADVANCED INTEGRATED + MICRO ASSEMBLY + NANO <span class="tag t-asis">AS-IS</span></h4>
+      <ul>
+        <li><b><code>advanced_integrated</code></b> → <code>2× good integrated + ilc/ram (Si) + transistors + Au + stainless bolts</code> — MV-assembler craftable, no phosphorus.</li>
+        <li><b><code>micro assembly</code></b> → <code>2× microprocessor + passives + ram×4 + Au</code> → 2× · <b><code>nano</code></b> → <code>micro assembly + nano_cpu (Si!) + SMD + Au</code> → 2× (+ASMD/+SoC).</li>
+      </ul>
+      <h4>MID MILESTONE → <b>PHOSPHORUS</b> (KrF laser → Line v2, N200) <span class="tag t-check">VERIFY</span></h4>
+      <ul>
+        <li>Apatite → P dust → HV boule (kanthal EBF) → N200 prints (<code>nand / nor / soc / ASIC</code>).</li>
+        <li><b>REPRINT — MV ASIC-lean</b> → <code>1× prev + ASIC + ¼ metals</code> → 4× (today's MV lean, reframed as the mid-HV payoff).</li>
+      </ul>
+      <h4>END MILESTONE → titanium + platinum metallurgy → EV entry</h4>
+    </div>
   </div>
 
   <div class="tier">
-    <div class="badge" style="background:#4361ee"><span class="t">IV</span><span class="v">HV ASSEMBLER</span><span class="m">Circuit Assembler · cleanroom</span><span class="s">tin / HIGH-GRADE · W wire</span></div>
-    <div class="circuits"><ul>
-      <li><b class="c">mainframe</b> <span class="arrow">→</span> <code>2 W-steel frames + 2 workstation + L/C + RAM×16 + W wire</code> (+ASMD)</li>
-      <li><b class="c">nano computer</b> <span class="arrow">→</span> <code>2× nano assembly + SMD diodes + NOR×4 + RAM×16 + W-steel</code> (+ASMD)</li>
-      <li><b class="c">quantum assembly</b> <span class="arrow">→</span> <code>2× quantum + SMD + RAM×4 + W-steel</code> → 2× (+ASMD)</li>
-      <li><b class="c">crystal processor</b> <span class="arrow">→</span> <code>quantum assembly + crystal_cpu + nano_cpu×2 + adv SMD C + W-steel</code> → 2× (multilayer)</li>
-    </ul><p class="gate">IV LEAN <span class="lean">STAGE 2 · gate <code>af9:vpu_chip</code> + eDRAM packages</span> — cache via packages, ¼ metals</p></div>
+    <div class="badge" style="background:#2a9d8f"><span class="t">EV</span><span class="v">HV ASSEMBLER · HIGH-GRADE</span><span class="m">Cleanroom · ArF laser → Line v3</span></div>
+    <div class="body">
+      <h4>ENTRY — WORKSTATION + NANO ASSEMBLY + QUANTUM <span class="tag t-asis">AS-IS</span></h4>
+      <ul>
+        <li><b><code>workstation</code></b> → <code>2× micro assembly + diodes + ram×4 (Si) + Pt + Ti bolts</code> — no naquadah, so T2 rocket can follow, not precede.</li>
+        <li><b><code>nano assembly</code></b> → <code>2× nano + SMD + ram×8 + Pt-Ir</code> → 2× · <b><code>quantum</code></b> → <code>nano assembly + qbit_cpu + nano_cpu (both Si!) + Pt-Ir</code> → 2× (+ASMD/+SoC).</li>
+      </ul>
+      <h4>MID MILESTONE → <b>NAQUADAH</b> (T2 rocket → field hand-mining) <span class="tag t-ok">CLEAR</span></h4>
+      <ul>
+        <li>N100 prints (<code>advanced_soc</code> + …) on Line v3.</li>
+        <li><b>REPRINT — HV lean</b> → ASIC-package / naquadah-die variants, ¼ metals, 2–4× (today's EV-lean pattern).</li>
+      </ul>
+      <h4>END MILESTONE → tungsten + Line v3 running → IV entry</h4>
+    </div>
   </div>
 
   <div class="tier">
-    <div class="badge" style="background:#7b2cbf"><span class="t">LuV</span><span class="v">EV–IV ASSEMBLER + AL</span><span class="m">Assembler · cleanroom · Assembly Line (mainframe)</span><span class="s">high-grade / LIVING · osmiridium → NbTi</span></div>
-    <div class="circuits"><ul>
-      <li><b class="c">quantum computer</b> <span class="arrow">→</span> <code>2× quantum assembly + diodes + NOR + RAM×16 + osmiridium</code> (+ASMD, +eDRAM)</li>
-      <li><b class="c">crystal assembly</b> <span class="arrow">→</span> <code>2× crystal + adv SMD + RAM×24 + NbTi</code> → 2× (+eDRAM, multilayer)</li>
-      <li><b class="c">wetware processor · living</b> <span class="arrow">→</span> <code>NPU + crystal assembly + crystal_cpu + nano_cpu + adv SMD C + NbTi</code> → 2× (+SoC w/ VPU → 4×)</li>
-      <li><b class="c">nano mainframe · AL</b> <span class="arrow">→</span> <code>2 frames + 2 nano computer + 4 quantum computer + 8 eDRAM-SoC + NbTi + Rh-Pd bolts</code> · research nano_computer, 32 CWU/t</li>
-    </ul><p class="gate">LuV LEAN <span class="lean">STAGE 3 · gate <code>af9:tpu_chip</code> (20nm EUV)</span> — eDRAM packages + TPU, ¼ metals</p></div>
+    <div class="badge" style="background:#4361ee"><span class="t">IV</span><span class="v">EV ASSEMBLER · HIGH-GRADE</span><span class="m">Cleanroom · Scanner v1 (built at IV)</span></div>
+    <div class="body">
+      <h4>ENTRY — MAINFRAME + NANO COMPUTER + QUANTUM ASSEMBLY + CRYSTAL <span class="tag t-asis">AS-IS</span></h4>
+      <ul>
+        <li><b><code>mainframe</code></b> → <code>2× workstation + passives + ram×16 (Si) + W wire</code> (+ASMD) · <b><code>nano computer</code></b> → <code>2× nano assembly + nor (P) + ram×16 + W-steel</code> · <b><code>quantum assembly</code></b> → <code>2× quantum + ram×4 (Si) + W-steel</code> → 2× · <b><code>crystal</code></b> → <code>quantum assembly + crystal_cpu + nano_cpu×2 (Si) + W-steel</code> → 2×.</li>
+      </ul>
+      <h4>MID MILESTONE → <b>TRINIUM</b> (Scanner v1, N80) <span class="tag t-check">VERIFY</span></h4>
+      <ul>
+        <li>N80 prints (<code>edram / mram / feram / photonic_ic</code>) — photonic stockpiled here for UHV later.</li>
+        <li><b>REPRINT — EV eDRAM-lean</b> → package-based, ¼ metals.</li>
+      </ul>
+      <h4>END MILESTONE → osmiridium (Os + field Ir) → LuV entry</h4>
+    </div>
   </div>
 
   <div class="tier">
-    <div class="badge" style="background:#c9184a"><span class="t">ZPM</span><span class="v">IV ASSEMBLER + AL</span><span class="m">Assembler · Assembly Line (mainframe)</span><span class="s">high-grade / LIVING · NbTi → naquadah-alloy</span></div>
-    <div class="circuits"><ul>
-      <li><b class="c">crystal computer</b> <span class="arrow">→</span> <code>2× crystal assembly + HA-SoC×2 + adv SMD C + NbTi</code> (multilayer)</li>
-      <li><b class="c">quantum mainframe · AL</b> <span class="arrow">→</span> <code>2 tritanium frames + 2 quantum computer + 2 crystal computer + 8 TMD logic + naquadah-alloy + tritanium bolts</code> · research 48 CWU/t</li>
-      <li><b class="c">wetware assembly · living</b> <span class="arrow">→</span> <code>2× wetware + crystal computer + NPU + adv SMD C + naquadah-alloy</code></li>
-    </ul><p class="gate">ZPM LEAN <span class="lean">STAGE 3 · gate <code>af9:tpu_chip</code> + <code>gtceu:quantanium_dust</code></span> — 1× circuits, half time &amp; solder, 2× out</p></div>
-  </div>
-
-  <div class="tier">
-    <div class="badge" style="background:#ff5400"><span class="t">UV</span><span class="v">ZPM–UV ASSEMBLER + AL</span><span class="m">Assembler · AL · STERILE cleanroom (wetware)</span><span class="s">high-grade / LIVING · tritanium + europium</span></div>
-    <div class="circuits"><ul>
-      <li><b class="c">crystal mainframe · AL</b> <span class="arrow">→</span> <code>2 tritanium frames + 2 crystal computer + 4 TPU + 8 memristor + tritanium + europium plates</code> · research 64 CWU/t</li>
-      <li><b class="c">wetware supercomputer · living sterile</b> <span class="arrow">→</span> <code>wetware PCB + 2 wetware assembly + adv SMD C/T + tritanium</code>, 288 mB living solder</li>
-    </ul><p class="gate">UV LEAN <span class="lean">STAGE 3 · gate <code>af9:tpu_chip</code> + <code>gtceu:quantanium_dust</code></span> — 1× circuits, 2× out, half solder (144 mB)</p></div>
-  </div>
-
-  <div class="tier">
-    <div class="badge" style="background:#ff0054"><span class="t">UHV</span><span class="v">PLASMA ONLY</span><span class="m">HILE plasma_soldering · UHV assembler (card)</span><span class="s">PLASMA solder · sanguinite wire</span></div>
-    <div class="circuits"><ul>
-      <li><b class="c">wetware mainframe · plasma</b> <span class="arrow">→</span> <code>photonic bill: 10 UV supercomputers + photonic/spin dies</code>, 720 mB plasma, 1000 ticks — the <i>only</i> path (both AL versions removed)</li>
-      <li><b class="c">AI acceleration card · plasma</b> <span class="arrow">→</span> <code>wetware PCB + TPU + memristor + 128 sanguinite wire</code> — compute card of the DTPF</li>
-    </ul><p class="gate">UHV LEAN <span class="lean">STAGE 4 · gate <code>af9:photonic_ic_chip</code> + <code>af9:spin_logic_chip</code></span> (planned with XPS)</p></div>
-  </div>
-
-  <div class="tier">
-    <div class="badge" style="background:#00b39b"><span class="t">PICO</span><span class="v">UHV · 300 A</span><span class="m">Advanced Circuit Manufacturer + CWU/t</span><span class="s">plasma solder · chromodynium</span></div>
-    <div class="circuits"><ul>
-      <li><b class="c">pico chain</b> <span class="arrow">→</span> <code>board (32 CWU) → cleansed (32) → cpu: 2 TPU + 4 memristor + 4 quantum-dot (64) → organized: +8 photonic + 8 spin (96) → casing (32) → rack: 4 organized + casing (128)</code> — XPS/NVM take them when those tiers land</li>
-    </ul></div>
+    <div class="badge" style="background:#7b2cbf"><span class="t">LuV</span><span class="v">IV ASSEMBLER + AL · LIVING</span><span class="m">Cleanroom · Scanner v2 · T3 rocket</span></div>
+    <div class="body">
+      <h4>ENTRY — QUANTUM COMPUTER + CRYSTAL ASSEMBLY + WETWARE + NANO MAINFRAME <span class="tag t-asis">AS-IS</span></h4>
+      <ul>
+        <li><b><code>quantum computer</code></b> → <code>2× quantum assembly + nor (P) + ram×16 + osmiridium</code> · <b><code>crystal assembly</code></b> → <code>2× crystal + ram×24 + NbTi</code> → 2× · <b><code>wetware</code> (living)</b> → <code>NPU + crystal assembly + crystal_cpu + nano_cpu + NbTi</code> → 2× (+SoC w/ VPU → 4×) · <b><code>nano mainframe (AL)</code></b> → research 32 CWU/t, eDRAM-SoC ×8.</li>
+      </ul>
+      <h4>MID MILESTONE → <b>NAQUADRIA</b> (Scanner v2 immersion, N65) <span class="tag t-check">VERIFY</span></h4>
+      <ul>
+        <li>N65 prints (<code>VPU + spin_logic</code>) — VPU stockpile feeds the Orbital (8×) and the IV reprint.</li>
+        <li><b>REPRINT — IV VPU-lean</b> → today's Stage-2 pattern, ¼ metals.</li>
+      </ul>
+      <h4>END MILESTONE → neutronium + Orbital (ZPM) → ZPM entry (neutronium-proof order below)</h4>
+    </div>
   </div>
 
 </div>
 
-<h2 class="sec">Lean stages — finish a stage, reprint everything below it</h2>
-<p class="sub">Same chain, 1× previous circuit, packages instead of loose chips, quarter wires/bolts, no loose passives, 2× output or half time. The normal recipe always stays.</p>
-<div class="grid2">
-  <div class="card stage"><h3>Stage 1 · @ HV end</h3><ol><li>MV lean — gate <b><code>af9:asic_chip</code></b> (200nm phosphorus)</li></ol></div>
-  <div class="card stage"><h3>Stage 2 · @ LuV end</h3><ol><li>HV + EV + IV lean — gate <b><code>af9:vpu_chip</code></b> (65nm immersion naquadria)</li></ol></div>
-  <div class="card stage"><h3>Stage 3 · @ UHV end</h3><ol><li>LuV + ZPM + UV lean — gate <b><code>af9:tpu_chip</code></b> (20nm EUV) <b>+ quantanium</b> for ZPM/UV</li></ol></div>
-  <div class="card stage"><h3>Stage 4 · @ XPS end</h3><ol><li>UHV + XPS lean — gate <b><code>af9:photonic_ic_chip</code> + <code>af9:spin_logic_chip</code></b> (planned)</li></ol></div>
-  <div class="card stage"><h3>Stage 5 · @ NVM end</h3><ol><li>XPS + NVM lean — gate <b><code>af9:memristor_chip</code> + <code>af9:quantum_dot_ic_chip</code></b> (planned)</li></ol></div>
-  <div class="card"><h3>House rules (load-bearing)</h3><ul><li><b>LINEAR</b> — every circuit takes ≥1× the tier below; SoC never skips a tier</li><li><b>SILICON FIRST</b> — value in dies &amp; packages; boards are carriers; metals shrink, then collapse in lean</li><li><b>Boards climb</b> — phenolic → plastic → epoxy → fiber → multilayer → wetware PCB</li></ul></div>
+<h2 class="sec">3 · Past LuV — exponential costs to NVM</h2>
+<p class="sub">The bootstrap pattern ends at LuV. From ZPM on, previous-tier counts double per tier while solder, research and power step up with them. Numbers are proposals — tune, don't soften the curve.</p>
+<div class="card">
+  <table class="audit">
+    <tr><th>Tier</th><th>Prev-tier ×</th><th>Gate extras</th><th>Solder / research</th></tr>
+    <tr><td>ZPM</td><td><b>2×</b></td><td>TMD_logic ×8 (Orbital N50 — build Orbital on the neutronium-free entry first, then the mainframe)</td><td>high-grade 576 · 48 CWU/t</td></tr>
+    <tr><td>UV</td><td><b>4×</b></td><td>TPU ×8 + memristor ×16 (N20 Orbital @ UV) + quantanium dust + europium plates</td><td>high-grade 1152 / living 288 · <b>128 CWU/t</b></td></tr>
+    <tr><td>UHV</td><td><b>8–10×</b> (plasma bill)</td><td>photonic + spin bill + 1–2 pico CPU + plasma 1440 mB + Dyson power</td><td>plasma · <b>256 CWU/t</b></td></tr>
+    <tr><td>XPS (new)</td><td><b>16×</b> (lean 8×)</td><td>1 pico CPU + photonic package + chromodynium</td><td>plasma 2880 · <b>512 CWU/t</b></td></tr>
+    <tr><td>NVM (new)</td><td><b>32×</b> (lean 16×)</td><td>1–2 pico racks + memristor + quantum-dot + strange matter</td><td>plasma · <b>1024 CWU/t</b></td></tr>
+  </table>
+  <p>Pico chain (ACM, UHV 300 A) stays the XPS/NVM feeder: board → cleansed → cpu (2 TPU + 4 memristor + 4 quantum-dot) → organized (+8 photonic + 8 spin) → casing → rack. AI Acceleration Card stays the DTPF compute card. UHV wetware mainframe stays plasma-only (HILE).</p>
 </div>
 
-<h2 class="sec">Silicon &amp; packages — the chips that gate the gates</h2>
+<h2 class="sec">4 · Pack goal — the Hyper Dimensional Rocket Drive <span class="tag t-prop">PROPOSED</span></h2>
 <div class="grid2">
-  <div class="card"><h3>AF9 chips → what they unlock</h3>
+  <div class="card">
+    <h3>What it is</h3>
+    <p>The NVM endgame: a buildable drive (block + quest line) that retires the T4 Glacio rocket as the headline goal — instant / cross-dimensional flight once ignited. It must eat the ladder's rarest outputs, or the exponential curve is decoration.</p>
+    <h3>Proposed bill (tunable, not soften-able)</h3>
     <ul>
-      <li><code>af9:apu_chip</code> — 3× microprocessor (CPU+RAM in one die)</li>
-      <li><code>af9:asic_chip</code> — MV lean gate; mining ASIC, rockets T2</li>
-      <li><code>af9:vpu_chip</code> — HV/EV/IV lean gate; LuV-native wetware SoC; rockets T4</li>
-      <li><code>af9:tpu_chip</code> — LuV/ZPM/UV lean gate; UV crystal mainframe ×4; AI card; Pico CPU ×2</li>
-      <li><code>gtceu:quantanium_dust</code> — ZPM/UV lean gate (with TPU); plasma solder condensation</li>
-      <li><code>af9:tmd_logic_chip</code> — ZPM quantum mainframe ×8 (×4 lean)</li>
-      <li><code>af9:memristor_chip</code> — UV mainframe ×8; AI card; Pico CPU ×4; Stage-5 gate</li>
-      <li><code>af9:photonic_ic_chip</code> + <code>af9:spin_logic_chip</code> — UHV plasma mainframe bill; organized Pico ×8; Stage-4 gate</li>
-      <li><code>af9:quantum_dot_ic_chip</code> — Pico CPU ×4; Stage-5 gate</li>
+      <li><code>4× NVM mainframe + 2× pico_circuit_rack + chromodynium frame + neutronium plates</code></li>
+      <li><code>1× photonic_package + gravistar + strange matter + plasma solder (bulk mB)</code></li>
+      <li>Assembly-line research on the T4 rocket + Dyson-class power on (300 A heritage)</li>
     </ul>
   </div>
-  <div class="card"><h3>Packages — 1 package instead of 4–16 loose chips</h3>
+  <div class="card">
+    <h3>Quest sketch — new chapter <code>hyperdrive.snbt</code></h3>
     <ul>
-      <li><code>af9:asic_package</code> — <code>asic + 2 RAM + epoxy + Au</code> (HV assembler, cleanroom) → EV lean</li>
-      <li><code>af9:edram_cpu_package</code> / <code>edram_soc_package</code> — cache for the IV/LuV lines → IV lean, LuV normal + lean, nano mainframe AL ×8</li>
-      <li><code>af9:photonic_package</code> — <code>photonic + 2 spin + europium + sanguinite</code>, plasma 36 mB (UHV, cleanroom)</li>
-      <li>GT dies climb the ladder too: <code>ilc → cpu/ram → nano_cpu → qbit_cpu → crystal_cpu → nor/nand/soc → highly_advanced_soc</code>, plus <code>NPU</code> for all wetware</li>
+      <li>1 · Drive Frame (chromodynium + neutronium shell)</li>
+      <li>2 · The Core (NVM mainframes + pico racks)</li>
+      <li>3 · Fuel (star-matter plasma — ties <code>docs/fusion-power.md</code>)</li>
+      <li>4 · Ignition (Dyson power + research)</li>
+      <li>5 · Beyond Glacio (first jump — pack ending)</li>
+    </ul>
+    <h3>Why NVM fits</h3>
+    <p>NVM's memristor + quantum-dot logic is sold as non-volatile memory that holds state without power — the drive that remembers coordinates through a jump. Story and shopping list agree.</p>
+  </div>
+</div>
+
+<h2 class="sec">5 · Build checklist — what changes in the repo</h2>
+<div class="grid2">
+  <div class="card">
+    <h3>Recipe work</h3>
+    <ul>
+      <li><code>fab_chemistry.js</code> — NEW Earth Siemens polysilicon route (MV, low yield).</li>
+      <li><code>boule_melting.js</code> — NEW undoped intrinsic-silicon CZ variant (MV EBF, +50% time, half wafers).</li>
+      <li><code>circuits_af9.js</code> — LV tubed overrides (basic_integrated, microchip 1×); MV silicon reprints; keep HV→LuV entries as-is; post-LuV multipliers + NEW XPS/NVM §12.</li>
+      <li><code>early_circuits.js</code> — extend the Create hand-first pattern to every tier ENTRY (LV done today; MV done; add HV+).</li>
+      <li>NEW <code>hyperdrive.js</code> (or extend <code>rockets.js</code>) — the Drive + its core/casing.</li>
+      <li>Litho modes, Line/Scanner/Orbital, rockets T1–T4 — <b>unchanged</b>.</li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Quests + docs</h3>
+    <ul>
+      <li>Quest triggers: first steel → LV · first <code>silicon_wafer</code> → MV reprints · first P boule → HV-mid · field naquadah → EV-mid · trinium → IV-mid · VPU → LuV-mid · Orbital → ZPM · ignition → ending.</li>
+      <li>New chapter <code>hyperdrive.snbt</code> + lang; update <code>early-game</code> / circuit chapters for the steel gate and Earth silicon.</li>
+      <li>Spec updates: <code>semiconductor-factory.md</code> (Earth silicon §, LV tubed §, exponential §, Drive §).</li>
     </ul>
   </div>
 </div>
 
 <footer>
-  Built from <code>kubejs/server_scripts/mods/gtceu/circuits_af9.js</code> (705 lines, 11 sections) with solder chemistry from <code>docs/solders.md</code>.
-  XPS/NVM recipes are out for now — their items, tags and quests stay; stages 4–5 describe the plan they had.
-  Counts are per recipe as scripted (normal path unless marked LEAN); APU/ASMD/SoC/eDRAM rows are faster parallel variants, not replacements.
+  Evidence: <code>circuits_af9.js</code> (ladder + lean stages) · <code>early_circuits.js</code> (Create hand path) ·
+  <code>create_steam_age.js</code> (steam steel) · <code>fab_chemistry.js:36–165</code> (MV silicon, Moon-only polysilicon) ·
+  <code>boule_melting.js:76–80</code> (artemite-doped CZ) · <code>vein_moon.js</code> (Moon-only artemite) ·
+  <code>rockets.js</code> (T1 Moon needs MCU+HV) · <code>photolithography.js:60–96,182–245</code> (chip natives, machine tiers) ·
+  <code>LithoMode.java</code> (node→tier) · <code>solders.md</code> · <code>fusion-power.md</code> (drive fuel).
+  Counts above the line marked PROPOSED are starting numbers for tuning, not promises.
 </footer>
 
 </div>
