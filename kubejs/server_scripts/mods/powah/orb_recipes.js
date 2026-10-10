@@ -1,6 +1,7 @@
 // AF9 - every Energizing Orb Mk2 recipe of the pack in one script: the LV, MV and HV components and the shaping
 // of GT parts (rods, bolts, screws, gears, small gears, rotors). GT's own recipes stay; the orb is a second way.
-// (The orb block itself is crafted in orb_mk2.js; this file only holds what runs inside it.)
+// Also here: the craft of the orb block itself (MV, from steel, MV circuits and motors round Powah's orb), so every orb
+// recipe of the pack is in this one file.
 //
 // To add a recipe, copy the TEMPLATE below, fill it in, reload (/reload or restart): that is all. The mold stays
 // in the orb when the recipe says keep(): normal inputs go with item().
@@ -33,6 +34,18 @@
 // by itself. The mold is GT's, except the screw's: GT has none, so it is AF9's (af9:screw_extruder_mold).
 
 ServerEvents.recipes(event => {
+    // ---- the Energizing Orb Mk2 block: Powah's orb with a screen and eight slots (AF9 Core, compat/powah) ----
+    event.shaped('af9:energizing_orb_mk2', [
+        'PCP',
+        'MOM',
+        'PCP'
+    ], {
+        P: '#forge:plates/steel',
+        C: 'gtceu:good_electronic_circuit',
+        M: 'gtceu:mv_electric_motor',
+        O: 'powah:energizing_orb'
+    }).id('af9:powah/energizing_orb_mk2')
+
     const item = (id, count) => (count > 1 ? { item: id, count: count } : { item: id })
     const keep = id => ({ item: id, nc: true })
     // a forge tag input (a material part: rods, plates, screws ... of any mod): never a bare id, so every mod's copy
