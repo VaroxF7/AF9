@@ -228,7 +228,7 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.alloys.subtitle}"
-			tasks: [{ id: "34D33E57B3D3F6ED" item: "gtceu:aluminium_silicon_dust" type: "item" } { id: "4A1742272FCAE233" item: "gtceu:platinum_iridium_dust" type: "item" }]
+			tasks: [{ id: "34D33E57B3D3F6ED" item: "gtceu:aluminium_tranquillite_dust" type: "item" } { id: "4A1742272FCAE233" item: "gtceu:platinum_iridium_dust" type: "item" }]
 			title: "{af9.quest.chem.alloys.title}"
 			x: 36.0d
 			y: 3.0d

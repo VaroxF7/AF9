@@ -56,6 +56,9 @@ public final class AF9Materials {
 
     private static final List<Material> ALL = new ArrayList<>();
 
+    /** Tranquillite, assigned in moonSilicon() and alloyed in electronicsMetallurgy(). */
+    private static Material tranquillite;
+
     private AF9Materials() {}
 
     /** Every material registered here, in the order of registration. */
@@ -74,11 +77,12 @@ public final class AF9Materials {
         bouleMelting();
         cryogenics();
         diesel();
+        // moonSilicon before electronicsMetallurgy: the tranquillite object has to exist for the bond-wire alloy
+        moonSilicon();
         electronicsMetallurgy();
         fabChemistry();
         fusionPlasmas();
         lithoProcess();
-        moonSilicon();
         oil();
         planetMetals();
         particleAccelerator();
@@ -321,7 +325,7 @@ public final class AF9Materials {
 
     /**
      * Electronics metallurgy. Circuits are built from their own tier's metals; where the real part is an alloy of that
-     * metal, AF9 adds it, melted in the EBF: Aluminium-Silicon bond wire and Kovar pins (MV), Platinum-Iridium fine
+     * metal, AF9 adds it, melted in the EBF: Aluminium-Tranquillite bond wire and Kovar pins (MV), Platinum-Iridium fine
      * wire (EV). GT makes the parts (bolts, fine wires) and the EBF and vacuum freezer recipes from these properties.
      * Plus the Zircon heavy-mineral-sand ore, refined like the real thing: plasma dissociation, carbochlorination,
      * extractive distillation (ZrCl4 / HfCl4), Kroll process. HfCl4 is the high-k precursor of the 50 nm node.
@@ -346,12 +350,13 @@ public final class AF9Materials {
         }
 
         // ---- Circuit alloys (mixed in server_scripts, melted in the EBF) ----
-        // MV: aluminium wedge-bonding wire (the silicon keeps it from work-softening). Aluminium is the MV metal.
+        // MV: aluminium wedge-bonding wire (tranquillite keeps it from work-softening, where silicon did:
+        // aluminium and silicon never belonged in one mixer). Aluminium is the MV metal.
         // EBF at MV voltage, which two LV hatches can supply.
-        add(material("aluminium_silicon")
+        add(material("aluminium_tranquillite")
                 .ingot()
-                .color(0xc8ccd2).iconSet(MaterialIconSet.METALLIC)
-                .components(GTMaterials.Aluminium, 16, GTMaterials.Silicon, 1)
+                .color(0xc4ccd6).iconSet(MaterialIconSet.METALLIC)
+                .components(GTMaterials.Aluminium, 16, tranquillite, 1)
                 .flags(MaterialFlags.GENERATE_FINE_WIRE)
                 .blastTemp(1700, GasTier.LOW, GTValues.VA[GTValues.MV], 400));
 
@@ -591,8 +596,9 @@ public final class AF9Materials {
     }
 
     /**
-     * The Moon's silicon: Artemite, the lunar borate that dopes the first silicon boules, and the Moon Sand chain
-     * behind every polysilicon. Artemite generates only on the Moon (vein_moon.js); Moon Sand is blended from sand
+     * The Moon's silicon: Artemite, the lunar borate that dopes the first silicon boules, Tranquillite, the lunar
+     * silicate behind the MV bond-wire alloy, and the Moon Sand chain
+     * behind every polysilicon. Artemite and Tranquillite generate only on the Moon (vein_moon.js); Moon Sand is blended from sand
      * silica and L-01, the light cut of Lunar Air, the Moon's own air (a bedrock fluid drilled there, or a far-dark
      * elevator mission). Recipes: fab_chemistry.js (sand silica, moon sand, the polysilicon bath, lunar air
      * distillation), boule_melting.js (the dopant). Spec: docs/semiconductor-factory.md
@@ -608,6 +614,28 @@ public final class AF9Materials {
                 .iconSet(MaterialIconSet.SHINY)
                 .formula("(Ca,Na)2B4O7")
                 .addOreByproducts(GTMaterials.Aluminium, GTMaterials.Calcium, GTMaterials.Silicon));
+
+        // Lesolite: an amber lunar mineral for the EV SMD substrates (the SMD recipes that take it are the
+        // pack's own, still to come). Formulas only (no components), so GT adds no electrolyzer or
+        // centrifuge shortcut past the ore chain. Crushing gives two crushed ores per ore; furnace-smeltable,
+        // so the gate is finding the ore on the Moon, not a coil tier.
+        add(material("lesolite")
+                .ingot().dust().ore(2, 1)
+                .color(0xcf8a33).secondaryColor(0x6e4218)
+                .iconSet(MaterialIconSet.SHINY)
+                .formula("(Ls)")
+                .addOreByproducts(GTMaterials.Aluminium, GTMaterials.Nickel));
+
+        // Tranquillite: a sea-teal lunar silicate of Mare Tranquillitatis, named for the Sea of Tranquility. It
+        // takes silicon's place in the MV bond-wire alloy (aluminium_tranquillite, electronicsMetallurgy()).
+        // Formulas only (no components), so GT adds no electrolyzer or centrifuge shortcut past the ore chain.
+        // Crushing gives two crushed ores per ore.
+        tranquillite = add(material("tranquillite")
+                .dust().ore(2, 1)
+                .color(0x3fb598).secondaryColor(0x1d5f54)
+                .iconSet(MaterialIconSet.SHINY)
+                .formula("(Tq)")
+                .addOreByproducts(GTMaterials.Aluminium, GTMaterials.Silicon));
 
         // Moon Sand: regolith silica activated with L-01. The only polysilicon there is: a chemical bath under
         // oxygen turns it into polysilicon dust (fab_chemistry.js numbers: a sand block is 8 polysilicon).
@@ -701,7 +729,7 @@ public final class AF9Materials {
     }
 
     /**
-     * Anti-matter plasma: fused in the Mega Fusion Reactor out of biobium, sulfur and nickel plasma
+     * Anti-matter plasma: fused in the Mega Fusion Reactor out of niobium, sulfur and nickel plasma
      * (fusion_reactor.js), and forged with star matter plasma into Idontknowium plasma in the Plasma Forge
      * (dtpf.js). Only its plasma exists.
      */

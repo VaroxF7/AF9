@@ -25,7 +25,7 @@
 //
 // What is here, in order:
 //   1. helpers (tin/solder pairs, high-grade, living, plasma; chip stacks; cleanroom)
-//   2. circuit alloy dusts (Al-Si, Kovar, Pt-Ir, NiCr-Pt, high-grade solder)
+//   2. circuit alloy dusts (Al-Tq, Kovar, Pt-Ir, NiCr-Pt, high-grade solder)
 //   3. MV normal (bootstrap, chip-light) + MV lean (Stage 1)
 //   4. HV normal (linear, node-matched) + HV lean (Stage 2)
 //   5. EV normal + EV lean (Stage 2)
@@ -93,7 +93,7 @@ ServerEvents.recipes(event => {
 
     // ================================= 2. the metals of the circuits =================================
     const alloys = [
-        { id: 'aluminium_silicon', inputs: ['16x gtceu:aluminium_dust', 'gtceu:silicon_dust'], count: 17, circuit: 2, eut: VA[GTValues.LV] },
+        { id: 'aluminium_tranquillite', inputs: ['16x gtceu:aluminium_dust', 'gtceu:tranquillite_dust'], count: 17, circuit: 2, eut: VA[GTValues.LV] },
         { id: 'kovar', inputs: ['6x gtceu:iron_dust', '3x gtceu:nickel_dust', '2x gtceu:cobalt_dust'], count: 11, circuit: 3, eut: VA[GTValues.LV] },
         { id: 'platinum_iridium', inputs: ['9x gtceu:platinum_dust', 'gtceu:iridium_dust'], count: 10, circuit: 2, eut: VA[GTValues.HV] },
         { id: 'nichrome_platinum', inputs: ['gtceu:nichrome_dust', 'gtceu:platinum_dust'], count: 2, circuit: 5, eut: VA[GTValues.HV] },
@@ -129,14 +129,14 @@ ServerEvents.recipes(event => {
         .duration(300)
         .EUt(GTValues.VA[GTValues.LV]))
 
-    // Good Integrated: LV basic_integrated + Si logic dies, Al-Si wire, Kovar pins.
+    // Good Integrated: LV basic_integrated + Si logic dies, Al-Tq wire, Kovar pins.
     circuitAssembler('good_integrated_circuit', recipe => recipe
         .itemInputs(
             'gtceu:phenolic_printed_circuit_board',
             '2x gtceu:basic_integrated_circuit',
             '2x gtceu:ilc_chip',
             '2x #gtceu:resistors',
-            '4x gtceu:fine_aluminium_silicon_wire',
+            '4x gtceu:fine_aluminium_tranquillite_wire',
             '4x gtceu:kovar_bolt')
         .itemOutputs('2x gtceu:good_integrated_circuit')
         .duration(400)
@@ -150,7 +150,7 @@ ServerEvents.recipes(event => {
             'gtceu:cpu_chip',
             'gtceu:ram_chip',
             '4x #gtceu:resistors',
-            '4x gtceu:fine_aluminium_silicon_wire')
+            '4x gtceu:fine_aluminium_tranquillite_wire')
         .itemOutputs('2x gtceu:micro_processor')
         .duration(200)
         .EUt(60))
@@ -162,7 +162,7 @@ ServerEvents.recipes(event => {
             'gtceu:microchip_processor',
             'af9:apu_chip',
             '4x #gtceu:resistors',
-            '4x gtceu:fine_aluminium_silicon_wire')
+            '4x gtceu:fine_aluminium_tranquillite_wire')
         .itemOutputs('3x gtceu:micro_processor')
         .duration(200)
         .EUt(60))
@@ -175,7 +175,7 @@ ServerEvents.recipes(event => {
             'gtceu:basic_integrated_circuit',
             '2x gtceu:ilc_chip',
             'af9:asic_chip',
-            '2x gtceu:fine_aluminium_silicon_wire',
+            '2x gtceu:fine_aluminium_tranquillite_wire',
             '2x gtceu:kovar_bolt')
         .itemOutputs('4x gtceu:good_integrated_circuit')
         .duration(200)
@@ -187,7 +187,7 @@ ServerEvents.recipes(event => {
             'gtceu:microchip_processor',
             'af9:apu_chip',
             'af9:asic_chip',
-            '2x gtceu:fine_aluminium_silicon_wire')
+            '2x gtceu:fine_aluminium_tranquillite_wire')
         .itemOutputs('4x gtceu:micro_processor')
         .duration(100)
         .EUt(60))

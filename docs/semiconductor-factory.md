@@ -717,7 +717,7 @@ GT's chip wafers are cut by GT's own cutter recipes (dies per wafer, EU/t, clean
 
 ## 6.8 Step 5 — Circuits
 
-Chips are plain GT chips; a chip is a chip whatever substrate it came from. `circuits_af9.js` (all of AF9's circuit crafting in one file: the circuit metals' alloy mixers, the MV circuits, the HV-LuV circuits, the eDRAM versions) keeps GT's HV-LuV circuit recipes with each tier's own metals (the Circuits quest page): HV gold fine wire + stainless steel bolts, EV platinum-iridium fine wire (bootstrap Workstation: plain platinum) + titanium bolts, IV tungstensteel fine wire and frames + tungsten wire, LuV osmiridium fine wire + niobium-titanium wire + rhodium-plated palladium bolts. `AF9_WAFERS.chipStack(id, count)` gives `"<count>x gtceu:<chip>"`. MV and lower: also `circuits_af9.js` (Al-Si wire, Kovar), unchanged. The pack's LuV Nano Mainframe (its own Assembly Line recipe) takes 16 plain RAM chips.
+Chips are plain GT chips; a chip is a chip whatever substrate it came from. `circuits_af9.js` (all of AF9's circuit crafting in one file: the circuit metals' alloy mixers, the MV circuits, the HV-LuV circuits, the eDRAM versions) keeps GT's HV-LuV circuit recipes with each tier's own metals (the Circuits quest page): HV gold fine wire + stainless steel bolts, EV platinum-iridium fine wire (bootstrap Workstation: plain platinum) + titanium bolts, IV tungstensteel fine wire and frames + tungsten wire, LuV osmiridium fine wire + niobium-titanium wire + rhodium-plated palladium bolts. `AF9_WAFERS.chipStack(id, count)` gives `"<count>x gtceu:<chip>"`. MV and lower: also `circuits_af9.js` (Al-Tq wire, Kovar), unchanged. The pack's LuV Nano Mainframe (its own Assembly Line recipe) takes 16 plain RAM chips.
 
 ## 6.9 Electronics metallurgy (alloys + zircon)
 
@@ -725,7 +725,7 @@ Files: AF9 Core `registry/AF9Materials` (`electronicsMetallurgy()`, the material
 
 | Alloy `gtceu:` | Tier | Mixer (circuit) → dust, EU/t | EBF | Gas | EBF EU/t, time | Part used | Real-world role |
 |---|---|---|---|---|---|---|---|
-| `aluminium_silicon` | MV | 16 aluminium + 1 silicon (2) → 17, LV | 1700 K | nitrogen | 120, 400t | `fine_aluminium_silicon_wire` | Al-Si wedge-bonding wire |
+| `aluminium_tranquillite` | MV | 16 aluminium + 1 tranquillite (2) → 17, LV | 1700 K | nitrogen | 120, 400t | `fine_aluminium_tranquillite_wire` | Al-Tq wedge-bonding wire (Moon ore, `vein_moon.js`) |
 | `kovar` | MV | 6 iron + 3 nickel + 2 cobalt (3) → 11, LV | 1720 K | nitrogen | 120, 600t | `kovar_bolt` | glass-to-metal seals, IC package pins |
 | `platinum_iridium` | EV | 9 platinum + 1 iridium (2) → 10, HV | 2100 K (hot ingot) | helium | 1920, 600t | `fine_platinum_iridium_wire` | inert noble-metal wire |
 
@@ -966,7 +966,7 @@ EGS (+ dopant) → [blending] melt charge, [crystal growth] seed crystal → [EB
      → GT's chip wafer(s) (as many as the substrate yields, §5.3)  or  af9:broken_<substrate>_wafer (break roll: vacuum, cooling, OPC)
      → [CHEMICAL_REACTOR / LCR, cleanroom] derived wafer (nano/qbit CPU, HPIC, UHPIC) on the same substrate
      → [CUTTER] plain GT chips (more per wafer on higher substrates)
-        → [CIRCUIT_ASSEMBLER] + that tier's metals (MV Al-Si + Kovar, HV gold + stainless, EV Pt-Ir + titanium,
+        → [CIRCUIT_ASSEMBLER] + that tier's metals (MV Al-Tq + Kovar, HV gold + stainless, EV Pt-Ir + titanium,
                                 IV tungstensteel + tungsten, LuV osmiridium + NbTi + rhodium-plated palladium)
 Coolants: gas → [SUPERCOOLING_CRYOSTAT dense cooling] dense gas → [same, supercooling] supercooled gas (H2, Ar, Xe, endion) → coolant hatches;
           ender air → [centrifuge / distillation] endion → endionite, Endion coils, supercooled endion;
@@ -1253,13 +1253,10 @@ Screen (the orbital station's layout, `SidePanelsUIWidget` + `AcceleratorConsole
 | `gtceu:ion_collision` | magnetic trap + 16 lead ingots → `af9:qgp_trap` | 2000 supercooled argon | UV × 4 | 600t |
 | `gtceu:quark_synthesis` | 4 QGP traps + neutronium dust → `gtceu:strange_matter_dust` + 4 traps | 4000 supercooled xenon | UHV × 2 | 1200t |
 | `gtceu:quark_synthesis` | 8 QGP traps + strange matter dust → `gtceu:chromodynium_dust` + 8 traps | 4000 supercooled endion | UHV × 4 | 2400t |
-| `gtceu:quark_synthesis` | 12 QGP traps + chromodynium dust → `gtceu:anti_quark_dust` + 12 traps | 6000 supercooled endion | UHV × 4 | 3200t |
-| `gtceu:quark_synthesis` | 16 QGP traps + anti-quark dust → `gtceu:anti_matter_dust` + 16 traps | 8000 supercooled endion | UHV × 4 | 3600t |
-| `gtceu:quark_synthesis` | 24 QGP traps + anti-matter dust → `gtceu:superstate_star_matter_dust` + 24 traps | 8000 supercooled endion | UHV × 4 | 4000t |
 
 Coolant grades: a recipe takes its coolant or any colder one. It asks for the grade's fluid tag (`#af9:coolant/<grade> <mB>`, set in the server script's `ServerEvents.tags('fluid')`): `af9:coolant/hydrogen` holds all four supercooled fluids, `.../argon` argon, xenon and endion, `.../xenon` xenon and endion, `.../endion` endion. EMI cycles through them in the coolant slot, and its hover says "Supercooled Argon or any colder one".
 
-Materials: `strange_matter` (dust, "(uds)n"), `chromodynium` (ingot, 12000 K EBF, plate/foil/rod/frame, "Qc"), `anti_quark` (dust, "Aq"), `anti_matter` (dust + plasma, "(Aq)n"), `superstate_star_matter` (ingot, 15000 K EBF, plate/foil/rod/frame, "Ss"), each with its own animated icon set (GT icon sets `strange_matter` and `chromodynium`, children of `shiny`; af9-core `assets/gtceu/.../material_sets/<set>`: an item model per shape whose untinted top layer is the animated art, the tinted layers empty; Chromodynium's block and frame grey, tinted by GT): Strange Matter a dark violet void with twinkling glints (32 frames), Chromodynium a pearl metal with a sheen sweeping through its colour charge, pink, orange, yellow, mint (24 frames), both at 2 ticks a frame; their wafers, boules, melt charges and seed crystals carry the same effects over their own art. Items: `af9:beryllium_spallation_target` (4 Be plates + 2 tungstensteel plates, LuV), `af9:magnetic_trap` (ZPM field generator + 4 NbTi plates + 2 tungstensteel plates, ZPM), `af9:qgp_trap`. Console: mode tiles NEUTRONS / COLLIDER / QUARKS, beam energy (1 GeV at ZPM, ×2 per tier), coolant fluid + amount (NO COOLANT status when dry), beam on/off, run-time bar.
+Materials: `strange_matter` (dust, "(uds)n"), `chromodynium` (ingot, 12000 K EBF, plate/foil/rod/frame, "Qc"), `anti_matter` (plasma only, "(Aq)n"), each with its own animated icon set (GT icon sets `strange_matter` and `chromodynium`, children of `shiny`; af9-core `assets/gtceu/.../material_sets/<set>`: an item model per shape whose untinted top layer is the animated art, the tinted layers empty; Chromodynium's block and frame grey, tinted by GT): Strange Matter a dark violet void with twinkling glints (32 frames), Chromodynium a pearl metal with a sheen sweeping through its colour charge, pink, orange, yellow, mint (24 frames), both at 2 ticks a frame; their wafers, boules, melt charges and seed crystals carry the same effects over their own art. Items: `af9:beryllium_spallation_target` (4 Be plates + 2 tungstensteel plates, LuV), `af9:magnetic_trap` (ZPM field generator + 4 NbTi plates + 2 tungstensteel plates, ZPM), `af9:qgp_trap`. Console: mode tiles NEUTRONS / COLLIDER / QUARKS, beam energy (1 GeV at ZPM, ×2 per tier), coolant fluid + amount (NO COOLANT status when dry), beam on/off, run-time bar.
 
 # 15. Wafer and chip contamination
 
@@ -1467,7 +1464,7 @@ kubejs/server_scripts/mods/gtceu/electronics_metallurgy.js # zircon chain, zirco
 kubejs/server_scripts/mods/gtceu/fab_chemistry.js  # lines 1-5 (§6.12-6.16): Moon Sand polysilicon + Lunar Air + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
 kubejs/startup_scripts/gtceu/fab_machines.js       # §11: 12 fab recipe types (slot layouts), 4 SMC single-block families (MV-LuV), 4 SMC multiblocks (structures, modifiers)
 kubejs/server_scripts/mods/gtceu/fab_machines.js   # §11: crafting of the SMC machines
-kubejs/server_scripts/mods/gtceu/circuits_af9.js    # all of AF9's circuit crafting: alloy mixers (Al-Si, Kovar, Pt-Ir), MV circuits without transistors/diodes, HV-LuV circuits (plain chips + tier metals), eDRAM versions
+kubejs/server_scripts/mods/gtceu/circuits_af9.js    # all of AF9's circuit crafting: alloy mixers (Al-Tq, Kovar, Pt-Ir), MV circuits without transistors/diodes, HV-LuV circuits (plain chips + tier metals), eDRAM versions
 config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in kubejs/assets/kubejs/lang/en_us.json (af9.quest.*)
 kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type/block names, tooltips, mode descriptions, AF9 material names
 af9-core/src/main/resources/assets/af9/lang/en_us.json # consoles, Jade, recipe info, substrate/light names, wafer messages

@@ -610,6 +610,9 @@ ServerEvents.recipes(event => {
             fluids.push(Fluid.of('gtceu:hydrogen', 1000))
         }
         if (m.highK) fluids.push(Fluid.of('gtceu:hafnium_tetrachloride', 100))
+        // 7 nm (strange matter) only prints with Idontknowium plasma: the forge holds star matter and
+        // anti-matter together for it (dtpf.js), and the station burns 1,000 mB a print
+        if (m.id == '7nm') fluids.push(Fluid.of('gtceu:idontknowium_plasma', 1000))
         chips.filter(c => c.reticle && c.native <= m.substrate).forEach(c => {
             const recipe = event.recipes.gtceu[`lithography_${m.id}`](`af9:print_${c.id}_${m.id}`)
                 .itemInputs(`af9:coated_${s.id}_wafer`)

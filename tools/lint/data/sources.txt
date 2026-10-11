@@ -13,6 +13,9 @@ gtceu:quantanium
 gtceu:artemite_dust
 gtceu:artemite
 gtceu:tiny_artemite_dust
+gtceu:tranquillite_dust
+gtceu:tranquillite
+gtceu:tiny_tranquillite_dust
 # fluid deposits of the belts and the Moon (vein_oil.js), drilled with the Fluid Drilling Rig
 gtceu:heavy_water
 gtceu:ares_gas

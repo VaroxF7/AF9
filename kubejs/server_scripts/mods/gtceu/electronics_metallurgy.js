@@ -1,5 +1,5 @@
 // AF9 - Electronics metallurgy recipes (materials: af9-core, registry/AF9Materials)
-// The zircon -> zirconium / hafnium chain and the zircon sands vein. The alloy dusts of the circuit metals (Al-Si, Kovar,
+// The zircon -> zirconium / hafnium chain and the zircon sands vein. The alloy dusts of the circuit metals (Al-Tq, Kovar,
 // Pt-Ir: mixers) and the circuits using them are in circuits_af9.js. Spec: docs/semiconductor-factory.md
 
 ServerEvents.recipes(event => {

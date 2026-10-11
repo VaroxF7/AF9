@@ -326,7 +326,7 @@ material gtceu:acidic_ion_exchange_resin
 material gtceu:aluminised_hydrolox
 material gtceu:aluminium_chloride
 material gtceu:aluminium_nitride
-material gtceu:aluminium_silicon
+material gtceu:aluminium_tranquillite
 material gtceu:ammonium_bisulfate
 material gtceu:ammonium_hexachloroiridate
 material gtceu:ammonium_hexachloroosmate
@@ -400,6 +400,7 @@ material gtceu:krypton_xenon_concentrate
 material gtceu:l_01
 material gtceu:lactic_acid
 material gtceu:lactonitrile
+material gtceu:lesolite
 material gtceu:lithium_niobate
 material gtceu:living_solder
 material gtceu:lunar_air
@@ -493,6 +494,7 @@ material gtceu:thionyl_chloride
 material gtceu:tin_tetrachloride
 material gtceu:titanium_silicalite
 material gtceu:tmah_developer
+material gtceu:tranquillite
 material gtceu:tributylamine
 material gtceu:trichlorosilane
 material gtceu:triethylaluminium
