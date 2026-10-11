@@ -148,18 +148,23 @@ def main():
         # the rotor faces left: the shaft, bearing seat and flange (x <= 7) are dark grey, the body is the tier's
         rotor_back(recolour_split(rotor, ramp, GREY, lambda x, y, c: x <= 7), ramp).save(
             os.path.join(OUT, tier + '_rotor.png'))
-        # the stator: the winding ring round its end is dark grey, the steel stack the tier's, and the neck at the
-        # other end is always copper
+        # the stator: the winding ring at the front (left) is copper, the steel stack the tier's, and the neck at the
+        # back (right) is dark grey
         stator_out = stator.copy()
         for y in range(stator.height):
             for x in range(stator.width):
                 p = stator.getpixel((x, y))
-                if p[3] == 0 or (p[:3] in COPPER and x >= 14):
+                if p[3] == 0:
                     continue
-                stator_out.putpixel((x, y), tint(p[:3], GREY if (p[:3] in COPPER or x <= 5) else ramp) + (255,))
-        # make the neck two pixels wide: copper turns over the last column of the steel
+                if p[:3] in COPPER and x <= 13:
+                    continue  # the winding ring keeps its copper
+                if p[:3] in COPPER or (x <= 5 and p[:3] not in COPPER):
+                    stator_out.putpixel((x, y), tint(p[:3], GREY) + (255,))  # the neck, and the bore of the ring
+                else:
+                    stator_out.putpixel((x, y), tint(p[:3], ramp) + (255,))
+        # make the neck two pixels wide: grey turns over the last column of the steel
         for y in range(5, 11):
-            stator_out.putpixel((13, y), ((0xe7, 0x7c, 0x56) if y % 2 else (0xc1, 0x5a, 0x36)) + (255,))
+            stator_out.putpixel((13, y), (GREY[2] if y % 2 else GREY[1]) + (255,))
         stator_out.save(os.path.join(OUT, tier + '_stator.png'))
     industrial_strip(industrial(housing)).save(os.path.join(OUT, 'industrial_electric_motor_housing.png'))
     with open(os.path.join(OUT, 'industrial_electric_motor_housing.png.mcmeta'), 'w') as f:
