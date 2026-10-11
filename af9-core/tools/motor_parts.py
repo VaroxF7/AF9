@@ -80,6 +80,25 @@ def recolour_split(im, ramp, other, in_other, is_other_colour=None):
     return out
 
 
+def rotor_back(im, ramp):
+    """The rotor's far end (right): a dark end plate with a centre pin and a ring of balance holes, a band before it."""
+    dark, mid, light = ramp
+    out = im.copy()
+    # the band where the body meets the plate
+    for y in range(4, 12):
+        if out.getpixel((12, y))[3] > 0:
+            out.putpixel((12, y), tint((0x50, 0x4a, 0x50), ramp) + (255,))
+    plate = {5: 0x26, 6: 0x5c, 7: 0xa8, 8: 0xa8, 9: 0x5c, 10: 0x26}
+    for y, v in plate.items():
+        out.putpixel((14, y), tint((v, v, v), GREY) + (255,))
+    # balance holes, two on the body next to the plate
+    for y in (5, 10):
+        out.putpixel((13, y), tint((0x1d, 0x1c, 0x21), GREY) + (255,))
+    # a bright rim light on the top edge of the end plate
+    out.putpixel((13, 4), tint((0xe2, 0xe0, 0xe0), ramp) + (255,))
+    return out
+
+
 def industrial(base):
     """The housing in the alloy's colours with a small controller module (a BMS board) on top of it."""
     im = recolour(base, RTNA)
@@ -127,9 +146,21 @@ def main():
     for tier, ramp in RAMPS.items():
         recolour(housing, ramp).save(os.path.join(OUT, tier + '_motor_housing.png'))
         # the rotor faces left: the shaft, bearing seat and flange (x <= 7) are dark grey, the body is the tier's
-        recolour_split(rotor, ramp, GREY, lambda x, y, c: x <= 7).save(os.path.join(OUT, tier + '_rotor.png'))
-        # the stator: the winding ring round its end is dark grey, the steel stack the tier's
-        recolour_split(stator, ramp, GREY, lambda x, y, c: c in COPPER or x <= 5).save(os.path.join(OUT, tier + '_stator.png'))
+        rotor_back(recolour_split(rotor, ramp, GREY, lambda x, y, c: x <= 7), ramp).save(
+            os.path.join(OUT, tier + '_rotor.png'))
+        # the stator: the winding ring round its end is dark grey, the steel stack the tier's, and the neck at the
+        # other end is always copper
+        stator_out = stator.copy()
+        for y in range(stator.height):
+            for x in range(stator.width):
+                p = stator.getpixel((x, y))
+                if p[3] == 0 or (p[:3] in COPPER and x >= 14):
+                    continue
+                stator_out.putpixel((x, y), tint(p[:3], GREY if (p[:3] in COPPER or x <= 5) else ramp) + (255,))
+        # make the neck two pixels wide: copper turns over the last column of the steel
+        for y in range(5, 11):
+            stator_out.putpixel((13, y), ((0xe7, 0x7c, 0x56) if y % 2 else (0xc1, 0x5a, 0x36)) + (255,))
+        stator_out.save(os.path.join(OUT, tier + '_stator.png'))
     industrial_strip(industrial(housing)).save(os.path.join(OUT, 'industrial_electric_motor_housing.png'))
     with open(os.path.join(OUT, 'industrial_electric_motor_housing.png.mcmeta'), 'w') as f:
         json.dump({'animation': {'frametime': 10}}, f)
