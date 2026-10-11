@@ -65,43 +65,25 @@ def recolour(im, ramp, keep=()):
 
 
 def industrial(base):
-    """The housing, fatter and heavier: a thick bevelled shell, ribs and bolts, in the alloy's colours."""
+    """The housing in the alloy's colours with a small controller module (a BMS board) on top of it."""
     im = recolour(base, RTNA)
-    w, h = im.size
-    filled = {(x, y) for y in range(h) for x in range(w) if im.getpixel((x, y))[3] > 0}
-    # the outside: transparent pixels reachable from the border
-    outside, stack = set(), [(x, y) for x in range(w) for y in range(h) if x in (0, w - 1) or y in (0, h - 1)]
-    while stack:
-        x, y = stack.pop()
-        if (x, y) in outside or (x, y) in filled or not (0 <= x < w and 0 <= y < h):
-            continue
-        outside.add((x, y))
-        stack += [(x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)]
-    ring = {(x, y) for (x, y) in outside
-            if any((x + dx, y + dy) in filled for dx in (-1, 0, 1) for dy in (-1, 0, 1))}
-    dark, mid, light = RTNA
-    out = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-    for (x, y) in filled:
-        out.putpixel((x, y), im.getpixel((x, y)))
-    for (x, y) in ring:
-        # the new rim: lit on its top-left, dark on its bottom-right
-        lit = (x + y) < (min(px + py for px, py in filled) + 6)
-        out.putpixel((x, y), (light if (y <= min(py for _, py in filled) and lit) else
-                              mid if lit else dark) + (255,))
-    # the old outline is now a groove between the rim and the body: keep it dark
-    for (x, y) in filled:
-        p = base.getpixel((x, y))
-        if lum(p[:3]) <= 0x24:
-            out.putpixel((x, y), tuple(int(c * 0.6) for c in dark) + (255,))
-    # a rim outline round all of it
-    final = out.copy()
-    for y in range(h):
-        for x in range(w):
-            if out.getpixel((x, y))[3] == 0 and any(
-                    0 <= x + dx < w and 0 <= y + dy < h and out.getpixel((x + dx, y + dy))[3] > 0
-                    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))):
-                final.putpixel((x, y), tuple(int(c * 0.5) for c in dark) + (255,))
-    return final
+    outline = (0x1d, 0x1c, 0x21)
+    board, board_lit, chip, pin = (0x2f, 0x5d, 0x4a), (0x4b, 0x8a, 0x6c), (0x16, 0x16, 0x1a), (0xd9, 0xb8, 0x4a)
+    led_ok, led_warn = (0x5c, 0xff, 0x7a), (0xff, 0xb0, 0x2e)
+    # the module: x 2..8, y 0..3, sitting on the housing's top edge
+    for y in range(0, 4):
+        for x in range(2, 9):
+            edge = y == 0 or x in (2, 8)
+            im.putpixel((x, y), outline + (255,) if edge else (board_lit if y == 1 else board) + (255,))
+    for x in (3, 4, 5, 6, 7):  # the connector row, where the board meets the housing
+        im.putpixel((x, 3), (pin if x % 2 else outline) + (255,))
+    im.putpixel((3, 2), chip + (255,))  # the controller chip
+    im.putpixel((4, 2), chip + (255,))
+    im.putpixel((6, 2), chip + (255,))
+    im.putpixel((3, 1), led_ok + (255,))  # status lights
+    im.putpixel((5, 1), led_warn + (255,))
+    im.putpixel((7, 1), led_ok + (255,))
+    return im
 
 
 def main():
