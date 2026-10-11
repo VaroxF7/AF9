@@ -30,6 +30,9 @@ RAMPS = {
 # reinforced titanium niobium alloy: AF9Materials colour 0x8a94c8
 RTNA = ((0x2c, 0x31, 0x52), (0x8a, 0x94, 0xc8), (0xb0, 0xba, 0xff))
 
+# the dark grey of the parts that are not the tier's (rotor shaft and flange, stator end ring)
+GREY = ((0x22, 0x22, 0x26), (0x62, 0x60, 0x66), (0x9a, 0x99, 0x9e))
+
 COPPER = {(0xc1, 0x5a, 0x36), (0xe7, 0x7c, 0x56), (0x9c, 0x4e, 0x31), (0x8a, 0x41, 0x29)}
 
 
@@ -62,6 +65,18 @@ def recolour(im, ramp, keep=()):
             if p[3] == 0 or p[:3] in keep:
                 continue
             out.putpixel((x, y), tint(p[:3], ramp) + (255,))
+    return out
+
+
+def recolour_split(im, ramp, other, in_other, is_other_colour=None):
+    """Tier colour, except where in_other(x, y, rgb) says the pixel is of the other (dark grey) ramp."""
+    out = im.copy()
+    for y in range(im.height):
+        for x in range(im.width):
+            p = im.getpixel((x, y))
+            if p[3] == 0:
+                continue
+            out.putpixel((x, y), tint(p[:3], other if in_other(x, y, p[:3]) else ramp) + (255,))
     return out
 
 
@@ -111,8 +126,10 @@ def main():
     stator = Image.open(os.path.join(bases, 'stator.png')).convert('RGBA')
     for tier, ramp in RAMPS.items():
         recolour(housing, ramp).save(os.path.join(OUT, tier + '_motor_housing.png'))
-        recolour(rotor, ramp).save(os.path.join(OUT, tier + '_rotor.png'))
-        recolour(stator, ramp, keep=COPPER).save(os.path.join(OUT, tier + '_stator.png'))
+        # the rotor faces left: the shaft, bearing seat and flange (x <= 7) are dark grey, the body is the tier's
+        recolour_split(rotor, ramp, GREY, lambda x, y, c: x <= 7).save(os.path.join(OUT, tier + '_rotor.png'))
+        # the stator: the winding ring round its end is dark grey, the steel stack the tier's
+        recolour_split(stator, ramp, GREY, lambda x, y, c: c in COPPER or x <= 5).save(os.path.join(OUT, tier + '_stator.png'))
     industrial_strip(industrial(housing)).save(os.path.join(OUT, 'industrial_electric_motor_housing.png'))
     with open(os.path.join(OUT, 'industrial_electric_motor_housing.png.mcmeta'), 'w') as f:
         json.dump({'animation': {'frametime': 10}}, f)
