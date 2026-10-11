@@ -7,6 +7,7 @@ housing. Run from af9-core:
 The bases (tools/motor_parts/) are 16x16 in GT's motor palette (grey steel, dark outline); each tier recolours them with its own
 (dark, mid, light) ramp, the tier colours the placeholders already used. The rotor and stator bases face left.
 """
+import json
 import os
 
 from PIL import Image
@@ -86,6 +87,23 @@ def industrial(base):
     return im
 
 
+# the two status lights on the housing's side change colour every few frames
+LED_COLOURS = {'g': (0x5c, 0xff, 0x7a), 'a': (0xff, 0xb0, 0x2e), 'r': (0xff, 0x3a, 0x3a), 'o': (0x30, 0x34, 0x3a)}
+LED_UPPER, LED_LOWER = (13, 7), (13, 9)
+LED_FRAMES = ('ga', 'gr', 'ag', 'rg', 'ra', 'ga', 'og', 'ao', 'gg', 'ar')
+
+
+def industrial_strip(base):
+    """An animation strip: the module and the housing, and for each frame the colours of the side lights."""
+    strip = Image.new('RGBA', (16, 16 * len(LED_FRAMES)), (0, 0, 0, 0))
+    for i, (upper, lower) in enumerate(LED_FRAMES):
+        frame = base.copy()
+        frame.putpixel(LED_UPPER, LED_COLOURS[upper] + (255,))
+        frame.putpixel(LED_LOWER, LED_COLOURS[lower] + (255,))
+        strip.paste(frame, (0, 16 * i))
+    return strip
+
+
 def main():
     bases = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'motor_parts')
     housing = Image.open(os.path.join(bases, 'housing.png')).convert('RGBA')
@@ -95,7 +113,9 @@ def main():
         recolour(housing, ramp).save(os.path.join(OUT, tier + '_motor_housing.png'))
         recolour(rotor, ramp).save(os.path.join(OUT, tier + '_rotor.png'))
         recolour(stator, ramp, keep=COPPER).save(os.path.join(OUT, tier + '_stator.png'))
-    industrial(housing).save(os.path.join(OUT, 'industrial_electric_motor_housing.png'))
+    industrial_strip(industrial(housing)).save(os.path.join(OUT, 'industrial_electric_motor_housing.png'))
+    with open(os.path.join(OUT, 'industrial_electric_motor_housing.png.mcmeta'), 'w') as f:
+        json.dump({'animation': {'frametime': 10}}, f)
 
 
 if __name__ == '__main__':
