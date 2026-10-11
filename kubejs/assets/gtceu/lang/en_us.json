@@ -427,6 +427,7 @@
     "material.gtceu.aluminium_silicon": "Aluminium-Silicon",
     "material.gtceu.kovar": "Kovar",
     "material.gtceu.platinum_iridium": "Platinum-Iridium",
+    "material.gtceu.nichrome_platinum": "Nichrome-Platinum",
     "material.gtceu.zircon": "Zircon",
     "material.gtceu.zirconia": "Zirconia",
     "material.gtceu.crude_zirconium_tetrachloride": "Crude Zirconium Tetrachloride",
@@ -567,8 +568,6 @@
     "material.gtceu.chloromethane_diesel": "Chloromethane Diesel",
     "material.gtceu.mana_diesel": "Mana Diesel",
     "material.gtceu.dichloromethane": "Dichloromethane",
-    "material.gtceu.anti_quark": "Anti Quark",
     "material.gtceu.anti_matter": "Anti Matter",
-    "material.gtceu.idontknowium": "Idontknowium",
-    "material.gtceu.superstate_star_matter": "Superstate Star Matter"
+    "material.gtceu.idontknowium": "Idontknowium"
 }

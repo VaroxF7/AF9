@@ -14,6 +14,9 @@ Code: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (`solders
 `gtceu:high_grade_solder`: SAC-InBi lead-free solder (Sn9BiInAg). Mixed in the MV mixer (one tier below its first
 users, like the MV circuit alloys in `circuits_af9.js`): 9 tin + 1 bismuth + 1 indium + 1 silver dust (circuit 12) →
 12 dust, 360 ticks at MV. GT derives the HV EBF recipe from the blast property (1500 K, LOW, HV, 500 ticks).
+Its look is its own icon set (`solder`, parented to SHINY): satin silver with brushed streaks and a whisper of
+bismuth iridescence (`tools/textures/solder.py` → `assets/gtceu/.../material_sets/solder/`), not the plain-white
+METALLIC tint.
 
 Every HV-LuV circuit assembler recipe that GT generated a `soldering_alloy` copy of now comes as tin + high-grade
 (`af9:<id>` + `af9:<id>_high_grade`, 144 / 72 mB × solder multiplier). MV stays tin + soldering alloy (bootstrap:

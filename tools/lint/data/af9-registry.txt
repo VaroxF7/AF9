@@ -333,7 +333,6 @@ material gtceu:ammonium_hexachloroosmate
 material gtceu:ammonium_hexachloroplatinate
 material gtceu:ammonium_hexachlororuthenate
 material gtceu:anti_matter
-material gtceu:anti_quark
 material gtceu:ares_gas
 material gtceu:arf_excimer_gas
 material gtceu:arf_photoresist
@@ -418,6 +417,7 @@ material gtceu:methyl_methacrylate
 material gtceu:molybdenum_trioxide
 material gtceu:moon_sand
 material gtceu:neon_helium_mixture
+material gtceu:nichrome_platinum
 material gtceu:nitronaphthalene
 material gtceu:novolac_resin
 material gtceu:osmium_tetroxide_vapour
@@ -480,7 +480,6 @@ material gtceu:supercooled_endion
 material gtceu:supercooled_hydrogen
 material gtceu:supercooled_xenon
 material gtceu:supercritical_steam
-material gtceu:superstate_star_matter
 material gtceu:tarc
 material gtceu:tboc_polyhydroxystyrene
 material gtceu:tert_butanol

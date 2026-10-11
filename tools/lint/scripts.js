@@ -207,7 +207,9 @@ function FactoryBlockPatternStart() {
 const FactoryBlockPattern = { start: () => FactoryBlockPatternStart() }
 
 const ctx = {
-    console, GTValues, Predicates, FactoryBlockPattern, GTCEu: { id: x => 'gtceu:' + x, MOD_ID: 'gtceu' },
+    // --json feeds quests.py through stdout: script log lines would corrupt that JSON, so scripts get a silent
+    // console in that mode (their output is informational only; findings travel through `report`, not console)
+    console: asJson ? new Proxy({}, { get: () => () => {} }) : console, GTValues, Predicates, FactoryBlockPattern, GTCEu: { id: x => 'gtceu:' + x, MOD_ID: 'gtceu' },
     Fluid: { of: (fluid, amount) => ({ fluid, amount }) }, Item: { of: s => ({ item: s, isEmpty: () => false }), exists: () => true, getBlock: () => ({}) },
     Block: { getBlock: () => ({}) }, CleanroomType: { CLEANROOM: 'cleanroom', STERILE_CLEANROOM: 'sterile' },
     Ingredient: { of: s => s }, Platform: { isLoaded: () => true },

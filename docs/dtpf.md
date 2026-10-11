@@ -50,7 +50,11 @@ The plasmas are AF9 Core's fluids `gtceu:strange_matter_plasma`, `gtceu:chromody
 materials). Three are ionised here from their dust; **Anti Matter Plasma is not**: the Mega Fusion Reactor fuses it from 4,000 mB
 strange matter plasma and 4,000 mB chromodynium plasma (2,000 mB, UEV voltage, `fusion_reactor.js`), and the forge then forges it
 with 2,000 mB of star matter plasma into **Idontknowium Plasma**. The anti-matter dust is the superstate's feedstock only.
-The controller is made in the assembler (`af9:dtpf`, UV).
+The controller is made in AF9's Advanced Circuit Manufacturer (`af9:dtpf`, UHV on 300 A, 128 CWU/t, 60 s):
+16x UHV circuits, UHV machine hull, 8x mk3 fusion casing, 2x field generator (UV: GT registers no UHV
+field generator while its high-tier content is off), 4x AI Acceleration Card, 32x Qubit CPU chip
+(`gtceu:qbit_cpu_chip`), 16x eDRAM chip (`af9:edram_chip`), 8 stacks (8x64) fine sanguinite wire,
+5,760 mB plasma solder.
 
 ## 4. AI Acceleration Card
 

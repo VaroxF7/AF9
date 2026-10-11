@@ -25,7 +25,7 @@
 //
 // What is here, in order:
 //   1. helpers (tin/solder pairs, high-grade, living, plasma; chip stacks; cleanroom)
-//   2. circuit alloy dusts (Al-Si, Kovar, Pt-Ir, high-grade solder)
+//   2. circuit alloy dusts (Al-Si, Kovar, Pt-Ir, NiCr-Pt, high-grade solder)
 //   3. MV normal (bootstrap, chip-light) + MV lean (Stage 1)
 //   4. HV normal (linear, node-matched) + HV lean (Stage 2)
 //   5. EV normal + EV lean (Stage 2)
@@ -96,6 +96,7 @@ ServerEvents.recipes(event => {
         { id: 'aluminium_silicon', inputs: ['16x gtceu:aluminium_dust', 'gtceu:silicon_dust'], count: 17, circuit: 2, eut: VA[GTValues.LV] },
         { id: 'kovar', inputs: ['6x gtceu:iron_dust', '3x gtceu:nickel_dust', '2x gtceu:cobalt_dust'], count: 11, circuit: 3, eut: VA[GTValues.LV] },
         { id: 'platinum_iridium', inputs: ['9x gtceu:platinum_dust', 'gtceu:iridium_dust'], count: 10, circuit: 2, eut: VA[GTValues.HV] },
+        { id: 'nichrome_platinum', inputs: ['gtceu:nichrome_dust', 'gtceu:platinum_dust'], count: 2, circuit: 5, eut: VA[GTValues.HV] },
         { id: 'high_grade_solder', inputs: ['9x gtceu:tin_dust', 'gtceu:bismuth_dust', 'gtceu:indium_dust', 'gtceu:silver_dust'], count: 12, circuit: 12, eut: VA[GTValues.MV] }
     ]
     alloys.forEach(a => {

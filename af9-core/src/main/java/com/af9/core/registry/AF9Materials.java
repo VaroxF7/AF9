@@ -47,8 +47,12 @@ public final class AF9Materials {
     private static final MaterialIconSet CHROMODYNIUM = new MaterialIconSet("chromodynium", MaterialIconSet.SHINY);
     private static final MaterialIconSet IDONTKNOWIUM = new MaterialIconSet("idontknowium", MaterialIconSet.SHINY);
     private static final MaterialIconSet ANTI_MATTER = new MaterialIconSet("anti_matter", MaterialIconSet.SHINY);
-    private static final MaterialIconSet SUPERSTATE_STAR_MATTER = new MaterialIconSet("superstate_star_matter",
-            MaterialIconSet.SHINY);
+    /**
+     * High-grade solder's own satin look (tools/textures/solder.py): cool silver with a diagonal shine, faint
+     * brushed streaks and a whisper of bismuth iridescence, instead of the plain-white METALLIC tint. Shapes
+     * the set lacks fall back to its parent, SHINY.
+     */
+    private static final MaterialIconSet SOLDER = new MaterialIconSet("solder", MaterialIconSet.SHINY);
 
     private static final List<Material> ALL = new ArrayList<>();
 
@@ -367,6 +371,16 @@ public final class AF9Materials {
                 .components(GTMaterials.Platinum, 9, GTMaterials.Iridium, 1)
                 .flags(MaterialFlags.GENERATE_FINE_WIRE)
                 .blastTemp(2100, GasTier.MID, GTValues.VA[GTValues.EV], 600));
+
+        // EV: nichrome-platinum frame alloy (the Advanced Circuit Manufacturer's controller). Mixed like the
+        // other circuit alloys (circuits_af9.js), melted in the EBF from the blast property; the frame flag is
+        // what the controller recipe takes (gtceu:nichrome_platinum_frame).
+        add(material("nichrome_platinum")
+                .ingot()
+                .color(0xb9c2cf).iconSet(MaterialIconSet.METALLIC)
+                .components(GTMaterials.Nichrome, 1, GTMaterials.Platinum, 1)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_FRAME)
+                .blastTemp(2000, GasTier.MID, GTValues.VA[GTValues.EV], 600));
 
         // ---- Zircon ----
         // Heavy mineral sand with ilmenite, rutile and monazite. Formulas only (no components), so GT adds no
@@ -687,41 +701,17 @@ public final class AF9Materials {
     }
 
     /**
-     * Antimatter and the superstate: past chromodynium. The Particle Accelerator condenses quark-gluon plasma with
-     * chromodynium into anti-quarks, then with anti-quarks into anti-matter, then with anti-matter into superstate
-     * star matter, the next quark-level state (recipes: particle_accelerator.js). The Plasma Forge ionises
-     * superstate dust into Superstate Star Matter Plasma and forges it back into plates (recipes: dtpf.js); Anti
-     * Matter Plasma is fused from strange matter and chromodynium plasma in the Mega Fusion Reactor
-     * (fusion_reactor.js).
+     * Anti-matter plasma: fused in the Mega Fusion Reactor out of biobium, sulfur and nickel plasma
+     * (fusion_reactor.js), and forged with star matter plasma into Idontknowium plasma in the Plasma Forge
+     * (dtpf.js). Only its plasma exists.
      */
     private static void antimatter() {
-        // the anti-quark: the quark of anti-matter (dust only, like a quark flavour)
-        add(material("anti_quark")
-                .dust()
-                .color(0x00e5ff).secondaryColor(0xff00e5)
-                .iconSet(ANTI_MATTER)
-                .formula("Aq"));
-
-        // stabilised anti-quarks in one bag, past strange matter
-        // (its dust is the superstate's feedstock; its plasma is what the Mega Fusion Reactor fuses: fusion_reactor.js)
+        // stabilised anti-quarks in one bag, past strange matter: plasma only, no dust
         add(material("anti_matter")
-                .dust()
                 .plasma()
                 .color(0x7a00ff).secondaryColor(0x00fff2)
                 .iconSet(ANTI_MATTER)
                 .formula("(Aq)n"));
-
-        // the superstate: star matter held past plasma, the metal past chromodynium
-        add(material("superstate_star_matter")
-                .ingot()
-                .fluid()
-                .plasma()
-                .color(0xfff200).secondaryColor(0xff6a00)
-                .iconSet(SUPERSTATE_STAR_MATTER)
-                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL, MaterialFlags.GENERATE_ROD,
-                        MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_FINE_WIRE)
-                .blastTemp(15000, GasTier.HIGHEST, GTValues.VA[GTValues.UHV], 3200)
-                .formula("Ss"));
 
         // Idontknowium: nobody knows what it is. Only its plasma exists, 12,000 K, forged in the Plasma Forge from star
         // matter plasma and the anti-matter plasma the Mega Fusion Reactor fuses (dtpf.js, fusion_reactor.js)
@@ -951,7 +941,7 @@ public final class AF9Materials {
         // decomposition from the components + blast property; the mixer recipe is in circuits_af9.js.
         add(material("high_grade_solder")
                 .ingot().fluid()
-                .color(0xd8dee8).iconSet(MaterialIconSet.METALLIC)
+                .color(0xd8dee8).iconSet(SOLDER)
                 .components(GTMaterials.Tin, 9, GTMaterials.Bismuth, 1, GTMaterials.Indium, 1,
                         GTMaterials.Silver, 1)
                 .blastTemp(1500, GasTier.LOW, GTValues.VA[GTValues.HV], 500)

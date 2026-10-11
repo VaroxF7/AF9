@@ -82,26 +82,25 @@
 </header>
 
 <h2 class="sec">1 · Deadlock audit — read this first</h2>
-<p class="sub">Every tier entry was traced input-by-input to the tier that can actually craft it. One hard break found, in the current pack.</p>
+<p class="sub">Every tier entry was traced input-by-input to the tier that can actually craft it. One hard break found, and fixed.</p>
 
 <div class="card">
-  <h3><span class="tag t-bug">DEADLOCK</span>The Silicon Paradox (exists today, blocks everything past MV)</h3>
-  <p>Six links, all verified in-repo:</p>
+  <h3><span class="tag t-ok">CLEAR</span>The Silicon Paradox (existed, fixed: T1 rocket flies pre-silicon)</h3>
+  <p>Six links, all verified in-repo at the time:</p>
   <ol>
     <li>MV's <code>good_integrated_circuit</code> needs <code>ilc_chip</code>, MV's <code>micro_processor</code> needs <code>cpu/ram_chip</code> — <code>circuits_af9.js:138–161</code>.</li>
     <li><code>ilc/ram/cpu</code> print only on <b>silicon</b> wafers (native substrate 0, N350 @ MV) — <code>photolithography.js:60–62</code>.</li>
     <li>Silicon boules need <code>32× electronic-grade Si + tiny artemite dust</code>, and polysilicon comes <b>only from Moon Sand</b> — <code>boule_melting.js:77–80</code>, <code>fab_chemistry.js:90</code>.</li>
     <li>Artemite generates <b>only on Earth's Moon</b> — <code>vein_moon.js:4–6</code>.</li>
-    <li>The Moon needs the T1 rocket: HV assembler, stainless steel, HV sensor, <b>2× <code>af9:mcu_chip</code></b> in the nose cone — <code>rockets.js</code> nose-cone recipe.</li>
+    <li>The Moon <b>used to</b> need a T1 rocket with HV sensor + <code>af9:mcu_chip</code> in the nose cone — old <code>rockets.js</code>.</li>
     <li><code>mcu_chip</code> is silicon-native (<code>photolithography.js:80</code>), and HV circuits need silicon dies (<code>circuits_af9.js:201–205</code>).</li>
   </ol>
-  <p><b>Circle: silicon → Moon → silicon.</b> The only MV circuit buildable today is the chip-free tubed Good Electronic,
-  so MV machines and the EBF exist, but no silicon, no HV, no rocket — the pack stalls at end of MV.</p>
-  <p><span class="tag t-prop">PROPOSED</span><b>Earth intrinsic-silicon path (the mid-MV milestone):</b> a small MV Siemens route
-  (quartz → MG-Si → trichlorosilane → Siemens bell jar, ~¼ Moon yield) plus an <b>undoped CZ boule</b>
-  (EG-Si only, +50% time, half the wafers). The Moon keeps bulk polysilicon (8/block) and artemite p-doping
-  (full-yield premium boules) — Moon stays valuable, it just stops being a wall. Recipes self-gate on the material:
-  no quest gating needed, first <code>silicon_wafer</code> is the trigger.</p>
+  <p><b>Circle was: silicon → Moon → silicon.</b> Fix, implemented in <code>rockets.js</code>: the T1 rocket flies on <b>LV parts</b>
+  (stainless hull, LV sensor/arms/pistons/motors, LV circuits for guidance and flight computer) out of an <b>expensive MV assembler</b>
+  recipe — nothing silicon, nothing above LV components. Moon first, silicon second, paradox gone.</p>
+  <p><span class="tag t-asis">AS-IS</span><b>Earth Siemens proposal withdrawn:</b> the earlier idea (MV Earth Siemens route + undoped CZ boule) is
+  superseded — with the T1 flying pre-silicon, Moon keeps bulk polysilicon (8/block) and artemite p-doping uncontested.
+  No quest gating was ever needed; the fix is recipes only.</p>
 </div>
 
 <div class="card">
@@ -110,16 +109,16 @@
     <tr><th>Entry</th><th>Verdict</th><th>Why</th></tr>
     <tr><td>LV · Basic Electronic (steel-gated)</td><td><span class="tag t-ok">CLEAR</span></td><td>Steel from Create superheated mixer in steam age (<code>create_steam_age.js</code>); tubes (vacuum tube + rose quartz), red alloy, resin all steam-age. Rule: keep a machine-free first craft (shaped + Create sequenced) in case the LV assembler itself needs LV circuits.</td></tr>
     <tr><td>MV · Good Electronic (tubed, chip-free)</td><td><span class="tag t-ok">CLEAR</span></td><td>Steel plates + phenolic (as today, pre-MV proven) + LV circuits + tubes + Cu. Carries all MV machines incl. EBF and Line v1 (MV circuits + stainless, <code>photolithography.js:182</code>).</td></tr>
-    <tr><td>MV mid · Earth silicon</td><td><span class="tag t-prop">PROPOSED</span> fix above</td><td>Unblocks Line v1 N350 prints (cpu/ram/ilc) → cheap LV Microchip reprint + silicon Good Integrated. EBF on cupronickel (LV) covers 1784 K boule + stainless (standard GT).</td></tr>
+    <tr><td>MV mid · Moon silicon</td><td><span class="tag t-ok">CLEAR</span> implemented path</td><td>T1 rocket (stainless, LV parts, MV assembler — <code>rockets.js</code>) reaches the Moon with zero silicon. Moon Sand (8 polysilicon/block) + artemite → EG-Si → CZ boules → Line v1 N350 prints (<code>cpu / ram / ilc</code>) → cheap LV Microchip reprint + silicon Good Integrated. EBF on cupronickel covers boule + stainless.</td></tr>
     <tr><td>HV · Advanced Integrated</td><td><span class="tag t-ok">CLEAR</span></td><td>2× MV + silicon dies (MV-printable) + transistors + Au + stainless bolts — today's inputs, all pre-HV. Milestone: stainless + EBF + silicon dies flowing.</td></tr>
-    <tr><td>HV mid · phosphorus</td><td><span class="tag t-check">VERIFY</span></td><td>Apatite (mining dim) → MV electrolyzer → P dust → HV boule (kanthal EBF, 2484 K) → Line v2 (KrF laser, HV — <code>photolithography.js:201</code>). Fallback if apatite timing slips: gate HV-mid on Moon apatite? No — that re-inverts; instead allow bone-meal phosphate path.</td></tr>
-    <tr><td>EV · Workstation</td><td><span class="tag t-check">VERIFY</span></td><td>2× HV + silicon dies + Pt wire + Ti bolts. Pt: End sheldonite (vanilla portal, no circuits) — GT-standard, confirm vein lives in mining dim or End. Ti: ilmenite/rutile EBF chain, standard.</td></tr>
-    <tr><td>EV mid · naquadah</td><td><span class="tag t-ok">CLEAR</span></td><td>T2 rocket (titanium, EV, ASIC — <code>rockets.js</code>) → field hand-mining (<code>vein_field.js</code>). Line v3 = ArF laser (EV — <code>photolithography.js:208</code>) → N100 prints (advanced_soc) → cheap HV reprint.</td></tr>
-    <tr><td>IV · Mainframe</td><td><span class="tag t-check">VERIFY</span></td><td>2× EV + phosphorus dies + W wire. W: scheelite/tungstate EBF chain, GT-standard. Scanner v1 crafted at IV (<code>photolithography.js:226</code>) — needs IV circuits, ordered after IV entry. Trinium dust source (mid-IV milestone) unconfirmed — see below.</td></tr>
+    <tr><td>HV mid · phosphorus</td><td><span class="tag t-ok">CLEAR</span></td><td>Apatite (mining dim, overworld mode) → MV electrolyzer → P dust → HV boule (kanthal EBF, 2484 K) → Line v2 (KrF laser, HV — <code>photolithography.js:201</code>). KrF resist's PGMEA runs the <b>chlorohydrin</b> propylene-oxide route (<code>planet_metals.js</code>: propene + chlorine + water, MV) — no Mars titania anywhere in HV.</td></tr>
+    <tr><td>EV · Workstation</td><td><span class="tag t-ok">CLEAR</span></td><td>2× HV + silicon dies + Pt wire + Ti bolts. Pt: End sheldonite (vanilla portal, no circuits). Ti: <b>Mars sand only</b> — EM separator (MV) or acid leach (HV) → ilmenite → rutile → TiCl4 → Kroll + Mg loop (<code>planet_metals.js</code>, GT's chain kept). Order: T2 rocket (desh, HV, ASIC) → Mars → Ti → workstation. Bootstrap variant stays plain-Pt.</td></tr>
+    <tr><td>EV mid · naquadah</td><td><span class="tag t-ok">CLEAR</span></td><td>T2 rocket (desh hull, HV parts, ASIC — <code>rockets.js</code>) → field hand-mining (<code>vein_field.js</code>). Line v3 = ArF laser (EV — <code>photolithography.js:208</code>) → N100 prints (advanced_soc) → cheap HV reprint.</td></tr>
+    <tr><td>IV · Mainframe</td><td><span class="tag t-ok">CLEAR</span></td><td>2× EV + phosphorus dies + W wire. W: <b>Venus sand only</b> — macerator wash or acid leach → scheelite → GT chem-bath + electrolysis (<code>planet_metals.js</code>). Order: T3 rocket (titanium, EV) → Venus → W → IV. Scanner v1 crafted at IV (<code>photolithography.js:226</code>) — needs IV circuits, ordered after IV entry. Trinium dust source (mid-IV milestone) unconfirmed — see below.</td></tr>
     <tr><td>LuV · Quantum Computer</td><td><span class="tag t-check">VERIFY</span></td><td>2× IV + P/Tri dies + osmiridium. Ir: field treasure (T2 ✓). Os: confirm source (Pt-group/ore) by LuV. Naquadria (mid-LuV, Scanner v2) source unconfirmed — VPU timing depends on it.</td></tr>
     <tr><td>ZPM · Crystal Computer</td><td><span class="tag t-prop">PROPOSED</span> neutronium-proof order</td><td>Neutronium dust source unconfirmed → ZPM entry specified <b>without</b> HA-SoC (advanced_soc + NbTi instead). Orbital (ZPM, needs ZPM circuits + 8× VPU — stockpiled mid-LuV) prints N50 → TMD → Quantum Mainframe. If neutronium verifies early, HA-SoC goes back into the entry.</td></tr>
   </table>
-  <p>Standing verify list for playtesting: apatite→P timing · End/mining-dim Pt timing · Ti chain · trinium source · naquadria source · neutronium source · osmium source · GaAs dopant (EV+ boules) · GT-vanilla EBF/assembler controller circuit acceptance.</p>
+  <p>Standing verify list for playtesting: trinium source · naquadria source · neutronium source · osmium source · GaAs dopant (EV+ boules) · GT-vanilla EBF/assembler controller circuit acceptance.</p>
 </div>
 
 <h2 class="sec">2 · The new ladder, Steam → LuV</h2>
@@ -217,7 +216,7 @@
   </div>
 
   <div class="tier">
-    <div class="badge" style="background:#7b2cbf"><span class="t">LuV</span><span class="v">IV ASSEMBLER + AL · LIVING</span><span class="m">Cleanroom · Scanner v2 · T3 rocket</span></div>
+    <div class="badge" style="background:#7b2cbf"><span class="t">LuV</span><span class="v">IV ASSEMBLER + AL · LIVING</span><span class="m">Cleanroom · Scanner v2 · T3 rocket (titanium/EV) → Venus</span></div>
     <div class="body">
       <h4>ENTRY — QUANTUM COMPUTER + CRYSTAL ASSEMBLY + WETWARE + NANO MAINFRAME <span class="tag t-asis">AS-IS</span></h4>
       <ul>
@@ -234,7 +233,37 @@
 
 </div>
 
-<h2 class="sec">3 · Past LuV — exponential costs to NVM</h2>
+<h2 class="sec">3 · Circuit progression line — HAVE / NEED / GET</h2>
+<p class="sub">Every flagship circuit in build order: what the player walks in with, what the recipe takes, what it unlocks. All inputs verified in <code>circuits_af9.js</code> / <code>early_circuits.js</code>; lean stages collapse passives into packages at the listed gate.</p>
+<div class="card">
+  <table class="audit">
+    <tr><th>Circuit</th><th>HAVE</th><th>NEED</th><th>GET</th></tr>
+    <tr><td>LV · Basic Electronic</td><td><span class="tag t-ok">CLEAR</span> Steel (Create superheated mixer), resin boards, electron tubes, red alloy, deployer + press</td><td>Resin board + 2 resistors + 2 tubes + 2 red alloy wire → <b>2×</b> (sequenced by hand, assembler, or crafting)</td><td>LV machines, LV assembler</td></tr>
+    <tr><td>LV · Basic Integrated + Microchip (tubed, 1×)</td><td><span class="tag t-ok">CLEAR</span> Basic Electronic, Cu wire, resistors, tubes, plastic</td><td>No silicon anywhere — tubes stand in for dies; pricey single output</td><td>MV entry (Good Electronic takes 2× Basic)</td></tr>
+    <tr><td>MV · Good Electronic</td><td><span class="tag t-ok">CLEAR</span> LV circuits, phenolic (Create basin: wood dust + glue), tubes, Cu</td><td>Phenolic printed board + 2 basic + 2 tubes + Cu wire, LV assembler</td><td>All MV machines (assembler, EBF, electrolyzer, Line v1)</td></tr>
+    <tr><td>MV · Good Integrated</td><td><span class="tag t-ok">CLEAR</span> Moon silicon via T1 rocket → <code>ilc</code> dies; Al-Si + kovar alloys</td><td>2 basic_integrated + 2 ilc + resistors + Al-Si wire + kovar bolts → <b>2×</b></td><td>Cheap MV logic, HV entry input</td></tr>
+    <tr><td>MV · Microprocessor (+APU)</td><td><span class="tag t-ok">CLEAR</span> Silicon <code>cpu / ram</code> (or single-die APU)</td><td>Plastic + microchip_processor + cpu + ram + resistors + Al-Si → <b>2×</b> (APU → 3×)</td><td>HV entry</td></tr>
+    <tr><td>MV lean · Stage 1 (@HV end, ASIC gate)</td><td><span class="tag t-asis">AS-IS</span> Phosphorus ASIC (200nm)</td><td>1× previous + ASIC package, ¼ metals</td><td>4× / 2× reprints</td></tr>
+    <tr><td>HV · Advanced Integrated</td><td><span class="tag t-ok">CLEAR</span> MV circuits, silicon dies, Au, stainless</td><td>2 good_integrated + ilc/ram + transistors + Au wire + stainless bolts (800t @ LV)</td><td>HV machines</td></tr>
+    <tr><td>HV · Micro Assembly</td><td><span class="tag t-ok">CLEAR</span> Microprocessors, passives</td><td>Plastic + 2 micro + inductors + capacitors + ram×4 + Au → <b>2×</b></td><td>Nano</td></tr>
+    <tr><td>HV · Nano (+SoC)</td><td><span class="tag t-ok">CLEAR</span> Micro assembly, <code>nano_cpu</code> (Si), epoxy, cleanroom</td><td>Assembly + nano_cpu + SMD + Au → <b>2×</b>; SoC shortcut (+ advanced_soc) → <b>4×</b></td><td>EV entry</td></tr>
+    <tr><td>HV lean · Stage 2 (@LuV end, VPU gate)</td><td><span class="tag t-asis">AS-IS</span> Naquadria VPU (65nm immersion)</td><td>1× previous + packages, ¼ metals</td><td>2–4× reprints</td></tr>
+    <tr><td>EV · Workstation (+bootstrap)</td><td><span class="tag t-ok">CLEAR</span> HV circuits, Pt (End), <b>Mars Ti</b> (T2 rocket first)</td><td>2 micro assembly + diodes + ram + Pt wire + Ti bolts (bootstrap: plain Pt)</td><td>EV machines</td></tr>
+    <tr><td>EV · Nano Assembly</td><td><span class="tag t-ok">CLEAR</span> Nano, Pt-Ir alloy</td><td>2 nano + SMD + ram + Pt-Ir wire → <b>2×</b></td><td>Quantum</td></tr>
+    <tr><td>EV · Quantum (+SoC)</td><td><span class="tag t-ok">CLEAR</span> Nano assembly, <code>qbit_cpu</code> + <code>nano_cpu</code></td><td>+ qbit/nano dies + Pt-Ir → <b>2×</b>; SoC (+ advanced_soc) → <b>4×</b></td><td>IV entry</td></tr>
+    <tr><td>IV · Mainframe</td><td><span class="tag t-ok">CLEAR</span> EV circuits, <b>Venus W / W-steel</b> (T3 rocket first)</td><td>2 W-steel frames + 2 workstation + passives + ram×16 + W wire</td><td>IV machines</td></tr>
+    <tr><td>IV · Nano Computer</td><td><span class="tag t-ok">CLEAR</span> Nano assembly, nor/ram (P)</td><td>2 nano assembly + diodes + nor/ram + W-steel wire</td><td>Quantum assembly input chain</td></tr>
+    <tr><td>IV · Quantum Assembly</td><td><span class="tag t-ok">CLEAR</span> Quantum, nor/ram</td><td>2 quantum + passives + ram×4 + W-steel wire → <b>2×</b></td><td>Crystal</td></tr>
+    <tr><td>IV · Crystal</td><td><span class="tag t-ok">CLEAR</span> Quantum assembly, <code>crystal_cpu</code></td><td>+ crystal_cpu + nano_cpu×2 + W-steel → <b>2×</b></td><td>LuV entry</td></tr>
+    <tr><td>LuV · Quantum Computer</td><td><span class="tag t-asis">AS-IS</span> IV circuits, osmiridium</td><td>2 quantum assembly + nor/ram + osmiridium wire</td><td>Crystal assembly</td></tr>
+    <tr><td>LuV · Crystal Assembly</td><td><span class="tag t-asis">AS-IS</span> Crystal, NbTi</td><td>2 crystal + ram×24 + NbTi wire → <b>2×</b></td><td>Wetware</td></tr>
+    <tr><td>LuV · Wetware (+SoC, living)</td><td><span class="tag t-asis">AS-IS</span> NPU, crystal assembly, NbTi, living solder</td><td>+ crystal_cpu + nano_cpu + NbTi → <b>2×</b>; SoC (+ VPU) → <b>4×</b></td><td>LuV machines, Nano Mainframe</td></tr>
+    <tr><td>LuV · Nano Mainframe (AL)</td><td><span class="tag t-asis">AS-IS</span> Nano computer, quantum computers, eDRAM packages, research</td><td>W-steel frames + research + NbTi → mainframe</td><td>Endgame compute, ZPM labs</td></tr>
+  </table>
+  <p>Solders walk with the tiers: MV tin/solder · HV–UV high-grade (tin stays budget) · wetware living solder · XPS/NVM plasma solder. Lean stages never replace the normal recipe — same chain, 1× previous circuit, packages over loose passives, gated once per stage (ASIC → VPU → TPU+quantanium → photonic+spin → memristor+quantum-dot).</p>
+</div>
+
+<h2 class="sec">4 · Past LuV — exponential costs to NVM</h2>
 <p class="sub">The bootstrap pattern ends at LuV. From ZPM on, previous-tier counts double per tier while solder, research and power step up with them. Numbers are proposals — tune, don't soften the curve.</p>
 <div class="card">
   <table class="audit">
@@ -248,7 +277,7 @@
   <p>Pico chain (ACM, UHV 300 A) stays the XPS/NVM feeder: board → cleansed → cpu (2 TPU + 4 memristor + 4 quantum-dot) → organized (+8 photonic + 8 spin) → casing → rack. AI Acceleration Card stays the DTPF compute card. UHV wetware mainframe stays plasma-only (HILE).</p>
 </div>
 
-<h2 class="sec">4 · Pack goal — the Hyper Dimensional Rocket Drive <span class="tag t-prop">PROPOSED</span></h2>
+<h2 class="sec">5 · Pack goal — the Hyper Dimensional Rocket Drive <span class="tag t-prop">PROPOSED</span></h2>
 <div class="grid2">
   <div class="card">
     <h3>What it is</h3>
@@ -274,26 +303,27 @@
   </div>
 </div>
 
-<h2 class="sec">5 · Build checklist — what changes in the repo</h2>
+<h2 class="sec">6 · Build checklist — what changes in the repo</h2>
 <div class="grid2">
   <div class="card">
-    <h3>Recipe work</h3>
-    <ul>
-      <li><code>fab_chemistry.js</code> — NEW Earth Siemens polysilicon route (MV, low yield).</li>
-      <li><code>boule_melting.js</code> — NEW undoped intrinsic-silicon CZ variant (MV EBF, +50% time, half wafers).</li>
-      <li><code>circuits_af9.js</code> — LV tubed overrides (basic_integrated, microchip 1×); MV silicon reprints; keep HV→LuV entries as-is; post-LuV multipliers + NEW XPS/NVM §12.</li>
-      <li><code>early_circuits.js</code> — extend the Create hand-first pattern to every tier ENTRY (LV done today; MV done; add HV+).</li>
-      <li>NEW <code>hyperdrive.js</code> (or extend <code>rockets.js</code>) — the Drive + its core/casing.</li>
-      <li>Litho modes, Line/Scanner/Orbital, rockets T1–T4 — <b>unchanged</b>.</li>
-    </ul>
+      <h3>Recipe work</h3>
+      <ul>
+        <li><code>rockets.js</code> — <b>done:</b> T1 stainless/LV/MV-assembler (pre-silicon Moon), T2 desh/HV/ASIC, T3 titanium/EV/EV-circuits, T4 unchanged; nose cone / workbench / pad on LV.</li>
+        <li><code>planet_metals.js</code> — <b>done:</b> Mars sand → ilmenite (EM sep / acid leach) into GT's Kroll chain; Venus sand → scheelite into GT's chem-bath chain; Desh material + ore processing; chlorohydrin propylene-oxide (pre-Mars PGMEA); Earth Ti/W bypasses removed (bauxite electrolysis + sludge, end-stone paths).</li>
+        <li><code>vein_planets.js</code> + <code>miner.js</code> + <code>electronics_metallurgy.js</code> + <code>asteroid_fission.js</code> — <b>done:</b> Ti/W veins killed, void-miner MK1 stainless / MK2 titanium, End ilmenite + scheelite modes gone, zircon dike rebalanced, brannerite leach rutile-free.</li>
+        <li><code>circuits_af9.js</code> — LV tubed overrides (basic_integrated, microchip 1×); MV silicon reprints; keep HV→LuV entries as-is; post-LuV multipliers + NEW XPS/NVM §12.</li>
+        <li><code>early_circuits.js</code> — extend the Create hand-first pattern to every tier ENTRY (LV done today; MV done; add HV+).</li>
+        <li>NEW <code>hyperdrive.js</code> (or extend <code>rockets.js</code>) — the Drive + its core/casing.</li>
+        <li>Litho modes, Line/Scanner/Orbital — <b>unchanged</b>.</li>
+      </ul>
   </div>
   <div class="card">
-    <h3>Quests + docs</h3>
-    <ul>
-      <li>Quest triggers: first steel → LV · first <code>silicon_wafer</code> → MV reprints · first P boule → HV-mid · field naquadah → EV-mid · trinium → IV-mid · VPU → LuV-mid · Orbital → ZPM · ignition → ending.</li>
-      <li>New chapter <code>hyperdrive.snbt</code> + lang; update <code>early-game</code> / circuit chapters for the steel gate and Earth silicon.</li>
-      <li>Spec updates: <code>semiconductor-factory.md</code> (Earth silicon §, LV tubed §, exponential §, Drive §).</li>
-    </ul>
+      <h3>Quests + docs</h3>
+      <ul>
+        <li>Quest triggers: first steel → LV · first <code>silicon_wafer</code> → MV reprints · first P boule → HV-mid · Mars sand → EV-mid · field naquadah → EV SoC · trinium → IV-mid · VPU → LuV-mid · Venus sand → IV · Orbital → ZPM · ignition → ending.</li>
+        <li>Quest texts updated for T1–T3 rockets, planet gates (Ti/W), desh, chlorohydrin PO; new chapter <code>hyperdrive.snbt</code> + lang; update <code>early-game</code> / circuit chapters for the steel gate.</li>
+        <li>Spec updates: <code>semiconductor-factory.md</code> (LV tubed §, exponential §, Drive §) · <code>asteroid-fission.md</code> (planet gates, re-tiered rockets).</li>
+      </ul>
   </div>
 </div>
 
@@ -301,7 +331,8 @@
   Evidence: <code>circuits_af9.js</code> (ladder + lean stages) · <code>early_circuits.js</code> (Create hand path) ·
   <code>create_steam_age.js</code> (steam steel) · <code>fab_chemistry.js:36–165</code> (MV silicon, Moon-only polysilicon) ·
   <code>boule_melting.js:76–80</code> (artemite-doped CZ) · <code>vein_moon.js</code> (Moon-only artemite) ·
-  <code>rockets.js</code> (T1 Moon needs MCU+HV) · <code>photolithography.js:60–96,182–245</code> (chip natives, machine tiers) ·
+  <code>rockets.js</code> (T1 stainless/LV/MV-assembler, T2 desh/HV/ASIC, T3 titanium/EV) · <code>planet_metals.js</code> (Mars Ti, Venus W, desh, chlorohydrin PO) ·
+  <code>photolithography.js:60–96,182–245</code> (chip natives, machine tiers) ·
   <code>LithoMode.java</code> (node→tier) · <code>solders.md</code> · <code>fusion-power.md</code> (drive fuel).
   Counts above the line marked PROPOSED are starting numbers for tuning, not promises.
 </footer>

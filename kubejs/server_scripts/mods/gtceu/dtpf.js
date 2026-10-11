@@ -1,25 +1,40 @@
 // AF9 - the Dimensionally Transcendent Plasma Forge: its recipe and what it makes (machine and structure:
 // startup_scripts/gtceu/dtpf.js, af9-core PlasmaForgeMachine). Spec: docs/dtpf.md
 //
-// Three plasmas ionised here from their dust and Endion, and forged back into matter with a yield above what the
+// Two plasmas ionised here from their dust and Endion, and forged back into matter with a yield above what the
 // furnaces give: the forge's own pull. Idontknowium plasma is forged here too, out of the star matter plasma and the
 // anti-matter plasma the Mega Fusion Reactor fuses (fusion_reactor.js). The running-time ramp (-50 % EU/t, -25 % time after
 // half an hour) comes on top.
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
-    // UHV recipes draw 100 A of UHV power (XPS 300 A, NVM 1,000 A: circuits_af9.js), see docs/dyson-swarm.md
+    // UHV recipes draw 100 A of UHV power (XPS 300 A, NVM 1,000 A: circuits_af9.js), see docs/dyson-swarm.md.
+    // The controller below is built in the Advanced Circuit Manufacturer like the Pico circuits: UHV on 300 A.
     const UHV_AMPS = 100
     const forge = event.recipes.gtceu
 
-    // The controller: a UV hull in a frame of fusion casing and coils, with the field generators that hold the plasma
-    forge.assembler('af9:dtpf')
-        .itemInputs('gtceu:uv_machine_hull', '4x gtceu:fusion_casing_mk2', '8x gtceu:superconducting_coil',
-            '4x #gtceu:circuits/uhv', '2x gtceu:uv_field_generator', '16x gtceu:chromodynium_plate')
-        .inputFluids(Fluid.of('gtceu:plasma_solder', 1440))
+    // The controller: UHV hull in a frame of mk3 fusion casing, held by field generators,
+    // wired with sanguinite, computed with AI cards + qubit CPUs + eDRAM. Made in AF9's Advanced
+    // Circuit Manufacturer (up to 16 items / 4 fluids; computation through its hatch; UHV on 300 A
+    // through its laser hatch, like the Pico circuits in circuits_af9.js).
+    // NOTE: GT registers no uhv_field_generator while its high-tier content is off (as it is in the
+    // pack: tools/lint/data/gt-dev-only.txt; every UHV build uses uv_field_generator instead, e.g.
+    // uhv_superconductor.js, dyson_swarm.js), so the field generators are UV.
+    // The sanguinite is 8 stacks of 64 (a bus slot holds 64: dyson_swarm.js splits the same way),
+    // 8 inputs of 64x + 7 single inputs = 15 item inputs of 16 max.
+    event.recipes.gtceu.advanced_circuit_manufacturer('af9:dtpf')
+        .itemInputs('16x #gtceu:circuits/uhv', 'gtceu:uhv_machine_hull', '8x gtceu:fusion_casing_mk3',
+            '2x gtceu:uv_field_generator', '4x af9:ai_acceleration_card', '32x gtceu:qbit_cpu_chip',
+            '16x af9:edram_chip',
+            '64x gtceu:fine_sanguinite_wire', '64x gtceu:fine_sanguinite_wire',
+            '64x gtceu:fine_sanguinite_wire', '64x gtceu:fine_sanguinite_wire',
+            '64x gtceu:fine_sanguinite_wire', '64x gtceu:fine_sanguinite_wire',
+            '64x gtceu:fine_sanguinite_wire', '64x gtceu:fine_sanguinite_wire')
+        .inputFluids(Fluid.of('gtceu:plasma_solder', 5760))
         .itemOutputs('gtceu:dtpf')
+        .CWUt(128)
         .duration(1200)
-        .EUt(VA[GTValues.UV])
+        .EUt(VA[GTValues.UHV], 300)
 
     // ---- Ionisation: dust and Endion in, plasma out ----
     forge.plasma_forge('af9:dtpf/strange_matter_plasma')
@@ -34,12 +49,6 @@ ServerEvents.recipes(event => {
         .outputFluids(Fluid.of('gtceu:chromodynium_plasma', 2000))
         .duration(800)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
-    forge.plasma_forge('af9:dtpf/superstate_star_matter_plasma')
-        .itemInputs('4x gtceu:superstate_star_matter_dust')
-        .inputFluids(Fluid.of('gtceu:endion', 4000))
-        .outputFluids(Fluid.of('gtceu:superstate_star_matter_plasma', 2000))
-        .duration(1000)
-        .EUt(VA[GTValues.UHV], UHV_AMPS)
 
     // ---- Forging: plasma back into matter, half as much again as the dust it came from ----
     // 2,000 mB of chromodynium plasma (4 dust) -> 6 plates
@@ -47,12 +56,6 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:chromodynium_plasma', 2000))
         .itemOutputs('6x gtceu:chromodynium_plate')
         .duration(400)
-        .EUt(VA[GTValues.UHV], UHV_AMPS)
-    // 2,000 mB of superstate star matter plasma (4 dust) -> 6 plates
-    forge.plasma_forge('af9:dtpf/superstate_star_matter_plates')
-        .inputFluids(Fluid.of('gtceu:superstate_star_matter_plasma', 2000))
-        .itemOutputs('6x gtceu:superstate_star_matter_plate')
-        .duration(500)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
     // strange matter plasma hardens tritanium: 4 ingots -> 6 plates
     forge.plasma_forge('af9:dtpf/tritanium_plates')

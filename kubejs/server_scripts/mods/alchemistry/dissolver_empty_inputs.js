@@ -19,8 +19,7 @@ ServerEvents.recipes(event => {
         else if (obj.has('item')) spec = obj.get('item').getAsString()
         if (spec === null) return
 
-        let items = Ingredient.of(spec).getItems()
-        if (items.length === 0 || items[0].isEmpty()) empty.push({ id: String(recipe.getId()), spec: spec })
+        if (Ingredient.of(spec).getFirst().isEmpty()) empty.push({ id: String(recipe.getId()), spec: spec })
     })
 
     empty.forEach(r => {
