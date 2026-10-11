@@ -92,6 +92,7 @@ public final class AF9Materials {
         quantanium();
         solders();
         uhvSuperconductor();
+        motorParts();
     }
 
     private static Material.Builder material(String id) {
@@ -1011,5 +1012,33 @@ public final class AF9Materials {
                 .iconSet(MaterialIconSet.SHINY)
                 .formula("(Ti,Nb)2O3")
                 .addOreByproducts(GTMaterials.Titanium, GTMaterials.Trinium, GTMaterials.Niobium));
+    }
+
+    /**
+     * Motor parts: Reinforced Titanium Niobium Alloy, the metal of the industrial housings, blended 1:1 out of GT's
+     * niobium-titanium superconductor alloy and HSLA structural steel and melted in the EBF. The mixer recipe is in
+     * motors.js; GT derives the EBF melt, the parts and the decomposition from the components, the blast property
+     * and the flags. Plus the fine-wire flag on the tier metals whose motor windings need it: steel, aluminium,
+     * tungsten steel, osmiridium and tritanium already have it (like naquadah alloy), stainless steel, titanium,
+     * HSSS and neutronium get it here, so every tier's stator winds {@code fine_<metal>_wire}.
+     * Recipes: motors.js.
+     */
+    private static void motorParts() {
+        for (Material tierMetal : new Material[] { GTMaterials.StainlessSteel, GTMaterials.Titanium,
+                GTMaterials.HSSS, GTMaterials.Neutronium }) {
+            if (!tierMetal.hasFlag(MaterialFlags.GENERATE_FINE_WIRE)) {
+                tierMetal.addFlags(MaterialFlags.GENERATE_FINE_WIRE);
+            }
+        }
+
+        // 1:1 of the LuV superconductor wire alloy and the HV structural steel: tougher than either, still
+        // EBF-meltable. Plate, rod and frame for the two industrial housings (motors.js).
+        add(material("reinforced_titanium_niobium_alloy")
+                .ingot().fluid()
+                .color(0x8a94c8).iconSet(MaterialIconSet.METALLIC)
+                .components(GTMaterials.NiobiumTitanium, 1, GTMaterials.HSLASteel, 1)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_FRAME)
+                .blastTemp(3000, GasTier.MID, GTValues.VA[GTValues.EV], 800)
+                .formula("(NbTi)(HSLA)"));
     }
 }

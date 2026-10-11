@@ -40,7 +40,7 @@ Modules** of the tower fly several at once (below).
 
 | Drone | Reaches | Hydrogen | Coolant (supercooled) | Energy | Time | Stacks |
 |---|---|---|---|---|---|---|
-| Mk-I | tier 1 ores (the Overworld's) | 64 B | 50 B hydrogen | 4A ZPM (491,520 EU/t) | 3 min | 8-16 |
+| Mk-I | tier 1 ores (Overworld's and Moon's) | 64 B | 50 B hydrogen | 4A ZPM (491,520 EU/t) | 3 min | 8-16 |
 | Mk-II | tier 1-2 (and the Nether's) | 80 B | 64 B argon | 8A ZPM (983,040 EU/t) | 4 min | 12-24 |
 | Mk-III | tier 1-3 (and the End's) | 96 B | 80 B xenon | 16A ZPM (1,966,080 EU/t) | 5 min | 16-32 |
 | Mk-IV | all, and the exotic asteroid | 100 B | 100 B endion | 32A ZPM (3,932,160 EU/t) | 6 min | 24-48 |

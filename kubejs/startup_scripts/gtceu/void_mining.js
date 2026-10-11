@@ -1,6 +1,6 @@
-// AF9 - Void Miner modes: the miner's four areas as recipe types (the machine itself stays GT's: VoidMinerMachine
-// takes it over in af9-core). Recipes: server_scripts/mods/gtceu/miner.js. Modes 1-4: Overworld, Nether, End,
-// Asteroids; a programmed circuit picks the ore in the area. Drilling fluid in, tenfold raw ore out.
+// AF9 - Void Miner modes: the miner's five areas as recipe types (the machine itself stays GT's: VoidMinerMachine
+// takes it over in af9-core). Recipes: server_scripts/mods/gtceu/miner.js. Modes 1-5: Overworld, Nether, End,
+// Asteroids, Moon; a programmed circuit picks the ore in the area. Drilling fluid in, tenfold raw ore out.
 //
 // MK2 and MK3 are AF9's own multiblocks, with the structures of GTNH's Void Miners (see the patterns below): every mode gets its own
 // recipe type again, suffixed _mk2 / _mk3 with the base type's settings, and the controllers are gtceu:void_miner_mk2
@@ -17,7 +17,8 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         'void_mining_overworld',
         'void_mining_nether',
         'void_mining_end',
-        'void_mining_asteroids'
+        'void_mining_asteroids',
+        'void_mining_moon'
     ]
     // MK2 and MK3 run each mode as its own copy of the type, so their recipes can differ in yield and tier
     // (forEach rather than flatMap: KubeJS runs on Rhino, which may lack the newer array helpers)
@@ -98,7 +99,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .machine(holder => new $VoidMinerMachineMK2(holder))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('void_mining_overworld_mk2'), GTRecipeTypes.get('void_mining_nether_mk2'),
-            GTRecipeTypes.get('void_mining_end_mk2'), GTRecipeTypes.get('void_mining_asteroids_mk2')])
+            GTRecipeTypes.get('void_mining_end_mk2'), GTRecipeTypes.get('void_mining_asteroids_mk2'),
+            GTRecipeTypes.get('void_mining_moon_mk2')])
         .recipeModifier($AmperageOverclock.OC)
         .appearanceBlock(() => Block.getBlock('af9:mining_black_plutonium_casing'))
         .pattern(definition => minerPattern(definition, MK2_SHAPE, mk2Parts()))
@@ -109,7 +111,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .machine(holder => new $VoidMinerMachineMK3(holder))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('void_mining_overworld_mk3'), GTRecipeTypes.get('void_mining_nether_mk3'),
-            GTRecipeTypes.get('void_mining_end_mk3'), GTRecipeTypes.get('void_mining_asteroids_mk3')])
+            GTRecipeTypes.get('void_mining_end_mk3'), GTRecipeTypes.get('void_mining_asteroids_mk3'),
+            GTRecipeTypes.get('void_mining_moon_mk3')])
         .recipeModifier($AmperageOverclock.OC)
         .appearanceBlock(() => Block.getBlock('af9:mining_neutronium_casing'))
         .pattern(definition => minerPattern(definition, MK3_SHAPE, mk3Parts()))

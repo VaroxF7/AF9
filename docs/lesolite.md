@@ -27,7 +27,8 @@ floating rocks: `vein_ceres.js`, `vein_field.js`).
 
 Tuning (verify in game with the prospector): `clusterSize` 24, `density` 0.8, weight 30 (artemite's 45: a
 little rarer, it only feeds the EV substrates). `af9_moon` is tier 1, so every elevator drone draws it
-(`OreCatalog`), weighted by its weight.
+(`OreCatalog`), weighted by its weight. The void miner's Moon mode (`miner.js`) mines it too, beside
+tranquillite.
 
 ## 3. Still open
 

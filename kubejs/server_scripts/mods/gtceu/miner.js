@@ -1,8 +1,8 @@
 ServerEvents.recipes((event) => {
     const gtr = event.recipes.gtceu
 
-    // AF9: the void miner runs four AF9 modes now (void_mining_overworld, void_mining_nether, void_mining_end,
-    // void_mining_asteroids) - and three machines run them. MK1 (gtceu:void_miner) takes the base types; MK2
+    // AF9: the void miner runs five AF9 modes now (void_mining_overworld, void_mining_nether, void_mining_end,
+    // void_mining_asteroids, void_mining_moon) - and three machines run them. MK1 (gtceu:void_miner) takes the base types; MK2
     // (gtceu:void_miner_mk2) and MK3 (gtceu:void_miner_mk3) take their own _mk2 / _mk3 copies of the same four
     // (recipe types registered in kubejs/startup_scripts/gtceu/void_mining.js), so a machine only ever sees the
     // recipes of its own tier: MK2 gives 2x every output at 2 A for 600 ticks, MK3 3x at 3 A for 400
@@ -119,6 +119,7 @@ ServerEvents.recipes((event) => {
     const nether_dimensions = ['minecraft:the_nether']
     const end_dimensions = ['minecraft:the_end']
     const asteroids_dimensions = ['af9:asteroid_field', 'af9:ceres']
+    const moon_dimensions = ['ad_astra:moon']
 
     // emitRecipes(typeBase, table, euT, dimensions, m): the tables are MK1's, m scales them (counts and amperage up,
     // duration down: 1200 / m ticks), so each ore costs the same energy however the tier draws it. Drilling fluid,
@@ -358,4 +359,15 @@ ServerEvents.recipes((event) => {
     // Asteroids: the belt and Ceres are one area, the machine may stand in either
     tier_multipliers.forEach((m) => emitRecipes("void_mining_asteroids", asteroids_raw_ores,
         GTValues.VA[GTValues.IV], asteroids_dimensions, m))
+
+    // The Moon gives one ore a circuit, like the belt: the new Moon minerals (lesolite, tranquillite).
+    // Artemite stays out (the dopant's trickle is the elevator's, like the old uranium ways).
+    const moon_raw_ores =
+        [[["60x gtceu:raw_tranquillite"], "1", "af9:vm_moon_tranquillite"],
+
+        [["30x gtceu:raw_lesolite"], "2", "af9:vm_moon_lesolite"]]
+
+    // Moon: the mode is Earth's Moon alone, at the overworld's voltage
+    tier_multipliers.forEach((m) => emitRecipes("void_mining_moon", moon_raw_ores,
+        GTValues.VA[GTValues.EV], moon_dimensions, m))
 })

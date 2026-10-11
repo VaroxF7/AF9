@@ -19,11 +19,11 @@ public class VoidMinerMachineMK2 extends VoidMinerMachine {
             VoidMinerMachineMK2.class, VoidMinerMachine.MANAGED_FIELD_HOLDER);
 
     /** MK2's areas in blue, one shade per mode, instead of the base miner's colours. */
-    private static final int[] COLORS_MK2 = { 0xFF3B82F6, 0xFF60A5FA, 0xFF93C5FD, 0xFFBFDBFE };
+    private static final int[] COLORS_MK2 = { 0xFF3B82F6, 0xFF60A5FA, 0xFF93C5FD, 0xFFBFDBFE, 0xFFDBEAFE };
 
     /** The MK2's recipe types, in mode order (gtceu namespace). */
     public static final String[] RECIPE_TYPES = { "void_mining_overworld_mk2", "void_mining_nether_mk2",
-            "void_mining_end_mk2", "void_mining_asteroids_mk2" };
+            "void_mining_end_mk2", "void_mining_asteroids_mk2", "void_mining_moon_mk2" };
 
     public VoidMinerMachineMK2(IMachineBlockEntity holder) {
         super(holder);

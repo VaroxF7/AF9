@@ -47,8 +47,8 @@ import java.util.TreeMap;
 
 /**
  * The Void Miner, rebuilt: GT's controller block and structure stay exactly as they are ({@link #install} only
- * extends the definition), AF9 supplies the behaviour around them. Four areas as machine modes (Overworld, Nether,
- * End, Asteroids; recipe types {@code void_mining_*}, defined in
+ * extends the definition), AF9 supplies the behaviour around them. Five areas as machine modes (Overworld, Nether,
+ * End, Asteroids, Moon; recipe types {@code void_mining_*}, defined in
  * {@code kubejs/startup_scripts/gtceu/void_mining.js}): a programmed circuit picks the ore in the area, drilling
  * fluid goes in, tenfold raw ore comes out for the same time and energy. No data sticks.
  * <p>
@@ -62,7 +62,7 @@ import java.util.TreeMap;
  * It mines standing in it: every recipe carries GT's dimension condition ({@code miner.js}), so a mode only runs in
  * its own dimension — Overworld also in the Mining Dimension, Asteroids in either belt. That makes the dimension
  * the mode: when the structure forms, the miner switches itself to the area of the dimension it stands in
- * ({@link #selectArea}); there is nothing to set by hand. A formed miner in none of the four dimensions reports
+ * ({@link #selectArea}); there is nothing to set by hand. A formed miner in none of the five dimensions reports
  * {@link ConsoleWidget#STATUS_NO_DIMENSION}.
  * <ul>
  * <li>Its own screen in the Orbital Lithography Station's layout: {@link VoidMinerConsoleWidget} in a
@@ -77,10 +77,10 @@ public class VoidMinerMachine extends ProcessMachine {
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             VoidMinerMachine.class, ProcessMachine.MANAGED_FIELD_HOLDER);
 
-    private static final int[] COLORS = { 0xFF4ADE80, 0xFFEF4444, 0xFFFBBF24, 0xFFC084FC };
+    private static final int[] COLORS = { 0xFF4ADE80, 0xFFEF4444, 0xFFFBBF24, 0xFFC084FC, 0xFF7DD3FC };
     /** The miner's recipe types, in mode order (gtceu namespace). */
     public static final String[] RECIPE_TYPES = { "void_mining_overworld", "void_mining_nether", "void_mining_end",
-            "void_mining_asteroids" };
+            "void_mining_asteroids", "void_mining_moon" };
     /**
      * The dimensions each area mines in, in area order: the lists of the recipes' dimension conditions
      * ({@code kubejs/server_scripts/mods/gtceu/miner.js}). Change both together.
@@ -89,7 +89,8 @@ public class VoidMinerMachine extends ProcessMachine {
             { "minecraft:overworld", "allthemodium:mining" },
             { "minecraft:the_nether" },
             { "minecraft:the_end" },
-            { "af9:asteroid_field", "af9:ceres" } };
+            { "af9:asteroid_field", "af9:ceres" },
+            { "ad_astra:moon" } };
     /** Ticks after which the ore chart is read anew (the recipes change with a data reload). */
     private static final int CHART_REFRESH = 100;
     /** Runs completed, for the screen's counter. */
@@ -141,8 +142,8 @@ public class VoidMinerMachine extends ProcessMachine {
     }
 
     /**
-     * The area (0-3, the order of {@link #RECIPE_TYPES}) a recipe type mines, whichever miner runs it (the
-     * {@code _mk2} / {@code _mk3} copies included), or -1 for a type that is none of the four (the pack's old one).
+     * The area (0-4, the order of {@link #RECIPE_TYPES}) a recipe type mines, whichever miner runs it (the
+     * {@code _mk2} / {@code _mk3} copies included), or -1 for a type that is none of the five (the pack's old one).
      */
     public static int areaOf(GTRecipeType type) {
         String path = type.registryName.getPath().replaceAll("_mk[23]$", "");
@@ -154,7 +155,7 @@ public class VoidMinerMachine extends ProcessMachine {
 
     /**
      * The index, among this miner's recipe types, of the area of the dimension it stands in; -1 when that is none
-     * of the four.
+     * of the five.
      */
     public int typeIndexHere() {
         var level = getLevel();
@@ -190,14 +191,14 @@ public class VoidMinerMachine extends ProcessMachine {
         selectArea();
     }
 
-    /** ARGB colour of an area (recipe type index): overworld green, nether red, end amber, asteroids violet. */
+    /** ARGB colour of an area (recipe type index): overworld green, nether red, end amber, asteroids violet, moon sky blue. */
     public static int modeColorOf(int index) {
         return COLORS[Math.max(0, Math.min(COLORS.length - 1, index))];
     }
 
     /**
      * Common setup, before any machine is created: takes over GT's void miner definition (block, pattern and
-     * structure stay exactly as they are) and adds the four AF9 areas as its modes, this class as its machine and
+     * structure stay exactly as they are) and adds the five AF9 areas as its modes, this class as its machine and
      * AF9's tooltip lines. MK2 and MK3, separate KubeJS machine definitions, are wired up the same way, each with
      * its own recipe types and tooltip prefix.
      */

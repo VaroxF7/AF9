@@ -19,11 +19,11 @@ public class VoidMinerMachineMK3 extends VoidMinerMachine {
             VoidMinerMachineMK3.class, VoidMinerMachine.MANAGED_FIELD_HOLDER);
 
     /** MK3's areas in white/silver, one shade per mode, instead of the base miner's colours. */
-    private static final int[] COLORS_MK3 = { 0xFFF8FAFC, 0xFFE2E8F0, 0xFFCBD5E1, 0xFF94A3B8 };
+    private static final int[] COLORS_MK3 = { 0xFFF8FAFC, 0xFFE2E8F0, 0xFFCBD5E1, 0xFF94A3B8, 0xFF64748B };
 
     /** The MK3's recipe types, in mode order (gtceu namespace). */
     public static final String[] RECIPE_TYPES = { "void_mining_overworld_mk3", "void_mining_nether_mk3",
-            "void_mining_end_mk3", "void_mining_asteroids_mk3" };
+            "void_mining_end_mk3", "void_mining_asteroids_mk3", "void_mining_moon_mk3" };
 
     public VoidMinerMachineMK3(IMachineBlockEntity holder) {
         super(holder);

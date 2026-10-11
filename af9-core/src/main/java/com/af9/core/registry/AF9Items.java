@@ -172,6 +172,17 @@ public final class AF9Items {
         item("glass_tube_mold", 64, 2);
         item("glass_tube_mold_filled", 64, 1);
 
+        // ---- Motor parts: the housings, rotors and stators every tier's electric motor is built from, and the two
+        // industrial housings out of reinforced titanium niobium alloy (server_scripts/mods/gtceu/motors.js). The
+        // LuV and up motors keep GT's own assembly-line recipes for now, so their parts wait for the rewiring.
+        item("industrial_component_housing", 64, 0);
+        item("industrial_electric_motor_housing", 64, 0);
+        for (String tier : new String[] { "lv", "mv", "hv", "ev", "iv", "luv", "zpm", "uv", "uhv" }) {
+            item(tier + "_motor_housing", 64, 0);
+            item(tier + "_rotor", 64, 0);
+            item(tier + "_stator", 64, 0);
+        }
+
         // ---- Staged Assembly: the step detector cover (a ComponentItem, so it can place the cover) ----
         ITEMS.register("staged_step_detector", () -> {
             ComponentItem item = ComponentItem.create(new Item.Properties().stacksTo(64));
