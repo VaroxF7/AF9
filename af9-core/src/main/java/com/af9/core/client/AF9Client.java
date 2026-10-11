@@ -6,6 +6,8 @@ import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.LithoChamberRender;
 import com.af9.core.client.render.ModeFluidRender;
 import com.af9.core.client.render.SpaceElevatorRender;
+import com.af9.core.client.skin.StructureSkinRender;
+import com.af9.core.client.skin.StructureSkins;
 import com.af9.core.compat.emi.EmiAcceleratorCompat;
 import com.af9.core.wafer.WaferContamination;
 import com.af9.core.wireless.WirelessLink;
@@ -13,6 +15,9 @@ import com.af9.core.wireless.WirelessLink;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -37,11 +42,18 @@ public final class AF9Client {
         LithoChamberRender.register();
         SpaceElevatorRender.register();
         LaserEngraverRender.register();
+        StructureSkinRender.register();
         // the map of Ad Astra's planet screen gets AF9's bodies
         AdAstraMap.register();
         // every item is registered by client setup, and EMI has not loaded its list yet
         FMLJavaModLoadingContext.get().getModEventBus()
                 .addListener((FMLClientSetupEvent event) -> EmiAcceleratorCompat.checkCache());
+        // formed multiblocks drawn as one model (the Electric Blast Furnace)
+        var modBus = FMLJavaModLoadingContext.get().getModEventBus();
+        modBus.addListener(StructureSkins::registerModels);
+        modBus.addListener(StructureSkins::attachRenders);
+        modBus.addListener((FMLClientSetupEvent event) -> event.enqueueWork(StructureSkins::registerEmbeddium));
+        MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> StructureSkins.onClientTick(event));
     }
 
     @Mod.EventBusSubscriber(modid = AF9Core.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
