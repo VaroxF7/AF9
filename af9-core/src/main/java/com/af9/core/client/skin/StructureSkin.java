@@ -23,7 +23,9 @@ import java.util.function.Supplier;
  * @param glowLower   the parts of {@code lower} that light up while the machine works
  * @param glowUpper   as {@code glowLower}, for {@code upper}
  * @param coilProbe   {right, up, back} of a block of the pattern whose model gives the coil texture, or null
+ * @param window      {x, y, z, half width, half height} in model blocks of the furnace window the flames come out of
+ *                    while the machine works, or null
  */
 public record StructureSkin(Supplier<? extends MachineDefinition> definition, int right, int up, int back,
                             ResourceLocation lower, ResourceLocation upper, ResourceLocation glowLower,
-                            ResourceLocation glowUpper, int[] coilProbe) {}
+                            ResourceLocation glowUpper, int[] coilProbe, float[] window) {}

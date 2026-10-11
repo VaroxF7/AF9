@@ -5,6 +5,7 @@ import com.af9.core.AF9Core;
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.client.model.machine.MachineModel;
@@ -15,6 +16,8 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.util.RandomSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -58,13 +61,15 @@ public final class StructureSkins {
             new StructureSkin(() -> GTMultiMachines.ELECTRIC_BLAST_FURNACE, 1, 4, 3,
                     model("multiblock/ebf_lower"), model("multiblock/ebf_upper"),
                     model("multiblock/ebf_glow_lower"), model("multiblock/ebf_glow_upper"),
-                    new int[] { -1, 1, 1 }));
+                    new int[] { -1, 1, 1 }, new float[] { 0.5F, 2.0F, -0.05F, 0.75F, 0.5F }));
 
     /** How many chunks round the player are searched for controllers, and how often (ticks). */
     private static final int SCAN_RADIUS = 8, SCAN_PERIOD = 10;
 
     /** Controller position (packed) -> the positions it hides. Client thread only. */
     private static final Map<Long, long[]> TRACKED = new HashMap<>();
+    /** The tracked controllers, for the flames at the window. */
+    private static final Map<Long, MultiblockControllerMachine> MACHINES = new HashMap<>();
     /** Every hidden position, replaced as a whole when it changes (the chunk builders read it from their threads). */
     private static volatile LongSet hidden = new LongOpenHashSet();
     private static ClientLevel trackedLevel;
@@ -124,14 +129,16 @@ public final class StructureSkins {
                     BlockPos pos = at(controller, right, up, back);
                     if (pos.equals(origin) || parts.contains(pos)) continue;
                     if (level.getBlockState(pos).isAir()) continue;
-                    // anything that is a machine of its own (a hatch the controller does not list yet) stays
-                    if (MetaMachine.getMachine(level, pos) != null) continue;
+                    // anything that is a machine of its own (a hatch the controller does not list yet) or any block
+                    // entity at all (another mod's part) stays drawn: the player works with it
+                    if (MetaMachine.getMachine(level, pos) != null || level.getBlockEntity(pos) != null) continue;
                     positions.add(pos.asLong());
                 }
             }
         }
         long[] now = positions.toLongArray();
         Arrays.sort(now);
+        MACHINES.put(origin.asLong(), controller);
         long[] before = TRACKED.put(origin.asLong(), now);
         if (before != null && Arrays.equals(before, now)) return;
         publish();
@@ -139,6 +146,7 @@ public final class StructureSkins {
     }
 
     private static void untrack(long controller) {
+        MACHINES.remove(controller);
         long[] before = TRACKED.remove(controller);
         if (before == null) return;
         publish();
@@ -180,6 +188,7 @@ public final class StructureSkins {
     private static void clear() {
         if (TRACKED.isEmpty()) return;
         TRACKED.clear();
+        MACHINES.clear();
         hidden = new LongOpenHashSet();
     }
 
@@ -222,7 +231,9 @@ public final class StructureSkins {
 
     /** Forge bus, every client tick: looks for formed controllers round the player and keeps what they hide current. */
     public static void onClientTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || ++ticks % SCAN_PERIOD != 0) return;
+        if (event.phase != TickEvent.Phase.END) return;
+        flames(Minecraft.getInstance());
+        if (++ticks % SCAN_PERIOD != 0) return;
         Minecraft mc = Minecraft.getInstance();
         ClientLevel level = mc.level;
         if (level == null || mc.player == null) {
@@ -256,6 +267,53 @@ public final class StructureSkins {
         }
         for (long controller : new ArrayList<>(TRACKED.keySet())) {
             if (!seen.contains(controller)) untrack(controller);
+        }
+    }
+
+    /**
+     * While a tracked machine works, flames and sparks come out of its furnace window (the muffler hatch, a real block,
+     * gives its own smoke). Only near the player.
+     */
+    private static void flames(Minecraft mc) {
+        ClientLevel level = mc.level;
+        if (level == null || mc.player == null || MACHINES.isEmpty()) return;
+        RandomSource random = level.random;
+        for (MultiblockControllerMachine controller : MACHINES.values()) {
+            StructureSkin skin = skinOf(controller.getDefinition());
+            if (skin == null || skin.window() == null || controller.isInValid()) continue;
+            if (!(controller instanceof IRecipeLogicMachine logic) || !logic.isActive()) continue;
+            BlockPos origin = controller.getPos();
+            if (origin.distSqr(mc.player.blockPosition()) > 32 * 32) continue;
+            Direction front = controller.getFrontFacing(), upwards = controller.getUpwardsFacing();
+            Direction r = RelativeDirection.RIGHT.getRelative(front, upwards, false);
+            Direction u = RelativeDirection.UP.getRelative(front, upwards, false);
+            Direction b = RelativeDirection.BACK.getRelative(front, upwards, false);
+            float[] w = skin.window();
+            // model space -> world: the model's origin is the controller block's corner, turned about its middle
+            for (int n = 0; n < 2; n++) {
+                if (random.nextFloat() > 0.55F) continue;
+                float mx = w[0] + (random.nextFloat() * 2F - 1F) * w[3];
+                float my = w[1] + (random.nextFloat() * 2F - 1F) * w[4];
+                float mz = w[2];
+                double x = origin.getX() + 0.5 + r.getStepX() * (mx - 0.5) + u.getStepX() * (my - 0.5)
+                        + b.getStepX() * (mz - 0.5);
+                double y = origin.getY() + 0.5 + r.getStepY() * (mx - 0.5) + u.getStepY() * (my - 0.5)
+                        + b.getStepY() * (mz - 0.5);
+                double z = origin.getZ() + 0.5 + r.getStepZ() * (mx - 0.5) + u.getStepZ() * (my - 0.5)
+                        + b.getStepZ() * (mz - 0.5);
+                // out of the front, a little up
+                double vx = -b.getStepX() * 0.03 + u.getStepX() * 0.01;
+                double vy = -b.getStepY() * 0.03 + u.getStepY() * 0.01;
+                double vz = -b.getStepZ() * 0.03 + u.getStepZ() * 0.01;
+                float pick = random.nextFloat();
+                if (pick < 0.7F) {
+                    level.addParticle(ParticleTypes.FLAME, x, y, z, vx, vy + 0.01, vz);
+                } else if (pick < 0.92F) {
+                    level.addParticle(ParticleTypes.SMOKE, x, y, z, vx, vy + 0.02, vz);
+                } else {
+                    level.addParticle(ParticleTypes.LAVA, x, y, z, 0, 0, 0);
+                }
+            }
         }
     }
 

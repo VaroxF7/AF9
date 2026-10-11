@@ -107,20 +107,29 @@ def build():
     box(-14, 22, 45.5, -11, 43, 47.5, 'pipe')
     box(27, 22, 45.5, 30, 43, 47.5, 'pipe')
 
-    # ---- top (layer 3): the casing slab, a rim and gauges
-    box(-15, 48, 1, 31, 63, 47, 'casing')
-    box(-15.5, 61, 0.5, 31.5, 63, 1.5, 'hoop')
-    box(-15.5, 61, 46.5, 31.5, 63, 47.5, 'hoop')
-    box(-15.5, 61, 1.5, -14.5, 63, 46.5, 'hoop')
-    box(30.5, 61, 1.5, 31.5, 63, 46.5, 'hoop')
+    # ---- top (layer 3): a lower casing slab, so the muffler hatch (top middle) and any hatch in the top layer stand
+    # out of it like the stack of a furnace; a rim, gauges, and two flues running into the muffler
+    box(-15, 48, 1, 31, 58, 47, 'casing')
+    box(-15.5, 56, 0.5, 31.5, 58.5, 1.5, 'hoop')
+    box(-15.5, 56, 46.5, 31.5, 58.5, 47.5, 'hoop')
+    box(-15.5, 56, 1.5, -14.5, 58.5, 46.5, 'hoop')
+    box(30.5, 56, 1.5, 31.5, 58.5, 46.5, 'hoop')
     # a pressure gauge and two valves on the front of the top slab
-    box(-12, 53, 0.5, -6, 59, 1.0, 'hoop')
-    box(-11, 54, 0.25, -7, 58, 0.5, 'vent')
-    box(22, 54, 0.25, 24, 58, 1.0, 'pipe')
-    box(26, 54, 0.25, 28, 58, 1.0, 'pipe')
-    # pipes from the furnace roof out to the sides
+    box(-12, 50, 0.5, -6, 56, 1.0, 'hoop')
+    box(-11, 51, 0.25, -7, 55, 0.5, 'vent')
+    box(22, 51, 0.25, 24, 55, 1.0, 'pipe')
+    box(26, 51, 0.25, 28, 55, 1.0, 'pipe')
+    # pipes from the furnace roof out to the sides, risers and the flues into the muffler (the muffler hatch is the
+    # block above the middle of the slab: its cube hides the inner ends)
     box(-14, 48, 12, -10, 52, 36, 'pipe')
     box(26, 48, 12, 30, 52, 36, 'pipe')
+    for (x0, x1) in ((-13, -9), (25, 29)):
+        box(x0, 52, 21, x1, 61, 27, 'pipe')
+        box(x0 - 0.5, 57, 20.5, x1 + 0.5, 59, 27.5, 'hoop')
+    box(-13, 58, 22, 2, 61, 26, 'pipe')
+    box(14, 58, 22, 29, 61, 26, 'pipe')
+    for x in (-6, 22):
+        box(x - 1, 57.5, 21.5, x + 1, 61.5, 26.5, 'hoop')
 
     # ---- glow: the window and slits in the hoops
     box(-4, 24, 0, 20, 40, 0.3, 'glow', into=glow)
@@ -220,20 +229,36 @@ def paint():
             img.putpixel((x, y), c + (255,))
     save('coil_marker', img)
 
-    # the window: white-hot centre to orange edge, and the cold one
-    hot = Image.new('RGBA', (16, 16))
+    # the window: heat shimmering in a loop (8 frames in a strip, animated by the .mcmeta), the ember of a machine that
+    # waits, and the cold one
+    frames = 8
+    hot = Image.new('RGBA', (16, 16 * frames))
+    for f in range(frames):
+        t = 2 * math.pi * f / frames
+        for y in range(16):
+            for x in range(16):
+                d = max(abs(x - 7.5), abs(y - 7.5)) / 7.5
+                wave = (math.sin(2 * math.pi * x / 8 + t) + math.sin(2 * math.pi * y / 5 - 2 * t) +
+                        math.sin(2 * math.pi * (x + y) / 11 + 3 * t)) / 3
+                heat = max(0.0, min(1.0, 0.62 + 0.30 * wave - 0.30 * d * d))
+                r = 255
+                g = int(60 + 195 * heat ** 1.4)
+                b = int(10 + 180 * max(0.0, heat - 0.55) / 0.45)
+                hot.putpixel((x, 16 * f + y), (r, g, min(255, b), 255))
+    save('glow_on', hot)
+    with open(os.path.join(TEXTURES, 'glow_on.png.mcmeta'), 'w') as f:
+        json.dump({'animation': {'frametime': 2, 'interpolate': True}}, f)
+    wait = Image.new('RGBA', (16, 16))
     cold = Image.new('RGBA', (16, 16))
     for y in range(16):
         for x in range(16):
             d = max(abs(x - 7.5), abs(y - 7.5)) / 7.5
-            r = 255
-            g = int(235 - 150 * d + rnd.randint(-12, 12))
-            b = int(150 - 140 * d + rnd.randint(-8, 8))
-            hot.putpixel((x, y), (r, max(0, min(255, g)), max(0, min(255, b)), 255))
             v = int(40 + 18 * (1 - d) + rnd.randint(-4, 4))
             cold.putpixel((x, y), (v + 14, v, v - 4, 255))
-    save('glow_on', hot)
+            e = int(70 + 60 * (1 - d) + rnd.randint(-6, 6))
+            wait.putpixel((x, y), (e + 40, int(e * 0.35), 10, 255))
     save('glow_off', cold)
+    save('glow_wait', wait)
 
 
 def main():
