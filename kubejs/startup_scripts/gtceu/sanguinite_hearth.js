@@ -5,7 +5,8 @@
 // A 1:1 copy of GT's Rotary Hearth Furnace (gtceu:mega_blast_furnace) with one decisive difference: it runs only
 // its own recipe type (gtceu:sanguinite_hearth), never the EBF family. The EBF cannot smelt sanguinite at all:
 // the molten print lives on the hearth's type and the material's auto EBF/hot-ingot recipes are removed. The
-// structure stays identical for now (a later pass gives the hearth its own look); the new gameplay is thermal:
+// structure stays identical for now; the controller wears GT++ Volcanus' face (kubejs assets,
+// multiblock/sanguinite_hearth/overlay_front*, from tools/textures/gtpp_volcanus/); the new gameplay is thermal:
 //   - the hearth is a heat mass: it preheats toward its coils' maximum (coil temperature + 100 K per energy hatch
 //     tier above MV, the EBF's own display maths) over 300 seconds while switched on and powered (at least LuV),
 //     and cools over 500 seconds without power or while switched off. Prints only start preheated (HEARTH_GATE:
@@ -140,5 +141,5 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('#', Predicates.any())
             .build())
         .workableCasingModel('gtceu:block/casings/gcym/high_temperature_smelting_casing',
-            'gtceu:block/multiblock/gcym/mega_blast_furnace')
+            'gtceu:block/multiblock/sanguinite_hearth')
 })

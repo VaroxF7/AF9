@@ -1,0 +1,182 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "staged_assembly"
+	group: "1DA67E79B40AB130"
+	icon: "gtceu:staged_assembly"
+	id: "51A6ED5AC1E015A9"
+	order_index: 19
+	progression_mode: "flexible"
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"{af9.quest.staged.intro.1}"
+				""
+				"{af9.quest.staged.intro.2}"
+				""
+				"{af9.quest.staged.intro.3}"
+			]
+			icon: "gtceu:staged_assembly"
+			id: "62B7FE6BD2F126B0"
+			rewards: [{
+				id: "14D9BA8DF4B348D2"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "gear"
+			size: 2.5d
+			subtitle: "{af9.quest.staged.intro.subtitle}"
+			tasks: [
+				{
+					id: "73C8AF7CE3A237C1"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.staged.intro.title}"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["62B7FE6BD2F126B0"]
+			description: [
+				"{af9.quest.staged.controller.1}"
+			]
+			icon: "gtceu:staged_assembly"
+			id: "25EAF90E5C459E3F"
+			rewards: [{
+				id: "47AC12A7E67B1A5D"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.staged.controller.subtitle}"
+			tasks: [
+				{
+					id: "36FB01F6D56A0F4E"
+					item: "gtceu:staged_assembly"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.staged.controller.title}"
+			x: 3.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["25EAF90E5C459E3F"]
+			description: [
+				"{af9.quest.staged.arm.1}"
+				""
+				"{af9.quest.staged.arm.2}"
+			]
+			icon: "gtceu:lv_robot_arm"
+			id: "58BD23B8F78C2B6E"
+			rewards: [{
+				id: "10DF45DAB90E4D8A"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.staged.arm.subtitle}"
+			tasks: [
+				{
+					id: "69CE34C9A89D3C7F"
+					item: "gtceu:lv_robot_arm"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.staged.arm.title}"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["58BD23B8F78C2B6E"]
+			description: [
+				"{af9.quest.staged.detector.1}"
+				""
+				"{af9.quest.staged.detector.2}"
+			]
+			icon: "af9:staged_step_detector"
+			id: "21EA56EBC01F5E9B"
+			rewards: [{
+				id: "43AC78ADE23B701D"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.staged.detector.subtitle}"
+			tasks: [
+				{
+					id: "32FB67FCD12A6F0C"
+					item: "af9:staged_step_detector"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.staged.detector.title}"
+			x: 9.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["21EA56EBC01F5E9B"]
+			description: [
+				"{af9.quest.staged.automate.1}"
+				""
+				"{af9.quest.staged.automate.2}"
+				""
+				"{af9.quest.staged.automate.3}"
+			]
+			icon: "minecraft:comparator"
+			id: "54BD89BEF34C812E"
+			rewards: [{
+				id: "16DF01DAB56EA34A"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.staged.automate.subtitle}"
+			tasks: [
+				{
+					id: "65CE90CFA45D923F"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.staged.automate.title}"
+			x: 12.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["54BD89BEF34C812E"]
+			description: [
+				"{af9.quest.staged.conveyor.1}"
+				""
+				"{af9.quest.staged.conveyor.2}"
+			]
+			icon: "gtceu:mv_conveyor_module"
+			id: "27EA12EBC67FB45B"
+			rewards: [{
+				id: "49AC34ADE89BD67D"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.staged.conveyor.subtitle}"
+			tasks: [
+				{
+					id: "38FB23FCD78AC56C"
+					item: "gtceu:mv_conveyor_module"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.staged.conveyor.title}"
+			x: 15.0d
+			y: 0.0d
+		}
+	]
+	subtitle: ["{af9.quest.staged.chapter.subtitle}"]
+	title: "{af9.quest.staged.chapter.title}"
+}
