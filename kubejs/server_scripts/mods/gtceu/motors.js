@@ -8,8 +8,8 @@
 //
 //   motor = housing + rotor + stator + 16x fine tier wire + 2x winding wire + 2x cable
 //
-// GT's LV iron path stays as the bootstrap (steel needs the EBF); the LV steel path and the
-// MV/IV paths are replaced. The LuV, ZPM, UV and UHV motors keep GT's recipes for now (assembly
+// GT's own motor recipes are gone up to IV (assembler and shaped, iron path included:
+// the LV bootstrap is the iron hand-craft now). The LuV, ZPM, UV and UHV motors keep GT's recipes for now (assembly
 // line + research), so their parts wait for the rewiring. The UHV parts run at UV voltage: with
 // highTierContent off no single block runs hotter, and GT 7.5 refuses hotter recipes.
 // The two industrial housings are the endgame shells out of Reinforced Titanium Niobium Alloy
@@ -27,7 +27,8 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.HV])
 
     // ---- The parts of every tier: [tier, tier material, magnetic rod, assembler voltage] ----
-    // Samarium only magnets as a long rod (GT gives it no normal rod), so the LuV and up rotors take it long.
+    // The LuV and up rotors take a normal samarium rod, like GT's own voltage coils: the pack has no magnetic
+    // samarium long rod, only the normal one.
     // UHV builds at UV: the hottest voltage a single block runs while highTierContent is off.
     const PARTS = [
         ['lv', 'steel', 'gtceu:magnetic_steel_rod', GTValues.LV],
@@ -35,10 +36,10 @@ ServerEvents.recipes(event => {
         ['hv', 'stainless_steel', 'gtceu:magnetic_steel_rod', GTValues.HV],
         ['ev', 'titanium', 'gtceu:magnetic_neodymium_rod', GTValues.EV],
         ['iv', 'tungsten_steel', 'gtceu:magnetic_neodymium_rod', GTValues.IV],
-        ['luv', 'hsss', 'gtceu:magnetic_samarium_long_rod', GTValues.LuV],
-        ['zpm', 'osmiridium', 'gtceu:magnetic_samarium_long_rod', GTValues.ZPM],
-        ['uv', 'tritanium', 'gtceu:magnetic_samarium_long_rod', GTValues.UV],
-        ['uhv', 'neutronium', 'gtceu:magnetic_samarium_long_rod', GTValues.UV]
+        ['luv', 'hsss', 'gtceu:magnetic_samarium_rod', GTValues.LuV],
+        ['zpm', 'osmiridium', 'gtceu:magnetic_samarium_rod', GTValues.ZPM],
+        ['uv', 'tritanium', 'gtceu:magnetic_samarium_rod', GTValues.UV],
+        ['uhv', 'neutronium', 'gtceu:magnetic_samarium_rod', GTValues.UV]
     ]
     PARTS.forEach(cfg => {
         const tier = cfg[0]
@@ -92,6 +93,8 @@ ServerEvents.recipes(event => {
         ['ev', 'titanium', 'gtceu:kanthal_double_wire', 'gtceu:aluminium_double_cable', ['electric_motor_ev']],
         ['iv', 'tungsten_steel', 'gtceu:graphene_double_wire', 'gtceu:tungsten_double_cable', ['electric_motor_iv']]
     ]
+    // GT's LV iron assembler path goes too (assembler only: the iron hand-craft stays as the bootstrap)
+    event.remove({ id: 'gtceu:assembler/electric_motor_lv_iron' })
     MOTORS.forEach(cfg => {
         const tier = cfg[0]
         const mat = cfg[1]

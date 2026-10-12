@@ -1,5 +1,6 @@
 # What the base pack (ATM9's KubeJS and mods, which this repo is laid over) provides. One id per line.
 # Recipe types of the base pack's machines
+powah:energizing
 world_data_scanner
 void_miner
 ore_processing_plant

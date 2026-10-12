@@ -1,4 +1,5 @@
-// AF9 - every Energizing Orb Mk2 recipe of the pack in one script: the LV, MV and HV components and the shaping
+// AF9 - every Energizing Orb Mk2 recipe of the pack in one script: the LV, MV and HV components (except the motors,
+// built in the assembler: motors.js) and the shaping
 // of GT parts (rods, bolts, screws, gears, small gears, rotors). GT's own recipes stay; the orb is a second way.
 // Also here: the craft of the orb block itself (MV, from steel, MV circuits and motors round Powah's orb), so every orb
 // recipe of the pack is in this one file.
@@ -62,7 +63,6 @@ ServerEvents.recipes(event => {
     }
 
     // ---- LV components: GT's assembler ingredients in full, and a glue where a slot is left ----
-    //   motor    2 tin cables, 2 steel rods, 1 magnetic steel rod, 4 copper wires, blazing crystal
     //   conveyor 2 motors, 1 tin cable, 6 rubber plates, dielectric paste
     //   pump     motor, tin cable, bronze pipe, tin screw, tin rotor, 2 rubber rings (six slots: no glue)
     //   piston   motor, 2 steel rods, 2 tin cables, 3 steel plates, small gear, blazing crystal
@@ -70,14 +70,6 @@ ServerEvents.recipes(event => {
     //   emitter  4 brass rods, 2 tin cables, 2 LV circuits, quartzite
     //   sensor   brass rod, 4 steel plates, LV circuit, quartzite
     //   field    ender pearl, 2 steel plates, 2 LV circuits, 4 quadruple wires
-
-    orb('lv_electric_motor', [
-        item('gtceu:tin_single_cable', 2),
-        tag('forge:rods/steel', 2),
-        tag('forge:rods/magnetic_steel', 1),
-        item('gtceu:copper_single_wire', 4),
-        item('powah:crystal_blazing', 1)
-    ], 12800, 'gtceu:lv_electric_motor')
 
     orb('lv_conveyor_module', [
         item('gtceu:lv_electric_motor', 2),
@@ -135,7 +127,6 @@ ServerEvents.recipes(event => {
     ], 80000, 'gtceu:lv_field_generator')
 
     // ---- MV components: GT's assembler ingredients in full, and a glue where a slot is left ----
-    //   motor    2 copper cables, 2 aluminium rods, 1 magnetic steel rod, 4 cupronickel wires, energized steel
     //   conveyor 2 motors, 1 copper cable, 6 rubber plates, dielectric paste
     //   pump     motor, copper cable, steel pipe, bronze screw, bronze rotor, 2 rubber rings (six slots: no glue)
     //   piston   motor, 2 aluminium rods, 2 copper cables, 3 aluminium plates, small gear, energized steel
@@ -143,14 +134,6 @@ ServerEvents.recipes(event => {
     //   emitter  4 electrum rods, 2 copper cables, 2 MV circuits, flawless emerald
     //   sensor   electrum rod, 4 aluminium plates, MV circuit, flawless emerald
     //   field    ender eye, 2 aluminium plates, 2 MV circuits, 4 quadruple wires
-
-    orb('mv_electric_motor', [
-        item('gtceu:copper_single_cable', 2),
-        tag('forge:rods/aluminium', 2),
-        tag('forge:rods/magnetic_steel', 1),
-        item('gtceu:cupronickel_double_wire', 4),
-        item('powah:steel_energized', 1)
-    ], 51200, 'gtceu:mv_electric_motor')
 
     orb('mv_conveyor_module', [
         item('gtceu:mv_electric_motor', 2),
@@ -208,7 +191,6 @@ ServerEvents.recipes(event => {
     ], 320000, 'gtceu:mv_field_generator')
 
     // ---- HV components: GT's assembler ingredients in full, and a glue where a slot is left ----
-    //   motor    2 silver double cables, 2 stainless rods, 1 magnetic steel rod, 4 electrum double wires, energized steel
     //   conveyor 2 motors, 1 gold cable, 6 rubber plates, dielectric paste
     //   pump     motor, gold cable, stainless pipe, steel screw, steel rotor, 2 rubber rings (six slots: no glue)
     //   piston   motor, 2 stainless rods, 2 gold cables, 3 stainless plates, small gear, energized steel
@@ -216,14 +198,6 @@ ServerEvents.recipes(event => {
     //   emitter  4 chromium rods, 2 gold cables, 2 HV circuits, ender eye
     //   sensor   chromium rod, 4 stainless plates, HV circuit, ender eye
     //   field    quantum eye, 2 stainless plates, 2 HV circuits, 4 quadruple wires
-
-    orb('hv_electric_motor', [
-        item('gtceu:silver_double_cable', 2),
-        tag('forge:rods/stainless_steel', 2),
-        item('powah:steel_energized', 1),
-        tag('forge:rods/magnetic_steel', 1),
-        item('gtceu:electrum_double_wire', 4)
-    ], 204800, 'gtceu:hv_electric_motor')
 
     orb('hv_conveyor_module', [
         item('gtceu:hv_electric_motor', 2),

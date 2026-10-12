@@ -90,7 +90,6 @@ Powah's energizing category, so those recipes are listed under it.
 
 | component | in the orb (HV) | GT's assembler recipe |
 |---|---|---|
-| motor | 2 silver double cables, 2 stainless rods, magnetic steel rod, 4 electrum double wires, energized steel | the same, without the energized steel |
 | conveyor | 2 HV motors, gold cable, 6 rubber plates, dielectric paste | the same, without the paste |
 | pump | HV motor, gold cable, stainless pipe, steel screw, steel rotor, 2 rubber rings | the same |
 | piston | HV motor, 2 stainless rods, 2 gold cables, 3 stainless plates, small stainless gear, energized steel | the same, without the energized steel |
@@ -100,9 +99,11 @@ Powah's energizing category, so those recipes are listed under it.
 | field generator | quantum eye, 2 stainless plates, 2 HV circuits, 4 mercury barium calcium cuprate quadruple wires | the same |
 
 Each takes everything GT's assembler takes, in the same amounts: the orb is not a cheaper way to make a component. The
-motor, conveyor, piston and arm also take a Powah material (energized steel: iron and gold in the orb; dielectric paste)
-as the glue where a slot is left (the orb has six, the pump fills them). What the orb saves is **power**: the charge is
-40,000 RF for the motor up to 250,000 RF for the field generator; it scales with the rods around the orb (Powah's own rule), so more
+conveyor, piston and arm also take a Powah material (energized steel: iron and gold in the orb; dielectric paste)
+as the glue where a slot is left (the orb has six, the pump fills them). The motors themselves are built in the
+assembler from housings, rotors and stators (`kubejs/server_scripts/mods/gtceu/motors.js`); GT's old motor recipes are
+gone up to IV. What the orb saves is **power**: the charge is
+256,000 RF for a conveyor or pump up to 1,280,000 RF for the field generator; it scales with the rods around the orb (Powah's own rule), so more
 rods, a shorter wait. Powah's config ratio for energizing scales these like its own recipes.
 
 ### Notes for changing it

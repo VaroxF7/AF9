@@ -160,11 +160,35 @@ function crafting(type, out, ins) {
 }
 
 const gtceu = new Proxy({}, { get: (_, type) => id => recipeBuilder(String(type), id) })
+// plain-JSON recipes (Create, Powah): only the Energizing Orb's are read, and only when they make an AF9
+// item (create_steam_age.js says why the rest stay invisible). A Powah entry is {item|tag, count?} and the
+// result {item, count?}; counts default to 1. GT-thing outputs stay untracked, as before.
+const customRecipe = json => {
+    const rec = { type: '', id: '', file: state.currentFile, itemIn: [], itemOut: [], fluidIn: [],
+        fluidOut: [], circuits: 0, notConsumed: 0, calls: {}, fluidAmounts: [], chances: [], itemQty: new Map() }
+    if (json && json.type === 'powah:energizing' && Array.isArray(json.ingredients) && json.result &&
+        typeof json.result.item === 'string' && json.result.item.startsWith('af9:')) {
+        rec.type = 'powah:energizing'
+        state.recipes.push(rec)
+        json.ingredients.forEach(ing => {
+            const id = ing && (ing.item || (ing.tag ? '#' + ing.tag : null))
+            if (!id) return
+            rec.itemIn.push(id)
+            const n = ing.count > 1 ? ing.count : 1
+            rec.itemQty.set(id, (rec.itemQty.get(id) || 0) + n)
+            if (ing.nc) rec.notConsumed++
+        })
+        rec.itemOut.push(json.result.item)
+        const n = json.result.count > 1 ? json.result.count : 1
+        rec.itemQty.set(json.result.item, (rec.itemQty.get(json.result.item) || 0) + n)
+    }
+    return recorder((name, a) => { if (name === 'id' && a[0] !== undefined) rec.id = String(a[0]) })
+}
 const event = {
     recipes: { gtceu, minecraft: new Proxy({}, { get: () => () => recorder(() => {}) }) },
     shaped: (out, pattern, keys) => crafting('crafting_shaped', out, Object.values(keys || {})),
     shapeless: (out, ins) => crafting('crafting_shapeless', out, ins), smelting: () => recorder(() => {}),
-    remove() {}, replaceInput() {}, replaceOutput() {}, forEachRecipe() {}, countRecipes: () => 0, custom: () => recorder(() => {}),
+    remove() {}, replaceInput() {}, replaceOutput() {}, forEachRecipe() {}, countRecipes: () => 0, custom: customRecipe,
     add() {}, get: () => ({ add() {} })
 }
 
@@ -538,7 +562,8 @@ state.recipes.forEach(r => {
 //       a circuit outside 0..32, an item count of 0
 const num = a => a && a.length ? Number(a[0]) : NaN
 state.recipes.forEach(r => {
-    if (r.type.startsWith('crafting_')) return
+    // numbers are a GT/AF9 thing: plain-JSON recipes of other mods' types (the orb's) carry energy, not duration/EUt
+    if (r.type.startsWith('crafting_') || (!af9Types.has(r.type) && !gtTypes.has(r.type))) return
     const where = `${r.file}: ${r.type}/${r.id}`
     const noEU = r.calls.EUt === undefined && r.calls.CWUt === undefined && r.calls.inputEU === undefined && r.calls.duration !== undefined
     if (r.calls.duration === undefined) report('WARN', 'R8', `has no duration()`, where)
