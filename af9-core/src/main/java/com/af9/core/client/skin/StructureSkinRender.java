@@ -5,7 +5,6 @@ import com.af9.core.AF9Core;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRender;
 import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderManager;
@@ -16,7 +15,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -34,8 +32,6 @@ import com.mojang.serialization.Codec;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -64,33 +60,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
             "block/multiblock/ebf/glow_on");
     private static final ResourceLocation GLOW_OFF = new ResourceLocation(AF9Core.MOD_ID,
             "block/multiblock/ebf/glow_off");
-    private static final ResourceLocation GLOW_WAIT = new ResourceLocation(AF9Core.MOD_ID,
-            "block/multiblock/ebf/glow_wait");
     private static final int FULL_BRIGHT = 0xF000F0;
-
-    /**
-     * Embeddium animates only the sprites it has seen drawn, and it sees the ones of its own chunk meshes: a sprite that
-     * only a block entity renderer draws (the window's heat) stands still unless it is marked. Null without Embeddium.
-     */
-    private static final MethodHandle MARK_ACTIVE = markActive();
-
-    private static MethodHandle markActive() {
-        try {
-            Class<?> util = Class.forName("me.jellysquid.mods.sodium.client.render.texture.SpriteUtil");
-            return MethodHandles.publicLookup().unreflect(util.getMethod("markSpriteActive", TextureAtlasSprite.class));
-        } catch (ReflectiveOperationException | LinkageError | RuntimeException e) {
-            return null;
-        }
-    }
-
-    private static void markActive(TextureAtlasSprite sprite) {
-        if (MARK_ACTIVE == null) return;
-        try {
-            MARK_ACTIVE.invoke(sprite);
-        } catch (Throwable ignored) {
-            // an animation that stands still is the worst of it
-        }
-    }
 
     /** The model's quads with the sprites swapped, by (model, coil sprite, glow sprite). Client thread. */
     private static final Map<List<Object>, List<BakedQuad>> QUADS = new HashMap<>();
@@ -163,21 +133,9 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
                 if (found != null) coil = found;
             }
         }
-        // the machine's state: working (coils lit, window alive), waiting for power or room (an ember), or cold
         boolean working = machine instanceof IRecipeLogicMachine logic && logic.isActive();
-        boolean waiting = !working && machine instanceof IRecipeLogicMachine logic
-                && logic.getRecipeLogic().getStatus() == RecipeLogic.Status.WAITING;
         TextureAtlasSprite glowOn = atlas.getSprite(GLOW_ON);
-        TextureAtlasSprite glow = working ? glowOn : atlas.getSprite(waiting ? GLOW_WAIT : GLOW_OFF);
-        markActive(glow);
-        // the coil's own bloom texture, drawn over the coil bands at full brightness while it works
-        TextureAtlasSprite bloom = null;
-        if (working && coil != marker) {
-            ResourceLocation name = coil.contents().name();
-            TextureAtlasSprite found = atlas.getSprite(
-                    new ResourceLocation(name.getNamespace(), name.getPath() + "_bloom"));
-            if (!found.contents().name().equals(MissingTextureAtlasSprite.getLocation())) bloom = found;
-        }
+        TextureAtlasSprite glow = working ? glowOn : atlas.getSprite(GLOW_OFF);
 
         Direction front = self.getFrontFacing(), upwards = self.getUpwardsFacing();
         Direction r = RelativeDirection.RIGHT.getRelative(front, upwards, false);
@@ -206,13 +164,6 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
                     packedOverlay, false);
             draw(poseStack, solid, level, quads(lit, marker, coil, glowOn, glow), r, u, b,
                     working ? FULL_BRIGHT : packedLight, packedOverlay, true);
-            if (bloom != null) {
-                markActive(bloom);
-                // the bloom is the lit pixels of the coil texture, over the coil band: same place, so test with <=
-                VertexConsumer lightsUp = buffer.getBuffer(RenderType.entityTranslucentEmissive(InventoryMenu.BLOCK_ATLAS));
-                draw(poseStack, lightsUp, level, bloomQuads(body, marker, bloom), r, u, b, FULL_BRIGHT, packedOverlay,
-                        true);
-            }
             poseStack.popPose();
         }
         poseStack.popPose();
@@ -252,24 +203,6 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
                 TextureAtlasSprite from = quad.getSprite();
                 TextureAtlasSprite to = from == marker ? coil : from == glowOn ? glow : from;
                 out.add(to == from ? quad : retextured(quad, from, to));
-            }
-            return out;
-        });
-    }
-
-    /** Only the coil band's quads of a model, on the coil's bloom sprite. */
-    private static List<BakedQuad> bloomQuads(ResourceLocation location, TextureAtlasSprite marker,
-                                              TextureAtlasSprite bloom) {
-        return QUADS.computeIfAbsent(List.of(location, bloom, marker), key -> {
-            BakedModel model = Minecraft.getInstance().getModelManager().getModel(location);
-            RandomSource random = RandomSource.create(42);
-            List<BakedQuad> out = new ArrayList<>();
-            List<BakedQuad> all = new ArrayList<>(model.getQuads(null, null, random, ModelData.EMPTY, null));
-            for (Direction side : Direction.values()) {
-                all.addAll(model.getQuads(null, side, random, ModelData.EMPTY, null));
-            }
-            for (BakedQuad quad : all) {
-                if (quad.getSprite() == marker) out.add(retextured(quad, marker, bloom));
             }
             return out;
         });
