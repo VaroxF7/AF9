@@ -390,6 +390,7 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 - [Lithium brine](docs/lithium-brine.md) — salar water to LiCl, carbonate, hydroxide, oxide, LiPF6 (MV–LuV)
 - [Water filtration](docs/water-filtration.md) — skimmer basin: water, brine, desalination, wastewater cleaning
 - [Supersymmetry review](docs/supersymmetry.md) — what the realistic-chemistry pack does, chain lengths, fact-check, AF9 takeaways
+- [Atmospheric simulation](docs/atmospheric-simulation.md) — Lunar-air room: suit damage, XPS/NVM circuits
 - [Review findings](docs/review-findings.md) — what the lint found
 - [AF9 Core](af9-core/README.md) — Java class map
 - [Lint](tools/lint/README.md) — checker usage

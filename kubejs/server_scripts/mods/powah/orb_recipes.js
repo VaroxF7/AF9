@@ -1,19 +1,18 @@
-// AF9 - every Energizing Orb Mk2 recipe of the pack in one script: the LV, MV and HV components (except the motors,
-// built in the assembler: motors.js) and the shaping
-// of GT parts (rods, bolts, screws, gears, small gears, rotors). GT's own recipes stay; the orb is a second way.
+﻿// AF9 - every Energizing Orb Mk2 recipe of the pack in one script: the shaping of GT parts
+// (rods, bolts, screws, gears, small gears, rotors). GT's own recipes stay; the orb is a second way
+// for shaping only. Components (motors in motors.js, everything else in GT's assembler) are built
+// the GT way, at GT's cost.
 // Also here: the craft of the orb block itself (MV, from steel, MV circuits and motors round Powah's orb), so every orb
 // recipe of the pack is in this one file.
 //
 // To add a recipe, copy the TEMPLATE below, fill it in, reload (/reload or restart): that is all. The mold stays
 // in the orb when the recipe says keep(): normal inputs go with item().
 //
-// TEMPLATE - a second way to an HV conveyor that also takes a mold (do not uncomment, it is an example):
-// orb('hv_conveyor_module_molded', [
-//     item('gtceu:hv_electric_motor', 2),
-//     item('gtceu:gold_single_cable', 1),
-//     tag('forge:plates/rubber', 4),
-//     keep('gtceu:plate_extruder_mold')
-// ], 256000, 'gtceu:hv_conveyor_module')
+// TEMPLATE - a shaping recipe that also takes a mold (do not uncomment, it is an example):
+// orb('rod_steel_molded', [
+//     tag('forge:ingots/steel', 1),
+//     keep('gtceu:rod_extruder_mold')
+// ], 10000, 'gtceu:steel_rod', 2)
 //
 // Helpers: tag(name, count) is a consumed forge tag input (every material part: rods, plates, screws, rotors, small
 // gears, rings, gems, ender pearls: use the tag, not an id, so the part of any mod works), item(id, count) is a
@@ -21,14 +20,9 @@
 // keep(id) is an input the craft keeps (a mold: matched but not consumed), circ(tier, count) is a circuit tag input. orb() writes the recipe;
 // a fifth argument is the output count (shaping: 1 ingot lasers into 2 rods, 8 bolts).
 //
-// Components: each takes everything GT's assembler recipe takes, in the same amounts (the orb is not a way to make a
-// component cheaper in parts), and a Powah material as the glue where a slot is left (the orb has six): a small detour
-// through Powah, not a second factory. The glue steps up with the tier: LV glues with blazing crystal (the basic
-// orb's crystal) and dielectric paste (coal and clay), MV and HV with energized steel (iron and gold) and paste. What
-// the orb saves is power: the energy is GT's assembler cost at the tier's voltage, converted 1 EU to 4 FE (LV 100
-// ticks at 32 EU/t = 12800 FE for the motor, MV 51200, HV 204800); the costlier parts scale from there
-// (conveyor and pump 1.25x, piston 1.5x, arm 3x, emitter and sensor 2.25x, field generator 6.25x). The charge
-// scales with the rods round the orb, more rods, a shorter wait.
+// Shaping is all the orb does now: components left the orb for the assembler (same parts, same EU,
+// the tier's voltage), so the orb saves no detour through Powah anymore. What it still saves is the
+// extruder: no molds tied up in machines, and every material works by tag.
 //
 // Shaping: an extruder mold in one slot (it stays) and the material in the other, at GT's ratios and a flat
 // charge, never under 10000 FE a craft (the big parts cost more). Every material of the pack works: the recipes generate from the forge tags, so a future material joins
@@ -62,197 +56,7 @@ ServerEvents.recipes(event => {
         }).id('af9:powah/' + name)
     }
 
-    // ---- LV components: GT's assembler ingredients in full, and a glue where a slot is left ----
-    //   conveyor 2 motors, 1 tin cable, 6 rubber plates, dielectric paste
-    //   pump     motor, tin cable, bronze pipe, tin screw, tin rotor, 2 rubber rings (six slots: no glue)
-    //   piston   motor, 2 steel rods, 2 tin cables, 3 steel plates, small gear, blazing crystal
-    //   arm      2 motors, piston, LV circuit, 3 tin cables, 2 steel rods, blazing crystal
-    //   emitter  4 brass rods, 2 tin cables, 2 LV circuits, quartzite
-    //   sensor   brass rod, 4 steel plates, LV circuit, quartzite
-    //   field    ender pearl, 2 steel plates, 2 LV circuits, 4 quadruple wires
-
-    orb('lv_conveyor_module', [
-        item('gtceu:lv_electric_motor', 2),
-        item('gtceu:tin_single_cable', 1),
-        tag('forge:plates/rubber', 6),
-        item('powah:dielectric_paste', 1)
-    ], 16000, 'gtceu:lv_conveyor_module')
-
-    orb('lv_electric_pump', [
-        item('gtceu:lv_electric_motor', 1),
-        item('gtceu:tin_single_cable', 1),
-        item('gtceu:bronze_normal_fluid_pipe', 1),
-        tag('forge:screws/tin', 1),
-        tag('forge:rotors/tin', 1),
-        tag('forge:rings/rubber', 2)
-    ], 16000, 'gtceu:lv_electric_pump')
-
-    orb('lv_electric_piston', [
-        item('gtceu:lv_electric_motor', 1),
-        tag('forge:rods/steel', 2),
-        item('gtceu:tin_single_cable', 2),
-        tag('forge:plates/steel', 3),
-        tag('forge:small_gears/steel', 1),
-        item('powah:crystal_blazing', 1)
-    ], 19200, 'gtceu:lv_electric_piston')
-
-    orb('lv_robot_arm', [
-        item('gtceu:lv_electric_motor', 2),
-        item('gtceu:lv_electric_piston', 1),
-        circ('lv', 1),
-        item('gtceu:tin_single_cable', 3),
-        tag('forge:rods/steel', 2),
-        item('powah:crystal_blazing', 1)
-    ], 38400, 'gtceu:lv_robot_arm')
-
-    orb('lv_emitter', [
-        tag('forge:rods/brass', 4),
-        item('gtceu:tin_single_cable', 2),
-        circ('lv', 2),
-        tag('forge:gems/quartzite', 1)
-    ], 28800, 'gtceu:lv_emitter')
-
-    orb('lv_sensor', [
-        tag('forge:rods/brass', 1),
-        tag('forge:plates/steel', 4),
-        circ('lv', 1),
-        tag('forge:gems/quartzite', 1)
-    ], 28800, 'gtceu:lv_sensor')
-
-    orb('lv_field_generator', [
-        tag('forge:ender_pearls', 1),
-        tag('forge:plates/steel', 2),
-        circ('lv', 2),
-        item('gtceu:manganese_phosphide_quadruple_wire', 4)
-    ], 80000, 'gtceu:lv_field_generator')
-
-    // ---- MV components: GT's assembler ingredients in full, and a glue where a slot is left ----
-    //   conveyor 2 motors, 1 copper cable, 6 rubber plates, dielectric paste
-    //   pump     motor, copper cable, steel pipe, bronze screw, bronze rotor, 2 rubber rings (six slots: no glue)
-    //   piston   motor, 2 aluminium rods, 2 copper cables, 3 aluminium plates, small gear, energized steel
-    //   arm      2 motors, piston, MV circuit, 3 copper cables, 2 aluminium rods, energized steel
-    //   emitter  4 electrum rods, 2 copper cables, 2 MV circuits, flawless emerald
-    //   sensor   electrum rod, 4 aluminium plates, MV circuit, flawless emerald
-    //   field    ender eye, 2 aluminium plates, 2 MV circuits, 4 quadruple wires
-
-    orb('mv_conveyor_module', [
-        item('gtceu:mv_electric_motor', 2),
-        item('gtceu:copper_single_cable', 1),
-        tag('forge:plates/rubber', 6),
-        item('powah:dielectric_paste', 1)
-    ], 64000, 'gtceu:mv_conveyor_module')
-
-    orb('mv_electric_pump', [
-        item('gtceu:mv_electric_motor', 1),
-        item('gtceu:copper_single_cable', 1),
-        item('gtceu:steel_normal_fluid_pipe', 1),
-        tag('forge:screws/bronze', 1),
-        tag('forge:rotors/bronze', 1),
-        tag('forge:rings/rubber', 2)
-    ], 64000, 'gtceu:mv_electric_pump')
-
-    orb('mv_electric_piston', [
-        item('gtceu:mv_electric_motor', 1),
-        tag('forge:rods/aluminium', 2),
-        item('gtceu:copper_single_cable', 2),
-        tag('forge:plates/aluminium', 3),
-        tag('forge:small_gears/aluminium', 1),
-        item('powah:steel_energized', 1)
-    ], 76800, 'gtceu:mv_electric_piston')
-
-    orb('mv_robot_arm', [
-        item('gtceu:mv_electric_motor', 2),
-        item('gtceu:mv_electric_piston', 1),
-        circ('mv', 1),
-        item('gtceu:copper_single_cable', 3),
-        tag('forge:rods/aluminium', 2),
-        item('powah:steel_energized', 1)
-    ], 153600, 'gtceu:mv_robot_arm')
-
-    orb('mv_emitter', [
-        tag('forge:rods/electrum', 4),
-        item('gtceu:copper_single_cable', 2),
-        circ('mv', 2),
-        tag('forge:flawless_gems/emerald', 1)
-    ], 115200, 'gtceu:mv_emitter')
-
-    orb('mv_sensor', [
-        tag('forge:rods/electrum', 1),
-        tag('forge:plates/aluminium', 4),
-        circ('mv', 1),
-        tag('forge:flawless_gems/emerald', 1)
-    ], 115200, 'gtceu:mv_sensor')
-
-    orb('mv_field_generator', [
-        item('minecraft:ender_eye', 1),
-        tag('forge:plates/aluminium', 2),
-        circ('mv', 2),
-        item('gtceu:magnesium_diboride_quadruple_wire', 4)
-    ], 320000, 'gtceu:mv_field_generator')
-
-    // ---- HV components: GT's assembler ingredients in full, and a glue where a slot is left ----
-    //   conveyor 2 motors, 1 gold cable, 6 rubber plates, dielectric paste
-    //   pump     motor, gold cable, stainless pipe, steel screw, steel rotor, 2 rubber rings (six slots: no glue)
-    //   piston   motor, 2 stainless rods, 2 gold cables, 3 stainless plates, small gear, energized steel
-    //   arm      2 motors, piston, HV circuit, 3 gold cables, 2 stainless rods, energized steel
-    //   emitter  4 chromium rods, 2 gold cables, 2 HV circuits, ender eye
-    //   sensor   chromium rod, 4 stainless plates, HV circuit, ender eye
-    //   field    quantum eye, 2 stainless plates, 2 HV circuits, 4 quadruple wires
-
-    orb('hv_conveyor_module', [
-        item('gtceu:hv_electric_motor', 2),
-        item('gtceu:gold_single_cable', 1),
-        tag('forge:plates/rubber', 6),
-        item('powah:dielectric_paste', 1)
-    ], 256000, 'gtceu:hv_conveyor_module')
-
-    orb('hv_electric_pump', [
-        item('gtceu:hv_electric_motor', 1),
-        item('gtceu:gold_single_cable', 1),
-        item('gtceu:stainless_steel_normal_fluid_pipe', 1),
-        tag('forge:screws/steel', 1),
-        tag('forge:rotors/steel', 1),
-        tag('forge:rings/rubber', 2)
-    ], 256000, 'gtceu:hv_electric_pump')
-
-    orb('hv_electric_piston', [
-        item('gtceu:hv_electric_motor', 1),
-        tag('forge:rods/stainless_steel', 2),
-        item('gtceu:gold_single_cable', 2),
-        tag('forge:plates/stainless_steel', 3),
-        tag('forge:small_gears/stainless_steel', 1),
-        item('powah:steel_energized', 1)
-    ], 307200, 'gtceu:hv_electric_piston')
-
-    orb('hv_robot_arm', [
-        item('gtceu:hv_electric_motor', 2),
-        item('gtceu:hv_electric_piston', 1),
-        circ('hv', 1),
-        item('gtceu:gold_single_cable', 3),
-        tag('forge:rods/stainless_steel', 2),
-        item('powah:steel_energized', 1)
-    ], 614400, 'gtceu:hv_robot_arm')
-
-    orb('hv_emitter', [
-        tag('forge:rods/chromium', 4),
-        item('gtceu:gold_single_cable', 2),
-        circ('hv', 2),
-        item('minecraft:ender_eye', 1)
-    ], 460800, 'gtceu:hv_emitter')
-
-    orb('hv_sensor', [
-        tag('forge:rods/chromium', 1),
-        tag('forge:plates/stainless_steel', 4),
-        circ('hv', 1),
-        item('minecraft:ender_eye', 1)
-    ], 460800, 'gtceu:hv_sensor')
-
-    orb('hv_field_generator', [
-        item('gtceu:quantum_eye', 1),
-        tag('forge:plates/stainless_steel', 2),
-        circ('hv', 2),
-        item('gtceu:mercury_barium_calcium_cuprate_quadruple_wire', 4)
-    ], 1280000, 'gtceu:hv_field_generator')
+    // ---- (LV/MV/HV components used to live here, in the orb; they assemble now, same cost) ----
 
     // ---- Shaping (generated from the forge tags; a future material joins by itself) ----
     //   rod         1 ingot + rod mold           -> 2 rods         (10000 FE)

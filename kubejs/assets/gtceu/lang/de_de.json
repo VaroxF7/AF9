@@ -66,5 +66,13 @@
     "gtceu.staged_assembly.desc": "Rezepte in Stufen gebaut, jede Stufe einzeln befüllt",
     "gtceu.water_filtration": "Wasserfiltration",
     "gtceu.water_filtration.short": "FILTRATION",
-    "gtceu.water_filtration.desc": "Schmutzwasser zu destilliertem Wasser, Schmutz abgeschöpft"
+    "gtceu.water_filtration.desc": "Schmutzwasser zu destilliertem Wasser, Schmutz abgeschöpft",
+    "af9.atmospheric_simulation_room.tooltip.0": "§7Druckraum mit §fMondatmosphäre§7, überall: die Steuerung in der Deckenmitte enthält den Atmosphärensimulator.",
+    "af9.atmospheric_simulation_room.tooltip.1": "§7Baut §fXPS- und NVM-Schaltkreise§7 in Mondluft (Mondbohrung oder Aufzugmissionen). §aPerfektes OC§7.",
+    "af9.atmospheric_simulation_room.tooltip.2": "§cMondluft innen:§7 Wer ohne kompletten Raumanzug reingeht, nimmt Ad-Astra-Sauerstoffschaden. Anzug mitbringen.",
+    "af9.atmospheric_simulation_room.tooltip.3": "§7Teile sind optional, mit Maximum: §f2§7 Energie, §f2+2§7 Item-Busse, §f2+1§7 Fluid-Luken, §f1§7 Wartung.",
+    "block.gtceu.atmospheric_simulation_room": "Atmosphärensimulationsraum",
+    "gtceu.atmospheric_simulation": "Atmosphärensimulation",
+    "gtceu.atmospheric_simulation.short": "MONDLUFT",
+    "gtceu.atmospheric_simulation.desc": "XPS- und NVM-Schaltkreise in Mondatmosphäre"
 }
