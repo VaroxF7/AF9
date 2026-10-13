@@ -25,8 +25,12 @@ Ad Astra rocket (gregified parts, Aluminised Hydrolox)
              -> purified dust -> leach (uranyl sulfate) -> yellowcake -> reduction (EBF, hydrogen) -> uranium dust
                   -> (UF6 -> GT's enrichment -> U-235 dust)
                   -> pellets (EBF) -> fuel rod (assembler, zirconium)
+                  -> MOX pellets (EBF, Pu) -> MOX rod -> hotter, longer cycles, Pu back and more
+                  -> thorium pellets (EBF, Th + U-235 driver) -> thorium rod -> long, gentle cycles, Th + Pa back
+                  -> blanket assemblies (assembler, depleted U) ride a uranium cycle (heavy-water moderated)
                        -> FX-1 Reactor (+ water, + NaK) -> supercritical steam -> Large Steam Turbines / Extreme Reactors
-                       -> spent rod -> macerator -> nitric acid -> centrifuge -> plutonium (239 and 241), uranium back
+                       -> spent rods -> macerator -> nitric acid -> centrifuge -> plutonium (239 and 241), uranium back
+                       -> minor actinides (Np, Am, Pa) locked in vitrified glass
                             -> Fusion Reactor Mk1 (3 double plates of Pu-241, 4 ingots Pu-239, AF9's chips)
 ```
 
@@ -204,6 +208,11 @@ diesel and biodiesel).
 | Reduction | Electric Blast Furnace, HV, 1,500 K | 3 yellowcake, 8,000 mB hydrogen | 6 uranium dust, 8,000 mB steam |
 | Pellets | Electric Blast Furnace, HV, 1,800 K | 12 uranium dust, 4 tiny U-235 dust, 8,000 mB oxygen | 4 `af9:fx_fuel_pellet` |
 | Fuel rod | Assembler, HV | 4 pellets, 1 zirconium ingot (the zircon chain: `docs/semiconductor-factory.md` §6.9) | `af9:fx_fuel_rod` |
+| MOX pellets | Electric Blast Furnace, HV, 1,800 K | 6 uranium dust, 2 plutonium dust, 8,000 mB oxygen | 4 `af9:fx_mox_pellet` |
+| MOX rod | Assembler, HV | 4 MOX pellets, 1 zirconium ingot | `af9:fx_mox_rod` |
+| Thorium pellets | Electric Blast Furnace, HV, 1,800 K | 10 thorium dust, 2 tiny U-235 dust (driver), 8,000 mB oxygen | 4 `af9:fx_thorium_pellet` |
+| Thorium rod | Assembler, HV | 4 thorium pellets, 1 zirconium ingot | `af9:fx_thorium_rod` |
+| Blanket assembly | Assembler, HV | 8 uranium dust, 2 steel plates | `af9:fx_blanket_assembly` |
 
 The **reduction** is what makes the natural uranium dust of the pellets: GT's own chain only gives U-235 and U-238 dust, and with the
 pitchblende and uraninite veins replaced by the asteroids nothing else did (the chain was a dead end before it). One ore is about three yellowcake and a thousand mB of UF6; GT's enrichment gives a tenth of it as U-235. A rod needs 12 uranium dust
@@ -223,6 +232,9 @@ casing, maximums only: 2 energy, 1 + 1 item, 3 + 4 fluid, 1 maintenance. Overclo
 | Recipe | Machine, tier | Takes | Gives | Time |
 |---|---|---|---|---|
 | `af9:fx1_fuel_cycle` | FX-1 Reactor, EV (1,920 EU/t) | 1 fuel rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent rod, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,200 ticks |
+| `af9:fx1_mox_cycle` | FX-1 Reactor, EV | 1 MOX rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent MOX rod, 92,160 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,800 ticks |
+| `af9:fx1_thorium_cycle` | FX-1 Reactor, EV | 1 thorium rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent thorium rod, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 2,400 ticks |
+| `af9:fx1_breeder_cycle` | FX-1 Reactor, EV | 1 fuel rod, 1 blanket, 640 mB heavy water (moderator), 1,000 mB sodium-potassium | the spent rod, the spent blanket, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,200 ticks |
 | `af9:cool_hot_sodium_potassium` | Vacuum Freezer, HV | 1,000 mB hot sodium-potassium | 1,000 mB sodium-potassium | 100 ticks |
 | `af9:supercritical_steam` | any steam turbine (GT's `steam_turbine` type), -512 EU/t | 128 mB supercritical steam | 1 mB distilled water | 20 ticks |
 
@@ -248,8 +260,15 @@ reflection, so AF9 Core needs nothing of the mod to build. The server script put
 | Step | Machine, tier | Takes | Gives |
 |---|---|---|---|
 | Decladding | Macerator, HV | spent fuel rod | 4 irradiated fuel dust, 1 zirconium dust |
-| Dissolving | Chemical Reactor, HV | 4 irradiated fuel dust, 3,000 mB nitric acid | 3,000 mB dissolved spent fuel |
+| Dissolving | Chemical Reactor, HV | 4 irradiated fuel dust, 3,000 mB nitric acid | 3,000 mB dissolved spent fuel, 500 mB fission off-gas |
 | Separation | Centrifuge, EV | 3,000 mB dissolved spent fuel | 1 plutonium dust, 8 uranium dust; chances: plutonium-241 30 %, 2 tiny U-235 60 %, neodymium 15 %, molybdenum 15 %; 2,000 mB nitric acid back |
+| Off-gas split | Distillation Tower, HV | 1,000 mB fission off-gas | 600 mB krypton, 200 mB xenon (boule melts, cryogenics) |
+| MOX decladding | Macerator, HV | spent MOX rod | 4 irradiated MOX dust, 1 zirconium dust |
+| MOX dissolving | Chemical Reactor, HV | 4 irradiated MOX dust, 3,000 mB nitric acid | 3,000 mB spent MOX solution, 800 mB fission off-gas |
+| MOX separation | Centrifuge, EV | 3,000 mB spent MOX solution | 2 plutonium dust, 4 uranium dust; chances: plutonium-241 50 %, neptunium 20 %, americium 8 %; 2,000 mB nitric acid back |
+| Thorium decladding | Macerator, HV | spent thorium rod | 6 thorium dust, 1 zirconium dust; chances: protactinium 30 %, tiny U-235 20 % |
+| Blanket separation | Centrifuge, EV | spent blanket | 2 plutonium dust, 4 uranium dust, 2 steel dust |
+| Vitrification | Mixer, HV | Np/Am/Pa dust, 4 silica, 2 lead each | 4 vitrified waste (per minor actinide; permanently safe) |
 
 **Closed:** GT's `centrifuge/uranium_238_separation` (tiny plutonium) and `centrifuge/plutonium_239_separation` (Pu-241), the void
 miner's circuit 5 (pitchblende, uraninite) and the raw plutonium in circuit 6, and every ore vein with pitchblende, uraninite
@@ -306,6 +325,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `af9-core/src/main/java/com/af9/core/registry/` | the materials (`AF9Materials`, `asteroidFission()`), the fuel pellet and rods (`AF9Items`) |
 | `af9-core/src/main/java/com/af9/core/space/AF9Space.java` | the ore layer `af9_asteroid` and the tag of its stones |
 | `kubejs/server_scripts/mods/gtceu/asteroid_fission.js` | the closed old ways, the uranium chain, the reactor, steam turbine, reprocessing, tags |
+| `kubejs/server_scripts/mods/gtceu/fission_fuels.js` | MOX, thorium and breeder fuels, minor actinides, vitrification |
 | `kubejs/server_scripts/mods/gtceu/rockets.js` | the gregified rockets, the propellant, the fuel tags |
 | `kubejs/server_scripts/mods/gtceu/fusion_reactor.js` | the Fusion Reactor Mk1 |
 | `kubejs/server_scripts/mods/gtceu/miner.js` | the void miner without uranium and plutonium |

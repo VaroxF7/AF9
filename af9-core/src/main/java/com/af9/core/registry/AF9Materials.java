@@ -95,6 +95,7 @@ public final class AF9Materials {
         uhvSuperconductor();
         starMatterSteel();
         bioCultures();
+        vitrifiedWaste();
         motorParts();
         waterFiltration();
     }
@@ -218,6 +219,21 @@ public final class AF9Materials {
                 .liquid()
                 .color(0x7a9a2e)
                 .formula("(U,Pu)(NO3)x"));
+        // MOX reprocessing runs its own dust and solution (plutonium-rich, minor actinides in it)
+        add(material("irradiated_mox")
+                .dust()
+                .color(0x5a6a1e).secondaryColor(0xa8ff4c)
+                .iconSet(MaterialIconSet.RADIOACTIVE)
+                .formula("(U,Pu,MA)O2")
+                .radioactiveHazard(1.8F));
+        add(material("spent_mox_solution")
+                .liquid()
+                .color(0x8aaa34)
+                .formula("(U,Pu,MA)(NO3)x"));
+        // Dissolver off-gas: volatile fission gases (Kr, Xe) swept out with the acid fumes
+        add(material("fission_off_gas")
+                .gas()
+                .color(0xaac4e0));
 
         // ---- The reactor's coolant circuit ----
         // The coolant is GT's own sodium-potassium alloy (NaK, liquid at room temperature). It carries the heat out of
@@ -985,6 +1001,14 @@ public final class AF9Materials {
                         MaterialFlags.GENERATE_FINE_WIRE, MaterialFlags.GENERATE_FOIL)
                 .cableProperties(GTValues.VA[GTValues.UV], 4, 0, true)
                 .formula("(Nt2Ke5)"));
+    }
+
+    /**
+     * Vitrified waste: minor actinides and fission products locked in glass, permanently safe.
+     * The end of the reprocessing line (fission_fuels.js): nothing voided, everything accounted.
+     */
+    private static void vitrifiedWaste() {
+        roughDust("vitrified_waste", 0x3a4a3a, "(SiO2)(PbO)");
     }
 
     /**

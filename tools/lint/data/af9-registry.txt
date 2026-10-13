@@ -163,9 +163,26 @@ item af9:feram_reticle
 item af9:feram_wafer
 item af9:fiber_interconnects
 item af9:fused_quartz_crucible
+item af9:fx_blanket_assembly
 item af9:fx_fuel_pellet
 item af9:fx_fuel_rod
+item af9:fx_mox_2_pellet
+item af9:fx_mox_2_rod
+item af9:fx_mox_3_pellet
+item af9:fx_mox_3_rod
+item af9:fx_mox_4_pellet
+item af9:fx_mox_4_rod
+item af9:fx_mox_pellet
+item af9:fx_mox_rod
+item af9:fx_spent_blanket
 item af9:fx_spent_fuel_rod
+item af9:fx_spent_mox_2_rod
+item af9:fx_spent_mox_3_rod
+item af9:fx_spent_mox_4_rod
+item af9:fx_spent_mox_rod
+item af9:fx_spent_thorium_rod
+item af9:fx_thorium_pellet
+item af9:fx_thorium_rod
 item af9:helios_marker
 item af9:highly_advanced_soc_reticle
 item af9:hv_motor_housing
@@ -417,6 +434,7 @@ material gtceu:ethyl_lactate
 material gtceu:euv_photoresist
 material gtceu:extreme_clean_dry_air
 material gtceu:filter_cake
+material gtceu:fission_off_gas
 material gtceu:gold_free_liquor
 material gtceu:gst_alloy
 material gtceu:hafnium_tetrachloride
@@ -434,6 +452,7 @@ material gtceu:idontknowium
 material gtceu:impure_oil
 material gtceu:iron_molybdate
 material gtceu:irradiated_fuel
+material gtceu:irradiated_mox
 material gtceu:isobutylene
 material gtceu:kovar
 material gtceu:krf_excimer_gas
@@ -521,6 +540,7 @@ material gtceu:sodium_fluoride
 material gtceu:sodium_hexanitritorhodate
 material gtceu:sodium_tert_butoxide
 material gtceu:spent_fuel_solution
+material gtceu:spent_mox_solution
 material gtceu:spent_piranha
 material gtceu:spent_resist_solvent
 material gtceu:star_matter_plasma_steel
@@ -559,6 +579,7 @@ material gtceu:unfiltered_arf_photoresist
 material gtceu:unfiltered_krf_photoresist
 material gtceu:uranyl_sulfate_solution
 material gtceu:vanadyl_pyrophosphate
+material gtceu:vitrified_waste
 material gtceu:yellowcake
 material gtceu:zinc_chloride
 material gtceu:zircon ore

@@ -863,6 +863,146 @@
 		{
 			dependencies: ["14CA60DE34A76AB4"]
 			description: [
+				"{af9.quest.fx.mox.1}"
+				""
+				"{af9.quest.fx.mox.2}"
+			]
+			icon: "af9:fx_mox_rod"
+			id: "A1B2C3D4E5F60719"
+			rewards: [{
+				id: "A1B2C3D4E5F6ABCD"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.mox.subtitle}"
+			tasks: [
+				{
+					id: "A1B2C3D4E5F6DCBA"
+					item: "af9:fx_mox_rod"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.mox.title}"
+			x: 27.0d
+			y: 12.0d
+		}
+		{
+			dependencies: ["A1B2C3D4E5F60719"]
+			description: [
+				"{af9.quest.fx.breeder.1}"
+			]
+			icon: "af9:fx_blanket_assembly"
+			id: "C3D4E5F60718293A"
+			rewards: [{
+				id: "C3D4E5F60718CDEF"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.breeder.subtitle}"
+			tasks: [
+				{
+					id: "C3D4E5F60718FEDC"
+					item: "af9:fx_spent_blanket"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.breeder.title}"
+			x: 24.0d
+			y: 12.0d
+		}
+		{
+			dependencies: ["53F82EDDDFB6E5A8"]
+			description: [
+				"{af9.quest.fx.thorium.1}"
+			]
+			icon: "af9:fx_thorium_rod"
+			id: "B2C3D4E5F6071829"
+			rewards: [{
+				id: "B2C3D4E5F607BCDEF"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.thorium.subtitle}"
+			tasks: [
+				{
+					id: "B2C3D4E5F6EDCBA"
+					item: "af9:fx_thorium_rod"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.thorium.title}"
+			x: 27.0d
+			y: 9.0d
+		}
+		{
+			dependencies: ["5CC72995FC2D1B71"]
+			description: [
+				"{af9.quest.fx.offgas.1}"
+			]
+			icon: "gtceu:xenon_bucket"
+			id: "D4E5F60718293ABB"
+			rewards: [{
+				id: "D4E5F60718BCDEFA"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.offgas.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:krypton"
+					id: "D4E5F60718DCCBAA"
+					type: "fluid"
+				}
+				{
+					amount: 500L
+					fluid: "gtceu:xenon"
+					id: "D4E5F60718ECCBAA"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.fx.offgas.title}"
+			x: 27.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["A1B2C3D4E5F60719"]
+			description: [
+				"{af9.quest.fx.vitrification.1}"
+			]
+			icon: "gtceu:vitrified_waste_dust"
+			id: "E5F60718293ABBCC"
+			rewards: [{
+				id: "E5F60718293ACDEF"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.vitrification.subtitle}"
+			tasks: [
+				{
+					count: 4L
+					id: "E5F60718293ADCEF"
+					item: "gtceu:vitrified_waste_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.vitrification.title}"
+			x: 24.0d
+			y: 9.0d
+		}
+		{
+			dependencies: ["14CA60DE34A76AB4"]
+			description: [
 				"{af9.quest.fx.pu241.1}"
 			]
 			icon: "gtceu:plutonium_241_dust"

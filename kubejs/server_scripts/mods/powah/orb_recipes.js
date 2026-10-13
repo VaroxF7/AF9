@@ -1,4 +1,4 @@
-﻿// AF9 - every Energizing Orb Mk2 recipe of the pack in one script: the shaping of GT parts
+// AF9 - every Energizing Orb Mk2 recipe of the pack in one script: the shaping of GT parts
 // (rods, bolts, screws, gears, small gears, rotors). GT's own recipes stay; the orb is a second way
 // for shaping only. Components (motors in motors.js, everything else in GT's assembler) are built
 // the GT way, at GT's cost.

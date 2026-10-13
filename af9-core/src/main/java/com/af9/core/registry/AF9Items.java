@@ -82,6 +82,27 @@ public final class AF9Items {
         item("fx_fuel_pellet", 64, 2);
         item("fx_fuel_rod", 64, 2);
         item("fx_spent_fuel_rod", 64, 2);
+        // MOX: plutonium and uranium mixed oxide, hotter and longer-lived; closes the plutonium loop
+        item("fx_mox_pellet", 64, 2);
+        item("fx_mox_rod", 64, 2);
+        item("fx_spent_mox_rod", 64, 2);
+        // MOX tiers 2-4: more plutonium per pellet, hotter cycles (T3/T4 run in the Mk2)
+        item("fx_mox_2_pellet", 64, 2);
+        item("fx_mox_2_rod", 64, 2);
+        item("fx_spent_mox_2_rod", 64, 2);
+        item("fx_mox_3_pellet", 64, 2);
+        item("fx_mox_3_rod", 64, 2);
+        item("fx_spent_mox_3_rod", 64, 2);
+        item("fx_mox_4_pellet", 64, 2);
+        item("fx_mox_4_rod", 64, 2);
+        item("fx_spent_mox_4_rod", 64, 2);
+        // Thorium: oxide pellets with a U-235 driver, long life at half the steam rate
+        item("fx_thorium_pellet", 64, 2);
+        item("fx_thorium_rod", 64, 2);
+        item("fx_spent_thorium_rod", 64, 2);
+        // Breeder blanket: depleted uranium assemblies that breed Pu-239 around a running core
+        item("fx_blanket_assembly", 64, 2);
+        item("fx_spent_blanket", 64, 2);
 
         // ---- Boule Melting: ten melt charges, a seed crystal and a crucible make a boule ----
         for (String melt : MELTS) {
