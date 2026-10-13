@@ -99,11 +99,6 @@ def build():
     box(-10.2, 44, -1.0, 26.2, 46, 2, 'hoop')
     box(-10.2, 20, -1.0, -8, 44, 2, 'hoop')
     box(24, 20, -1.0, 26.2, 44, 2, 'hoop')
-    # the frame round the window (four bars: the window itself stays clear)
-    box(-6.3, 22, -0.95, 22.3, 24, -0.6, 'hoop')
-    box(-6.3, 40, -0.95, 22.3, 42, -0.6, 'hoop')
-    box(-6.3, 24, -0.95, -4, 40, -0.6, 'hoop')
-    box(20, 24, -0.95, 22.3, 40, -0.6, 'hoop')
     box(22.5, 29, -1.6, 24.5, 35, -0.5, 'pipe')  # handle
 
     # brass pipes: a riser at each front corner, a manifold across the back with its stubs
@@ -143,10 +138,9 @@ def build():
     for x in (-6, 22):
         box(x - 1, 65.4, 21.4, x + 1, 66.4, 26.6, 'hoop')
 
-    # ---- glow: the window and slits in the hoops
-    box(-4, 24, -0.7, 20, 40, -0.65, 'glow', into=glow)
+    # ---- steel bands round the coil bands (no glow parts: the furnace has no window)
     for (y0, y1) in ((22, 26), (38, 42)):
-        octagon(22.6, y0 + 1.5, y1 - 1.5, 'glow', into=glow)
+        octagon(22.6, y0 + 1.5, y1 - 1.5, 'hoop')
 
 
 def clip(items, lo, hi, base):
