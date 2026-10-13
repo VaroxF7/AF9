@@ -14,7 +14,12 @@
 // ---- Tags ----
 ServerEvents.tags('item', event => {
     // what RadiationWatch (af9-core) warns about besides GT's radioactive materials
-    event.add('af9:radioactive', ['af9:fx_fuel_pellet', 'af9:fx_fuel_rod', 'af9:fx_spent_fuel_rod'])
+    event.add('af9:radioactive', ['af9:fx_fuel_pellet', 'af9:fx_fuel_rod', 'af9:fx_spent_fuel_rod',
+        'af9:fx_mox_pellet', 'af9:fx_mox_rod', 'af9:fx_spent_mox_rod', 'af9:fx_thorium_pellet',
+        'af9:fx_thorium_rod', 'af9:fx_spent_thorium_rod', 'af9:fx_blanket_assembly', 'af9:fx_spent_blanket',
+        'af9:fx_mox_2_pellet', 'af9:fx_mox_2_rod', 'af9:fx_spent_mox_2_rod', 'af9:fx_mox_3_pellet',
+        'af9:fx_mox_3_rod', 'af9:fx_spent_mox_3_rod', 'af9:fx_mox_4_pellet', 'af9:fx_mox_4_rod',
+        'af9:fx_spent_mox_4_rod'])
 })
 ServerEvents.tags('fluid', event => {
     // Extreme Reactors' turbines take it as a vapor (af9-core ExtremeReactorsCompat)
@@ -136,7 +141,7 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.chemical_reactor('af9:dissolve_irradiated_fuel')
         .itemInputs('4x gtceu:irradiated_fuel_dust')
         .inputFluids(Fluid.of('gtceu:nitric_acid', 3000))
-        .outputFluids(Fluid.of('gtceu:spent_fuel_solution', 3000))
+        .outputFluids(Fluid.of('gtceu:spent_fuel_solution', 3000), Fluid.of('gtceu:fission_off_gas', 500))
         .duration(300)
         .EUt(VA[GTValues.HV])
     event.recipes.gtceu.centrifuge('af9:separate_spent_fuel')

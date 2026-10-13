@@ -1,6 +1,7 @@
 package com.af9.core.machine;
 
 import com.af9.core.client.render.EcrwArmRender;
+import com.af9.core.client.render.FiltrationBasinRender;
 import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.LithoChamberRender;
@@ -160,5 +161,20 @@ public final class AF9MachineModels {
                                                                             float armY, float radius) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(() -> EcrwArmRender.create(back, armY, radius)));
+    }
+
+    /**
+     * GT's workable casing model plus the Water Filtration Plant's basin: animated water, floating
+     * debris and the 3D skimmer arm. The machine must implement IFiltrationPlantMachine and have a
+     * block entity renderer ({@code .hasBER(true)}).
+     *
+     * @param up   basin centre along the controller's up
+     * @param back basin centre behind the controller
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithFiltrationBasin(ResourceLocation casing,
+            ResourceLocation overlay, float up, float back) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(() -> FiltrationBasinRender.create(up, back)));
+    }
     }
 }

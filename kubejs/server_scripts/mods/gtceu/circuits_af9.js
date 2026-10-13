@@ -1,6 +1,6 @@
 // AF9 - Circuit crafting, linear ladder: LV -> MV -> HV -> EV -> IV -> LuV -> ZPM -> UV -> UHV -> XPS -> NVM.
-// The XPS and NVM recipes are OUT FOR NOW: both tiers are being redone. Their items, tags and quests stay; what is
-// said about them below is the plan they had.
+// XPS and NVM build in the Atmospheric Simulation Room (lunar air, atmospheric_simulation.js):
+// the redo from the header's old plan. Their items, tags and quests stay.
 //
 // Rules (load-bearing, do not soften without re-reading this file):
 //   1. LINEAR: every normal circuit at tier T takes >=1x circuit of tier T-1 as a direct
@@ -34,7 +34,7 @@
 //   8. ZPM normal (crystal computer, quantum mainframe AL, wetware assembly) + ZPM lean (Stage 3)
 //   9. UV normal (crystal mainframe AL, wetware computer) + UV lean (Stage 3)
 //   10. UHV normal (wetware mainframe AL + plasma Mk2 path) + UHV lean (Stage 4) + AI Acceleration Card
-//   11. Pico circuits (Advanced Circuit Manufacturer); the XPS and NVM recipes that were here are out for now
+//   11. Pico circuits (Advanced Circuit Manufacturer); the XPS and NVM processors build in lunar air now
 //   13. packages (asic_package, photonic_package; edram packages live in photolithography.js)
 //   14. tags (gtceu:circuits/xps, gtceu:circuits/nvm)
 // Everything else is GT's own. Spec: docs/semiconductor-factory.md
@@ -631,8 +631,8 @@ ServerEvents.recipes(event => {
     // ================================= 11. Pico circuits =================================
     // GTNH's Pico components, made in the Advanced Circuit Manufacturer (advanced_circuit_manufacturer: up to 16 items
     // and 4 fluids a recipe, computation through its hatch, UHV on 300 A through its laser hatch) from chromodynium
-    // and the finest chips. The XPS and NVM processors that took them are out for now (see the header), so nothing
-    // takes a Pico circuit at the moment.
+    // and the finest chips. The XPS and NVM processors that took them build in lunar air
+    // (atmospheric_simulation.js), so the Pico line feeds them again.
     const pico = (id, spec) => {
         const r = event.recipes.gtceu.advanced_circuit_manufacturer(`af9:${id}`)
             .itemInputs(spec.items)

@@ -192,11 +192,38 @@ item af9:feram_chip
 item af9:feram_euv_reticle
 item af9:feram_reticle
 item af9:feram_wafer
+item af9:feram_euv_reticle
+item af9:feram_reticle
+item af9:feram_wafer
+item af9:fiber_interconnects
 item af9:fish_oil_bucket
 item af9:fused_quartz_crucible
+item af9:fx_blanket_assembly
+item af9:fx_fuel_pellet
+item af9:fused_quartz_crucible
+item af9:fx_blanket_assembly
 item af9:fx_fuel_pellet
 item af9:fx_fuel_rod
+item af9:fx_mox_2_pellet
+item af9:fx_mox_2_rod
+item af9:fx_mox_3_pellet
+item af9:fx_mox_3_rod
+item af9:fx_mox_4_pellet
+item af9:fx_mox_4_rod
+item af9:fx_mox_pellet
+item af9:fx_mox_rod
+item af9:fx_spent_blanket
 item af9:fx_spent_fuel_rod
+item af9:fx_mox_rod
+item af9:fx_spent_blanket
+item af9:fx_spent_fuel_rod
+item af9:fx_spent_mox_2_rod
+item af9:fx_spent_mox_3_rod
+item af9:fx_spent_mox_4_rod
+item af9:fx_spent_mox_rod
+item af9:fx_spent_thorium_rod
+item af9:fx_thorium_pellet
+item af9:fx_thorium_rod
 item af9:glass_tube_mold
 item af9:glass_tube_mold_filled
 item af9:glue_bucket
@@ -212,6 +239,8 @@ item af9:ilc_reticle
 item af9:incomplete_circuit
 item af9:industrial_component_housing
 item af9:industrial_electric_motor_housing
+item af9:interconnect
+item af9:interconnect_pallet
 item af9:iv_motor_housing
 item af9:iv_rotor
 item af9:iv_stator
@@ -258,6 +287,7 @@ item af9:mv_stator
 item af9:nand_euv_reticle
 item af9:nand_psm_reticle
 item af9:nand_reticle
+item af9:nano_particles
 item af9:naquadah_melt_charge
 item af9:naquadah_seed_crystal
 item af9:naquadria_boule
@@ -274,6 +304,9 @@ item af9:nvm_processor
 item af9:nvm_processor_mainframe
 item af9:ochre_cloud
 item af9:oil_regolith
+item af9:optical_cpu
+item af9:optical_fiber_cable
+item af9:optical_ram
 item af9:organized_pico_circuit
 item af9:pale_cloud
 item af9:phase_shift_mask_blank
@@ -408,9 +441,11 @@ material gtceu:ares_gas
 material gtceu:arf_excimer_gas
 material gtceu:arf_photoresist
 material gtceu:artemite ore
+material gtceu:asphalt
 material gtceu:azobisisobutyronitrile
 material gtceu:barc
 material gtceu:bioethanol
+material gtceu:bacteria_culture
 material gtceu:boron_nitride
 material gtceu:boron_trichloride
 material gtceu:brannerite ore
@@ -418,6 +453,7 @@ material gtceu:butanol
 material gtceu:chloromethane_diesel
 material gtceu:chromodynium
 material gtceu:cobalt_iron_boron
+material gtceu:concentrated_lithium_brine
 material gtceu:crude_argon
 material gtceu:crude_chlorosilanes
 material gtceu:crude_fluorine
@@ -432,6 +468,7 @@ material gtceu:dense_argon
 material gtceu:dense_endion
 material gtceu:dense_hydrogen
 material gtceu:dense_xenon
+material gtceu:desalted_oil
 material gtceu:desh
 material gtceu:di_tert_butyl_dicarbonate
 material gtceu:diazonaphthoquinone
@@ -442,10 +479,13 @@ material gtceu:dry_air
 material gtceu:electronic_grade_silicon
 material gtceu:endion
 material gtceu:endionite
+material gtceu:enriched_bacteria_culture
 material gtceu:etch_plasma_gas
 material gtceu:ethyl_lactate
 material gtceu:euv_photoresist
 material gtceu:extreme_clean_dry_air
+material gtceu:filter_cake
+material gtceu:fission_off_gas
 material gtceu:gold_free_liquor
 material gtceu:gst_alloy
 material gtceu:hafnium_tetrachloride
@@ -463,6 +503,7 @@ material gtceu:idontknowium
 material gtceu:impure_oil
 material gtceu:iron_molybdate
 material gtceu:irradiated_fuel
+material gtceu:irradiated_mox
 material gtceu:isobutylene
 material gtceu:kovar
 material gtceu:krf_excimer_gas
@@ -472,7 +513,13 @@ material gtceu:l_01
 material gtceu:lactic_acid
 material gtceu:lactonitrile
 material gtceu:lesolite
+material gtceu:lithium_brine
+material gtceu:lithium_carbonate
+material gtceu:lithium_fluoride
+material gtceu:lithium_hexafluorophosphate
+material gtceu:lithium_hydroxide
 material gtceu:lithium_niobate
+material gtceu:lithium_oxide
 material gtceu:living_solder
 material gtceu:lunar_air
 material gtceu:lxa_1
@@ -544,8 +591,10 @@ material gtceu:sodium_fluoride
 material gtceu:sodium_hexanitritorhodate
 material gtceu:sodium_tert_butoxide
 material gtceu:spent_fuel_solution
+material gtceu:spent_mox_solution
 material gtceu:spent_piranha
 material gtceu:spent_resist_solvent
+material gtceu:star_matter_plasma_steel
 material gtceu:strange_matter
 material gtceu:sulfur_dichloride
 material gtceu:supercooled_argon
@@ -581,6 +630,7 @@ material gtceu:unfiltered_arf_photoresist
 material gtceu:unfiltered_krf_photoresist
 material gtceu:uranyl_sulfate_solution
 material gtceu:vanadyl_pyrophosphate
+material gtceu:vitrified_waste
 material gtceu:yellowcake
 material gtceu:zinc_chloride
 material gtceu:zircon ore

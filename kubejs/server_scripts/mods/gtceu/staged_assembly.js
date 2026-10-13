@@ -119,4 +119,181 @@ ServerEvents.recipes(event => {
             { items: ['gtceu:mv_electric_piston', '4x gtceu:gold_single_cable'], duration: 300 },
         ],
     })
+
+    // ---- Components as an extra path (GT's assembler ingredients, no Powah glue) ----
+    // Same parts as the assembler / orb (orb_recipes.js), staged for the hall's perfect OC.
+    // 2 layers each: frame first, then belt / seals / gears / electronics.
+    // LV
+    staged('af9:staged_lv_conveyor', {
+        eu: VA[GTValues.LV],
+        outputs: ['gtceu:lv_conveyor_module'],
+        layers: [
+            { items: ['2x gtceu:lv_electric_motor', 'gtceu:tin_single_cable'], duration: 100 },
+            { items: ['6x #forge:plates/rubber'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_lv_pump', {
+        eu: VA[GTValues.LV],
+        outputs: ['gtceu:lv_electric_pump'],
+        layers: [
+            { items: ['gtceu:lv_electric_motor', 'gtceu:tin_single_cable', 'gtceu:bronze_normal_fluid_pipe'], duration: 100 },
+            { items: ['#forge:screws/tin', '#forge:rotors/tin', '2x #forge:rings/rubber'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_lv_piston', {
+        eu: VA[GTValues.LV],
+        outputs: ['gtceu:lv_electric_piston'],
+        layers: [
+            { items: ['gtceu:lv_electric_motor', '2x #forge:rods/steel', '2x gtceu:tin_single_cable'], duration: 100 },
+            { items: ['3x #forge:plates/steel', '#forge:small_gears/steel'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_lv_arm', {
+        eu: VA[GTValues.LV],
+        outputs: ['gtceu:lv_robot_arm'],
+        layers: [
+            { items: ['2x gtceu:lv_electric_motor', '2x #forge:rods/steel', '3x gtceu:tin_single_cable'], duration: 150 },
+            { items: ['gtceu:lv_electric_piston', '#gtceu:circuits/lv'], duration: 150 },
+        ],
+    })
+    staged('af9:staged_lv_emitter', {
+        eu: VA[GTValues.LV],
+        outputs: ['gtceu:lv_emitter'],
+        layers: [
+            { items: ['4x #forge:rods/brass', '2x gtceu:tin_single_cable'], duration: 100 },
+            { items: ['2x #gtceu:circuits/lv', '#forge:gems/quartzite'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_lv_sensor', {
+        eu: VA[GTValues.LV],
+        outputs: ['gtceu:lv_sensor'],
+        layers: [
+            { items: ['#forge:rods/brass', '4x #forge:plates/steel'], duration: 100 },
+            { items: ['#gtceu:circuits/lv', '#forge:gems/quartzite'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_lv_field', {
+        eu: VA[GTValues.LV],
+        outputs: ['gtceu:lv_field_generator'],
+        layers: [
+            { items: ['#forge:ender_pearls', '2x #forge:plates/steel'], duration: 300 },
+            { items: ['2x #gtceu:circuits/lv', '4x gtceu:manganese_phosphide_quadruple_wire'], duration: 300 },
+        ],
+    })
+
+    // MV
+    staged('af9:staged_mv_conveyor', {
+        eu: VA[GTValues.MV],
+        outputs: ['gtceu:mv_conveyor_module'],
+        layers: [
+            { items: ['2x gtceu:mv_electric_motor', 'gtceu:copper_single_cable'], duration: 100 },
+            { items: ['6x #forge:plates/rubber'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_mv_pump', {
+        eu: VA[GTValues.MV],
+        outputs: ['gtceu:mv_electric_pump'],
+        layers: [
+            { items: ['gtceu:mv_electric_motor', 'gtceu:copper_single_cable', 'gtceu:steel_normal_fluid_pipe'], duration: 100 },
+            { items: ['#forge:screws/bronze', '#forge:rotors/bronze', '2x #forge:rings/rubber'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_mv_piston', {
+        eu: VA[GTValues.MV],
+        outputs: ['gtceu:mv_electric_piston'],
+        layers: [
+            { items: ['gtceu:mv_electric_motor', '2x #forge:rods/aluminium', '2x gtceu:copper_single_cable'], duration: 100 },
+            { items: ['3x #forge:plates/aluminium', '#forge:small_gears/aluminium'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_mv_arm', {
+        eu: VA[GTValues.MV],
+        outputs: ['gtceu:mv_robot_arm'],
+        layers: [
+            { items: ['2x gtceu:mv_electric_motor', '2x #forge:rods/aluminium', '3x gtceu:copper_single_cable'], duration: 150 },
+            { items: ['gtceu:mv_electric_piston', '#gtceu:circuits/mv'], duration: 150 },
+        ],
+    })
+    staged('af9:staged_mv_emitter', {
+        eu: VA[GTValues.MV],
+        outputs: ['gtceu:mv_emitter'],
+        layers: [
+            { items: ['4x #forge:rods/electrum', '2x gtceu:copper_single_cable'], duration: 100 },
+            { items: ['2x #gtceu:circuits/mv', '#forge:flawless_gems/emerald'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_mv_sensor', {
+        eu: VA[GTValues.MV],
+        outputs: ['gtceu:mv_sensor'],
+        layers: [
+            { items: ['#forge:rods/electrum', '4x #forge:plates/aluminium'], duration: 100 },
+            { items: ['#gtceu:circuits/mv', '#forge:flawless_gems/emerald'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_mv_field', {
+        eu: VA[GTValues.MV],
+        outputs: ['gtceu:mv_field_generator'],
+        layers: [
+            { items: ['minecraft:ender_eye', '2x #forge:plates/aluminium'], duration: 300 },
+            { items: ['2x #gtceu:circuits/mv', '4x gtceu:magnesium_diboride_quadruple_wire'], duration: 300 },
+        ],
+    })
+
+    // HV
+    staged('af9:staged_hv_conveyor', {
+        eu: VA[GTValues.HV],
+        outputs: ['gtceu:hv_conveyor_module'],
+        layers: [
+            { items: ['2x gtceu:hv_electric_motor', 'gtceu:gold_single_cable'], duration: 100 },
+            { items: ['6x #forge:plates/rubber'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_hv_pump', {
+        eu: VA[GTValues.HV],
+        outputs: ['gtceu:hv_electric_pump'],
+        layers: [
+            { items: ['gtceu:hv_electric_motor', 'gtceu:gold_single_cable', 'gtceu:stainless_steel_normal_fluid_pipe'], duration: 100 },
+            { items: ['#forge:screws/steel', '#forge:rotors/steel', '2x #forge:rings/rubber'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_hv_piston', {
+        eu: VA[GTValues.HV],
+        outputs: ['gtceu:hv_electric_piston'],
+        layers: [
+            { items: ['gtceu:hv_electric_motor', '2x #forge:rods/stainless_steel', '2x gtceu:gold_single_cable'], duration: 100 },
+            { items: ['3x #forge:plates/stainless_steel', '#forge:small_gears/stainless_steel'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_hv_arm', {
+        eu: VA[GTValues.HV],
+        outputs: ['gtceu:hv_robot_arm'],
+        layers: [
+            { items: ['2x gtceu:hv_electric_motor', '2x #forge:rods/stainless_steel', '3x gtceu:gold_single_cable'], duration: 150 },
+            { items: ['gtceu:hv_electric_piston', '#gtceu:circuits/hv'], duration: 150 },
+        ],
+    })
+    staged('af9:staged_hv_emitter', {
+        eu: VA[GTValues.HV],
+        outputs: ['gtceu:hv_emitter'],
+        layers: [
+            { items: ['4x #forge:rods/chromium', '2x gtceu:gold_single_cable'], duration: 100 },
+            { items: ['2x #gtceu:circuits/hv', 'minecraft:ender_eye'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_hv_sensor', {
+        eu: VA[GTValues.HV],
+        outputs: ['gtceu:hv_sensor'],
+        layers: [
+            { items: ['#forge:rods/chromium', '4x #forge:plates/stainless_steel'], duration: 100 },
+            { items: ['#gtceu:circuits/hv', 'minecraft:ender_eye'], duration: 100 },
+        ],
+    })
+    staged('af9:staged_hv_field', {
+        eu: VA[GTValues.HV],
+        outputs: ['gtceu:hv_field_generator'],
+        layers: [
+            { items: ['gtceu:quantum_eye', '2x #forge:plates/stainless_steel'], duration: 300 },
+            { items: ['2x #gtceu:circuits/hv', '4x gtceu:mercury_barium_calcium_cuprate_quadruple_wire'], duration: 300 },
+        ],
+    })
 })

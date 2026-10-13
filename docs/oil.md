@@ -11,16 +11,38 @@ Code: `af9-core` `com.af9.core.space` (`OilRegolithBlock`, `AF9Space`, `Asteroid
 
 ```
 Oil Regolith (asteroid rock)
-  -> centrifuge, MV: 2 regolith -> 1,500 mB Impure Oil, sand, 25 % sulfur
+  -> centrifuge, MV: 2 regolith -> 1,800 mB Impure Oil, sand, 25 % sulfur
 Impure Oil (black and brown)
-  -> chemical reactor, MV: 1,000 mB + 100 mB sulfuric acid -> 900 mB Shiny Oil, 100 mB diluted sulfuric acid
+  -> chemical reactor, MV: 1,000 mB + 100 mB sulfuric acid -> 950 mB Shiny Oil, 100 mB diluted sulfuric acid
 Shiny Oil (amber, with glints running over it)
-  -> distillation tower, MV: 1,000 mB -> 600 mB Oil, 300 mB Heavy Oil, 15 % sulfur
-Oil, Heavy Oil: GT's own (its refining goes on as it always did)
+  -> mixer, MV (the desalter): 1,000 mB + 100 mB distilled water -> 1,000 mB Desalted Oil, salt
+Desalted Oil (deep olive, animated)
+  -> distillation tower, HV (atmospheric): 1,000 mB -> 150 mB refinery gas, 250 mB naphtha,
+     200 mB diesel, 200 mB Oil, 200 mB Heavy Oil
+Heavy Oil -> distillation tower, EV (vacuum): 1,000 mB -> 300 mB diesel, 400 mB lubricant, asphalt
+Heavy Oil + hydrogen -> cracker, HV (hydrocracking): 1,000 + 800 mB -> 1,000 mB diesel, 150 mB hydrogen sulfide
+Hydrogen sulfide + oxygen -> chemical reactor, MV (Claus): 2,000 + 1,000 mB -> 2 sulfur, 2,000 mB water
+Asphalt + steam -> pyrolyse oven, HV (coker): 1 dust + 1,000 mB -> coke, 400 mB refinery gas
+Oil, Heavy Oil, naphtha, diesel: GT's own (its refining goes on as it always did)
 ```
 
-Impure Oil and Shiny Oil have their own animated textures (`kubejs/assets/gtceu/textures/block/fluids/fluid.impure_oil.png` and
-`fluid.shiny_oil.png`, 16 frames, generated offline). GT draws them untinted (`customStill().disableColor()`).
+Per 1,000 mB of Shiny Oil the old line made 600 Oil + 300 Heavy Oil. The new line makes
+150 gas + 250 naphtha + 200 diesel + 200 oil + 200 heavy, and the heavy ends convert on:
+200 heavy crack to 200 diesel, or vacuum-distill to 60 diesel + 80 lube stock + asphalt,
+which cokes to coke + fuel gas. Hydrogenation adds mass, so the line pays better the further
+it is built out.
+
+Impure, Shiny and Desalted Oil have their own animated textures (`kubejs/assets/gtceu/textures/block/fluids/fluid.impure_oil.png`,
+`fluid.shiny_oil.png` and `fluid.desalted_oil.png`, 16 frames, generated offline).
+GT draws them untinted (`customStill().disableColor()`).
+
+### Passive by design
+
+No step needs a hand: every input is piped (water, distilled water, hydrogen, oxygen, steam,
+sulfuric acid), the hydrocracker keeps its set-once circuit, and
+every byproduct loops somewhere — salt to the brine line, sulfur back to acid, refinery gas
+to shiny diesel (`diesel.js` hydrotreating), coke and asphalt to burn (asphalt burns like coke,
+3,200 ticks). Two towers (atmospheric + vacuum) and the loop runs itself.
 
 ## 2. Oil Regolith
 

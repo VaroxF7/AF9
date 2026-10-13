@@ -669,7 +669,7 @@ af9:molecular_sieve (wet) 4x zeolite_dust + bentonite_dust + 500 distilled_water
 
 Structure (§18.8): 3 × 3 × 6 of plascrete, plascrete pipe casings (dispense lines), a stainless-steel gearbox (spin chuck), heatproof casing (hotplate), plascrete filter casings, cleanroom glass; hatches (maximums): 2 item in, 2 item out, 2 energy, 6 fluid in, 2 fluid out, 1 parallel hatch, 1 maintenance.
 
-Waste: `af9:recover_resist_solvent` (`fab_fractionation`, HV, clean room): 1000 `spent_resist_solvent` → **600 PGMEA** + 1 carbon dust: 60 % comes back, never all of it.
+Waste: `af9:recover_resist_solvent` (`fab_fractionation`, HV, clean room): 1000 `spent_resist_solvent` → **600 PGMEA** + 1 spent filter cake (burns like coal): 60 % comes back, never all of it.
 
 ## 6.6 Step 3 — Print wafers (Photolithography Line, Orbital Lithography Station)
 

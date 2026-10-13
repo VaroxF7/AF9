@@ -24,9 +24,30 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     event.create('fx1_reactor')
         .category('multiblock')
         .setEUIO('in')
-        .setMaxIOSize(1, 1, 2, 2)
+        .setMaxIOSize(2, 2, 2, 2)
         .setProgressBar(GuiTextures.PROGRESS_BAR_BOILER_HEAT, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.BOILER)
+    // the hot-fuels type of the Mk2: MOX-3 and MOX-4 cycles
+    event.create('fx2_reactor')
+        .category('multiblock')
+        .setEUIO('in')
+        .setMaxIOSize(2, 2, 2, 2)
+        .setProgressBar(GuiTextures.PROGRESS_BAR_BOILER_HEAT, FillDirection.LEFT_TO_RIGHT)
+        .setSound(GTSoundEntries.BOILER)
+    // cooling decladding: spent rods and water in, decladded dusts out
+    event.create('spent_fuel_pool')
+        .category('multiblock')
+        .setEUIO('in')
+        .setMaxIOSize(1, 4, 1, 0)
+        .setProgressBar(GuiTextures.PROGRESS_BAR_BATH, FillDirection.LEFT_TO_RIGHT)
+        .setSound(GTSoundEntries.BATH)
+    // dusts straight to clad rods in one passive step
+    event.create('fuel_fabrication')
+        .category('multiblock')
+        .setEUIO('in')
+        .setMaxIOSize(3, 1, 1, 0)
+        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+        .setSound(GTSoundEntries.ASSEMBLER)
 })
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
@@ -63,4 +84,88 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .build())
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_stable_titanium',
             'gtceu:block/multiblock/fusion_reactor')
+
+    // ---- The FX-2 Reactor: the Mk2, same 5 x 5 x 5 hall, for the hot MOX-3/MOX-4 fuels ----
+    // Turned from the Mk1 controller (server fission_fuels.js); runs only the fx2_reactor type.
+    event.create('fx2_reactor', 'multiblock')
+        .machine(holder => new $Fx1Reactor(holder))
+        .rotationState(RotationState.NON_Y_AXIS)
+        .recipeTypes([GTRecipeTypes.get('fx2_reactor')])
+        .recipeModifiers([GTRecipeModifiers.OC_NON_PERFECT])
+        .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
+        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3].map(i =>
+            Component.translatable(`af9.fx2_reactor.tooltip.${i}`)))
+        .pattern(definition => FactoryBlockPattern.start($Fx1Direction.LEFT, $Fx1Direction.UP, $Fx1Direction.BACK)
+            .aisle('CCCCC', 'CCCCC', 'CCSCC', 'CCCCC', 'CCCCC') // front with the controller
+            .aisle('CCCCC', 'CHHHC', 'CHPHC', 'CHHHC', 'CCCCC')
+            .aisle('CCCCC', 'CHPHC', 'CP#PC', 'CHPHC', 'CCCCC') // the core
+            .aisle('CCCCC', 'CHHHC', 'CHPHC', 'CHHHC', 'CCCCC')
+            .aisle('CCCCC', 'CCCCC', 'CCCCC', 'CCCCC', 'CCCCC') // back
+            .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
+            .where('C', Predicates.blocks(GTBlocks.CASING_TITANIUM_STABLE.get())
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(3, 2))
+                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(4, 2))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
+            .where('H', Predicates.blocks(GTBlocks.CASING_INVAR_HEATPROOF.get()))       // the core's shell
+            .where('P', Predicates.blocks(GTBlocks.CASING_TITANIUM_PIPE.get()))         // the coolant channels
+            .where('#', Predicates.air())                                               // the fuel rod
+            .build())
+        .workableCasingModel('gtceu:block/casings/solid/machine_casing_stable_titanium',
+            'gtceu:block/multiblock/fusion_reactor')
+
+    // ---- Spent Fuel Pool: cooling decladding for every spent rod, the passive bulk path ----
+    event.create('spent_fuel_pool', 'multiblock')
+        .machine(holder => new $Fx1Reactor(holder))
+        .rotationState(RotationState.NON_Y_AXIS)
+        .recipeTypes([GTRecipeTypes.get('spent_fuel_pool')])
+        .recipeModifiers([GTRecipeModifiers.OC_PERFECT])
+        .appearanceBlock(GTBlocks.CASING_STAINLESS_CLEAN)
+        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2].map(i =>
+            Component.translatable(`af9.spent_fuel_pool.tooltip.${i}`)))
+        .pattern(definition => FactoryBlockPattern.start()
+            .aisle('XXX', 'XXX', 'XXX', 'XXX')
+            .aisle('XXX', 'X#X', 'X#X', 'XXX')
+            .aisle('XSX', 'X#X', 'X#X', 'XXX')
+            .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
+            .where('X', Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get())
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
+            .where('#', Predicates.air())
+            .build())
+        .workableCasingModel('gtceu:block/casings/solid/machine_casing_clean_stainless_steel',
+            'gtceu:block/multiblock/large_chemical_reactor')
+
+    // ---- Fuel Fabrication Bay: dusts straight to clad rods and blankets, one passive step ----
+    event.create('fuel_fabrication_bay', 'multiblock')
+        .machine(holder => new $Fx1Reactor(holder))
+        .rotationState(RotationState.NON_Y_AXIS)
+        .recipeTypes([GTRecipeTypes.get('fuel_fabrication')])
+        .recipeModifiers([GTRecipeModifiers.OC_PERFECT])
+        .appearanceBlock(GTBlocks.CASING_STAINLESS_CLEAN)
+        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2].map(i =>
+            Component.translatable(`af9.fuel_fabrication_bay.tooltip.${i}`)))
+        .pattern(definition => FactoryBlockPattern.start()
+            .aisle('XXX', 'XXX', 'XXX', 'XXX')
+            .aisle('XXX', 'X#X', 'X#X', 'XXX')
+            .aisle('XSX', 'X#X', 'X#X', 'XXX')
+            .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
+            .where('X', Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get())
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
+            .where('#', Predicates.air())
+            .build())
+        .workableCasingModel('gtceu:block/casings/solid/machine_casing_clean_stainless_steel',
+            'gtceu:block/multiblock/assembly_line')
 })

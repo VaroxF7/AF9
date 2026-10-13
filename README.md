@@ -180,8 +180,7 @@ GT rocket (gregified parts, Aluminised Hydrolox) → Ceres → Asteroid Field (a
 ```
 
 - **The field:** seed-fixed clusters (island + 12–24 satellites, ~7.2 clusters/km²), andesite/tuff/
-  basalt/blackstone so GT ore blocks grow in-rock at every height; **ancient temples** (shrine/temple/
-  grand temple, loot `af9:chests/ancient_*`) in ~76% of clusters; ~9% brannerite + pentlandite,
+  basalt/blackstone so GT ore blocks grow in-rock at every height; ~9% brannerite + pentlandite,
   magnetite, cooperite by world-position noise.
 - **Rockets, gregified:** every part and rocket is a GT machine recipe (T1–T2 assembler, T3–T4 Assembly
   Line with scanner research). T2 (titanium/ASIC) reaches Ceres; propellant is 2 recipes from 4 base
@@ -221,7 +220,7 @@ Full spec: [`docs/space-elevator.md`](docs/space-elevator.md). Structure block-f
 
 - **Tower:** 35×35×43, 2,711 blocks (extended ring 47×47, +12 module slots); motors MK-I…V power
   6/12/15/18/24 module slots; each module flies one expedition, overclocked like any GT machine (more modules, more expeditions); cable must see sky;
-  animated cable (512 blocks) + climber rides on formation and every 100 s while online.
+  animated hologram-helix cable (512 blocks) + climber rides on formation and every 100 s while online.
 - **Ore missions** (`gtceu:space_mining`): drone (not consumed) + hydrogen + supercooled coolant +
   full EU/t for minutes → **8–48 stacks of raw ore per expedition**, all expeditions of a run to the
   *same* drawn asteroid (vein weighted by GT weight; tier-gated by drone; Mk-IV draws the exotic
@@ -389,6 +388,10 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 - [Lesolite](docs/lesolite.md) — the EV SMD mineral, Moon blob vein beside artemite
 - [ECRW](docs/ecrw.md) — the evaporation pond (salt water to salt), spinning rake arm
 - [Early game](docs/early-game.md) — Create circuits (LV, MV), HV components in Powah's Energizing Orb
+- [Lithium brine](docs/lithium-brine.md) — salar water to LiCl, carbonate, hydroxide, oxide, LiPF6 (MV–LuV)
+- [Water filtration](docs/water-filtration.md) — skimmer basin: water, brine, desalination, wastewater cleaning
+- [Supersymmetry review](docs/supersymmetry.md) — what the realistic-chemistry pack does, chain lengths, fact-check, AF9 takeaways
+- [Atmospheric simulation](docs/atmospheric-simulation.md) — Lunar-air room: suit damage, XPS/NVM circuits
 - [Review findings](docs/review-findings.md) — what the lint found
 - [AF9 Core](af9-core/README.md) — Java class map
 - [Lint](tools/lint/README.md) — checker usage

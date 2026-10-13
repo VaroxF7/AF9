@@ -65,10 +65,14 @@ assembler and crafting-table circuits take electron tubes too.
 The parts are the circuit assembler's own (`circuits_af9.js`), so nothing new is asked of the player: only where the work
 is done changes.
 
-## 2. HV components in Powah's Energizing Orb
+## 2. HV components back in the assembler (the orb shapes parts now)
 
-From HV on, a component is a pile of parts: a motor is nine items. Powah's orb takes one item per slot, so AF9 Core
-patches it and adds a Mk2 with a screen:
+From HV on, a component is a pile of parts: a motor is nine items. Those used to go through
+Powah's orb one stack a slot; now they go through GT's assembler again, at GT's own cost in
+parts and EU (motors themselves are built in the assembler from housings, rotors and stators,
+`kubejs/server_scripts/mods/gtceu/motors.js`; GT's old motor recipes are gone up to IV).
+Powah's orb takes one item per slot, so AF9 Core patches it and adds a Mk2 with a screen,
+which now shapes GT parts instead of building components:
 
 - a recipe's ingredient may say `"count": 4`; the orb then wants four of it in a slot (up to a stack) and takes exactly
   that many when the craft is done (a surplus stays in the slot);
@@ -88,23 +92,10 @@ Powah's own orb and its recipes (one of each) are not changed. A recipe with a c
 something) runs in the **Mk2 only**: a plain orb holding the same parts finds no recipe. In JEI the Mk2 is a catalyst of
 Powah's energizing category, so those recipes are listed under it.
 
-| component | in the orb (HV) | GT's assembler recipe |
-|---|---|---|
-| conveyor | 2 HV motors, gold cable, 6 rubber plates, dielectric paste | the same, without the paste |
-| pump | HV motor, gold cable, stainless pipe, steel screw, steel rotor, 2 rubber rings | the same |
-| piston | HV motor, 2 stainless rods, 2 gold cables, 3 stainless plates, small stainless gear, energized steel | the same, without the energized steel |
-| robot arm | 2 HV motors, HV piston, HV circuit, 3 gold cables, 2 stainless rods, energized steel | the same, without the energized steel |
-| emitter | 4 chromium rods, 2 gold cables, 2 HV circuits, ender eye | the same |
-| sensor | chromium rod, 4 stainless plates, HV circuit, ender eye | the same |
-| field generator | quantum eye, 2 stainless plates, 2 HV circuits, 4 mercury barium calcium cuprate quadruple wires | the same |
-
-Each takes everything GT's assembler takes, in the same amounts: the orb is not a cheaper way to make a component. The
-conveyor, piston and arm also take a Powah material (energized steel: iron and gold in the orb; dielectric paste)
-as the glue where a slot is left (the orb has six, the pump fills them). The motors themselves are built in the
-assembler from housings, rotors and stators (`kubejs/server_scripts/mods/gtceu/motors.js`); GT's old motor recipes are
-gone up to IV. What the orb saves is **power**: the charge is
-256,000 RF for a conveyor or pump up to 1,280,000 RF for the field generator; it scales with the rods around the orb (Powah's own rule), so more
-rods, a shorter wait. Powah's config ratio for energizing scales these like its own recipes.
+What the orb still is: the pack's shaper. An extruder mold in one slot (it stays) and the material
+in the other, at GT's ratios and a flat charge, for rods, bolts, screws, gears, small gears and
+rotors of every material (tags, so every mod's parts work). No molds tied up in extruders, no
+second factory for components anymore.
 
 ### Notes for changing it
 
@@ -126,7 +117,5 @@ rods, a shorter wait. Powah's config ratio for energizing scales these like its 
   whole steam-age-on-Create summary (glass spout, coke, steel, bronze, rubber, no steam machines).
 - **Circuits** chapter: new item quests for the &fglass tube&r (before the vacuum tube) and the &eelectron tube&r
   (between the vacuum tube and the basic circuit); the basic circuit now depends on the electron tube.
-- **High Voltage** chapter, a branch under "HV Circuit Metals": "Components in the Orb" (the Mk2 orb and a rod), "Energized
-  Steel", "The Motor, Faster", "Piston, Pump and Conveyor", "Robot Arm" and "Emitter, Sensor, Field Generator". The
-  existing emitter quest names the orb recipe too.
+- **High Voltage** chapter, a branch under "HV Circuit Metals": "Components in the Orb" (the Mk2 orb and a rod), "The Motor, Faster", "Piston, Pump and Conveyor", "Robot Arm" and "Emitter, Sensor, Field Generator" — all assembler crafts now, at GT's cost.
 - The texts are `af9.quest.mv.create.*`, `af9.quest.hv.*` in `kubejs/assets/kubejs/lang/en_us.json`.

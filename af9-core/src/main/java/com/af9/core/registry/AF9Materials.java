@@ -83,6 +83,7 @@ public final class AF9Materials {
         fabChemistry();
         fusionPlasmas();
         lithoProcess();
+        lithiumBrine();
         oil();
         planetMetals();
         particleAccelerator();
@@ -92,7 +93,11 @@ public final class AF9Materials {
         quantanium();
         solders();
         uhvSuperconductor();
+        starMatterSteel();
+        bioCultures();
+        vitrifiedWaste();
         motorParts();
+        waterFiltration();
     }
 
     private static Material.Builder material(String id) {
@@ -137,12 +142,13 @@ public final class AF9Materials {
      * Fusion power: the plasmas of GTNH's fusion reactions that GT has no plasma for. GT gives eight elements a plasma
      * (helium, nitrogen, oxygen, argon, iron, tin, nickel, americium); GTNH's reactor also fuses sulfur, calcium, zinc,
      * niobium, silver, bismuth, radon, lead, thorium and plutonium-241 plasma, which the plasma turbines burn.
+     * Carbon's plasma is the DTPF's nano-particle feed, osmium's the forge's heater fuel: neither burns in a turbine.
      * Recipes and fuel values: fusion_power.js. Spec: docs/fusion-power.md
      */
     private static void fusionPlasmas() {
         for (Material element : new Material[] { GTMaterials.Sulfur, GTMaterials.Calcium, GTMaterials.Zinc,
                 GTMaterials.Niobium, GTMaterials.Silver, GTMaterials.Bismuth, GTMaterials.Radon, GTMaterials.Lead,
-                GTMaterials.Thorium, GTMaterials.Plutonium241 }) {
+                GTMaterials.Thorium, GTMaterials.Plutonium241, GTMaterials.Carbon, GTMaterials.Osmium }) {
             FluidProperty fluid = element.getProperty(PropertyKey.FLUID);
             if (fluid == null) {
                 // sulfur and calcium have no fluid of their own: their plasma is their only one, like the quark
@@ -213,6 +219,21 @@ public final class AF9Materials {
                 .liquid()
                 .color(0x7a9a2e)
                 .formula("(U,Pu)(NO3)x"));
+        // MOX reprocessing runs its own dust and solution (plutonium-rich, minor actinides in it)
+        add(material("irradiated_mox")
+                .dust()
+                .color(0x5a6a1e).secondaryColor(0xa8ff4c)
+                .iconSet(MaterialIconSet.RADIOACTIVE)
+                .formula("(U,Pu,MA)O2")
+                .radioactiveHazard(1.8F));
+        add(material("spent_mox_solution")
+                .liquid()
+                .color(0x8aaa34)
+                .formula("(U,Pu,MA)(NO3)x"));
+        // Dissolver off-gas: volatile fission gases (Kr, Xe) swept out with the acid fumes
+        add(material("fission_off_gas")
+                .gas()
+                .color(0xaac4e0));
 
         // ---- The reactor's coolant circuit ----
         // The coolant is GT's own sodium-potassium alloy (NaK, liquid at room temperature). It carries the heat out of
@@ -597,6 +618,26 @@ public final class AF9Materials {
     }
 
     /**
+     * Lithium brine, after the salars of the Andes (and Mekanism's and old GT's brine): salt water is pumped,
+     * evaporated until halite, sylvite and borax drop out, limed and carbonated to lithium chloride, then built
+     * into carbonate (the battery precursor), hydroxide (the cathode precursor), oxide (ceramics), fluoride and
+     * hexafluorophosphate (the Li-ion electrolyte salt). GT's own electrolyzer splits the chloride to lithium
+     * metal, which the SAW filters' lithium niobate is cut from. Recipes: lithium_brine.js (MV to LuV).
+     * Spec: docs/lithium-brine.md
+     */
+    private static void lithiumBrine() {
+        // Raw salar brine and its evaporation-pond concentrate: mixtures, so no formulas (and no GT shortcuts)
+        liquid("lithium_brine", 0x7fd4c1);
+        liquid("concentrated_lithium_brine", 0x2fa386);
+        // The battery trio and the electrolyte pair
+        dust("lithium_carbonate", 0xf2f2f2, "Li2CO3");
+        dust("lithium_hydroxide", 0xe9e9e9, "LiOH");
+        dust("lithium_oxide", 0xe2e2e2, "Li2O");
+        dust("lithium_fluoride", 0xf5f5f5, "LiF");
+        dust("lithium_hexafluorophosphate", 0xe4efff, "LiPF6");
+    }
+
+    /**
      * The Moon's silicon: Artemite, the lunar borate that dopes the first silicon boules, Tranquillite, the lunar
      * silicate behind the MV bond-wire alloy, and the Moon Sand chain
      * behind every polysilicon. Artemite and Tranquillite generate only on the Moon (vein_moon.js); Moon Sand is blended from sand
@@ -677,7 +718,8 @@ public final class AF9Materials {
     }
 
     /**
-     * The new oil: the fluids of the chain Oil Regolith, Impure Oil, Shiny Oil, Oil and Heavy Oil, and Heavy Water.
+     * The new oil: the fluids of the chain Oil Regolith, Impure Oil, Shiny Oil, Desalted Oil, Oil and
+     * Heavy Oil, Asphalt vacuum bottoms, and Heavy Water.
      * The regolith block is {@link com.af9.core.space.OilRegolithBlock}, grown in the Asteroid Field's rock. Recipes:
      * oil.js, vein_oil.js. Spec: docs/oil.md
      */
@@ -692,6 +734,14 @@ public final class AF9Materials {
         add(material("shiny_oil")
                 .liquid(new FluidBuilder().customStill().disableColor())
                 .color(0xb87a1a));
+
+        // Desalted Oil: the salt wash leaves a deep olive crude (fluid.desalted_oil.png, animated)
+        add(material("desalted_oil")
+                .liquid(new FluidBuilder().customStill().disableColor())
+                .color(0x4a5a1a));
+
+        // Asphalt: the vacuum bottoms, a near-black rough dust. Coked to coke and fuel gas, or burned as is
+        roughDust("asphalt", 0x1f1a14, "(C)n");
 
         // Heavy Water: D2O, from the Asteroid Field's deposits (GT has deuterium, no heavy water)
         add(material("heavy_water")
@@ -954,6 +1004,39 @@ public final class AF9Materials {
     }
 
     /**
+     * Vitrified waste: minor actinides and fission products locked in glass, permanently safe.
+     * The end of the reprocessing line (fission_fuels.js): nothing voided, everything accounted.
+     */
+    private static void vitrifiedWaste() {
+        roughDust("vitrified_waste", 0x3a4a3a, "(SiO2)(PbO)");
+    }
+
+    /**
+     * Bacterial cultures for the Water Filtration Plant's LuV/ZPM biosorption modes: biochaff fed
+     * to the Bacteria Breeding Station grows the LuV culture, which feeds the ZPM one. Mixtures, so
+     * no formulas (and no GT shortcuts). Recipes: bacteria_breeding.js, water_filtration.js.
+     * Spec: docs/water-filtration.md
+     */
+    private static void bioCultures() {
+        liquid("bacteria_culture", 0x4a9a3d);
+        liquid("enriched_bacteria_culture", 0x2a7a4d);
+    }
+
+    /**
+     * Star Matter Plasma Steel: the circuit-board steel of NVM. Star matter plasma and steel are forged
+     * together in the Plasma Forge, but what comes out is a superstate: a plasma, not a metal. The
+     * Plasma Transformer (XPS) condenses it to plates. No components and no blast property, so GT derives
+     * nothing past the two recipes (dtpf.js, plasma_transformer.js).
+     */
+    private static void starMatterSteel() {
+        add(material("star_matter_plasma_steel")
+                .ingot().fluid().plasma()
+                .color(0xdff4ff).iconSet(MaterialIconSet.METALLIC)
+                .flags(MaterialFlags.GENERATE_PLATE)
+                .formula("(Fe)(StM)"));
+    }
+
+    /**
      * Soldering alloys: the pack's own solders beyond GT's tin and soldering alloy. Recipes: solders.js (production),
      * circuits_af9.js (HV-UV full replacement + wetware), plasma_soldering (UHV atomic soldering in the Orbital Array
      * Mk2). Spec: docs/solders.md
@@ -1049,5 +1132,14 @@ public final class AF9Materials {
                         MaterialFlags.GENERATE_BOLT_SCREW, MaterialFlags.GENERATE_RING)
                 .blastTemp(3000, GasTier.MID, GTValues.VA[GTValues.EV], 800)
                 .formula("(NbTi)(HSLA)"));
+    }
+
+    /**
+     * The Water Filtration Plant's waste: spent filter cake, the carbonaceous sludge every cleaning
+     * run cakes out (docs/water-filtration.md). It burns like coal (startup_scripts/af9_fuels.js sets
+     * its furnace burn time to 1600), so the cake is fuel or trash, never a dead end.
+     */
+    private static void waterFiltration() {
+        roughDust("filter_cake", 0x4a3b28, "(C)(H2O)");
     }
 }

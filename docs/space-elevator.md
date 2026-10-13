@@ -234,19 +234,20 @@ circuits and 4 neutronium plates.
 
 ## 4. The cable and the climber
 
-While the structure is formed, `SpaceElevatorRender` draws the upper part of the elevator (a GT dynamic render, `hasBER`), as GTNH draws its
-own (`gtnhintergalactic.render.RenderSpaceElevatorCable`, `TileEntitySpaceElevatorCable`). The numbers and the way it moves are GTNH's; **the
-model and the textures are not**: GTNH's climber is a model of its own (by Adam, textured by Jimbno), and AF9 ships none of GTNH's files.
-What is drawn here is made by hand, in code, after pictures of GTNH's.
+While the structure is formed, `SpaceElevatorRender` draws the upper part of the elevator (a GT dynamic render, `hasBER`). The
+climber follows GTNH's (`gtnhintergalactic.render.RenderSpaceElevatorCable`, `TileEntitySpaceElevatorCable`): its numbers
+and the way it moves are GTNH's; **the model and the textures are not**: GTNH's climber is a model of its own (by Adam,
+textured by Jimbno), and AF9 ships none of GTNH's files. What is drawn here is made by hand, in code, after pictures of
+GTNH's. The cable instead is AF9's own hologram helix.
 
-* **The cable**: a rope of four bands wound round each other (an octagon 0.9 across, a turn every 2.96 blocks, each band 0.75 high), from the
-  floor of the shaft (23 blocks under the Cable block, through the motors) **512 blocks** up, far past the world's top. A **blue light** runs
-  up it every three seconds and lights the lamps of the bands it passes. Further than 96 blocks from the camera the rope is drawn as a plain
-  eight-sided column. A band's tile is `assets/af9/textures/entity/space_elevator_strand.png`.
+* **The cable**: a hologram helix round the shaft's axis (radius 0.6, a turn every 6 blocks), from the
+  floor of the shaft (23 blocks under the Cable block, through the motors) **512 blocks** up, far past the world's top,
+  scrolling upward forever in nearly transparent additive light (alpha ~0.3 with a gentle pulse). Travelling scanline
+  gaps run up it with the scroll and both ends fade out; a faint projector beam stands up its middle at half the light.
 * **The climber**: a wheel round the cable (radius 6.2, dark, blue on top, gold underneath) with a hub and four spokes; a white pod stands
   on the end of three of them, a rack of six blue tanks hangs on the fourth, close by the wheel: about 23 blocks across. Its colours are cells
   of a 4 x 4 palette texture (`space_elevator.png`). It rests **50 blocks above the Cable block** (100 where that would be under y 100).
-* Both are drawn at full brightness (as GTNH's), from 288 blocks away, level, and whether or not the controller is on the screen
+* The hologram draws in additive light (the climber at full brightness), from 288 blocks away, level, and whether or not the controller is on the screen
   (`shouldRenderOffScreen`: a block entity is otherwise only drawn with its own chunk section, and looking up at the climber the
   controller is out of view).
 

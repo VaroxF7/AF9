@@ -65,8 +65,6 @@ af = root / 'af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java
 af.write_text(af.read_text(encoding='utf-8').replace('Blocks.TUFF.defaultBlockState()', 'Blocks.SMOOTH_BASALT.defaultBlockState()', 1), encoding='utf-8')   # X4: a rock the ore layer does not know
 ob = root / 'af9-core/src/main/java/com/af9/core/machine/OrbitalLithographyMachine.java'
 ob.write_text(ob.read_text(encoding='utf-8').replace('solid(up)', 'up', 1), encoding='utf-8')   # P1: a preview page that can carry null cells
-lt = root / 'af9-core/src/main/resources/data/af9/loot_tables/chests/ancient_temple.json'
-lt.write_text(lt.read_text(encoding='utf-8').replace('gtceu:raw_brannerite', 'gtceu:raw_brannerit', 1), encoding='utf-8')   # X4: an item in a loot table that does not exist
 # --- docs: a path that is gone, a section that does not exist
 readme = root / 'README.md'
 readme.write_text(readme.read_text(encoding='utf-8') + '\nSee `kubejs/startup_scripts/gtceu/selftest_gone.js` and §99.1.\n', encoding='utf-8')
