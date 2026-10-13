@@ -38,14 +38,17 @@ The controller is in the front wall, two up (the face is GTNH's DTPF overlay). T
 |---|---|---|
 | `af9:dtpf/strange_matter_plasma` | 8 strange matter dust, 2,000 mB Endion | 2,000 mB strange matter plasma |
 | `af9:dtpf/chromodynium_plasma` | 4 chromodynium dust, 4,000 mB Endion | 2,000 mB chromodynium plasma |
+| `af9:dtpf/carbon_plasma` | 8 carbon dust, 2,000 mB Endion | 2,000 mB carbon plasma |
 | `af9:dtpf/idontknowium_plasma` | 2,000 mB star matter plasma, 2,000 mB anti-matter plasma (the Mega Fusion Reactor's both) | 1,000 mB Idontknowium Plasma (12,000 K) |
+| `af9:dtpf/star_matter_plasma_steel_plasma` | 4 steel ingots, 1,000 mB star matter plasma | 1,000 mB Star Matter Plasma Steel plasma (superstate) |
+| `af9:dtpf/nano_particles` | 1,000 mB carbon plasma, magnetic trap kept | 4 nano particles (optical assembly) |
 | `af9:dtpf/chromodynium_plates` | 2,000 mB chromodynium plasma | 6 chromodynium plates (4 dust: 1.5x) |
 | `af9:dtpf/tritanium_plates` | 4 tritanium ingots, 500 mB strange matter plasma | 6 tritanium plates |
 | `af9:dtpf/neutronium_plates` | 4 neutronium ingots, 1,000 mB strange matter plasma | 6 neutronium plates |
 
 The plasmas are AF9 Core's fluids `gtceu:strange_matter_plasma`, `gtceu:chromodynium_plasma`,
 `gtceu:anti_matter_plasma` and `gtceu:idontknowium_plasma` (`.plasma()` on the
-materials). Two are ionised here from their dust; **Anti Matter Plasma is not**: the Mega Fusion Reactor fuses it
+materials), plus carbon plasma (`.plasma()` on GT's carbon, ionised here for nano particles). Two are ionised here from their dust; **Anti Matter Plasma is not**: the Mega Fusion Reactor fuses it
 from 4,000 mB niobium plasma, 4,000 mB sulfur plasma and 4,000 mB nickel plasma (2,000 mB, UEV voltage,
 `fusion_reactor.js`), and the forge then forges it with 2,000 mB of star matter plasma into **Idontknowium Plasma**.
 The controller is made in AF9's Advanced Circuit Manufacturer (`af9:dtpf`, UHV on 300 A, 128 CWU/t, 60 s):

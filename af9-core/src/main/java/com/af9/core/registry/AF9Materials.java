@@ -93,6 +93,7 @@ public final class AF9Materials {
         quantanium();
         solders();
         uhvSuperconductor();
+        starMatterSteel();
         motorParts();
         waterFiltration();
     }
@@ -139,12 +140,13 @@ public final class AF9Materials {
      * Fusion power: the plasmas of GTNH's fusion reactions that GT has no plasma for. GT gives eight elements a plasma
      * (helium, nitrogen, oxygen, argon, iron, tin, nickel, americium); GTNH's reactor also fuses sulfur, calcium, zinc,
      * niobium, silver, bismuth, radon, lead, thorium and plutonium-241 plasma, which the plasma turbines burn.
+     * Carbon's plasma is the DTPF's nano-particle feed, not a fuel.
      * Recipes and fuel values: fusion_power.js. Spec: docs/fusion-power.md
      */
     private static void fusionPlasmas() {
         for (Material element : new Material[] { GTMaterials.Sulfur, GTMaterials.Calcium, GTMaterials.Zinc,
                 GTMaterials.Niobium, GTMaterials.Silver, GTMaterials.Bismuth, GTMaterials.Radon, GTMaterials.Lead,
-                GTMaterials.Thorium, GTMaterials.Plutonium241 }) {
+                GTMaterials.Thorium, GTMaterials.Plutonium241, GTMaterials.Carbon }) {
             FluidProperty fluid = element.getProperty(PropertyKey.FLUID);
             if (fluid == null) {
                 // sulfur and calcium have no fluid of their own: their plasma is their only one, like the quark
@@ -982,6 +984,20 @@ public final class AF9Materials {
                         MaterialFlags.GENERATE_FINE_WIRE, MaterialFlags.GENERATE_FOIL)
                 .cableProperties(GTValues.VA[GTValues.UV], 4, 0, true)
                 .formula("(Nt2Ke5)"));
+    }
+
+    /**
+     * Star Matter Plasma Steel: the circuit-board steel of NVM. Star matter plasma and steel are forged
+     * together in the Plasma Forge, but what comes out is a superstate: a plasma, not a metal. The
+     * Plasma Transformer (XPS) condenses it to plates. No components and no blast property, so GT derives
+     * nothing past the two recipes (dtpf.js, plasma_transformer.js).
+     */
+    private static void starMatterSteel() {
+        add(material("star_matter_plasma_steel")
+                .ingot().fluid().plasma()
+                .color(0xdff4ff).iconSet(MaterialIconSet.METALLIC)
+                .flags(MaterialFlags.GENERATE_PLATE)
+                .formula("(Fe)(StM)"));
     }
 
     /**

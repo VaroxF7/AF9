@@ -129,6 +129,18 @@ public final class AF9Items {
         // AI Acceleration Card: TPU + memristor on a wetware board, traced in fine sanguinite wire
         // (circuits_af9.js, UHV); the compute card of the new DTPF (docs/dtpf.md).
         item("ai_acceleration_card", 64, 1);
+        // Interconnects: gold/electrum Leiterbahnen, one strip or a pallet of them. Made in the Advanced
+        // Circuit Manufacturer; the traces of everything from Pico to NVM (circuits later).
+        item("interconnect", 64, 1);
+        item("interconnect_pallet", 64, 1);
+        // Optical NVM parts: compatible RAM and CPU, nano particles, fiber interconnects and thin
+        // optical fiber glass cables (not GT's fat fibers). Items only for now; the Chromodynium
+        // circuits at NVM take them later.
+        item("optical_ram", 64, 1);
+        item("optical_cpu", 64, 1);
+        item("nano_particles", 64, 1);
+        item("fiber_interconnects", 64, 1);
+        item("optical_fiber_cable", 64, 1);
 
         // ---- Particle Accelerator ----
         item("beryllium_spallation_target", 64, 1);

@@ -161,6 +161,7 @@ item af9:feram_chip
 item af9:feram_euv_reticle
 item af9:feram_reticle
 item af9:feram_wafer
+item af9:fiber_interconnects
 item af9:fused_quartz_crucible
 item af9:fx_fuel_pellet
 item af9:fx_fuel_rod
@@ -176,6 +177,8 @@ item af9:ilc_reticle
 item af9:incomplete_circuit
 item af9:industrial_component_housing
 item af9:industrial_electric_motor_housing
+item af9:interconnect
+item af9:interconnect_pallet
 item af9:iv_motor_housing
 item af9:iv_rotor
 item af9:iv_stator
@@ -220,6 +223,7 @@ item af9:mv_stator
 item af9:nand_euv_reticle
 item af9:nand_psm_reticle
 item af9:nand_reticle
+item af9:nano_particles
 item af9:naquadah_melt_charge
 item af9:naquadah_seed_crystal
 item af9:naquadria_boule
@@ -235,6 +239,9 @@ item af9:nvm_processor
 item af9:nvm_processor_mainframe
 item af9:ochre_cloud
 item af9:oil_regolith
+item af9:optical_cpu
+item af9:optical_fiber_cable
+item af9:optical_ram
 item af9:organized_pico_circuit
 item af9:pale_cloud
 item af9:phase_shift_mask_blank
@@ -514,6 +521,7 @@ material gtceu:sodium_tert_butoxide
 material gtceu:spent_fuel_solution
 material gtceu:spent_piranha
 material gtceu:spent_resist_solvent
+material gtceu:star_matter_plasma_steel
 material gtceu:strange_matter
 material gtceu:sulfur_dichloride
 material gtceu:supercooled_argon
