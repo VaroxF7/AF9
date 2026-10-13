@@ -937,7 +937,7 @@
 				}
 			]
 			title: "{af9.quest.fx.thorium.title}"
-			x: 27.0d
+			x: 28.0d
 			y: 9.0d
 		}
 		{
@@ -970,7 +970,7 @@
 				}
 			]
 			title: "{af9.quest.fx.offgas.title}"
-			x: 27.0d
+			x: 28.0d
 			y: 6.0d
 		}
 		{

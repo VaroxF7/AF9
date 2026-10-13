@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AF9 Mega Moodboard — every feature the pack adds</title>
+<style>
+  :root{
+    --bg:#0e1218; --panel:#161c26; --panel2:#1c2431; --ink:#e8edf3;
+    --muted:#9aa7b8; --line:#2a3546; --mono:ui-monospace,"Cascadia Mono",Consolas,Menlo,monospace;
+    --ok:#7ee2a8; --warn:#ffd88a; --bad:#ff7a93; --info:#8ecae6;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background-image:linear-gradient(rgba(120,150,190,.05) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(120,150,190,.05) 1px,transparent 1px);
+    background-size:28px 28px;}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 20px 60px}
+  header.hero{border:1px solid var(--line);border-radius:14px;padding:26px 28px;
+    background:linear-gradient(135deg,#141b28,#101825 60%,#1a1430);}
+  header.hero h1{margin:0 0 4px;font-size:29px;letter-spacing:.5px}
+  header.hero h1 .thin{color:var(--muted);font-weight:400}
+  header.hero p{margin:6px 0;color:var(--muted);max-width:74ch}
+  header.hero code,.card code,.tier code,td code,li code{font-family:var(--mono);font-size:12.5px;color:#c9d6e5}
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .pill{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:3px 11px;color:var(--muted);background:#10161f}
+  .pill b{color:var(--ink)}
+  .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.6px;border-radius:6px;padding:1px 9px;vertical-align:1px;margin-right:6px}
+  .t-ok{background:#10241a;color:var(--ok);border:1px solid #1f4d33}
+  .t-prop{background:#241d10;color:var(--warn);border:1px solid #5a431f}
+  .t-check{background:#221d33;color:#c4b5fd;border:1px solid #453a6b}
+  .t-bug{background:#2b1218;color:var(--bad);border:1px solid #5c2230}
+  h2.sec{margin:34px 0 4px;font-size:20px;letter-spacing:.4px}
+  p.sub{margin:0 0 14px;color:var(--muted);font-size:13.5px;max-width:90ch}
+  .card{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:14px 16px;margin-top:12px}
+  .card h3{margin:0 0 8px;font-size:15px}
+  .card p{margin:6px 0;font-size:13.5px;color:#cfd8e3}
+  .card ol,.card ul{margin:6px 0;padding-left:20px;font-size:13.5px;color:#cfd8e3}
+  .card li{margin:5px 0}
+  table.audit{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+  table.audit th,table.audit td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  table.audit th{background:var(--panel2);font-size:12px;letter-spacing:.5px;color:var(--muted)}
+  table.audit td:first-child{font-family:var(--mono);font-size:12px;white-space:nowrap}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:860px){.grid2{grid-template-columns:1fr}}
+  footer{margin-top:30px;color:var(--muted);font-size:12.5px;border-top:1px solid var(--line);padding-top:14px}
+  @media print{body{background:#fff;color:#111}.card{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>AF9 Mega Moodboard <span class="thin">— every feature the pack adds, one page</span></h1>
+  <p>AF9 turns GregTech CEu Modern 7.5.3 (MC 1.20.1 / Forge) into a semiconductor factory with an asteroid
+  program on top: quartz → 1&nbsp;nm chips → the computation that feeds it all, plus fission, fusion,
+  off-world mining and the machines in between. Code lives in <code>af9-core/</code> (the mod),
+  <code>kubejs/</code> (machines + recipes), <code>config/ftbquests/</code> (19 chapters) and
+  <code>docs/*.md</code> (the deep specs).</p>
+  <div class="legend">
+    <span class="pill"><span class="tag t-ok">DONE</span>in repo, lint-clean</span>
+    <span class="pill"><span class="tag t-prop">IN BUILD</span>being worked on right now</span>
+    <span class="pill"><span class="tag t-check">NEXT</span>planned, not started</span>
+  </div>
+</header>
+
+<h2 class="sec">1 · Progression spine — what gates what</h2>
+<p class="sub">The order a world is meant to be played in. Moon ores moved MV wire (Al-Tq) and EV substrates (lesolite) off Earth.</p>
+<div class="card">
+  <table class="audit">
+    <tr><th>Stage</th><th>You build</th><th>It unlocks</th></tr>
+    <tr><td>Steam/LV</td><td>Create circuits, LV workshop, drop pod landing</td><td>steel, first machines</td></tr>
+    <tr><td>MV</td><td>quartz → polysilicon → Si boule → 350&nbsp;nm Line V1, CWU LV/MV, Coater Track, Staged Assembly hall</td><td>GT LV–MV chips; computation for research</td></tr>
+    <tr><td>HV</td><td>200&nbsp;nm (KrF), FX-1 fuel chain, Oil Regolith → oil, PGM matte, Powah orb components, void miner MK1</td><td>ASIC/MCU/APU; fission power; benzene/propene</td></tr>
+    <tr><td>EV</td><td>100&nbsp;nm (ArF dry), T1/T2 rockets → Moon (artemite, lesolite, tranquillite) → Ceres/Field, cryostat, HILE</td><td>naquadah circuits; brannerite; plasma solder path; AI card</td></tr>
+    <tr><td>IV–LuV</td><td>Scanner 80/65&nbsp;nm, T3–T4 rockets, Particle Accelerator, Advanced Circuit Manufacturer</td><td>e/m/FE-RAM, VPU, TPU path; Pico circuits</td></tr>
+    <tr><td>ZPM</td><td>Orbital Station (50&nbsp;nm), Space Elevator, Fusion Mk1 (Pu-241)</td><td>renewable ore; neutronium HASoC</td></tr>
+    <tr><td>UV–UHV</td><td>EUV 20/7&nbsp;nm, X-ray FEL 1&nbsp;nm in orbit, Sanguinite hearth, DTPF, Dyson Swarm</td><td>strange-matter / chromodynium nodes; endgame power + matter</td></tr>
+  </table>
+</div>
+
+<h2 class="sec">2 · Silicon &amp; circuits — the factory</h2>
+<p class="sub">Quartz to 1&nbsp;nm, and everything the chips are made of.</p>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Semiconductor factory — quartz → 1&nbsp;nm</h3>
+  <p>MG-Si → polysilicon (Moon Sand + Artemite dopant) → EBF boule melting → blank wafers → Coater Track →
+  lithography 350&nbsp;nm down to 1&nbsp;nm (Line / Scanner / Orbital Station) → cutter dies → circuits.
+  Nine substrates, AF9's own chips (RF, APU, MCU, ASIC, e/m/FE-RAM, VPU, TPU + six research families).</p>
+  <p><code>docs/semiconductor-factory.md</code> · <code>photolithography.js</code> + <code>litho_process.js</code> · <code>chip_uses.js</code> / <code>circuits_af9.js</code></p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Tranquillite &amp; Aluminium-Tranquillite — Al-Si rewritten</h3>
+  <p>Aluminium and silicon never belonged in one mixer: the MV bond-wire alloy is now aluminium + <b>Tranquillite</b>,
+  a sea-teal lunar silicate (Moon blob vein, weight 50 — the heaviest of the three Moon ores). All 5 MV wire inputs,
+  the mixer, both alloys quests and the docs moved over; zero <code>aluminium_silicon</code> references remain.</p>
+  <p><code>AF9Materials (moonSilicon + electronicsMetallurgy)</code> · <code>vein_moon.js</code> · <code>circuits_af9.js</code></p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Lesolite — the EV SMD mineral</h3>
+  <p>Amber lunar mineral beside artemite/tranquillite on the Moon (blob vein, weight 30). Furnace-smeltable,
+  formula-only so GT adds no shortcuts. Reserved for the EV SMD substrates — the SMD recipes taking it are still to come.</p>
+  <p><code>docs/lesolite.md</code> · <code>vein_moon.js</code> · void-miner Moon mode + elevator tier 1</p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Nichrome-Platinum alloy — new ACM controller frames</h3>
+  <p>Didn't exist in GT or AF9, so it was registered as one (1:1, frame-capable, EBF-melted, HV mixer) and the
+  Advanced Circuit Manufacturer controller now takes 4 frames of it.</p>
+  <p><code>AF9Materials</code> · <code>circuits_af9.js</code> · <code>advanced_circuit_manufacturer.js</code></p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Solders — high-grade, living, plasma (high-grade got a face)</h3>
+  <p>HV–UV run on high-grade solder (was plain white — now a custom satin-silver icon set with brushed streaks and a
+  whisper of bismuth iridescence, <code>tools/textures/solder.py</code>). Wetware grows living solder sterile;
+  UHV solders atom-by-atom with plasma solder in the Hyper-Intensity Laser Engraver.</p>
+  <p><code>docs/solders.md</code> · <code>solders.js</code> · <code>hile.js</code> (5×5×5, laser hatch on top)</p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Advanced Circuit Manufacturer + Pico circuits</h3>
+  <p>Genesis pack's circuit plant (17×5×5, UHV on 300&nbsp;A through the laser hatch, computation hatch) making
+  GTNH's Pico line: board → cleansed → CPU → organized circuit → casing → rack. The DTPF controller is built in it too.</p>
+  <p><code>advanced_circuit_manufacturer.js</code> ×2 · <code>circuits_af9.js §11</code></p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Staged Assembly + step detector + quest line</h3>
+  <p>3×3×4 steel-and-glass hall that builds recipes in stages (1–7 layers, ≤5 inputs each) and only ever accepts the
+  running stage's inputs — feed it step by step or gate feeders off the step detector cover (redstone = next step
+  number, 0 when done; screwdriver inverts). Own 6-quest chapter walks build → hand craft → detector → automation.</p>
+  <p><code>staged_assembly.js</code> ×2 · <code>StagedAssemblyMachine</code> · <code>staged_assembly.snbt</code> (ch. 19)</p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>AI Acceleration Card — the DTPF's compute card</h3>
+  <p>TPU + memristor on a wetware board traced in fine sanguinite wire; UHV circuit assembler, plasma solder,
+  cleanroom. Required by the new DTPF controller recipe.</p>
+  <p><code>circuits_af9.js §10</code> · <code>docs/dtpf.md §4</code></p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-check">NEXT</span>Lesolite SMD recipes + ECRW chem/bio lines</h3>
+  <p>SMD components taking lesolite foil; concentrated brines and broth reduction on the evaporation type.</p>
+</div>
+
+<h2 class="sec">3 · Power &amp; matter — fission to star-forging</h2>
+<p class="sub">Where the EU comes from, and what the endgame transmutes.</p>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Asteroid fission — uranium only from space</h3>
+  <p>T1–T4 gregified rockets (Aluminised Hydrolox) → Ceres → Asteroid Field brannerite → yellowcake → FX-1 Reactor
+  (5×5×5, EV, supercritical steam + NaK loop) → spent fuel → Pu-239/241 → Fusion Mk1. Old uranium closed everywhere.</p>
+  <p><code>docs/asteroid-fission.md</code> · <code>asteroid_fission.js</code> + <code>rockets.js</code> + <code>fusion_reactor.js</code></p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Fusion power — Mk1 to Mega</h3>
+  <p>GTNH's fusion plasmas in four steps (helium → … → plutonium-241), each a plasma-turbine fuel at GTNH value;
+  star matter burns, anti-matter fuses in the Mega and forges into Idontknowium in the DTPF.</p>
+  <p><code>docs/fusion-power.md</code> · <code>fusion_reactor.js</code></p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>DTPF — Dimensionally Transcendent Plasma Forge, re-gated</h3>
+  <p>37×29×37 industrial skeleton (own design, code-generated) with the running-time ramp (−50% EU/t, −25% time).
+  Controller rebuilt endgame-grade: 16× UHV circuits, UHV hull, 8× mk3 fusion casing, field gens, 4× AI cards,
+  32× qubit CPUs, 16× eDRAM, 8 stacks of sanguinite wire, plasma solder — in the Advanced Circuit Manufacturer.</p>
+  <p><code>docs/dtpf.md</code> · <code>dtpf.js</code> ×2</p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Dyson Swarm — GTNH Intergalactic, block for block</h3>
+  <p>Three sails (100/200/350%, up to 10,000 A of UHV) feeding a power plant for the UHV+ lines (100/300/1,000 A);
+  Dyson Output Hatch feeds a Power Substation directly, one swarm per star.</p>
+  <p><code>docs/dyson-swarm.md</code> · <code>dyson_swarm.js</code></p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Sanguinite — the UHV superconductor</h3>
+  <p>Blood-red lossless UV 4A wire: neutronium + tritanium dusts, H₂, Ares gas, LXA-1 → crude → Sanguinite Hearth
+  Furnace (6,000 K, helium-boosted) → vacuum freezer under supercooled hydrogen. The DTPF's 8 wire stacks.</p>
+  <p><code>docs/uhv-superconductor.md</code> · <code>uhv_superconductor.js</code></p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Quantanium — the UHV unlock ore</h3>
+  <p>Asteroid Field dike vein (weight 30, Mk-IV elevator + lean share); furnace-smeltable, so the gate is finding it.</p>
+  <p><code>docs/quantanium.md</code> · <code>vein_field.js</code></p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Platinum-group refinery + off-world oil</h3>
+  <p>Parallel higher-yield PGM line in GT's own machines (Pt 4 · Pd 3 · Au/Rh/Ru/Ir/Os 1 per batch). Overworld oil
+  off; Oil Regolith pockets + asteroid fluid deposits feed GT refining as usual.</p>
+  <p><code>docs/platinum-group-metals.md</code> · <code>docs/oil.md</code> · <code>platinum_group.js</code> · <code>oil.js</code></p>
+</div>
+
+<h2 class="sec">4 · Space &amp; mining — rockets, elevator, void miner, Moon</h2>
+<p class="sub">Going up, and bringing it all back down.</p>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Space Elevator — GTNH's renewable ore source</h3>
+  <p>35×35×43 tower (47×47 extended), 4 drone tiers flying ore expeditions (8–48 stacks, tier-gated asteroids) and
+  liquid missions incl. far-dark LXA-1. New Moon veins ride tier 1 automatically, weighted by their worldgen weights.</p>
+  <p><code>docs/space-elevator.md</code> · <code>space_elevator.js</code> ×2</p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Void Miner — four areas became five</h3>
+  <p>GT's miner rebuilt on AF9 recipe types (Overworld, Nether, End, Asteroids — tenfold ore, circuit-picked), MK2/MK3
+  towers from GTNH at 2×/3×. New <b>Moon mode</b> mines tranquillite (60×) and lesolite (30×) standing on the Moon at EV.</p>
+  <p><code>miner.js</code> · <code>void_mining.js</code> · <code>VoidMinerMachine(+MK2/MK3)</code> · <code>void_miner.snbt</code></p>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Moon trio — artemite, lesolite, tranquillite</h3>
+  <p>Three blob veins in one band (40–120, weights 45/30/50): the boule dopant, the EV SMD mineral, the bond-wire ore.
+  All drawn by every elevator drone and (lesolite, tranquillite) the new void-miner Moon mode.</p>
+  <p><code>vein_moon.js</code> · <code>docs/lesolite.md</code></p>
+</div>
+
+<h2 class="sec">5 · Machines &amp; systems — the supporting cast</h2>
+<p class="sub">Multiblocks, logistics and quality of life.</p>
+
+<div class="grid2">
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>ECRW — evaporation pond</h3>
+  <p>15×6×15 round pond (steel, glass waterline, drive pier, walkway) with a <b>3D-rendered rake arm</b> turning ~3 RPM
+  while it works. New <code>evaporation</code> type; first recipe salt water → salt + distilled. Chem/bio lines later.</p>
+  <p><code>docs/ecrw.md</code> · <code>ecrw.js</code> ×2 · <code>EvaporationWellMachine</code> + <code>EcrwArmRender</code></p>
+</div>
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>SMC fab family + Coater Track</h3>
+  <p>Chemistry / separation / electrochemistry / thermal multiblocks with changeover purges, built-in cleanrooms and
+  the coating line (prime → coat → bake, solvent distilled back).</p>
+  <p><code>fab_machines.js</code> · <code>fab_chemistry.js</code></p>
+</div>
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Particle Accelerator — 47×47 storage ring</h3>
+  <p>GTNH Compact-Fusion layout with a visible beam, three modes (neutrons, collisions incl. strange matter, quark
+  synthesis for plasma solder dust + quantanium).</p>
+  <p><code>particle_accelerator.js</code></p>
+</div>
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Supercooling Cryostat + coolants</h3>
+  <p>Dense → supercooled fluids (1 K) for coolant hatches, vacuum freezing and the cold chain behind Sanguinite.</p>
+  <p><code>cryogenics.js</code></p>
+</div>
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Computation — CWU servers</h3>
+  <p>LV→IV single-block optical computation providers (1–5 CWU/t) feeding Research Station, Orbital Station and
+  litho hatches; HPCA beyond.</p>
+  <p><code>docs/computation.md</code> · <code>cwu_server.js</code></p>
+</div>
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Wireless Energy + wafer contamination</h3>
+  <p>Substation transmitter → any multiblock receiver on data-stick channels. Wafers need gloves or a cleanroom —
+  or they're ruined (macerated to dust).</p>
+  <p><code>wireless_energy.js</code> · <code>WaferContamination</code></p>
+</div>
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Placeable fluids — cold liquids, bucketed</h3>
+  <p>21 curated cold GT liquids (water, oils, alcohols, aromatics, lube…) get liquid blocks + tinted buckets under
+  <code>af9:</code>, auto-registered after GTCEu. Gases, molten metals and pack-gated fluids (drilled acids,
+  off-world oil, drilling fluid) stay unplaceable.</p>
+  <p><code>fluid/PlaceableFluids.java</code> · <code>tools/textures/buckets.py</code></p>
+</div>
+<div class="card">
+  <h3><span class="tag t-prop">IN BUILD</span>Electric motors — housings, rotors, stators</h3>
+  <p>Every tier's motor rebuilt from housing + rotor + stator plus windings; LuV+ on samarium rods; two industrial
+  housings in reinforced titanium-niobium. Rotor magnet IDs fixed (normal samarium rods — the long ones don't exist).</p>
+  <p><code>motors.js</code> · <code>AF9Items</code> + <code>AF9Materials (motorParts)</code></p>
+</div>
+</div>
+
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>Early game, rubber &amp; drop pod</h3>
+  <p>Create LV/MV circuits and sequenced assembly, Powah Energizing Orb for HV components, latex → rubber/silicone/SBR,
+  green chemistry (ethanol ethylene, aromatics, biofuels, diesel). New players land in a drop pod that flattens,
+  opens and lifts off again.</p>
+  <p><code>early_circuits.js</code> · <code>orb_recipes.js</code> · <code>rubber.js</code> · <code>docs/early-game.md</code></p>
+</div>
+
+<h2 class="sec">6 · Quests &amp; tooling</h2>
+<p class="sub">19 chapters, linted without launching the game.</p>
+<div class="card">
+  <h3><span class="tag t-ok">DONE</span>19 quest chapters + offline lint</h3>
+  <p>MV → UHV tier chapters plus <code>asteroid_fission</code>, <code>photolithography</code>,
+  <code>platinum_group</code>, <code>space_elevator</code>, <code>oil</code>, <code>circuits</code>,
+  <code>void_miner</code> and the new <code>staged_assembly</code> (ch. 19, 6 quests).
+  <code>bash tools/lint/run.sh</code> checks recipes, multiblocks, quests, textures and lang with no game running.</p>
+  <p><code>config/ftbquests/quests/chapters/</code> · <code>tools/lint/</code> · <code>docs/review-findings.md</code></p>
+</div>
+
+<footer>AF9 mega moodboard — generated from the repo state. Deep specs live in <code>docs/*.md</code>; file-level truth in <code>README.md</code> (repository map) and <code>af9-core/README.md</code> (class map). Landing page: <code>docs/index.html</code>.</footer>
+
+</div>
+</body>
+</html>

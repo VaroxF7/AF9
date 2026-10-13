@@ -235,6 +235,13 @@ public final class AF9Materials {
                 .gas()
                 .color(0xaac4e0));
 
+        // GT defines neptunium and protactinium as bare elements with no items. Reprocessing parts them out
+        // (minor actinides of the MOX and thorium lines, fission_fuels.js) and vitrification locks them in glass:
+        // give them dusts, like germanium and friends in lithoProcess().
+        for (Material element : new Material[] { GTMaterials.Neptunium, GTMaterials.Protactinium }) {
+            if (!element.hasProperty(PropertyKey.DUST)) element.setProperty(PropertyKey.DUST, new DustProperty());
+        }
+
         // ---- The reactor's coolant circuit ----
         // The coolant is GT's own sodium-potassium alloy (NaK, liquid at room temperature). It carries the heat out of
         // the core and gives it to the water in the same machine; the hot alloy goes back to NaK in a Vacuum Freezer.
