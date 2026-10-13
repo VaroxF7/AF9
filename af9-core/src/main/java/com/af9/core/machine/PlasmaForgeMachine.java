@@ -187,7 +187,7 @@ public class PlasmaForgeMachine extends ProcessMachine {
             for (int i = 0; i < hatch.tank.getTanks() && left > 0; i++) {
                 FluidStack stack = hatch.tank.getFluidInTank(i);
                 if (!PlasmaHatchPartMachine.isPlasma(stack)) continue;
-                FluidStack take = stack.copyWithAmount((int) Math.min(left, stack.getAmount()));
+                FluidStack take = new FluidStack(stack, (int) Math.min(left, stack.getAmount()));
                 left -= hatch.tank.drain(take, FluidAction.EXECUTE).getAmount();
             }
         }

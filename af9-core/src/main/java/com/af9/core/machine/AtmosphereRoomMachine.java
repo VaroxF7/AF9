@@ -2,7 +2,6 @@ package com.af9.core.machine;
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
-import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
@@ -110,7 +109,7 @@ public class AtmosphereRoomMachine extends ProcessMachine {
      * controller (offsets mirror the KubeJS pattern: x -13..13, up -4..-1, back -30..-1).
      */
     private AABB interiorBox() {
-        boolean flipped = this instanceof MultiblockControllerMachine controller && controller.isFlipped();
+        boolean flipped = isFlipped();
         Direction up = RelativeDirection.UP.getRelative(getFrontFacing(), getUpwardsFacing(), flipped);
         Direction back = RelativeDirection.BACK.getRelative(getFrontFacing(), getUpwardsFacing(), flipped);
         Direction left = RelativeDirection.LEFT.getRelative(getFrontFacing(), getUpwardsFacing(), flipped);

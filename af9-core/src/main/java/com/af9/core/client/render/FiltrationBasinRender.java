@@ -142,7 +142,7 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
         VertexConsumer water = buffer.getBuffer(AF9RenderTypes.LIGHT_RING);
 
         Vec3 centre = Vec3.atLowerCornerOf(self.getPos()).add(frame.x, frame.y, frame.z);
-        BlockPos basinPos = new BlockPos(centre.x, centre.y, centre.z);
+        BlockPos basinPos = BlockPos.containing(centre);
 
         // --- water tint: the biome's own water colour at the basin ---
         int tint = FALLBACK_WATER;

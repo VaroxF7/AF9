@@ -68,6 +68,7 @@ repositories {
         url = 'https://maven.teamresourceful.com/repository/maven-public/'
         content {
             includeGroup 'earth.terrarium.adastra'
+            includeGroup 'earth.terrarium.botarium'
         }
     }
     maven { // JEI's API (the Energizing Orb Mk2's recipe page)
@@ -203,6 +204,8 @@ dependencies {
     modCompileOnly("top.theillusivec4.curios:curios-forge:${curios_version}:api")
     // the orbital station's magnetic field (optional at runtime)
     modCompileOnly("earth.terrarium.adastra:ad_astra-forge-${minecraft_version}:${ad_astra_version}") { transitive = false }
+    // Ad Astra's space suit item extends Botarium's fluid item: javac needs it to resolve SpaceSuitItem
+    modCompileOnly("earth.terrarium.botarium:botarium-forge-${minecraft_version}:2.3.4") { transitive = false }
     // org.jetbrains.annotations on the staged recipe API: GT depends on them but its jar is transitive = false
     compileOnly 'org.jetbrains:annotations:24.1.0'
 
