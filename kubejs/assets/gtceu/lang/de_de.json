@@ -74,5 +74,12 @@
     "block.gtceu.atmospheric_simulation_room": "Atmosphärensimulationsraum",
     "gtceu.atmospheric_simulation": "Atmosphärensimulation",
     "gtceu.atmospheric_simulation.short": "MONDLUFT",
-    "gtceu.atmospheric_simulation.desc": "XPS- und NVM-Schaltkreise in Mondatmosphäre"
+    "gtceu.atmospheric_simulation.desc": "XPS- und NVM-Schaltkreise in Mondatmosphäre",
+    "gtceu.plasma_transform": "Plasmatransformation",
+    "gtceu.plasma_transform.short": "PLASMA fest",
+    "gtceu.plasma_transform.desc": "Superstate-Plasmen kondensieren zu Platten",
+    "block.gtceu.plasma_transformer": "Plasmatransformator",
+    "af9.plasma_transformer.tooltip.0": "§7Kondensiert §fSuperstate-Plasmen§7 bei §6XPS§7 zu festen Platten.",
+    "af9.plasma_transformer.tooltip.1": "§7Erster Superstate: §fSternmaterie-Plasmastahl§7, geschmiedet in der DTPF, für die NVM-Boards.",
+    "af9.plasma_transformer.tooltip.2": "§7Teile sind optional, mit Maximum: §f2§7 Energie, §f1+1§7 Item-Busse, §f2§7 Fluid-Luken, §f1§7 Wartung."
 }

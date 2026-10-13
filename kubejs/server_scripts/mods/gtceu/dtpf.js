@@ -49,6 +49,12 @@ ServerEvents.recipes(event => {
         .outputFluids(Fluid.of('gtceu:chromodynium_plasma', 2000))
         .duration(800)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
+    forge.plasma_forge('af9:dtpf/carbon_plasma')
+        .itemInputs('8x gtceu:carbon_dust')
+        .inputFluids(Fluid.of('gtceu:endion', 2000))
+        .outputFluids(Fluid.of('gtceu:carbon_plasma', 2000))
+        .duration(600)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
 
     // ---- Forging: plasma back into matter, half as much again as the dust it came from ----
     // 2,000 mB of chromodynium plasma (4 dust) -> 6 plates
@@ -78,5 +84,24 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:star_matter_plasma', 2000), Fluid.of('gtceu:anti_matter_plasma', 2000))
         .outputFluids(Fluid.of('gtceu:idontknowium_plasma', 1000))
         .duration(1200)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
+
+    // ---- Star Matter Plasma Steel: the NVM board steel, forged as a superstate ----
+    // star matter plasma + 4 steel -> 1,000 mB of superstate plasma (the Plasma Transformer
+    // condenses it to plates at XPS: plasma_transformer.js)
+    forge.plasma_forge('af9:dtpf/star_matter_plasma_steel_plasma')
+        .itemInputs('4x gtceu:steel_ingot')
+        .inputFluids(Fluid.of('gtceu:star_matter_plasma', 1000))
+        .outputFluids(Fluid.of('gtceu:star_matter_plasma_steel_plasma', 1000))
+        .duration(800)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
+
+    // ---- Nano particles: carbon plasma caught in a magnetic trap, after GTNH ----
+    // the trap is not used up (like the quark-synthesis traps, it comes back empty)
+    forge.plasma_forge('af9:dtpf/nano_particles')
+        .notConsumable('af9:magnetic_trap')
+        .inputFluids(Fluid.of('gtceu:carbon_plasma', 1000))
+        .itemOutputs('4x af9:nano_particles')
+        .duration(600)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
 })
