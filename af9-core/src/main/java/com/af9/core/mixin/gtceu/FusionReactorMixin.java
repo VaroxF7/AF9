@@ -25,7 +25,7 @@ import java.util.List;
  * EU/t never changes; cancelling modifiers (too little start EU, wrong tier) pass through
  * untouched, and every fusion tier ramps (Mk1 through the Mega, one class).
  */
-@Mixin(FusionReactorMachine.class)
+@Mixin(value = FusionReactorMachine.class, remap = false)
 public abstract class FusionReactorMixin {
 
     /** Minutes of continuous running for the full ramp; the time discount at the full ramp, percent. */
@@ -36,7 +36,7 @@ public abstract class FusionReactorMixin {
     @Unique
     private static final long af9$RAMP_TICKS = af9$RAMP_MINUTES * 60L * 20L;
 
-    @Inject(method = "recipeModifier", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "recipeModifier", at = @At("RETURN"), cancellable = true, remap = false)
     private static void af9$fusionRamp(MetaMachine machine, GTRecipe recipe,
             CallbackInfoReturnable<ModifierFunction> cir) {
         if (!(machine instanceof FusionReactorMachine fusion)) return;
@@ -50,7 +50,7 @@ public abstract class FusionReactorMixin {
                 .build()));
     }
 
-    @Inject(method = "addDisplayText", at = @At("TAIL"))
+    @Inject(method = "addDisplayText", at = @At("TAIL"), remap = false)
     private void af9$fusionRampLine(List<Component> textList, CallbackInfo ci) {
         FusionReactorMachine fusion = (FusionReactorMachine) (Object) this;
         if (!fusion.isFormed()) return;
