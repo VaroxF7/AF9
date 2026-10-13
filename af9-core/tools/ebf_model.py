@@ -147,21 +147,66 @@ def clip(items, lo, hi):
     return out
 
 
-def element(a, b, tex, rot, lo):
-    faces = {f: {'texture': '#' + tex} for f in ('north', 'east', 'south', 'west', 'up', 'down')}
-    el = {'from': [round(v, 3) for v in a], 'to': [round(v, 3) for v in b], 'faces': faces}
-    if rot is not None:
-        r = dict(rot)
-        r['origin'] = [rot['origin'][0], rot['origin'][1] - lo, rot['origin'][2]]
-        el['rotation'] = r
-    return el
+def cuts(lo, hi):
+    """The block-grid planes (multiples of 16) strictly between lo and hi, with the ends: the cell boundaries."""
+    out = [lo]
+    k = math.floor(lo / 16) + 1
+    while k * 16 < hi - 1e-6:
+        out.append(k * 16)
+        k += 1
+    out.append(hi)
+    return out
+
+
+def face_uv(face, p0, p1, cell):
+    """The face's UVs as the vanilla default would give them, from coordinates inside one 16-unit cell (so they stay
+    within the sprite: a face that is not cut at the cell borders reads past the sprite into the atlas' neighbours)."""
+    x0, y0, z0 = (p0[i] - cell[i] for i in range(3))
+    x1, y1, z1 = (p1[i] - cell[i] for i in range(3))
+    return {
+        'north': [16 - x1, 16 - y1, 16 - x0, 16 - y0],
+        'south': [x0, 16 - y1, x1, 16 - y0],
+        'west': [z0, 16 - y1, z1, 16 - y0],
+        'east': [16 - z1, 16 - y1, 16 - z0, 16 - y0],
+        'up': [x0, z0, x1, z1],
+        'down': [x0, 16 - z1, x1, 16 - z0],
+    }[face]
+
+
+def elements(a, b, tex, rot, lo):
+    """A box as elements of at most one block-grid cell each (an element wider than 16 units would put its UVs outside
+    the sprite). Only the faces on the box's own outline are kept, the cut faces inside it are hidden."""
+    xs, ys, zs = cuts(a[0], b[0]), cuts(a[1], b[1]), cuts(a[2], b[2])
+    out = []
+    for i in range(len(xs) - 1):
+        for j in range(len(ys) - 1):
+            for k in range(len(zs) - 1):
+                p0 = (xs[i], ys[j], zs[k])
+                p1 = (xs[i + 1], ys[j + 1], zs[k + 1])
+                cell = (math.floor((p0[0] + 1e-6) / 16) * 16, math.floor((p0[1] + 1e-6) / 16) * 16,
+                        math.floor((p0[2] + 1e-6) / 16) * 16)
+                edges = {'west': i == 0, 'east': i == len(xs) - 2, 'down': j == 0, 'up': j == len(ys) - 2,
+                         'north': k == 0, 'south': k == len(zs) - 2}
+                faces = {}
+                for face, outer in edges.items():
+                    if not outer:
+                        continue
+                    uv = [round(v, 3) for v in face_uv(face, p0, p1, cell)]
+                    faces[face] = {'texture': '#' + tex, 'uv': uv}
+                el = {'from': [round(v, 3) for v in p0], 'to': [round(v, 3) for v in p1], 'faces': faces}
+                if rot is not None:
+                    r = dict(rot)
+                    r['origin'] = [rot['origin'][0], rot['origin'][1] - lo, rot['origin'][2]]
+                    el['rotation'] = r
+                out.append(el)
+    return out
 
 
 def write_model(name, items, lo, textures):
     used = sorted({t for (_, _, t, _) in items})
     data = {
         'textures': {k: TEX[k] for k in used},
-        'elements': [element(a, b, t, r, lo) for (a, b, t, r) in items],
+        'elements': [e for (a, b, t, r) in items for e in elements(a, b, t, r, lo)],
     }
     data['textures']['particle'] = TEX['casing']
     os.makedirs(MODELS, exist_ok=True)
