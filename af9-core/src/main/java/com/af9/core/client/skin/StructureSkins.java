@@ -14,6 +14,7 @@ import com.gregtechceu.gtceu.common.data.machines.GTMultiMachines;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -210,9 +211,27 @@ public final class StructureSkins {
     public static void attachRenders(ModelEvent.ModifyBakingResult event) {
         attached = 0;
         StructureSkinRender.clearCaches();
+        // the skin's models must have baked (a model that did not load is the missing-model cube: hiding the blocks
+        // under it would leave a hole)
+        BakedModel missing = event.getModels().get(ModelBakery.MISSING_MODEL_LOCATION);
+        Set<StructureSkin> ready = new HashSet<>();
+        for (StructureSkin skin : SKINS) {
+            boolean ok = true;
+            for (ResourceLocation location : new ResourceLocation[] { skin.lower(), skin.upper(), skin.glowLower(),
+                    skin.glowUpper() }) {
+                BakedModel model = event.getModels().get(location);
+                if (model == null || model == missing) {
+                    AF9Core.LOGGER.warn("Structure skins: model {} did not load, {} keeps its blocks", location,
+                            skin.definition().get().getId());
+                    ok = false;
+                }
+            }
+            if (ok) ready.add(skin);
+        }
         for (BakedModel baked : event.getModels().values()) {
             if (!(baked instanceof MachineModel machineModel)) continue;
-            if (skinOf(machineModel.getDefinition()) == null) continue;
+            StructureSkin skin = skinOf(machineModel.getDefinition());
+            if (skin == null || !ready.contains(skin)) continue;
             boolean has = false;
             for (var render : machineModel.getDynamicRenders()) {
                 if (render instanceof StructureSkinRender) {
@@ -227,6 +246,8 @@ public final class StructureSkins {
             }
             attached++;
         }
+        AF9Core.LOGGER.info("Structure skins: {} of {} skin(s) ready, the render attached to {} machine model(s)",
+                ready.size(), SKINS.size(), attached);
     }
 
     /** Forge bus, every client tick: looks for formed controllers round the player and keeps what they hide current. */

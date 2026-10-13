@@ -13,6 +13,8 @@ import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderType;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -196,43 +198,71 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         poseStack.last().normal().mul(new Matrix3f(basis));
         poseStack.translate(-0.5, -0.5, -0.5);
 
-        VertexConsumer solid = buffer.getBuffer(RenderType.cutout());
+        // the controller's own block is solid wall, which has no light of its own: take the light of the open air in
+        // front of the structure, per half (the lower and the upper two blocks)
+        int[] lights = { openAirLight(level, self, 0), openAirLight(level, self, 2) };
+
+        // one render type at a time: a buffer from the source ends when another is asked for, so every pass gets its
+        // consumer when it starts. Pass 1: the bodies and the parts that light up, entity shader (lit by the normals)
+        VertexConsumer solid = buffer.getBuffer(RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS));
         for (int half = 0; half < 2; half++) {
             poseStack.pushPose();
             poseStack.translate(0, half * 2, 0);
             ResourceLocation body = half == 0 ? skin.lower() : skin.upper();
             ResourceLocation lit = half == 0 ? skin.glowLower() : skin.glowUpper();
-            draw(poseStack, solid, level, quads(body, marker, coil, glowOn, glow), r, u, b, packedLight,
-                    packedOverlay, false);
-            draw(poseStack, solid, level, quads(lit, marker, coil, glowOn, glow), r, u, b,
-                    working ? FULL_BRIGHT : packedLight, packedOverlay, true);
-            if (bloom != null) {
-                markActive(bloom);
-                // the bloom is the lit pixels of the coil texture, over the coil band: same place, so test with <=
-                VertexConsumer lightsUp = buffer.getBuffer(RenderType.entityTranslucentEmissive(InventoryMenu.BLOCK_ATLAS));
-                draw(poseStack, lightsUp, level, bloomQuads(body, marker, bloom), r, u, b, FULL_BRIGHT, packedOverlay,
-                        true);
-            }
+            draw(poseStack, solid, quads(body, marker, coil, glowOn, glow), lights[half], packedOverlay);
+            draw(poseStack, solid, quads(lit, marker, coil, glowOn, glow), working ? FULL_BRIGHT : lights[half],
+                    packedOverlay);
             poseStack.popPose();
+        }
+        // Pass 2: the coil's bloom over the coil bands, at full brightness
+        if (bloom != null) {
+            markActive(bloom);
+            VertexConsumer lightsUp = buffer.getBuffer(RenderType.entityTranslucentEmissive(InventoryMenu.BLOCK_ATLAS));
+            for (int half = 0; half < 2; half++) {
+                poseStack.pushPose();
+                poseStack.translate(0, half * 2, 0);
+                ResourceLocation body = half == 0 ? skin.lower() : skin.upper();
+                draw(poseStack, lightsUp, bloomQuads(body, marker, bloom), FULL_BRIGHT, packedOverlay);
+                poseStack.popPose();
+            }
         }
         poseStack.popPose();
     }
 
-    private static void draw(PoseStack poseStack, VertexConsumer consumer, ClientLevel level, List<BakedQuad> quads,
-                             Direction r, Direction u, Direction b, int light, int overlay, boolean glowing) {
+    /** The quads through the pose (the entity shader lights them by their normals, so no shade is baked in). */
+    private static void draw(PoseStack poseStack, VertexConsumer consumer, List<BakedQuad> quads, int light,
+                             int overlay) {
         PoseStack.Pose pose = poseStack.last();
         for (BakedQuad quad : quads) {
-            float shade = 1F;
-            if (!glowing) {
-                Direction local = quad.getDirection();
-                // the face's direction in the world: the basis maps the model's axes
-                int x = local.getStepX() * r.getStepX() + local.getStepY() * u.getStepX() + local.getStepZ() * b.getStepX();
-                int y = local.getStepX() * r.getStepY() + local.getStepY() * u.getStepY() + local.getStepZ() * b.getStepY();
-                int z = local.getStepX() * r.getStepZ() + local.getStepY() * u.getStepZ() + local.getStepZ() * b.getStepZ();
-                shade = level.getShade(Direction.getNearest(x, y, z), quad.isShade());
-            }
-            consumer.putBulkData(pose, quad, shade, shade, shade, light, overlay);
+            consumer.putBulkData(pose, quad, 1F, 1F, 1F, light, overlay);
         }
+    }
+
+    /**
+     * The light in front of the structure at {@code up} blocks above the controller, and above it: the brightest of the
+     * open blocks there. The controller's own position is a solid block and reads as dark.
+     */
+    private static int openAirLight(ClientLevel level, MetaMachine controller, int up) {
+        int best = 0;
+        for (int dy = 0; dy <= 2; dy++) {
+            for (int back : new int[] { -1, 0 }) {
+                BlockPos at = StructureSkins.at(controller, 0, up + dy, back);
+                if (back == 0 && !level.getBlockState(at).isAir()) continue;
+                int light = LevelRenderer.getLightColor(level, at);
+                best = maxLight(best, light);
+            }
+        }
+        // the cell above the whole structure, for the case that the front is walled in
+        best = maxLight(best, LevelRenderer.getLightColor(level, StructureSkins.at(controller, 0, 5, 0)));
+        return best;
+    }
+
+    /** The brighter of two packed lights, sky and block channel separately. */
+    private static int maxLight(int a, int b) {
+        int sky = Math.max(LightTexture.sky(a), LightTexture.sky(b));
+        int block = Math.max(LightTexture.block(a), LightTexture.block(b));
+        return LightTexture.pack(block, sky);
     }
 
     /** A model's quads with the coil marker and the window's sprite replaced, cached. */
