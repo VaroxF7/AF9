@@ -8,6 +8,9 @@ import com.gregtechceu.gtceu.api.machine.feature.IMachineFeature;
  */
 public interface IEcrwMachine extends IMachineFeature {
 
+    /** Whether the structure is formed: the pond (water and rake) is drawn then. */
+    boolean pondFormed();
+
     /** Whether the structure is formed and a recipe is running: the rake arm turns then. */
     boolean rakeSpinning();
 }

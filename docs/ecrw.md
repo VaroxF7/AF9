@@ -24,9 +24,13 @@ fluid input, 2 fluid output, 2 item input, 1 item output, 1 maintenance; maximum
 ## 2. The machine
 
 * Plain GregTech behaviour with perfect overclocks; no gates, no ramp.
-* **The rake** (`EcrwArmRender`, after the other dynamic renders): a steel truss across the pond on the pier,
-  with squeegee blades hanging into the brine. It turns while a recipe runs (about 3 turns a minute) and parks
-  where it stopped. No blocks: the pattern leaves the pond hollow and the render draws the arm.
+* **The clarifier** (`EcrwArmRender`, after the other dynamic renders), drawn only while the pond is formed, in
+  controller-relative blocks (y 0 = the pond floor's top): a bridge of two Warren trusses on a turntable round the
+  pier at y 2.5, under the walkway and above the water, with a drive carriage at the tip (5.4 out, inside the wall's
+  jagged edge), a counterweight on the other side, a scum board skimming the surface and four angled scraper blades
+  hanging to the floor. It eases up to about 3 turns a minute while a recipe runs, coasts to a stop and parks where it
+  stopped. The water is a translucent surface on exactly the cells the pattern leaves hollow (r < 6.4, outside the
+  pier), tinted by the biome's water colour. No blocks: the pattern leaves the pond hollow.
 
 ## 3. The recipes (`evaporation`, 2 items / 2 items out, 3 fluids / 3 fluids out)
 
@@ -39,5 +43,4 @@ pumps, HV circuits.
 
 ## 4. Still open
 
-Chem and bio processing lines on this type (concentrated brines, broth reduction). A liquid surface in the
-pond (the render draws the arm only; the pond itself stays hollow).
+Chem and bio processing lines on this type (concentrated brines, broth reduction).

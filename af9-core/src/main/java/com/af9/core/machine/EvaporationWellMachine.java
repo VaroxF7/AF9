@@ -49,6 +49,11 @@ public class EvaporationWellMachine extends ProcessMachine implements IEcrwMachi
     }
 
     @Override
+    public boolean pondFormed() {
+        return isFormed();
+    }
+
+    @Override
     public boolean rakeSpinning() {
         return isFormed() && getRecipeLogic().isWorking();
     }

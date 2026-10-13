@@ -108,8 +108,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .where('F', Predicates.blocks('gtceu:steel_frame'))
                 .build()
         })
-        // the controller: solid steel with the assembly line face, and the rake on the pier (pond centre 7 back)
+        // the controller: solid steel with the assembly line face, and the clarifier bridge on the pier (pond centre 7 back, bridge 2.5 above the controller's floor, 5.4 long)
         .model($EcrwModels.workableCasingWithEcrwArm('gtceu:block/casings/solid/machine_casing_solid_steel',
-            'gtceu:block/multiblock/assembly_line', 7, 0.3, 5.4))
+            'gtceu:block/multiblock/assembly_line', 7, 2.5, 5.4))
         .hasBER(true)
 })
