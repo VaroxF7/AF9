@@ -104,4 +104,14 @@ ServerEvents.recipes(event => {
         .itemOutputs('4x af9:nano_particles')
         .duration(600)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
+
+    // ---- Mk2 refit: the Mk1 controller turned with the Plasma Heater's heart ----
+    // the heater is integrated (sacrificed) into the Mk2: half the osmium for four times the amperage
+    event.recipes.gtceu.assembly_line('af9:dtpf_mk2')
+        .itemInputs('gtceu:dtpf', 'gtceu:plasma_heater', '4x gtceu:fusion_casing_mk3',
+            '2x gtceu:uv_field_generator', '4x gtceu:double_tungsten_steel_plate')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 2304), Fluid.of('gtceu:niobium_titanium', 2304))
+        .itemOutputs('gtceu:dtpf_mk2')
+        .duration(1200)
+        .EUt(VA[GTValues.UHV])
 })

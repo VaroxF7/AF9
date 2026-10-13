@@ -17,6 +17,8 @@ AF9 Core `FiltrationPlantMachine` + `FiltrationBasinRender`.
 | 6 | desalination (MV) | salt water | distilled water + salt |
 | 7 | spent piranha polishing (MV) | spent piranha | wash water + 200 reclaimed piranha + filter cake |
 | 8 | resist carbon bed (HV) | spent resist solvent | 300 PGMEA + carbon + filter cake |
+| 9 | LuV biosorption (needs breeder) | salt water + LuV culture | lithium brine + salt |
+| 10 | ZPM biosorption (needs breeder) | salt water + ZPM culture | concentrated brine + salt |
 
 ## Wastewater cleaning
 
@@ -34,3 +36,16 @@ The universal waste dust of every cleaning run (`gtceu:filter_cake_dust`, rough 
 It is never voided by a recipe: every cleaning run pays its cake, and the cake pays back as
 furnace fuel — KubeJS gives it coal's burn time (1600 ticks), so it burns in any furnace
 or trash-burns like coal. Lime cakes and distillation chars join the same dust.
+
+## Bacteria breeding upgrade (LuV/ZPM modes)
+
+Circuits 9 and 10 need the **Bacteria Breeding Station** (`gtceu:bacteria_breeding_station`,
+5x4x5, MV bones) built and piped to the plant — the modes only run on what it grows:
+
+- biochaff + water (MV, circuit 1) → **bacteria culture** (LuV strain);
+- that culture + water (HV, circuit 2) → **enriched culture** (ZPM strain, subcultured).
+
+LuV biosorption turns 2,000 mB salt water + 500 mB culture straight into 1,000 mB lithium
+brine (better than the MV brine pumping it replaces); ZPM biosorption turns the same feed
+with enriched culture straight into 1,000 mB **concentrated** brine, skipping the ponds.
+Biosorption, after the labs that pull lithium with bacteria instead of lime.

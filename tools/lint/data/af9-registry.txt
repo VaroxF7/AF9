@@ -377,6 +377,7 @@ material gtceu:asphalt
 material gtceu:azobisisobutyronitrile
 material gtceu:barc
 material gtceu:bioethanol
+material gtceu:bacteria_culture
 material gtceu:boron_nitride
 material gtceu:boron_trichloride
 material gtceu:brannerite ore
@@ -410,6 +411,7 @@ material gtceu:dry_air
 material gtceu:electronic_grade_silicon
 material gtceu:endion
 material gtceu:endionite
+material gtceu:enriched_bacteria_culture
 material gtceu:etch_plasma_gas
 material gtceu:ethyl_lactate
 material gtceu:euv_photoresist

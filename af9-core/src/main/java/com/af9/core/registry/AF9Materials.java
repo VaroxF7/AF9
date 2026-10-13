@@ -94,6 +94,7 @@ public final class AF9Materials {
         solders();
         uhvSuperconductor();
         starMatterSteel();
+        bioCultures();
         motorParts();
         waterFiltration();
     }
@@ -140,13 +141,13 @@ public final class AF9Materials {
      * Fusion power: the plasmas of GTNH's fusion reactions that GT has no plasma for. GT gives eight elements a plasma
      * (helium, nitrogen, oxygen, argon, iron, tin, nickel, americium); GTNH's reactor also fuses sulfur, calcium, zinc,
      * niobium, silver, bismuth, radon, lead, thorium and plutonium-241 plasma, which the plasma turbines burn.
-     * Carbon's plasma is the DTPF's nano-particle feed, not a fuel.
+     * Carbon's plasma is the DTPF's nano-particle feed, osmium's the forge's heater fuel: neither burns in a turbine.
      * Recipes and fuel values: fusion_power.js. Spec: docs/fusion-power.md
      */
     private static void fusionPlasmas() {
         for (Material element : new Material[] { GTMaterials.Sulfur, GTMaterials.Calcium, GTMaterials.Zinc,
                 GTMaterials.Niobium, GTMaterials.Silver, GTMaterials.Bismuth, GTMaterials.Radon, GTMaterials.Lead,
-                GTMaterials.Thorium, GTMaterials.Plutonium241, GTMaterials.Carbon }) {
+                GTMaterials.Thorium, GTMaterials.Plutonium241, GTMaterials.Carbon, GTMaterials.Osmium }) {
             FluidProperty fluid = element.getProperty(PropertyKey.FLUID);
             if (fluid == null) {
                 // sulfur and calcium have no fluid of their own: their plasma is their only one, like the quark
@@ -984,6 +985,17 @@ public final class AF9Materials {
                         MaterialFlags.GENERATE_FINE_WIRE, MaterialFlags.GENERATE_FOIL)
                 .cableProperties(GTValues.VA[GTValues.UV], 4, 0, true)
                 .formula("(Nt2Ke5)"));
+    }
+
+    /**
+     * Bacterial cultures for the Water Filtration Plant's LuV/ZPM biosorption modes: biochaff fed
+     * to the Bacteria Breeding Station grows the LuV culture, which feeds the ZPM one. Mixtures, so
+     * no formulas (and no GT shortcuts). Recipes: bacteria_breeding.js, water_filtration.js.
+     * Spec: docs/water-filtration.md
+     */
+    private static void bioCultures() {
+        liquid("bacteria_culture", 0x4a9a3d);
+        liquid("enriched_bacteria_culture", 0x2a7a4d);
     }
 
     /**

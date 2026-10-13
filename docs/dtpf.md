@@ -23,10 +23,18 @@ The controller is in the front wall, two up (the face is GTNH's DTPF overlay). T
 
 ## 2. The machine
 
-* **Hatches** only in the wall: up to 4 energy, 8 fluid input, 4 fluid output, 4 item input and 4 item output buses, 1
-  maintenance (`setMaxGlobalLimited`: maximums, never required counts).
+* **Hatches** only in the wall: up to 4 energy, 8 fluid input, 4 fluid output, 4 item input and 4 item output buses, 2
+  plasma hatches, 1 maintenance (`setMaxGlobalLimited`: maximums, never required counts).
 * **Gate** (`FORGE_GATE`): it starts a recipe only when its hatches can supply the recipe's full EU/t (voltage x amps of all
-  of them), as the lithography stations do.
+  of them), as the lithography stations do — and only while ready (below).
+* **Readiness**: the forge keeps a core temperature (console + Jade, 0-12,000 K). It burns **osmium plasma** out of its
+  plasma hatches: 100 mB a second climbing, 50 mB holding (2,000 mB per 20 s, 500 mB per 10 s). Fed, it climbs 150 K a
+  second to 9,000 K (ready) in about a minute and tops at 12,000 K; starved, it cools three times as fast, and a broken
+  structure goes cold. No plasma, no forging — the gate holds every recipe until readiness.
+* **Plasma Heater** (`gtceu:plasma_heater`, 5x4x5, EV): the sub multi that ionises 4 osmium dust with 2,000 mB Endion
+  to 2,000 mB osmium plasma, the forge's only heater fuel. Its plasma hatches are filled from here.
+* **Mk2** (`gtceu:dtpf_mk2`, same hall): the Mk1 controller turned with the heater's heart (assembly line refit).
+  Half the osmium (50/25 mB a second) for **four times the input amperage** — the same recipes, hungrier power.
 * **Running-time ramp** (`RAMP`, from GTNH's discount): while a recipe runs the forge warms up, 1 tick of warmth per tick of
   running time, to 30 minutes; a pause cools it three times as fast. Warmth scales the recipe's EU/t by up to **-50 %** and
   its run time by up to **-25 %**. A broken structure starts cold. The console and Jade show the ramp.

@@ -13,8 +13,8 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     event.create('water_filtration')
         .category('multiblock')
         .setEUIO('in')
-        // filter (not consumed) + flocculant in, up to 4 debris out, dirty water in, water + reclaim out
-        .setMaxIOSize(2, 4, 1, 2)
+        // filter (not consumed) + circuit in, up to 4 debris out, dirty water + culture in, water + reclaim out
+        .setMaxIOSize(2, 4, 2, 2)
         .setProgressBar(GuiTextures.PROGRESS_BAR_BATH, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.BATH)
 })
@@ -46,7 +46,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 0))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))

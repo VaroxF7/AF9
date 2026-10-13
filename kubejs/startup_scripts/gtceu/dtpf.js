@@ -1,4 +1,4 @@
-// AF9 - the Dimensionally Transcendent Plasma Forge (DTPF), after GTNH's: a vast hall that forges plasma into matter.
+﻿// AF9 - the Dimensionally Transcendent Plasma Forge (DTPF), after GTNH's: a vast hall that forges plasma into matter.
 // Machine logic: af9-core PlasmaForgeMachine (the running-time ramp: the longer it runs without a pause, the cheaper and
 // faster it forges). Recipes: server_scripts/mods/gtceu/dtpf.js. Spec: docs/dtpf.md
 //
@@ -18,6 +18,8 @@
 // The cell function below is the whole design; the aisles are built from it.
 
 const $PlasmaForgeMachine = Java.loadClass('com.af9.core.machine.PlasmaForgeMachine')
+const $PlasmaHeaterMachine = Java.loadClass('com.af9.core.machine.PlasmaHeaterMachine')
+const $ForgePlasmaHatch = Java.loadClass('com.af9.core.machine.part.PlasmaHatchPartMachine')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // plasma and matter in, forged matter and fluids out
@@ -27,6 +29,13 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setMaxIOSize(6, 6, 6, 3)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC)
+    // osmium dust and Endion in, heater plasma out
+    event.create('plasma_heating')
+        .category('multiblock')
+        .setEUIO('in')
+        .setMaxIOSize(2, 1, 2, 1)
+        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
+        .setSound(GTSoundEntries.FURNACE)
 })
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
@@ -152,6 +161,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(4, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(4, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(4, 1))
+                // osmium plasma for the core heat goes through plasma hatches only (never recipe inputs)
+                .or(Predicates.abilities($ForgePlasmaHatch.PLASMA_INPUT).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
             let pattern = FactoryBlockPattern.start()
             dtpfAisles().forEach(aisle => { pattern = pattern.aisle(aisle) })
@@ -168,4 +179,88 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         })
         // the controller: fusion casing with GTNH's DTPF face (kubejs assets, overlay_front*)
         .workableCasingModel('gtceu:block/casings/fusion/fusion_casing', 'gtceu:block/multiblock/dtpf')
+
+    // the Mk2: the same 37 x 29 x 37 hall, half the osmium for four times the amperage.
+    // The controller is turned from the Mk1's with the Plasma Heater's heart (server dtpf.js).
+    event.create('dtpf_mk2', 'multiblock')
+        .langValue('Dimensionally Transcendent Plasma Forge Mk2')
+        .machine(holder => new $PlasmaForgeMachine(holder, true))
+        .rotationState(RotationState.NON_Y_AXIS)
+        .recipeTypes([GTRecipeTypes.get('plasma_forge')])
+        // FORGE_GATE covers the Mk2 too (readiness plus four times the amperage); RAMP as ever
+        .recipeModifiers([$PlasmaForgeMachine.FORGE_GATE, $PlasmaForgeMachine.RAMP, GTRecipeModifiers.OC_PERFECT])
+        .appearanceBlock(() => Block.getBlock('gtceu:fusion_casing'))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 6))
+        .pattern(definition => {
+            const wall = Predicates.blocks('gtceu:fusion_casing')
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2))
+                .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 2))
+                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(4, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(4, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(4, 1))
+                .or(Predicates.abilities($ForgePlasmaHatch.PLASMA_INPUT).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
+            let pattern = FactoryBlockPattern.start()
+            dtpfAisles().forEach(aisle => { pattern = pattern.aisle(aisle) })
+            return pattern
+                .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+                .where(' ', Predicates.any())
+                .where('W', wall)
+                .where('B', Predicates.blocks('gtceu:stable_machine_casing'))
+                .where('F', Predicates.blocks('gtceu:fusion_casing_mk2'))
+                .where('T', Predicates.blocks('gtceu:fusion_casing_mk3'))
+                .where('G', Predicates.blocks('gtceu:fusion_glass'))
+                .where('K', Predicates.blocks('gtceu:superconducting_coil'))
+                .build()
+        })
+        .workableCasingModel('gtceu:block/casings/fusion/fusion_casing', 'gtceu:block/multiblock/dtpf')
+
+    // Plasma Hatch: an input hatch for osmium plasma only, HV-UHV. The forge burns readiness
+    // through these; the heater fills them.
+    event.create('plasma_hatch', 'custom')
+        .tiers(GTValues.HV, GTValues.EV, GTValues.IV, GTValues.LuV, GTValues.ZPM, GTValues.UV,
+            GTValues.UHV)
+        .machine((holder, tier, tankScaling) => new $ForgePlasmaHatch(holder, tier))
+        .definition((tier, builder) => {
+            builder
+                .langValue(`${GTValues.VN[tier]} Plasma Hatch`)
+                .rotationState(RotationState.ALL)
+                ['colorOverlayTieredHullModel(java.lang.String,java.lang.String,java.lang.String)'](
+                    'overlay_pipe_in_emissive', null, 'overlay_fluid_hatch')
+                .abilities(PartAbility.IMPORT_FLUIDS, $ForgePlasmaHatch.PLASMA_INPUT)
+                ['tooltips(net.minecraft.network.chat.Component[])']([
+                    Component.translatable('af9.plasma_hatch.tooltip.0'),
+                    Component.translatable('af9.plasma_hatch.tooltip.1'),
+                    Component.translatable('gtceu.universal.tooltip.fluid_storage_capacity', `${1000 << tier}`)])
+        })
+
+    // Plasma Heater: the sub multi that ionises osmium dust with Endion to osmium plasma,
+    // the forge's heater fuel. 5 x 4 x 5, controller front-bottom-centre.
+    event.create('plasma_heater', 'multiblock')
+        .machine(holder => new $PlasmaHeaterMachine(holder))
+        .langValue('Plasma Heater')
+        .rotationState(RotationState.NON_Y_AXIS)
+        .recipeTypes([GTRecipeTypes.get('plasma_heating')])
+        .recipeModifiers([GTRecipeModifiers.OC_PERFECT])
+        .appearanceBlock(GTBlocks.CASING_STAINLESS_CLEAN)
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.plasma_heater.tooltip', 3))
+        .pattern(definition => FactoryBlockPattern.start()
+            .aisle('XXXXX', 'XXXXX', 'XXXXX', 'XXXXX')
+            .aisle('XXXXX', 'XX#XX', 'XX#XX', 'XXXXX')
+            .aisle('XXXXX', 'XX#XX', 'XX#XX', 'XXXXX')
+            .aisle('XXXXX', 'XX#XX', 'XX#XX', 'XXXXX')
+            .aisle('XXSXX', 'XX#XX', 'XX#XX', 'XXXXX')
+            .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
+            .where('X', Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get())
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(1, 1))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
+            .where('#', Predicates.air())
+            .build())
+        .workableCasingModel('gtceu:block/casings/solid/machine_casing_clean_stainless_steel',
+            'gtceu:block/multiblock/multi_furnace')
 })

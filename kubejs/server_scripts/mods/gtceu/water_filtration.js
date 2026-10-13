@@ -68,6 +68,26 @@ ServerEvents.recipes(event => {
         .duration(200)
         .EUt(VA[GTValues.MV])
 
+    // ---- LuV biosorption (needs the breeding station built and piped): salt water straight to brine ----
+    event.recipes.gtceu.water_filtration('af9:luv_brine_biosorption')
+        .notConsumable('gtceu:fluid_filter')
+        .circuit(9)
+        .inputFluids(Fluid.of('gtceu:salt_water', 2000), Fluid.of('gtceu:bacteria_culture', 500))
+        .outputFluids(Fluid.of('gtceu:lithium_brine', 1000))
+        .itemOutputs('gtceu:salt_dust')
+        .duration(200)
+        .EUt(VA[GTValues.LuV])
+
+    // ---- ZPM biosorption: salt water straight to concentrate, no ponds ----
+    event.recipes.gtceu.water_filtration('af9:zpm_brine_biosorption')
+        .notConsumable('gtceu:fluid_filter')
+        .circuit(10)
+        .inputFluids(Fluid.of('gtceu:salt_water', 2000), Fluid.of('gtceu:enriched_bacteria_culture', 500))
+        .outputFluids(Fluid.of('gtceu:concentrated_lithium_brine', 1000))
+        .itemOutputs('gtceu:salt_dust')
+        .duration(200)
+        .EUt(VA[GTValues.ZPM])
+
     // ---- Wastewater cleaning: the fab's aqueous waste, polished back to wash water ----
     // Mechanical separation only: suspended solids cake out as spent filter cake (burns like coal),
     // unreacted pre-liquid passes through and comes back, dissolved values stay in the wash water,
