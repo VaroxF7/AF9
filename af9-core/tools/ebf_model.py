@@ -35,6 +35,7 @@ TEX = {
 
 CX, CZ = 8.0, 24.0  # the middle of the pattern's footprint
 SPLIT = 32.0
+FLOOR = -4.0  # the plate under the ground
 
 solid = []  # (from, to, texture, rotation or None)
 glow = []
@@ -45,38 +46,43 @@ def box(x0, y0, z0, x1, y1, z1, tex, rot=None, into=None):
 
 
 def octagon(apothem, y0, y1, tex, into=None):
-    """A regular octagonal prism of the given flat-to-centre distance, round (CX, CZ): four overlapping bars."""
+    """A regular octagonal prism of the given flat-to-centre distance, round (CX, CZ): four overlapping bars. Each bar
+    is a hair shorter than the one before, so the tops (and bottoms) of the bars do not fight."""
     side = 2 * apothem / (1 + math.sqrt(2))
     h = side / 2
     box(CX - apothem, y0, CZ - h, CX + apothem, y1, CZ + h, tex, into=into)
-    box(CX - h, y0, CZ - apothem, CX + h, y1, CZ + apothem, tex, into=into)
-    for angle in (45, -45):
-        box(CX - apothem, y0, CZ - h, CX + apothem, y1, CZ + h, tex,
+    box(CX - h, y0 + 0.01, CZ - apothem, CX + h, y1 - 0.01, CZ + apothem, tex, into=into)
+    for n, angle in enumerate((45, -45)):
+        box(CX - apothem, y0 + 0.02 * (n + 1), CZ - h, CX + apothem, y1 - 0.02 * (n + 1), CZ + h, tex,
             rot={'origin': [CX, 0, CZ], 'axis': 'y', 'angle': angle}, into=into)
 
 
-def mirror_x(x0, x1):
-    return 2 * CX - x1, 2 * CX - x0
-
-
 def build():
+    # The pattern's outline is x -16..32, y 0..64, z 0..48. The bodies keep 1 unit inside it (a hatch in a casing spot
+    # stays a real block and reaches out of the skin), the relief on them (corner posts, rims, vents, pipes, the door)
+    # stands out of the outline by up to 1.6 units for depth. No two faces share a plane, to keep them from fighting.
+
+    # ---- under the ground: the terrain's top face under the structure is not drawn (the blocks above it are opaque
+    # to it), so a plate fills the hole round the base that the 1 unit margin leaves
+    box(-16, -4, 0, 32, 0, 48, 'casing')
+
     # ---- base (layer 0): the casing slab with feet, vents and bolts
     box(-15, 0, 1, 31, 16, 47, 'casing')
     for (x0, x1) in ((-15, -9), (25, 31)):
         for (z0, z1) in ((1, 7), (41, 47)):
-            box(x0 - 0.5, 0, z0 - 0.5, x1 + 0.5, 16, z1 + 0.5, 'plate')
+            box(x0 - 0.6, 0, z0 - 0.6, x1 + 0.6, 16.4, z1 + 0.6, 'plate')
     # front vent banks either side of the controller, side vent banks, the back one
     for (x0, x1) in ((-12, -3), (19, 28)):
-        box(x0, 3, 0.5, x1, 13, 1.0, 'vent')
+        box(x0, 3, -0.5, x1, 13, 1.1, 'vent')
     for z0 in (10, 28):
-        box(-15.5, 3, z0, -15, 13, z0 + 10, 'vent')
-        box(31, 3, z0, 31.5, 13, z0 + 10, 'vent')
-    box(-9, 3, 46.5, 25, 13, 47, 'vent')
+        box(-16.5, 3, z0, -14.9, 13, z0 + 10, 'vent')
+        box(30.9, 3, z0, 32.5, 13, z0 + 10, 'vent')
+    box(-9, 3, 46.9, 25, 13, 48.5, 'vent')
 
-    # ---- body (layers 1 and 2): corner columns and the round furnace between them
-    for (x0, x1) in ((-15, -10), (26, 31)):
-        for (z0, z1) in ((1, 6), (42, 47)):
-            box(x0, 16, z0, x1, 48, z1, 'casing')
+    # ---- body (layers 1 and 2): corner posts and the round furnace between them
+    for (x0, x1) in ((-15.6, -10), (26, 31.6)):
+        for (z0, z1) in ((0.4, 6), (42, 47.6)):
+            box(x0, 15.8, z0, x1, 63.4, z1, 'casing')
     octagon(21, 18, 46, 'plate')
     for (y0, y1) in ((20, 28), (36, 44)):
         octagon(22, y0, y1, 'coil')
@@ -84,17 +90,21 @@ def build():
         octagon(22.5, y0, y1, 'hoop')
     # bolts on the hoops, one at each flat
     for y in (17.5, 31.5, 45.5):
-        for (x, z) in ((CX - 23.2, CZ), (CX + 23.2, CZ), (CX, CZ - 23.2), (CX, CZ + 23.2)):
+        for (x, z) in ((CX - 23.4, CZ), (CX + 23.4, CZ), (CX, CZ - 23.4), (CX, CZ + 23.4)):
             box(x - 1, y, z - 1, x + 1, y + 1, z + 1, 'plate')
 
     # door: a plated frame on the front with the furnace window in it (the window is the glow model)
-    box(-9, 19, 0.5, 25, 45, 2, 'plate')
-    box(-10, 18, 0.25, 26, 20, 2, 'hoop')
-    box(-10, 44, 0.25, 26, 46, 2, 'hoop')
-    box(-10, 20, 0.25, -8, 44, 2, 'hoop')
-    box(24, 20, 0.25, 26, 44, 2, 'hoop')
-    box(-6, 22, 0.25, 22, 42, 0.5, 'hoop')  # the frame round the window
-    box(22.5, 29, 0, 24.5, 35, 0.5, 'pipe')  # handle
+    box(-9, 19, -0.6, 25, 45, 2, 'plate')
+    box(-10.2, 18, -1.0, 26.2, 20, 2, 'hoop')
+    box(-10.2, 44, -1.0, 26.2, 46, 2, 'hoop')
+    box(-10.2, 20, -1.0, -8, 44, 2, 'hoop')
+    box(24, 20, -1.0, 26.2, 44, 2, 'hoop')
+    # the frame round the window (four bars: the window itself stays clear)
+    box(-6.3, 22, -0.95, 22.3, 24, -0.6, 'hoop')
+    box(-6.3, 40, -0.95, 22.3, 42, -0.6, 'hoop')
+    box(-6.3, 24, -0.95, -4, 40, -0.6, 'hoop')
+    box(20, 24, -0.95, 22.3, 40, -0.6, 'hoop')
+    box(22.5, 29, -1.6, 24.5, 35, -0.5, 'pipe')  # handle
 
     # brass pipes: a riser at each front corner, a manifold across the back with its stubs
     for x in (-8, 24):
@@ -107,43 +117,46 @@ def build():
     box(-14, 22, 45.5, -11, 43, 47.5, 'pipe')
     box(27, 22, 45.5, 30, 43, 47.5, 'pipe')
 
-    # ---- top (layer 3): a lower casing slab, so the muffler hatch (top middle) and any hatch in the top layer stand
-    # out of it like the stack of a furnace; a rim, gauges, and two flues running into the muffler
-    box(-15, 48, 1, 31, 58, 47, 'casing')
-    box(-15.5, 56, 0.5, 31.5, 58.5, 1.5, 'hoop')
-    box(-15.5, 56, 46.5, 31.5, 58.5, 47.5, 'hoop')
-    box(-15.5, 56, 1.5, -14.5, 58.5, 46.5, 'hoop')
-    box(30.5, 56, 1.5, 31.5, 58.5, 46.5, 'hoop')
+    # ---- top (layer 3): a casing slab under the muffler hatch (the middle of the top) with a rim round it, gauges and
+    # two flues that run into a collar round the muffler. Hatches in the top layer stand 1 unit out of the slab.
+    box(-15, 47.9, 1, 31, 63, 47, 'casing')
+    box(-16.1, 61, -0.9, 32.1, 64.4, 1.3, 'hoop')
+    box(-16.1, 61, 46.7, 32.1, 64.4, 48.9, 'hoop')
+    box(-16.1, 61, 1.3, -13.9, 64.4, 46.7, 'hoop')
+    box(29.9, 61, 1.3, 32.1, 64.4, 46.7, 'hoop')
     # a pressure gauge and two valves on the front of the top slab
-    box(-12, 50, 0.5, -6, 56, 1.0, 'hoop')
-    box(-11, 51, 0.25, -7, 55, 0.5, 'vent')
-    box(22, 51, 0.25, 24, 55, 1.0, 'pipe')
-    box(26, 51, 0.25, 28, 55, 1.0, 'pipe')
-    # pipes from the furnace roof out to the sides, risers and the flues into the muffler (the muffler hatch is the
-    # block above the middle of the slab: its cube hides the inner ends)
-    box(-14, 48, 12, -10, 52, 36, 'pipe')
-    box(26, 48, 12, 30, 52, 36, 'pipe')
+    box(-12, 50, -0.6, -6, 56, 1.1, 'hoop')
+    box(-11, 51, -1.2, -7, 55, -0.5, 'vent')
+    box(22, 51, -1.0, 24, 55, 1.1, 'pipe')
+    box(26, 51, -1.0, 28, 55, 1.1, 'pipe')
+    # the collar round the muffler hatch (its top is the block's: the pattern's middle of the top layer)
+    box(-1.5, 62.9, 14.5, 17.5, 66, 16, 'hoop')
+    box(-1.5, 62.9, 32, 17.5, 66, 33.5, 'hoop')
+    box(-1.5, 62.9, 16, 0, 66, 32, 'hoop')
+    box(16, 62.9, 16, 17.5, 66, 32, 'hoop')
+    # risers at the sides and the flues from them into the collar
     for (x0, x1) in ((-13, -9), (25, 29)):
-        box(x0, 52, 21, x1, 61, 27, 'pipe')
-        box(x0 - 0.5, 57, 20.5, x1 + 0.5, 59, 27.5, 'hoop')
-    box(-13, 58, 22, 2, 61, 26, 'pipe')
-    box(14, 58, 22, 29, 61, 26, 'pipe')
+        box(x0, 62.9, 21, x1, 69, 27, 'pipe')
+        box(x0 - 0.6, 66, 20.4, x1 + 0.6, 68, 27.6, 'hoop')
+    box(-9, 62.9, 22, -1.5, 66, 26, 'pipe')
+    box(17.5, 62.9, 22, 25, 66, 26, 'pipe')
     for x in (-6, 22):
-        box(x - 1, 57.5, 21.5, x + 1, 61.5, 26.5, 'hoop')
+        box(x - 1, 65.4, 21.4, x + 1, 66.4, 26.6, 'hoop')
 
     # ---- glow: the window and slits in the hoops
-    box(-4, 24, 0, 20, 40, 0.3, 'glow', into=glow)
+    box(-4, 24, -0.7, 20, 40, -0.65, 'glow', into=glow)
     for (y0, y1) in ((22, 26), (38, 42)):
         octagon(22.6, y0 + 1.5, y1 - 1.5, 'glow', into=glow)
 
 
-def clip(items, lo, hi):
+def clip(items, lo, hi, base):
+    """The part of the items between lo and hi (model-space y), with y counted from base."""
     out = []
     for (a, b, tex, rot) in items:
         y0, y1 = max(a[1], lo), min(b[1], hi)
         if y1 - y0 <= 1e-6:
             continue
-        out.append(((a[0], y0 - lo, a[2]), (b[0], y1 - lo, b[2]), tex, rot))
+        out.append(((a[0], y0 - base, a[2]), (b[0], y1 - base, b[2]), tex, rot))
     return out
 
 
@@ -308,10 +321,10 @@ def paint():
 
 def main():
     build()
-    write_model('ebf_lower', clip(solid, 0, SPLIT), 0, TEX)
-    write_model('ebf_upper', clip(solid, SPLIT, 64), SPLIT, TEX)
-    write_model('ebf_glow_lower', clip(glow, 0, SPLIT), 0, TEX)
-    write_model('ebf_glow_upper', clip(glow, SPLIT, 64), SPLIT, TEX)
+    write_model('ebf_lower', clip(solid, FLOOR, SPLIT, 0), 0, TEX)
+    write_model('ebf_upper', clip(solid, SPLIT, 80, SPLIT), SPLIT, TEX)
+    write_model('ebf_glow_lower', clip(glow, FLOOR, SPLIT, 0), 0, TEX)
+    write_model('ebf_glow_upper', clip(glow, SPLIT, 80, SPLIT), SPLIT, TEX)
     paint()
     print('solid elements:', len(solid), 'glow elements:', len(glow))
 
