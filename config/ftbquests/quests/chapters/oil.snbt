@@ -488,6 +488,87 @@
 			x: 21.0d
 			y: 6.0d
 		}
+		{
+			dependencies: ["0E3F5B2D0A4C6197"]
+			description: [
+				"{af9.quest.oil.splitter.1}"
+			]
+			icon: "gtceu:heavy_naphtha_bucket"
+			id: "60A1B2C3D4E5F607"
+			rewards: [{
+				id: "62A1B2C3D4E5F609"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.splitter.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:light_naphtha"
+					id: "61A1B2C3D4E5F608"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.splitter.title}"
+			x: 18.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["60A1B2C3D4E5F607"]
+			description: [
+				"{af9.quest.oil.reformer.1}"
+			]
+			icon: "gtceu:reformate_bucket"
+			id: "63A1B2C3D4E5F60A"
+			rewards: [{
+				id: "65A1B2C3D4E5F60C"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.reformer.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:reformate"
+					id: "64A1B2C3D4E5F60B"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.reformer.title}"
+			x: 21.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["63A1B2C3D4E5F60A"]
+			description: [
+				"{af9.quest.oil.alkylation.1}"
+			]
+			icon: "gtceu:alkylate_bucket"
+			id: "66A1B2C3D4E5F60D"
+			rewards: [{
+				id: "60A1B2C3D4E5F60F"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.alkylation.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:alkylate"
+					id: "67A1B2C3D4E5F60E"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.alkylation.title}"
+			x: 24.0d
+			y: 3.0d
+		}
 	]
 	subtitle: ["{af9.quest.oil.chapter.subtitle}"]
 	title: "{af9.quest.oil.chapter.title}"

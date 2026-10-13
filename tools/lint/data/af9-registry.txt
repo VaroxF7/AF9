@@ -427,6 +427,7 @@ material gtceu:acetoxyacetophenone
 material gtceu:acetoxyphenyl_methyl_carbinol
 material gtceu:acetoxystyrene
 material gtceu:acidic_ion_exchange_resin
+material gtceu:alkylate
 material gtceu:aluminised_hydrolox
 material gtceu:aluminium_chloride
 material gtceu:aluminium_nitride
@@ -489,6 +490,7 @@ material gtceu:fission_off_gas
 material gtceu:gold_free_liquor
 material gtceu:gst_alloy
 material gtceu:hafnium_tetrachloride
+material gtceu:heavy_naphtha
 material gtceu:heavy_water
 material gtceu:hexamethyldisilazane
 material gtceu:high_grade_solder
@@ -504,6 +506,7 @@ material gtceu:impure_oil
 material gtceu:iron_molybdate
 material gtceu:irradiated_fuel
 material gtceu:irradiated_mox
+material gtceu:isobutane
 material gtceu:isobutylene
 material gtceu:kovar
 material gtceu:krf_excimer_gas
@@ -513,6 +516,7 @@ material gtceu:l_01
 material gtceu:lactic_acid
 material gtceu:lactonitrile
 material gtceu:lesolite
+material gtceu:light_naphtha
 material gtceu:lithium_brine
 material gtceu:lithium_carbonate
 material gtceu:lithium_fluoride
@@ -570,6 +574,7 @@ material gtceu:propylene_oxide
 material gtceu:purified_krypton_xenon
 material gtceu:quantanium ore
 material gtceu:quantum_dot_colloid
+material gtceu:reformate
 material gtceu:reinforced_titanium_niobium_alloy
 material gtceu:rhodium_chloride_filtrate
 material gtceu:rhodium_iridium_chloride_liquor

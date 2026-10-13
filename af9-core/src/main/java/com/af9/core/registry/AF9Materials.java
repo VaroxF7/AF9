@@ -755,6 +755,36 @@ public final class AF9Materials {
                 .liquid()
                 .color(0x8fd0ff)
                 .formula("D2O"));
+
+        // Light Naphtha: the splitter's top cut (C5-C6), straight to the gasoline pool
+        add(material("light_naphtha")
+                .liquid()
+                .color(0xe6d488)
+                .formula("(C5H12)(C6H14)"));
+
+        // Heavy Naphtha: the splitter's bottom cut (C7-C9), the reformer's feed
+        add(material("heavy_naphtha")
+                .liquid()
+                .color(0xd1942e)
+                .formula("(C7H16)(C9H20)"));
+
+        // Reformate: the reformer's aromatic pool (benzene, toluene and heavier aromatics), plus hydrogen
+        add(material("reformate")
+                .liquid()
+                .color(0xe07038)
+                .formula("(C6H6)(C7H8)(C8H10)"));
+
+        // Isobutane: butane isomerized per pass, with the unconverted butane looping back
+        add(material("isobutane")
+                .liquid()
+                .color(0xd8e8f0)
+                .formula("(C4H10)"));
+
+        // Alkylate: isobutane + butene over sulfuric acid, the high-octane blendstock
+        add(material("alkylate")
+                .liquid()
+                .color(0xf0e6cc)
+                .formula("(C8H18)"));
     }
 
     /**

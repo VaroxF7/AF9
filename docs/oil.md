@@ -21,6 +21,12 @@ Desalted Oil (deep olive, animated)
      200 mB diesel, 200 mB Oil, 200 mB Heavy Oil
 Heavy Oil -> distillation tower, EV (vacuum): 1,000 mB -> 300 mB diesel, 400 mB lubricant, asphalt
 Heavy Oil + hydrogen -> cracker, HV (hydrocracking): 1,000 + 800 mB -> 1,000 mB diesel, 150 mB hydrogen sulfide
+Naphtha -> distillation tower, HV (splitter): 1,000 mB -> 600 mB light naphtha, 400 mB heavy naphtha
+Heavy Naphtha -> chemical reactor, HV (catalytic reforming, Pt-Re, circuit 2): 1,000 mB -> 800 mB reformate, 300 mB hydrogen
+Reformate -> distillation tower, HV (BTX extraction): 1,000 mB -> 300 mB benzene, 300 mB toluene, 400 mB gasoline
+Butane -> chemical reactor, HV (isomerization): 1,000 mB -> 800 mB isobutane, 200 mB butane back (recycle)
+Isobutane + butene + sulfuric acid -> chemical reactor, HV (alkylation): 1,000 + 1,000 + 500 mB -> 1,500 mB alkylate, 500 mB diluted acid
+Alkylate + gasoline -> mixer, HV (blending): 1,000 + 1,000 mB -> 2,000 mB high octane gasoline
 Hydrogen sulfide + oxygen -> chemical reactor, MV (Claus): 2,000 + 1,000 mB -> 2 sulfur, 2,000 mB water
 Asphalt + steam -> pyrolyse oven, HV (coker): 1 dust + 1,000 mB -> coke, 400 mB refinery gas
 Oil, Heavy Oil, naphtha, diesel: GT's own (its refining goes on as it always did)
@@ -31,6 +37,16 @@ Per 1,000 mB of Shiny Oil the old line made 600 Oil + 300 Heavy Oil. The new lin
 200 heavy crack to 200 diesel, or vacuum-distill to 60 diesel + 80 lube stock + asphalt,
 which cokes to coke + fuel gas. Hydrogenation adds mass, so the line pays better the further
 it is built out.
+
+The naphtha cut built out further: 250 naphtha split to 150 light + 100 heavy; the heavy reforms
+to 80 reformate + 30 hydrogen (the refinery's own H2, looping back into hydrocracking), and the
+reformate extracts to 24 benzene + 24 toluene + 32 gasoline — fossil aromatics beside the wood-tar
+green route (`aromatics.js`), same pool. Light naphtha blends straight to gasoline. The alkylation
+block takes GT's steam-cracked butene plus isomerized isobutane (per-pass equilibrium, butane recycled)
+over the acid belt's sulfuric acid: 100 iso + 100 butene + 50 acid -> 150 alkylate + 50 spent acid,
+blended 1:1 with gasoline to high octane. Omitted on purpose: kerosene (GT has none), lube dewaxing
+(the vacuum tower's lubricant stays finished; no GT waxy stream to dewax), sour-water/amine treating
+(no amines), spent-acid regen (diluted acid already loops where GT takes it).
 
 Impure, Shiny and Desalted Oil have their own animated textures (`kubejs/assets/gtceu/textures/block/fluids/fluid.impure_oil.png`,
 `fluid.shiny_oil.png` and `fluid.desalted_oil.png`, 16 frames, generated offline).

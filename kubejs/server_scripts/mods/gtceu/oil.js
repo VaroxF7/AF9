@@ -7,6 +7,13 @@
 //   Desalted Oil -> distillation tower (atmospheric) -> refinery gas + naphtha + diesel + oil + heavy oil
 //   Heavy Oil -> distillation tower, circuit 1 (vacuum) -> diesel + lubricant + asphalt
 //   Heavy Oil + hydrogen -> cracker (hydrocracking) -> diesel + hydrogen sulfide
+//   Naphtha -> distillation tower (splitter) -> light naphtha (gasoline pool) + heavy naphtha (reformer feed)
+//   Heavy Naphtha -> chemical reactor (catalytic reforming, Pt-Re) -> reformate + hydrogen (the refinery's own H2)
+//   Reformate -> distillation tower (BTX extraction) -> benzene + toluene + gasoline (fossil aromatics beside the
+//     wood-tar green route in aromatics.js)
+//   Butane -> chemical reactor (isomerization, per-pass equilibrium) -> isobutane + butane back (recycle)
+//   Isobutane + butene + sulfuric acid -> chemical reactor (alkylation) -> alkylate + spent (diluted) acid
+//   Alkylate + gasoline -> mixer (blending) -> high octane gasoline
 //   Hydrogen sulfide + oxygen -> chemical reactor (Claus) -> sulfur + water (sulfur loops to acid)
 //   Asphalt + steam -> pyrolyse oven (coker) -> coke + refinery gas (gas loops to shiny diesel)
 // GT's own refining goes on from Oil, Heavy Oil, naphtha and diesel. GT's world oil is switched off
@@ -66,6 +73,54 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:oil_heavy', 1000), Fluid.of('gtceu:hydrogen', 800))
         .outputFluids(Fluid.of('gtceu:diesel', 1000), Fluid.of('gtceu:hydrogen_sulfide', 150))
         .duration(200)
+        .EUt(VA[GTValues.HV])
+
+    // Naphtha splitter: straight-run naphtha in two cuts, light ends to gasoline blending, heavy to the reformer
+    event.recipes.gtceu.distillation_tower('af9:naphtha_splitting')
+        .inputFluids(Fluid.of('gtceu:naphtha', 1000))
+        .outputFluids(Fluid.of('gtceu:light_naphtha', 600), Fluid.of('gtceu:heavy_naphtha', 400))
+        .duration(200)
+        .EUt(VA[GTValues.HV])
+
+    // Catalytic reforming (Pt-Re, circuit 2): heavy naphtha to the aromatic pool, hydrogen back to the network.
+    // The refinery's own H2: with this on, hydrocracking and hydrotreating stop drawing electrolyzed hydrogen
+    event.recipes.gtceu.chemical_reactor('af9:heavy_naphtha_reforming')
+        .circuit(2)
+        .inputFluids(Fluid.of('gtceu:heavy_naphtha', 1000))
+        .outputFluids(Fluid.of('gtceu:reformate', 800), Fluid.of('gtceu:hydrogen', 300))
+        .duration(300)
+        .EUt(VA[GTValues.HV])
+
+    // BTX extraction: the reformate splits into benzene, toluene and a gasoline-range residual that blends straight.
+    // Fossil aromatics beside aromatics.js (wood tar topping + toluene hydrodealkylation): two routes, same pool
+    event.recipes.gtceu.distillation_tower('af9:reformate_extraction')
+        .inputFluids(Fluid.of('gtceu:reformate', 1000))
+        .outputFluids(Fluid.of('gtceu:benzene', 300), Fluid.of('gtceu:toluene', 300),
+            Fluid.of('gtceu:gasoline', 400))
+        .duration(200)
+        .EUt(VA[GTValues.HV])
+
+    // Isomerization: butane to isobutane per pass, the unconverted fifth loops back (recycle, like the real unit)
+    event.recipes.gtceu.chemical_reactor('af9:butane_isomerization')
+        .inputFluids(Fluid.of('gtceu:butane', 1000))
+        .outputFluids(Fluid.of('gtceu:isobutane', 800), Fluid.of('gtceu:butane', 200))
+        .duration(200)
+        .EUt(VA[GTValues.HV])
+
+    // Alkylation: isobutane + butene over sulfuric acid (the acid belt's doing) to alkylate; the spent acid
+    // leaves diluted, like the desalter wash's. Butene comes from GT's own steam cracking, untouched
+    event.recipes.gtceu.chemical_reactor('af9:alkylation')
+        .inputFluids(Fluid.of('gtceu:isobutane', 1000), Fluid.of('gtceu:butene', 1000),
+            Fluid.of('gtceu:sulfuric_acid', 500))
+        .outputFluids(Fluid.of('gtceu:alkylate', 1500), Fluid.of('gtceu:diluted_sulfuric_acid', 500))
+        .duration(300)
+        .EUt(VA[GTValues.HV])
+
+    // Blending: alkylate cuts straight-run gasoline up to high octane, no loss
+    event.recipes.gtceu.mixer('af9:alkylate_blending')
+        .inputFluids(Fluid.of('gtceu:alkylate', 1000), Fluid.of('gtceu:gasoline', 1000))
+        .outputFluids(Fluid.of('gtceu:high_octane_gasoline', 2000))
+        .duration(100)
         .EUt(VA[GTValues.HV])
 
     // Claus: 2 H2S + O2 -> 2 S + 2 H2O, the sulfur loops back to acid
