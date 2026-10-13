@@ -10,7 +10,8 @@
   "mixins": [
     "powah.OrbRecipeMixin",
     "powah.OrbRecipeSerializerMixin",
-    "powah.OrbTileMixin"
+    "powah.OrbTileMixin",
+    "gtceu.FusionReactorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

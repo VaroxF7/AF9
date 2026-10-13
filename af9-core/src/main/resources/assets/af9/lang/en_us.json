@@ -551,6 +551,7 @@
     "af9.dtpf.console.warming": "Warming up",
     "af9.dtpf.console.cooling": "Cooling down",
     "af9.dtpf.console.cold": "Cold",
+    "af9.fusion.ramp": "Fusion ramp: runs %s%% faster",
     "af9.tooltip.page": "Page %s / %s: hold Shift and scroll",
     "af9.space_elevator.display.title": "Space Elevator",
     "af9.space_elevator.display.not_formed": "Not formed.",

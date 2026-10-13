@@ -56,11 +56,12 @@ ServerEvents.recipes(event => {
         .outputFluids(Fluid.of('gtceu:piranha_solution', 4000))
         .duration(100)
         .EUt(MV)
-    // The spent strip is sulfuric acid with the dissolved resist: lime turns the acid into gypsum
+    // The spent strip is sulfuric acid with the dissolved resist: lime turns the acid into gypsum,
+    // the resist cakes out as spent filter cake (burns like coal)
     gt.fab_synthesis('af9:spent_piranha_neutralisation')
         .itemInputs('gtceu:calcium_hydroxide_dust')
         .inputFluids(Fluid.of('gtceu:spent_piranha', 1000))
-        .itemOutputs('gtceu:gypsum_dust')
+        .itemOutputs('gtceu:gypsum_dust', 'gtceu:filter_cake_dust')
         .outputFluids(Fluid.of('minecraft:water', 500))
         .duration(200)
         .EUt(MV)
@@ -140,10 +141,10 @@ ServerEvents.recipes(event => {
         .EUt(HV)
         .cleanroom(CleanroomType.CLEANROOM)
     // What the coater spins off is mostly resist solvent: distilled back to PGMEA, 60 % of it (the rest is polymer and
-    // the solvent that left with it: never all of it)
+    // the solvent that left with it: never all of it). The char cakes out as spent filter cake (burns like coal)
     gt.fab_fractionation('af9:recover_resist_solvent')
         .inputFluids(Fluid.of('gtceu:spent_resist_solvent', 1000))
-        .itemOutputs('gtceu:carbon_dust')
+        .itemOutputs('gtceu:filter_cake_dust')
         .outputFluids(Fluid.of('gtceu:propylene_glycol_methyl_ether_acetate', 600))
         .duration(200)
         .EUt(HV)
