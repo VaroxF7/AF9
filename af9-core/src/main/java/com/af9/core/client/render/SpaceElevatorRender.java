@@ -1,4 +1,4 @@
-﻿package com.af9.core.client.render;
+package com.af9.core.client.render;
 
 import com.af9.core.AF9Core;
 import com.af9.core.elevator.ISpaceElevatorMachine;
