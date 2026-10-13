@@ -1,17 +1,16 @@
 // AF9 - the Evaporation Condensation Retaining Well (ECRW): a shallow round pond that boils dilute fluids
 // down and keeps the condensate, the replacement for Mekanism's evaporation plant and the evaporation GregTech
 // had a while back. Machine logic: af9-core EvaporationWellMachine (plain GregTech behaviour) and the rake arm
-// that turns while a recipe runs (af9-core EcrwArmRender, wired below). Recipes: server_scripts/mods/gtceu/ecrw.js.
-// Spec: docs/ecrw.md
+// that turns round the middle while a recipe runs (af9-core EcrwArmRender, wired below; the arm is render-only,
+// no part of the pattern). Recipes: server_scripts/mods/gtceu/ecrw.js. Spec: docs/ecrw.md
 //
-// The structure is generated, not listed: a 15 x 15 pond, its centre at 7, rows bottom -> top, aisles back ->
-// front (the controller's, in the front wall, last). From the ground up:
-//   * the floor: a disc of solid steel casing;
-//   * the wall: a plain ring on its edge, 3 high, glass at the waterline; every steel block of it may be a hatch;
-//   * the pier: a 3 x 3 drive column up the middle, capped where the walkway lands;
-//   * the walkway: a half bridge of steel frames from the back rim to the pier, with rails a block above it;
-//   * the rim: a ring of steel frames along the wall's top.
-// The rake itself is no blocks: the render draws it, turning on the pier while a recipe runs.
+// The structure is the player's own build, restyled block for block: a 13 x 13 pond of GT watertight casing with
+// a stainless floor and pier, its centre at 6, rows bottom -> top, aisles back -> front (the controller's, in the
+// front wall at its foot, last). From the ground up:
+//   * the floor: a disc of stainless casing tucked inside the ring;
+//   * the wall: a plain ring on the edge, 2 high, every block of it may be a hatch;
+//   * the rim: the same ring once more along the wall's top, plain;
+//   * the pier: a plus of stainless casing up the middle, 4 high, that the rendered rake turns round.
 // The cell function below is the whole design; the aisles are built from it.
 
 const $EvaporationWellMachine = Java.loadClass('com.af9.core.machine.EvaporationWellMachine')
@@ -33,31 +32,27 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         for (let i = 0; i < count; i++) lines.push(Component.translatable(`${key}.${i}`))
         return lines
     }
+    // the GCYM casings live in GTBlocks' sister registry: forcing its init while KubeJS is still constructing
+    // NPEs GT's own startup, so it loads here, where the registries are up (lint rule S5)
+    const $EcrwWatertight = Java.loadClass('com.gregtechceu.gtceu.common.data.GCYMBlocks')
 
-    const ECRW_SIZE = 15         // the pond's width and depth, its centre at 7
-    const ECRW_HEIGHT = 6
-    const ECRW_CENTRE = 7
+    const ECRW_SIZE = 13         // the pond's width and depth, its centre at 6
+    const ECRW_HEIGHT = 4
+    const ECRW_CENTRE = 6
     // The design: the block at x, y, z (y up, z towards the front) as a letter of the pattern. S controller,
-    // B floor, W wall (hatches), G the glass waterline, C the drive pier, F walkway, rim and pier cap.
+    // B floor, W wall (hatches), R rim, C the plus pier; a space is nothing.
     const ecrwCell = (x, y, z) => {
         const dx = x - ECRW_CENTRE, dz = z - ECRW_CENTRE
         const r = Math.sqrt(dx * dx + dz * dz)
-        const cheb = Math.max(Math.abs(dx), Math.abs(dz))
-        // the controller, in the front wall at the waterline's foot
-        if (x === ECRW_CENTRE && z === ECRW_SIZE - 1 && y === 1) return 'S'
-        // the floor: a disc under everything
-        if (y === 0) return r <= 7.5 ? 'B' : ' '
-        // the walkway: a half bridge from the back rim to the pier, rails a block above it (before the pier:
-        // the deck crosses the column's top)
-        if (y === 4 && x === ECRW_CENTRE && z <= ECRW_CENTRE) return 'F'
-        if (y === 5 && (x === ECRW_CENTRE - 1 || x === ECRW_CENTRE + 1) && z <= ECRW_CENTRE) return 'F'
-        if (y === 5 && x === ECRW_CENTRE && z === ECRW_CENTRE) return 'F'
-        // the pier: a 3 x 3 drive column up the middle
-        if (cheb <= 1 && y >= 1 && y <= 4) return 'C'
-        // the wall: a plain ring on its edge, glass at the waterline
-        if (r >= 6.4 && r <= 7.6 && y >= 1 && y <= 3) return y === 2 ? 'G' : 'W'
-        // the rim: a ring of frames along the wall's top
-        if (r >= 6.4 && r <= 7.6 && y === 4) return 'F'
+        // the controller, in the front wall at its foot
+        if (x === ECRW_CENTRE && z === ECRW_SIZE - 1 && y === 0) return 'S'
+        // the floor: a disc tucked inside the ring
+        if (y === 0) return r <= 5.5 ? 'B' : r <= 6.6 ? 'W' : ' '
+        // the pier: a plus up the middle, 4 high
+        if ((dx === 0 || dz === 0) && Math.abs(dx) <= 1 && Math.abs(dz) <= 1 && y >= 0 && y <= 3) return 'C'
+        // the wall: a plain ring on its edge, 2 high, and the same ring once more for the rim
+        if (r >= 5.4 && r <= 6.6 && y === 1) return 'W'
+        if (r >= 5.4 && r <= 6.6 && y === 2) return 'R'
         return ' '
     }
     // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop bodies
@@ -84,12 +79,12 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeTypes([GTRecipeTypes.get('evaporation')])
         // perfect overclocks
         .recipeModifiers([GTRecipeModifiers.OC_PERFECT])
-        .appearanceBlock(GTBlocks.CASING_STEEL_SOLID)
+        .appearanceBlock($EcrwWatertight.CASING_WATERTIGHT)
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.ecrw.tooltip', 4))
         .pattern(definition => {
-            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)); the glass
-            // waterline stays glass, everything else of the wall may be one
-            const wall = Predicates.blocks(GTBlocks.CASING_STEEL_SOLID.get())
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)); any
+            // block of the wall may be one
+            const wall = Predicates.blocks($EcrwWatertight.CASING_WATERTIGHT.get())
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(4, 2))
                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(2, 1))
@@ -102,14 +97,14 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                 .where(' ', Predicates.any())
                 .where('W', wall)
-                .where('B', Predicates.blocks(GTBlocks.CASING_STEEL_SOLID.get()))
-                .where('G', Predicates.blocks('gtceu:tempered_glass'))
-                .where('C', Predicates.blocks('gtceu:tungstensteel_gearbox'))
-                .where('F', Predicates.blocks('gtceu:steel_frame'))
+                .where('R', Predicates.blocks($EcrwWatertight.CASING_WATERTIGHT.get()))
+                .where('B', Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get()))
+                .where('C', Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get()))
                 .build()
         })
-        // the controller: solid steel with the assembly line face, and the clarifier bridge on the pier (pond centre 7 back, bridge 2.5 above the controller's floor, 5.4 long)
-        .model($EcrwModels.workableCasingWithEcrwArm('gtceu:block/casings/solid/machine_casing_solid_steel',
-            'gtceu:block/multiblock/assembly_line', 7, 2.5, 5.4))
+        // the controller: watertight casing with the assembly line face, and the rake round the pier
+        // (pond centre 6 back, its blades scraping the floor)
+        .model($EcrwModels.workableCasingWithEcrwArm('gtceu:block/casings/gcym/watertight_casing',
+            'gtceu:block/multiblock/assembly_line', 6, 1.3, 4.2))
         .hasBER(true)
 })
