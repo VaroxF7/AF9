@@ -134,23 +134,6 @@ ServerEvents.recipes(event => {
         .duration(200)
         .EUt(VA[GTValues.HV])
 
-    // ---- Vitrification: minor actinides locked in glass, permanently safe ----
-    event.recipes.gtceu.mixer('af9:vitrify_neptunium')
-        .itemInputs('gtceu:neptunium_dust', '4x gtceu:silicon_dioxide_dust', '2x gtceu:lead_dust')
-        .itemOutputs('4x gtceu:vitrified_waste_dust')
-        .duration(200)
-        .EUt(VA[GTValues.HV])
-    event.recipes.gtceu.mixer('af9:vitrify_americium')
-        .itemInputs('gtceu:americium_dust', '4x gtceu:silicon_dioxide_dust', '2x gtceu:lead_dust')
-        .itemOutputs('4x gtceu:vitrified_waste_dust')
-        .duration(200)
-        .EUt(VA[GTValues.HV])
-    event.recipes.gtceu.mixer('af9:vitrify_protactinium')
-        .itemInputs('gtceu:protactinium_dust', '4x gtceu:silicon_dioxide_dust', '2x gtceu:lead_dust')
-        .itemOutputs('4x gtceu:vitrified_waste_dust')
-        .duration(200)
-        .EUt(VA[GTValues.HV])
-
     // ---- Off-gas cryogenics: dissolver fumes split to krypton and xenon (boule melts burn it) ----
     event.recipes.gtceu.distillation_tower('af9:fission_off_gas_split')
         .inputFluids(Fluid.of('gtceu:fission_off_gas', 1000))
