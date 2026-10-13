@@ -120,12 +120,11 @@
 			y: 0.0d
 		}
 		{
-			dependencies: ["3FEDE0A2CBDBA0D9"]
+			dependencies: ["7D2E4A1C9B3F5086"]
 			description: [
 				"{af9.quest.oil.oil.1}"
 			]
-			icon: "gtceu:oil_bucket"
-			id: "32FFA2B6E8A7E849"
+			icon: "gtceu:oil_bucket"			id: "32FFA2B6E8A7E849"
 			rewards: [{
 				id: "62E8FDBA90F05589"
 				type: "xp"
@@ -231,6 +230,263 @@
 			title: "{af9.quest.oil.heavy.title}"
 			x: 9.0d
 			y: 3.0d
+		}
+		{
+			dependencies: ["3FEDE0A2CBDBA0D9"]
+			description: [
+				"{af9.quest.oil.desalted.1}"
+			]
+			icon: "gtceu:desalted_oil_bucket"
+			id: "7D2E4A1C9B3F5086"
+			rewards: [{
+				id: "71D2E4A1C9B3F508"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.desalted.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:desalted_oil"
+					id: "72D2E4A1C9B3F508"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.desalted.title}"
+			x: 15.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["7D2E4A1C9B3F5086"]
+			description: [
+				"{af9.quest.oil.cuts.1}"
+			]
+			icon: "gtceu:naphtha_bucket"
+			id: "8E3F5B2D0A4C6197"
+			rewards: [{
+				id: "81E3F5B2D0A4C619"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.cuts.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:refinery_gas"
+					id: "82E3F5B2D0A4C619"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:naphtha"
+					id: "82E3F5B2D0A4C61A"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:diesel"
+					id: "82E3F5B2D0A4C61B"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.cuts.title}"
+			x: 18.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["8E3F5B2D0A4C6197"]
+			description: [
+				"{af9.quest.oil.shinydiesel.1}"
+			]
+			icon: "gtceu:shiny_diesel_bucket"
+			id: "4E9F1B8D6A0C2753"
+			rewards: [{
+				id: "41E9F1B8D6A0C275"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.shinydiesel.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:shiny_diesel"
+					id: "42E9F1B8D6A0C275"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.shinydiesel.title}"
+			x: 21.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["4E9F1B8D6A0C2753"]
+			description: [
+				"{af9.quest.oil.ladder.1}"
+			]
+			icon: "gtceu:mana_diesel_bucket"
+			id: "5FA02C9E7B1D3864"
+			rewards: [{
+				id: "51FA02C9E7B1D386"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.ladder.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:chloromethane_diesel"
+					id: "52FA02C9E7B1D386"
+					type: "fluid"
+				}
+				{
+					amount: 1000L
+					fluid: "gtceu:mana_diesel"
+					id: "52FA02C9E7B1D387"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.ladder.title}"
+			x: 24.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["7D2E4A1C9B3F5086"]
+			description: [
+				"{af9.quest.oil.salt.1}"
+			]
+			icon: "gtceu:salt_dust"
+			id: "3D8E0A7C5F9B1642"
+			rewards: [{
+				id: "31D8E0A7C5F9B164"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.salt.subtitle}"
+			tasks: [
+				{
+					id: "32D8E0A7C5F9B164"
+					item: "gtceu:salt_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.oil.salt.title}"
+			x: 15.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["8E3F5B2D0A4C6197"]
+			description: [
+				"{af9.quest.oil.sulfur.1}"
+			]
+			icon: "gtceu:sulfur_dust"
+			id: "2C7D9F6B4E8A0531"
+			rewards: [{
+				id: "21C7D9F6B4E8A053"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.sulfur.subtitle}"
+			tasks: [
+				{
+					id: "22C7D9F6B4E8A053"
+					item: "gtceu:sulfur_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.oil.sulfur.title}"
+			x: 12.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["8E3F5B2D0A4C6197"]
+			description: [
+				"{af9.quest.oil.lubricant.1}"
+			]
+			icon: "gtceu:lubricant_bucket"
+			id: "9F4A6C3E1B5D7208"
+			rewards: [{
+				id: "91F4A6C3E1B5D720"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.lubricant.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:lubricant"
+					id: "92F4A6C3E1B5D720"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.oil.lubricant.title}"
+			x: 15.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["8E3F5B2D0A4C6197"]
+			description: [
+				"{af9.quest.oil.asphalt.1}"
+			]
+			icon: "gtceu:asphalt_dust"
+			id: "6A5B7D4F2C6E8319"
+			rewards: [{
+				id: "61A5B7D4F2C6E831"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.asphalt.subtitle}"
+			tasks: [
+				{
+					id: "62A5B7D4F2C6E831"
+					item: "gtceu:asphalt_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.oil.asphalt.title}"
+			x: 18.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["6A5B7D4F2C6E8319"]
+			description: [
+				"{af9.quest.oil.coke.1}"
+			]
+			icon: "gtceu:coke_dust"
+			id: "1B6C8E5A3D7F9420"
+			rewards: [{
+				id: "11B6C8E5A3D7F942"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.oil.coke.subtitle}"
+			tasks: [
+				{
+					id: "12B6C8E5A3D7F942"
+					item: "gtceu:coke_dust"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.oil.coke.title}"
+			x: 21.0d
+			y: 6.0d
 		}
 	]
 	subtitle: ["{af9.quest.oil.chapter.subtitle}"]

@@ -997,37 +997,6 @@
 			x: 9.0d
 			y: 3.0d
 		}
-		{
-			dependencies: ["41DCF00E396CDF61"]
-			description: [
-				"{af9.quest.fx.temples.1}"
-				""
-				"{af9.quest.fx.temples.2}"
-				""
-				"{af9.quest.fx.temples.3}"
-			]
-			icon: "minecraft:crying_obsidian"
-			id: "259A35E1279761A6"
-			rewards: [{
-				id: "51A678DE1D9CB7F4"
-				type: "xp"
-				xp: 200
-			}]
-			shape: "diamond"
-			size: 2.0d
-			subtitle: "{af9.quest.fx.temples.subtitle}"
-			tasks: [
-				{
-					count: 2L
-					id: "3DCD76246013B42F"
-					item: "minecraft:crying_obsidian"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.fx.temples.title}"
-			x: 18.0d
-			y: -3.0d
-		}
 	]
 	subtitle: ["{af9.quest.fx.chapter.subtitle}"]
 	title: "{af9.quest.fx.chapter.title}"

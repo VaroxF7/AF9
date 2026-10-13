@@ -366,6 +366,7 @@ material gtceu:ares_gas
 material gtceu:arf_excimer_gas
 material gtceu:arf_photoresist
 material gtceu:artemite ore
+material gtceu:asphalt
 material gtceu:azobisisobutyronitrile
 material gtceu:barc
 material gtceu:bioethanol
@@ -376,6 +377,7 @@ material gtceu:butanol
 material gtceu:chloromethane_diesel
 material gtceu:chromodynium
 material gtceu:cobalt_iron_boron
+material gtceu:concentrated_lithium_brine
 material gtceu:crude_argon
 material gtceu:crude_chlorosilanes
 material gtceu:crude_fluorine
@@ -390,6 +392,7 @@ material gtceu:dense_argon
 material gtceu:dense_endion
 material gtceu:dense_hydrogen
 material gtceu:dense_xenon
+material gtceu:desalted_oil
 material gtceu:desh
 material gtceu:di_tert_butyl_dicarbonate
 material gtceu:diazonaphthoquinone
@@ -404,6 +407,7 @@ material gtceu:etch_plasma_gas
 material gtceu:ethyl_lactate
 material gtceu:euv_photoresist
 material gtceu:extreme_clean_dry_air
+material gtceu:filter_cake
 material gtceu:gold_free_liquor
 material gtceu:gst_alloy
 material gtceu:hafnium_tetrachloride
@@ -430,7 +434,13 @@ material gtceu:l_01
 material gtceu:lactic_acid
 material gtceu:lactonitrile
 material gtceu:lesolite
+material gtceu:lithium_brine
+material gtceu:lithium_carbonate
+material gtceu:lithium_fluoride
+material gtceu:lithium_hexafluorophosphate
+material gtceu:lithium_hydroxide
 material gtceu:lithium_niobate
+material gtceu:lithium_oxide
 material gtceu:living_solder
 material gtceu:lunar_air
 material gtceu:lxa_1

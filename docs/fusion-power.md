@@ -78,3 +78,13 @@ fusion line, and each one needs somewhere else than the base:
 A route a player can read straight from the first column: *Glacio's deuterium* and *the Moon's helium-3* are the Mk1's whole fuel from
 two dimensions, *Venus's fluorine* and a platinum-group ore make the Mk3's radon plasma, and a Mk-IV mission to the termination
 shock brings the Mega Fusion Reactor its star matter without a single Mk3 reaction.
+
+## 6. Fusion ramp
+
+A fusion reactor runs faster the longer it runs without a pause, after the Plasma Forge's
+warmth (same numbers: full ramp after 30 minutes of continuous running, runs take up to 25 %
+less time). EU/t never changes. The ramp is estimated from GT's own consecutive-craft counter
+times the run time, so it survives reloads and resets whenever the line breaks (inputs run out,
+structure breaks, suspend). Every tier ramps, Mk1 through the Mega (one machine class, AF9
+mixin `FusionReactorMixin` on GT's `recipeModifier`). The controller screen shows the current
+discount (`af9.fusion.ramp`).

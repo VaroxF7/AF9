@@ -39,8 +39,8 @@ The two belts are different regions, not two copies:
 
 | Planet (`af9-core/src/main/resources/data/af9/planets/`) | Dimension | Is | Tier | Gravity | Orbit |
 |---|---|---|---|---|---|
-| `ceres.json` | `af9:ceres` | void belt: dark volcanic asteroids (andesite, tuff, basalt, blackstone) in flat lenses, denser with smaller islands, no temples; the fission ores | 2 | 0 | `af9:asteroid_field` |
-| `asteroid_field.json` | `af9:asteroid_field` | void belt: pale exotic asteroids (granite, diorite, deepslate, end stone) as spires, discs and shard clusters; the temples and the exotic ores, the stations | 2 | 0 | none |
+| `ceres.json` | `af9:ceres` | void belt: dark volcanic asteroids (andesite, tuff, basalt, blackstone) in flat lenses, denser with smaller islands; the fission ores | 2 | 0 | `af9:asteroid_field` |
+| `asteroid_field.json` | `af9:asteroid_field` | void belt: pale exotic asteroids (granite, diorite, deepslate, end stone) as spires, discs and shard clusters; the exotic ores, the stations | 2 | 0 | none |
 
 The menu shows **Ceres** (tier 2: Mars's tier). *Land* goes to the Ceres belt; *Construct Space Station* builds the station in the
 field, at the chunk the rocket is over, at y = 100 (Ad Astra's rule). Falling out of the field drops a player into the Ceres belt (Ad
@@ -55,7 +55,7 @@ Astra's below-world rule for space dimensions).
   placed feature `af9:asteroid_field` (decoration step 0, before GT's ore placement which runs at the tail of the same step).
   `worldgen/biome/ceres.json` is the same with the placed feature `af9:ceres_field`.
 - Both features are `AsteroidFieldFeature` (`Belt.FIELD` and `Belt.CERES`): the Ceres belt uses denser cells (240 blocks,
-  75 % hold a cluster) with smaller lens islands (30-55 blocks) in andesite, tuff, basalt and blackstone, and no temples.
+  75 % hold a cluster) with smaller lens islands (30-55 blocks) in andesite, tuff, basalt and blackstone.
   The upper field keeps the wide cells (300 blocks, 65 %) with big islands (45-75 blocks) in granite, diorite, deepslate
   and end stone, shaped as spires, discs and shard clusters (`Archetype`, drawn from the cell's random) with a ridged,
   faceted surface.
@@ -105,60 +105,6 @@ were generated before keep their old rocks; for the first look use a new world o
 The rock comes in patches, by a slow noise. The Ceres belt is andesite, tuff, basalt and blackstone; the upper field
 is granite, diorite, deepslate and end stone. All eight are stones GT has ore blocks for;
 the ore layer targets exactly them (the block tag `af9:asteroid_rock`, `AF9Space`; lint X4).
-
-## 2.2b Ancient temples (`TempleLayout`)
-
-Ruins in the bigger rocks. `af9-core/src/main/java/com/af9/core/space/TempleLayout.java` is pure geometry (no Minecraft classes) and
-answers "what is at this world position": a hall carved out of the rock and lined with polished blackstone brick, a corridor from it
-to the surface, a gate there, and in front of the gate a forecourt out in the void. `AsteroidFieldFeature` asks it for every position of
-its chunk, so a temple comes out whole in any order of chunk generation, like the rock itself. A chunk sets the stone of all the rocks
-that reach it first and the temples after (a rock that overlaps a temple's rock does not close its corridor). It is turned by a random quarter turn. The hall starts in the middle of the rock and is moved along the
-corridor towards the gate as far as it stays inside the rock (its corners and the middle of its walls must be rock), so that the corridor is
-at most 20 blocks long (`MAX_CORRIDOR`), also in an island of 90 blocks of radius.
-
-| Size | Hall inside (wide x long x high) | Corridor | In it | Fits an asteroid from (radius, worst / best case) |
-|---|---|---|---|---|
-| shrine | 3 x 5 x 3 | 1 wide, 2 high | an altar block and one chest, two end rods | about 12 / 9 |
-| temple | 7 x 11 x 4 | 3 wide, 3 high | two rows of pillars (purpur), end rods, a platform with an altar and a chest, a band of carvings on the back wall | about 21 / 12 |
-| grand temple | 11 x 17 x 6 | 5 wide, 4 high | the same, longer (four rows of pillars), and a chest in each back corner | about 30 / 18 |
-
-**Where the temples are: a grid like the End cities'.** Vanilla places `minecraft:end_city` with `random_spread`, spacing 20 and
-separation 11 chunks: the world is cut into squares of 20 x 20 chunks (320 blocks), every square has one candidate point at random in its
-first 9 chunks, so two points are at least 11 chunks (176 blocks) apart. The temples use the same numbers (`TEMPLE_SPACING`,
-`TEMPLE_SEPARATION`, a salt of their own): each square's point goes to **the cluster whose centre is nearest to it** (within
-`TEMPLE_RANGE` = 192 blocks; none if there is no cluster that near), and **a cluster holds at most one temple**: in its island 70 % of
-the time (`ISLAND_HOST_SHARE`: a grand temple, the islands have radii of 45-75), else in its biggest satellite that a temple fits (a large
-or a big medium one: a shrine, a temple or a grand temple). Simulated over 216 km2: **5.6 temples per km2, in 76 % of the clusters**, the
-nearest other temple a median 256 blocks away (the 10th percentile 151, the minimum a few dozen: the point is the grid's, the rock is
-the nearest cluster's). Which rock it is comes from the world seed and the cell alone (a pure function, cached per square), so a chunk and
-its neighbour agree and the cluster's other rocks do not move. The biggest size that fits is built: the corner of the outer wall, as a
-share of the radii, squared and added up, has to stay below 0.36 (an ellipsoid's surface is 1; the lumps of the surface take up to a third
-of the radius). A temple that pokes out of a thin spot of the rock stays: the walls hang on the rock, it is a ruin. (Before: a temple in
-every island, 60 % of the large and 25 % of the medium satellites, about 50 a km2.)
-
-The corridor runs on along its axis through the rock; the *gate* stands where the rock ends (the layout walks along the axis through
-the asteroid's own shape and takes the last rock, a gap of two blocks is a lump in the surface): two purpur pillars, a chiselled
-lintel and an end rod on each end of it.
-
-**The forecourt** is what you see of a temple from outside (the hall and the corridor are inside the rock, the gate is a hole in its side):
-a platform of the hall's floor (gilded stripe down the middle) stands out of the gate into the void, 4 / 7 / 10 blocks long (shrine /
-temple / grand temple) and 7 / 9 / 11 wide, with a row of purpur pillars every three blocks along both sides, a chiselled beam over
-each row and along the sides, and the air over it carved. The **outer pair of pillars are towers**: 16 / 17 / 18 blocks tall with two blocks of crying
-obsidian and two end rods on top, a glowing mark on the side of the rock (at the height of the hall, which is the height of the rock's
-middle). The forecourt is no more than 10 blocks past the rock's surface; `MARGIN` (14) in the feature is its reach.
-
-Blocks: `polished_blackstone_bricks` (one in eight cracked), `chiseled_polished_blackstone`, `polished_blackstone` and now and then
-`gilded_blackstone` for the floor, `purpur_pillar`, `crying_obsidian` for the altars, `end_rod` for light. None of them is a stone of
-the ore layer, so no vein grows into a wall. Chests face the entrance and hold loot tables by size
-(`af9-core/src/main/resources/data/af9/loot_tables/chests/`):
-
-| Table | Used by | Contents |
-|---|---|---|
-| `ancient_shrine` | the shrine | 2-3 rolls of desh, gold, iron, raw Brannerite, ender pearls; 30 %: a diamond or an ASIC chip |
-| `ancient_temple` | temple and grand temple | 3-5 rolls of desh, ostrum, calorite, gold, diamond, raw platinum, raw Brannerite, raw naquadah; 60 %: 1-2 of ender pearls, crying obsidian, netherite scrap, ASIC / MRAM / VPU chips |
-
-Lint X4 checks that the tables named by `TempleLayout` exist and that every `af9:` chip and `gtceu:raw_` ore in them is real
-(an unknown item makes Minecraft drop the whole table without a word).
 
 ## 2.3 The ore (GT dike veins, split by belt)
 
@@ -332,7 +278,7 @@ carry GT's radioactive hazard themselves. Setting: `[radiation] hints` in `confi
 # 8. Quests
 
 The chapter `config/ftbquests/quests/chapters/asteroid_fission.snbt` (texts `af9.quest.fx.*` in
-`kubejs/assets/kubejs/lang/en_us.json`): 34 quests from the rockets (all four, and the Rover) to the Mk1, with one for the ancient temples. ATM9's Mk1 quest (`zero_point_module.snbt`) now
+`kubejs/assets/kubejs/lang/en_us.json`): 33 quests from the rockets (all four, and the Rover) to the Mk1. ATM9's Mk1 quest (`zero_point_module.snbt`) now
 needs the plutonium-241 quest too.
 
 # 9. What was not run
@@ -347,10 +293,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 4. the FX-1 in the multiblock preview, one fuel cycle, a Large Steam Turbine on the steam;
 5. Extreme Reactors, if installed: the log line `Extreme Reactors: could not ...` means the vapor was not registered;
 6. the quest task "dimension" of `af9.quest.fx.field` (an FTB Quests task type);
-7. the temples: that they generate (about one in four clusters has none; a grand temple in the islands, now and then a temple or shrine in a satellite), that the
-   forecourts and their towers stand out of the rocks' sides, that the gate and corridor open to the void (simulated: about 98 %; a temple whose gate
-   lies inside another rock that overlaps its own stays closed), that the chests hold loot (a missing `af9:chests/...` table gives empty chests, a log line
-   "Couldn't find resource table"), and how the field looks with the closer clusters and satellites (§2.2: `CELL`, `CLUSTER_CHANCE`,
+7. how the field looks with the closer clusters and satellites (§2.2: `CELL`, `CLUSTER_CHANCE`,
    `SATELLITE_DISTANCE`, `SATELLITE_SPREAD_Y`);
 8. the Assembly Line rocket recipes (tiers 3 and 4): the recipe in the Assembly Line preview, the research of the tier 2 rocket in
    the Scanner.
@@ -369,8 +312,6 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`, `AF9Space.java` | the asteroids of both belts and their registration |
 | `kubejs/server_scripts/mods/gtceu/vein_ceres.js` | the brannerite, pentlandite, magnetite and cooperite dike veins of Ceres |
 | `kubejs/server_scripts/mods/gtceu/vein_field.js` | the naquadah, platinum, quantanium and iridium dike veins of the upper field |
-| `af9-core/src/main/java/com/af9/core/space/TempleLayout.java` | the ancient temples (geometry, no Minecraft classes) |
-| `af9-core/src/main/resources/data/af9/loot_tables/chests/` | the loot of the temples and shrines |
 | `af9-core/src/main/java/com/af9/core/radiation/RadiationWatch.java` | the radiation warning |
 | `af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeReactorsCompat.java` | supercritical steam for Extreme Reactors |
 | `af9-core/src/main/resources/data/af9/` | dimensions, dimension type, biome, features, planets, the station recipe |

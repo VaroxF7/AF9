@@ -180,8 +180,7 @@ GT rocket (gregified parts, Aluminised Hydrolox) → Ceres → Asteroid Field (a
 ```
 
 - **The field:** seed-fixed clusters (island + 12–24 satellites, ~7.2 clusters/km²), andesite/tuff/
-  basalt/blackstone so GT ore blocks grow in-rock at every height; **ancient temples** (shrine/temple/
-  grand temple, loot `af9:chests/ancient_*`) in ~76% of clusters; ~9% brannerite + pentlandite,
+  basalt/blackstone so GT ore blocks grow in-rock at every height; ~9% brannerite + pentlandite,
   magnetite, cooperite by world-position noise.
 - **Rockets, gregified:** every part and rocket is a GT machine recipe (T1–T2 assembler, T3–T4 Assembly
   Line with scanner research). T2 (titanium/ASIC) reaches Ceres; propellant is 2 recipes from 4 base
@@ -388,6 +387,9 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 - [Quantanium](docs/quantanium.md) — the UHV unlock ore, Asteroid Field dike vein
 - [Lesolite](docs/lesolite.md) — the EV SMD mineral, Moon blob vein beside artemite
 - [Early game](docs/early-game.md) — Create circuits (LV, MV), HV components in Powah's Energizing Orb
+- [Lithium brine](docs/lithium-brine.md) — salar water to LiCl, carbonate, hydroxide, oxide, LiPF6 (MV–LuV)
+- [Water filtration](docs/water-filtration.md) — skimmer basin: water, brine, desalination, wastewater cleaning
+- [Supersymmetry review](docs/supersymmetry.md) — what the realistic-chemistry pack does, chain lengths, fact-check, AF9 takeaways
 - [Review findings](docs/review-findings.md) — what the lint found
 - [AF9 Core](af9-core/README.md) — Java class map
 - [Lint](tools/lint/README.md) — checker usage
