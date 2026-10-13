@@ -77,6 +77,8 @@ public final class StructureSkins {
     private static int ticks;
     /** Machine models that got the render: when none did, nothing is hidden. */
     private static int attached;
+    /** The skins whose models baked. */
+    private static volatile Set<StructureSkin> READY = Set.of();
 
     private StructureSkins() {}
 
@@ -228,26 +230,28 @@ public final class StructureSkins {
             }
             if (ok) ready.add(skin);
         }
+        READY = ready;
         for (BakedModel baked : event.getModels().values()) {
-            if (!(baked instanceof MachineModel machineModel)) continue;
-            StructureSkin skin = skinOf(machineModel.getDefinition());
-            if (skin == null || !ready.contains(skin)) continue;
-            boolean has = false;
-            for (var render : machineModel.getDynamicRenders()) {
-                if (render instanceof StructureSkinRender) {
-                    has = true;
-                    break;
-                }
-            }
-            if (!has) {
-                StructureSkinRender render = new StructureSkinRender();
-                render.setParent(machineModel);
-                machineModel.getDynamicRenders().add(render);
-            }
-            attached++;
+            if (baked instanceof MachineModel machineModel && attach(machineModel)) attached++;
         }
         AF9Core.LOGGER.info("Structure skins: {} of {} skin(s) ready, the render attached to {} machine model(s)",
                 ready.size(), SKINS.size(), attached);
+    }
+
+    /**
+     * Puts the skin's render on a controller's machine model (once). With dynamic model loading (ModernFix) the machine
+     * models are not in the baking result, so the tick does this for the models it meets.
+     */
+    private static boolean attach(MachineModel machineModel) {
+        StructureSkin skin = skinOf(machineModel.getDefinition());
+        if (skin == null || !READY.contains(skin)) return false;
+        for (var render : machineModel.getDynamicRenders()) {
+            if (render instanceof StructureSkinRender) return true;
+        }
+        StructureSkinRender render = new StructureSkinRender();
+        render.setParent(machineModel);
+        machineModel.getDynamicRenders().add(render);
+        return true;
     }
 
     /** Forge bus, every client tick: looks for formed controllers round the player and keeps what they hide current. */
@@ -266,7 +270,7 @@ public final class StructureSkins {
             clear();
             trackedLevel = level;
         }
-        if (attached == 0) return;
+        if (READY.isEmpty()) return;
 
         Set<Long> seen = new HashSet<>();
         ChunkPos centre = mc.player.chunkPosition();
@@ -281,6 +285,11 @@ public final class StructureSkins {
                     if (skin == null || !controller.isFormed()) continue;
                     // without a block entity renderer there is nothing to draw the model: keep the blocks
                     if (mc.getBlockEntityRenderDispatcher().getRenderer(be) == null) continue;
+                    // the model the block draws with gets the render now (it may have been loaded after the baking)
+                    if (!(mc.getBlockRenderer().getBlockModel(be.getBlockState()) instanceof MachineModel model)
+                            || !attach(model)) {
+                        continue;
+                    }
                     seen.add(be.getBlockPos().asLong());
                     track(level, controller, skin);
                 }
