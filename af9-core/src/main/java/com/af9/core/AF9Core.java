@@ -11,6 +11,7 @@ import com.af9.core.compat.extremereactors.ExtremeReactorsCompat;
 import com.af9.core.droppod.AF9DropPod;
 import com.af9.core.elevator.SpaceMissionMachine;
 import com.af9.core.fab.FabRecipeInfo;
+import com.af9.core.machine.FiltrationPlantMachine;
 import com.af9.core.machine.ParticleAcceleratorMachine;
 import com.af9.core.machine.PhotolithographyLineMachine;
 import com.af9.core.machine.SanguiniteHearthRecipeUI;
@@ -101,6 +102,7 @@ public class AF9Core {
         // AF9Addon.registerCovers, while GregTech still accepts covers)
         event.enqueueWork(StagedAssemblyMachine::registerRecipeInfo);
         event.enqueueWork(StagedRecipeUI::install);
+        event.enqueueWork(FiltrationPlantMachine::registerRecipeInfo);
         // the blocks exist now; structures are only checked later
         event.enqueueWork(AF9Filters::register);
         // the orbital station's magnetic field sets gravity through Ad Astra

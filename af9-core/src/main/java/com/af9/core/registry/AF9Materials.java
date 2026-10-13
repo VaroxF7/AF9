@@ -83,6 +83,7 @@ public final class AF9Materials {
         fabChemistry();
         fusionPlasmas();
         lithoProcess();
+        lithiumBrine();
         oil();
         planetMetals();
         particleAccelerator();
@@ -93,6 +94,7 @@ public final class AF9Materials {
         solders();
         uhvSuperconductor();
         motorParts();
+        waterFiltration();
     }
 
     private static Material.Builder material(String id) {
@@ -597,6 +599,26 @@ public final class AF9Materials {
     }
 
     /**
+     * Lithium brine, after the salars of the Andes (and Mekanism's and old GT's brine): salt water is pumped,
+     * evaporated until halite, sylvite and borax drop out, limed and carbonated to lithium chloride, then built
+     * into carbonate (the battery precursor), hydroxide (the cathode precursor), oxide (ceramics), fluoride and
+     * hexafluorophosphate (the Li-ion electrolyte salt). GT's own electrolyzer splits the chloride to lithium
+     * metal, which the SAW filters' lithium niobate is cut from. Recipes: lithium_brine.js (MV to LuV).
+     * Spec: docs/lithium-brine.md
+     */
+    private static void lithiumBrine() {
+        // Raw salar brine and its evaporation-pond concentrate: mixtures, so no formulas (and no GT shortcuts)
+        liquid("lithium_brine", 0x7fd4c1);
+        liquid("concentrated_lithium_brine", 0x2fa386);
+        // The battery trio and the electrolyte pair
+        dust("lithium_carbonate", 0xf2f2f2, "Li2CO3");
+        dust("lithium_hydroxide", 0xe9e9e9, "LiOH");
+        dust("lithium_oxide", 0xe2e2e2, "Li2O");
+        dust("lithium_fluoride", 0xf5f5f5, "LiF");
+        dust("lithium_hexafluorophosphate", 0xe4efff, "LiPF6");
+    }
+
+    /**
      * The Moon's silicon: Artemite, the lunar borate that dopes the first silicon boules, Tranquillite, the lunar
      * silicate behind the MV bond-wire alloy, and the Moon Sand chain
      * behind every polysilicon. Artemite and Tranquillite generate only on the Moon (vein_moon.js); Moon Sand is blended from sand
@@ -677,7 +699,8 @@ public final class AF9Materials {
     }
 
     /**
-     * The new oil: the fluids of the chain Oil Regolith, Impure Oil, Shiny Oil, Oil and Heavy Oil, and Heavy Water.
+     * The new oil: the fluids of the chain Oil Regolith, Impure Oil, Shiny Oil, Desalted Oil, Oil and
+     * Heavy Oil, Asphalt vacuum bottoms, and Heavy Water.
      * The regolith block is {@link com.af9.core.space.OilRegolithBlock}, grown in the Asteroid Field's rock. Recipes:
      * oil.js, vein_oil.js. Spec: docs/oil.md
      */
@@ -692,6 +715,14 @@ public final class AF9Materials {
         add(material("shiny_oil")
                 .liquid(new FluidBuilder().customStill().disableColor())
                 .color(0xb87a1a));
+
+        // Desalted Oil: the salt wash leaves a deep olive crude (fluid.desalted_oil.png, animated)
+        add(material("desalted_oil")
+                .liquid(new FluidBuilder().customStill().disableColor())
+                .color(0x4a5a1a));
+
+        // Asphalt: the vacuum bottoms, a near-black rough dust. Coked to coke and fuel gas, or burned as is
+        roughDust("asphalt", 0x1f1a14, "(C)n");
 
         // Heavy Water: D2O, from the Asteroid Field's deposits (GT has deuterium, no heavy water)
         add(material("heavy_water")
@@ -1049,5 +1080,14 @@ public final class AF9Materials {
                         MaterialFlags.GENERATE_BOLT_SCREW, MaterialFlags.GENERATE_RING)
                 .blastTemp(3000, GasTier.MID, GTValues.VA[GTValues.EV], 800)
                 .formula("(NbTi)(HSLA)"));
+    }
+
+    /**
+     * The Water Filtration Plant's waste: spent filter cake, the carbonaceous sludge every cleaning
+     * run cakes out (docs/water-filtration.md). It burns like coal (startup_scripts/af9_fuels.js sets
+     * its furnace burn time to 1600), so the cake is fuel or trash, never a dead end.
+     */
+    private static void waterFiltration() {
+        roughDust("filter_cake", 0x4a3b28, "(C)(H2O)");
     }
 }
