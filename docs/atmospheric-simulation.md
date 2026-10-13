@@ -1,6 +1,7 @@
 # Atmospheric Simulation Room: Lunar air, anywhere
 
-A 7x5x7 pressure room after GT's Cleanroom that holds a **Lunar atmosphere** in any dimension.
+A 31x6x31 pressure room after GT's Cleanroom (past its 15 max) that holds a **Lunar atmosphere**
+in any dimension.
 The controller in the ceiling centre houses the **Atmospheric Simulator**; XPS and NVM circuits
 (the tiers `circuits_af9.js` had parked) build in its lunar air.
 
@@ -10,7 +11,7 @@ XPS/NVM recipes), AF9 Core `AtmosphereRoomMachine` (console + suit watch).
 
 ## The room
 
-Stainless shell, tempered-glass bands, hollow 3x3x5 middle, controller ceiling-centre like a
+Stainless shell, tempered-glass bands, hollow 27x4x30 middle, controller ceiling-centre like a
 cleanroom's, 1x2 door front-bottom-centre. Parts are maximums only: 2 energy, 2+1 item buses,
 2+1 fluid hatches, 1 maintenance. Perfect OC.
 

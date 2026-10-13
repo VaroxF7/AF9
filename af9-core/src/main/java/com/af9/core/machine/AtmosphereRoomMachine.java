@@ -106,8 +106,8 @@ public class AtmosphereRoomMachine extends ProcessMachine {
     }
 
     /**
-     * The room's air, in world coords: 3 x 3 x 5 inside the 7 x 5 x 7 shell, under the ceiling
-     * controller (offsets mirror the KubeJS pattern: x -1..1, up -3..-1, back -5..-1).
+     * The room's air, in world coords: 27 x 4 x 30 inside the 31 x 6 x 31 shell, under the ceiling
+     * controller (offsets mirror the KubeJS pattern: x -13..13, up -4..-1, back -30..-1).
      */
     private AABB interiorBox() {
         boolean flipped = this instanceof MultiblockControllerMachine controller && controller.isFlipped();
@@ -117,9 +117,9 @@ public class AtmosphereRoomMachine extends ProcessMachine {
         double px = getPos().getX() + 0.5, py = getPos().getY() + 0.5, pz = getPos().getZ() + 0.5;
         double minX = Double.POSITIVE_INFINITY, minY = Double.POSITIVE_INFINITY, minZ = Double.POSITIVE_INFINITY;
         double maxX = Double.NEGATIVE_INFINITY, maxY = Double.NEGATIVE_INFINITY, maxZ = Double.NEGATIVE_INFINITY;
-        for (double lx : new double[] { -1.5, 1.5 }) {
-            for (double ly : new double[] { -3.5, -0.5 }) {
-                for (double lz : new double[] { -5.5, -0.5 }) {
+        for (double lx : new double[] { -13.5, 13.5 }) {
+            for (double ly : new double[] { -4.5, -0.5 }) {
+                for (double lz : new double[] { -30.5, -0.5 }) {
                     double wx = px + lx * left.getStepX() + ly * up.getStepX() + lz * back.getStepX();
                     double wy = py + lx * left.getStepY() + ly * up.getStepY() + lz * back.getStepY();
                     double wz = pz + lx * left.getStepZ() + ly * up.getStepZ() + lz * back.getStepZ();

@@ -1,4 +1,4 @@
-package com.af9.core.client.render;
+﻿package com.af9.core.client.render;
 
 import com.af9.core.AF9Core;
 import com.af9.core.elevator.ISpaceElevatorMachine;
@@ -30,19 +30,18 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import org.joml.Vector3f;
 
 /**
- * The upper part of the Space Elevator, drawn while the structure is formed, as GTNH draws its elevator
- * (gtnhintergalactic's RenderSpaceElevatorCable; the shapes here are made by hand after pictures of it, GTNH's own model
- * and textures are not used):
+ * The upper part of the Space Elevator, drawn while the structure is formed:
  * <ul>
- * <li>the <b>cable</b>: four bands wound round each other like a rope, from the floor of the tower's shaft
+ * <li>the <b>cable</b>: a hologram helix round the shaft's axis (from the floor of the tower's shaft
  * ({@link #CABLE_BELOW} blocks under the Space Elevator Cable block) {@link #CABLE_HEIGHT} blocks up, far past the
- * world's top; a blue light runs up it every three seconds, lighting the lamps of the bands it passes;</li>
+ * world's top), scrolling upward forever in nearly transparent additive light, with travelling
+ * scanline gaps and a faint projector beam up its middle;</li>
  * <li>the <b>climber</b>: a wheel round the cable with a hub and four spokes, a white pod on the end of three of them and a
  * rack of six blue tanks on the fourth. It rests {@link #CLIMBER_REST} blocks above the cable block and rides the cable
  * as the machine says ({@link ISpaceElevatorMachine#climberHeight}, {@link ISpaceElevatorMachine#climberTurn}).</li>
  * </ul>
- * Both are drawn at full brightness, as GTNH's are. The climber's colours are cells of a 4 x 4 palette texture
- * ({@link #TEXTURE}); a band of the cable is a tile of {@link #STRAND}.
+ * The climber is drawn at full brightness; its colours are cells of a 4 x 4 palette texture
+ * ({@link #TEXTURE}).
  * <p>
  * Placed relative to the controller: the cable block is {@code up} blocks above it and {@code back} behind it (so the model
  * turns with the controller's facing). Model side: {@link com.af9.core.machine.AF9MachineModels#workableCasingWithSpaceElevator}.
@@ -62,9 +61,6 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
     /** The climber's palette: a 4 x 4 grid of 4-pixel cells, left to right and top to bottom (assets/af9/textures/entity). */
     public static final ResourceLocation TEXTURE = new ResourceLocation(AF9Core.MOD_ID,
             "textures/entity/space_elevator.png");
-    /** One tile of a band of the cable; its middle 2 x 2 pixels are the lamp the running light lights. */
-    public static final ResourceLocation STRAND = new ResourceLocation(AF9Core.MOD_ID,
-            "textures/entity/space_elevator_strand.png");
     private static final int DARK = 0, LIGHT_STEEL = 2, WHITE = 3, TANK = 4, TANK_DARK = 5, GOLD = 7, BLACK = 8, CAP = 9,
             NOZZLE = 10;
     private static final int FULL_BRIGHT = 0xF000F0;
@@ -78,21 +74,19 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
     public static final float CLIMBER_REST = 50F, CLIMBER_REST_LOW = 100F, CLIMBER_FLOOR = 100F;
 
     /**
-     * The rope, as GTNH winds it: a band climbs round an octagon (half-width {@code LONG}, its sides {@code 2 * SHORT}),
-     * {@code RISE} a side, so once round in {@code PITCH}; a band is {@code BAND} high, and four of them a quarter turn
-     * apart cover the rope.
+     * The hologram helix: a single spiral strand round the shaft's axis plus the faint projector
+     * beam up its middle, scrolling upward forever. Nearly transparent additive light (a hologram,
+     * not a rope): alpha pulses gently and travelling scanline gaps run up it with the scroll.
      */
-    private static final float LONG = (1F + Mth.SQRT_OF_TWO) / 5.4F, SHORT = 1F / 5.4F, RISE = 2F / 5.4F,
-            PITCH = 8F * RISE, BAND = 0.75F;
-    private static final float[] EDGE_X = { LONG, LONG, SHORT, -SHORT, -LONG, -LONG, -SHORT, SHORT };
-    private static final float[] EDGE_Z = { SHORT, -SHORT, -LONG, -LONG, -SHORT, SHORT, LONG, LONG };
-    private static final int TURNS = Mth.ceil(CABLE_HEIGHT / PITCH);
-    /** Turns of the rope further from the camera than this are drawn as a plain eight-sided column. */
-    private static final double FINE_DISTANCE = 96;
-    /** The running light: ticks it takes from the cable's foot to its top, and how far up and down it shines. */
-    private static final float LIGHT_PERIOD = 60F, LIGHT_REACH = 0.03F * CABLE_HEIGHT;
-    /** The lamp of a tile: its middle eighth, each way. */
-    private static final float LAMP_MIN = 7F / 16F, LAMP_MAX = 9F / 16F;
+    private static final float HELIX_RADIUS = 0.6F, HELIX_WIDTH = 0.12F;
+    /** Blocks of height per full turn of the helix. */
+    private static final float HELIX_PITCH = 6F;
+    /** Seconds per full upward scroll cycle of the hologram. */
+    private static final float HELIX_PERIOD = 8F;
+    /** Height of one ribbon segment; scanline gap every this many blocks of height. */
+    private static final float HELIX_STEP = 0.75F, SCANLINE_EVERY = 8F, SCANLINE_GAP = 1.5F;
+    /** Base alpha of the strand (0-1); the beam up the middle is half of it. */
+    private static final float HELIX_ALPHA = 0.30F;
 
     private final float up;
     private final float back;
@@ -170,16 +164,13 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
         if (level == null) return;
         BlockPos pos = self.getPos();
         Vector3f c = centre(self);
-        // the cable block: its level in the world, and the camera from its middle
+        // the cable block: its level in the world, for the climber's rest height
         int cableY = pos.getY() + Mth.floor(c.y);
-        Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        double cameraX = camera.x - (pos.getX() + c.x), cameraY = camera.y - (pos.getY() + c.y),
-                cameraZ = camera.z - (pos.getZ() + c.z);
 
         poseStack.pushPose();
         poseStack.translate(c.x, c.y, c.z);
-        float light = ((level.getGameTime() % (long) LIGHT_PERIOD) + partialTick) / LIGHT_PERIOD * CABLE_HEIGHT;
-        cable(poseStack, buffer, cameraX * cameraX + cameraZ * cameraZ, cameraY, light);
+        float time = (level.getGameTime() + partialTick) / 20F;
+        hologram(poseStack, buffer, time);
 
         float rest = cableY + CLIMBER_REST < CLIMBER_FLOOR ? CLIMBER_REST_LOW : CLIMBER_REST;
         poseStack.pushPose();
@@ -191,104 +182,59 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
     }
 
     //////////////////////////////////////
-    // *********** The cable **********//
+    // ******* The hologram *********//
     //////////////////////////////////////
 
     /**
-     * The rope, turn by turn from the shaft's floor up: wound bands near the camera, a plain column further off, and
-     * the lamps of the turns the running light is passing.
+     * The cable as a hologram: one spiral strand round the shaft's axis plus the faint projector
+     * beam up its middle, scrolling upward forever. Nearly transparent additive light: the strand
+     * pulses gently and travelling scanline gaps run up it with the scroll; both ends fade out.
      *
-     * @param levelSquare the camera's level distance from the cable, squared
-     * @param cameraY     the camera's height above the middle of the cable block
-     * @param light       how far up the cable the running light is
+     * @param time seconds of world time, for the scroll
      */
-    private static void cable(PoseStack poseStack, MultiBufferSource buffer, double levelSquare, double cameraY,
-                              float light) {
-        PoseStack.Pose pose = poseStack.last();
-        VertexConsumer strand = buffer.getBuffer(RenderType.entityCutoutNoCull(STRAND));
-        float bottom = -0.5F - CABLE_BELOW;
-        boolean[] fine = new boolean[TURNS];
-        for (int turn = 0; turn < TURNS; turn++) {
-            float y = bottom + turn * PITCH;
-            double dy = cameraY - (y + PITCH / 2);
-            fine[turn] = levelSquare + dy * dy < FINE_DISTANCE * FINE_DISTANCE;
-            if (fine[turn]) {
-                wound(strand, pose, y);
-            } else {
-                column(strand, pose, y);
-            }
-        }
-        // the lamps: light added on top of the bands, strongest where the running light is
+    private static void hologram(PoseStack poseStack, MultiBufferSource buffer, float time) {
         if (IrisCompat.renderingShadowPass()) return;
+        PoseStack.Pose pose = poseStack.last();
         VertexConsumer glow = buffer.getBuffer(AF9RenderTypes.LIGHTNING);
-        for (int turn = 0; turn < TURNS; turn++) {
-            if (!fine[turn]) continue;
-            float away = Math.abs(light - turn * PITCH);
-            if (away > LIGHT_REACH) continue;
-            float glare = Mth.cos(away / LIGHT_REACH * Mth.HALF_PI);
-            lamps(glow, pose, bottom + turn * PITCH, (int) (glare * glare * 255F));
+        float bottom = -0.5F - CABLE_BELOW;
+        float scroll = time / HELIX_PERIOD * Mth.TWO_PI;
+        float flicker = 0.85F + 0.15F * Mth.sin(time * Mth.TWO_PI / 3F);
+        float alpha = HELIX_ALPHA * flicker;
+        int steps = Mth.ceil(CABLE_HEIGHT / HELIX_STEP);
+        for (int i = 0; i < steps; i++) {
+            float y0 = bottom + i * HELIX_STEP;
+            float y1 = Math.min(bottom + CABLE_HEIGHT, y0 + HELIX_STEP);
+            // travelling scanline gaps, running up with the scroll
+            float scan = (y0 - time / HELIX_PERIOD * SCANLINE_EVERY) % SCANLINE_EVERY;
+            if (scan < 0) scan += SCANLINE_EVERY;
+            if (scan < SCANLINE_GAP) continue;
+            // fade the strand out at both ends of the shaft
+            float fade = Math.min(1F, Math.min(y0 - bottom, bottom + CABLE_HEIGHT - y0) / 8F);
+            if (fade <= 0) continue;
+            float a0 = y0 / HELIX_PITCH * Mth.TWO_PI - scroll;
+            float a1 = y1 / HELIX_PITCH * Mth.TWO_PI - scroll;
+            float x0 = Mth.cos(a0) * HELIX_RADIUS, z0 = Mth.sin(a0) * HELIX_RADIUS;
+            float x1 = Mth.cos(a1) * HELIX_RADIUS, z1 = Mth.sin(a1) * HELIX_RADIUS;
+            // ribbon across the strand: width along the horizontal tangent, twisting as it climbs
+            float tx0 = -Mth.sin(a0) * HELIX_WIDTH, tz0 = Mth.cos(a0) * HELIX_WIDTH;
+            float tx1 = -Mth.sin(a1) * HELIX_WIDTH, tz1 = Mth.cos(a1) * HELIX_WIDTH;
+            float a = alpha * fade;
+            glow.vertex(pose.pose(), x0 - tx0, y0, z0 - tz0).color(0.45F, 0.8F, 1F, a).endVertex();
+            glow.vertex(pose.pose(), x0 + tx0, y0, z0 + tz0).color(0.45F, 0.8F, 1F, a).endVertex();
+            glow.vertex(pose.pose(), x1 + tx1, y1, z1 + tz1).color(0.45F, 0.8F, 1F, a).endVertex();
+            glow.vertex(pose.pose(), x1 - tx1, y1, z1 - tz1).color(0.45F, 0.8F, 1F, a).endVertex();
         }
-    }
-
-    /** One turn of the four bands from height {@code y}: 32 slanted tiles. */
-    private static void wound(VertexConsumer c, PoseStack.Pose pose, float y) {
-        for (int band = 0; band < 4; band++) {
-            for (int side = 0; side < 8; side++) {
-                int from = (side + 2 * band) & 7, to = (from + 1) & 7;
-                float low = y + RISE * side, high = low + RISE;
-                float nx = EDGE_X[from] + EDGE_X[to], nz = EDGE_Z[from] + EDGE_Z[to];
-                float length = Mth.sqrt(nx * nx + nz * nz);
-                nx /= length;
-                nz /= length;
-                vertex(c, pose, EDGE_X[to], high, EDGE_Z[to], 0F, 1F, nx, nz);
-                vertex(c, pose, EDGE_X[to], high + BAND, EDGE_Z[to], 0F, 0F, nx, nz);
-                vertex(c, pose, EDGE_X[from], low + BAND, EDGE_Z[from], 1F, 0F, nx, nz);
-                vertex(c, pose, EDGE_X[from], low, EDGE_Z[from], 1F, 1F, nx, nz);
-            }
-        }
-    }
-
-    /** One turn's height of the rope as a plain eight-sided column, for far away. */
-    private static void column(VertexConsumer c, PoseStack.Pose pose, float y) {
-        for (int from = 0; from < 8; from++) {
-            int to = (from + 1) & 7;
-            float nx = EDGE_X[from] + EDGE_X[to], nz = EDGE_Z[from] + EDGE_Z[to];
-            float length = Mth.sqrt(nx * nx + nz * nz);
-            nx /= length;
-            nz /= length;
-            vertex(c, pose, EDGE_X[to], y, EDGE_Z[to], 0F, 1F, nx, nz);
-            vertex(c, pose, EDGE_X[to], y + PITCH, EDGE_Z[to], 0F, 0F, nx, nz);
-            vertex(c, pose, EDGE_X[from], y + PITCH, EDGE_Z[from], 1F, 0F, nx, nz);
-            vertex(c, pose, EDGE_X[from], y, EDGE_Z[from], 1F, 1F, nx, nz);
-        }
-    }
-
-    /** The lamps of one turn's 32 tiles, lit: GTNH's blue (0, 0.65, 1), a hair outside the bands. */
-    private static void lamps(VertexConsumer c, PoseStack.Pose pose, float y, int alpha) {
-        if (alpha <= 0) return;
-        for (int band = 0; band < 4; band++) {
-            for (int side = 0; side < 8; side++) {
-                int from = (side + 2 * band) & 7, to = (from + 1) & 7;
-                float nx = EDGE_X[from] + EDGE_X[to], nz = EDGE_Z[from] + EDGE_Z[to];
-                float length = Mth.sqrt(nx * nx + nz * nz);
-                float ox = nx / length * 0.004F, oz = nz / length * 0.004F;
-                // along the tile from `to` (0) to `from` (1); the tile's foot falls by RISE on the way
-                float x0 = Mth.lerp(LAMP_MIN, EDGE_X[to], EDGE_X[from]) + ox, x1 = Mth.lerp(LAMP_MAX, EDGE_X[to], EDGE_X[from]) + ox;
-                float z0 = Mth.lerp(LAMP_MIN, EDGE_Z[to], EDGE_Z[from]) + oz, z1 = Mth.lerp(LAMP_MAX, EDGE_Z[to], EDGE_Z[from]) + oz;
-                float foot0 = y + RISE * (side + 1 - LAMP_MIN), foot1 = y + RISE * (side + 1 - LAMP_MAX);
-                float bottom = BAND * (1F - LAMP_MAX), top = BAND * (1F - LAMP_MIN);
-                c.vertex(pose.pose(), x0, foot0 + bottom, z0).color(0, 166, 255, alpha).endVertex();
-                c.vertex(pose.pose(), x0, foot0 + top, z0).color(0, 166, 255, alpha).endVertex();
-                c.vertex(pose.pose(), x1, foot1 + top, z1).color(0, 166, 255, alpha).endVertex();
-                c.vertex(pose.pose(), x1, foot1 + bottom, z1).color(0, 166, 255, alpha).endVertex();
-            }
-        }
-    }
-
-    private static void vertex(VertexConsumer c, PoseStack.Pose pose, float x, float y, float z, float u, float v,
-                               float nx, float nz) {
-        c.vertex(pose.pose(), x, y, z).color(255, 255, 255, 255).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(FULL_BRIGHT).normal(pose.normal(), nx, 0F, nz).endVertex();
+        // the projector beam up the middle, half the strand's light
+        float beamAlpha = alpha * 0.5F;
+        float half = 0.06F;
+        glow.vertex(pose.pose(), -half, bottom, 0).color(0.45F, 0.8F, 1F, beamAlpha).endVertex();
+        glow.vertex(pose.pose(), half, bottom, 0).color(0.45F, 0.8F, 1F, beamAlpha).endVertex();
+        glow.vertex(pose.pose(), half, bottom + CABLE_HEIGHT, 0).color(0.45F, 0.8F, 1F, beamAlpha).endVertex();
+        glow.vertex(pose.pose(), -half, bottom + CABLE_HEIGHT, 0).color(0.45F, 0.8F, 1F, beamAlpha).endVertex();
+        glow.vertex(pose.pose(), 0, bottom, -half).color(0.45F, 0.8F, 1F, beamAlpha).endVertex();
+        glow.vertex(pose.pose(), 0, bottom, half).color(0.45F, 0.8F, 1F, beamAlpha).endVertex();
+        glow.vertex(pose.pose(), 0, bottom + CABLE_HEIGHT, half).color(0.45F, 0.8F, 1F, beamAlpha).endVertex();
+        glow.vertex(pose.pose(), 0, bottom + CABLE_HEIGHT, -half).color(0.45F, 0.8F, 1F, beamAlpha).endVertex();
     }
 
     //////////////////////////////////////
