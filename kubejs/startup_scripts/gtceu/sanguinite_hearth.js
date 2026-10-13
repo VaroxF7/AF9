@@ -19,7 +19,6 @@
 //     Particle Accelerator); helium boosts the print through normal fluid hatches (fluid_in_1).
 
 const $SanguiniteHearthMachine = Java.loadClass('com.af9.core.machine.SanguiniteHearthMachine')
-const $HearthDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 const $HearthCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
@@ -46,7 +45,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         return lines
     }
 
-    // The Rotary Hearth Furnace's structure, unchanged (GT's mega_blast_furnace pattern, same axes): 13 slices
+    // The Rotary Hearth Furnace's structure, unchanged (GT's mega_blast_furnace pattern: the default
+    // start() axes LEFT/UP/FRONT, so the 13 slices run to the controller's front like GT's): 13 slices
     // front -> back, 17 rows bottom -> top, 13 columns. Slices mirror at the middle one (the 7th). The controller
     // sits in the last slice's second row, like GT's.
     event.create('sanguinite_hearth_furnace', 'multiblock')
@@ -61,8 +61,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING)
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.sanguinite_hearth_furnace.tooltip', 9))
-        .pattern(definition => FactoryBlockPattern.start($HearthDirection.FRONT, $HearthDirection.UP,
-            $HearthDirection.RIGHT)
+        .pattern(definition => FactoryBlockPattern.start()
             .aisle('##XXXXXXXXX##', '##XXXXXXXXX##', '#############', '#############', '#############',
                 '#############', '#############', '#############', '#############', '#############',
                 '#############', '#############', '#############', '#############', '#############',

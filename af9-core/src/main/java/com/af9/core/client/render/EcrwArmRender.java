@@ -146,7 +146,8 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
         float surfaceAlpha = working ? 0.58F + 0.06F * ripple : 0.46F + 0.04F * ripple;
         for (int dx = -POND_CELLS; dx <= POND_CELLS; dx++) {
             for (int dz = -POND_CELLS; dz <= POND_CELLS; dz++) {
-                if (Math.max(Math.abs(dx), Math.abs(dz)) < 2) continue;
+                // the pier only: the plus the pattern builds, not the whole 3 x 3 (its diagonal hollows hold water)
+                if ((dx == 0 || dz == 0) && Math.abs(dx) <= 1 && Math.abs(dz) <= 1) continue;
                 if (Math.sqrt(dx * dx + dz * dz) >= POND_RADIUS) continue;
                 float x0 = dx - 0.5F, x1 = dx + 0.5F, z0 = dz - 0.5F, z1 = dz + 0.5F;
                 flat(vc, mat, x0, DEEP_Y, z0, x1, z1, r / 2, g / 2, b / 2, 0.55F);
