@@ -176,5 +176,4 @@ public final class AF9MachineModels {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(() -> FiltrationBasinRender.create(up, back)));
     }
-    }
 }
