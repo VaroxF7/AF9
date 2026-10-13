@@ -387,6 +387,7 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 - [Rubber](docs/rubber.md) — latex from plants, rubber / liquid rubber / silicone / SBR
 - [Quantanium](docs/quantanium.md) — the UHV unlock ore, Asteroid Field dike vein
 - [Lesolite](docs/lesolite.md) — the EV SMD mineral, Moon blob vein beside artemite
+- [ECRW](docs/ecrw.md) — the evaporation pond (salt water to salt), spinning rake arm
 - [Early game](docs/early-game.md) — Create circuits (LV, MV), HV components in Powah's Energizing Orb
 - [Review findings](docs/review-findings.md) — what the lint found
 - [AF9 Core](af9-core/README.md) — Java class map

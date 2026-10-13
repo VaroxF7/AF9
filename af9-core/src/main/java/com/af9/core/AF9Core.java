@@ -11,6 +11,7 @@ import com.af9.core.compat.extremereactors.ExtremeReactorsCompat;
 import com.af9.core.droppod.AF9DropPod;
 import com.af9.core.elevator.SpaceMissionMachine;
 import com.af9.core.fab.FabRecipeInfo;
+import com.af9.core.fluid.PlaceableFluids;
 import com.af9.core.machine.ParticleAcceleratorMachine;
 import com.af9.core.machine.PhotolithographyLineMachine;
 import com.af9.core.machine.SanguiniteHearthRecipeUI;
@@ -70,6 +71,8 @@ public class AF9Core {
         AF9Tabs.register(FMLJavaModLoadingContext.get().getModEventBus());
         // the drop pod a new player arrives in
         AF9DropPod.register(FMLJavaModLoadingContext.get().getModEventBus());
+        // liquid blocks and buckets for GregTech's cold liquids (after GTCEu's own registrations)
+        PlaceableFluids.register(FMLJavaModLoadingContext.get().getModEventBus());
         // the Asteroid Field's feature
         AF9Space.register(FMLJavaModLoadingContext.get().getModEventBus());
         // supercritical steam in Extreme Reactors' turbines (only with Extreme Reactors loaded)

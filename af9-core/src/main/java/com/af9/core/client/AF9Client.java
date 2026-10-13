@@ -1,6 +1,7 @@
 package com.af9.core.client;
 
 import com.af9.core.AF9Core;
+import com.af9.core.client.render.EcrwArmRender;
 import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.LithoChamberRender;
@@ -13,6 +14,7 @@ import com.af9.core.wireless.WirelessLink;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -32,11 +34,14 @@ public final class AF9Client {
     /** Mod construction: the render types must exist before the machine models are built. */
     @SuppressWarnings("removal") // FMLJavaModLoadingContext.get() is the only way on 47.x
     public static void init() {
-        ModeFluidRender.register();
-        LightRingRender.register();
+        ModeFluidRender.register();        LightRingRender.register();
         LithoChamberRender.register();
         SpaceElevatorRender.register();
         LaserEngraverRender.register();
+        EcrwArmRender.register();
+        // the placeable buckets tint their content layer with the fluid's colour
+        FMLJavaModLoadingContext.get().getModEventBus()
+                .addListener((RegisterColorHandlersEvent.Item event) -> BucketTint.register(event));
         // the map of Ad Astra's planet screen gets AF9's bodies
         AdAstraMap.register();
         // every item is registered by client setup, and EMI has not loaded its list yet
