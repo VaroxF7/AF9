@@ -14,7 +14,7 @@ ServerEvents.tags('fluid', event => {
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
-    // UHV recipes draw 100 A of UHV power (Pico-scale work takes 300 A in the Advanced Circuit Manufacturer), see docs/dyson-swarm.md
+    // UHV recipes draw 100 A of UHV power (Pico-scale work takes 300 A in the Advanced Circuit Manufacturer).
     const UHV_AMPS = 100
 
     // ---- The accelerator and its parts ----
