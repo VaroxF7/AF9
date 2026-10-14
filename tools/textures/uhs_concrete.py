@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ultra High Strength Concrete Floor (the Space Elevator's and the Dyson Swarm's): a poured slab, 16 x 16.
+"""Ultra High Strength Concrete Floor (the Space Elevator's): a poured slab, 16 x 16.
 
 Run from the repository root (needs Pillow):  python3 tools/textures/uhs_concrete.py [--preview <file>]
 

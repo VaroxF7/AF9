@@ -44,7 +44,7 @@
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
     // The Pico circuits are made at UHV voltage on a lot of amps: 300 A (UHV recipes of the other scripts take 100 A).
-    // That is what the Dyson Swarm's power is for (docs/dyson-swarm.md).
+    // That is what the UHV power lines are for (laser hatches carry it where the machine takes them).
     const PICO_AMPS = 300
 
     // ================================= 1. helpers =================================
