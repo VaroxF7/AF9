@@ -7,7 +7,7 @@
 // same MV circuit; housings are plates + quartz glass + redstone. All vanilla
 // crafting-table recipes for these outputs are removed (mod-scoped, so the af9: recipes
 // never match). Cells themselves (housing + component, shapeless) stay vanilla and follow
-// automatically. MEGA Cells live in ae2_addons.js at HV. Spec: docs/ae2.md
+// automatically. MEGA Cells live in ae2_addons.js on the IV -> UHV ladder. Spec: docs/ae2.md
 
 ServerEvents.recipes(event => {
     if (!Platform.isLoaded('ae2')) return

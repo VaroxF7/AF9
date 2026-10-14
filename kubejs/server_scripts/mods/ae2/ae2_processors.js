@@ -1,58 +1,77 @@
-// AF9 - AE2 processors through the fab (MV entry).
+// AF9 - AE2 processors from silicon (MV entry). No AE2 presses, no inscriber prints.
 //
-// Printed circuits are exposed in the Photolithography Line (350 nm, MV): a coated silicon
-// wafer under the AE2 press as its mask, the mode's own fluids, the mode's break chance.
-// Final assembly (printed + printed silicon + redstone) runs in the assembler with solder,
-// like GT's circuits. The inscriber keeps crushing and the name press; its printed-circuit
-// and processor recipes are removed. Presses still come from meteorites, so the hunt stays.
-// Spec: docs/ae2.md
+//   1. Litho 350nm (existing prints) + cutter: coated silicon wafer -> GT chip wafer ->
+//      ilc / cpu / lpic / ram dies. Every chip is printed on silicon.
+//   2. Die packaging (assembler, MV): silicon die + electrum foil + copper foil +
+//      gold fine wire + RAM die -> AE2 printed processor.
+//   3. Carrier (cutter): a silicon wafer dices straight into printed silicon.
+//   4. Final assembly (assembler, MV): printed + printed silicon + redstone + MV circuit
+//      (good integrated for logic/engineering, micro processor for calculation) -> processor.
+//
+// The AE2 presses are out of the chain (the Mysterious Cube still drops one random
+// press as a souvenir; meteorites still give sky stone). The inscriber
+// keeps crushing and the name press. Spec: docs/ae2.md
 
 ServerEvents.recipes(event => {
     if (!Platform.isLoaded('ae2')) return
     const VA = GTValues.VA
+    const MV = VA[GTValues.MV]
 
-    // ---- Printed circuits (lithography_350nm: 2 item in, 2 out, 3 fluids in) ----
-    // One coated wafer gives 4 printeds; the press is the mask and is not consumed.
-    const printeds = [
-        ['printed_silicon', 'ae2:silicon_press'],
-        ['printed_logic_processor', 'ae2:logic_processor_press'],
-        ['printed_calculation_processor', 'ae2:calculation_processor_press'],
-        ['printed_engineering_processor', 'ae2:engineering_processor_press']
+    // ---- Removed vanilla paths: inscriber prints and processors ----
+    const vanilla = ['ae2:printed_silicon', 'ae2:printed_logic_processor',
+        'ae2:printed_calculation_processor', 'ae2:printed_engineering_processor',
+        'ae2:logic_processor', 'ae2:calculation_processor', 'ae2:engineering_processor']
+    vanilla.forEach(out => event.remove({ mod: 'ae2', output: out }))
+
+    // ---- Printed silicon: dice the wafer itself (cutter, MV) ----
+    event.recipes.gtceu.cutter('af9:ae2_printed_silicon')
+        .itemInputs('gtceu:silicon_wafer')
+        .inputFluids(Fluid.of('minecraft:water', 100))
+        .itemOutputs('8x ae2:printed_silicon')
+        .duration(200)
+        .EUt(MV)
+
+    // ---- Die packaging: silicon die + foils + wire + RAM -> AE2 printed (assembler, MV) ----
+    const packaging = [
+        ['logic_processor', 'gtceu:ilc_chip'],
+        ['calculation_processor', 'gtceu:cpu_chip'],
+        ['engineering_processor', 'gtceu:lpic_chip']
     ]
-    printeds.forEach(([out, press]) => {
-        event.remove({ mod: 'ae2', output: `ae2:${out}` })
-        event.recipes.gtceu.lithography_350nm(`af9:print_ae2_${out}_350nm`)
-            .itemInputs('af9:coated_silicon_wafer')
-            .notConsumable(press)
-            .inputFluids(
-                Fluid.of('gtceu:tmah_developer', 200),
-                Fluid.of('gtceu:distilled_water', 1000),
-                Fluid.of('gtceu:extreme_clean_dry_air', 1000))
-            .itemOutputs(`4x ae2:${out}`)
-            .chancedOutput('af9:broken_silicon_wafer', 200, 0)
-            .duration(900)
-            .EUt(VA[GTValues.MV], 4)
+    packaging.forEach(([out, die]) => {
+        event.recipes.gtceu.assembler(`af9:ae2_printed_${out}`)
+            .itemInputs(die, '2x gtceu:electrum_foil', '2x gtceu:copper_foil',
+                '4x gtceu:fine_gold_wire', 'gtceu:ram_chip')
+            .inputFluids(Fluid.of('gtceu:tin', 144))
+            .itemOutputs(`ae2:printed_${out}`)
+            .duration(300)
+            .EUt(MV)
+        event.recipes.gtceu.assembler(`af9:ae2_printed_${out}_soldering_alloy`)
+            .itemInputs(die, '2x gtceu:electrum_foil', '2x gtceu:copper_foil',
+                '4x gtceu:fine_gold_wire', 'gtceu:ram_chip')
+            .inputFluids(Fluid.of('gtceu:soldering_alloy', 72))
+            .itemOutputs(`ae2:printed_${out}`)
+            .duration(300)
+            .EUt(MV)
     })
 
-    // ---- Processors (assembler, MV, tin budget + soldering alloy canonical) ----
+    // ---- Final assembly: printed + carrier + redstone + MV circuit (assembler, MV) ----
     const processors = [
-        ['logic_processor', 'ae2:printed_logic_processor'],
-        ['calculation_processor', 'ae2:printed_calculation_processor'],
-        ['engineering_processor', 'ae2:printed_engineering_processor']
+        ['logic_processor', 'gtceu:good_integrated_circuit'],
+        ['calculation_processor', 'gtceu:micro_processor'],
+        ['engineering_processor', 'gtceu:good_integrated_circuit']
     ]
-    processors.forEach(([out, printedItem]) => {
-        event.remove({ mod: 'ae2', output: `ae2:${out}` })
+    processors.forEach(([out, circuit]) => {
         event.recipes.gtceu.assembler(`af9:ae2_${out}`)
-            .itemInputs(printedItem, 'ae2:printed_silicon', 'minecraft:redstone')
+            .itemInputs(`ae2:printed_${out}`, 'ae2:printed_silicon', 'minecraft:redstone', circuit)
             .inputFluids(Fluid.of('gtceu:tin', 144))
             .itemOutputs(`ae2:${out}`)
             .duration(200)
-            .EUt(VA[GTValues.MV])
+            .EUt(MV)
         event.recipes.gtceu.assembler(`af9:ae2_${out}_soldering_alloy`)
-            .itemInputs(printedItem, 'ae2:printed_silicon', 'minecraft:redstone')
+            .itemInputs(`ae2:printed_${out}`, 'ae2:printed_silicon', 'minecraft:redstone', circuit)
             .inputFluids(Fluid.of('gtceu:soldering_alloy', 72))
             .itemOutputs(`ae2:${out}`)
             .duration(200)
-            .EUt(VA[GTValues.MV])
+            .EUt(MV)
     })
 })

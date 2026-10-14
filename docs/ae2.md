@@ -1,11 +1,11 @@
-# AE2 integration — base at MV, addons at HV
+# AE2 integration — base at MV, MEGA ladder IV to UHV
 
-AE2's early game (charger, fluix, cables, presses from meteorites) is untouched. What changes
+AE2's early game (charger, fluix, cables, meteorite hunt for sky stone) is untouched. What changes
 is everything silicon: printed circuits and processors are fab work, and storage scales with
 GT's circuits. No new items. Recipes: `kubejs/server_scripts/mods/ae2/`
 (`ae2_processors.js`, `ae2_components.js`, `ae2_devices.js`, `ae2_addons.js`).
 
-Rule of thumb: **base AE2 builds at MV, addon stuff (MEGA Cells, Infinity Booster) at HV.**
+Rule of thumb: **base AE2 builds at MV, MEGA Cells climb IV → UHV, Infinity Booster at HV.**
 Removals are mod-scoped (`{ mod: 'ae2', output: ... }`), so the new `af9:` recipes never match.
 
 ## Quartz (`ae2_quartz.js`, MV)
@@ -19,15 +19,23 @@ Removals are mod-scoped (`{ mod: 'ae2', output: ... }`), so the new `af9:` recip
 
 ## Processors (`ae2_processors.js`, MV)
 
-- **Printed circuits** in the Photolithography Line, 350 nm (MV, 4A = 512 EU/t, 900t):
-  `af9:coated_silicon_wafer` under the matching AE2 press as its mask (not consumed) +
-  TMAH / distilled water / extreme clean dry air → 4x printed (`printed_silicon`,
-  `printed_logic/calculation/engineering_processor`), with the mode's 2% broken wafer.
-  Same wafer, fluids, EUt and break chance as the other 350 nm prints.
-- **Processors** in the assembler (MV, 200t): printed + `printed_silicon` + redstone +
-  solder (tin 144 budget, soldering alloy 72 canonical) → `logic/calculation/engineering_processor`.
-- Removed: all `ae2:` recipes outputting the four printeds and the three processors.
-  The inscriber keeps crushing and the name press.
+No presses, no inscriber prints — every chip is printed on a silicon wafer:
+
+1. **Litho 350nm + cutter** (existing chain): coated silicon wafer → GT chip wafer →
+   `ilc` / `cpu` / `lpic` / `ram` dies.
+2. **Die packaging** in the assembler (MV, 300t, solder pair): silicon die + 2x electrum
+   foil + 2x copper foil + 4x gold fine wire + RAM die → AE2 printed
+   (`ilc` → printed logic, `cpu` → printed calculation, `lpic` → printed engineering).
+3. **Carrier** in the cutter (MV, 200t): a silicon wafer dices straight into
+   8x `printed_silicon`.
+4. **Final assembly** in the assembler (MV, 200t, solder pair): printed + printed
+   silicon + redstone + MV circuit (`good_integrated_circuit` for logic/engineering,
+   `micro_processor` for calculation) → `logic/calculation/engineering_processor`.
+
+Removed: all `ae2:` recipes outputting the four printeds and the three processors.
+The inscriber keeps crushing and the name press; meteorite presses are out of the chain
+(the Mysterious Cube still drops one random press as a souvenir, meteorites still give
+sky stone).
 
 ## Components (`ae2_components.js`, all MV, no cleanroom)
 
@@ -65,15 +73,34 @@ fluix (tin/soldering-alloy pair; cables and fiber are dry single recipes).
 Only the fluix base of each cable family is redefined (glass, covered, dense, smart,
 dense smart); dye variants follow. Quartz fiber is redefined (certus crystal + glass).
 
-## Addons (`ae2_addons.js`, all HV, cleanroom, high-grade solder)
+## Addons (`ae2_addons.js`)
 
-- **MEGA Cells** (`megacells:`, guarded): 1m ← 3x AE2 256k, then 4m/16m/64m/256m each 3x
-  previous, all + engineering processor + 4x sky dust + quartz glass + HV advanced
-  integrated circuit; `bulk_item_cell` (chest + 1m component + HV circuit + sky dust).
+- **MEGA Cells** (`megacells:`, guarded): the endgame ladder, one voltage tier per
+  cell — 1m at IV, 4m at LuV, 16m at ZPM, 64m at UV (assembler, cleanroom,
+  high-grade solder), each 3x previous + engineering processor + 4x sky dust +
+  quartz glass + its tier circuit (`nano/computer`, `quantum/computer`,
+  `crystal/computer`, `wetware/computer`). The **256m goal builds only in the
+  Assembly Line at UHV** (2x tritanium frame, 2x 64m, engineering, sky dust,
+  tritanium wire, europium plate; high-grade solder + PBI; researches the 64m
+  component). `bulk_item_cell` rides at IV (chest + 1m + IV circuit + sky dust).
   MEGA cell assembly stays vanilla and follows.
-- **Infinity Booster** (`aeinfinitybooster:`, guarded): `infinity_card` (engineering +
-  calculation + fluix + HV circuit), `dimension_card` (infinity card + engineering +
-  diamonds + HV circuit).
+- **Infinity Booster** (`aeinfinitybooster:`, guarded, HV): `infinity_card`
+  (engineering + calculation + fluix + HV circuit), `dimension_card` (infinity card
+  + engineering + diamonds + HV circuit).
+
+## Meteorites (Moon and Mars only)
+
+AE2 meteorites no longer fall on the Overworld: the biome tag override
+(`kubejs/data/ae2/tags/worldgen/biome/has_meteorites.json`, with
+`"replace": true` so the pack's list replaces AE2's instead of merging into it)
+lists only the lunar wastelands and the three martian biomes. Each meteorite's
+Mysterious Cube drops **one random press** instead of all four (loot override
+`kubejs/data/ae2/loot_tables/blocks/mysterious_cube.json`: silk touch keeps the
+cube, otherwise one of the four presses at equal weight), and the crater fallout
+is moon sand / mars sand — no dirt, stone or grass (AF9 Core `ae2.FalloutMixin`
+for the default mode plus `ae2.FalloutCopyMixin` for AE2's biome-tagged
+sandy/cold modes, everything else runs AE2's code). Bring the meteorite
+compass (and a rocket) and hunt off-world; the AE2 quest texts point there.
 
 ## Intentionally vanilla
 
@@ -86,6 +113,6 @@ that this pack does not redefine).
 ## Consequences
 
 - First AE2 processor needs: EBF silicon boule → cutter blank → Coater Track → Line V1
-  (MV circuits, MV energy) + a meteorite press. The whole base network is MV after that;
-  MEGA scale is HV.
+  (MV circuits, MV energy). The whole base network is MV after that; MEGA scale climbs
+  IV → UHV, Infinity Booster is HV.
 - Follow-ups, not done here: quest gating for the AE2 chapter, EMI descriptions.
