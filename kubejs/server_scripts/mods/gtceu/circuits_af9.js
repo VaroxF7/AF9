@@ -623,8 +623,8 @@ ServerEvents.recipes(event => {
     // UHV circuit assembler, plasma solder canonical (tin stays as dead budget option). The compute
     // card of the new DTPF (docs/dtpf.md).
     newPlasmaCircuit('ai_acceleration_card', 4, r => clean(r
-        .itemInputs('gtceu:wetware_printed_circuit_board', 'af9:tpu_chip', 'af9:memristor_chip',
-            '128x gtceu:fine_sanguinite_wire')
+        .itemInputs('gtceu:wetware_printed_circuit_board', '8x af9:tpu_chip', '4xaf9:memristor_chip',
+            '64x gtceu:fine_sanguinite_wire','64x gtceu:fine_sanguinite_wire', '32x gtceu:electrum_fine_wire')
         .itemOutputs('af9:ai_acceleration_card')
         .duration(600).EUt(VA[GTValues.UHV])))
 

@@ -377,6 +377,7 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 ## Docs index
 
 - [Semiconductor factory](docs/semiconductor-factory.md) — wafers, silicon, SoCs, chips, lithography
+- [AE2 integration](docs/ae2.md) — processors and storage components through the fab
 - [Asteroid fission](docs/asteroid-fission.md) — field, Brannerite, FX-1, plutonium, Mk1
 - [Computation](docs/computation.md) — CWU servers
 - [Space Elevator](docs/space-elevator.md) — structure, drones, ore + liquid missions, screen
