@@ -11,7 +11,8 @@ ServerEvents.recipes(event => {
     const addInputTargets = new Map()
     const addInputs = (id, items) => {
         if (!addInputTargets.has(id)) addInputTargets.set(id, [])
-        addInputTargets.get(id).push(...items)
+        const known = addInputTargets.get(id)
+        items.forEach(item => known.push(item))
     }
 
     // ---- RF Transceiver: the radio of every wireless link ----
@@ -104,7 +105,7 @@ ServerEvents.recipes(event => {
     addInputs('gtceu:assembler/hpca_advanced_computation_component', ['4x af9:tpu_chip'])
 
     // Single scan for every addInputs target above (same items appended to the same recipe ids).
-    event.forEachRecipe({ id: [...addInputTargets.keys()] }, recipe => {
+    event.forEachRecipe({ id: Array.from(addInputTargets.keys()) }, recipe => {
         const items = addInputTargets.get(String(recipe.getId()))
         if (items) items.forEach(item => recipe.itemInputs(item))
     })
