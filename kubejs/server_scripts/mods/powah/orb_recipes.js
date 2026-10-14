@@ -96,32 +96,45 @@ ServerEvents.recipes(event => {
         rotor: tagSet('forge:rotors')
     }
 
+    // One mat -> parts map in a single pass over the resolved tags (each tag resolved once above);
+    // the 6 shaping recipes per material emit from the map below (same recipes, same ids and inputs).
+    const mats = {}
+    Object.keys(ingots).forEach(ingotId => {
+        if (!ingotId.startsWith('gtceu:') || !ingotId.endsWith('_ingot')) return
+        const mat = ingotId.slice('gtceu:'.length, -'_ingot'.length)
+        if (!mat || mats[mat]) return
+        const entry = {}
+        if (parts.rod['gtceu:' + mat + '_rod']) entry.rod = 'gtceu:' + mat + '_rod'
+        if (parts.bolt['gtceu:' + mat + '_bolt']) entry.bolt = 'gtceu:' + mat + '_bolt'
+        if (entry.bolt && parts.screw['gtceu:' + mat + '_screw']) entry.screw = 'gtceu:' + mat + '_screw'
+        if (parts.gear['gtceu:' + mat + '_gear']) entry.gear = 'gtceu:' + mat + '_gear'
+        if (parts.small_gear['gtceu:small_' + mat + '_gear']) entry.small_gear = 'gtceu:small_' + mat + '_gear'
+        if (parts.rotor['gtceu:' + mat + '_rotor']) entry.rotor = 'gtceu:' + mat + '_rotor'
+        mats[mat] = entry
+    })
+
     // One shaping recipe per material that has both ends: the input part and the output part.
+    // (name, mold, input tag suffix, input count, output count, energy: GT's ratios, flat charge)
     const shapedCount = [0]
-    const shape = (name, mold, inputSuffix, inputCount, outPrefix, outSuffix, outCount, energy) => {
-        const seen = {}
-        Object.keys(ingots).forEach(ingotId => {
-            if (!ingotId.startsWith('gtceu:') || !ingotId.endsWith('_ingot')) return
-            const mat = ingotId.slice('gtceu:'.length, -'_ingot'.length)
-            if (!mat || seen[mat]) return
-            seen[mat] = true
-            const out = 'gtceu:' + outPrefix + mat + '_' + outSuffix
-            if (!parts[name][out]) return
+    const shapes = [
+        ['rod', 'gtceu:rod_extruder_mold', 'ingot', 1, 2, 10000],
+        ['bolt', 'gtceu:bolt_extruder_mold', 'ingot', 1, 8, 10000],
+        ['screw', 'af9:screw_extruder_mold', 'bolt', 1, 1, 10000],
+        ['gear', 'gtceu:gear_extruder_mold', 'ingot', 4, 1, 12000],
+        ['small_gear', 'gtceu:small_gear_extruder_mold', 'ingot', 1, 1, 10000],
+        ['rotor', 'gtceu:rotor_extruder_mold', 'ingot', 4, 1, 16000]
+    ]
+    Object.keys(mats).forEach(mat => {
+        shapes.forEach(shape => {
+            const name = shape[0]
+            const out = mats[mat][name]
+            if (!out) return
             // the input is the tag of the material's part (any mod's ingot or bolt), not one id
-            const input = 'gtceu:' + mat + '_' + inputSuffix
-            if (inputSuffix === 'bolt' && !parts.bolt[input]) return
-            const inputItem = tag('forge:' + (inputSuffix === 'ingot' ? 'ingots' : 'bolts') + '/' + mat, inputCount)
-            orb(name + '_' + mat, [inputItem, keep(mold)], energy, out, outCount)
+            const inputItem = tag('forge:' + (shape[2] === 'ingot' ? 'ingots' : 'bolts') + '/' + mat, shape[3])
+            orb(name + '_' + mat, [inputItem, keep(shape[1])], shape[5], out, shape[4])
             shapedCount[0]++
         })
-    }
-
-    shape('rod', 'gtceu:rod_extruder_mold', 'ingot', 1, '', 'rod', 2, 10000)
-    shape('bolt', 'gtceu:bolt_extruder_mold', 'ingot', 1, '', 'bolt', 8, 10000)
-    shape('screw', 'af9:screw_extruder_mold', 'bolt', 1, '', 'screw', 1, 10000)
-    shape('gear', 'gtceu:gear_extruder_mold', 'ingot', 4, '', 'gear', 1, 12000)
-    shape('small_gear', 'gtceu:small_gear_extruder_mold', 'ingot', 1, 'small_', 'gear', 1, 10000)
-    shape('rotor', 'gtceu:rotor_extruder_mold', 'ingot', 4, '', 'rotor', 1, 16000)
+    })
     // (only in the game: the linter's stubs read no tags, and its output has to stay what the quest linter parses)
     if (shapedCount[0] > 0) {
         console.info('[af9] orb shaping: ' + shapedCount[0] + ' recipes (rods, bolts, screws, gears, small gears, rotors)')

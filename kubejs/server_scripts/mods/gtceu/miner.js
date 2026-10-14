@@ -21,9 +21,8 @@ ServerEvents.recipes((event) => {
         let id = String(recipe.getId())
         if (!id.startsWith("af9:")) foreign.push(id)
     })
-    foreign.forEach((id) => {
-        event.remove({ id: id })
-    })
+    // (batched: the same collected ids removed in one filter call)
+    if (foreign.length) event.remove({ id: foreign })
 
     gtr.assembler("gtceu:void_miner")
         .itemInputs("gtceu:lv_miner",
@@ -128,6 +127,10 @@ ServerEvents.recipes((event) => {
     function emitRecipes(typeBase, table, euT, dimensions, m) {
         const suffix = m === 1 ? '' : '_mk' + m
         const type = typeBase + suffix
+        if (!gtr[type]) {
+            console.error('AF9 miner: recipe type ' + type + ' is not registered, skipping')
+            return
+        }
         table.forEach((entry) => {
             let recipe = gtr[type](entry[2] + suffix)
                 .inputFluids("gtceu:drilling_fluid 2000")
@@ -144,9 +147,10 @@ ServerEvents.recipes((event) => {
     }
 
     // "30x gtceu:raw_bentonite" -> "60x gtceu:raw_bentonite" at m = 2: the table strings carry MK1's counts
+    const COUNT_RE = /^(\d+)x\s+(.+)$/
     function scaleCount(line, m) {
         if (m === 1) return line
-        const counted = line.match(/^(\d+)x\s+(.+)$/)
+        const counted = line.match(COUNT_RE)
         return counted ? String(Number(counted[1]) * m) + 'x ' + counted[2] : line
     }
 

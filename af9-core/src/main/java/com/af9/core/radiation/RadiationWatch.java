@@ -34,9 +34,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * A warning above the hotbar while a player is near radioactive material.
  * <p>
@@ -117,16 +114,19 @@ public final class RadiationWatch {
     /** Ore and storage blocks of radioactive materials close by. */
     private static double blocks(ServerLevel level, BlockPos center) {
         double total = 0;
+        int cx = center.getX(), cy = center.getY(), cz = center.getZ();
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
         for (int dx = -BLOCK_RANGE; dx <= BLOCK_RANGE; dx++) {
             for (int dy = -BLOCK_RANGE; dy <= BLOCK_RANGE; dy++) {
                 for (int dz = -BLOCK_RANGE; dz <= BLOCK_RANGE; dz++) {
-                    pos.set(center.getX() + dx, center.getY() + dy, center.getZ() + dz);
+                    pos.set(cx + dx, cy + dy, cz + dz);
                     BlockState state = level.getBlockState(pos);
-                    if (state.isAir() || !(state.getBlock() instanceof MaterialBlock block)) continue;
-                    if (isRadioactive(block.material)) {
-                        total += 0.5 / (1.0 + Math.sqrt(dx * dx + dy * dy + dz * dz));
+                    if (state.isAir() || !(state.getBlock() instanceof MaterialBlock block) ||
+                            !isRadioactive(block.material)) {
+                        continue;
                     }
+                    int distSqr = dx * dx + dy * dy + dz * dz;
+                    total += 0.5 / (1.0 + Math.sqrt(distSqr));
                 }
             }
         }
@@ -136,14 +136,15 @@ public final class RadiationWatch {
     /** Running FX-1 Reactors in the 3 x 3 chunks around the player. */
     private static double reactors(ServerLevel level, ServerPlayer player) {
         double total = 0;
+        double rangeSqr = REACTOR_RANGE * REACTOR_RANGE;
+        var playerPos = player.position();
         int chunkX = player.blockPosition().getX() >> 4;
         int chunkZ = player.blockPosition().getZ() >> 4;
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
                 LevelChunk chunk = level.getChunkSource().getChunkNow(chunkX + dx, chunkZ + dz);
                 if (chunk == null) continue;
-                List<BlockEntity> blockEntities = new ArrayList<>(chunk.getBlockEntities().values());
-                for (BlockEntity blockEntity : blockEntities) {
+                for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
                     if (!(blockEntity instanceof MetaMachineBlockEntity machineEntity)) continue;
                     MetaMachine machine = machineEntity.getMetaMachine();
                     if (!REACTOR_ID.equals(machine.getDefinition().getId())) continue;
@@ -151,8 +152,10 @@ public final class RadiationWatch {
                             !reactor.getRecipeLogic().isWorking()) {
                         continue;
                     }
-                    double distance = Math.sqrt(blockEntity.getBlockPos().distToCenterSqr(player.position()));
-                    if (distance <= REACTOR_RANGE) total += REACTOR_STRENGTH * (1.0 - distance / (REACTOR_RANGE + 1.0));
+                    double distSqr = blockEntity.getBlockPos().distToCenterSqr(playerPos);
+                    if (distSqr > rangeSqr) continue;
+                    double distance = Math.sqrt(distSqr);
+                    total += REACTOR_STRENGTH * (1.0 - distance / (REACTOR_RANGE + 1.0));
                 }
             }
         }

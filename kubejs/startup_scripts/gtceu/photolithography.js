@@ -66,6 +66,135 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setSound($LithoSounds.ORBITAL_STATION)
 })
 
+// Orbital station layouts, precomputed ONCE at module level and reused by .pattern() for both
+// basic and Mk2 (memoized): ORBITAL_BASIC is the 25-wide design, ORBITAL_BANDS its 18x25x25 rim-band
+// scan, ORBITAL_MK2_SLICES the 35x25x35 Mk2 cell table. Same cell functions, just called once.
+const ORBITAL_BASIC = [
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','       CC   C   CC       ','    DDDCC  FHF  CCDDD    ','       CC   C   CC       ','            C            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','     CC     C     CC     ','   DDCC    FHF    CCDD   ','     CC     C     CC     ','                         ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','    C       C       C    ','  DDC      FHF      CDD  ','    C               C    ','            L            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ','  DC       FHF       CD  ','   C                 C   ','            L            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ',' DDC       FHF       CDD ','   C                 C   ','           LLL           ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ',' DC        FHF        CD ','  C                   C  ','           LLL           ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ','DDC        FHF        CDD','  C        F F        C  ','          LLLLL          ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ',' C          C          C ','DC        HHHHH        CD',' C         F F         C ','         LLLLLLL         ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','            A            ','            A            ','            A            ','            C            ',' C         CCC         C ','DC       HHHHHHH       CD',' C         FFF         C ','        LLLLLLLLL        ','           OOO           '],
+        ['                         ', '            A            ', '            A            ', '            A            ','            A            ', '           AAA           ','           AAA           ','           AA            ','            A            ','            A            ','           CBC           ','           CBC           ','           CBC           ',' C        CCBCC        C ','DCFFFFFFFHHHHHHHFFFFFFFCD',' C      FFFF FFFF      C ','      LLLLLLLLLLLLL      ','          OOOOO          '],
+        ['            A            ', '           AAA           ', '           AAA           ', '           AAA           ','           ABA           ', '           ABA           ','           ABA           ','           ABA           ','           ABA           ','          AABAA          ','          ABBBA          ','          ABBBA          ',' CCC     CCBBBCC     CCC ',' CCCCCCCCCCBBBCCCCCCCCCC ','DCHHHHHHHHHHHHHHHHHHHHHCD',' CCC       F F       CCC ',' CC LLLLLLLLLLLLLLLLL CC ','       OOOOOKOOOOO       '],
+        ['                         ', '            A            ', '            A            ', '            A            ','            A            ', '           AAA           ','           AAA           ','            AA           ','            A            ','            A            ','           CBC           ','           CBC           ','           CBC           ',' C        CCBCC        C ','DCFFFFFFFHHHHHHHFFFFFFFCD',' C      FFFF FFFF      C ','      LLLLLLLLLLLLL      ','          OOOOO          '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','            A            ','            A            ','            A            ','            C            ',' C         CCC         C ','DC       HHHHHHH       CD',' C         FFF         C ','        LLLLLLLLL        ','           OOO           '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ',' C          C          C ','DC        HHHHH        CD',' C         F F         C ','         LLLLLLL         ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ','DDC        FHF        CDD','  C        F F        C  ','          LLLLL          ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ',' DC        FHF        CD ','  C                   C  ','           LLL           ','            O            '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ',' DDC       FHF       CDD ','   C                 C   ','           LLL           ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ','  DC       FHF       CD  ','   C                 C   ','            L            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','    C       C       C    ','  DDC      FHF      CDD  ','    C               C    ','            L            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','     CC     C     CC     ','   DDCC    FHF    CCDD   ','     CC     C     CC     ','                         ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','       CC   C   CC       ','    DDDCC  FHF  CCDDD    ','       CC   C   CC       ','            C            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
+        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ']
+    ]
+// Array Mk2: the same platform, bigger. The core is the basic station exactly as it is (everything within 9 blocks of
+// the controller's axis: mast, cone, hatches, the middle of the beams), centred in 35 x 35; the rim - the sturdy
+// and non-conducting rings, the shock-proof beams' ends and the trusses - is the original's moved 5 blocks out, so
+// it keeps its thickness and its look (rim radius 12 -> 17; the light ring 9.6 -> 13.6, the same 0.8 of the rim, clears it by 1.2); the
+// beams run on between them (the original's axis beams, 1-3 wide, at radius 9). Built cell by cell from ORBITAL_BASIC
+// for every level, so a change to the basic station carries over. Rows bottom -> top as ORBITAL_BASIC: [aisle][level].
+const ORBITAL_MK2 = 35      // the Mk2's size, its centre at 17
+const ORBITAL_CORE = 9      // within this radius the basic station is copied as it is
+const ORBITAL_GROW = 5      // how far the rim moves out
+const ORBITAL_NEAR = 3      // within this many blocks of an axis the rim moves out straight (no stretch of the beams)
+const ORBITAL_SPIRE = 7   // the Mk2's undulator spire hangs this many blocks lower than the basic station's mast (af9-core DEPTH_MK2)
+const orbitalBasicAt = (level, dx, dz) => {
+    const sx = Math.floor(dx + 0.5) + 12, sz = Math.floor(dz + 0.5) + 12
+    return sx >= 0 && sx < 25 && sz >= 0 && sz < 25 ? ORBITAL_BASIC[sz][level].charAt(sx) : ' '
+}
+// Hoisted rim order (was 'DOKCFHLABC'.split('') per cell): the sturdy ring before the rest, where two bands meet.
+const ORBITAL_RIM_ORDER = ['D', 'O', 'K', 'C', 'F', 'H', 'L', 'A', 'B', 'C']
+// The rim away from the axes is made from the original's rings, not stretched out of them: off the axes the original's rim is
+// three plain rings (levels 13 and 15 a ring of non-conducting casing, level 14 a ring of sturdy casing round another of
+// non-conducting), so each ring is a band of radii (the radii of the centres of its cells in the original), and the Mk2's
+// ring is the same band moved out by ORBITAL_GROW. A cell of the Mk2 is in a ring when its centre lies in the band: the rings
+// come out round and as thick all the way round (resampling the original's cells, a thin ring broke into blobs and gaps).
+// Precomputed once (18x25x25 band scan).
+const ORBITAL_BANDS = (() => {
+    const bands = {}
+    Array(18).fill(0).forEach((_, level) => {
+        Array(25).fill(0).forEach((_, z) => {
+            Array(25).fill(0).forEach((_, x) => {
+                const ch = ORBITAL_BASIC[z][level].charAt(x)
+                const dx = x - 12, dz = z - 12
+                const r = Math.sqrt(dx * dx + dz * dz)
+                if (ch === ' ' || r <= ORBITAL_CORE || Math.abs(dx) <= ORBITAL_NEAR || Math.abs(dz) <= ORBITAL_NEAR) return
+                bands[level] = bands[level] || {}
+                const band = bands[level][ch]
+                if (band) {
+                    band[0] = Math.min(band[0], r)
+                    band[1] = Math.max(band[1], r)
+                } else {
+                    bands[level][ch] = [r, r]
+                }
+            })
+        })
+    })
+    return bands
+})()
+const orbitalRimCell = (level, dx, dz) => {
+    const bands = ORBITAL_BANDS[level]
+    if (!bands) return ' '
+    const r = Math.sqrt(dx * dx + dz * dz) - ORBITAL_GROW
+    let best = ' '
+    ORBITAL_RIM_ORDER.forEach(ch => {
+        if (best !== ' ' || !bands[ch]) return
+        // a ring of one cell needs a band about one block wide to come out solid all the way round
+        // (and two rings side by side overlap a little, so no cell between them is left out)
+        const pad = Math.max(0.01, (1 - (bands[ch][1] - bands[ch][0])) / 2) + (Object.keys(bands).length > 1 ? 0.12 : 0)
+        if (r >= bands[ch][0] - pad && r <= bands[ch][1] + pad) best = ch
+    })
+    return best
+}
+const orbitalMk2Cell = (level, dx, dz) => {
+    const r = Math.sqrt(dx * dx + dz * dz)
+    if (r <= ORBITAL_CORE) return orbitalBasicAt(level, dx, dz)
+    if (r <= ORBITAL_CORE + ORBITAL_GROW) {
+        // between the core and the rim only the axis beams run on: the original's cross-section at the core's edge
+        if (Math.abs(dx) <= 1) return orbitalBasicAt(level, dx, dz > 0 ? ORBITAL_CORE : -ORBITAL_CORE)
+        if (Math.abs(dz) <= 1) return orbitalBasicAt(level, dx > 0 ? ORBITAL_CORE : -ORBITAL_CORE, dz)
+        return ' '
+    }
+    if (Math.abs(dx) <= ORBITAL_NEAR && Math.abs(dz) > Math.abs(dx)) {
+        return orbitalBasicAt(level, dx, dz > 0 ? dz - ORBITAL_GROW : dz + ORBITAL_GROW)
+    }
+    if (Math.abs(dz) <= ORBITAL_NEAR && Math.abs(dx) > Math.abs(dz)) {
+        return orbitalBasicAt(level, dx > 0 ? dx - ORBITAL_GROW : dx + ORBITAL_GROW, dz)
+    }
+    return orbitalRimCell(level, dx, dz)
+}
+// forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop
+// bodies use callbacks (a const in a callback is new each call; lint rule S3). Array(n).fill(0), not
+// Array.from({ length: n }): Rhino's Array.from leaves n holes, and forEach skips holes.
+// Precomputed once (35x25x35 Mk2 cell table); .pattern() reuses this const.
+const ORBITAL_MK2_SLICES = (() => {
+    const slices = []
+    Array(ORBITAL_MK2).fill(0).forEach((_, az) => {
+        const aisle = []
+        Array(18 + ORBITAL_SPIRE).fill(0).forEach((_, row) => {
+            const level = row - ORBITAL_SPIRE
+            const cells = []
+            Array(ORBITAL_MK2).fill(0).forEach((_, ax) => {
+                // under the basic station's own bottom level only the spire goes on: a column of HSS-E frame
+                // on the axis (the tip of the original's mast is the same plain frame)
+                cells.push(level < 0 ? (ax === 17 && az === 17 ? 'A' : ' ') : orbitalMk2Cell(level, ax - 17, az - 17))
+            })
+            aisle.push(cells.join(''))
+        })
+        slices.push(aisle)
+    })
+    return slices
+})()
+
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []
@@ -213,124 +342,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // switch): the same platform, the core as it is and the rim, trusses and beams' ends moved 5 blocks out (below),
     // and a larger light ring (radius 13.6, af9-core RING_RADIUS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
     // UHV+ circuits deposited ion-by-ion with plasma solder, in orbit.
-    const ORBITAL_BASIC = [
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','       CC   C   CC       ','    DDDCC  FHF  CCDDD    ','       CC   C   CC       ','            C            ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','     CC     C     CC     ','   DDCC    FHF    CCDD   ','     CC     C     CC     ','                         ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','    C       C       C    ','  DDC      FHF      CDD  ','    C               C    ','            L            ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ','  DC       FHF       CD  ','   C                 C   ','            L            ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ',' DDC       FHF       CDD ','   C                 C   ','           LLL           ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ',' DC        FHF        CD ','  C                   C  ','           LLL           ','            O            '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ','DDC        FHF        CDD','  C        F F        C  ','          LLLLL          ','            O            '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ',' C          C          C ','DC        HHHHH        CD',' C         F F         C ','         LLLLLLL         ','            O            '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','            A            ','            A            ','            A            ','            C            ',' C         CCC         C ','DC       HHHHHHH       CD',' C         FFF         C ','        LLLLLLLLL        ','           OOO           '],
-        ['                         ', '            A            ', '            A            ', '            A            ','            A            ', '           AAA           ','           AAA           ','           AA            ','            A            ','            A            ','           CBC           ','           CBC           ','           CBC           ',' C        CCBCC        C ','DCFFFFFFFHHHHHHHFFFFFFFCD',' C      FFFF FFFF      C ','      LLLLLLLLLLLLL      ','          OOOOO          '],
-        ['            A            ', '           AAA           ', '           AAA           ', '           AAA           ','           ABA           ', '           ABA           ','           ABA           ','           ABA           ','           ABA           ','          AABAA          ','          ABBBA          ','          ABBBA          ',' CCC     CCBBBCC     CCC ',' CCCCCCCCCCBBBCCCCCCCCCC ','DCHHHHHHHHHHHHHHHHHHHHHCD',' CCC       F F       CCC ',' CC LLLLLLLLLLLLLLLLL CC ','       OOOOOKOOOOO       '],
-        ['                         ', '            A            ', '            A            ', '            A            ','            A            ', '           AAA           ','           AAA           ','            AA           ','            A            ','            A            ','           CBC           ','           CBC           ','           CBC           ',' C        CCBCC        C ','DCFFFFFFFHHHHHHHFFFFFFFCD',' C      FFFF FFFF      C ','      LLLLLLLLLLLLL      ','          OOOOO          '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','            A            ','            A            ','            A            ','            C            ',' C         CCC         C ','DC       HHHHHHH       CD',' C         FFF         C ','        LLLLLLLLL        ','           OOO           '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ',' C          C          C ','DC        HHHHH        CD',' C         F F         C ','         LLLLLLL         ','            O            '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ','DDC        FHF        CDD','  C        F F        C  ','          LLLLL          ','            O            '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','  C         C         C  ',' DC        FHF        CD ','  C                   C  ','           LLL           ','            O            '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ',' DDC       FHF       CDD ','   C                 C   ','           LLL           ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','   C        C        C   ','  DC       FHF       CD  ','   C                 C   ','            L            ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','    C       C       C    ','  DDC      FHF      CDD  ','    C               C    ','            L            ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','     CC     C     CC     ','   DDCC    FHF    CCDD   ','     CC     C     CC     ','                         ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','       CC   C   CC       ','    DDDCC  FHF  CCDDD    ','       CC   C   CC       ','            C            ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
-        ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ']
-    ]
-    // Array Mk2: the same platform, bigger. The core is the basic station exactly as it is (everything within 9 blocks of
-    // the controller's axis: mast, cone, hatches, the middle of the beams), centred in 35 x 35; the rim - the sturdy
-    // and non-conducting rings, the shock-proof beams' ends and the trusses - is the original's moved 5 blocks out, so
-    // it keeps its thickness and its look (rim radius 12 -> 17; the light ring 9.6 -> 13.6, the same 0.8 of the rim, clears it by 1.2); the
-    // beams run on between them (the original's axis beams, 1-3 wide, at radius 9). Built cell by cell from ORBITAL_BASIC
-    // for every level, so a change to the basic station carries over. Rows bottom -> top as ORBITAL_BASIC: [aisle][level].
-    const ORBITAL_MK2 = 35      // the Mk2's size, its centre at 17
-    const ORBITAL_CORE = 9      // within this radius the basic station is copied as it is
-    const ORBITAL_GROW = 5      // how far the rim moves out
-    const ORBITAL_NEAR = 3      // within this many blocks of an axis the rim moves out straight (no stretch of the beams)
-    const ORBITAL_SPIRE = 7   // the Mk2's undulator spire hangs this many blocks lower than the basic station's mast (af9-core DEPTH_MK2)
-    const orbitalBasicAt = (level, dx, dz) => {
-        const sx = Math.floor(dx + 0.5) + 12, sz = Math.floor(dz + 0.5) + 12
-        return sx >= 0 && sx < 25 && sz >= 0 && sz < 25 ? ORBITAL_BASIC[sz][level].charAt(sx) : ' '
-    }
-    // The rim away from the axes is made from the original's rings, not stretched out of them: off the axes the original's rim is
-    // three plain rings (levels 13 and 15 a ring of non-conducting casing, level 14 a ring of sturdy casing round another of
-    // non-conducting), so each ring is a band of radii (the radii of the centres of its cells in the original), and the Mk2's
-    // ring is the same band moved out by ORBITAL_GROW. A cell of the Mk2 is in a ring when its centre lies in the band: the rings
-    // come out round and as thick all the way round (resampling the original's cells, a thin ring broke into blobs and gaps).
-    const orbitalBands = {}
-    Array(18).fill(0).forEach((_, level) => {
-        Array(25).fill(0).forEach((_, z) => {
-            Array(25).fill(0).forEach((_, x) => {
-                const ch = ORBITAL_BASIC[z][level].charAt(x)
-                const dx = x - 12, dz = z - 12
-                const r = Math.sqrt(dx * dx + dz * dz)
-                if (ch === ' ' || r <= ORBITAL_CORE || Math.abs(dx) <= ORBITAL_NEAR || Math.abs(dz) <= ORBITAL_NEAR) return
-                orbitalBands[level] = orbitalBands[level] || {}
-                const band = orbitalBands[level][ch]
-                if (band) {
-                    band[0] = Math.min(band[0], r)
-                    band[1] = Math.max(band[1], r)
-                } else {
-                    orbitalBands[level][ch] = [r, r]
-                }
-            })
-        })
-    })
-    const orbitalRimCell = (level, dx, dz) => {
-        const bands = orbitalBands[level]
-        if (!bands) return ' '
-        const r = Math.sqrt(dx * dx + dz * dz) - ORBITAL_GROW
-        let best = ' '
-        'DOKCFHLABC'.split('').forEach(ch => {        // the sturdy ring before the rest, where two bands meet
-            if (best !== ' ' || !bands[ch]) return
-            // a ring of one cell needs a band about one block wide to come out solid all the way round
-            // (and two rings side by side overlap a little, so no cell between them is left out)
-            const pad = Math.max(0.01, (1 - (bands[ch][1] - bands[ch][0])) / 2) + (Object.keys(bands).length > 1 ? 0.12 : 0)
-            if (r >= bands[ch][0] - pad && r <= bands[ch][1] + pad) best = ch
-        })
-        return best
-    }
-    const orbitalMk2Cell = (level, dx, dz) => {
-        const r = Math.sqrt(dx * dx + dz * dz)
-        if (r <= ORBITAL_CORE) return orbitalBasicAt(level, dx, dz)
-        if (r <= ORBITAL_CORE + ORBITAL_GROW) {
-            // between the core and the rim only the axis beams run on: the original's cross-section at the core's edge
-            if (Math.abs(dx) <= 1) return orbitalBasicAt(level, dx, dz > 0 ? ORBITAL_CORE : -ORBITAL_CORE)
-            if (Math.abs(dz) <= 1) return orbitalBasicAt(level, dx > 0 ? ORBITAL_CORE : -ORBITAL_CORE, dz)
-            return ' '
-        }
-        if (Math.abs(dx) <= ORBITAL_NEAR && Math.abs(dz) > Math.abs(dx)) {
-            return orbitalBasicAt(level, dx, dz > 0 ? dz - ORBITAL_GROW : dz + ORBITAL_GROW)
-        }
-        if (Math.abs(dz) <= ORBITAL_NEAR && Math.abs(dx) > Math.abs(dz)) {
-            return orbitalBasicAt(level, dx > 0 ? dx - ORBITAL_GROW : dx + ORBITAL_GROW, dz)
-        }
-        return orbitalRimCell(level, dx, dz)
-    }
-    // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop
-    // bodies use callbacks (a const in a callback is new each call; lint rule S3). Array(n).fill(0), not
-    // Array.from({ length: n }): Rhino's Array.from leaves n holes, and forEach skips holes
-    const orbitalMk2Slices = () => {
-        const slices = []
-        Array(ORBITAL_MK2).fill(0).forEach((_, az) => {
-            const aisle = []
-            Array(18 + ORBITAL_SPIRE).fill(0).forEach((_, row) => {
-                const level = row - ORBITAL_SPIRE
-                let line = ''
-                Array(ORBITAL_MK2).fill(0).forEach((_, ax) => {
-                    // under the basic station's own bottom level only the spire goes on: a column of HSS-E frame
-                    // on the axis (the tip of the original's mast is the same plain frame)
-                    line += level < 0 ? (ax === 17 && az === 17 ? 'A' : ' ') : orbitalMk2Cell(level, ax - 17, az - 17)
-                })
-                aisle.push(line)
-            })
-            slices.push(aisle)
-        })
-        return slices
-    }
+    // Layouts are module-level (ORBITAL_BASIC / ORBITAL_MK2_SLICES), precomputed once above.
     const orbitalWheres = definition => {
         const energy = Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(3, 1)
         const laser = Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 1)
@@ -387,7 +399,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 18))
         .pattern(definition => {
             // GT asks for this once: both sizes are built, the extended one is the machine's own to switch to
-            $OrbitalLithographyMachine.setExtendedPattern(orbitalPattern(definition, orbitalMk2Slices()))
+            $OrbitalLithographyMachine.setExtendedPattern(orbitalPattern(definition, ORBITAL_MK2_SLICES))
             return orbitalPattern(definition, ORBITAL_BASIC)
         })
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',

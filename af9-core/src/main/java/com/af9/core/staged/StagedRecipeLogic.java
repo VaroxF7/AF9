@@ -66,6 +66,12 @@ public class StagedRecipeLogic extends RecipeLogic {
     private List<GTRecipe> stagedSteps = List.of();
     /** The running craft's root recipe, for the repeat run after the last step. */
     private GTRecipe stagedRootRecipe;
+    /** Reused by {@link #checkRecipe}: the machine's inputs minus the step's, cleared per check, never shared. */
+    private final Set<ItemStack> checkItems = new ObjectOpenCustomHashSet<>(
+            ItemStackHashStrategy.comparingAllButCount());
+    /** Reused by {@link #checkRecipe}: the machine's fluids minus the step's, cleared per check, never shared. */
+    private final Set<FluidStack> checkFluids = new ObjectOpenCustomHashSet<>(
+            FluidStackHashStrategy.comparingAllButAmount());
 
     public StagedRecipeLogic(IRecipeLogicMachine machine) {
         super(machine);
@@ -269,33 +275,33 @@ public class StagedRecipeLogic extends RecipeLogic {
         if (!normal.isSuccess() || !StagedRecipes.isStep(recipe)) return normal;
 
         // the step matches, but only when the machine holds nothing beyond it: no pre-loading later steps
-        Set<ItemStack> presentItems = new ObjectOpenCustomHashSet<>(
-                ItemStackHashStrategy.comparingAllButCount());
+        List<Content> itemInputs = recipe.getInputContents(ItemRecipeCapability.CAP);
+        checkItems.clear();
         machine.getCapabilitiesFlat(IO.IN, ItemRecipeCapability.CAP).stream()
                 .flatMap(handler -> handler.getContents().stream())
                 .filter(ItemStack.class::isInstance).map(ItemStack.class::cast)
                 .filter(stack -> !stack.isEmpty() && !stack.is(GTItems.PROGRAMMED_CIRCUIT.get()))
-                .forEach(presentItems::add);
-        for (Content raw : recipe.getInputContents(ItemRecipeCapability.CAP)) {
+                .forEach(checkItems::add);
+        for (Content raw : itemInputs) {
             Ingredient need = ItemRecipeCapability.CAP.of(raw.getContent());
-            presentItems.removeIf(need::test);
+            checkItems.removeIf(need::test);
         }
-        if (!presentItems.isEmpty()) {
+        if (!checkItems.isEmpty()) {
             return ActionResult.fail(Component.translatable("af9.recipe.staged.extra_inputs"), null, IO.IN);
         }
 
-        Set<FluidStack> presentFluids = new ObjectOpenCustomHashSet<>(
-                FluidStackHashStrategy.comparingAllButAmount());
+        List<Content> fluidInputs = recipe.getInputContents(FluidRecipeCapability.CAP);
+        checkFluids.clear();
         machine.getCapabilitiesFlat(IO.IN, FluidRecipeCapability.CAP).stream()
                 .flatMap(handler -> handler.getContents().stream())
                 .filter(FluidStack.class::isInstance).map(FluidStack.class::cast)
                 .filter(stack -> !stack.isEmpty())
-                .forEach(presentFluids::add);
-        for (Content raw : recipe.getInputContents(FluidRecipeCapability.CAP)) {
+                .forEach(checkFluids::add);
+        for (Content raw : fluidInputs) {
             FluidIngredient need = FluidRecipeCapability.CAP.of(raw.getContent());
-            presentFluids.removeIf(need::test);
+            checkFluids.removeIf(need::test);
         }
-        if (!presentFluids.isEmpty()) {
+        if (!checkFluids.isEmpty()) {
             return ActionResult.fail(Component.translatable("af9.recipe.staged.extra_inputs"), null, IO.IN);
         }
         return ActionResult.SUCCESS;

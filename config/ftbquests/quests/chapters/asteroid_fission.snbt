@@ -941,6 +941,90 @@
 			y: 9.0d
 		}
 		{
+			dependencies: ["7EF8EFCDD9A99B6F"]
+			description: [
+				"{af9.quest.fx.heu.1}"
+				""
+				"{af9.quest.fx.heu.2}"
+			]
+			icon: "af9:fx_heu_rod"
+			id: "20C3D4E5F6071829"
+			rewards: [{
+				id: "20C3D4E5F607BCDE"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.heu.subtitle}"
+			tasks: [
+				{
+					id: "20C3D4E5F6EDCBA0"
+					item: "af9:fx_heu_rod"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.heu.title}"
+			x: 21.0d
+			y: 9.0d
+		}
+		{
+			dependencies: ["7821752F8FFF2B89"]
+			description: [
+				"{af9.quest.fx.lep.1}"
+				""
+				"{af9.quest.fx.lep.2}"
+			]
+			icon: "af9:fx_lep_rod"
+			id: "23D4E5F60718293A"
+			rewards: [{
+				id: "23D4E5F60718CDEF"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.lep.subtitle}"
+			tasks: [
+				{
+					id: "23D4E5F60718FEDC"
+					item: "af9:fx_lep_rod"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.lep.title}"
+			x: 39.0d
+			y: 12.0d
+		}
+		{
+			dependencies: ["23D4E5F60718293A"]
+			description: [
+				"{af9.quest.fx.hep.1}"
+				""
+				"{af9.quest.fx.hep.2}"
+			]
+			icon: "af9:fx_hep_rod"
+			id: "24E5F60718293ABB"
+			rewards: [{
+				id: "24E5F60718BCDEFA"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.hep.subtitle}"
+			tasks: [
+				{
+					id: "24E5F60718DCCBAA"
+					item: "af9:fx_hep_rod"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fx.hep.title}"
+			x: 39.0d
+			y: 9.0d
+		}
+		{
 			dependencies: ["5CC72995FC2D1B71"]
 			description: [
 				"{af9.quest.fx.offgas.1}"

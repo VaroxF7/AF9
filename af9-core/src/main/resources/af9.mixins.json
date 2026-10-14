@@ -11,7 +11,9 @@
     "powah.OrbRecipeMixin",
     "powah.OrbRecipeSerializerMixin",
     "powah.OrbTileMixin",
-    "gtceu.FusionReactorMixin"
+    "gtceu.FusionReactorMixin",
+    "ae2.FalloutMixin",
+    "ae2.FalloutCopyMixin"
   ],
   "injectors": {
     "defaultRequire": 1

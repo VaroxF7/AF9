@@ -15,6 +15,9 @@
 ServerEvents.tags('item', event => {
     // what RadiationWatch (af9-core) warns about besides GT's radioactive materials
     event.add('af9:radioactive', ['af9:fx_fuel_pellet', 'af9:fx_fuel_rod', 'af9:fx_spent_fuel_rod',
+        'af9:fx_heu_pellet', 'af9:fx_heu_rod', 'af9:fx_spent_heu_rod',
+        'af9:fx_lep_pellet', 'af9:fx_lep_rod', 'af9:fx_spent_lep_rod',
+        'af9:fx_hep_pellet', 'af9:fx_hep_rod', 'af9:fx_spent_hep_rod',
         'af9:fx_mox_pellet', 'af9:fx_mox_rod', 'af9:fx_spent_mox_rod', 'af9:fx_thorium_pellet',
         'af9:fx_thorium_rod', 'af9:fx_spent_thorium_rod', 'af9:fx_blanket_assembly', 'af9:fx_spent_blanket',
         'af9:fx_mox_2_pellet', 'af9:fx_mox_2_rod', 'af9:fx_spent_mox_2_rod', 'af9:fx_mox_3_pellet',
@@ -104,8 +107,8 @@ ServerEvents.recipes(event => {
         C: '#gtceu:circuits/ev', P: 'gtceu:ev_electric_pump', L: 'gtceu:lead_plate', H: 'gtceu:ev_machine_hull'
     }).id('af9:fx1_reactor')
     // One rod per 1,200 ticks (a minute); 61,440 mB of supercritical steam (51 mB/t, 4,096 EU/t in four Large Steam
-    // Turbines at full rotor power) for 640 mB of water, EV: 1,920 EU/t. The coolant goes through the core and comes out
-    // hot, in equal amounts. Overclocking (IV hatches) runs it faster.
+    // Turbines at full rotor power) for 640 mB of water, HV: 480 EU/t, so the rod is worth about 4.3 million EU net.
+    // The coolant goes through the core and comes out hot, in equal amounts. Overclocking (EV hatches) runs it faster.
     event.recipes.gtceu.fx1_reactor('af9:fx1_fuel_cycle')
         .itemInputs('af9:fx_fuel_rod')
         .inputFluids(Fluid.of('gtceu:distilled_water', 640))
@@ -114,7 +117,7 @@ ServerEvents.recipes(event => {
         .outputFluids(Fluid.of('gtceu:supercritical_steam', 61440))
         .outputFluids(Fluid.of('gtceu:hot_sodium_potassium', 1000))
         .duration(1200)
-        .EUt(VA[GTValues.EV])
+        .EUt(VA[GTValues.HV])
     // The Vacuum Freezer gives the heat to space (well, to its coolant loop): hot NaK back to NaK
     event.recipes.gtceu.vacuum_freezer('af9:cool_hot_sodium_potassium')
         .inputFluids(Fluid.of('gtceu:hot_sodium_potassium', 1000))

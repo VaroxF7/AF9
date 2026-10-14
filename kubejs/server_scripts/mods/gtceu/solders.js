@@ -12,7 +12,7 @@
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
-    // UHV recipes draw 100 A of UHV power (XPS 300 A, NVM 1,000 A: circuits_af9.js), see docs/dyson-swarm.md
+    // UHV recipes draw 100 A of UHV power (Pico-scale work takes 300 A in the Advanced Circuit Manufacturer).
     const UHV_AMPS = 100
 
     // ---- Living solder: sterile incubation (chemical reactor, UV, sterile cleanroom) ----
@@ -57,5 +57,23 @@ ServerEvents.recipes(event => {
             Fluid.of('gtceu:polybenzimidazole', 1152))
         .itemOutputs('gtceu:wetware_processor_mainframe')
         .duration(1000)
+        .EUt(VA[GTValues.UHV], UHV_AMPS)
+
+    // ---- Wetware mainframe lean (Stage 4 @XPS end, gate: photonic_package) ----
+    // Halved computers and wire, photonic packages instead of loose dies, 2x out, half time.
+    event.recipes.gtceu.plasma_soldering('af9:wetware_mainframe_uhv_plasma_lean')
+        .itemInputs(
+            'gtceu:tritanium_frame',
+            '5x gtceu:wetware_processor_computer',
+            '16x af9:photonic_package',
+            '16x af9:photonic_ic_chip',
+            '32x gtceu:enriched_naquadah_trinium_europium_duranide_double_wire',
+            '64x gtceu:polybenzimidazole_foil',
+            '4x gtceu:europium_plate')
+        .inputFluids(
+            Fluid.of('gtceu:plasma_solder', 360),
+            Fluid.of('gtceu:polybenzimidazole', 576))
+        .itemOutputs('2x gtceu:wetware_processor_mainframe')
+        .duration(500)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
 })

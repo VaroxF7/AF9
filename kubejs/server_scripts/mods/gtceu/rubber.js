@@ -33,16 +33,18 @@ ServerEvents.recipes(event => {
         'gtceu:rubber_leaves',
         'gtceu:rubber_sapling'
     ]
-    treeInputs.forEach(item => {
-        event.remove({ input: item })
-    })
+    // (batched: the same inputs removed in one filter call)
+    event.remove({ input: treeInputs })
     // Known GT separations by id, in case a future GT keeps them without the
     // direct item input (chanced outputs sometimes slip input filters).
-    event.remove({ id: 'gtceu:centrifuge/rubber_log_separation' })
-    event.remove({ id: 'gtceu:extractor/rubber_log_extraction' })
-    event.remove({ id: 'gtceu:extractor/rubber_wood_extraction' })
-    event.remove({ id: 'gtceu:extractor/rubber_leaves_extraction' })
-    event.remove({ id: 'gtceu:extractor/rubber_sapling_extraction' })
+    // (batched: the same five ids removed in one filter call)
+    event.remove({ id: [
+        'gtceu:centrifuge/rubber_log_separation',
+        'gtceu:extractor/rubber_log_extraction',
+        'gtceu:extractor/rubber_wood_extraction',
+        'gtceu:extractor/rubber_leaves_extraction',
+        'gtceu:extractor/rubber_sapling_extraction'
+    ] })
 
     // ---- Latex from plants (steam extractor, ULV) ----
     // One resin per handful of plants. Leaves and saplings take any tree

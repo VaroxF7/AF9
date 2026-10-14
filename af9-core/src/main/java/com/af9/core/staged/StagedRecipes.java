@@ -9,6 +9,8 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 
+import net.minecraft.resources.ResourceLocation;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -54,22 +56,37 @@ public final class StagedRecipes {
     /** Every recipe of a type, whatever category KubeJS filed it under. */
     public static Set<GTRecipe> allRecipes(GTRecipeType type) {
         Set<GTRecipe> all = new LinkedHashSet<>();
-        if (type == null) return all;
+        if (type == null) return Set.of();
         for (Set<GTRecipe> set : type.getCategoryMap().values()) {
             if (set != null) all.addAll(set);
         }
-        return all;
+        return Collections.unmodifiableSet(all);
     }
 
     /** The staged root recipe with this id, or null. */
     public static GTRecipe findRoot(GTRecipeType type, String rootId) {
-        if (rootId == null || rootId.isEmpty()) return null;
-        for (GTRecipe recipe : allRecipes(type)) {
-            if (recipe.id != null && rootId.equals(recipe.id.toString()) && StagedRecipeData.isStaged(recipe)) {
-                return recipe;
+        if (type == null || rootId == null || rootId.isEmpty()) return null;
+        ResourceLocation id = parseId(rootId);
+        for (Set<GTRecipe> set : type.getCategoryMap().values()) {
+            if (set == null) continue;
+            for (GTRecipe recipe : set) {
+                boolean match = id != null ? id.equals(recipe.id)
+                        : recipe.id != null && rootId.equals(recipe.id.toString());
+                if (match && StagedRecipeData.isStaged(recipe)) {
+                    return recipe;
+                }
             }
         }
         return null;
+    }
+
+    /** The id parsed once per lookup, so entries compare as {@link ResourceLocation} without a toString each. */
+    private static ResourceLocation parseId(String rootId) {
+        try {
+            return new ResourceLocation(rootId);
+        } catch (RuntimeException invalid) {
+            return null;
+        }
     }
 
     private static List<GTRecipe> computeSteps(GTRecipe root) {

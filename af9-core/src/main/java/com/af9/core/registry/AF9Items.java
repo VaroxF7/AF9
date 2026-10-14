@@ -1,7 +1,6 @@
 package com.af9.core.registry;
 
 import com.af9.core.AF9Core;
-import com.af9.core.machine.DysonSails;
 import com.af9.core.staged.StagedCovers;
 
 import com.gregtechceu.gtceu.api.item.ComponentItem;
@@ -100,6 +99,17 @@ public final class AF9Items {
         item("fx_thorium_pellet", 64, 2);
         item("fx_thorium_rod", 64, 2);
         item("fx_spent_thorium_rod", 64, 2);
+        // NuclearCraft-style enriched fuels: HEU-235 (hot uranium), LEP-241 (fast plutonium)
+        // and HEP-239 (the fastest fuel). They ride the shared uranium/MOX reprocessing streams.
+        item("fx_heu_pellet", 64, 2);
+        item("fx_heu_rod", 64, 2);
+        item("fx_spent_heu_rod", 64, 2);
+        item("fx_lep_pellet", 64, 2);
+        item("fx_lep_rod", 64, 2);
+        item("fx_spent_lep_rod", 64, 2);
+        item("fx_hep_pellet", 64, 2);
+        item("fx_hep_rod", 64, 2);
+        item("fx_spent_hep_rod", 64, 2);
         // Breeder blanket: depleted uranium assemblies that breed Pu-239 around a running core
         item("fx_blanket_assembly", 64, 2);
         item("fx_spent_blanket", 64, 2);
@@ -193,9 +203,6 @@ public final class AF9Items {
 
         // ---- Space Elevator ----
         for (int tier = 1; tier <= DRONES; tier++) item(DRONE + tier, 1, 3);
-
-        // ---- Dyson Swarm: the sails (the swarm's modules in GTNH). Tiers and yields: DysonSwarmMachine ----
-        for (String sail : DysonSails.IDS) item(sail, 64, 2);
 
         // ---- Powah: the shaping molds of the Energizing Orb Mk2 (server_scripts/mods/powah/orb_recipes.js) ----
         // GT's extruder molds cover the rod, bolt, gear, small gear and rotor; the screw mold is AF9's (GT has none).

@@ -7,6 +7,7 @@ import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.Item;
 import java.util.Set;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -94,14 +95,15 @@ public final class OrbRecipes {
      */
     public static boolean matches(List<Ingredient> ingredients, int[] counts, Container inv, ItemStack result) {
         if (inv.getContainerSize() > 0 && !inv.getItem(0).isEmpty() && !hasRoom(inv.getItem(0), result)) return false;
-        List<Integer> free = new ArrayList<>();
-        for (int i = 0; i < ingredients.size(); i++) free.add(i);
+        boolean[] used = new boolean[ingredients.size()];
+        int remaining = ingredients.size();
         for (int slot = 1; slot < inv.getContainerSize(); slot++) {
             ItemStack stack = inv.getItem(slot);
             if (stack.isEmpty()) continue;
-            if (take(ingredients, counts, free, stack) < 0) return false;
+            if (take(ingredients, counts, used, stack) < 0) return false;
+            remaining--;
         }
-        return free.isEmpty();
+        return remaining == 0;
     }
 
     /** Whether {@code product} (the output slot's contents) is the recipe's result with room for another craft of it. */
@@ -125,13 +127,12 @@ public final class OrbRecipes {
      */
     public static ItemStack[] consume(List<Ingredient> ingredients, int[] counts, boolean[] nc, ItemStack[] slots) {
         ItemStack[] out = new ItemStack[slots.length];
-        List<Integer> free = new ArrayList<>();
-        for (int i = 0; i < ingredients.size(); i++) free.add(i);
+        boolean[] used = new boolean[ingredients.size()];
         for (int slot = 0; slot < slots.length; slot++) {
             ItemStack stack = slots[slot];
             out[slot] = slot == 0 ? stack.copy() : ItemStack.EMPTY; // the product waits where it is
             if (slot == 0 || stack.isEmpty()) continue;
-            int index = take(ingredients, counts, free, stack);
+            int index = take(ingredients, counts, used, stack);
             if (index < 0) continue;
             if (kept(nc, index)) {
                 out[slot] = stack.copy();
@@ -144,13 +145,13 @@ public final class OrbRecipes {
         return out;
     }
 
-    /** Removes from {@code free} the first ingredient the stack satisfies and returns its index; -1 for none. */
-    private static int take(List<Ingredient> ingredients, int[] counts, List<Integer> free, ItemStack stack) {
-        for (int k = 0; k < free.size(); k++) {
-            int index = free.get(k);
-            if (ingredients.get(index).test(stack) && stack.getCount() >= required(counts, index)) {
-                free.remove(k);
-                return index;
+    /** Marks the first unmatched ingredient the stack satisfies as used and returns its index; -1 for none. */
+    private static int take(List<Ingredient> ingredients, int[] counts, boolean[] used, ItemStack stack) {
+        for (int i = 0; i < ingredients.size(); i++) {
+            if (used[i]) continue;
+            if (ingredients.get(i).test(stack) && stack.getCount() >= required(counts, i)) {
+                used[i] = true;
+                return i;
             }
         }
         return -1;
@@ -191,9 +192,19 @@ public final class OrbRecipes {
         return level != null && !stack.isEmpty() && molds(level.getRecipeManager()).contains(stack.getItem());
     }
 
+    /** Counted ingredients by source ingredient and count, shared read-only (entries vanish with their recipe). */
+    private static final Map<Ingredient, Map<Integer, Ingredient>> COUNTED = new WeakHashMap<>();
+
     /** A copy of the ingredient whose stacks carry the count (what a recipe viewer shows). Only for concrete, client-side lists. */
     public static Ingredient withCount(Ingredient ingredient, int count) {
         if (count <= 1) return ingredient;
+        synchronized (COUNTED) {
+            Map<Integer, Ingredient> byCount = COUNTED.get(ingredient);
+            if (byCount != null) {
+                Ingredient hit = byCount.get(count);
+                if (hit != null) return hit;
+            }
+        }
         ItemStack[] items = ingredient.getItems();
         if (items.length == 0) return ingredient;
         ItemStack[] counted = new ItemStack[items.length];
@@ -201,6 +212,10 @@ public final class OrbRecipes {
             counted[i] = items[i].copy();
             counted[i].setCount(Math.min(count, Math.max(1, counted[i].getMaxStackSize())));
         }
-        return Ingredient.of(counted);
+        Ingredient result = Ingredient.of(counted);
+        synchronized (COUNTED) {
+            COUNTED.computeIfAbsent(ingredient, key -> new HashMap<>()).put(count, result);
+        }
+        return result;
     }
 }

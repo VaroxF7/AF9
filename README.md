@@ -75,7 +75,6 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 | 🛢️ Oil, off-world | Overworld oil off; Oil Regolith in asteroids → Impure → Shiny → Oil/Heavy Oil; fluids drilled in the Field | [`docs/oil.md`](docs/oil.md) |
 | 🔴 Sanguinite | bright-red UHV superconductor (lossless UV 4A): Nt/Ti dusts + H₂ + Ares gas + LXA-1 → crude → Sanguinite Hearth Furnace (dusts to 1000 mB molten, 10,800 K Tritanium, ZPM, 60 s, helium 2x; preheat 300 s, readiness 4A LuV, vents to 0 K; EBF cannot smelt it) → Vacuum Freezer under supercooled hydrogen | [`docs/uhv-superconductor.md`](docs/uhv-superconductor.md) |
 | 🔥 Plasma Forge (DTPF) | a 37×29×37 industrial skeleton of lattice pylons, diagonal struts and beams (after GTNH's, built differently) that forges strange matter and chromodynium plasma back into matter, with a running-time ramp: −50 % EU/t, −25 % time after 30 min | [`docs/dtpf.md`](docs/dtpf.md) |
-| ☀️ Dyson Swarm | GTNH Intergalactic's Dyson Swarm, copied block for block: three sails (Allthemodium 100 %, Unobtainium Alloy 200 %, Chromodynium Star Matter Tritan Alloy 350 % = 1 A of UHV each, up to 10,000 A, no collisions) feed a power plant for the UHV+ lines, which take 100 A (UHV), 300 A (XPS) and 1,000 A (NVM) of UHV power; its Dyson Output Hatch feeds a Power Substation directly, one swarm to a star (the Sun, Alpha Centauri) | [`docs/dyson-swarm.md`](docs/dyson-swarm.md) |
 | 🔥 Fusion power | GTNH's fusion plasmas the pack lacked, in four steps from the Mk1 to the Mega Fusion Reactor: helium (D + He-3), calcium, sulfur, zinc, niobium, silver, bismuth, radon, lead, thorium, plutonium-241, each a plasma turbine fuel at GTNH's value and a profit over what its reaction draws; star matter burns too, anti-matter plasma is fused in the Mega and forged with it into Idontknowium in the DTPF | [`docs/fusion-power.md`](docs/fusion-power.md) |
 | 🚀 Drop pod | a player who joins a world for the first time is taken to the top of the sky and comes down in a pod that flattens the leaves, lands, opens and lifts off again (after Supersymmetry's arrival; `[dropPod]` in the config) | [`docs/drop-pod.md`](docs/drop-pod.md) |
 | 🧹 Lint | `bash tools/lint/run.sh` checks recipes, multiblocks, quests, textures, lang without starting the game | [`tools/lint/README.md`](tools/lint/README.md) · [`docs/review-findings.md`](docs/review-findings.md) |
@@ -186,9 +185,10 @@ GT rocket (gregified parts, Aluminised Hydrolox) → Ceres → Asteroid Field (a
   Line with scanner research). T2 (titanium/ASIC) reaches Ceres; propellant is 2 recipes from 4 base
   ingredients (Al dust + ethylene + H₂ + O₂ → triethylaluminium → **Aluminised Hydrolox**, 3,000 mB =
   one launch). No oil needed for the first flight (ethylene via ethanol).
-- **FX-1 Reactor** (`gtceu:fx1_reactor`, 5×5×5, EV 1,920 EU/t): 1 rod + distilled water + NaK →
+- **FX-1 Reactor** (`gtceu:fx1_reactor`, 5×5×5, HV 480 EU/t): 1 rod + distilled water + NaK →
   **61,440 mB supercritical steam** (80 EU/mB in steam turbines; ~4 Large Steam Turbines per rod,
-  ~2.4 M EU net) + hot NaK (vacuum-freezer loop, closed) + spent rod → reprocessing → plutonium.
+  ~4.3 M EU net) + hot NaK (vacuum-freezer loop, closed) + spent rod → reprocessing → plutonium.
+  Enriched rungs (HEU-235, LEP-241, HEP-239) trade fissile cost for steam rate.
 - **Old uranium closed:** pitchblende/uraninite veins weight 0, GT U-238/Pu separations removed,
   void-miner circuits rewritten — plutonium comes from spent fuel, ~4 ore per rod net.
 - **Radiation:** AF9 warns *above the hotbar* near radioactive inventory/drops/ores/running FX-1
@@ -357,7 +357,7 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 
 `config/ftbquests/quests/chapters/` — AF9 chapters plus tier chapters it extends:
 
-`asteroid_fission` (34 quests, rockets → Mk1) · `photolithography` · `platinum_group` ·
+`asteroid_fission` (rockets → Mk1, incl. enriched fuels) · `photolithography` · `platinum_group` ·
 `space_elevator` · `oil` · `circuits` · `medium/high/extreme/insane/ludicrous/ultimate/ultra_high_voltage` ·
 `zero_point_module` (Mk1 now needs the Pu-241 quest) · `void_miner` · `applied_energistics_2`.
 
@@ -377,6 +377,7 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 ## Docs index
 
 - [Semiconductor factory](docs/semiconductor-factory.md) — wafers, silicon, SoCs, chips, lithography
+- [AE2 integration](docs/ae2.md) — processors and storage components through the fab
 - [Asteroid fission](docs/asteroid-fission.md) — field, Brannerite, FX-1, plutonium, Mk1
 - [Computation](docs/computation.md) — CWU servers
 - [Space Elevator](docs/space-elevator.md) — structure, drones, ore + liquid missions, screen
@@ -404,5 +405,5 @@ GregTech CEu Modern · GregTech: New Horizons (Space Elevator structure/logic, p
 structure re-expressed; the Space Elevator block textures are GTNH Intergalactic's, in GTCEu's connected-texture
 format by `tools/textures/space_elevator.py`, originals in `tools/textures/gtnh_space_elevator/`; the Pico circuit components are GTNH's textures too,
 `tools/textures/gtnh_pico/`; so are the Void Miner MK2 / MK3 casings and faces and their structures, `tools/textures/gtnh_void_miner/`, and the
-DTPF's controller face, `tools/textures/gtnh_dtpf/`; the Dyson Swarm's casings, face and sail, `tools/textures/gtnh_dyson_swarm/`; the Hyper-Intensity Laser Engraver's casing and face, `tools/textures/gtnh_hile/`; GT++ Volcanus' controller face behind the Sanguinite Hearth and EBF overlays, `tools/textures/gtpp_volcanus/`) · Ad Astra · KubeJS · LDLib · Jade · Curios ·
+DTPF's controller face, `tools/textures/gtnh_dtpf/`; the Hyper-Intensity Laser Engraver's casing and face, `tools/textures/gtnh_hile/`; GT++ Volcanus' controller face behind the Sanguinite Hearth and EBF overlays, `tools/textures/gtpp_volcanus/`) · Ad Astra · KubeJS · LDLib · Jade · Curios ·
 Extreme Reactors · EMI. Upstream pack: AllTheMods ATM-9.

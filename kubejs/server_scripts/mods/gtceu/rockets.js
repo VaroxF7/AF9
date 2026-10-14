@@ -29,15 +29,13 @@ ServerEvents.recipes(event => {
         'steel_tank', 'desh_tank', 'ostrum_tank', 'calorite_tank', 'tier_1_rover']
     // by output and by Ad Astra's own id: the workbench's recipes are Ad Astra's own recipe type, and a filter by output
     // needs that type to say what it makes
-    parts.forEach(part => {
-        event.remove({ output: `ad_astra:${part}`, type: 'minecraft:crafting_shaped' })
-        event.remove({ id: `ad_astra:${part}` })
-    })
+    // (batched: the same outputs and ids removed, two filter calls instead of one pair per part)
+    event.remove({ output: parts.map(part => `ad_astra:${part}`), type: 'minecraft:crafting_shaped' })
+    event.remove({ id: parts.map(part => `ad_astra:${part}`) })
     const rockets = [1, 2, 3, 4]
-    rockets.forEach(tier => {
-        event.remove({ output: `ad_astra:tier_${tier}_rocket`, type: 'ad_astra:nasa_workbench' })
-        event.remove({ id: `ad_astra:nasa_workbench/tier_${tier}_rocket_from_nasa_workbench` })
-    })
+    // (batched: the same rocket outputs and ids removed, two filter calls instead of one pair per tier)
+    event.remove({ output: rockets.map(tier => `ad_astra:tier_${tier}_rocket`), type: 'ad_astra:nasa_workbench' })
+    event.remove({ id: rockets.map(tier => `ad_astra:nasa_workbench/tier_${tier}_rocket_from_nasa_workbench`) })
     // the Fuel Refinery's fuel: the rockets do not take it any more (the tags below)
     event.remove({ id: 'ad_astra:refining/fuel_from_refining_oil' })
 

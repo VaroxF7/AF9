@@ -1,10 +1,13 @@
 // AF9 - Extended fission fuels: MOX, thorium and breeder blankets for the FX-1 Reactor,
-// minor actinides and vitrified waste out of reprocessing. The uranium line stays in
-// asteroid_fission.js. Spec: docs/asteroid-fission.md §4, §6.
+// NuclearCraft-style enriched fuels (HEU-235, LEP-241, HEP-239), minor actinides and
+// vitrified waste out of reprocessing. The uranium line stays in asteroid_fission.js.
+// Spec: docs/asteroid-fission.md §4, §6.
 //
 //   MOX:      uranium + plutonium -> pellets -> rods -> hotter, longer FX-1 cycle -> Pu back and more
 //   Thorium:  thorium + U-235 driver -> pellets -> rods -> long, gentle FX-1 cycle -> thorium + Pa back
 //   Blanket:  depleted uranium assemblies ride a normal cycle and breed extra Pu-239
+//   Enriched: HEU-235 (hot uranium), LEP-241 (LEU energy at twice the rate), HEP-239 (the
+//             fastest Mk1 fuel). Spent HEU rides the uranium stream, spent LEP/HEP the MOX stream.
 //   MA:       Np/Am/Pa lock into vitrified glass, permanently safe; nothing is voided by a recipe.
 
 ServerEvents.recipes(event => {
@@ -24,7 +27,8 @@ ServerEvents.recipes(event => {
         .itemOutputs('af9:fx_mox_rod')
         .duration(200)
         .EUt(VA[GTValues.HV])
-    // MOX cycle: hotter and longer than uranium (same steam rate, half as long again)
+    // MOX cycle: hotter and longer than uranium (same steam rate, half as long again).
+    // HV like every Mk1 cycle: the reactor is the EV workhorse, not an EV power sink.
     event.recipes.gtceu.fx1_reactor('af9:fx1_mox_cycle')
         .itemInputs('af9:fx_mox_rod')
         .inputFluids(Fluid.of('gtceu:distilled_water', 640))
@@ -33,7 +37,7 @@ ServerEvents.recipes(event => {
         .outputFluids(Fluid.of('gtceu:supercritical_steam', 92160))
         .outputFluids(Fluid.of('gtceu:hot_sodium_potassium', 1000))
         .duration(1800)
-        .EUt(VA[GTValues.EV])
+        .EUt(VA[GTValues.HV])
 
     // ---- Thorium pellets: thorium oxide with a U-235 driver to light it ----
     event.recipes.gtceu.electric_blast_furnace('af9:fx_thorium_pellets')
@@ -58,7 +62,7 @@ ServerEvents.recipes(event => {
         .outputFluids(Fluid.of('gtceu:supercritical_steam', 61440))
         .outputFluids(Fluid.of('gtceu:hot_sodium_potassium', 1000))
         .duration(2400)
-        .EUt(VA[GTValues.EV])
+        .EUt(VA[GTValues.HV])
 
     // ---- Breeder blanket: depleted uranium assemblies around a running core ----
     event.recipes.gtceu.assembler('af9:fx_blanket_assembly')
@@ -77,7 +81,7 @@ ServerEvents.recipes(event => {
         .outputFluids(Fluid.of('gtceu:supercritical_steam', 61440))
         .outputFluids(Fluid.of('gtceu:hot_sodium_potassium', 1000))
         .duration(1200)
-        .EUt(VA[GTValues.EV])
+        .EUt(VA[GTValues.HV])
     // The bred plutonium out of the blanket (the amplifier of the whole line)
     event.recipes.gtceu.centrifuge('af9:separate_spent_blanket')
         .itemInputs('af9:fx_spent_blanket')
@@ -117,6 +121,55 @@ ServerEvents.recipes(event => {
         .duration(200)
         .EUt(VA[GTValues.HV])
 
+    // ---- Enriched fuels, NuclearCraft-style: HEU-235, LEP-241, HEP-239 ----
+    // The existing uranium rod is the LEU-235 of the ladder (natural uranium + a U-235
+    // starter, 61,440 mB over 1,200 ticks). The enriched rungs trade fissile cost for rate:
+    // HEU doubles the rate at LEU time, LEP burns LEU energy in half the time, HEP doubles
+    // the HEU rate again. Mixes stay clear of the MOX tiers (R7): HEU is uranium-only with
+    // full U-235 dusts, LEP-241 and HEP-239 carry Pu-241, which no MOX tier uses.
+    const enriched = [
+        { id: 'heu', pelletIn: ['8x gtceu:uranium_dust', '4x gtceu:uranium_235_dust'],
+            steam: 122880, ticks: 1200 },
+        { id: 'lep', pelletIn: ['6x gtceu:uranium_dust', '2x gtceu:plutonium_241_dust'],
+            steam: 61440, ticks: 600 },
+        { id: 'hep', pelletIn: ['6x gtceu:plutonium_dust', '2x gtceu:plutonium_241_dust'],
+            steam: 122880, ticks: 600 },
+    ]
+    enriched.forEach(fuel => {
+        // pellets: the fuel's mix, sintered in oxygen like every other fuel
+        event.recipes.gtceu.electric_blast_furnace(`af9:fx_${fuel.id}_pellets`)
+            .itemInputs(fuel.pelletIn)
+            .inputFluids(Fluid.of('gtceu:oxygen', 8000))
+            .itemOutputs(`4x af9:fx_${fuel.id}_pellet`)
+            .blastFurnaceTemp(1800)
+            .duration(400)
+            .EUt(VA[GTValues.HV])
+        // rods: four pellets in a zirconium cladding
+        event.recipes.gtceu.assembler(`af9:fx_${fuel.id}_rod`)
+            .itemInputs(`4x af9:fx_${fuel.id}_pellet`, 'gtceu:zirconium_ingot')
+            .itemOutputs(`af9:fx_${fuel.id}_rod`)
+            .duration(200)
+            .EUt(VA[GTValues.HV])
+        // the cycle: water and NaK in, steam and hot NaK out, at HV like the other Mk1 cycles
+        event.recipes.gtceu.fx1_reactor(`af9:fx1_${fuel.id}_cycle`)
+            .itemInputs(`af9:fx_${fuel.id}_rod`)
+            .inputFluids(Fluid.of('gtceu:distilled_water', 640))
+            .inputFluids(Fluid.of('gtceu:sodium_potassium', 1000))
+            .itemOutputs(`af9:fx_spent_${fuel.id}_rod`)
+            .outputFluids(Fluid.of('gtceu:supercritical_steam', fuel.steam))
+            .outputFluids(Fluid.of('gtceu:hot_sodium_potassium', 1000))
+            .duration(fuel.ticks)
+            .EUt(VA[GTValues.HV])
+        // decladding joins the shared streams: HEU (uranium fuel) rides the uranium stream,
+        // LEP/HEP (plutonium fuels) ride the MOX stream; dissolve and separation take it there
+        const streamDust = fuel.id === 'heu' ? 'gtceu:irradiated_fuel_dust' : 'gtceu:irradiated_mox_dust'
+        event.recipes.gtceu.macerator(`af9:decladding_spent_${fuel.id}_rod`)
+            .itemInputs(`af9:fx_spent_${fuel.id}_rod`)
+            .itemOutputs(`4x ${streamDust}`, 'gtceu:zirconium_dust')
+            .duration(200)
+            .EUt(VA[GTValues.HV])
+    })
+
     // ---- Vitrification: minor actinides locked in glass, permanently safe ----
     event.recipes.gtceu.mixer('af9:vitrify_neptunium')
         .itemInputs('gtceu:neptunium_dust', '4x gtceu:silicon_dioxide_dust', '2x gtceu:lead_dust')
@@ -143,7 +196,7 @@ ServerEvents.recipes(event => {
 
     // ---- MOX tiers 2-4: more plutonium per pellet, hotter cycles (T3/T4 run in the Mk2) ----
     const moxTiers = [
-        { tier: '2', uranium: 4, eut: VA[GTValues.EV], steam: 122880, type: 'fx1_reactor' },
+        { tier: '2', uranium: 4, eut: VA[GTValues.HV], steam: 122880, type: 'fx1_reactor' },
         { tier: '3', uranium: 2, eut: VA[GTValues.EV], steam: 153600, type: 'fx2_reactor' },
         { tier: '4', uranium: 0, eut: VA[GTValues.EV], steam: 184320, type: 'fx2_reactor' },
     ]
@@ -216,6 +269,9 @@ ServerEvents.recipes(event => {
         recipe.duration(3200).EUt(VA[GTValues.HV])
     }
     poolDeclad('uranium', 'af9:fx_spent_fuel_rod', ['4x gtceu:irradiated_fuel_dust', 'gtceu:zirconium_dust'])
+    poolDeclad('heu', 'af9:fx_spent_heu_rod', ['4x gtceu:irradiated_fuel_dust', 'gtceu:zirconium_dust'])
+    poolDeclad('lep', 'af9:fx_spent_lep_rod', ['4x gtceu:irradiated_mox_dust', 'gtceu:zirconium_dust'])
+    poolDeclad('hep', 'af9:fx_spent_hep_rod', ['4x gtceu:irradiated_mox_dust', 'gtceu:zirconium_dust'])
     poolDeclad('mox', 'af9:fx_spent_mox_rod', ['4x gtceu:irradiated_mox_dust', 'gtceu:zirconium_dust'])
     poolDeclad('mox_2', 'af9:fx_spent_mox_2_rod', ['4x gtceu:irradiated_mox_dust', 'gtceu:zirconium_dust'])
     poolDeclad('mox_3', 'af9:fx_spent_mox_3_rod', ['4x gtceu:irradiated_mox_dust', 'gtceu:zirconium_dust'])
@@ -234,6 +290,12 @@ ServerEvents.recipes(event => {
     }
     fabricate('uranium', ['12x gtceu:uranium_dust', '4x gtceu:tiny_uranium_235_dust', 'gtceu:zirconium_ingot'],
         Fluid.of('gtceu:oxygen', 8000), 'af9:fx_fuel_rod')
+    fabricate('heu', ['8x gtceu:uranium_dust', '4x gtceu:uranium_235_dust', 'gtceu:zirconium_ingot'],
+        Fluid.of('gtceu:oxygen', 8000), 'af9:fx_heu_rod')
+    fabricate('lep', ['6x gtceu:uranium_dust', '2x gtceu:plutonium_241_dust', 'gtceu:zirconium_ingot'],
+        Fluid.of('gtceu:oxygen', 8000), 'af9:fx_lep_rod')
+    fabricate('hep', ['6x gtceu:plutonium_dust', '2x gtceu:plutonium_241_dust', 'gtceu:zirconium_ingot'],
+        Fluid.of('gtceu:oxygen', 8000), 'af9:fx_hep_rod')
     fabricate('mox', ['6x gtceu:uranium_dust', '2x gtceu:plutonium_dust', 'gtceu:zirconium_ingot'],
         Fluid.of('gtceu:oxygen', 8000), 'af9:fx_mox_rod')
     fabricate('mox_2', ['4x gtceu:uranium_dust', '4x gtceu:plutonium_dust', 'gtceu:zirconium_ingot'],

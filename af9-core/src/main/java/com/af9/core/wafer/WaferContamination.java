@@ -29,9 +29,7 @@ import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -186,8 +184,7 @@ public final class WaferContamination {
             for (int dz = -1; dz <= 1; dz++) {
                 LevelChunk chunk = level.getChunkSource().getChunkNow(chunkX + dx, chunkZ + dz);
                 if (chunk == null) continue;
-                List<BlockEntity> blockEntities = new ArrayList<>(chunk.getBlockEntities().values());
-                for (BlockEntity blockEntity : blockEntities) {
+                for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
                     if (blockEntity instanceof MetaMachineBlockEntity machineEntity &&
                             machineEntity.getMetaMachine() instanceof CleanroomMachine cleanroom &&
                             cleanroom.isFormed() && cleanroom.isClean() && isInside(cleanroom, pos)) {
@@ -201,9 +198,12 @@ public final class WaferContamination {
 
     /** Strictly inside the bounding box of the cleanroom's walls, floor and ceiling. */
     private static boolean isInside(CleanroomMachine cleanroom, BlockPos pos) {
+        var walls = cleanroom.getMultiblockState().getCache();
+        if (walls.isEmpty()) return false;
+        int px = pos.getX(), py = pos.getY(), pz = pos.getZ();
         int minX = Integer.MAX_VALUE, minY = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
         int maxX = Integer.MIN_VALUE, maxY = Integer.MIN_VALUE, maxZ = Integer.MIN_VALUE;
-        for (BlockPos wall : cleanroom.getMultiblockState().getCache()) {
+        for (BlockPos wall : walls) {
             minX = Math.min(minX, wall.getX());
             minY = Math.min(minY, wall.getY());
             minZ = Math.min(minZ, wall.getZ());
@@ -211,7 +211,7 @@ public final class WaferContamination {
             maxY = Math.max(maxY, wall.getY());
             maxZ = Math.max(maxZ, wall.getZ());
         }
-        return pos.getX() > minX && pos.getX() < maxX && pos.getY() > minY && pos.getY() < maxY &&
-                pos.getZ() > minZ && pos.getZ() < maxZ;
+        return px > minX && px < maxX && py > minY && py < maxY &&
+                pz > minZ && pz < maxZ;
     }
 }

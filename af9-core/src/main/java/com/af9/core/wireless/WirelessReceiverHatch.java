@@ -126,13 +126,14 @@ public class WirelessReceiverHatch extends WirelessEnergyHatch {
     protected void addDisplayText(List<Component> text) {
         text.add(Component.translatable("af9.wireless.receiver.title", amperage).withStyle(ChatFormatting.AQUA));
         WirelessChannels channels = channels();
-        WirelessChannels.Channel link = channels == null ? null : channels.get(getChannel());
-        if (getChannel() == null) {
+        UUID id = getChannel();
+        WirelessChannels.Channel link = channels == null ? null : channels.get(id);
+        if (id == null) {
             text.add(Component.translatable("af9.wireless.unlinked").withStyle(ChatFormatting.YELLOW));
         } else if (link == null) {
             text.add(Component.translatable("af9.wireless.no_transmitter").withStyle(ChatFormatting.RED));
         } else {
-            text.add(Component.translatable("af9.wireless.channel", WirelessLink.shortId(getChannel())));
+            text.add(Component.translatable("af9.wireless.channel", WirelessLink.shortId(id)));
             if (link.dimension != null) {
                 text.add(Component.translatable("af9.wireless.from",
                         new WirelessLink(link.id, link.dimension, link.pos, (int) link.amperage).where()));

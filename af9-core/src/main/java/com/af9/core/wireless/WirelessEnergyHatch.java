@@ -46,6 +46,8 @@ public abstract class WirelessEnergyHatch extends TieredIOPartMachine implements
     protected long voltage;
     protected final int amperage;
     private TickableSubscription tickSubs;
+    private UUID cachedChannel;
+    private String cachedChannelRaw;
 
     protected WirelessEnergyHatch(IMachineBlockEntity holder, int tier, IO io, int amperage) {
         super(holder, tier, io);
@@ -79,11 +81,14 @@ public abstract class WirelessEnergyHatch extends TieredIOPartMachine implements
     }
 
     public UUID getChannel() {
+        if (cachedChannelRaw != null && cachedChannelRaw.equals(channel)) return cachedChannel;
+        cachedChannelRaw = channel;
         try {
-            return channel.isEmpty() ? null : UUID.fromString(channel);
+            cachedChannel = channel.isEmpty() ? null : UUID.fromString(channel);
         } catch (IllegalArgumentException e) {
-            return null;
+            cachedChannel = null;
         }
+        return cachedChannel;
     }
 
     /** The buffer at a voltage: the hatch's capacity for it. */

@@ -540,6 +540,66 @@
 			y: 2.5d
 		}
 		{
+			dependencies: ["64D5E6F708192A3B"]
+			disable_toast: true
+			id: "701A2B3C4D5E6F70"
+			tasks: [{
+				id: "701A2B3C4D5E6F71"
+				item: "gtceu:advanced_circuit_manufacturer"
+				type: "item"
+			}]
+			x: 8.0d
+			y: 1.5d
+		}
+		{
+			dependencies: ["701A2B3C4D5E6F70"]
+			disable_toast: true
+			id: "702A2B3C4D5E6F70"
+			tasks: [{
+				id: "702A2B3C4D5E6F71"
+				item: "af9:pico_board"
+				type: "item"
+			}]
+			x: 9.0d
+			y: 1.5d
+		}
+		{
+			dependencies: ["702A2B3C4D5E6F70"]
+			disable_toast: true
+			id: "703A2B3C4D5E6F70"
+			tasks: [{
+				id: "703A2B3C4D5E6F71"
+				item: "af9:pico_cpu"
+				type: "item"
+			}]
+			x: 10.0d
+			y: 1.5d
+		}
+		{
+			dependencies: ["703A2B3C4D5E6F70"]
+			disable_toast: true
+			id: "704A2B3C4D5E6F70"
+			tasks: [{
+				id: "704A2B3C4D5E6F71"
+				item: "af9:organized_pico_circuit"
+				type: "item"
+			}]
+			x: 11.0d
+			y: 1.5d
+		}
+		{
+			dependencies: ["704A2B3C4D5E6F70"]
+			disable_toast: true
+			id: "705A2B3C4D5E6F70"
+			tasks: [{
+				id: "705A2B3C4D5E6F71"
+				item: "af9:pico_circuit_rack"
+				type: "item"
+			}]
+			x: 12.0d
+			y: 1.5d
+		}
+		{
 			icon: "gtceu:lv_machine_hull"
 			id: "305696A8BCB74EB0"
 			tasks: [{

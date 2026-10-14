@@ -153,7 +153,8 @@ public class WirelessTransmitterHatch extends WirelessEnergyHatch implements IMa
     @Override
     protected void addDisplayText(List<Component> text) {
         text.add(Component.translatable("af9.wireless.transmitter.title", amperage).withStyle(ChatFormatting.AQUA));
-        text.add(Component.translatable("af9.wireless.channel", WirelessLink.shortId(getChannel())));
+        UUID id = getChannel();
+        text.add(Component.translatable("af9.wireless.channel", WirelessLink.shortId(id)));
         text.add(Component.translatable("af9.wireless.voltage", voltageText(voltage)));
         if (auto) {
             text.add(Component.translatable("af9.wireless.voltage_auto").withStyle(ChatFormatting.GRAY));
@@ -168,7 +169,7 @@ public class WirelessTransmitterHatch extends WirelessEnergyHatch implements IMa
                 FormattingUtil.formatNumbers(energyContainer.getEnergyStored()),
                 FormattingUtil.formatNumbers(energyContainer.getEnergyCapacity())));
         WirelessChannels channels = channels();
-        WirelessChannels.Channel link = channels == null ? null : channels.get(getChannel());
+        WirelessChannels.Channel link = channels == null ? null : channels.get(id);
         if (link != null) {
             text.add(Component.translatable("af9.wireless.channel_buffer", FormattingUtil.formatNumbers(link.stored),
                     FormattingUtil.formatNumbers(link.capacity)));
