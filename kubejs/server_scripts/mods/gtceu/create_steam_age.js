@@ -29,6 +29,7 @@
 ServerEvents.recipes(event => {
     // ================= A. removals =================
     // LP/HP steam single-blocks: every machine block becomes uncraftable.
+    // KEEP-IN-SYNC: this steamMachines list duplicates kubejs/client_scripts/steam_hide.js - update both.
     const steamMachines = [
         'gtceu:lp_steam_solid_boiler', 'gtceu:hp_steam_solid_boiler',
         'gtceu:lp_steam_liquid_boiler', 'gtceu:hp_steam_liquid_boiler',
@@ -44,9 +45,8 @@ ServerEvents.recipes(event => {
         'gtceu:primitive_pump',
         'gtceu:charcoal_pile_igniter'
     ]
-    steamMachines.forEach(id => {
-        event.remove({ output: id })
-    })
+    // (batched: the same machine outputs removed in one filter call)
+    event.remove({ output: steamMachines })
 
     // Create's own electron tube (polished rose quartz + iron sheet): gone,
     // the only way is vacuum tube + rose quartz below.
@@ -54,9 +54,12 @@ ServerEvents.recipes(event => {
 
     // GT glass tubes (alloy smelter / solidifier / press): the spout below
     // is the only way now.
-    event.remove({ id: 'gtceu:alloy_smelter/alloy_smelt_glass_tube' })
-    event.remove({ id: 'gtceu:fluid_solidifier/solidify_glass_tube' })
-    event.remove({ id: 'gtceu:forming_press/press_glass_tube' })
+    // (batched: the same three ids removed in one filter call)
+    event.remove({ id: [
+        'gtceu:alloy_smelter/alloy_smelt_glass_tube',
+        'gtceu:fluid_solidifier/solidify_glass_tube',
+        'gtceu:forming_press/press_glass_tube'
+    ] })
 
     // Cheap coke oven bricks: the shaped clay/sand brick, its smelting is
     // left alone (it smelts whatever compressed clay exists), and the alloy
@@ -66,12 +69,18 @@ ServerEvents.recipes(event => {
 
     // GT steel, re-added far more expensive in section C.
     event.remove({ type: 'gtceu:primitive_blast_furnace' })
-    event.remove({ id: 'gtceu:electric_blast_furnace/steel_from_iron' })
-    event.remove({ id: 'gtceu:electric_blast_furnace/steel_from_wrought_iron' })
+    // (batched: the same two ids removed in one filter call)
+    event.remove({ id: [
+        'gtceu:electric_blast_furnace/steel_from_iron',
+        'gtceu:electric_blast_furnace/steel_from_wrought_iron'
+    ] })
 
     // LV circuits, re-added with electron tubes in section D.
-    event.remove({ id: 'gtceu:shaped/electronic_circuit_lv' })
-    event.remove({ id: 'gtceu:circuit_assembler/electronic_circuit_lv' })
+    // (batched: the same two ids removed in one filter call)
+    event.remove({ id: [
+        'gtceu:shaped/electronic_circuit_lv',
+        'gtceu:circuit_assembler/electronic_circuit_lv'
+    ] })
 
     // ================= B. molten glass + glass tube =================
     // Mixer, heated (blaze burner): 2 sand -> 288 mB molten glass, i.e. one

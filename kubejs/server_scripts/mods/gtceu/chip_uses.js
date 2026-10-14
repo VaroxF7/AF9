@@ -6,9 +6,13 @@
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
     // Appends items to a recipe of another mod (GT's recipes keep their id, research and everything else)
-    const addInputs = (id, items) => event.forEachRecipe({ id: id }, recipe => {
-        items.forEach(item => recipe.itemInputs(item))
-    })
+    // (batched: every target below only records its extra inputs; one forEachRecipe over the id set
+    // dispatches them all at the end of the handler, a single registry scan for the same additions)
+    const addInputTargets = new Map()
+    const addInputs = (id, items) => {
+        if (!addInputTargets.has(id)) addInputTargets.set(id, [])
+        addInputTargets.get(id).push(...items)
+    }
 
     // ---- RF Transceiver: the radio of every wireless link ----
     // AE2's Wireless Receiver, the part of the Wireless Access Point and of every wireless terminal.
@@ -98,4 +102,10 @@ ServerEvents.recipes(event => {
     // ---- TPU: the AI accelerator (the pack's UHV Wetware Mainframe recipe takes them too) ----
     // The HPCA's Advanced Computation Component: the computation of the 7 nm and 1 nm prints and of the research
     addInputs('gtceu:assembler/hpca_advanced_computation_component', ['4x af9:tpu_chip'])
+
+    // Single scan for every addInputs target above (same items appended to the same recipe ids).
+    event.forEachRecipe({ id: [...addInputTargets.keys()] }, recipe => {
+        const items = addInputTargets.get(String(recipe.getId()))
+        if (items) items.forEach(item => recipe.itemInputs(item))
+    })
 })

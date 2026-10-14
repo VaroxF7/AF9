@@ -3,6 +3,7 @@
 // so they cannot be made; hiding keeps them out of JEI/EMI lookups too.
 
 JEIEvents.hideItems(event => {
+    // KEEP-IN-SYNC: this steamMachines list duplicates kubejs/server_scripts/mods/gtceu/create_steam_age.js - update both.
     const steamMachines = [
         'gtceu:lp_steam_solid_boiler', 'gtceu:hp_steam_solid_boiler',
         'gtceu:lp_steam_liquid_boiler', 'gtceu:hp_steam_liquid_boiler',

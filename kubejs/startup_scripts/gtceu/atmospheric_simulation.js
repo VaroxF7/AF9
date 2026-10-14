@@ -20,6 +20,52 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setSound(GTSoundEntries.ASSEMBLER)
 })
 
+// Atmospheric Simulation Room layout, precomputed ONCE at module level and reused by .pattern() (memoized).
+// SIM_AISLES is the 31x6x31 simCell table. Same cell function, just called once.
+const SIM_W = 31
+const SIM_H = 6
+const SIM_D = 31
+const SIM_C = 15
+// The design: the block at x, y, z (y up, z towards the front) as a letter of the pattern.
+// S controller, X stainless (or a hatch), G glass, # air.
+const simCell = (x, y, z) => {
+    if (x === SIM_C && y === SIM_H - 1 && z === SIM_D - 1) return 'S'
+    if (y === 0 || y === SIM_H - 1) return 'X'
+    if (z === 0) {
+        if (y === SIM_H - 2) return 'X'
+        if (x === 0 || x === SIM_W - 1) return 'X'
+        if (x === 1 || x === SIM_W - 2) return 'G'
+        return 'X'
+    }
+    if (z === SIM_D - 1) {
+        if (y === 1 || y === 2) return x === SIM_C ? '#' : 'X'
+        return 'X'
+    }
+    if (y === SIM_H - 2) {
+        if (x === 0 || x === SIM_W - 1) return 'X'
+        return '#'
+    }
+    if (x === 0 || x === SIM_W - 1) return 'X'
+    if (x === 1 || x === SIM_W - 2) return 'G'
+    return '#'
+}
+// forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value,
+// so loop bodies use callbacks (lint rule S3). Array(n).fill(0), not Array.from({ length: n }):
+// Rhino's Array.from leaves n holes, and forEach skips holes. Precomputed once; .pattern() reuses this const.
+const SIM_AISLES = (() => {
+    const aisles = []
+    Array(SIM_D).fill(0).forEach((_, z) => {
+        const rows = []
+        Array(SIM_H).fill(0).forEach((_, y) => {
+            const cells = []
+            Array(SIM_W).fill(0).forEach((_, x) => { cells.push(simCell(x, y, z)) })
+            rows.push(cells.join(''))
+        })
+        aisles.push(rows)
+    })
+    return aisles
+})()
+
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []
@@ -40,51 +86,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             // Col 15 is the centre (controller, door). Rows bottom -> top, aisles back -> front.
             // Back wall (z 0) is closed; front wall (z 30) carries the 1x2 door and the ceiling-centre
             // controller. Middle slices are hollow: stainless edge, glass band, 27 air, glass, stainless.
-            const W = 31
-            const H = 6
-            const D = 31
-            const C = 15
-            // The design: the block at x, y, z (y up, z towards the front) as a letter of the pattern.
-            // S controller, X stainless (or a hatch), G glass, # air.
-            const simCell = (x, y, z) => {
-                if (x === C && y === H - 1 && z === D - 1) return 'S'
-                if (y === 0 || y === H - 1) return 'X'
-                if (z === 0) {
-                    if (y === H - 2) return 'X'
-                    if (x === 0 || x === W - 1) return 'X'
-                    if (x === 1 || x === W - 2) return 'G'
-                    return 'X'
-                }
-                if (z === D - 1) {
-                    if (y === 1 || y === 2) return x === C ? '#' : 'X'
-                    return 'X'
-                }
-                if (y === H - 2) {
-                    if (x === 0 || x === W - 1) return 'X'
-                    return '#'
-                }
-                if (x === 0 || x === W - 1) return 'X'
-                if (x === 1 || x === W - 2) return 'G'
-                return '#'
-            }
-            // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value,
-            // so loop bodies use callbacks (lint rule S3). Array(n).fill(0), not Array.from({ length: n }):
-            // Rhino's Array.from leaves n holes, and forEach skips holes.
-            const simAisles = () => {
-                const aisles = []
-                Array(D).fill(0).forEach((_, z) => {
-                    const rows = []
-                    Array(H).fill(0).forEach((_, y) => {
-                        let row = ''
-                        Array(W).fill(0).forEach((_, x) => { row += simCell(x, y, z) })
-                        rows.push(row)
-                    })
-                    aisles.push(rows)
-                })
-                return aisles
-            }
+            // Layout is module-level (SIM_AISLES), precomputed once above.
             let pattern = FactoryBlockPattern.start()
-            simAisles().forEach(aisle => { pattern = pattern.aisle(aisle) })
+            SIM_AISLES.forEach(aisle => { pattern = pattern.aisle(aisle) })
             return pattern
                 .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                 // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))

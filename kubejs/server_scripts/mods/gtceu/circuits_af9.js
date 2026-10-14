@@ -48,13 +48,22 @@ ServerEvents.recipes(event => {
     const PICO_AMPS = 300
 
     // ================================= 1. helpers =================================
+    // Batched GT removals (one scan): every replacement below only records the gtceu: ids it supersedes
+    // (same ids the per-id calls removed before); a single event.remove at the end drops them all.
+    // The added recipes all carry af9: ids, so deferring the removals changes nothing they see.
+    const removedGtIds = []
+    const removeCircuit = id => {
+        removedGtIds.push(`gtceu:circuit_assembler/${id}`, `gtceu:circuit_assembler/${id}_soldering_alloy`)
+    }
+    const removeAssemblyLine = id => {
+        removedGtIds.push(`gtceu:assembly_line/${id}`)
+    }
     const newCircuit = (id, solder, build) => {
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}`)).inputFluids(Fluid.of('gtceu:tin', 144 * solder))
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}_soldering_alloy`)).inputFluids(Fluid.of('gtceu:soldering_alloy', 72 * solder))
     }
     const circuit = (id, solder, build) => {
-        event.remove({ id: `gtceu:circuit_assembler/${id}` })
-        event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
+        removeCircuit(id)
         newCircuit(id, solder, build)
     }
     // HV-UV: full replacement of soldering alloy with the high-grade solder (tin stays as budget option).
@@ -63,8 +72,7 @@ ServerEvents.recipes(event => {
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}_high_grade`)).inputFluids(Fluid.of('gtceu:high_grade_solder', 72 * solder))
     }
     const highCircuit = (id, solder, build) => {
-        event.remove({ id: `gtceu:circuit_assembler/${id}` })
-        event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
+        removeCircuit(id)
         newHighCircuit(id, solder, build)
     }
     // Wetware: living solder only (reflow would kill the cells). Tin stays as a dead budget option.
@@ -73,8 +81,7 @@ ServerEvents.recipes(event => {
         build(event.recipes.gtceu.circuit_assembler(`af9:${id}_living`)).inputFluids(Fluid.of('gtceu:living_solder', 72 * solder))
     }
     const livingCircuit = (id, solder, build) => {
-        event.remove({ id: `gtceu:circuit_assembler/${id}` })
-        event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
+        removeCircuit(id)
         newLivingCircuit(id, solder, build)
     }
     // XPS/NVM: plasma solder canonical (atomic deposition wastes nothing: half the fluid),
@@ -85,7 +92,7 @@ ServerEvents.recipes(event => {
     }
     // Assembly-line replacement (mainframes ZPM+): remove GT's line, if any, then build ours.
     const assemblyLine = (id, build) => {
-        event.remove({ id: `gtceu:assembly_line/${id}` })
+        removeAssemblyLine(id)
         build(event.recipes.gtceu.assembly_line(`af9:${id}`))
     }
     const circuitAssembler = (id, build) => newCircuit(id, 1, build)
@@ -113,11 +120,8 @@ ServerEvents.recipes(event => {
     // ================================= 3. MV (LV -> MV, bootstrap) =================================
     // Good Electronic stays chip-free (electron tubes): the line needs MV circuits first.
     const replacedGtRecipes = ['electronic_circuit_mv', 'integrated_circuit_mv', 'processor_mv']
-    event.remove({ id: 'gtceu:shaped/electronic_circuit_mv' })
-    replacedGtRecipes.forEach(id => {
-        event.remove({ id: `gtceu:circuit_assembler/${id}` })
-        event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
-    })
+    removedGtIds.push('gtceu:shaped/electronic_circuit_mv')
+    replacedGtRecipes.forEach(removeCircuit)
 
     // (no crafting table recipe: by hand it is the Create sequenced assembly of early_circuits.js)
 
@@ -427,7 +431,7 @@ ServerEvents.recipes(event => {
         .duration(200).EUt(9600)))
 
     // Nano Mainframe: the pack's own Assembly Line recipe (IV nano computer -> LuV).
-    event.remove({ id: 'gtceu:assembly_line/nano_processor_mainframe' })
+    removeAssemblyLine('nano_processor_mainframe')
     event.recipes.gtceu.assembly_line('af9:nano_mainframe_luv')
         .itemInputs(
             '2x gtceu:tungsten_steel_frame',
@@ -472,17 +476,9 @@ ServerEvents.recipes(event => {
     // mainframe (assembly line), wetware assembly (assembler). All take LuV circuits.
     // Both id shapes are removed (GT's exact suffix per tier is version-dependent;
     // removing a missing id is a harmless no-op, leaving one would be a bypass).
-    ;['crystal_processor_computer', 'crystal_processor_computer_zpm'].forEach(id => {
-        event.remove({ id: `gtceu:circuit_assembler/${id}` })
-        event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
-    })
-    ;['quantum_processor_mainframe', 'quantum_processor_mainframe_zpm'].forEach(id => {
-        event.remove({ id: `gtceu:assembly_line/${id}` })
-    })
-    ;['wetware_processor_assembly', 'wetware_processor_assembly_zpm'].forEach(id => {
-        event.remove({ id: `gtceu:circuit_assembler/${id}` })
-        event.remove({ id: `gtceu:circuit_assembler/${id}_soldering_alloy` })
-    })
+    ;['crystal_processor_computer', 'crystal_processor_computer_zpm'].forEach(removeCircuit)
+    ;['quantum_processor_mainframe', 'quantum_processor_mainframe_zpm'].forEach(removeAssemblyLine)
+    ;['wetware_processor_assembly', 'wetware_processor_assembly_zpm'].forEach(removeCircuit)
 
     // Crystal computer: LuV crystal assembly + ZPM-native HASoC + NbTi.
     highCircuit('crystal_computer_zpm', 2, r => clean(r
@@ -549,8 +545,8 @@ ServerEvents.recipes(event => {
 
     // ================================= 9. UV (ZPM -> UV) =================================
     // Crystal mainframe (AL): ZPM crystal computer + UV-native TPU.
-    event.remove({ id: 'gtceu:assembly_line/crystal_processor_mainframe' })
-    event.remove({ id: 'gtceu:assembly_line/crystal_processor_mainframe_uv' })
+    removedGtIds.push('gtceu:assembly_line/crystal_processor_mainframe',
+        'gtceu:assembly_line/crystal_processor_mainframe_uv')
     assemblyLine('crystal_mainframe_uv', r => r
         .itemInputs(
             '2x gtceu:tritanium_frame',
@@ -571,9 +567,9 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.UV]))
 
     // Wetware supercomputer: ZPM wetware assembly + living solder, sterile.
-    event.remove({ id: 'gtceu:circuit_assembler/wetware_processor_computer' })
-    event.remove({ id: 'gtceu:circuit_assembler/wetware_processor_computer_uv' })
-    event.remove({ id: 'gtceu:circuit_assembler/wetware_processor_computer_uv_soldering_alloy' })
+    removedGtIds.push('gtceu:circuit_assembler/wetware_processor_computer',
+        'gtceu:circuit_assembler/wetware_processor_computer_uv',
+        'gtceu:circuit_assembler/wetware_processor_computer_uv_soldering_alloy')
     event.recipes.gtceu.circuit_assembler('af9:wetware_processor_computer_living')
         .itemInputs(
             'gtceu:wetware_printed_circuit_board',
@@ -619,14 +615,14 @@ ServerEvents.recipes(event => {
     // ================================= 10. UHV (UV -> UHV) =================================
     // UHV wetware mainframe: no assembly line version left (both AF9 bills removed); GT's own stays off.
     // The only path is plasma soldering in the Orbital Array Mk2 (solders.js).
-    event.remove({ id: 'gtceu:assembly_line/wetware_mainframe_uhv' })
+    removeAssemblyLine('wetware_mainframe_uhv')
 
     // AI Acceleration Card: TPU + memristor on a wetware board, traced in 128 fine sanguinite wire.
     // UHV circuit assembler, plasma solder canonical (tin stays as dead budget option). The compute
     // card of the new DTPF (docs/dtpf.md).
     newPlasmaCircuit('ai_acceleration_card', 4, r => clean(r
-        .itemInputs('gtceu:wetware_printed_circuit_board', '8x af9:tpu_chip', '4xaf9:memristor_chip',
-            '64x gtceu:fine_sanguinite_wire','64x gtceu:fine_sanguinite_wire', '32x gtceu:fine_electrum_wire')
+        .itemInputs('gtceu:wetware_printed_circuit_board', '8x af9:tpu_chip', '4x af9:memristor_chip',
+            '64x gtceu:fine_sanguinite_wire', '32x gtceu:fine_electrum_wire')
         .itemOutputs('af9:ai_acceleration_card')
         .duration(600).EUt(VA[GTValues.UHV])))
     // AI lean (Stage 4 @XPS end, gate: photonic_package): halved dies and wire, 2x out, half time.
@@ -700,6 +696,9 @@ ServerEvents.recipes(event => {
         .duration(400)
         .EUt(VA[GTValues.UHV])
         .cleanroom(CleanroomType.CLEANROOM)
+
+    // One batched removal for every GT id recorded above (the same set, one scan).
+    if (removedGtIds.length) event.remove({ id: removedGtIds })
 })
 
 ServerEvents.tags('item', event => {

@@ -93,14 +93,14 @@ ServerEvents.recipes(event => {
         ['ev', 'titanium', 'gtceu:kanthal_double_wire', 'gtceu:aluminium_double_cable', ['electric_motor_ev']],
         ['iv', 'tungsten_steel', 'gtceu:graphene_double_wire', 'gtceu:tungsten_double_cable', ['electric_motor_iv']]
     ]
-    // GT's LV iron assembler path goes too (assembler only: the iron hand-craft stays as the bootstrap)
-    event.remove({ id: 'gtceu:assembler/electric_motor_lv_iron' })
+    // GT's LV iron assembler path goes too (assembler only: the iron hand-craft stays as the bootstrap).
+    // Every GT motor id below is recorded here and removed in one batched call after the loop (same ids).
+    const removedMotorIds = ['gtceu:assembler/electric_motor_lv_iron']
     MOTORS.forEach(cfg => {
         const tier = cfg[0]
         const mat = cfg[1]
         cfg[4].forEach(name => {
-            event.remove({ id: 'gtceu:assembler/' + name })
-            event.remove({ id: 'gtceu:shaped/' + name })
+            removedMotorIds.push('gtceu:assembler/' + name, 'gtceu:shaped/' + name)
         })
         event.recipes.gtceu.assembler('af9:' + tier + '_electric_motor')
             .itemInputs('af9:' + tier + '_motor_housing', 'af9:' + tier + '_rotor', 'af9:' + tier + '_stator',
@@ -109,4 +109,6 @@ ServerEvents.recipes(event => {
             .duration(100)
             .EUt(VA[GTValues.LV])
     })
+    // One batched removal for every GT motor id recorded above (the same set, one scan).
+    if (removedMotorIds.length) event.remove({ id: removedMotorIds })
 })

@@ -327,6 +327,8 @@ public class DropPodEntity extends Entity {
     /** Flattens the soft blocks in the 3 x 3 a pod's size away: below it falling, above it rising. */
     private void flattenSoft(double dy) {
         Level level = level();
+        ServerPlayer riderPlayer = rider != null && level.getPlayerByUUID(rider) instanceof ServerPlayer player ?
+                player : null;
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
                 BlockPos pos = BlockPos.containing(getX() + dx, getY() + (dy < 0 ? dy + 0.4 : dy), getZ() + dz);
@@ -335,8 +337,8 @@ public class DropPodEntity extends Entity {
                 float hardness = state.getDestroySpeed(level, pos);
                 if (hardness < 0 || hardness >= SOFT) continue;
                 // the rider's own rights count: spawn protection and claims keep their blocks
-                if (rider != null && level.getPlayerByUUID(rider) instanceof ServerPlayer player) {
-                    if (level.mayInteract(player, pos)) level.destroyBlock(pos, false, player);
+                if (riderPlayer != null) {
+                    if (level.mayInteract(riderPlayer, pos)) level.destroyBlock(pos, false, riderPlayer);
                 } else {
                     level.destroyBlock(pos, false);
                 }
@@ -372,13 +374,15 @@ public class DropPodEntity extends Entity {
 
     private static ParticleOptions flameCache;
     private static ParticleOptions smokeCache;
+    private static final ResourceLocation LARGE_FLAME_ID = new ResourceLocation("ad_astra", "large_flame");
+    private static final ResourceLocation LARGE_SMOKE_ID = new ResourceLocation("ad_astra", "large_smoke");
 
     /** Ad Astra's particle of that name (the pack has it), or the vanilla one when it is not there. */
     private static ParticleOptions exhaust(String name, ParticleOptions fallback) {
         boolean flame = name.equals("large_flame");
         ParticleOptions cached = flame ? flameCache : smokeCache;
         if (cached != null) return cached;
-        ParticleType<?> type = ForgeRegistries.PARTICLE_TYPES.getValue(new ResourceLocation("ad_astra", name));
+        ParticleType<?> type = ForgeRegistries.PARTICLE_TYPES.getValue(flame ? LARGE_FLAME_ID : LARGE_SMOKE_ID);
         ParticleOptions chosen = type instanceof ParticleOptions options ? options : fallback;
         if (flame) flameCache = chosen;
         else smokeCache = chosen;

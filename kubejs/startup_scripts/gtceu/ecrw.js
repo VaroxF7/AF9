@@ -26,6 +26,44 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setSound(GTSoundEntries.CHEMICAL)
 })
 
+// ECRW layout, precomputed ONCE at module level and reused by .pattern() (memoized).
+// ECRW_AISLES is the 13x4x13 ecrwCell table. Same cell function, just called once.
+const ECRW_SIZE = 13         // the pond's width and depth, its centre at 6
+const ECRW_HEIGHT = 4
+const ECRW_CENTRE = 6
+// The design: the block at x, y, z (y up, z towards the front) as a letter of the pattern. S controller,
+// B floor, W wall (hatches), R rim, C the plus pier; a space is nothing.
+const ecrwCell = (x, y, z) => {
+    const dx = x - ECRW_CENTRE, dz = z - ECRW_CENTRE
+    const r = Math.sqrt(dx * dx + dz * dz)
+    // the controller, in the front wall at its foot
+    if (x === ECRW_CENTRE && z === ECRW_SIZE - 1 && y === 0) return 'S'
+    // the floor: a disc tucked inside the ring
+    if (y === 0) return r <= 5.5 ? 'B' : r <= 6.6 ? 'W' : ' '
+    // the pier: a plus up the middle, 4 high
+    if ((dx === 0 || dz === 0) && Math.abs(dx) <= 1 && Math.abs(dz) <= 1 && y >= 0 && y <= 3) return 'C'
+    // the wall: a plain ring on its edge, 2 high, and the same ring once more for the rim
+    if (r >= 5.4 && r <= 6.6 && y === 1) return 'W'
+    if (r >= 5.4 && r <= 6.6 && y === 2) return 'R'
+    return ' '
+}
+// forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop bodies
+// use callbacks (a const in a callback is new each call; lint rule S3). Array(n).fill(0), not Array.from({ length: n }):
+// Rhino's Array.from leaves n holes, and forEach skips holes. Precomputed once; .pattern() reuses this const.
+const ECRW_AISLES = (() => {
+    const aisles = []
+    Array(ECRW_SIZE).fill(0).forEach((_, z) => {
+        const rows = []
+        Array(ECRW_HEIGHT).fill(0).forEach((_, y) => {
+            const cells = []
+            Array(ECRW_SIZE).fill(0).forEach((_, x) => { cells.push(ecrwCell(x, y, z)) })
+            rows.push(cells.join(''))
+        })
+        aisles.push(rows)
+    })
+    return aisles
+})()
+
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []
@@ -36,42 +74,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // NPEs GT's own startup, so it loads here, where the registries are up (lint rule S5)
     const $EcrwWatertight = Java.loadClass('com.gregtechceu.gtceu.common.data.GCYMBlocks')
 
-    const ECRW_SIZE = 13         // the pond's width and depth, its centre at 6
-    const ECRW_HEIGHT = 4
-    const ECRW_CENTRE = 6
-    // The design: the block at x, y, z (y up, z towards the front) as a letter of the pattern. S controller,
-    // B floor, W wall (hatches), R rim, C the plus pier; a space is nothing.
-    const ecrwCell = (x, y, z) => {
-        const dx = x - ECRW_CENTRE, dz = z - ECRW_CENTRE
-        const r = Math.sqrt(dx * dx + dz * dz)
-        // the controller, in the front wall at its foot
-        if (x === ECRW_CENTRE && z === ECRW_SIZE - 1 && y === 0) return 'S'
-        // the floor: a disc tucked inside the ring
-        if (y === 0) return r <= 5.5 ? 'B' : r <= 6.6 ? 'W' : ' '
-        // the pier: a plus up the middle, 4 high
-        if ((dx === 0 || dz === 0) && Math.abs(dx) <= 1 && Math.abs(dz) <= 1 && y >= 0 && y <= 3) return 'C'
-        // the wall: a plain ring on its edge, 2 high, and the same ring once more for the rim
-        if (r >= 5.4 && r <= 6.6 && y === 1) return 'W'
-        if (r >= 5.4 && r <= 6.6 && y === 2) return 'R'
-        return ' '
-    }
-    // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop bodies
-    // use callbacks (a const in a callback is new each call; lint rule S3). Array(n).fill(0), not Array.from({ length: n }):
-    // Rhino's Array.from leaves n holes, and forEach skips holes
-    const ecrwAisles = () => {
-        const aisles = []
-        Array(ECRW_SIZE).fill(0).forEach((_, z) => {
-            const rows = []
-            Array(ECRW_HEIGHT).fill(0).forEach((_, y) => {
-                let row = ''
-                Array(ECRW_SIZE).fill(0).forEach((_, x) => { row += ecrwCell(x, y, z) })
-                rows.push(row)
-            })
-            aisles.push(rows)
-        })
-        return aisles
-    }
-
+    // Layout is module-level (ECRW_AISLES), precomputed once above.
     event.create('ecrw', 'multiblock')
         .langValue('Evaporation Condensation Retaining Well')
         .machine(holder => new $EvaporationWellMachine(holder))
@@ -92,7 +95,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
             let pattern = FactoryBlockPattern.start()
-            ecrwAisles().forEach(aisle => { pattern = pattern.aisle(aisle) })
+            ECRW_AISLES.forEach(aisle => { pattern = pattern.aisle(aisle) })
             return pattern
                 .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                 .where(' ', Predicates.any())

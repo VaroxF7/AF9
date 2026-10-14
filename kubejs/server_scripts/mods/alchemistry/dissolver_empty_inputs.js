@@ -7,6 +7,8 @@
 
 ServerEvents.recipes(event => {
     let empty = []
+    // (batched: Ingredient.of resolved once per spec string, not once per recipe)
+    let ingredientCache = {}
 
     event.forEachRecipe({ type: 'alchemistry:dissolver' }, recipe => {
         let input = recipe.json.get('input')
@@ -19,12 +21,14 @@ ServerEvents.recipes(event => {
         else if (obj.has('item')) spec = obj.get('item').getAsString()
         if (spec === null) return
 
-        if (Ingredient.of(spec).getFirst().isEmpty()) empty.push({ id: String(recipe.getId()), spec: spec })
+        if (ingredientCache[spec] === undefined) ingredientCache[spec] = Ingredient.of(spec)
+        if (ingredientCache[spec].getFirst().isEmpty()) empty.push({ id: String(recipe.getId()), spec: spec })
     })
 
     empty.forEach(r => {
         console.warn('AF9: dissolver recipe ' + r.id + ' has an empty input (' + r.spec + '), removed')
-        event.remove({ id: r.id })
     })
+    // (batched: the same collected ids removed in one filter call)
+    if (empty.length) event.remove({ id: empty.map(r => r.id) })
     console.info('AF9: removed ' + empty.length + ' alchemistry dissolver recipes with an empty input')
 })

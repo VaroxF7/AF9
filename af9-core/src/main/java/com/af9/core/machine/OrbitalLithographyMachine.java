@@ -293,6 +293,23 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     private int startupTicks;
     private int unpoweredTicks;
 
+    /** The parts as of this tick, shared by the per-interval checks so each tick walks them once. */
+    private List<IMultiPart> intervalParts;
+    private long intervalPartsTick = -1;
+    /** The computation of {@link #availableComputation} as of this tick, shared the same way. */
+    private int intervalComputation;
+    private long intervalComputationTick = -1;
+
+    /** The parts, collected once per tick and shared by the checks that run on them. */
+    private List<IMultiPart> partsOnce() {
+        long tick = getOffsetTimer();
+        if (intervalParts == null || intervalPartsTick != tick) {
+            intervalParts = getParts();
+            intervalPartsTick = tick;
+        }
+        return intervalParts;
+    }
+
     private AABB fieldBox;
     private Direction fieldFront;
     private Direction fieldUp;
@@ -561,12 +578,19 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * the same network, so a print never runs on less.
      */
     public int availableComputation() {
-        if (!isFormed()) return 0;
-        int max = 0;
-        for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, CWURecipeCapability.CAP)) {
-            if (handler instanceof IOpticalComputationProvider provider) max += provider.getMaxCWUt();
+        long tick = getOffsetTimer();
+        if (intervalComputationTick != tick) {
+            intervalComputationTick = tick;
+            intervalComputation = 0;
+            if (isFormed()) {
+                for (IRecipeHandler<?> handler : getCapabilitiesFlat(IO.IN, CWURecipeCapability.CAP)) {
+                    if (handler instanceof IOpticalComputationProvider provider) {
+                        intervalComputation += provider.getMaxCWUt();
+                    }
+                }
+            }
         }
-        return max;
+        return intervalComputation;
     }
 
     /** A computation hatch. */
@@ -582,7 +606,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     /** Supercooled fluid in the coolant hatches, per coolant. */
     public Map<Coolant, Long> coolantStock() {
         Map<Coolant, Long> stock = new EnumMap<>(Coolant.class);
-        for (IMultiPart part : getParts()) {
+        for (IMultiPart part : partsOnce()) {
             if (!(part instanceof CoolantHatchPartMachine hatch)) continue;
             for (int i = 0; i < hatch.tank.getTanks(); i++) {
                 FluidStack stack = hatch.tank.getFluidInTank(i);
@@ -757,7 +781,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      */
     private boolean supplementalPaid() {
         long need = (long) SUPPLEMENT_EUT * VACUUM_INTERVAL;
-        for (IMultiPart part : getParts()) {
+        for (IMultiPart part : partsOnce()) {
             if (part instanceof EnergyHatchPartMachine hatch && hatch.energyContainer.getEnergyStored() >= need) {
                 hatch.energyContainer.removeEnergy(need);
                 return true;
@@ -806,6 +830,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         focus = 0;
         focusLocked = false;
         lockUnpaid = 0;
+        intervalPartsTick = -1;
+        intervalComputationTick = -1;
     }
 
     //////////////////////////////////////
