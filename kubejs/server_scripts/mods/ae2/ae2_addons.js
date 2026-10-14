@@ -1,12 +1,13 @@
-// AF9 - AE2 addons: MEGA Cells climb IV -> UHV (256m only in the Assembly Line),
-// the Infinity Booster cards build at HV.
+// AF9 - AE2 addons: MEGA Cells climb IV -> UHV (256m only in the Advanced Circuit
+// Manufacturer, true endgame), the Infinity Booster cards build at HV.
 //
 // MEGA components chain off base AE2's 256k component: 3x previous + engineering
 // processor + sky dust + quartz glass + its tier circuit, in the assembler with
 // high-grade solder (tin budget) in a cleanroom — one voltage tier per cell, 1m at
-// IV up to 64m at UV. The 256m goal builds only in the Assembly Line at UHV with
-// research. Each file section is guarded by its mod id (neither addon is in the dev
-// run), and removals are mod-scoped so the af9: recipes never match. MEGA cell
+// IV up to 64m at UV. The 256m goal builds only in the Advanced Circuit Manufacturer
+// at UHV on 300 A with computation (organized Pico circuit + sanguinite wire on top
+// of the 64m stack). Each file section is guarded by its mod id (neither addon is in
+// the dev run), and removals are mod-scoped so the af9: recipes never match. MEGA cell
 // assembly (housing + component) and any ExtendedAE recipes stay vanilla and follow
 // through the new components.
 // Spec: docs/ae2.md
@@ -48,26 +49,26 @@ ServerEvents.recipes(event => {
                     .duration(ticks).EUt(VA[tier]))
             })
         })
-        // 256m: the goal, only in the Assembly Line at UHV with research.
+        // 256m: the goal, only in the Advanced Circuit Manufacturer at UHV with computation.
+        // True endgame: the 64m stack plus an organized Pico circuit and sanguinite wire.
         event.remove({ mod: 'megacells', output: 'megacells:cell_component_256m' })
-        event.recipes.gtceu.assembly_line('af9:mega_cell_component_256m')
+        event.recipes.gtceu.advanced_circuit_manufacturer('af9:mega_cell_component_256m')
             .itemInputs(
                 '2x gtceu:tritanium_frame',
                 '2x megacells:cell_component_64m',
                 '4x ae2:engineering_processor',
+                'af9:organized_pico_circuit',
                 '8x ae2:sky_dust',
                 '16x gtceu:fine_tritanium_wire',
-                '8x gtceu:europium_plate')
+                '8x gtceu:europium_plate',
+                '8x gtceu:fine_sanguinite_wire')
             .inputFluids(
                 Fluid.of('gtceu:high_grade_solder', 1152),
                 Fluid.of('gtceu:polybenzimidazole', 1152))
             .itemOutputs('megacells:cell_component_256m')
-            .stationResearch(b => b
-                .researchStack(Item.of('megacells:cell_component_64m'))
-                .CWUt(128)
-                .EUt(VA[GTValues.UV]))
+            .CWUt(128)
             .duration(1600)
-            .EUt(VA[GTValues.UHV])
+            .EUt(VA[GTValues.UHV], 300)
         event.remove({ mod: 'megacells', output: 'megacells:bulk_item_cell' })
         hvSoldered('mega_bulk_item_cell', 2, (recipe, fluid) => {
             clean(recipe.itemInputs('ae2:chest', 'megacells:cell_component_1m',

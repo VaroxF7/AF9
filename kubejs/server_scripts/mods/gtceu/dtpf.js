@@ -8,7 +8,7 @@
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
-    // UHV recipes draw 100 A of UHV power (XPS 300 A, NVM 1,000 A: circuits_af9.js), see docs/dyson-swarm.md.
+    // UHV recipes draw 100 A of UHV power (Pico-scale work takes 300 A in the Advanced Circuit Manufacturer).
     // The controller below is built in the Advanced Circuit Manufacturer like the Pico circuits: UHV on 300 A.
     const UHV_AMPS = 100
     const forge = event.recipes.gtceu
@@ -19,8 +19,8 @@ ServerEvents.recipes(event => {
     // through its laser hatch, like the Pico circuits in circuits_af9.js).
     // NOTE: GT registers no uhv_field_generator while its high-tier content is off (as it is in the
     // pack: tools/lint/data/gt-dev-only.txt; every UHV build uses uv_field_generator instead, e.g.
-    // uhv_superconductor.js, dyson_swarm.js), so the field generators are UV.
-    // The sanguinite is 8 stacks of 64 (a bus slot holds 64: dyson_swarm.js splits the same way),
+    // uhv_superconductor.js), so the field generators are UV.
+    // The sanguinite is 8 stacks of 64 (a bus slot holds 64),
     // 8 inputs of 64x + 7 single inputs = 15 item inputs of 16 max.
     event.recipes.gtceu.advanced_circuit_manufacturer('af9:dtpf')
         .itemInputs('16x #gtceu:circuits/uhv', 'gtceu:uhv_machine_hull', '8x gtceu:fusion_casing_mk3',

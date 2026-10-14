@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "af9:item/dyson/allthemodium_sail"
+    "layer0": "af9:item/fx_mox_pellet"
   }
 }

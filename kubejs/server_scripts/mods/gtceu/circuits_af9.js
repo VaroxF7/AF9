@@ -33,8 +33,10 @@
 //   7. LuV normal (incl. pack Nano Mainframe AL) + LuV lean (Stage 3)
 //   8. ZPM normal (crystal computer, quantum mainframe AL, wetware assembly) + ZPM lean (Stage 3)
 //   9. UV normal (crystal mainframe AL, wetware computer) + UV lean (Stage 3)
-//   10. UHV normal (wetware mainframe AL + plasma Mk2 path) + UHV lean (Stage 4) + AI Acceleration Card
+//   10. UHV normal (wetware mainframe plasma path in solders.js + AI Acceleration Card) +
+//       UHV lean (Stage 4: AI lean here, mainframe lean in solders.js)
 //   11. Pico circuits (Advanced Circuit Manufacturer); the XPS and NVM processors build in lunar air now
+//   12. XPS/NVM lean (atmospheric_simulation.js: Stage 4 XPS lean, Stage 5 NVM lean)
 //   13. packages (asic_package, photonic_package; edram packages live in photolithography.js)
 //   14. tags (gtceu:circuits/xps, gtceu:circuits/nvm)
 // Everything else is GT's own. Spec: docs/semiconductor-factory.md
@@ -624,9 +626,15 @@ ServerEvents.recipes(event => {
     // card of the new DTPF (docs/dtpf.md).
     newPlasmaCircuit('ai_acceleration_card', 4, r => clean(r
         .itemInputs('gtceu:wetware_printed_circuit_board', '8x af9:tpu_chip', '4xaf9:memristor_chip',
-            '64x gtceu:fine_sanguinite_wire','64x gtceu:fine_sanguinite_wire', '32x gtceu:electrum_fine_wire')
+            '64x gtceu:fine_sanguinite_wire','64x gtceu:fine_sanguinite_wire', '32x gtceu:fine_electrum_wire')
         .itemOutputs('af9:ai_acceleration_card')
         .duration(600).EUt(VA[GTValues.UHV])))
+    // AI lean (Stage 4 @XPS end, gate: photonic_package): halved dies and wire, 2x out, half time.
+    newPlasmaCircuit('ai_acceleration_card_lean', 2, r => clean(r
+        .itemInputs('gtceu:wetware_printed_circuit_board', '4x af9:tpu_chip', '2x af9:memristor_chip',
+            'af9:photonic_package', '64x gtceu:fine_sanguinite_wire', '8x gtceu:fine_electrum_wire')
+        .itemOutputs('2x af9:ai_acceleration_card')
+        .duration(300).EUt(VA[GTValues.UHV])))
 
     // ================================= 11. Pico circuits =================================
     // GTNH's Pico components, made in the Advanced Circuit Manufacturer (advanced_circuit_manufacturer: up to 16 items

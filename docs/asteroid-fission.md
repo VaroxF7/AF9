@@ -25,6 +25,8 @@ Ad Astra rocket (gregified parts, Aluminised Hydrolox)
              -> purified dust -> leach (uranyl sulfate) -> yellowcake -> reduction (EBF, hydrogen) -> uranium dust
                   -> (UF6 -> GT's enrichment -> U-235 dust)
                   -> pellets (EBF) -> fuel rod (assembler, zirconium)
+                  -> HEU pellets (EBF, U + U-235) -> HEU rod -> twice the steam rate
+                  -> LEP/HEP pellets (EBF, U/Pu + Pu-241) -> fast and fastest cycles, MOX-stream reprocessing
                   -> MOX pellets (EBF, Pu) -> MOX rod -> hotter, longer cycles, Pu back and more
                   -> thorium pellets (EBF, Th + U-235 driver) -> thorium rod -> long, gentle cycles, Th + Pa back
                   -> blanket assemblies (assembler, depleted U) ride a uranium cycle (heavy-water moderated)
@@ -213,6 +215,12 @@ diesel and biodiesel).
 | Thorium pellets | Electric Blast Furnace, HV, 1,800 K | 10 thorium dust, 2 tiny U-235 dust (driver), 8,000 mB oxygen | 4 `af9:fx_thorium_pellet` |
 | Thorium rod | Assembler, HV | 4 thorium pellets, 1 zirconium ingot | `af9:fx_thorium_rod` |
 | Blanket assembly | Assembler, HV | 8 uranium dust, 2 steel plates | `af9:fx_blanket_assembly` |
+| HEU-235 pellets | Electric Blast Furnace, HV, 1,800 K | 8 uranium dust, 4 U-235 dust, 8,000 mB oxygen | 4 `af9:fx_heu_pellet` |
+| HEU-235 rod | Assembler, HV | 4 HEU pellets, 1 zirconium ingot | `af9:fx_heu_rod` |
+| LEP-241 pellets | Electric Blast Furnace, HV, 1,800 K | 6 uranium dust, 2 Pu-241 dust, 8,000 mB oxygen | 4 `af9:fx_lep_pellet` |
+| LEP-241 rod | Assembler, HV | 4 LEP pellets, 1 zirconium ingot | `af9:fx_lep_rod` |
+| HEP-239 pellets | Electric Blast Furnace, HV, 1,800 K | 6 plutonium dust, 2 Pu-241 dust, 8,000 mB oxygen | 4 `af9:fx_hep_pellet` |
+| HEP-239 rod | Assembler, HV | 4 HEP pellets, 1 zirconium ingot | `af9:fx_hep_rod` |
 
 The **reduction** is what makes the natural uranium dust of the pellets: GT's own chain only gives U-235 and U-238 dust, and with the
 pitchblende and uraninite veins replaced by the asteroids nothing else did (the chain was a dead end before it). One ore is about three yellowcake and a thousand mB of UF6; GT's enrichment gives a tenth of it as U-235. A rod needs 12 uranium dust
@@ -225,16 +233,19 @@ and 4 tiny U-235 dust and the reprocessing gives back 8 and 2 x 60 %: about **4 
 
 5 x 5 x 5 (a plain GT multiblock, `gtceu:fx1_reactor`): a vessel of stable titanium casing (`gtceu:stable_machine_casing`) around a
 core of heatproof casing, titanium pipe casing as the coolant channels (6) and one air block, the fuel rod's. Hatches on any
-casing, maximums only: 2 energy, 1 + 1 item, 3 + 4 fluid, 1 maintenance. Overclocks like any GT multiblock (IV hatches).
+casing, maximums only: 2 energy, 1 + 1 item, 3 + 4 fluid, 1 maintenance. Overclocks like any GT multiblock (EV hatches).
 
 ## 5.2 Recipes
 
 | Recipe | Machine, tier | Takes | Gives | Time |
 |---|---|---|---|---|
-| `af9:fx1_fuel_cycle` | FX-1 Reactor, EV (1,920 EU/t) | 1 fuel rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent rod, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,200 ticks |
-| `af9:fx1_mox_cycle` | FX-1 Reactor, EV | 1 MOX rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent MOX rod, 92,160 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,800 ticks |
-| `af9:fx1_thorium_cycle` | FX-1 Reactor, EV | 1 thorium rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent thorium rod, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 2,400 ticks |
-| `af9:fx1_breeder_cycle` | FX-1 Reactor, EV | 1 fuel rod, 1 blanket, 640 mB heavy water (moderator), 1,000 mB sodium-potassium | the spent rod, the spent blanket, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,200 ticks |
+| `af9:fx1_fuel_cycle` | FX-1 Reactor, HV (480 EU/t) | 1 fuel rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent rod, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,200 ticks |
+| `af9:fx1_heu_cycle` | FX-1 Reactor, HV | 1 HEU rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent HEU rod, 122,880 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,200 ticks |
+| `af9:fx1_lep_cycle` | FX-1 Reactor, HV | 1 LEP rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent LEP rod, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 600 ticks |
+| `af9:fx1_hep_cycle` | FX-1 Reactor, HV | 1 HEP rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent HEP rod, 122,880 mB supercritical steam, 1,000 mB hot sodium-potassium | 600 ticks |
+| `af9:fx1_mox_cycle` | FX-1 Reactor, HV | 1 MOX rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent MOX rod, 92,160 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,800 ticks |
+| `af9:fx1_thorium_cycle` | FX-1 Reactor, HV | 1 thorium rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent thorium rod, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 2,400 ticks |
+| `af9:fx1_breeder_cycle` | FX-1 Reactor, HV | 1 fuel rod, 1 blanket, 640 mB heavy water (moderator), 1,000 mB sodium-potassium | the spent rod, the spent blanket, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,200 ticks |
 | `af9:cool_hot_sodium_potassium` | Vacuum Freezer, HV | 1,000 mB hot sodium-potassium | 1,000 mB sodium-potassium | 100 ticks |
 | `af9:supercritical_steam` | any steam turbine (GT's `steam_turbine` type), -512 EU/t | 128 mB supercritical steam | 1 mB distilled water | 20 ticks |
 
@@ -246,7 +257,9 @@ The loop is closed: 1:1, nothing is used up.
 Supercritical steam (`gtceu:supercritical_steam`, 647 K) is **80 EU per mB** in the steam turbine recipe (GT's steam: 0.5). The
 recipe's 512 EU/t is below the Large Steam Turbine's maximum (HV: 1,024 EU/t at full rotor power), so every Large Steam
 Turbine runs it, with two parallels: **12.8 mB/t for 1,024 EU/t**. A rod makes 51 mB/t for 1,200 ticks (61,440 mB), enough for
-**four** Large Steam Turbines at full power (4,096 EU/t); the reactor costs 1,920 EU/t, so a rod is worth about 2.4 million EU net.
+**four** Large Steam Turbines at full power (4,096 EU/t); the reactor costs 480 EU/t, so a rod is worth about 4.3 million EU net —
+the EV baseload. The enriched rungs trade fissile cost for rate: HEU doubles the LEU rate (8 turbines), LEP burns LEU energy in
+600 ticks, HEP burns HEU energy in 600 ticks (16 turbines).
 Single steam turbine blocks run it only if they can carry 512 EU/t.
 
 **Extreme Reactors** (`af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeReactorsCompat.java`): AF9 Core registers a
@@ -260,6 +273,8 @@ reflection, so AF9 Core needs nothing of the mod to build. The server script put
 | Step | Machine, tier | Takes | Gives |
 |---|---|---|---|
 | Decladding | Macerator, HV | spent fuel rod | 4 irradiated fuel dust, 1 zirconium dust |
+| HEU decladding | Macerator, HV | spent HEU rod | 4 irradiated fuel dust, 1 zirconium dust (rides the uranium stream) |
+| LEP/HEP decladding | Macerator, HV | spent LEP/HEP rod | 4 irradiated MOX dust, 1 zirconium dust (ride the MOX stream) |
 | Dissolving | Chemical Reactor, HV | 4 irradiated fuel dust, 3,000 mB nitric acid | 3,000 mB dissolved spent fuel, 500 mB fission off-gas |
 | Separation | Centrifuge, EV | 3,000 mB dissolved spent fuel | 1 plutonium dust, 8 uranium dust; chances: plutonium-241 30 %, 2 tiny U-235 60 %, neodymium 15 %, molybdenum 15 %; 2,000 mB nitric acid back |
 | Off-gas split | Distillation Tower, HV | 1,000 mB fission off-gas | 600 mB krypton, 200 mB xenon (boule melts, cryogenics) |
@@ -297,7 +312,10 @@ carry GT's radioactive hazard themselves. Setting: `[radiation] hints` in `confi
 # 8. Quests
 
 The chapter `config/ftbquests/quests/chapters/asteroid_fission.snbt` (texts `af9.quest.fx.*` in
-`kubejs/assets/kubejs/lang/en_us.json`): 33 quests from the rockets (all four, and the Rover) to the Mk1. ATM9's Mk1 quest (`zero_point_module.snbt`) now
+`kubejs/assets/kubejs/lang/en_us.json`): from the rockets (all four, and the Rover) through the fuel ladder
+(LEU, HEU, MOX, LEP, HEP, thorium, breeder) to the Mk1, including the HEU/LEP/HEP fuel quests. The EV chapter
+carries the power side of the same story (texts `af9.quest.ev.*`: the reactor,
+LEU fuel, the turbine hall, reprocessing, waste). ATM9's Mk1 quest (`zero_point_module.snbt`) now
 needs the plutonium-241 quest too.
 
 # 9. What was not run
@@ -325,7 +343,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `af9-core/src/main/java/com/af9/core/registry/` | the materials (`AF9Materials`, `asteroidFission()`), the fuel pellet and rods (`AF9Items`) |
 | `af9-core/src/main/java/com/af9/core/space/AF9Space.java` | the ore layer `af9_asteroid` and the tag of its stones |
 | `kubejs/server_scripts/mods/gtceu/asteroid_fission.js` | the closed old ways, the uranium chain, the reactor, steam turbine, reprocessing, tags |
-| `kubejs/server_scripts/mods/gtceu/fission_fuels.js` | MOX, thorium and breeder fuels, minor actinides, vitrification |
+| `kubejs/server_scripts/mods/gtceu/fission_fuels.js` | MOX, thorium and breeder fuels, HEU/LEP/HEP enriched fuels, minor actinides, vitrification |
 | `kubejs/server_scripts/mods/gtceu/rockets.js` | the gregified rockets, the propellant, the fuel tags |
 | `kubejs/server_scripts/mods/gtceu/fusion_reactor.js` | the Fusion Reactor Mk1 |
 | `kubejs/server_scripts/mods/gtceu/miner.js` | the void miner without uranium and plutonium |
@@ -335,7 +353,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `af9-core/src/main/java/com/af9/core/radiation/RadiationWatch.java` | the radiation warning |
 | `af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeReactorsCompat.java` | supercritical steam for Extreme Reactors |
 | `af9-core/src/main/resources/data/af9/` | dimensions, dimension type, biome, features, planets, the station recipe |
-| `af9-core/src/main/resources/assets/af9/textures/item/fx_fuel_pellet.png`, `fx_fuel_rod.png`, `fx_spent_fuel_rod.png` | the three items |
+| `af9-core/src/main/resources/assets/af9/textures/item/fx_fuel_pellet.png`, `fx_fuel_rod.png`, `fx_spent_fuel_rod.png` | the uranium items; MOX and thorium have their own, HEU reuses the uranium ones, LEP/HEP the MOX ones |
 | `config/ftbquests/quests/chapters/asteroid_fission.snbt` | the quests |
 
 # 7. The planet metals (`planet_metals.js`, `vein_planets.js`)

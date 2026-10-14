@@ -53,7 +53,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     // A fission reactor: a stable titanium vessel (5 x 5 x 5) around a core of heatproof casing, the coolant channels
     // (titanium pipe casing) running through it and the one block of air the fuel rod is in. Aisles front -> back,
-    // rows bottom -> top; the hatches go on any vessel casing. EV: 1,920 EU/t.
+    // rows bottom -> top; the hatches go on any vessel casing. HV: 480 EU/t.
     event.create('fx1_reactor', 'multiblock')
         .langValue('FX-1 Reactor')
         .machine(holder => new $Fx1Reactor(holder))

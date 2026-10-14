@@ -1220,6 +1220,155 @@
 			x: -2.5d
 			y: -0.5d
 		}
+		{
+			dependencies: [
+				"5241693278027FFD"
+				"6D082AE4CF9A56DC"
+				"78A295D4D1A21BCA"
+			]
+			description: ["{af9.quest.ev.reactor}"]
+			icon: "gtceu:fx1_reactor"
+			id: "6A10B20C30D40E5F"
+			rewards: [{
+				exclude_from_claim_all: true
+				id: "6A10B20C30D40E61"
+				table_id: 5304546381530089504L
+				type: "loot"
+			}]
+			shape: "pentagon"
+			size: 1.5d
+			tasks: [{
+				id: "6A10B20C30D40E60"
+				item: "gtceu:fx1_reactor"
+				type: "item"
+			}]
+			title: "{af9.quest.title.evNuclear}"
+			x: 2.5d
+			y: -2.5d
+		}
+		{
+			dependencies: ["6A10B20C30D40E5F"]
+			description: ["{af9.quest.ev.fuel}"]
+			id: "6B10B20C30D40E5F"
+			rewards: [{
+				exclude_from_claim_all: true
+				id: "6B10B20C30D40E61"
+				table_id: 5304546381530089504L
+				type: "loot"
+			}]
+			tasks: [{
+				id: "6B10B20C30D40E60"
+				item: "af9:fx_fuel_rod"
+				type: "item"
+			}]
+			title: "{af9.quest.title.evFuel}"
+			x: 4.0d
+			y: -2.5d
+		}
+		{
+			dependencies: ["6B10B20C30D40E5F"]
+			description: ["{af9.quest.ev.turbines}"]
+			id: "6C10B20C30D40E5F"
+			rewards: [{
+				exclude_from_claim_all: true
+				id: "6C10B20C30D40E61"
+				table_id: 5304546381530089504L
+				type: "loot"
+			}]
+			tasks: [{
+				id: "6C10B20C30D40E60"
+				item: "gtceu:steam_large_turbine"
+				type: "item"
+			}]
+			title: "{af9.quest.title.evTurbines}"
+			x: 5.5d
+			y: -2.5d
+		}
+		{
+			dependencies: ["6B10B20C30D40E5F"]
+			description: ["{af9.quest.ev.reprocessing}"]
+			id: "6D10B20C30D40E5F"
+			rewards: [{
+				exclude_from_claim_all: true
+				id: "6D10B20C30D40E61"
+				table_id: 5304546381530089504L
+				type: "loot"
+			}]
+			tasks: [{
+				id: "6D10B20C30D40E60"
+				item: "gtceu:plutonium_dust"
+				type: "item"
+			}]
+			title: "{af9.quest.title.evReprocessing}"
+			x: 2.5d
+			y: -4.0d
+		}
+		{
+			dependencies: [
+				"6B10B20C30D40E5F"
+				"6D10B20C30D40E5F"
+			]
+			description: ["{af9.quest.ev.enriched}"]
+			id: "6E10B20C30D40E5F"
+			rewards: [{
+				exclude_from_claim_all: true
+				id: "6E10B20C30D40E61"
+				table_id: 5304546381530089504L
+				type: "loot"
+			}]
+			tasks: [{
+				id: "6E10B20C30D40E60"
+				item: "af9:fx_heu_rod"
+				type: "item"
+			}]
+			title: "{af9.quest.title.evEnriched}"
+			x: 4.0d
+			y: -4.0d
+		}
+		{
+			dependencies: ["6D10B20C30D40E5F"]
+			description: ["{af9.quest.ev.waste}"]
+			id: "6F10B20C30D40E5F"
+			rewards: [{
+				id: "6F10B20C30D40E61"
+				type: "xp"
+				xp: 100
+			}]
+			tasks: [{
+				id: "6F10B20C30D40E60"
+				item: "gtceu:vitrified_waste_dust"
+				type: "item"
+			}]
+			title: "{af9.quest.title.evWaste}"
+			x: 5.5d
+			y: -4.0d
+		}
+		{
+			dependencies: ["6E10B20C30D40E5F"]
+			description: ["{af9.quest.ev.hotFuels}"]
+			id: "6010B20C30D40E5F"
+			rewards: [{
+				exclude_from_claim_all: true
+				id: "6010B20C30D40E62"
+				table_id: 5304546381530089504L
+				type: "loot"
+			}]
+			tasks: [
+				{
+					id: "6010B20C30D40E60"
+					item: "af9:fx_lep_rod"
+					type: "item"
+				}
+				{
+					id: "6010B20C30D40E61"
+					item: "af9:fx_hep_rod"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.title.evHotFuels}"
+			x: 4.0d
+			y: -5.5d
+		}
 	]
 	title: "{atm9.chapters.30.title}"
 }

@@ -85,18 +85,6 @@ public final class AF9Blocks {
         block("bolted_iridium_casing", SoundType.METAL, 12F, 0, 0);
         block("rebolted_iridium_casing", SoundType.METAL, 12F, 0, 0);
 
-        // ---- Dyson Swarm: GTNH Intergalactic's receiver, deployment unit and command centre casings (the floor is the
-        // Space Elevator's ultra high strength concrete) ----
-        block("dyson_receiver_casing", SoundType.METAL, 12F, 0, 0);
-        block("dyson_receiver_dish", SoundType.METAL, 12F, 0, 0);
-        block("dyson_deployment_casing", SoundType.METAL, 12F, 0, 0);
-        block("dyson_deployment_core", SoundType.METAL, 12F, 0, 0);
-        block("dyson_deployment_magnet", SoundType.METAL, 12F, 0, 0);
-        block("dyson_control_casing", SoundType.METAL, 12F, 0, 0);
-        block("dyson_control_primary", SoundType.METAL, 12F, 0, 0);
-        block("dyson_control_secondary", SoundType.METAL, 12F, 0, 0);
-        block("dyson_control_toroid", SoundType.METAL, 12F, 0, 0);
-
         // ---- Hyper-Intensity Laser Engraver: GTNH's Laser Containment Casing and the plate the beam lands on ----
         block("laser_containment_casing", SoundType.METAL, 12F, 0, 0);
         block("laser_resistant_plate", SoundType.METAL, 12F, 0, 0);

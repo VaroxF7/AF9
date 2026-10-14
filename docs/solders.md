@@ -67,7 +67,7 @@ the size; plasma soldering glows plasma-violet, hotter with bloom).
 ## 5. What only the Mk2 runs, and its beam focus
 
 The extended station is the only one that runs **the 1 nm prints** (chromodynium, `LithoMode.N1`; `canPrint` and the
-console's MK2 ONLY), and the Mk2's own recipe types (**Pico fabrication**, `pico_fabrication`, §6; plasma soldering is the Laser Engraver's now). The recipes carry
+console's MK2 ONLY). The recipes carry
 `MK2_GATE` (orbit, extended, aligned, the full EU/t, a started-up station); the 1 nm prints check the same in
 `canPrint` / `canRun`. A basic station shows MK2 ONLY for them.
 
@@ -99,18 +99,20 @@ focus and "latched" once it holds.
 
 ## 6. Pico circuits
 
-GTNH's Pico components as the XPS tier's own circuit line, made by `pico_fabrication` on the Mk2 only (6 items, 1 out, 2
-fluids, computation; UHV; `circuits_af9.js` §11b):
+GTNH's Pico components as the XPS tier's own circuit line, made in the **Advanced Circuit Manufacturer**
+(`advanced_circuit_manufacturer` type: up to 16 items and 4 fluids in, computation through its hatch, UHV on
+300 A through its laser hatch; `circuits_af9.js` §11):
 
-| Recipe | Takes (besides plasma solder / PBI / water) | CWU/t |
-|---|---|---|
-| `af9:pico_board` | wetware board, 2 chromodynium plates, 4 fine sanguinite wire | 32 |
-| `af9:cleansed_pico_board` | pico board, 2,000 mB distilled water, 1,000 mB argon | 32 |
-| `af9:pico_cpu` | cleansed board, 2 TPU, 4 memristor, 4 quantum-dot chips, 2 chromodynium plates | 64 |
-| `af9:organized_pico_circuit` | pico CPU, 8 photonic IC, 8 spin-logic chips, 8 fine sanguinite wire | 96 |
-| `af9:processed_pico_circuit_casing` | 2 chromodynium plates, tritanium frame, 16 PBI foil | 32 |
-| `af9:pico_circuit_rack` | 4 organized circuits, casing, 32 fine sanguinite wire | 128 |
+| Recipe | Takes | CWU/t | Time |
+|---|---|---|---|
+| `af9:pico_board` | wetware board, 2 chromodynium plates, 8 fine chromodynium wire, 144 mB plasma solder | 32 | 400 ticks |
+| `af9:cleansed_pico_board` | pico board, 2,000 mB distilled water, 1,000 mB argon | 32 | 300 ticks |
+| `af9:pico_cpu` | cleansed board, 2 TPU, 4 memristor, 4 quantum-dot chips, 2 chromodynium plates, 16 fine chromodynium wire, 576 mB plasma solder, 288 mB PBI | 64 | 800 ticks |
+| `af9:organized_pico_circuit` | pico CPU, 8 photonic IC, 8 spin-logic chips, 8 fine sanguinite wire, 288 mB plasma solder, 144 mB PBI | 96 | 600 ticks |
+| `af9:processed_pico_circuit_casing` | 2 chromodynium plates, tritanium frame, 16 PBI foil, 576 mB PBI | 32 | 400 ticks |
+| `af9:pico_circuit_rack` | 4 organized circuits, casing, 32 fine sanguinite wire, 1,440 mB plasma solder, 1,152 mB PBI | 128 | 1,200 ticks |
 
-They are inputs of the ladder above: the XPS processor takes 2 Pico CPUs (lean: 1), the XPS mainframe 2 organized circuits
-(lean: 1), the NVM processor a rack and the NVM mainframe 2 (lean: 1 each). Textures are GTNH's
+They are inputs of the ladder above: the XPS processor takes a Pico CPU (lean: photonic package instead of the loose
+dies), the XPS mainframe the organized circuit, the NVM processor a rack and the NVM mainframe 2 (leans add the qram
+and qlos calibration chips), and the 256m MEGA cell an organized circuit with sanguinite wire. Textures are GTNH's
 (`tools/textures/gtnh_pico/`).

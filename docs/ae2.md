@@ -80,9 +80,10 @@ dense smart); dye variants follow. Quartz fiber is redefined (certus crystal + g
   high-grade solder), each 3x previous + engineering processor + 4x sky dust +
   quartz glass + its tier circuit (`nano/computer`, `quantum/computer`,
   `crystal/computer`, `wetware/computer`). The **256m goal builds only in the
-  Assembly Line at UHV** (2x tritanium frame, 2x 64m, engineering, sky dust,
-  tritanium wire, europium plate; high-grade solder + PBI; researches the 64m
-  component). `bulk_item_cell` rides at IV (chest + 1m + IV circuit + sky dust).
+  Advanced Circuit Manufacturer at UHV on 300 A** (2x tritanium frame, 2x 64m,
+  engineering, organized Pico circuit, sky dust, tritanium wire, europium plate,
+  sanguinite wire; high-grade solder + PBI; 128 CWU/t through its computation hatch).
+  `bulk_item_cell` rides at IV (chest + 1m + IV circuit + sky dust).
   MEGA cell assembly stays vanilla and follows.
 - **Infinity Booster** (`aeinfinitybooster:`, guarded, HV): `infinity_card`
   (engineering + calculation + fluix + HV circuit), `dimension_card` (infinity card
