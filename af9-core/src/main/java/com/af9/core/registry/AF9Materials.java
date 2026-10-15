@@ -73,6 +73,7 @@ public final class AF9Materials {
     public static void register(MaterialEvent event) {
         aromatics();
         asteroidFission();
+        aeQuartz();
         biofuels();
         bouleMelting();
         cryogenics();
@@ -277,6 +278,21 @@ public final class AF9Materials {
      * biomass and fermented biomass, so only the missing spirit is registered here. Recipes: biofuels.js. Spec:
      * docs/green-chemistry.md
      */
+    /**
+     * AE2 processors and storage components: certus quartz melted down (the extractor makes it from the crystals,
+     * ae2_quartz.js) is the fluid the final assembly of every processor and component runs on, and redstone gets a
+     * plate and foil (the plate in the compressor, the foil in the bender) for the processors' printed circuits.
+     * Recipes: ae2_quartz.js, ae2_processors.js, ae2_components.js. Spec: docs/ae2.md
+     */
+    private static void aeQuartz() {
+        add(material("liquid_certus_quartz")
+                .liquid()
+                .color(0x8fd3ef)
+                .formula("SiO2"));
+        // Redstone only has dust in GT; ae2_quartz.js presses it to a plate and bends the foil
+        GTMaterials.Redstone.addFlags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL);
+    }
+
     private static void biofuels() {
         // Bioethanol: the distillation azeotrope (~95 %), dried to fuel ethanol over AF9's molecular sieves
         add(material("bioethanol")

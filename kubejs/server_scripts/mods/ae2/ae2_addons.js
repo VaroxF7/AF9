@@ -29,6 +29,13 @@ ServerEvents.recipes(event => {
     // Assembly Line. Each takes 3x previous + engineering processor + sky dust +
     // quartz glass + its tier circuit. Bulk cells ride along at IV.
     if (Platform.isLoaded('megacells')) {
+        // RAM climbs with the tier: eDRAM at 1m, MRAM from 4m (stacks of 64 chips).
+        const megaRam = {
+            'megacells:cell_component_1m': ['64x af9:edram_chip'],
+            'megacells:cell_component_4m': ['64x af9:mram_chip'],
+            'megacells:cell_component_16m': ['64x af9:mram_chip', '64x af9:mram_chip'],
+            'megacells:cell_component_64m': ['64x af9:edram_chip', '64x af9:mram_chip', '64x af9:mram_chip']
+        }
         const mega = [
             ['megacells:cell_component_1m', 'ae2:cell_component_256k',
                 'gtceu:nano_processor_computer', GTValues.IV, 400, 2],
@@ -45,6 +52,7 @@ ServerEvents.recipes(event => {
             hvSoldered(`mega_${shortId}`, solder, (recipe, fluid) => {
                 clean(recipe.itemInputs(`3x ${prev}`, 'ae2:engineering_processor', '4x ae2:sky_dust',
                     'ae2:quartz_glass', circuit)
+                    .itemInputs(megaRam[out])
                     .inputFluids(fluid).itemOutputs(out)
                     .duration(ticks).EUt(VA[tier]))
             })
@@ -61,7 +69,8 @@ ServerEvents.recipes(event => {
                 '8x ae2:sky_dust',
                 '16x gtceu:fine_tritanium_wire',
                 '8x gtceu:europium_plate',
-                '8x gtceu:fine_sanguinite_wire')
+                '8x gtceu:fine_sanguinite_wire',
+                '64x af9:mram_chip', '64x af9:mram_chip', '64x af9:edram_chip')
             .inputFluids(
                 Fluid.of('gtceu:high_grade_solder', 1152),
                 Fluid.of('gtceu:polybenzimidazole', 1152))
