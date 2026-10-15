@@ -1,0 +1,17 @@
+{
+  "type": "ad_astra:moon",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "ad_astra:moon",
+    "biome_source": {
+      "type": "af9:certus_regions",
+      "base": "ad_astra:lunar_wastelands",
+      "crystal": "af9:certus_crystal",
+      "spacing": 3000,
+      "jitter": 500,
+      "radius": 180,
+      "chance": 0.6,
+      "salt": 2
+    }
+  }
+}

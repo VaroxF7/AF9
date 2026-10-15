@@ -4,6 +4,9 @@ import com.af9.core.AF9Core;
 
 import com.gregtechceu.gtceu.api.data.worldgen.SimpleWorldGenLayer;
 
+import com.mojang.serialization.Codec;
+
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -12,6 +15,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.TagMatchTest;
@@ -36,6 +40,11 @@ public final class AF9Space {
 
     public static final DeferredRegister<Feature<?>> FEATURES = DeferredRegister.create(ForgeRegistries.FEATURES,
             AF9Core.MOD_ID);
+
+    public static final DeferredRegister<Codec<? extends BiomeSource>> BIOME_SOURCES = DeferredRegister.create(
+            Registries.BIOME_SOURCE, AF9Core.MOD_ID);
+    public static final RegistryObject<Codec<? extends BiomeSource>> CERTUS_REGIONS = BIOME_SOURCES.register(
+            "certus_regions", () -> CertusRegionsBiomeSource.CODEC);
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS,
             AF9Core.MOD_ID);
@@ -126,6 +135,14 @@ public final class AF9Space {
     public static final RegistryObject<AsteroidFieldFeature> CERES_FIELD = FEATURES.register("ceres_field",
             () -> new AsteroidFieldFeature(AsteroidFieldFeature.Belt.CERES));
 
+    /** The certus crystal formations of the Moon (af9:certus_crystal); placed by data/af9/worldgen/placed_feature. */
+    public static final RegistryObject<CertusCrystalFeature> CERTUS_CRYSTAL_MOON = FEATURES.register(
+            "certus_crystal_moon", () -> new CertusCrystalFeature(CertusCrystalFeature.Surface.MOON));
+
+    /** The certus crystal formations on the asteroids (af9:certus_crystal_asteroids). */
+    public static final RegistryObject<CertusCrystalFeature> CERTUS_CRYSTAL_ASTEROIDS = FEATURES.register(
+            "certus_crystal_asteroids", () -> new CertusCrystalFeature(CertusCrystalFeature.Surface.ASTEROIDS));
+
     /** The dimension of the Asteroid Field (data/af9/dimension). */
     public static final ResourceLocation ASTEROID_FIELD_DIMENSION = new ResourceLocation(AF9Core.MOD_ID,
             "asteroid_field");
@@ -175,6 +192,7 @@ public final class AF9Space {
 
     public static void register(IEventBus modEventBus) {
         FEATURES.register(modEventBus);
+        BIOME_SOURCES.register(modEventBus);
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         modEventBus.addListener(AF9Space::fillCreativeTabs);
