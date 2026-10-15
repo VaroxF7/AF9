@@ -25,7 +25,7 @@ No presses, no inscriber prints — every chip is printed on a silicon wafer:
    `ilc` / `cpu` / `lpic` / `ram` dies.
 2. **Die packaging** in the assembler: die + foils (incl. 2x redstone foil) + fine wire (incl. 2x fine electrum wire) + RAM die → AE2 printed.
    Logic (`ilc`) at MV (solder pair); calculation (`cpu`) at HV and engineering (`lpic`, platinum
-   foil and wire) at EV, both in a cleanroom on high-grade solder (tin budget).
+   foil and wire) at EV, no cleanroom for any processor (tin or soldering alloy).
 3. **Carrier** in the cutter (MV, 200t): a silicon wafer dices straight into
    1x `printed_silicon`. The `expatternprovider:cutter/silicon` and
    `gtceu:forming_press/ae2/ultimate_universal/printed_silicon_circuit` recipes are removed.
@@ -34,7 +34,7 @@ No presses, no inscriber prints — every chip is printed on a silicon wafer:
    engineering EV (`micro_processor_computer`).
 
 Removed: all `ae2:` recipes outputting the four printeds and the three processors.
-All `ae2:inscriber` recipes are removed (crushing is replaced by the GT recipes above; the name press is no longer craftable), as are the six `advanced_ae` processor chambers and the `gtceu:forming_press` circuit imports (ae2 logic/calculation/engineering, appflux energy, aae quantum, megacells accumulation); the addon processors (`megacells:accumulation_processor` HV, `appflux:energy_processor` EV, `advanced_ae:quantum_processor` IV, all cleanroom assembler on 144 mB liquid certus quartz) build from AF9's own AE2 processors plus a tier circuit; meteorite presses are out of the chain
+All `ae2:inscriber` recipes are removed (crushing is replaced by the GT recipes above; the name press is no longer craftable), as are the six `advanced_ae` processor chambers and the `gtceu:forming_press` circuit imports (ae2 logic/calculation/engineering, appflux energy, aae quantum, megacells accumulation); the addon processors (`megacells:accumulation_processor` HV, `appflux:energy_processor` EV, `advanced_ae:quantum_processor` IV, all assembler on 144 mB liquid certus quartz) build from AF9's own AE2 processors plus a tier circuit; meteorite presses are out of the chain
 (the Mysterious Cube still drops one random press as a souvenir, meteorites still give
 sky stone).
 
@@ -165,7 +165,7 @@ that this pack does not redefine).
 ## Consequences
 
 - First AE2 processor needs: EBF silicon boule → cutter blank → Coater Track → Line V1.
-  Logic and the basic network stay MV; calculation needs an HV cleanroom, engineering an EV one,
+  Logic and the basic network stay MV; calculation (HV) and engineering (EV) need no cleanroom,
   so crafting, large storage and spatial/quantum gate on those tiers. MEGA scale climbs
   IV → UHV, Infinity Booster is HV.
 - Unverified: written without compiling or in-game testing (cloud env cannot build).

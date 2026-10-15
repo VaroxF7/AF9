@@ -3,7 +3,7 @@
 //   1. Litho 350nm (existing prints) + cutter: coated silicon wafer -> GT chip wafer ->
 //      ilc / cpu / lpic / ram dies. Every chip is printed on silicon.
 //   2. Die packaging (assembler): silicon die + foil + copper foil + fine wire + RAM die
-//      -> AE2 printed processor. Logic MV, calculation HV (cleanroom), engineering EV (cleanroom).
+//      -> AE2 printed processor. Logic MV, calculation HV, engineering EV (no cleanroom).
 //   3. Carrier (cutter): a silicon wafer dices straight into printed silicon.
 //   4. Final assembly (assembler): printed + printed silicon + redstone + tier circuit
 //      (logic: good integrated MV; calculation: advanced integrated HV; engineering: micro computer EV).
@@ -51,12 +51,12 @@ ServerEvents.recipes(event => {
 
     // ---- Die packaging: silicon die + foils + wire + RAM -> AE2 printed (assembler) ----
     // Redstone foil and fine electrum wire carry the printed circuit. Logic packs at MV (tin / soldering alloy),
-    // calculation at HV and engineering at EV, both in a cleanroom on high-grade solder (tin stays as budget).
+    // calculation at HV and engineering at EV, none in a cleanroom (tin or soldering alloy).
     // [processor, die, eut, ticks, cleanroom, foil, wire]
     const packaging = [
         ['logic_processor', 'gtceu:ilc_chip', MV, 300, false, 'electrum', 'gold'],
-        ['calculation_processor', 'gtceu:cpu_chip', HV, 400, true, 'electrum', 'gold'],
-        ['engineering_processor', 'gtceu:lpic_chip', EV, 500, true, 'platinum', 'platinum']
+        ['calculation_processor', 'gtceu:cpu_chip', HV, 400, false, 'electrum', 'gold'],
+        ['engineering_processor', 'gtceu:lpic_chip', EV, 500, false, 'platinum', 'platinum']
     ]
     packaging.forEach(([out, die, eut, ticks, cr, foil, wire]) => {
         const inputs = [die, `2x gtceu:${foil}_foil`, '2x gtceu:copper_foil', '2x gtceu:redstone_foil',
@@ -79,8 +79,8 @@ ServerEvents.recipes(event => {
     // [processor, circuit, eut, ticks, cleanroom]
     const processors = [
         ['logic_processor', 'gtceu:good_integrated_circuit', MV, 200, false],
-        ['calculation_processor', 'gtceu:advanced_integrated_circuit', HV, 300, true],
-        ['engineering_processor', 'gtceu:micro_processor_computer', EV, 400, true]
+        ['calculation_processor', 'gtceu:advanced_integrated_circuit', HV, 300, false],
+        ['engineering_processor', 'gtceu:micro_processor_computer', EV, 400, false]
     ]
     processors.forEach(([out, circuit, eut, ticks, cr]) => {
         const r = event.recipes.gtceu.assembler(`af9:ae2_${out}`)
