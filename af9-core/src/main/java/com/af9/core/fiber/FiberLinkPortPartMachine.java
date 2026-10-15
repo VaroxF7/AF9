@@ -3,6 +3,7 @@ package com.af9.core.fiber;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.machine.feature.IDataStickInteractable;
 import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.MultiblockPartMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.part.TieredPartMachine;
@@ -37,7 +38,7 @@ import java.util.List;
  * ends' chunks are loaded.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
-public class FiberLinkPortPartMachine extends TieredPartMachine {
+public class FiberLinkPortPartMachine extends TieredPartMachine implements IDataStickInteractable {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             FiberLinkPortPartMachine.class, MultiblockPartMachine.MANAGED_FIELD_HOLDER);
@@ -48,7 +49,7 @@ public class FiberLinkPortPartMachine extends TieredPartMachine {
     public static final String TAG = "af9_fiber";
 
     public static final int ITEM_SLOTS = 9, FLUID_TANKS = 4;
-    public static final long TANK_CAPACITY = 16_000;
+    public static final int TANK_CAPACITY = 16_000;
 
     @Persisted
     public final NotifiableItemStackHandler itemsIn, itemsOut;

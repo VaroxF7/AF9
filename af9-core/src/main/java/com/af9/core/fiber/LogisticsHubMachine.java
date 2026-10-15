@@ -3,6 +3,7 @@ package com.af9.core.fiber;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IDisplayUIMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableFluidTank;
@@ -30,7 +31,7 @@ import java.util.List;
  * output buses and output hatches. Items, fluids and gases (a gas is a fluid) both ways. Only the hub's own parts are
  * handled, so a bus next to the hub that is not part of the structure is left alone.
  */
-public class LogisticsHubMachine extends WorkableMultiblockMachine {
+public class LogisticsHubMachine extends WorkableMultiblockMachine implements IDisplayUIMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             LogisticsHubMachine.class, WorkableMultiblockMachine.MANAGED_FIELD_HOLDER);
@@ -143,7 +144,7 @@ public class LogisticsHubMachine extends WorkableMultiblockMachine {
 
     @Override
     public void addDisplayText(List<Component> textList) {
-        super.addDisplayText(textList);
+        IDisplayUIMachine.super.addDisplayText(textList);
         if (!isFormed()) return;
         FiberLinkPortPartMachine own = port();
         if (own == null) return;
