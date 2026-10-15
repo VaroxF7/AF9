@@ -21,9 +21,14 @@ The chain blends first and smelts after:
 
 ## The hearth (gameplay)
 
-The structure is the Rotary Hearth's, unchanged (13×17×13: high-temperature smelting casings, coils, muffler,
-Naquadah Alloy frames, tungstensteel firebox/pipe, engine intakes, heat vents; hatches maximums-only on any casing,
-the AF9 convention, so GT's 360-casing minimum is dropped; plus up to 2 Coolant Hatches for the supercooled coolant).
+The structure is the Rotary Hearth's, grown (15×21×15, plus an optional substation): the same casings, coils, muffler,
+Naquadah Alloy frames, tungstensteel firebox/pipe, engine intakes and heat vents, with the middle lines of the original
+tripled (a wider air chamber, thicker pipe pillars and decks), a robust plinth under the base and the muffler on a
+three-high pipe stack. Hatches are maximums-only on any high-temperature casing (the AF9 convention, so GT's
+360-casing minimum is dropped; plus up to 2 Coolant Hatches for the supercooled coolant). The optional **substation**
+(3 wide, 5 deep, 2 high, on the controller's left against the base) takes the same hatches, so the base can stay
+clean; its door (the two columns of its front) is plain casing, so no hatch covers it. Leave it out entirely and
+nothing changes.
 The controller is a refitted RHF controller (assembler, UHV: RHF controller + UHV hull + field generators + pumps
 under a coolant loop). What makes it its own machine is heat (`SanguiniteHearthMachine`):
 

@@ -2,10 +2,10 @@
 // Spec: docs/uhv-superconductor.md. Recipes: server_scripts/mods/gtceu/uhv_superconductor.js.
 // Controller behaviour + JEI page: AF9 Core (af9-core/, SanguiniteHearthMachine, SanguiniteHearthRecipeUI).
 //
-// A 1:1 copy of GT's Rotary Hearth Furnace (gtceu:mega_blast_furnace) with one decisive difference: it runs only
+// GT's Rotary Hearth Furnace (gtceu:mega_blast_furnace) rebuilt, with one decisive difference: it runs only
 // its own recipe type (gtceu:sanguinite_hearth), never the EBF family. The EBF cannot smelt sanguinite at all:
 // the molten print lives on the hearth's type and the material's auto EBF/hot-ingot recipes are removed. The
-// structure stays identical for now; the controller wears GT++ Volcanus' face (kubejs assets,
+// structure is the Rotary Hearth's, grown (below); the controller wears GT++ Volcanus' face (kubejs assets,
 // multiblock/sanguinite_hearth/overlay_front*, from tools/textures/gtpp_volcanus/); the new gameplay is thermal:
 //   - the hearth is a heat mass: it preheats toward its coils' maximum (coil temperature + 100 K per energy hatch
 //     tier above MV, the EBF's own display maths) over 300 seconds while switched on and powered (at least LuV),
@@ -45,10 +45,13 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         return lines
     }
 
-    // The Rotary Hearth Furnace's structure, unchanged (GT's mega_blast_furnace pattern: the default
-    // start() axes LEFT/UP/FRONT, so the 13 slices run to the controller's front like GT's): 13 slices
-    // front -> back, 17 rows bottom -> top, 13 columns. Slices mirror at the middle one (the 7th). The controller
-    // sits in the last slice's second row, like GT's.
+    // The Rotary Hearth Furnace's structure (GT's mega_blast_furnace pattern, the default start() axes LEFT/UP/FRONT,
+    // so the slices run to the controller's front like GT's), grown: the middle lines of every row and the middle
+    // slice are tripled (13 -> 15 wide and deep: a wider air chamber, thicker pipe pillars and decks), a robust plinth
+    // under the base, and the muffler on a three-high pipe stack. 15 slices front -> back, 21 rows bottom -> top, 15
+    // columns, plus 3 more columns for the optional substation on the controller's left (rows 1 and 2, 5 slices deep,
+    // 'Y' = casing, any hatch, or nothing; its door, 'D', the two columns of its front: casing or nothing, so no hatch
+    // is ever in front of it). The controller sits in the last slice's third row (the plinth is the first).
     event.create('sanguinite_hearth_furnace', 'multiblock')
         .machine(holder => new $SanguiniteHearthMachine(holder))
         .langValue('Sanguinite Hearth Furnace')
@@ -61,64 +64,12 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING)
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.sanguinite_hearth_furnace.tooltip', 9))
-        .pattern(definition => FactoryBlockPattern.start()
-            .aisle('##XXXXXXXXX##', '##XXXXXXXXX##', '#############', '#############', '#############',
-                '#############', '#############', '#############', '#############', '#############',
-                '#############', '#############', '#############', '#############', '#############',
-                '#############', '#############')
-            .aisle('#XXXXXXXXXXX#', '#XXXXXXXXXXX#', '###F#####F###', '###F#####F###', '###FFFFFFF###',
-                '#############', '#############', '#############', '#############', '#############',
-                '####FFFFF####', '#############', '#############', '#############', '#############',
-                '#############', '#############')
-            .aisle('XXXXXXXXXXXXX', 'XXXXVVVVVXXXX', '##F#######F##', '##F#######F##', '##FFFHHHFFF##',
-                '##F#######F##', '##F#######F##', '##F#######F##', '##F#######F##', '##F#######F##',
-                '##FFFHHHFFF##', '#############', '#############', '#############', '#############',
-                '#############', '###TTTTTTT###')
-            .aisle('XXXXXXXXXXXXX', 'XXXXXXXXXXXXX', '#F####P####F#', '#F####P####F#', '#FFHHHPHHHFF#',
-                '######P######', '######P######', '######P######', '######P######', '######P######',
-                '##FHHHPHHHF##', '######P######', '######P######', '######P######', '######P######',
-                '######P######', '##TTTTPTTTT##')
-            .aisle('XXXXXXXXXXXXX', 'XXVXXXXXXXVXX', '####BBPBB####', '####TITIT####', '#FFHHHHHHHFF#',
-                '####BITIB####', '####CCCCC####', '####CCCCC####', '####CCCCC####', '####BITIB####',
-                '#FFHHHHHHHFF#', '####BITIB####', '####CCCCC####', '####CCCCC####', '####CCCCC####',
-                '####BITIB####', '##TTTTPTTTT##')
-            .aisle('XXXXXXXXXXXXX', 'XXVXXXXXXXVXX', '####BAAAB####', '####IAAAI####', '#FHHHAAAHHHF#',
-                '####IAAAI####', '####CAAAC####', '####CAAAC####', '####CAAAC####', '####IAAAI####',
-                '#FHHHAAAHHHF#', '####IAAAI####', '####CAAAC####', '####CAAAC####', '####CAAAC####',
-                '####IAAAI####', '##TTTTPTTTT##')
-            .aisle('XXXXXXXXXXXXX', 'XXVXXXXXXXVXX', '###PPAAAPP###', '###PTAAATP###', '#FHPHAAAHPHF#',
-                '###PTAAATP###', '###PCAAACP###', '###PCAAACP###', '###PCAAACP###', '###PTAAATP###',
-                '#FHPHAAAHPHF#', '###PTAAATP###', '###PCAAACP###', '###PCAAACP###', '###PCAAACP###',
-                '###PTAAATP###', '##TPPPMPPPT##')
-            .aisle('XXXXXXXXXXXXX', 'XXVXXXXXXXVXX', '####BAAAB####', '####IAAAI####', '#FHHHAAAHHHF#',
-                '####IAAAI####', '####CAAAC####', '####CAAAC####', '####CAAAC####', '####IAAAI####',
-                '#FHHHAAAHHHF#', '####IAAAI####', '####CAAAC####', '####CAAAC####', '####CAAAC####',
-                '####IAAAI####', '##TTTTPTTTT##')
-            .aisle('XXXXXXXXXXXXX', 'XXVXXXXXXXVXX', '####BBPBB####', '####TITIT####', '#FFHHHHHHHFF#',
-                '####BITIB####', '####CCCCC####', '####CCCCC####', '####CCCCC####', '####BITIB####',
-                '#FFHHHHHHHFF#', '####BITIB####', '####CCCCC####', '####CCCCC####', '####CCCCC####',
-                '####BITIB####', '##TTTTPTTTT##')
-            .aisle('XXXXXXXXXXXXX', 'XXXXXXXXXXXXX', '#F####P####F#', '#F####P####F#', '#FFHHHPHHHFF#',
-                '######P######', '######P######', '######P######', '######P######', '######P######',
-                '##FHHHPHHHF##', '######P######', '######P######', '######P######', '######P######',
-                '######P######', '##TTTTPTTTT##')
-            .aisle('XXXXXXXXXXXXX', 'XXXXVVVVVXXXX', '##F#######F##', '##F#######F##', '##FFFHHHFFF##',
-                '##F#######F##', '##F#######F##', '##F#######F##', '##F#######F##', '##F#######F##',
-                '##FFFHHHFFF##', '#############', '#############', '#############', '#############',
-                '#############', '###TTTTTTT###')
-            .aisle('#XXXXXXXXXXX#', '#XXXXXXXXXXX#', '###F#####F###', '###F#####F###', '###FFFFFFF###',
-                '#############', '#############', '#############', '#############', '#############',
-                '####FFFFF####', '#############', '#############', '#############', '#############',
-                '#############', '#############')
-            .aisle('##XXXXXXXXX##', '##XXXXSXXXX##', '#############', '#############', '#############',
-                '#############', '#############', '#############', '#############', '#############',
-                '#############', '#############', '#############', '#############', '#############',
-                '#############', '#############')
-            .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+        .pattern(definition => {
             // hatches and buses go on any high-temperature smelting casing (maximums only, the AF9 convention;
             // GT's 360-casing minimum is dropped). Coolant (supercooled only) goes through Coolant Hatches;
-            // helium through normal fluid hatches.
-            .where('X', Predicates.blocks($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING.get())
+            // helium through normal fluid hatches. The same parts (so the same maximums) go in the optional
+            // substation, whose blocks may also simply be left out.
+            const parts = Predicates.blocks($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING.get())
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2))
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(4, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
@@ -126,7 +77,87 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities($HearthCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
+            return FactoryBlockPattern.start()
+            .aisle('##TTTTTTTTTTT#####', '##XXXXXXXXXXX#####', '##XXXXXXXXXXX#####', '##################', '##################',
+                       '##################', '##################', '##################', '##################', '##################',
+                       '##################', '##################', '##################', '##################', '##################',
+                       '##################', '##################', '##################', '##################', '##################',
+                       '##################')
+            .aisle('#TTTTTTTTTTTTT####', '#XXXXXXXXXXXXX####', '#XXXXXXXXXXXXX####', '###F#######F######', '###F#######F######',
+                       '###FFFFFFFFF######', '##################', '##################', '##################', '##################',
+                       '##################', '####FFFFFFF#######', '##################', '##################', '##################',
+                       '##################', '##################', '##################', '##################', '##################',
+                       '##################')
+            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXXXVVVVVVVXXXX###', '##F#########F#####', '##F#########F#####',
+                       '##FFFHHHHHFFF#####', '##F#########F#####', '##F#########F#####', '##F#########F#####', '##F#########F#####',
+                       '##F#########F#####', '##FFFHHHHHFFF#####', '##################', '##################', '##################',
+                       '##################', '##################', '###TTTTTTTTT######', '##################', '##################',
+                       '##################')
+            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXXXXXXXXXXXXXX###', '#F####PPP####F####', '#F####PPP####F####',
+                       '#FFHHHPPPHHHFF####', '######PPP#########', '######PPP#########', '######PPP#########', '######PPP#########',
+                       '######PPP#########', '##FHHHPPPHHHF#####', '######PPP#########', '######PPP#########', '######PPP#########',
+                       '######PPP#########', '######PPP#########', '##TTTTPPPTTTT#####', '##################', '##################',
+                       '##################')
+            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXXYYY', 'XXVXXXXXXXXXVXXYYY', '####BBPPPBB#######', '####TITTTIT#######',
+                       '#FFHHHHHHHHHFF####', '####BITTTIB#######', '####CCCCCCC#######', '####CCCCCCC#######', '####CCCCCCC#######',
+                       '####BITTTIB#######', '#FFHHHHHHHHHFF####', '####BITTTIB#######', '####CCCCCCC#######', '####CCCCCCC#######',
+                       '####CCCCCCC#######', '####BITTTIB#######', '##TTTTPPPTTTT#####', '##################', '##################',
+                       '##################')
+            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXXYYY', 'XXVXXXXXXXXXVXXYYY', '####BAAAAAB#######', '####IAAAAAI#######',
+                       '#FHHHAAAAAHHHF####', '####IAAAAAI#######', '####CAAAAAC#######', '####CAAAAAC#######', '####CAAAAAC#######',
+                       '####IAAAAAI#######', '#FHHHAAAAAHHHF####', '####IAAAAAI#######', '####CAAAAAC#######', '####CAAAAAC#######',
+                       '####CAAAAAC#######', '####IAAAAAI#######', '##TTTTPPPTTTT#####', '##################', '##################',
+                       '##################')
+            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXXYYY', 'XXVXXXXXXXXXVXXYYY', '###PPAAAAAPP######', '###PTAAAAATP######',
+                       '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######', '###PCAAAAACP######',
+                       '###PTAAAAATP######', '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######',
+                       '###PCAAAAACP######', '###PTAAAAATP######', '##TPPPPPPPPPT#####', '##################', '##################',
+                       '##################')
+            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXXYYY', 'XXVXXXXXXXXXVXXYYY', '###PPAAAAAPP######', '###PTAAAAATP######',
+                       '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######', '###PCAAAAACP######',
+                       '###PTAAAAATP######', '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######',
+                       '###PCAAAAACP######', '###PTAAAAATP######', '##TPPPPPPPPPT#####', '#######P##########', '#######P##########',
+                       '#######M##########')
+            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXXDDY', 'XXVXXXXXXXXXVXXDDY', '###PPAAAAAPP######', '###PTAAAAATP######',
+                       '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######', '###PCAAAAACP######',
+                       '###PTAAAAATP######', '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######',
+                       '###PCAAAAACP######', '###PTAAAAATP######', '##TPPPPPPPPPT#####', '##################', '##################',
+                       '##################')
+            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXVXXXXXXXXXVXX###', '####BAAAAAB#######', '####IAAAAAI#######',
+                       '#FHHHAAAAAHHHF####', '####IAAAAAI#######', '####CAAAAAC#######', '####CAAAAAC#######', '####CAAAAAC#######',
+                       '####IAAAAAI#######', '#FHHHAAAAAHHHF####', '####IAAAAAI#######', '####CAAAAAC#######', '####CAAAAAC#######',
+                       '####CAAAAAC#######', '####IAAAAAI#######', '##TTTTPPPTTTT#####', '##################', '##################',
+                       '##################')
+            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXVXXXXXXXXXVXX###', '####BBPPPBB#######', '####TITTTIT#######',
+                       '#FFHHHHHHHHHFF####', '####BITTTIB#######', '####CCCCCCC#######', '####CCCCCCC#######', '####CCCCCCC#######',
+                       '####BITTTIB#######', '#FFHHHHHHHHHFF####', '####BITTTIB#######', '####CCCCCCC#######', '####CCCCCCC#######',
+                       '####CCCCCCC#######', '####BITTTIB#######', '##TTTTPPPTTTT#####', '##################', '##################',
+                       '##################')
+            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXXXXXXXXXXXXXX###', '#F####PPP####F####', '#F####PPP####F####',
+                       '#FFHHHPPPHHHFF####', '######PPP#########', '######PPP#########', '######PPP#########', '######PPP#########',
+                       '######PPP#########', '##FHHHPPPHHHF#####', '######PPP#########', '######PPP#########', '######PPP#########',
+                       '######PPP#########', '######PPP#########', '##TTTTPPPTTTT#####', '##################', '##################',
+                       '##################')
+            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXXXVVVVVVVXXXX###', '##F#########F#####', '##F#########F#####',
+                       '##FFFHHHHHFFF#####', '##F#########F#####', '##F#########F#####', '##F#########F#####', '##F#########F#####',
+                       '##F#########F#####', '##FFFHHHHHFFF#####', '##################', '##################', '##################',
+                       '##################', '##################', '###TTTTTTTTT######', '##################', '##################',
+                       '##################')
+            .aisle('#TTTTTTTTTTTTT####', '#XXXXXXXXXXXXX####', '#XXXXXXXXXXXXX####', '###F#######F######', '###F#######F######',
+                       '###FFFFFFFFF######', '##################', '##################', '##################', '##################',
+                       '##################', '####FFFFFFF#######', '##################', '##################', '##################',
+                       '##################', '##################', '##################', '##################', '##################',
+                       '##################')
+            .aisle('##TTTTTTTTTTT#####', '##XXXXXXXXXXX#####', '##XXXXXSXXXXX#####', '##################', '##################',
+                       '##################', '##################', '##################', '##################', '##################',
+                       '##################', '##################', '##################', '##################', '##################',
+                       '##################', '##################', '##################', '##################', '##################',
+                       '##################')
+            .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+            .where('X', parts)
+            .where('Y', parts.or(Predicates.air()))
+            .where('D', Predicates.blocks($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING.get()).or(Predicates.air()))
             .where('C', Predicates.heatingCoils())
             .where('M', Predicates.abilities(PartAbility.MUFFLER))
             .where('F', Predicates.blocks('gtceu:naquadah_alloy_frame'))
@@ -138,7 +169,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('V', Predicates.blocks('gtceu:heat_vent'))
             .where('A', Predicates.air())
             .where('#', Predicates.any())
-            .build())
+            .build()
+        })
         .workableCasingModel('gtceu:block/casings/gcym/high_temperature_smelting_casing',
             'gtceu:block/multiblock/sanguinite_hearth')
 })
