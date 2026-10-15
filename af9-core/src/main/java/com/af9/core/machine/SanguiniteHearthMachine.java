@@ -107,6 +107,36 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
     // ************ Heat *************//
     //////////////////////////////////////
 
+    private String lastPatternError = "";
+
+    /** Diagnostic: says in the log which block the pattern check rejects (once per change), until the hearth forms. */
+    @Override
+    public void asyncCheckPattern(long periodID) {
+        super.asyncCheckPattern(periodID);
+        if (isFormed()) {
+            lastPatternError = "";
+            return;
+        }
+        var state = getMultiblockState();
+        var error = state.error;
+        if (error == null || error == state.UNLOAD_ERROR || error == state.UNINIT_ERROR) return;
+        BlockPos at = error.getPos();
+        String text;
+        try {
+            var level = getLevel();
+            String found = at != null && level != null ? level.getBlockState(at).getBlock().getDescriptionId() : "?";
+            String rel = at == null ? "?" : (at.getX() - getPos().getX()) + "," + (at.getY() - getPos().getY()) + "," +
+                    (at.getZ() - getPos().getZ());
+            text = error.getClass().getSimpleName() + " at " + at + " (offset " + rel + " from the controller, facing " +
+                    getFrontFacing() + "/up " + getUpwardsFacing() + ") found " + found + ": " + error.getErrorInfo().getString();
+        } catch (RuntimeException e) {
+            text = error.getClass().getSimpleName() + " at " + at;
+        }
+        if (!text.equals(lastPatternError)) {
+            lastPatternError = text;
+            com.af9.core.AF9Core.LOGGER.warn("Sanguinite Hearth at {}: pattern rejected: {}", getPos(), text);
+        }
+    }
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
