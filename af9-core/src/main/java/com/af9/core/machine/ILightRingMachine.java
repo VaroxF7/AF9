@@ -58,4 +58,14 @@ public interface ILightRingMachine extends IMachineFeature {
     default float ringSpin() {
         return 0F;
     }
+
+    /**
+     * How far behind the controller the ring's centre lies: the model's by default. The Orbital Array Mk2 has a taller
+     * hub, so its ring sits further below the controller.
+     *
+     * @param modelBack the distance the model was built with
+     */
+    default float ringBack(float modelBack) {
+        return modelBack;
+    }
 }

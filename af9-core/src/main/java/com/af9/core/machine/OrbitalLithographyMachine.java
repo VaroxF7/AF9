@@ -126,6 +126,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * distance and tube stay the same. It turns like a station's wheel: {@link #RING_SPIN_MK2} radians a tick.
      */
     public static final float RING_RADIUS_MK2 = 27.2F, RING_SPIN_MK2 = 0.02F;
+    /** The Mk2's hub is twice the size: its controller sits 6 levels above the beams' (3 on the basic station). */
+    public static final float RING_BACK_MK2 = 6F;
     /** Distance from the ring's core line within which it burns: the tube and its hottest glow. */
     public static final double RING_BURN = RING_THICKNESS * 2.5;
     /** Damage of the ring: nothing survives it (totems aside). */
@@ -134,11 +136,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public static final int HALF_WIDTH = 12;
     public static final int DEPTH = 17;
     /**
-     * The Mk2 extended array's extent: 34 to each side, 17 + 12 behind (a 69x69 platform and its undulator
-     * spire 12 blocks longer than the basic station's mast: startup_scripts/gtceu/photolithography.js ORBITAL_SPIRE).
+     * The Mk2 extended array's extent: 34 to each side, 48 + 5 behind (a 69x69 platform with a hub twice the basic station's size and its undulator
+     * spire 14 blocks below the scaled mast: startup_scripts/gtceu/photolithography.js ORBITAL_SPIRE).
      */
     public static final int HALF_WIDTH_MK2 = 34;
-    public static final int DEPTH_MK2 = 17 + 12;
+    public static final int DEPTH_MK2 = 48 + 5;
     /** Recipe data key of the coolant a run uses (the coolant's id). */
     public static final String COOLANT_TAG = "af9_coolant";
 
@@ -547,6 +549,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     }
 
     @Override
+    public float ringBack(float modelBack) {
+        return extended ? RING_BACK_MK2 : modelBack;
+    }
+
+    @Override
     public float ringSpin() {
         return extended ? RING_SPIN_MK2 : 0F;
     }
@@ -950,9 +957,9 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         Direction up = RelativeDirection.UP.getRelative(front, getUpwardsFacing(), isFlipped());
         Direction back = RelativeDirection.BACK.getRelative(front, getUpwardsFacing(), isFlipped());
         return Vec3.atCenterOf(getPos()).add(
-                up.getStepX() * RING_UP + back.getStepX() * RING_BACK,
-                up.getStepY() * RING_UP + back.getStepY() * RING_BACK,
-                up.getStepZ() * RING_UP + back.getStepZ() * RING_BACK);
+                up.getStepX() * RING_UP + back.getStepX() * ringBack(RING_BACK),
+                up.getStepY() * RING_UP + back.getStepY() * ringBack(RING_BACK),
+                up.getStepZ() * RING_UP + back.getStepZ() * ringBack(RING_BACK));
     }
 
     /** The lit ring burns every living thing touching it (players in creative or spectator mode aside). */
