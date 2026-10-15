@@ -48,10 +48,13 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // The Rotary Hearth Furnace's structure (GT's mega_blast_furnace pattern, the default start() axes LEFT/UP/FRONT,
     // so the slices run to the controller's front like GT's), grown: the middle lines of every row and the middle
     // slice are tripled (13 -> 15 wide and deep: a wider air chamber, thicker pipe pillars and decks), a robust plinth
-    // under the base, and the muffler on a three-high pipe stack. 15 slices front -> back, 21 rows bottom -> top, 15
-    // columns, plus 3 more columns for the optional substation on the controller's left (rows 1 and 2, 5 slices deep,
-    // 'Y' = casing, any hatch, or nothing; its door, 'D', the two columns of its front: casing or nothing, so no hatch
-    // is ever in front of it). The controller sits in the last slice's third row (the plinth is the first).
+    // under the base, and the muffler on a three-high pipe stack, in a brutalist dress: gearboxes ('G') where the
+    // firebox was, stress-proof piers ('Z') for the thin frame uprights, a casing block round the stack's foot.
+    // 15 slices front -> back, 21 rows bottom -> top, 15 columns, then one 'any' column (the gap) and 3 more columns
+    // for the optional Verteilerhaus on the controller's left (rows 1 and 2, 5 slices deep, 'Y' = casing, any hatch,
+    // or nothing; its door, 'D', the two columns of its front: casing or nothing, so no hatch is ever in front of it).
+    // Built whole it gives the hearth a bonus (SanguiniteHearthMachine.hasVerteilerhaus); the main structure takes
+    // every hatch on its own. The controller sits in the last slice's third row (the plinth is the first).
     event.create('sanguinite_hearth_furnace', 'multiblock')
         .machine(holder => new $SanguiniteHearthMachine(holder))
         .langValue('Sanguinite Hearth Furnace')
@@ -63,12 +66,12 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeModifiers([$SanguiniteHearthMachine.HEARTH_GATE, GTRecipeModifiers.PARALLEL_HATCH,
             GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING)
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.sanguinite_hearth_furnace.tooltip', 9))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.sanguinite_hearth_furnace.tooltip', 10))
         .pattern(definition => {
             // hatches and buses go on any high-temperature smelting casing (maximums only, the AF9 convention;
             // GT's 360-casing minimum is dropped). Coolant (supercooled only) goes through Coolant Hatches;
             // helium through normal fluid hatches. The same parts (so the same maximums) go in the optional
-            // substation, whose blocks may also simply be left out.
+            // Verteilerhaus, whose blocks may also simply be left out.
             const parts = Predicates.blocks($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING.get())
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2))
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(4, 1))
@@ -79,81 +82,81 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
             return FactoryBlockPattern.start()
-            .aisle('##TTTTTTTTTTT#####', '##XXXXXXXXXXX#####', '##XXXXXXXXXXX#####', '##################', '##################',
-                       '##################', '##################', '##################', '##################', '##################',
-                       '##################', '##################', '##################', '##################', '##################',
-                       '##################', '##################', '##################', '##################', '##################',
-                       '##################')
-            .aisle('#TTTTTTTTTTTTT####', '#XXXXXXXXXXXXX####', '#XXXXXXXXXXXXX####', '###F#######F######', '###F#######F######',
-                       '###FFFFFFFFF######', '##################', '##################', '##################', '##################',
-                       '##################', '####FFFFFFF#######', '##################', '##################', '##################',
-                       '##################', '##################', '##################', '##################', '##################',
-                       '##################')
-            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXXXVVVVVVVXXXX###', '##F#########F#####', '##F#########F#####',
-                       '##FFFHHHHHFFF#####', '##F#########F#####', '##F#########F#####', '##F#########F#####', '##F#########F#####',
-                       '##F#########F#####', '##FFFHHHHHFFF#####', '##################', '##################', '##################',
-                       '##################', '##################', '###TTTTTTTTT######', '##################', '##################',
-                       '##################')
-            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXXXXXXXXXXXXXX###', '#F####PPP####F####', '#F####PPP####F####',
-                       '#FFHHHPPPHHHFF####', '######PPP#########', '######PPP#########', '######PPP#########', '######PPP#########',
-                       '######PPP#########', '##FHHHPPPHHHF#####', '######PPP#########', '######PPP#########', '######PPP#########',
-                       '######PPP#########', '######PPP#########', '##TTTTPPPTTTT#####', '##################', '##################',
-                       '##################')
-            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXXYYY', 'XXVXXXXXXXXXVXXYYY', '####BBPPPBB#######', '####TITTTIT#######',
-                       '#FFHHHHHHHHHFF####', '####BITTTIB#######', '####CCCCCCC#######', '####CCCCCCC#######', '####CCCCCCC#######',
-                       '####BITTTIB#######', '#FFHHHHHHHHHFF####', '####BITTTIB#######', '####CCCCCCC#######', '####CCCCCCC#######',
-                       '####CCCCCCC#######', '####BITTTIB#######', '##TTTTPPPTTTT#####', '##################', '##################',
-                       '##################')
-            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXXYYY', 'XXVXXXXXXXXXVXXYYY', '####BAAAAAB#######', '####IAAAAAI#######',
-                       '#FHHHAAAAAHHHF####', '####IAAAAAI#######', '####CAAAAAC#######', '####CAAAAAC#######', '####CAAAAAC#######',
-                       '####IAAAAAI#######', '#FHHHAAAAAHHHF####', '####IAAAAAI#######', '####CAAAAAC#######', '####CAAAAAC#######',
-                       '####CAAAAAC#######', '####IAAAAAI#######', '##TTTTPPPTTTT#####', '##################', '##################',
-                       '##################')
-            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXXYYY', 'XXVXXXXXXXXXVXXYYY', '###PPAAAAAPP######', '###PTAAAAATP######',
-                       '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######', '###PCAAAAACP######',
-                       '###PTAAAAATP######', '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######',
-                       '###PCAAAAACP######', '###PTAAAAATP######', '##TPPPPPPPPPT#####', '##################', '##################',
-                       '##################')
-            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXXYYY', 'XXVXXXXXXXXXVXXYYY', '###PPAAAAAPP######', '###PTAAAAATP######',
-                       '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######', '###PCAAAAACP######',
-                       '###PTAAAAATP######', '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######',
-                       '###PCAAAAACP######', '###PTAAAAATP######', '##TPPPPPPPPPT#####', '#######P##########', '#######P##########',
-                       '#######M##########')
-            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXXDDY', 'XXVXXXXXXXXXVXXDDY', '###PPAAAAAPP######', '###PTAAAAATP######',
-                       '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######', '###PCAAAAACP######',
-                       '###PTAAAAATP######', '#FHPHAAAAAHPHF####', '###PTAAAAATP######', '###PCAAAAACP######', '###PCAAAAACP######',
-                       '###PCAAAAACP######', '###PTAAAAATP######', '##TPPPPPPPPPT#####', '##################', '##################',
-                       '##################')
-            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXVXXXXXXXXXVXX###', '####BAAAAAB#######', '####IAAAAAI#######',
-                       '#FHHHAAAAAHHHF####', '####IAAAAAI#######', '####CAAAAAC#######', '####CAAAAAC#######', '####CAAAAAC#######',
-                       '####IAAAAAI#######', '#FHHHAAAAAHHHF####', '####IAAAAAI#######', '####CAAAAAC#######', '####CAAAAAC#######',
-                       '####CAAAAAC#######', '####IAAAAAI#######', '##TTTTPPPTTTT#####', '##################', '##################',
-                       '##################')
-            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXVXXXXXXXXXVXX###', '####BBPPPBB#######', '####TITTTIT#######',
-                       '#FFHHHHHHHHHFF####', '####BITTTIB#######', '####CCCCCCC#######', '####CCCCCCC#######', '####CCCCCCC#######',
-                       '####BITTTIB#######', '#FFHHHHHHHHHFF####', '####BITTTIB#######', '####CCCCCCC#######', '####CCCCCCC#######',
-                       '####CCCCCCC#######', '####BITTTIB#######', '##TTTTPPPTTTT#####', '##################', '##################',
-                       '##################')
-            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXXXXXXXXXXXXXX###', '#F####PPP####F####', '#F####PPP####F####',
-                       '#FFHHHPPPHHHFF####', '######PPP#########', '######PPP#########', '######PPP#########', '######PPP#########',
-                       '######PPP#########', '##FHHHPPPHHHF#####', '######PPP#########', '######PPP#########', '######PPP#########',
-                       '######PPP#########', '######PPP#########', '##TTTTPPPTTTT#####', '##################', '##################',
-                       '##################')
-            .aisle('TTTTTTTTTTTTTTT###', 'XXXXXXXXXXXXXXX###', 'XXXXVVVVVVVXXXX###', '##F#########F#####', '##F#########F#####',
-                       '##FFFHHHHHFFF#####', '##F#########F#####', '##F#########F#####', '##F#########F#####', '##F#########F#####',
-                       '##F#########F#####', '##FFFHHHHHFFF#####', '##################', '##################', '##################',
-                       '##################', '##################', '###TTTTTTTTT######', '##################', '##################',
-                       '##################')
-            .aisle('#TTTTTTTTTTTTT####', '#XXXXXXXXXXXXX####', '#XXXXXXXXXXXXX####', '###F#######F######', '###F#######F######',
-                       '###FFFFFFFFF######', '##################', '##################', '##################', '##################',
-                       '##################', '####FFFFFFF#######', '##################', '##################', '##################',
-                       '##################', '##################', '##################', '##################', '##################',
-                       '##################')
-            .aisle('##TTTTTTTTTTT#####', '##XXXXXXXXXXX#####', '##XXXXXSXXXXX#####', '##################', '##################',
-                       '##################', '##################', '##################', '##################', '##################',
-                       '##################', '##################', '##################', '##################', '##################',
-                       '##################', '##################', '##################', '##################', '##################',
-                       '##################')
+            .aisle('##TTTTTTTTTTT######', '##XXXXXXXXXXX######', '##XXXXXXXXXXX######', '###################', '###################',
+                       '###################', '###################', '###################', '###################', '###################',
+                       '###################', '###################', '###################', '###################', '###################',
+                       '###################', '###################', '###################', '###################', '###################',
+                       '###################')
+            .aisle('#TTTTTTTTTTTTT#####', '#XXXXXXXXXXXXX#####', '#XXXXXXXXXXXXX#####', '###Z#######Z#######', '###Z#######Z#######',
+                       '###FFFFFFFFF#######', '###################', '###################', '###################', '###################',
+                       '###################', '####FFFFFFF########', '###################', '###################', '###################',
+                       '###################', '###################', '###################', '###################', '###################',
+                       '###################')
+            .aisle('TTTTTTTTTTTTTTT####', 'XXXXXXXXXXXXXXX####', 'XXXXVVVVVVVXXXX####', '##Z#########Z######', '##Z#########Z######',
+                       '##FFFHHHHHFFF######', '##Z#########Z######', '##Z#########Z######', '##Z#########Z######', '##Z#########Z######',
+                       '##Z#########Z######', '##FFFHHHHHFFF######', '###################', '###################', '###################',
+                       '###################', '###################', '###TTTTTTTTT#######', '###################', '###################',
+                       '###################')
+            .aisle('TTTTTTTTTTTTTTT####', 'XXXXXXXXXXXXXXX####', 'XXXXXXXXXXXXXXX####', '#Z####PPP####Z#####', '#Z####PPP####Z#####',
+                       '#FFHHHPPPHHHFF#####', '######PPP##########', '######PPP##########', '######PPP##########', '######PPP##########',
+                       '######PPP##########', '##FHHHPPPHHHF######', '######PPP##########', '######PPP##########', '######PPP##########',
+                       '######PPP##########', '######PPP##########', '##TTTTPPPTTTT######', '###################', '###################',
+                       '###################')
+            .aisle('TTTTTTTTTTTTTTT####', 'XXXXXXXXXXXXXXX#YYY', 'XXVXXXXXXXXXVXX#YYY', '####GGPPPGG########', '####TITTTIT########',
+                       '#FFHHHHHHHHHFF#####', '####GITTTIG########', '####CCCCCCC########', '####CCCCCCC########', '####CCCCCCC########',
+                       '####GITTTIG########', '#FFHHHHHHHHHFF#####', '####GITTTIG########', '####CCCCCCC########', '####CCCCCCC########',
+                       '####CCCCCCC########', '####GITTTIG########', '##TTTTPPPTTTT######', '###################', '###################',
+                       '###################')
+            .aisle('TTTTTTTTTTTTTTT####', 'XXXXXXXXXXXXXXX#YYY', 'XXVXXXXXXXXXVXX#YYY', '####GAAAAAG########', '####IAAAAAI########',
+                       '#FHHHAAAAAHHHF#####', '####IAAAAAI########', '####CAAAAAC########', '####CAAAAAC########', '####CAAAAAC########',
+                       '####IAAAAAI########', '#FHHHAAAAAHHHF#####', '####IAAAAAI########', '####CAAAAAC########', '####CAAAAAC########',
+                       '####CAAAAAC########', '####IAAAAAI########', '##TTTTPPPTTTT######', '###################', '###################',
+                       '###################')
+            .aisle('TTTTTTTTTTTTTTT####', 'XXXXXXXXXXXXXXX#YYY', 'XXVXXXXXXXXXVXX#YYY', '###PPAAAAAPP#######', '###PTAAAAATP#######',
+                       '#FHPHAAAAAHPHF#####', '###PTAAAAATP#######', '###PCAAAAACP#######', '###PCAAAAACP#######', '###PCAAAAACP#######',
+                       '###PTAAAAATP#######', '#FHPHAAAAAHPHF#####', '###PTAAAAATP#######', '###PCAAAAACP#######', '###PCAAAAACP#######',
+                       '###PCAAAAACP#######', '###PTAAAAATP#######', '##TPPPPPPPPPT######', '######TTT##########', '###################',
+                       '###################')
+            .aisle('TTTTTTTTTTTTTTT####', 'XXXXXXXXXXXXXXX#YYY', 'XXVXXXXXXXXXVXX#YYY', '###PPAAAAAPP#######', '###PTAAAAATP#######',
+                       '#FHPHAAAAAHPHF#####', '###PTAAAAATP#######', '###PCAAAAACP#######', '###PCAAAAACP#######', '###PCAAAAACP#######',
+                       '###PTAAAAATP#######', '#FHPHAAAAAHPHF#####', '###PTAAAAATP#######', '###PCAAAAACP#######', '###PCAAAAACP#######',
+                       '###PCAAAAACP#######', '###PTAAAAATP#######', '##TPPPPPPPPPT######', '######TPT##########', '#######P###########',
+                       '#######M###########')
+            .aisle('TTTTTTTTTTTTTTT####', 'XXXXXXXXXXXXXXX#DDY', 'XXVXXXXXXXXXVXX#DDY', '###PPAAAAAPP#######', '###PTAAAAATP#######',
+                       '#FHPHAAAAAHPHF#####', '###PTAAAAATP#######', '###PCAAAAACP#######', '###PCAAAAACP#######', '###PCAAAAACP#######',
+                       '###PTAAAAATP#######', '#FHPHAAAAAHPHF#####', '###PTAAAAATP#######', '###PCAAAAACP#######', '###PCAAAAACP#######',
+                       '###PCAAAAACP#######', '###PTAAAAATP#######', '##TPPPPPPPPPT######', '######TTT##########', '###################',
+                       '###################')
+            .aisle('TTTTTTTTTTTTTTT####', 'XXXXXXXXXXXXXXX####', 'XXVXXXXXXXXXVXX####', '####GAAAAAG########', '####IAAAAAI########',
+                       '#FHHHAAAAAHHHF#####', '####IAAAAAI########', '####CAAAAAC########', '####CAAAAAC########', '####CAAAAAC########',
+                       '####IAAAAAI########', '#FHHHAAAAAHHHF#####', '####IAAAAAI########', '####CAAAAAC########', '####CAAAAAC########',
+                       '####CAAAAAC########', '####IAAAAAI########', '##TTTTPPPTTTT######', '###################', '###################',
+                       '###################')
+            .aisle('TTTTTTTTTTTTTTT####', 'XXXXXXXXXXXXXXX####', 'XXVXXXXXXXXXVXX####', '####GGPPPGG########', '####TITTTIT########',
+                       '#FFHHHHHHHHHFF#####', '####GITTTIG########', '####CCCCCCC########', '####CCCCCCC########', '####CCCCCCC########',
+                       '####GITTTIG########', '#FFHHHHHHHHHFF#####', '####GITTTIG########', '####CCCCCCC########', '####CCCCCCC########',
+                       '####CCCCCCC########', '####GITTTIG########', '##TTTTPPPTTTT######', '###################', '###################',
+                       '###################')
+            .aisle('TTTTTTTTTTTTTTT####', 'XXXXXXXXXXXXXXX####', 'XXXXXXXXXXXXXXX####', '#Z####PPP####Z#####', '#Z####PPP####Z#####',
+                       '#FFHHHPPPHHHFF#####', '######PPP##########', '######PPP##########', '######PPP##########', '######PPP##########',
+                       '######PPP##########', '##FHHHPPPHHHF######', '######PPP##########', '######PPP##########', '######PPP##########',
+                       '######PPP##########', '######PPP##########', '##TTTTPPPTTTT######', '###################', '###################',
+                       '###################')
+            .aisle('TTTTTTTTTTTTTTT####', 'XXXXXXXXXXXXXXX####', 'XXXXVVVVVVVXXXX####', '##Z#########Z######', '##Z#########Z######',
+                       '##FFFHHHHHFFF######', '##Z#########Z######', '##Z#########Z######', '##Z#########Z######', '##Z#########Z######',
+                       '##Z#########Z######', '##FFFHHHHHFFF######', '###################', '###################', '###################',
+                       '###################', '###################', '###TTTTTTTTT#######', '###################', '###################',
+                       '###################')
+            .aisle('#TTTTTTTTTTTTT#####', '#XXXXXXXXXXXXX#####', '#XXXXXXXXXXXXX#####', '###Z#######Z#######', '###Z#######Z#######',
+                       '###FFFFFFFFF#######', '###################', '###################', '###################', '###################',
+                       '###################', '####FFFFFFF########', '###################', '###################', '###################',
+                       '###################', '###################', '###################', '###################', '###################',
+                       '###################')
+            .aisle('##TTTTTTTTTTT######', '##XXXXXXXXXXX######', '##XXXXXSXXXXX######', '###################', '###################',
+                       '###################', '###################', '###################', '###################', '###################',
+                       '###################', '###################', '###################', '###################', '###################',
+                       '###################', '###################', '###################', '###################', '###################',
+                       '###################')
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             .where('X', parts)
             .where('Y', parts.or(Predicates.air()))
@@ -163,7 +166,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('F', Predicates.blocks('gtceu:naquadah_alloy_frame'))
             .where('H', Predicates.blocks($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING.get()))
             .where('T', Predicates.blocks('gtceu:robust_machine_casing'))
-            .where('B', Predicates.blocks(GTBlocks.FIREBOX_TUNGSTENSTEEL.get()))
+            .where('G', Predicates.blocks('gtceu:tungstensteel_gearbox'))
+            .where('Z', Predicates.blocks('gtceu:stress_proof_casing'))
             .where('P', Predicates.blocks('gtceu:tungstensteel_pipe_casing'))
             .where('I', Predicates.blocks('gtceu:extreme_engine_intake_casing'))
             .where('V', Predicates.blocks('gtceu:heat_vent'))

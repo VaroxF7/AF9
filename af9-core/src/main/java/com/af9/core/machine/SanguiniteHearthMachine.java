@@ -5,6 +5,7 @@ import com.af9.core.machine.console.ConsoleWidget;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
+import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
@@ -13,6 +14,9 @@ import com.gregtechceu.gtceu.utils.GTUtil;
 
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 
 /**
  * Controller logic of the Sanguinite Hearth Furnace (structure and recipe type in
@@ -61,6 +65,14 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
         return ModifierFunction.IDENTITY;
     };
 
+    /** Verteilerhaus bonus: the preheat climbs this many times faster, the readiness heaters draw this much less. */
+    public static final int VERTEILER_PREHEAT_FACTOR = 2;
+    public static final long VERTEILER_DRAIN_PERCENT = 75;
+    /** How often the Verteilerhaus is looked for (ticks). It stands at pattern columns 16-18 (9-11 to the controller's left), rows 1-2 (1 below to level), slices 4-8 (6-10 behind). */
+    private static final int VERTEILER_CHECK = 100;
+
+    private boolean verteilerBuilt;
+
     /** Hearth heat, K. */
     @Persisted
     private int hearthHeat = AMBIENT_K;
@@ -88,6 +100,7 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
+        verteilerBuilt = checkVerteilerhaus();
         heatSubs = subscribeServerTick(heatSubs, this::tickHeat);
     }
 
@@ -96,6 +109,7 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
         super.onStructureInvalid();
         unsubscribeHeat();
         hearthHeat = AMBIENT_K;
+        verteilerBuilt = false;
         markDirty();
     }
 
@@ -114,6 +128,7 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
 
     private void tickHeat() {
         if (getOffsetTimer() % HEAT_INTERVAL != 0 || !isFormed()) return;
+        if (getOffsetTimer() % VERTEILER_CHECK == 0) verteilerBuilt = checkVerteilerhaus();
         int before = hearthHeat;
         int max = getMaxHeat();
         boolean working = getRecipeLogic().isWorking();
@@ -127,11 +142,37 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
             if (auxiliary) drawAuxiliary(drain);
             else energyContainer.removeEnergy(drain);
             // a running print holds at least its heat; an idle hearth climbs toward the coils' maximum
-            hearthHeat = Math.min(max, hearthHeat + Math.max(1, max * HEAT_INTERVAL / (20 * PREHEAT_SECONDS)));
+            hearthHeat = Math.min(max, hearthHeat + Math.max(1, max * HEAT_INTERVAL * (verteilerBuilt ? VERTEILER_PREHEAT_FACTOR : 1) /
+                    (20 * PREHEAT_SECONDS)));
         } else {
             hearthHeat = Math.max(AMBIENT_K, hearthHeat - Math.max(1, max * HEAT_INTERVAL / (20 * COOL_SECONDS)));
         }
         if (hearthHeat != before) markDirty();
+    }
+
+    /** The optional Verteilerhaus (one block apart on the controller's left) is fully built: no gap in its 3x5x2 blocks. */
+    public boolean hasVerteilerhaus() {
+        return isFormed() && verteilerBuilt;
+    }
+
+    private boolean checkVerteilerhaus() {
+        if (getLevel() == null) return false;
+        Direction front = getFrontFacing(), up = getUpwardsFacing();
+        Direction right = RelativeDirection.RIGHT.getRelative(front, up, false);
+        Direction upDir = RelativeDirection.UP.getRelative(front, up, false);
+        Direction back = RelativeDirection.BACK.getRelative(front, up, false);
+        for (int left = 9; left <= 11; left++) {
+            for (int row = -1; row <= 0; row++) {
+                for (int behind = 6; behind <= 10; behind++) {
+                    BlockPos pos = getPos().offset(
+                            right.getStepX() * -left + upDir.getStepX() * row + back.getStepX() * behind,
+                            right.getStepY() * -left + upDir.getStepY() * row + back.getStepY() * behind,
+                            right.getStepZ() * -left + upDir.getStepZ() * row + back.getStepZ() * behind);
+                    if (getLevel().getBlockState(pos).isAir()) return false;
+                }
+            }
+        }
+        return true;
     }
 
     /** Heating needs at least LuV hatches: below that the hearth only cools, never climbs. */
@@ -143,7 +184,8 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
     /** Readiness heat: 4 A of LuV minimum, drawn whenever enabled (or running) to climb or hold the heat. */
     public long heaterDrainPerInterval() {
         if (energyContainer == null) return 0;
-        return 4L * GTValues.VA[GTValues.LuV] * HEAT_INTERVAL;
+        long drain = 4L * GTValues.VA[GTValues.LuV] * HEAT_INTERVAL;
+        return verteilerBuilt ? drain * VERTEILER_DRAIN_PERCENT / 100 : drain;
     }
 
     /**

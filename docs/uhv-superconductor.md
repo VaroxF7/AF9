@@ -21,14 +21,17 @@ The chain blends first and smelts after:
 
 ## The hearth (gameplay)
 
-The structure is the Rotary Hearth's, grown (15×21×15, plus an optional substation): the same casings, coils, muffler,
-Naquadah Alloy frames, tungstensteel firebox/pipe, engine intakes and heat vents, with the middle lines of the original
-tripled (a wider air chamber, thicker pipe pillars and decks), a robust plinth under the base and the muffler on a
-three-high pipe stack. Hatches are maximums-only on any high-temperature casing (the AF9 convention, so GT's
-360-casing minimum is dropped; plus up to 2 Coolant Hatches for the supercooled coolant). The optional **substation**
-(3 wide, 5 deep, 2 high, on the controller's left against the base) takes the same hatches, so the base can stay
-clean; its door (the two columns of its front) is plain casing, so no hatch covers it. Leave it out entirely and
-nothing changes.
+The structure is the Rotary Hearth's, grown (15×21×15, plus an optional Verteilerhaus), in a brutalist dress: the same
+casings, coils, muffler, Naquadah Alloy frames (as deck beams), tungstensteel pipe, engine intakes and heat vents, with the
+middle lines of the original tripled (a wider air chamber, thicker pipe pillars and decks), a robust plinth under the base,
+the muffler on a three-high pipe stack with a casing block at its foot, tungstensteel gearboxes where the firebox was
+and stress-proof piers instead of thin frame uprights. Hatches are maximums-only on any high-temperature casing of the
+main structure (the AF9 convention, so GT's 360-casing minimum is dropped; plus up to 2 Coolant Hatches for the
+supercooled coolant): the hearth needs nothing else. The optional **Verteilerhaus** (3 wide, 5 deep, 2 high, **one block
+apart** from the base on the controller's left) takes the same hatches (shared maximums); its door (the two columns of
+its front) is plain casing, so no hatch covers it. Built whole (no gap in its 30 blocks) it gives a bonus: **preheat twice
+as fast** and **25% less readiness heater draw** (`hasVerteilerhaus`, checked every 5 s). Leave it out and nothing else
+changes.
 The controller is a refitted RHF controller (assembler, UHV: RHF controller + UHV hull + field generators + pumps
 under a coolant loop). What makes it its own machine is heat (`SanguiniteHearthMachine`):
 
