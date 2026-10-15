@@ -509,6 +509,7 @@ material gtceu:lactic_acid
 material gtceu:lactonitrile
 material gtceu:lesolite
 material gtceu:light_naphtha
+material gtceu:liquid_certus_quartz
 material gtceu:lithium_brine
 material gtceu:lithium_carbonate
 material gtceu:lithium_fluoride
