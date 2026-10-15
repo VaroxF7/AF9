@@ -56,18 +56,23 @@ public class LithoChamberRender extends DynamicRender<ILithoChamberMachine, Lith
     /** UV violet fill, before the node's colour is mixed in. */
     private static final int UV_R = 0x6B, UV_G = 0x4D, UV_B = 0xFF;
     /**
-     * The print's phases, as fractions of its progress: the arm carries the blank in from the front and sets it down,
-     * parks, the head writes the dies, the arm comes back for the wafer and carries it out the back.
+     * The print's phases, as fractions of its progress (all in the chamber's own space, z from the front to the back):
+     * the outer gate of the airlock opens and the blank slides in (0-0.08), the lock pumps down (0.08-0.12), the inner
+     * gate opens and the overhead gantry fetches the wafer with its vacuum pad and sets it on the stage (0.12-0.44), the
+     * head writes the dies (0.46-0.70), the gantry brings the wafer back to the lock (0.70-0.90), the lock vents and the
+     * wafer leaves through the outer gate (0.90-1.0).
      */
-    private static final float CARRY_IN_END = 0.12F, SET_DOWN_END = 0.18F, PARK_END = 0.26F, EXPOSE_END = 0.74F,
-            RETURN_END = 0.82F, LIFT_END = 0.88F;
-    /** Slide travel along the tube (blocks from the chamber centre). */
-    private static final float SLIDE_FRONT = -0.85F, SLIDE_BACK = 0.85F;
+    private static final float EXPOSE_START = 0.46F, EXPOSE_END = 0.70F;
     /** Chamber box half extents: 0.9 wide/high, 1.8 long. */
     private static final float HALF_W = 0.45F, HALF_H = 0.45F, HALF_L = 0.9F;
-    private static final float WAFER_R = 0.32F, WAFER_Y = -0.30F, HELD_Y = -0.16F, HEAD_Y = 0.28F;
-    /** Where the empty gripper rests. */
-    private static final float REST_GRIP_Y = -0.2F;
+    /** The tube is 1 x 1: floor and ceiling plates, the rail under the ceiling, the airlock at the front. */
+    private static final float FLOOR_TOP = -0.46F, CEILING_BOTTOM = 0.46F, RAIL_BOTTOM = 0.38F;
+    /** The wafer: radius, thickness, resting height (on the stage and on the lock's pedestal), carried height. */
+    private static final float WAFER_R = 0.21F, WAFER_T = 0.035F, REST_Y = -0.2925F, CARRY_Y = -0.20F;
+    /** Along the chamber: outer and inner gate, the pedestal in the lock, the stage, the gantry's parking, the head's. */
+    private static final float GATE_OUT = -0.90F, GATE_IN = -0.38F, LOCK_Z = -0.645F, STAGE_Z = 0.30F,
+            PARK_Z = -0.15F, HEAD_PARK_Z = 0.78F;
+    private static final float PAD_R = 0.09F, PAD_H = 0.02F;
     private static final int DIES = 4;
 
     private final float up;
@@ -151,7 +156,7 @@ public class LithoChamberRender extends DynamicRender<ILithoChamberMachine, Lith
             fb = UV_B;
             fillAlpha = 0.10F + 0.02F * pulse;
         } else {
-            float expose = progress < PARK_END ? 0.3F : progress < EXPOSE_END ? 1F : 0.5F;
+            float expose = progress < EXPOSE_START ? 0.3F : progress < EXPOSE_END ? 1F : 0.5F;
             fr = Math.round(Mth.lerp(0.35F * expose, UV_R, cr));
             fg = Math.round(Mth.lerp(0.35F * expose, UV_G, cg));
             fb = Math.round(Mth.lerp(0.35F * expose, UV_B, cb));
@@ -159,114 +164,127 @@ public class LithoChamberRender extends DynamicRender<ILithoChamberMachine, Lith
         }
         fillBox(glow, mat, frame, -HALF_W, -HALF_H, -HALF_L, HALF_W, HALF_H, HALF_L, fr, fg, fb, fillAlpha);
 
-        // --- stage + slide rail + output port (always there) ---
-        SolidBox.box(solid, mat, frame, -0.36F, -0.44F, -0.95F, 0.36F, -0.36F, 0.95F, 0x2A3346); // stage bed
-        SolidBox.box(solid, mat, frame, -0.40F, -0.34F, -0.95F, -0.32F, -0.26F, 0.95F, 0x3B4A5A); // left wall trim
-        SolidBox.box(solid, mat, frame, 0.32F, -0.26F, -0.95F, 0.40F, -0.18F, 0.95F, 0x454F60); // robotic slide rail
-        for (float tie = -0.8F; tie <= 0.81F; tie += 0.2F) {
-            SolidBox.box(solid, mat, frame, 0.32F, -0.27F, tie - 0.02F, 0.40F, -0.17F, tie + 0.02F, 0x6B7688);
+        // --- the print's state from its progress; idle: gates shut, gantry and head parked, no wafer ---
+        float p = working ? progress : 0F;
+        float outerOpen = p < 0.06F ? ramp(p, 0F, 0.04F) : p < 0.96F ? 1F - ramp(p, 0.06F, 0.08F) :
+                ramp(p, 0.96F, 0.98F);
+        float innerOpen = p < 0.12F ? 0F : p < 0.44F ? ramp(p, 0.12F, 0.14F) :
+                p < 0.46F ? 1F - ramp(p, 0.44F, 0.46F) : p < 0.70F ? 0F : p < 0.93F ? ramp(p, 0.70F, 0.72F) :
+                1F - ramp(p, 0.93F, 0.95F);
+        float gantryZ = p < 0.14F ? PARK_Z : p < 0.20F ? Mth.lerp(ramp(p, 0.14F, 0.20F), PARK_Z, LOCK_Z) :
+                p < 0.24F ? LOCK_Z : p < 0.34F ? Mth.lerp(ramp(p, 0.24F, 0.34F), LOCK_Z, STAGE_Z) :
+                p < 0.39F ? STAGE_Z : p < 0.44F ? Mth.lerp(ramp(p, 0.39F, 0.44F), STAGE_Z, PARK_Z) :
+                p < 0.72F ? PARK_Z : p < 0.76F ? Mth.lerp(ramp(p, 0.72F, 0.76F), PARK_Z, STAGE_Z) :
+                p < 0.80F ? STAGE_Z : p < 0.86F ? Mth.lerp(ramp(p, 0.80F, 0.86F), STAGE_Z, LOCK_Z) :
+                p < 0.90F ? LOCK_Z : Mth.lerp(ramp(p, 0.90F, 0.93F), LOCK_Z, PARK_Z);
+        // how far the pad is down on the wafer (0: at carrying height)
+        float down = p < 0.20F ? 0F : p < 0.22F ? ramp(p, 0.20F, 0.22F) : p < 0.24F ? 1F - ramp(p, 0.22F, 0.24F) :
+                p < 0.34F ? 0F : p < 0.36F ? ramp(p, 0.34F, 0.36F) : p < 0.37F ? 1F :
+                p < 0.39F ? 1F - ramp(p, 0.37F, 0.39F) : p < 0.76F ? 0F : p < 0.78F ? ramp(p, 0.76F, 0.78F) :
+                p < 0.80F ? 1F - ramp(p, 0.78F, 0.80F) : p < 0.86F ? 0F : p < 0.88F ? ramp(p, 0.86F, 0.88F) :
+                p < 0.90F ? 1F - ramp(p, 0.88F, 0.90F) : 0F;
+        float padBottom = Mth.lerp(down, CARRY_Y + WAFER_T / 2, REST_Y + WAFER_T / 2);
+        // the wafer: slides in through the outer gate, rests on the pedestal, is carried to the stage, exposed there,
+        // carried back, rests on the pedestal and slides out
+        boolean waferShown = working && p >= 0.02F;
+        boolean held = (p >= 0.22F && p < 0.36F) || (p >= 0.78F && p < 0.88F);
+        float waferY = REST_Y, waferZ, waferAlpha = 1F;
+        if (p < 0.22F) {
+            waferZ = Mth.lerp(ramp(p, 0.02F, 0.07F), GATE_OUT - 0.1F, LOCK_Z);
+            waferAlpha = ramp(p, 0.02F, 0.04F);
+        } else if (p < 0.36F) {
+            waferZ = gantryZ;
+        } else if (p < 0.78F) {
+            waferZ = STAGE_Z;
+        } else if (p < 0.88F) {
+            waferZ = gantryZ;
+        } else {
+            waferZ = Mth.lerp(ramp(p, 0.97F, 1.0F), LOCK_Z, GATE_OUT - 0.1F);
+            waferAlpha = 1F - ramp(p, 0.98F, 1.0F);
         }
-        SolidBox.box(solid, mat, frame, -0.16F, -0.34F, 0.86F, 0.16F, -0.06F, 1.0F, 0x141B2A); // output bus port
-        SolidBox.box(solid, mat, frame, -0.12F, -0.28F, 0.94F, 0.12F, -0.12F, 1.0F, 0x0B0F17);
-        // --- arm + wafer + laser state, all from the print's progress ---
-        float carriageZ = SLIDE_FRONT;     // parked at the front while idle
-        boolean waferShown = false;
-        boolean holding = false;           // the gripper has the wafer
-        float waferY = WAFER_Y, waferZ = 0;
-        float waferAlpha = 1F;
-        boolean beamOn = false;
-        float spotX = 0, spotZ = 0;
-        float exposed = 0;
-        float openGripY = Float.NaN;      // the empty gripper's height, when it is not at rest
+        if (held) waferY = padBottom - WAFER_T / 2;
+        float exposed = p < EXPOSE_START ? 0F : p < EXPOSE_END ? (p - EXPOSE_START) / (EXPOSE_END - EXPOSE_START) : 1F;
+        boolean beamOn = working && p >= EXPOSE_START && p < EXPOSE_END;
+        float headMix = p < 0.70F ? ramp(p, 0.44F, 0.46F) : 1F - ramp(p, 0.70F, 0.72F);
+        float[] spot = dieSpot(exposed);
+        float headX = spot[0] * headMix;
+        float headZ = Mth.lerp(headMix, HEAD_PARK_Z, STAGE_Z + spot[1]);
 
-        if (working) {
-            waferShown = true;
-            if (progress < CARRY_IN_END) {
-                // the arm brings the blank in from the front (it fades in at the load port) ...
-                float s = smooth(progress / CARRY_IN_END);
-                carriageZ = Mth.lerp(s, SLIDE_FRONT, 0F);
-                holding = true;
-                waferY = HELD_Y;
-                waferZ = carriageZ;
-                waferAlpha = Math.min(1F, s * 4F);
-            } else if (progress < SET_DOWN_END) {
-                // ... and sets it on the stage
-                float s = smooth((progress - CARRY_IN_END) / (SET_DOWN_END - CARRY_IN_END));
-                carriageZ = 0F;
-                holding = s < 1F;
-                waferY = Mth.lerp(s, HELD_Y, WAFER_Y);
-                if (!holding) openGripY = WAFER_Y;
-            } else if (progress < PARK_END) {
-                // the arm backs off to the front while the head comes up to speed
-                float s = smooth((progress - SET_DOWN_END) / (PARK_END - SET_DOWN_END));
-                carriageZ = Mth.lerp(s, 0F, SLIDE_FRONT);
-                openGripY = Mth.lerp(Math.min(1F, s * 2F), WAFER_Y, REST_GRIP_Y);
-            } else if (progress < EXPOSE_END) {
-                // the head writes the dies one after the other
-                exposed = (progress - PARK_END) / (EXPOSE_END - PARK_END);
-                float[] spot = dieSpot(exposed);
-                spotX = spot[0];
-                spotZ = spot[1];
-                beamOn = true;
-            } else if (progress < RETURN_END) {
-                exposed = 1F;
-                float s = smooth((progress - EXPOSE_END) / (RETURN_END - EXPOSE_END));
-                carriageZ = Mth.lerp(s, SLIDE_FRONT, 0F);
-                openGripY = Mth.lerp(Math.max(0F, s * 2F - 1F), REST_GRIP_Y, WAFER_Y);
-            } else if (progress < LIFT_END) {
-                // the arm takes the printed wafer off the stage
-                float s = smooth((progress - RETURN_END) / (LIFT_END - RETURN_END));
-                exposed = 1F;
-                carriageZ = 0F;
-                holding = s > 0F;
-                waferY = Mth.lerp(s, WAFER_Y, HELD_Y);
-                if (!holding) openGripY = WAFER_Y;
-            } else {
-                // and carries it out the back into the output port
-                float s = smooth((progress - LIFT_END) / (1F - LIFT_END));
-                exposed = 1F;
-                carriageZ = Mth.lerp(s, 0F, SLIDE_BACK);
-                holding = true;
-                waferY = HELD_Y;
-                waferZ = carriageZ;
-                waferAlpha = 1F - Math.max(0F, (s - 0.7F) / 0.3F);
-            }
+        // --- the tube's inside: floor and ceiling plates, the rail, the stage, the back wall ---
+        SolidBox.box(solid, mat, frame, -0.495F, -0.5F, -HALF_L, 0.495F, FLOOR_TOP, HALF_L, 0x1C2433);
+        SolidBox.box(solid, mat, frame, -0.495F, CEILING_BOTTOM, -HALF_L, 0.495F, 0.5F, HALF_L, 0x232C3D);
+        SolidBox.box(solid, mat, frame, -0.495F, -0.5F, HALF_L, 0.495F, 0.5F, HALF_L + 0.03F, 0x151B28); // back wall
+        quad(glow, mat, frame, -0.30F, CEILING_BOTTOM - 0.002F, -0.8F, -0.24F, CEILING_BOTTOM - 0.002F, 0.8F, 170, 190,
+                255, 0.55F);   // ceiling light strips
+        quad(glow, mat, frame, 0.24F, CEILING_BOTTOM - 0.002F, -0.8F, 0.30F, CEILING_BOTTOM - 0.002F, 0.8F, 170, 190,
+                255, 0.55F);
+        SolidBox.box(solid, mat, frame, -0.03F, RAIL_BOTTOM + 0.04F, -0.86F, 0.03F, CEILING_BOTTOM, 0.86F, 0x4A5568); // rail
+        // the stage: a chuck on a column, the wafer's resting place
+        SolidBox.box(solid, mat, frame, -0.10F, FLOOR_TOP, STAGE_Z - 0.10F, 0.10F, -0.37F, STAGE_Z + 0.10F, 0x2A3346);
+        SolidBox.disc(solid, mat, frame, 0F, REST_Y - WAFER_T / 2 - 0.03F, STAGE_Z, WAFER_R + 0.03F, 0.06F, 0x3B4A5A, 1F);
+        // the lock's pedestal, the same height
+        SolidBox.box(solid, mat, frame, -0.08F, FLOOR_TOP, LOCK_Z - 0.08F, 0.08F, -0.37F, LOCK_Z + 0.08F, 0x2A3346);
+        SolidBox.disc(solid, mat, frame, 0F, REST_Y - WAFER_T / 2 - 0.03F, LOCK_Z, WAFER_R + 0.005F, 0.06F, 0x3B4A5A, 1F);
+        // the head's parking pocket at the back, under the rail
+        SolidBox.box(solid, mat, frame, -0.30F, 0.30F, HEAD_PARK_Z + 0.10F, 0.30F, CEILING_BOTTOM, HALF_L, 0x1E2636);
+
+        // --- the airlock: two gates, a frame at each; a gate sinks into the floor to open (its slot has a notch for
+        // the rail, so a shut gate never touches it) ---
+        drawGate(solid, glow, mat, frame, GATE_OUT, outerOpen, cr, cg, cb);
+        drawGate(solid, glow, mat, frame, GATE_IN, innerOpen, cr, cg, cb);
+        // the lock's lamp: amber while it pumps down or vents, green with a gate open, dim otherwise
+        boolean cycling = (p >= 0.08F && p < 0.12F) || (p >= 0.94F && p < 0.97F);
+        float blink = 0.5F + 0.5F * Mth.sin((float) (time * 2 * Math.PI / 14));
+        if (cycling) {
+            quad(glow, mat, frame, 0.36F, 0.30F, GATE_IN - 0.045F, 0.42F, 0.36F, GATE_IN - 0.045F, 255, 190, 40,
+                    0.5F + 0.5F * blink);
+        } else if (outerOpen > 0.5F || innerOpen > 0.5F) {
+            quad(glow, mat, frame, 0.36F, 0.30F, GATE_IN - 0.045F, 0.42F, 0.36F, GATE_IN - 0.045F, 80, 255, 140, 0.9F);
+        } else {
+            quad(glow, mat, frame, 0.36F, 0.30F, GATE_IN - 0.045F, 0.42F, 0.36F, GATE_IN - 0.045F, 120, 130, 150,
+                    0.35F);
         }
 
-        // --- robot arm on its slide, then the wafer (on the stage or in the gripper) ---
-        float gripY = holding ? waferY : Float.isNaN(openGripY) ? REST_GRIP_Y : openGripY;
-        drawArm(solid, glow, mat, frame, carriageZ, gripY, holding, cr, cg, cb, time, working);
+        // --- the gantry: a carriage on the rail, a column down to the vacuum pad ---
+        float padTop = padBottom + PAD_H;
+        SolidBox.box(solid, mat, frame, -0.07F, RAIL_BOTTOM, gantryZ - 0.08F, 0.07F, CEILING_BOTTOM - 0.02F,
+                gantryZ + 0.08F, 0x8A94A6);
+        SolidBox.box(solid, mat, frame, -0.012F, padTop, gantryZ - 0.012F, 0.012F, RAIL_BOTTOM, gantryZ + 0.012F,
+                0x6B7688);
+        SolidBox.box(solid, mat, frame, -PAD_R, padBottom, gantryZ - PAD_R, PAD_R, padTop, gantryZ + PAD_R, 0xB8C4D4);
+        if (held) {
+            quad(glow, mat, frame, -0.03F, padTop + 0.001F, gantryZ - 0.03F, 0.03F, padTop + 0.003F, gantryZ + 0.03F,
+                    cr, cg, cb, 0.6F * waferAlpha);
+        }
         if (waferShown && waferAlpha > 0.01F) {
-            drawWafer(solid, glow, mat, frame, 0, waferY, waferZ, exposed, beamOn, cr, cg, cb, waferAlpha, time);
+            drawWafer(solid, glow, mat, frame, 0F, waferY, waferZ, exposed, beamOn, cr, cg, cb, waferAlpha, time);
         }
 
-        // --- exposure head + beam that writes the wafer ---
-        if (beamOn) {
-            float headX = spotX;
-            float headZ = spotZ;
-            SolidBox.box(solid, mat, frame, headX - 0.09F, HEAD_Y - 0.05F, headZ - 0.09F, headX + 0.09F,
-                    HEAD_Y + 0.05F, headZ + 0.09F, 0x1A2233);
-            SolidBox.box(solid, mat, frame, headX - 0.05F, HEAD_Y - 0.09F, headZ - 0.05F, headX + 0.05F,
-                    HEAD_Y - 0.05F, headZ + 0.05F, 0xB8C4D4);
-            quad(glow, mat, frame, headX - 0.05F, HEAD_Y - 0.091F, headZ - 0.05F, headX + 0.05F, HEAD_Y - 0.089F,
-                    headZ + 0.05F, cr, cg, cb, 0.9F);
-            // beam: coloured sheath + white-hot core, head down to the wafer
-            quadVertical(beam, mat, frame, headX, HEAD_Y - 0.09F, spotX, WAFER_Y + 0.03F, headZ, 0.028F, cr, cg, cb,
-                    0.5F);
-            quadVertical(beam, mat, frame, headX, HEAD_Y - 0.09F, spotX, WAFER_Y + 0.03F, headZ, 0.010F, 255, 255,
-                    255, 0.9F);
-            // spot + glare on the die
-            quad(glow, mat, frame, spotX - 0.05F, WAFER_Y + 0.031F, spotZ - 0.05F, spotX + 0.05F, WAFER_Y + 0.033F,
-                    spotZ + 0.05F, 255, 255, 255, 0.85F);
-            quad(glow, mat, frame, spotX - 0.09F, WAFER_Y + 0.030F, spotZ - 0.09F, spotX + 0.09F, WAFER_Y + 0.032F,
-                    spotZ + 0.09F, cr, cg, cb, 0.55F);
-            // faint EUV glare cone under the head
-            quadCone(beam, mat, frame, headX, HEAD_Y - 0.05F, spotX, WAFER_Y, headZ, 0.10F, cr, cg, cb, 0.18F);
-        }
-        if (holding && waferShown) {
-            // gripper beacon while carrying
-            quad(glow, mat, frame, -0.04F, waferY + 0.05F, waferZ - 0.04F, 0.04F, waferY + 0.051F, waferZ + 0.04F, cr,
-                    cg, cb, 0.6F * waferAlpha);
+        // --- the exposure head: hangs from the rail on its own carriage and a cross beam, parked at the back ---
+        if (working && headMix > 0.001F) {
+            SolidBox.box(solid, mat, frame, -0.06F, RAIL_BOTTOM, headZ - 0.06F, 0.06F, CEILING_BOTTOM - 0.02F,
+                    headZ + 0.06F, 0x8A94A6);
+            SolidBox.box(solid, mat, frame, -0.012F, 0.30F, headZ - 0.012F, 0.012F, RAIL_BOTTOM, headZ + 0.012F,
+                    0x6B7688);
+            SolidBox.box(solid, mat, frame, -0.16F, 0.30F, headZ - 0.02F, 0.16F, 0.33F, headZ + 0.02F, 0x4A5568);
+            SolidBox.box(solid, mat, frame, headX - 0.07F, 0.20F, headZ - 0.07F, headX + 0.07F, 0.30F, headZ + 0.07F,
+                    0x1A2233);
+            SolidBox.box(solid, mat, frame, headX - 0.04F, 0.16F, headZ - 0.04F, headX + 0.04F, 0.20F, headZ + 0.04F,
+                    0xB8C4D4);
+            if (beamOn) {
+                float top = REST_Y + WAFER_T / 2;
+                quad(glow, mat, frame, headX - 0.04F, 0.159F, headZ - 0.04F, headX + 0.04F, 0.161F, headZ + 0.04F, cr,
+                        cg, cb, 0.9F);
+                // beam: coloured sheath + white-hot core, lens down to the wafer
+                quadVertical(beam, mat, frame, headX, 0.16F, headX, top, headZ, 0.028F, cr, cg, cb, 0.5F);
+                quadVertical(beam, mat, frame, headX, 0.16F, headX, top, headZ, 0.010F, 255, 255, 255, 0.9F);
+                // spot + glare on the die
+                quad(glow, mat, frame, headX - 0.05F, top + 0.002F, headZ - 0.05F, headX + 0.05F, top + 0.004F,
+                        headZ + 0.05F, 255, 255, 255, 0.85F);
+                quad(glow, mat, frame, headX - 0.09F, top + 0.001F, headZ - 0.09F, headX + 0.09F, top + 0.003F,
+                        headZ + 0.09F, cr, cg, cb, 0.55F);
+                quadCone(beam, mat, frame, headX, 0.16F, headX, top, headZ, 0.10F, cr, cg, cb, 0.18F);
+            }
         }
 
         poseStack.popPose();
@@ -284,6 +302,34 @@ public class LithoChamberRender extends DynamicRender<ILithoChamberMachine, Lith
         float y = 0.5F + upDir.getStepY() * up + backDir.getStepY() * back;
         float z = 0.5F + upDir.getStepZ() * up + backDir.getStepZ() * back;
         return new Frame(x, y, z, leftDir, upDir, backDir);
+    }
+
+    /** 0 before {@code from}, 1 after {@code to}, smooth between. */
+    private static float ramp(float p, float from, float to) {
+        return smooth((p - from) / (to - from));
+    }
+
+    /**
+     * An airlock gate across the tube at {@code z}: a frame (two posts and a sill), and the gate itself, which sinks
+     * into the floor by {@code open}. The gate is two leaves with a notch between them where the rail runs.
+     */
+    private static void drawGate(VertexConsumer solid, VertexConsumer glow, Matrix4f mat, Frame frame, float z,
+                                 float open, int cr, int cg, int cb) {
+        float lift = -open * 0.95F;
+        // frame: posts on both walls, the lintel stops short of the rail
+        SolidBox.box(solid, mat, frame, -0.495F, FLOOR_TOP, z - 0.035F, -0.46F, CEILING_BOTTOM, z + 0.035F, 0x3B4A5A);
+        SolidBox.box(solid, mat, frame, 0.46F, FLOOR_TOP, z - 0.035F, 0.495F, CEILING_BOTTOM, z + 0.035F, 0x3B4A5A);
+        // the leaves, from floor to ceiling; the middle only up to under the rail
+        float y0 = FLOOR_TOP + lift, y1 = CEILING_BOTTOM + lift;
+        SolidBox.box(solid, mat, frame, -0.46F, y0, z - 0.015F, -0.04F, y1, z + 0.015F, 0x5C6A80);
+        SolidBox.box(solid, mat, frame, 0.04F, y0, z - 0.015F, 0.46F, y1, z + 0.015F, 0x5C6A80);
+        SolidBox.box(solid, mat, frame, -0.04F, y0, z - 0.015F, 0.04F, RAIL_BOTTOM - 0.06F + lift, z + 0.015F,
+                0x5C6A80);
+        if (open < 0.99F) {
+            // a seal line along the shut gate
+            quad(glow, mat, frame, -0.44F, y0 + 0.02F, z - 0.0165F, -0.42F, y1 - 0.02F, z - 0.0165F, cr, cg, cb,
+                    0.25F * (1F - open));
+        }
     }
 
     private static float smooth(float t) {
@@ -304,39 +350,6 @@ public class LithoChamberRender extends DynamicRender<ILithoChamberMachine, Lith
         float dx = (col - (DIES - 1) / 2F) * step + (within - 0.5F) * step * 0.8F;
         float dz = (row - (DIES - 1) / 2F) * step;
         return new float[] { dx, dz };
-    }
-
-    /** Robot arm: carriage on the slide, two segments in to the wafer, a post down to the gripper (at {@code gripY}). */
-    private static void drawArm(VertexConsumer solid, VertexConsumer glow, Matrix4f mat, Frame frame,
-                                float carriageZ, float gripY, boolean holding, int cr, int cg, int cb, double time,
-                                boolean working) {
-        float cx = 0.36F;
-        // carriage
-        SolidBox.box(solid, mat, frame, cx - 0.05F, -0.26F, carriageZ - 0.07F, cx + 0.05F, -0.14F, carriageZ + 0.07F,
-                0x8A94A6);
-        SolidBox.box(solid, mat, frame, cx - 0.03F, -0.24F, carriageZ - 0.05F, cx + 0.03F, -0.16F, carriageZ + 0.05F,
-                0x2A3346);
-        // segments from the rail in to the tube centre
-        float elbowX = cx - 0.16F;
-        float gripX = 0.02F;
-        SolidBox.box(solid, mat, frame, gripX, -0.20F, carriageZ - 0.025F, cx, -0.17F, carriageZ + 0.025F, 0x6B7688);
-        SolidBox.box(solid, mat, frame, elbowX - 0.03F, -0.22F, carriageZ - 0.045F, elbowX + 0.03F, -0.12F,
-                carriageZ + 0.045F, 0x4B5567);
-        // gripper forks round the wafer
-        float gy = gripY + (holding ? 0.02F : 0F);
-        float gz = carriageZ;
-        SolidBox.box(solid, mat, frame, gripX - 0.10F, gy - 0.015F, gz - 0.02F, gripX + 0.10F, gy + 0.015F, gz + 0.02F,
-                holding ? 0xB8C4D4 : 0x4B5567);
-        SolidBox.box(solid, mat, frame, gripX - 0.10F, gy - 0.015F, gz - 0.09F, gripX - 0.06F, gy + 0.015F, gz + 0.09F,
-                holding ? 0xB8C4D4 : 0x4B5567);
-        SolidBox.box(solid, mat, frame, gripX + 0.06F, gy - 0.015F, gz - 0.09F, gripX + 0.10F, gy + 0.015F, gz + 0.09F,
-                holding ? 0xB8C4D4 : 0x4B5567);
-        // the post that lowers the gripper from the arm down to the stage
-        SolidBox.box(solid, mat, frame, gripX - 0.02F, gy - 0.015F, gz - 0.02F, gripX + 0.02F, -0.17F, gz + 0.02F,
-                0x6B7688);
-        float blink = working ? 0.45F + 0.25F * Mth.sin((float) (time * 2 * Math.PI / 30)) : 0.25F;
-        quad(glow, mat, frame, cx - 0.03F, -0.139F, carriageZ - 0.03F, cx + 0.03F, -0.137F, carriageZ + 0.03F, cr, cg,
-                cb, blink);
     }
 
     /** Wafer disc with a flat, exposed dies in the node colour. */
