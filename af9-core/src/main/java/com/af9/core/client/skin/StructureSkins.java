@@ -1,6 +1,7 @@
 package com.af9.core.client.skin;
 
 import com.af9.core.AF9Core;
+import com.af9.core.machine.OrbitalLithographyMachine;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
@@ -66,7 +67,10 @@ public final class StructureSkins {
             // controller in the middle row of the front, 10-12 long (found from the blocks, see measure)
             StructureSkin.cabinet(() -> machine("photolithography_line"), 1, 2, new StructureSkin.Cabinet(1, 10, 12)),
             StructureSkin.cabinet(() -> machine("photolithography_scanner"), 1, 2,
-                    new StructureSkin.Cabinet(1, 10, 12)));
+                    new StructureSkin.Cabinet(1, 10, 12)),
+            // the Orbital Array Mk2's tower: its rings turn (only while the Mk2 size is switched on)
+            StructureSkin.rings(() -> machine("orbital_lithography_station"),
+                    new StructureSkin.Rings(OrbitalLithographyMachine.BANDS_MK2, OrbitalLithographyMachine.TOWER_HALF)));
 
     /** The blocks a lithography structure is made of (the bottom row of its middle column): the cabinet ends where none is. */
     private static final Set<String> CABINET_BLOCKS = Set.of("gtceu:plascrete", "af9:plascrete_filter_casing",
@@ -171,6 +175,10 @@ public final class StructureSkins {
         BlockPos origin = controller.getPos();
         LongArrayList positions = new LongArrayList();
         List<BlockPos> parts = Arrays.asList(controller.getPartPositions());
+        if (skin.rings() != null) {
+            trackRings(level, controller, skin, origin, parts, positions);
+            return;
+        }
         int firstUp = 0, depth = skin.back();
         if (skin.cabinet() != null) {
             firstUp = -skin.cabinet().below();
@@ -212,7 +220,49 @@ public final class StructureSkins {
         dirty(before, now);
     }
 
+    /**
+     * The tower's rings: the blocks of every band and of the spokes to it hide (the rings are drawn turning, the beams
+     * take the spokes' place), only on the Mk2 size. The blocks are the pattern's (photolithography.js, orbitalRingCell).
+     */
+    private static void trackRings(ClientLevel level, MultiblockControllerMachine controller, StructureSkin skin,
+                                   BlockPos origin, List<BlockPos> parts, LongArrayList positions) {
+        if (!(controller instanceof OrbitalLithographyMachine station) || !station.isExtended()) {
+            untrack(origin.asLong());
+            return;
+        }
+        for (OrbitalLithographyMachine.Band band : skin.rings().bands()) {
+            int reach = band.radius() + 1, mid = band.d0() + band.t() / 2;
+            for (int d = band.d0(); d < band.d0() + band.t(); d++) {
+                for (int right = -reach; right <= reach; right++) {
+                    for (int up = -reach; up <= reach; up++) {
+                        double r = Math.sqrt(right * right + up * up);
+                        boolean inBand = r >= band.radius() - band.width() && r <= band.radius() + 0.3;
+                        // the spokes: the beam of shock-proof casing between rails along the axes, on the middle level
+                        boolean spoke = d == mid && r > skin.rings().towerHalf() && r < band.radius() - band.width()
+                                && (right == 0 && up != 0 || up == 0 && right != 0
+                                        || Math.abs(right) == 1 && Math.abs(up) > 1
+                                        || Math.abs(up) == 1 && Math.abs(right) > 1);
+                        if (!inBand && !spoke) continue;
+                        BlockPos pos = at(controller, right, up, d);
+                        if (pos.equals(origin) || parts.contains(pos)) continue;
+                        if (level.getBlockState(pos).isAir()) continue;
+                        if (MetaMachine.getMachine(level, pos) != null || level.getBlockEntity(pos) != null) continue;
+                        positions.add(pos.asLong());
+                    }
+                }
+            }
+        }
+        long[] now = positions.toLongArray();
+        Arrays.sort(now);
+        MACHINES.put(origin.asLong(), controller);
+        long[] before = TRACKED.put(origin.asLong(), now);
+        if (before != null && Arrays.equals(before, now)) return;
+        publish();
+        dirty(before, now);
+    }
+
     private static void untrack(long controller) {
+        RingDraw.forget(controller);
         MACHINES.remove(controller);
         LENGTHS.remove(controller);
         long[] before = TRACKED.remove(controller);
@@ -257,6 +307,7 @@ public final class StructureSkins {
         if (TRACKED.isEmpty()) return;
         TRACKED.clear();
         MACHINES.clear();
+        RingDraw.clear();
         hidden = new LongOpenHashSet();
     }
 
@@ -267,7 +318,7 @@ public final class StructureSkins {
     /** Mod bus: the skin's models are loaded though no blockstate names them. */
     public static void registerModels(ModelEvent.RegisterAdditional event) {
         for (StructureSkin skin : SKINS) {
-            if (skin.cabinet() != null) continue;
+            if (skin.cabinet() != null || skin.rings() != null) continue;
             event.register(skin.lower());
             event.register(skin.upper());
             event.register(skin.glowLower());
@@ -284,7 +335,7 @@ public final class StructureSkins {
         BakedModel missing = event.getModels().get(ModelBakery.MISSING_MODEL_LOCATION);
         Set<StructureSkin> ready = new HashSet<>();
         for (StructureSkin skin : SKINS) {
-            if (skin.cabinet() != null) {
+            if (skin.cabinet() != null || skin.rings() != null) {
                 // drawn in code, nothing to bake
                 ready.add(skin);
                 continue;
@@ -353,6 +404,9 @@ public final class StructureSkins {
                     if (!(holder.getMetaMachine() instanceof MultiblockControllerMachine controller)) continue;
                     StructureSkin skin = skinOf(controller.getDefinition());
                     if (skin == null || !controller.isFormed()) continue;
+                    if (skin.rings() != null && !(controller instanceof OrbitalLithographyMachine o && o.isExtended())) {
+                        continue;
+                    }
                     // without a block entity renderer there is nothing to draw the model: keep the blocks
                     if (mc.getBlockEntityRenderDispatcher().getRenderer(be) == null) continue;
                     // the model the block draws with gets the render now (it may have been loaded after the baking)

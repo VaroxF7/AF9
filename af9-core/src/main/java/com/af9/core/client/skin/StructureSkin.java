@@ -28,7 +28,7 @@ import java.util.function.Supplier;
  */
 public record StructureSkin(Supplier<? extends MachineDefinition> definition, int right, int up, int back,
                             ResourceLocation lower, ResourceLocation upper, ResourceLocation glowLower,
-                            ResourceLocation glowUpper, int[] coilProbe, float[] window, Cabinet cabinet) {
+                            ResourceLocation glowUpper, int[] coilProbe, float[] window, Cabinet cabinet, Rings rings) {
 
     /**
      * A white paneled cabinet drawn in code instead of a model (the lithography machines): any length, found from the
@@ -40,17 +40,31 @@ public record StructureSkin(Supplier<? extends MachineDefinition> definition, in
      */
     public record Cabinet(int below, int minLength, int maxLength) {}
 
+    /**
+     * The rings of the Orbital Array Mk2's tower: their blocks are hidden while it is formed and the rings are drawn
+     * turning instead, held in place by plasma beams from the tower ({@link RingDraw}).
+     *
+     * @param bands     the rings
+     * @param towerHalf half width of the tower's body (the beams start at its face)
+     */
+    public record Rings(java.util.List<com.af9.core.machine.OrbitalLithographyMachine.Band> bands, int towerHalf) {}
+
     /** A model skin (the Electric Blast Furnace). */
     public StructureSkin(Supplier<? extends MachineDefinition> definition, int right, int up, int back,
                          ResourceLocation lower, ResourceLocation upper, ResourceLocation glowLower,
                          ResourceLocation glowUpper, int[] coilProbe, float[] window) {
-        this(definition, right, up, back, lower, upper, glowLower, glowUpper, coilProbe, window, null);
+        this(definition, right, up, back, lower, upper, glowLower, glowUpper, coilProbe, window, null, null);
     }
 
     /** A cabinet skin: {@code up} rows from the bottom row's offset up (exclusive end, as for a model skin). */
     public static StructureSkin cabinet(Supplier<? extends MachineDefinition> definition, int right, int up,
                                         Cabinet cabinet) {
         return new StructureSkin(definition, right, up, cabinet.maxLength(), null, null, null, null, null, null,
-                cabinet);
+                cabinet, null);
+    }
+
+    /** A ring skin: drawn in code, the blocks are the rings' (see {@link Rings}). */
+    public static StructureSkin rings(Supplier<? extends MachineDefinition> definition, Rings rings) {
+        return new StructureSkin(definition, 0, 0, 0, null, null, null, null, null, null, null, rings);
     }
 }

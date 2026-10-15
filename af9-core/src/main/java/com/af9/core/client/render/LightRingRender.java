@@ -109,11 +109,10 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     /** Most a glow layer adds (a hot ring's inner layers get there). */
     private static final float MAX_GLOW_ALPHA = 0.9F;
     /**
-     * A spinning ring ({@link ILightRingMachine#ringSpin()}) wears habitat modules like a space station's wheel: this
+     * A spinning ring (({@link ILightRingMachine.RingSpec#spin()})) wears habitat modules like a space station's wheel: this
      * many round it, each covering {@link #MODULE_FILL} of its slot, a fatter tube ({@link #MODULE_TUBE} times the ring's)
      * with a white-hot core, all turning with the spin.
      */
-    private static final int MODULES = 12;
     private static final float MODULE_FILL = 0.55F, MODULE_TUBE = 2.6F;
 
     private final float up;
@@ -251,23 +250,35 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         float r = Mth.lerp(pulse, red(lastColor), 255) / 255f;
         float g = Mth.lerp(pulse, green(lastColor), 255) / 255f;
         float b = Mth.lerp(pulse, blue(lastColor), 255) / 255f;
-        Frame frame = frame(machine.self());
-        float ring = machine.ringRadius(radius);
+        for (ILightRingMachine.RingSpec spec : machine.ringSpecs(back, radius)) {
+            drawRing(machine, spec, mat, source, tubeType, glowType, layers, r, g, b, alpha, partialTick, pulse, boost,
+                    hot, lastColor);
+        }
+    }
+
+    /** One ring of the machine: the tube, its modules when it spins, the white-hot core and the glow layers. */
+    private void drawRing(ILightRingMachine machine, ILightRingMachine.RingSpec spec, Matrix4f mat,
+                          MultiBufferSource source, RenderType tubeType, RenderType glowType, int layers, float r,
+                          float g, float b, float alpha, float partialTick, float pulse, float boost, boolean hot,
+                          int lastColor) {
+        Frame frame = frame(machine.self(), spec.back());
+        float ring = spec.radius();
         int segments = Math.max(20, Math.round(ring * 5));
         VertexConsumer tube = source.getBuffer(tubeType);
         torus(tube, mat, frame, ring, thickness, 10, segments, r, g, b, alpha);
-        float spin = machine.ringSpin();
-        if (spin != 0) {
+        if (spec.spin() != 0) {
             // the station's modules, turning round the ring (ticks of the machine's own timer, so it keeps turning
             // while the ring fades out)
-            float turn = (machine.self().getOffsetTimer() + partialTick) * spin;
-            float slot = Mth.TWO_PI / MODULES;
-            for (int m = 0; m < MODULES; m++) {
+            int modules = Math.max(6, Math.round(ring / 2.2F));
+            float turn = (machine.self().getOffsetTimer() + partialTick) * spec.spin();
+            float slot = Mth.TWO_PI / modules;
+            int arc = Math.max(4, segments / modules);
+            for (int m = 0; m < modules; m++) {
                 float from = turn + m * slot;
-                torusArc(tube, mat, frame, ring, thickness * MODULE_TUBE, 8, Math.max(4, segments / MODULES), from,
-                        slot * MODULE_FILL, r, g, b, alpha * 0.9F);
-                torusArc(tube, mat, frame, ring, thickness * MODULE_TUBE * 0.5F, 6, Math.max(4, segments / MODULES),
-                        from, slot * MODULE_FILL, 1F, 1F, 1F, alpha);
+                torusArc(tube, mat, frame, ring, thickness * MODULE_TUBE, 8, arc, from, slot * MODULE_FILL, r, g, b,
+                        alpha * 0.9F);
+                torusArc(tube, mat, frame, ring, thickness * MODULE_TUBE * 0.5F, 6, arc, from, slot * MODULE_FILL, 1F,
+                        1F, 1F, alpha);
             }
         }
         // the white-hot core inside it
@@ -394,7 +405,9 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         if (state.tick == tick) return;
         state.tick = tick;
         boolean lit = machine.isRingLit();
-        Frame frame = frame(self);
+        List<ILightRingMachine.RingSpec> specs = machine.ringSpecs(back, radius);
+        ILightRingMachine.RingSpec main = specs.get(0);
+        Frame frame = frame(self, main.back());
         BlockPos pos = self.getPos();
         double cx = pos.getX() + frame.x, cy = pos.getY() + frame.y, cz = pos.getZ() + frame.z;
         SoundEvent ignite = machine.ringIgniteSound();
@@ -413,10 +426,17 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
             if (pulse != null) level.playLocalSound(cx, cy, cz, pulse, SoundSource.BLOCKS, 1F, 1F, false);
         }
         RandomSource random = level.getRandom();
-        float ring = machine.ringRadius(radius);
+        float ring = main.radius();
         if (arcs) tickBolts(state, random, frame, level, pos, machine.ringArcSound(), ring);
         int color = machine.getRingColor();
         Vector3f tint = new Vector3f(red(color) / 255f, green(color) / 255f, blue(color) / 255f);
+        for (ILightRingMachine.RingSpec spec : specs) {
+            sparks(level, random, pos, frame(self, spec.back()), spec.radius(), tint);
+        }
+    }
+
+    /** A few sparks and glints on one ring. */
+    private void sparks(ClientLevel level, RandomSource random, BlockPos pos, Frame frame, float ring, Vector3f tint) {
         int count = 2 + random.nextInt(3);
         for (int i = 0; i < count; i++) {
             float angle = random.nextFloat() * Mth.TWO_PI;
@@ -481,7 +501,8 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
      */
     private void renderBolts(ILightRingMachine machine, Effects state, PoseStack poseStack, VertexConsumer consumer) {
         MetaMachine self = machine.self();
-        Frame frame = frame(self);
+        ILightRingMachine.RingSpec main = machine.ringSpecs(back, radius).get(0);
+        Frame frame = frame(self, main.back());
         BlockPos pos = self.getPos();
         Vec3 eye = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition()
                 .subtract(pos.getX(), pos.getY(), pos.getZ());
@@ -489,7 +510,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         int color = machine.getRingColor();
         float cr = red(color) / 255f, cg = green(color) / 255f, cb = blue(color) / 255f;
         long tick = self.getOffsetTimer() / 2;
-        float ring = machine.ringRadius(radius);
+        float ring = main.radius();
         for (Bolt bolt : state.bolts) {
             float fade = 1 - (float) bolt.age / bolt.life;
             RandomSource random = RandomSource.create(bolt.seed ^ tick * 0x9E3779B97F4A7C15L);
@@ -586,8 +607,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     }
 
     /** The ring's centre (block-local) and axis for the machine's current facing. */
-    private Frame frame(MetaMachine self) {
-        float back = self instanceof ILightRingMachine ring ? ring.ringBack(this.back) : this.back;
+    private Frame frame(MetaMachine self, float back) {
         boolean flipped = self instanceof MultiblockControllerMachine controller && controller.isFlipped();
         Direction upDir = RelativeDirection.UP.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), flipped);
         Direction backDir = RelativeDirection.BACK.getRelative(self.getFrontFacing(), self.getUpwardsFacing(),
@@ -649,8 +669,11 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     @Override
     public AABB getRenderBoundingBox(ILightRingMachine machine) {
         BlockPos pos = machine.self().getPos();
-        float ring = machine.ringRadius(radius);
-        float reach = Math.abs(up) + Math.abs(machine.ringBack(back)) + ring + thickness * HALO[HALO.length - 1][0] + 1;
+        float reach = 0;
+        for (ILightRingMachine.RingSpec spec : machine.ringSpecs(back, radius)) {
+            reach = Math.max(reach, Math.abs(up) + Math.abs(spec.back()) + spec.radius());
+        }
+        reach += thickness * HALO[HALO.length - 1][0] + 1;
         return new AABB(pos).inflate(reach);
     }
 }

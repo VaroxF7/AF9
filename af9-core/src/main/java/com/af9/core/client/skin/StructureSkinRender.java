@@ -104,6 +104,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
 
     static void clearCaches() {
         QUADS.clear();
+        RingDraw.clear();
     }
 
     @Override
@@ -128,6 +129,17 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         BlockPos pos = machine.self().getPos();
         if (skin == null) return super.getRenderBoundingBox(machine);
         AABB box = new AABB(pos);
+        if (skin.rings() != null) {
+            // the tower: down to the needle's tip and out to the big ring
+            int reach = 1;
+            int depth = 0;
+            for (var band : skin.rings().bands()) {
+                reach = Math.max(reach, band.radius() + 3);
+                depth = Math.max(depth, band.d0() + band.t());
+            }
+            return box.minmax(new AABB(StructureSkins.at(machine.self(), -reach, -reach, 0)))
+                    .minmax(new AABB(StructureSkins.at(machine.self(), reach, reach, depth + 2)));
+        }
         if (skin.cabinet() != null) {
             int length = Math.max(StructureSkins.lengthOf(pos), skin.cabinet().maxLength());
             return box.minmax(new AABB(StructureSkins.at(machine.self(), -skin.right(), -skin.cabinet().below(), 0)))
@@ -203,6 +215,12 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         poseStack.last().normal().mul(new Matrix3f(basis));
         poseStack.translate(-0.5, -0.5, -0.5);
 
+        if (skin.rings() != null) {
+            boolean working = machine instanceof IRecipeLogicMachine logic && logic.isActive();
+            RingDraw.draw(self, skin.rings(), working, partialTick, poseStack, buffer, packedOverlay);
+            poseStack.popPose();
+            return;
+        }
         if (skin.cabinet() != null) {
             int length = StructureSkins.lengthOf(pos);
             if (length > 0) {
