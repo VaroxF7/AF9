@@ -108,6 +108,13 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     private static final int ALL_LAYERS = Integer.MAX_VALUE, HOT_BLOOM_LAYERS = 2;
     /** Most a glow layer adds (a hot ring's inner layers get there). */
     private static final float MAX_GLOW_ALPHA = 0.9F;
+    /**
+     * A spinning ring ({@link ILightRingMachine#ringSpin()}) wears habitat modules like a space station's wheel: this
+     * many round it, each covering {@link #MODULE_FILL} of its slot, a fatter tube ({@link #MODULE_TUBE} times the ring's)
+     * with a white-hot core, all turning with the spin.
+     */
+    private static final int MODULES = 12;
+    private static final float MODULE_FILL = 0.55F, MODULE_TUBE = 2.6F;
 
     private final float up;
     private final float back;
@@ -249,6 +256,20 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         int segments = Math.max(20, Math.round(ring * 5));
         VertexConsumer tube = source.getBuffer(tubeType);
         torus(tube, mat, frame, ring, thickness, 10, segments, r, g, b, alpha);
+        float spin = machine.ringSpin();
+        if (spin != 0) {
+            // the station's modules, turning round the ring (ticks of the machine's own timer, so it keeps turning
+            // while the ring fades out)
+            float turn = (machine.self().getOffsetTimer() + partialTick) * spin;
+            float slot = Mth.TWO_PI / MODULES;
+            for (int m = 0; m < MODULES; m++) {
+                float from = turn + m * slot;
+                torusArc(tube, mat, frame, ring, thickness * MODULE_TUBE, 8, Math.max(4, segments / MODULES), from,
+                        slot * MODULE_FILL, r, g, b, alpha * 0.9F);
+                torusArc(tube, mat, frame, ring, thickness * MODULE_TUBE * 0.5F, 6, Math.max(4, segments / MODULES),
+                        from, slot * MODULE_FILL, 1F, 1F, 1F, alpha);
+            }
+        }
         // the white-hot core inside it
         torus(tube, mat, frame, ring, thickness * (hot ? HOT_CORE : CORE), 8, segments, 1F, 1F, 1F,
                 alpha * (hot ? 1F : CORE_ALPHA));
@@ -271,9 +292,19 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
      */
     private static void torus(VertexConsumer consumer, Matrix4f mat, Frame frame, float radius, float tube, int sides,
                               int segments, float r, float g, float b, float alpha) {
+        torusArc(consumer, mat, frame, radius, tube, sides, segments, 0, Mth.TWO_PI, r, g, b, alpha);
+    }
+
+    /**
+     * A stretch of a torus: {@code sweep} radians of the ring's circle from the angle {@code from}, in
+     * {@code segments}; a stretch short of the whole circle is closed with a cap at each end.
+     */
+    private static void torusArc(VertexConsumer consumer, Matrix4f mat, Frame frame, float radius, float tube,
+                                 int sides, int segments, float from, float sweep, float r, float g, float b,
+                                 float alpha) {
         float[] ringSin = new float[segments + 1], ringCos = new float[segments + 1];
         for (int i = 0; i <= segments; i++) {
-            float angle = Mth.TWO_PI * i / segments;
+            float angle = from + sweep * i / segments;
             ringSin[i] = Mth.sin(angle);
             ringCos[i] = Mth.cos(angle);
         }
@@ -289,6 +320,16 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
                 frame.vertex(consumer, mat, ringSin[i + 1], ringCos[i + 1], dist[j], along[j], r, g, b, alpha);
                 frame.vertex(consumer, mat, ringSin[i + 1], ringCos[i + 1], dist[j + 1], along[j + 1], r, g, b, alpha);
                 frame.vertex(consumer, mat, ringSin[i], ringCos[i], dist[j + 1], along[j + 1], r, g, b, alpha);
+            }
+        }
+        if (sweep >= Mth.TWO_PI - 1.0E-3F) return;
+        for (int end : new int[] { 0, segments }) {
+            for (int j = 0; j < sides; j++) {
+                // a fan of the tube's cross-section from the core line: a quad with its first two corners shared
+                frame.vertex(consumer, mat, ringSin[end], ringCos[end], radius, 0, r, g, b, alpha);
+                frame.vertex(consumer, mat, ringSin[end], ringCos[end], radius, 0, r, g, b, alpha);
+                frame.vertex(consumer, mat, ringSin[end], ringCos[end], dist[j + 1], along[j + 1], r, g, b, alpha);
+                frame.vertex(consumer, mat, ringSin[end], ringCos[end], dist[j], along[j], r, g, b, alpha);
             }
         }
     }

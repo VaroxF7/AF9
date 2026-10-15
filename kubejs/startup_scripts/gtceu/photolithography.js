@@ -68,7 +68,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 
 // Orbital station layouts, precomputed ONCE at module level and reused by .pattern() for both
 // basic and Mk2 (memoized): ORBITAL_BASIC is the 25-wide design, ORBITAL_BANDS its 18x25x25 rim-band
-// scan, ORBITAL_MK2_SLICES the 35x25x35 Mk2 cell table. Same cell functions, just called once.
+// scan, ORBITAL_MK2_SLICES the 69x25x69 Mk2 cell table. Same cell functions, just called once.
 const ORBITAL_BASIC = [
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         '],
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
@@ -97,14 +97,15 @@ const ORBITAL_BASIC = [
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ']
     ]
 // Array Mk2: the same platform, bigger. The core is the basic station exactly as it is (everything within 9 blocks of
-// the controller's axis: mast, cone, hatches, the middle of the beams), centred in 35 x 35; the rim - the sturdy
-// and non-conducting rings, the shock-proof beams' ends and the trusses - is the original's moved 5 blocks out, so
-// it keeps its thickness and its look (rim radius 12 -> 17; the light ring 9.6 -> 13.6, the same 0.8 of the rim, clears it by 1.2); the
+// the controller's axis: mast, cone, hatches, the middle of the beams), centred in 69 x 69; the rim - the sturdy
+// and non-conducting rings, the shock-proof beams' ends and the trusses - is the original's moved 22 blocks out, so
+// it keeps its thickness and its look (rim radius 12 -> 34; the light ring 9.6 -> 27.2, the same 0.8 of the rim, clears it by 3.4); the
 // beams run on between them (the original's axis beams, 1-3 wide, at radius 9). Built cell by cell from ORBITAL_BASIC
 // for every level, so a change to the basic station carries over. Rows bottom -> top as ORBITAL_BASIC: [aisle][level].
-const ORBITAL_MK2 = 35      // the Mk2's size, its centre at 17
+const ORBITAL_MK2 = 69      // the Mk2's size, its centre at ORBITAL_MID
+const ORBITAL_MID = 34
 const ORBITAL_CORE = 9      // within this radius the basic station is copied as it is
-const ORBITAL_GROW = 5      // how far the rim moves out
+const ORBITAL_GROW = 22     // how far the rim moves out (rim radius 12 -> 34, twice the first Mk2's 17)
 const ORBITAL_NEAR = 3      // within this many blocks of an axis the rim moves out straight (no stretch of the beams)
 const ORBITAL_SPIRE = 7   // the Mk2's undulator spire hangs this many blocks lower than the basic station's mast (af9-core DEPTH_MK2)
 const orbitalBasicAt = (level, dx, dz) => {
@@ -175,7 +176,7 @@ const orbitalMk2Cell = (level, dx, dz) => {
 // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop
 // bodies use callbacks (a const in a callback is new each call; lint rule S3). Array(n).fill(0), not
 // Array.from({ length: n }): Rhino's Array.from leaves n holes, and forEach skips holes.
-// Precomputed once (35x25x35 Mk2 cell table); .pattern() reuses this const.
+// Precomputed once (69x25x69 Mk2 cell table); .pattern() reuses this const.
 const ORBITAL_MK2_SLICES = (() => {
     const slices = []
     Array(ORBITAL_MK2).fill(0).forEach((_, az) => {
@@ -186,7 +187,7 @@ const ORBITAL_MK2_SLICES = (() => {
             Array(ORBITAL_MK2).fill(0).forEach((_, ax) => {
                 // under the basic station's own bottom level only the spire goes on: a column of HSS-E frame
                 // on the axis (the tip of the original's mast is the same plain frame)
-                cells.push(level < 0 ? (ax === 17 && az === 17 ? 'A' : ' ') : orbitalMk2Cell(level, ax - 17, az - 17))
+                cells.push(level < 0 ? (ax === ORBITAL_MID && az === ORBITAL_MID ? 'A' : ' ') : orbitalMk2Cell(level, ax - ORBITAL_MID, az - ORBITAL_MID))
             })
             aisle.push(cells.join(''))
         })
@@ -340,9 +341,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // print draws a supercooled fluid through the coolant hatches (af9-core OrbitalLithographyMachine.COOLANT);
     // 7 and 1 nm draw computation (computation hatch) and need their research (data hatch). While switched on and
     // powered its magnetic field gives the space around it normal gravity (Ad Astra; af9-core OrbitalField).
-    // Array Mk2 (extended, 35 x 35, a screwdriver on the controller switches sizes like the Space Elevator's screen
-    // switch): the same platform, the core as it is and the rim, trusses and beams' ends moved 5 blocks out (below),
-    // and a larger light ring (radius 13.6, af9-core RING_RADIUS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
+    // Array Mk2 (extended, 69 x 69, a screwdriver on the controller switches sizes like the Space Elevator's screen
+    // switch): the same platform, the core as it is and the rim, trusses and beams' ends moved 22 blocks out (below),
+    // and a larger light ring (radius 27.2, spinning, af9-core RING_RADIUS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
     // UHV+ circuits deposited ion-by-ion with plasma solder, in orbit.
     // Layouts are module-level (ORBITAL_BASIC / ORBITAL_MK2_SLICES), precomputed once above.
     const orbitalWheres = definition => {
@@ -407,7 +408,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',
             'gtceu:block/multiblock/fusion_reactor')
         // the same model plus the light ring: centre 3 behind the controller (below, as it faces up), radius 9.6
-        // (13.6 on the Array Mk2, af9-core reads the size through ringRadius), tube 0.25, lying across the
+        // (27.2 on the Array Mk2, af9-core reads the size through ringRadius), tube 0.25, lying across the
         // controller's front axis. The numbers live in af9-core (RING_*), which also burns whatever touches the lit
         // ring. Plasma soldering glows hotter (ringGlow 2, af9-core).
         .model($LithoMachineModels.workableCasingWithLightRing('gtceu:block/casings/solid/machine_casing_inert_ptfe',
