@@ -66,18 +66,11 @@ def build():
     # to it), so a plate fills the hole round the base that the 1 unit margin leaves
     box(-16, -4, 0, 32, 0, 48, 'casing')
 
-    # ---- base (layer 0): the casing slab with feet, vents and bolts
+    # ---- base (layer 0): the casing slab with feet (no vent banks: they hid the hatches)
     box(-15, 0, 1, 31, 16, 47, 'casing')
     for (x0, x1) in ((-15, -9), (25, 31)):
         for (z0, z1) in ((1, 7), (41, 47)):
             box(x0 - 0.6, 0, z0 - 0.6, x1 + 0.6, 16.4, z1 + 0.6, 'plate')
-    # front vent banks either side of the controller, side vent banks, the back one
-    for (x0, x1) in ((-12, -3), (19, 28)):
-        box(x0, 3, -0.5, x1, 13, 1.1, 'vent')
-    for z0 in (10, 28):
-        box(-16.5, 3, z0, -14.9, 13, z0 + 10, 'vent')
-        box(30.9, 3, z0, 32.5, 13, z0 + 10, 'vent')
-    box(-9, 3, 46.9, 25, 13, 48.5, 'vent')
 
     # ---- body (layers 1 and 2): corner posts and the round furnace between them
     for (x0, x1) in ((-15.6, -10), (26, 31.6)):
