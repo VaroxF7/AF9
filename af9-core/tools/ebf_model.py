@@ -59,7 +59,7 @@ def octagon(apothem, y0, y1, tex, into=None):
 
 def build():
     # The pattern's outline is x -16..32, y 0..64, z 0..48. The bodies keep 1 unit inside it (a hatch in a casing spot
-    # stays a real block and reaches out of the skin), the relief on them (corner posts, rims, vents, pipes, the door)
+    # stays a real block and reaches out of the skin), the relief on them (corner posts, rims, vents, pipes)
     # stands out of the outline by up to 1.6 units for depth. No two faces share a plane, to keep them from fighting.
 
     # ---- under the ground: the terrain's top face under the structure is not drawn (the blocks above it are opaque
@@ -92,14 +92,6 @@ def build():
     for y in (17.5, 31.5, 45.5):
         for (x, z) in ((CX - 23.4, CZ), (CX + 23.4, CZ), (CX, CZ - 23.4), (CX, CZ + 23.4)):
             box(x - 1, y, z - 1, x + 1, y + 1, z + 1, 'plate')
-
-    # door: a plated frame on the front with the furnace window in it (the window is the glow model)
-    box(-9, 19, -0.6, 25, 45, 2, 'plate')
-    box(-10.2, 18, -1.0, 26.2, 20, 2, 'hoop')
-    box(-10.2, 44, -1.0, 26.2, 46, 2, 'hoop')
-    box(-10.2, 20, -1.0, -8, 44, 2, 'hoop')
-    box(24, 20, -1.0, 26.2, 44, 2, 'hoop')
-    box(22.5, 29, -1.6, 24.5, 35, -0.5, 'pipe')  # handle
 
     # brass pipes: a riser at each front corner, a manifold across the back with its stubs
     for x in (-8, 24):
