@@ -92,19 +92,24 @@ def optical_ram():
 
 def nano_particles():
     im = new()
-    # a drifting cloud of glowing grains, some clumped: (x, y, colour, bright pixel)
-    grains = [(3, 3, C), (7, 2, V), (11, 4, C), (5, 6, G), (9, 7, C), (13, 8, V), (2, 9, C),
-              (6, 11, V), (10, 12, G), (12, 11, C), (4, 13, C), (8, 9, CL)]
-    for x, y, c in grains:
-        pts(im, c, (x, y))
-        pts(im, K, (x + 1, y + 1)) if (x + y) % 3 == 0 else None
-    # two denser clumps
-    for cx, cy in ((7, 5), (10, 10)):
-        rect(im, cx, cy, cx + 1, cy + 1, CD)
-        pts(im, CL, (cx, cy))
-        pts(im, C, (cx + 1, cy))
-        pts(im, K, (cx + 1, cy + 1))
-    pts(im, H, (2, 6), (13, 3), (5, 9), (11, 13))
+    # a dust-pile mound of dark metallic grains (like a nanite pile), cyan-lit specks sparkling in it
+    rows = {4: (7, 8), 5: (6, 9), 6: (5, 10), 7: (4, 11), 8: (3, 12), 9: (2, 13), 10: (2, 13), 11: (1, 14), 12: (1, 14), 13: (2, 13)}
+    for y, (x0, x1) in rows.items():
+        for x in range(x0, x1 + 1):
+            c = M
+            if y >= 11 or x >= x1 - 1:
+                c = D                                # shaded base and right flank
+            elif (x * 3 + y * 5) % 4 == 0:
+                c = L                                # metallic grain
+            if x == x0 or y == 13:
+                c = K if (x + y) % 2 else D          # ragged outline
+            im.putpixel((x, y), c)
+    pts(im, H, (6, 6), (4, 8), (9, 7), (3, 10))      # grain glints
+    pts(im, C, (7, 5), (5, 8), (9, 9), (4, 11), (11, 10), (7, 11), (12, 12), (6, 13))
+    pts(im, CL, (7, 5), (9, 9), (4, 11))
+    pts(im, CD, (6, 8), (10, 9), (8, 12))
+    pts(im, CL, (2, 2), (13, 3), (11, 1))            # drifting sparks above the pile
+    pts(im, C, (3, 1), (12, 2), (1, 5), (14, 6))
     return im
 
 
