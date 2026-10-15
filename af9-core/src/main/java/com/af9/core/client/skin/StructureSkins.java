@@ -192,6 +192,8 @@ public final class StructureSkins {
                     // anything that is a machine of its own (a hatch the controller does not list yet) or any block
                     // entity at all (another mod's part) stays drawn: the player works with it
                     if (MetaMachine.getMachine(level, pos) != null || level.getBlockEntity(pos) != null) continue;
+                    // the cabinet leaves the front (controller side) and the top as the original blocks
+                    if (skin.cabinet() != null && (back == 0 || up == skin.up() - 1)) continue;
                     if (skin.cabinet() != null && CABINET_WINDOWS.contains(String.valueOf(
                             net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(
                                     level.getBlockState(pos).getBlock())))) {

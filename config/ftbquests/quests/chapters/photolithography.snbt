@@ -3444,6 +3444,87 @@
 			x: 62.5d
 			y: -6.0d
 		}
+		{
+			dependencies: ["12B32C15E6A4BEBF"]
+			description: [
+				"{af9.quest.litho.fiberPort.1}"
+				""
+				"{af9.quest.litho.fiberPort.2}"
+				""
+				"{af9.quest.litho.fiberPort.3}"
+			]
+			id: "08EDB49433B5DB83"
+			rewards: [{
+				id: "39194489FB24057B"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.litho.fiberPort.subtitle}"
+			tasks: [{
+				id: "28015663FEE623ED"
+				item: "gtceu:ev_fiber_link_port"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.fiberPort.title}"
+			x: 42.0d
+			y: -6.0d
+		}
+		{
+			dependencies: ["08EDB49433B5DB83"]
+			description: [
+				"{af9.quest.litho.hub.1}"
+				""
+				"{af9.quest.litho.hub.2}"
+				""
+				"{af9.quest.litho.hub.3}"
+			]
+			id: "72E697A9B98620F2"
+			rewards: [{
+				id: "59CEA8876AAFF8EC"
+				type: "xp"
+				xp: 250
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.litho.hub.subtitle}"
+			tasks: [{
+				id: "5A51CED3A8A8F929"
+				item: "gtceu:logistics_hub"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.hub.title}"
+			x: 39.0d
+			y: -6.0d
+		}
+		{
+			dependencies: ["72E697A9B98620F2"]
+			description: [
+				"{af9.quest.litho.rack.1}"
+				""
+				"{af9.quest.litho.rack.2}"
+				""
+				"{af9.quest.litho.rack.3}"
+			]
+			id: "3DF70B55CBA10E9E"
+			rewards: [{
+				id: "7370A92869FA0778"
+				type: "xp"
+				xp: 250
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.litho.rack.subtitle}"
+			tasks: [{
+				id: "3F2314578AE945F4"
+				item: "gtceu:logistics_rack"
+				type: "item"
+			}]
+			title: "{af9.quest.litho.rack.title}"
+			x: 39.0d
+			y: -9.0d
+		}
 	]
 	subtitle: ["{af9.quest.litho.chapter.subtitle}"]
 	title: "{af9.quest.litho.chapter.title}"

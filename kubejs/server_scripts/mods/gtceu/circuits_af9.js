@@ -646,11 +646,7 @@ ServerEvents.recipes(event => {
             .EUt(VA[GTValues.UHV], PICO_AMPS)
         spec.fluids.forEach(f => r.inputFluids(f))
     }
-    // the board: a wetware board traced in fine chromodynium wire
-    pico('pico_board', {
-        items: ['gtceu:wetware_printed_circuit_board', '2x gtceu:chromodynium_plate', '8x gtceu:fine_chromodynium_wire'],
-        fluids: [Fluid.of('gtceu:plasma_solder', 144)],
-        out: 'af9:pico_board', cwu: 32, duration: 400 })
+    // the board itself is laid up at UV before this plant: ceranium and fibre interconnects (ceranium.js)
     // cleansed in ultrapure water and noble gas, every stray particle gone
     pico('cleansed_pico_board', {
         items: ['af9:pico_board'],

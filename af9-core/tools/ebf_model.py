@@ -59,25 +59,18 @@ def octagon(apothem, y0, y1, tex, into=None):
 
 def build():
     # The pattern's outline is x -16..32, y 0..64, z 0..48. The bodies keep 1 unit inside it (a hatch in a casing spot
-    # stays a real block and reaches out of the skin), the relief on them (corner posts, rims, vents, pipes, the door)
+    # stays a real block and reaches out of the skin), the relief on them (corner posts, rims, vents, pipes)
     # stands out of the outline by up to 1.6 units for depth. No two faces share a plane, to keep them from fighting.
 
     # ---- under the ground: the terrain's top face under the structure is not drawn (the blocks above it are opaque
     # to it), so a plate fills the hole round the base that the 1 unit margin leaves
     box(-16, -4, 0, 32, 0, 48, 'casing')
 
-    # ---- base (layer 0): the casing slab with feet, vents and bolts
+    # ---- base (layer 0): the casing slab with feet (no vent banks: they hid the hatches)
     box(-15, 0, 1, 31, 16, 47, 'casing')
     for (x0, x1) in ((-15, -9), (25, 31)):
         for (z0, z1) in ((1, 7), (41, 47)):
             box(x0 - 0.6, 0, z0 - 0.6, x1 + 0.6, 16.4, z1 + 0.6, 'plate')
-    # front vent banks either side of the controller, side vent banks, the back one
-    for (x0, x1) in ((-12, -3), (19, 28)):
-        box(x0, 3, -0.5, x1, 13, 1.1, 'vent')
-    for z0 in (10, 28):
-        box(-16.5, 3, z0, -14.9, 13, z0 + 10, 'vent')
-        box(30.9, 3, z0, 32.5, 13, z0 + 10, 'vent')
-    box(-9, 3, 46.9, 25, 13, 48.5, 'vent')
 
     # ---- body (layers 1 and 2): corner posts and the round furnace between them
     for (x0, x1) in ((-15.6, -10), (26, 31.6)):
@@ -92,14 +85,6 @@ def build():
     for y in (17.5, 31.5, 45.5):
         for (x, z) in ((CX - 23.4, CZ), (CX + 23.4, CZ), (CX, CZ - 23.4), (CX, CZ + 23.4)):
             box(x - 1, y, z - 1, x + 1, y + 1, z + 1, 'plate')
-
-    # door: a plated frame on the front with the furnace window in it (the window is the glow model)
-    box(-9, 19, -0.6, 25, 45, 2, 'plate')
-    box(-10.2, 18, -1.0, 26.2, 20, 2, 'hoop')
-    box(-10.2, 44, -1.0, 26.2, 46, 2, 'hoop')
-    box(-10.2, 20, -1.0, -8, 44, 2, 'hoop')
-    box(24, 20, -1.0, 26.2, 44, 2, 'hoop')
-    box(22.5, 29, -1.6, 24.5, 35, -0.5, 'pipe')  # handle
 
     # brass pipes: a riser at each front corner, a manifold across the back with its stubs
     for x in (-8, 24):

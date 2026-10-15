@@ -1,6 +1,6 @@
 """
 Paints the 32x32 textures of the motor parts of every tier (LV to UHV): the finned housing, the copper-wound stator, the
-slotted rotor with its magnet poles, the assembled motor (GT's own motor item, overridden under assets/gtceu), and the
+slotted rotor with its magnet poles, the assembled motor (GT's own motor items, overridden as assets/gtceu/textures/item/<tier>_electric_motor.png), and the
 industrial motor housing. Run from af9-core:
 
     python tools/motor_parts.py
@@ -17,7 +17,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, '..', 'src', 'main', 'resources', 'assets')
 OUT = os.path.join(RES, 'af9', 'textures', 'item')
-GT_OUT = os.path.join(RES, 'gtceu', 'textures', 'item', 'metaitems')
+GT_OUT = os.path.join(RES, 'gtceu', 'textures', 'item')
 
 # tier: (dark, mid, light)
 RAMPS = {
@@ -255,7 +255,7 @@ def main():
         img(housing(ramp)).save(os.path.join(OUT, tier + '_motor_housing.png'))
         img(stator(ramp)).save(os.path.join(OUT, tier + '_stator.png'))
         img(rotor(ramp)).save(os.path.join(OUT, tier + '_rotor.png'))
-        img(motor(ramp)).save(os.path.join(GT_OUT, 'electric.motor.' + tier + '.png'))
+        img(motor(ramp)).save(os.path.join(GT_OUT, tier + '_electric_motor.png'))
     industrial_strip(industrial()).save(os.path.join(OUT, 'industrial_electric_motor_housing.png'))
     with open(os.path.join(OUT, 'industrial_electric_motor_housing.png.mcmeta'), 'w') as f:
         json.dump({'animation': {'frametime': 10}}, f)

@@ -27,6 +27,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /**
@@ -78,13 +79,13 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
      * beam up its middle, scrolling upward forever. Nearly transparent additive light (a hologram,
      * not a rope): alpha pulses gently and travelling scanline gaps run up it with the scroll.
      */
-    private static final float HELIX_RADIUS = 0.6F, HELIX_WIDTH = 0.12F;
+    private static final float HELIX_RADIUS = 0.6F, HELIX_WIDTH = 0.35F;
     /** Blocks of height per full turn of the helix. */
     private static final float HELIX_PITCH = 6F;
     /** Seconds per full upward scroll cycle of the hologram. */
     private static final float HELIX_PERIOD = 8F;
-    /** Height of one ribbon segment; scanline gap every this many blocks of height. */
-    private static final float HELIX_STEP = 0.75F, SCANLINE_EVERY = 8F, SCANLINE_GAP = 1.5F;
+    /** Height of one ribbon segment; a soft scanline dip every this many blocks of height. */
+    private static final float HELIX_STEP = 0.25F, SCANLINE_EVERY = 8F;
     /** Base alpha of the strand (0-1); the beam up the middle is half of it. */
     private static final float HELIX_ALPHA = 0.30F;
 
@@ -201,28 +202,30 @@ public class SpaceElevatorRender extends DynamicRender<ISpaceElevatorMachine, Sp
         float flicker = 0.85F + 0.15F * Mth.sin(time * Mth.TWO_PI / 3F);
         float alpha = HELIX_ALPHA * flicker;
         int steps = Mth.ceil(CABLE_HEIGHT / HELIX_STEP);
-        for (int i = 0; i < steps; i++) {
-            float y0 = bottom + i * HELIX_STEP;
-            float y1 = Math.min(bottom + CABLE_HEIGHT, y0 + HELIX_STEP);
-            // travelling scanline gaps, running up with the scroll
-            float scan = (y0 - time / HELIX_PERIOD * SCANLINE_EVERY) % SCANLINE_EVERY;
-            if (scan < 0) scan += SCANLINE_EVERY;
-            if (scan < SCANLINE_GAP) continue;
-            // fade the strand out at both ends of the shaft
-            float fade = Math.min(1F, Math.min(y0 - bottom, bottom + CABLE_HEIGHT - y0) / 8F);
-            if (fade <= 0) continue;
-            float a0 = y0 / HELIX_PITCH * Mth.TWO_PI - scroll;
-            float a1 = y1 / HELIX_PITCH * Mth.TWO_PI - scroll;
-            float x0 = Mth.cos(a0) * HELIX_RADIUS, z0 = Mth.sin(a0) * HELIX_RADIUS;
-            float x1 = Mth.cos(a1) * HELIX_RADIUS, z1 = Mth.sin(a1) * HELIX_RADIUS;
-            // ribbon across the strand: width along the horizontal tangent, twisting as it climbs
-            float tx0 = -Mth.sin(a0) * HELIX_WIDTH, tz0 = Mth.cos(a0) * HELIX_WIDTH;
-            float tx1 = -Mth.sin(a1) * HELIX_WIDTH, tz1 = Mth.cos(a1) * HELIX_WIDTH;
-            float a = alpha * fade;
-            glow.vertex(pose.pose(), x0 - tx0, y0, z0 - tz0).color(0.45F, 0.8F, 1F, a).endVertex();
-            glow.vertex(pose.pose(), x0 + tx0, y0, z0 + tz0).color(0.45F, 0.8F, 1F, a).endVertex();
-            glow.vertex(pose.pose(), x1 + tx1, y1, z1 + tz1).color(0.45F, 0.8F, 1F, a).endVertex();
-            glow.vertex(pose.pose(), x1 - tx1, y1, z1 - tz1).color(0.45F, 0.8F, 1F, a).endVertex();
+        Matrix4f m = pose.pose();
+        float prevX = 0, prevZ = 0, prevY = 0, prevA = 0;
+        for (int i = 0; i <= steps; i++) {
+            float y = Math.min(bottom + CABLE_HEIGHT, bottom + i * HELIX_STEP);
+            float ang = y / HELIX_PITCH * Mth.TWO_PI - scroll;
+            float x = Mth.cos(ang) * HELIX_RADIUS, z = Mth.sin(ang) * HELIX_RADIUS;
+            // soft travelling scanlines (a brightness dip, never a gap), and both ends of the shaft fade out
+            float scan = (y - time / HELIX_PERIOD * SCANLINE_EVERY) / SCANLINE_EVERY;
+            scan -= Mth.floor(scan);
+            float band = 0.45F + 0.55F * Mth.sin(scan * Mth.PI);
+            float fade = Mth.clamp(Math.min(y - bottom, bottom + CABLE_HEIGHT - y) / 8F, 0F, 1F);
+            float a = alpha * band * fade;
+            if (i > 0) {
+                // a band wrapped round the beam's cylinder: its width runs up the axis, so it reads from every side,
+                // and every quad shares its edge with the next one, so the strand never breaks
+                glow.vertex(m, prevX, prevY - HELIX_WIDTH, prevZ).color(0.45F, 0.8F, 1F, prevA).endVertex();
+                glow.vertex(m, prevX, prevY + HELIX_WIDTH, prevZ).color(0.45F, 0.8F, 1F, prevA).endVertex();
+                glow.vertex(m, x, y + HELIX_WIDTH, z).color(0.45F, 0.8F, 1F, a).endVertex();
+                glow.vertex(m, x, y - HELIX_WIDTH, z).color(0.45F, 0.8F, 1F, a).endVertex();
+            }
+            prevX = x;
+            prevY = y;
+            prevZ = z;
+            prevA = a;
         }
         // the projector beam up the middle, half the strand's light
         float beamAlpha = alpha * 0.5F;

@@ -42,4 +42,6 @@ GTCEuServerEvents.oreVeins(event => {
     ceresVein('af9:pentlandite_vein', 'pentlandite', 45)
     ceresVein('af9:magnetite_vein', 'magnetite', 45)
     ceresVein('af9:cooperite_vein', 'cooperite', 25)
+    // ceresite: the board metal of the Pico circuits (ceranium.js); a rare vein, so the Pico line stays a hunt
+    ceresVein('af9:ceresite_vein', 'ceresite', 20)
 })

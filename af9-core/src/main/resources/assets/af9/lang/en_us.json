@@ -88,7 +88,7 @@
     "af9.scanner.console.needs": "Needs V%s",
     "af9.scanner.console.speed": "speed %s",
     "af9.scanner.console.breaks": "breaks %s",
-    "af9.scanner.console.length": "%s blocks long, %s windows",
+    "af9.scanner.console.length": "%s blocks, %s windows",
     "af9.scanner.console.immersion": "IMMERSION",
     "af9.scanner.console.immersion_on": "ultrapure water",
     "af9.scanner.console.immersion_off": "dry",
@@ -895,7 +895,7 @@
     "item.af9.nvm_processor_mainframe": "NVM Processor Mainframe",
     "item.af9.nvm_processor_mainframe.tooltip.0": "Top of the linear ladder. Memory that computes.",
     "item.af9.pico_board": "Pico Circuit Board",
-    "item.af9.pico_board.tooltip.0": "Chromodynium-traced board of the Pico line. Orbital Array Mk2 only.",
+    "item.af9.pico_board.tooltip.0": "Ceranium board of the Pico line, laid up at UV. Orbital Array Mk2 only.",
     "item.af9.cleansed_pico_board": "Cleansed Pico Circuit Board",
     "item.af9.cleansed_pico_board.tooltip.0": "A pico board stripped of every stray particle.",
     "item.af9.pico_cpu": "Pico CPU",
@@ -919,7 +919,7 @@
     "item.af9.nano_particles": "Nano Particles",
     "item.af9.nano_particles.tooltip.0": "Seed particles for optical assembly.",
     "item.af9.fiber_interconnects": "Fiber Interconnects",
-    "item.af9.fiber_interconnects.tooltip.0": "Optical junctions between fiber and die.",
+    "item.af9.fiber_interconnects.tooltip.0": "Optical junctions between fiber and die. Laid up at UV; the traces of the Ceranium Pico board.",
     "item.af9.optical_fiber_cable": "Optical Fiber Cable",
     "item.af9.optical_fiber_cable.tooltip.0": "Thin glass fiber for circuits. Not GT's fat trunk fiber.",
     "material.gtceu.bacteria_culture": "Bacteria Culture",
@@ -1385,5 +1385,7 @@
     "af9.fiber.status_ok": "Fibre: linked, carrying items and fluids",
     "af9.fiber.status_far": "Fibre: linked, the other end is not loaded",
     "af9.fiber.status_unlinked": "Fibre: not linked (data stick, right-click both ports)",
-    "af9.litho.console.light": "LIGHT SOURCE"
+    "af9.litho.console.light": "LIGHT SOURCE",
+    "af9.litho.console.hatch_tier": "ENERGY IN",
+    "af9.litho.console.needs_power": "needs %sA %s"
 }

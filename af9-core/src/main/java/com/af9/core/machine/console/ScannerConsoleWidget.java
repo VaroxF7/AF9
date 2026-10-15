@@ -31,7 +31,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -40,15 +39,13 @@ import java.util.Objects;
  * it), the orbital station's layout. The two machines differ only in what is physical: the scanner has its ArF laser in
  * a slot of this screen, the line's light source is a block of its structure.
  * <ul>
- * <li>left, the exposure field: the scanner's two nodes (click one to switch to it; a node above the scanner's version
- * shows the version it needs), the optical column (the ArF laser, the reticle stage scanning, the projection lens with
- * one element per window section, the immersion water of 65 nm, the wafer stage) and the wafer from above, exposed
- * die by die in the node's colour, the state and the run-time bar;</li>
+ * <li>left, the exposure field: the node the machine is set to (GT's mode button on the left of the screen switches it),
+ * the wafer from above in the middle, exposed die by die in the node's colour, the state and the run-time bar;</li>
  * <li>right, the exposure panel: the node and its light, what is printing on which substrate, the ArF laser slot
- * (kept, never used up), the version's speed and break bonus, the on/off and batch switches, the break chance, the
- * counters and a hint for the current state;</li>
+ * (kept, never used up), the version's speed and break bonus, the on/off switch and a hint for the current state (GT
+ * adds the batch button on the left of the screen);</li>
  * <li>beside the player inventory ({@link SidePanel}): left the process (vacuum, version, immersion, laser), right the
- * system (status, power, tier, batch, switch).</li>
+ * system (status, power, energy hatch tier, batch, switch).</li>
  * </ul>
  * The server samples the machine every tick and sends the state only when something changed.
  */
@@ -59,15 +56,11 @@ public class ScannerConsoleWidget extends ConsoleWidget {
     /** Left field and right panel of the page. */
     public static final int FIELD_X = 4, FIELD_Y = 4, FIELD_W = 240, FIELD_H = 140;
     public static final int PANEL_X = 250, PANEL_Y = 4, PANEL_W = 130, PANEL_H = 140;
-    public static final int TILE_Y = 8, TILE_H = 20;
     /** The ArF laser slot. */
     public static final int SLOT_X = PANEL_X + 5, SLOT_Y = 58;
-    public static final int SWITCH_X = PANEL_X + 5, SWITCH_Y = 80, SWITCH_W = 80, SWITCH_H = 16;
-    public static final int BATCH_X = SWITCH_X + SWITCH_W + 4, BATCH_W = PANEL_W - 10 - SWITCH_W - 4;
-    public static final int RESET_W = 30, RESET_H = 9, RESET_X = PANEL_X + PANEL_W - 5 - RESET_W, RESET_Y = 110;
-    /** The optical column (centre x, top, bottom) and the wafer (centre) in the field. */
-    private static final int COLUMN_X = FIELD_X + 58, COLUMN_TOP = 34, COLUMN_BOTTOM = 110;
-    private static final int WAFER_X = FIELD_X + 172, WAFER_Y = 72;
+    public static final int SWITCH_X = PANEL_X + 5, SWITCH_Y = 80, SWITCH_W = PANEL_W - 10, SWITCH_H = 16;
+    /** The wafer (centre) in the field. */
+    private static final int WAFER_X = FIELD_X + FIELD_W / 2, WAFER_Y = 72;
     private static final WaferView WAFER = new WaferView(32, 8);
     /** Structure length of version 1 (the line adds 1 block a version, the scanner 2: the spec's aisles per slice). */
     public static final int LENGTH_V1 = 10;
@@ -109,30 +102,12 @@ public class ScannerConsoleWidget extends ConsoleWidget {
     }
 
     /**
-     * The page: this console, the node tiles (a click switches to the node), the laser slot, the on/off and batch
-     * switches and the counter reset. The slot works on the handler's storage: the handler refuses inserts (no pipe
-     * access).
+     * The page: this console, the laser slot and the on/off switch. The slot works on the handler's storage: the handler
+     * refuses inserts (no pipe access).
      */
     public static WidgetGroup createPage(PhotolithographyLineMachine machine) {
         var page = new WidgetGroup(0, 0, WIDTH, HEIGHT);
         page.addWidget(new ScannerConsoleWidget(machine, 0, 0));
-        List<LithoMode> modes = machine.getModes();
-        for (int i = 0; i < modes.size(); i++) {
-            int index = i;
-            var tile = new ButtonWidget(tileX(i, modes.size()), TILE_Y, tileWidth(modes.size()), TILE_H,
-                    IGuiTexture.EMPTY, click -> {
-                        if (click.isRemote || machine.getActiveRecipeType() == index) return;
-                        // as GT's mode button: switch, then let the recipe logic look again
-                        machine.setActiveRecipeType(index);
-                        machine.getRecipeLogic().updateTickSubscription();
-                    });
-            tile.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
-            Component[] lines = LithoConsoleWidget.tileTooltip(modes.get(i));
-            Component[] tooltip = Arrays.copyOf(lines, lines.length + 1);
-            tooltip[lines.length] = Component.translatable("af9.scanner.console.select");
-            tile.setHoverTooltips(tooltip);
-            page.addWidget(tile);
-        }
         if (machine instanceof PhotolithographyScannerMachine scanner) {
             page.addWidget(new SlotWidget(scanner.laserSlot.storage, 0, SLOT_X, SLOT_Y, true, true)
                     .setBackgroundTexture(GuiTextures.SLOT)
@@ -144,27 +119,7 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         power.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
         power.setHoverTooltips(Component.translatable("af9.scanner.console.switch_tooltip"));
         page.addWidget(power);
-        var batchSwitch = new ButtonWidget(BATCH_X, SWITCH_Y, BATCH_W, SWITCH_H, IGuiTexture.EMPTY, click -> {
-            if (!click.isRemote) machine.setBatchEnabled(!machine.isBatchEnabled());
-        });
-        batchSwitch.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
-        batchSwitch.setHoverTooltips(Component.translatable("af9.orbital.console.batch_tooltip"));
-        page.addWidget(batchSwitch);
-        var reset = new ButtonWidget(RESET_X, RESET_Y, RESET_W, RESET_H, IGuiTexture.EMPTY, click -> {
-            if (!click.isRemote) machine.resetCounters();
-        });
-        reset.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
-        reset.setHoverTooltips(Component.translatable("af9.litho.console.reset_tooltip"));
-        page.addWidget(reset);
         return page;
-    }
-
-    public static int tileWidth(int count) {
-        return (FIELD_W - 12 - 3 * (count - 1)) / count;
-    }
-
-    public static int tileX(int index, int count) {
-        return FIELD_X + 6 + index * (tileWidth(count) + 3);
     }
 
     //////////////////////////////////////
@@ -179,7 +134,7 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         GTRecipe running = logic.isWorking() ? logic.getLastRecipe() : null;
         int[] now = {
                 LithoConsoleWidget.statusOf(machine), active.ordinal(), machine.getVersion(),
-                machine.isFormed() ? machine.getTier() : -1,
+                machine.getInputTier(),
                 logic.isWorking() ? logic.getProgress() : 0, logic.isWorking() ? logic.getDuration() : 0,
                 (int) Math.round(machine.getCleanliness() * 10), (int) Math.round(machine.getPrintVacuum() * 10),
                 machine.getVacuumState(), (int) Math.round(machine.currentBreakChance(active) * 10000),
@@ -313,7 +268,7 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         super.drawInBackground(graphics, mouseX, mouseY, partialTicks);
     }
 
-    /** The exposure field: node tiles, optical column, the wafer, state and run time. */
+    /** The exposure field: the node, the wafer in the middle, state and run time. */
     @OnlyIn(Dist.CLIENT)
     private void drawField(GuiGraphics graphics, int x, int y, LithoMode active, float partialTicks) {
         Font font = font();
@@ -324,29 +279,28 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         for (int gx = x + 12; gx < x + FIELD_W; gx += 16) graphics.fill(gx, y + 1, gx + 1, y + FIELD_H - 1, 0x0CFFFFFF);
         for (int gy = y + 12; gy < y + FIELD_H; gy += 16) graphics.fill(x + 1, gy, x + FIELD_W - 1, gy + 1, 0x0CFFFFFF);
 
-        // node tiles: the node and its substrate, or the version a locked node needs
-        List<LithoMode> modes = machine.getModes();
-        for (int i = 0; i < modes.size(); i++) {
-            LithoMode tileMode = modes.get(i);
-            boolean locked = tileMode.level() > version;
-            boolean powered = status != STATUS_OFFLINE && !locked && available >= tileMode.eut();
-            String detail = locked ? Component.translatable("af9.scanner.console.needs_short", tileMode.level())
-                    .getString() :
-                    Component.translatable("af9.litho.substrate_short." + tileMode.substrate).getString();
-            drawTile(graphics, x0 + tileX(i, modes.size()), y0 + TILE_Y, tileWidth(modes.size()), TILE_H,
-                    tileMode.nodeNm + "nm", detail, tileMode.argb, tileMode == active, powered, locked);
-        }
+        // the node the machine is set to, big in the node's colour, or the version a locked node needs
+        boolean locked = active.level() > version;
+        String node = active.nodeNm + " NM";
+        graphics.pose().pushPose();
+        graphics.pose().translate(x + FIELD_W / 2F, y + 8, 0);
+        graphics.pose().scale(2F, 2F, 1F);
+        graphics.drawString(font, node, -font.width(node) / 2, 0, locked ? BAD : active.argb, false);
+        graphics.pose().popPose();
+        String detail = locked ? Component.translatable("af9.scanner.console.needs", active.level()).getString() :
+                Component.translatable("af9.litho.substrate." + active.substrate).getString() + "  " +
+                        Component.translatable("af9.litho.light." + active.light).getString();
+        drawSmall(graphics, detail, x + FIELD_W / 2, y + 28, locked ? BAD : MUTED, true);
 
         boolean running = status == STATUS_RUNNING;
         double fraction = duration <= 0 ? 0 : Math.min(1.0, (progress + (running ? partialTicks : 0)) / duration);
         long time = System.currentTimeMillis();
         int color = active.argb;
-        drawColumn(graphics, x0 + COLUMN_X, y0 + COLUMN_TOP, y0 + COLUMN_BOTTOM, active, running, time);
 
-        // the wafer from above, exposed die by die; the beam from the lens down to the die
+        // the wafer from above in the middle, exposed die by die; the beam from the top of the field to the die
         int cx = x0 + WAFER_X, cy = y0 + WAFER_Y;
         int[] die = WAFER.draw(graphics, cx, cy, fraction, running, status == STATUS_OFFLINE, color, time);
-        if (die != null) WaferView.drawBeam(graphics, cx, y0 + TILE_Y + TILE_H + 4, die[0], die[1], color, time);
+        if (die != null) WaferView.drawBeam(graphics, cx, y + 38, die[0], die[1], color, time);
 
         // state and run time
         int midX = x + FIELD_W / 2;
@@ -360,69 +314,6 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         String timeText = running ? seconds(progress) + " / " + seconds(duration) :
                 Component.translatable("af9.console.no_run").getString();
         drawSmall(graphics, timeText, midX, y + 133, running ? TEXT : MUTED, true);
-    }
-
-    /**
-     * The optical column from the side: the ArF laser on top, the reticle stage scanning to and fro while it exposes,
-     * the projection lens (one element per window section), the immersion water film (65 nm) and the wafer stage.
-     */
-    @OnlyIn(Dist.CLIENT)
-    private void drawColumn(GuiGraphics graphics, int cx, int top, int bottom, LithoMode active, boolean running,
-                            long time) {
-        int color = active.argb;
-        boolean lit = running && laser;
-        // the light source: the scanner's laser, the line's lamp or laser by the node
-        int laserColor = laser ? 0xFF6B4FA0 : 0xFF3A2F4A;
-        graphics.fill(cx - 30, top, cx + 30, top + 11, 0xFF141B2A);
-        border(graphics, cx - 30, top, 60, 11, laser ? withAlpha(laserColor, 0xFF) : BAD);
-        graphics.fill(cx - 27, top + 3, cx - 21, top + 8, lit ? withAlpha(0xFFFFFF, 0xE0) : laserColor);
-        String lightText = !laser ? Component.translatable("af9.scanner.console.no_laser").getString() :
-                hasLaserSlot() ? "ArF 193nm" : Component.translatable("af9.litho.light." + active.light).getString();
-        drawSmall(graphics, lightText, cx + 3, top + 3, laser ? MUTED : BAD, true);
-        // the beam down the column
-        int beamTop = top + 11;
-        int reticleY = top + 18;
-        int lensTop = reticleY + 10;
-        int slices = slices(version);
-        int lensGap = Math.min(10, (bottom - 16 - lensTop) / Math.max(1, slices));
-        int lensBottom = lensTop + slices * lensGap;
-        int stageY = bottom - 6;
-        if (lit) {
-            float glow = WaferView.pulse(time, 500);
-            for (int by = beamTop; by < stageY; by++) {
-                // wide above the lens, narrowing through it onto the wafer
-                int half = by < lensTop ? 6 : by > lensBottom ? 2 :
-                        6 - (int) Math.round(4.0 * (by - lensTop) / Math.max(1, lensBottom - lensTop));
-                graphics.fill(cx - half, by, cx + half, by + 1, withAlpha(color, 0x28 + (int) (0x30 * glow)));
-            }
-            graphics.fill(cx, beamTop, cx + 1, stageY, withAlpha(0xFFFFFF, 0x70));
-        }
-        // the reticle stage: the mask scans across the slit while a die is exposed
-        int shift = running ? (int) Math.round(10 * Math.sin(time * 2 * Math.PI / 1600)) : 0;
-        graphics.fill(cx - 26, reticleY + 2, cx + 26, reticleY + 5, 0xFF2A3346);
-        int rx = cx - 12 + shift;
-        graphics.fill(rx, reticleY, rx + 24, reticleY + 7, 0xFFB8D8E6);
-        for (int i = 0; i < 5; i++) graphics.fill(rx + 3 + i * 4, reticleY + 2, rx + 5 + i * 4, reticleY + 5, 0xFF343A42);
-        drawSmall(graphics, Component.translatable("af9.scanner.console.reticle").getString(), cx + 28, reticleY + 1,
-                DIM, false);
-        // the projection lens: one element per window section
-        for (int i = 0; i < slices; i++) {
-            int ly = lensTop + i * lensGap;
-            int half = 20 - i * 2;
-            graphics.fill(cx - half, ly + 1, cx + half, ly + 3, version > 0 ? 0xFF9FC6DB : 0xFF3B4A57);
-            graphics.fill(cx - half + 3, ly, cx + half - 3, ly + 4, version > 0 ? 0x889FC6DB : 0x553B4A57);
-        }
-        drawSmall(graphics, Component.translatable("af9.scanner.console.lens", slices).getString(), cx + 28,
-                lensTop + 1, DIM, false);
-        // immersion water under the last element (65 nm)
-        if (active.immersion()) {
-            graphics.fill(cx - 10, stageY - 3, cx + 10, stageY - 1, lit ? 0xFF3BA0E8 : 0xFF245A80);
-            drawSmall(graphics, Component.translatable("af9.scanner.console.water").getString(), cx + 28, stageY - 5,
-                    DIM, false);
-        }
-        // the wafer stage with its wafer
-        graphics.fill(cx - 28, stageY, cx + 28, stageY + 5, 0xFF2A3346);
-        graphics.fill(cx - 14, stageY - 1, cx + 14, stageY + 1, running ? withAlpha(color, 0xC0) : 0xFF4A5670);
     }
 
     /** The exposure panel: node, product, laser slot, version bonus, switches, break chance, counters, hint. */
@@ -488,51 +379,35 @@ public class ScannerConsoleWidget extends ConsoleWidget {
                 "af9.orbital.console.offline").getString();
         graphics.drawString(font, switchText, sx + 7 + (SWITCH_W - 7 - font.width(switchText)) / 2, sy + 4,
                 workingEnabled ? GOOD : MUTED, false);
-        // batch mode switch
-        int bx = x0 + BATCH_X;
-        graphics.fill(bx, sy, bx + BATCH_W, sy + SWITCH_H, batchEnabled ? withAlpha(INFO, 0x28) : 0xFF0B0F17);
-        border(graphics, bx, sy, BATCH_W, SWITCH_H, batchEnabled ? INFO : DIM);
-        drawSmall(graphics, Component.translatable("af9.orbital.console.batch").getString(), bx + BATCH_W / 2, sy + 5,
-                batchEnabled ? INFO : MUTED, true);
-
-        double chance = breakChance / 10000.0;
-        drawSmall(graphics, Component.translatable("af9.litho.console.break").getString(), x + 5, y + 97, MUTED,
-                false);
-        String chanceText = LithoMode.formatPercent(chance);
-        graphics.drawString(font, chanceText, x + PANEL_W - 5 - font.width(chanceText), y + 95,
-                chance <= 0.05 ? GOOD : chance <= 0.2 ? WARN : BAD, false);
-
-        long total = printed + broken;
-        String yield = total == 0 ? "-" : Math.round(100.0 * printed / total) + "%";
-        String counters = Component.translatable("af9.orbital.console.counters", compact(printed), compact(broken),
-                yield).getString();
-        drawSmall(graphics, fit(counters, (x0 + RESET_X - 3 - (x + 5)) * 4 / 3), x + 5, y0 + RESET_Y + 2, MUTED,
-                false);
-        drawButton(graphics, x0 + RESET_X, y0 + RESET_Y, RESET_W, RESET_H,
-                Component.translatable("af9.litho.console.reset").getString());
-
-        // what to do now
+        // what to do now (up to 3 lines), then the air conditioning and the OPC the computation gave (up to 2)
         Component hint = Component.translatableWithFallback("af9.scanner.hint." + status,
                 Component.translatable("af9.console.status." + status).getString());
         int line = 0;
         for (FormattedCharSequence part : font.split(hint, (PANEL_W - 10) * 4 / 3)) {
-            if (line >= 2) break;
+            if (line >= 3) break;
             graphics.pose().pushPose();
-            graphics.pose().translate(x + 5, y + 119 + line * 7, 0);
+            graphics.pose().translate(x + 5, y + 102 + line * 7, 0);
             graphics.pose().scale(0.75F, 0.75F, 1F);
             graphics.drawString(font, part, 0, 0, status == STATUS_RUNNING ? MUTED : statusColor(status), false);
             graphics.pose().popPose();
             line++;
         }
-        // the air conditioning and the OPC the computation gave, in one line under the hint
         String quality = (multi ? Component.translatable("af9.litho.console.multipatterned").getString() + "  " : "") +
                 (coolLoad > 0 ? (coolLapsed ? Component.translatable("af9.litho.console.cooling_lapsed")
                 .getString() : Component.translatable("af9.litho.console.cooling_short", coolCapacity, coolLoad)
                 .getString()) + "  " : "") +
                 (opc >= 0 ? Component.translatable("af9.litho.console.opc", opc).getString() : "");
         boolean coolBad = coolLoad > 0 && (coolLapsed || coolCapacity < coolLoad);
-        drawSmall(graphics, fit(quality, (PANEL_W - 10) * 4 / 3), x + 5, y + 133,
-                coolBad ? BAD : MUTED, false);
+        line = 0;
+        for (FormattedCharSequence part : font.split(Component.literal(quality), (PANEL_W - 10) * 4 / 3)) {
+            if (line >= 2) break;
+            graphics.pose().pushPose();
+            graphics.pose().translate(x + 5, y + 125 + line * 7, 0);
+            graphics.pose().scale(0.75F, 0.75F, 1F);
+            graphics.drawString(font, part, 0, 0, coolBad ? BAD : MUTED, false);
+            graphics.pose().popPose();
+            line++;
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -623,17 +498,20 @@ public class ScannerConsoleWidget extends ConsoleWidget {
             row(graphics, x, y, w, "af9.orbital.console.status",
                     Component.translatable("af9.console.status." + console.status).getString(),
                     statusColor(console.status));
+            // power: what the energy hatches supply against what the node's prints draw, both in EU/t
             long needed = active.eut();
             boolean enough = console.available >= needed;
             row(graphics, x, y + 10, w, "af9.console.power",
                     compact(console.available) + "/" + compact(needed), enough ? TEXT : BAD);
             bar(graphics, x, y + 18, w, 3, needed <= 0 ? 0 : Math.min(1.0, (double) console.available / needed),
                     enough ? GOOD : BAD);
-            drawSmall(graphics, "EU/t, " + active.amperage() + "A " + GTValues.VN[active.hatchTier], x, y + 23, MUTED,
-                    false);
-            row(graphics, x, y + 33, w, "af9.orbital.console.tier",
+            drawSmall(graphics, Component.translatable("af9.litho.console.needs_power", active.amperage(),
+                    GTValues.VN[active.hatchTier]).getString(), x, y + 23, MUTED, false);
+            // the voltage tier of the energy hatches (the controller's own tier says nothing)
+            boolean tierOk = console.tier >= active.hatchTier;
+            row(graphics, x, y + 33, w, "af9.litho.console.hatch_tier",
                     console.tier < 0 ? "-" : GTValues.VNF[Math.min(console.tier, GTValues.VNF.length - 1)],
-                    TEXT);
+                    console.tier < 0 ? MUTED : tierOk ? TEXT : BAD);
             String batchText = !console.batchEnabled ?
                     Component.translatable("af9.orbital.console.batch_off").getString() :
                     console.batch > 1 ? console.batch + "x" :

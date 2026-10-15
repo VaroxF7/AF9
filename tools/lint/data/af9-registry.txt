@@ -443,6 +443,8 @@ material gtceu:boron_nitride
 material gtceu:boron_trichloride
 material gtceu:brannerite ore
 material gtceu:butanol
+material gtceu:ceranium
+material gtceu:ceresite ore
 material gtceu:chloromethane_diesel
 material gtceu:chromodynium
 material gtceu:cobalt_iron_boron

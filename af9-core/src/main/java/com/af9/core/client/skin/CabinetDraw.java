@@ -6,11 +6,16 @@ import com.gregtechceu.gtceu.api.machine.MetaMachine;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.block.Block;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -30,12 +35,22 @@ final class CabinetDraw {
     private static final float GAP = 0.02F, RAISE = 0.035F, BAND_HALF = 0.04F;
     private static final String TEXT = "NOVIUM";
 
+    // neighbour offsets (right, up, back) of the six face directions
+    private static final int[] DR = {-1, 1, 0, 0, 0, 0}, DU = {0, 0, 0, 0, 1, -1}, DB = {0, 0, -1, 1, 0, 0};
+
     private CabinetDraw() {}
+
+    private static boolean isWindow(Block block) {
+        ResourceLocation id = ForgeRegistries.BLOCKS.getKey(block);
+        return id != null && (id.toString().equals("gtceu:cleanroom_glass") || id.toString().equals("gtceu:tempered_glass"));
+    }
 
     static void draw(MetaMachine self, StructureSkin skin, int length, PoseStack poseStack, MultiBufferSource buffer,
                      int overlay, int light) {
         int minU = -skin.cabinet().below(), maxU = skin.up() - 1, right = skin.right();
         PoseStack.Pose pose = poseStack.last();
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return;
         VertexConsumer solid = buffer.getBuffer(RenderType.entityCutoutNoCull(AF9RenderTypes.WHITE));
         for (int r = -right; r <= right; r++) {
             for (int u = minU; u <= maxU; u++) {
@@ -47,6 +62,18 @@ final class CabinetDraw {
                     if (b == 0) face(solid, pose, overlay, light, r, u, b, 2, u);
                     if (b == length - 1) face(solid, pose, overlay, light, r, u, b, 3, u);
                     if (u == maxU) face(solid, pose, overlay, light, r, u, b, 4, u);
+                    // faces that look into the tube (air or a window): a plain white wall, so nothing shows through
+                    // where the hidden block is missing
+                    for (int dir = 0; dir < 6; dir++) {
+                        int nr = r + DR[dir], nu = u + DU[dir], nb = b + DB[dir];
+                        if (nr < -right || nr > right || nu < minU || nu > maxU || nb < 0 || nb >= length) continue;
+                        BlockPos np = StructureSkins.at(self, nr, nu, nb);
+                        if (StructureSkins.isHidden(np.asLong())) continue;
+                        var state = level.getBlockState(np);
+                        if (state.isAir() || isWindow(state.getBlock())) {
+                            face(solid, pose, overlay, light, r, u, b, dir, -99);
+                        }
+                    }
                 }
             }
         }
@@ -86,9 +113,14 @@ final class CabinetDraw {
             case 1 -> { ox = r + 1; oy = u; oz = b; hx = 0; hy = 0; hz = 1; vx = 0; vy = 1; vz = 0; nx = 1; ny = 0; nz = 0; }
             case 2 -> { ox = r; oy = u; oz = b; hx = 1; hy = 0; hz = 0; vx = 0; vy = 1; vz = 0; nx = 0; ny = 0; nz = -1; }
             case 3 -> { ox = r; oy = u; oz = b + 1; hx = 1; hy = 0; hz = 0; vx = 0; vy = 1; vz = 0; nx = 0; ny = 0; nz = 1; }
+            case 5 -> { ox = r; oy = u; oz = b; hx = 1; hy = 0; hz = 0; vx = 0; vy = 0; vz = 1; nx = 0; ny = -1; nz = 0; }
             default -> { ox = r; oy = u + 1; oz = b; hx = 1; hy = 0; hz = 0; vx = 0; vy = 0; vz = 1; nx = 0; ny = 1; nz = 0; }
         }
         Face f = new Face(c, pose, overlay, light, ox, oy, oz, hx, hy, hz, vx, vy, vz, nx, ny, nz);
+        if (row == -99) {
+            f.rect(0, 1, 0, 1, 0.001F, PANEL);
+            return;
+        }
         f.rect(0, 1, 0, 1, 0F, BODY);
         if (dir == 4) {
             for (int i = 0; i < 2; i++) {

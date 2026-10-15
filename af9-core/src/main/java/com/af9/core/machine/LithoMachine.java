@@ -28,6 +28,7 @@ import com.gregtechceu.gtceu.api.recipe.ingredient.SizedIngredient;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.common.recipe.condition.ResearchCondition;
+import com.gregtechceu.gtceu.utils.GTUtil;
 
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
@@ -466,6 +467,12 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine
     public long getAvailableEUt() {
         return energyContainer == null || !isFormed() ? 0 :
                 energyContainer.getInputVoltage() * energyContainer.getInputAmperage();
+    }
+
+    /** Tier of the energy hatches' voltage, or -1 with none (the controller's own tier says nothing about the power). */
+    public int getInputTier() {
+        return energyContainer == null || !isFormed() || energyContainer.getInputVoltage() <= 0 ? -1 :
+                GTUtil.getTierByVoltage(energyContainer.getInputVoltage());
     }
 
     public LithoMode getActiveMode() {
