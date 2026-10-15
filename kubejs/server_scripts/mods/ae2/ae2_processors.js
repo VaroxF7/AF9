@@ -26,11 +26,15 @@ ServerEvents.recipes(event => {
         'ae2:logic_processor', 'ae2:calculation_processor', 'ae2:engineering_processor']
     vanilla.forEach(out => event.remove({ mod: 'ae2', output: out }))
 
-    // ---- Printed silicon: dice the wafer itself (cutter, MV) ----
+    // ---- Other mods' printed silicon recipes (ExtendedAE cutter, GT forming press) ----
+    event.remove({ id: 'expatternprovider:cutter/silicon' })
+    event.remove({ id: 'gtceu:forming_press/ae2/ultimate_universal/printed_silicon_circuit' })
+
+    // ---- Printed silicon: dice the wafer itself (cutter, MV), 1 per wafer ----
     event.recipes.gtceu.cutter('af9:ae2_printed_silicon')
         .itemInputs('gtceu:silicon_wafer')
         .inputFluids(Fluid.of('minecraft:water', 100))
-        .itemOutputs('8x ae2:printed_silicon')
+        .itemOutputs('ae2:printed_silicon')
         .duration(200)
         .EUt(MV)
 

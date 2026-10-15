@@ -27,7 +27,8 @@ No presses, no inscriber prints — every chip is printed on a silicon wafer:
    Logic (`ilc`) at MV (solder pair); calculation (`cpu`) at HV and engineering (`lpic`, platinum
    foil and wire) at EV, both in a cleanroom on high-grade solder (tin budget).
 3. **Carrier** in the cutter (MV, 200t): a silicon wafer dices straight into
-   8x `printed_silicon`.
+   1x `printed_silicon`. The `expatternprovider:cutter/silicon` and
+   `gtceu:forming_press/ae2/ultimate_universal/printed_silicon_circuit` recipes are removed.
 4. **Final assembly** in the assembler on 144 mB **liquid certus quartz** (the assembler takes one fluid, so the solder is spent in packaging): printed + printed silicon + redstone + 2x redstone foil + 2x fine electrum wire + tier circuit —
    logic MV (`good_integrated_circuit`), calculation HV (`advanced_integrated_circuit`),
    engineering EV (`micro_processor_computer`).
