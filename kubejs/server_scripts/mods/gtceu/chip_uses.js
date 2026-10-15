@@ -105,7 +105,7 @@ ServerEvents.recipes(event => {
     addInputs('gtceu:assembler/hpca_advanced_computation_component', ['4x af9:tpu_chip'])
 
     // Single scan for every addInputs target above (same items appended to the same recipe ids).
-    event.forEachRecipe({ id: Array.from(addInputTargets.keys()) }, recipe => {
+    event.forEachRecipe({ or: Array.from(addInputTargets.keys()).map(id => ({ id: id })) }, recipe => {
         const items = addInputTargets.get(String(recipe.getId()))
         if (items) items.forEach(item => recipe.itemInputs(item))
     })

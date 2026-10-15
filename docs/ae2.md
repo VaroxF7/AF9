@@ -25,15 +25,16 @@ No presses, no inscriber prints — every chip is printed on a silicon wafer:
    `ilc` / `cpu` / `lpic` / `ram` dies.
 2. **Die packaging** in the assembler: die + foils (incl. 2x redstone foil) + fine wire (incl. 2x fine electrum wire) + RAM die → AE2 printed.
    Logic (`ilc`) at MV (solder pair); calculation (`cpu`) at HV and engineering (`lpic`, platinum
-   foil and wire) at EV, both in a cleanroom on high-grade solder (tin budget).
+   foil and wire) at EV, no cleanroom for any processor (tin or soldering alloy).
 3. **Carrier** in the cutter (MV, 200t): a silicon wafer dices straight into
-   8x `printed_silicon`.
+   1x `printed_silicon`. The `expatternprovider:cutter/silicon` and
+   `gtceu:forming_press/ae2/ultimate_universal/printed_silicon_circuit` recipes are removed.
 4. **Final assembly** in the assembler on 144 mB **liquid certus quartz** (the assembler takes one fluid, so the solder is spent in packaging): printed + printed silicon + redstone + 2x redstone foil + 2x fine electrum wire + tier circuit —
    logic MV (`good_integrated_circuit`), calculation HV (`advanced_integrated_circuit`),
    engineering EV (`micro_processor_computer`).
 
 Removed: all `ae2:` recipes outputting the four printeds and the three processors.
-The inscriber keeps crushing and the name press; meteorite presses are out of the chain
+All `ae2:inscriber` recipes are removed (crushing is replaced by the GT recipes above; the name press is no longer craftable), as are the six `advanced_ae` processor chambers and the `gtceu:forming_press` circuit imports (ae2 logic/calculation/engineering, appflux energy, aae quantum, megacells accumulation); the addon processors (`megacells:accumulation_processor` HV, `appflux:energy_processor` EV, `advanced_ae:quantum_processor` IV, all assembler on 144 mB liquid certus quartz) build from AF9's own AE2 processors plus a tier circuit; meteorite presses are out of the chain
 (the Mysterious Cube still drops one random press as a souvenir, meteorites still give
 sky stone).
 
@@ -71,7 +72,7 @@ calculation processor (logic for 1k) + bulk secondary + quartz glass, assembler 
 Every other base-AE2 buildable — charger, inscriber, vibration chamber, crank, condenser,
 growth accelerator, sky stone tank, resonance generator, energy acceptor/cells, controller,
 drive, chest, IO port, workbench, all terminals (incl. wireless), interface, pattern
-provider, molecular assembler (takes a micro processor, like the controller and drive),
+provider, molecular assembler (takes a micro processor, like the drive),
 import/export/storage buses, formation/annihilation cores and planes, P2P tunnels, level
 emitters, toggle bus, all three monitors, all nine upgrade cards, network tool, memory
 card, color applicator, cable anchor, both wrenches and cutting knives, charged staff,
@@ -80,8 +81,10 @@ blank patterns, view cell, quartz glass, all ten portable cells — builds in th
 at MV from processors, steel/iron plates, quartz glass, quartz fiber, crystals and
 fluix (tin/soldering-alloy pair; cables and fiber are dry single recipes).
 
+The **controller** builds at MV without a cleanroom (tin/soldering-alloy pair): 6x sky stone block + 4x good integrated circuit + 8x of one processor kind (logic, calculation or engineering, three recipes).
+
 Backbone and endgame devices climb (cleanroom, high-grade solder): **HV** — dense energy cell,
-controller, drive, IO port, pattern provider, storage bus, P2P, speed card, network tool, entropy
+drive, IO port, pattern provider, storage bus, P2P, speed card, network tool, entropy
 manipulator, matter cannon; **EV** — molecular assembler, spatial IO/pylon/anchor, quantum ring/link.
 
 Only the fluix base of each cable family is redefined (glass, covered, dense, smart,
@@ -164,7 +167,7 @@ that this pack does not redefine).
 ## Consequences
 
 - First AE2 processor needs: EBF silicon boule → cutter blank → Coater Track → Line V1.
-  Logic and the basic network stay MV; calculation needs an HV cleanroom, engineering an EV one,
+  Logic and the basic network stay MV; calculation (HV) and engineering (EV) need no cleanroom,
   so crafting, large storage and spatial/quantum gate on those tiers. MEGA scale climbs
   IV → UHV, Infinity Booster is HV.
 - Unverified: written without compiling or in-game testing (cloud env cannot build).

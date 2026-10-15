@@ -31,11 +31,11 @@ ServerEvents.recipes(event => {
     // needs that type to say what it makes
     // (batched: the same outputs and ids removed, two filter calls instead of one pair per part)
     event.remove({ output: parts.map(part => `ad_astra:${part}`), type: 'minecraft:crafting_shaped' })
-    event.remove({ id: parts.map(part => `ad_astra:${part}`) })
+    parts.forEach(part => event.remove({ id: `ad_astra:${part}` }))
     const rockets = [1, 2, 3, 4]
     // (batched: the same rocket outputs and ids removed, two filter calls instead of one pair per tier)
     event.remove({ output: rockets.map(tier => `ad_astra:tier_${tier}_rocket`), type: 'ad_astra:nasa_workbench' })
-    event.remove({ id: rockets.map(tier => `ad_astra:nasa_workbench/tier_${tier}_rocket_from_nasa_workbench`) })
+    rockets.forEach(tier => event.remove({ id: `ad_astra:nasa_workbench/tier_${tier}_rocket_from_nasa_workbench` }))
     // the Fuel Refinery's fuel: the rockets do not take it any more (the tags below)
     event.remove({ id: 'ad_astra:refining/fuel_from_refining_oil' })
 

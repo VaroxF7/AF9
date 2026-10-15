@@ -29,6 +29,6 @@ ServerEvents.recipes(event => {
         console.warn('AF9: dissolver recipe ' + r.id + ' has an empty input (' + r.spec + '), removed')
     })
     // (batched: the same collected ids removed in one filter call)
-    if (empty.length) event.remove({ id: empty.map(r => r.id) })
+    empty.forEach(r => event.remove({ id: r.id }))
     console.info('AF9: removed ' + empty.length + ' alchemistry dissolver recipes with an empty input')
 })

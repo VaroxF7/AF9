@@ -322,7 +322,7 @@
     "af9.jade.runtime": "%s / %s",
     "af9.jade.hearth_mode": "Sanguinite Hearth",
     "af9.jade.hearth_heat": "Hearth %s / %s K",
-    "af9.jade.preheating": "Preheating: prints wait for 13,000 K",
+    "af9.jade.preheating": "Preheating: prints wait for 6,000 K",
     "af9.wafer.tooltip.contaminates": "Contaminates in your inventory",
     "af9.wafer.tooltip.protection": "Wear Rubber Gloves (or a Hazmat chestpiece), or stand in a clean Cleanroom",
     "af9.wafer.contaminated": "Your wafers and chips got contaminated: wear Rubber Gloves or work inside a clean Cleanroom",

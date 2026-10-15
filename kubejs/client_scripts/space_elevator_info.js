@@ -7,6 +7,6 @@ JEIEvents.information(event => {
         'Energy hatches, wireless energy receivers and laser hatches (up to 2) all power the tower; an energy hatch switched to Auxiliary does not.',
         'The ore comes home in the output buses; the ores of each drone tier are on the recipe pages.'
     ]
-    event.add(['gtceu:space_elevator', 'gtceu:space_mining_module_mk1', 'gtceu:space_mining_module_mk2',
-        'gtceu:space_mining_module_mk3'], text)
+    ;['gtceu:space_elevator', 'gtceu:space_mining_module_mk1', 'gtceu:space_mining_module_mk2',
+        'gtceu:space_mining_module_mk3'].forEach(id => event.addItem(id, text))
 })

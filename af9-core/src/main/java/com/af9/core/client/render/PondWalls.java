@@ -78,6 +78,10 @@ public final class PondWalls {
         MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> onClientTick(event));
     }
 
+    public static boolean anyHidden() {
+        return !hidden.isEmpty();
+    }
+
     public static boolean isHidden(long packedPos) {
         return hidden.contains(packedPos);
     }

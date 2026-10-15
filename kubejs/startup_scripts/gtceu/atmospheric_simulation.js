@@ -28,43 +28,69 @@ const SIM_D = 31
 const SIM_C = 15
 // The design: the block at x, y, z (y up, z towards the front) as a letter of the pattern.
 // S controller, X stainless (or a hatch), G glass, # air.
-const simCell = (x, y, z) => {
-    if (x === SIM_C && y === SIM_H - 1 && z === SIM_D - 1) return 'S'
+const simCell = (x, y, z, w, d) => {
+    const c = (w - 1) / 2
+    if (x === c && y === SIM_H - 1 && z === d - 1) return 'S'
     if (y === 0 || y === SIM_H - 1) return 'X'
     if (z === 0) {
         if (y === SIM_H - 2) return 'X'
-        if (x === 0 || x === SIM_W - 1) return 'X'
-        if (x === 1 || x === SIM_W - 2) return 'G'
+        if (x === 0 || x === w - 1) return 'X'
+        if (x === 1 || x === w - 2) return 'G'
         return 'X'
     }
-    if (z === SIM_D - 1) {
-        if (y === 1 || y === 2) return x === SIM_C ? '#' : 'X'
+    if (z === d - 1) {
+        if (y === 1 || y === 2) return x === c ? '#' : 'X'
         return 'X'
     }
     if (y === SIM_H - 2) {
-        if (x === 0 || x === SIM_W - 1) return 'X'
+        if (x === 0 || x === w - 1) return 'X'
         return '#'
     }
-    if (x === 0 || x === SIM_W - 1) return 'X'
-    if (x === 1 || x === SIM_W - 2) return 'G'
+    if (x === 0 || x === w - 1) return 'X'
+    if (x === 1 || x === w - 2) return 'G'
     return '#'
 }
 // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value,
 // so loop bodies use callbacks (lint rule S3). Array(n).fill(0), not Array.from({ length: n }):
-// Rhino's Array.from leaves n holes, and forEach skips holes. Precomputed once; .pattern() reuses this const.
-const SIM_AISLES = (() => {
+// Rhino's Array.from leaves n holes, and forEach skips holes.
+const simAisles = (w, d) => {
     const aisles = []
-    Array(SIM_D).fill(0).forEach((_, z) => {
+    Array(d).fill(0).forEach((_, z) => {
         const rows = []
         Array(SIM_H).fill(0).forEach((_, y) => {
             const cells = []
-            Array(SIM_W).fill(0).forEach((_, x) => { cells.push(simCell(x, y, z)) })
+            Array(w).fill(0).forEach((_, x) => { cells.push(simCell(x, y, z, w, d)) })
             rows.push(cells.join(''))
         })
         aisles.push(rows)
     })
     return aisles
-})()
+}
+// Precomputed once; .pattern() reuses this const.
+const SIM_AISLES = simAisles(SIM_W, SIM_D)
+// JEI preview: like the Cleanroom's, a compact room (the 31 x 31 one is far too big to show)
+const SIM_PREVIEW_AISLES = simAisles(9, 9)
+
+const $SimShapeInfo = Java.loadClass('com.gregtechceu.gtceu.api.pattern.MultiblockShapeInfo')
+
+// The room's pattern for a layout (the full one, or the compact JEI preview). Parts have a maximum only,
+// never a required count (setMaxGlobalLimited(max, preview count)).
+const simPattern = (definition, aisles) => {
+    let pattern = FactoryBlockPattern.start()
+    aisles.forEach(aisle => { pattern = pattern.aisle(aisle) })
+    return pattern
+        .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+        .where('X', Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get())
+            .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
+            .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
+            .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1, 1))
+            .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(2, 1))
+            .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(1, 1))
+            .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
+        .where('G', Predicates.blocks('gtceu:tempered_glass'))
+        .where('#', Predicates.air())
+        .build()
+}
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
@@ -81,27 +107,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeModifiers([GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(GTBlocks.CASING_STAINLESS_CLEAN)
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.atmospheric_simulation_room.tooltip', 4))
-        .pattern(definition => {
-            // 31 wide, 6 high, 31 deep: floor + ceiling solid, glass bands in the walls, hollow middle.
-            // Col 15 is the centre (controller, door). Rows bottom -> top, aisles back -> front.
-            // Back wall (z 0) is closed; front wall (z 30) carries the 1x2 door and the ceiling-centre
-            // controller. Middle slices are hollow: stainless edge, glass band, 27 air, glass, stainless.
-            // Layout is module-level (SIM_AISLES), precomputed once above.
-            let pattern = FactoryBlockPattern.start()
-            SIM_AISLES.forEach(aisle => { pattern = pattern.aisle(aisle) })
-            return pattern
-                .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-                // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
-                .where('X', Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get())
-                    .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
-                    .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
-                    .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1, 1))
-                    .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(2, 1))
-                    .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(1, 1))
-                    .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
-                .where('G', Predicates.blocks('gtceu:tempered_glass'))
-                .where('#', Predicates.air())
-                .build()
+        .pattern(definition => simPattern(definition, SIM_AISLES))
+        .shapeInfos(definition => {
+            const once = Array(SIM_PREVIEW_AISLES.length).fill(1)
+            return [new $SimShapeInfo(simPattern(definition, SIM_PREVIEW_AISLES).getPreview(once))]
         })
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_clean_stainless_steel',
             'gtceu:block/multiblock/assembly_line')

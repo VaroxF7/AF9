@@ -30,13 +30,13 @@ ServerEvents.recipes(event => {
     // quartz glass + its tier circuit. Bulk cells ride along at IV.
     if (Platform.isLoaded('megacells')) {
         // RAM climbs with the tier: eDRAM at 1m, MRAM from 4m (stacks of 64 chips).
-        const megaRam = {
+        let megaRam = {
             'megacells:cell_component_1m': ['64x af9:edram_chip'],
             'megacells:cell_component_4m': ['64x af9:mram_chip'],
             'megacells:cell_component_16m': ['64x af9:mram_chip', '64x af9:mram_chip'],
             'megacells:cell_component_64m': ['64x af9:edram_chip', '64x af9:mram_chip', '64x af9:mram_chip']
         }
-        const mega = [
+        let mega = [
             ['megacells:cell_component_1m', 'ae2:cell_component_256k',
                 'gtceu:nano_processor_computer', GTValues.IV, 400, 2],
             ['megacells:cell_component_4m', 'megacells:cell_component_1m',
@@ -104,4 +104,25 @@ ServerEvents.recipes(event => {
                 .duration(300).EUt(HV))
         })
     }
+
+    // ---- Addon processors (assembler, no cleanroom, liquid certus quartz) ----
+    // The inscriber, the advanced_ae chambers and the forming press imports are gone, so the three addon
+    // processors build from AF9's own AE2 processors instead. [id, output, base, extra inputs, eut, ticks]
+    const addonProcessors = [
+        ['megacells', 'megacells:accumulation_processor', 'ae2:calculation_processor',
+            ['gtceu:advanced_integrated_circuit', '2x gtceu:ram_chip', '4x gtceu:redstone_foil'], HV, 300],
+        ['appflux', 'appflux:energy_processor', 'ae2:engineering_processor',
+            ['gtceu:micro_processor_computer', '4x gtceu:lithium_dust', '4x gtceu:platinum_foil'], VA[GTValues.EV], 400],
+        ['advanced_ae', 'advanced_ae:quantum_processor', 'ae2:engineering_processor',
+            ['gtceu:quantum_processor_computer', '2x gtceu:ram_chip', '4x gtceu:fine_platinum_wire'], VA[GTValues.IV], 500]
+    ]
+    addonProcessors.forEach(([mod, out, base, extra, eut, ticks]) => {
+        if (!Platform.isLoaded(mod)) return
+        event.remove({ mod: mod, output: out })
+        const id = out.split(':')[1]
+        event.recipes.gtceu.assembler(`af9:addon_${id}`)
+            .itemInputs([base].concat(extra))
+            .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
+            .itemOutputs(out).duration(ticks).EUt(eut)
+    })
 })

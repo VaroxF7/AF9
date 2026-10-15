@@ -18,6 +18,8 @@ ServerEvents.recipes(event => {
         ['fluix', 'ae2:fluix_seed', 'ae2:fluix_crystal']
     ]
     growth.forEach(([id, seed, crystal]) => {
+        // AE2 15 has no seed items (growth is budding/pool only): skip when absent
+        if (!Item.exists(seed)) return
         event.recipes.gtceu.autoclave(`af9:grown_${id}_quartz`)
             .itemInputs(seed)
             .inputFluids(Fluid.of('minecraft:water', 1000))

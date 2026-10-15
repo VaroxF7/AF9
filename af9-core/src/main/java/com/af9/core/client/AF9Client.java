@@ -66,6 +66,7 @@ public final class AF9Client {
         modBus.addListener(StructureSkins::attachRenders);
         modBus.addListener((FMLClientSetupEvent event) -> event.enqueueWork(StructureSkins::registerEmbeddium));
         MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> StructureSkins.onClientTick(event));
+        MinecraftForge.EVENT_BUS.addListener(com.af9.core.client.skin.HiddenBlocks::onHighlight);
     }
 
     @Mod.EventBusSubscriber(modid = AF9Core.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)

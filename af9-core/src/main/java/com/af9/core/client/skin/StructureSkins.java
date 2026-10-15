@@ -127,6 +127,10 @@ public final class StructureSkins {
         return new ResourceLocation(AF9Core.MOD_ID, path);
     }
 
+    public static boolean anyHidden() {
+        return !hidden.isEmpty();
+    }
+
     public static boolean isHidden(long packedPos) {
         return hidden.contains(packedPos);
     }

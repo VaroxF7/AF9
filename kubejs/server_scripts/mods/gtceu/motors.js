@@ -110,5 +110,5 @@ ServerEvents.recipes(event => {
             .EUt(VA[GTValues.LV])
     })
     // One batched removal for every GT motor id recorded above (the same set, one scan).
-    if (removedMotorIds.length) event.remove({ id: removedMotorIds })
+    removedMotorIds.forEach(id => event.remove({ id: id }))
 })
