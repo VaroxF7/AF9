@@ -16,10 +16,13 @@ import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -37,7 +40,9 @@ import java.util.WeakHashMap;
  * <ul>
  * <li>the <b>water</b>: a translucent surface on exactly the cells the pattern leaves hollow (r &lt; 6.4, outside the
  * 3 x 3 pier), tinted by the biome's water colour;</li>
- * <li>a smooth round <b>coping ring</b> on the wall's rim, which hides the steps of the block circle from above;</li>
+ * <li>a smooth <b>round wall</b> and a round pier in the casings' own textures, drawn in place of the stepped blocks
+ * ({@link PondWalls} hides those while the pond is formed; without Embeddium a coping ring on the rim hides the
+ * steps from above instead);</li>
  * <li>the <b>scraper bridge</b> (Raeumerbruecke): a lattice girder walkway with handrails from a turntable on the
  * pier to a drive carriage with wheels on the rim; it turns slowly round the pier while a recipe runs, and runs up and
  * down to a stop;</li>
@@ -74,6 +79,14 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
     private static final float BRIDGE_IN = 0.6F, BRIDGE_OUT = 6.2F, HALF_WIDTH = 0.30F;
     /** The coping ring's radii. */
     private static final float COPING_IN = 5.0F, COPING_OUT = 7.15F;
+    /** The round wall (inner and outer radius), the round pier's radius, the water disc under the wall's thickness. */
+    private static final float WALL_IN = 5.35F, WALL_OUT = 6.45F, PIER_R = 1.45F, WATER_R = 5.5F;
+    /** The carriage's track on the wall's top, radii. */
+    private static final float TRACK_IN = 5.7F, TRACK_OUT = 6.35F;
+    private static final ResourceLocation WALL_TEXTURE = new ResourceLocation("gtceu",
+            "block/casings/gcym/watertight_casing");
+    private static final ResourceLocation PIER_TEXTURE = new ResourceLocation("gtceu",
+            "block/casings/solid/machine_casing_clean_stainless_steel");
     /** One turn of the bridge at full speed, in ticks, and how quickly it gets there. */
     private static final float REVOLUTION_TICKS = 640F, RAMP = 0.05F;
     /** The skimmer blade in the bridge's frame: from (radius, lateral) to (radius, lateral), its height centre. */
@@ -175,15 +188,29 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
         poseStack.pushPose();
         poseStack.translate(pivot[0], 0, pivot[1]);
         Matrix4f mat = poseStack.last().pose();
-        // one render type at a time: a buffer from the source ends when another is asked for. First the solids...
+        boolean round = PondWalls.isTracked(self.getPos());
+        // one render type at a time: a buffer from the source ends when another is asked for. First the round wall and
+        // pier in the casings' textures (their blocks are hidden exactly then)...
+        if (round) {
+            TextureAtlas atlas = Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS);
+            Gfx textured = new Gfx(buffer.getBuffer(RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS)), mat,
+                    light);
+            drawRoundWall(textured, atlas.getSprite(WALL_TEXTURE));
+            drawPier(textured, atlas.getSprite(PIER_TEXTURE));
+        }
+        // ...then the plain-coloured solids...
         Gfx solid = new Gfx(buffer.getBuffer(RenderType.entityCutoutNoCull(AF9RenderTypes.WHITE)), mat, light);
-        drawCoping(solid);
+        if (round) {
+            drawTrack(solid);
+        } else {
+            drawCoping(solid);
+        }
         drawTrough(solid, troughAngle);
         solid.rotate(turn.angle);
         drawBridge(solid);
         // ...then the see-through water and the scum on it
         VertexConsumer water = buffer.getBuffer(AF9RenderTypes.LIGHT_RING);
-        drawWater(water, mat, level, centre, now, machine.rakeSpinning());
+        drawWater(water, mat, level, centre, now, machine.rakeSpinning(), round);
         drawFoam(water, mat, turn);
         poseStack.popPose();
     }
@@ -203,6 +230,80 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
     }
 
     // ------------------------------------------------------------------------------------------------ the parts
+
+    /**
+     * The round wall: a ring of casing, one block per layer (two facets to a block, so the texture runs on seamlessly),
+     * the outer face from the foot to the top, the inner face from the floor's top, the top between them.
+     */
+    private static void drawRoundWall(Gfx g, TextureAtlasSprite sprite) {
+        g.rotate(0F);
+        wallFaces(g, sprite, WALL_OUT, 0, 3, true);
+        wallFaces(g, sprite, WALL_IN, 1, 3, false);
+        float mid = (WALL_IN + WALL_OUT) / 2;
+        int n = facets(mid);
+        for (int i = 0; i < n; i++) {
+            float a0 = Mth.TWO_PI * i / n, a1 = Mth.TWO_PI * (i + 1) / n;
+            float ua = i % 2 == 0 ? 0F : 0.5F, ub = ua + 0.5F;
+            g.quadTex(v3(WALL_IN * Mth.cos(a0), RIM_Y, WALL_IN * Mth.sin(a0)),
+                    v3(WALL_IN * Mth.cos(a1), RIM_Y, WALL_IN * Mth.sin(a1)),
+                    v3(WALL_OUT * Mth.cos(a1), RIM_Y, WALL_OUT * Mth.sin(a1)),
+                    v3(WALL_OUT * Mth.cos(a0), RIM_Y, WALL_OUT * Mth.sin(a0)), v3(0, 1, 0), sprite, ua, 0F, ub, 1F);
+        }
+    }
+
+    /** An even number of facets round a circle, each about half a block wide. */
+    private static int facets(float radius) {
+        int n = Math.round(Mth.TWO_PI * radius * 2F);
+        return n + (n % 2);
+    }
+
+    private static void wallFaces(Gfx g, TextureAtlasSprite sprite, float radius, int fromY, int toY, boolean outward) {
+        int n = facets(radius);
+        for (int y = fromY; y < toY; y++) {
+            for (int i = 0; i < n; i++) {
+                float a0 = Mth.TWO_PI * i / n, a1 = Mth.TWO_PI * (i + 1) / n, am = (a0 + a1) / 2;
+                float ua = i % 2 == 0 ? 0F : 0.5F, ub = ua + 0.5F;
+                float[] normal = outward ? v3(Mth.cos(am), 0, Mth.sin(am)) : v3(-Mth.cos(am), 0, -Mth.sin(am));
+                g.quadTex(v3(radius * Mth.cos(a0), y, radius * Mth.sin(a0)),
+                        v3(radius * Mth.cos(a1), y, radius * Mth.sin(a1)),
+                        v3(radius * Mth.cos(a1), y + 1, radius * Mth.sin(a1)),
+                        v3(radius * Mth.cos(a0), y + 1, radius * Mth.sin(a0)), normal, sprite, ua, 1F, ub, 0F);
+            }
+        }
+    }
+
+    /** The round pier in place of the plus of casings: a 16-sided column from the floor to the turntable. */
+    private static void drawPier(Gfx g, TextureAtlasSprite sprite) {
+        g.rotate(0F);
+        int n = facets(PIER_R);
+        wallFaces(g, sprite, PIER_R, 1, 4, true);
+        for (int i = 0; i < n; i++) {
+            float a0 = Mth.TWO_PI * i / n, a1 = Mth.TWO_PI * (i + 1) / n;
+            g.quadTex(v3(0, PIER_Y, 0), v3(PIER_R * Mth.cos(a0), PIER_Y, PIER_R * Mth.sin(a0)),
+                    v3(PIER_R * Mth.cos(a1), PIER_Y, PIER_R * Mth.sin(a1)),
+                    v3(PIER_R * Mth.cos(a1), PIER_Y, PIER_R * Mth.sin(a1)), v3(0, 1, 0), sprite, 0.3F, 0.3F, 0.7F,
+                    0.7F);
+        }
+    }
+
+    /** The carriage's track: a steel rail on the round wall's top. */
+    private static void drawTrack(Gfx g) {
+        g.rotate(0F);
+        int n = 72;
+        for (int i = 0; i < n; i++) {
+            float a0 = Mth.TWO_PI * i / n, a1 = Mth.TWO_PI * (i + 1) / n, am = (a0 + a1) / 2;
+            float c0 = Mth.cos(a0), s0 = Mth.sin(a0), c1 = Mth.cos(a1), s1 = Mth.sin(a1);
+            g.quad(v3(TRACK_IN * c0, COPING_Y, TRACK_IN * s0), v3(TRACK_OUT * c0, COPING_Y, TRACK_OUT * s0),
+                    v3(TRACK_OUT * c1, COPING_Y, TRACK_OUT * s1), v3(TRACK_IN * c1, COPING_Y, TRACK_IN * s1),
+                    v3(0, 1, 0), STEEL);
+            g.quad(v3(TRACK_OUT * c0, RIM_Y, TRACK_OUT * s0), v3(TRACK_OUT * c1, RIM_Y, TRACK_OUT * s1),
+                    v3(TRACK_OUT * c1, COPING_Y, TRACK_OUT * s1), v3(TRACK_OUT * c0, COPING_Y, TRACK_OUT * s0),
+                    v3(Mth.cos(am), 0, Mth.sin(am)), DARK);
+            g.quad(v3(TRACK_IN * c0, RIM_Y, TRACK_IN * s0), v3(TRACK_IN * c1, RIM_Y, TRACK_IN * s1),
+                    v3(TRACK_IN * c1, COPING_Y, TRACK_IN * s1), v3(TRACK_IN * c0, COPING_Y, TRACK_IN * s0),
+                    v3(-Mth.cos(am), 0, -Mth.sin(am)), DARK);
+        }
+    }
 
     /** A smooth round coping on the rim: it covers the steps of the block circle from above. */
     private static void drawCoping(Gfx g) {
@@ -302,7 +403,7 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
 
     /** The water: a darker layer above the floor and a surface with a ripple, on the pond's own cells. */
     private void drawWater(VertexConsumer vc, Matrix4f mat, ClientLevel level,
-                           Vec3 centre, double time, boolean working) {
+                           Vec3 centre, double time, boolean working, boolean round) {
         int tint = FALLBACK_WATER;
         try {
             tint = level.getBiome(BlockPos.containing(centre)).value().getSpecialEffects().getWaterColor();
@@ -312,6 +413,18 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
         int r = (tint >> 16) & 0xFF, g = (tint >> 8) & 0xFF, b = tint & 0xFF;
         float ripple = 0.5F + 0.5F * Mth.sin((float) (time * 2 * Math.PI / 46));
         float surfaceAlpha = working ? 0.58F + 0.06F * ripple : 0.46F + 0.04F * ripple;
+        if (round) {
+            // a disc up to under the round wall (its inner face hides the edge)
+            int segments = 64;
+            for (int i = 0; i < segments; i++) {
+                float a0 = Mth.TWO_PI * i / segments, a1 = Mth.TWO_PI * (i + 1) / segments;
+                float x0 = WATER_R * Mth.cos(a0), z0 = WATER_R * Mth.sin(a0);
+                float x1 = WATER_R * Mth.cos(a1), z1 = WATER_R * Mth.sin(a1);
+                fan(vc, mat, DEEP_Y, x0, z0, x1, z1, r / 2, g / 2, b / 2, 0.55F);
+                fan(vc, mat, WATER_Y, x0, z0, x1, z1, r, g, b, surfaceAlpha);
+            }
+            return;
+        }
         for (int dx = -POND_CELLS; dx <= POND_CELLS; dx++) {
             for (int dz = -POND_CELLS; dz <= POND_CELLS; dz++) {
                 // the pier only: the plus the pattern builds, not the whole 3 x 3 (its diagonal hollows hold water)
@@ -322,6 +435,16 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
                 flat(vc, mat, x0, WATER_Y, z0, x1, z1, r, g, b, surfaceAlpha);
             }
         }
+    }
+
+    /** A triangle of a disc round the pond's axis (a quad with a repeated corner). */
+    private static void fan(VertexConsumer vc, Matrix4f mat, float y, float x0, float z0, float x1, float z1, int r,
+                            int g, int b, float alpha) {
+        float fr = r / 255F, fg = g / 255F, fb = b / 255F;
+        vc.vertex(mat, 0, y, 0).color(fr, fg, fb, alpha).endVertex();
+        vc.vertex(mat, x0, y, z0).color(fr, fg, fb, alpha).endVertex();
+        vc.vertex(mat, x1, y, z1).color(fr, fg, fb, alpha).endVertex();
+        vc.vertex(mat, x1, y, z1).color(fr, fg, fb, alpha).endVertex();
     }
 
     private static void flat(VertexConsumer vc, Matrix4f mat, float x0, float y, float z0, float x1, float z1, int r,
@@ -364,6 +487,23 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
             c.vertex(mat, x, p[1], z).color(((rgb >> 16) & 0xFF) / 255F, ((rgb >> 8) & 0xFF) / 255F,
                     (rgb & 0xFF) / 255F, 1F).uv(0.5F, 0.5F).overlayCoords(OverlayTexture.NO_OVERLAY).uv2(light)
                     .normal(nx, n[1], nz).endVertex();
+        }
+
+        /** A quad on a block atlas sprite: the corners take (u0, v0), (u1, v0), (u1, v1), (u0, v1) of its fraction. */
+        void quadTex(float[] a, float[] b, float[] d, float[] e, float[] n, TextureAtlasSprite sprite, float u0,
+                     float v0, float u1, float v1) {
+            float su = sprite.getU1() - sprite.getU0(), sv = sprite.getV1() - sprite.getV0();
+            vertexTex(a, n, sprite.getU0() + su * u0, sprite.getV0() + sv * v0);
+            vertexTex(b, n, sprite.getU0() + su * u1, sprite.getV0() + sv * v0);
+            vertexTex(d, n, sprite.getU0() + su * u1, sprite.getV0() + sv * v1);
+            vertexTex(e, n, sprite.getU0() + su * u0, sprite.getV0() + sv * v1);
+        }
+
+        private void vertexTex(float[] p, float[] n, float u, float v) {
+            float x = p[0] * cos - p[2] * sin, z = p[0] * sin + p[2] * cos;
+            float nx = n[0] * cos - n[2] * sin, nz = n[0] * sin + n[2] * cos;
+            c.vertex(mat, x, p[1], z).color(1F, 1F, 1F, 1F).uv(u, v).overlayCoords(OverlayTexture.NO_OVERLAY)
+                    .uv2(light).normal(nx, n[1], nz).endVertex();
         }
 
         /** A quad (both sides are drawn) with the outward normal n. */

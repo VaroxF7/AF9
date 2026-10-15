@@ -27,7 +27,11 @@ fluid input, 2 fluid output, 2 item input, 1 item output, 1 maintenance; maximum
   leaves the pond hollow):
   * the **water**: a translucent surface on exactly the cells the pattern leaves hollow (r < 6.4, outside the pier),
     tinted by the biome's water colour;
-  * a smooth round **coping ring** on the rim (r 5.0 to 7.15), which hides the steps of the block circle from above;
+  * a smooth **round wall** and a **round pier** in the casings' own textures (`PondWalls` hides the stepped wall, rim
+    and pier blocks of a formed well through Embeddium's block render hook, `EcrwArmRender` draws the round ones). The
+    controller and every hatch stay real blocks and stand out of the round wall; the floor stays blocks. Without
+    Embeddium the stepped blocks stay and a round coping ring on the rim hides the steps from above instead;
+  * a steel **track** on the wall's top for the bridge's wheels;
   * the **scraper bridge** (a lattice girder walkway with handrails, as on a German "Klaerwerk Becken"): a turntable on
     the pier, a drive carriage with two wheels and a motor on the rim. It turns once in about 32 s while a recipe runs
     and runs up and down to a stop;
