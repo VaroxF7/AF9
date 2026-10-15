@@ -1375,5 +1375,12 @@
     "item.af9.glue_bucket": "Glue Bucket",
     "block.af9.glue": "Glue",
     "item.af9.concrete_bucket": "Concrete Bucket",
-    "block.af9.concrete": "Concrete"
+    "block.af9.concrete": "Concrete",
+    "af9.fiber.stick_written": "Fiber port at %s %s %s remembered. Right-click the port at the other end.",
+    "af9.fiber.linked": "Fiber link made.",
+    "af9.fiber.cut": "Fiber link cut.",
+    "af9.fiber.same_port": "That is the same port. Right-click the one at the other end.",
+    "af9.fiber.status_ok": "Fibre: linked, carrying items and fluids",
+    "af9.fiber.status_far": "Fibre: linked, the other end is not loaded",
+    "af9.fiber.status_unlinked": "Fibre: not linked (data stick, right-click both ports)"
 }

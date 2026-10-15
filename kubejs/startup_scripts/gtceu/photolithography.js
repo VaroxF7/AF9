@@ -307,6 +307,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 0))
                 // air cooling: the hatches carry the print's heat (cooling units, see air_conditioning.js)
                 .or(Predicates.abilities($LithoAirConditioning.AIR_CONDITIONING).setMaxGlobalLimited(2, 1))
+                // the fibre to its Logistics Hub (af9-core fiber): the hub's buses and hatches feed the scanner through it
+                .or(Predicates.abilities(Java.loadClass('com.af9.core.fiber.FiberLinkPortPartMachine').FIBER_LINK).setMaxGlobalLimited(1, 0))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('af9:plascrete_filter_casing'))     // fan filter units
