@@ -121,13 +121,32 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      */
     public static final float RING_UP = 0, RING_BACK = 3, RING_RADIUS = 9.6F, RING_THICKNESS = 0.25F;
     /**
-     * The Array Mk2 (extended pattern): the same station with a much larger ring (twice the first Mk2's), same structure
-     * scaled out. The light ring grows with the rim so it stays just inside it (0.8 of the rim radius 34); the burn
-     * distance and tube stay the same. It turns like a station's wheel: {@link #RING_SPIN_MK2} radians a tick.
+     * One ring of the Array Mk2's tower (extended pattern): a band of casing {@code t} levels thick whose top level is
+     * {@code d0} levels below the controller, {@code radius} out to its outer edge (measured at the centres of the
+     * blocks) and {@code width} wide, turning {@code spin} radians a tick (negative: the other way). Once the station
+     * is formed the client hides the band's blocks and draws them turning (client/skin/RingDraw); a light ring glows
+     * just inside it. The pattern in photolithography.js (ORBITAL_RINGS) has the same rings: keep them in step.
      */
-    public static final float RING_RADIUS_MK2 = 27.2F, RING_SPIN_MK2 = 0.02F;
-    /** The Mk2's hub is twice the size: its controller sits 6 levels above the beams' (3 on the basic station). */
-    public static final float RING_BACK_MK2 = 6F;
+    public record Band(int d0, int t, int radius, int width, float spin) {
+
+        /** Levels below the controller to the middle of the band. */
+        public float lightBack() {
+            return d0 + (t - 1) / 2F;
+        }
+
+        /** The light ring's radius: 1.5 blocks inside the band. */
+        public float lightRadius() {
+            return radius - width - 1.5F;
+        }
+    }
+
+    /** The tower's body is 13 x 13 (half width 6); its rings: the big one in the middle, a smaller one above and below. */
+    public static final int TOWER_HALF = 6;
+    public static final List<Band> BANDS_MK2 = List.of(new Band(40, 3, 36, 5, 0.02F), new Band(22, 2, 26, 4, -0.03F),
+            new Band(58, 2, 18, 3, -0.035F));
+    /** The light rings of the Mk2's bands (the render reads them through {@link #ringSpecs}). */
+    public static final List<RingSpec> RINGS_MK2 = BANDS_MK2.stream()
+            .map(band -> new RingSpec(band.lightBack(), band.lightRadius(), band.spin())).toList();
     /** Distance from the ring's core line within which it burns: the tube and its hottest glow. */
     public static final double RING_BURN = RING_THICKNESS * 2.5;
     /** Damage of the ring: nothing survives it (totems aside). */
@@ -136,11 +155,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public static final int HALF_WIDTH = 12;
     public static final int DEPTH = 17;
     /**
-     * The Mk2 extended array's extent: 34 to each side, 48 + 5 behind (a 69x69 platform with a hub twice the basic station's size and its undulator
-     * spire 14 blocks below the scaled mast: startup_scripts/gtceu/photolithography.js ORBITAL_SPIRE).
+     * The Mk2 extended array's extent: 36 to each side (73 wide, the big ring), 129 + 5 behind (130 levels from the
+     * crown with the controller to the needle's tip: startup_scripts/gtceu/photolithography.js ORBITAL_DEPTH).
      */
-    public static final int HALF_WIDTH_MK2 = 34;
-    public static final int DEPTH_MK2 = 48 + 5;
+    public static final int HALF_WIDTH_MK2 = 36;
+    public static final int DEPTH_MK2 = 129 + 5;
     /** Recipe data key of the coolant a run uses (the coolant's id). */
     public static final String COOLANT_TAG = "af9_coolant";
 
@@ -428,11 +447,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return extended && big != null ? big : basic;
     }
 
-    /** The two pages of the structure preview: the basic station and the Array Mk2. */
+    /** The structure preview: the basic station (the Array Mk2 is too big to show). */
     public static List<MultiblockShapeInfo> previews(MultiblockMachineDefinition definition) {
         List<MultiblockShapeInfo> pages = new ArrayList<>(previewShapes(definition));
-        BlockPattern big = extendedPattern;
-        if (big != null) pages.add(turnedPreview(big, definition));
+        // no page for the Mk2: its tower is 73 x 130 x 73 blocks, far too big for the structure view (a page that size
+        // would stall JEI); the build is in the quests and the docs
         return pages;
     }
 
@@ -450,48 +469,6 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             }
         }
         return cells;
-    }
-
-    /** The preview of an arbitrary pattern, turned into the controller-up orientation like previewShapes does. */
-    private static MultiblockShapeInfo turnedPreview(BlockPattern pattern,
-                                                     MultiblockMachineDefinition definition) {
-        int[] repetition = new int[pattern.aisleRepetitions.length];
-        for (int i = 0; i < repetition.length; i++) repetition[i] = pattern.aisleRepetitions[i][0];
-        BlockInfo[][][] north = pattern.getPreview(repetition);
-        int[][] turn;
-        try {
-            turn = previewTurn(pattern);
-        } catch (ReflectiveOperationException e) {
-            AF9Core.LOGGER.warn("Orbital array preview: cannot turn GT's preview, showing it as GT draws it", e);
-            return new MultiblockShapeInfo(solid(north));
-        }
-        int sx = north.length, sy = north[0].length, sz = north[0][0].length;
-        int[] min = { Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE };
-        int[] max = { Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE };
-        int[][][][] target = new int[sx][sy][sz][];
-        for (int x = 0; x < sx; x++) {
-            for (int y = 0; y < sy; y++) {
-                for (int z = 0; z < sz; z++) {
-                    int[] p = apply(turn, x, y, z);
-                    target[x][y][z] = p;
-                    for (int i = 0; i < 3; i++) {
-                        min[i] = Math.min(min[i], p[i]);
-                        max[i] = Math.max(max[i], p[i]);
-                    }
-                }
-            }
-        }
-        BlockInfo[][][] up = new BlockInfo[max[0] - min[0] + 1][max[1] - min[1] + 1][max[2] - min[2] + 1];
-        for (int x = 0; x < sx; x++) {
-            for (int y = 0; y < sy; y++) {
-                for (int z = 0; z < sz; z++) {
-                    int[] p = target[x][y][z];
-                    up[p[0] - min[0]][p[1] - min[1]][p[2] - min[2]] =
-                            turnedInfo(north[x][y][z], turn, definition);
-                }
-            }
-        }
-        return new MultiblockShapeInfo(solid(up));
     }
 
     public boolean isExtended() {
@@ -543,24 +520,10 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return InteractionResult.SUCCESS;
     }
 
-    /** Ring radius of the size it is formed as (the render reads this through {@link #ringRadius(float)}). */
-    public float currentRingRadius() {
-        return extended ? RING_RADIUS_MK2 : RING_RADIUS;
-    }
-
+    /** The rings of the size it is formed as (the render reads them through {@link #ringSpecs}). */
     @Override
-    public float ringBack(float modelBack) {
-        return extended ? RING_BACK_MK2 : modelBack;
-    }
-
-    @Override
-    public float ringSpin() {
-        return extended ? RING_SPIN_MK2 : 0F;
-    }
-
-    @Override
-    public float ringRadius(float modelRadius) {
-        return currentRingRadius();
+    public List<RingSpec> ringSpecs(float modelBack, float modelRadius) {
+        return extended ? RINGS_MK2 : List.of(new RingSpec(modelBack, RING_RADIUS, 0F));
     }
 
     /** No vacuum to pump in orbit (see {@link #updateVacuum()}); unused. */
@@ -951,27 +914,28 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return getRecipeLogic().isWorking();
     }
 
-    /** The ring's centre, world coordinates. */
-    public Vec3 ringCentre() {
+    /** The centre of a ring {@code back} levels behind the controller, world coordinates. */
+    public Vec3 ringCentre(float back) {
         Direction front = getFrontFacing();
         Direction up = RelativeDirection.UP.getRelative(front, getUpwardsFacing(), isFlipped());
-        Direction back = RelativeDirection.BACK.getRelative(front, getUpwardsFacing(), isFlipped());
+        Direction behind = RelativeDirection.BACK.getRelative(front, getUpwardsFacing(), isFlipped());
         return Vec3.atCenterOf(getPos()).add(
-                up.getStepX() * RING_UP + back.getStepX() * ringBack(RING_BACK),
-                up.getStepY() * RING_UP + back.getStepY() * ringBack(RING_BACK),
-                up.getStepZ() * RING_UP + back.getStepZ() * ringBack(RING_BACK));
+                up.getStepX() * RING_UP + behind.getStepX() * back,
+                up.getStepY() * RING_UP + behind.getStepY() * back,
+                up.getStepZ() * RING_UP + behind.getStepZ() * back);
     }
 
-    /** The lit ring burns every living thing touching it (players in creative or spectator mode aside). */
+    /** The lit rings burn every living thing touching them (players in creative or spectator mode aside). */
     private void burnRingTouchers() {
         if (!(getLevel() instanceof ServerLevel level)) return;
-        Vec3 centre = ringCentre();
         Vec3 axis = Vec3.atLowerCornerOf(getFrontFacing().getNormal());
-        float radius = currentRingRadius();
-        AABB near = new AABB(centre, centre).inflate(radius + RING_BURN + 2);
-        for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, near,
-                OrbitalLithographyMachine::canBurn)) {
-            if (touchesRing(entity.getBoundingBox(), centre, axis, radius)) burn(level, entity);
+        for (RingSpec ring : ringSpecs(RING_BACK, RING_RADIUS)) {
+            Vec3 centre = ringCentre(ring.back());
+            AABB near = new AABB(centre, centre).inflate(ring.radius() + RING_BURN + 2);
+            for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, near,
+                    OrbitalLithographyMachine::canBurn)) {
+                if (touchesRing(entity.getBoundingBox(), centre, axis, ring.radius())) burn(level, entity);
+            }
         }
     }
 

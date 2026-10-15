@@ -53,16 +53,20 @@ perfect overclocks, parallel hatch). It left the Orbital Lithography Array Mk2. 
 
 ## 4. Array Mk2 (extended, like the Space Elevator's sizes)
 
-Same controller, two sizes (basic 25x25 / extended 69x69), switched with a screwdriver on the controller between
-runs (af9-core `setExtended`, like the Elevator's size switch; the KubeJS pattern hands the extended one over with
-`setExtendedPattern`, previews show both). The same platform, bigger: the core (everything within 9 blocks of the
-controller's axis: mast, cone, top deck with the hatches, the middle of the beams) is the basic station scaled up 2x in all three directions (the centre column and the controller stay one block; `scaleDown` in the script), centred in
-69x69; the rim (the sturdy and non-conducting rings, the trusses, the ends of the shock-proof beams) is the original's
-moved 22 blocks out (radius 12 → 34) with its thickness and look, and the original's axis beams run on between core and
-rim. `orbitalMk2Slices()` builds it cell by cell from `ORBITAL_BASIC` for every level, so a change to the basic station
-carries over. The rim's rings are not stretched out of the original's cells: off the axes the original's rim is three plain rings, so each is a band of radii moved out by 22 (`orbitalBands`), which comes out round and solid. The undulator spire (the mast under the deck) hangs `ORBITAL_SPIRE` = 12 blocks lower than the basic station's (30 levels in all; `DEPTH_MK2` = 29: the gravity field covers it). Light ring radius 9.6 → 27.2, spinning (`RING_SPIN_MK2`, habitat modules turn round it) (0.8 of the rim, as in the basic station; `RING_RADIUS_MK2`, read dynamically
-through `ringRadius()` so one model serves both; burn distance, magnetic field box and render bounding box follow
-the size; plasma soldering glows plasma-violet, hotter with bloom).
+Same controller, two sizes (basic 25x25 / extended tower 73 x 130 x 73), switched with a screwdriver on the controller
+between runs (af9-core `setExtended`, like the Elevator's size switch; the KubeJS pattern hands the extended one over
+with `setExtendedPattern`; the preview shows the basic station only, the tower is too big for it). The extended one is a
+tower (`ORBITAL_MK2_SLICES`, built from the cell functions `orbitalTowerCell` and `orbitalRingCell`, d counting levels
+below the controller): a 13 x 13 body of stress-proof and non-conducting panels with HSS-S corner posts, HSS-G coil
+light strips up the faces and floors every 12 levels, round an HSS-E frame core; a stepped crown of PTFE casing on top
+(the hatches go on it, the controller on the top level), a taper at the foot and an HSS-E needle below, 130 levels in
+all. Three rings round it (`ORBITAL_RINGS`: top level, thickness, outer radius, band width): the middle one at d 40
+(radius 36), one above at d 22 (26) and one below at d 58 (18), each a band of sturdy casing with a stress-proof top and a
+non-conducting outer face, joined to the tower by a shock-proof beam between HSS-S rails along the axes, about 11,000
+blocks in all. The light rings (`RINGS_MK2`: back, radius, spin) lie 1.5 blocks inside the bands and turn like a
+station's wheels, the middle one against the other two (habitat modules in `LightRingRender`, drawn per `RingSpec` from
+`ringSpecs()`, so one model serves both sizes). Burn distance, the magnetic field box (`HALF_WIDTH_MK2` 36, `DEPTH_MK2`
+134) and the render bounding box follow the rings; plasma soldering glows plasma-violet, hotter with bloom.
 
 ## 5. What only the Mk2 runs, and its beam focus
 

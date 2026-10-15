@@ -6,6 +6,8 @@ import com.gregtechceu.gtceu.api.machine.feature.IMachineFeature;
 
 import net.minecraft.sounds.SoundEvent;
 
+import java.util.List;
+
 /**
  * A machine with a glowing light ring while it works, like GT's Fusion Reactor
  * ({@link com.af9.core.client.render.LightRingRender}). Both methods run on the client, from synced state.
@@ -52,20 +54,21 @@ public interface ILightRingMachine extends IMachineFeature {
     }
 
     /**
-     * Spin of the ring in radians per tick: above 0 it wears habitat modules that turn round it like a space station's
-     * wheel. 0 (default) for a plain ring.
+     * One ring of the machine: how far behind the controller its centre lies, its radius, and its spin in radians per
+     * tick (above 0 it wears habitat modules that turn round it like a space station's wheel, below 0 they turn the
+     * other way; 0 for a plain ring).
      */
-    default float ringSpin() {
-        return 0F;
-    }
+    record RingSpec(float back, float radius, float spin) {}
 
     /**
-     * How far behind the controller the ring's centre lies: the model's by default. The Orbital Array Mk2 has a taller
-     * hub, so its ring sits further below the controller.
+     * All the rings the machine draws, the first the main one (its sounds, sparks and lightning). By default one ring
+     * with the model's place and the size from {@link #ringRadius(float)}, not spinning. The Orbital Array Mk2 has
+     * three, turning against each other.
      *
-     * @param modelBack the distance the model was built with
+     * @param modelBack   how far behind the controller the model puts its ring
+     * @param modelRadius the radius the model was built with
      */
-    default float ringBack(float modelBack) {
-        return modelBack;
+    default List<RingSpec> ringSpecs(float modelBack, float modelRadius) {
+        return List.of(new RingSpec(modelBack, ringRadius(modelRadius), 0F));
     }
 }

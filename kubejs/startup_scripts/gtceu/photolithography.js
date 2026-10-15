@@ -67,8 +67,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 })
 
 // Orbital station layouts, precomputed ONCE at module level and reused by .pattern() for both
-// basic and Mk2 (memoized): ORBITAL_BASIC is the 25-wide design, ORBITAL_BANDS its 18x25x25 rim-band
-// scan, ORBITAL_MK2_SLICES the 69x25x69 Mk2 cell table. Same cell functions, just called once.
+// basic and Mk2 (memoized): ORBITAL_BASIC is the 25-wide design, ORBITAL_MK2_SLICES the 73x130x73 Mk2 cell table.
 const ORBITAL_BASIC = [
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         '],
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
@@ -96,112 +95,90 @@ const ORBITAL_BASIC = [
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ']
     ]
-// Array Mk2: the same platform, bigger. The core is the basic station exactly as it is (everything within 9 blocks of
-// the controller's axis: mast, cone, hatches, the middle of the beams), centred in 69 x 69; the rim - the sturdy
-// and non-conducting rings, the shock-proof beams' ends and the trusses - is the original's moved 22 blocks out, so
-// it keeps its thickness and its look (rim radius 12 -> 34; the light ring 9.6 -> 27.2, the same 0.8 of the rim, clears it by 3.4); the
-// beams run on between them (the original's axis beams, 1-3 wide, at radius 9). Built cell by cell from ORBITAL_BASIC
-// for every level, so a change to the basic station carries over. Rows bottom -> top as ORBITAL_BASIC: [aisle][level].
-const ORBITAL_MK2 = 69      // the Mk2's size, its centre at ORBITAL_MID
-const ORBITAL_MID = 34
-const ORBITAL_CORE = 9      // within this radius the basic station is copied as it is
-const ORBITAL_GROW = 22     // how far the rim moves out (rim radius 12 -> 34, twice the first Mk2's 17)
-const ORBITAL_NEAR = 3      // within this many blocks of an axis the rim moves out straight (no stretch of the beams)
-const ORBITAL_SPIRE = 14  // the Mk2's undulator spire hangs this many blocks below its (scaled) mast (af9-core DEPTH_MK2)
-const orbitalBasicAt = (level, dx, dz) => {
-    const sx = Math.floor(dx + 0.5) + 12, sz = Math.floor(dz + 0.5) + 12
-    return sx >= 0 && sx < 25 && sz >= 0 && sz < 25 ? ORBITAL_BASIC[sz][level].charAt(sx) : ' '
+// Array Mk2: a tower. A tall white spire of panels (the hatches in its crown, the controller on top, facing up) with
+// three rings round it, a big one in the middle and a smaller one above and below, joined to it by beams, and a needle
+// reaching down from its foot; the rings' light rings glow just inside them and turn like the wheels of a station
+// (af9-core RING_MK2 / OrbitalLithographyMachine.ringSpecs, which read the same numbers: keep them in step). The
+// blocks are the basic station's: sturdy and stress-proof casing for the rings and the shell, non-conducting panels, the
+// shock-proof beams in HSS-S rails, HSS-G coil light strips, HSS-E frames for the core and the needle. Rows bottom -> top as
+// ORBITAL_BASIC, the controller on the top row. d below counts levels down from the controller.
+const ORBITAL_MK2 = 73          // width of the plane, the tower at its centre (36)
+const ORBITAL_MID = 36
+const ORBITAL_DEPTH = 130       // levels: the crown at the top, the needle's tip at the bottom
+const ORBITAL_HALF = 6          // half width of the tower's body (13 x 13)
+const ORBITAL_BODY_TO = 80      // the body ends here, below it the tower tapers to the needle
+const ORBITAL_RINGS = [         // d of the ring's top level, levels thick, outer radius, band width (every ring one band of casing)
+    { d: 22, t: 2, r: 26, w: 4 },
+    { d: 40, t: 3, r: 36, w: 5 },
+    { d: 58, t: 2, r: 18, w: 3 }
+]
+// half width of the tower d levels below the controller: a stepped crown, the body, then the taper to the needle
+const orbitalHalf = d => {
+    if (d <= 10) return 1 + Math.floor((d + 1) / 2)
+    if (d <= ORBITAL_BODY_TO) return ORBITAL_HALF
+    if (d <= ORBITAL_BODY_TO + 20) return Math.max(1, ORBITAL_HALF - Math.floor((d - ORBITAL_BODY_TO + 3) / 4))
+    return 0
 }
-// Hoisted rim order (was 'DOKCFHLABC'.split('') per cell): the sturdy ring before the rest, where two bands meet.
-const ORBITAL_RIM_ORDER = ['D', 'O', 'K', 'C', 'F', 'H', 'L', 'A', 'B', 'C']
-// The rim away from the axes is made from the original's rings, not stretched out of them: off the axes the original's rim is
-// three plain rings (levels 13 and 15 a ring of non-conducting casing, level 14 a ring of sturdy casing round another of
-// non-conducting), so each ring is a band of radii (the radii of the centres of its cells in the original), and the Mk2's
-// ring is the same band moved out by ORBITAL_GROW. A cell of the Mk2 is in a ring when its centre lies in the band: the rings
-// come out round and as thick all the way round (resampling the original's cells, a thin ring broke into blobs and gaps).
-// Precomputed once (18x25x25 band scan).
-const ORBITAL_BANDS = (() => {
-    const bands = {}
-    Array(18).fill(0).forEach((_, level) => {
-        Array(25).fill(0).forEach((_, z) => {
-            Array(25).fill(0).forEach((_, x) => {
-                const ch = ORBITAL_BASIC[z][level].charAt(x)
-                const dx = x - 12, dz = z - 12
-                const r = Math.sqrt(dx * dx + dz * dz)
-                if (ch === ' ' || r <= ORBITAL_CORE || Math.abs(dx) <= ORBITAL_NEAR || Math.abs(dz) <= ORBITAL_NEAR) return
-                bands[level] = bands[level] || {}
-                const band = bands[level][ch]
-                if (band) {
-                    band[0] = Math.min(band[0], r)
-                    band[1] = Math.max(band[1], r)
-                } else {
-                    bands[level][ch] = [r, r]
-                }
-            })
-        })
-    })
-    return bands
-})()
-const orbitalRimCell = (level, dx, dz) => {
-    const bands = ORBITAL_BANDS[level]
-    if (!bands) return ' '
-    const r = Math.sqrt(dx * dx + dz * dz) - ORBITAL_GROW
-    let best = ' '
-    ORBITAL_RIM_ORDER.forEach(ch => {
-        if (best !== ' ' || !bands[ch]) return
-        // a ring of one cell needs a band about one block wide to come out solid all the way round
-        // (and two rings side by side overlap a little, so no cell between them is left out)
-        const pad = Math.max(0.01, (1 - (bands[ch][1] - bands[ch][0])) / 2) + (Object.keys(bands).length > 1 ? 0.12 : 0)
-        if (r >= bands[ch][0] - pad && r <= bands[ch][1] + pad) best = ch
-    })
-    return best
-}
-// The core is scaled up 2x to fit the doubled ring (3D, about the beam level 14 and the centre column, which stay one block
-// wide: k source blocks out are 2k - 1 and 2k blocks out here), so the hub, the deck, the mast and the beams inside it are
-// twice the size and the original's look; e is the level above (+) or below (-) the beam level (14), the controller on top at ORBITAL_TOP.
-const ORBITAL_BEAM = 14
-const ORBITAL_TOP = 6       // 3 source levels above the beam level, 2 each, the controller on the top one alone
-const ORBITAL_MAST = 28     // the scaled mast hangs this far below the beam level; the spire runs on below it
-const scaleDown = k => (k === 0 ? 0 : Math.sign(k) * Math.ceil(Math.abs(k) / 2))
-const orbitalMk2Cell = (e, dx, dz) => {
-    const r = Math.sqrt(dx * dx + dz * dz)
-    const sx = scaleDown(dx), sz = scaleDown(dz)
-    if (e < -ORBITAL_MAST) return dx === 0 && dz === 0 ? 'A' : ' '
-    if (Math.sqrt(sx * sx + sz * sz) <= ORBITAL_CORE) {
-        const ch = orbitalBasicAt(ORBITAL_BEAM + scaleDown(e), sx, sz)
-        // one controller only: the rest of the scaled block is plain top deck
-        return ch === 'K' && e !== ORBITAL_TOP ? 'O' : ch
-    }
-    // outside the core the station is the original's thickness, its beams at levels 13 to 15
-    const level = ORBITAL_BEAM + e
-    if (level < 0 || level > 17) return ' '
-    if (r <= ORBITAL_CORE + ORBITAL_GROW) {
-        // between the core and the rim only the axis beams run on: the original's cross-section at the core's edge
-        if (Math.abs(dx) <= 1) return orbitalBasicAt(level, dx, dz > 0 ? ORBITAL_CORE : -ORBITAL_CORE)
-        if (Math.abs(dz) <= 1) return orbitalBasicAt(level, dx > 0 ? ORBITAL_CORE : -ORBITAL_CORE, dz)
+const orbitalTowerCell = (d, dx, dz) => {
+    const half = orbitalHalf(d)
+    const edge = Math.max(Math.abs(dx), Math.abs(dz))
+    if (d === 0 && dx === 0 && dz === 0) return 'K'
+    if (half === 0) {
+        // the needle: HSS-E core, a frame every 8 levels round it (frames only: the rest is thin as a needle)
+        if (dx === 0 && dz === 0) return 'A'
         return ' '
     }
-    if (Math.abs(dx) <= ORBITAL_NEAR && Math.abs(dz) > Math.abs(dx)) {
-        return orbitalBasicAt(level, dx, dz > 0 ? dz - ORBITAL_GROW : dz + ORBITAL_GROW)
-    }
-    if (Math.abs(dz) <= ORBITAL_NEAR && Math.abs(dx) > Math.abs(dz)) {
-        return orbitalBasicAt(level, dx > 0 ? dx - ORBITAL_GROW : dx + ORBITAL_GROW, dz)
-    }
-    return orbitalRimCell(level, dx, dz)
+    if (edge > half) return ' '
+    if (dx === 0 && dz === 0) return d < 12 ? 'O' : 'A'
+    // crown: plain PTFE casing all round and across the top, the hatches go on it
+    if (d <= 10) return edge === half || d === 0 || d % 2 === 0 ? 'O' : ' '
+    // floors across the body every 12 levels
+    if (d <= ORBITAL_BODY_TO && d % 12 === 0) return 'C'
+    if (edge < half) return ' '
+    // the shell: HSS-S corner posts, light strips (HSS-G coil) up the middle of the faces, panels of stress-proof casing
+    // in bands, non-conducting between
+    const corner = Math.abs(dx) === half && Math.abs(dz) === half
+    if (d > ORBITAL_BODY_TO) return corner ? 'F' : 'L'
+    if (corner) return 'F'
+    if ((dx === 0 || dz === 0) && d % 14 > 3) return 'B'
+    return d % 6 < 2 ? 'C' : 'L'
+}
+const orbitalRingCell = (d, dx, dz) => {
+    let found = ' '
+    ORBITAL_RINGS.forEach(ring => {
+        if (found !== ' ' || d < ring.d || d >= ring.d + ring.t) return
+        const r = Math.sqrt(dx * dx + dz * dz)
+        const mid = ring.d + Math.floor(ring.t / 2)
+        // the band: sturdy casing, a stress-proof top and a non-conducting outer face
+        if (r >= ring.r - ring.w && r <= ring.r + 0.3) {
+            found = d === ring.d ? 'L' : r > ring.r - 1 ? 'C' : 'D'
+            return
+        }
+        // the beams out to it: the shock-proof beam between HSS-S rails, one level, along the axes
+        if (d === mid && r > ORBITAL_HALF && r < ring.r - ring.w) {
+            if (Math.abs(dx) === 0 && Math.abs(dz) > 0 || Math.abs(dz) === 0 && Math.abs(dx) > 0) found = 'H'
+            else if (Math.abs(dx) === 1 && Math.abs(dz) > 1 || Math.abs(dz) === 1 && Math.abs(dx) > 1) found = 'F'
+        }
+    })
+    return found
+}
+const orbitalMk2Cell = (d, dx, dz) => {
+    const tower = orbitalTowerCell(d, dx, dz)
+    return tower !== ' ' ? tower : orbitalRingCell(d, dx, dz)
 }
 // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop
 // bodies use callbacks (a const in a callback is new each call; lint rule S3). Array(n).fill(0), not
 // Array.from({ length: n }): Rhino's Array.from leaves n holes, and forEach skips holes.
-// Precomputed once (69x49x69 Mk2 cell table); .pattern() reuses this const. Rows bottom -> top, ORBITAL_SPIRE below the mast.
+// Precomputed once (73 x 130 x 73 Mk2 cell table); .pattern() reuses this const.
 const ORBITAL_MK2_SLICES = (() => {
     const slices = []
     Array(ORBITAL_MK2).fill(0).forEach((_, az) => {
         const aisle = []
-        Array(ORBITAL_MAST + ORBITAL_SPIRE + ORBITAL_TOP + 1).fill(0).forEach((_, row) => {
-            const e = row - ORBITAL_MAST - ORBITAL_SPIRE
+        Array(ORBITAL_DEPTH).fill(0).forEach((_, row) => {
+            const d = ORBITAL_DEPTH - 1 - row
             const cells = []
             Array(ORBITAL_MK2).fill(0).forEach((_, ax) => {
-                cells.push(orbitalMk2Cell(e, ax - ORBITAL_MID, az - ORBITAL_MID))
+                cells.push(orbitalMk2Cell(d, ax - ORBITAL_MID, az - ORBITAL_MID))
             })
             aisle.push(cells.join(''))
         })
@@ -355,9 +332,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // print draws a supercooled fluid through the coolant hatches (af9-core OrbitalLithographyMachine.COOLANT);
     // 7 and 1 nm draw computation (computation hatch) and need their research (data hatch). While switched on and
     // powered its magnetic field gives the space around it normal gravity (Ad Astra; af9-core OrbitalField).
-    // Array Mk2 (extended, 69 x 69, a screwdriver on the controller switches sizes like the Space Elevator's screen
-    // switch): the same platform, the core as it is and the rim, trusses and beams' ends moved 22 blocks out (below),
-    // and a larger light ring (radius 27.2, spinning, af9-core RING_RADIUS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
+    // Array Mk2 (extended, a screwdriver on the controller switches sizes like the Space Elevator's screen
+    // switch): a 73 x 130 x 73 tower with three spinning rings and a needle (above, af9-core RINGS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
     // UHV+ circuits deposited ion-by-ion with plasma solder, in orbit.
     // Layouts are module-level (ORBITAL_BASIC / ORBITAL_MK2_SLICES), precomputed once above.
     const orbitalWheres = definition => {
@@ -422,7 +398,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',
             'gtceu:block/multiblock/fusion_reactor')
         // the same model plus the light ring: centre 3 behind the controller (below, as it faces up), radius 9.6
-        // (27.2 on the Array Mk2, af9-core reads the size through ringRadius), tube 0.25, lying across the
+        // (the Array Mk2's three rings: af9-core reads them through ringSpecs), tube 0.25, lying across the
         // controller's front axis. The numbers live in af9-core (RING_*), which also burns whatever touches the lit
         // ring. Plasma soldering glows hotter (ringGlow 2, af9-core).
         .model($LithoMachineModels.workableCasingWithLightRing('gtceu:block/casings/solid/machine_casing_inert_ptfe',
@@ -431,6 +407,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             $OrbitalLithographyMachine.RING_THICKNESS, 'front'))
         .hasBER(true)
         // GT would draw the preview for a controller facing north (the platform on its edge): show it facing up;
-        // two pages, the basic station and the Array Mk2
+        // the basic station's page (the Array Mk2 is too big for a preview)
         .shapeInfos(definition => $OrbitalLithographyMachine.previews(definition))
 })
