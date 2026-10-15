@@ -2,8 +2,6 @@ package com.af9.core.machine;
 
 import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.console.ConsoleWidget;
-import com.af9.core.machine.console.ScannerConsoleWidget;
-import com.af9.core.machine.console.ScannerUIWidget;
 import com.af9.core.registry.AF9Blocks;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
@@ -11,13 +9,10 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
 
-import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
-import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -28,7 +23,7 @@ import net.minecraftforge.registries.ForgeRegistries;
  * <li>its ArF excimer laser in a slot of its screen ({@link #laserSlot}, a recipe input like the orbital station's EUV
  * slot: the 80 and 65 nm prints keep an ArF Excimer Laser, not consumed; it may also sit in an input bus), no longer a
  * block of the structure;</li>
- * <li>its own screen: {@link ScannerConsoleWidget} in a {@link ScannerUIWidget}, the orbital station's layout.</li>
+ * <li>its own screen: {@link com.af9.core.machine.console.ScannerConsoleWidget}, shared with the line (the laser slot is its own part of it).</li>
  * </ul>
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
@@ -79,21 +74,5 @@ public class PhotolithographyScannerMachine extends PhotolithographyLineMachine 
     @Override
     public void onMachineRemoved() {
         clearInventory(laserSlot.storage);
-    }
-
-    //////////////////////////////////////
-    // ************ GUI *************//
-    //////////////////////////////////////
-
-    @Override
-    public Widget createUIWidget() {
-        return ScannerConsoleWidget.createPage(this);
-    }
-
-    /** GT's machine screen with the scanner's page and a panel on each side of the player inventory. */
-    @Override
-    public ModularUI createUI(Player entityPlayer) {
-        return new ModularUI(ScannerUIWidget.WIDTH, ScannerUIWidget.HEIGHT, this, entityPlayer)
-                .widget(new ScannerUIWidget(this));
     }
 }
