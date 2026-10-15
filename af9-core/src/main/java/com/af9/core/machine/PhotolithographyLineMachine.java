@@ -3,6 +3,8 @@ package com.af9.core.machine;
 import com.af9.core.AF9Core;
 import com.af9.core.litho.Coolant;
 import com.af9.core.litho.LithoMode;
+import com.af9.core.machine.console.ScannerConsoleWidget;
+import com.af9.core.machine.console.ScannerUIWidget;
 import com.af9.core.registry.AF9Blocks;
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
@@ -15,6 +17,7 @@ import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.utils.ResearchManager;
 
+import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
@@ -23,6 +26,7 @@ import com.lowdragmc.lowdraglib.utils.BlockInfo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -272,10 +276,19 @@ public class PhotolithographyLineMachine extends LithoMachine {
     // ************ GUI *************//
     //////////////////////////////////////
 
-    /** Replaces GT's text display with the console; GT's side tabs (power, mode, parts) stay. */
+    /**
+     * The screen of the line and the scanner alike ({@link ScannerConsoleWidget}: exposure field and panel, the process
+     * and system panels beside the player inventory, like the orbital station); GT's side tabs stay.
+     */
     @Override
     public Widget createUIWidget() {
-        return LithoConsoleWidget.create(this);
+        return ScannerConsoleWidget.createPage(this);
+    }
+
+    @Override
+    public ModularUI createUI(Player entityPlayer) {
+        return new ModularUI(ScannerUIWidget.WIDTH, ScannerUIWidget.HEIGHT, this, entityPlayer)
+                .widget(new ScannerUIWidget(this));
     }
 
     //////////////////////////////////////

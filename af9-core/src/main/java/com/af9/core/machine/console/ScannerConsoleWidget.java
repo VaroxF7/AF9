@@ -3,6 +3,7 @@ package com.af9.core.machine.console;
 import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.LithoConsoleWidget;
 import com.af9.core.machine.LithoMachine;
+import com.af9.core.machine.PhotolithographyLineMachine;
 import com.af9.core.machine.PhotolithographyScannerMachine;
 
 import com.gregtechceu.gtceu.api.GTValues;
@@ -35,8 +36,9 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * The Photolithography Scanner's screen (see {@link ScannerUIWidget} for the frame around it), the orbital station's
- * layout:
+ * The screen of the Photolithography Line (Mk1) and Scanner (Mk2) alike (see {@link ScannerUIWidget} for the frame around
+ * it), the orbital station's layout. The two machines differ only in what is physical: the scanner has its ArF laser in
+ * a slot of this screen, the line's light source is a block of its structure.
  * <ul>
  * <li>left, the exposure field: the scanner's two nodes (click one to switch to it; a node above the scanner's version
  * shows the version it needs), the optical column (the ArF laser, the reticle stage scanning, the projection lens with
@@ -67,10 +69,10 @@ public class ScannerConsoleWidget extends ConsoleWidget {
     private static final int COLUMN_X = FIELD_X + 58, COLUMN_TOP = 34, COLUMN_BOTTOM = 110;
     private static final int WAFER_X = FIELD_X + 172, WAFER_Y = 72;
     private static final WaferView WAFER = new WaferView(32, 8);
-    /** Structure length of version 1, and the blocks one version adds. */
-    public static final int LENGTH_V1 = 10, LENGTH_STEP = 2;
+    /** Structure length of version 1 (the line adds 1 block a version, the scanner 2: the spec's aisles per slice). */
+    public static final int LENGTH_V1 = 10;
 
-    private final PhotolithographyScannerMachine machine;
+    private final PhotolithographyLineMachine machine;
 
     // last state sent to / received by the client
     private int status = -1;
@@ -101,7 +103,7 @@ public class ScannerConsoleWidget extends ConsoleWidget {
     private boolean multi;
     private String product = "";
 
-    public ScannerConsoleWidget(PhotolithographyScannerMachine machine, int x, int y) {
+    public ScannerConsoleWidget(PhotolithographyLineMachine machine, int x, int y) {
         super(x, y, WIDTH, HEIGHT);
         this.machine = machine;
     }
@@ -111,7 +113,7 @@ public class ScannerConsoleWidget extends ConsoleWidget {
      * switches and the counter reset. The slot works on the handler's storage: the handler refuses inserts (no pipe
      * access).
      */
-    public static WidgetGroup createPage(PhotolithographyScannerMachine machine) {
+    public static WidgetGroup createPage(PhotolithographyLineMachine machine) {
         var page = new WidgetGroup(0, 0, WIDTH, HEIGHT);
         page.addWidget(new ScannerConsoleWidget(machine, 0, 0));
         List<LithoMode> modes = machine.getModes();
@@ -131,9 +133,11 @@ public class ScannerConsoleWidget extends ConsoleWidget {
             tile.setHoverTooltips(tooltip);
             page.addWidget(tile);
         }
-        page.addWidget(new SlotWidget(machine.laserSlot.storage, 0, SLOT_X, SLOT_Y, true, true)
-                .setBackgroundTexture(GuiTextures.SLOT)
-                .setHoverTooltips(Component.translatable("af9.scanner.console.laser_tooltip")));
+        if (machine instanceof PhotolithographyScannerMachine scanner) {
+            page.addWidget(new SlotWidget(scanner.laserSlot.storage, 0, SLOT_X, SLOT_Y, true, true)
+                    .setBackgroundTexture(GuiTextures.SLOT)
+                    .setHoverTooltips(Component.translatable("af9.scanner.console.laser_tooltip")));
+        }
         var power = new ButtonWidget(SWITCH_X, SWITCH_Y, SWITCH_W, SWITCH_H, IGuiTexture.EMPTY, click -> {
             if (!click.isRemote) machine.setWorkingEnabled(!machine.isWorkingEnabled());
         });
@@ -180,7 +184,7 @@ public class ScannerConsoleWidget extends ConsoleWidget {
                 (int) Math.round(machine.getCleanliness() * 10), (int) Math.round(machine.getPrintVacuum() * 10),
                 machine.getVacuumState(), (int) Math.round(machine.currentBreakChance(active) * 10000),
                 machine.isWorkingEnabled() ? 1 : 0, machine.isBatchEnabled() ? 1 : 0,
-                running == null ? 0 : LithoMachine.printsIn(running), machine.hasLaser() ? 1 : 0,
+                running == null ? 0 : LithoMachine.printsIn(running), lightReady() ? 1 : 0,
                 machine.needsAirCooling(active) ? machine.getCoolingCapacity() : 0,
                 machine.needsAirCooling(active) ? active.heatLoad() : 0, machine.coolingSteps(active),
                 machine.hasCoolingLapsed() && logic.isWorking() ? 1 : 0,
@@ -219,6 +223,15 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         broken = machine.getBroken();
         product = newProduct;
         return changed;
+    }
+
+    /** The scanner's laser is in its slot; the line's light source is a block of its structure, so it is there when formed. */
+    private boolean lightReady() {
+        return machine instanceof PhotolithographyScannerMachine scanner ? scanner.hasLaser() : machine.isFormed();
+    }
+
+    private boolean hasLaserSlot() {
+        return machine instanceof PhotolithographyScannerMachine;
     }
 
     private static int opcPercent(double ratio) {
@@ -278,9 +291,9 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         return LithoMode.values()[Math.max(0, Math.min(mode, LithoMode.values().length - 1))];
     }
 
-    /** Window sections (lens slices) of the version: 2 at version 1, one more per version. */
-    private static int slices(int version) {
-        return Math.max(2, version + 1);
+    /** Lens slices of the version: the machine's first version's count, one more per version. */
+    private int slices(int version) {
+        return machine.getSpec().lensSlicesV1() + Math.max(0, version - 1);
     }
 
     //////////////////////////////////////
@@ -358,13 +371,14 @@ public class ScannerConsoleWidget extends ConsoleWidget {
                             long time) {
         int color = active.argb;
         boolean lit = running && laser;
-        // the laser
+        // the light source: the scanner's laser, the line's lamp or laser by the node
         int laserColor = laser ? 0xFF6B4FA0 : 0xFF3A2F4A;
         graphics.fill(cx - 30, top, cx + 30, top + 11, 0xFF141B2A);
         border(graphics, cx - 30, top, 60, 11, laser ? withAlpha(laserColor, 0xFF) : BAD);
         graphics.fill(cx - 27, top + 3, cx - 21, top + 8, lit ? withAlpha(0xFFFFFF, 0xE0) : laserColor);
-        drawSmall(graphics, laser ? "ArF 193nm" : Component.translatable("af9.scanner.console.no_laser").getString(),
-                cx + 3, top + 3, laser ? MUTED : BAD, true);
+        String lightText = !laser ? Component.translatable("af9.scanner.console.no_laser").getString() :
+                hasLaserSlot() ? "ArF 193nm" : Component.translatable("af9.litho.light." + active.light).getString();
+        drawSmall(graphics, lightText, cx + 3, top + 3, laser ? MUTED : BAD, true);
         // the beam down the column
         int beamTop = top + 11;
         int reticleY = top + 18;
@@ -440,11 +454,11 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         drawSmall(graphics, fit(substrate, (PANEL_W - 30) * 4 / 3), x + 24, y + 35, MUTED, false);
 
         // the laser slot (left) and the version's bonus (right)
-        drawSmall(graphics, Component.translatable("af9.scanner.console.laser").getString(), x0 + SLOT_X, y + 46,
-                MUTED, false);
+        drawSmall(graphics, Component.translatable(hasLaserSlot() ? "af9.scanner.console.laser" :
+                "af9.litho.console.light").getString(), x0 + SLOT_X, y + 46, MUTED, false);
         drawSmall(graphics, fit(Component.translatable(laser ? "af9.scanner.console.laser_in" :
-                "af9.scanner.console.laser_missing").getString(), 40), x0 + SLOT_X + 21, y0 + SLOT_Y + 6,
-                laser ? GOOD : BAD, false);
+                "af9.scanner.console.laser_missing").getString(), 40), x0 + SLOT_X + (hasLaserSlot() ? 21 : 0),
+                y0 + SLOT_Y + 6, laser ? GOOD : BAD, false);
         int bx0 = x + 70;
         int bw = PANEL_W - 75;
         drawSmall(graphics, Component.translatable("af9.scanner.console.version").getString(), bx0, y + 46, MUTED,
@@ -588,7 +602,8 @@ public class ScannerConsoleWidget extends ConsoleWidget {
                     version > 0 ? TEXT : MUTED);
             if (version > 0) {
                 drawSmall(graphics, fit(Component.translatable("af9.scanner.console.length",
-                        LENGTH_V1 + (version - 1) * LENGTH_STEP, slices(version)).getString(), w * 4 / 3), x, y + 29,
+                        LENGTH_V1 + (version - 1) * console.machine.getSpec().aislesPerSlice(),
+                        console.slices(version)).getString(), w * 4 / 3), x, y + 29,
                         MUTED, false);
             }
             // immersion (65 nm) and the laser
@@ -596,7 +611,8 @@ public class ScannerConsoleWidget extends ConsoleWidget {
                     Component.translatable(active.immersion() ? "af9.scanner.console.immersion_on" :
                             "af9.scanner.console.immersion_off").getString(),
                     active.immersion() ? INFO : MUTED);
-            row(graphics, x, y + 47, w, "af9.scanner.console.laser",
+            row(graphics, x, y + 47, w, console.hasLaserSlot() ? "af9.scanner.console.laser" :
+                    "af9.litho.console.light",
                     Component.translatable(console.laser ? "af9.scanner.console.laser_in" :
                             "af9.scanner.console.laser_missing").getString(),
                     console.laser ? GOOD : BAD);

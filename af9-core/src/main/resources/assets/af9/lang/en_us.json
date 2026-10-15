@@ -1382,5 +1382,6 @@
     "af9.fiber.same_port": "That is the same port. Right-click the one at the other end.",
     "af9.fiber.status_ok": "Fibre: linked, carrying items and fluids",
     "af9.fiber.status_far": "Fibre: linked, the other end is not loaded",
-    "af9.fiber.status_unlinked": "Fibre: not linked (data stick, right-click both ports)"
+    "af9.fiber.status_unlinked": "Fibre: not linked (data stick, right-click both ports)",
+    "af9.litho.console.light": "LIGHT SOURCE"
 }
