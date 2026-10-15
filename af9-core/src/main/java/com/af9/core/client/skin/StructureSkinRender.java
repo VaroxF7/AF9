@@ -199,31 +199,30 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         poseStack.translate(-0.5, -0.5, -0.5);
 
         // the controller's own block is solid wall, which has no light of its own: take the light of the open air in
-        // front of the structure, per half (the lower and the upper two blocks)
-        int[] lights = { openAirLight(level, self, 0), openAirLight(level, self, 2) };
+        // front of the structure, at the height of each part
+        int[] lights = { -1, -1, -1, -1, -1 };
 
         // one render type at a time: a buffer from the source ends when another is asked for, so every pass gets its
         // consumer when it starts. Pass 1: the bodies and the parts that light up, entity shader (lit by the normals)
         VertexConsumer solid = buffer.getBuffer(RenderType.entityCutoutNoCull(InventoryMenu.BLOCK_ATLAS));
-        for (int half = 0; half < 2; half++) {
+        for (StructureSkin.Part part : skin.parts()) {
+            int up = Math.min(Math.max(Math.round(part.y()), 0), lights.length - 1);
+            if (lights[up] < 0) lights[up] = openAirLight(level, self, up);
             poseStack.pushPose();
-            poseStack.translate(0, half * 2, 0);
-            ResourceLocation body = half == 0 ? skin.lower() : skin.upper();
-            ResourceLocation lit = half == 0 ? skin.glowLower() : skin.glowUpper();
-            draw(poseStack, solid, quads(body, marker, coil, glowOn, glow), lights[half], packedOverlay);
-            draw(poseStack, solid, quads(lit, marker, coil, glowOn, glow), working ? FULL_BRIGHT : lights[half],
-                    packedOverlay);
+            poseStack.translate(part.x(), part.y(), part.z());
+            draw(poseStack, solid, quads(part.model(), marker, coil, glowOn, glow, false), lights[up], packedOverlay);
+            draw(poseStack, solid, quads(part.model(), marker, coil, glowOn, glow, true),
+                    working ? FULL_BRIGHT : lights[up], packedOverlay);
             poseStack.popPose();
         }
         // Pass 2: the coil's bloom over the coil bands, at full brightness
         if (bloom != null) {
             markActive(bloom);
             VertexConsumer lightsUp = buffer.getBuffer(RenderType.entityTranslucentEmissive(InventoryMenu.BLOCK_ATLAS));
-            for (int half = 0; half < 2; half++) {
+            for (StructureSkin.Part part : skin.parts()) {
                 poseStack.pushPose();
-                poseStack.translate(0, half * 2, 0);
-                ResourceLocation body = half == 0 ? skin.lower() : skin.upper();
-                draw(poseStack, lightsUp, bloomQuads(body, marker, bloom), FULL_BRIGHT, packedOverlay);
+                poseStack.translate(part.x(), part.y(), part.z());
+                draw(poseStack, lightsUp, bloomQuads(part.model(), marker, bloom), FULL_BRIGHT, packedOverlay);
                 poseStack.popPose();
             }
         }
@@ -265,11 +264,14 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         return LightTexture.pack(block, sky);
     }
 
-    /** A model's quads with the coil marker and the window's sprite replaced, cached. */
+    /**
+     * A model's quads with the coil marker and the window's sprite replaced, cached: the ones that use the glow sprite
+     * (the window, the lamps, the slits) when {@code lit}, all the others when not.
+     */
     private static List<BakedQuad> quads(ResourceLocation location, TextureAtlasSprite marker,
                                          TextureAtlasSprite coil, TextureAtlasSprite glowOn,
-                                         TextureAtlasSprite glow) {
-        return QUADS.computeIfAbsent(List.of(location, coil, glow), key -> {
+                                         TextureAtlasSprite glow, boolean lit) {
+        return QUADS.computeIfAbsent(List.of(location, coil, glow, lit), key -> {
             BakedModel model = Minecraft.getInstance().getModelManager().getModel(location);
             RandomSource random = RandomSource.create(42);
             List<BakedQuad> all = new ArrayList<>();
@@ -280,6 +282,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
             List<BakedQuad> out = new ArrayList<>(all.size());
             for (BakedQuad quad : all) {
                 TextureAtlasSprite from = quad.getSprite();
+                if ((from == glowOn) != lit) continue;
                 TextureAtlasSprite to = from == marker ? coil : from == glowOn ? glow : from;
                 out.add(to == from ? quad : retextured(quad, from, to));
             }

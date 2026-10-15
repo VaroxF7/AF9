@@ -57,9 +57,26 @@ public final class StructureSkins {
 
     public static final List<StructureSkin> SKINS = List.of(
             // the Electric Blast Furnace: 3 wide, 4 high, 3 deep, the controller in the middle of the front, at the bottom
-            new StructureSkin(() -> GTMultiMachines.ELECTRIC_BLAST_FURNACE, 1, 4, 3,
-                    model("multiblock/ebf_lower"), model("multiblock/ebf_upper"),
-                    model("multiblock/ebf_glow_lower"), model("multiblock/ebf_glow_upper"),
+            new StructureSkin(() -> GTMultiMachines.ELECTRIC_BLAST_FURNACE, 1, 4, 3, List.of(
+                    // the parts tools/ebf_model.py prints (x, y, z offsets in blocks)
+                    part("multiblock/ebf_m4_0_m4", -0.25F, 0.0F, -0.25F),
+                    part("multiblock/ebf_m4_0_16", -0.25F, 0.0F, 1.0F),
+                    part("multiblock/ebf_m4_0_36", -0.25F, 0.0F, 2.25F),
+                    part("multiblock/ebf_m4_40_m4", -0.25F, 2.5F, -0.25F),
+                    part("multiblock/ebf_m4_40_16", -0.25F, 2.5F, 1.0F),
+                    part("multiblock/ebf_m4_40_36", -0.25F, 2.5F, 2.25F),
+                    part("multiblock/ebf_0_0_m4", 0.0F, 0.0F, -0.25F),
+                    part("multiblock/ebf_0_0_16", 0.0F, 0.0F, 1.0F),
+                    part("multiblock/ebf_0_0_36", 0.0F, 0.0F, 2.25F),
+                    part("multiblock/ebf_0_40_m4", 0.0F, 2.5F, -0.25F),
+                    part("multiblock/ebf_0_40_16", 0.0F, 2.5F, 1.0F),
+                    part("multiblock/ebf_0_40_36", 0.0F, 2.5F, 2.25F),
+                    part("multiblock/ebf_4_0_m4", 0.25F, 0.0F, -0.25F),
+                    part("multiblock/ebf_4_0_16", 0.25F, 0.0F, 1.0F),
+                    part("multiblock/ebf_4_0_36", 0.25F, 0.0F, 2.25F),
+                    part("multiblock/ebf_4_40_m4", 0.25F, 2.5F, -0.25F),
+                    part("multiblock/ebf_4_40_16", 0.25F, 2.5F, 1.0F),
+                    part("multiblock/ebf_4_40_36", 0.25F, 2.5F, 2.25F)),
                     new int[] { -1, 1, 1 }, new float[] { 0.5F, 2.0F, -0.05F, 0.75F, 0.5F }));
 
     /** How many chunks round the player are searched for controllers, and how often (ticks). */
@@ -82,6 +99,10 @@ public final class StructureSkins {
 
     private static ResourceLocation model(String path) {
         return new ResourceLocation(AF9Core.MOD_ID, path);
+    }
+
+    private static StructureSkin.Part part(String path, float x, float y, float z) {
+        return new StructureSkin.Part(model(path), x, y, z);
     }
 
     public static boolean isHidden(long packedPos) {
@@ -200,10 +221,7 @@ public final class StructureSkins {
     /** Mod bus: the skin's models are loaded though no blockstate names them. */
     public static void registerModels(ModelEvent.RegisterAdditional event) {
         for (StructureSkin skin : SKINS) {
-            event.register(skin.lower());
-            event.register(skin.upper());
-            event.register(skin.glowLower());
-            event.register(skin.glowUpper());
+            for (StructureSkin.Part part : skin.parts()) event.register(part.model());
         }
     }
 
@@ -217,11 +235,10 @@ public final class StructureSkins {
         Set<StructureSkin> ready = new HashSet<>();
         for (StructureSkin skin : SKINS) {
             boolean ok = true;
-            for (ResourceLocation location : new ResourceLocation[] { skin.lower(), skin.upper(), skin.glowLower(),
-                    skin.glowUpper() }) {
-                BakedModel model = event.getModels().get(location);
+            for (StructureSkin.Part part : skin.parts()) {
+                BakedModel model = event.getModels().get(part.model());
                 if (model == null || model == missing) {
-                    AF9Core.LOGGER.warn("Structure skins: model {} did not load, {} keeps its blocks", location,
+                    AF9Core.LOGGER.warn("Structure skins: model {} did not load, {} keeps its blocks", part.model(),
                             skin.definition().get().getId());
                     ok = false;
                 }
