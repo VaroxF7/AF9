@@ -44,14 +44,15 @@ import java.util.Set;
  * A formed controller that the client knows from GT's synced state hides those blocks of its structure: their positions
  * go to {@link #isHidden}, which Embeddium's public per-block render hook asks while it builds a chunk, and the chunk is
  * rebuilt when the set changes. The machines stay (the controller, every hatch: the player works with them, they stand
- * out of the round wall) and so do the floor blocks. The blocks are only hidden when something takes their place: the
+ * out of the round wall) and so do the floor blocks. (Hatches are only in the machine house in front of the pond, so the
+ * ring is plain casing.) The blocks are only hidden when something takes their place: the
  * hook must be registered ({@link #registerEmbeddium}; without Embeddium the stepped blocks stay and the render draws
  * the pond without its round wall) and the controller must have a block entity renderer.
  */
 public final class PondWalls {
 
-    /** The structure (see {@code kubejs/startup_scripts/gtceu/ecrw.js}): 13 wide, the pond's centre 6 behind the controller. */
-    private static final int HALF = 6, DEPTH = 13, CENTRE_BACK = 6;
+    /** The structure (see {@code kubejs/startup_scripts/gtceu/ecrw.js}): 13 wide, 17 deep with the machine house in front, the pond's centre 10 behind the controller. */
+    private static final int HALF = 6, DEPTH = 17, CENTRE_BACK = 10;
     /** How many chunks round the player are searched for controllers, and how often (ticks). */
     private static final int SCAN_RADIUS = 8, SCAN_PERIOD = 10;
 
