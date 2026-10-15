@@ -21,13 +21,14 @@ The chain blends first and smelts after:
 
 ## The hearth (gameplay)
 
-The structure is the Rotary Hearth's, grown (15×21×15, plus an optional Verteilerhaus), in a brutalist dress: the same
-casings, coils, muffler, Naquadah Alloy frames (as deck beams), tungstensteel pipe, engine intakes and heat vents, with the
-middle lines of the original tripled (a wider air chamber, thicker pipe pillars and decks), a robust plinth under the base,
-the muffler on a three-high pipe stack with a casing block at its foot, Hearth Pipe Casings (AF9, a 3D model of pipes) where the firebox was
-and Hearth Support Casings (AF9, a 3D truss) instead of thin frame uprights. Hatches are maximums-only on any high-temperature casing of the
-main structure (the AF9 convention, so GT's 360-casing minimum is dropped; plus up to 2 Coolant Hatches for the
-supercooled coolant): the hearth needs nothing else. The optional **Verteilerhaus** (3 wide, 5 deep, 2 high, **one block
+The structure is a brutalist sci-fi tower (15×29×15, plus an optional Verteilerhaus; look after the reference image Janne
+supplied): a hex-tile pad of robust casing (every block takes hatches; vent slots and pods of Hearth Pipe Casing), a 9×9
+armoured body with the old hearth's heart inside (a 5×5 air chamber with two rotary turntables, 144 coils in two bands, a
+naquadah frame deck), two leaning Hearth Support Casing slabs on its front, a banded column and a vent grille on its right,
+and two hollow slab towers on its roof (the tall one with vented edges, the shorter one carrying the muffler). The
+controller sits in the front bay. Hatches are maximums-only on any robust casing of the pad or the bay (the AF9
+convention; GT's 360-casing minimum is dropped; plus up to 2 Coolant Hatches for the supercooled coolant): the hearth
+needs nothing else. The optional **Verteilerhaus** (3 wide, 5 deep, 2 high, **one block
 apart** from the base on the controller's left) takes the same hatches (shared maximums); its door (the two columns of
 its front) is plain casing, so no hatch covers it. Built whole (no gap in its 30 blocks) it gives a bonus: **preheat twice
 as fast** and **25% less readiness heater draw** (`hasVerteilerhaus`, checked every 5 s). Leave it out and nothing else
