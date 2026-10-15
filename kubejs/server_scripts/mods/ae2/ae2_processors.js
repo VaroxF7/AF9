@@ -35,8 +35,8 @@ ServerEvents.recipes(event => {
         .EUt(MV)
 
     // ---- Die packaging: silicon die + foils + wire + RAM -> AE2 printed (assembler) ----
-    // Tiered: logic packs at MV (tin / soldering alloy), calculation at HV and engineering at EV,
-    // both in a cleanroom on high-grade solder (tin stays as budget).
+    // Redstone foil and fine electrum wire carry the printed circuit. Logic packs at MV (tin / soldering alloy),
+    // calculation at HV and engineering at EV, both in a cleanroom on high-grade solder (tin stays as budget).
     // [processor, die, eut, ticks, cleanroom, foil, wire]
     const packaging = [
         ['logic_processor', 'gtceu:ilc_chip', MV, 300, false, 'electrum', 'gold'],
@@ -44,8 +44,8 @@ ServerEvents.recipes(event => {
         ['engineering_processor', 'gtceu:lpic_chip', EV, 500, true, 'platinum', 'platinum']
     ]
     packaging.forEach(([out, die, eut, ticks, cr, foil, wire]) => {
-        const inputs = [die, `2x gtceu:${foil}_foil`, '2x gtceu:copper_foil',
-            `4x gtceu:fine_${wire}_wire`, 'gtceu:ram_chip']
+        const inputs = [die, `2x gtceu:${foil}_foil`, '2x gtceu:copper_foil', '2x gtceu:redstone_foil',
+            `4x gtceu:fine_${wire}_wire`, '2x gtceu:fine_electrum_wire', 'gtceu:ram_chip']
         const solders = cr
             ? [['', Fluid.of('gtceu:tin', 144)], ['_high_grade', Fluid.of('gtceu:high_grade_solder', 72)]]
             : [['', Fluid.of('gtceu:tin', 144)], ['_soldering_alloy', Fluid.of('gtceu:soldering_alloy', 72)]]
@@ -57,8 +57,10 @@ ServerEvents.recipes(event => {
         })
     })
 
-    // ---- Final assembly: printed + carrier + redstone + tier circuit (assembler) ----
-    // Logic MV (good integrated), calculation HV (advanced integrated), engineering EV (micro computer).
+    // ---- Final assembly: printed + carrier + redstone + tier circuit on liquid certus quartz (assembler) ----
+    // The assembler takes one fluid, so the solder went into the packaging above and this step runs on liquid
+    // certus quartz alone (the same foil and wire again). Logic MV (good integrated), calculation HV (advanced
+    // integrated), engineering EV (micro processor computer).
     // [processor, circuit, eut, ticks, cleanroom]
     const processors = [
         ['logic_processor', 'gtceu:good_integrated_circuit', MV, 200, false],
@@ -66,15 +68,11 @@ ServerEvents.recipes(event => {
         ['engineering_processor', 'gtceu:micro_processor_computer', EV, 400, true]
     ]
     processors.forEach(([out, circuit, eut, ticks, cr]) => {
-        const inputs = [`ae2:printed_${out}`, 'ae2:printed_silicon', 'minecraft:redstone', circuit]
-        const solders = cr
-            ? [['', Fluid.of('gtceu:tin', 144)], ['_high_grade', Fluid.of('gtceu:high_grade_solder', 72)]]
-            : [['', Fluid.of('gtceu:tin', 144)], ['_soldering_alloy', Fluid.of('gtceu:soldering_alloy', 72)]]
-        solders.forEach(([suffix, fluid]) => {
-            const r = event.recipes.gtceu.assembler(`af9:ae2_${out}${suffix}`)
-                .itemInputs(inputs).inputFluids(fluid)
-                .itemOutputs(`ae2:${out}`).duration(ticks).EUt(eut)
-            if (cr) clean(r)
-        })
+        const r = event.recipes.gtceu.assembler(`af9:ae2_${out}`)
+            .itemInputs(`ae2:printed_${out}`, 'ae2:printed_silicon', 'minecraft:redstone', circuit,
+                '2x gtceu:redstone_foil', '2x gtceu:fine_electrum_wire')
+            .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
+            .itemOutputs(`ae2:${out}`).duration(ticks).EUt(eut)
+        if (cr) clean(r)
     })
 })

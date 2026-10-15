@@ -40,17 +40,17 @@ ServerEvents.recipes(event => {
 
     // ---- Cell components (MV -> EV) ----
     const components = [
-        { ram: ram('gtceu:ram_chip', 8), out: 'ae2:cell_component_1k', from: null, secondary: '4x minecraft:redstone',
+        { ram: ram('gtceu:ram_chip', 8), out: 'ae2:cell_component_1k', certus: 144, from: null, secondary: '4x minecraft:redstone',
             circuit: 'gtceu:good_integrated_circuit', processor: 'ae2:logic_processor', ticks: 200 },
-        { ram: ram('gtceu:ram_chip', 16), out: 'ae2:cell_component_4k', from: 'ae2:cell_component_1k', secondary: '4x minecraft:redstone',
+        { ram: ram('gtceu:ram_chip', 16), out: 'ae2:cell_component_4k', certus: 288, from: 'ae2:cell_component_1k', secondary: '4x minecraft:redstone',
             circuit: 'gtceu:micro_processor', processor: 'ae2:calculation_processor', ticks: 300 },
-        { ram: ram('gtceu:ram_chip', 32), out: 'ae2:cell_component_16k', from: 'ae2:cell_component_4k', secondary: '4x minecraft:glowstone_dust',
+        { ram: ram('gtceu:ram_chip', 32), out: 'ae2:cell_component_16k', certus: 576, from: 'ae2:cell_component_4k', secondary: '4x minecraft:glowstone_dust',
             circuit: 'gtceu:advanced_integrated_circuit', processor: 'ae2:calculation_processor', ticks: 400, eut: HV },
         { ram: ram('gtceu:ram_chip', 64).concat(['16x gtceu:nand_memory_chip', '4x gtceu:micro_processor']),
-            out: 'ae2:cell_component_64k', from: 'ae2:cell_component_16k', secondary: '4x minecraft:glowstone_dust',
+            out: 'ae2:cell_component_64k', certus: 1152, from: 'ae2:cell_component_16k', secondary: '4x minecraft:glowstone_dust',
             circuit: 'gtceu:micro_processor_assembly', processor: 'ae2:calculation_processor', ticks: 500, eut: HV },
         { ram: ram('gtceu:ram_chip', 128).concat(['32x gtceu:nand_memory_chip', '8x gtceu:micro_processor']),
-            noGlass: true, out: 'ae2:cell_component_256k', from: 'ae2:cell_component_64k', secondary: '4x ae2:sky_dust',
+            noGlass: true, out: 'ae2:cell_component_256k', certus: 2304, from: 'ae2:cell_component_64k', secondary: '4x ae2:sky_dust',
             circuit: 'gtceu:micro_processor_computer', processor: 'ae2:calculation_processor', ticks: 600, eut: EV }
     ]
     components.forEach(spec => {
@@ -60,12 +60,14 @@ ServerEvents.recipes(event => {
             : [`3x ${spec.from}`, spec.processor, spec.secondary, 'ae2:quartz_glass', spec.circuit]
         ).filter(i => !(spec.noGlass && i === 'ae2:quartz_glass')).concat(spec.ram)  // 256k: 9 slots are full without the glass
         const shortId = spec.out.split(':')[1]
-        const build = (recipe, fluid) => {
-            recipe.itemInputs(inputs).inputFluids(fluid).itemOutputs(spec.out)
-                .duration(spec.ticks).EUt(spec.eut || MV)
-        }
-        if (spec.eut) hvSoldered(`ae2_${shortId}`, build)
-        else soldered(`ae2_${shortId}`, build)
+        // Liquid certus quartz is the component's one fluid (the assembler takes one; the solder is in the
+        // processor already), 144 mB for 1k, doubling each step.
+        const r = event.recipes.gtceu.assembler(`af9:ae2_${shortId}`)
+            .itemInputs(inputs)
+            .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', spec.certus))
+            .itemOutputs(spec.out)
+            .duration(spec.ticks).EUt(spec.eut || MV)
+        if (spec.eut) clean(r)
     })
 
     // ---- Crafting unit + co-processor (gated shells for the storages below, MV) ----

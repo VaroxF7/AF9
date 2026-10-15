@@ -23,12 +23,12 @@ No presses, no inscriber prints — every chip is printed on a silicon wafer:
 
 1. **Litho 350nm + cutter** (existing chain): coated silicon wafer → GT chip wafer →
    `ilc` / `cpu` / `lpic` / `ram` dies.
-2. **Die packaging** in the assembler: die + foils + fine wire + RAM die → AE2 printed.
+2. **Die packaging** in the assembler: die + foils (incl. 2x redstone foil) + fine wire (incl. 2x fine electrum wire) + RAM die → AE2 printed.
    Logic (`ilc`) at MV (solder pair); calculation (`cpu`) at HV and engineering (`lpic`, platinum
    foil and wire) at EV, both in a cleanroom on high-grade solder (tin budget).
 3. **Carrier** in the cutter (MV, 200t): a silicon wafer dices straight into
    8x `printed_silicon`.
-4. **Final assembly** in the assembler: printed + printed silicon + redstone + tier circuit —
+4. **Final assembly** in the assembler on 144 mB **liquid certus quartz** (the assembler takes one fluid, so the solder is spent in packaging): printed + printed silicon + redstone + 2x redstone foil + 2x fine electrum wire + tier circuit —
    logic MV (`good_integrated_circuit`), calculation HV (`advanced_integrated_circuit`),
    engineering EV (`micro_processor_computer`).
 
@@ -36,6 +36,12 @@ Removed: all `ae2:` recipes outputting the four printeds and the three processor
 The inscriber keeps crushing and the name press; meteorite presses are out of the chain
 (the Mysterious Cube still drops one random press as a souvenir, meteorites still give
 sky stone).
+
+## Liquid certus quartz and redstone foil (`ae2_quartz.js`, `AF9Materials.aeQuartz`)
+
+New fluid `gtceu:liquid_certus_quartz` (extractor, MV: certus crystal → 144 mB, charged → 288 mB) and a
+redstone plate (compressor, 4x redstone) and foil (bender, 4x per plate). The materials are registered in
+AF9 Core (Java), so this needs a rebuilt core jar.
 
 ## Components (`ae2_components.js`, MV → EV)
 
