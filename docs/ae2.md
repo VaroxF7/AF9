@@ -46,7 +46,7 @@ AF9 Core (Java), so this needs a rebuilt core jar.
 ## Components (`ae2_components.js`, MV → EV)
 
 Cell components climb 1k → 4k (MV, no cleanroom) → 16k → 64k (HV) → 256k (EV), the last three in a cleanroom on high-grade solder, 3x previous +
-calculation processor (logic for 1k) + bulk secondary + quartz glass, assembler with solder:
+calculation processor (logic for 1k) + bulk secondary + quartz glass, assembler on liquid certus quartz (144 mB for 1k, doubling per step; the solder is spent in the processor):
 
 | Component | Previous | Secondary | MV circuit |
 |---|---|---|---|
