@@ -42,51 +42,44 @@ def pts(im, c, *p):
 
 def optical_cpu():
     im = new()
-    rect(im, 1, 1, 14, 14, K)
-    rect(im, 2, 2, 13, 13, L)                       # steel heat spreader
-    rect(im, 2, 2, 13, 2, H)
-    rect(im, 2, 2, 2, 13, H)
-    rect(im, 13, 3, 13, 13, M)
-    rect(im, 3, 13, 13, 13, M)
-    rect(im, 4, 4, 11, 11, K)                       # recessed die window
-    rect(im, 5, 5, 10, 10, D)
-    rect(im, 6, 6, 9, 9, CD)                        # photonic core
+    # dark carrier with chamfered corners, a glowing lens-ring die in the middle, light-guide traces running out to amber pads
+    rect(im, 2, 2, 13, 13, K)
+    rect(im, 3, 3, 12, 12, D)
+    rect(im, 3, 3, 12, 3, M)
+    rect(im, 3, 3, 3, 12, M)
+    pts(im, (0, 0, 0, 0), (2, 2), (13, 2), (2, 13), (13, 13))
+    rect(im, 5, 5, 10, 10, K)                       # die
+    rect(im, 6, 6, 9, 9, CD)                        # lens ring
     rect(im, 7, 7, 8, 8, CL)
-    pts(im, C, (6, 6), (9, 6), (6, 9), (9, 9))
-    # waveguides out to the four sides
-    pts(im, C, (7, 5), (8, 5), (7, 10), (8, 10), (5, 7), (5, 8), (10, 7), (10, 8))
-    pts(im, V, (3, 3), (12, 3), (3, 12), (12, 12))  # corner screws in violet glass
-    # amber pins along the bottom and sides
-    for x in (4, 6, 9, 11):
-        pts(im, G, (x, 14))
-        pts(im, GD, (x, 15))
-    for y in (5, 10):
-        pts(im, G, (0, y), (15, y))
+    pts(im, C, (6, 7), (9, 8), (7, 6), (8, 9))
+    for i in (4, 11):                               # light-guide traces, bending toward the pads
+        pts(im, C, (i, 6), (i, 9), (6, i), (9, i))
+    pts(im, CD, (3, 6), (3, 9), (12, 6), (12, 9), (6, 3), (9, 3), (6, 12), (9, 12))
+    for x in (3, 5, 7, 8, 10, 12):                  # amber pads on the top and bottom edge
+        pts(im, G, (x, 1), (x, 14))
+        pts(im, GD, (x, 0), (x, 15))
+    pts(im, GL, (4, 4))                             # pin-1 marker
     return im
 
 
 def optical_ram():
     im = new()
-    rect(im, 0, 2, 15, 12, K)
-    rect(im, 1, 3, 14, 11, PCB)
-    rect(im, 1, 3, 14, 3, PCBL)                     # lit top edge
-    for x0 in (2, 6, 10):                           # three photonic memory dies
-        rect(im, x0, 4, x0 + 3, 8, K)
-        rect(im, x0 + 1, 5, x0 + 2, 7, D)
-        pts(im, C, (x0 + 1, 6), (x0 + 2, 6))
-        pts(im, CL, (x0 + 1, 5))
-    pts(im, CD, (14, 5), (14, 7))                   # bus trace to the edge
-    rect(im, 1, 9, 14, 9, PCBL)                     # trace rail
-    pts(im, C, (3, 9), (7, 9), (11, 9))
-    pts(im, M, (1, 11), (14, 11))
-    for x in range(1, 15):                          # gold finger edge connector
-        pts(im, G if x % 2 else GL, (x, 12))
-        pts(im, GD, (x, 13)) if x % 2 else None
-    pts(im, K, (7, 13), (8, 13))                    # keying notch
-    pts(im, (0, 0, 0, 0), (7, 13), (8, 13))
-    pts(im, K, (7, 12), (8, 12))
-    # ejector latch ears
-    rect(im, 0, 3, 0, 11, L)
+    # a memory stick standing on its pads: dark board, a column of light-pipe cells glowing cyan, amber contacts
+    rect(im, 4, 0, 11, 12, K)
+    rect(im, 5, 1, 10, 11, D)
+    rect(im, 5, 1, 5, 11, M)
+    for y in (2, 5, 8):                             # three photonic memory cells
+        rect(im, 6, y, 9, y + 2, K)
+        rect(im, 7, y + 1, 8, y + 1, CL)
+        pts(im, C, (6, y + 1), (9, y + 1))
+        pts(im, CD, (7, y), (8, y), (7, y + 2), (8, y + 2))
+    pts(im, V, (10, 1), (10, 11))                   # side clips
+    pts(im, L, (4, 6), (11, 6))
+    rect(im, 5, 12, 10, 12, M)
+    for x in range(5, 11):                          # amber contact edge
+        pts(im, G if x % 2 else GL, (x, 13))
+        pts(im, GD, (x, 14))
+    pts(im, C, (3, 3), (12, 7), (3, 9))             # stray light
     return im
 
 
@@ -137,25 +130,30 @@ def optical_fiber_cable():
 
 def fiber_interconnects():
     im = new()
-    # steel MPO block at the bottom, a fan of four glowing fibres rising out of it
-    rect(im, 3, 8, 12, 13, K)
-    rect(im, 4, 9, 11, 12, M)
-    rect(im, 4, 9, 11, 9, L)
-    rect(im, 4, 9, 4, 12, L)
-    pts(im, H, (4, 9), (5, 9))
-    for x in (5, 6, 9, 10):                         # fibre ports
-        pts(im, K, (x, 11))
-        pts(im, C, (x, 10))
-    for x in (4, 7, 10):                            # amber guide pins
-        pts(im, G, (x, 14))
-        pts(im, GD, (x, 15))
-    rect(im, 3, 13, 12, 13, D)
-    for x, top in ((4, 2), (6, 0), (9, 0), (11, 2)):  # fibres fanning out
-        for y in range(top, 8):
-            pts(im, C if (y + x) % 3 else CL, (x, y))
-    pts(im, CL, (4, 2), (6, 0), (9, 0), (11, 2))
-    for x in (4, 6, 9, 11):
-        pts(im, CD, (x, 7))
+    # a piece of circuit board with light traces: green substrate, cyan traces bending at 45 degrees, amber vias at the ends
+    rect(im, 0, 1, 15, 14, K)
+    rect(im, 1, 2, 14, 13, PCB)
+    rect(im, 1, 2, 14, 2, PCBL)
+    for x in range(1, 15):
+        pts(im, PCBL, (x, 13)) if x % 2 else None
+    # three traces from the left pads, one bends up, one down, one straight
+    for y in (4, 7, 10):
+        pts(im, C, (3, y), (4, y), (5, y))
+    pts(im, C, (6, 3), (7, 3), (8, 3), (9, 3), (10, 3))     # upper trace
+    pts(im, C, (6, 4), (6, 4))
+    pts(im, C, (6, 7), (7, 7), (8, 7), (9, 7), (10, 7))     # straight trace
+    pts(im, C, (6, 11), (7, 11), (8, 11), (9, 11), (10, 11))  # lower trace
+    pts(im, C, (6, 10), (6, 10))
+    pts(im, CL, (4, 4), (4, 7), (4, 10))                    # light running along the traces
+    pts(im, CL, (8, 3), (8, 7), (8, 11))
+    pts(im, CD, (11, 3), (11, 7), (11, 11), (11, 4), (12, 5), (11, 6), (11, 8), (12, 9), (11, 10))
+    pts(im, C, (12, 6), (12, 8))                            # merge into one bus
+    pts(im, C, (13, 7))
+    for y in (4, 7, 10):                                    # amber vias on the left
+        pts(im, G, (2, y))
+        pts(im, GL, (2, y - 1) if y > 4 else (2, y))
+    pts(im, GD, (13, 4), (13, 10))
+    pts(im, G, (13, 3), (13, 11))
     return im
 
 
