@@ -27,24 +27,35 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 })
 
 // ECRW layout, precomputed ONCE at module level and reused by .pattern() (memoized).
-// ECRW_AISLES is the 13x4x13 ecrwCell table. Same cell function, just called once.
-const ECRW_SIZE = 13         // the pond's width and depth, its centre at 6
+// ECRW_AISLES is the 11 x 4 x 13 ecrwCell table (the pond and the substation against its front). Same cell function,
+// just called once.
+const ECRW_SIZE = 11         // the pond's width and depth, its centre at 5
+const ECRW_ANNEX = 2         // the substation against the front of the pond: its depth
+const ECRW_DEPTH = ECRW_SIZE + ECRW_ANNEX
 const ECRW_HEIGHT = 4
-const ECRW_CENTRE = 6
-// The design: the block at x, y, z (y up, z towards the front) as a letter of the pattern. S controller,
-// B floor, W wall (hatches), R rim, C the plus pier; a space is nothing.
+const ECRW_CENTRE = 5
+// The substation (5 wide, 2 deep, 2 high, solid) is where the controller, the hatches and the buses go, so the pond's
+// wall stays a clean circle: plain casing all round (the round wall the render draws in its place). The two columns of
+// its front left of the controller are its door: plain casing, so no hatch is ever in front of the door.
+const ECRW_HOUSE_X0 = 3, ECRW_HOUSE_X1 = 7
+// The design: the block at x, y, z (y up, z towards the front) as a letter of the pattern. S controller, B floor,
+// H the substation (hatches), R the wall and rim ring and the door (plain), C the plus pier; a space is nothing.
 const ecrwCell = (x, y, z) => {
     const dx = x - ECRW_CENTRE, dz = z - ECRW_CENTRE
     const r = Math.sqrt(dx * dx + dz * dz)
-    // the controller, in the front wall at its foot
-    if (x === ECRW_CENTRE && z === ECRW_SIZE - 1 && y === 0) return 'S'
+    // the controller, in the substation's front at its foot
+    if (x === ECRW_CENTRE && z === ECRW_DEPTH - 1 && y === 0) return 'S'
+    // the substation: a solid box against the front of the pond
+    if (z >= ECRW_SIZE && x >= ECRW_HOUSE_X0 && x <= ECRW_HOUSE_X1 && y <= 1) {
+        const door = z === ECRW_DEPTH - 1 && x <= ECRW_HOUSE_X0 + 1
+        return door ? 'R' : 'H'
+    }
     // the floor: a disc tucked inside the ring
-    if (y === 0) return r <= 5.5 ? 'B' : r <= 6.6 ? 'W' : ' '
+    if (y === 0) return r <= 4.5 ? 'B' : r <= 5.6 ? 'R' : ' '
     // the pier: a plus up the middle, 4 high
     if ((dx === 0 || dz === 0) && Math.abs(dx) <= 1 && Math.abs(dz) <= 1 && y >= 0 && y <= 3) return 'C'
     // the wall: a plain ring on its edge, 2 high, and the same ring once more for the rim
-    if (r >= 5.4 && r <= 6.6 && y === 1) return 'W'
-    if (r >= 5.4 && r <= 6.6 && y === 2) return 'R'
+    if (r >= 4.4 && r <= 5.6 && (y === 1 || y === 2)) return 'R'
     return ' '
 }
 // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop bodies
@@ -52,7 +63,7 @@ const ecrwCell = (x, y, z) => {
 // Rhino's Array.from leaves n holes, and forEach skips holes. Precomputed once; .pattern() reuses this const.
 const ECRW_AISLES = (() => {
     const aisles = []
-    Array(ECRW_SIZE).fill(0).forEach((_, z) => {
+    Array(ECRW_DEPTH).fill(0).forEach((_, z) => {
         const rows = []
         Array(ECRW_HEIGHT).fill(0).forEach((_, y) => {
             const cells = []
@@ -86,8 +97,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.ecrw.tooltip', 4))
         .pattern(definition => {
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)); any
-            // block of the wall may be one
-            const wall = Predicates.blocks($EcrwWatertight.CASING_WATERTIGHT.get())
+            // block of the substation may be one, the pond's own wall is plain casing
+            const house = Predicates.blocks($EcrwWatertight.CASING_WATERTIGHT.get())
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(4, 2))
                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(2, 1))
@@ -99,15 +110,15 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             return pattern
                 .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                 .where(' ', Predicates.any())
-                .where('W', wall)
+                .where('H', house)
                 .where('R', Predicates.blocks($EcrwWatertight.CASING_WATERTIGHT.get()))
                 .where('B', Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get()))
                 .where('C', Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get()))
                 .build()
         })
         // the controller: watertight casing with the assembly line face, and the rake round the pier
-        // (pond centre 6 back, its blades scraping the floor)
+        // (pond centre 7 back: through the substation, then 5 to the middle of the pond)
         .model($EcrwModels.workableCasingWithEcrwArm('gtceu:block/casings/gcym/watertight_casing',
-            'gtceu:block/multiblock/assembly_line', 6, 1.3, 4.2))
+            'gtceu:block/multiblock/assembly_line', 7, 1.3, 3.4))
         .hasBER(true)
 })
