@@ -1,9 +1,9 @@
-// AF9 - AE2 processors from silicon (MV -> HV -> EV). No AE2 presses, no inscriber prints.
+// AF9 - AE2 processors from silicon dies. No AE2 presses, no inscriber prints.
 //
 //   1. Litho 350nm (existing prints) + cutter: coated silicon wafer -> GT chip wafer ->
 //      ilc / cpu / lpic / ram dies. Every chip is printed on silicon.
 //   2. Die packaging (assembler): silicon die + foil + copper foil + fine wire + RAM die
-//      -> AE2 printed processor. Logic MV, calculation HV, engineering EV (no cleanroom).
+//      -> AE2 printed circuit, all three at MV in a cleanroom, 80 s each.
 //   3. Carrier (cutter): a silicon wafer dices straight into printed silicon.
 //   4. Final assembly (assembler): printed + printed silicon + redstone + tier circuit
 //      (logic: good integrated MV; calculation: advanced integrated HV; engineering: micro computer EV).
@@ -49,26 +49,23 @@ ServerEvents.recipes(event => {
         .duration(200)
         .EUt(MV)
 
-    // ---- Die packaging: silicon die + foils + wire + RAM -> AE2 printed (assembler) ----
-    // Redstone foil and fine electrum wire carry the printed circuit. Logic packs at MV (tin / soldering alloy),
-    // calculation at HV and engineering at EV, none in a cleanroom (tin or soldering alloy).
-    // [processor, die, eut, ticks, cleanroom, foil, wire]
+    // ---- Die packaging: silicon die + foils + wire + RAM -> AE2 printed circuit (assembler) ----
+    // Every printed circuit is made in a cleanroom at MV power, 80 s (1600t) each, from a heavy stack of
+    // MV-tier materials. Redstone foil and fine electrum wire carry the printed circuit; tin / soldering alloy.
+    // [processor, die, foil, wire]
     const packaging = [
-        ['logic_processor', 'gtceu:ilc_chip', MV, 300, false, 'electrum', 'gold'],
-        ['calculation_processor', 'gtceu:cpu_chip', HV, 400, false, 'electrum', 'gold'],
-        ['engineering_processor', 'gtceu:lpic_chip', EV, 500, false, 'platinum', 'platinum']
+        ['logic_processor', 'gtceu:ilc_chip', 'electrum', 'gold'],
+        ['calculation_processor', 'gtceu:cpu_chip', 'electrum', 'gold'],
+        ['engineering_processor', 'gtceu:lpic_chip', 'platinum', 'platinum']
     ]
-    packaging.forEach(([out, die, eut, ticks, cr, foil, wire]) => {
-        const inputs = [die, `2x gtceu:${foil}_foil`, '2x gtceu:copper_foil', '2x gtceu:redstone_foil',
-            `4x gtceu:fine_${wire}_wire`, '2x gtceu:fine_electrum_wire', 'gtceu:ram_chip']
-        const solders = cr
-            ? [['', Fluid.of('gtceu:tin', 144)], ['_high_grade', Fluid.of('gtceu:high_grade_solder', 72)]]
-            : [['', Fluid.of('gtceu:tin', 144)], ['_soldering_alloy', Fluid.of('gtceu:soldering_alloy', 72)]]
+    packaging.forEach(([out, die, foil, wire]) => {
+        const inputs = [die, `16x gtceu:${foil}_foil`, '16x gtceu:copper_foil', '16x gtceu:redstone_foil',
+            `32x gtceu:fine_${wire}_wire`, '16x gtceu:fine_electrum_wire', '4x gtceu:ram_chip']
+        const solders = [['', Fluid.of('gtceu:tin', 576)], ['_soldering_alloy', Fluid.of('gtceu:soldering_alloy', 288)]]
         solders.forEach(([suffix, fluid]) => {
-            const r = event.recipes.gtceu.assembler(`af9:ae2_printed_${out}${suffix}`)
+            clean(event.recipes.gtceu.assembler(`af9:ae2_printed_${out}${suffix}`)
                 .itemInputs(inputs).inputFluids(fluid)
-                .itemOutputs(`ae2:printed_${out}`).duration(ticks).EUt(eut)
-            if (cr) clean(r)
+                .itemOutputs(`ae2:printed_${out}`).duration(1600).EUt(MV))
         })
     })
 

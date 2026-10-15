@@ -23,9 +23,10 @@ No presses, no inscriber prints — every chip is printed on a silicon wafer:
 
 1. **Litho 350nm + cutter** (existing chain): coated silicon wafer → GT chip wafer →
    `ilc` / `cpu` / `lpic` / `ram` dies.
-2. **Die packaging** in the assembler: die + foils (incl. 2x redstone foil) + fine wire (incl. 2x fine electrum wire) + RAM die → AE2 printed.
-   Logic (`ilc`) at MV (solder pair); calculation (`cpu`) at HV and engineering (`lpic`, platinum
-   foil and wire) at EV, no cleanroom for any processor (tin or soldering alloy).
+2. **Die packaging** in the assembler: all three printed circuits (logic `ilc`, calculation `cpu`, engineering `lpic`)
+   are made **in a cleanroom at MV, 80 s (1600t) each**, from 16x foil (electrum; platinum for engineering), 16x copper
+   foil, 16x redstone foil, 32x fine wire (gold; platinum for engineering), 16x fine electrum wire and 4x RAM chip
+   per die, on 576 mB tin or 288 mB soldering alloy. The processors themselves need no cleanroom.
 3. **Carrier** in the cutter (MV, 200t): a silicon wafer dices straight into
    1x `printed_silicon`. The `expatternprovider:cutter/silicon` and
    `gtceu:forming_press/ae2/ultimate_universal/printed_silicon_circuit` recipes are removed.
