@@ -587,6 +587,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
 
     /** The ring's centre (block-local) and axis for the machine's current facing. */
     private Frame frame(MetaMachine self) {
+        float back = self instanceof ILightRingMachine ring ? ring.ringBack(this.back) : this.back;
         boolean flipped = self instanceof MultiblockControllerMachine controller && controller.isFlipped();
         Direction upDir = RelativeDirection.UP.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), flipped);
         Direction backDir = RelativeDirection.BACK.getRelative(self.getFrontFacing(), self.getUpwardsFacing(),
@@ -649,7 +650,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     public AABB getRenderBoundingBox(ILightRingMachine machine) {
         BlockPos pos = machine.self().getPos();
         float ring = machine.ringRadius(radius);
-        float reach = Math.abs(up) + Math.abs(back) + ring + thickness * HALO[HALO.length - 1][0] + 1;
+        float reach = Math.abs(up) + Math.abs(machine.ringBack(back)) + ring + thickness * HALO[HALO.length - 1][0] + 1;
         return new AABB(pos).inflate(reach);
     }
 }

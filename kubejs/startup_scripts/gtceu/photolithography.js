@@ -107,7 +107,7 @@ const ORBITAL_MID = 34
 const ORBITAL_CORE = 9      // within this radius the basic station is copied as it is
 const ORBITAL_GROW = 22     // how far the rim moves out (rim radius 12 -> 34, twice the first Mk2's 17)
 const ORBITAL_NEAR = 3      // within this many blocks of an axis the rim moves out straight (no stretch of the beams)
-const ORBITAL_SPIRE = 7   // the Mk2's undulator spire hangs this many blocks lower than the basic station's mast (af9-core DEPTH_MK2)
+const ORBITAL_SPIRE = 14  // the Mk2's undulator spire hangs this many blocks below its (scaled) mast (af9-core DEPTH_MK2)
 const orbitalBasicAt = (level, dx, dz) => {
     const sx = Math.floor(dx + 0.5) + 12, sz = Math.floor(dz + 0.5) + 12
     return sx >= 0 && sx < 25 && sz >= 0 && sz < 25 ? ORBITAL_BASIC[sz][level].charAt(sx) : ' '
@@ -156,9 +156,25 @@ const orbitalRimCell = (level, dx, dz) => {
     })
     return best
 }
-const orbitalMk2Cell = (level, dx, dz) => {
+// The core is scaled up 2x to fit the doubled ring (3D, about the beam level 14 and the centre column, which stay one block
+// wide: k source blocks out are 2k - 1 and 2k blocks out here), so the hub, the deck, the mast and the beams inside it are
+// twice the size and the original's look; e is the level above (+) or below (-) the beam level (14), the controller on top at ORBITAL_TOP.
+const ORBITAL_BEAM = 14
+const ORBITAL_TOP = 6       // 3 source levels above the beam level, 2 each, the controller on the top one alone
+const ORBITAL_MAST = 28     // the scaled mast hangs this far below the beam level; the spire runs on below it
+const scaleDown = k => (k === 0 ? 0 : Math.sign(k) * Math.ceil(Math.abs(k) / 2))
+const orbitalMk2Cell = (e, dx, dz) => {
     const r = Math.sqrt(dx * dx + dz * dz)
-    if (r <= ORBITAL_CORE) return orbitalBasicAt(level, dx, dz)
+    const sx = scaleDown(dx), sz = scaleDown(dz)
+    if (e < -ORBITAL_MAST) return dx === 0 && dz === 0 ? 'A' : ' '
+    if (Math.sqrt(sx * sx + sz * sz) <= ORBITAL_CORE) {
+        const ch = orbitalBasicAt(ORBITAL_BEAM + scaleDown(e), sx, sz)
+        // one controller only: the rest of the scaled block is plain top deck
+        return ch === 'K' && e !== ORBITAL_TOP ? 'O' : ch
+    }
+    // outside the core the station is the original's thickness, its beams at levels 13 to 15
+    const level = ORBITAL_BEAM + e
+    if (level < 0 || level > 17) return ' '
     if (r <= ORBITAL_CORE + ORBITAL_GROW) {
         // between the core and the rim only the axis beams run on: the original's cross-section at the core's edge
         if (Math.abs(dx) <= 1) return orbitalBasicAt(level, dx, dz > 0 ? ORBITAL_CORE : -ORBITAL_CORE)
@@ -176,18 +192,16 @@ const orbitalMk2Cell = (level, dx, dz) => {
 // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop
 // bodies use callbacks (a const in a callback is new each call; lint rule S3). Array(n).fill(0), not
 // Array.from({ length: n }): Rhino's Array.from leaves n holes, and forEach skips holes.
-// Precomputed once (69x25x69 Mk2 cell table); .pattern() reuses this const.
+// Precomputed once (69x49x69 Mk2 cell table); .pattern() reuses this const. Rows bottom -> top, ORBITAL_SPIRE below the mast.
 const ORBITAL_MK2_SLICES = (() => {
     const slices = []
     Array(ORBITAL_MK2).fill(0).forEach((_, az) => {
         const aisle = []
-        Array(18 + ORBITAL_SPIRE).fill(0).forEach((_, row) => {
-            const level = row - ORBITAL_SPIRE
+        Array(ORBITAL_MAST + ORBITAL_SPIRE + ORBITAL_TOP + 1).fill(0).forEach((_, row) => {
+            const e = row - ORBITAL_MAST - ORBITAL_SPIRE
             const cells = []
             Array(ORBITAL_MK2).fill(0).forEach((_, ax) => {
-                // under the basic station's own bottom level only the spire goes on: a column of HSS-E frame
-                // on the axis (the tip of the original's mast is the same plain frame)
-                cells.push(level < 0 ? (ax === ORBITAL_MID && az === ORBITAL_MID ? 'A' : ' ') : orbitalMk2Cell(level, ax - ORBITAL_MID, az - ORBITAL_MID))
+                cells.push(orbitalMk2Cell(e, ax - ORBITAL_MID, az - ORBITAL_MID))
             })
             aisle.push(cells.join(''))
         })

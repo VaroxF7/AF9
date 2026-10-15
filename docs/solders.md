@@ -56,7 +56,7 @@ perfect overclocks, parallel hatch). It left the Orbital Lithography Array Mk2. 
 Same controller, two sizes (basic 25x25 / extended 69x69), switched with a screwdriver on the controller between
 runs (af9-core `setExtended`, like the Elevator's size switch; the KubeJS pattern hands the extended one over with
 `setExtendedPattern`, previews show both). The same platform, bigger: the core (everything within 9 blocks of the
-controller's axis: mast, cone, top deck with the hatches, the middle of the beams) is the basic station as it is, centred in
+controller's axis: mast, cone, top deck with the hatches, the middle of the beams) is the basic station scaled up 2x in all three directions (the centre column and the controller stay one block; `scaleDown` in the script), centred in
 69x69; the rim (the sturdy and non-conducting rings, the trusses, the ends of the shock-proof beams) is the original's
 moved 22 blocks out (radius 12 → 34) with its thickness and look, and the original's axis beams run on between core and
 rim. `orbitalMk2Slices()` builds it cell by cell from `ORBITAL_BASIC` for every level, so a change to the basic station
