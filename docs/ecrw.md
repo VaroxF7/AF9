@@ -23,10 +23,16 @@ fluid input, 2 fluid output, 2 item input, 1 item output, 1 maintenance; maximum
 ## 2. The machine
 
 * Plain GregTech behaviour with perfect overclocks; no gates, no ramp.
-* **The pond's water** (`EcrwArmRender`, drawn only while the pond is formed): a translucent surface on exactly the
-  cells the pattern leaves hollow (r < 6.4, outside the pier), tinted by the biome's water colour. The rotating bridge
-  render was taken out; the machine gets a whole multiblock model of its own. No blocks: the pattern leaves the pond
-  hollow.
+* **The pond, drawn like a round clarifier** (`EcrwArmRender`, only while the pond is formed, no blocks: the pattern
+  leaves the pond hollow):
+  * the **water**: a translucent surface on exactly the cells the pattern leaves hollow (r < 6.4, outside the pier),
+    tinted by the biome's water colour;
+  * a smooth round **coping ring** on the rim (r 5.0 to 7.15), which hides the steps of the block circle from above;
+  * the **scraper bridge** (a lattice girder walkway with handrails, as on a German "Klaerwerk Becken"): a turntable on
+    the pier, a drive carriage with two wheels and a motor on the rim. It turns once in about 32 s while a recipe runs
+    and runs up and down to a stop;
+  * the **skimmer**: an angled blade on three struts at the water line under the bridge, pushing the scum (foam patches
+    sliding along the blade) to a fixed **scum trough** at the wall, to the controller's left.
 
 ## 3. The recipes (`evaporation`, 2 items / 2 items out, 3 fluids / 3 fluids out)
 
