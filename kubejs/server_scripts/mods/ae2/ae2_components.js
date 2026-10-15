@@ -30,24 +30,33 @@ ServerEvents.recipes(event => {
             Fluid.of('gtceu:high_grade_solder', 72))
     }
 
-    // ---- Cell components (all MV, no cleanroom) ----
+    // RAM is the bulk of every storage component: chips stack to 64, so a count splits into stacks.
+    // Counts double each step; each component also eats 3x the previous one, so the RAM compounds.
+    const ram = (id, count) => {
+        const stacks = []
+        for (let left = count; left > 0; left -= 64) stacks.push(`${Math.min(left, 64)}x ${id}`)
+        return stacks
+    }
+
+    // ---- Cell components (MV -> EV) ----
     const components = [
-        { out: 'ae2:cell_component_1k', from: null, secondary: '4x minecraft:redstone',
+        { ram: ram('gtceu:ram_chip', 8), out: 'ae2:cell_component_1k', from: null, secondary: '4x minecraft:redstone',
             circuit: 'gtceu:good_integrated_circuit', processor: 'ae2:logic_processor', ticks: 200 },
-        { out: 'ae2:cell_component_4k', from: 'ae2:cell_component_1k', secondary: '4x minecraft:redstone',
+        { ram: ram('gtceu:ram_chip', 16), out: 'ae2:cell_component_4k', from: 'ae2:cell_component_1k', secondary: '4x minecraft:redstone',
             circuit: 'gtceu:micro_processor', processor: 'ae2:calculation_processor', ticks: 300 },
-        { out: 'ae2:cell_component_16k', from: 'ae2:cell_component_4k', secondary: '4x minecraft:glowstone_dust',
+        { ram: ram('gtceu:ram_chip', 32), out: 'ae2:cell_component_16k', from: 'ae2:cell_component_4k', secondary: '4x minecraft:glowstone_dust',
             circuit: 'gtceu:advanced_integrated_circuit', processor: 'ae2:calculation_processor', ticks: 400, eut: HV },
-        { out: 'ae2:cell_component_64k', from: 'ae2:cell_component_16k', secondary: '4x minecraft:glowstone_dust',
+        { ram: ram('gtceu:ram_chip', 64), out: 'ae2:cell_component_64k', from: 'ae2:cell_component_16k', secondary: '4x minecraft:glowstone_dust',
             circuit: 'gtceu:micro_processor_assembly', processor: 'ae2:calculation_processor', ticks: 500, eut: HV },
-        { out: 'ae2:cell_component_256k', from: 'ae2:cell_component_64k', secondary: '4x ae2:sky_dust',
+        { ram: ram('gtceu:ram_chip', 128), out: 'ae2:cell_component_256k', from: 'ae2:cell_component_64k', secondary: '4x ae2:sky_dust',
             circuit: 'gtceu:micro_processor_computer', processor: 'ae2:calculation_processor', ticks: 600, eut: EV }
     ]
     components.forEach(spec => {
         event.remove({ mod: 'ae2', output: spec.out })
-        const inputs = spec.from === null
+        const inputs = (spec.from === null
             ? [spec.processor, '4x ae2:certus_quartz_crystal', spec.secondary, spec.circuit]
             : [`3x ${spec.from}`, spec.processor, spec.secondary, 'ae2:quartz_glass', spec.circuit]
+        ).concat(spec.ram)
         const shortId = spec.out.split(':')[1]
         const build = (recipe, fluid) => {
             recipe.itemInputs(inputs).inputFluids(fluid).itemOutputs(spec.out)

@@ -50,6 +50,9 @@ calculation processor (logic for 1k) + bulk secondary + quartz glass, assembler 
 | `cell_component_64k` | 3x 16k | 4x glowstone | `micro_processor_assembly` (HV) |
 | `cell_component_256k` | 3x 64k | 4x sky dust | `micro_processor_computer` (EV) |
 
+- **RAM**: every component also takes `gtceu:ram_chip`: 8x (1k), 16x (4k), 32x (16k), 64x (64k),
+  128x (256k). Each step eats 3x the previous component, so the RAM compounds: one 256k component
+  costs about 1,700 RAM chips in total. The counts sit in the `ram(...)` calls of `ae2_components.js`.
 - **Crafting storages**: `crafting_unit` + component + the same tier circuit as the component.
 - **Shells**: `crafting_unit` (4x steel plate + logic + calculation),
   `crafting_accelerator` (HV, cleanroom: unit + 2x engineering + micro processor assembly).
@@ -121,7 +124,10 @@ anchor-plus-block mechanic, which a fixed recipe cannot express.
   engineering, organized Pico circuit, sky dust, tritanium wire, europium plate,
   sanguinite wire; high-grade solder + PBI; 128 CWU/t through its computation hatch).
   `bulk_item_cell` rides at IV (chest + 1m + IV circuit + sky dust).
-  MEGA cell assembly stays vanilla and follows.
+  MEGA components also eat higher-grade RAM per
+  component: 1m 64x eDRAM, 4m 64x MRAM, 16m 128x MRAM, 64m 64x eDRAM + 128x MRAM, and the 256m
+  goal 128x MRAM + 64x eDRAM on top of the 64m stack. (QRAM is left out: it only comes from the
+  lunar-air XPS line, after UHV.) MEGA cell assembly stays vanilla and follows.
 - **Infinity Booster** (`aeinfinitybooster:`, guarded, HV): `infinity_card`
   (engineering + calculation + fluix + HV circuit), `dimension_card` (infinity card
   + engineering + diamonds + HV circuit).
