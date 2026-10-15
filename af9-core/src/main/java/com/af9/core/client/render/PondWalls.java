@@ -56,6 +56,7 @@ public final class PondWalls {
      * The structure (see {@code kubejs/startup_scripts/gtceu/ecrw.js}): 11 wide, 13 deep with the substation (2 deep)
      * in front, the pond's centre 7 behind the controller.
      */
+    private static final int HALF = 5, DEPTH = 13, CENTRE_BACK = 7;
     /** How many chunks round the player are searched for controllers, and how often (ticks). */
     private static final int SCAN_RADIUS = 8, SCAN_PERIOD = 10;
 
