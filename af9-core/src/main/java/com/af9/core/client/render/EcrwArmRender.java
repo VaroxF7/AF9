@@ -83,11 +83,10 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
     private static final float WALL_IN = 4.35F, WALL_OUT = 5.45F, PIER_R = 1.45F, WATER_R = 4.5F;
     /** The carriage's track on the wall's top, radii. */
     private static final float TRACK_IN = 4.7F, TRACK_OUT = 5.35F;
-    /** The machine house in the controller's frame (x to its right, z behind it, 0 at the pond's middle): its box. */
-    private static final float HOUSE_HALF = 2.5F, HOUSE_Z0 = -8.5F, HOUSE_Z1 = -5.5F, HOUSE_H = 3F, INSET = 0.04F;
-    /** The roof: ridge height above the base, eave overhang to the sides and to the front. */
-    private static final float RIDGE_Y = 4.3F, EAVE_Y = 2.95F, EAVE_X = 2.9F, EAVE_Z = -8.8F;
-    private static final int ZINC = 0x58626B, FASCIA = 0x3A3F45;
+    /** The substation in the controller's frame (x to its right, z behind it, 0 at the pond's middle): its box. */
+    private static final float HOUSE_HALF = 2.5F, HOUSE_Z0 = -7.5F, HOUSE_Z1 = -5.5F, HOUSE_H = 2F, INSET = 0.04F;
+    private static final int ROOF = 0x4A4F55, DOOR = 0x9AA3AB, DOOR_FRAME = 0x3A3F45, SLAT = 0x5A626A, SIGN = 0xE8B923,
+            BLACK = 0x1B1B1B;
     private static final ResourceLocation WALL_TEXTURE = new ResourceLocation("gtceu",
             "block/casings/gcym/watertight_casing");
     private static final ResourceLocation PIER_TEXTURE = new ResourceLocation("gtceu",
@@ -204,13 +203,13 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
                     light);
             drawRoundWall(textured, atlas.getSprite(WALL_TEXTURE));
             drawPier(textured, atlas.getSprite(PIER_TEXTURE));
-            drawHouseWalls(textured, atlas.getSprite(WALL_TEXTURE), houseAngle);
+            drawStationWalls(textured, atlas.getSprite(PIER_TEXTURE), houseAngle);
         }
         // ...then the plain-coloured solids...
         Gfx solid = new Gfx(buffer.getBuffer(RenderType.entityCutoutNoCull(AF9RenderTypes.WHITE)), mat, light);
         if (round) {
             drawTrack(solid);
-            drawHouseRoof(solid, houseAngle);
+            drawStationDetails(solid, houseAngle);
         } else {
             drawCoping(solid);
         }
@@ -296,10 +295,10 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
     }
 
     /**
-     * The machine house's walls (the controller's frame turned into the world by {@code angle}): casing tiles a hair
+     * The substation's walls (the controller's frame turned into the world by {@code angle}): steel casing tiles a hair
      * behind the faces of the real blocks, so the controller and the hatches stand out of them.
      */
-    private static void drawHouseWalls(Gfx g, TextureAtlasSprite sprite, float angle) {
+    private static void drawStationWalls(Gfx g, TextureAtlasSprite sprite, float angle) {
         g.rotate(angle);
         float zf = HOUSE_Z0 + INSET, zb = HOUSE_Z1 - INSET, xs = HOUSE_HALF - INSET;
         for (int y = 0; y < (int) HOUSE_H; y++) {
@@ -309,7 +308,7 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
                 g.quadTex(v3(i + 0.5F, y, zb), v3(i - 0.5F, y, zb), v3(i - 0.5F, y + 1, zb), v3(i + 0.5F, y + 1, zb),
                         v3(0, 0, 1), sprite, 0F, 1F, 1F, 0F);
             }
-            for (int k = 0; k < 3; k++) {
+            for (int k = 0; k < 2; k++) {
                 float z0 = HOUSE_Z0 + k, z1 = z0 + 1;
                 g.quadTex(v3(-xs, y, z1), v3(-xs, y, z0), v3(-xs, y + 1, z0), v3(-xs, y + 1, z1), v3(-1, 0, 0),
                         sprite, 0F, 1F, 1F, 0F);
@@ -320,34 +319,48 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
     }
 
     /**
-     * The machine house's roof: a zinc gable roof with its ridge towards the pond, eaves, fascia, gutters, a vent in the
-     * front gable and a stack on the roof. Everything stands above the blocks' top, so no hatch is covered.
+     * The substation's roof and its door: a flat roof with a low parapet and a vent, and a grey steel double door with
+     * louvres, handles, hinges and a high-voltage sign on the front, left of the controller. The pattern keeps those
+     * two columns plain casing, so no hatch is ever in front of the door; the roof is above the blocks' top.
      */
-    private static void drawHouseRoof(Gfx g, float angle) {
+    private static void drawStationDetails(Gfx g, float angle) {
         g.rotate(angle);
-        float zf = EAVE_Z, zb = HOUSE_Z1;
-        float slope = (RIDGE_Y - EAVE_Y) / EAVE_X;
-        float inv = 1F / Mth.sqrt(1F + slope * slope);
-        for (int side = -1; side <= 1; side += 2) {
-            float x = side * EAVE_X;
-            g.quad(v3(x, EAVE_Y, zf), v3(x, EAVE_Y, zb), v3(0, RIDGE_Y, zb), v3(0, RIDGE_Y, zf),
-                    v3(side * slope * inv, inv, 0), ZINC);
-            g.rod(v3(x, EAVE_Y, zf), v3(0, RIDGE_Y, zf), 0.04F, FASCIA);
-            g.rod(v3(x, EAVE_Y - 0.03F, zf), v3(x, EAVE_Y - 0.03F, zb), 0.05F, GALVANIZED);
+        float zf = HOUSE_Z0, zb = HOUSE_Z1;
+        // the roof: a slab with a small overhang, a low parapet, a mushroom vent
+        g.aabb(-HOUSE_HALF - 0.15F, HOUSE_H, zf - 0.2F, HOUSE_HALF + 0.15F, HOUSE_H + 0.16F, zb, ROOF);
+        g.aabb(-HOUSE_HALF - 0.15F, HOUSE_H + 0.16F, zf - 0.2F, HOUSE_HALF + 0.15F, HOUSE_H + 0.27F, zf - 0.12F, DOOR_FRAME);
+        g.aabb(-HOUSE_HALF - 0.15F, HOUSE_H + 0.16F, zf - 0.2F, -HOUSE_HALF - 0.07F, HOUSE_H + 0.27F, zb, DOOR_FRAME);
+        g.aabb(HOUSE_HALF + 0.07F, HOUSE_H + 0.16F, zf - 0.2F, HOUSE_HALF + 0.15F, HOUSE_H + 0.27F, zb, DOOR_FRAME);
+        g.prism(v3(1.5F, HOUSE_H + 0.16F, -6.5F), v3(1.5F, HOUSE_H + 0.6F, -6.5F), 0.2F, 8, STEEL);
+        g.prism(v3(1.5F, HOUSE_H + 0.6F, -6.5F), v3(1.5F, HOUSE_H + 0.68F, -6.5F), 0.34F, 8, DARK);
+        // the door: x -2.4 .. -0.6, y 0 .. 1.9, on the front wall (z = zf)
+        g.aabb(-2.46F, 0F, zf - 0.07F, -0.54F, 1.96F, zf, DOOR_FRAME);
+        for (int leaf = 0; leaf < 2; leaf++) {
+            float x0 = leaf == 0 ? -2.36F : -1.47F, x1 = leaf == 0 ? -1.53F : -0.64F, z = zf - 0.07F;
+            g.aabb(x0, 0.05F, z - 0.05F, x1, 1.86F, z, DOOR);
+            for (float y = 1.15F; y < 1.75F; y += 0.1F) {  // louvres in the upper half
+                g.aabb(x0 + 0.08F, y, z - 0.085F, x1 - 0.08F, y + 0.035F, z - 0.05F, SLAT);
+            }
+            g.aabb(x0 + 0.08F, 0.15F, z - 0.07F, x1 - 0.08F, 0.19F, z - 0.05F, SLAT);  // an embossed panel
+            g.aabb(x0 + 0.08F, 0.98F, z - 0.07F, x1 - 0.08F, 1.02F, z - 0.05F, SLAT);
+            g.aabb(x0 + 0.08F, 0.15F, z - 0.07F, x0 + 0.12F, 1.02F, z - 0.05F, SLAT);
+            g.aabb(x1 - 0.12F, 0.15F, z - 0.07F, x1 - 0.08F, 1.02F, z - 0.05F, SLAT);
+            for (float y : new float[] { 0.3F, 0.95F, 1.6F }) {  // hinges on the outer edges
+                float hx = leaf == 0 ? x0 - 0.02F : x1 - 0.06F;
+                g.aabb(hx, y, z - 0.06F, hx + 0.08F, y + 0.16F, z, DARK);
+            }
         }
-        g.rod(v3(0, RIDGE_Y + 0.02F, zf), v3(0, RIDGE_Y + 0.02F, zb), 0.07F, STEEL);
-        // the gables (front and back), a louvred vent in the front one
-        float gx = HOUSE_HALF + 0.01F;
-        for (float z : new float[] { HOUSE_Z0 + 0.02F, HOUSE_Z1 - 0.02F }) {
-            g.quad(v3(-gx, HOUSE_H, z), v3(gx, HOUSE_H, z), v3(0, RIDGE_Y - 0.05F, z), v3(0, RIDGE_Y - 0.05F, z),
-                    v3(0, 0, z < -7F ? -1 : 1), FASCIA);
-        }
-        g.prism(v3(0, 3.55F, HOUSE_Z0 + 0.02F), v3(0, 3.55F, HOUSE_Z0 - 0.04F), 0.42F, 8, DARK);
-        g.prism(v3(0, 3.55F, HOUSE_Z0 - 0.04F), v3(0, 3.55F, HOUSE_Z0 - 0.08F), 0.3F, 8, STEEL);
-        // the roof stack with its rain cap
-        float sx = 1.3F, sz = -6.7F, base = RIDGE_Y - sx * slope - 0.1F;
-        g.prism(v3(sx, base, sz), v3(sx, base + 1.5F, sz), 0.26F, 8, STEEL);
-        g.prism(v3(sx, base + 1.5F, sz), v3(sx, base + 1.6F, sz), 0.42F, 8, DARK);
+        g.rod(v3(-1.58F, 0.85F, zf - 0.19F), v3(-1.58F, 1.2F, zf - 0.19F), 0.022F, STEEL);  // the handles at the seam
+        g.rod(v3(-1.42F, 0.85F, zf - 0.19F), v3(-1.42F, 1.2F, zf - 0.19F), 0.022F, STEEL);
+        g.aabb(-1.6F, 0.8F, zf - 0.19F, -1.56F, 0.85F, zf - 0.12F, DARK);
+        g.aabb(-1.44F, 0.8F, zf - 0.19F, -1.4F, 0.85F, zf - 0.12F, DARK);
+        // the high-voltage sign on the right leaf: a yellow triangle with a black bolt
+        float sz = zf - 0.13F;
+        g.quad(v3(-1.0F, 0.9F, sz), v3(-1.26F, 0.42F, sz), v3(-0.74F, 0.42F, sz), v3(-0.74F, 0.42F, sz), v3(0, 0, -1),
+                SIGN);
+        g.rod(v3(-1.0F, 0.78F, sz - 0.01F), v3(-1.09F, 0.62F, sz - 0.01F), 0.012F, BLACK);
+        g.rod(v3(-1.09F, 0.62F, sz - 0.01F), v3(-0.92F, 0.58F, sz - 0.01F), 0.012F, BLACK);
+        g.rod(v3(-0.92F, 0.58F, sz - 0.01F), v3(-1.01F, 0.46F, sz - 0.01F), 0.012F, BLACK);
     }
 
     /** The carriage's track: a steel rail on the round wall's top. */

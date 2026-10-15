@@ -39,13 +39,13 @@ import java.util.Set;
 
 /**
  * The ECRW's custom models: while a well is formed, the stepped blocks of its wall ring, its rim and its pier and the
- * casing of its machine house are not drawn and {@link EcrwArmRender} draws a smooth round wall, a round pier and a pump
- * house in their place (the casings' own textures).
+ * casing of its substation are not drawn and {@link EcrwArmRender} draws a smooth round wall, a round pier and a
+ * distribution substation in their place (the casings' own textures).
  * <p>
  * A formed controller that the client knows from GT's synced state hides those blocks of its structure: their positions
  * go to {@link #isHidden}, which Embeddium's public per-block render hook asks while it builds a chunk, and the chunk is
  * rebuilt when the set changes. The machines stay (the controller, every hatch: the player works with them, they stand
- * out of the models) and so do the floor blocks. (Hatches are only in the machine house in front of the pond, so the
+ * out of the models) and so do the floor blocks. (Hatches are only in the substation against the pond, so the
  * ring is plain casing.) The blocks are only hidden when something takes their place: the
  * hook must be registered ({@link #registerEmbeddium}; without Embeddium the stepped blocks stay and the render draws
  * the pond without its round wall) and the controller must have a block entity renderer.
@@ -53,8 +53,8 @@ import java.util.Set;
 public final class PondWalls {
 
     /**
-     * The structure (see {@code kubejs/startup_scripts/gtceu/ecrw.js}): 11 wide, 14 deep with the machine house (3 deep)
-     * in front, the pond's centre 8 behind the controller.
+     * The structure (see {@code kubejs/startup_scripts/gtceu/ecrw.js}): 11 wide, 13 deep with the substation (2 deep)
+     * in front, the pond's centre 7 behind the controller.
      */
     /** How many chunks round the player are searched for controllers, and how often (ticks). */
     private static final int SCAN_RADIUS = 8, SCAN_PERIOD = 10;
@@ -88,11 +88,11 @@ public final class PondWalls {
 
     /**
      * Whether the block {@code right} to the controller's right, {@code up} above it and {@code back} behind it is one
-     * the custom models replace: the machine house's shell (5 wide, 3 deep, 3 high), the wall ring at the foot (outside
+     * the custom models replace: the substation (5 wide, 2 deep, 2 high), the wall ring at the foot (outside
      * the floor disc), the wall and rim ring above it, the plus-shaped pier. The pattern's own shapes.
      */
     static boolean replaced(int right, int up, int back) {
-        if (back <= 2 && Math.abs(right) <= 2 && up <= 2) return true;
+        if (back <= 1 && Math.abs(right) <= 2 && up <= 1) return true;
         double r = Math.hypot(right, back - CENTRE_BACK);
         if (up == 0) return r > 4.5 && r <= 5.6;
         if (up <= 2 && r >= 4.4 && r <= 5.6) return true;
