@@ -4,6 +4,7 @@ import com.af9.core.AF9Core;
 
 import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
+import com.gregtechceu.gtceu.api.registry.GTRegistries;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
@@ -60,7 +61,22 @@ public final class StructureSkins {
             new StructureSkin(() -> GTMultiMachines.ELECTRIC_BLAST_FURNACE, 1, 4, 3,
                     model("multiblock/ebf_lower"), model("multiblock/ebf_upper"),
                     model("multiblock/ebf_glow_lower"), model("multiblock/ebf_glow_upper"),
-                    new int[] { -1, 1, 1 }, new float[] { 0.5F, 2.0F, -0.05F, 0.75F, 0.5F }));
+                    new int[] { -1, 1, 1 }, new float[] { 0.5F, 2.0F, -0.05F, 0.75F, 0.5F }),
+            // the Photolithography Line (Mk1) and Scanner (Mk2): a white paneled cabinet, 3 wide, 3 high with the
+            // controller in the middle row of the front, 10-12 long (found from the blocks, see measure)
+            StructureSkin.cabinet(() -> machine("photolithography_line"), 1, 2, new StructureSkin.Cabinet(1, 10, 12)),
+            StructureSkin.cabinet(() -> machine("photolithography_scanner"), 1, 2,
+                    new StructureSkin.Cabinet(1, 10, 12)));
+
+    /** The blocks a lithography structure is made of (the bottom row of its middle column): the cabinet ends where none is. */
+    private static final Set<String> CABINET_BLOCKS = Set.of("gtceu:plascrete", "af9:plascrete_filter_casing",
+            "af9:plascrete_pipe_casing", "gtceu:steel_gearbox", "gtceu:stainless_steel_gearbox",
+            "gtceu:solid_machine_casing", "gtceu:frostproof_machine_casing", "gtceu:cupronickel_coil_block",
+            "gtceu:cleanroom_glass", "gtceu:tempered_glass");
+    /** Blocks the cabinet leaves as they are: the windows on the exposure chamber. */
+    private static final Set<String> CABINET_WINDOWS = Set.of("gtceu:cleanroom_glass", "gtceu:tempered_glass");
+    /** Controller position (packed) -> the cabinet's length. Client thread only. */
+    private static final Map<Long, Integer> LENGTHS = new HashMap<>();
 
     /** How many chunks round the player are searched for controllers, and how often (ticks). */
     private static final int SCAN_RADIUS = 8, SCAN_PERIOD = 10;
@@ -79,6 +95,33 @@ public final class StructureSkins {
     private static volatile Set<StructureSkin> READY = Set.of();
 
     private StructureSkins() {}
+
+    private static MachineDefinition machine(String path) {
+        return GTRegistries.MACHINES.get(new ResourceLocation("gtceu", path));
+    }
+
+    /** How long a formed cabinet machine is (0: not tracked). */
+    public static int lengthOf(BlockPos controller) {
+        return LENGTHS.getOrDefault(controller.asLong(), 0);
+    }
+
+    /**
+     * The length of a lithography structure: the blocks of its bottom row, in the middle column, run back from the
+     * controller's face for as long as they are blocks it is built of (or machines of its own).
+     */
+    private static int measure(ClientLevel level, MultiblockControllerMachine controller, StructureSkin skin) {
+        StructureSkin.Cabinet cabinet = skin.cabinet();
+        int length = 0;
+        while (length < cabinet.maxLength()) {
+            BlockPos pos = at(controller, 0, -cabinet.below(), length);
+            var state = level.getBlockState(pos);
+            ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(state.getBlock());
+            boolean ours = id != null && CABINET_BLOCKS.contains(id.toString());
+            if (!ours && MetaMachine.getMachine(level, pos) == null) break;
+            length++;
+        }
+        return length >= cabinet.minLength() ? length : 0;
+    }
 
     private static ResourceLocation model(String path) {
         return new ResourceLocation(AF9Core.MOD_ID, path);
@@ -124,15 +167,32 @@ public final class StructureSkins {
         BlockPos origin = controller.getPos();
         LongArrayList positions = new LongArrayList();
         List<BlockPos> parts = Arrays.asList(controller.getPartPositions());
+        int firstUp = 0, depth = skin.back();
+        if (skin.cabinet() != null) {
+            firstUp = -skin.cabinet().below();
+            depth = measure(level, controller, skin);
+            if (depth == 0) {
+                // not a structure this long (a wall behind it, say): keep the blocks
+                LENGTHS.remove(origin.asLong());
+                untrack(origin.asLong());
+                return;
+            }
+            LENGTHS.put(origin.asLong(), depth);
+        }
         for (int right = -skin.right(); right <= skin.right(); right++) {
-            for (int up = 0; up < skin.up(); up++) {
-                for (int back = 0; back < skin.back(); back++) {
+            for (int up = firstUp; up < skin.up(); up++) {
+                for (int back = 0; back < depth; back++) {
                     BlockPos pos = at(controller, right, up, back);
                     if (pos.equals(origin) || parts.contains(pos)) continue;
                     if (level.getBlockState(pos).isAir()) continue;
                     // anything that is a machine of its own (a hatch the controller does not list yet) or any block
                     // entity at all (another mod's part) stays drawn: the player works with it
                     if (MetaMachine.getMachine(level, pos) != null || level.getBlockEntity(pos) != null) continue;
+                    if (skin.cabinet() != null && CABINET_WINDOWS.contains(String.valueOf(
+                            net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(
+                                    level.getBlockState(pos).getBlock())))) {
+                        continue;
+                    }
                     positions.add(pos.asLong());
                 }
             }
@@ -148,6 +208,7 @@ public final class StructureSkins {
 
     private static void untrack(long controller) {
         MACHINES.remove(controller);
+        LENGTHS.remove(controller);
         long[] before = TRACKED.remove(controller);
         if (before == null) return;
         publish();
@@ -200,6 +261,7 @@ public final class StructureSkins {
     /** Mod bus: the skin's models are loaded though no blockstate names them. */
     public static void registerModels(ModelEvent.RegisterAdditional event) {
         for (StructureSkin skin : SKINS) {
+            if (skin.cabinet() != null) continue;
             event.register(skin.lower());
             event.register(skin.upper());
             event.register(skin.glowLower());
@@ -216,6 +278,11 @@ public final class StructureSkins {
         BakedModel missing = event.getModels().get(ModelBakery.MISSING_MODEL_LOCATION);
         Set<StructureSkin> ready = new HashSet<>();
         for (StructureSkin skin : SKINS) {
+            if (skin.cabinet() != null) {
+                // drawn in code, nothing to bake
+                ready.add(skin);
+                continue;
+            }
             boolean ok = true;
             for (ResourceLocation location : new ResourceLocation[] { skin.lower(), skin.upper(), skin.glowLower(),
                     skin.glowUpper() }) {

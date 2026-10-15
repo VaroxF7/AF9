@@ -128,6 +128,11 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         BlockPos pos = machine.self().getPos();
         if (skin == null) return super.getRenderBoundingBox(machine);
         AABB box = new AABB(pos);
+        if (skin.cabinet() != null) {
+            int length = Math.max(StructureSkins.lengthOf(pos), skin.cabinet().maxLength());
+            return box.minmax(new AABB(StructureSkins.at(machine.self(), -skin.right(), -skin.cabinet().below(), 0)))
+                    .minmax(new AABB(StructureSkins.at(machine.self(), skin.right(), skin.up(), length))).inflate(1);
+        }
         for (int right : new int[] { -skin.right(), skin.right() }) {
             for (int up : new int[] { 0, skin.up() - 1 }) {
                 for (int back : new int[] { 0, skin.back() - 1 }) {
@@ -198,6 +203,15 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         poseStack.last().normal().mul(new Matrix3f(basis));
         poseStack.translate(-0.5, -0.5, -0.5);
 
+        if (skin.cabinet() != null) {
+            int length = StructureSkins.lengthOf(pos);
+            if (length > 0) {
+                CabinetDraw.draw(self, skin, length, poseStack, buffer, packedOverlay,
+                        maxLight(openAirLight(level, self, 0), openAirLight(level, self, 2)));
+            }
+            poseStack.popPose();
+            return;
+        }
         // the controller's own block is solid wall, which has no light of its own: take the light of the open air in
         // front of the structure, per half (the lower and the upper two blocks)
         int[] lights = { openAirLight(level, self, 0), openAirLight(level, self, 2) };

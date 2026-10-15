@@ -28,4 +28,29 @@ import java.util.function.Supplier;
  */
 public record StructureSkin(Supplier<? extends MachineDefinition> definition, int right, int up, int back,
                             ResourceLocation lower, ResourceLocation upper, ResourceLocation glowLower,
-                            ResourceLocation glowUpper, int[] coilProbe, float[] window) {}
+                            ResourceLocation glowUpper, int[] coilProbe, float[] window, Cabinet cabinet) {
+
+    /**
+     * A white paneled cabinet drawn in code instead of a model (the lithography machines): any length, found from the
+     * blocks in front of the player ({@link StructureSkins#measure}).
+     *
+     * @param below     rows of the pattern under the controller's row
+     * @param minLength the shortest the structure is (blocks, back from the controller's face)
+     * @param maxLength the longest the structure is
+     */
+    public record Cabinet(int below, int minLength, int maxLength) {}
+
+    /** A model skin (the Electric Blast Furnace). */
+    public StructureSkin(Supplier<? extends MachineDefinition> definition, int right, int up, int back,
+                         ResourceLocation lower, ResourceLocation upper, ResourceLocation glowLower,
+                         ResourceLocation glowUpper, int[] coilProbe, float[] window) {
+        this(definition, right, up, back, lower, upper, glowLower, glowUpper, coilProbe, window, null);
+    }
+
+    /** A cabinet skin: {@code up} rows from the bottom row's offset up (exclusive end, as for a model skin). */
+    public static StructureSkin cabinet(Supplier<? extends MachineDefinition> definition, int right, int up,
+                                        Cabinet cabinet) {
+        return new StructureSkin(definition, right, up, cabinet.maxLength(), null, null, null, null, null, null,
+                cabinet);
+    }
+}
