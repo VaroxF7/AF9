@@ -66,8 +66,8 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
     public static final DynamicRenderType<IEcrwMachine, EcrwArmRender> TYPE = new DynamicRenderType<>(CODEC);
 
     /** The pond's footprint: cells with r below this are hollow, the 3 x 3 pier (|dx|, |dz| below 2) is not. */
-    private static final float POND_RADIUS = 6.4F;
-    private static final int POND_CELLS = 6;
+    private static final float POND_RADIUS = 5.4F;
+    private static final int POND_CELLS = 5;
     /** Water surface and the darker layer above the floor, controller-relative y. */
     private static final float WATER_Y = 1.5F, DEEP_Y = 0.25F;
     /** Fallback water tint (vanilla default) when no biome is loaded. */
@@ -76,13 +76,18 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
     /** Heights: the rim's top (the coping ring sits on it), the pier's top (the turntable), the walkway deck. */
     private static final float RIM_Y = 3.0F, COPING_Y = 3.12F, PIER_Y = 4.0F, DECK_Y = 4.06F, RAIL_Y = 5.05F;
     /** The bridge: from the turntable (radius) to the drive carriage on the rim, half the walkway's width. */
-    private static final float BRIDGE_IN = 0.6F, BRIDGE_OUT = 6.2F, HALF_WIDTH = 0.30F;
+    private static final float BRIDGE_IN = 0.6F, BRIDGE_OUT = 5.2F, HALF_WIDTH = 0.30F;
     /** The coping ring's radii. */
-    private static final float COPING_IN = 5.0F, COPING_OUT = 7.15F;
+    private static final float COPING_IN = 4.0F, COPING_OUT = 6.15F;
     /** The round wall (inner and outer radius), the round pier's radius, the water disc under the wall's thickness. */
-    private static final float WALL_IN = 5.35F, WALL_OUT = 6.45F, PIER_R = 1.45F, WATER_R = 5.5F;
+    private static final float WALL_IN = 4.35F, WALL_OUT = 5.45F, PIER_R = 1.45F, WATER_R = 4.5F;
     /** The carriage's track on the wall's top, radii. */
-    private static final float TRACK_IN = 5.7F, TRACK_OUT = 6.35F;
+    private static final float TRACK_IN = 4.7F, TRACK_OUT = 5.35F;
+    /** The machine house in the controller's frame (x to its right, z behind it, 0 at the pond's middle): its box. */
+    private static final float HOUSE_HALF = 2.5F, HOUSE_Z0 = -8.5F, HOUSE_Z1 = -5.5F, HOUSE_H = 3F, INSET = 0.04F;
+    /** The roof: ridge height above the base, eave overhang to the sides and to the front. */
+    private static final float RIDGE_Y = 4.3F, EAVE_Y = 2.95F, EAVE_X = 2.9F, EAVE_Z = -8.8F;
+    private static final int ZINC = 0x58626B, FASCIA = 0x3A3F45;
     private static final ResourceLocation WALL_TEXTURE = new ResourceLocation("gtceu",
             "block/casings/gcym/watertight_casing");
     private static final ResourceLocation PIER_TEXTURE = new ResourceLocation("gtceu",
@@ -90,7 +95,7 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
     /** One turn of the bridge at full speed, in ticks, and how quickly it gets there. */
     private static final float REVOLUTION_TICKS = 640F, RAMP = 0.05F;
     /** The skimmer blade in the bridge's frame: from (radius, lateral) to (radius, lateral), its height centre. */
-    private static final float BLADE_U0 = 1.7F, BLADE_V0 = 0.95F, BLADE_U1 = 4.75F, BLADE_V1 = 0.38F;
+    private static final float BLADE_U0 = 1.6F, BLADE_V0 = 0.95F, BLADE_U1 = 3.75F, BLADE_V1 = 0.45F;
     private static final float BLADE_Y = 1.55F, BLADE_HALF_HEIGHT = 0.2F;
     private static final int FOAM_PATCHES = 9;
 
@@ -184,6 +189,8 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
         boolean flipped = self instanceof MultiblockControllerMachine controller && controller.isFlipped();
         Direction left = RelativeDirection.LEFT.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), flipped);
         float troughAngle = (float) Math.atan2(left.getStepZ(), left.getStepX());
+        Direction right = RelativeDirection.RIGHT.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), flipped);
+        float houseAngle = (float) Math.atan2(right.getStepZ(), right.getStepX());
 
         poseStack.pushPose();
         poseStack.translate(pivot[0], 0, pivot[1]);
@@ -197,11 +204,13 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
                     light);
             drawRoundWall(textured, atlas.getSprite(WALL_TEXTURE));
             drawPier(textured, atlas.getSprite(PIER_TEXTURE));
+            drawHouseWalls(textured, atlas.getSprite(WALL_TEXTURE), houseAngle);
         }
         // ...then the plain-coloured solids...
         Gfx solid = new Gfx(buffer.getBuffer(RenderType.entityCutoutNoCull(AF9RenderTypes.WHITE)), mat, light);
         if (round) {
             drawTrack(solid);
+            drawHouseRoof(solid, houseAngle);
         } else {
             drawCoping(solid);
         }
@@ -286,6 +295,61 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
         }
     }
 
+    /**
+     * The machine house's walls (the controller's frame turned into the world by {@code angle}): casing tiles a hair
+     * behind the faces of the real blocks, so the controller and the hatches stand out of them.
+     */
+    private static void drawHouseWalls(Gfx g, TextureAtlasSprite sprite, float angle) {
+        g.rotate(angle);
+        float zf = HOUSE_Z0 + INSET, zb = HOUSE_Z1 - INSET, xs = HOUSE_HALF - INSET;
+        for (int y = 0; y < (int) HOUSE_H; y++) {
+            for (int i = -2; i <= 2; i++) {
+                g.quadTex(v3(i - 0.5F, y, zf), v3(i + 0.5F, y, zf), v3(i + 0.5F, y + 1, zf), v3(i - 0.5F, y + 1, zf),
+                        v3(0, 0, -1), sprite, 0F, 1F, 1F, 0F);
+                g.quadTex(v3(i + 0.5F, y, zb), v3(i - 0.5F, y, zb), v3(i - 0.5F, y + 1, zb), v3(i + 0.5F, y + 1, zb),
+                        v3(0, 0, 1), sprite, 0F, 1F, 1F, 0F);
+            }
+            for (int k = 0; k < 3; k++) {
+                float z0 = HOUSE_Z0 + k, z1 = z0 + 1;
+                g.quadTex(v3(-xs, y, z1), v3(-xs, y, z0), v3(-xs, y + 1, z0), v3(-xs, y + 1, z1), v3(-1, 0, 0),
+                        sprite, 0F, 1F, 1F, 0F);
+                g.quadTex(v3(xs, y, z0), v3(xs, y, z1), v3(xs, y + 1, z1), v3(xs, y + 1, z0), v3(1, 0, 0), sprite,
+                        0F, 1F, 1F, 0F);
+            }
+        }
+    }
+
+    /**
+     * The machine house's roof: a zinc gable roof with its ridge towards the pond, eaves, fascia, gutters, a vent in the
+     * front gable and a stack on the roof. Everything stands above the blocks' top, so no hatch is covered.
+     */
+    private static void drawHouseRoof(Gfx g, float angle) {
+        g.rotate(angle);
+        float zf = EAVE_Z, zb = HOUSE_Z1;
+        float slope = (RIDGE_Y - EAVE_Y) / EAVE_X;
+        float inv = 1F / Mth.sqrt(1F + slope * slope);
+        for (int side = -1; side <= 1; side += 2) {
+            float x = side * EAVE_X;
+            g.quad(v3(x, EAVE_Y, zf), v3(x, EAVE_Y, zb), v3(0, RIDGE_Y, zb), v3(0, RIDGE_Y, zf),
+                    v3(side * slope * inv, inv, 0), ZINC);
+            g.rod(v3(x, EAVE_Y, zf), v3(0, RIDGE_Y, zf), 0.04F, FASCIA);
+            g.rod(v3(x, EAVE_Y - 0.03F, zf), v3(x, EAVE_Y - 0.03F, zb), 0.05F, GALVANIZED);
+        }
+        g.rod(v3(0, RIDGE_Y + 0.02F, zf), v3(0, RIDGE_Y + 0.02F, zb), 0.07F, STEEL);
+        // the gables (front and back), a louvred vent in the front one
+        float gx = HOUSE_HALF + 0.01F;
+        for (float z : new float[] { HOUSE_Z0 + 0.02F, HOUSE_Z1 - 0.02F }) {
+            g.quad(v3(-gx, HOUSE_H, z), v3(gx, HOUSE_H, z), v3(0, RIDGE_Y - 0.05F, z), v3(0, RIDGE_Y - 0.05F, z),
+                    v3(0, 0, z < -7F ? -1 : 1), FASCIA);
+        }
+        g.prism(v3(0, 3.55F, HOUSE_Z0 + 0.02F), v3(0, 3.55F, HOUSE_Z0 - 0.04F), 0.42F, 8, DARK);
+        g.prism(v3(0, 3.55F, HOUSE_Z0 - 0.04F), v3(0, 3.55F, HOUSE_Z0 - 0.08F), 0.3F, 8, STEEL);
+        // the roof stack with its rain cap
+        float sx = 1.3F, sz = -6.7F, base = RIDGE_Y - sx * slope - 0.1F;
+        g.prism(v3(sx, base, sz), v3(sx, base + 1.5F, sz), 0.26F, 8, STEEL);
+        g.prism(v3(sx, base + 1.5F, sz), v3(sx, base + 1.6F, sz), 0.42F, 8, DARK);
+    }
+
     /** The carriage's track: a steel rail on the round wall's top. */
     private static void drawTrack(Gfx g) {
         g.rotate(0F);
@@ -327,14 +391,14 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
     /** The scum trough at the wall (a fixed spot, to the controller's left): a funnel the skimmer pushes the scum into. */
     private static void drawTrough(Gfx g, float angle) {
         g.rotate(angle);
-        g.aabb(4.95F, 1.30F, -0.5F, 5.35F, 1.40F, 0.5F, STAINLESS);
-        g.aabb(4.95F, 1.30F, -0.5F, 5.35F, 1.72F, -0.42F, STAINLESS);
-        g.aabb(4.95F, 1.30F, 0.42F, 5.35F, 1.72F, 0.5F, STAINLESS);
-        g.aabb(5.27F, 1.30F, -0.5F, 5.35F, 1.72F, 0.5F, STAINLESS);
-        g.aabb(4.95F, 1.30F, -0.5F, 5.03F, 1.52F, 0.5F, STAINLESS);
-        g.rod(v3(4.95F, 1.72F, -0.46F), v3(4.55F, 1.72F, -0.85F), 0.025F, STAINLESS);
-        g.rod(v3(4.95F, 1.72F, 0.46F), v3(4.55F, 1.72F, 0.85F), 0.025F, STAINLESS);
-        g.rod(v3(5.31F, 1.40F, 0F), v3(5.31F, 0.95F, 0F), 0.07F, STEEL);  // the drain
+        g.aabb(3.95F, 1.30F, -0.5F, 4.35F, 1.40F, 0.5F, STAINLESS);
+        g.aabb(3.95F, 1.30F, -0.5F, 4.35F, 1.72F, -0.42F, STAINLESS);
+        g.aabb(3.95F, 1.30F, 0.42F, 4.35F, 1.72F, 0.5F, STAINLESS);
+        g.aabb(4.27F, 1.30F, -0.5F, 4.35F, 1.72F, 0.5F, STAINLESS);
+        g.aabb(3.95F, 1.30F, -0.5F, 4.03F, 1.52F, 0.5F, STAINLESS);
+        g.rod(v3(3.95F, 1.72F, -0.46F), v3(3.55F, 1.72F, -0.85F), 0.025F, STAINLESS);
+        g.rod(v3(3.95F, 1.72F, 0.46F), v3(3.55F, 1.72F, 0.85F), 0.025F, STAINLESS);
+        g.rod(v3(4.31F, 1.40F, 0F), v3(4.31F, 0.95F, 0F), 0.07F, STEEL);  // the drain
     }
 
     /** The scraper bridge, in its own frame (u along the arm from the pier, y up, v across): turned by the caller. */
@@ -346,7 +410,7 @@ public class EcrwArmRender extends DynamicRender<IEcrwMachine, EcrwArmRender> {
         // the deck
         g.aabb(BRIDGE_IN, PIER_Y, -HALF_WIDTH, BRIDGE_OUT, DECK_Y, HALF_WIDTH, GRATING);
         // two lattice girders with handrails: chords, posts, diagonals
-        int bays = 7;
+        int bays = 6;
         float step = (BRIDGE_OUT - BRIDGE_IN) / bays;
         for (int side = -1; side <= 1; side += 2) {
             float v = side * HALF_WIDTH;

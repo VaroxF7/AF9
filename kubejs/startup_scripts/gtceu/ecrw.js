@@ -27,16 +27,16 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 })
 
 // ECRW layout, precomputed ONCE at module level and reused by .pattern() (memoized).
-// ECRW_AISLES is the 13 x 4 x 17 ecrwCell table (the pond and the machine house in front of it). Same cell function,
+// ECRW_AISLES is the 11 x 4 x 14 ecrwCell table (the pond and the machine house in front of it). Same cell function,
 // just called once.
-const ECRW_SIZE = 13         // the pond's width and depth, its centre at 6
-const ECRW_ANNEX = 4         // the machine house in front of the pond: its depth
+const ECRW_SIZE = 11         // the pond's width and depth, its centre at 5
+const ECRW_ANNEX = 3         // the machine house in front of the pond: its depth
 const ECRW_DEPTH = ECRW_SIZE + ECRW_ANNEX
 const ECRW_HEIGHT = 4
-const ECRW_CENTRE = 6
-// The machine house (7 wide, 4 deep, 3 high, hollow) is where the controller, the hatches and the buses go, so the
+const ECRW_CENTRE = 5
+// The machine house (5 wide, 3 deep, 3 high, hollow) is where the controller, the hatches and the buses go, so the
 // pond's wall stays a clean circle: plain casing all round (the round wall the render draws in its place).
-const ECRW_HOUSE_X0 = 3, ECRW_HOUSE_X1 = 9
+const ECRW_HOUSE_X0 = 3, ECRW_HOUSE_X1 = 7
 // The design: the block at x, y, z (y up, z towards the front) as a letter of the pattern. S controller, B floor,
 // H the machine house (hatches), R the wall and rim ring (plain), C the plus pier; a space is nothing.
 const ecrwCell = (x, y, z) => {
@@ -50,11 +50,11 @@ const ecrwCell = (x, y, z) => {
         return inside ? ' ' : 'H'
     }
     // the floor: a disc tucked inside the ring
-    if (y === 0) return r <= 5.5 ? 'B' : r <= 6.6 ? 'R' : ' '
+    if (y === 0) return r <= 4.5 ? 'B' : r <= 5.6 ? 'R' : ' '
     // the pier: a plus up the middle, 4 high
     if ((dx === 0 || dz === 0) && Math.abs(dx) <= 1 && Math.abs(dz) <= 1 && y >= 0 && y <= 3) return 'C'
     // the wall: a plain ring on its edge, 2 high, and the same ring once more for the rim
-    if (r >= 5.4 && r <= 6.6 && (y === 1 || y === 2)) return 'R'
+    if (r >= 4.4 && r <= 5.6 && (y === 1 || y === 2)) return 'R'
     return ' '
 }
 // forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop bodies
@@ -116,8 +116,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .build()
         })
         // the controller: watertight casing with the assembly line face, and the rake round the pier
-        // (pond centre 10 back: through the machine house, then 6 to the middle of the pond)
+        // (pond centre 8 back: through the machine house, then 5 to the middle of the pond)
         .model($EcrwModels.workableCasingWithEcrwArm('gtceu:block/casings/gcym/watertight_casing',
-            'gtceu:block/multiblock/assembly_line', 10, 1.3, 4.2))
+            'gtceu:block/multiblock/assembly_line', 8, 1.3, 3.4))
         .hasBER(true)
 })

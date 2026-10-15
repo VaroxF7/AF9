@@ -246,7 +246,7 @@
     "af9.plasma_transformer.tooltip.0": "§7Condenses §fsuperstate plasmas§7 to solid plates at §6XPS§7.",
     "af9.plasma_transformer.tooltip.1": "§7First superstate: §fStar Matter Plasma Steel§7, forged in the DTPF, for the NVM boards.",
     "af9.plasma_transformer.tooltip.2": "§7Parts are optional, with a maximum: §f2§7 energy, §f1+1§7 item buses, §f2§7 fluid hatches, §f1§7 maintenance.",
-    "af9.ecrw.tooltip.0": "§7A shallow round pond §f13x4x17§7 with a machine house at its front, that §fboils dilute fluids down§7 and keeps the condensate: round watertight wall, stainless floor and drive pier. A scraper bridge turns round the pier while it runs.",
+    "af9.ecrw.tooltip.0": "§7A shallow round pond §f11x4x14§7 with a small machine house at its front, that §fboils dilute fluids down§7 and keeps the condensate: round watertight wall, stainless floor and drive pier. A scraper bridge turns round the pier while it runs.",
     "af9.ecrw.tooltip.1": "§7Replaces Mekanism's evaporation plant: brines in, §fsolids§7 and §bdistilled water§7 out.",
     "af9.ecrw.tooltip.2": "§7Every block of the §fmachine house§7 may be a hatch; the pond's wall stays a clean circle. §aPerfect OC§7.",
     "af9.ecrw.tooltip.3": "§7Parts are optional, with a maximum: §f2§7 energy, §f2+1§7 item buses, §f4+2§7 fluid hatches, §f1§7 maintenance.",

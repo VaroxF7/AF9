@@ -38,21 +38,24 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * The ECRW's round wall: while a well is formed, the stepped blocks of its wall ring, its rim and its pier are not drawn
- * and {@link EcrwArmRender} draws a smooth round wall and a round pier in their place (the casing's own textures).
+ * The ECRW's custom models: while a well is formed, the stepped blocks of its wall ring, its rim and its pier and the
+ * casing of its machine house are not drawn and {@link EcrwArmRender} draws a smooth round wall, a round pier and a pump
+ * house in their place (the casings' own textures).
  * <p>
  * A formed controller that the client knows from GT's synced state hides those blocks of its structure: their positions
  * go to {@link #isHidden}, which Embeddium's public per-block render hook asks while it builds a chunk, and the chunk is
  * rebuilt when the set changes. The machines stay (the controller, every hatch: the player works with them, they stand
- * out of the round wall) and so do the floor blocks. (Hatches are only in the machine house in front of the pond, so the
+ * out of the models) and so do the floor blocks. (Hatches are only in the machine house in front of the pond, so the
  * ring is plain casing.) The blocks are only hidden when something takes their place: the
  * hook must be registered ({@link #registerEmbeddium}; without Embeddium the stepped blocks stay and the render draws
  * the pond without its round wall) and the controller must have a block entity renderer.
  */
 public final class PondWalls {
 
-    /** The structure (see {@code kubejs/startup_scripts/gtceu/ecrw.js}): 13 wide, 17 deep with the machine house in front, the pond's centre 10 behind the controller. */
-    private static final int HALF = 6, DEPTH = 17, CENTRE_BACK = 10;
+    /**
+     * The structure (see {@code kubejs/startup_scripts/gtceu/ecrw.js}): 11 wide, 14 deep with the machine house (3 deep)
+     * in front, the pond's centre 8 behind the controller.
+     */
     /** How many chunks round the player are searched for controllers, and how often (ticks). */
     private static final int SCAN_RADIUS = 8, SCAN_PERIOD = 10;
 
@@ -85,13 +88,14 @@ public final class PondWalls {
 
     /**
      * Whether the block {@code right} to the controller's right, {@code up} above it and {@code back} behind it is one
-     * the round wall replaces: the wall ring at the foot (outside the floor disc), the wall and rim ring above it, the
-     * plus-shaped pier. The pattern's own shapes, from the pond's centre.
+     * the custom models replace: the machine house's shell (5 wide, 3 deep, 3 high), the wall ring at the foot (outside
+     * the floor disc), the wall and rim ring above it, the plus-shaped pier. The pattern's own shapes.
      */
     static boolean replaced(int right, int up, int back) {
+        if (back <= 2 && Math.abs(right) <= 2 && up <= 2) return true;
         double r = Math.hypot(right, back - CENTRE_BACK);
-        if (up == 0) return r > 5.5 && r <= 6.6;
-        if (up <= 2 && r >= 5.4 && r <= 6.6) return true;
+        if (up == 0) return r > 4.5 && r <= 5.6;
+        if (up <= 2 && r >= 4.4 && r <= 5.6) return true;
         int dz = back - CENTRE_BACK;
         return (right == 0 || dz == 0) && Math.abs(right) <= 1 && Math.abs(dz) <= 1;
     }
