@@ -663,5 +663,8 @@
     "af9.logistics_hub.tooltip.0": "§7The brain and logistics centre of the §fPhotolithography Scanner Mk2§7. Stands anywhere, §f4x2x2§7.",
     "af9.logistics_hub.tooltip.1": "§7Put items and fluids into its input buses and hatches: they reach the scanner over the fibre.",
     "af9.logistics_hub.tooltip.2": "§7What the scanner makes comes out of the hub's output buses and hatches.",
-    "af9.logistics_hub.tooltip.3": "§7Needs a §fFiber Link Port§7 (back, top row), linked to the scanner's with a data stick."
+    "af9.logistics_hub.tooltip.3": "§7Needs a §fFiber Link Port§7 (back, top row), linked to the scanner's with a data stick.",
+    "af9.logistics_rack.tooltip.0": "§7Adds onto the ports of the §fPhotolithography Scanner Mk2§7. Upright, §f2x3x1§7.",
+    "af9.logistics_rack.tooltip.1": "§7Brings 2 more buses and hatches each way. Works like the Logistics Hub.",
+    "af9.logistics_rack.tooltip.2": "§7Needs a §fFiber Link Port§7 (top row), linked to the scanner's second port with a data stick."
 }

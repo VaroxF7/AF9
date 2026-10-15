@@ -76,20 +76,23 @@ public class LogisticsHubMachine extends WorkableMultiblockMachine implements ID
         }
     }
 
-    /** The hub's own port, or null. */
-    public FiberLinkPortPartMachine port() {
+    /** The structure's own ports (the hub has one, the Logistics Rack too). */
+    public List<FiberLinkPortPartMachine> ports() {
+        List<FiberLinkPortPartMachine> ports = new ArrayList<>();
         for (IMultiPart part : getParts()) {
-            if (part instanceof FiberLinkPortPartMachine port) return port;
+            if (part instanceof FiberLinkPortPartMachine port) ports.add(port);
         }
-        return null;
+        return ports;
     }
 
     private void transfer() {
         if (!isFormed() || getOffsetTimer() % PERIOD != 0) return;
-        FiberLinkPortPartMachine own = port();
-        if (own == null) return;
-        FiberLinkPortPartMachine far = own.peer();
-        if (far == null) return;
+        List<FiberLinkPortPartMachine> fars = new ArrayList<>();
+        for (FiberLinkPortPartMachine own : ports()) {
+            FiberLinkPortPartMachine far = own.peer();
+            if (far != null) fars.add(far);
+        }
+        if (fars.isEmpty()) return;
         List<NotifiableItemStackHandler> itemsIn = new ArrayList<>(), itemsOut = new ArrayList<>();
         List<NotifiableFluidTank> fluidsIn = new ArrayList<>(), fluidsOut = new ArrayList<>();
         for (IMultiPart part : getParts()) {
@@ -100,11 +103,13 @@ public class LogisticsHubMachine extends WorkableMultiblockMachine implements ID
             }
         }
         // into the machine: the hub's inputs -> the far port's in side
-        for (NotifiableItemStackHandler from : itemsIn) moveItems(from, far.itemsIn);
-        for (NotifiableFluidTank from : fluidsIn) moveFluids(from, far.fluidsIn);
-        // out of the machine: the far port's out side -> the hub's outputs
-        for (NotifiableItemStackHandler to : itemsOut) moveItems(far.itemsOut, to);
-        for (NotifiableFluidTank to : fluidsOut) moveFluids(far.fluidsOut, to);
+        for (FiberLinkPortPartMachine far : fars) {
+            for (NotifiableItemStackHandler from : itemsIn) moveItems(from, far.itemsIn);
+            for (NotifiableFluidTank from : fluidsIn) moveFluids(from, far.fluidsIn);
+            // out of the machine: the far port's out side -> the hub's outputs
+            for (NotifiableItemStackHandler to : itemsOut) moveItems(far.itemsOut, to);
+            for (NotifiableFluidTank to : fluidsOut) moveFluids(far.fluidsOut, to);
+        }
     }
 
     /** Moves up to {@link #ITEMS_PER_STEP} items out of {@code from} into {@code to}, slot by slot. */
@@ -146,8 +151,6 @@ public class LogisticsHubMachine extends WorkableMultiblockMachine implements ID
     public void addDisplayText(List<Component> textList) {
         IDisplayUIMachine.super.addDisplayText(textList);
         if (!isFormed()) return;
-        FiberLinkPortPartMachine own = port();
-        if (own == null) return;
-        textList.addAll(own.statusLines());
+        for (FiberLinkPortPartMachine own : ports()) textList.addAll(own.statusLines());
     }
 }
