@@ -5,7 +5,10 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "af9.refmap.json",
   "client": [
-    "client.LevelRendererCloudsMixin"
+    "client.LevelRendererCloudsMixin",
+    "client.EmbeddiumOcclusionMixin",
+    "client.EmbeddiumFluidMixin",
+    "client.HiddenBlockStateMixin"
   ],
   "mixins": [
     "powah.OrbRecipeMixin",

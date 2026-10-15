@@ -116,8 +116,17 @@ def support_model():
                                  ('z', [8, 8, 15], [7, -2, 14], [9, 18, 15.5]),
                                  ('x', [1, 8, 8], [0.5, 7, -2], [2, 9, 18]),
                                  ('x', [15, 8, 8], [14, 7, -2], [15.5, 9, 18])):
+        d = 2 if axis == 'z' else 0          # the depth axis of the pair (the beams are thin in it)
+        outer_is_lo = lo[d] < 8
+        mid = round((lo[d] + hi[d]) / 2 + (0.125 if outer_is_lo else -0.125), 3)
         for angle in (45, -45):
-            els.append(box(lo, hi, '#pipe', rotation={'angle': angle, 'axis': axis, 'origin': origin}))
+            # the two crossing beams take their own half of the depth (45 the outer one), so no two faces share a plane
+            a, b = list(lo), list(hi)
+            if (angle == 45) == outer_is_lo:
+                b[d] = mid
+            else:
+                a[d] = mid
+            els.append(box(a, b, '#pipe', rotation={'angle': angle, 'axis': axis, 'origin': origin}))
     return els
 
 
