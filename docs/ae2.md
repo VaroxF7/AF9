@@ -73,6 +73,39 @@ fluix (tin/soldering-alloy pair; cables and fiber are dry single recipes).
 Only the fluix base of each cable family is redefined (glass, covered, dense, smart,
 dense smart); dye variants follow. Quartz fiber is redefined (certus crystal + glass).
 
+## World mechanics (`ae2_world.js`, LV/MV)
+
+- **Fluix dust** in the mixer (LV): charged certus + nether quartz + redstone →
+  2x dust. The grid recipe is gone.
+- **Crushing** in the macerator (LV, pre-MV yields): sky stone → 2x sky dust,
+  certus/fluix crystal → 1x dust, quartz → nether dust. The MV cutter in
+  `ae2_quartz.js` still pays double for crystals.
+- **Fluix crystals** back out of dust in the chemical bath (MV): 4x dust +
+  water → 4x crystal.
+
+## Matter and spatial (`ae2_matter.js`, HV/EV)
+
+- **Singularity** in the assembler at HV (solder pair): 32x matter ball + 4x
+  fluix + engineering processor.
+- **Entangled pair** at EV: singularity + 2x calculation + 4x fluix pearl → 2x.
+- **Spatial cells** 2/16/128 at HV (solder pair): base + secondary + circuit +
+  cell housing.
+
+## Dyeing (`ae2_cosmetics.js`, LV)
+
+All fifteen dye variants of the five cable families move from the grid to the
+assembler (base cable + vanilla dye, 100t, dry like the cables). Facades stay on the
+anchor-plus-block mechanic, which a fixed recipe cannot express.
+
+## Wearables (`ae2_endgame.js`, HV/EV)
+
+- **Wireless booster** at HV (solder pair): receiver + fluix + engineering +
+  aluminium plates.
+- **Quantum armor** at EV (solder pair): titanium plates + entangled
+  singularity + engineering processor + 2x fluix pearl per piece, plus a
+  signature circuit each (logic/calculation/engineering/MV for
+  helmet/chestplate/leggings/boots, so no two pieces share an input set).
+
 ## Addons (`ae2_addons.js`)
 
 - **MEGA Cells** (`megacells:`, guarded): the endgame ladder, one voltage tier per
@@ -105,10 +138,10 @@ compass (and a rocket) and hunt off-world; the AE2 quest texts point there.
 
 ## Intentionally vanilla
 
-Raw materials and world interaction (certus/fluix/sky dust, budding, charging, crushing,
-fluix mixing, meteorite loot, `ae2:silicon` smelting — now a dead end), decorative
-compacting, facades, paintballs, combat tools, condenser/singularity mechanics, spatial
-cells, and any ExtendedAE recipes (their outputs are untouched, so nothing is removed
+Raw materials and world interaction (certus/fluix/sky dust, budding, charging,
+`ae2:silicon` smelting — now a dead end), decorative compacting, facades,
+paintballs, combat tools, condenser feeding (trash in, matter balls out),
+and any ExtendedAE recipes (their outputs are untouched, so nothing is removed
 that this pack does not redefine).
 
 ## Consequences
