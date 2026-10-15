@@ -1,6 +1,0 @@
-{
-  "sources": [
-    { "type": "minecraft:single", "resource": "af9:block/multiblock/ebf/glow_off" },
-    { "type": "minecraft:single", "resource": "af9:block/multiblock/ebf/glow_wait" }
-  ]
-}

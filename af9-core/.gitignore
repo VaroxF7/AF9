@@ -9,5 +9,3 @@ run/
 bin/
 # redirected build output (./gradlew build > build_log.txt)
 /*.txt
-tools/preview/
-__pycache__/
