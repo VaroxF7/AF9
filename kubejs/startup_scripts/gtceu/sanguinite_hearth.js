@@ -48,8 +48,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // The Rotary Hearth Furnace's structure (GT's mega_blast_furnace pattern, the default start() axes LEFT/UP/FRONT,
     // so the slices run to the controller's front like GT's), grown: the middle lines of every row and the middle
     // slice are tripled (13 -> 15 wide and deep: a wider air chamber, thicker pipe pillars and decks), a robust plinth
-    // under the base, and the muffler on a three-high pipe stack, in a brutalist dress: gearboxes ('G') where the
-    // firebox was, stress-proof piers ('Z') for the thin frame uprights, a casing block round the stack's foot.
+    // under the base, and the muffler on a three-high pipe stack, in a brutalist dress: pipe casings ('G', AF9) where the
+    // firebox was, support casings ('Z', AF9: a truss in a frame) for the thin frame uprights, a casing block round the stack's foot.
     // 15 slices front -> back, 21 rows bottom -> top, 15 columns, then one 'any' column (the gap) and 3 more columns
     // for the optional Verteilerhaus on the controller's left (rows 1 and 2, 5 slices deep, 'Y' = casing, any hatch,
     // or nothing; its door, 'D', the two columns of its front: casing or nothing, so no hatch is ever in front of it).
@@ -166,8 +166,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('F', Predicates.blocks('gtceu:naquadah_alloy_frame'))
             .where('H', Predicates.blocks($HearthCasings.CASING_HIGH_TEMPERATURE_SMELTING.get()))
             .where('T', Predicates.blocks('gtceu:robust_machine_casing'))
-            .where('G', Predicates.blocks('gtceu:tungstensteel_gearbox'))
-            .where('Z', Predicates.blocks('gtceu:stress_proof_casing'))
+            .where('G', Predicates.blocks('af9:hearth_pipe_casing'))
+            .where('Z', Predicates.blocks('af9:hearth_support_casing'))
             .where('P', Predicates.blocks('gtceu:tungstensteel_pipe_casing'))
             .where('I', Predicates.blocks('gtceu:extreme_engine_intake_casing'))
             .where('V', Predicates.blocks('gtceu:heat_vent'))

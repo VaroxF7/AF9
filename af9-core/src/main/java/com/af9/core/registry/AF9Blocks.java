@@ -89,6 +89,11 @@ public final class AF9Blocks {
         block("laser_containment_casing", SoundType.METAL, 12F, 0, 0);
         block("laser_resistant_plate", SoundType.METAL, 12F, 0, 0);
 
+        // ---- Sanguinite Hearth: the casings with a 3D model of their own (tools/textures/hearth.py): pipes across a
+        // recessed face, a truss in a frame ----
+        block("hearth_pipe_casing", SoundType.METAL, 12F, 0, 0);
+        block("hearth_support_casing", SoundType.METAL, 12F, 0, 0);
+
         for (int tier = 1; tier <= MOTORS; tier++) block(MOTOR + tier, SoundType.METAL, 12F, 0, 2);
         // the Mining Modules are machines now (gtceu:space_mining_module_mk1 to mk3, SpaceModuleMachine)
     }

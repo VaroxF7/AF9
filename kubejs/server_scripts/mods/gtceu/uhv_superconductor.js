@@ -24,6 +24,20 @@ ServerEvents.recipes(event => {
         .duration(600)
         .EUt(VA[GTValues.UV])
 
+    // ---- 1b. The hearth's own casings (the 3D-model blocks of its structure), from tungstensteel ----
+    event.recipes.gtceu.assembler('af9:hearth_pipe_casing')
+        .itemInputs('4x gtceu:tungsten_steel_plate', '2x gtceu:tungstensteel_pipe_casing', 'gtceu:tungsten_steel_frame')
+        .circuit(1)
+        .itemOutputs('2x af9:hearth_pipe_casing')
+        .duration(200)
+        .EUt(VA[GTValues.EV])
+    event.recipes.gtceu.assembler('af9:hearth_support_casing')
+        .itemInputs('6x gtceu:tungsten_steel_plate', '2x gtceu:naquadah_alloy_frame')
+        .circuit(2)
+        .itemOutputs('2x af9:hearth_support_casing')
+        .duration(200)
+        .EUt(VA[GTValues.EV])
+
     // No shortcuts past the hearth (removes first, so the prints below survive them):
     // - auto EBF dust -> hot ingot (old blast property) would let the EBF smelt it: gone.
     // - the plain molten + mold solidifier would skip the supercooled casting: gone, only the freezer runs.

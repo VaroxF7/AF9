@@ -24,8 +24,8 @@ The chain blends first and smelts after:
 The structure is the Rotary Hearth's, grown (15×21×15, plus an optional Verteilerhaus), in a brutalist dress: the same
 casings, coils, muffler, Naquadah Alloy frames (as deck beams), tungstensteel pipe, engine intakes and heat vents, with the
 middle lines of the original tripled (a wider air chamber, thicker pipe pillars and decks), a robust plinth under the base,
-the muffler on a three-high pipe stack with a casing block at its foot, tungstensteel gearboxes where the firebox was
-and stress-proof piers instead of thin frame uprights. Hatches are maximums-only on any high-temperature casing of the
+the muffler on a three-high pipe stack with a casing block at its foot, Hearth Pipe Casings (AF9, a 3D model of pipes) where the firebox was
+and Hearth Support Casings (AF9, a 3D truss) instead of thin frame uprights. Hatches are maximums-only on any high-temperature casing of the
 main structure (the AF9 convention, so GT's 360-casing minimum is dropped; plus up to 2 Coolant Hatches for the
 supercooled coolant): the hearth needs nothing else. The optional **Verteilerhaus** (3 wide, 5 deep, 2 high, **one block
 apart** from the base on the controller's left) takes the same hatches (shared maximums); its door (the two columns of
