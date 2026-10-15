@@ -121,10 +121,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      */
     public static final float RING_UP = 0, RING_BACK = 3, RING_RADIUS = 9.6F, RING_THICKNESS = 0.25F;
     /**
-     * The Array Mk2 (extended pattern): the same station with a larger ring, same structure scaled out. The light
-     * ring grows with the rim so it stays just inside it; the burn distance and tube stay the same.
+     * The Array Mk2 (extended pattern): the same station with a much larger ring (twice the first Mk2's), same structure
+     * scaled out. The light ring grows with the rim so it stays just inside it (0.8 of the rim radius 34); the burn
+     * distance and tube stay the same. It turns like a station's wheel: {@link #RING_SPIN_MK2} radians a tick.
      */
-    public static final float RING_RADIUS_MK2 = 13.6F;
+    public static final float RING_RADIUS_MK2 = 27.2F, RING_SPIN_MK2 = 0.02F;
     /** Distance from the ring's core line within which it burns: the tube and its hottest glow. */
     public static final double RING_BURN = RING_THICKNESS * 2.5;
     /** Damage of the ring: nothing survives it (totems aside). */
@@ -133,10 +134,10 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public static final int HALF_WIDTH = 12;
     public static final int DEPTH = 17;
     /**
-     * The Mk2 extended array's extent: 17 to each side, 17 + 12 behind (a 35x35 platform, like the Elevator's 35x35, and its undulator
+     * The Mk2 extended array's extent: 34 to each side, 17 + 12 behind (a 69x69 platform and its undulator
      * spire 12 blocks longer than the basic station's mast: startup_scripts/gtceu/photolithography.js ORBITAL_SPIRE).
      */
-    public static final int HALF_WIDTH_MK2 = 17;
+    public static final int HALF_WIDTH_MK2 = 34;
     public static final int DEPTH_MK2 = 17 + 12;
     /** Recipe data key of the coolant a run uses (the coolant's id). */
     public static final String COOLANT_TAG = "af9_coolant";
@@ -543,6 +544,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     /** Ring radius of the size it is formed as (the render reads this through {@link #ringRadius(float)}). */
     public float currentRingRadius() {
         return extended ? RING_RADIUS_MK2 : RING_RADIUS;
+    }
+
+    @Override
+    public float ringSpin() {
+        return extended ? RING_SPIN_MK2 : 0F;
     }
 
     @Override

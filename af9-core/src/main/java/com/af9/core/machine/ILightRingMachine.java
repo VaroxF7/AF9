@@ -50,4 +50,12 @@ public interface ILightRingMachine extends IMachineFeature {
     default float ringRadius(float modelRadius) {
         return modelRadius;
     }
+
+    /**
+     * Spin of the ring in radians per tick: above 0 it wears habitat modules that turn round it like a space station's
+     * wheel. 0 (default) for a plain ring.
+     */
+    default float ringSpin() {
+        return 0F;
+    }
 }
