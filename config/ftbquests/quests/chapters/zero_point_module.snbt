@@ -1775,15 +1775,9 @@
 					type: "item"
 				}
 				{
-					count: 4L
-					id: "6FED209478A483CA"
-					item: "gtceu:hp_steam_solid_boiler"
-					type: "item"
-				}
-				{
-					count: 11L
+					count: 15L
 					id: "7CF9B87F837B9646"
-					item: { Count: 11, id: "gtceu:tungstensteel_firebox_casing" }
+					item: "gtceu:tungstensteel_firebox_casing"
 					type: "item"
 				}
 				{
