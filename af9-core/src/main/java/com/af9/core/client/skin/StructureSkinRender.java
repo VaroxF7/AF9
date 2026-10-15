@@ -216,7 +216,6 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         poseStack.translate(-0.5, -0.5, -0.5);
 
         if (skin.rings() != null) {
-            boolean working = machine instanceof IRecipeLogicMachine logic && logic.isActive();
             RingDraw.draw(self, skin.rings(), working, partialTick, poseStack, buffer, packedOverlay);
             poseStack.popPose();
             return;
