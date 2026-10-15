@@ -21,9 +21,19 @@ The chain blends first and smelts after:
 
 ## The hearth (gameplay)
 
-The structure is the Rotary Hearth's, unchanged (13×17×13: high-temperature smelting casings, coils, muffler,
-Naquadah Alloy frames, tungstensteel firebox/pipe, engine intakes, heat vents; hatches maximums-only on any casing,
-the AF9 convention, so GT's 360-casing minimum is dropped; plus up to 2 Coolant Hatches for the supercooled coolant).
+The structure is the Rotary Hearth's, grown (15×21×15, plus an optional Verteilerhaus), in a brutalist dress: the same
+casings, coils, muffler, Naquadah Alloy frames (as deck beams), tungstensteel pipe, engine intakes and heat vents, with the
+middle lines of the original tripled (a wider air chamber, thicker pipe pillars and decks), a robust plinth under the base,
+the muffler on a three-high pipe stack with a casing block at its foot, Hearth Pipe Casings (AF9, a 3D model of pipes) where the firebox was
+and Hearth Support Casings (AF9, a 3D truss) instead of thin frame uprights. Hatches are maximums-only on any high-temperature casing of the
+main structure (the AF9 convention, so GT's 360-casing minimum is dropped; plus up to 2 Coolant Hatches for the
+supercooled coolant): the hearth needs nothing else. The optional **Verteilerhaus** (3 wide, 5 deep, 2 high, **one block
+apart** from the base on the controller's left) takes the same hatches (shared maximums); its door (the two columns of
+its front) is plain casing, so no hatch covers it. Built whole (no gap in its 30 blocks) it gives a bonus: **preheat twice
+as fast** and **25% less readiness heater draw** (`hasVerteilerhaus`, checked every 5 s). Leave it out and nothing else
+changes.
+Inside the air chamber two **rotary hearth turntables** (spoked discs with a segmented rim and ember slots) turn against
+each other while a recipe runs and coast to a stop (`HearthTurntableRender`, render-only: no part of the pattern).
 The controller is a refitted RHF controller (assembler, UHV: RHF controller + UHV hull + field generators + pumps
 under a coolant loop). What makes it its own machine is heat (`SanguiniteHearthMachine`):
 
@@ -62,7 +72,7 @@ under a coolant loop). What makes it its own machine is heat (`SanguiniteHearthM
 
 ## Files
 
-- Hearth: `af9-core/src/main/java/com/af9/core/machine/SanguiniteHearthMachine.java` (heat, preheat, `HEARTH_GATE`), JEI in `machine/SanguiniteHearthRecipeUI.java`, Jade in `compat/jade/AF9MachineProvider`
+- Hearth: `af9-core/src/main/java/com/af9/core/machine/SanguiniteHearthMachine.java` (heat, preheat, `HEARTH_GATE`, Verteilerhaus bonus), turntables in `client/render/HearthTurntableRender.java`, casings by `tools/textures/hearth.py`, JEI in `machine/SanguiniteHearthRecipeUI.java`, Jade in `compat/jade/AF9MachineProvider`
 - Structure + type: `kubejs/startup_scripts/gtceu/sanguinite_hearth.js` (RHF copy, `sanguinite_hearth` type 9/0/2/1, Coolant Hatches, 9 tooltips)
 - Materials: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (`uhvSuperconductor`, no blast/components)
 - Mission: `af9-core/src/main/java/com/af9/core/elevator/PlanetCatalog.java` (planet 9, gas 8)

@@ -1163,6 +1163,8 @@
     "block.af9.ultra_high_strength_concrete_floor": "Ultra High Strength Concrete Floor",
     "block.af9.laser_containment_casing": "Laser Containment Casing",
     "block.af9.laser_resistant_plate": "Laser Resistant Plate",
+    "block.af9.hearth_pipe_casing": "Hearth Pipe Casing",
+    "block.af9.hearth_support_casing": "Hearth Support Casing",
     "block.af9.space_elevator_motor_mk1": "Space Elevator Motor MK-I",
     "block.af9.space_elevator_motor_mk1.tooltip.0": "All 88 motors of a Space Elevator are of one tier.",
     "block.af9.space_elevator_motor_mk1.tooltip.1": "Powers 6 module slots, and Mining Modules up to MK-I.",

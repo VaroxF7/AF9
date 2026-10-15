@@ -2,6 +2,7 @@ package com.af9.core.machine;
 
 import com.af9.core.client.render.EcrwArmRender;
 import com.af9.core.client.render.FiltrationBasinRender;
+import com.af9.core.client.render.HearthTurntableRender;
 import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.LithoChamberRender;
@@ -161,6 +162,20 @@ public final class AF9MachineModels {
                                                                             float armY, float radius) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(() -> EcrwArmRender.create(back, armY, radius)));
+    }
+
+    /**
+     * GT's workable casing model plus the Sanguinite Hearth's two turntables ({@link HearthTurntableRender}): rotary
+     * hearth floors in the air chamber that turn while a recipe runs. The machine must implement
+     * {@link IHearthMachine} and have a block entity renderer ({@code .hasBER(true)}).
+     *
+     * @param back chamber centre behind the controller (blocks)
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithHearthTurntable(ResourceLocation casing,
+                                                                                    ResourceLocation overlay,
+                                                                                    float back) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(() -> HearthTurntableRender.create(back)));
     }
 
     /**
