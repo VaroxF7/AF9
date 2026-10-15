@@ -1,0 +1,16 @@
+{
+  "type": "ad_astra:moon",
+  "generator": {
+    "type": "minecraft:noise",
+    "settings": "ad_astra:moon",
+    "biome_source": {
+      "type": "minecraft:checkerboard",
+      "scale": 6,
+      "biomes": [
+        "ad_astra:lunar_wastelands",
+        "ad_astra:lunar_wastelands",
+        "af9:certus_crystal"
+      ]
+    }
+  }
+}

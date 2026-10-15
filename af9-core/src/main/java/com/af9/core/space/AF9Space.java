@@ -126,6 +126,14 @@ public final class AF9Space {
     public static final RegistryObject<AsteroidFieldFeature> CERES_FIELD = FEATURES.register("ceres_field",
             () -> new AsteroidFieldFeature(AsteroidFieldFeature.Belt.CERES));
 
+    /** The certus crystal formations of the Moon (af9:certus_crystal); placed by data/af9/worldgen/placed_feature. */
+    public static final RegistryObject<CertusCrystalFeature> CERTUS_CRYSTAL_MOON = FEATURES.register(
+            "certus_crystal_moon", () -> new CertusCrystalFeature(CertusCrystalFeature.Surface.MOON));
+
+    /** The certus crystal formations on the asteroids (af9:certus_crystal_asteroids). */
+    public static final RegistryObject<CertusCrystalFeature> CERTUS_CRYSTAL_ASTEROIDS = FEATURES.register(
+            "certus_crystal_asteroids", () -> new CertusCrystalFeature(CertusCrystalFeature.Surface.ASTEROIDS));
+
     /** The dimension of the Asteroid Field (data/af9/dimension). */
     public static final ResourceLocation ASTEROID_FIELD_DIMENSION = new ResourceLocation(AF9Core.MOD_ID,
             "asteroid_field");
