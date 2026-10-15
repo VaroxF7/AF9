@@ -55,11 +55,11 @@ ServerEvents.recipes(event => {
     // GT glass tubes (alloy smelter / solidifier / press): the spout below
     // is the only way now.
     // (batched: the same three ids removed in one filter call)
-    event.remove({ id: [
+    [
         'gtceu:alloy_smelter/alloy_smelt_glass_tube',
         'gtceu:fluid_solidifier/solidify_glass_tube',
         'gtceu:forming_press/press_glass_tube'
-    ] })
+    ].forEach(id => event.remove({ id: id }))
 
     // Cheap coke oven bricks: the shaped clay/sand brick, its smelting is
     // left alone (it smelts whatever compressed clay exists), and the alloy
@@ -70,17 +70,17 @@ ServerEvents.recipes(event => {
     // GT steel, re-added far more expensive in section C.
     event.remove({ type: 'gtceu:primitive_blast_furnace' })
     // (batched: the same two ids removed in one filter call)
-    event.remove({ id: [
+    [
         'gtceu:electric_blast_furnace/steel_from_iron',
         'gtceu:electric_blast_furnace/steel_from_wrought_iron'
-    ] })
+    ].forEach(id => event.remove({ id: id }))
 
     // LV circuits, re-added with electron tubes in section D.
     // (batched: the same two ids removed in one filter call)
-    event.remove({ id: [
+    [
         'gtceu:shaped/electronic_circuit_lv',
         'gtceu:circuit_assembler/electronic_circuit_lv'
-    ] })
+    ].forEach(id => event.remove({ id: id }))
 
     // ================= B. molten glass + glass tube =================
     // Mixer, heated (blaze burner): 2 sand -> 288 mB molten glass, i.e. one

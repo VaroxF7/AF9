@@ -47,15 +47,15 @@ ServerEvents.recipes(event => {
     // [suffix, previous or base, secondary, circuit]
     const spatial = [
         ['2', '4x ae2:quartz_glass', '4x ae2:fluix_crystal', 'ae2:engineering_processor'],
-        ['16', 'ae2:spatial_storage_cell_2_cubed', '4x minecraft:diamond', 'ae2:engineering_processor'],
-        ['128', 'ae2:spatial_storage_cell_16_cubed', '4x ae2:sky_dust', 'ae2:engineering_processor']
+        ['16', 'ae2:spatial_storage_cell_2', '4x minecraft:diamond', 'ae2:engineering_processor'],
+        ['128', 'ae2:spatial_storage_cell_16', '4x ae2:sky_dust', 'ae2:engineering_processor']
     ]
     spatial.forEach(entry => {
         const suffix = entry[0]
         const base = entry[1]
         const secondary = entry[2]
         const circuit = entry[3]
-        const out = 'ae2:spatial_storage_cell_' + suffix + '_cubed'
+        const out = 'ae2:spatial_storage_cell_' + suffix
         event.remove({ mod: 'ae2', output: out })
         soldered('ae2_spatial_' + suffix, suffix === '128' ? EV : HV,
             [base, secondary, circuit, 'ae2:item_cell_housing'],

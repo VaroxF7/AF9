@@ -48,6 +48,8 @@ ServerEvents.recipes(event => {
         const plates = entry[1]
         const signature = entry[2]
         const out = 'ae2:quantum_' + piece
+        // the quantum armor is not part of AE2 15 for 1.20.1: skip when absent
+        if (!Item.exists(out)) return
         event.remove({ mod: 'ae2', output: out })
         soldered('ae2_quantum_' + piece, EV,
             [plates, 'ae2:quantum_entangled_singularity', 'ae2:engineering_processor',

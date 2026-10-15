@@ -698,7 +698,7 @@ ServerEvents.recipes(event => {
         .cleanroom(CleanroomType.CLEANROOM)
 
     // One batched removal for every GT id recorded above (the same set, one scan).
-    if (removedGtIds.length) event.remove({ id: removedGtIds })
+    removedGtIds.forEach(id => event.remove({ id: id }))
 })
 
 ServerEvents.tags('item', event => {

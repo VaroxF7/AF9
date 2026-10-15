@@ -34,6 +34,8 @@ ServerEvents.recipes(event => {
         const id = entry[0]
         const input = entry[1]
         const output = entry[2]
+        // AE2 15 has no nether quartz dust item: skip entries whose output is absent
+        if (!Item.exists(output.split(' ').pop().replace(/^\d+x\s*/, ''))) return
         event.remove({ mod: 'ae2', output: output.split(' ').pop() })
         gtr.macerator('af9:macerate_' + id)
             .itemInputs(input)

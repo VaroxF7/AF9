@@ -30,13 +30,13 @@ ServerEvents.recipes(event => {
     // quartz glass + its tier circuit. Bulk cells ride along at IV.
     if (Platform.isLoaded('megacells')) {
         // RAM climbs with the tier: eDRAM at 1m, MRAM from 4m (stacks of 64 chips).
-        const megaRam = {
+        let megaRam = {
             'megacells:cell_component_1m': ['64x af9:edram_chip'],
             'megacells:cell_component_4m': ['64x af9:mram_chip'],
             'megacells:cell_component_16m': ['64x af9:mram_chip', '64x af9:mram_chip'],
             'megacells:cell_component_64m': ['64x af9:edram_chip', '64x af9:mram_chip', '64x af9:mram_chip']
         }
-        const mega = [
+        let mega = [
             ['megacells:cell_component_1m', 'ae2:cell_component_256k',
                 'gtceu:nano_processor_computer', GTValues.IV, 400, 2],
             ['megacells:cell_component_4m', 'megacells:cell_component_1m',
