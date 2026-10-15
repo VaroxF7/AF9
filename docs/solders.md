@@ -105,7 +105,7 @@ GTNH's Pico components as the XPS tier's own circuit line, made in the **Advance
 
 | Recipe | Takes | CWU/t | Time |
 |---|---|---|---|
-| `af9:pico_board` | wetware board, 2 chromodynium plates, 8 fine chromodynium wire, 144 mB plasma solder | 32 | 400 ticks |
+| `af9:pico_board` | not here: laid up at UV in the Assembly Line from ceranium and fibre interconnects (`ceranium.js`, `docs/ceranium.md`) | | |
 | `af9:cleansed_pico_board` | pico board, 2,000 mB distilled water, 1,000 mB argon | 32 | 300 ticks |
 | `af9:pico_cpu` | cleansed board, 2 TPU, 4 memristor, 4 quantum-dot chips, 2 chromodynium plates, 16 fine chromodynium wire, 576 mB plasma solder, 288 mB PBI | 64 | 800 ticks |
 | `af9:organized_pico_circuit` | pico CPU, 8 photonic IC, 8 spin-logic chips, 8 fine sanguinite wire, 288 mB plasma solder, 144 mB PBI | 96 | 600 ticks |

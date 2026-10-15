@@ -9,6 +9,8 @@ ad_astra:desh_ingot
 gtceu:zircon_dust
 gtceu:brannerite_dust
 gtceu:quantanium_dust
+gtceu:ceresite_dust
+gtceu:raw_ceresite
 gtceu:quantanium
 gtceu:artemite_dust
 gtceu:artemite

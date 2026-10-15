@@ -92,6 +92,7 @@ public final class AF9Materials {
         photolithography();
         platinumGroup();
         quantanium();
+        ceranium();
         solders();
         uhvSuperconductor();
         starMatterSteel();
@@ -1148,6 +1149,31 @@ public final class AF9Materials {
                 .iconSet(MaterialIconSet.SHINY)
                 .formula("(Ti,Nb)2O3")
                 .addOreByproducts(GTMaterials.Titanium, GTMaterials.Trinium, GTMaterials.Niobium));
+    }
+
+    /**
+     * Ceresite and Ceranium: the board metal of the Pico circuits. Ceresite is a niobium-tungsten oxide ore of the Ceres
+     * belt and nothing else (a dike vein in af9_asteroid, vein_ceres.js: the Space Elevator's Mk-IV drone brings it home,
+     * or a prospector with a rocket does). Ceranium is what it becomes with UV-tier metals in the mixer; GT melts the
+     * dust in the EBF from the blast property. Formulas only (no components), so GT adds no electrolyzer or centrifuge
+     * shortcut past the ore chain. Recipes: ceranium.js. Spec: docs/ceranium.md
+     */
+    private static void ceranium() {
+        add(material("ceresite")
+                .dust().ore(2, 1)
+                .color(0x6e8f86).secondaryColor(0x24403a)
+                .iconSet(MaterialIconSet.SHINY)
+                .formula("(Nb,W)2Ce3O8")
+                .addOreByproducts(GTMaterials.Niobium, GTMaterials.Tungsten, GTMaterials.Titanium));
+
+        // the board alloy: plates are the laminate, foil and fine wire the traces of the Pico board
+        add(material("ceranium")
+                .ingot().fluid()
+                .color(0x9fd6c4).secondaryColor(0x2f6f62)
+                .iconSet(MaterialIconSet.METALLIC)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL, MaterialFlags.GENERATE_FINE_WIRE)
+                .blastTemp(9000, GasTier.HIGH, GTValues.VA[GTValues.UV], 1800)
+                .formula("(Cs3Nb2Tt)"));
     }
 
     /**

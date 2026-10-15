@@ -527,6 +527,34 @@
 			y: 12.0d
 		}
 		{
+			dependencies: ["0DDCE92C2CB31A1D"]
+			description: ["{af9.quest.chem.ceresite.1}" "" "{af9.quest.chem.ceresite.2}"]
+			icon: "gtceu:raw_ceresite"
+			id: "6C1E0A7B52D94F31"
+			rewards: [{ id: "6C1E0A7B52D94F32" type: "xp" xp: 25 }]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.chem.ceresite.subtitle}"
+			tasks: [{ id: "6C1E0A7B52D94F33" item: "gtceu:raw_ceresite" type: "item" }]
+			title: "{af9.quest.chem.ceresite.title}"
+			x: 9.0d
+			y: 14.0d
+		}
+		{
+			dependencies: ["6C1E0A7B52D94F31"]
+			description: ["{af9.quest.chem.ceranium.1}" "" "{af9.quest.chem.ceranium.2}"]
+			icon: "gtceu:ceranium_plate"
+			id: "6C1E0A7B52D94F41"
+			rewards: [{ id: "6C1E0A7B52D94F42" type: "xp" xp: 25 }]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.chem.ceranium.subtitle}"
+			tasks: [{ id: "6C1E0A7B52D94F43" item: "gtceu:ceranium_ingot" type: "item" } { id: "6C1E0A7B52D94F44" item: "af9:fiber_interconnects" type: "item" }]
+			title: "{af9.quest.chem.ceranium.title}"
+			x: 11.0d
+			y: 14.0d
+		}
+		{
 			dependencies: ["5B6397104C6D1A4C"]
 			description: ["{af9.quest.chem.highgrade.1}" "" "{af9.quest.chem.highgrade.2}"]
 			icon: "gtceu:high_grade_solder_ingot"
