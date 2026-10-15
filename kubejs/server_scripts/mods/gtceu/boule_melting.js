@@ -109,7 +109,7 @@ ServerEvents.recipes(event => {
     ]
     // GT's EBF boules (the CZ recipes of the SMC furnaces are gone too, fab_chemistry.js)
     // (batched: the same four ids removed in one filter call)
-    ['silicon_boule', 'phosphorus_boule', 'naquadah_boule', 'neutronium_boule']
+    ;['silicon_boule', 'phosphorus_boule', 'naquadah_boule', 'neutronium_boule']
         .forEach(boule => event.remove({ id: `gtceu:electric_blast_furnace/${boule}` }))
     boules.forEach(b => {
         const charge = event.recipes.gtceu.fab_blending(`af9:${b.id}_melt_charge`)
