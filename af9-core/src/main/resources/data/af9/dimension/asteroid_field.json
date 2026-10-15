@@ -3,13 +3,14 @@
   "generator": {
     "type": "minecraft:noise",
     "biome_source": {
-      "type": "minecraft:checkerboard",
-      "scale": 6,
-      "biomes": [
-        "af9:asteroid_field",
-        "af9:asteroid_field",
-        "af9:certus_crystal_asteroids"
-      ]
+      "type": "af9:certus_regions",
+      "base": "af9:asteroid_field",
+      "crystal": "af9:certus_crystal_asteroids",
+      "spacing": 3000,
+      "jitter": 500,
+      "radius": 180,
+      "chance": 0.6,
+      "salt": 1
     },
     "settings": "ad_astra:orbit"
   }

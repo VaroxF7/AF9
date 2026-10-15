@@ -33,10 +33,10 @@ public class CertusCrystalFeature extends Feature<NoneFeatureConfiguration> {
     /** Where the formations stand: on the surface of the Moon, or on any rock of the asteroids. */
     public enum Surface { MOON, ASTEROIDS }
 
-    private static final int CLUMPS_MOON = 2;
-    private static final int CLUMPS_ASTEROIDS = 5;
+    private static final int CLUMPS_MOON = 4;
+    private static final int CLUMPS_ASTEROIDS = 8;
     /** Chance (per clump attempt) that a clump grows at all. */
-    private static final double CLUMP_CHANCE = 0.55;
+    private static final double CLUMP_CHANCE = 0.7;
     private static final int SCAN_TOP = 285;
     private static final int SCAN_BOTTOM = 0;
     /** One in this many base blocks of a giant spire is flawless budding quartz (it regrows clusters). */

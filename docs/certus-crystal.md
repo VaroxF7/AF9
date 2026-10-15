@@ -7,9 +7,12 @@ smaller spires and cluster buds at the foot), on the Moon and on the asteroids o
 - Biomes (`data/af9/worldgen/biome`): `af9:certus_crystal` (Moon: only the crystal feature) and
   `af9:certus_crystal_asteroids` (Asteroid Field: the asteroid feature, then the crystals, so the same asteroids
   grow spires). They are two biomes because the Moon must not run the asteroid feature.
-- Biome sources: `data/af9/dimension/asteroid_field.json` and `data/ad_astra/dimension/moon.json` (an override of Ad
-  Astra's Moon, a fixed `lunar_wastelands`) are checkerboards of 256-block squares, one square in three crystal.
-  Re-check the override against the Ad Astra version when it is updated.
+- Biome source: `CertusRegionsBiomeSource` (`af9:certus_regions`) in `data/af9/dimension/asteroid_field.json` and in
+  `data/ad_astra/dimension/moon.json` (an override of Ad Astra's Moon, a fixed `lunar_wastelands`; re-check it when
+  Ad Astra is updated). The world is cut into 3000-block cells, 60 % of them hold one round crystal region of
+  180 blocks radius near the middle of the cell (+-500), so two regions are at least 2000 blocks apart: at 32 chunks
+  render distance (1024 blocks across) one is visible at a time. Tune `spacing`, `jitter`, `radius`, `chance` in the
+  dimension files; the layout is the same in every world (`salt` per dimension).
 - Blocks: `ae2:quartz_block` (foot) and `ae2:quartz_glass` (shaft), `ae2:certus_quartz_cluster` buds, a rare
   `ae2:flawless_budding_quartz` in the foot of the giants (it regrows clusters).
 
