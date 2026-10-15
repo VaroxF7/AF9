@@ -39,7 +39,8 @@ ServerEvents.recipes(event => {
     // ---- Entangled pair: the two ends of one link, at EV ----
     event.remove({ mod: 'ae2', output: 'ae2:quantum_entangled_singularity' })
     soldered('ae2_entangled_singularity', EV,
-        ['ae2:singularity', '2x ae2:calculation_processor', '4x ae2:fluix_pearl'],
+        ['ae2:singularity', '2x ae2:calculation_processor', '4x ae2:fluix_pearl',
+            'gtceu:micro_processor_computer'],
         '2x ae2:quantum_entangled_singularity', 600)
 
     // ---- Spatial cells: the pocket dimension in a shell ----
@@ -47,7 +48,7 @@ ServerEvents.recipes(event => {
     const spatial = [
         ['2', '4x ae2:quartz_glass', '4x ae2:fluix_crystal', 'ae2:engineering_processor'],
         ['16', 'ae2:spatial_storage_cell_2_cubed', '4x minecraft:diamond', 'ae2:engineering_processor'],
-        ['128', 'ae2:spatial_storage_cell_16_cubed', '4x ae2:sky_dust', 'ae2:calculation_processor']
+        ['128', 'ae2:spatial_storage_cell_16_cubed', '4x ae2:sky_dust', 'ae2:engineering_processor']
     ]
     spatial.forEach(entry => {
         const suffix = entry[0]
@@ -56,7 +57,7 @@ ServerEvents.recipes(event => {
         const circuit = entry[3]
         const out = 'ae2:spatial_storage_cell_' + suffix + '_cubed'
         event.remove({ mod: 'ae2', output: out })
-        soldered('ae2_spatial_' + suffix, HV,
+        soldered('ae2_spatial_' + suffix, suffix === '128' ? EV : HV,
             [base, secondary, circuit, 'ae2:item_cell_housing'],
             out, 400)
     })

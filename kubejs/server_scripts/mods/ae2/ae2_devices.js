@@ -15,6 +15,8 @@ ServerEvents.recipes(event => {
     if (!Platform.isLoaded('ae2')) return
     const VA = GTValues.VA
     const MV = VA[GTValues.MV]
+    const HV = VA[GTValues.HV]
+    const EV = VA[GTValues.EV]
     const remove = out => event.remove({ mod: 'ae2', output: out })
 
     // Solder pair: tin budget + soldering alloy canonical.
@@ -225,9 +227,44 @@ ServerEvents.recipes(event => {
         ['ae2_portable_fluid_256k', 'ae2:portable_fluid_cell_256k',
             ['ae2:chest', 'ae2:cell_component_256k', 'ae2:energy_cell', 'ae2:fluid_cell_housing'], 400]
     ]
+    // Backbone and endgame devices climb above MV: [eut, tier circuit]. HV and EV builds run in a
+    // cleanroom on high-grade solder (tin stays as budget); MV devices keep the solder pair above.
+    const tiered = {
+        ae2_dense_energy_cell: [HV, 'gtceu:advanced_integrated_circuit'],
+        ae2_controller: [HV, 'gtceu:micro_processor_assembly'],
+        ae2_drive: [HV, 'gtceu:micro_processor_assembly'],
+        ae2_io_port: [HV, 'gtceu:advanced_integrated_circuit'],
+        ae2_pattern_provider: [HV, 'gtceu:advanced_integrated_circuit'],
+        ae2_storage_bus: [HV, 'gtceu:advanced_integrated_circuit'],
+        ae2_p2p: [HV, 'gtceu:micro_processor_assembly'],
+        ae2_speed_card: [HV, 'gtceu:advanced_integrated_circuit'],
+        ae2_network_tool: [HV, 'gtceu:advanced_integrated_circuit'],
+        ae2_entropy: [HV, 'gtceu:micro_processor_assembly'],
+        ae2_matter_cannon: [HV, 'gtceu:micro_processor_assembly'],
+        ae2_molecular_assembler: [EV, 'gtceu:micro_processor_computer'],
+        ae2_spatial_io: [EV, 'gtceu:micro_processor_computer'],
+        ae2_spatial_pylon: [EV, 'gtceu:micro_processor_computer'],
+        ae2_spatial_anchor: [EV, 'gtceu:micro_processor_computer'],
+        ae2_quantum_ring: [EV, 'gtceu:micro_processor_computer'],
+        ae2_quantum_link: [EV, 'gtceu:micro_processor_computer']
+    }
+    const high = (id, inputs, outputs, ticks, eut, circuit) => {
+        const all = inputs.concat([circuit])
+        ;[['', Fluid.of('gtceu:tin', 144)], ['_high_grade', Fluid.of('gtceu:high_grade_solder', 72)]]
+            .forEach(([suffix, fluid]) => {
+                event.recipes.gtceu.assembler(`af9:${id}${suffix}`)
+                    .itemInputs(all)
+                    .inputFluids(fluid)
+                    .itemOutputs(outputs)
+                    .duration(ticks)
+                    .EUt(eut)
+                    .cleanroom(CleanroomType.CLEANROOM)
+            })
+    }
     devices.forEach(([id, out, inputs, ticks]) => {
         remove(out)
-        mv(id, inputs, out, ticks)
+        if (tiered[id]) high(id, inputs, out, ticks, tiered[id][0], tiered[id][1])
+        else mv(id, inputs, out, ticks)
     })
 
     // ---- Cables (dry): only the fluix base of each family; dye variants follow ----
