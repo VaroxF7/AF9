@@ -34,7 +34,7 @@ No presses, no inscriber prints — every chip is printed on a silicon wafer:
    engineering EV (`micro_processor_computer`).
 
 Removed: all `ae2:` recipes outputting the four printeds and the three processors.
-The inscriber keeps crushing and the name press; meteorite presses are out of the chain
+All `ae2:inscriber` recipes are removed (crushing is replaced by the GT recipes above; the name press is no longer craftable), as are the six `advanced_ae` processor chambers and the `gtceu:forming_press` circuit imports (ae2 logic/calculation/engineering, appflux energy, aae quantum, megacells accumulation); meteorite presses are out of the chain
 (the Mysterious Cube still drops one random press as a souvenir, meteorites still give
 sky stone).
 

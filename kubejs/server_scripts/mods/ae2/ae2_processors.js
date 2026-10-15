@@ -26,6 +26,17 @@ ServerEvents.recipes(event => {
         'ae2:logic_processor', 'ae2:calculation_processor', 'ae2:engineering_processor']
     vanilla.forEach(out => event.remove({ mod: 'ae2', output: out }))
 
+    // ---- All AE2 inscriber recipes, advanced_ae processor chambers and GT forming-press circuit imports ----
+    event.remove({ type: 'ae2:inscriber' })
+    ;[
+        'advanced_ae:logic_processor_chamber', 'advanced_ae:accumulation_processor_chamber',
+        'advanced_ae:energy_processor_chamber', 'advanced_ae:calculation_processor_chamber',
+        'advanced_ae:engineering_processor_chamber', 'advanced_ae:quantum_processor_chamber',
+        'gtceu:forming_press/ae2/logic_circuit', 'gtceu:forming_press/appflux/energy_circuit',
+        'gtceu:forming_press/aae/quantum_circuit', 'gtceu:forming_press/ae2/calculation_circuit',
+        'gtceu:forming_press/megacells/accumulation_circuit', 'gtceu:forming_press/ae2/engineering_circuit'
+    ].forEach(id => event.remove({ id: id }))
+
     // ---- Other mods' printed silicon recipes (ExtendedAE cutter, GT forming press) ----
     event.remove({ id: 'expatternprovider:cutter/silicon' })
     event.remove({ id: 'gtceu:forming_press/ae2/ultimate_universal/printed_silicon_circuit' })
