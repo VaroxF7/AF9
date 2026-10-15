@@ -652,6 +652,15 @@ ServerEvents.recipes(event => {
                 .researchId(`af9_litho_1nm_${c.id}`).EUt(VA[GTValues.ZPM], 2).CWUt(48, 256000))
     })
 
+    // GT's RAM wafer cuts into 32 RAM chips; here one wafer is 4 (silicon substrate, cut anywhere like AF9's silicon chips).
+    event.remove({ type: 'gtceu:cutter', output: 'gtceu:ram_chip' })
+    event.recipes.gtceu.cutter('af9:cut_ram_wafer_4')
+        .itemInputs('gtceu:ram_wafer')
+        .inputFluids(Fluid.of('gtceu:distilled_water', 100))
+        .itemOutputs('4x gtceu:ram_chip')
+        .duration(900)
+        .EUt(VA[GTValues.MV])
+
     // Derived wafers (Nano CPU, Qubit CPU, HPIC, UHPIC) and cutting: GT's own Chemical Reactor and cutter recipes, since
     // every print is GT's own wafer.
 
