@@ -72,7 +72,7 @@ calculation processor (logic for 1k) + bulk secondary + quartz glass, assembler 
 Every other base-AE2 buildable — charger, inscriber, vibration chamber, crank, condenser,
 growth accelerator, sky stone tank, resonance generator, energy acceptor/cells, controller,
 drive, chest, IO port, workbench, all terminals (incl. wireless), interface, pattern
-provider, molecular assembler (takes a micro processor, like the controller and drive),
+provider, molecular assembler (takes a micro processor, like the drive),
 import/export/storage buses, formation/annihilation cores and planes, P2P tunnels, level
 emitters, toggle bus, all three monitors, all nine upgrade cards, network tool, memory
 card, color applicator, cable anchor, both wrenches and cutting knives, charged staff,
@@ -81,8 +81,10 @@ blank patterns, view cell, quartz glass, all ten portable cells — builds in th
 at MV from processors, steel/iron plates, quartz glass, quartz fiber, crystals and
 fluix (tin/soldering-alloy pair; cables and fiber are dry single recipes).
 
+The **controller** builds at MV without a cleanroom (tin/soldering-alloy pair): 6x sky stone block + 4x good integrated circuit + 8x of one processor kind (logic, calculation or engineering, three recipes).
+
 Backbone and endgame devices climb (cleanroom, high-grade solder): **HV** — dense energy cell,
-controller, drive, IO port, pattern provider, storage bus, P2P, speed card, network tool, entropy
+drive, IO port, pattern provider, storage bus, P2P, speed card, network tool, entropy
 manipulator, matter cannon; **EV** — molecular assembler, spatial IO/pylon/anchor, quantum ring/link.
 
 Only the fluix base of each cable family is redefined (glass, covered, dense, smart,

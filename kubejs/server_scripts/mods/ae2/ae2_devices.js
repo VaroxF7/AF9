@@ -70,8 +70,6 @@ ServerEvents.recipes(event => {
         ['ae2_dense_energy_cell', 'ae2:dense_energy_cell',
             ['3x ae2:energy_cell', 'ae2:calculation_processor', '4x ae2:fluix_crystal'], 400],
         // ---- Network core ----
-        ['ae2_controller', 'ae2:controller',
-            ['6x ae2:sky_stone_block', 'ae2:engineering_processor', 'gtceu:micro_processor'], 400],
         ['ae2_drive', 'ae2:drive',
             ['4x gtceu:steel_plate', '2x ae2:engineering_processor', 'ae2:quartz_glass',
                 'gtceu:micro_processor'], 400],
@@ -231,7 +229,6 @@ ServerEvents.recipes(event => {
     // cleanroom on high-grade solder (tin stays as budget); MV devices keep the solder pair above.
     const tiered = {
         ae2_dense_energy_cell: [HV, 'gtceu:advanced_integrated_circuit'],
-        ae2_controller: [HV, 'gtceu:micro_processor_assembly'],
         ae2_drive: [HV, 'gtceu:micro_processor_assembly'],
         ae2_io_port: [HV, 'gtceu:advanced_integrated_circuit'],
         ae2_pattern_provider: [HV, 'gtceu:advanced_integrated_circuit'],
@@ -265,6 +262,13 @@ ServerEvents.recipes(event => {
         remove(out)
         if (tiered[id]) high(id, inputs, out, ticks, tiered[id][0], tiered[id][1])
         else mv(id, inputs, out, ticks)
+    })
+
+    // ---- Controller (MV, no cleanroom): 4 MV circuits + 8 processors of choice (logic, calculation or engineering) ----
+    remove('ae2:controller')
+    ;['logic', 'calculation', 'engineering'].forEach(kind => {
+        mv(`ae2_controller_${kind}`, ['6x ae2:sky_stone_block', '4x gtceu:good_integrated_circuit',
+            `8x ae2:${kind}_processor`], 'ae2:controller', 400)
     })
 
     // ---- Cables (dry): only the fluix base of each family; dye variants follow ----
