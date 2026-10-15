@@ -11,10 +11,10 @@ import random
 from PIL import Image
 
 # material ramps, dark to light
-STEEL = [(22, 27, 29), (36, 42, 44), (52, 60, 62), (72, 82, 84), (98, 110, 110), (136, 150, 150), (184, 196, 196)]
-BRASS = [(58, 38, 16), (96, 64, 26), (138, 96, 40), (178, 130, 56), (214, 168, 80), (244, 208, 122)]
+STEEL = [(22, 22, 23), (35, 35, 36), (52, 51, 51), (72, 70, 68), (98, 95, 90), (132, 127, 120), (172, 166, 156)]
+BRASS = [(44, 34, 22), (74, 58, 36), (104, 82, 52), (130, 104, 66), (160, 130, 84), (190, 160, 108)]
 COPPER = [(78, 36, 20), (122, 58, 30), (170, 92, 48), (208, 126, 70), (236, 168, 108)]
-RED = [(70, 14, 12), (120, 26, 22), (168, 44, 34), (206, 72, 52), (238, 118, 86)]
+RED = [(30, 26, 24), (52, 44, 40), (76, 64, 56), (104, 86, 70), (130, 104, 84)]
 HAZARD = [(24, 24, 28), (226, 182, 34), (246, 214, 84)]
 
 
@@ -36,6 +36,21 @@ def fill(img, rnd, c, spread=3):
     for y in range(16):
         for x in range(16):
             put(img, x, y, noisy(rnd, c, spread))
+
+
+def weather(img, rnd, rust=0.05, soot=0.0):
+    """Rust specks and a sooty top-to-bottom stain on an opaque iron texture."""
+    for y in range(16):
+        for x in range(16):
+            r, g, b, a = img.getpixel((x, y))
+            if a == 0:
+                continue
+            if rnd.random() < rust:
+                r, g, b = min(255, r + 38), g + 6, max(0, b - 14)
+            if soot:
+                f = 1 - soot * (1 - y / 15.0)
+                r, g, b = int(r * f), int(g * f), int(b * f)
+            img.putpixel((x, y), (r, g, b, a))
 
 
 def paint(textures_dir):
@@ -69,6 +84,7 @@ def paint(textures_dir):
     for (x, y, n) in ((6, 7, 4), (9, 5, 3), (5, 10, 3)):  # scratches
         for k in range(n):
             put(img, x + k, y - k // 2, STEEL[3])
+    weather(img, rnd, 0.06, 0.18)
     save('plate', img)
 
     # ---- post: a column with a weld seam at the cell border, the stripe a column is seen through is columns 4-11
@@ -90,6 +106,7 @@ def paint(textures_dir):
         for x in (5, 10):
             put(img, x, y, STEEL[6])
             put(img, x, y + 1, STEEL[0])
+    weather(img, rnd, 0.06, 0.18)
     save('post', img)
 
     # ---- hoop: a banded iron ring, lit from the top, in shadow at the bottom
@@ -97,22 +114,23 @@ def paint(textures_dir):
     rows = [(112, 120, 136), (88, 96, 110), (66, 73, 86), (58, 64, 76), (52, 58, 69), (48, 53, 63), (46, 51, 61),
             (46, 51, 61), (46, 51, 61), (46, 51, 61), (44, 49, 59), (42, 46, 55), (38, 42, 50), (32, 36, 43),
             (26, 28, 34), (18, 20, 25)]
-    rows = [(r, g + 5, b - 6) for (r, g, b) in rows]
+    rows = [(r + 2, g, b - 2) for (r, g, b) in rows]
     for y in range(16):
         for x in range(16):
             put(img, x, y, noisy(rnd, rows[y], 2))
     for x in (2, 7, 12):  # bolt heads, only seen when the band is tall
         put(img, x, 8, STEEL[5])
         put(img, x + 1, 9, STEEL[0])
+    weather(img, rnd, 0.06, 0.18)
     save('hoop', img)
 
     # ---- pipe: brass, a seam ring at the cell border (the texture is read through the middle columns)
     img = new()
     for y in range(16):
         for x in range(16):
-            base = (160, 114, 46)
+            base = (96, 72, 54)
             if 6 <= x <= 8:
-                base = BRASS[3]
+                base = (112, 86, 62)
             if x >= 11:
                 base = BRASS[2]
             put(img, x, y, noisy(rnd, base, 4))

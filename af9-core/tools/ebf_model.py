@@ -166,7 +166,7 @@ def build():
 
     # ---- base (layer 0, hatches): the casing slab, a hazard skirt round its foot and a lip round the deck
     box((-15, 0, 1), (31, 16, 47), {'default': 'casing', 'up': 'plate'})
-    box((-15.5, 0, 0.5), (31.5, 2.5, 47.5), 'hazard', faces=('north', 'south', 'west', 'east'))
+    box((-15.5, 0, 0.5), (31.5, 2.5, 47.5), 'plate', faces=('north', 'south', 'west', 'east'))
     box((-15.5, 15, 0.5), (31.5, 16.1, 2.0), 'hoop', vwin=(0, 16))
     box((-15.5, 15, 46.0), (31.5, 16.1, 47.5), 'hoop', vwin=(0, 16))
     box((-15.5, 15, 2.0), (-14.0, 16.1, 46.0), 'hoop', vwin=(0, 16))
@@ -185,10 +185,6 @@ def build():
             cz0, cz1 = (z0 - 0.7, z1 + 0.5) if zo < 24 else (z0 - 0.5, z1 + 0.7)
             for (y0, y1) in ((16, 18.5), (45.5, 48)):
                 box((cx0, y0, cz0), (cx1, y1, cz1), 'hoop', vwin=(0, 16))
-            if zo < 24:
-                lx, lz = (xa + xb) / 2, (za + zb) / 2
-                box((lx - 1.2, 66.2, lz - 1.2), (lx + 1.2, 67.8, lz + 1.2), 'glow', uv={f: [5, 5, 11, 11] for f in FACES},
-                    tile=False)
 
     # ---- panels on the faces of the two hatch layers: a framed vent on every cell of the base, a band round the top.
     # All of it inside the outline, so a hatch standing in a cell just covers it.
@@ -218,7 +214,6 @@ def build():
             (43.0, 45.0, 20.0, 'plate', (4, 6)),
             (45.0, 48.0, 22.4, 'hoop', (0, 16))):
         prism('y', drum, A, y0, y1, tex, n=16, awin=awin)
-    prism('y', drum, 20.75, 30.0, 34.0, 'glow', n=16, awin=(0, 16))
     for k in range(8):
         ang = math.radians(k * 45)
         prism('y', (CX + 21.0 * math.cos(ang), 0, CZ + 21.0 * math.sin(ang)), 1.4, 29.0, 35.0, 'hoop', n=8,
@@ -228,13 +223,13 @@ def build():
     for (a, b) in (((-8, 39, -0.6), (24, 45, 2.5)), ((-8, 19, -0.6), (24, 25, 2.5)),
                    ((-8, 25, -0.6), (-1.5, 39, 2.5)), ((17.5, 25, -0.6), (24, 39, 2.5))):
         box(a, b, 'plate')
-    box((-9.2, 18, -1.0), (25.2, 20, 2.5), {'default': 'hoop', 'north': 'hazard', 'up': 'hoop'})
+    box((-9.2, 18, -1.0), (25.2, 20, 2.5), 'hoop')
     box((-9.2, 44, -1.0), (25.2, 46, 2.5), 'hoop', vwin=(0, 16))
     box((-9.2, 20, -1.0), (-8, 44, 2.5), 'hoop')
     box((24, 20, -1.0), (25.2, 44, 2.5), 'hoop')
     for (a, b) in (((-4.5, 39, -1.8), (20.5, 41.5, 0.4)), ((-4.5, 22.5, -1.8), (20.5, 25, 0.4)),
                    ((-4.5, 25, -1.8), (-1.5, 39, 0.4)), ((17.5, 25, -1.8), (20.5, 39, 0.4))):
-        box(a, b, 'brass', vwin=(0, 16))
+        box(a, b, 'hoop', vwin=(0, 16))
     bbox = ((-1.5, 25), (17.5, 39))
     for (a, b) in (((-1.5, 28), (17.5, 36)), ((1.5, 25), (14.5, 28)), ((1.5, 36), (14.5, 39))):
         box((a[0], a[1], 0.4), (b[0], b[1], 0.5), 'glow', faces=('north',), uv={'north': window_uv(bbox, a, b)},
@@ -246,18 +241,16 @@ def build():
         for d in (-12, -6, 0, 6, 12):
             box((CX + d - 0.8, y - 0.8, -1.4), (CX + d + 0.8, y + 0.8, -0.6), 'rivet', uv={f: [0, 0, 16, 16] for f in FACES},
                 tile=False)
-    for x in (-4.5, 3.5, 12.5, 20.5):  # the lamps over the window light up with the furnace
-        box((x - 1.5, 42.3, -1.3), (x + 1.5, 43.7, -0.6), 'glow', uv={f: [5, 5, 11, 11] for f in FACES}, tile=False)
     for y in (28.0, 36.0):
         for x in (-6.2, 22.2):
             box((x - 0.8, y - 0.8, -1.4), (x + 0.8, y + 0.8, -0.6), 'rivet', uv={f: [0, 0, 16, 16] for f in FACES},
                 tile=False)
     for y0 in (20.5, 36.5):
         prism('y', (-8.8, 0, -1.0), 1.3, y0, y0 + 7.0, 'hoop', n=8, awin=(0, 16))
-        box((-8.4, y0 + 0.5, -1.4), (-3.5, y0 + 6.5, -0.6), 'hoop')
-    box((21.5, 28, -2.6), (23.2, 36, -1.6), 'brass', vwin=(0, 16))
+        box((-8.4, y0 + 1.5, -1.5), (6.0, y0 + 4.5, -0.6), 'hoop', vwin=(0, 16))
+    box((21.5, 28, -2.6), (23.2, 36, -1.6), 'hoop', vwin=(0, 16))
     for y in (28.0, 34.8):
-        box((21.9, y, -1.7), (22.8, y + 1.2, -0.6), 'brass')
+        box((21.9, y, -1.7), (22.8, y + 1.2, -0.6), 'hoop')
 
     # ---- gauges on the front columns
     for x in (-12.9, 28.9):
@@ -274,9 +267,9 @@ def build():
 
     # ---- the exhaust stack over the muffler hatch (the middle of the top): a collar, a hollow stack with a rim, embers
     prism('y', drum, 10.0, 63.0, 65.5, 'hoop', n=8, awin=(0, 16))
-    prism('y', drum, 8.4, 65.5, 67.0, 'brass', n=8, awin=(0, 16))
-    square_tube(CX, CZ, 6.4, 5.0, 67.0, 71.0, 'hoop')
-    square_tube(CX, CZ, 7.4, 5.0, 70.0, 72.0, 'brass')
+    prism('y', drum, 8.4, 65.5, 67.0, 'hoop', n=8, awin=(0, 16))
+    square_tube(CX, CZ, 6.4, 5.0, 67.0, 71.0, 'plate')
+    square_tube(CX, CZ, 7.2, 5.0, 70.0, 72.0, 'hoop')
     box((CX - 4.2, 67.3, CZ - 4.2), (CX + 4.2, 67.4, CZ + 4.2), 'glow', faces=('up',), uv={'up': [0, 0, 16, 16]},
         tile=False)
 
@@ -285,7 +278,7 @@ def build():
         rx = CX + sgn * 19.0
         prism('y', (rx, 0, CZ), 2.8, 63.0, 71.0, 'pipe', n=8)
         prism('y', (rx, 0, CZ), 3.6, 66.0, 67.6, 'hoop', n=8, awin=(0, 16))
-        prism('y', (rx, 0, CZ), 3.2, 70.4, 72.0, 'brass', n=8, awin=(0, 16))
+        prism('y', (rx, 0, CZ), 3.2, 70.4, 72.0, 'hoop', n=8, awin=(0, 16))
         fx0, fx1 = (rx, CX - 6.0) if sgn < 0 else (CX + 6.0, rx)
         prism('x', (0, 68.4, CZ), 1.7, fx0, fx1, 'pipe_h', n=8)
         mid = (fx0 + fx1) / 2
@@ -303,7 +296,7 @@ def build():
             prism('x', (0, y, CZ), 1.5, sx0, sx1, 'pipe_h', n=8)
 
     for x in (-16.4, 32.4):  # a valve wheel on the front of each riser
-        box((x - 0.5, 37.0, 20.6), (x + 0.5, 38.0, 21.9), 'brass')
+        box((x - 0.5, 37.0, 20.6), (x + 0.5, 38.0, 21.9), 'hoop')
         box((x - 3.2, 34.8, 20.15), (x + 3.2, 41.2, 20.6), 'wheel', faces=('north',), uv={'north': [0, 0, 16, 16]},
             opaque=False, tile=False)
 
