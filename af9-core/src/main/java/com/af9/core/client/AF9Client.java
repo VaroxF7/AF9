@@ -2,6 +2,7 @@ package com.af9.core.client;
 
 import com.af9.core.AF9Core;
 import com.af9.core.client.render.EcrwArmRender;
+import com.af9.core.client.render.HearthTurntableRender;
 import com.af9.core.client.render.FiltrationBasinRender;
 import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
@@ -46,6 +47,7 @@ public final class AF9Client {
         SpaceElevatorRender.register();
         LaserEngraverRender.register();
         EcrwArmRender.register();
+        HearthTurntableRender.register();
         FiltrationBasinRender.register();
         // the placeable buckets tint their content layer with the fluid's colour
         FMLJavaModLoadingContext.get().getModEventBus()

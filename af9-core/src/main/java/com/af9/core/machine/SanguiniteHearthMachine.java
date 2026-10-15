@@ -37,7 +37,7 @@ import net.minecraft.core.Direction;
  * stays hot and self-starts; a parallel hatch multiplies the molten prints; batch mode folds overclocked runs.
  * Coolant (supercooled fluids, Coolant Hatches) is a recipe input and shows as its own JEI slot.
  */
-public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachine {
+public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachine implements IHearthMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             SanguiniteHearthMachine.class, CoilWorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
@@ -72,6 +72,16 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
     private static final int VERTEILER_CHECK = 100;
 
     private boolean verteilerBuilt;
+
+    @Override
+    public boolean hearthFormed() {
+        return isFormed();
+    }
+
+    @Override
+    public boolean hearthTurning() {
+        return isFormed() && getRecipeLogic().isWorking();
+    }
 
     /** Hearth heat, K. */
     @Persisted

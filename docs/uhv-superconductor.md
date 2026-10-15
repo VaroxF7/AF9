@@ -32,6 +32,8 @@ apart** from the base on the controller's left) takes the same hatches (shared m
 its front) is plain casing, so no hatch covers it. Built whole (no gap in its 30 blocks) it gives a bonus: **preheat twice
 as fast** and **25% less readiness heater draw** (`hasVerteilerhaus`, checked every 5 s). Leave it out and nothing else
 changes.
+Inside the air chamber two **rotary hearth turntables** (spoked discs with a segmented rim and ember slots) turn against
+each other while a recipe runs and coast to a stop (`HearthTurntableRender`, render-only: no part of the pattern).
 The controller is a refitted RHF controller (assembler, UHV: RHF controller + UHV hull + field generators + pumps
 under a coolant loop). What makes it its own machine is heat (`SanguiniteHearthMachine`):
 
@@ -70,7 +72,7 @@ under a coolant loop). What makes it its own machine is heat (`SanguiniteHearthM
 
 ## Files
 
-- Hearth: `af9-core/src/main/java/com/af9/core/machine/SanguiniteHearthMachine.java` (heat, preheat, `HEARTH_GATE`), JEI in `machine/SanguiniteHearthRecipeUI.java`, Jade in `compat/jade/AF9MachineProvider`
+- Hearth: `af9-core/src/main/java/com/af9/core/machine/SanguiniteHearthMachine.java` (heat, preheat, `HEARTH_GATE`, Verteilerhaus bonus), turntables in `client/render/HearthTurntableRender.java`, casings by `tools/textures/hearth.py`, JEI in `machine/SanguiniteHearthRecipeUI.java`, Jade in `compat/jade/AF9MachineProvider`
 - Structure + type: `kubejs/startup_scripts/gtceu/sanguinite_hearth.js` (RHF copy, `sanguinite_hearth` type 9/0/2/1, Coolant Hatches, 9 tooltips)
 - Materials: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (`uhvSuperconductor`, no blast/components)
 - Mission: `af9-core/src/main/java/com/af9/core/elevator/PlanetCatalog.java` (planet 9, gas 8)

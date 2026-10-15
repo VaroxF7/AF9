@@ -19,6 +19,7 @@
 //     Particle Accelerator); helium boosts the print through normal fluid hatches (fluid_in_1).
 
 const $SanguiniteHearthMachine = Java.loadClass('com.af9.core.machine.SanguiniteHearthMachine')
+const $HearthModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $HearthCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
@@ -175,6 +176,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('#', Predicates.any())
             .build()
         })
-        .workableCasingModel('gtceu:block/casings/gcym/high_temperature_smelting_casing',
-            'gtceu:block/multiblock/sanguinite_hearth')
+        // the controller: high-temperature casing with Volcanus' face, and the rotary hearth floors (two turntables in
+        // the air chamber, 7 slices behind the controller, turning while it smelts: af9-core HearthTurntableRender)
+        .model($HearthModels.workableCasingWithHearthTurntable('gtceu:block/casings/gcym/high_temperature_smelting_casing',
+            'gtceu:block/multiblock/sanguinite_hearth', 7))
+        .hasBER(true)
 })
