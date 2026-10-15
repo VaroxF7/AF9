@@ -219,38 +219,29 @@ def build():
         prism('y', (CX + 21.0 * math.cos(ang), 0, CZ + 21.0 * math.sin(ang)), 1.4, 29.0, 35.0, 'hoop', n=8,
               awin=(0, 16))
 
-    # ---- the door on the front: plating round the window, a frame, the window (the glow parts), bolts, hinges, handle
-    for (a, b) in (((-8, 39, -0.6), (24, 45, 2.5)), ((-8, 19, -0.6), (24, 25, 2.5)),
-                   ((-8, 25, -0.6), (-1.5, 39, 2.5)), ((17.5, 25, -0.6), (24, 39, 2.5))):
-        box(a, b, 'plate')
+    # ---- the door on the front: a riveted double door in a frame, strap hinges, pull bars, a small peephole
+    box((-8, 19, -0.6), (24, 45, 2.5), 'plate')
     box((-9.2, 18, -1.0), (25.2, 20, 2.5), 'hoop')
     box((-9.2, 44, -1.0), (25.2, 46, 2.5), 'hoop', vwin=(0, 16))
     box((-9.2, 20, -1.0), (-8, 44, 2.5), 'hoop')
     box((24, 20, -1.0), (25.2, 44, 2.5), 'hoop')
-    for (a, b) in (((-4.5, 39, -1.8), (20.5, 41.5, 0.4)), ((-4.5, 22.5, -1.8), (20.5, 25, 0.4)),
-                   ((-4.5, 25, -1.8), (-1.5, 39, 0.4)), ((17.5, 25, -1.8), (20.5, 39, 0.4))):
-        box(a, b, 'hoop', vwin=(0, 16))
-    bbox = ((-1.5, 25), (17.5, 39))
-    for (a, b) in (((-1.5, 28), (17.5, 36)), ((1.5, 25), (14.5, 28)), ((1.5, 36), (14.5, 39))):
-        box((a[0], a[1], 0.4), (b[0], b[1], 0.5), 'glow', faces=('north',), uv={'north': window_uv(bbox, a, b)},
-            tile=False)
-    for (a, b) in (((-1.5, 25), (1.5, 28)), ((14.5, 25), (17.5, 28)), ((-1.5, 36), (1.5, 39)),
-                   ((14.5, 36), (17.5, 39))):
-        box((a[0], a[1], 0.3), (b[0], b[1], 0.5), 'hoop', faces=('north',))
-    for y in (21.2,):
-        for d in (-12, -6, 0, 6, 12):
-            box((CX + d - 0.8, y - 0.8, -1.4), (CX + d + 0.8, y + 0.8, -0.6), 'rivet', uv={f: [0, 0, 16, 16] for f in FACES},
-                tile=False)
-    for y in (28.0, 36.0):
-        for x in (-6.2, 22.2):
-            box((x - 0.8, y - 0.8, -1.4), (x + 0.8, y + 0.8, -0.6), 'rivet', uv={f: [0, 0, 16, 16] for f in FACES},
-                tile=False)
-    for y0 in (20.5, 36.5):
-        prism('y', (-8.8, 0, -1.0), 1.3, y0, y0 + 7.0, 'hoop', n=8, awin=(0, 16))
-        box((-8.4, y0 + 1.5, -1.5), (6.0, y0 + 4.5, -0.6), 'hoop', vwin=(0, 16))
-    box((21.5, 28, -2.6), (23.2, 36, -1.6), 'hoop', vwin=(0, 16))
-    for y in (28.0, 34.8):
-        box((21.9, y, -1.7), (22.8, y + 1.2, -0.6), 'hoop')
+    box((7.2, 20, -1.1), (8.8, 44, -0.6), 'hoop')  # where the leaves meet
+    for (y0, y1) in ((21.0, 24.5), (39.5, 43.0)):  # a strap across each leaf, riveted
+        box((-8.4, y0, -1.5), (6.6, y1, -0.6), 'hoop', vwin=(0, 16))
+        box((9.4, y0, -1.5), (24.4, y1, -0.6), 'hoop', vwin=(0, 16))
+        for x in (-5.5, -0.5, 4.5, 11.5, 16.5, 21.5):
+            box((x - 0.8, (y0 + y1) / 2 - 0.8, -1.9), (x + 0.8, (y0 + y1) / 2 + 0.8, -1.5), 'rivet',
+                uv={f: [0, 0, 16, 16] for f in FACES}, tile=False)
+        prism('y', (-8.8, 0, -1.0), 1.3, y0 - 1.0, y1 + 1.0, 'hoop', n=8, awin=(0, 16))
+        prism('y', (24.8, 0, -1.0), 1.3, y0 - 1.0, y1 + 1.0, 'hoop', n=8, awin=(0, 16))
+    for x in (4.4, 10.4):  # pull bars either side of the seam
+        box((x, 28, -2.5), (x + 1.2, 36, -1.7), 'hoop', vwin=(0, 16))
+        for y in (28.0, 34.8):
+            box((x + 0.1, y, -1.8), (x + 1.1, y + 1.2, -0.6), 'hoop')
+    for (a, b) in (((3, 38.4, -1.3), (13, 39.5, -0.6)), ((3, 35.5, -1.3), (13, 36.6, -0.6)),
+                   ((3, 36.6, -1.3), (4.2, 38.4, -0.6)), ((11.8, 36.6, -1.3), (13, 38.4, -0.6))):
+        box(a, b, 'hoop', vwin=(0, 16))  # the peephole's frame, with the fire in a slit
+    box((4.2, 36.6, -0.7), (11.8, 38.4, -0.65), 'glow', faces=('north',), uv={'north': [0, 5, 16, 11]}, tile=False)
 
     # ---- gauges on the front columns
     for x in (-12.9, 28.9):
