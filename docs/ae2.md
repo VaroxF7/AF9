@@ -51,7 +51,8 @@ calculation processor (logic for 1k) + bulk secondary + quartz glass, assembler 
 | `cell_component_256k` | 3x 64k | 4x sky dust | `micro_processor_computer` (EV) |
 
 - **RAM**: every component also takes `gtceu:ram_chip`: 8x (1k), 16x (4k), 32x (16k), 64x (64k),
-  128x (256k). Each step eats 3x the previous component, so the RAM compounds: one 256k component
+  128x (256k). 64k and 256k also take NAND memory chips (16x, 32x) and micro processors (4x, 8x);
+  the 256k drops its quartz glass, the assembler's nine slots are full. Each step eats 3x the previous component, so the RAM compounds: one 256k component
   costs about 1,700 RAM chips in total. The counts sit in the `ram(...)` calls of `ae2_components.js`.
 - **Crafting storages**: `crafting_unit` + component + the same tier circuit as the component.
 - **Shells**: `crafting_unit` (4x steel plate + logic + calculation),

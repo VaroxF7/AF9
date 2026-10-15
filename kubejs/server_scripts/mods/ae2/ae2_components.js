@@ -46,9 +46,11 @@ ServerEvents.recipes(event => {
             circuit: 'gtceu:micro_processor', processor: 'ae2:calculation_processor', ticks: 300 },
         { ram: ram('gtceu:ram_chip', 32), out: 'ae2:cell_component_16k', from: 'ae2:cell_component_4k', secondary: '4x minecraft:glowstone_dust',
             circuit: 'gtceu:advanced_integrated_circuit', processor: 'ae2:calculation_processor', ticks: 400, eut: HV },
-        { ram: ram('gtceu:ram_chip', 64), out: 'ae2:cell_component_64k', from: 'ae2:cell_component_16k', secondary: '4x minecraft:glowstone_dust',
+        { ram: ram('gtceu:ram_chip', 64).concat(['16x gtceu:nand_memory_chip', '4x gtceu:micro_processor']),
+            out: 'ae2:cell_component_64k', from: 'ae2:cell_component_16k', secondary: '4x minecraft:glowstone_dust',
             circuit: 'gtceu:micro_processor_assembly', processor: 'ae2:calculation_processor', ticks: 500, eut: HV },
-        { ram: ram('gtceu:ram_chip', 128), out: 'ae2:cell_component_256k', from: 'ae2:cell_component_64k', secondary: '4x ae2:sky_dust',
+        { ram: ram('gtceu:ram_chip', 128).concat(['32x gtceu:nand_memory_chip', '8x gtceu:micro_processor']),
+            noGlass: true, out: 'ae2:cell_component_256k', from: 'ae2:cell_component_64k', secondary: '4x ae2:sky_dust',
             circuit: 'gtceu:micro_processor_computer', processor: 'ae2:calculation_processor', ticks: 600, eut: EV }
     ]
     components.forEach(spec => {
@@ -56,7 +58,7 @@ ServerEvents.recipes(event => {
         const inputs = (spec.from === null
             ? [spec.processor, '4x ae2:certus_quartz_crystal', spec.secondary, spec.circuit]
             : [`3x ${spec.from}`, spec.processor, spec.secondary, 'ae2:quartz_glass', spec.circuit]
-        ).concat(spec.ram)
+        ).filter(i => !(spec.noGlass && i === 'ae2:quartz_glass')).concat(spec.ram)  // 256k: 9 slots are full without the glass
         const shortId = spec.out.split(':')[1]
         const build = (recipe, fluid) => {
             recipe.itemInputs(inputs).inputFluids(fluid).itemOutputs(spec.out)
