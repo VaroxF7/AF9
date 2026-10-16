@@ -28,6 +28,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.model.data.ModelData;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -107,6 +108,8 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         RingDraw.clear();
     }
 
+    private static final int RING_VIEW_DISTANCE = 256;
+
     @Override
     public DynamicRenderType<IMultiController, StructureSkinRender> getType() {
         return TYPE;
@@ -114,7 +117,15 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
 
     @Override
     public int getViewDistance() {
-        return 112;
+        return RING_VIEW_DISTANCE;
+    }
+
+    /** The tower's rings are seen from far off (the tower is 130 blocks tall, the big ring 72 across); the rest from 112. */
+    @Override
+    public boolean shouldRender(IMultiController machine, Vec3 cameraPos) {
+        StructureSkin skin = StructureSkins.skinOf(machine.self().getDefinition());
+        int distance = skin != null && skin.rings() != null ? RING_VIEW_DISTANCE : 112;
+        return Vec3.atCenterOf(machine.self().getPos()).closerThan(cameraPos, distance);
     }
 
     @Override

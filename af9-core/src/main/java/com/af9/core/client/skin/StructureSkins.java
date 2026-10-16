@@ -83,7 +83,7 @@ public final class StructureSkins {
     private static final Map<Long, Integer> LENGTHS = new HashMap<>();
 
     /** How many chunks round the player are searched for controllers, and how often (ticks). */
-    private static final int SCAN_RADIUS = 8, SCAN_PERIOD = 10;
+    private static final int SCAN_RADIUS = 16, SCAN_PERIOD = 10;
 
     /** Controller position (packed) -> the positions it hides. Client thread only. */
     private static final Map<Long, long[]> TRACKED = new HashMap<>();
