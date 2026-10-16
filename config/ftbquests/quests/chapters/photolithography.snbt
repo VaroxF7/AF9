@@ -2242,6 +2242,8 @@
 			dependencies: [
 				"0266685DD6B82444"
 				"792D926F549B11A8"
+				"410927F303BC95ED"
+				"3B27E6674C9E25D5"
 			]
 			description: [
 				"{af9.quest.litho.n7.1}"

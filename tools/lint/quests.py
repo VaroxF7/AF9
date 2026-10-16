@@ -305,6 +305,12 @@ for fname, pts in positions.items():
                 report('WARN', 'Q4', f'{pts[a][2]} and {pts[b][2]} are on the same spot or touch ({pts[a][0]},{pts[a][1]})', fname)
 
 # dependencies
+# ids of ATM9's own quests (chapters that are not in this repo, e.g. sadad) that an AF9 quest may depend on
+KNOWN_BASE_IDS = set()
+_known = os.path.join(DATA, 'atm9_quest_ids.txt')
+if os.path.exists(_known):
+    with open(_known, encoding='utf-8') as f:
+        KNOWN_BASE_IDS = {ln.split('#')[0].strip() for ln in f if ln.split('#')[0].strip()}
 for qid, q in quest_by_id.items():
     deps = q.get('dependencies', [])
     if isinstance(deps, str):
@@ -316,7 +322,7 @@ for qid, q in quest_by_id.items():
         elif d not in quest_by_id:
             # a dependency on a link is also allowed
             linked = any(l.get('id') == d for ch in chapters.values() for l in ch.get('quest_links', []))
-            if not linked:
+            if not linked and d not in KNOWN_BASE_IDS:
                 if quest_chapter[qid] in af9_chapters:
                     report('ERROR', 'Q3', f'quest {qid} ({q.get("title", "")}) depends on {d}, which does not exist', quest_chapter[qid])
                 else:

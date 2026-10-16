@@ -1,0 +1,4 @@
+# Quest ids of the ATM9 base pack (chapters not in this repo, e.g. sadad) that AF9 quests may depend on.
+# Q3 accepts these as existing. One id per line; add the chapter/title after a #.
+410927F303BC95ED   # ATM9 sadad chapter (in-game dependency of litho n7)
+3B27E6674C9E25D5   # ATM9 sadad chapter (in-game dependency of litho n7)
