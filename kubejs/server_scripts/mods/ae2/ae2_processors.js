@@ -6,7 +6,7 @@
 //      -> AE2 printed circuit, all three at MV in a cleanroom, 80 s each.
 //   3. Carrier (cutter): a silicon wafer dices straight into printed silicon.
 //   4. Final assembly (assembler): printed + printed silicon + redstone + tier circuit
-//      (logic: good integrated MV; calculation: advanced integrated HV; engineering: micro computer EV).
+//      (good integrated for logic and engineering, micro processor for calculation: every processor takes an MV circuit).
 //
 // The AE2 presses are out of the chain (the Mysterious Cube still drops one random
 // press as a souvenir; meteorites still give sky stone). The inscriber
@@ -16,8 +16,6 @@ ServerEvents.recipes(event => {
     if (!Platform.isLoaded('ae2')) return
     const VA = GTValues.VA
     const MV = VA[GTValues.MV]
-    const HV = VA[GTValues.HV]
-    const EV = VA[GTValues.EV]
     const clean = recipe => recipe.cleanroom(CleanroomType.CLEANROOM)
 
     // ---- Removed vanilla paths: inscriber prints and processors ----
@@ -69,22 +67,20 @@ ServerEvents.recipes(event => {
         })
     })
 
-    // ---- Final assembly: printed + carrier + redstone + tier circuit on liquid certus quartz (assembler) ----
+    // ---- Final assembly: printed + carrier + redstone + MV circuit on liquid certus quartz (assembler, MV) ----
     // The assembler takes one fluid, so the solder went into the packaging above and this step runs on liquid
-    // certus quartz alone (the same foil and wire again). Logic MV (good integrated), calculation HV (advanced
-    // integrated), engineering EV (micro processor computer).
-    // [processor, circuit, eut, ticks, cleanroom]
+    // certus quartz alone (the same foil and wire again). Every processor takes an MV circuit: good integrated for
+    // logic and engineering, micro processor for calculation.
     const processors = [
-        ['logic_processor', 'gtceu:good_integrated_circuit', MV, 200, false],
-        ['calculation_processor', 'gtceu:advanced_integrated_circuit', HV, 300, false],
-        ['engineering_processor', 'gtceu:micro_processor_computer', EV, 400, false]
+        ['logic_processor', 'gtceu:good_integrated_circuit', 200],
+        ['calculation_processor', 'gtceu:micro_processor', 300],
+        ['engineering_processor', 'gtceu:good_integrated_circuit', 400]
     ]
-    processors.forEach(([out, circuit, eut, ticks, cr]) => {
-        const r = event.recipes.gtceu.assembler(`af9:ae2_${out}`)
+    processors.forEach(([out, circuit, ticks]) => {
+        event.recipes.gtceu.assembler(`af9:ae2_${out}`)
             .itemInputs(`ae2:printed_${out}`, 'ae2:printed_silicon', 'minecraft:redstone', circuit,
                 '2x gtceu:redstone_foil', '2x gtceu:fine_electrum_wire')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
-            .itemOutputs(`ae2:${out}`).duration(ticks).EUt(eut)
-        if (cr) clean(r)
+            .itemOutputs(`ae2:${out}`).duration(ticks).EUt(MV)
     })
 })
