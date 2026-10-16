@@ -19,3 +19,16 @@ The Industrial Cutting Machine copies the look of the cutting multiblock of GTNH
 <https://github.com/GTNewHorizons/GT5-Unofficial>): purple plated casings, frame boxes, a glass window and an animated saw
 blade. The casing texture, the controller panel (`tools/textures/cutter.py`) and the blade renderer
 (`SawBladeRender`) are written from scratch for AF9 after that look; no GT5-Unofficial file is copied.
+## Large / Extreme Combustion Engine (block textures)
+
+The Large and Extreme Combustion Engines wear GTNH's look. Taken from GT5-Unofficial (LGPL-3.0 or later), unchanged unless noted,
+into `kubejs/assets/gtceu/textures/block/` (they replace GTCEu's textures of the same name):
+
+| af9 texture | GT5-Unofficial source (`textures/blocks/iconsets/`) | Changes |
+|---|---|---|
+| `casings/solid/machine_casing_stable_titanium.png` | `MACHINE_CASING_STABLE_TITANIUM.png` | none (plain, no connected textures) |
+| `casings/gearbox/machine_casing_gearbox_titanium.png` | `MACHINE_CASING_GEARBOX_TITANIUM.png` | none |
+| `casings/pipe/machine_casing_engine_intake.png`, `..._extreme_engine_intake.png` | `MACHINE_CASING_ENGINE_INTAKE.png`, `MACHINE_CASING_EXTREME_ENGINE_INTAKE.png` | none |
+| `casings/pipe/machine_casing_*engine_intake_active.png` (+ `.mcmeta`) | same | 4-frame animation, a brightness pulse |
+| `multiblock/generator/large_combustion_engine/overlay_front*.png` | `OVERLAY_FRONT_DIESEL_ENGINE[_ACTIVE][_GLOW].png` | the paused face is the idle one; no animation |
+| `multiblock/generator/extreme_combustion_engine/overlay_front*.png` | `OVERLAY_FRONT_EXTREME_DIESEL_ENGINE[_ACTIVE][_GLOW].png` | as above |
