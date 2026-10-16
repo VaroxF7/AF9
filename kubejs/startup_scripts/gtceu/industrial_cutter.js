@@ -1,14 +1,15 @@
-// AF9 - Industrial Cutting Machine: the Cutting Machine's recipes (gtceu:cutter) in a walk-in housing, copied after the
-// cutting multiblock of GTNH 2.9: purple plated casings, steel frame boxes on the roof, a glass window and, behind it, a
-// big saw blade that spins while a recipe runs (af9-core SawBladeRender; the casing texture and the controller's
-// front panel are original pixel art, tools/textures/cutter.py). The look follows GT5-Unofficial (LGPL-3.0, see
-// CREDITS-textures.md); the geometry is written from scratch. Controller logic: af9-core IndustrialCutterMachine.
+// AF9 - Industrial Cutting Machine: GTNH's Industrial Cutting Machine (GT5-Unofficial, MTEIndustrialCuttingMachine,
+// LGPL-3.0; credits in CREDITS-textures.md, licence in licenses/) copied into GTCEu: the same 9 x 4 x 3 structure with
+// its purple Cutting Factory Frame casings, frame boxes (tungsten carbide here for GTNH's tantalum carbide), a glass
+// window in the front and the back, and in the middle the animated saw blade with the original sprites and spin-up
+// (af9-core SawBladeRender). It runs the Cutting Machine's recipes (gtceu:cutter). Controller logic: af9-core
+// IndustrialCutterMachine.
 //
-// 7 wide, 5 high, 5 deep. Rows bottom -> top, aisles back -> front (the controller's last). The chamber is the 5 x 2 x 3
-// air block behind the window; the blade stands in its middle slice, 2 behind the controller, its axis along the
-// front-back line and its centre on the floor's top (1 block above the controller's base), so only its upper half shows.
-// Parts take any casing of the housing, with a maximum only, never a required count (setMaxGlobalLimited(max,
-// preview count)).
+// Rows bottom -> top, aisles back -> front (the controller's last); GTNH's slices, reversed. The controller sits in the
+// front, third column of the shape, one row above the floor; the blade is centred 2.5 columns along from it, 1 block
+// behind it, at the floor's top (af9-core renders it: back 1, side 2.5, up 0, 3 x 3 blocks). The hatches go in the
+// casings 'D' (maximums only, never a required count: setMaxGlobalLimited(max, preview count)). GTNH's black steel
+// sheet metal is a steel frame here. A space in GTNH's shape is anything ('#').
 
 const $IndustrialCutterMachine = Java.loadClass('com.af9.core.machine.IndustrialCutterMachine')
 const $CutterModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
@@ -30,27 +31,25 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .appearanceBlock(() => Block.getBlock('af9:cutter_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.industrial_cutting_machine.tooltip', 3))
         .pattern(definition => FactoryBlockPattern.start()
-            .aisle('CCCCCCC', 'CCCCCCC', 'CCCCCCC', 'CCCCCCC', '#FFFFF#')
-            .aisle('CCCCCCC', 'CAAAAAC', 'CAAAAAC', 'CCCCCCC', '#######')
-            .aisle('CCCCCCC', 'CAAAAAC', 'CAAAAAC', 'CCCCCCC', '#######')
-            .aisle('CCCCCCC', 'CAAAAAC', 'CAAAAAC', 'CCCCCCC', '#######')
-            .aisle('CCCKCCC', 'CGGGGGC', 'CGGGGGC', 'CCCCCCC', '#FFFFF#')
+            .aisle('#DDDDDDDB', '#DDAAAADB', '#DDAAAADB', '##DBBBBB#')
+            .aisle('CDCCCCCC#', 'CDB####C#', 'CD#####C#', 'BCCDDDDD#')
+            .aisle('#DDDDDDDB', '#DKAAAADB', '#DDAAAADB', '##DBBBBB#')
             .where('K', Predicates.controller(Predicates.blocks(definition.get())))
-            .where('G', Predicates.blocks('gtceu:laminated_glass'))
-            .where('F', Predicates.blocks('gtceu:steel_frame'))
-            .where('A', Predicates.air())
-            .where('C', Predicates.blocks('af9:cutter_casing')
+            .where('A', Predicates.blocks('gtceu:laminated_glass'))
+            .where('B', Predicates.blocks('gtceu:tungsten_carbide_frame'))
+            .where('C', Predicates.blocks('gtceu:steel_frame'))
+            .where('D', Predicates.blocks('af9:cutter_casing')
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 0))
+                .or(Predicates.abilities(PartAbility.MUFFLER).setMaxGlobalLimited(1, 0))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('#', Predicates.any())
             .build())
-        // purple plates with the controller's panel on the front, and the saw blade: 2 behind the controller, its
-        // centre 1 above the controller's base (the floor's top), radius 1.85 (af9-core SawBladeRender)
+        // Cutting Factory Frame casings with GTNH's controller face, and the saw blade (af9-core SawBladeRender)
         .model($CutterModels.workableCasingWithSawBlade('af9:block/cutter_casing',
-            'gtceu:block/multiblock/industrial_cutter', 2, 1, 1.85))
+            'gtceu:block/multiblock/industrial_cutter', 1, 2.5, 0, 3))
         .hasBER(true)
 })

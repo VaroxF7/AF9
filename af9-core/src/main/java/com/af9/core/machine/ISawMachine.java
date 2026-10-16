@@ -13,4 +13,7 @@ public interface ISawMachine extends IMachineFeature {
 
     /** Whether the structure is formed and a recipe is running: the blade spins then. */
     boolean sawSpinning();
+
+    /** Which of the four blade textures to draw (0 to 3, GTNH's sawblade tiers), from the energy hatch's tier. */
+    int sawTier();
 }

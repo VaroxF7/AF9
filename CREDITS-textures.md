@@ -15,10 +15,19 @@ That project credits Jimbno's UU-Tex pack and other texture artists for parts of
 
 ## Industrial Cutting Machine
 
-The Industrial Cutting Machine copies the look of the cutting multiblock of GTNH 2.9 (GT5-Unofficial, LGPL-3.0 or later,
-<https://github.com/GTNewHorizons/GT5-Unofficial>): purple plated casings, frame boxes, a glass window and an animated saw
-blade. The casing texture, the controller panel (`tools/textures/cutter.py`) and the blade renderer
-(`SawBladeRender`) are written from scratch for AF9 after that look; no GT5-Unofficial file is copied.
+The Industrial Cutting Machine is a copy of GTNH's (GT5-Unofficial `MTEIndustrialCuttingMachine`, LGPL-3.0 or later,
+<https://github.com/GTNewHorizons/GT5-Unofficial>; licence text in `licenses/GT5-Unofficial-LGPL-3.0.txt`). Copied, unchanged:
+
+| af9 file | GT5-Unofficial source (`src/main/resources/assets/`) |
+|---|---|
+| `af9-core/.../textures/entity/cutter/cutter_t1..t4.png` (saw blade, four blur frames each) | `gregtech/textures/model/cutter_t1..t4.png` |
+| `af9-core/.../textures/block/cutter_casing.png` (Cutting Factory Frame) | `gregtech/textures/blocks/iconsets/CUTTING_FACTORY_FRAME.png` |
+| `kubejs/assets/gtceu/textures/block/multiblock/industrial_cutter/overlay_front*.png` (+ `.mcmeta`, controller face) | `miscutils/textures/blocks/iconsets/controllerFaces/industrialCuttingMachine{,Active,Glow,ActiveGlow}.png` (the paused face reuses the idle one) |
+
+The structure (9 x 4 x 3) and the blade's size, position, speed, spin-up and motion blur are taken from the original;
+`SawBladeRender` is a port of its `renderTESR` to 1.20 (the GL clip plane under the floor is a hand-made polygon clip).
+GTNH's sawblade items, tiers and recipe changes are not ported: the blade texture follows the energy hatch tier instead.
+
 ## Large / Extreme Combustion Engine (block textures)
 
 The Large and Extreme Combustion Engines wear GTNH's look. Taken from GT5-Unofficial (LGPL-3.0 or later), unchanged unless noted,

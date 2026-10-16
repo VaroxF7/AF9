@@ -180,19 +180,17 @@ public final class AF9MachineModels {
     }
 
     /**
-     * GT's workable casing model plus the Industrial Cutting Machine's saw blade ({@link SawBladeRender}): a big disc
-     * standing in the chamber behind the front window, spinning while a recipe runs. The machine must implement
-     * {@link ISawMachine} and have a block entity renderer ({@code .hasBER(true)}).
-     *
-     * @param back   blade axis behind the controller (blocks)
-     * @param up     blade centre above the controller block's floor (blocks)
-     * @param radius blade radius (blocks)
+     * GT's workable casing model plus the Industrial Cutting Machine's saw blade ({@link SawBladeRender}): a flat
+     * blade standing in the chamber behind the front window, spinning while a recipe runs. The machine must implement
+     * {@link ISawMachine} and have a block entity renderer ({@code .hasBER(true)}). Offsets are in blocks from the
+     * controller block's origin: {@code back} behind it, {@code side} along the controller's left (the pattern's
+     * column direction), {@code up} above its base.
      */
     public static MachineBuilder.ModelInitializer workableCasingWithSawBlade(ResourceLocation casing,
                                                                              ResourceLocation overlay, float back,
-                                                                             float up, float radius) {
+                                                                             float side, float up, float size) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
-                .andThen(model -> model.addDynamicRenderer(() -> SawBladeRender.create(back, up, radius)));
+                .andThen(model -> model.addDynamicRenderer(() -> SawBladeRender.create(back, side, up, size)));
     }
 
     /**
