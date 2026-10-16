@@ -230,6 +230,16 @@ public final class StructureSkins {
             untrack(origin.asLong());
             return;
         }
+        // the rings are drawn in place of their blocks only once the whole tower stands
+        Boolean built = ringsBuilt(level, controller, skin);
+        if (built == null) {
+            // a part of it is out of the loaded chunks: leave things as they are
+            return;
+        }
+        if (!built) {
+            untrack(origin.asLong());
+            return;
+        }
         for (OrbitalLithographyMachine.Band band : skin.rings().bands()) {
             int reach = band.radius() + 1, mid = band.d0() + band.t() / 2;
             for (int d = band.d0(); d < band.d0() + band.t(); d++) {
@@ -257,6 +267,29 @@ public final class StructureSkins {
         if (before != null && Arrays.equals(before, now)) return;
         publish();
         dirty(before, now);
+    }
+
+    /**
+     * Whether the tower is standing, by samples: the needle's tip, each ring's collar and beam on the four sides and
+     * the ring's band at the four points of the compass. {@code null} when a sample lies in a chunk that is not loaded.
+     */
+    private static Boolean ringsBuilt(ClientLevel level, MultiblockControllerMachine controller, StructureSkin skin) {
+        List<BlockPos> samples = new ArrayList<>();
+        int half = skin.rings().towerHalf();
+        samples.add(at(controller, 0, 0, OrbitalLithographyMachine.DEPTH_MK2 - 6));
+        for (OrbitalLithographyMachine.Band band : skin.rings().bands()) {
+            int mid = band.d0() + band.t() / 2, mean = band.radius() - band.width() / 2;
+            for (int[] side : new int[][] { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) {
+                samples.add(at(controller, side[0] * half, side[1] * half, mid));
+                samples.add(at(controller, side[0] * (half + 1), side[1] * (half + 1), mid));
+                samples.add(at(controller, side[0] * mean, side[1] * mean, band.d0()));
+            }
+        }
+        for (BlockPos pos : samples) {
+            if (!level.hasChunkAt(pos)) return null;
+            if (level.getBlockState(pos).isAir()) return false;
+        }
+        return true;
     }
 
     private static void untrack(long controller) {

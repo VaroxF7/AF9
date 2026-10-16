@@ -45,6 +45,8 @@ final class RingDraw {
     /** The speed of a ring that idles, against one that works (the rings never stop while the station is formed). */
     private static final float IDLE_SPEED = 0.35F;
     private static final int IDLE_COLOR = 0x6FA8FF;
+    /** How far the raised panels stand off the ring's body: clear of the depth buffer's resolution at a distance. */
+    private static final float RAISE = 0.12F;
 
     /** Per controller: each ring's angle (radians), the speed factor, the time of the last frame (client thread). */
     private static final Map<Long, State> STATES = new HashMap<>();
@@ -124,19 +126,20 @@ final class RingDraw {
             float a0 = k * step, a1 = a0 + step;
             // the body, dark inside and on the underside, grey outside
             sector(c, pose, overlay, light, a0, a1, inner, outer, -half, half, BODY, DARK, PANEL, BODY, light);
-            // the raised white panels: on the outer face, and across the top
+            // the raised white panels: on the outer face, and across the top. Every face of one lies a clear 0.12 off
+            // the body's (and none of them is coplanar with it), or the depth buffer shimmers between the two.
             float gap = step * 0.06F;
-            sector(c, pose, overlay, light, a0 + gap, a1 - gap, inner + 0.4F, outer + 0.05F, -half + 0.12F,
-                    half - 0.12F, PANEL, PANEL, PANEL, PANEL, light);
-            sector(c, pose, overlay, light, a0 + gap, a1 - gap, inner + 0.4F, outer - 0.4F, -half, half + 0.05F, PANEL,
-                    PANEL, PANEL, PANEL, light);
+            sector(c, pose, overlay, light, a0 + gap, a1 - gap, inner + 0.4F, outer + RAISE, -half + 0.3F,
+                    half - 0.3F, PANEL, PANEL, PANEL, PANEL, light);
+            sector(c, pose, overlay, light, a0 + gap, a1 - gap, inner + 0.4F, outer - 0.4F, -half + 0.3F, half + RAISE,
+                    PANEL, PANEL, PANEL, PANEL, light);
             if (k % MODULE_EVERY == 0) {
                 // a module: a raised block with a lit window on its outer face
                 float m0 = a0 + step * 0.2F, m1 = a1 - step * 0.2F;
                 sector(c, pose, overlay, light, m0, m1, outer - 0.5F, outer + 1.3F, -half - 0.7F, half + 0.7F, BODY,
                         DARK, PANEL, DARK, light);
-                sector(c, pose, overlay, FULL_BRIGHT, m0 + step * 0.06F, m1 - step * 0.06F, outer + 1.25F,
-                        outer + 1.34F, -half - 0.3F, half + 0.3F, color, color, color, color, FULL_BRIGHT);
+                sector(c, pose, overlay, FULL_BRIGHT, m0 + step * 0.06F, m1 - step * 0.06F, outer + 1.0F,
+                        outer + 1.42F, -half - 0.3F, half + 0.3F, color, color, color, color, FULL_BRIGHT);
             }
         }
     }
