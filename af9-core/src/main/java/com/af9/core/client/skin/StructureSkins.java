@@ -260,6 +260,7 @@ public final class StructureSkins {
                 }
             }
         }
+        trackTower(level, controller, skin, origin, parts, positions);
         long[] now = positions.toLongArray();
         Arrays.sort(now);
         MACHINES.put(origin.asLong(), controller);
@@ -267,6 +268,48 @@ public final class StructureSkins {
         if (before != null && Arrays.equals(before, now)) return;
         publish();
         dirty(before, now);
+    }
+
+    /** Half width of the box searched for the tower's blocks (its fins reach 12 out of the middle). */
+    private static final int TOWER_BOX = 13;
+
+    /**
+     * The tower's own blocks hide too and are drawn as a white paneled shell ({@link TowerDraw}): every block in the
+     * tower's box that is not a machine part or a block entity, bar the beams' spokes (the plasma takes those).
+     */
+    private static void trackTower(ClientLevel level, MultiblockControllerMachine controller, StructureSkin skin,
+                                   BlockPos origin, List<BlockPos> parts, LongArrayList positions) {
+        int half = skin.rings().towerHalf();
+        int[] mids = skin.rings().bands().stream().mapToInt(band -> band.d0() + band.t() / 2).toArray();
+        Map<Long, Byte> cells = new HashMap<>();
+        Set<Long> blocked = new HashSet<>();
+        for (int back = 0; back < OrbitalLithographyMachine.DEPTH_MK2 - 4; back++) {
+            boolean beamLevel = false;
+            for (int mid : mids) beamLevel |= mid == back;
+            for (int right = -TOWER_BOX; right <= TOWER_BOX; right++) {
+                for (int up = -TOWER_BOX; up <= TOWER_BOX; up++) {
+                    BlockPos pos = at(controller, right, up, back);
+                    var state = level.getBlockState(pos);
+                    if (state.isAir()) continue;
+                    long key = TowerDraw.key(right, up, back);
+                    if (beamLevel && Math.max(Math.abs(right), Math.abs(up)) > half
+                            && (right == 0 || up == 0 || Math.abs(right) == 1 || Math.abs(up) == 1)) {
+                        continue;
+                    }
+                    if (pos.equals(origin) || parts.contains(pos) || MetaMachine.getMachine(level, pos) != null
+                            || level.getBlockEntity(pos) != null) {
+                        blocked.add(key);
+                        continue;
+                    }
+                    String id = String.valueOf(net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(
+                            state.getBlock()));
+                    cells.put(key, id.contains("coil_block") ? TowerDraw.LIGHT : id.contains("frame") ?
+                            TowerDraw.FRAME : TowerDraw.PANEL);
+                    positions.add(pos.asLong());
+                }
+            }
+        }
+        TowerDraw.update(origin.asLong(), cells, blocked);
     }
 
     /**
@@ -294,6 +337,7 @@ public final class StructureSkins {
 
     private static void untrack(long controller) {
         RingDraw.forget(controller);
+        TowerDraw.forget(controller);
         MACHINES.remove(controller);
         LENGTHS.remove(controller);
         long[] before = TRACKED.remove(controller);
@@ -339,6 +383,7 @@ public final class StructureSkins {
         TRACKED.clear();
         MACHINES.clear();
         RingDraw.clear();
+        TowerDraw.clear();
         hidden = new LongOpenHashSet();
     }
 

@@ -80,6 +80,7 @@ final class RingDraw {
         // the rings: panels and modules, entity shader, lit by the normals (the sky of the orbit is the light)
         int light = LightTexture.pack(10, 15);
         VertexConsumer solid = buffer.getBuffer(RenderType.entityCutoutNoCull(AF9RenderTypes.WHITE));
+        TowerDraw.draw(self.getPos().asLong(), solid, poseStack.last(), overlay);
         for (int i = 0; i < bands.size(); i++) {
             Band band = bands.get(i);
             poseStack.pushPose();
