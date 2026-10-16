@@ -55,7 +55,7 @@ perfect overclocks, parallel hatch). It left the Orbital Lithography Array Mk2. 
 
 Same controller, two sizes (basic 25x25 / extended tower 73 x 130 x 73), switched with a screwdriver on the controller
 between runs (af9-core `setExtended`, like the Elevator's size switch; the KubeJS pattern hands the extended one over
-with `setExtendedPattern`; the preview has a second page for the Mk2 with the tower cut out of the pattern, 29 wide, the rings are drawn by the machine once it is formed and are not in it). The extended one is a
+with `setExtendedPattern`; the preview has a second page for the Mk2 with the tower cut out of the pattern, 37 wide, the rings are drawn by the machine once it is formed and are not in it). The extended one is a
 tower (`ORBITAL_MK2_SLICES`, built from the cell functions `orbitalTowerCell` and `orbitalRingCell`, d counting levels
 below the controller), after the concept art: a hollow slab-sided body (17 x 11 above the big ring, 15 x 11 and 11 x 9
 below it, then a stepped taper) of stress-proof and non-conducting panel columns with HSS-S corner posts, ribs standing
