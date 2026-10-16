@@ -54,6 +54,8 @@ final class RingDraw {
         float[] angle;
         float factor = IDLE_SPEED;
         float last = Float.NaN;
+        /** The effects' clock: ticks, run on faster while the machine works. */
+        float phase;
         // for carrying the player: the controller block, the directions of the pattern's axes, the rings
         BlockPos origin;
         Direction right, up, back;
@@ -104,6 +106,9 @@ final class RingDraw {
                 beam(beams, mat, band, rings.towerHalf(), side, color, working, time);
             }
         }
+        // the energy core in the tower's hollow
+        float power = Mth.clamp((state.factor - IDLE_SPEED) / (1F - IDLE_SPEED), 0F, 1F);
+        CoreDraw.draw(beams, poseStack.last().pose(), color, state.phase, power);
     }
 
     /** The rings' angles now: each keeps turning from where it was, faster while the machine works. */
@@ -115,6 +120,7 @@ final class RingDraw {
         // the speed eases between idling and working
         float target = working ? 1F : IDLE_SPEED;
         state.factor += (target - state.factor) * Math.min(1F, dt * 0.03F);
+        state.phase += dt * state.factor;
         for (int i = 0; i < state.angle.length && i < bands.size(); i++) {
             state.angle[i] = (state.angle[i] + dt * bands.get(i).spin() * state.factor) % Mth.TWO_PI;
         }
