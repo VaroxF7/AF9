@@ -31,7 +31,7 @@ ServerEvents.recipes(event => {
     // a circuit past them flies nowhere. The run brings a random number of stacks between the tier's least and most
     // (af9-core SpaceMissionMachine.MIN_STACKS / MAX_STACKS), about half of them the vein's main ore; the recipe pages list the
     // ores (client side, with their ranges).
-    const ASTEROIDS = { 1: 24, 2: 12, 3: 4, 4: 8 }
+    const ASTEROIDS = { 1: 24, 2: 12, 3: 4, 4: 9 }
     expeditions.forEach(([tier, hydrogen, coolant, coolantMb, amps, seconds, drill, crate]) => {
         for (let circuit = 1; circuit <= ASTEROIDS[tier]; circuit++) {
             event.recipes.gtceu.space_mining(`af9:space_mining_mk${tier}_${circuit}`)

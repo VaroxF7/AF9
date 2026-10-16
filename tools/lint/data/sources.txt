@@ -11,6 +11,13 @@ gtceu:brannerite_dust
 gtceu:quantanium_dust
 gtceu:ceresite_dust
 gtceu:raw_ceresite
+# chronite (Ceres vein, vein_ceres.js); stellarite and the neutronite shard (the Space Elevator's exotic asteroid)
+gtceu:chronite_dust
+gtceu:raw_chronite
+gtceu:stellarite_dust
+gtceu:raw_stellarite
+gtceu:neutronite_shard_dust
+gtceu:raw_neutronite_shard
 gtceu:quantanium
 gtceu:artemite_dust
 gtceu:artemite

@@ -421,6 +421,7 @@ material gtceu:acetoxyacetophenone
 material gtceu:acetoxyphenyl_methyl_carbinol
 material gtceu:acetoxystyrene
 material gtceu:acidic_ion_exchange_resin
+material gtceu:albeme
 material gtceu:alkylate
 material gtceu:aluminised_hydrolox
 material gtceu:aluminium_chloride
@@ -431,6 +432,7 @@ material gtceu:ammonium_hexachloroiridate
 material gtceu:ammonium_hexachloroosmate
 material gtceu:ammonium_hexachloroplatinate
 material gtceu:ammonium_hexachlororuthenate
+material gtceu:ammonium_perrhenate
 material gtceu:anti_matter
 material gtceu:ares_gas
 material gtceu:arf_excimer_gas
@@ -438,9 +440,9 @@ material gtceu:arf_photoresist
 material gtceu:artemite ore
 material gtceu:asphalt
 material gtceu:azobisisobutyronitrile
+material gtceu:bacteria_culture
 material gtceu:barc
 material gtceu:bioethanol
-material gtceu:bacteria_culture
 material gtceu:boron_nitride
 material gtceu:boron_trichloride
 material gtceu:brannerite ore
@@ -449,7 +451,12 @@ material gtceu:ceranium
 material gtceu:ceresite ore
 material gtceu:chloromethane_diesel
 material gtceu:chromodynium
+material gtceu:chronite ore
+material gtceu:chronite_oxide_mix
+material gtceu:chronium
+material gtceu:chronium_alloy
 material gtceu:cobalt_iron_boron
+material gtceu:cobalt_molybdenum_supersteel
 material gtceu:concentrated_lithium_brine
 material gtceu:crude_argon
 material gtceu:crude_chlorosilanes
@@ -460,6 +467,7 @@ material gtceu:crude_neon
 material gtceu:crude_sanguinite
 material gtceu:crude_zirconium_tetrachloride
 material gtceu:cryogenic_supercooled_air
+material gtceu:cupro_beryllium
 material gtceu:decarbonated_air
 material gtceu:dense_argon
 material gtceu:dense_endion
@@ -473,6 +481,7 @@ material gtceu:dichloromethane
 material gtceu:dichlorosilane
 material gtceu:diphenyl_sulfoxide
 material gtceu:dry_air
+material gtceu:duralumin
 material gtceu:electronic_grade_silicon
 material gtceu:endion
 material gtceu:endionite
@@ -485,6 +494,7 @@ material gtceu:filter_cake
 material gtceu:fission_off_gas
 material gtceu:gold_free_liquor
 material gtceu:gst_alloy
+material gtceu:hafnitinol
 material gtceu:hafnium_tetrachloride
 material gtceu:heavy_naphtha
 material gtceu:heavy_water
@@ -535,8 +545,10 @@ material gtceu:methanesulfonyl_chloride
 material gtceu:methanesulfonyl_fluoride
 material gtceu:methyl_methacrylate
 material gtceu:molybdenum_trioxide
+material gtceu:monel
 material gtceu:moon_sand
 material gtceu:neon_helium_mixture
+material gtceu:neutronite_shard ore
 material gtceu:nichrome_platinum
 material gtceu:nitronaphthalene
 material gtceu:novolac_resin
@@ -568,11 +580,17 @@ material gtceu:potassium_triflate
 material gtceu:propylene_glycol_methyl_ether
 material gtceu:propylene_glycol_methyl_ether_acetate
 material gtceu:propylene_oxide
+material gtceu:pulsium
 material gtceu:purified_krypton_xenon
 material gtceu:quantanium ore
 material gtceu:quantum_dot_colloid
+material gtceu:rare_earth_carbonate
+material gtceu:rare_earth_sulfate_solution
 material gtceu:reformate
 material gtceu:reinforced_titanium_niobium_alloy
+material gtceu:rheniloy
+material gtceu:rhenium_heptoxide
+material gtceu:rhenium_nickel_master_alloy
 material gtceu:rhodium_chloride_filtrate
 material gtceu:rhodium_iridium_chloride_liquor
 material gtceu:rhodium_iridium_oxide
@@ -597,6 +615,8 @@ material gtceu:spent_mox_solution
 material gtceu:spent_piranha
 material gtceu:spent_resist_solvent
 material gtceu:star_matter_plasma_steel
+material gtceu:stellarite ore
+material gtceu:stellarium
 material gtceu:strange_matter
 material gtceu:sulfur_dichloride
 material gtceu:supercooled_argon
@@ -615,6 +635,7 @@ material gtceu:tetramethylammonium_chloride
 material gtceu:tetramethylammonium_chloride_solution
 material gtceu:thionyl_chloride
 material gtceu:tin_tetrachloride
+material gtceu:titanium_aluminide
 material gtceu:titanium_silicalite
 material gtceu:tmah_developer
 material gtceu:tranquillite
@@ -624,6 +645,7 @@ material gtceu:triethylaluminium
 material gtceu:trifluoromethanesulfonic_acid
 material gtceu:trifluoromethanesulfonyl_fluoride
 material gtceu:trimethylchlorosilane
+material gtceu:triniar
 material gtceu:triphenylsulfonium_chloride
 material gtceu:triphenylsulfonium_triflate
 material gtceu:tungsten_diselenide
@@ -631,10 +653,13 @@ material gtceu:ultrapure_water
 material gtceu:unfiltered_arf_photoresist
 material gtceu:unfiltered_krf_photoresist
 material gtceu:uranyl_sulfate_solution
+material gtceu:vanadium_spring_steel
 material gtceu:vanadyl_pyrophosphate
 material gtceu:vitrified_waste
+material gtceu:wolfram_invar
 material gtceu:yellowcake
 material gtceu:zinc_chloride
+material gtceu:zincarry
 material gtceu:zircon ore
 material gtceu:zirconia
 material gtceu:zirconium_tetrachloride

@@ -358,7 +358,9 @@ ServerEvents.recipes((event) => {
 
         [["30x gtceu:raw_platinum"], "6", "af9:vm_asteroids_platinum"],
 
-        [["60x af9:oil_regolith"], "7", "af9:vm_asteroids_oil_regolith"]]
+        [["60x af9:oil_regolith"], "7", "af9:vm_asteroids_oil_regolith"],
+
+        [["30x gtceu:raw_chronite"], "8", "af9:vm_asteroids_chronite"]]
 
     // Asteroids: the belt and Ceres are one area, the machine may stand in either
     tier_multipliers.forEach((m) => emitRecipes("void_mining_asteroids", asteroids_raw_ores,

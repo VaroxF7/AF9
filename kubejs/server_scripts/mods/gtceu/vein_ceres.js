@@ -44,4 +44,6 @@ GTCEuServerEvents.oreVeins(event => {
     ceresVein('af9:cooperite_vein', 'cooperite', 25)
     // ceresite: the board metal of the Pico circuits (ceranium.js); a rare vein, so the Pico line stays a hunt
     ceresVein('af9:ceresite_vein', 'ceresite', 20)
+    // chronite: the rare-earth ore of the chronium alloy (alloys_af9.js, docs/alloys.md); as rare as the ceresite
+    ceresVein('af9:chronite_vein', 'chronite', 15)
 })

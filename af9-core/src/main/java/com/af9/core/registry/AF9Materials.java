@@ -4,6 +4,7 @@ import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.event.MaterialEvent;
+import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlag;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty;
@@ -100,6 +101,7 @@ public final class AF9Materials {
         vitrifiedWaste();
         motorParts();
         waterFiltration();
+        alloys();
     }
 
     private static Material.Builder material(String id) {
@@ -1220,5 +1222,139 @@ public final class AF9Materials {
      */
     private static void waterFiltration() {
         roughDust("filter_cake", 0x4a3b28, "(C)(H2O)");
+    }
+    /**
+     * A GT element that may be a bare name without items (zirconium's case): dust, ingot and an EBF melt are added when
+     * it has none, so the alloys below can take its dust. Its chemistry is in alloys_af9.js.
+     */
+    private static Material ensureMetal(String name, int kelvin, GasTier gas, int eut, int ticks) {
+        Material element = GTMaterials.get(name);
+        if (!element.hasProperty(PropertyKey.DUST)) {
+            element.setProperty(PropertyKey.DUST, new DustProperty());
+        }
+        if (!element.hasProperty(PropertyKey.INGOT)) {
+            element.setProperty(PropertyKey.INGOT, new IngotProperty());
+        }
+        if (!element.hasProperty(PropertyKey.BLAST)) {
+            element.setProperty(PropertyKey.BLAST, new BlastProperty(kelvin, gas, eut, ticks, eut, 200));
+        }
+        return element;
+    }
+
+    /**
+     * The 15 alloys Janne picked from docs/alloys/alloy-proposals.md (2026-10-16), their ores and chemistry. Formulas
+     * only (no components) on every alloy: GT adds no electrolyzer or centrifuge shortcut past the process chains. The
+     * mixers, the Rhenium / Hafnium / Chronium chains and the hearth and forge casts are in alloys_af9.js; the
+     * Chronite vein in vein_ceres.js; the chronite void miner circuit in miner.js. Spec: docs/alloys.md
+     * <pre>
+     *   EBF (blast property)   duralumin monel vanadium_spring_steel cupro_beryllium wolfram_invar rheniloy albeme
+     *                          cobalt_molybdenum_supersteel titanium_aluminide hafnitinol
+     *   Sanguinite Hearth      chronium_alloy triniar   (no blast property: the hearth's own type melts them)
+     *   Plasma Forge           stellarium pulsium       (no blast property)
+     *   dust only              zincarry (a cell paste)
+     * </pre>
+     */
+    private static void alloys() {
+        // the two elements the chains make: bare names in GT until now
+        ensureMetal("rhenium", 3459, GasTier.MID, GTValues.VA[GTValues.EV], 1200);
+        ensureMetal("hafnium", 2506, GasTier.MID, GTValues.VA[GTValues.EV], 900);
+
+        // ---- rhenium: the flue dust of molybdenite roasting ----
+        roughDust("rhenium_heptoxide", 0xd9c36a, "Re2O7");
+        dust("ammonium_perrhenate", 0xf0eee0, "NH4ReO4");
+        roughDust("rhenium_nickel_master_alloy", 0x7a8590, "Ni3Re");
+
+        // ---- chronite and chronium: a rare-earth pyrochlore of Ceres, split in a leach and a calcium reduction ----
+        add(material("chronite")
+                .dust().ore(2, 1)
+                .color(0x4fb59f).secondaryColor(0x1d4a40)
+                .iconSet(MaterialIconSet.SHINY)
+                .formula("(Tm,Yb)2(Nb,Ti)2O7")
+                .addOreByproducts(GTMaterials.Niobium, GTMaterials.Titanium, GTMaterials.Tungsten));
+        liquid("rare_earth_sulfate_solution", 0xd8c8e8, "(Tm,Yb)2(SO4)3(H2O)");
+        roughDust("rare_earth_carbonate", 0xe6dcef, "(Tm,Yb)2(CO3)3");
+        roughDust("chronite_oxide_mix", 0xcfe8de, "(Tm,Yb)2O3");
+        add(material("chronium")
+                .ingot().fluid()
+                .color(0x7be0cc).secondaryColor(0x2a6c5e)
+                .iconSet(MaterialIconSet.METALLIC)
+                .blastTemp(1900, GasTier.MID, GTValues.VA[GTValues.EV], 700)
+                .formula("(Tm,Yb)"));
+
+        // ---- stellarite and neutronite shard: ores of the exotic asteroid (no vein: the Space Elevator brings them) ----
+        add(material("stellarite")
+                .dust().ore(2, 1)
+                .color(0xffd47a).secondaryColor(0x8a5a10)
+                .iconSet(MaterialIconSet.SHINY)
+                .formula("(Fe,Ir,Ti)3O4")
+                .addOreByproducts(GTMaterials.Iron, GTMaterials.Iridium, GTMaterials.Titanium));
+        add(material("neutronite_shard")
+                .dust().ore(2, 1)
+                .color(0xcfd4ff).secondaryColor(0x4a4f80)
+                .iconSet(MaterialIconSet.SHINY)
+                .formula("(Nt)(Nq)")
+                .addOreByproducts(GTMaterials.Naquadria, GTMaterials.Trinium, GTMaterials.Neutronium));
+
+        // ---- the EBF alloys (mixed in alloys_af9.js, melted by GT's EBF recipe from the blast property) ----
+        ebfAlloy("duralumin", 0xc9d1dc, "(Al9CuMg)", 1200, GasTier.LOW, GTValues.VA[GTValues.HV], 500,
+                MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD);
+        ebfAlloy("monel", 0x9aa4a0, "(Ni2Cu)", 1750, GasTier.LOW, GTValues.VA[GTValues.HV], 600,
+                MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD);
+        ebfAlloy("vanadium_spring_steel", 0x6e7686, "(Fe8VCr)", 1900, GasTier.LOW, GTValues.VA[GTValues.HV], 700,
+                MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_SPRING);
+        ebfAlloy("cupro_beryllium", 0xc87a4a, "(Cu24Be)", 1500, GasTier.MID, GTValues.VA[GTValues.HV], 600,
+                MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FINE_WIRE);
+        ebfAlloy("wolfram_invar", 0x8b8f96, "((Fe2Ni)6W)", 2300, GasTier.MID, GTValues.VA[GTValues.EV], 800,
+                MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FRAME);
+        ebfAlloy("rheniloy", 0x4f6070, "(Ni6Re2TaW)", 3000, GasTier.MID, GTValues.VA[GTValues.EV], 1200,
+                MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROTOR, MaterialFlags.GENERATE_ROD);
+        ebfAlloy("albeme", 0x9fd0c9, "(Al3Be2)", 1800, GasTier.MID, GTValues.VA[GTValues.EV], 700,
+                MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FRAME);
+        ebfAlloy("cobalt_molybdenum_supersteel", 0x5c6cae, "(Fe8Co2Mo)", 2600, GasTier.MID, GTValues.VA[GTValues.EV],
+                900, MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_GEAR);
+        ebfAlloy("titanium_aluminide", 0xb8c2d0, "(TiAl)", 3200, GasTier.HIGH, GTValues.VA[GTValues.IV], 1100,
+                MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROTOR);
+        ebfAlloy("hafnitinol", 0x7ad0c8, "(Ni4Ti4Hf)", 3500, GasTier.HIGH, GTValues.VA[GTValues.IV], 1200,
+                MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FINE_WIRE);
+
+        // the cell paste: dust only (no ingot, no parts)
+        add(material("zincarry").dust().color(0xc9c9d6).iconSet(MaterialIconSet.DULL).formula("(Zn4AgHg)"));
+
+        // ---- the hearth and forge alloys: no blast property, so the EBF cannot melt them (see uhv_superconductor.js) ----
+        add(material("chronium_alloy")
+                .ingot().fluid()
+                .color(0x6cf0d8).secondaryColor(0x1f6a5c)
+                .iconSet(MaterialIconSet.SHINY)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FINE_WIRE, MaterialFlags.GENERATE_FOIL)
+                .formula("(Cs3Nb2Tt)(Tm,Yb)"));
+        add(material("triniar")
+                .ingot().fluid()
+                .color(0x7ae0ff).secondaryColor(0x1a5a74)
+                .iconSet(MaterialIconSet.SHINY)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_FRAME)
+                .formula("(Tr5St2Nq)"));
+        add(material("stellarium")
+                .ingot().fluid()
+                .color(0xffd47a).secondaryColor(0x9a6a10)
+                .iconSet(MaterialIconSet.SHINY)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_ROD)
+                .formula("(Fe5St2Qn)"));
+        add(material("pulsium")
+                .ingot().fluid()
+                .color(0xe0ecff).secondaryColor(0x5a6aa0)
+                .iconSet(MaterialIconSet.SHINY)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_RING)
+                .formula("(St4Nt2StM)"));
+    }
+
+    /** An EBF alloy: formula only, plus the blast property that makes GT melt its dust. */
+    private static Material ebfAlloy(String id, int color, String formula, int kelvin, GasTier gas, int eut, int ticks,
+            MaterialFlag... flags) {
+        return add(material(id)
+                .ingot().fluid()
+                .color(color).iconSet(MaterialIconSet.METALLIC)
+                .flags(flags)
+                .blastTemp(kelvin, gas, eut, ticks)
+                .formula(formula));
     }
 }
