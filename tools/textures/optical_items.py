@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Draws the photonic item textures of the lithography line that are our own: only the fibre interconnects now. Optical CPU,
-optical RAM, optical fibre cable and nano particles are taken from GregTech: New Horizons (see CREDITS-textures.md) and are no
+optical RAM and optical fibre cable are taken from GregTech: New Horizons (see CREDITS-textures.md) and are no
 longer drawn here. Run from the repository root (needs Pillow):  python3 tools/textures/optical_items.py [preview.png]
 All five share one palette: gunmetal body, steel bevel, amber contacts, cyan light."""
 import os
