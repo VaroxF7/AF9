@@ -11,10 +11,9 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 
@@ -30,8 +29,8 @@ import java.util.Map;
 
 /**
  * The rings of the Orbital Array Mk2's tower ({@link StructureSkin.Rings}), drawn in place of their blocks while the
- * station is formed, the way GTNH's Godforge turns its rings: each ring is a band of white panels with raised modules and
- * lit windows that turns round the tower (its speed and direction are the band's), the middle one against the other two.
+ * station is formed, the way GTNH's Godforge turns its rings: each ring is its own blocks, with their own models,
+ * turning round the tower ({@link RingBlocks}; its speed and direction are the band's), the middle one against the other two.
  * Plasma beams run from the tower to each ring at the four points of the compass and hold it: they glow in the machine's
  * colour while it works (and pulse towards the ring), a dim blue while it idles.
  * <p>
@@ -41,17 +40,9 @@ import java.util.Map;
  */
 final class RingDraw {
 
-    private static final int PANEL = 0xE9ECF0, BODY = 0x5C616B, DARK = 0x2E3138;
-    private static final int FULL_BRIGHT = 0xF000F0;
-    /** Blocks of ring circumference to a panel. */
-    private static final float PANEL_LENGTH = 3F;
-    /** Every this many panels the ring carries a module (a raised block with a lit window). */
-    private static final int MODULE_EVERY = 5;
     /** The speed of a ring that idles, against one that works (the rings never stop while the station is formed). */
     private static final float IDLE_SPEED = 0.35F;
     private static final int IDLE_COLOR = 0x6FA8FF;
-    /** How far the raised panels stand off the ring's body: clear of the depth buffer's resolution at a distance. */
-    private static final float RAISE = 0.12F;
 
     /** Per controller: each ring's angle (radians), the speed factor, the time of the last frame (client thread). */
     private static final Map<Long, State> STATES = new HashMap<>();
@@ -92,16 +83,17 @@ final class RingDraw {
         int color = working && self instanceof ILightRingMachine ring ? ring.getRingColor() : IDLE_COLOR;
         float time = level.getGameTime() + partialTick;
 
-        // the rings: panels and modules, entity shader, lit by the normals (the sky of the orbit is the light)
-        int light = LightTexture.pack(10, 15);
+        // the tower's white shell, entity shader, lit by the normals (the sky of the orbit is the light)
         VertexConsumer solid = buffer.getBuffer(RenderType.entityCutoutNoCull(AF9RenderTypes.WHITE));
         TowerDraw.draw(self.getPos().asLong(), solid, poseStack.last(), overlay);
+        // the rings: their own blocks, drawn with their own models turning about the tower (RingBlocks)
+        VertexConsumer blocks = buffer.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
         for (int i = 0; i < bands.size(); i++) {
             Band band = bands.get(i);
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, band.d0() + band.t() / 2F);
             poseStack.mulPose(Axis.ZP.rotation(angle[i]));
-            ring(solid, poseStack.last(), overlay, light, band, color);
+            RingBlocks.draw(self.getPos().asLong(), i, blocks, poseStack.last());
             poseStack.popPose();
         }
         // the plasma beams, added light, after the solids (a buffer from the source ends when another is asked for)
@@ -174,79 +166,6 @@ final class RingDraw {
 
     private static Vec3 vec(Direction d) {
         return new Vec3(d.getStepX(), d.getStepY(), d.getStepZ());
-    }
-
-    //////////////////////////////////////
-    // ************* Rings ************//
-    //////////////////////////////////////
-
-    /** One ring in its own frame: centre at the origin, lying in the x/y plane, z along the tower's axis. */
-    private static void ring(VertexConsumer c, PoseStack.Pose pose, int overlay, int light, Band band, int color) {
-        float inner = band.radius() - band.width() - 0.5F, outer = band.radius() + 0.5F, half = band.t() / 2F;
-        int segments = Math.max(24, Math.round(Mth.TWO_PI * outer / PANEL_LENGTH));
-        float step = Mth.TWO_PI / segments;
-        for (int k = 0; k < segments; k++) {
-            float a0 = k * step, a1 = a0 + step;
-            // the body, dark inside and on the underside, grey outside
-            sector(c, pose, overlay, light, a0, a1, inner, outer, -half, half, BODY, DARK, PANEL, BODY, light);
-            // the raised white panels: on the outer face, and across the top. Every face of one lies a clear 0.12 off
-            // the body's (and none of them is coplanar with it), or the depth buffer shimmers between the two.
-            float gap = step * 0.06F;
-            sector(c, pose, overlay, light, a0 + gap, a1 - gap, inner + 0.4F, outer + RAISE, -half + 0.3F,
-                    half - 0.3F, PANEL, PANEL, PANEL, PANEL, light);
-            sector(c, pose, overlay, light, a0 + gap, a1 - gap, inner + 0.4F, outer - 0.4F, -half + 0.3F, half + RAISE,
-                    PANEL, PANEL, PANEL, PANEL, light);
-            if (k % MODULE_EVERY == 0) {
-                // a module: a raised block with a lit window on its outer face
-                float m0 = a0 + step * 0.2F, m1 = a1 - step * 0.2F;
-                sector(c, pose, overlay, light, m0, m1, outer - 0.5F, outer + 1.3F, -half - 0.7F, half + 0.7F, BODY,
-                        DARK, PANEL, DARK, light);
-                sector(c, pose, overlay, FULL_BRIGHT, m0 + step * 0.06F, m1 - step * 0.06F, outer + 1.0F,
-                        outer + 1.42F, -half - 0.3F, half + 0.3F, color, color, color, color, FULL_BRIGHT);
-            }
-        }
-    }
-
-    /**
-     * A block of a ring: the sector from {@code a0} to {@code a1} between the radii and between the heights {@code z0}
-     * and {@code z1}, each face a flat quad (the outer, the inner, the top at z1, the bottom at z0, the two ends).
-     */
-    private static void sector(VertexConsumer c, PoseStack.Pose pose, int overlay, int light, float a0, float a1,
-                               float r0, float r1, float z0, float z1, int outerRgb, int innerRgb, int topRgb,
-                               int bottomRgb, int outerLight) {
-        float s0 = Mth.sin(a0), c0 = Mth.cos(a0), s1 = Mth.sin(a1), c1 = Mth.cos(a1);
-        float mid = (a0 + a1) / 2, nx = Mth.cos(mid), ny = Mth.sin(mid);
-        // outer and inner faces
-        quad(c, pose, overlay, outerLight, r1 * c0, r1 * s0, z0, r1 * c1, r1 * s1, z0, r1 * c1, r1 * s1, z1, r1 * c0,
-                r1 * s0, z1, nx, ny, 0, outerRgb);
-        quad(c, pose, overlay, light, r0 * c0, r0 * s0, z0, r0 * c1, r0 * s1, z0, r0 * c1, r0 * s1, z1, r0 * c0,
-                r0 * s0, z1, -nx, -ny, 0, innerRgb);
-        // top and bottom
-        quad(c, pose, overlay, light, r0 * c0, r0 * s0, z1, r1 * c0, r1 * s0, z1, r1 * c1, r1 * s1, z1, r0 * c1,
-                r0 * s1, z1, 0, 0, 1, topRgb);
-        quad(c, pose, overlay, light, r0 * c0, r0 * s0, z0, r1 * c0, r1 * s0, z0, r1 * c1, r1 * s1, z0, r0 * c1,
-                r0 * s1, z0, 0, 0, -1, bottomRgb);
-        // the two ends
-        quad(c, pose, overlay, light, r0 * c0, r0 * s0, z0, r1 * c0, r1 * s0, z0, r1 * c0, r1 * s0, z1, r0 * c0,
-                r0 * s0, z1, s0, -c0, 0, bottomRgb);
-        quad(c, pose, overlay, light, r0 * c1, r0 * s1, z0, r1 * c1, r1 * s1, z0, r1 * c1, r1 * s1, z1, r0 * c1,
-                r0 * s1, z1, -s1, c1, 0, bottomRgb);
-    }
-
-    private static void quad(VertexConsumer c, PoseStack.Pose pose, int overlay, int light, float x0, float y0,
-                             float z0, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3,
-                             float z3, float nx, float ny, float nz, int rgb) {
-        float r = (rgb >> 16 & 255) / 255F, g = (rgb >> 8 & 255) / 255F, b = (rgb & 255) / 255F;
-        vertex(c, pose, overlay, light, x0, y0, z0, nx, ny, nz, r, g, b);
-        vertex(c, pose, overlay, light, x1, y1, z1, nx, ny, nz, r, g, b);
-        vertex(c, pose, overlay, light, x2, y2, z2, nx, ny, nz, r, g, b);
-        vertex(c, pose, overlay, light, x3, y3, z3, nx, ny, nz, r, g, b);
-    }
-
-    private static void vertex(VertexConsumer c, PoseStack.Pose pose, int overlay, int light, float x, float y,
-                               float z, float nx, float ny, float nz, float r, float g, float b) {
-        c.vertex(pose.pose(), x, y, z).color(r, g, b, 1F).uv(0.5F, 0.5F).overlayCoords(OverlayTexture.NO_OVERLAY)
-                .uv2(light).normal(pose.normal(), nx, ny, nz).endVertex();
     }
 
     //////////////////////////////////////

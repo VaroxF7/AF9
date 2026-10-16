@@ -240,7 +240,14 @@ public final class StructureSkins {
             untrack(origin.asLong());
             return;
         }
-        for (OrbitalLithographyMachine.Band band : skin.rings().bands()) {
+        var bands = skin.rings().bands();
+        Direction front = controller.getFrontFacing(), upwards = controller.getUpwardsFacing();
+        Direction axisRight = RelativeDirection.RIGHT.getRelative(front, upwards, false);
+        Direction axisUp = RelativeDirection.UP.getRelative(front, upwards, false);
+        Direction axisBack = RelativeDirection.BACK.getRelative(front, upwards, false);
+        for (int bandIndex = 0; bandIndex < bands.size(); bandIndex++) {
+            OrbitalLithographyMachine.Band band = bands.get(bandIndex);
+            List<RingBlocks.Cell> ring = new ArrayList<>();
             int reach = band.radius() + 1, mid = band.d0() + band.t() / 2;
             for (int d = band.d0(); d < band.d0() + band.t(); d++) {
                 for (int right = -reach; right <= reach; right++) {
@@ -256,9 +263,13 @@ public final class StructureSkins {
                         if (level.getBlockState(pos).isAir()) continue;
                         if (MetaMachine.getMachine(level, pos) != null || level.getBlockEntity(pos) != null) continue;
                         positions.add(pos.asLong());
+                        // the band's own blocks are drawn turning with their own models (the spokes' beams are plasma)
+                        if (inBand) ring.add(new RingBlocks.Cell(right, up, d, pos, level.getBlockState(pos)));
                     }
                 }
             }
+            RingBlocks.update(origin.asLong(), bands.size(), bandIndex, band.d0() + band.t() / 2F, ring, level, origin,
+                    axisRight, axisUp, axisBack);
         }
         trackTower(level, controller, skin, origin, parts, positions);
         long[] now = positions.toLongArray();
@@ -347,6 +358,7 @@ public final class StructureSkins {
 
     private static void untrack(long controller) {
         RingDraw.forget(controller);
+        RingBlocks.forget(controller);
         TowerDraw.forget(controller);
         MACHINES.remove(controller);
         LENGTHS.remove(controller);
@@ -393,6 +405,7 @@ public final class StructureSkins {
         TRACKED.clear();
         MACHINES.clear();
         RingDraw.clear();
+        RingBlocks.clear();
         TowerDraw.clear();
         hidden = new LongOpenHashSet();
     }

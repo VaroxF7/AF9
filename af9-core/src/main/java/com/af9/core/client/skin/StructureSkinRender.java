@@ -106,6 +106,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
     static void clearCaches() {
         QUADS.clear();
         RingDraw.clear();
+        RingBlocks.clear();
         TowerDraw.clear();
     }
 
