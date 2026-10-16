@@ -58,14 +58,14 @@ between runs (af9-core `setExtended`, like the Elevator's size switch; the KubeJ
 with `setExtendedPattern`; the preview has a second page for the Mk2 with the tower cut out of the pattern, 37 wide, the rings are drawn by the machine once it is formed and are not in it). The extended one is a
 tower (`ORBITAL_MK2_SLICES`, built from the cell functions `orbitalTowerCell` and `orbitalRingCell`, d counting levels
 below the controller), after the concept art: a hollow slab-sided body (17 x 11 above the big ring, 15 x 11 and 11 x 9
-below it, then a stepped taper) of stress-proof and non-conducting panel columns with HSS-S corner posts, ribs standing
-out of the faces, HSS-G coil light strips and rows of small lit windows, lit lift pods, floors every 12 levels, round an
+below it, then a stepped taper) of stress-proof and non-conducting panel columns with tungsten carbide frame corner posts, ribs standing
+out of the faces, HSS-G coil light strips and rows of small lit windows, floors every 12 levels, round an
 HSS-E frame core; an angular crown of PTFE casing on top (flat along the back and over the controller, falling away to
 the front and sides, with a tall fin on the left, a sawtooth of spurs on the right and a dorsal fin; the hatches go on
 the crown), an octagonal collar plate (19 wide) at each ring's middle level, pylons down the waist and an HSS-E needle
 below, 130 levels in all. Three rings round it (`ORBITAL_RINGS`: top level, thickness, outer radius, band width): the middle one at d 40
 (radius 36), one above at d 22 (26) and one below at d 58 (18), each a band of sturdy casing with a stress-proof top and a
-non-conducting outer face, joined to the collar by a shock-proof beam between HSS-S rails along the axes (they start outside the collar, `ORBITAL_HALF` 9 = `TOWER_HALF`), about 9,000
+non-conducting outer face, joined to the collar by an atomic casing beam between tungsten carbide frame rails along the axes (they start outside the collar, `ORBITAL_HALF` 9 = `TOWER_HALF`), about 9,000
 blocks in all. The light rings (`RINGS_MK2`: back, radius, spin) lie 1.5 blocks inside the bands and turn like a
 station's wheels, the middle one against the other two (habitat modules in `LightRingRender`, drawn per `RingSpec` from
 `ringSpecs()`, so one model serves both sizes). Burn distance, the magnetic field box (`HALF_WIDTH_MK2` 36, `DEPTH_MK2`

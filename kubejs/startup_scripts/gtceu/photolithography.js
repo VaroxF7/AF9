@@ -100,7 +100,7 @@ const ORBITAL_BASIC = [
 // reaching down from its foot; the rings' light rings glow just inside them and turn like the wheels of a station
 // (af9-core RING_MK2 / OrbitalLithographyMachine.ringSpecs, which read the same numbers: keep them in step). The
 // blocks are the basic station's: sturdy and stress-proof casing for the rings and the shell, non-conducting panels, the
-// shock-proof beams in HSS-S rails, HSS-G coil light strips, HSS-E frames for the core and the needle. Rows bottom -> top as
+// atomic beams in tungsten carbide frame rails, HSS-G coil light strips, HSS-E frames for the core and the needle. Rows bottom -> top as
 // ORBITAL_BASIC, the controller on the top row. d below counts levels down from the controller.
 const ORBITAL_MK2 = 73          // width of the plane, the tower at its centre (36)
 const ORBITAL_MID = 36
@@ -137,7 +137,7 @@ const orbitalSection = d => {
 const orbitalRoof = (dx, dz) => (dz > 0 ? Math.floor(dz * 3.5) : Math.floor(-dz / 2)) + Math.max(0, Math.abs(dx) - 4) * 2
 // what stands out of the tower's walls, '' for nothing: 'F' a fin (a thin plate against the body: a tall one on the left,
 // a sawtooth of spurs on the right, a dorsal fin at the back, two pylons down the waist), 'R' a rib (the layered vertical
-// panels of the body), 'P' a lit lift pod. None of them reach a ring's middle level (the beams run there).
+// panels of the body). None of them reach a ring's middle level (the beams run there).
 const orbitalFin = (d, dx, dz) => {
     const sec = orbitalSection(d)
     const ax = Math.abs(dx)
@@ -150,11 +150,6 @@ const orbitalFin = (d, dx, dz) => {
     // the prow, a keel down the front of the crown
     if (d <= 16 && dz < -sec[1] && dz >= -(sec[1] + 4) && ax <= 2 + Math.floor((d + 2) / 8)) return 'F'
     if (d >= 62 && d <= 78 && ax === sec[0] + 1 && az <= 1) return 'F'
-    // lift pods, a little way out of the faces, two wide and seven tall
-    if (d >= 27 && d <= 33 && dz === sec[1] + 1 && dx >= -3 && dx <= -2) return 'P'
-    if (d >= 46 && d <= 52 && dz === sec[1] + 1 && dx >= 2 && dx <= 3) return 'P'
-    if (d >= 29 && d <= 35 && dx === -(sec[0] + 1) && dz >= 3 && dz <= 4) return 'P'
-    if (d >= 64 && d <= 70 && dx === sec[0] + 1 && dz >= -4 && dz <= -3) return 'P'
     // ribs up the faces of the upper block and of the waist
     if (d >= 21 && d <= 80 && d !== 22 && sec[0] > 4) {
         if (az === sec[1] + 1 && ax <= sec[0] - 2 && dx % 4 === 0) return 'R'
@@ -195,10 +190,9 @@ const orbitalTowerCell = (d, dx, dz) => {
     // the crown and the roof: plain PTFE casing all round, the hatches go on it
     if (d <= 10 || (d <= 20 && !up)) return 'O'
     const part = orbitalFin(d, dx, dz)
-    if (part === 'P') return 'B'
     if (part === 'R') return 'C'
     if (part === 'F') return !up || !down ? 'F' : 'L'
-    // corners and the rims of plates: HSS-S frames
+    // corners and the rims of plates: tungsten carbide frames
     if ((east ? 1 : 0) + (west ? 1 : 0) + (north ? 1 : 0) + (south ? 1 : 0) <= 2) return 'F'
     // walls: stress-proof casing columns with non-conducting panels between, a light strip (HSS-G coil) up each third
     // column, broken every 18 levels
@@ -219,7 +213,7 @@ const orbitalRingCell = (d, dx, dz) => {
             found = d === ring.d ? 'L' : r > ring.r - 1 ? 'C' : 'D'
             return
         }
-        // the beams out to it: the shock-proof beam between HSS-S rails, one level, along the axes
+        // the beams out to it: the atomic beam between tungsten carbide frame rails, one level, along the axes
         if (d === mid && Math.max(Math.abs(dx), Math.abs(dz)) > ORBITAL_HALF && r < ring.r - ring.w) {
             if (dx === 0 || dz === 0) found = 'H'
             else if (Math.abs(dx) === 1 || Math.abs(dz) === 1) found = 'F'
@@ -418,8 +412,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             // tier is the bonus); the basic station's stay HSS-G
             ['B', mk2 ? Predicates.heatingCoils() : Predicates.blocks('gtceu:hssg_coil_block')],
             ['D', Predicates.blocks('gtceu:sturdy_machine_casing')],
-            ['F', Predicates.blocks('gtceu:hsss_frame')],
-            ['H', Predicates.blocks('gtceu:shock_proof_cutting_casing')],
+            ['F', Predicates.blocks(mk2 ? 'gtceu:tungsten_carbide_frame' : 'gtceu:hsss_frame')],
+            ['H', Predicates.blocks(mk2 ? 'gtceu:atomic_casing' : 'gtceu:shock_proof_cutting_casing')],
             ['L', Predicates.blocks('gtceu:stress_proof_casing')],
             ['C', Predicates.blocks('gtceu:nonconducting_casing')],
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview)): the track
