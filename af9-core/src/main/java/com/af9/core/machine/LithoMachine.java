@@ -247,6 +247,11 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine
         return 0;
     }
 
+    /** The Array Mk2's coil tier (0 cupronickel ... 7 tritanium), -1 where the machine has no coils. */
+    public int coilTier() {
+        return -1;
+    }
+
     /** The Array Mk2's beam focus in permille (0-1000), -1 where the machine has none. */
     public int focusPermille() {
         return -1;

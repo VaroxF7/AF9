@@ -401,7 +401,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // switch): a 73 x 130 x 73 tower with three spinning rings and a needle (above, af9-core RINGS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
     // UHV+ circuits deposited ion-by-ion with plasma solder, in orbit.
     // Layouts are module-level (ORBITAL_BASIC / ORBITAL_MK2_SLICES), precomputed once above.
-    const orbitalWheres = definition => {
+    const orbitalWheres = (definition, mk2) => {
         const energy = Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(3, 1)
         const laser = Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 1)
         const coolant = Predicates.abilities($LithoCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1)
@@ -414,7 +414,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         return [
             ['K', Predicates.controller(Predicates.blocks(definition.get()))],
             ['A', Predicates.blocks('gtceu:hsse_frame')],
-            ['B', Predicates.blocks('gtceu:hssg_coil_block')],
+            // the Mk2's light strips are heating coils of any one tier (af9-core OrbitalLithographyMachine.COILS: the
+            // tier is the bonus); the basic station's stay HSS-G
+            ['B', mk2 ? Predicates.heatingCoils() : Predicates.blocks('gtceu:hssg_coil_block')],
             ['D', Predicates.blocks('gtceu:sturdy_machine_casing')],
             ['F', Predicates.blocks('gtceu:hsss_frame')],
             ['H', Predicates.blocks('gtceu:shock_proof_cutting_casing')],
@@ -430,11 +432,11 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             [' ', Predicates.any()]
         ]
     }
-    const orbitalPattern = (definition, slices) => {
+    const orbitalPattern = (definition, slices, mk2) => {
         let pattern = FactoryBlockPattern.start($LithoRelativeDirection.RIGHT, $LithoRelativeDirection.FRONT,
             $LithoRelativeDirection.UP)
         for (let c = 0; c < slices.length; c++) pattern = pattern.aisle(slices[c])
-        orbitalWheres(definition).forEach(([char, predicate]) => { pattern = pattern.where(char, predicate) })
+        orbitalWheres(definition, mk2).forEach(([char, predicate]) => { pattern = pattern.where(char, predicate) })
         return pattern.build()
     }
 
@@ -448,16 +450,16 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // STRIP_BROKEN: the break roll decides; COOLANT: adds the coolant (faster with a better one);
         // MK2_GATE: the Mk2's own types only in orbit on the Array Mk2 (extended) once its beams are
         // aligned (the 1 nm prints check the same in the station's own gate); FOCUS: the Mk2's focus bonus (shorter
-        // runs; its break-chance share is in the station's machineBreakFactor); perfect overclocks; then batch
+        // runs; its break-chance share is in the station's machineBreakFactor); COILS: the Mk2's coil tier (shorter runs, less EU/t; break chance and focus in the station); perfect overclocks; then batch
         // mode (GT's: once overclocked below 5 s, several prints in one run, the coolant too). No parallel hatch.
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN, $OrbitalLithographyMachine.COOLANT,
-            $OrbitalLithographyMachine.MK2_GATE, $OrbitalLithographyMachine.FOCUS, GTRecipeModifiers.OC_PERFECT,
+            $OrbitalLithographyMachine.MK2_GATE, $OrbitalLithographyMachine.FOCUS, $OrbitalLithographyMachine.COILS, GTRecipeModifiers.OC_PERFECT,
             GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:inert_machine_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 18))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 20))
         .pattern(definition => {
             // GT asks for this once: both sizes are built, the extended one is the machine's own to switch to
-            $OrbitalLithographyMachine.setExtendedPattern(orbitalPattern(definition, ORBITAL_MK2_SLICES))
+            $OrbitalLithographyMachine.setExtendedPattern(orbitalPattern(definition, ORBITAL_MK2_SLICES, true))
             return orbitalPattern(definition, ORBITAL_BASIC)
         })
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',

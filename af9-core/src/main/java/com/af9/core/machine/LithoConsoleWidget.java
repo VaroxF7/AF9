@@ -73,6 +73,8 @@ public class LithoConsoleWidget extends ConsoleWidget {
     private int focus = -1;
     /** The focus lock: 0 off, 1 armed, 2 latched. */
     private int focusLock;
+    /** The Array Mk2's coil tier, -1 on machines without coils. */
+    private int coilTier = -1;
     private String product = "";
 
     public LithoConsoleWidget(LithoMachine machine, int x, int y) {
@@ -181,6 +183,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         boolean newMulti = machine.isMultiPatterned(active);
         int newFocus = machine.focusPermille();
         int newFocusLock = machine.focusLockState();
+        int newCoilTier = machine.coilTier();
         int newCoolant = -1;
         if (machine instanceof OrbitalLithographyMachine station && active.minCoolant() != null) {
             Coolant used = station.currentCoolant(active);
@@ -192,7 +195,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
                 newPrinted != printed ||
                 newBroken != broken || newVacuum != vacuum || newCoolant != coolant ||
                 newCoolCapacity != coolCapacity || newCoolLoad != coolLoad || newCoolSteps != coolSteps ||
-                newCoolLapsed != coolLapsed || newOpc != opc || newMulti != multi || newFocus != focus || newFocusLock != focusLock ||
+                newCoolLapsed != coolLapsed || newOpc != opc || newMulti != multi || newFocus != focus || newFocusLock != focusLock || newCoilTier != coilTier ||
                 !Objects.equals(newProduct, product);
         status = newStatus;
         mode = newMode;
@@ -215,6 +218,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         multi = newMulti;
         focus = newFocus;
         focusLock = newFocusLock;
+        coilTier = newCoilTier;
         product = newProduct;
         return changed;
     }
@@ -242,6 +246,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         buffer.writeBoolean(multi);
         buffer.writeVarInt(focus + 1);
         buffer.writeVarInt(focusLock);
+        buffer.writeVarInt(coilTier + 1);
         buffer.writeUtf(product);
     }
 
@@ -268,6 +273,7 @@ public class LithoConsoleWidget extends ConsoleWidget {
         multi = buffer.readBoolean();
         focus = buffer.readVarInt() - 1;
         focusLock = buffer.readVarInt();
+        coilTier = buffer.readVarInt() - 1;
         product = buffer.readUtf();
     }
 
@@ -423,6 +429,14 @@ public class LithoConsoleWidget extends ConsoleWidget {
                 false);
         graphics.drawString(font, fit(Component.translatable("af9.litho.substrate." + active.substrate).getString(),
                 rw), rx, y0 + 78, TEXT, false);
+        if (coilTier > 0) {
+            // Array Mk2: what the coils give (time, EU/t, break chance)
+            drawSmall(graphics, Component.translatable("af9.litho.console.coils", coilTier,
+                    Math.round((1 - OrbitalLithographyMachine.coilTime(coilTier)) * 100),
+                    Math.round((1 - OrbitalLithographyMachine.coilEnergy(coilTier)) * 100),
+                    Math.round((1 - OrbitalLithographyMachine.coilBreak(coilTier)) * 100)).getString(), rx, y0 + 84,
+                    GOOD, false);
+        }
         if (active.onOrbitalStation()) {
             boolean orbit = status != STATUS_NO_ORBIT;
             drawSmall(graphics, Component.translatable(orbit ? "af9.litho.console.orbit_ok" :

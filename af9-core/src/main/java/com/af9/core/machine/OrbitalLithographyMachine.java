@@ -11,6 +11,7 @@ import com.af9.core.machine.part.CoolantHatchPartMachine;
 import com.af9.core.network.AF9Network;
 import com.af9.core.registry.AF9Blocks;
 
+import com.gregtechceu.gtceu.api.block.ICoilType;
 import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider;
 import com.gregtechceu.gtceu.api.capability.recipe.CWURecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
@@ -181,6 +182,30 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      */
     public static final int SUPPLEMENT_EUT = 2048;
     private static final int LOCK_GRACE_INTERVALS = 10;
+    /**
+     * Coil bonuses of the Array Mk2, per coil tier above cupronickel (kanthal 1 ... tritanium 7): run time, EU/t, break
+     * chance, and the beam focus (gain faster, drift and run cost smaller). Like the Hearth, a better coil is a
+     * better machine.
+     */
+    public static final double COIL_TIME = 0.96, COIL_ENERGY = 0.04, COIL_BREAK = 0.95, COIL_FOCUS = 0.1;
+
+    public static double coilTime(int tier) {
+        return Math.pow(COIL_TIME, Math.max(0, tier));
+    }
+
+    public static double coilEnergy(int tier) {
+        return Math.max(0.5, 1 - COIL_ENERGY * Math.max(0, tier));
+    }
+
+    public static double coilBreak(int tier) {
+        return Math.pow(COIL_BREAK, Math.max(0, tier));
+    }
+
+    /** Focus factor: gain x (1 + this), drift and run cost x (1 - this), at most half. */
+    public static double coilFocus(int tier) {
+        return Math.min(0.5, COIL_FOCUS * Math.max(0, tier));
+    }
+
     private static final double FOCUS_SHARP_SPEED = 0.9, FOCUS_LOCKED_SPEED = 0.8, FOCUS_SHARP_BREAK = 0.8,
             FOCUS_LOCKED_BREAK = 0.6;
 
@@ -190,6 +215,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * Space Elevator's extended tower.
      */
     private static volatile BlockPattern extendedPattern;
+
+    /** Tier of the Mk2's coils (0 cupronickel ... 7 tritanium), -1 without coils (basic station or not formed). */
+    @Persisted
+    @DescSynced
+    private int coilTier = -1;
 
     /** Whether the Array Mk2 (extended) size is switched on: persisted like the Elevator's size switch. */
     @Persisted
@@ -260,6 +290,19 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             sharpened.duration = Math.max(1, (int) Math.round(sharpened.duration * factor));
             return sharpened;
         };
+    };
+
+    /**
+     * The coil bonus of the Array Mk2 ({@link #coilTime}, {@link #coilEnergy}): shorter runs and less EU/t the higher
+     * the tier of the tower's light-strip coils. Place it after {@link #FOCUS} and before the overclocks.
+     */
+    public static final RecipeModifier COILS = (machine, recipe) -> {
+        if (!(machine instanceof OrbitalLithographyMachine station)) {
+            return RecipeModifier.nullWrongType(OrbitalLithographyMachine.class, machine);
+        }
+        int tier = station.coilTier();
+        if (tier <= 0) return ModifierFunction.IDENTITY;
+        return ModifierFunction.builder().durationMultiplier(coilTime(tier)).eutMultiplier(coilEnergy(tier)).build();
     };
 
     /** The EUV Light Source item the 20 and 7 nm prints keep (not consumed). */
@@ -645,7 +688,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         GTRecipe run = measured ? getRecipeLogic().getLastRecipe() : null;
         Coolant coolant = run != null ? coolantOf(run) : chooseCoolant(mode);
         double cooled = coolant == null ? 1 : Math.pow(Coolant.BREAK_FACTOR, coolant.steps(mode));
-        return cooled * focusBreakFactor();
+        return cooled * focusBreakFactor() * coilBreak(coilTier);
     }
 
     //////////////////////////////////////
@@ -695,6 +738,12 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     @Override
     public int focusPermille() {
         return extended && isFormed() ? focus : -1;
+    }
+
+    /** The Mk2's coil tier (0 cupronickel ... 7 tritanium), -1 where there are no coils. */
+    @Override
+    public int coilTier() {
+        return extended && isFormed() ? coilTier : -1;
     }
 
     /** Run time factor of the Mk2's focus: sharp 0.9, locked 0.8 (1 on the basic station). */
@@ -750,7 +799,10 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             boolean running = getRecipeLogic().isWorking();
             int spare = Math.max(0, availableComputation() - runningComputation());
             int gain = FOCUS_GAIN + Math.min(FOCUS_GAIN_SPARE, spare * FOCUS_GAIN_SPARE / FOCUS_SPARE_FULL);
-            focus = Math.max(0, Math.min(FOCUS_MAX, focus + gain - (running ? FOCUS_DRIFT : 0)));
+            double coils = coilFocus(coilTier);
+            gain = (int) Math.round(gain * (1 + coils));
+            int drift = (int) Math.round(FOCUS_DRIFT * (1 - coils));
+            focus = Math.max(0, Math.min(FOCUS_MAX, focus + gain - (running ? drift : 0)));
             // full, and the option on: latch, if the supplemental power can be had
             if (focusLockOption && focus >= FOCUS_MAX && supplementalPaid()) {
                 focusLocked = true;
@@ -785,7 +837,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public void afterWorking() {
         super.afterWorking();
         if (extended && focus > 0 && !focusLocked) {
-            focus = Math.max(0, focus - FOCUS_PER_RUN);
+            focus = Math.max(0, focus - (int) Math.round(FOCUS_PER_RUN * (1 - coilFocus(coilTier))));
             markDirty();
         }
     }
@@ -807,8 +859,18 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     }
 
     @Override
+    public void onStructureFormed() {
+        super.onStructureFormed();
+        // the Mk2's light-strip coils are one type all over the tower (GT's coil predicate); the basic station's are fixed
+        coilTier = extended && getMultiblockState().getMatchContext().get("CoilType") instanceof ICoilType coil ?
+                coil.getTier() : -1;
+        markDirty();
+    }
+
+    @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
+        coilTier = -1;
         fieldActive = false;
         startupTicks = 0;
         unpoweredTicks = 0;

@@ -113,6 +113,7 @@
     "af9.litho.console.focus.aligning": "aligning",
     "af9.litho.console.focus.ready": "ready",
     "af9.litho.console.focus.sharp": "sharp",
+    "af9.litho.console.coils": "Coil T%1$s  -%3$s%% EU  -%2$s%% time  -%4$s%% break",
     "af9.litho.console.focus.locked": "locked",
     "af9.litho.console.focus.latched": "latched",
     "af9.litho.console.print_vacuum": "this print dipped to %s",
