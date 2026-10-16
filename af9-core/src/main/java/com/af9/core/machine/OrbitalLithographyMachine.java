@@ -11,6 +11,7 @@ import com.af9.core.machine.part.CoolantHatchPartMachine;
 import com.af9.core.network.AF9Network;
 import com.af9.core.registry.AF9Blocks;
 
+import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.block.ICoilType;
 import com.gregtechceu.gtceu.api.capability.IOpticalComputationProvider;
 import com.gregtechceu.gtceu.api.capability.recipe.CWURecipeCapability;
@@ -34,8 +35,10 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.chance.logic.ChanceLogic;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
+import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
+import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.OpticalComputationHatchMachine;
@@ -79,8 +82,8 @@ import java.util.Map;
 
 /**
  * Controller logic of the Orbital Lithography Station (structure and recipes in KubeJS): prints the orbital modes,
- * 50 nm (ArF immersion), 20 and 7 nm (EUV) and 1 nm on chromodynium wafers with an X-ray free-electron laser (50A of
- * UHV from a laser hatch and energy hatches).
+ * 50 nm (ArF immersion), 20 and 7 nm (EUV) and 1 nm on chromodynium wafers with an X-ray free-electron laser (the 1 nm
+ * prints need plain UHV: 1A of UHV from the energy hatches, {@link LithoMode#hatchTier}).
  * <ul>
  * <li>It only prints in orbit (a dimension whose path ends in "orbit", e.g. Ad Astra's ad_astra:earth_orbit): the XFEL
  * needs the vacuum of space, and without gravity the resist goes on dry. Space is the vacuum, so there is nothing to
@@ -91,6 +94,10 @@ import java.util.Map;
  * minimum grade; each grade above it, up to the node's best, cuts the break chance (x0.8) and the run time (x0.9).</li>
  * <li>7 and 1 nm prints draw computation (CWU/t) from a computation hatch; every 1 nm print needs its own research
  * (like GT's assembly line: the Research Station scans the chip's reticle, the data orb goes in a data hatch).</li>
+ * <li>Every print overclocks perfectly (4x faster per voltage tier) up to UXV, the last tier of the pack
+ * ({@link #MAX_OC_TIER}); batch mode ({@link #BATCH}) bundles prints into longer runs on both sizes, and the Array Mk2
+ * also takes a parallel hatch (GT's, the basic station's structure has no place for one).</li>
+ * <li>The prints use up 10 to 20 times the base amounts of fluids and dry resist ({@link LithoMode#consumption()}).</li>
  * <li>While it is switched on and powered, its magnetic field gives the station itself normal gravity, the deck and
  * 4 blocks above it, nothing around it ({@link OrbitalField}).</li>
  * <li>The controller faces up out of the top deck; the station turns with it (any facing).</li>
@@ -188,6 +195,15 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * better machine.
      */
     public static final double COIL_TIME = 0.96, COIL_ENERGY = 0.04, COIL_BREAK = 0.95, COIL_FOCUS = 0.1;
+
+    /** The highest voltage tier either size overclocks to: UXV, the last tier of the pack. */
+    public static final int MAX_OC_TIER = GTValues.UXV;
+    /**
+     * Batch mode: a print overclocked below {@link #BATCH_TARGET_TICKS} runs several at once, up to
+     * {@link #BATCH_MAX}, like GT's batch mode but with a target that fits the station's long prints (GT's 5 s would
+     * never be reached by a 500 s print).
+     */
+    public static final int BATCH_TARGET_TICKS = 20 * 60, BATCH_MAX = 64;
 
     public static double coilTime(int tier) {
         return Math.pow(COIL_TIME, Math.max(0, tier));
@@ -305,6 +321,31 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return ModifierFunction.builder().durationMultiplier(coilTime(tier)).eutMultiplier(coilEnergy(tier)).build();
     };
 
+    /**
+     * Batch mode (the console's switch, {@link #isBatchEnabled}): a print that the overclocks brought below
+     * {@link #BATCH_TARGET_TICKS} runs as a batch of as many prints as fit that time (at most {@link #BATCH_MAX}, and
+     * as many as the inputs allow): inputs and outputs times the batch, the run as many times as long. Place it after
+     * the overclocks. Every print of the batch rolls its own break chance ({@link LithoMachine#printsIn}).
+     */
+    public static final RecipeModifier BATCH = (machine, recipe) -> {
+        if (!(machine instanceof OrbitalLithographyMachine station)) {
+            return RecipeModifier.nullWrongType(OrbitalLithographyMachine.class, machine);
+        }
+        if (!station.isFormed() || !station.isBatchEnabled() || recipe.duration >= BATCH_TARGET_TICKS) {
+            return ModifierFunction.IDENTITY;
+        }
+        int batch = Math.min(BATCH_MAX, BATCH_TARGET_TICKS / Math.max(1, recipe.duration));
+        batch = ParallelLogic.getParallelAmountWithoutEU(machine, recipe, batch);
+        if (batch == 0) return ModifierFunction.NULL;
+        if (batch == 1) return ModifierFunction.IDENTITY;
+        return ModifierFunction.builder()
+                .inputModifier(ContentModifier.multiplier(batch))
+                .outputModifier(ContentModifier.multiplier(batch))
+                .durationMultiplier(batch)
+                .batchParallels(batch)
+                .build();
+    };
+
     /** The EUV Light Source item the 20 and 7 nm prints keep (not consumed). */
     @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
     public static final ResourceLocation EUV_SOURCE = AF9Blocks.EUV_LIGHT_SOURCE.getId();
@@ -408,10 +449,26 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return null;
     }
 
-    /** A print runs only with its reticle in the reticle slot (GT would also take one from an input bus). */
+    /** Both sizes overclock to UXV and no further (the energy hatches may be higher). */
+    @Override
+    public int getOverclockTier() {
+        return Math.min(super.getOverclockTier(), MAX_OC_TIER);
+    }
+
+    @Override
+    public int getMaxOverclockTier() {
+        return Math.min(super.getMaxOverclockTier(), MAX_OC_TIER);
+    }
+
+    /**
+     * A print runs only with its reticle in the reticle slot (GT would also take one from an input bus), and with
+     * hatches of the node's voltage (the 1 nm prints: UHV).
+     */
     @Override
     public boolean canRun(GTRecipe recipe) {
-        if (LithoMode.of(recipe.recipeType) == LithoMode.N1 && focus < FOCUS_READY) return false;
+        LithoMode mode = LithoMode.of(recipe.recipeType);
+        if (mode != null && getInputTier() < mode.hatchTier) return false;
+        if (mode == LithoMode.N1 && focus < FOCUS_READY) return false;
         Item reticle = reticleOf(recipe);
         return reticle == null || reticleSlot.getStackInSlot(0).is(reticle);
     }
@@ -457,6 +514,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             if (!extended) return ConsoleWidget.STATUS_MK2_ONLY;
             if (focus < FOCUS_READY) return ConsoleWidget.STATUS_ALIGNING;
         }
+        if (getInputTier() < mode.hatchTier) return ConsoleWidget.STATUS_NO_POWER;
         if (reticleSlot.getStackInSlot(0).isEmpty()) return ConsoleWidget.STATUS_NO_RETICLE;
         // a computation hatch alone is not enough: something (an HPCA) has to supply the node's CWU/t through it
         if (mode.computation() > 0 && availableComputation() < mode.computation()) {

@@ -47,6 +47,16 @@ const AF9_WAFERS = (() => {
     ]
     modes.forEach((m, index) => m.index = index)
     const orbital = { id: '1nm', substrate: 8, baseBreak: 3500 }
+    // The orbital station is the pack's endgame: its prints use up 10 to 20 times the base amounts of fluids and dry resist
+    // (the blank wafer stays one per print), more the finer the node. Must match LithoMode.consumption() in af9-core,
+    // which scales the station's coolant the same way.
+    const ORBITAL_CONSUMPTION = { '50nm': 10, '20nm': 12, '7nm': 15, '1nm': 20 }
+    // The 1 nm prints roll their chip wafers per blank (GT's ranged outputs, rolled when the run ends): [min, max] by the
+    // chip's native substrate. silicon-class 64-86, phosphorus 32-64, neutronium 16-32, everything above neutronium
+    // (transmuted neutronium, strange matter) 1-16; the classes between (naquadah, trinium, naquadria) step down evenly
+    // from phosphorus to neutronium.
+    const ORBITAL_YIELD = { 0: [64, 86], 1: [32, 64], 2: [28, 56], 3: [24, 48], 4: [20, 40], 5: [16, 32], 6: [1, 16],
+        7: [1, 16] }
 
     function own(id, native, lens, dies) {
         return { id: id, native: native, reticle: id, lens: lens, chip: `af9:${id}_chip`,
@@ -143,8 +153,8 @@ const AF9_WAFERS = (() => {
         })
     })
     return { substrates: substrates, modes: modes, orbital: orbital, chips: chips, chip: chip, printed: printed,
-        yieldOf: yieldOf, wafersOf: wafersOf, chipStack: chipStack, classes: CLASSES, maskClass: maskClass,
-        reticleItem: reticleItem, reticles: reticles }
+        yieldOf: yieldOf, orbitalConsumption: ORBITAL_CONSUMPTION, orbitalYield: ORBITAL_YIELD, wafersOf: wafersOf,
+        chipStack: chipStack, classes: CLASSES, maskClass: maskClass, reticleItem: reticleItem, reticles: reticles }
 })()
 
 // Contamination (af9-core WaferContamination): every wafer of a substrate, every chip, the gloves that protect
@@ -597,22 +607,25 @@ ServerEvents.recipes(event => {
     modes.forEach(m => {
         const s = substrates[m.substrate]
         const chemicals = Math.pow(1.5, m.index)
-        const fluids = [
-            Fluid.of('gtceu:tmah_developer', Math.round(200 * chemicals)),
-            Fluid.of('gtceu:distilled_water', Math.round(1000 * chemicals)),
-            Fluid.of('gtceu:extreme_clean_dry_air', Math.round(1000 * chemicals))]
+        // the orbital station's nodes (50 nm and finer) use up 10-20 times as much of everything
+        const use = AF9_WAFERS.orbitalConsumption[m.id] || 1
+        const fluidList = [
+            ['gtceu:tmah_developer', Math.round(200 * chemicals)],
+            ['gtceu:distilled_water', Math.round(1000 * chemicals)],
+            ['gtceu:extreme_clean_dry_air', Math.round(1000 * chemicals)]]
         // the etch plasma (CF4 and chlorine: HV chemistry) from the 200 nm node on; the 350 nm node is MV and etches wet
-        if (m.index >= 1) fluids.push(Fluid.of('gtceu:etch_plasma_gas', Math.round(50 * chemicals)))
-        if (m.laserGas) fluids.push(Fluid.of(m.laserGas, Math.round(10 * chemicals)))
-        if (m.immersion) fluids.push(Fluid.of('gtceu:ultrapure_water', 1000))
+        if (m.index >= 1) fluidList.push(['gtceu:etch_plasma_gas', Math.round(50 * chemicals)])
+        if (m.laserGas) fluidList.push([m.laserGas, Math.round(10 * chemicals)])
+        if (m.immersion) fluidList.push(['gtceu:ultrapure_water', 1000])
         if (m.euv) {
-            fluids.push(Fluid.of('gtceu:tin', 144))
-            fluids.push(Fluid.of('gtceu:hydrogen', 1000))
+            fluidList.push(['gtceu:tin', 144])
+            fluidList.push(['gtceu:hydrogen', 1000])
         }
-        if (m.highK) fluids.push(Fluid.of('gtceu:hafnium_tetrachloride', 100))
+        if (m.highK) fluidList.push(['gtceu:hafnium_tetrachloride', 100])
         // 7 nm (strange matter) only prints with Idontknowium plasma: the forge holds star matter and
-        // anti-matter together for it (dtpf.js), and the station burns 1,000 mB a print
-        if (m.id == '7nm') fluids.push(Fluid.of('gtceu:idontknowium_plasma', 1000))
+        // anti-matter together for it (dtpf.js), and the station burns 1,000 mB a print (times the node's use)
+        if (m.id == '7nm') fluidList.push(['gtceu:idontknowium_plasma', 1000])
+        const fluids = fluidList.map(([fluid, amount]) => Fluid.of(fluid, amount * use))
         chips.filter(c => c.reticle && c.native <= m.substrate).forEach(c => {
             const recipe = event.recipes.gtceu[`lithography_${m.id}`](`af9:print_${c.id}_${m.id}`)
                 .itemInputs(`af9:coated_${s.id}_wafer`)
@@ -633,20 +646,22 @@ ServerEvents.recipes(event => {
     })
 
     // ---- Printed wafers (Orbital Lithography Station, 1 nm) ----
-    // X-ray FEL, dry resist; 50A of UHV for eight times the line's run time: a hundred times the energy of a 7 nm print.
-    // The coolant (500 mB supercooled endion per print) is added by the station; 96 CWU/t.
+    // X-ray FEL, dry resist; plain UHV (1A, one energy hatch, no amperage stacking) for 500 s, 20 times the base amounts
+    // (20 dry resist cartridges, and the coolant the station adds: 10,000 mB supercooled endion per print); 96 CWU/t.
+    // The yield is a range per chip class (ORBITAL_YIELD), rolled when the run ends.
     // Research, like GT's assembly line: every 1 nm print is unlocked on its own. The Research Station scans the chip's
     // reticle (2A of ZPM, 48 CWU/t, 256000 CWU) into a data orb, which goes in the station's data hatch (or a data
     // bank).
     const chromodynium = substrates[AF9_WAFERS.orbital.substrate]
     chips.filter(c => c.reticle).forEach(c => {
         event.recipes.gtceu.orbital_lithography(`af9:print_${c.id}_1nm`)
-            .itemInputs(chromodynium.blank, 'af9:dry_resist_cartridge')
+            .itemInputs(chromodynium.blank, `${AF9_WAFERS.orbitalConsumption['1nm']}x af9:dry_resist_cartridge`)
             .notConsumable(AF9_WAFERS.reticleItem(c, AF9_WAFERS.maskClass(chromodynium.index)))
-            .itemOutputs(`${yieldOf(chromodynium.index, c)}x ${printed(chromodynium.index, c)}`)
+            .itemOutputsRanged(printed(chromodynium.index, c), AF9_WAFERS.orbitalYield[c.native][0],
+                AF9_WAFERS.orbitalYield[c.native][1])
             .chancedOutput(`af9:broken_${chromodynium.id}_wafer`, AF9_WAFERS.orbital.baseBreak, 0)
-            .duration(7200)
-            .EUt(VA[chromodynium.tier], 50)
+            .duration(10000)
+            .EUt(VA[chromodynium.tier], 1)
             .CWUt(96)
             .stationResearch(b => b.researchStack(Item.of(AF9_WAFERS.reticleItem(c, AF9_WAFERS.maskClass(chromodynium.index))))
                 .researchId(`af9_litho_1nm_${c.id}`).EUt(VA[GTValues.ZPM], 2).CWUt(48, 256000))

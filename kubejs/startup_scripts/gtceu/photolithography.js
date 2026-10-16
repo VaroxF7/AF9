@@ -408,6 +408,11 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         const fluids = Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1)
         const itemsIn = Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1)
         const itemsOut = Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1)
+        const maintenance = Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)
+        // the top deck: PTFE casings and every hatch; the Array Mk2 (and only it) also takes a parallel hatch
+        const deck = Predicates.blocks('gtceu:inert_machine_casing').or(energy).or(laser).or(coolant).or(computation)
+            .or(data).or(optical).or(fluids).or(itemsIn).or(itemsOut).or(maintenance)
+        const parallelHatch = Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 0)
         return [
             ['K', Predicates.controller(Predicates.blocks(definition.get()))],
             ['A', Predicates.blocks('gtceu:hsse_frame')],
@@ -423,9 +428,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             // chemicals through fluid input hatches, the supercooled coolant through coolant hatches, computation
             // (7 and 1 nm) through a computation hatch and the 1 nm research through a data hatch. Every hatch goes
             // on the PTFE casings of the top deck and nowhere else.
-            ['O', Predicates.blocks('gtceu:inert_machine_casing').or(energy).or(laser).or(coolant).or(computation)
-                .or(data).or(optical).or(fluids).or(itemsIn).or(itemsOut)
-                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))],
+            ['O', mk2 ? deck.or(parallelHatch) : deck],
             [' ', Predicates.any()]
         ]
     }
@@ -447,11 +450,14 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // STRIP_BROKEN: the break roll decides; COOLANT: adds the coolant (faster with a better one);
         // MK2_GATE: the Mk2's own types only in orbit on the Array Mk2 (extended) once its beams are
         // aligned (the 1 nm prints check the same in the station's own gate); FOCUS: the Mk2's focus bonus (shorter
-        // runs; its break-chance share is in the station's machineBreakFactor); COILS: the Mk2's coil tier (shorter runs, less EU/t; break chance and focus in the station); perfect overclocks; then batch
-        // mode (GT's: once overclocked below 5 s, several prints in one run, the coolant too). No parallel hatch.
+        // runs; its break-chance share is in the station's machineBreakFactor); COILS: the Mk2's coil tier (shorter runs, less EU/t; break chance and focus in the station);
+        // PARALLEL_HATCH: GT's parallel hatch, which only the Array Mk2's structure has a place for (the coolant and
+        // everything else scale with the parallels); perfect overclocks (the machine caps them at UXV, af9-core
+        // getOverclockTier); then batch mode (the console's switch; af9-core BATCH: a print overclocked below a minute
+        // runs as a batch about a minute long, up to 64 prints, the coolant too).
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN, $OrbitalLithographyMachine.COOLANT,
-            $OrbitalLithographyMachine.MK2_GATE, $OrbitalLithographyMachine.FOCUS, $OrbitalLithographyMachine.COILS, GTRecipeModifiers.OC_PERFECT,
-            GTRecipeModifiers.BATCH_MODE])
+            $OrbitalLithographyMachine.MK2_GATE, $OrbitalLithographyMachine.FOCUS, $OrbitalLithographyMachine.COILS,
+            GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.OC_PERFECT, $OrbitalLithographyMachine.BATCH])
         .appearanceBlock(() => Block.getBlock('gtceu:inert_machine_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 20))
         .pattern(definition => {

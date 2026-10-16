@@ -125,7 +125,7 @@ the item tables of `AF9Items` (`af9-core/src/main/java/com/af9/core/registry/AF9
 | neutronium | `gtceu:neutronium_wafer` | 50 nm | ZPM · 491,520 | ArF immersion 193 / 1.35 | `arf_photoresist` | 12% | Orbital |
 | transmuted neutronium | `af9:transmuted_neutronium_wafer` | 20 nm | UV · 1,966,080 | EUV tin plasma 13.5 / 0.33 | `euv_photoresist` | 18% | Orbital + EUV source |
 | strange matter | `af9:strange_matter_wafer` | 7 nm | UHV · 7,864,320 | high-NA EUV 13.5 / 0.55 | `euv_photoresist` | 25% | Orbital + EUV source |
-| chromodynium | `af9:chromodynium_wafer` | **1 nm** | UHV · 50A = 98,304,000 | X-ray FEL 1.0 / 0.50 (orbit only) | `af9:dry_resist_cartridge` | 35% | Orbital, in orbit |
+| chromodynium | `af9:chromodynium_wafer` | **1 nm** | UHV · 1A = 2,097,152 (500 s) | X-ray FEL 1.0 / 0.50 (orbit only) | `af9:dry_resist_cartridge` | 35% | Orbital, in orbit |
 
 Substrate yields (wafers-per-print scale): Si 1 · P 4 · Nq 8 · Ke 10 · Nq\* 12 · Nt 16 · Nt\* 24 · Sq 32 · Qc 64.
 

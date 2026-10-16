@@ -298,10 +298,10 @@ public class PhotolithographyLineMachine extends LithoMachine {
     /**
      * Gives the lithography recipes their own EMI/JEI page ({@link com.af9.core.litho.LithoRecipeUI}: items and track
      * chemicals piped into the machine, like an assembly line; a 1 nm print's research in its own slot) and adds node,
-     * light source, machine version and the coolant to it, short enough for the page's width (no break chance: the
-     * chanced broken wafer shows it). The recipes with computation also get GT's "Min. Computation" line and (1 nm)
-     * its "Requires Research" line: the page is made one line taller for each, and {@link #respaceTexts} fixes GT
-     * putting both on the same row.
+     * light source and machine version to it, short enough for the page's width (no break chance: the chanced broken
+     * wafer shows it). The orbital pages instead say which multiblock tier the print needs (T1 the Orbital Station in
+     * blue, T2 the Array Mk2 in green) and carry no coolant, computation or research lines: the research has its own
+     * slot, the machine takes the rest ({@link #hideRequirementTexts} drops GT's lines for them).
      * <p>
      * A researched node's type (1 nm) also makes the Research Station recipes: a recipe's {@code stationResearch} only
      * becomes a Research Station recipe (reticle + empty data orb into the orb with the research) through its type's
@@ -323,39 +323,28 @@ public class PhotolithographyLineMachine extends LithoMachine {
             Component light = Component.translatable("af9.litho.light." + mode.light);
             switch (mode.machine) {
                 case ORBITAL -> type.addDataInfo(data -> Component.translatable(mode.mk2Only() ?
-                        "af9.recipe.litho_node_orbital_mk2" : "af9.recipe.litho_node_orbital", mode.nodeNm, light)
-                        .getString());
+                        "af9.recipe.litho_tier_t2" : "af9.recipe.litho_tier_t1").getString());
                 case SCANNER -> type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node_scanner",
                         mode.nodeNm, light, mode.level()).getString());
                 default -> type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node", mode.nodeNm,
                         light, mode.level()).getString());
             }
-            if (mode.minCoolant() != null) {
-                // the fluids by their full names (Supercooled Argon ...), not just the gas
-                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_coolant",
-                        mode.coolantPerPrint()).getString());
-                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_coolant_min",
-                        Component.translatable("af9.litho.coolant." + mode.minCoolant().id)).getString());
-                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_coolant_best",
-                        Component.translatable("af9.litho.coolant." + mode.bestCoolant().id)).getString());
-            }
-            if (mode.computation() > 0) {
-                // Duration, Total and Usage are GT's 3 default lines; + Min. Computation
-                type.setMaxTooltips(4);
-                if (mode.needsResearch()) type.setMinRecipeConditions(1);
-                type.setUiBuilder(PhotolithographyLineMachine::respaceTexts);
+            // GT's own lines for the computation ("Min. Computation") and the research ("Requires Research") are not
+            // shown: the data hatch and the machine's console say it, and the research has its slot on the page
+            if (mode.computation() > 0 || mode.needsResearch()) {
+                type.setUiBuilder(PhotolithographyLineMachine::hideRequirementTexts);
             }
         }
     }
 
     /**
-     * GT's recipe page writes the computation line and the first condition line on the same row (two counters for one
-     * column). GT (re)builds the recipe's content (on opening, and again on every overclock-tier click) as a widget
-     * group followed by the computation, condition and data lines: stack the lines after the last group one per row
-     * again, in the order GT added them.
+     * GT (re)builds the recipe's content (on opening, and again on every overclock-tier click) as a widget group
+     * followed by the computation line, the condition lines (the research) and the type's data lines. The pages of the
+     * computation and research prints keep only the data lines (the recipe type's own, in the order GT added them,
+     * one per row from where the first of the removed lines was): the others are removed from the page.
      */
-    private static void respaceTexts(com.gregtechceu.gtceu.api.recipe.GTRecipe recipe,
-                                     com.lowdragmc.lowdraglib.gui.widget.WidgetGroup page) {
+    private static void hideRequirementTexts(com.gregtechceu.gtceu.api.recipe.GTRecipe recipe,
+                                             com.lowdragmc.lowdraglib.gui.widget.WidgetGroup page) {
         List<LabelWidget> labels = new ArrayList<>();
         for (Widget widget : page.widgets) {
             if (widget instanceof com.lowdragmc.lowdraglib.gui.widget.WidgetGroup) labels.clear();
@@ -364,6 +353,9 @@ public class PhotolithographyLineMachine extends LithoMachine {
         if (labels.isEmpty()) return;
         int top = Integer.MAX_VALUE;
         for (LabelWidget label : labels) top = Math.min(top, label.getSelfPosition().y);
-        for (int i = 0; i < labels.size(); i++) labels.get(i).setSelfPositionY(top + i * 10);
+        int kept = Math.min(labels.size(), recipe.recipeType.getDataInfos().size());
+        for (LabelWidget label : labels.subList(0, labels.size() - kept)) page.removeWidget(label);
+        List<LabelWidget> data = labels.subList(labels.size() - kept, labels.size());
+        for (int i = 0; i < data.size(); i++) data.get(i).setSelfPositionY(top + i * 10);
     }
 }

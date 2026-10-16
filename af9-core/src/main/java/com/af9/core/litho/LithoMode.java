@@ -18,8 +18,9 @@ import java.util.Locale;
  * Photolithography Scanner (Mk2) 80 and 65 nm, the Orbital Lithography Station 50 nm down to 1 nm (in orbit only).
  * <p>
  * A mode prints on its own substrate (the 350 nm mode on silicon wafers, 200 nm on phosphorus wafers, ...) and draws
- * 4A of its voltage tier; the orbital mode draws 50A of UHV (laser hatch). A print is always GT's own chip
- * wafer; a higher substrate gives more of them per blank (GT's engraving yields, extended).
+ * 4A of its voltage tier; the orbital 1 nm mode draws 1A of UHV (an ordinary UHV energy hatch, no amperage stacking).
+ * A print is always GT's own chip wafer; a higher substrate gives more of them per blank (GT's engraving yields,
+ * extended; the 1 nm prints roll a range, see photolithography.js ORBITAL_YIELD).
  * <p>
  * Finer nodes break more wafers: every print can come out as the substrate's broken wafer, with the mode's base chance
  * plus up to 50 points from a dirty vacuum (see {@link #breakChance}).
@@ -67,9 +68,9 @@ public enum LithoMode {
     /** Break chance a completely dirty vacuum (cleanliness 0) adds on top of the mode's base chance. */
     public static final double DIRT_BREAK = 0.5;
     public static final double MAX_BREAK = 0.95;
-    /** Amps every mode draws (two 2A energy hatches); the X-ray FEL mode draws {@link #ORBITAL_AMPERAGE}. */
+    /** Amps every mode draws (two 2A energy hatches); the X-ray FEL mode draws {@link #ORBITAL_AMPERAGE}: plain UHV. */
     public static final int AMPERAGE = 4;
-    public static final int ORBITAL_AMPERAGE = 50;
+    public static final int ORBITAL_AMPERAGE = 1;
 
     /** Air cooling: per doubling of the cooling units above a print's heat load (up to this many): see {@link Coolant}. */
     public static final int MAX_COOLING_STEPS = 2;
@@ -127,7 +128,7 @@ public enum LithoMode {
         this.level = level;
     }
 
-    /** The 1 nm X-ray FEL mode: its own recipe type (gtceu:orbital_lithography), 50A of UHV, dry resist. */
+    /** The 1 nm X-ray FEL mode: its own recipe type (gtceu:orbital_lithography), 1A of UHV, dry resist. */
     public boolean isXfel() {
         return this == N1;
     }
@@ -169,15 +170,31 @@ public enum LithoMode {
         };
     }
 
-    /** Coolant per print (per parallel), in mB. */
-    public int coolantPerPrint() {
+    /**
+     * How many times the base amounts of a print the orbital station uses up (its fluids and the dry resist; the blank
+     * wafer stays one per print): 50 nm 10x, 20 nm 12x, 7 nm 15x, 1 nm 20x. Must match ORBITAL_CONSUMPTION in
+     * kubejs/server_scripts/mods/gtceu/photolithography.js. 1 on the line and the scanner.
+     */
+    public int consumption() {
         return switch (this) {
+            case N50 -> 10;
+            case N20 -> 12;
+            case N7 -> 15;
+            case N1 -> 20;
+            default -> 1;
+        };
+    }
+
+    /** Coolant per print (per parallel), in mB: the base amount (100 / 150 / 250 / 500) times {@link #consumption()}. */
+    public int coolantPerPrint() {
+        int base = switch (this) {
             case N50 -> 100;
             case N20 -> 150;
             case N7 -> 250;
             case N1 -> 500;
             default -> 0;
         };
+        return base * consumption();
     }
 
     /** 1 nm: every print needs its own research (GT's Research Station, the data orb in a data hatch). */
@@ -243,7 +260,7 @@ public enum LithoMode {
         return isXfel() ? ORBITAL_AMPERAGE : AMPERAGE;
     }
 
-    /** EU/t the mode's recipes draw: 4A of its tier (480 for 350 nm), 50A of UHV for the orbital mode. */
+    /** EU/t the mode's recipes draw: 4A of its tier (480 for 350 nm), 1A of UHV (2,097,152) for the 1 nm mode. */
     public long eut() {
         return (long) GTValues.VA[hatchTier] * amperage();
     }
