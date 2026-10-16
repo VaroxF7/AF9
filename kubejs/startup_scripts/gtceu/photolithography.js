@@ -133,22 +133,23 @@ const orbitalSection = d => {
     }
     return [0, 0]
 }
-// the crown's roof: flat along the back and over the controller, falling away steeply to the front and to the sides
-const orbitalRoof = (dx, dz) => (dz > 0 ? Math.floor(dz * 3.5) : Math.floor(-dz / 2)) + Math.max(0, Math.abs(dx) - 4) * 2
-// what stands out of the tower's walls, '' for nothing: 'F' a fin (a thin plate against the body: a tall one on the left,
-// a sawtooth of spurs on the right, a dorsal fin at the back, two pylons down the waist), 'R' a rib (the layered vertical
+// the crown's roof, the same left and right of the controller: the controller's saddle (5 wide) at the top, a dip to
+// either side of it, and a tall blade at each edge that falls away towards the front and the back
+const orbitalRoof = (dx, dz) => {
+    const ax = Math.abs(dx)
+    if (ax <= 2) return 0
+    if (ax <= 4) return 7
+    return Math.max(0, Math.abs(dz) - 3) * 2
+}
+// what stands out of the tower's walls, '' for nothing: 'F' a fin (a thin plate against the body: one against each
+// side of the crown, two pylons down the waist), 'R' a rib (the layered vertical
 // panels of the body). None of them reach a ring's middle level (the beams run there).
 const orbitalFin = (d, dx, dz) => {
     const sec = orbitalSection(d)
     const ax = Math.abs(dx)
     const az = Math.abs(dz)
-    // the tall blade on the left, swept back and rising to the crown's top
-    if (d >= 2 && d <= 21 && dx < -sec[0] && dx >= -(sec[0] + 1 + Math.floor(Math.min(d - 2, 10) * 0.8)) && dz >= -4 && dz <= 1) return 'F'
-    if (d >= 6 && d <= 17 && dx < -(sec[0] + 2) && dx >= -(sec[0] + 9) && dz >= -3 && dz <= 0) return 'F'
-    // the sawtooth of spurs on the right, long
-    if (d >= 6 && d <= 20 && az <= 4 && dx > sec[0] && dx <= sec[0] + (d % 4 === 0 ? 9 : d % 4 === 2 ? 5 : 2)) return 'F'
-    // the prow, a keel down the front of the crown
-    if (d <= 16 && dz < -sec[1] && dz >= -(sec[1] + 4) && ax <= 2 + Math.floor((d + 2) / 8)) return 'F'
+    // a plate against each side of the crown, under the blades
+    if (d >= 3 && d <= 21 && ax === sec[0] + 1 && az <= 3) return 'F'
     if (d >= 62 && d <= 78 && ax === sec[0] + 1 && az <= 1) return 'F'
     // ribs up the faces of the upper block and of the waist
     if (d >= 21 && d <= 80 && d !== 22 && sec[0] > 4) {
