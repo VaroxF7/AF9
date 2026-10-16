@@ -140,8 +140,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         }
     }
 
-    /** The tower's body is 13 x 13 (half width 6); its rings: the big one in the middle, a smaller one above and below. */
-    public static final int TOWER_HALF = 6;
+    /** Half width of the rings' collar plates on the tower (19 wide): the beams out to the rings start outside it. */
+    public static final int TOWER_HALF = 9;
     public static final List<Band> BANDS_MK2 = List.of(new Band(40, 3, 36, 5, 0.02F), new Band(22, 2, 26, 4, -0.03F),
             new Band(58, 2, 18, 3, -0.035F));
     /** The light rings of the Mk2's bands (the render reads them through {@link #ringSpecs}). */

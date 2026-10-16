@@ -105,43 +105,96 @@ const ORBITAL_BASIC = [
 const ORBITAL_MK2 = 73          // width of the plane, the tower at its centre (36)
 const ORBITAL_MID = 36
 const ORBITAL_DEPTH = 130       // levels: the crown at the top, the needle's tip at the bottom
-const ORBITAL_HALF = 6          // half width of the tower's body (13 x 13)
-const ORBITAL_BODY_TO = 80      // the body ends here, below it the tower tapers to the needle
+const ORBITAL_HALF = 9          // half width of the ring collars, the beams start outside it
 const ORBITAL_RINGS = [         // d of the ring's top level, levels thick, outer radius, band width (every ring one band of casing)
     { d: 22, t: 2, r: 26, w: 4 },
     { d: 40, t: 3, r: 36, w: 5 },
     { d: 58, t: 2, r: 18, w: 3 }
 ]
-// half width of the tower d levels below the controller: a stepped crown, the body, then the taper to the needle
-const orbitalHalf = d => {
-    if (d <= 10) return 1 + Math.floor((d + 1) / 2)
-    if (d <= ORBITAL_BODY_TO) return ORBITAL_HALF
-    if (d <= ORBITAL_BODY_TO + 20) return Math.max(1, ORBITAL_HALF - Math.floor((d - ORBITAL_BODY_TO + 3) / 4))
-    return 0
+// the ring's middle level: the collar plate of the tower and the beams out to the ring sit here
+const orbitalMid = ring => ring.d + Math.floor(ring.t / 2)
+const orbitalCollar = d => ORBITAL_RINGS.some(ring => Math.abs(d - orbitalMid(ring)) <= 1)
+// the tower's half widths (x, z) d levels down: a crown on a slab-sided upper block, a slimmer waist, the long taper
+const orbitalSection = d => {
+    if (d <= 20) return [7, 5]
+    if (d <= 39) return [8, 5]
+    if (d <= 57) return [7, 5]
+    if (d <= 80) return [5, 4]
+    if (d <= 104) {
+        const step = Math.floor((d - 81) / 6)
+        return [4 - Math.floor(step / 2), Math.max(1, 3 - Math.floor(step / 2))]
+    }
+    return [0, 0]
+}
+// the crown's roof: flat along the back and over the controller, falling away steeply to the front and to the sides
+const orbitalRoof = (dx, dz) => (dz > 0 ? Math.floor(dz * 3.5) : Math.floor(-dz / 2)) + Math.max(0, Math.abs(dx) - 4) * 2
+// what stands out of the tower's walls, '' for nothing: 'F' a fin (a thin plate against the body: a tall one on the left,
+// a sawtooth of spurs on the right, a dorsal fin at the back, two pylons down the waist), 'R' a rib (the layered vertical
+// panels of the body), 'P' a lit lift pod. None of them reach a ring's middle level (the beams run there).
+const orbitalFin = (d, dx, dz) => {
+    const sec = orbitalSection(d)
+    const ax = Math.abs(dx)
+    const az = Math.abs(dz)
+    if (d >= 2 && d <= 21 && dx === -(sec[0] + 1) && dz >= -3 && dz <= 1) return 'F'
+    if (d >= 7 && d <= 17 && dx === -(sec[0] + 2) && dz >= -2 && dz <= 0) return 'F'
+    if (d >= 8 && d <= 20 && az <= 2 && dx > sec[0] && dx <= sec[0] + (d % 4 === 0 ? 3 : d % 4 === 2 ? 1 : 0)) return 'F'
+    if (d <= 16 && dz === -(sec[1] + 1) && ax <= 1) return 'F'
+    if (d >= 62 && d <= 78 && ax === sec[0] + 1 && az <= 1) return 'F'
+    // lift pods, a little way out of the faces, two wide and seven tall
+    if (d >= 27 && d <= 33 && dz === sec[1] + 1 && dx >= -3 && dx <= -2) return 'P'
+    if (d >= 46 && d <= 52 && dz === sec[1] + 1 && dx >= 2 && dx <= 3) return 'P'
+    if (d >= 29 && d <= 35 && dx === -(sec[0] + 1) && dz >= 3 && dz <= 4) return 'P'
+    if (d >= 64 && d <= 70 && dx === sec[0] + 1 && dz >= -4 && dz <= -3) return 'P'
+    // ribs up the faces of the upper block and of the waist
+    if (d >= 21 && d <= 80 && d !== 22 && sec[0] > 4) {
+        if (az === sec[1] + 1 && ax <= sec[0] - 2 && dx % 4 === 0) return 'R'
+        if (ax === sec[0] + 1 && az <= sec[1] - 2 && dz % 4 === 0) return 'R'
+    }
+    return ''
+}
+// is this cell part of the tower's mass (its walls, hollow inside, are what is built)
+const orbitalSolid = (d, dx, dz) => {
+    if (d < 0) return false
+    const ax = Math.abs(dx)
+    const az = Math.abs(dz)
+    if (orbitalCollar(d) && ax <= ORBITAL_HALF && az <= ORBITAL_HALF && ax + az <= 15) return true
+    const sec = orbitalSection(d)
+    if (sec[0] === 0) return false
+    if (ax <= sec[0] && az <= sec[1] && ax + az <= sec[0] + sec[1] - 2) return d <= 20 ? d >= orbitalRoof(dx, dz) : true
+    return orbitalFin(d, dx, dz) !== ''
 }
 const orbitalTowerCell = (d, dx, dz) => {
-    const half = orbitalHalf(d)
-    const edge = Math.max(Math.abs(dx), Math.abs(dz))
     if (d === 0 && dx === 0 && dz === 0) return 'K'
-    if (half === 0) {
-        // the needle: HSS-E core, a frame every 8 levels round it (frames only: the rest is thin as a needle)
-        if (dx === 0 && dz === 0) return 'A'
-        return ' '
-    }
-    if (edge > half) return ' '
+    if (d > 104) return dx === 0 && dz === 0 ? 'A' : ' '   // the needle: an HSS-E column, frames only
+    if (Math.abs(dx) > 13 || Math.abs(dz) > 13) return ' '
+    // the centre column: PTFE through the crown (the hatches go on it), HSS-E below it
     if (dx === 0 && dz === 0) return d < 12 ? 'O' : 'A'
-    // crown: plain PTFE casing all round and across the top, the hatches go on it
-    if (d <= 10) return edge === half || d === 0 || d % 2 === 0 ? 'O' : ' '
-    // floors across the body every 12 levels
-    if (d <= ORBITAL_BODY_TO && d % 12 === 0) return 'C'
-    if (edge < half) return ' '
-    // the shell: HSS-S corner posts, light strips (HSS-G coil) up the middle of the faces, panels of stress-proof casing
-    // in bands, non-conducting between
-    const corner = Math.abs(dx) === half && Math.abs(dz) === half
-    if (d > ORBITAL_BODY_TO) return corner ? 'F' : 'L'
-    if (corner) return 'F'
-    if ((dx === 0 || dz === 0) && d % 14 > 3) return 'B'
-    return d % 6 < 2 ? 'C' : 'L'
+    if (!orbitalSolid(d, dx, dz)) return ' '
+    const east = orbitalSolid(d, dx + 1, dz)
+    const west = orbitalSolid(d, dx - 1, dz)
+    const north = orbitalSolid(d, dx, dz + 1)
+    const south = orbitalSolid(d, dx, dz - 1)
+    const up = orbitalSolid(d - 1, dx, dz)
+    const down = orbitalSolid(d + 1, dx, dz)
+    if (east && west && north && south && up && down) {
+        // inside the walls: a floor every 12 levels
+        return d <= 80 && d % 12 === 0 ? 'C' : ' '
+    }
+    // the crown and the roof: plain PTFE casing all round, the hatches go on it
+    if (d <= 10 || (d <= 20 && !up)) return 'O'
+    const part = orbitalFin(d, dx, dz)
+    if (part === 'P') return 'B'
+    if (part === 'R') return 'C'
+    if (part === 'F') return !up || !down ? 'F' : 'L'
+    // corners and the rims of plates: HSS-S frames
+    if ((east ? 1 : 0) + (west ? 1 : 0) + (north ? 1 : 0) + (south ? 1 : 0) <= 2) return 'F'
+    // walls: stress-proof casing columns with non-conducting panels between, a light strip (HSS-G coil) up each third
+    // column, broken every 18 levels
+    const along = Math.abs(!north || !south ? dx : dz)
+    if (along % 6 === 3 && d % 18 > 2) return 'B'
+    // rows of small lit windows across the panels, every 8 levels
+    if (d % 8 === 4 && along % 2 === 0 && along % 6 !== 0) return 'B'
+    return along % 6 < 3 ? 'L' : 'C'
 }
 const orbitalRingCell = (d, dx, dz) => {
     let found = ' '
@@ -155,9 +208,9 @@ const orbitalRingCell = (d, dx, dz) => {
             return
         }
         // the beams out to it: the shock-proof beam between HSS-S rails, one level, along the axes
-        if (d === mid && r > ORBITAL_HALF && r < ring.r - ring.w) {
-            if (Math.abs(dx) === 0 && Math.abs(dz) > 0 || Math.abs(dz) === 0 && Math.abs(dx) > 0) found = 'H'
-            else if (Math.abs(dx) === 1 && Math.abs(dz) > 1 || Math.abs(dz) === 1 && Math.abs(dx) > 1) found = 'F'
+        if (d === mid && Math.max(Math.abs(dx), Math.abs(dz)) > ORBITAL_HALF && r < ring.r - ring.w) {
+            if (dx === 0 || dz === 0) found = 'H'
+            else if (Math.abs(dx) === 1 || Math.abs(dz) === 1) found = 'F'
         }
     })
     return found

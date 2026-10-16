@@ -238,10 +238,8 @@ public final class StructureSkins {
                         double r = Math.sqrt(right * right + up * up);
                         boolean inBand = r >= band.radius() - band.width() && r <= band.radius() + 0.3;
                         // the spokes: the beam of shock-proof casing between rails along the axes, on the middle level
-                        boolean spoke = d == mid && r > skin.rings().towerHalf() && r < band.radius() - band.width()
-                                && (right == 0 && up != 0 || up == 0 && right != 0
-                                        || Math.abs(right) == 1 && Math.abs(up) > 1
-                                        || Math.abs(up) == 1 && Math.abs(right) > 1);
+                        boolean spoke = d == mid && Math.max(Math.abs(right), Math.abs(up)) > skin.rings().towerHalf() && r < band.radius() - band.width()
+                                && (right == 0 || up == 0 || Math.abs(right) == 1 || Math.abs(up) == 1);
                         if (!inBand && !spoke) continue;
                         BlockPos pos = at(controller, right, up, d);
                         if (pos.equals(origin) || parts.contains(pos)) continue;
