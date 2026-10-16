@@ -447,11 +447,20 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return extended && big != null ? big : basic;
     }
 
-    /** The structure preview: the basic station (the Array Mk2 is too big to show). */
+    /** The structure previews: the basic station, and the Array Mk2's tower on a second page (its rings are drawn, not built). */
     public static List<MultiblockShapeInfo> previews(MultiblockMachineDefinition definition) {
         List<MultiblockShapeInfo> pages = new ArrayList<>(previewShapes(definition));
-        // no page for the Mk2: its tower is 73 x 130 x 73 blocks, far too big for the structure view (a page that size
-        // would stall JEI); the build is in the quests and the docs
+        // the page for the Mk2: only the tower itself, cut out of the 73 x 130 x 73 pattern (the full size is far too big
+        // for the structure view); the rings and their beams are drawn by the machine's own render once it is formed.
+        // previewShapes built the definition's pattern, which is what makes the script hand over the extended one.
+        BlockPattern big = extendedPattern;
+        if (big != null) {
+            try {
+                pages.addAll(shapes(definition, big, true));
+            } catch (RuntimeException e) {
+                AF9Core.LOGGER.warn("Orbital station preview: cannot build the Mk2 page, showing the basic station only", e);
+            }
+        }
         return pages;
     }
 
@@ -1008,10 +1017,18 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * orientation (facing up, upwards north) and faces the controller up.
      */
     public static List<MultiblockShapeInfo> previewShapes(MultiblockMachineDefinition definition) {
-        BlockPattern pattern = definition.getPatternFactory().get();
+        return shapes(definition, definition.getPatternFactory().get(), false);
+    }
+
+    /** The tower's half width in a cut-out Mk2 page (the plane axes are cut to this many blocks round the middle). */
+    private static final int PREVIEW_CUT = 14;
+
+    private static List<MultiblockShapeInfo> shapes(MultiblockMachineDefinition definition, BlockPattern pattern,
+                                                    boolean cut) {
         int[] repetition = new int[pattern.aisleRepetitions.length];
         for (int i = 0; i < repetition.length; i++) repetition[i] = pattern.aisleRepetitions[i][0];
         BlockInfo[][][] north = pattern.getPreview(repetition);
+        if (cut) north = cutOut(north);
         int[][] turn;
         try {
             turn = previewTurn(pattern);
@@ -1046,6 +1063,29 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             }
         }
         return List.of(new MultiblockShapeInfo(solid(up)));
+    }
+
+    /**
+     * The tower out of the Mk2's preview: every axis that is the pattern's full 73 wide is cut to the blocks within
+     * {@link #PREVIEW_CUT} of its middle, the depth axis stays whole.
+     */
+    private static BlockInfo[][][] cutOut(BlockInfo[][][] full) {
+        int[] size = { full.length, full[0].length, full[0][0].length };
+        int[] from = new int[3], to = new int[3];
+        for (int i = 0; i < 3; i++) {
+            boolean plane = size[i] == 2 * HALF_WIDTH_MK2 + 1;
+            from[i] = plane ? HALF_WIDTH_MK2 - PREVIEW_CUT : 0;
+            to[i] = plane ? HALF_WIDTH_MK2 + PREVIEW_CUT + 1 : size[i];
+        }
+        BlockInfo[][][] cut = new BlockInfo[to[0] - from[0]][to[1] - from[1]][to[2] - from[2]];
+        for (int x = from[0]; x < to[0]; x++) {
+            for (int y = from[1]; y < to[1]; y++) {
+                for (int z = from[2]; z < to[2]; z++) {
+                    cut[x - from[0]][y - from[1]][z - from[2]] = full[x][y][z];
+                }
+            }
+        }
+        return cut;
     }
 
     /** The linear map from GT's preview (facing north) to the controller-up orientation, as a 3x3 matrix. */
