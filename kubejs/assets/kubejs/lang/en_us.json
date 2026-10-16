@@ -5521,7 +5521,7 @@
 	"atm9.quest.gregtech.luv.desc.largeFractioningDistillery.1": "The Large Fractioning Distillery is just like the Distillation Tower, but on steroids. Instead of having to add multiple LFD's to process a fluid out, you can utilize the Parallelization hatches. ",
 	"atm9.quest.gregtech.luv.desc.largeFractioningDistillery.2": "This effectively makes the Large Fractioning Distillery Multiple multiblock structures, though thats the same case with any Multiblock with a Parallelizing hatch.",
 	"atm9.quest.gregtech.luv.subt.lfd": "LFD",
-	"atm9.quest.gregtech.luv.desc.cutterEngravingLaser": "Wafers and Silicon Boules need to be cut. This cutter, paired with the Engraving Laser will make sure we keep our stock of Chips up!",
+	"atm9.quest.gregtech.luv.desc.cutterEngravingLaser": "Wafers and Silicon Boules need to be cut. The Industrial Cutting Machine, with its big saw blade behind the window, paired with the Engraving Laser will make sure we keep our stock of Chips up!",
 	"atm9.quest.gregtech.luv.subt.wafflesBoules": "Waffles and Boules",
 	"atm9.quest.gregtech.luv.desc.multiblockValue": "This multiblock may not be used in as much QTY as the other multiblock structures, but it will prove its value, I promise!",
 	"atm9.quest.gregtech.luv.subt.beerMaking": "Can this make Beer?",

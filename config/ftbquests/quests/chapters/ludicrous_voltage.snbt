@@ -1131,7 +1131,7 @@
 		{
 			dependencies: ["319D3A14D62225BC"]
 			description: ["{atm9.quest.gregtech.luv.desc.cutterEngravingLaser}"]
-			icon: "gtceu:large_cutter"
+			icon: "gtceu:industrial_cutting_machine"
 			id: "187281092C0BC9CE"
 			optional: true
 			rewards: [{
@@ -1145,25 +1145,25 @@
 			tasks: [
 				{
 					id: "723F3F70B3085C91"
-					item: "gtceu:large_cutter"
+					item: "gtceu:industrial_cutting_machine"
 					type: "item"
 				}
 				{
-					count: 6L
+					count: 35L
 					id: "63A2BB514441FFD5"
-					item: "gtceu:slicing_blades"
+					item: "af9:cutter_casing"
 					type: "item"
 				}
 				{
-					count: 77L
+					count: 18L
 					id: "0B8CA3FB9A579D7C"
-					item: "gtceu:shock_proof_cutting_casing"
+					item: "gtceu:tungsten_carbide_frame"
 					type: "item"
 				}
 				{
-					count: 6L
+					count: 16L
 					id: "2DC0AF14D7554BD2"
-					item: "gtceu:tempered_glass"
+					item: "gtceu:laminated_glass"
 					type: "item"
 				}
 			]
