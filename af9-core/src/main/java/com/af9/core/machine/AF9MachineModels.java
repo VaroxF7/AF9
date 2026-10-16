@@ -7,6 +7,7 @@ import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.LithoChamberRender;
 import com.af9.core.client.render.ModeFluidRender;
+import com.af9.core.client.render.SawBladeRender;
 import com.af9.core.client.render.SpaceElevatorRender;
 
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
@@ -176,6 +177,22 @@ public final class AF9MachineModels {
                                                                                     float back) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(() -> HearthTurntableRender.create(back)));
+    }
+
+    /**
+     * GT's workable casing model plus the Industrial Cutting Machine's saw blade ({@link SawBladeRender}): a big disc
+     * standing in the chamber behind the front window, spinning while a recipe runs. The machine must implement
+     * {@link ISawMachine} and have a block entity renderer ({@code .hasBER(true)}).
+     *
+     * @param back   blade axis behind the controller (blocks)
+     * @param up     blade centre above the controller block's floor (blocks)
+     * @param radius blade radius (blocks)
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithSawBlade(ResourceLocation casing,
+                                                                             ResourceLocation overlay, float back,
+                                                                             float up, float radius) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(() -> SawBladeRender.create(back, up, radius)));
     }
 
     /**

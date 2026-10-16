@@ -12,3 +12,10 @@ That project credits Jimbno's UU-Tex pack and other texture artists for parts of
 | `nano_particles.png` (+ `.mcmeta`) | `materialicons/NONE/nanites.png` | tinted cyan (multiplied by 120,225,245) |
 
 `fiber_interconnects.png` is our own work (`tools/textures/optical_items.py`, animated by `animate_optical.py`).
+
+## Industrial Cutting Machine
+
+The Industrial Cutting Machine copies the look of the cutting multiblock of GTNH 2.9 (GT5-Unofficial, LGPL-3.0 or later,
+<https://github.com/GTNewHorizons/GT5-Unofficial>): purple plated casings, frame boxes, a glass window and an animated saw
+blade. The casing texture, the controller panel (`tools/textures/cutter.py`) and the blade renderer
+(`SawBladeRender`) are written from scratch for AF9 after that look; no GT5-Unofficial file is copied.

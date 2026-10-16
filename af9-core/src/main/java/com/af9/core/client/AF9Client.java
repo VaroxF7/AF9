@@ -9,6 +9,7 @@ import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.LithoChamberRender;
 import com.af9.core.client.render.ModeFluidRender;
 import com.af9.core.client.render.PondWalls;
+import com.af9.core.client.render.SawBladeRender;
 import com.af9.core.client.render.SpaceElevatorRender;
 import com.af9.core.client.skin.StructureSkinRender;
 import com.af9.core.client.skin.StructureSkins;
@@ -49,6 +50,7 @@ public final class AF9Client {
         LaserEngraverRender.register();
         EcrwArmRender.register();
         HearthTurntableRender.register();
+        SawBladeRender.register();
         PondWalls.register();
         FiltrationBasinRender.register();
         // the placeable buckets tint their content layer with the fluid's colour
