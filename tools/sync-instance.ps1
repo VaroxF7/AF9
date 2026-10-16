@@ -25,11 +25,11 @@ $statePath = Join-Path $Instance 'af9_sync_state.json'
 $state = @{}
 if (Test-Path $statePath) { (Get-Content $statePath -Raw | ConvertFrom-Json).PSObject.Properties | ForEach-Object { $state[$_.Name] = $_.Value } }
 
-# a quest file as the game would not care about: no BOM, no whitespace, no order_index
+# a quest file as the game would not care about: no BOM, no whitespace, no order_index, no quest_links (it regenerates their ids)
 function Get-Canon([string] $path) {
     $text = [IO.File]::ReadAllText($path) -replace '^\uFEFF', ''
     $lines = $text -split "`n" | Where-Object { $_ -notmatch '^\s*order_index:' }
-    $canon = ($lines -join '') -replace '\s+', ''
+    $canon = ($lines -join '') -replace '\s+', '' -replace 'quest_links:\[[^\]]*\]', ''
     $sha = [Security.Cryptography.SHA256]::Create()
     [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($canon))).Replace('-', '')
 }
