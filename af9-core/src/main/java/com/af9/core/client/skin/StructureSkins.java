@@ -455,6 +455,7 @@ public final class StructureSkins {
     /** Forge bus, every client tick: looks for formed controllers round the player and keeps what they hide current. */
     public static void onClientTick(TickEvent.ClientTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
+        RingDraw.carry(Minecraft.getInstance());
         if (++ticks % SCAN_PERIOD != 0) return;
         Minecraft mc = Minecraft.getInstance();
         ClientLevel level = mc.level;

@@ -7,15 +7,20 @@ import com.af9.core.machine.OrbitalLithographyMachine.Band;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
+import net.minecraft.world.phys.Vec3;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.mojang.math.Axis;
 import org.joml.Matrix4f;
 
@@ -58,6 +63,10 @@ final class RingDraw {
         float[] angle;
         float factor = IDLE_SPEED;
         float last = Float.NaN;
+        // for carrying the player: the controller block, the directions of the pattern's axes, the rings
+        BlockPos origin;
+        Direction right, up, back;
+        List<Band> bands;
     }
 
     static void forget(long controller) {
@@ -74,6 +83,12 @@ final class RingDraw {
         if (level == null) return;
         List<Band> bands = rings.bands();
         float[] angle = advance(self, bands, working, level.getGameTime() + partialTick);
+        State state = STATES.get(self.getPos().asLong());
+        state.origin = self.getPos();
+        state.right = RelativeDirection.RIGHT.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), false);
+        state.up = RelativeDirection.UP.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), false);
+        state.back = RelativeDirection.BACK.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), false);
+        state.bands = bands;
         int color = working && self instanceof ILightRingMachine ring ? ring.getRingColor() : IDLE_COLOR;
         float time = level.getGameTime() + partialTick;
 
@@ -112,6 +127,53 @@ final class RingDraw {
             state.angle[i] = (state.angle[i] + dt * bands.get(i).spin() * state.factor) % Mth.TWO_PI;
         }
         return state.angle;
+    }
+
+    /**
+     * Every client tick: a player standing on a ring is turned with it, like a moving platform. The ring's blocks stay
+     * where they are and are solid (the drawn ring is the same band), so this only moves the rider: the position (and the
+     * view, when the ring turns about the vertical) is rotated about the ring's axis by the ring's step of the tick.
+     */
+    static void carry(Minecraft mc) {
+        LocalPlayer player = mc.player;
+        if (player == null || STATES.isEmpty() || !player.onGround() || player.isPassenger()
+                || player.getAbilities().flying || player.isSpectator()) {
+            return;
+        }
+        for (State st : STATES.values()) {
+            if (st.bands == null || st.origin == null || st.angle == null) continue;
+            Vec3 centre = Vec3.atCenterOf(st.origin);
+            Vec3 rel = player.position().subtract(centre);
+            Vec3 r = vec(st.right), u = vec(st.up), b = vec(st.back);
+            double lx = rel.dot(r), ly = rel.dot(u), lz = rel.dot(b) + 0.5;
+            double radius = Math.sqrt(lx * lx + ly * ly);
+            if (Math.abs(lx) > 80 || Math.abs(ly) > 80) continue;
+            for (Band band : st.bands) {
+                // on the ring's top face (the level nearest the controller), within its band
+                if (Math.abs(lz - band.d0()) > 0.3 || radius < band.radius() - band.width() - 0.3
+                        || radius > band.radius() + 1.0) {
+                    continue;
+                }
+                float step = band.spin() * st.factor;
+                double cos = Math.cos(step), sin = Math.sin(step);
+                double nx = lx * cos - ly * sin, ny = lx * sin + ly * cos;
+                Vec3 move = r.scale(nx - lx).add(u.scale(ny - ly));
+                player.setPos(player.getX() + move.x, player.getY() + move.y, player.getZ() + move.z);
+                // about the vertical axis, the view turns with the ring (the sense follows the axes' handedness)
+                if (st.back.getAxis() == Direction.Axis.Y) {
+                    double hand = Math.signum(r.dot(u.cross(b)));
+                    float degrees = (float) Math.toDegrees(step * hand * st.back.getStepY());
+                    player.setYRot(player.getYRot() - degrees);
+                    player.yRotO -= degrees;
+                    player.setYHeadRot(player.getYHeadRot() - degrees);
+                }
+                break;
+            }
+        }
+    }
+
+    private static Vec3 vec(Direction d) {
+        return new Vec3(d.getStepX(), d.getStepY(), d.getStepZ());
     }
 
     //////////////////////////////////////
