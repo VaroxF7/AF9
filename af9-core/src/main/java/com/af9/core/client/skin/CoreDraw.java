@@ -19,6 +19,8 @@ final class CoreDraw {
     /** The core's place, in the middle of the upper chamber, and the orbits' span. */
     private static final float CORE_Z = 30F, ORBIT_Z0 = 14F, ORBIT_Z1 = 56F;
     private static final float CX = 0.5F, CY = 0.5F;
+    /** The lance's span along the back axis: the source inside the foot chamber to the tip, some 45 blocks below the foot. */
+    private static final float LANCE_Z0 = 92F, LANCE_Z1 = 150F;
 
     private CoreDraw() {}
 
@@ -29,6 +31,8 @@ final class CoreDraw {
         float r = (rgb >> 16 & 255) / 255F, g = (rgb >> 8 & 255) / 255F, b = (rgb & 255) / 255F;
         float level = 0.45F + 0.55F * power;
         float pulse = 0.5F + 0.5F * Mth.sin(phase * 0.12F);
+
+        lance(c, m, phase, power);
 
         // the plasma column round the frame, a glow in the colour and a white-hot thread in it
         prism(c, m, Z0, Z1, 0.95F + 0.12F * pulse, 10, r, g, b, 0.16F * level);
@@ -85,6 +89,48 @@ final class CoreDraw {
                             0.9F * level);
                 }
             }
+        }
+    }
+
+    /**
+     * The plasma lance under the tower: a source glow in the hollow of the foot chamber and a beam leaving it through the
+     * opening, a violet sheath widening and fading as it goes, a white-hot thread in it, shock rings running down it.
+     */
+    private static void lance(VertexConsumer c, Matrix4f m, float phase, float power) {
+        float level = 0.45F + 0.55F * power;
+        float flicker = 0.85F + 0.15F * Mth.sin(phase * 0.7F) * Mth.sin(phase * 0.31F);
+        float k = level * flicker;
+        float r = 0.6F, g = 0.35F, b = 1F;
+
+        // the source: a glow and a turning ring inside the chamber
+        sphere(c, m, CX, CY, LANCE_Z0, 1.3F, 6, 10, r, g, b, 0.28F * k);
+        sphere(c, m, CX, CY, LANCE_Z0, 0.7F, 5, 8, 0.9F, 0.95F, 1F, 0.5F * k);
+        float a = phase * 0.08F;
+        ring(c, m, CX, CY, LANCE_Z0, Mth.cos(a), Mth.sin(a), 0, -Mth.sin(a) * 0.5F, Mth.cos(a) * 0.5F, 0.866F, 2.2F,
+                0.18F, 32, r, g, b, 0.55F * k);
+
+        // the beam: sheath and thread, strong at the nozzle and gone at the tip
+        fade(c, m, LANCE_Z0, LANCE_Z1, 0.5F, 1.15F, 10, r, g, b, 0.38F * k, 0F);
+        fade(c, m, LANCE_Z0, LANCE_Z1, 0.3F, 0.55F, 8, r, g, b, 0.3F * k, 0F);
+        fade(c, m, LANCE_Z0, LANCE_Z1 - 12F, 0.12F, 0.2F, 6, 1F, 1F, 1F, 0.8F * k, 0F);
+
+        // shock rings leaving the nozzle, widening and fading
+        for (int i = 0; i < 6; i++) {
+            float t = (phase * 0.014F + i / 6F) % 1F;
+            float z = LANCE_Z0 + 8F + (LANCE_Z1 - LANCE_Z0 - 8F) * t;
+            disc(c, m, CX, CY, z, 0.6F + 1.3F * t, 0.2F, 14, r, g, b, 0.6F * (1F - t) * k);
+        }
+    }
+
+    /** An open prism whose radius and alpha run from the first end to the second (per-vertex alpha). */
+    private static void fade(VertexConsumer c, Matrix4f m, float z0, float z1, float rad0, float rad1, int sides,
+                             float r, float g, float b, float a0, float a1) {
+        for (int i = 0; i < sides; i++) {
+            float p0 = Mth.TWO_PI * i / sides, p1 = Mth.TWO_PI * (i + 1) / sides;
+            c.vertex(m, CX + Mth.cos(p0) * rad0, CY + Mth.sin(p0) * rad0, z0).color(r, g, b, a0).endVertex();
+            c.vertex(m, CX + Mth.cos(p1) * rad0, CY + Mth.sin(p1) * rad0, z0).color(r, g, b, a0).endVertex();
+            c.vertex(m, CX + Mth.cos(p1) * rad1, CY + Mth.sin(p1) * rad1, z1).color(r, g, b, a1).endVertex();
+            c.vertex(m, CX + Mth.cos(p0) * rad1, CY + Mth.sin(p0) * rad1, z1).color(r, g, b, a1).endVertex();
         }
     }
 

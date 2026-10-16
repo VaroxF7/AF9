@@ -157,7 +157,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public static final int DEPTH = 17;
     /**
      * The Mk2 extended array's extent: 36 to each side (73 wide, the big ring), 129 + 5 behind (130 levels from the
-     * crown with the controller to the needle's tip: startup_scripts/gtceu/photolithography.js ORBITAL_DEPTH).
+     * crown with the controller to the foot: startup_scripts/gtceu/photolithography.js ORBITAL_DEPTH).
      */
     public static final int HALF_WIDTH_MK2 = 36;
     public static final int DEPTH_MK2 = 129 + 5;

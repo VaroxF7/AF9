@@ -334,13 +334,14 @@ public final class StructureSkins {
     }
 
     /**
-     * Whether the tower is standing, by samples: the needle's tip, each ring's collar and beam on the four sides and
+     * Whether the tower is standing, by samples: the tower's core column, each ring's collar and beam on the four sides and
      * the ring's band at the four points of the compass. {@code null} when a sample lies in a chunk that is not loaded.
      */
     private static Boolean ringsBuilt(ClientLevel level, MultiblockControllerMachine controller, StructureSkin skin) {
         List<BlockPos> samples = new ArrayList<>();
         int half = skin.rings().towerHalf();
-        samples.add(at(controller, 0, 0, OrbitalLithographyMachine.DEPTH_MK2 - 6));
+        // the core column's frame, in the foot's chamber
+        samples.add(at(controller, 0, 0, 90));
         for (OrbitalLithographyMachine.Band band : skin.rings().bands()) {
             int mid = band.d0() + band.t() / 2, mean = band.radius() - band.width() / 2;
             for (int[] side : new int[][] { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) {

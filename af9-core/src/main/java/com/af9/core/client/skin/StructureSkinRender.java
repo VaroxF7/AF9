@@ -143,7 +143,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         if (skin == null) return super.getRenderBoundingBox(machine);
         AABB box = new AABB(pos);
         if (skin.rings() != null) {
-            // the tower: down to the needle's tip and out to the big ring
+            // the tower: down to the foot and the lance and out to the big ring
             int reach = 1;
             int depth = 0;
             for (var band : skin.rings().bands()) {

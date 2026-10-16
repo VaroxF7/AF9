@@ -96,15 +96,15 @@ const ORBITAL_BASIC = [
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ']
     ]
 // Array Mk2: a tower. A tall white spire of panels (the hatches in its crown, the controller on top, facing up) with
-// three rings round it, a big one in the middle and a smaller one above and below, joined to it by beams, and a needle
-// reaching down from its foot; the rings' light rings glow just inside them and turn like the wheels of a station
+// three rings round it, a big one in the middle and a smaller one above and below, joined to it by beams, and a plasma
+// lance (drawn, not built) leaving the open foot; the rings' light rings glow just inside them and turn like the wheels of a station
 // (af9-core RING_MK2 / OrbitalLithographyMachine.ringSpecs, which read the same numbers: keep them in step). The
 // blocks are the basic station's: sturdy and stress-proof casing for the rings and the shell, non-conducting panels, the
-// atomic beams in tungsten carbide frame rails, HSS-G coil light strips, HSS-E frames for the core and the needle. Rows bottom -> top as
+// atomic beams in tungsten carbide frame rails, HSS-G coil light strips, HSS-E frames for the core. Rows bottom -> top as
 // ORBITAL_BASIC, the controller on the top row. d below counts levels down from the controller.
 const ORBITAL_MK2 = 73          // width of the plane, the tower at its centre (36)
 const ORBITAL_MID = 36
-const ORBITAL_DEPTH = 130       // levels: the crown at the top, the needle's tip at the bottom
+const ORBITAL_DEPTH = 130       // levels: the crown at the top, the open foot at the bottom (the last 25 are empty)
 const ORBITAL_HALF = 9          // half width of the ring collars, the beams start outside it
 const ORBITAL_RINGS = [         // d of the ring's top level, levels thick, outer radius, band width (every ring one band of casing)
     { d: 22, t: 2, r: 26, w: 4 },
@@ -173,8 +173,10 @@ const orbitalSolid = (d, dx, dz) => {
 }
 const orbitalTowerCell = (d, dx, dz) => {
     if (d === 0 && dx === 0 && dz === 0) return 'K'
-    if (d > 104) return dx === 0 && dz === 0 ? 'A' : ' '   // the needle: an HSS-E column, frames only
+    if (d > 104) return ' '   // the tower ends at its foot; the plasma lance below it is drawn, not built
     if (Math.abs(dx) > 17 || Math.abs(dz) > 17) return ' '
+    // the thruster shaft: the foot's chamber is open at the bottom through a 3 x 3 hole, the lance leaves it
+    if (d >= 99 && Math.abs(dx) <= 1 && Math.abs(dz) <= 1) return ' '
     // the centre column: PTFE through the crown (the hatches go on it), HSS-E below it
     if (dx === 0 && dz === 0) return d < 12 ? 'O' : 'A'
     if (!orbitalSolid(d, dx, dz)) return ' '
@@ -393,7 +395,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // 7 and 1 nm draw computation (computation hatch) and need their research (data hatch). While switched on and
     // powered its magnetic field gives the space around it normal gravity (Ad Astra; af9-core OrbitalField).
     // Array Mk2 (extended, a screwdriver on the controller switches sizes like the Space Elevator's screen
-    // switch): a 73 x 130 x 73 tower with three spinning rings and a needle (above, af9-core RINGS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
+    // switch): a 73 x 130 x 73 tower with three spinning rings and a thruster lance below (above, af9-core RINGS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
     // UHV+ circuits deposited ion-by-ion with plasma solder, in orbit.
     // Layouts are module-level (ORBITAL_BASIC / ORBITAL_MK2_SLICES), precomputed once above.
     const orbitalWheres = (definition, mk2) => {
