@@ -114,15 +114,22 @@ const ORBITAL_RINGS = [         // d of the ring's top level, levels thick, oute
 // the ring's middle level: the collar plate of the tower and the beams out to the ring sit here
 const orbitalMid = ring => ring.d + Math.floor(ring.t / 2)
 const orbitalCollar = d => ORBITAL_RINGS.some(ring => Math.abs(d - orbitalMid(ring)) <= 1)
+// the deck round each ring: the levels above and below its collar plate reach out wide along the slab, over the beams
+// (which run at the middle level), as far as the ring's band allows. 17 is the most any tower cell may stand from the axis:
+// af9-core hides and redraws a 35 x 35 box (TOWER_BOX)
+const orbitalDeck = (d, dx, dz) => ORBITAL_RINGS.some(ring => Math.abs(d - orbitalMid(ring)) === 1
+    && Math.abs(dx) <= Math.min(17, ring.r - ring.w - 2) && Math.abs(dz) <= 9 && Math.abs(dx) + Math.abs(dz) * 2 <= 25)
+// the set-backs between the rings: a two-level ledge, wider than the body, where the slab steps in
+const orbitalLedge = d => d === 36 || d === 37 || d === 54 || d === 55 || d === 72 || d === 73
 // the tower's half widths (x, z) d levels down: a crown on a slab-sided upper block, a slimmer waist, the long taper
 const orbitalSection = d => {
-    if (d <= 20) return [7, 5]
-    if (d <= 39) return [8, 5]
-    if (d <= 57) return [7, 5]
-    if (d <= 80) return [5, 4]
+    if (d <= 20) return [8, 5]
+    if (d <= 39) return [9, 5]
+    if (d <= 57) return [8, 4]
+    if (d <= 80) return [6, 3]
     if (d <= 104) {
         const step = Math.floor((d - 81) / 6)
-        return [4 - Math.floor(step / 2), Math.max(1, 3 - Math.floor(step / 2))]
+        return [5 - Math.floor(step / 2), Math.max(1, 3 - Math.floor(step / 3))]
     }
     return [0, 0]
 }
@@ -135,10 +142,13 @@ const orbitalFin = (d, dx, dz) => {
     const sec = orbitalSection(d)
     const ax = Math.abs(dx)
     const az = Math.abs(dz)
-    if (d >= 2 && d <= 21 && dx === -(sec[0] + 1) && dz >= -3 && dz <= 1) return 'F'
-    if (d >= 7 && d <= 17 && dx === -(sec[0] + 2) && dz >= -2 && dz <= 0) return 'F'
-    if (d >= 8 && d <= 20 && az <= 2 && dx > sec[0] && dx <= sec[0] + (d % 4 === 0 ? 3 : d % 4 === 2 ? 1 : 0)) return 'F'
-    if (d <= 16 && dz === -(sec[1] + 1) && ax <= 1) return 'F'
+    // the tall blade on the left, swept back and rising to the crown's top
+    if (d >= 2 && d <= 21 && dx < -sec[0] && dx >= -(sec[0] + 1 + Math.floor(Math.min(d - 2, 10) * 0.8)) && dz >= -4 && dz <= 1) return 'F'
+    if (d >= 6 && d <= 17 && dx < -(sec[0] + 2) && dx >= -(sec[0] + 9) && dz >= -3 && dz <= 0) return 'F'
+    // the sawtooth of spurs on the right, long
+    if (d >= 6 && d <= 20 && az <= 4 && dx > sec[0] && dx <= sec[0] + (d % 4 === 0 ? 9 : d % 4 === 2 ? 5 : 2)) return 'F'
+    // the prow, a keel down the front of the crown
+    if (d <= 16 && dz < -sec[1] && dz >= -(sec[1] + 4) && ax <= 2 + Math.floor((d + 2) / 8)) return 'F'
     if (d >= 62 && d <= 78 && ax === sec[0] + 1 && az <= 1) return 'F'
     // lift pods, a little way out of the faces, two wide and seven tall
     if (d >= 27 && d <= 33 && dz === sec[1] + 1 && dx >= -3 && dx <= -2) return 'P'
@@ -158,15 +168,17 @@ const orbitalSolid = (d, dx, dz) => {
     const ax = Math.abs(dx)
     const az = Math.abs(dz)
     if (orbitalCollar(d) && ax <= ORBITAL_HALF && az <= ORBITAL_HALF && ax + az <= 15) return true
+    if (orbitalDeck(d, dx, dz)) return true
     const sec = orbitalSection(d)
     if (sec[0] === 0) return false
+    if (orbitalLedge(d) && ax <= sec[0] + 3 && az <= sec[1] + 3 && ax + az <= sec[0] + sec[1] + 1) return true
     if (ax <= sec[0] && az <= sec[1] && ax + az <= sec[0] + sec[1] - 2) return d <= 20 ? d >= orbitalRoof(dx, dz) : true
     return orbitalFin(d, dx, dz) !== ''
 }
 const orbitalTowerCell = (d, dx, dz) => {
     if (d === 0 && dx === 0 && dz === 0) return 'K'
     if (d > 104) return dx === 0 && dz === 0 ? 'A' : ' '   // the needle: an HSS-E column, frames only
-    if (Math.abs(dx) > 13 || Math.abs(dz) > 13) return ' '
+    if (Math.abs(dx) > 17 || Math.abs(dz) > 17) return ' '
     // the centre column: PTFE through the crown (the hatches go on it), HSS-E below it
     if (dx === 0 && dz === 0) return d < 12 ? 'O' : 'A'
     if (!orbitalSolid(d, dx, dz)) return ' '

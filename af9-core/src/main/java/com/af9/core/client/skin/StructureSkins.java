@@ -270,8 +270,8 @@ public final class StructureSkins {
         dirty(before, now);
     }
 
-    /** Half width of the box searched for the tower's blocks (its fins reach 12 out of the middle). */
-    private static final int TOWER_BOX = 13;
+    /** Half width of the box searched for the tower's blocks (its fins reach 17 out of the middle). */
+    private static final int TOWER_BOX = 17;
 
     /**
      * The tower's own blocks hide too and are drawn as a white paneled shell ({@link TowerDraw}): every block in the
@@ -291,6 +291,7 @@ public final class StructureSkins {
                     BlockPos pos = at(controller, right, up, back);
                     var state = level.getBlockState(pos);
                     if (state.isAir()) continue;
+                    if (inBand(skin, right, up, back)) continue;
                     long key = TowerDraw.key(right, up, back);
                     if (beamLevel && Math.max(Math.abs(right), Math.abs(up)) > half
                             && (right == 0 || up == 0 || Math.abs(right) == 1 || Math.abs(up) == 1)) {
@@ -310,6 +311,15 @@ public final class StructureSkins {
             }
         }
         TowerDraw.update(origin.asLong(), cells, blocked);
+    }
+
+    /** Whether the cell is a ring's band (the ring skin draws those, not the tower's shell). */
+    private static boolean inBand(StructureSkin skin, int right, int up, int back) {
+        for (OrbitalLithographyMachine.Band band : skin.rings().bands()) {
+            if (back < band.d0() || back >= band.d0() + band.t()) continue;
+            if (Math.sqrt(right * right + up * up) >= band.radius() - band.width() - 0.5) return true;
+        }
+        return false;
     }
 
     /**

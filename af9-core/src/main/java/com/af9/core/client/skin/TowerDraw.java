@@ -98,7 +98,7 @@ final class TowerDraw {
     }
 
     // the box searched for the open air: right and up from -BOX to BOX, back from -1 to DEPTH - 1
-    private static final int BOX = 14, W = 2 * BOX + 1, DEPTH = 138;
+    private static final int BOX = 18, W = 2 * BOX + 1, DEPTH = 138;
 
     private static int index(int right, int up, int back) {
         return ((right + BOX) * W + (up + BOX)) * DEPTH + back + 1;
