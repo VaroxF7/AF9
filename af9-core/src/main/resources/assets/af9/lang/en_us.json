@@ -283,7 +283,7 @@
     "af9.recipe.litho_node_scanner": "%snm %s, Mk2 V%s+",
     "af9.recipe.litho_tier_t1": "§9Needs: T1 Orbital Station",
     "af9.recipe.litho_tier_t2": "§aNeeds: T2 Orbital Array",
-    "af9.recipe.litho_cwu_total": "Needs %s CWU in all",
+    "af9.recipe.litho_cwu_total": "CWU: %s",
     "af9.recipe.litho_page.node": "%s nm node, %s",
     "af9.recipe.accelerator_page.machine": "PARTICLE ACCELERATOR",
     "af9.recipe.accelerator_page.coolant_label": "COOLANT",
