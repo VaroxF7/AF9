@@ -135,12 +135,7 @@ const orbitalSection = d => {
 }
 // the crown's roof, the same left and right of the controller: the controller's saddle (5 wide) at the top, a dip to
 // either side of it, and a tall blade at each edge that falls away towards the front and the back
-const orbitalRoof = (dx, dz) => {
-    const ax = Math.abs(dx)
-    if (ax <= 2) return 0
-    if (ax <= 4) return 7
-    return Math.max(0, Math.abs(dz) - 3) * 2
-}
+const orbitalRoof = (dx, dz) => Math.floor(Math.abs(dz) * 2.4) + Math.floor(Math.max(0, Math.abs(dx) - 5) * 1.2)
 // what stands out of the tower's walls, '' for nothing: 'F' a fin (a thin plate against the body: one against each
 // side of the crown, two pylons down the waist), 'R' a rib (the layered vertical
 // panels of the body). None of them reach a ring's middle level (the beams run there).
@@ -148,8 +143,8 @@ const orbitalFin = (d, dx, dz) => {
     const sec = orbitalSection(d)
     const ax = Math.abs(dx)
     const az = Math.abs(dz)
-    // a plate against each side of the crown, under the blades
-    if (d >= 3 && d <= 21 && ax === sec[0] + 1 && az <= 3) return 'F'
+    // swept wings against each side of the crown, rising towards the roof
+    if (d >= 4 && d <= 21 && ax > sec[0] && ax <= sec[0] + 9 && az <= 2 && d >= 4 + Math.floor((ax - sec[0] - 1) * 1.4)) return 'F'
     if (d >= 62 && d <= 78 && ax === sec[0] + 1 && az <= 1) return 'F'
     // ribs up the faces of the upper block and of the waist
     if (d >= 21 && d <= 80 && d !== 22 && sec[0] > 4) {
@@ -172,7 +167,7 @@ const orbitalSolid = (d, dx, dz) => {
     return orbitalFin(d, dx, dz) !== ''
 }
 // the crown's walls are this many blocks thick (the rest of the tower's are one)
-var orbitalCrownWall = 1
+var orbitalCrownWall = 2
 const orbitalDeepInside = (d, dx, dz) => {
     if (d > 24 || orbitalCrownWall <= 1) return true
     for (let k = 2; k <= orbitalCrownWall; k++) {
@@ -182,10 +177,7 @@ const orbitalDeepInside = (d, dx, dz) => {
     return true
 }
 // the light strips (HSS-G coils) on the walls: along is the distance along the wall from the tower's axis
-var orbitalCoil = (d, along) => {
-    if (along % 6 === 3 && d % 18 > 2) return true
-    return d % 8 === 4 && along % 2 === 0 && along % 6 !== 0
-}
+var orbitalCoil = (d, along) => d > 21 && (d + along) % 9 === 0
 const orbitalTowerCell = (d, dx, dz) => {
     if (d === 0 && dx === 0 && dz === 0) return 'K'
     if (d > 104) return ' '   // the tower ends at its foot; the plasma lance below it is drawn, not built
@@ -206,6 +198,7 @@ const orbitalTowerCell = (d, dx, dz) => {
         return d <= 80 && d % 12 === 0 ? 'C' : ' '
     }
     // the crown and the roof: plain PTFE casing all round, the hatches go on it
+    if (d <= 20 && up && d % 6 === 3 && !(east && west && north && south)) return 'F'   // a rib of frame round the crown
     if (d <= 10 || (d <= 20 && !up)) return 'O'
     const part = orbitalFin(d, dx, dz)
     if (part === 'R') return 'C'
