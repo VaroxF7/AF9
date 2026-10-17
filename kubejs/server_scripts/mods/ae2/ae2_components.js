@@ -13,9 +13,6 @@ ServerEvents.recipes(event => {
     if (!Platform.isLoaded('ae2')) return
     const VA = GTValues.VA
     const MV = VA[GTValues.MV]
-    const HV = VA[GTValues.HV]
-    const EV = VA[GTValues.EV]
-    const clean = recipe => recipe.cleanroom(CleanroomType.CLEANROOM)
 
     // Tin budget + soldering alloy canonical pair.
     const soldered = (id, build) => {
@@ -23,13 +20,6 @@ ServerEvents.recipes(event => {
         build(event.recipes.gtceu.assembler(`af9:${id}_soldering_alloy`),
             Fluid.of('gtceu:soldering_alloy', 72))
     }
-    // High tiers: cleanroom, tin budget + high-grade solder canonical.
-    const hvSoldered = (id, build) => {
-        build(clean(event.recipes.gtceu.assembler(`af9:${id}`)), Fluid.of('gtceu:tin', 144))
-        build(clean(event.recipes.gtceu.assembler(`af9:${id}_high_grade`)),
-            Fluid.of('gtceu:high_grade_solder', 72))
-    }
-
     // RAM is the bulk of every storage component: chips stack to 64, so a count splits into stacks.
     // Counts double each step; each component also eats 3x the previous one, so the RAM compounds.
     const ram = (id, count) => {
@@ -38,20 +28,20 @@ ServerEvents.recipes(event => {
         return stacks
     }
 
-    // ---- Cell components (MV -> EV) ----
+    // ---- Cell components (all MV) ----
     const components = [
         { ram: ram('gtceu:ram_chip', 8), out: 'ae2:cell_component_1k', certus: 144, from: null, secondary: '4x minecraft:redstone',
             circuit: 'gtceu:good_integrated_circuit', processor: 'ae2:logic_processor', ticks: 200 },
         { ram: ram('gtceu:ram_chip', 16), out: 'ae2:cell_component_4k', certus: 288, from: 'ae2:cell_component_1k', secondary: '4x minecraft:redstone',
             circuit: 'gtceu:micro_processor', processor: 'ae2:calculation_processor', ticks: 300 },
         { ram: ram('gtceu:ram_chip', 32), out: 'ae2:cell_component_16k', certus: 576, from: 'ae2:cell_component_4k', secondary: '4x minecraft:glowstone_dust',
-            circuit: 'gtceu:advanced_integrated_circuit', processor: 'ae2:calculation_processor', ticks: 400, eut: HV },
+            circuit: 'gtceu:micro_processor', processor: 'ae2:calculation_processor', ticks: 400 },
         { ram: ram('gtceu:ram_chip', 64).concat(['16x gtceu:nand_memory_chip', '4x gtceu:micro_processor']),
             out: 'ae2:cell_component_64k', certus: 1152, from: 'ae2:cell_component_16k', secondary: '4x minecraft:glowstone_dust',
-            circuit: 'gtceu:micro_processor_assembly', processor: 'ae2:calculation_processor', ticks: 500, eut: HV },
+            circuit: 'gtceu:micro_processor', processor: 'ae2:calculation_processor', ticks: 500 },
         { ram: ram('gtceu:ram_chip', 128).concat(['32x gtceu:nand_memory_chip', '8x gtceu:micro_processor']),
             noGlass: true, out: 'ae2:cell_component_256k', certus: 2304, from: 'ae2:cell_component_64k', secondary: '4x ae2:sky_dust',
-            circuit: 'gtceu:micro_processor_computer', processor: 'ae2:calculation_processor', ticks: 600, eut: EV }
+            circuit: 'gtceu:micro_processor', processor: 'ae2:calculation_processor', ticks: 600 }
     ]
     components.forEach(spec => {
         event.remove({ mod: 'ae2', output: spec.out })
@@ -62,12 +52,11 @@ ServerEvents.recipes(event => {
         const shortId = spec.out.split(':')[1]
         // Liquid certus quartz is the component's one fluid (the assembler takes one; the solder is in the
         // processor already), 144 mB for 1k, doubling each step.
-        const r = event.recipes.gtceu.assembler(`af9:ae2_${shortId}`)
+        event.recipes.gtceu.assembler(`af9:ae2_${shortId}`)
             .itemInputs(inputs)
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', spec.certus))
             .itemOutputs(spec.out)
-            .duration(spec.ticks).EUt(spec.eut || MV)
-        if (spec.eut) clean(r)
+            .duration(spec.ticks).EUt(MV)
     })
 
     // ---- Crafting unit + co-processor (gated shells for the storages below, MV) ----
@@ -78,30 +67,29 @@ ServerEvents.recipes(event => {
             .duration(200).EUt(MV)
     })
     event.remove({ mod: 'ae2', output: 'ae2:crafting_accelerator' })
-    hvSoldered('ae2_crafting_accelerator', (recipe, fluid) => {
-        recipe.itemInputs('ae2:crafting_unit', '2x ae2:engineering_processor', 'gtceu:micro_processor_assembly')
+    soldered('ae2_crafting_accelerator', (recipe, fluid) => {
+        recipe.itemInputs('ae2:crafting_unit', '2x ae2:engineering_processor', 'gtceu:micro_processor')
             .inputFluids(fluid).itemOutputs('ae2:crafting_accelerator')
-            .duration(300).EUt(HV)
+            .duration(300).EUt(MV)
     })
 
     // ---- Crafting storages: unit + component + MV circuit ----
     const storages = [
         ['ae2:1k_crafting_storage', 'ae2:cell_component_1k', 'gtceu:good_integrated_circuit', 200],
         ['ae2:4k_crafting_storage', 'ae2:cell_component_4k', 'gtceu:micro_processor', 300],
-        ['ae2:16k_crafting_storage', 'ae2:cell_component_16k', 'gtceu:advanced_integrated_circuit', 400, HV],
-        ['ae2:64k_crafting_storage', 'ae2:cell_component_64k', 'gtceu:micro_processor_assembly', 500, HV],
-        ['ae2:256k_crafting_storage', 'ae2:cell_component_256k', 'gtceu:micro_processor_computer', 600, EV]
+        ['ae2:16k_crafting_storage', 'ae2:cell_component_16k', 'gtceu:micro_processor', 400],
+        ['ae2:64k_crafting_storage', 'ae2:cell_component_64k', 'gtceu:micro_processor', 500],
+        ['ae2:256k_crafting_storage', 'ae2:cell_component_256k', 'gtceu:micro_processor', 600]
     ]
-    storages.forEach(([out, comp, circuit, ticks, eut]) => {
+    storages.forEach(([out, comp, circuit, ticks]) => {
         event.remove({ mod: 'ae2', output: out })
         const shortId = out.split(':')[1]
         const build = (recipe, fluid) => {
             recipe.itemInputs('ae2:crafting_unit', comp, circuit)
                 .inputFluids(fluid).itemOutputs(out)
-                .duration(ticks).EUt(eut || MV)
+                .duration(ticks).EUt(MV)
         }
-        if (eut) hvSoldered(`ae2_${shortId}`, build)
-        else soldered(`ae2_${shortId}`, build)
+        soldered(`ae2_${shortId}`, build)
     })
 
     // ---- Cell housings (dumb shells: plates + quartz glass + redstone, MV) ----

@@ -1,11 +1,11 @@
-# AE2 integration — tiered MV → EV, MEGA ladder IV to UHV
+# AE2 integration — base at MV, MEGA ladder IV to UHV
 
 AE2's early game (charger, fluix, cables, meteorite hunt for sky stone) is untouched. What changes
 is everything silicon: printed circuits and processors are fab work, and storage scales with
 GT's circuits. No new items. Recipes: `kubejs/server_scripts/mods/ae2/`
 (`ae2_processors.js`, `ae2_components.js`, `ae2_devices.js`, `ae2_addons.js`).
 
-Rule of thumb: **logic and the cheap parts build at MV, calculation and backbone at HV, engineering and spatial/quantum at EV (HV/EV in a cleanroom on high-grade solder), MEGA Cells climb IV → UHV, Infinity Booster at HV.**
+Rule of thumb: **every base AE2 processor and recipe takes MV circuits only; HV and EV circuits are for the high-tier addons (MEGA Cells climb IV → UHV, Infinity Booster at HV).**
 Removals are mod-scoped (`{ mod: 'ae2', output: ... }`), so the new `af9:` recipes never match.
 
 ## Quartz (`ae2_quartz.js`, MV)
@@ -30,9 +30,8 @@ No presses, no inscriber prints — every chip is printed on a silicon wafer:
 3. **Carrier** in the cutter (MV, 200t): a silicon wafer dices straight into
    1x `printed_silicon`. The `expatternprovider:cutter/silicon` and
    `gtceu:forming_press/ae2/ultimate_universal/printed_silicon_circuit` recipes are removed.
-4. **Final assembly** in the assembler on 144 mB **liquid certus quartz** (the assembler takes one fluid, so the solder is spent in packaging): printed + printed silicon + redstone + 2x redstone foil + 2x fine electrum wire + tier circuit —
-   logic MV (`good_integrated_circuit`), calculation HV (`advanced_integrated_circuit`),
-   engineering EV (`micro_processor_computer`).
+4. **Final assembly** in the assembler on 144 mB **liquid certus quartz** (the assembler takes one fluid, so the solder is spent in packaging): printed + printed silicon + redstone + 2x redstone foil + 2x fine electrum wire + MV circuit (MV, no cleanroom) —
+   `good_integrated_circuit` for logic and engineering, `micro_processor` for calculation.
 
 Removed: all `ae2:` recipes outputting the four printeds and the three processors.
 All `ae2:inscriber` recipes are removed (crushing is replaced by the GT recipes above; the name press is no longer craftable), as are the six `advanced_ae` processor chambers and the `gtceu:forming_press` circuit imports (ae2 logic/calculation/engineering, appflux energy, aae quantum, megacells accumulation); the addon processors (`megacells:accumulation_processor` HV, `appflux:energy_processor` EV, `advanced_ae:quantum_processor` IV, all assembler on 144 mB liquid certus quartz) build from AF9's own AE2 processors plus a tier circuit; meteorite presses are out of the chain
@@ -45,26 +44,26 @@ New fluid `gtceu:liquid_certus_quartz` (extractor, MV: certus crystal → 144 mB
 redstone plate (compressor, 4x redstone) and foil (bender, 4x per plate). The materials are registered in
 AF9 Core (Java), so this needs a rebuilt core jar.
 
-## Components (`ae2_components.js`, MV → EV)
+## Components (`ae2_components.js`, all MV, no cleanroom)
 
-Cell components climb 1k → 4k (MV, no cleanroom) → 16k → 64k (HV) → 256k (EV), the last three in a cleanroom on high-grade solder, 3x previous +
+Cell components climb 1k → 4k → 16k → 64k → 256k on MV circuits only, 3x previous +
 calculation processor (logic for 1k) + bulk secondary + quartz glass, assembler on liquid certus quartz (144 mB for 1k, doubling per step; the solder is spent in the processor):
 
 | Component | Previous | Secondary | MV circuit |
 |---|---|---|---|
 | `cell_component_1k` | — (logic + 4 certus quartz) | 4x redstone | `good_integrated_circuit` |
 | `cell_component_4k` | 3x 1k | 4x redstone | `micro_processor` |
-| `cell_component_16k` | 3x 4k | 4x glowstone | `advanced_integrated_circuit` (HV) |
-| `cell_component_64k` | 3x 16k | 4x glowstone | `micro_processor_assembly` (HV) |
-| `cell_component_256k` | 3x 64k | 4x sky dust | `micro_processor_computer` (EV) |
+| `cell_component_16k` | 3x 4k | 4x glowstone | `micro_processor` |
+| `cell_component_64k` | 3x 16k | 4x glowstone | `micro_processor` |
+| `cell_component_256k` | 3x 64k | 4x sky dust | `micro_processor` |
 
 - **RAM**: every component also takes `gtceu:ram_chip`: 8x (1k), 16x (4k), 32x (16k), 64x (64k),
   128x (256k). 64k and 256k also take NAND memory chips (16x, 32x) and micro processors (4x, 8x);
   the 256k drops its quartz glass, the assembler's nine slots are full. Each step eats 3x the previous component, so the RAM compounds: one 256k component
   costs about 1,700 RAM chips in total. The counts sit in the `ram(...)` calls of `ae2_components.js`.
-- **Crafting storages**: `crafting_unit` + component + the same tier circuit as the component.
+- **Crafting storages**: `crafting_unit` + component + the same MV circuit as the component.
 - **Shells**: `crafting_unit` (4x steel plate + logic + calculation),
-  `crafting_accelerator` (HV, cleanroom: unit + 2x engineering + micro processor assembly).
+  `crafting_accelerator` (unit + 2x engineering + micro processor).
 - **Housings**: 2x quartz glass + 3x plates (steel for items, copper for fluids) + 4x redstone.
 - Cells (housing + component, shapeless) stay vanilla and follow automatically.
 
@@ -84,10 +83,6 @@ fluix (tin/soldering-alloy pair; cables and fiber are dry single recipes).
 
 The **controller** builds at MV without a cleanroom (tin/soldering-alloy pair): 6x sky stone block + 4x good integrated circuit + 8x of one processor kind (logic, calculation or engineering, three recipes).
 
-Backbone and endgame devices climb (cleanroom, high-grade solder): **HV** — dense energy cell,
-drive, IO port, pattern provider, storage bus, P2P, speed card, network tool, entropy
-manipulator, matter cannon; **EV** — molecular assembler, spatial IO/pylon/anchor, quantum ring/link.
-
 Only the fluix base of each cable family is redefined (glass, covered, dense, smart,
 dense smart); dye variants follow. Quartz fiber is redefined (certus crystal + glass).
 
@@ -105,8 +100,8 @@ dense smart); dye variants follow. Quartz fiber is redefined (certus crystal + g
 
 - **Singularity** in the assembler at HV (solder pair): 32x matter ball + 4x
   fluix + engineering processor.
-- **Entangled pair** at EV: singularity + 2x calculation + 4x fluix pearl + EV circuit → 2x.
-- **Spatial cells** 2/16 at HV, 128 at EV with an engineering processor (solder pair): base + secondary + circuit +
+- **Entangled pair** at EV: singularity + 2x calculation + 4x fluix pearl → 2x.
+- **Spatial cells** 2/16/128 at HV (solder pair): base + secondary + circuit +
   cell housing.
 
 ## Dyeing (`ae2_cosmetics.js`, LV)
@@ -168,8 +163,7 @@ that this pack does not redefine).
 ## Consequences
 
 - First AE2 processor needs: EBF silicon boule → cutter blank → Coater Track → Line V1.
-  Logic and the basic network stay MV; calculation (HV) and engineering (EV) need no cleanroom,
-  so crafting, large storage and spatial/quantum gate on those tiers. MEGA scale climbs
+  The whole base network is MV circuits; MEGA scale climbs
   IV → UHV, Infinity Booster is HV.
 - Unverified: written without compiling or in-game testing (cloud env cannot build).
 - Follow-ups, not done here: quest gating for the AE2 chapter, EMI descriptions.
