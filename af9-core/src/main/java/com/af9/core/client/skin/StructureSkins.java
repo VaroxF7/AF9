@@ -290,19 +290,19 @@ public final class StructureSkins {
     }
 
     /**
-     * Whether the tower is standing, by samples: the tower's core column, each ring's beam on the four sides and
+     * Whether the tower is standing, by samples: the tower's core column, each ring's collar and beam on the four sides and
      * the ring's band at the four points of the compass. {@code null} when a sample lies in a chunk that is not loaded.
      */
     private static Boolean ringsBuilt(ClientLevel level, MultiblockControllerMachine controller, StructureSkin skin) {
         List<BlockPos> samples = new ArrayList<>();
         int half = skin.rings().towerHalf();
-        // the core column's frame, all the way down (it is HSS-E frame from level 12 to level 98)
-        for (int back : new int[] { 14, 40, 70, 90 }) samples.add(at(controller, 0, 0, back));
+        // the core column's frame, in the foot's chamber
+        samples.add(at(controller, 0, 0, 90));
         for (OrbitalLithographyMachine.Band band : skin.rings().bands()) {
             int mid = band.d0() + band.t() / 2, mean = band.radius() - band.width() / 2;
             for (int[] side : new int[][] { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) {
-                // the beam's atomic casing, 3 out of the collar (the collar itself varies with the tower's sections)
-                samples.add(at(controller, side[0] * (half + 3), side[1] * (half + 3), mid));
+                samples.add(at(controller, side[0] * half, side[1] * half, mid));
+                samples.add(at(controller, side[0] * (half + 1), side[1] * (half + 1), mid));
                 samples.add(at(controller, side[0] * mean, side[1] * mean, band.d0()));
             }
         }
