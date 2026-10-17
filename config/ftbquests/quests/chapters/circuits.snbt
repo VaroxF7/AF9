@@ -11,7 +11,7 @@
 		}
 	}
 	id: "560EF4C38DEACA03"
-	order_index: 12
+	order_index: 13
 	progression_mode: "flexible"
 	quest_links: [{
 		id: "5D69F1B108CE703D"
@@ -1199,46 +1199,6 @@
 			title: "{atm9.quest.gregtech.circuits.steamAge}"
 			x: -5.0d
 			y: -6.5d
-		}
-		{
-			can_repeat: false
-			description: [
-				"This Quest has been authored by &6AllTheMods Staff&r, or a &2Community contributor&r for use in AllTheMods Modpacks."
-				"As all &6AllTheMods&r packs are licensed under &eAll Rights Reserved&r, this Quest is not allowed to be used in any public packs not released by the &6AllTheMods Team&r, without explicit permission."
-				""
-				""
-				""
-				"This quest is intentionally hidden, if you're seeing this, you're in editing mode."
-			]
-			disable_toast: true
-			hide_details_until_startable: true
-			hide_until_deps_visible: true
-			icon: {
-				Count: 1
-				id: "ftbquests:custom_icon"
-				tag: {
-					Icon: "minecraft:item/barrier"
-				}
-			}
-			id: "637606D689F33BB3"
-			invisible: true
-			optional: true
-			shape: "octagon"
-			tasks: [
-				{
-					disable_toast: true
-					id: "3ECFB6986CC0B99C"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-				{
-					id: "34DB149196F82789"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-			]
-			x: -5.0d
-			y: -9.0d
 		}
 	]
 	title: "{atm9.chapters.37.title}"
