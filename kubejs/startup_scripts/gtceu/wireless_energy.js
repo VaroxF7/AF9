@@ -89,3 +89,35 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                     Component.translatable('af9.wireless_cwu_transmitter.tooltip.1')])
         })
 })
+
+// Network Node (af9-core NetworkNodeMachine): the Data Bank's structure, but its data items store computation (stick 1,000
+// CWU, orb 10,000, module 100,000; up to nine data hatches). Computation reception hatches fill it, transmission hatches give
+// it out. The controller face is the Network Switch's.
+const $NetworkNodeMachine = Java.loadClass('com.af9.core.machine.NetworkNodeMachine')
+
+GTCEuStartupEvents.registry('gtceu:machine', event => {
+    event.create('network_node', 'multiblock')
+        .langValue('Network Node')
+        .machine(holder => new $NetworkNodeMachine(holder))
+        .rotationState(RotationState.NON_Y_AXIS)
+        .recipeTypes([GTRecipeTypes.DUMMY_RECIPES])
+        .appearanceBlock(() => Block.getBlock('gtceu:computer_casing'))
+        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3].map(i =>
+            Component.translatable(`af9.network_node.tooltip.${i}`)))
+        .pattern(definition => FactoryBlockPattern.start()
+            .aisle('XDDDX', 'XDDDX', 'XDDDX')
+            .aisle('XDDDX', 'XAAAX', 'XDDDX')
+            .aisle('XCCCX', 'XCSCX', 'XCCCX')
+            .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+            .where('X', Predicates.blocks('gtceu:computer_heat_vent'))
+            .where('D', Predicates.blocks('gtceu:computer_casing').setMinGlobalLimited(3)
+                .or(Predicates.abilities(PartAbility.DATA_ACCESS).setMaxGlobalLimited(9, 3))
+                .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_TRANSMISSION).setMaxGlobalLimited(2, 1)))
+            .where('A', Predicates.blocks('gtceu:computer_casing'))
+            .where('C', Predicates.blocks('gtceu:high_power_casing').setMinGlobalLimited(4)
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMinGlobalLimited(1).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
+            .build())
+        .workableCasingModel('gtceu:block/casings/hpca/high_power_casing', 'gtceu:block/multiblock/network_switch')
+})

@@ -51,3 +51,12 @@ screen. It is saved in each hatch's own save data; the loaded transmitters regis
 removed on unload), and a receiver asks that map when computation is requested. Nothing is stored in the world beyond the
 hatches, so restarts, unloaded chunks and other dimensions cannot leave a stale or broken link: no transmitter loaded means no
 computation until it loads again. A second transmitter with an ID already in use sends nothing (the screen says so).
+
+## Network Node
+
+`gtceu:network_node` (`NetworkNodeMachine`, a Data Bank underneath, so same structure and power use, the Network Switch's
+controller face). Its data hatches (at most nine) hold Data Sticks (1,000 CWU each), Data Orbs (10,000) and Data Modules
+(100,000); that is the node's storage. Computation reception hatches (GT's or the wireless one) fill it, up to 256 CWU/t;
+transmission hatches give it out, up to 1,024 CWU/t, drawn from the store (so it also feeds the litho machines' total-CWU
+draw). The stored amount is saved with the controller; removing items lowers the capacity and cuts the store to fit. As it is a
+Data Bank, its hatches also provide any research on the items stored in them.

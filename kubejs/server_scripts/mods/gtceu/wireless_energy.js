@@ -51,3 +51,14 @@ ServerEvents.recipes(event => {
             .EUt(GTValues.VA[GTValues.UV])
     })
 })
+
+// Network Node: the Data Bank's parts plus the Network Switch's and the wireless link's radio.
+ServerEvents.recipes(event => {
+    event.recipes.gtceu.assembler('af9:network_node')
+        .itemInputs('gtceu:data_bank', 'gtceu:network_switch', '2x gtceu:uv_field_generator', '4x #gtceu:circuits/uv',
+            '2x gtceu:data_module')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 1152))
+        .itemOutputs('gtceu:network_node')
+        .duration(1200)
+        .EUt(GTValues.VA[GTValues.UV])
+})
