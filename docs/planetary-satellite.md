@@ -30,4 +30,4 @@ GT's fusion recipe for neutronium plasma (americium and naquadria) is removed, s
 - Satellite Casing (2): stable titanium casing + 6 Enriched Naquadah Trinium Europium Duranide ingots + HSS-S frame (assembler, UV, circuit 27).
 - Controller: 4 UV circuits, 2 UV field generators, 2 UV sensors round a Satellite Casing.
 
-The casing's texture is GTNH's siphon casing recoloured in the material's colours (`tools/textures/satellite_casing.py`).
+The casing's texture is GTNH's siphon casing recoloured in the material's colours (`tools/textures/satellite_casing.py`). It has connected textures (LDLib `.mcmeta` + `_ctm` sheet, like the Space Elevator's), so neighbouring casings join. While the machine works the controller's orb breathes, a glint sweeps over it and its marker blinks (16-frame animated overlay).

@@ -48,8 +48,8 @@ LGPL-3.0 or later, <https://github.com/GTNewHorizons/GT5-Unofficial>; licence te
 
 | af9 file | GT5-Unofficial source (`src/main/resources/assets/`) | Changes |
 |---|---|---|
-| `af9-core/.../textures/block/satellite_casing.png` | `gtnhintergalactic/textures/blocks/gasSiphon/SiphonCasing.png` | recoloured to the colours of Enriched Naquadah Trinium Europium Duranide (`tools/textures/satellite_casing.py`) |
-| `kubejs/assets/gtceu/textures/block/multiblock/planetary_satellite/overlay_front*.png` (controller face) | `gregtech/textures/blocks/iconsets/OVERLAY_FRONT_PLANETARYSIPHON{,_GLOW,_ACTIVE_GLOW}.png` | none |
+| `af9-core/.../textures/block/satellite_casing.png` (+ `_ctm.png`, `.mcmeta`) | `gtnhintergalactic/textures/blocks/gasSiphon/SiphonCasing.png` | recoloured to the colours of Enriched Naquadah Trinium Europium Duranide (`tools/textures/satellite_casing.py`) |
+| `kubejs/assets/gtceu/textures/block/multiblock/planetary_satellite/overlay_front*.png` (controller face) | `gregtech/textures/blocks/iconsets/OVERLAY_FRONT_PLANETARYSIPHON{,_GLOW,_ACTIVE_GLOW}.png` | animated while working: the orb breathes, a glint sweeps over it (`tools/textures/satellite_casing.py`) |
 
 ## Quantum Computer
 
