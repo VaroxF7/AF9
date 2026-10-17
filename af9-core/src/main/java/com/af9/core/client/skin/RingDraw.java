@@ -2,6 +2,7 @@ package com.af9.core.client.skin;
 
 import com.af9.core.client.render.AF9RenderTypes;
 import com.af9.core.machine.ILightRingMachine;
+import com.af9.core.machine.OrbitalLithographyMachine;
 import com.af9.core.machine.OrbitalLithographyMachine.Band;
 
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
@@ -75,7 +76,8 @@ final class RingDraw {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
         List<Band> bands = rings.bands();
-        float[] angle = advance(self, bands, working, level.getGameTime() + partialTick);
+        boolean powered = !(self instanceof OrbitalLithographyMachine station) || station.isFieldActive();
+        float[] angle = advance(self, bands, working, powered, level.getGameTime() + partialTick);
         State state = STATES.get(self.getPos().asLong());
         state.origin = self.getPos();
         state.right = RelativeDirection.RIGHT.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), false);
@@ -100,7 +102,8 @@ final class RingDraw {
         }
         // the plasma beams, added light, after the solids (a buffer from the source ends when another is asked for)
         VertexConsumer beams = buffer.getBuffer(AF9RenderTypes.LIGHTNING);
-        for (Band band : bands) {
+        boolean online = state.factor > 0.04F;
+        for (Band band : online ? bands : List.<Band>of()) {
             Matrix4f mat = poseStack.last().pose();
             for (int side = 0; side < 4; side++) {
                 beam(beams, mat, band, rings.towerHalf(), side, color, working, time);
@@ -108,18 +111,21 @@ final class RingDraw {
         }
         // the energy core in the tower's hollow
         float power = Mth.clamp((state.factor - IDLE_SPEED) / (1F - IDLE_SPEED), 0F, 1F);
-        CoreDraw.draw(beams, poseStack.last().pose(), color, state.phase, power);
+        if (online) CoreDraw.draw(beams, poseStack.last().pose(), color, state.phase, power);
     }
 
-    /** The rings' angles now: each keeps turning from where it was, faster while the machine works. */
-    private static float[] advance(MetaMachine self, List<Band> bands, boolean working, float time) {
+    /** The rings' angles now: each keeps turning from where it was, still without power, spinning up when the station is switched on and powered, faster while it works. */
+    private static float[] advance(MetaMachine self, List<Band> bands, boolean working, boolean powered, float time) {
         State state = STATES.computeIfAbsent(self.getPos().asLong(), key -> new State());
         if (state.angle == null) state.angle = new float[bands.size()];
         float dt = Float.isNaN(state.last) ? 0 : Math.max(0, Math.min(time - state.last, 20));
         state.last = time;
         // the speed eases between idling and working
-        float target = working ? 1F : IDLE_SPEED;
-        state.factor += (target - state.factor) * Math.min(1F, dt * 0.03F);
+        // (still without standby power the rings stand; with it they spin up on their own once the station is formed)
+        float target = !powered ? 0F : working ? 1F : IDLE_SPEED;
+        float rate = target > state.factor && state.factor < IDLE_SPEED ? 0.012F : 0.03F;
+        state.factor += (target - state.factor) * Math.min(1F, dt * rate);
+        if (target == 0F && state.factor < 0.002F) state.factor = 0F;
         state.phase += dt * state.factor;
         for (int i = 0; i < state.angle.length && i < bands.size(); i++) {
             state.angle[i] = (state.angle[i] + dt * bands.get(i).spin() * state.factor) % Mth.TWO_PI;
