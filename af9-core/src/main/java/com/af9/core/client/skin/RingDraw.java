@@ -78,7 +78,7 @@ final class RingDraw {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
         List<Band> bands = rings.bands();
-        boolean powered = !(self instanceof OrbitalLithographyMachine station) || station.isFieldActive();
+        boolean powered = working || !(self instanceof OrbitalLithographyMachine station) || station.isFieldActive();
         float[] angle = advance(self, bands, working, powered, level.getGameTime() + partialTick);
         State state = STATES.get(self.getPos().asLong());
         state.origin = self.getPos();
