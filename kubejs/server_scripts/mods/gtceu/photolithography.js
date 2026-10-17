@@ -50,10 +50,10 @@ const AF9_WAFERS = (() => {
     // The orbital station is the pack's endgame: its prints use up 10 to 20 times the base amounts of fluids and dry resist
     // (the blank wafer stays one per print), more the finer the node. Must match LithoMode.consumption() in af9-core,
     // which scales the station's coolant the same way.
-    // The station's run times in ticks (450 s at 50 and 20 nm, 350 s at 7 nm, 500 s at 1 nm) and the voltage tier of its
-    // prints (UV from 50 nm, UHV at 7 and 1 nm); must match LithoMode.hatchTier.
-    const ORBITAL_TICKS = { '50nm': 9000, '20nm': 9000, '7nm': 7000, '1nm': 10000 }
-    const ORBITAL_TIER = { '50nm': GTValues.UV, '20nm': GTValues.UV, '7nm': GTValues.UHV, '1nm': GTValues.UHV }
+    // The station's run times in ticks (800 s at 50 nm, 700 s at 20 nm, 350 s at 7 nm, 500 s at 1 nm) and the voltage tier of
+    // its prints (LuV, ZPM, UHV, UHV); must match LithoMode.hatchTier.
+    const ORBITAL_TICKS = { '50nm': 16000, '20nm': 14000, '7nm': 7000, '1nm': 10000 }
+    const ORBITAL_TIER = { '50nm': GTValues.LuV, '20nm': GTValues.ZPM, '7nm': GTValues.UHV, '1nm': GTValues.UHV }
     const ORBITAL_CONSUMPTION = { '50nm': 10, '20nm': 12, '7nm': 15, '1nm': 20 }
     // The 1 nm prints roll their chip wafers per blank (GT's ranged outputs, rolled when the run ends): [min, max] by the
     // chip's native substrate. silicon-class 64-86, phosphorus 32-64, neutronium 16-32, everything above neutronium

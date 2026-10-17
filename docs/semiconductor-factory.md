@@ -359,7 +359,7 @@ Tooltips: `af9.photolithography_line.tooltip.0-16`, `af9.photolithography_scanne
 | 2 | `naquadah` | `gtceu:naquadah_wafer` | 100 nm | EV | 7680 | ArF excimer (dry) | 193 | 0.75 | 0.39 | `arf_photoresist` | 5 % | Mk1 line (V3) |
 | 3 | `trinium` | `af9:trinium_wafer` | 80 nm | IV | 30720 | ArF (dry) | 193 | 0.93 | 0.39 | `arf_photoresist` | 7 % | Mk2 scanner (V1) |
 | 4 | `naquadria` | `af9:naquadria_wafer` | 65 nm | LuV | 122880 | ArF immersion | 193 | 1.20 | 0.40 | `arf_photoresist` | 9 % | Mk2 scanner (V2) |
-| 5 | `neutronium` | `gtceu:neutronium_wafer` | 50 nm | UV | 1966080 | ArF immersion | 193 | 1.35 | 0.35 | `arf_photoresist` | 12 % | orbital station |
+| 5 | `neutronium` | `gtceu:neutronium_wafer` | 50 nm | LuV | 131072 | ArF immersion | 193 | 1.35 | 0.35 | `arf_photoresist` | 12 % | orbital station |
 | 6 | `transmuted_neutronium` | `af9:transmuted_neutronium_wafer` | 20 nm | UV | 1966080 | EUV (tin plasma) | 13.5 | 0.33 | 0.49 | `euv_photoresist` | 18 % | orbital station (+ EUV source) |
 | 7 | `strange_matter` | `af9:strange_matter_wafer` | 7 nm | UHV | 7864320 | high-NA EUV | 13.5 | 0.55 | 0.29 | `euv_photoresist` | 25 % | orbital station (+ EUV source) |
 | 8 | `chromodynium` | `af9:chromodynium_wafer` | 1 nm | UHV | 1A = 2097152 (500 s) | X-ray FEL (orbit) | 1.0 | 0.50 | 0.50 | `af9:dry_resist_cartridge` | 35 % | orbital station |
