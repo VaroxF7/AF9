@@ -1,0 +1,32 @@
+From 2ee4957ae9f428e065a1b73b78c252dbcff982ad Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Sat, 17 Oct 2026 11:30:32 +0200
+Subject: [PATCH 9/9] Recipe lookup loads in seconds again: SizedIngredient
+ hashed its lazily filled item cache (7.5.3-af9.9)
+
+SizedIngredient.hashCode() hashed itemStacks, which is null until getItems() runs, so almost every sized ingredient hashed to 31*amount. equals() is identity, so the hash only has to be consistent: StagingRecipeDB.inputFrequencies() put tens of thousands of them into one Object2IntOpenHashMap, every put walked a huge collision cluster, and the recipe bake took ~2 min. Drop the override (identity hash).
+---
+ .../gtceu/api/recipe/ingredient/SizedIngredient.java       | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/recipe/ingredient/SizedIngredient.java b/src/main/java/com/gregtechceu/gtceu/api/recipe/ingredient/SizedIngredient.java
+index 1f407d0..cad6985 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/recipe/ingredient/SizedIngredient.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/recipe/ingredient/SizedIngredient.java
+@@ -159,13 +159,6 @@ public class SizedIngredient extends Ingredient {
+         return inner.getStackingIds();
+     }
+ 
+-    @Override
+-    public int hashCode() {
+-        int result = amount;
+-        result = 31 * result + Arrays.hashCode(itemStacks);
+-        return result;
+-    }
+-
+     public static Ingredient getInner(Ingredient ingredient) {
+         if (ingredient instanceof SizedIngredient sizedIngredient) {
+             return getInner(sizedIngredient.getInner());
+-- 
+2.54.0.windows.1
+
