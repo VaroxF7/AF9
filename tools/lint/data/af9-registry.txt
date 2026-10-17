@@ -317,6 +317,7 @@ item af9:photonic_package
 item af9:pico_board
 item af9:pico_circuit_rack
 item af9:pico_cpu
+item af9:xps_board
 item af9:plascrete_filter_casing
 item af9:plascrete_pipe_casing
 item af9:plasma_cloud

@@ -7,7 +7,7 @@ A number in a quest text that a recipe could change is a promise: when the recip
 
   * (X2) the numbers of `com.af9.core.litho.LithoMode` (Java) against the print recipes (KubeJS): every mode's recipe type exists, its
     prints take `af9:coated_<substrate>_wafer` (a blank on the 1 nm station) and give `af9:broken_<substrate>_wafer` as the
-    chanced output at the mode's base break chance, at `EUt(VA[tier], 4)` (50 A at 1 nm)
+    chanced output at the mode's base break chance, at `EUt(VA[tier], 4)` (1 A at 1 nm)
   * the quests of the nodes (`af9.quest.litho.n<node>.*`) say "Fluids per print: <amount> <fluid>, ..." and, for the coater,
     "Coater Track, per wafer: <amount> <fluid>, ...; <amount> spent solvent out.": the amounts have to be those of the
     `lithography_<node>` print recipe and of the `wafer_coating` recipe of the node's substrate.
@@ -110,7 +110,7 @@ for nm, mid, substrate, tier, base in modes:
         if broken not in r['chanceItems'] or int(base) not in r['chances']:
             report(f'{r["id"]}: broken wafer {r["chanceItems"]} at {r["chances"]}, LithoMode {mid} wants {broken} at {base}', r['file'], 'X2')
         eut = r['EUt']
-        want_eut = [VOLT[tier], 50 if nm == '1' else 4]
+        want_eut = [VOLT[tier], 1 if nm == '1' else 4]
         if not eut or [int(x) for x in eut] != want_eut:
             report(f'{r["id"]}: EUt {eut}, LithoMode {mid} wants {want_eut} (tier {tier}, amps)', r['file'], 'X2')
 

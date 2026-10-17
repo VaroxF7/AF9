@@ -157,6 +157,8 @@ public final class AF9Items {
         item("organized_pico_circuit", 64, 1);
         item("processed_pico_circuit_casing", 64, 1);
         item("pico_circuit_rack", 64, 1);
+        // XPS board: placeholder alloy from sand + dirt, laid up in the HILE with sanguinite traces
+        item("xps_board", 64, 1);
         // AI Acceleration Card: TPU + memristor on a wetware board, traced in fine sanguinite wire
         // (circuits_af9.js, UHV); the compute card of the new DTPF (docs/dtpf.md).
         item("ai_acceleration_card", 64, 1);

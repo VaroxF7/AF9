@@ -25,7 +25,7 @@ import java.util.List;
  * Field): clumps of tall white spires of AE2's quartz that stand on the rock, a few thick giants in the middle of
  * a clump and a ring of small ones around it. Spires stay within one chunk's neighbours (anchor 4..11 in the chunk,
  * clump spread and lean under 12 blocks) so they come out whole in any generation order. Blocks are looked up by
- * name, so a missing AE2 falls back to vanilla quartz and glass.
+ * name, so a missing AE2 falls back to vanilla quartz throughout.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
 public class CertusCrystalFeature extends Feature<NoneFeatureConfiguration> {
@@ -33,10 +33,10 @@ public class CertusCrystalFeature extends Feature<NoneFeatureConfiguration> {
     /** Where the formations stand: on the surface of the Moon, or on any rock of the asteroids. */
     public enum Surface { MOON, ASTEROIDS }
 
-    private static final int CLUMPS_MOON = 4;
+    private static final int CLUMPS_MOON = 2;
     private static final int CLUMPS_ASTEROIDS = 8;
     /** Chance (per clump attempt) that a clump grows at all. */
-    private static final double CLUMP_CHANCE = 0.7;
+    private static final double CLUMP_CHANCE = 0.5;
     private static final int SCAN_TOP = 285;
     private static final int SCAN_BOTTOM = 0;
     /** One in this many base blocks of a giant spire is flawless budding quartz (it regrows clusters). */
@@ -64,7 +64,7 @@ public class CertusCrystalFeature extends Feature<NoneFeatureConfiguration> {
                 level.getSeed() ^ (chunkMinX * 0x9E3779B97F4A7C15L) ^ (chunkMinZ * 0xC2B2AE3D27D4EB4FL)
                         ^ (surface == Surface.MOON ? 0x3A17C0L : 0x3A17C1L));
         Block solid = block("ae2:quartz_block", Blocks.QUARTZ_BLOCK);
-        Block glass = block("ae2:quartz_glass", Blocks.GLASS);
+        Block glass = block("ae2:quartz_glass", solid);
         Block cluster = block("ae2:certus_quartz_cluster", Blocks.AMETHYST_CLUSTER);
         Block budding = block("ae2:flawless_budding_quartz", solid);
 
@@ -103,21 +103,16 @@ public class CertusCrystalFeature extends Feature<NoneFeatureConfiguration> {
         return !state.isAir() && state.getFluidState().isEmpty() && state.canOcclude();
     }
 
-    /** One clump: 1 to 2 giants in the middle, 5 to 11 smaller spires around, cluster buds in the gaps at the foot. */
+    /** One clump: a giant in the middle, a few smaller spires around it with air between, cluster buds at the foot. */
     private boolean growClump(WorldGenLevel level, RandomSource random, BlockPos center, Block solid, Block glass,
                               Block cluster, Block budding) {
         boolean placed = false;
-        int giants = 1 + random.nextInt(2);
-        for (int i = 0; i < giants; i++) {
-            int dx = random.nextInt(5) - 2;
-            int dz = random.nextInt(5) - 2;
-            placed |= spire(level, random, center.offset(dx, 0, dz), 3 + random.nextInt(2), 18 + random.nextInt(14),
-                    solid, glass, budding);
-        }
-        int smalls = 5 + random.nextInt(7);
+        placed |= spire(level, random, center, 3 + random.nextInt(2), 18 + random.nextInt(14),
+                solid, glass, budding);
+        int smalls = 3 + random.nextInt(4);
         for (int i = 0; i < smalls; i++) {
             double angle = random.nextDouble() * Math.PI * 2;
-            double dist = 3 + random.nextDouble() * 6;
+            double dist = 5 + random.nextDouble() * 8;
             int dx = (int) Math.round(Math.cos(angle) * dist);
             int dz = (int) Math.round(Math.sin(angle) * dist);
             BlockPos base = footing(level, center.offset(dx, 0, dz));
@@ -127,7 +122,7 @@ public class CertusCrystalFeature extends Feature<NoneFeatureConfiguration> {
         }
         BlockState bud = cluster.defaultBlockState();
         if (bud.hasProperty(BlockStateProperties.FACING)) bud = bud.setValue(BlockStateProperties.FACING, Direction.UP);
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 8; i++) {
             BlockPos at = footing(level, center.offset(random.nextInt(15) - 7, 0, random.nextInt(15) - 7));
             if (at != null && level.getBlockState(at).isAir()) {
                 level.setBlock(at, bud, 2);
@@ -153,7 +148,7 @@ public class CertusCrystalFeature extends Feature<NoneFeatureConfiguration> {
 
     /**
      * One spire: from the base block upward, a square column with cut corners that narrows to a point and leans a
-     * little, quartz block in the lower third (the base, with the odd budding block) and glass above.
+     * little, quartz all the way up (the base, with the odd budding block). No glass: these are crystal spires.
      */
     private boolean spire(WorldGenLevel level, RandomSource random, BlockPos base, int radius, int height, Block solid,
                           Block glass, Block budding) {
@@ -169,20 +164,18 @@ public class CertusCrystalFeature extends Feature<NoneFeatureConfiguration> {
             int cz = base.getZ() + (int) Math.round(leanZ * h);
             int y = base.getY() + h;
             if (y >= level.getMaxBuildHeight()) break;
-            for (int dx = -w; dx <= w; dx++) {
-                for (int dz = -w; dz <= w; dz++) {
-                    if (Math.abs(dx) + Math.abs(dz) > w * 1.5 + 0.5) continue;
-                    pos.set(cx + dx, y, cz + dz);
-                    // the base block (-1) digs into the ground so the spire never floats
-                    BlockState old = level.getBlockState(pos);
-                    if (h >= 0 && !old.isAir() && old.canOcclude() && h > 2) continue;
-                    boolean lower = t < 0.33;
-                    Block chosen = lower && random.nextInt(BUDDING_ONE_IN) == 0 && w >= 2 ? budding
-                            : lower || (h < 3) ? solid : glass;
-                    level.setBlock(pos, chosen.defaultBlockState(), 2);
-                    placed = true;
+                for (int dx = -w; dx <= w; dx++) {
+                    for (int dz = -w; dz <= w; dz++) {
+                        if (Math.abs(dx) + Math.abs(dz) > w * 1.5 + 0.5) continue;
+                        pos.set(cx + dx, y, cz + dz);
+                        // the base block (-1) digs into the ground so the spire never floats
+                        BlockState old = level.getBlockState(pos);
+                        if (h >= 0 && !old.isAir() && old.canOcclude() && h > 2) continue;
+                        Block chosen = random.nextInt(BUDDING_ONE_IN) == 0 && w >= 2 ? budding : solid;
+                        level.setBlock(pos, chosen.defaultBlockState(), 2);
+                        placed = true;
+                    }
                 }
-            }
         }
         return placed;
     }

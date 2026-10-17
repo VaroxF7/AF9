@@ -904,6 +904,8 @@
     "item.af9.processed_pico_circuit_casing.tooltip.0": "Chromodynium-plated housing for a Pico rack.",
     "item.af9.pico_circuit_rack": "Pico Circuit Rack",
     "item.af9.pico_circuit_rack.tooltip.0": "Four organized Pico circuits in one casing. Goes into the NVM processor.",
+    "item.af9.xps_board": "XPS Circuit Board",
+    "item.af9.xps_board.tooltip.0": "Placeholder board of sand-and-dirt alloy, traced in sanguinite. Laid up in the HILE.",
     "item.af9.ai_acceleration_card": "AI Acceleration Card",
     "item.af9.ai_acceleration_card.tooltip.0": "TPU and memristor on a wetware board, traced in sanguinite. Compute card of the new DTPF.",
     "item.af9.interconnect": "Interconnect",

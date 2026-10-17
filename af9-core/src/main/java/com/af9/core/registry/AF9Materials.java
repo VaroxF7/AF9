@@ -1345,6 +1345,9 @@ public final class AF9Materials {
                 .iconSet(MaterialIconSet.SHINY)
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_RING)
                 .formula("(St4Nt2StM)"));
+
+        ebfAlloy("xps_alloy", 0xb8b0a0, "(SiO2)(SiO2)", 1200, GasTier.LOW, GTValues.VA[GTValues.LV], 400,
+                MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL, MaterialFlags.GENERATE_FINE_WIRE);
     }
 
     /** An EBF alloy: formula only, plus the blast property that makes GT melt its dust. */
