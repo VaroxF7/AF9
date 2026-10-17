@@ -34,27 +34,28 @@ public class OrbitalModuleMachine extends MultiblockControllerMachine implements
 
     /**
      * The kinds and what each module of a kind gives the prints of the Array it stands in (every further module of the
-     * kind multiplies again): run time, EU/t, break chance, coolant a print takes, and the parallels it adds.
+     * kind multiplies again): run time, EU/t of the recipes, the auxiliary power (the start-up and standby draw), the
+     * parallels it adds; and how many of the kind an Array takes.
      */
     public enum Kind {
-        /** Faster runs. */
-        CHRONO(0.90, 1, 1, 1, 0),
-        /** Prints in parallel (on top of a parallel hatch's, which multiplies with them). */
-        MULTIPLEX(1, 1, 1, 1, 4),
-        /** Fewer broken wafers. */
-        YIELD(1, 1, 0.85, 1, 0),
-        /** Less energy and less coolant. */
-        THRIFT(1, 0.88, 1, 0.85, 0);
+        /** Parallel Processing Computer: parallels, as many as the energy supplied allows (the Mk2 has no parallel hatch). */
+        PARALLEL(1, 1, 1, 10, 6),
+        /** Energy Efficiency Module: 5% off the energy of the recipes (not the auxiliary power). */
+        EFFICIENCY(1, 0.95, 1, 0, 6),
+        /** Endion Evaporation Annihilation Stack: a supercooler, 10% faster recipes. */
+        EVAPORATION(0.90, 1, 1, 0, 2),
+        /** Stabilisation Sequencer: half the auxiliary power, running and idle. */
+        SEQUENCER(1, 1, 0.5, 0, 1);
 
-        public final double time, energy, breakChance, coolant;
-        public final int parallels;
+        public final double time, energy, aux;
+        public final int parallels, max;
 
-        Kind(double time, double energy, double breakChance, double coolant, int parallels) {
+        Kind(double time, double energy, double aux, int parallels, int max) {
             this.time = time;
             this.energy = energy;
-            this.breakChance = breakChance;
-            this.coolant = coolant;
+            this.aux = aux;
             this.parallels = parallels;
+            this.max = max;
         }
 
         public String id() {

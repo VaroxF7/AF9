@@ -235,14 +235,21 @@ const orbitalRingCell = (d, dx, dz) => {
     })
     return found
 }
-// the Array Mk2's module slots: four columns along the crown's ridge, two on each side of the controller, stepping down with
-// it. A column is casing ('Q'), the slot ('Y': a module controller, or nothing) and casing again, as the Space Elevator's
-// module slots (a module is a small multiblock of its own, af9-core OrbitalModuleMachine; the module needs the casings
-// above and below it). orbitalModuleY is the level of the slot's middle at each column's x. Keep in step with af9-core
-// OrbitalLithographyMachine.MODULE_SLOTS.
-const orbitalModuleY = dx => Math.abs(dx) === 4 ? -2 : Math.abs(dx) === 8 ? 1 : null
+// the Array Mk2's module slots: fourteen columns on the crown's roof, four along the ridge (two each side of the controller)
+// and five on each side of it, every one standing on the roof's surface at its place. A column is casing ('Q'), the slot
+// ('Y': a module controller, or nothing) and casing again, as the Space Elevator's module slots (a module is a small
+// multiblock of its own, af9-core OrbitalModuleMachine; the module needs the casing above and below it). The Array takes
+// 6 Parallel Processing Computers, 6 Energy Efficiency Modules, 2 Evaporation Stacks and 1 Sequencer at most.
+const orbitalModuleSlots = (() => {
+    const slots = []
+    ;[-8, -4, 4, 8].forEach(dx => slots.push([dx, 0]))
+    ;[-2, 2].forEach(dz => [-8, -4, 0, 4, 8].forEach(dx => slots.push([dx, dz])))
+    return slots
+})()
+// the level of the slot's middle: two above the roof's surface there
+const orbitalModuleY = (dx, dz) => orbitalModuleSlots.some(slot => slot[0] === dx && slot[1] === dz) ? orbitalRoof(dx, dz) - 2 : null
 const orbitalModuleCell = (d, dx, dz) => {
-    const y = dz === 0 ? orbitalModuleY(dx) : null
+    const y = orbitalModuleY(dx, dz)
     if (y === null || Math.abs(d - y) > 1) return ' '
     return d === y ? 'Y' : 'Q'
 }
@@ -433,11 +440,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         const itemsIn = Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1)
         const itemsOut = Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1)
         const maintenance = Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)
-        // the top deck: PTFE casings and every hatch; the Array Mk2 (and only it) also takes a parallel hatch
+        // the top deck: PTFE casings and every hatch; hatches go here and nowhere else
         const deck = Predicates.blocks('gtceu:inert_machine_casing').or(energy).or(laser).or(coolant).or(computation)
             .or(data).or(optical).or(fluids).or(itemsIn).or(itemsOut).or(maintenance)
-        const parallelHatch = Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 0)
-        return [
+                return [
             ['K', Predicates.controller(Predicates.blocks(definition.get()))],
             ['A', Predicates.blocks('gtceu:hsse_frame')],
             ['S', Predicates.blocks('gtceu:superconducting_coil')],
@@ -457,7 +463,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             // chemicals through fluid input hatches, the supercooled coolant through coolant hatches, computation
             // (7 and 1 nm) through a computation hatch and the 1 nm research through a data hatch. Every hatch goes
             // on the PTFE casings of the top deck and nowhere else.
-            ['O', mk2 ? deck.or(parallelHatch) : deck],
+            ['O', deck],
             [' ', Predicates.any()]
         ]
     }
@@ -480,15 +486,15 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // MK2_GATE: the Mk2's own types only in orbit on the Array Mk2 (extended) once its beams are
         // aligned (the 1 nm prints check the same in the station's own gate); FOCUS: the Mk2's focus bonus (shorter
         // runs; its break-chance share is in the station's machineBreakFactor); COILS: the Mk2's coil tier (shorter runs, less EU/t; break chance and focus in the station);
-        // PARALLEL_HATCH: GT's parallel hatch, which only the Array Mk2's structure has a place for (the coolant and
-        // everything else scale with the parallels); perfect overclocks (the machine caps them at UXV, af9-core
+        // MODULES: the Array Mk2's modules (af9-core OrbitalModuleMachine: parallels as the energy allows, less EU/t, faster runs; the
+        // coolant and everything else scale with the parallels, there is no parallel hatch); perfect overclocks (the machine caps them at UXV, af9-core
         // getOverclockTier); then batch mode (the console's switch; af9-core BATCH: a print overclocked below a minute
         // runs as a batch about a minute long, up to 64 prints, the coolant too).
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN, $OrbitalLithographyMachine.COOLANT,
             $OrbitalLithographyMachine.MK2_GATE, $OrbitalLithographyMachine.FOCUS, $OrbitalLithographyMachine.COILS,
-            GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.OC_PERFECT, $OrbitalLithographyMachine.BATCH])
+            $OrbitalLithographyMachine.MODULES, GTRecipeModifiers.OC_PERFECT, $OrbitalLithographyMachine.BATCH])
         .appearanceBlock(() => Block.getBlock('gtceu:inert_machine_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 20))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 34))
         .pattern(definition => {
             // GT asks for this once: both sizes are built, the extended one is the machine's own to switch to
             $OrbitalLithographyMachine.setExtendedPattern(orbitalPattern(definition, ORBITAL_MK2_SLICES, true))

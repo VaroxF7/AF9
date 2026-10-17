@@ -22,6 +22,7 @@ import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.gui.fancy.TabsWidget;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
+import com.gregtechceu.gtceu.api.pattern.error.PatternStringError;
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
@@ -101,8 +102,8 @@ import java.util.Map;
  * <li>7 and 1 nm prints draw computation (CWU/t) from a computation hatch; every 1 nm print needs its own research
  * (like GT's assembly line: the Research Station scans the chip's reticle, the data orb goes in a data hatch).</li>
  * <li>Every print overclocks perfectly (4x faster per voltage tier) up to UXV, the last tier of the pack
- * ({@link #MAX_OC_TIER}); batch mode ({@link #BATCH}) bundles prints into longer runs on both sizes, and the Array Mk2
- * also takes a parallel hatch (GT's, the basic station's structure has no place for one).</li>
+ * ({@link #MAX_OC_TIER}); batch mode ({@link #BATCH}) bundles prints into longer runs on both sizes, and the Array Mk2's
+ * Parallel Processing Computers (modules) give it parallels (no parallel hatch).</li>
  * <li>The prints use up 10 to 20 times the base amounts of fluids and dry resist ({@link LithoMode#consumption()}).</li>
  * <li>While it is switched on and powered, its magnetic field gives the station itself normal gravity, the deck and
  * 4 blocks above it, nothing around it ({@link OrbitalField}).</li>
@@ -267,7 +268,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return modified -> {
             GTRecipe cooled = modified.copy();
             List<Content> fluids = new ArrayList<>(cooled.inputs.getOrDefault(FluidRecipeCapability.CAP, List.of()));
-            fluids.add(new Content(FluidIngredient.of(coolant.fluid(), station.coolantPerPrint(mode)),
+            fluids.add(new Content(FluidIngredient.of(coolant.fluid(), mode.coolantPerPrint()),
                     ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0));
             cooled.inputs.put(FluidRecipeCapability.CAP, fluids);
             cooled.duration = Math.max(1, (int) Math.round(cooled.duration * Math.pow(Coolant.TIME_FACTOR, steps)));
@@ -328,9 +329,9 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     };
 
     /**
-     * The module bonus of the Array Mk2 ({@link OrbitalModuleMachine.Kind}): shorter runs and less EU/t from the Chrono and
-     * Thrift modules, extra parallels from the Multiplex modules (before a parallel hatch's, which multiply with them).
-     * Place it after {@link #COILS} and before the parallel hatch and the overclocks.
+     * The module bonus of the Array Mk2 ({@link OrbitalModuleMachine.Kind}): faster runs (Evaporation Stacks), less EU/t
+     * (Efficiency Modules) and parallels (Parallel Processing Computers, as many as the energy allows: the Array Mk2 has no
+     * parallel hatch). Place it after {@link #COILS} and before the overclocks.
      */
     public static final RecipeModifier MODULES = (machine, recipe) -> {
         if (!(machine instanceof OrbitalLithographyMachine station)) {
@@ -567,14 +568,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
 
     /** The id prefix of the module blocks ({@code gtceu:orbital_module_<kind>}, {@link OrbitalModuleMachine.Kind}). */
     public static final String MODULE_PREFIX = "orbital_module_";
-    private static final String MODULE_POS_KEY = "OrbitalModulePositions";
-    /**
-     * The module slots of the Array Mk2, as offsets in the tower's frame (across the crown, levels below the controller):
-     * the ridge's steps either side of the controller. The pattern in photolithography.js (orbitalModuleSlot) has the same
-     * slots: keep them in step.
-     */
-    public static final int[][] MODULE_SLOTS = { { -8, 1 }, { -4, -2 }, { 4, -2 }, { 8, 1 } };
-
+    private static final String MODULE_POS_KEY = "OrbitalModulePositions", MODULE_COUNT_KEY = "OrbitalModuleCounts";
     /** Where the modules stand that the check found (block positions as longs), as noted by {@link #modules()}. */
     private final LongList modulePositions = new LongArrayList();
     /** Modules of each kind that give their bonus, recounted every {@link #MODULE_RECOUNT} ticks. */
@@ -589,7 +583,15 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      */
     public static TraceabilityPredicate modules() {
         return new TraceabilityPredicate(state -> {
-            if (moduleKindOf(state.getBlockState()) == null) return false;
+            OrbitalModuleMachine.Kind kind = moduleKindOf(state.getBlockState());
+            if (kind == null) return false;
+            // an Array takes only so many of a kind
+            int[] counts = state.getMatchContext().getOrCreate(MODULE_COUNT_KEY,
+                    () -> new int[OrbitalModuleMachine.Kind.values().length]);
+            if (++counts[kind.ordinal()] > kind.max) {
+                state.setError(new PatternStringError("af9.orbital_module.error.max"));
+                return false;
+            }
             state.getMatchContext().getOrCreate(MODULE_POS_KEY, LongArrayList::new).add(state.getPos().asLong());
             return true;
         }, OrbitalLithographyMachine::moduleCandidates)
@@ -673,12 +675,9 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return moduleFactor(kind -> kind.energy);
     }
 
-    public double moduleBreak() {
-        return moduleFactor(kind -> kind.breakChance);
-    }
-
-    public double moduleCoolant() {
-        return moduleFactor(kind -> kind.coolant);
+    /** Factor of the auxiliary power (start-up and standby draw). */
+    public double moduleAux() {
+        return moduleFactor(kind -> kind.aux);
     }
 
     /** Parallels the Multiplex modules add (1 without them). */
@@ -689,11 +688,6 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             parallels += kind.parallels * moduleCount(kind);
         }
         return parallels;
-    }
-
-    /** Coolant (mB) a print of the mode takes: the mode's, less what the Thrift modules save. */
-    public int coolantPerPrint(LithoMode mode) {
-        return Math.max(1, (int) Math.round(mode.coolantPerPrint() * moduleCoolant()));
     }
 
     //////////////////////////////////////
@@ -878,7 +872,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         Coolant best = mode.bestCoolant();
         if (min == null || best == null) return null;
         Map<Coolant, Long> stock = coolantStock();
-        long needed = coolantPerPrint(mode);
+        long needed = mode.coolantPerPrint();
         Coolant[] all = Coolant.values();
         for (int i = best.ordinal(); i >= min.ordinal(); i--) {
             if (stock.getOrDefault(all[i], 0L) >= needed) return all[i];
@@ -912,7 +906,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         GTRecipe run = measured ? getRecipeLogic().getLastRecipe() : null;
         Coolant coolant = run != null ? coolantOf(run) : chooseCoolant(mode);
         double cooled = coolant == null ? 1 : Math.pow(Coolant.BREAK_FACTOR, coolant.steps(mode));
-        return cooled * focusBreakFactor() * coilBreak(coilTier) * moduleBreak();
+        return cooled * focusBreakFactor() * coilBreak(coilTier);
     }
 
     //////////////////////////////////////
@@ -1181,7 +1175,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         long voltage = 0;
         for (var hatch : getAuxiliaryHatches()) voltage = Math.max(voltage, hatch.energyContainer.getInputVoltage());
         if (voltage <= 0 && energyContainer != null) voltage = energyContainer.getHighestInputVoltage();
-        return voltage / 8 * VACUUM_INTERVAL;
+        return (long) (voltage / 8 * VACUUM_INTERVAL * moduleAux());
     }
 
     /** The auxiliary hatches keep the systems up: the start-up power every tick (0 without auxiliary hatches). */
