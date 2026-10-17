@@ -16,19 +16,13 @@
 //                                               Extreme Reactors
 
 // ---- The FX-1 Reactor ----
-const $Fx1Reactor = Java.loadClass('com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine')
+// one controller line: Mk1 (invar core shell) and Mk2 (heating coils in the shell), see the pattern below
+const $Fx1Reactor = Java.loadClass('com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine')
 const $Fx1Direction = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // a fuel rod in and the spent rod out; water and coolant in, supercritical steam and hot coolant out
     event.create('fx1_reactor')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(2, 2, 2, 2)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_BOILER_HEAT, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.BOILER)
-    // the hot-fuels type of the Mk2: MOX-3 and MOX-4 cycles
-    event.create('fx2_reactor')
         .category('multiblock')
         .setEUIO('in')
         .setMaxIOSize(2, 2, 2, 2)
@@ -54,14 +48,17 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // A fission reactor: a stable titanium vessel (5 x 5 x 5) around a core of heatproof casing, the coolant channels
     // (titanium pipe casing) running through it and the one block of air the fuel rod is in. Aisles front -> back,
     // rows bottom -> top; the hatches go on any vessel casing. HV: 480 EU/t.
+    // Mk1 -> Mk2 is an upgrade of this one machine, not a second multiblock: swap the core's heatproof shell (H) for heating
+    // coils (Kanthal or better) and the same controller runs the hot MOX-3/MOX-4 cycles (recipes gate on the coil's
+    // temperature through blastFurnaceTemp, server fission_fuels.js). Same 5 x 5 x 5 hall, same controller face and hatches.
     event.create('fx1_reactor', 'multiblock')
-        .langValue('FX-1 Reactor')
+        .langValue('FX Reactor')
         .machine(holder => new $Fx1Reactor(holder))
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('fx1_reactor')])
         .recipeModifiers([GTRecipeModifiers.OC_NON_PERFECT])
         .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
-        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3, 4, 5].map(i =>
+        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3, 4, 5, 6].map(i =>
             Component.translatable(`af9.fx1_reactor.tooltip.${i}`)))
         .pattern(definition => FactoryBlockPattern.start($Fx1Direction.LEFT, $Fx1Direction.UP, $Fx1Direction.BACK)
             .aisle('CCCCC', 'CCCCC', 'CCSCC', 'CCCCC', 'CCCCC') // front with the controller
@@ -78,39 +75,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(3, 2))
                 .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(4, 2))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
-            .where('H', Predicates.blocks(GTBlocks.CASING_INVAR_HEATPROOF.get()))       // the core's shell
-            .where('P', Predicates.blocks(GTBlocks.CASING_TITANIUM_PIPE.get()))         // the coolant channels
-            .where('#', Predicates.air())                                               // the fuel rod
-            .build())
-        .workableCasingModel('gtceu:block/casings/solid/machine_casing_stable_titanium',
-            'gtceu:block/multiblock/fusion_reactor')
-
-    // ---- The FX-2 Reactor: the Mk2, same 5 x 5 x 5 hall, for the hot MOX-3/MOX-4 fuels ----
-    // Turned from the Mk1 controller (server fission_fuels.js); runs only the fx2_reactor type.
-    event.create('fx2_reactor', 'multiblock')
-        .machine(holder => new $Fx1Reactor(holder))
-        .rotationState(RotationState.NON_Y_AXIS)
-        .recipeTypes([GTRecipeTypes.get('fx2_reactor')])
-        .recipeModifiers([GTRecipeModifiers.OC_NON_PERFECT])
-        .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
-        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3].map(i =>
-            Component.translatable(`af9.fx2_reactor.tooltip.${i}`)))
-        .pattern(definition => FactoryBlockPattern.start($Fx1Direction.LEFT, $Fx1Direction.UP, $Fx1Direction.BACK)
-            .aisle('CCCCC', 'CCCCC', 'CCSCC', 'CCCCC', 'CCCCC') // front with the controller
-            .aisle('CCCCC', 'CHHHC', 'CHPHC', 'CHHHC', 'CCCCC')
-            .aisle('CCCCC', 'CHPHC', 'CP#PC', 'CHPHC', 'CCCCC') // the core
-            .aisle('CCCCC', 'CHHHC', 'CHPHC', 'CHHHC', 'CCCCC')
-            .aisle('CCCCC', 'CCCCC', 'CCCCC', 'CCCCC', 'CCCCC') // back
-            .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
-            .where('C', Predicates.blocks(GTBlocks.CASING_TITANIUM_STABLE.get())
-                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
-                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(3, 2))
-                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(4, 2))
-                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
-            .where('H', Predicates.blocks(GTBlocks.CASING_INVAR_HEATPROOF.get()))       // the core's shell
+            .where('H', Predicates.blocks(GTBlocks.CASING_INVAR_HEATPROOF.get())               // the core's shell: Mk1 heatproof,
+                .or(Predicates.heatingCoils()))                                              // Mk2 heating coils (one tier)
             .where('P', Predicates.blocks(GTBlocks.CASING_TITANIUM_PIPE.get()))         // the coolant channels
             .where('#', Predicates.air())                                               // the fuel rod
             .build())

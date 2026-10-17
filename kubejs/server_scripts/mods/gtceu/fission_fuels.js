@@ -194,11 +194,11 @@ ServerEvents.recipes(event => {
         .duration(200)
         .EUt(VA[GTValues.HV])
 
-    // ---- MOX tiers 2-4: more plutonium per pellet, hotter cycles (T3/T4 run in the Mk2) ----
+    // ---- MOX tiers 2-4: more plutonium per pellet, hotter cycles (T3/T4 need the Mk2 coil shell of the FX Reactor) ----
     const moxTiers = [
         { tier: '2', uranium: 4, eut: VA[GTValues.HV], steam: 122880, type: 'fx1_reactor' },
-        { tier: '3', uranium: 2, eut: VA[GTValues.EV], steam: 153600, type: 'fx2_reactor' },
-        { tier: '4', uranium: 0, eut: VA[GTValues.EV], steam: 184320, type: 'fx2_reactor' },
+        { tier: '3', uranium: 2, eut: VA[GTValues.EV], steam: 153600, type: 'fx1_reactor', temp: 2700 },
+        { tier: '4', uranium: 0, eut: VA[GTValues.EV], steam: 184320, type: 'fx1_reactor', temp: 3600 },
     ]
     moxTiers.forEach(cfg => {
         const plutonium = 8 - cfg.uranium
@@ -218,7 +218,7 @@ ServerEvents.recipes(event => {
             .duration(200)
             .EUt(VA[GTValues.HV])
         // the cycle: same steam rate steps, all 1,800 ticks
-        event.recipes.gtceu[cfg.type](`af9:fx1_mox_${cfg.tier}_cycle`)
+        const cycle = event.recipes.gtceu[cfg.type](`af9:fx1_mox_${cfg.tier}_cycle`)
             .itemInputs(`af9:fx_mox_${cfg.tier}_rod`)
             .inputFluids(Fluid.of('gtceu:distilled_water', 640))
             .inputFluids(Fluid.of('gtceu:sodium_potassium', 1000))
@@ -227,6 +227,7 @@ ServerEvents.recipes(event => {
             .outputFluids(Fluid.of('gtceu:hot_sodium_potassium', 1000))
             .duration(1800)
             .EUt(cfg.eut)
+        if (cfg.temp) cycle.blastFurnaceTemp(cfg.temp) // Mk2 only: the coil shell's temperature
         // decladding joins the shared MOX stream (reprocessing takes every tier alike)
         event.recipes.gtceu.macerator(`af9:decladding_spent_mox_${cfg.tier}_rod`)
             .itemInputs(`af9:fx_spent_mox_${cfg.tier}_rod`)
@@ -234,15 +235,6 @@ ServerEvents.recipes(event => {
             .duration(200)
             .EUt(VA[GTValues.HV])
     })
-
-    // ---- FX-2 refit: the Mk1 controller turned hotter (runs the fx2_reactor type) ----
-    event.recipes.gtceu.assembler('af9:fx2_reactor')
-        .itemInputs('gtceu:fx1_reactor', '4x gtceu:tungsten_steel_plate', '2x gtceu:ev_electric_pump',
-            '4x #gtceu:circuits/ev')
-        .inputFluids(Fluid.of('gtceu:soldering_alloy', 1152))
-        .itemOutputs('gtceu:fx2_reactor')
-        .duration(600)
-        .EUt(VA[GTValues.UV])
 
     // ---- Spent Fuel Pool and Fabrication Bay controllers, stainless like the work they do ----
     event.recipes.gtceu.assembler('af9:spent_fuel_pool')
