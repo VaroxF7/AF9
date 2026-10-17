@@ -171,6 +171,21 @@ const orbitalSolid = (d, dx, dz) => {
     if (ax <= sec[0] && az <= sec[1] && ax + az <= sec[0] + sec[1] - 2) return d <= 20 ? d >= orbitalRoof(dx, dz) : true
     return orbitalFin(d, dx, dz) !== ''
 }
+// the crown's walls are this many blocks thick (the rest of the tower's are one)
+var orbitalCrownWall = 1
+const orbitalDeepInside = (d, dx, dz) => {
+    if (d > 24 || orbitalCrownWall <= 1) return true
+    for (let k = 2; k <= orbitalCrownWall; k++) {
+        if (!(orbitalSolid(d, dx + k, dz) && orbitalSolid(d, dx - k, dz) && orbitalSolid(d, dx, dz + k)
+            && orbitalSolid(d, dx, dz - k) && orbitalSolid(d - k, dx, dz) && orbitalSolid(d + k, dx, dz))) return false
+    }
+    return true
+}
+// the light strips (HSS-G coils) on the walls: along is the distance along the wall from the tower's axis
+var orbitalCoil = (d, along) => {
+    if (along % 6 === 3 && d % 18 > 2) return true
+    return d % 8 === 4 && along % 2 === 0 && along % 6 !== 0
+}
 const orbitalTowerCell = (d, dx, dz) => {
     if (d === 0 && dx === 0 && dz === 0) return 'K'
     if (d > 104) return ' '   // the tower ends at its foot; the plasma lance below it is drawn, not built
@@ -186,7 +201,7 @@ const orbitalTowerCell = (d, dx, dz) => {
     const south = orbitalSolid(d, dx, dz - 1)
     const up = orbitalSolid(d - 1, dx, dz)
     const down = orbitalSolid(d + 1, dx, dz)
-    if (east && west && north && south && up && down) {
+    if (east && west && north && south && up && down && orbitalDeepInside(d, dx, dz)) {
         // inside the walls: a floor every 12 levels
         return d <= 80 && d % 12 === 0 ? 'C' : ' '
     }
@@ -200,9 +215,7 @@ const orbitalTowerCell = (d, dx, dz) => {
     // walls: stress-proof casing columns with non-conducting panels between, a light strip (HSS-G coil) up each third
     // column, broken every 18 levels
     const along = Math.abs(!north || !south ? dx : dz)
-    if (along % 6 === 3 && d % 18 > 2) return 'B'
-    // rows of small lit windows across the panels, every 8 levels
-    if (d % 8 === 4 && along % 2 === 0 && along % 6 !== 0) return 'B'
+    if (orbitalCoil(d, along)) return 'B'
     return along % 6 < 3 ? 'L' : 'C'
 }
 const orbitalRingCell = (d, dx, dz) => {
