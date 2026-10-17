@@ -843,8 +843,9 @@ public final class AF9Materials {
     private static void antimatter() {
         // stabilised anti-quarks in one bag, past strange matter: plasma only, no dust
         add(material("anti_matter")
-                .plasma()
-                .color(0x7a00ff).secondaryColor(0x00fff2)
+                // its own animated texture (fluid.anti_matter_plasma.png), no tint on top of it; tools/textures/antimatter.py
+                .plasma(new FluidBuilder().state(FluidState.PLASMA).customStill().disableColor())
+                .color(0xc81e1e).secondaryColor(0xffb41e)
                 .iconSet(ANTI_MATTER)
                 .formula("(Aq)n"));
 
