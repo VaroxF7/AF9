@@ -396,6 +396,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
 
     /** Start-up progress, ticks: 0 off, {@link #STARTUP_TICKS} ready. */
     @Persisted
+    @DescSynced
     private int startupTicks;
     private int unpoweredTicks;
 

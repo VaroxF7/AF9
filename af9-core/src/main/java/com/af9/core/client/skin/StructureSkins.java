@@ -230,6 +230,11 @@ public final class StructureSkins {
             untrack(origin.asLong());
             return;
         }
+        // the rings stay the real blocks (with their connected textures) until the station has power; then they take
+        // over and spin up (an already spinning skin stays until the station is not formed any more)
+        if (!station.isFieldActive() && station.getStartupPercent() <= 0 && !TRACKED.containsKey(origin.asLong())) {
+            return;
+        }
         // the rings are drawn in place of their blocks only once the whole tower stands
         Boolean built = ringsBuilt(level, controller, skin);
         if (built == null) {

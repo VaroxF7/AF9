@@ -99,6 +99,8 @@ final class RingBlocks {
             BlockState state = cell.state();
             if (state.getRenderShape() != RenderShape.MODEL) continue;
             BakedModel model = renderer.getBlockModel(state);
+            // the model data of the block in its place, so connected-texture models pick their neighbours' variants
+            ModelData data = model.getModelData(level, cell.pos(), state, ModelData.EMPTY);
             for (Direction face : FACES) {
                 if (face != null) {
                     // a face against another block of the band is never seen
@@ -106,7 +108,7 @@ final class RingBlocks {
                     if (present.contains(TowerDraw.key(cell.right() + dr, cell.up() + du, cell.back() + db))) continue;
                 }
                 RandomSource random = RandomSource.create(state.getSeed(cell.pos()));
-                for (BakedQuad quad : model.getQuads(state, face, random, ModelData.EMPTY, null)) {
+                for (BakedQuad quad : model.getQuads(state, face, random, data, null)) {
                     emit(mesh, quad, cell, level, origin, right, up, back, zc);
                 }
             }
