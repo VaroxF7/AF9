@@ -110,7 +110,7 @@ for nm, mid, substrate, tier, base in modes:
         if broken not in r['chanceItems'] or int(base) not in r['chances']:
             report(f'{r["id"]}: broken wafer {r["chanceItems"]} at {r["chances"]}, LithoMode {mid} wants {broken} at {base}', r['file'], 'X2')
         eut = r['EUt']
-        want_eut = [VOLT[tier], 50 if nm == '1' else 4]
+        want_eut = [VOLT[tier], 1 if nm == '1' else 4]
         if not eut or [int(x) for x in eut] != want_eut:
             report(f'{r["id"]}: EUt {eut}, LithoMode {mid} wants {want_eut} (tier {tier}, amps)', r['file'], 'X2')
 
