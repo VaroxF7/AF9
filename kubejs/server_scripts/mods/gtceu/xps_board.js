@@ -1,7 +1,7 @@
 // AF9 - XPS board: a placeholder alloy from sand + dirt, laid up in the HILE with sanguinite traces.
 // Materials: af9-core, registry/AF9Materials (xps_alloy in alloys()). Spec: docs/xps-board.md
 //
-//   xps_alloy   3 sand + 1 dirt (Mixer, LV) -> 4 dust; GT's EBF melts it (1200 K, LOW, LV, 400 ticks)
+//   xps_alloy   3 sand + 1 dirt (Mixer, LV; the blocks, GT has no sand/dirt dust) -> 4 dust; GT's EBF melts it (1200 K, LOW, LV, 400 ticks)
 //   xps_board   Hyper-Intensity Laser Engraver (plasma_soldering): alloy plates + sanguinite foil + wire
 
 ServerEvents.recipes(event => {
@@ -9,7 +9,7 @@ ServerEvents.recipes(event => {
 
     // ---- The alloy: sand and dirt mixed at LV ----
     event.recipes.gtceu.mixer('af9:xps_alloy_dust')
-        .itemInputs('3x gtceu:sand_dust', 'gtceu:dirt_dust')
+        .itemInputs('3x minecraft:sand', 'minecraft:dirt')
         .circuit(2)
         .itemOutputs('4x gtceu:xps_alloy_dust')
         .duration(200)

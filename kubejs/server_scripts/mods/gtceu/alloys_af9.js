@@ -70,7 +70,7 @@ ServerEvents.recipes(event => {
     // Re2O7 + 2 NH3 + H2O -> 2 NH4ReO4 (the perrhenate crystallises out of the scrubber liquor)
     gt.chemical_reactor('af9:alloys/ammonium_perrhenate')
         .itemInputs('gtceu:rhenium_heptoxide_dust')
-        .inputFluids(Fluid.of('gtceu:ammonia', 2000), Fluid.of('gtceu:water', 1000))
+        .inputFluids(Fluid.of('gtceu:ammonia', 2000), Fluid.of('minecraft:water', 1000))
         .itemOutputs('2x gtceu:ammonium_perrhenate_dust')
         .duration(200)
         .EUt(VA[GTValues.HV])
