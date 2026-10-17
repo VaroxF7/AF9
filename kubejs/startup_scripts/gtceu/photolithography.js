@@ -138,7 +138,7 @@ const orbitalSection = d => {
 // either side of it, and a tall blade at each edge that falls away towards the front and the back
 const orbitalRoof = (dx, dz) => Math.floor(Math.abs(dz) * 2.4) + Math.floor(Math.max(0, Math.abs(dx) - 5) * 1.2)
 // what stands out of the tower's walls, '' for nothing: 'F' a fin (a thin plate against the body: one against each
-// side of the crown, two pylons down the waist), 'R' a rib (the layered vertical
+// side of the crown, 'P' two pylons down the waist), 'R' a rib (the layered vertical
 // panels of the body). None of them reach a ring's middle level (the beams run there).
 const orbitalFin = (d, dx, dz) => {
     const sec = orbitalSection(d)
@@ -146,7 +146,7 @@ const orbitalFin = (d, dx, dz) => {
     const az = Math.abs(dz)
     // swept wings against each side of the crown, rising towards the roof
     if (d >= 4 && d <= 21 && ax > sec[0] && ax <= sec[0] + 9 && az <= 2 && d >= 4 + Math.floor((ax - sec[0] - 1) * 1.4)) return 'F'
-    if (d >= 62 && d <= 78 && ax === sec[0] + 1 && az <= 1) return 'F'
+    if (d >= 62 && d <= 78 && ax === sec[0] + 1 && az <= 1) return 'P'
     // ribs up the faces of the upper block and of the waist
     if (d >= 21 && d <= 80 && d !== 22 && sec[0] > 4) {
         if (az === sec[1] + 1 && ax <= sec[0] - 2 && dx % 4 === 0) return 'R'
@@ -206,12 +206,16 @@ const orbitalTowerCell = (d, dx, dz) => {
     if (d <= 10 || (d <= 20 && !up)) return 'O'
     const part = orbitalFin(d, dx, dz)
     if (part === 'R') return 'C'
+    // the waist's pylons: atomic casing pillars either side of a narrow frame strip
+    if (part === 'P') return dz === 0 ? 'F' : 'H'
     if (part === 'F') return 'L'
     // no frame blocks on the tower's body: corners and rims are casing like the walls
     // walls: stress-proof casing columns with non-conducting panels between, a light strip (HSS-G coil) up each third
     // column, broken every 18 levels
     const along = Math.abs(!north || !south ? dx : dz)
     if (orbitalCoil(d, along)) return 'B'
+    // atomic casing pillars up the middle of the tower, the same on all four sides
+    if (d >= 24 && d <= 80 && along % 6 === 0) return 'H'
     return along % 6 < 3 ? 'L' : 'C'
 }
 const orbitalRingCell = (d, dx, dz) => {
