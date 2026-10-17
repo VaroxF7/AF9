@@ -6,13 +6,16 @@ as ever (ingots, plates, ...).
 
 ## Structure
 
-GTNH's Planetary Gas Siphon, block for block (GT5-Unofficial `MTEPlanetaryGasSiphon`, LGPL-3.0): 13 x 23 x 13, a 3 x 3 tower
-with a wide dish on its crown and a crossed ring of arms round its middle. Pattern: `startup_scripts/gtceu/planetary_satellite.js`.
+GTNH's Planetary Gas Siphon (GT5-Unofficial `MTEPlanetaryGasSiphon`, LGPL-3.0): a 3 x 3 tower with a wide dish on its crown and a
+crossed ring of arms round its middle (13 x 23 x 13 in GTNH). The pattern is Janne's rebuilt version, read from his world: 15 x 24 x 15,
+the arms end in five-block bars, a cross of frames sits on the dish, and an Orbital Magnet Casing and an Orbital Light Casing sit
+in pairs on the front tip. Pattern: `startup_scripts/gtceu/planetary_satellite.js`.
 
 | char | block |
 |---|---|
 | `C` | Satellite Casing (`af9:satellite_casing`, made with Enriched Naquadah Trinium Europium Duranide); hatches go here |
 | `B` | HSS-S frame |
+| `L` / `M` | Orbital Light Casing / Orbital Magnet Casing (decoration on the front tip; both connect and shimmer, `tools/textures/orbital_casings.py`) |
 | `K` | Superconducting Coil Block: a column up the middle of the tower from the bottom to the top, and the siphon's coil spots |
 
 Hatches (maximums only): energy 2, fluid input 2, item input 1, item output 2, maintenance 1. The controller sits in the tower's
