@@ -157,6 +157,8 @@ public final class AF9Items {
         item("organized_pico_circuit", 64, 1);
         item("processed_pico_circuit_casing", 64, 1);
         item("pico_circuit_rack", 64, 1);
+        // Quantum Computer: the heat vents of its racks (quantum/RackComponent has their numbers)
+        for (int tier = 1; tier <= 4; tier++) item("rack_heat_vent_mk" + tier, 16, 2);
         // XPS board: placeholder alloy from sand + dirt, laid up in the HILE with sanguinite traces
         item("xps_board", 64, 1);
         // AI Acceleration Card: TPU + memristor on a wetware board, traced in fine sanguinite wire

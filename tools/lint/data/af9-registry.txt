@@ -25,6 +25,9 @@ block af9:hearth_pipe_casing
 block af9:hearth_support_casing
 block af9:cutter_casing
 block af9:satellite_casing
+block af9:quantum_computer_casing
+block af9:quantum_computer_vent_casing
+block af9:quantum_computer_advanced_casing
 block af9:hydrogen_peroxide
 block af9:krf_excimer_laser
 block af9:laser_containment_casing
@@ -241,6 +244,13 @@ item af9:hearth_pipe_casing
 item af9:hearth_support_casing
 item af9:cutter_casing
 item af9:satellite_casing
+item af9:quantum_computer_casing
+item af9:quantum_computer_vent_casing
+item af9:quantum_computer_advanced_casing
+item af9:rack_heat_vent_mk1
+item af9:rack_heat_vent_mk2
+item af9:rack_heat_vent_mk3
+item af9:rack_heat_vent_mk4
 item af9:krf_excimer_laser
 item af9:kronos_marker
 item af9:laser_containment_casing
