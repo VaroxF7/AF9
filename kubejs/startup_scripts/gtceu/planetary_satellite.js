@@ -377,12 +377,14 @@ const SATELLITE_SHAPE = [
      '               ']
 ]
 
+const $SatelliteModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
+
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // the rays: a coolant for the detectors in, small neutronium dust out
+    // the rays: a reflector plate in, liquid neutronium out
     event.create('neutron_collection')
         .category('multiblock')
         .setEUIO('in')
-        .setMaxIOSize(1, 1, 1, 0)
+        .setMaxIOSize(1, 0, 0, 1)
         .setProgressBar(GuiTextures.PROGRESS_BAR_MASS_FAB, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC)
 })
@@ -398,7 +400,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .langValue('Planetary Satellite')
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('neutron_collection')])
-        .recipeModifiers([GTRecipeModifiers.OC_NON_PERFECT])
+        .recipeModifiers([GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.OC_NON_PERFECT,
+            GTRecipeModifiers.BATCH_MODE, $SatelliteModifiers.SATELLITE_YIELD])
         .appearanceBlock(() => Block.getBlock('af9:satellite_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.planetary_satellite.tooltip', 4))
         .pattern(definition => {
@@ -415,7 +418,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                     .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
                     .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(2, 1))
                     .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1, 0))
-                    .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                    .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(2, 1))
+                    .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 1))
                     .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
                 .build()
         })

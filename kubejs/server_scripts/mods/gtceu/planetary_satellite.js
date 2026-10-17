@@ -2,8 +2,8 @@
 // Spec: docs/planetary-satellite.md
 //
 // The satellite is the only source of neutronium now: GT's fusion recipe for it (americium and naquadria, the
-// Mk3 fusion reactor) is removed. It runs UV, 1 A (524,288 EU/t, a UV energy hatch) and gathers 8 small piles of
-// neutronium dust (2 dust) every 30 s on 2,000 mB of supercooled xenon for the detectors; a UHV hatch halves the time.
+// Mk3 fusion reactor) is removed. It runs UV, 1 A (524,288 EU/t) and turns a reflector plate into 12 - 120 mB of
+// liquid neutronium every 12 s; parallel hatches and batch mode work.
 
 ServerEvents.recipes(event => {
     // neutronium comes from the satellite and nowhere else (the plasma of this recipe is what GT's fluid solidifier
@@ -24,10 +24,18 @@ ServerEvents.recipes(event => {
         C: '#gtceu:circuits/uv', F: 'gtceu:uv_field_generator', D: 'gtceu:uv_sensor', X: 'af9:satellite_casing'
     }).id('af9:planetary_satellite')
 
-    // the rays
-    event.recipes.gtceu.neutron_collection('af9:small_neutronium_dust')
-        .inputFluids('#af9:coolant/xenon 2000')
-        .itemOutputs('8x gtceu:small_neutronium_dust')
-        .duration(600)
-        .EUt(GTValues.VA[GTValues.UV])
+    // the rays: a reflector plate for the dish, 12 to 120 mB of liquid neutronium out (rolled in 12 mB steps by
+    // AF9Modifiers.SATELLITE_YIELD, once for every parallel); the better the plate the higher the lowest roll
+    const reflectors = [
+        { id: 'iridium', plate: 'gtceu:iridium_plate' },            // 12 - 120 mB
+        { id: 'osmiridium', plate: 'gtceu:osmiridium_plate' },      // 36 - 120 mB
+        { id: 'tritanium', plate: 'gtceu:tritanium_plate' }         // 72 - 120 mB
+    ]
+    reflectors.forEach(r => {
+        event.recipes.gtceu.neutron_collection(`af9:neutronium_rays_${r.id}`)
+            .itemInputs(r.plate)
+            .outputFluids(Fluid.of('gtceu:neutronium', 12))
+            .duration(240)
+            .EUt(GTValues.VA[GTValues.UV])
+    })
 })
