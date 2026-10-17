@@ -18,7 +18,7 @@ import java.util.Locale;
  * Photolithography Scanner (Mk2) 80 and 65 nm, the Orbital Lithography Station 50 nm down to 1 nm (in orbit only).
  * <p>
  * A mode prints on its own substrate (the 350 nm mode on silicon wafers, 200 nm on phosphorus wafers, ...) and draws
- * 4A of its voltage tier; the orbital 1 nm mode draws 1A of UHV (an ordinary UHV energy hatch, no amperage stacking).
+ * 4A of its voltage tier (the station's 50 and 20 nm prints UV for 450 s, 7 nm UHV for 350 s); the orbital 1 nm mode draws 1A of UHV (an ordinary UHV energy hatch, no amperage stacking).
  * A print is always GT's own chip wafer; a higher substrate gives more of them per blank (GT's engraving yields,
  * extended; the 1 nm prints roll a range, see photolithography.js ORBITAL_YIELD).
  * <p>
@@ -39,7 +39,7 @@ public enum LithoMode {
             "arf_photoresist", 700, Machine.SCANNER, 1),
     N65("65nm", "naquadria", 65, GTValues.LuV, 0xFFD4EB46, ChatFormatting.YELLOW, "arf_immersion", 193, 1.20,
             "arf_photoresist", 900, Machine.SCANNER, 2),
-    N50("50nm", "neutronium", 50, GTValues.ZPM, 0xFFFFBE3C, ChatFormatting.GOLD, "arf_immersion", 193, 1.35,
+    N50("50nm", "neutronium", 50, GTValues.UV, 0xFFFFBE3C, ChatFormatting.GOLD, "arf_immersion", 193, 1.35,
             "arf_photoresist", 1200, Machine.ORBITAL, 0),
     N20("20nm", "transmuted_neutronium", 20, GTValues.UV, 0xFFFF7A3C, ChatFormatting.RED, "euv", 13.5, 0.33,
             "euv_photoresist", 1800, Machine.ORBITAL, 0),
