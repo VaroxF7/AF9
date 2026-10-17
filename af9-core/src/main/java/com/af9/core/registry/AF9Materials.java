@@ -138,6 +138,20 @@ public final class AF9Materials {
         return add(material(id).liquid().color(color));
     }
 
+    /** A liquid with its own animated texture (fluid.<name>.png, tools/textures/litho_fluids.py), no tint on top. */
+    private static FluidBuilder ownLiquid() {
+        return new FluidBuilder().state(FluidState.LIQUID).customStill().disableColor();
+    }
+
+    private static FluidBuilder ownLiquid(int kelvin) {
+        return ownLiquid().temperature(kelvin);
+    }
+
+    /** A gas with its own animated texture, no tint on top. */
+    private static FluidBuilder ownGas() {
+        return new FluidBuilder().state(FluidState.GAS).customStill().disableColor();
+    }
+
     private static Material gas(String id, int color, String formula) {
         return add(material(id).gas().color(color).formula(formula));
     }
@@ -342,8 +356,8 @@ public final class AF9Materials {
     }
 
     private static void cryogen(String gas, int dense, int supercooled, String formula, int kelvin) {
-        add(material("dense_" + gas).liquid(kelvin).color(dense).formula(formula));
-        add(material("supercooled_" + gas).liquid(1).color(supercooled).formula(formula));
+        add(material("dense_" + gas).liquid(ownLiquid(kelvin)).color(dense).formula(formula));
+        add(material("supercooled_" + gas).liquid(ownLiquid(1)).color(supercooled).formula(formula));
     }
 
     /**
@@ -461,7 +475,7 @@ public final class AF9Materials {
                 .formula("ZrCl4"));
 
         add(material("hafnium_tetrachloride")
-                .gas()
+                .gas(ownGas())
                 .color(0xc8d0c8)
                 .formula("HfCl4"));
     }
@@ -487,7 +501,7 @@ public final class AF9Materials {
         gas("dichlorosilane", 0xe2e7e4, "SiH2Cl2");  // DCS, bp 8 C
         gas("boron_trichloride", 0xd9e3d0, "BCl3");  // the boron impurity, bp 13 C
         metal("polysilicon", 0x8a93a3, "Si");  // Siemens rods, 11N
-        liquid("silicon_etchant", 0xe8e0a8, "(HNO3)(HF)(CH3COOH)");  // mixed-acid chunk etch
+        add(material("silicon_etchant").liquid(ownLiquid()).color(0xe8e0a8).formula("(HNO3)(HF)(CH3COOH)"));  // mixed-acid chunk etch
         dust("electronic_grade_silicon", 0x9aa6b8, "Si");  // etched poly chunks, CZ charge
 
         // ---- 2. Fluorochemicals ----
@@ -545,14 +559,14 @@ public final class AF9Materials {
         liquid("tetraethyl_orthosilicate", 0xe8ecf0, "Si(OC2H5)4");  // TEOS
         dust("titanium_silicalite", 0xeeeef4, "(TiO2)(SiO2)50");  // TS-1 epoxidation catalyst
         liquid("propylene_oxide", 0xe6ecee, "C3H6O");
-        liquid("unfiltered_krf_photoresist", 0xc8a458);
+        add(material("unfiltered_krf_photoresist").liquid(ownLiquid()).color(0xc8a458));
 
         // ---- 5. ArF resist ----
         liquid("methacrylamide_sulfate", 0xcfc6a0, "CH2=C(CH3)CONH2(H2SO4)");
         liquid("methacrylic_acid", 0xe6eae0, "CH2=C(CH3)COOH");
         liquid("tert_butyl_methacrylate", 0xe8ece4, "CH2=C(CH3)COOC(CH3)3");  // the acid-labile monomer
         dust("ammonium_bisulfate", 0xf2f2ea, "NH4HSO4");
-        liquid("unfiltered_arf_photoresist", 0xd8cc98);
+        add(material("unfiltered_arf_photoresist").liquid(ownLiquid()).color(0xd8cc98));
 
         // ---- MUV chemistry support ----
         dust("molybdenum_trioxide", 0xe0e4a0, "MoO3");
@@ -562,8 +576,8 @@ public final class AF9Materials {
         // ---- Materials the Photolithography Line consumes directly ----
         // Excimer laser premixes: about 1 % rare gas and 0.1 % fluorine in a neon buffer. The discharge slowly uses up
         // the fluorine, so the gas is topped up while the laser runs.
-        add(material("krf_excimer_gas").gas().color(0xd6c8f2).formula("(Ne)(Kr)(F2)"));
-        add(material("arf_excimer_gas").gas().color(0xc6d8f2).formula("(Ne)(Ar)(F2)"));
+        add(material("krf_excimer_gas").gas(ownGas()).color(0xd6c8f2).formula("(Ne)(Kr)(F2)"));
+        add(material("arf_excimer_gas").gas(ownGas()).color(0xc6d8f2).formula("(Ne)(Ar)(F2)"));
 
         // Chemically amplified resists. DNQ-novolac stops working below ~300 nm (novolac turns opaque, DNQ barely
         // bleaches); here light frees an acid from the photoacid generator (PAG) and in the post-exposure bake each
@@ -578,11 +592,11 @@ public final class AF9Materials {
         add(material("methacrylate_resin").dust().color(0xdfe8ea).formula("(C5H8O2)n(C8H14O2)m(C4H6O2)k"));
         add(material("propylene_glycol_methyl_ether").liquid().color(0xe6f0ea).formula("C4H10O2"));
         add(material("propylene_glycol_methyl_ether_acetate").liquid().color(0xdcebe6).formula("C6H12O3"));
-        add(material("krf_photoresist").liquid().color(0xd9b45c));
-        add(material("arf_photoresist").liquid().color(0xe6dcaa));
+        add(material("krf_photoresist").liquid(ownLiquid()).color(0xd9b45c));
+        add(material("arf_photoresist").liquid(ownLiquid()).color(0xe6dcaa));
 
         // Immersion film for LUV: 18 MOhm cm, degassed. Water (n = 1.44 at 193 nm) lets the lens reach NA 1.35.
-        add(material("ultrapure_water").liquid().color(0x8cc4ff).formula("H2O"));
+        add(material("ultrapure_water").liquid(ownLiquid()).color(0x8cc4ff).formula("H2O"));
     }
 
     /**
@@ -601,10 +615,10 @@ public final class AF9Materials {
         // RCA clean, the wafer cleaning every fab starts with: SC-1 (ammonia, peroxide, water, 1:1:5) lifts particles
         // and organics, SC-2 (HCl, peroxide, water, 1:1:6) takes the metal ions off. Piranha (SPM, 3:1 sulfuric acid
         // to peroxide) strips baked resist and heavy organics.
-        liquid("sc1_solution", 0xcfe8f5, "(NH3)(H2O2)(H2O)5");
-        liquid("sc2_solution", 0xe6f0d2, "(HCl)(H2O2)(H2O)6");
-        liquid("piranha_solution", 0xf2e2b8, "(H2SO4)3(H2O2)");
-        liquid("spent_piranha", 0x6b5a3c, "(H2SO4)(H2O)(C)");
+        add(material("sc1_solution").liquid(ownLiquid()).color(0xcfe8f5).formula("(NH3)(H2O2)(H2O)5"));
+        add(material("sc2_solution").liquid(ownLiquid()).color(0xe6f0d2).formula("(HCl)(H2O2)(H2O)6"));
+        add(material("piranha_solution").liquid(ownLiquid()).color(0xf2e2b8).formula("(H2SO4)3(H2O2)"));
+        add(material("spent_piranha").liquid(ownLiquid()).color(0x6b5a3c).formula("(H2SO4)(H2O)(C)"));
 
         // Ethyl lactate, the green solvent of the coatings: acetaldehyde from ethanol over copper, lactonitrile with
         // hydrogen cyanide, hydrolysed to lactic acid, esterified with ethanol.
@@ -616,15 +630,15 @@ public final class AF9Materials {
         // BARC, the bottom anti-reflective coat under the resist (KrF and ArF): an acrylic polymer with a dye that
         // soaks up the light that passed the resist, in ethyl lactate. The dye is a nitrated naphthalene.
         dust("nitronaphthalene", 0xd9b24a, "C10H7NO2");
-        liquid("barc", 0xc9a447, "(C5H8O2)n(C10H7NO2)(C5H10O3)");
+        add(material("barc").liquid(ownLiquid()).color(0xc9a447).formula("(C5H8O2)n(C10H7NO2)(C5H10O3)"));
 
         // TARC, the top anti-reflective coat over the resist of the immersion nodes (65 and 50 nm): a fluoropolymer in
         // PGMEA. What a coating leaves in the bowl is spent resist solvent; it is distilled back, never all of it.
-        liquid("tarc", 0xbfe3e8, "(C2F4)n(C6H12O3)");
-        liquid("spent_resist_solvent", 0x8a7f4a, "(C6H12O3)(C)");
+        add(material("tarc").liquid(ownLiquid()).color(0xbfe3e8).formula("(C2F4)n(C6H12O3)"));
+        add(material("spent_resist_solvent").liquid(ownLiquid()).color(0x8a7f4a).formula("(C6H12O3)(C)"));
         // Plasma etching: carbon tetrafluoride, chlorine, argon and oxygen make the etch plasma of the print
-        gas("tetrafluoromethane", 0xdfe8ef, "CF4");
-        gas("etch_plasma_gas", 0xb48cf0, "(CF4)(Cl2)(Ar)4(O2)");
+        add(material("tetrafluoromethane").gas(ownGas()).color(0xdfe8ef).formula("CF4"));
+        add(material("etch_plasma_gas").gas(ownGas()).color(0xb48cf0).formula("(CF4)(Cl2)(Ar)4(O2)"));
 
         // The functional layers of the new chip families ({@code AF9Items}): the cards that use the chips take them
         // too. Acoustic wave: the piezo films of SAW and BAW filters
@@ -888,7 +902,7 @@ public final class AF9Materials {
 
         // Purge gas for the exposure tool
         add(material("extreme_clean_dry_air")
-                .gas()
+                .gas(ownGas())
                 .color(0xe6f2ff));
 
         // Room-temperature CO oxidation catalyst (copper manganese spinel, as in gas-mask filters)
@@ -911,7 +925,7 @@ public final class AF9Materials {
 
         // HMDS vapour carried in nitrogen, as fed to a vapour prime oven
         add(material("hmds_vapor")
-                .gas()
+                .gas(ownGas())
                 .color(0xc9d6e3)
                 .formula("((CH3)3Si)2NH(N2)"));
 
@@ -930,7 +944,7 @@ public final class AF9Materials {
 
         // Novolac + DNQ dissolved in xylene
         add(material("photoresist")
-                .liquid()
+                .liquid(ownLiquid())
                 .color(0xb04a1f));
 
         // TMAH developer chain: (CH3)2NH + 2 CH3Cl -> (CH3)4NCl + HCl
@@ -941,20 +955,20 @@ public final class AF9Materials {
 
         // Electrolysed out of the chloride (membrane cell), diluted to the industry standard 2.38 %
         add(material("tmah_developer")
-                .liquid()
+                .liquid(ownLiquid())
                 .color(0xcfe8f0)
                 .formula("(CH3)4NOH(H2O)"));
 
         // ---- Metal-oxide EUV resist (20 nm and 7 nm) ----
         // Sn + 2 Cl2 -> SnCl4, the tin source of the tin-oxo clusters
         add(material("tin_tetrachloride")
-                .liquid()
+                .liquid(ownLiquid())
                 .color(0xe8e8d0)
                 .formula("SnCl4"));
 
         // Tin-oxo carboxylate clusters (methacrylate ligands) in PGMEA: dense tin absorbs EUV far better than carbon
         add(material("euv_photoresist")
-                .liquid()
+                .liquid(ownLiquid())
                 .color(0xd9c27a));
     }
 
