@@ -23,3 +23,14 @@ ServerEvents.recipes(event => {
             .EUt(VA[GTValues.UV])
     })
 })
+
+// the Mk2 tower's two casings: magnet pillars (neutronium plates round a field generator) and light strips (tungsten
+// carbide plates round an HSS-G coil)
+ServerEvents.recipes(event => {
+    event.shaped('4x af9:orbital_magnet_casing', ['PPP', 'PFP', 'PPP'], {
+        P: 'gtceu:neutronium_plate', F: 'gtceu:uv_field_generator'
+    }).id('af9:orbital_magnet_casing')
+    event.shaped('4x af9:orbital_light_casing', ['PPP', 'PCP', 'PPP'], {
+        P: 'gtceu:tungsten_carbide_plate', C: 'gtceu:hssg_coil_block'
+    }).id('af9:orbital_light_casing')
+})

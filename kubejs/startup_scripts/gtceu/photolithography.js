@@ -213,9 +213,11 @@ const orbitalTowerCell = (d, dx, dz) => {
     // walls: stress-proof casing columns with non-conducting panels between, a light strip (HSS-G coil) up each third
     // column, broken every 18 levels
     const along = Math.abs(!north || !south ? dx : dz)
-    if (orbitalCoil(d, along)) return 'B'
-    // atomic casing pillars up the middle of the tower, the same on all four sides
-    if (d >= 24 && d <= 80 && along % 6 === 0) return 'H'
+    // the diagonal light strips are light casing; a heating coil (the Mk2's tier bonus) stands only where a strip crosses
+    // the middle of a panel, one to a strip
+    if (orbitalCoil(d, along)) return along % 6 === 3 ? 'B' : 'N'
+    // magnet pillars up the tower (three to a face, the same on all four sides)
+    if (d >= 24 && d <= 80 && along % 6 === 0) return 'M'
     return along % 6 < 3 ? 'L' : 'C'
 }
 const orbitalRingCell = (d, dx, dz) => {
@@ -451,6 +453,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             ['B', mk2 ? Predicates.heatingCoils() : Predicates.blocks('gtceu:hssg_coil_block')],
             ['D', Predicates.blocks('gtceu:sturdy_machine_casing')],
             ['F', Predicates.blocks(mk2 ? 'gtceu:tungsten_carbide_frame' : 'gtceu:hsss_frame')],
+            // the Mk2 tower's magnet pillars and light strips (textures from Cosmic Frontiers)
+            ['M', Predicates.blocks('af9:orbital_magnet_casing')],
+            ['N', Predicates.blocks('af9:orbital_light_casing')],
             ['H', Predicates.blocks(mk2 ? 'gtceu:atomic_casing' : 'gtceu:shock_proof_cutting_casing')],
             ['L', Predicates.blocks('gtceu:stress_proof_casing')],
             // a module slot of the Array Mk2: a module (any type) or nothing; the station finds them when it forms

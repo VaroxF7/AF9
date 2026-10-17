@@ -66,3 +66,13 @@ The component numbers in `RackComponent` and the structure are TecTech's, the co
 | `kubejs/assets/gtceu/textures/block/multiblock/computer_rack_hatch/overlay_front*.png` | `EM_RACK.png`, `EM_RACK_ACTIVE.png` (+ `.mcmeta`) | none; the paused face is the idle one |
 
 The Rack Heat Vent icons (`item/rack_heat_vent_mk1-4.png`) are AF9's own (`tools/textures/rack_vents.py`).
+
+## Mk2 Orbital Array casings (Cosmic Frontiers)
+
+Two block textures are taken from **CosmicCore / Cosmic Frontiers** (`resources/assets/cosmiccore/textures/block/casings/solid/`;
+textures in `block` are MIT-licensed per its license section, `licenses` in the archive), unchanged:
+
+| af9 file (`af9-core/.../textures/block/`) | CosmicCore source |
+|---|---|
+| `orbital_magnet_casing.png` | `stellar_neutronium_grade_magnet.png` |
+| `orbital_light_casing.png` | `resonantly_tuned_virtue_meld_casing.png` |

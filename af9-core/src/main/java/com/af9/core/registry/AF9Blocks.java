@@ -97,6 +97,10 @@ public final class AF9Blocks {
         // ---- Industrial Cutting Machine: the purple plated casing (tools/textures/cutter.py) ----
         block("cutter_casing", SoundType.METAL, 12F, 0, 0);
 
+        // ---- Mk2 Orbital Array: the magnet pillars and light strips of the tower (textures from Cosmic Frontiers) ----
+        block("orbital_magnet_casing", SoundType.METAL, 12F, 0, 0);
+        block("orbital_light_casing", SoundType.METAL, 12F, 7, 0);
+
         // ---- Planetary Satellite: the casing of GTNH's Planetary Gas Siphon, in the colours of Enriched Naquadah Trinium
         // Europium Duranide ----
         block("satellite_casing", SoundType.METAL, 12F, 0, 0);
