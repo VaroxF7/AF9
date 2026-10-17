@@ -15,9 +15,9 @@ import org.joml.Matrix4f;
 final class CoreDraw {
 
     /** The column's span along the back axis (levels below the controller): the chamber's first floor to the foot's opening. */
-    private static final float Z0 = 13F, Z1 = 97F;
+    private static final float Z0 = 24F, Z1 = 97F;
     /** The core's place, in the middle of the upper chamber, and the orbits' span. */
-    private static final float CORE_Z = 30F, ORBIT_Z0 = 14F, ORBIT_Z1 = 56F;
+    private static final float CORE_Z = 30F, ORBIT_Z0 = 26F, ORBIT_Z1 = 56F;
     private static final float CX = 0.5F, CY = 0.5F;
     /** The lance's span along the back axis: from the bottom ring's level down through the foot (levels 104) and 20 beyond. */
     private static final float LANCE_Z0 = 59F, LANCE_Z1 = 124F, FOOT_Z = 104F;
@@ -27,42 +27,44 @@ final class CoreDraw {
     /**
      * @param phase the animation clock (ticks, speeding up with the machine), {@code power} 0..1 (idle to working)
      */
-    static void draw(VertexConsumer c, Matrix4f m, int rgb, float phase, float power) {
+    static void draw(VertexConsumer c, Matrix4f m, int rgb, float phase, float power, float ignite, int lod) {
         float r = (rgb >> 16 & 255) / 255F, g = (rgb >> 8 & 255) / 255F, b = (rgb & 255) / 255F;
         float level = 0.45F + 0.55F * power;
         float pulse = 0.5F + 0.5F * Mth.sin(phase * 0.12F);
 
         lance(c, m, phase, power);
+        nozzle(c, m, r, g, b, phase, level, ignite, lod);
 
         // the plasma column round the frame, a glow in the colour and a white-hot thread in it
-        prism(c, m, Z0, Z1, 1.35F + 0.1F * pulse, 12, r, g, b, 0.16F * level);
-        prism(c, m, Z0, Z1, 0.9F, 10, r, g, b, 0.22F * level);
+        prism(c, m, Z0, Z1, 1.35F + 0.1F * pulse, lod > 1 ? 6 : 12, r, g, b, 0.16F * level);
+        prism(c, m, Z0, Z1, 0.9F, lod > 0 ? 6 : 10, r, g, b, 0.22F * level);
         prism(c, m, Z0, Z1, 0.28F, 8, 0.9F, 0.96F, 1F, 0.55F * level);
 
         // pulses running up the column: flat rings that grow and fade as they climb
-        for (int k = 0; k < 9; k++) {
-            float t = ((phase * 0.011F + k / 9F) % 1F);
+        int pulses = lod > 1 ? 4 : lod > 0 ? 6 : 9;
+        for (int k = 0; k < pulses; k++) {
+            float t = ((phase * 0.011F + k / (float) pulses) % 1F);
             float z = Z1 - (Z1 - Z0) * t;
             float fade = Mth.sin(t * Mth.PI);
-            disc(c, m, CX, CY, z, 0.5F + 0.9F * t, 0.35F, 10, r, g, b, 0.5F * fade * level);
+            disc(c, m, CX, CY, z, 0.5F + 0.9F * t, 0.35F, lod > 0 ? 6 : 10, r, g, b, 0.5F * fade * level);
         }
 
         // the core: a pulsing sphere with a bright heart
         float radius = 0.8F + 0.2F * pulse;
-        sphere(c, m, CX, CY, CORE_Z, radius, 8, 12, r, g, b, 0.22F * level);
+        sphere(c, m, CX, CY, CORE_Z, radius, lod > 0 ? 5 : 8, lod > 0 ? 8 : 12, r, g, b, 0.22F * level);
         sphere(c, m, CX, CY, CORE_Z, radius * 0.55F, 6, 10, 0.85F, 0.95F, 1F, 0.45F * level);
 
         // halo rings round the core, each turning in its own plane
-        for (int k = 0; k < 3; k++) {
+        for (int k = 0; k < (lod > 1 ? 1 : 3); k++) {
             float a = phase * (0.035F + 0.012F * k) + k * 2.1F, tilt = Mth.PI * (0.18F + 0.27F * k);
             // the plane's basis: the ring's x axis turned about z by a, its y axis tipped by the tilt
             float ux = Mth.cos(a), uy = Mth.sin(a), uz = 0;
             float vx = -Mth.sin(a) * Mth.cos(tilt), vy = Mth.cos(a) * Mth.cos(tilt), vz = Mth.sin(tilt);
-            ring(c, m, CX, CY, CORE_Z, ux, uy, uz, vx, vy, vz, 1.3F, 0.12F, 36, r, g, b, 0.55F * level);
+            ring(c, m, CX, CY, CORE_Z, ux, uy, uz, vx, vy, vz, 1.3F, 0.12F, lod > 0 ? 20 : 36, r, g, b, 0.55F * level);
         }
 
         // fans of light turning round the core: crossed ribbons from it out to the walls
-        for (int k = 0; k < 6; k++) {
+        for (int k = 0; k < (lod > 0 ? 3 : 6); k++) {
             float a = phase * 0.02F + k * Mth.PI / 3F;
             float len = 1.1F + 0.2F * Mth.sin(phase * 0.1F + k);
             float dx = Mth.cos(a), dy = Mth.sin(a);
@@ -73,15 +75,16 @@ final class CoreDraw {
         }
 
         // orbs on their paths round the column, a trail behind each
-        for (int k = 0; k < 5; k++) {
+        for (int k = 0; k < (lod > 1 ? 0 : lod > 0 ? 3 : 5); k++) {
             float speed = 0.05F + 0.013F * k;
             float rad = 0.95F + 0.1F * k;
             float zMid = ORBIT_Z0 + (ORBIT_Z1 - ORBIT_Z0) * ((k * 0.37F + 0.1F) % 1F);
             float zSwing = 3.5F + 1.2F * k;
-            for (int tail = 0; tail < 7; tail++) {
+            int tails = lod > 0 ? 4 : 7;
+            for (int tail = 0; tail < tails; tail++) {
                 float a = phase * speed * (k % 2 == 0 ? 1 : -1) - tail * 0.09F + k * 1.3F;
                 float z = zMid + zSwing * Mth.sin(phase * 0.013F * (1 + k * 0.3F) + k - tail * 0.04F);
-                float fade = 1F - tail / 7F;
+                float fade = 1F - tail / (float) tails;
                 float size = 0.2F * (0.4F + 0.6F * fade);
                 sphere(c, m, CX + Mth.cos(a) * rad, CY + Mth.sin(a) * rad, z, size, 3, 5, r, g, b, 0.5F * fade * level);
                 if (tail == 0) {
@@ -89,6 +92,41 @@ final class CoreDraw {
                             0.9F * level);
                 }
             }
+        }
+    }
+
+    /**
+     * The start of the column under the emitter: a hot disc at the nozzle with a ring shock-waving down the hollow,
+     * sparks flaring out from it and a white flash while the station ignites ({@code ignite} 1 at the start, 0 once
+     * it runs).
+     */
+    private static void nozzle(VertexConsumer c, Matrix4f m, float r, float g, float b, float phase, float level,
+                               float ignite, int lod) {
+        float z = EmitterDraw.NOZZLE_Z;
+        float flare = 0.5F + 0.5F * Mth.sin(phase * 0.2F);
+        float k = (0.55F + 0.45F * flare) * level + ignite;
+        disc(c, m, CX, CY, z + 0.05F, 0.75F + 0.4F * ignite, 0.7F, 10, r, g, b, Math.min(1F, 0.5F * k));
+        disc(c, m, CX, CY, z + 0.1F, 0.4F, 0.4F, 8, 1F, 1F, 1F, Math.min(1F, 0.8F * k));
+        sphere(c, m, CX, CY, z + 0.4F, 0.5F + 0.3F * ignite, 4, 8, 0.9F, 0.96F, 1F, Math.min(1F, 0.4F * k));
+        // a short cone of light below the nozzle, wider while it ignites
+        fade(c, m, z, z + 4F, 0.5F, 1.35F, lod > 0 ? 6 : 10, r, g, b, Math.min(1F, 0.55F * k), 0F);
+        // sparks flaring out of the nozzle
+        int sparks = lod > 0 ? 4 : 8;
+        for (int i = 0; i < sparks; i++) {
+            float a = phase * 0.04F + i * Mth.TWO_PI / sparks;
+            float t = (phase * 0.03F + i * 0.37F) % 1F;
+            float len = 0.6F + 1.2F * t + ignite;
+            float dx = Mth.cos(a), dy = Mth.sin(a);
+            ribbon(c, m, CX + dx * 0.3F, CY + dy * 0.3F, z + 0.3F, CX + dx * len, CY + dy * len, z + 1.2F + 2.5F * t,
+                    -dy * 0.07F, dx * 0.07F, 0, 0.9F, 0.96F, 1F, 0.7F * (1F - t) * Math.min(1F, k), 0.02F);
+        }
+        // ignition: expanding shock rings and a flash down the tube
+        if (ignite > 0.02F) {
+            for (int i = 0; i < 3; i++) {
+                float t = (phase * 0.05F + i / 3F) % 1F;
+                disc(c, m, CX, CY, z + 1F + 9F * t, 0.6F + 0.8F * t, 0.3F, 10, 1F, 1F, 1F, 0.7F * (1F - t) * ignite);
+            }
+            prism(c, m, z, z + 12F, 0.9F, 8, 1F, 1F, 1F, 0.25F * ignite);
         }
     }
 

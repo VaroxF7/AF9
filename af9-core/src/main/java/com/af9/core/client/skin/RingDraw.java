@@ -99,6 +99,8 @@ final class RingDraw {
             RingBlocks.draw(self.getPos().asLong(), i, blocks, poseStack.last());
             poseStack.popPose();
         }
+        // the laser emitter at the top of the energy column
+        EmitterDraw.draw(buffer.getBuffer(RenderType.entityCutoutNoCull(AF9RenderTypes.WHITE)), poseStack.last());
         // the plasma beams, added light, after the solids (a buffer from the source ends when another is asked for)
         VertexConsumer beams = buffer.getBuffer(AF9RenderTypes.LIGHTNING);
         boolean online = state.factor > 0.04F;
@@ -109,7 +111,14 @@ final class RingDraw {
             }
         }
         // the energy core in the tower's hollow
-        if (online) CoreDraw.draw(beams, poseStack.last().pose(), color, state.phase, state.power);
+        if (online) {
+            float ignite = Mth.clamp(1F - state.factor / RUN_SPEED, 0F, 1F);
+            Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+            double dx = cam.x - self.getPos().getX(), dy = cam.y - self.getPos().getY(), dz = cam.z - self.getPos().getZ();
+            double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+            int lod = dist > 110 ? 2 : dist > 55 ? 1 : 0;
+            CoreDraw.draw(beams, poseStack.last().pose(), color, state.phase, state.power, ignite, lod);
+        }
     }
 
     /** The rings' angles now: each keeps turning from where it was, still without power, spinning up when the station is switched on and powered. */
