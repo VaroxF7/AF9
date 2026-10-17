@@ -89,27 +89,24 @@ def sheet(draw):
 
 
 def plasma_frame(frame):
-    """One 16 x 16 frame of the plasma: tiles on every side and loops over the frames (integer wave numbers, whole turns)."""
+    """One 16 x 16 frame of the plasma: a smooth blend of the star's colours, tiles on every side and loops over the frames
+    (low integer wave numbers, whole turns, no hard lines or dots)."""
     img = Image.new('RGBA', (16, 16), (0, 0, 0, 255))
     px = img.load()
     p = TAU * frame / FRAMES
-    waves = [(1, 0, 1), (0, 1, -1), (1, 1, 2), (2, -1, -2), (1, -2, 1), (3, 1, 1), (-2, 3, -1)]
+    waves = [(1, 0, 1), (0, 1, -1), (1, 1, 1), (1, -1, -1), (2, 0, -1), (0, 2, 1)]
     for y in range(16):
         for x in range(16):
             u, v = TAU * x / 16, TAU * y / 16
-            # a warped field: waves bend each other, so it boils instead of sliding
-            warp = 0.9 * math.sin(v + p) + 0.9 * math.sin(u - p)
+            warp = 0.6 * math.sin(v + p) + 0.6 * math.sin(u - p)
             total = 0.0
             for i, (kx, ky, speed) in enumerate(waves):
-                total += math.sin(kx * (u + 0.5 * warp) + ky * (v - 0.5 * warp) + speed * p + i)
-            t = 0.5 + 0.5 * total / len(waves) * 1.9
-            col = list(ramp(max(0.0, min(1.0, t)) ** 1.3))
-            # the arcs: thin white-blue lightning filaments where the field crosses a level
-            ridge = abs(math.sin(2.5 * total + p))
-            if ridge > 0.96:
-                k = (ridge - 0.96) / 0.04
-                col = [150 + 105 * k, 215 + 40 * k, 255]
-            px[x, y] = (clamp(col[0]), clamp(col[1]), clamp(col[2]), 255)
+                total += math.sin(kx * (u + 0.4 * warp) + ky * (v - 0.4 * warp) + speed * p + i * 1.3)
+            t = 0.5 + 0.5 * total / len(waves) * 1.5
+            t = max(0.0, min(1.0, t))
+            t = t * t * (3 - 2 * t)  # smoothstep: soft blend, no harsh peaks
+            col = ramp(0.08 + 0.78 * t)  # stops short of pure white
+            px[x, y] = tuple(clamp(c) for c in col) + (255,)
     return img
 
 
