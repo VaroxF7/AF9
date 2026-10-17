@@ -182,6 +182,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         StructureSkin skin = StructureSkins.skinOf(self.getDefinition());
         ClientLevel level = Minecraft.getInstance().level;
         if (skin == null || level == null) return;
+        if (skin.rings() != null) RingForce.markDrawn(pos);
 
         TextureAtlas atlas = Minecraft.getInstance().getModelManager().getAtlas(InventoryMenu.BLOCK_ATLAS);
         TextureAtlasSprite marker = atlas.getSprite(COIL_MARKER);

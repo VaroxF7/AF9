@@ -343,6 +343,11 @@ public final class StructureSkins {
         untrack(controller.asLong());
     }
 
+    /** The tracked controllers (client thread). */
+    static java.util.Collection<MultiblockControllerMachine> trackedControllers() {
+        return MACHINES.values();
+    }
+
     private static void publish() {
         LongSet all = new LongOpenHashSet();
         for (long[] positions : TRACKED.values()) {
