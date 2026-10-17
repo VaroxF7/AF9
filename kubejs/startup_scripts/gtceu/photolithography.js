@@ -134,9 +134,8 @@ const orbitalSection = d => {
     }
     return [0, 0]
 }
-// the crown's roof, the same left and right of the controller: the controller's saddle (5 wide) at the top, a dip to
-// either side of it, and a tall blade at each edge that falls away towards the front and the back
-const orbitalRoof = (dx, dz) => Math.floor(Math.abs(dz) * 2.4) + Math.floor(Math.max(0, Math.abs(dx) - 5) * 1.2)
+// the crown's roof, the same left and right of the controller: a flat dome that is lowest around the controller
+const orbitalRoof = (dx, dz) => Math.floor((Math.pow(Math.abs(dx) / 8.5, 2) + Math.pow(Math.abs(dz) / 5.5, 2)) * 11)
 // what stands out of the tower's walls, '' for nothing: 'F' a fin (a thin plate against the body: one against each
 // side of the crown, 'P' two pylons down the waist), 'R' a rib (the layered vertical
 // panels of the body). None of them reach a ring's middle level (the beams run there).
@@ -144,8 +143,12 @@ const orbitalFin = (d, dx, dz) => {
     const sec = orbitalSection(d)
     const ax = Math.abs(dx)
     const az = Math.abs(dz)
-    // swept wings against each side of the crown, rising towards the roof
-    if (d >= 4 && d <= 21 && ax > sec[0] && ax <= sec[0] + 9 && az <= 2 && d >= 4 + Math.floor((ax - sec[0] - 1) * 1.4)) return 'F'
+    // the halo: a ring round the crown, held by four struts (one on each side)
+    if (d <= 21) {
+        const r = Math.sqrt(dx * dx + dz * dz)
+        const ring = d >= 4 && d <= 5 && ((r >= 11.5 && r <= 13.7) || (ax <= 1 && az >= 5 && az <= 12) || (az <= 1 && ax >= 8 && ax <= 12))
+        return ring ? 'F' : ''
+    }
     if (d >= 62 && d <= 78 && ax === sec[0] + 1 && az <= 1) return 'P'
     // ribs up the faces of the upper block and of the waist
     if (d >= 21 && d <= 80 && d !== 22 && sec[0] > 4) {
