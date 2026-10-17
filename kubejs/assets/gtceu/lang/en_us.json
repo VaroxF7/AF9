@@ -1,4 +1,10 @@
 {
+    "gtceu.machine.fusion_reactor.capacity": "§7Constant standby power: §e4A§7, §e1A§7 while a reaction runs (LuV; UV for the Mega). Starts reactions up to §e%sM§7 EU class",
+    "gtceu.multiblock.luv_fusion_reactor.description": "The Fusion Reactor MK 1 is a large multiblock structure used for fusing elements into heavier ones. It has no start buffer: it needs 4A of LuV auxiliary power constantly to stay ready and drops to 1A of LuV while a reaction runs. Without that power it is offline and a running reaction is lost.",
+    "gtceu.multiblock.zpm_fusion_reactor.description": "The Fusion Reactor MK 2 is a large multiblock structure used for fusing elements into heavier ones. It has no start buffer: it needs 4A of LuV auxiliary power constantly to stay ready and drops to 1A of LuV while a reaction runs. Without that power it is offline and a running reaction is lost.",
+    "gtceu.multiblock.uv_fusion_reactor.description": "The Fusion Reactor MK 3 is a large multiblock structure used for fusing elements into heavier ones. It has no start buffer: it needs 4A of LuV auxiliary power constantly to stay ready and drops to 1A of LuV while a reaction runs. Without that power it is offline and a running reaction is lost.",
+    "gtceu.recipe_modifier.insufficient_eu_to_start_fusion": "This reactor is too small to start this reaction",
+    "gtceu.recipe.eu_to_start": "Needs the reactor class:%2$s",
     "block.gtceu.neocube": "NeoForging Cuboid",
     "gtceu.neocube": "NeoCube",
     "block.gtceu.neural_node": "Neural Network Node",

@@ -6,15 +6,18 @@ pay. Recipes: `server_scripts/mods/gtceu/fusion_power.js`; the plasma forms GT l
 
 ## 1. The steps
 
-| Reactor | Voltage | Start EU it holds | Burnable plasmas it makes |
+| Reactor | Voltage | Start class (largest start EU it takes) | Burnable plasmas it makes |
 | --- | --- | --- | --- |
-| Fusion Reactor Mk1 | LuV | 160 M (16 hatches) | helium (D + T, **D + He-3**), **calcium** |
+| Fusion Reactor Mk1 | LuV | 160 M | helium (D + T, **D + He-3**), **calcium** |
 | Fusion Reactor Mk2 | ZPM | 320 M | + argon, oxygen, nitrogen, tin (GT's), **sulfur, zinc, niobium** |
 | Fusion Reactor Mk3 | UV | 640 M | + iron, nickel, americium (GT's), **silver, bismuth, radon** |
-| Mega Fusion Reactor | UIV | 640 M (2 hatches of 320 M) | + star matter, anti-matter; **lead, thorium, plutonium-241** |
+| Mega Fusion Reactor | UIV | 640 M | + star matter, anti-matter; **lead, thorium, plutonium-241** |
 
 Bold ones are new. A higher reactor runs the recipes of the lower ones, and the Mega runs every Mk1-Mk3 recipe in half the time on
 one and a half times the power (the base pack's rule for GT's recipes, applied here to AF9's too).
+
+The *Start EU* columns below are a class gate, not a buffer: a reactor takes a reaction up to 160 M (Mk1), 320 M (Mk2) or
+640 M (Mk3, Mega), and the reaction needs the reactor's voltage tier too. Nothing is charged first (section 7).
 
 ## 2. The reactions
 
@@ -36,8 +39,7 @@ duration x 2,048 EU/t: GTNH's table), *out* what a run's plasma is worth, *in* t
 | osmium 576 + silicon 576 | Mega | 8 t, 3,932,160 EU/t (UEV) | thorium 576 | 580 M | 271,319,040 | 31,457,280 | 8.6x |
 | lutetium 576 + vanadium 576 | Mega | 8 t, 7,864,320 EU/t (UEV) | plutonium-241 576 | 640 M | 286,654,464 | 62,914,560 | 4.6x |
 
-The Mega-only recipes are gated by voltage: their EU/t is above the Mk3's tier, and the Mega's start energy cannot go past
-640 M (two energy hatches), so a bigger start would never run. GTNH starts its Mk IV and V recipes on 6 GEU; the lead recipe
+The Mega-only recipes are gated by voltage: their EU/t is above the Mk3's tier, and no reaction asks a class above 640 M. GTNH starts its Mk IV and V recipes on 6 GEU; the lead recipe
 there takes tellurium, which has no fluid here, so platinum and beryllium stand in.
 
 ## 3. The fuels
@@ -88,3 +90,20 @@ times the run time, so it survives reloads and resets whenever the line breaks (
 structure breaks, suspend). Every tier ramps, Mk1 through the Mega (one machine class, AF9
 mixin `FusionReactorMixin` on GT's `recipeModifier`). The controller screen shows the current
 discount (`af9.fusion.ramp`).
+
+## 7. Standby power instead of a start buffer
+
+A fusion reactor has no internal EU buffer and no heat to build up. It is **always on** and needs auxiliary power all the time
+(fork patch `0009`, `FusionReactorMachine`; see [auxiliary-power.md](auxiliary-power.md)):
+
+| Reactor | Standing by (ready) | While a reaction runs |
+| --- | --- | --- |
+| Mk1, Mk2, Mk3 | 4 A of LuV | 1 A of LuV |
+| Mega Fusion Reactor (and anything above the Mk3) | 4 A of UV | 1 A of UV |
+
+* Put an energy hatch in **Auxiliary** mode (screwdriver) for it. Without any auxiliary hatch the primary hatches pay it.
+* The reactor is **ready** only while it got its power that tick; the controller screen says "Standby power: ready" or
+  "OFFLINE". No reaction starts while it is offline (the recipe viewers' modifier says so), and when the power fails during a
+  run the reaction is lost.
+* The reaction's own EU/t is the primary power, as before, and overclocking is unchanged.
+* The recipe's *EU to start* label in JEI/EMI now reads "Needs the reactor class: (MKn)".

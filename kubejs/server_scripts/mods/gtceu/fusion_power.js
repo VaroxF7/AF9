@@ -4,7 +4,7 @@
 // GT ships eight burnable plasmas (helium, oxygen, nitrogen, argon, iron, tin, nickel, americium). GTNH's reactor fuses
 // eleven more, the plasma turbines burn them, and the fuel of each is denser than the one before. Here they come in
 // four steps, as the reactors do:
-//   Fusion Reactor Mk1 (LuV, 160 MEU to start)   helium from deuterium + helium-3, calcium
+//   Fusion Reactor Mk1 (LuV, start class 160 MEU)   helium from deuterium + helium-3, calcium
 //   Fusion Reactor Mk2 (ZPM, 320 MEU)            sulfur, zinc, niobium
 //   Fusion Reactor Mk3 (UV, 640 MEU)             silver, bismuth (from the zinc plasma), radon
 //   Mega Fusion Reactor (UIV; only 2 energy hatches, 640 MEU)   lead, thorium, plutonium-241: recipes of UHV and UEV

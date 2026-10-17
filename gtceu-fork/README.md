@@ -23,6 +23,8 @@ GTCEu release), `-Paf9RequireFork` fails the build where the fork is missing.
   of the scripts behind it along, AF9's too. With the patch the builder reports the id (`Invalid or empty ... item (recipe ID:
   ...)` in `logs/kubejs/server.log`, with script and line) and the recipe fails when it is built, as one of KubeJS's "failed
   recipes"; any other error in a recipe script ends that script only (`Error in recipe script ...`).
+* `0004`-`0008` Hidden machines, auxiliary power (energy hatch modes, Power Management tab), Assembly Line laser hatch.
+* `0009` Fusion reactors: no start buffer or heat; constant auxiliary standby power (4 A) and running power (1 A) instead.
 
 ## Changing the fork
 

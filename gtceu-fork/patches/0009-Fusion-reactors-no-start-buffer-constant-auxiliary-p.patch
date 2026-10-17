@@ -1,0 +1,374 @@
+From 3637da129d1b7a75410068cb74f96a2c202e2df5 Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Sat, 17 Oct 2026 09:25:20 +0000
+Subject: [PATCH] Fusion reactors: no start buffer, constant auxiliary power (4
+ A standby, 1 A running) instead (7.5.3-af9.8)
+
+- FusionReactorMachine: the internal start energy buffer and the heat are gone. The reactor draws a standby power every tick it
+  is not running (4 A of LuV; UV for a reactor above the Mk3, the Mega Fusion Reactor) and 1 A while a reaction runs, from the
+  auxiliary hatches, else from the primary ones. Without it the reactor is not ready, no reaction starts, and a running one is lost.
+- A recipe's eu_to_start is only a class gate now: up to 160 M / 320 M / 640 M for the Mk1 / Mk2 / Mk3 and the Mega (at most 640 M).
+- The controller screen shows ready / offline and the auxiliary amperage.
+---
+ gradle.properties                             |   2 +-
+ .../common/data/machines/GTMultiMachines.java |   3 +-
+ .../electric/FusionReactorMachine.java        | 218 ++++++++----------
+ 3 files changed, 99 insertions(+), 124 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 86f1ac0..6150d52 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.7
++mod_version = 7.5.3-af9.8
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+index 6fcb2f6..de99103 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+@@ -657,7 +657,8 @@ public class GTMultiMachines {
+                             FusionReactorMachine::recipeModifier, BATCH_MODE)
+                     .tooltips(
+                             Component.translatable("gtceu.machine.fusion_reactor.capacity",
+-                                    FusionReactorMachine.calculateEnergyStorageFactor(tier, 16) / 1000000L),
++                                    Math.min(FusionReactorMachine.AF9_MAX_START_EU,
++                                            FusionReactorMachine.calculateEnergyStorageFactor(tier, 16)) / 1000000L),
+                             Component.translatable("gtceu.machine.fusion_reactor.overclocking"),
+                             Component.translatable("gtceu.multiblock.%s_fusion_reactor.description"
+                                     .formatted(VN[tier].toLowerCase(Locale.ROOT))))
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
+index f140906..7320226 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
+@@ -2,18 +2,12 @@ package com.gregtechceu.gtceu.common.machine.multiblock.electric;
+ 
+ import com.gregtechceu.gtceu.api.GTValues;
+ import com.gregtechceu.gtceu.api.block.IFusionCasingType;
+-import com.gregtechceu.gtceu.api.capability.IEnergyContainer;
+-import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability;
+ import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
+-import com.gregtechceu.gtceu.api.capability.recipe.IO;
+ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+ import com.gregtechceu.gtceu.api.machine.MetaMachine;
+ import com.gregtechceu.gtceu.api.machine.TickableSubscription;
+ import com.gregtechceu.gtceu.api.machine.feature.ITieredMachine;
+-import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
+ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
+-import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
+-import com.gregtechceu.gtceu.api.misc.EnergyContainerList;
+ import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+ import com.gregtechceu.gtceu.api.recipe.OverclockingLogic;
+ import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
+@@ -26,7 +20,6 @@ import com.gregtechceu.gtceu.utils.GTUtil;
+ import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
+ import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
+ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
+-import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
+ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+ import com.lowdragmc.lowdraglib.utils.LocalizationUtils;
+ 
+@@ -38,8 +31,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+ import it.unimi.dsi.fastutil.longs.Long2IntAVLTreeMap;
+ import it.unimi.dsi.fastutil.longs.Long2IntSortedMap;
+-import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+-import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
+ import lombok.Getter;
+ import org.jetbrains.annotations.NotNull;
+ import org.jetbrains.annotations.Nullable;
+@@ -73,22 +64,28 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+ 
+     @Getter
+     private final int tier;
+-    @Nullable
+-    protected EnergyContainerList inputEnergyContainers;
+-    @Persisted
+-    protected long heat = 0;
+-    @Persisted
+-    protected final NotifiableEnergyContainer energyContainer;
++    /**
++     * AF9: the largest reaction (its eu_to_start data) a Mk1 to Mk3 starts: 160 M, 320 M, 640 M. The recipes' start energy is
++     * no buffer any more, it only says which reactor a reaction needs.
++     */
++    public static final long AF9_MAX_START_EU = 640000000L;
++    /** AF9: auxiliary amperage while it stands by (ready), and while a reaction runs. */
++    public static final int AF9_STANDBY_AMPS = 4;
++    public static final int AF9_RUNNING_AMPS = 1;
++
+     @Getter
+     @DescSynced
+     private Integer color = -1;
++    /** AF9: whether the last tick had its auxiliary power (standby or running); the reactor is ready only then. */
++    @Getter
++    @DescSynced
++    protected boolean ready = false;
+     @Nullable
+-    protected TickableSubscription preHeatSubs;
++    protected TickableSubscription standbySubs;
+ 
+     public FusionReactorMachine(IMachineBlockEntity holder, int tier) {
+         super(holder);
+         this.tier = tier;
+-        this.energyContainer = createEnergyContainer();
+     }
+ 
+     //////////////////////////////////////
+@@ -99,81 +96,96 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+         return MANAGED_FIELD_HOLDER;
+     }
+ 
+-    public NotifiableEnergyContainer createEnergyContainer() {
+-        // create an internal energy container for temp storage. its capacity is decided when the structure formed.
+-        // it doesn't provide any capability of all sides, but null for the goggles mod to check it storages.
+-        var container = new NotifiableEnergyContainer(this, 0, 0, 0, 0, 0);
+-        container.setCapabilityValidator(Objects::isNull);
+-        return container;
++    /** AF9: the voltage tier of the auxiliary power: LuV for the Mk1 to Mk3, UV for the Mega Fusion Reactor above them. */
++    public int getAuxiliaryTier() {
++        return tier > GTValues.UV ? GTValues.UV : GTValues.LuV;
++    }
++
++    public long getStandbyEUt() {
++        return AF9_STANDBY_AMPS * GTValues.V[getAuxiliaryTier()];
++    }
++
++    public long getRunningEUt() {
++        return AF9_RUNNING_AMPS * GTValues.V[getAuxiliaryTier()];
++    }
++
++    /** AF9: the auxiliary hatches hold the power when there are any, else the primary hatches do. */
++    protected boolean hasAuxiliaryHatches() {
++        return !getAuxiliaryHatches().isEmpty();
+     }
+ 
++    /** What the base class draws from the auxiliary hatches: 1 A while a reaction runs, 4 A otherwise. */
++    @Override
++    protected long getBaseAuxiliaryEUt() {
++        if (!hasAuxiliaryHatches()) return 0;
++        return recipeLogic.isWorking() ? getRunningEUt() : getStandbyEUt();
++    }
++
++    private boolean primaryHolds(long eut) {
++        return getEnergyContainer() != null && getEnergyContainer().getEnergyStored() >= eut;
++    }
++
++    private boolean drawPrimary(long eut) {
++        return primaryHolds(eut) && getEnergyContainer().removeEnergy(eut) > 0;
++    }
++
++    //////////////////////////////////////
++    // ***** Recipe Logic ******//
++    //////////////////////////////////////
+     @Override
+     public void onLoad() {
+         super.onLoad();
+-        if (!isRemote()) {
+-            updatePreHeatSubscription();
+-        }
++        if (!isRemote()) updateStandbySubscription();
+     }
+ 
+     @Override
+     public void onStructureFormed() {
+         super.onStructureFormed();
+-        // capture all energy containers
+-        List<IEnergyContainer> energyContainers = new ArrayList<>();
+-        Long2ObjectMap<IO> ioMap = getMultiblockState().getMatchContext().getOrCreate("ioMap",
+-                Long2ObjectMaps::emptyMap);
+-        for (IMultiPart part : getParts()) {
+-            IO io = ioMap.getOrDefault(part.self().getPos().asLong(), IO.BOTH);
+-            if (io == IO.NONE || io == IO.OUT) continue;
+-            var handlerLists = part.getRecipeHandlers();
+-            for (var handlerList : handlerLists) {
+-                if (!handlerList.isValid(io)) continue;
+-
+-                handlerList.getCapability(EURecipeCapability.CAP).stream()
+-                        .filter(IEnergyContainer.class::isInstance)
+-                        .map(IEnergyContainer.class::cast)
+-                        .forEach(energyContainers::add);
+-                traitSubscriptions.add(handlerList.subscribe(this::updatePreHeatSubscription, EURecipeCapability.CAP));
+-            }
+-        }
+-        this.inputEnergyContainers = new EnergyContainerList(energyContainers);
+-        energyContainer.resetBasicInfo(calculateEnergyStorageFactor(getTier(), energyContainers.size()), 0, 0, 0, 0);
+-        updatePreHeatSubscription();
++        updateStandbySubscription();
+     }
+ 
+     @Override
+     public void onStructureInvalid() {
+         super.onStructureInvalid();
+-        this.inputEnergyContainers = null;
+-        heat = 0;
+-        energyContainer.resetBasicInfo(0, 0, 0, 0, 0);
+-        energyContainer.setEnergyStored(0);
+-        updatePreHeatSubscription();
++        ready = false;
++        updateStandbySubscription();
+     }
+ 
+-    //////////////////////////////////////
+-    // ***** Recipe Logic ******//
+-    //////////////////////////////////////
+-    protected void updatePreHeatSubscription() {
+-        // do preheat logic for heat cool down and charge internal energy container
+-        if (heat > 0 || (inputEnergyContainers != null && inputEnergyContainers.getEnergyStored() > 0 &&
+-                energyContainer.getEnergyStored() < energyContainer.getEnergyCapacity())) {
+-            preHeatSubs = subscribeServerTick(preHeatSubs, this::updateHeat);
+-        } else if (preHeatSubs != null) {
+-            preHeatSubs.unsubscribe();
+-            preHeatSubs = null;
++    protected void updateStandbySubscription() {
++        if (isFormed()) {
++            standbySubs = subscribeServerTick(standbySubs, this::standbyTick);
++        } else if (standbySubs != null) {
++            standbySubs.unsubscribe();
++            standbySubs = null;
+         }
+     }
+ 
++    /**
++     * AF9: the reactor is always on: it draws its standby power every tick it is not running a reaction (a running one
++     * draws the running power in onWorking). There is no start buffer to charge or heat to hold.
++     */
++    protected void standbyTick() {
++        if (!isFormed()) return;
++        if (recipeLogic.isWorking()) return;
++        boolean powered = hasAuxiliaryHatches() ? drawAuxiliary(getStandbyEUt()) : drawPrimary(getStandbyEUt());
++        if (ready != powered) ready = powered;
++    }
++
++    @Override
++    public boolean beforeWorking(@Nullable GTRecipe recipe) {
++        // the auxiliary case is checked by the base class (getBaseAuxiliaryEUt); without auxiliary hatches the primary ones pay
++        if (!hasAuxiliaryHatches() && !primaryHolds(getStandbyEUt())) return false;
++        return super.beforeWorking(recipe);
++    }
++
+     /**
+      * Recipe Modifier for <b>Fusion Reactors</b> - can be used as a valid {@link RecipeModifier}
+      * <p>
+-     * If the Fusion Reactor has enough heat or can get enough heat to run the recipe based on the {@code eu_to_start}
+-     * data,
+-     * apply {@link FusionReactorMachine#FUSION_OC} to the recipe.
+-     * Otherwise, the recipe is rejected.
++     * AF9: a reaction needs the reactor to be ready (standby power) and of a class that can start it: its recipe tier, and
++     * the {@code eu_to_start} data against the largest start a tier holds (it is no buffer any more). Then
++     * {@link FusionReactorMachine#FUSION_OC} applies.
+      * </p>
+-     * 
++     *
+      * @param machine a {@link FusionReactorMachine}
+      * @param recipe  recipe
+      * @return A {@link ModifierFunction} for the given Fusion Reactor and recipe
+@@ -184,27 +196,14 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+         }
+         if (RecipeHelper.getRecipeEUtTier(recipe) > fusionReactorMachine.getTier() ||
+                 !recipe.data.contains("eu_to_start") ||
+-                recipe.data.getLong("eu_to_start") > fusionReactorMachine.energyContainer.getEnergyCapacity()) {
++                recipe.data.getLong("eu_to_start") > Math.min(AF9_MAX_START_EU,
++                        calculateEnergyStorageFactor(fusionReactorMachine.getTier(), 16))) {
+             return ModifierFunction
+                     .cancel(Component.translatable("gtceu.recipe_modifier.insufficient_eu_to_start_fusion"));
+         }
+-
+-        long heatDiff = recipe.data.getLong("eu_to_start") - fusionReactorMachine.heat;
+-
+-        // if the stored heat is >= required energy, recipe is okay to run
+-        if (heatDiff <= 0) {
+-            return FUSION_OC.getModifier(machine, recipe, fusionReactorMachine.getMaxVoltage(), false);
++        if (!fusionReactorMachine.ready) {
++            return ModifierFunction.cancel(Component.translatable("af9.fusion.not_ready"));
+         }
+-        // if the remaining energy needed is more than stored, do not run
+-        if (fusionReactorMachine.energyContainer.getEnergyStored() < heatDiff)
+-            return ModifierFunction
+-                    .cancel(Component.translatable("gtceu.recipe_modifier.insufficient_eu_to_start_fusion"));
+-
+-        // remove the energy needed
+-        fusionReactorMachine.energyContainer.removeEnergy(heatDiff);
+-        // increase the stored heat
+-        fusionReactorMachine.heat += heatDiff;
+-        fusionReactorMachine.updatePreHeatSubscription();
+         return FUSION_OC.getModifier(machine, recipe, fusionReactorMachine.getMaxVoltage(), false);
+     }
+ 
+@@ -212,21 +211,10 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+     public boolean onWorking() {
+         GTRecipe recipe = recipeLogic.getLastRecipe();
+         assert recipe != null;
+-        if (recipe.data.contains("eu_to_start")) {
+-            long heatDiff = recipe.data.getLong("eu_to_start") - this.heat;
+-            // if the remaining energy needed is more than stored, do not run
+-            if (heatDiff > 0) {
+-                recipeLogic.setWaiting(Component.translatable("gtceu.recipe_logic.insufficient_fuel"));
+-
+-                // if the remaining energy needed is more than stored, do not run
+-                if (this.energyContainer.getEnergyStored() < heatDiff)
+-                    return super.onWorking();
+-                // remove the energy needed
+-                this.energyContainer.removeEnergy(heatDiff);
+-                // increase the stored heat
+-                this.heat += heatDiff;
+-                this.updatePreHeatSubscription();
+-            }
++        // without auxiliary hatches the running power comes from the primary ones; the reactor goes cold without it
++        if (!hasAuxiliaryHatches() && !drawPrimary(getRunningEUt())) {
++            ready = false;
++            return false;
+         }
+ 
+         if (color == -1) {
+@@ -239,25 +227,9 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+                 }
+             }
+         }
+-        return super.onWorking();
+-    }
+-
+-    public void updateHeat() {
+-        // Drain heat when the reactor is not active, is paused via soft mallet, or does not have enough energy and has
+-        // fully wiped recipe progress
+-        // Don't drain heat when there is not enough energy and there is still some recipe progress, as that makes it
+-        // doubly hard to complete the recipe
+-        // (Will have to recover heat and recipe progress)
+-        if ((getRecipeLogic().isIdle() || !isWorkingEnabled() ||
+-                (getRecipeLogic().isWaiting() && getRecipeLogic().getProgress() == 0)) && heat > 0) {
+-            heat = heat <= 10000 ? 0 : (heat - 10000);
+-        }
+-        // charge the internal energy storage
+-        var leftStorage = energyContainer.getEnergyCapacity() - energyContainer.getEnergyStored();
+-        if (inputEnergyContainers != null && leftStorage > 0) {
+-            energyContainer.addEnergy(inputEnergyContainers.removeEnergy(leftStorage));
+-        }
+-        updatePreHeatSubscription();
++        boolean ok = super.onWorking();
++        ready = ok;
++        return ok;
+     }
+ 
+     @Override
+@@ -284,9 +256,11 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+     public void addDisplayText(List<Component> textList) {
+         super.addDisplayText(textList);
+         if (isFormed()) {
+-            textList.add(Component.translatable("gtceu.multiblock.fusion_reactor.energy",
+-                    this.energyContainer.getEnergyStored(), this.energyContainer.getEnergyCapacity()));
+-            textList.add(Component.translatable("gtceu.multiblock.fusion_reactor.heat", heat));
++            boolean working = recipeLogic.isWorking();
++            textList.add(Component.translatable(ready ? "af9.fusion.ready" : "af9.fusion.offline"));
++            textList.add(Component.translatable("af9.fusion.aux", GTValues.VNF[getAuxiliaryTier()],
++                    working ? AF9_RUNNING_AMPS : AF9_STANDBY_AMPS));
++            if (!hasAuxiliaryHatches()) textList.add(Component.translatable("af9.fusion.aux_primary"));
+         }
+     }
+ 
+-- 
+2.43.0
+

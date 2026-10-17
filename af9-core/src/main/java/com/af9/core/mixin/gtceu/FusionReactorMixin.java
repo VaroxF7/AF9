@@ -22,7 +22,7 @@ import java.util.List;
  * 25 % less time). Unlike the forge it keeps no state of its own: the ramp is estimated from GT's
  * own consecutive-craft counter times the run time, both persisted and synced by GT, so a ramp
  * survives reloads and resets whenever the line breaks (inputs out, structure broken, suspend).
- * EU/t never changes; cancelling modifiers (too little start EU, wrong tier) pass through
+ * EU/t never changes; cancelling modifiers (reactor not ready, wrong class) pass through
  * untouched, and every fusion tier ramps (Mk1 through the Mega, one class).
  */
 @Mixin(value = FusionReactorMachine.class, remap = false)
