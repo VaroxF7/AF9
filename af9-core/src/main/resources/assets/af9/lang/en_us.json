@@ -1173,6 +1173,7 @@
     "block.af9.hearth_pipe_casing": "Hearth Pipe Casing",
     "block.af9.hearth_support_casing": "Hearth Support Casing",
     "block.af9.cutter_casing": "Cutter Machine Casing",
+    "block.af9.satellite_casing": "Satellite Casing",
     "block.af9.space_elevator_motor_mk1": "Space Elevator Motor MK-I",
     "block.af9.space_elevator_motor_mk1.tooltip.0": "All 88 motors of a Space Elevator are of one tier.",
     "block.af9.space_elevator_motor_mk1.tooltip.1": "Powers 6 module slots, and Mining Modules up to MK-I.",

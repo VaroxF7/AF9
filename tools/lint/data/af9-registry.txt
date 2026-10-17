@@ -24,6 +24,7 @@ block af9:glue
 block af9:hearth_pipe_casing
 block af9:hearth_support_casing
 block af9:cutter_casing
+block af9:satellite_casing
 block af9:hydrogen_peroxide
 block af9:krf_excimer_laser
 block af9:laser_containment_casing
@@ -239,6 +240,7 @@ item af9:iv_stator
 item af9:hearth_pipe_casing
 item af9:hearth_support_casing
 item af9:cutter_casing
+item af9:satellite_casing
 item af9:krf_excimer_laser
 item af9:kronos_marker
 item af9:laser_containment_casing

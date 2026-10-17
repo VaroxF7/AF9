@@ -40,3 +40,13 @@ into `kubejs/assets/gtceu/textures/block/` (they replace GTCEu's textures of the
 | `casings/pipe/machine_casing_*engine_intake_active.png` (+ `.mcmeta`) | same | 4-frame animation, a brightness pulse |
 | `multiblock/generator/large_combustion_engine/overlay_front*.png` | `OVERLAY_FRONT_DIESEL_ENGINE[_ACTIVE][_GLOW].png` | the paused face is the idle one; no animation |
 | `multiblock/generator/extreme_combustion_engine/overlay_front*.png` | `OVERLAY_FRONT_EXTREME_DIESEL_ENGINE[_ACTIVE][_GLOW].png` | as above |
+
+## Planetary Satellite
+
+The Planetary Satellite is a copy of GTNH's Planetary Gas Siphon (GT5-Unofficial `MTEPlanetaryGasSiphon`, gtnhintergalactic;
+LGPL-3.0 or later, <https://github.com/GTNewHorizons/GT5-Unofficial>; licence text in `licenses/GT5-Unofficial-LGPL-3.0.txt`).
+
+| af9 file | GT5-Unofficial source (`src/main/resources/assets/`) | Changes |
+|---|---|---|
+| `af9-core/.../textures/block/satellite_casing.png` | `gtnhintergalactic/textures/blocks/gasSiphon/SiphonCasing.png` | recoloured to the colours of Enriched Naquadah Trinium Europium Duranide (`tools/textures/satellite_casing.py`) |
+| `kubejs/assets/gtceu/textures/block/multiblock/planetary_satellite/overlay_front*.png` (controller face) | `gregtech/textures/blocks/iconsets/OVERLAY_FRONT_PLANETARYSIPHON{,_GLOW,_ACTIVE_GLOW}.png` | none |
