@@ -72,8 +72,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LightBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.AABB;
@@ -1092,7 +1090,6 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         unlinkModules();
         coilTier = -1;
         fieldActive = false;
-        setColumnLight(false);
         startupTicks = 0;
         unpoweredTicks = 0;
         focus = 0;
@@ -1128,32 +1125,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             if (!on || unpoweredTicks >= POWER_GRACE_TICKS) startupTicks = 0;
         }
         fieldActive = on && startupTicks > 0;
-        setColumnLight(fieldActive);
         if (startupTicks != before) markDirty();
         updateFocus();
-    }
-
-    /** Levels (back from the controller) of the invisible lights in the energy column, and their brightness. */
-    private static final int COLUMN_LIGHT_FROM = 24, COLUMN_LIGHT_TO = 96, COLUMN_LIGHT_STEP = 6, COLUMN_LIGHT_LEVEL = 12;
-
-    /**
-     * The energy column glows light level 12 along the tube's hollow while the field is on: invisible light blocks
-     * every few levels in empty cells of the column, taken out again when it goes off or the structure breaks.
-     */
-    private void setColumnLight(boolean on) {
-        if (!(getLevel() instanceof ServerLevel level)) return;
-        Direction back = RelativeDirection.BACK.getRelative(getFrontFacing(), getUpwardsFacing(), isFlipped());
-        BlockState light = Blocks.LIGHT.defaultBlockState().setValue(LightBlock.LEVEL, COLUMN_LIGHT_LEVEL);
-        for (int d = COLUMN_LIGHT_FROM; d <= COLUMN_LIGHT_TO; d += COLUMN_LIGHT_STEP) {
-            BlockPos pos = getPos().relative(back, d);
-            if (!level.isLoaded(pos)) continue;
-            BlockState now = level.getBlockState(pos);
-            if (on) {
-                if (now.isAir()) level.setBlock(pos, light, 3);
-            } else if (now.is(Blocks.LIGHT) && now.getValue(LightBlock.LEVEL) == COLUMN_LIGHT_LEVEL) {
-                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-            }
-        }
     }
 
     /**

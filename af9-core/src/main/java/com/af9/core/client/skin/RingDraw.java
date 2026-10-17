@@ -99,8 +99,6 @@ final class RingDraw {
             RingBlocks.draw(self.getPos().asLong(), i, blocks, poseStack.last());
             poseStack.popPose();
         }
-        // the laser emitter at the top of the energy column
-        EmitterDraw.draw(buffer.getBuffer(RenderType.entityCutoutNoCull(AF9RenderTypes.WHITE)), poseStack.last());
         // the plasma beams, added light, after the solids (a buffer from the source ends when another is asked for)
         VertexConsumer beams = buffer.getBuffer(AF9RenderTypes.LIGHTNING);
         boolean online = state.factor > 0.04F;
@@ -110,15 +108,8 @@ final class RingDraw {
                 beam(beams, mat, band, rings.towerHalf(), side, color, working, time);
             }
         }
-        // the energy core in the tower's hollow
-        if (online) {
-            float ignite = Mth.clamp(1F - state.factor / RUN_SPEED, 0F, 1F);
-            Vec3 cam = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-            double dx = cam.x - self.getPos().getX(), dy = cam.y - self.getPos().getY(), dz = cam.z - self.getPos().getZ();
-            double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-            int lod = dist > 110 ? 2 : dist > 55 ? 1 : 0;
-            CoreDraw.draw(beams, poseStack.last().pose(), color, state.phase, state.power, ignite, lod);
-        }
+        // the thruster under the foot (nothing is drawn inside the tower)
+        if (online) CoreDraw.draw(beams, poseStack.last().pose(), state.phase, state.power);
     }
 
     /** The rings' angles now: each keeps turning from where it was, still without power, spinning up when the station is switched on and powered. */
@@ -204,32 +195,68 @@ final class RingDraw {
         float from = towerHalf + 0.3F, to = band.radius() - band.width() / 2F;
         float r = (rgb >> 16 & 255) / 255F, g = (rgb >> 8 & 255) / 255F, b = (rgb & 255) / 255F;
         float len = to - from;
-        int pieces = Math.max(6, Math.round(len / 1.5F));
-        // the beam's own frame: along it, across it in the ring's plane, and along the tower's axis
+        // across the beam: in the ring's plane, and along the tower's axis
         float px = -dy, py = dx;
-        float base = working ? 0.5F : 0.3F;
+        float base = working ? 0.55F : 0.35F;
+        int pieces = Math.max(6, Math.round(len / 2F));
         for (int i = 0; i < pieces; i++) {
             float s0 = i / (float) pieces, s1 = (i + 1) / (float) pieces;
             float t0 = from + len * s0, t1 = from + len * s1;
             float a0 = alongBeam(s0, len, base, working, time, side), a1 = alongBeam(s1, len, base, working, time, side);
-            for (int k = 0; k < 3; k++) {
-                float angle = k * Mth.PI / 3F;
-                float cos = Mth.cos(angle), sin = Mth.sin(angle);
-                // the ribbon's width direction: the across axis turned about the beam
-                float wx = px * cos, wy = py * cos, wz = sin;
-                ribbon(c, mat, cx + dx * t0, cy + dy * t0, cz, cx + dx * t1, cy + dy * t1, cz, wx * 0.42F, wy * 0.42F,
-                        wz * 0.42F, r, g, b, a0 * 0.55F, a1 * 0.55F);
-            }
-            for (int k = 0; k < 2; k++) {
-                float cos = k == 0 ? 1F : 0F, sin = k == 0 ? 0F : 1F;
-                ribbon(c, mat, cx + dx * t0, cy + dy * t0, cz, cx + dx * t1, cy + dy * t1, cz, px * cos * 0.1F,
-                        py * cos * 0.1F, sin * 0.1F, 0.9F, 0.96F, 1F, Math.min(1F, a0 * 1.3F),
-                        Math.min(1F, a1 * 1.3F));
-            }
+            // a soft sheath, the colour of the ring, and a white-hot thread in it
+            tube(c, mat, cx, cy, cz, dx, dy, px, py, t0, t1, 0.62F, 8, r, g, b, a0 * 0.14F, a1 * 0.14F);
+            tube(c, mat, cx, cy, cz, dx, dy, px, py, t0, t1, 0.3F, 6, r, g, b, a0 * 0.32F, a1 * 0.32F);
+            tube(c, mat, cx, cy, cz, dx, dy, px, py, t0, t1, 0.09F, 4, 0.92F, 0.97F, 1F, Math.min(1F, a0 * 1.5F),
+                    Math.min(1F, a1 * 1.5F));
+        }
+        // bright packets of energy running out to the ring, a short fat tube each, rising and falling
+        int packets = working ? 4 : 2;
+        float speed = working ? 0.5F : 0.25F;
+        for (int k = 0; k < packets; k++) {
+            float s = ((time * speed / len + k / (float) packets + side * 0.21F) % 1F);
+            float tc = from + len * s, half = 1.6F;
+            float t0 = Math.max(from, tc - half), t1 = Math.min(to, tc + half);
+            tube(c, mat, cx, cy, cz, dx, dy, px, py, t0, tc, 0.5F, 8, r, g, b, 0F, 0.55F);
+            tube(c, mat, cx, cy, cz, dx, dy, px, py, tc, t1, 0.5F, 8, r, g, b, 0.55F, 0F);
+            tube(c, mat, cx, cy, cz, dx, dy, px, py, t0, tc, 0.2F, 6, 1F, 1F, 1F, 0F, 0.9F);
+            tube(c, mat, cx, cy, cz, dx, dy, px, py, tc, t1, 0.2F, 6, 1F, 1F, 1F, 0.9F, 0F);
+        }
+        // a flare where the beam leaves the tower and where it lands on the ring
+        float pulse = 0.7F + 0.3F * Mth.sin(time * 0.2F + side);
+        flare(c, mat, cx + dx * from, cy + dy * from, cz, px, py, 0.9F * pulse, r, g, b, base);
+        flare(c, mat, cx + dx * to, cy + dy * to, cz, px, py, 1.3F * pulse, r, g, b, base * 1.2F);
+    }
+
+    /** An open prism round the beam's axis between two distances along it, with an alpha at each end. */
+    private static void tube(VertexConsumer c, Matrix4f mat, float cx, float cy, float cz, float dx, float dy,
+                             float px, float py, float t0, float t1, float radius, int sides, float r, float g,
+                             float b, float a0, float a1) {
+        for (int i = 0; i < sides; i++) {
+            float p0 = Mth.TWO_PI * i / sides, p1 = Mth.TWO_PI * (i + 1) / sides;
+            float c0 = Mth.cos(p0) * radius, s0 = Mth.sin(p0) * radius, c1 = Mth.cos(p1) * radius,
+                    s1 = Mth.sin(p1) * radius;
+            c.vertex(mat, cx + dx * t0 + px * c0, cy + dy * t0 + py * c0, cz + s0).color(r, g, b, a0).endVertex();
+            c.vertex(mat, cx + dx * t0 + px * c1, cy + dy * t0 + py * c1, cz + s1).color(r, g, b, a0).endVertex();
+            c.vertex(mat, cx + dx * t1 + px * c1, cy + dy * t1 + py * c1, cz + s1).color(r, g, b, a1).endVertex();
+            c.vertex(mat, cx + dx * t1 + px * c0, cy + dy * t1 + py * c0, cz + s0).color(r, g, b, a1).endVertex();
         }
     }
 
-    /** The brightness at a place along a beam (0 tower end, 1 ring end): a soft start, and packets running out. */
+    /** A glowing disc across the beam (in the plane of the across axes), bright in the middle and fading out. */
+    private static void flare(VertexConsumer c, Matrix4f mat, float x, float y, float z, float px, float py,
+                              float radius, float r, float g, float b, float alpha) {
+        int sides = 10;
+        for (int i = 0; i < sides; i++) {
+            float p0 = Mth.TWO_PI * i / sides, p1 = Mth.TWO_PI * (i + 1) / sides;
+            c.vertex(mat, x, y, z).color(1F, 1F, 1F, Math.min(1F, alpha)).endVertex();
+            c.vertex(mat, x, y, z).color(1F, 1F, 1F, Math.min(1F, alpha)).endVertex();
+            c.vertex(mat, x + px * Mth.cos(p1) * radius, y + py * Mth.cos(p1) * radius, z + Mth.sin(p1) * radius)
+                    .color(r, g, b, 0F).endVertex();
+            c.vertex(mat, x + px * Mth.cos(p0) * radius, y + py * Mth.cos(p0) * radius, z + Mth.sin(p0) * radius)
+                    .color(r, g, b, 0F).endVertex();
+        }
+    }
+
     private static float alongBeam(float s, float len, float base, boolean working, float time, int side) {
         float packet = 0.5F + 0.5F * Mth.sin(s * len * 0.55F - time * (working ? 0.45F : 0.25F) + side * 1.7F);
         packet *= packet * packet;

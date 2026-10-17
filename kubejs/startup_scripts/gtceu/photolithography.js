@@ -116,10 +116,10 @@ const ORBITAL_RINGS = [         // d of the ring's top level, levels thick, oute
 const orbitalMid = ring => ring.d + Math.floor(ring.t / 2)
 const orbitalCollar = d => ORBITAL_RINGS.some(ring => Math.abs(d - orbitalMid(ring)) <= 1)
 // the deck round each ring: the levels above and below its collar plate reach out wide along the slab, over the beams
-// (which run at the middle level), as far as the ring's band allows. 17 is the most any tower cell may stand from the axis:
+// (which run at the middle level), as far as the ring's band allows. 28 is the most any tower cell may stand from the axis (the foot's plan is far smaller):
 // af9-core hides and redraws a 35 x 35 box (TOWER_BOX)
 const orbitalDeck = (d, dx, dz) => ORBITAL_RINGS.some(ring => Math.abs(d - orbitalMid(ring)) === 1
-    && Math.abs(dx) <= Math.min(17, ring.r - ring.w - 5) && Math.abs(dz) <= 9 && Math.abs(dx) + Math.abs(dz) * 2 <= 25)
+    && Math.abs(dx) <= Math.min(28, ring.r - ring.w - 2) && Math.abs(dz) <= 9 && Math.abs(dx) + Math.abs(dz) * 2 <= 36)
 // the set-backs between the rings: a two-level ledge, wider than the body, where the slab steps in
 const orbitalLedge = d => d === 36 || d === 37 || d === 54 || d === 55 || d === 72 || d === 73
 // the tower's half widths (x, z) d levels down: a crown on a slab-sided upper block, a slimmer waist, the long taper
@@ -183,9 +183,9 @@ const orbitalTowerCell = (d, dx, dz) => {
     if (d === 0 && dx === 0 && dz === 0) return 'K'
     if (d < 0) return ' '   // above the controller: nothing
     if (d > 104) return ' '   // the tower ends at its foot; the plasma lance below it is drawn, not built
-    if (Math.abs(dx) > 17 || Math.abs(dz) > 17) return ' '
-    // the thruster shaft: the foot's chamber is open at the bottom through a 3 x 3 hole, the lance leaves it
-    if (d >= 99 && Math.abs(dx) <= 1 && Math.abs(dz) <= 1) return ' '
+    if (Math.abs(dx) > 28 || Math.abs(dz) > 28) return ' '
+    // the foot's chamber: a 3 x 3 hollow closed by the plate of the last level (the thruster's lance is drawn below it)
+    if (d >= 99 && d <= 103 && Math.abs(dx) <= 1 && Math.abs(dz) <= 1) return ' '
     // the centre column: PTFE through the crown (the hatches go on it); below it the energy core's tube, a 5 x 5 shell of
     // superconducting coils round a 3 x 3 hollow (the plasma column, the same width as the foot's opening)
     if (d < 12 && dx === 0 && dz === 0) return 'O'
@@ -213,6 +213,8 @@ const orbitalTowerCell = (d, dx, dz) => {
     // walls: stress-proof casing columns with non-conducting panels between, a light strip (HSS-G coil) up each third
     // column, broken every 18 levels
     const along = Math.abs(!north || !south ? dx : dz)
+    // windows: the wall panels of the upper block and of the middle one are open, so the core tube shows inside
+    if (((d >= 25 && d <= 34) || (d >= 43 && d <= 52)) && (along % 6 === 4 || along % 6 === 5)) return ' '
     // the diagonal light strips are light casing; a heating coil (the Mk2's tier bonus) stands only where a strip crosses
     // the middle of a panel, one to a strip
     if (orbitalCoil(d, along)) return along % 6 === 3 ? 'B' : 'N'
