@@ -6,16 +6,16 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.joml.Matrix4f;
 
 /**
- * The energy core in the Orbital Array Mk2's hollow tower, drawn as added light round the frame column that runs up the
+ * The energy core in the Orbital Array Mk2's hollow tower, drawn as added light in the 3 x 3 hollow of the superconducting coil tube that runs up the
  * middle: a plasma column with pulses running up it, a pulsing core in the upper chamber with crossed halo rings and fans
  * of light turning round it, orbs circling the column on their paths with a trail behind them. Everything stays within
- * the chamber's walls (about 2.8 blocks out of the axis), is dim while the station idles and bright and fast while it
+ * the tube's hollow (1.5 blocks out of the axis), is dim while the station idles and bright and fast while it
  * works. In the pattern's own space (right / up / back from the controller, the origin the controller block's corner).
  */
 final class CoreDraw {
 
-    /** The column's span along the back axis (levels below the controller): the chamber's first floor to the waist. */
-    private static final float Z0 = 13F, Z1 = 78F;
+    /** The column's span along the back axis (levels below the controller): the chamber's first floor to the foot's opening. */
+    private static final float Z0 = 13F, Z1 = 97F;
     /** The core's place, in the middle of the upper chamber, and the orbits' span. */
     private static final float CORE_Z = 30F, ORBIT_Z0 = 14F, ORBIT_Z1 = 56F;
     private static final float CX = 0.5F, CY = 0.5F;
@@ -35,20 +35,20 @@ final class CoreDraw {
         lance(c, m, phase, power);
 
         // the plasma column round the frame, a glow in the colour and a white-hot thread in it
-        prism(c, m, Z0, Z1, 0.95F + 0.12F * pulse, 10, r, g, b, 0.16F * level);
-        prism(c, m, Z0, Z1, 0.62F, 8, r, g, b, 0.22F * level);
-        prism(c, m, Z0, Z1, 0.18F, 6, 0.9F, 0.96F, 1F, 0.55F * level);
+        prism(c, m, Z0, Z1, 1.35F + 0.1F * pulse, 12, r, g, b, 0.16F * level);
+        prism(c, m, Z0, Z1, 0.9F, 10, r, g, b, 0.22F * level);
+        prism(c, m, Z0, Z1, 0.28F, 8, 0.9F, 0.96F, 1F, 0.55F * level);
 
         // pulses running up the column: flat rings that grow and fade as they climb
         for (int k = 0; k < 9; k++) {
             float t = ((phase * 0.011F + k / 9F) % 1F);
             float z = Z1 - (Z1 - Z0) * t;
             float fade = Mth.sin(t * Mth.PI);
-            disc(c, m, CX, CY, z, 0.7F + 0.9F * t, 0.35F, 10, r, g, b, 0.5F * fade * level);
+            disc(c, m, CX, CY, z, 0.5F + 0.9F * t, 0.35F, 10, r, g, b, 0.5F * fade * level);
         }
 
         // the core: a pulsing sphere with a bright heart
-        float radius = 1.15F + 0.28F * pulse;
+        float radius = 0.8F + 0.2F * pulse;
         sphere(c, m, CX, CY, CORE_Z, radius, 8, 12, r, g, b, 0.22F * level);
         sphere(c, m, CX, CY, CORE_Z, radius * 0.55F, 6, 10, 0.85F, 0.95F, 1F, 0.45F * level);
 
@@ -58,13 +58,13 @@ final class CoreDraw {
             // the plane's basis: the ring's x axis turned about z by a, its y axis tipped by the tilt
             float ux = Mth.cos(a), uy = Mth.sin(a), uz = 0;
             float vx = -Mth.sin(a) * Mth.cos(tilt), vy = Mth.cos(a) * Mth.cos(tilt), vz = Mth.sin(tilt);
-            ring(c, m, CX, CY, CORE_Z, ux, uy, uz, vx, vy, vz, 1.95F, 0.16F, 40, r, g, b, 0.55F * level);
+            ring(c, m, CX, CY, CORE_Z, ux, uy, uz, vx, vy, vz, 1.3F, 0.12F, 36, r, g, b, 0.55F * level);
         }
 
         // fans of light turning round the core: crossed ribbons from it out to the walls
         for (int k = 0; k < 6; k++) {
             float a = phase * 0.02F + k * Mth.PI / 3F;
-            float len = 2.5F + 0.3F * Mth.sin(phase * 0.1F + k);
+            float len = 1.1F + 0.2F * Mth.sin(phase * 0.1F + k);
             float dx = Mth.cos(a), dy = Mth.sin(a);
             ribbon(c, m, CX, CY, CORE_Z, CX + dx * len, CY + dy * len, CORE_Z, -dy * 0.13F, dx * 0.13F, 0, r, g, b,
                     0.45F * level, 0.02F);
@@ -75,7 +75,7 @@ final class CoreDraw {
         // orbs on their paths round the column, a trail behind each
         for (int k = 0; k < 5; k++) {
             float speed = 0.05F + 0.013F * k;
-            float rad = 1.7F + 0.18F * k;
+            float rad = 0.95F + 0.1F * k;
             float zMid = ORBIT_Z0 + (ORBIT_Z1 - ORBIT_Z0) * ((k * 0.37F + 0.1F) % 1F);
             float zSwing = 3.5F + 1.2F * k;
             for (int tail = 0; tail < 7; tail++) {
@@ -103,24 +103,24 @@ final class CoreDraw {
         float r = 0.6F, g = 0.35F, b = 1F;
 
         // the source: a glow and a turning ring at the bottom ring's level, inside the tower
-        sphere(c, m, CX, CY, LANCE_Z0, 0.9F, 6, 10, r, g, b, 0.28F * k);
-        sphere(c, m, CX, CY, LANCE_Z0, 0.45F, 5, 8, 0.9F, 0.95F, 1F, 0.5F * k);
+        sphere(c, m, CX, CY, LANCE_Z0, 1.2F, 6, 10, r, g, b, 0.28F * k);
+        sphere(c, m, CX, CY, LANCE_Z0, 0.6F, 5, 8, 0.9F, 0.95F, 1F, 0.5F * k);
         float a = phase * 0.08F;
-        ring(c, m, CX, CY, LANCE_Z0, Mth.cos(a), Mth.sin(a), 0, -Mth.sin(a) * 0.5F, Mth.cos(a) * 0.5F, 0.866F, 1.3F,
+        ring(c, m, CX, CY, LANCE_Z0, Mth.cos(a), Mth.sin(a), 0, -Mth.sin(a) * 0.5F, Mth.cos(a) * 0.5F, 0.866F, 1.4F,
                 0.14F, 28, r, g, b, 0.5F * k);
 
         // the beam: steady down the hollow, then widening and fading out 20 blocks below the foot
-        fade(c, m, LANCE_Z0, FOOT_Z, 0.42F, 0.6F, 10, r, g, b, 0.36F * k, 0.3F * k);
-        fade(c, m, FOOT_Z, LANCE_Z1, 0.6F, 1.25F, 10, r, g, b, 0.3F * k, 0F);
-        fade(c, m, LANCE_Z0, FOOT_Z, 0.26F, 0.32F, 8, r, g, b, 0.3F * k, 0.28F * k);
-        fade(c, m, FOOT_Z, LANCE_Z1, 0.32F, 0.5F, 8, r, g, b, 0.28F * k, 0F);
-        fade(c, m, LANCE_Z0, LANCE_Z1 - 4F, 0.1F, 0.16F, 6, 1F, 1F, 1F, 0.8F * k, 0F);
+        fade(c, m, LANCE_Z0, FOOT_Z, 1.2F, 1.35F, 12, r, g, b, 0.36F * k, 0.3F * k);
+        fade(c, m, FOOT_Z, LANCE_Z1, 1.35F, 2.6F, 12, r, g, b, 0.3F * k, 0F);
+        fade(c, m, LANCE_Z0, FOOT_Z, 0.7F, 0.85F, 10, r, g, b, 0.3F * k, 0.28F * k);
+        fade(c, m, FOOT_Z, LANCE_Z1, 0.85F, 1.4F, 10, r, g, b, 0.28F * k, 0F);
+        fade(c, m, LANCE_Z0, LANCE_Z1 - 4F, 0.25F, 0.4F, 8, 1F, 1F, 1F, 0.8F * k, 0F);
 
         // shock rings running down it, widening and fading
         for (int i = 0; i < 9; i++) {
             float t = (phase * 0.012F + i / 9F) % 1F;
             float z = LANCE_Z0 + (LANCE_Z1 - LANCE_Z0) * t;
-            float rad = z < FOOT_Z ? 0.7F : 0.7F + 0.8F * (z - FOOT_Z) / (LANCE_Z1 - FOOT_Z);
+            float rad = z < FOOT_Z ? 1.25F : 1.25F + 1.3F * (z - FOOT_Z) / (LANCE_Z1 - FOOT_Z);
             disc(c, m, CX, CY, z, rad, 0.16F, 12, r, g, b, 0.6F * Mth.sin(t * Mth.PI) * k);
         }
     }

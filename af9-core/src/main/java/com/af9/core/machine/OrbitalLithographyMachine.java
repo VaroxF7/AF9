@@ -1169,7 +1169,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     }
 
     /** The tower's half width in a cut-out Mk2 page (the plane axes are cut to this many blocks round the middle). */
-    private static final int PREVIEW_CUT = 18;
+    private static final int PREVIEW_CUT = 36;
 
     private static List<MultiblockShapeInfo> shapes(MultiblockMachineDefinition definition, BlockPattern pattern,
                                                     boolean cut) {

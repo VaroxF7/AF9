@@ -100,7 +100,7 @@ const ORBITAL_BASIC = [
 // lance (drawn, not built) leaving the open foot; the rings' light rings glow just inside them and turn like the wheels of a station
 // (af9-core RING_MK2 / OrbitalLithographyMachine.ringSpecs, which read the same numbers: keep them in step). The
 // blocks are the basic station's: sturdy and stress-proof casing for the rings and the shell, non-conducting panels, the
-// atomic beams in tungsten carbide frame rails, HSS-G coil light strips, HSS-E frames for the core. Rows bottom -> top as
+// atomic beams in tungsten carbide frame rails, HSS-G coil light strips, a tube of superconducting coils for the core. Rows bottom -> top as
 // ORBITAL_BASIC, the controller on the top row. d below counts levels down from the controller.
 const ORBITAL_MK2 = 73          // width of the plane, the tower at its centre (36)
 const ORBITAL_MID = 36
@@ -118,7 +118,7 @@ const orbitalCollar = d => ORBITAL_RINGS.some(ring => Math.abs(d - orbitalMid(ri
 // (which run at the middle level), as far as the ring's band allows. 17 is the most any tower cell may stand from the axis:
 // af9-core hides and redraws a 35 x 35 box (TOWER_BOX)
 const orbitalDeck = (d, dx, dz) => ORBITAL_RINGS.some(ring => Math.abs(d - orbitalMid(ring)) === 1
-    && Math.abs(dx) <= Math.min(17, ring.r - ring.w - 2) && Math.abs(dz) <= 9 && Math.abs(dx) + Math.abs(dz) * 2 <= 25)
+    && Math.abs(dx) <= Math.min(17, ring.r - ring.w - 5) && Math.abs(dz) <= 9 && Math.abs(dx) + Math.abs(dz) * 2 <= 25)
 // the set-backs between the rings: a two-level ledge, wider than the body, where the slab steps in
 const orbitalLedge = d => d === 36 || d === 37 || d === 54 || d === 55 || d === 72 || d === 73
 // the tower's half widths (x, z) d levels down: a crown on a slab-sided upper block, a slimmer waist, the long taper
@@ -184,8 +184,11 @@ const orbitalTowerCell = (d, dx, dz) => {
     if (Math.abs(dx) > 17 || Math.abs(dz) > 17) return ' '
     // the thruster shaft: the foot's chamber is open at the bottom through a 3 x 3 hole, the lance leaves it
     if (d >= 99 && Math.abs(dx) <= 1 && Math.abs(dz) <= 1) return ' '
-    // the centre column: PTFE through the crown (the hatches go on it), HSS-E below it
-    if (dx === 0 && dz === 0) return d < 12 ? 'O' : 'A'
+    // the centre column: PTFE through the crown (the hatches go on it); below it the energy core's tube, a 5 x 5 shell of
+    // superconducting coils round a 3 x 3 hollow (the plasma column, the same width as the foot's opening)
+    if (d < 12 && dx === 0 && dz === 0) return 'O'
+    const core = Math.max(Math.abs(dx), Math.abs(dz))
+    if (d >= 12 && d <= 98 && core <= 2) return core === 2 ? 'S' : ' '
     if (!orbitalSolid(d, dx, dz)) return ' '
     const east = orbitalSolid(d, dx + 1, dz)
     const west = orbitalSolid(d, dx - 1, dz)
@@ -422,6 +425,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         return [
             ['K', Predicates.controller(Predicates.blocks(definition.get()))],
             ['A', Predicates.blocks('gtceu:hsse_frame')],
+            ['S', Predicates.blocks('gtceu:superconducting_coil')],
             // the Mk2's light strips are heating coils of any one tier (af9-core OrbitalLithographyMachine.COILS: the
             // tier is the bonus); the basic station's stay HSS-G
             ['B', mk2 ? Predicates.heatingCoils() : Predicates.blocks('gtceu:hssg_coil_block')],

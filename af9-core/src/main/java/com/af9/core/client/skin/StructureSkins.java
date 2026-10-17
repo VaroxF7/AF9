@@ -93,6 +93,9 @@ public final class StructureSkins {
     private static volatile LongSet hidden = new LongOpenHashSet();
     private static ClientLevel trackedLevel;
     private static int ticks;
+    /** When each Mk2's rings were last walked (client ticks), and how often they are. */
+    private static final Map<Long, Long> RING_SCANS = new HashMap<>();
+    private static final int RING_SCAN_TICKS = 60;
     /** Machine models that got the render: when none did, nothing is hidden. */
     private static int attached;
     /** The skins whose models baked. */
@@ -235,6 +238,10 @@ public final class StructureSkins {
         if (!station.isFieldActive() && station.getStartupPercent() <= 0 && !TRACKED.containsKey(origin.asLong())) {
             return;
         }
+        // the rings' blocks are walked (a few thousand cells) every 3 seconds, not at every scan
+        Long lastScan = RING_SCANS.get(origin.asLong());
+        if (lastScan != null && ticks - lastScan < RING_SCAN_TICKS && TRACKED.containsKey(origin.asLong())) return;
+        RING_SCANS.put(origin.asLong(), (long) ticks);
         // the rings are drawn in place of their blocks only once the whole tower stands
         Boolean built = ringsBuilt(level, controller, skin);
         if (built == null) {
@@ -301,8 +308,8 @@ public final class StructureSkins {
     private static Boolean ringsBuilt(ClientLevel level, MultiblockControllerMachine controller, StructureSkin skin) {
         List<BlockPos> samples = new ArrayList<>();
         int half = skin.rings().towerHalf();
-        // the core column's frame, all the way down (it is HSS-E frame from level 12 to level 98)
-        for (int back : new int[] { 14, 40, 70, 90 }) samples.add(at(controller, 0, 0, back));
+        // the core tube's superconducting coils, all the way down (its 5 x 5 shell, from level 12 to level 98)
+        for (int back : new int[] { 14, 40, 70, 90 }) samples.add(at(controller, 2, 0, back));
         for (OrbitalLithographyMachine.Band band : skin.rings().bands()) {
             int mid = band.d0() + band.t() / 2, mean = band.radius() - band.width() / 2;
             for (int[] side : new int[][] { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) {
@@ -319,6 +326,7 @@ public final class StructureSkins {
     }
 
     private static void untrack(long controller) {
+        RING_SCANS.remove(controller);
         RingDraw.forget(controller);
         RingBlocks.forget(controller);
         TowerDraw.forget(controller);

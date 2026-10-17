@@ -183,39 +183,65 @@ final class RingDraw {
     //////////////////////////////////////
 
     /**
-     * A plasma beam from the tower's face to the ring's inner edge, along the right or the up axis in the ring's plane
-     * (in the pattern's space, the origin at the controller block's corner): two crossed ribbons, a glow in the colour
-     * under a white-hot core, a pulse of brightness running out along it.
+     * A plasma beam from the tower's face to the middle of the ring's band (so its end is inside the turning ring's
+     * blocks and never shows), along the right or the up axis in the ring's plane: three ribbons round the beam's axis, each
+     * brightest along its middle and fading to nothing at its edges (a soft, round glow in the colour), a white-hot thread
+     * in it, and packets of light running out along it to the ring.
      */
     private static void beam(VertexConsumer c, Matrix4f mat, Band band, int towerHalf, int side, int rgb,
                              boolean working, float time) {
         float cx = 0.5F, cy = 0.5F, cz = band.d0() + band.t() / 2F;
         float dx = side == 0 ? 1 : side == 1 ? -1 : 0, dy = side == 2 ? 1 : side == 3 ? -1 : 0;
-        float from = towerHalf + 0.6F, to = band.radius() - band.width() - 0.7F;
+        float from = towerHalf + 0.3F, to = band.radius() - band.width() / 2F;
         float r = (rgb >> 16 & 255) / 255F, g = (rgb >> 8 & 255) / 255F, b = (rgb & 255) / 255F;
-        int pieces = Math.max(4, Math.round((to - from) / 1.5F));
+        float len = to - from;
+        int pieces = Math.max(6, Math.round(len / 1.5F));
+        // the beam's own frame: along it, across it in the ring's plane, and along the tower's axis
+        float px = -dy, py = dx;
+        float base = working ? 0.5F : 0.3F;
         for (int i = 0; i < pieces; i++) {
-            float t0 = from + (to - from) * i / pieces, t1 = from + (to - from) * (i + 1) / pieces;
-            // pulses running out along the beam (faster and brighter while the machine works)
-            float wave = 0.5F + 0.5F * Mth.sin(i * 0.9F - time * 0.3F + side * 1.7F);
-            float alpha = (working ? 0.35F : 0.2F) + (working ? 0.55F : 0.3F) * wave;
-            for (int cross = 0; cross < 2; cross++) {
-                // two ribbons standing across each other, both along the beam: one wide across the ring's plane
-                // (in y for a beam along x, in x for a beam along y), one wide along the tower's axis (z)
-                float wx = cross == 0 && dx == 0 ? 1 : 0, wy = cross == 0 && dx != 0 ? 1 : 0, wz = cross == 1 ? 1 : 0;
-                strip(c, mat, cx + dx * t0, cy + dy * t0, cz, cx + dx * t1, cy + dy * t1, cz, wx * 0.22F, wy * 0.22F,
-                        wz * 0.22F, r, g, b, alpha * 0.55F);
-                strip(c, mat, cx + dx * t0, cy + dy * t0, cz, cx + dx * t1, cy + dy * t1, cz, wx * 0.06F, wy * 0.06F,
-                        wz * 0.06F, 0.9F, 0.95F, 1F, alpha);
+            float s0 = i / (float) pieces, s1 = (i + 1) / (float) pieces;
+            float t0 = from + len * s0, t1 = from + len * s1;
+            float a0 = alongBeam(s0, len, base, working, time, side), a1 = alongBeam(s1, len, base, working, time, side);
+            for (int k = 0; k < 3; k++) {
+                float angle = k * Mth.PI / 3F;
+                float cos = Mth.cos(angle), sin = Mth.sin(angle);
+                // the ribbon's width direction: the across axis turned about the beam
+                float wx = px * cos, wy = py * cos, wz = sin;
+                ribbon(c, mat, cx + dx * t0, cy + dy * t0, cz, cx + dx * t1, cy + dy * t1, cz, wx * 0.42F, wy * 0.42F,
+                        wz * 0.42F, r, g, b, a0 * 0.55F, a1 * 0.55F);
+            }
+            for (int k = 0; k < 2; k++) {
+                float cos = k == 0 ? 1F : 0F, sin = k == 0 ? 0F : 1F;
+                ribbon(c, mat, cx + dx * t0, cy + dy * t0, cz, cx + dx * t1, cy + dy * t1, cz, px * cos * 0.1F,
+                        py * cos * 0.1F, sin * 0.1F, 0.9F, 0.96F, 1F, Math.min(1F, a0 * 1.3F),
+                        Math.min(1F, a1 * 1.3F));
             }
         }
     }
 
-    private static void strip(VertexConsumer c, Matrix4f mat, float ax, float ay, float az, float bx, float by,
-                              float bz, float wx, float wy, float wz, float r, float g, float b, float alpha) {
-        c.vertex(mat, ax + wx, ay + wy, az + wz).color(r, g, b, alpha).endVertex();
-        c.vertex(mat, ax - wx, ay - wy, az - wz).color(r, g, b, alpha).endVertex();
-        c.vertex(mat, bx - wx, by - wy, bz - wz).color(r, g, b, alpha).endVertex();
-        c.vertex(mat, bx + wx, by + wy, bz + wz).color(r, g, b, alpha).endVertex();
+    /** The brightness at a place along a beam (0 tower end, 1 ring end): a soft start, and packets running out. */
+    private static float alongBeam(float s, float len, float base, boolean working, float time, int side) {
+        float packet = 0.5F + 0.5F * Mth.sin(s * len * 0.55F - time * (working ? 0.45F : 0.25F) + side * 1.7F);
+        packet *= packet * packet;
+        float start = Math.min(1F, s * len / 1.2F);
+        return start * (base + (working ? 0.5F : 0.3F) * packet);
+    }
+
+    /**
+     * A ribbon of light from a to b, {@code w} half wide along the given direction: bright along its middle, fading to
+     * nothing at both edges (two quads meeting on the middle line).
+     */
+    private static void ribbon(VertexConsumer c, Matrix4f mat, float ax, float ay, float az, float bx, float by,
+                               float bz, float wx, float wy, float wz, float r, float g, float b, float alphaA,
+                               float alphaB) {
+        c.vertex(mat, ax + wx, ay + wy, az + wz).color(r, g, b, 0F).endVertex();
+        c.vertex(mat, ax, ay, az).color(r, g, b, alphaA).endVertex();
+        c.vertex(mat, bx, by, bz).color(r, g, b, alphaB).endVertex();
+        c.vertex(mat, bx + wx, by + wy, bz + wz).color(r, g, b, 0F).endVertex();
+        c.vertex(mat, ax, ay, az).color(r, g, b, alphaA).endVertex();
+        c.vertex(mat, ax - wx, ay - wy, az - wz).color(r, g, b, 0F).endVertex();
+        c.vertex(mat, bx - wx, by - wy, bz - wz).color(r, g, b, 0F).endVertex();
+        c.vertex(mat, bx, by, bz).color(r, g, b, alphaB).endVertex();
     }
 }
