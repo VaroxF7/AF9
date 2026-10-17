@@ -105,7 +105,7 @@ const ORBITAL_BASIC = [
 const ORBITAL_MK2 = 73          // width of the plane, the tower at its centre (36)
 const ORBITAL_MID = 36
 const ORBITAL_DEPTH = 130       // levels: the crown at the top, the open foot at the bottom (the last 25 are empty)
-const ORBITAL_TOP = 3         // levels above the controller's: the module columns on the ridge stand there
+const ORBITAL_TOP = 0         // levels above the controller's (none: the module columns stand on the walkway below the crown)
 const ORBITAL_HALF = 9          // half width of the ring collars, the beams start outside it
 const ORBITAL_RINGS = [         // d of the ring's top level, levels thick, outer radius, band width (every ring one band of casing)
     { d: 22, t: 2, r: 26, w: 4 },
@@ -181,7 +181,7 @@ const orbitalDeepInside = (d, dx, dz) => {
 var orbitalCoil = (d, along) => d > 21 && (d + along) % 9 === 0
 const orbitalTowerCell = (d, dx, dz) => {
     if (d === 0 && dx === 0 && dz === 0) return 'K'
-    if (d < 0) return ' '   // above the controller: only the module columns (orbitalModuleCell)
+    if (d < 0) return ' '   // above the controller: nothing
     if (d > 104) return ' '   // the tower ends at its foot; the plasma lance below it is drawn, not built
     if (Math.abs(dx) > 17 || Math.abs(dz) > 17) return ' '
     // the thruster shaft: the foot's chamber is open at the bottom through a 3 x 3 hole, the lance leaves it
@@ -237,22 +237,20 @@ const orbitalRingCell = (d, dx, dz) => {
     })
     return found
 }
-// the Array Mk2's module slots: six columns on the crown's roof, three on each long side of the crown, on the flat ledge at the foot of the crown's wall (4 blocks
-// apart, the middle one on the centre line), every one standing on the roof's surface at its place. A column is casing ('Q'), the slot
+// the Array Mk2's module slots: six columns on the walkway at the foot of the crown's wall, three on each long side, standing
+// where the wall's ribs end on the deck (the rib stubs at dx -4, 0, 4, 6 out from the axis). A column is casing ('Q'), the slot
 // ('Y': a module controller, or nothing) and casing again, as the Space Elevator's module slots (a module is a small
 // multiblock of its own, af9-core OrbitalModuleMachine; the module needs the casing above and below it). The Array takes
 // 6 Parallel Processing Computers, 6 Energy Efficiency Modules, 2 Evaporation Stacks and 1 Sequencer at most.
+const ORBITAL_MODULE_D = 38
 const orbitalModuleSlots = (() => {
     const slots = []
-    ;[-4, 4].forEach(dz => [-4, 0, 4].forEach(dx => slots.push([dx, dz])))
+    ;[-6, 6].forEach(dz => [-4, 0, 4].forEach(dx => slots.push([dx, dz])))
     return slots
 })()
-// the level of the slot's middle: two above the roof's surface there
-const orbitalModuleY = (dx, dz) => orbitalModuleSlots.some(slot => slot[0] === dx && slot[1] === dz) ? orbitalRoof(dx, dz) - 2 : null
 const orbitalModuleCell = (d, dx, dz) => {
-    const y = orbitalModuleY(dx, dz)
-    if (y === null || Math.abs(d - y) > 1) return ' '
-    return d === y ? 'Y' : 'Q'
+    if (Math.abs(d - ORBITAL_MODULE_D) > 1 || !orbitalModuleSlots.some(slot => slot[0] === dx && slot[1] === dz)) return ' '
+    return d === ORBITAL_MODULE_D ? 'Y' : 'Q'
 }
 const orbitalMk2Cell = (d, dx, dz) => {
     const module = orbitalModuleCell(d, dx, dz)
