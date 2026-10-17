@@ -37,6 +37,17 @@ def ramp(t):
     return stops[-1][1]
 
 
+def magenta_ramp(t):
+    """0..1 to the plasma's colours: black-violet, deep purple, magenta, light orchid (stops short of white)."""
+    stops = [(0.0, (14, 2, 30)), (0.35, (80, 10, 120)), (0.65, (190, 30, 200)), (0.85, (245, 90, 235)), (1.0, (255, 190, 250))]
+    t = max(0.0, min(1.0, t))
+    for (a, ca), (b, cb) in zip(stops, stops[1:]):
+        if t <= b:
+            f = (t - a) / (b - a)
+            return tuple(ca[i] + (cb[i] - ca[i]) * f for i in range(3))
+    return stops[-1][1]
+
+
 def star_frame(frame, radius, beam):
     """One 16 x 16 frame of the dust: the star, its beams, its sparks (transparent round it)."""
     img = Image.new('RGBA', (16, 16), (0, 0, 0, 0))
@@ -89,7 +100,7 @@ def sheet(draw):
 
 
 def plasma_frame(frame):
-    """One 16 x 16 frame of the plasma: a smooth blend of the star's colours, tiles on every side and loops over the frames
+    """One 16 x 16 frame of the plasma: a smooth blend of magenta shades, tiles on every side and loops over the frames
     (low integer wave numbers, whole turns, no hard lines or dots)."""
     img = Image.new('RGBA', (16, 16), (0, 0, 0, 255))
     px = img.load()
@@ -105,7 +116,7 @@ def plasma_frame(frame):
             t = 0.5 + 0.5 * total / len(waves) * 1.5
             t = max(0.0, min(1.0, t))
             t = t * t * (3 - 2 * t)  # smoothstep: soft blend, no harsh peaks
-            col = ramp(0.08 + 0.78 * t)  # stops short of pure white
+            col = magenta_ramp(t)
             px[x, y] = tuple(clamp(c) for c in col) + (255,)
     return img
 
