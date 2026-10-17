@@ -50,6 +50,10 @@ const AF9_WAFERS = (() => {
     // The orbital station is the pack's endgame: its prints use up 10 to 20 times the base amounts of fluids and dry resist
     // (the blank wafer stays one per print), more the finer the node. Must match LithoMode.consumption() in af9-core,
     // which scales the station's coolant the same way.
+    // The station's run times in ticks (800 s at 50 nm, 700 s at 20 nm, 350 s at 7 nm, 500 s at 1 nm) and the voltage tier of
+    // its prints (LuV, ZPM, UHV, UHV); must match LithoMode.hatchTier.
+    const ORBITAL_TICKS = { '50nm': 16000, '20nm': 14000, '7nm': 7000, '1nm': 10000 }
+    const ORBITAL_TIER = { '50nm': GTValues.LuV, '20nm': GTValues.ZPM, '7nm': GTValues.UHV, '1nm': GTValues.UHV }
     const ORBITAL_CONSUMPTION = { '50nm': 10, '20nm': 12, '7nm': 15, '1nm': 20 }
     // The 1 nm prints roll their chip wafers per blank (GT's ranged outputs, rolled when the run ends): [min, max] by the
     // chip's native substrate. silicon-class 64-86, phosphorus 32-64, neutronium 16-32, everything above neutronium
@@ -153,7 +157,7 @@ const AF9_WAFERS = (() => {
         })
     })
     return { substrates: substrates, modes: modes, orbital: orbital, chips: chips, chip: chip, printed: printed,
-        yieldOf: yieldOf, orbitalConsumption: ORBITAL_CONSUMPTION, orbitalYield: ORBITAL_YIELD, wafersOf: wafersOf,
+        yieldOf: yieldOf, orbitalConsumption: ORBITAL_CONSUMPTION, orbitalTicks: ORBITAL_TICKS, orbitalTier: ORBITAL_TIER, orbitalYield: ORBITAL_YIELD, wafersOf: wafersOf,
         chipStack: chipStack, classes: CLASSES, maskClass: maskClass, reticleItem: reticleItem, reticles: reticles }
 })()
 
@@ -638,8 +642,8 @@ ServerEvents.recipes(event => {
                 .inputFluids(fluids)
                 .itemOutputs(`${yieldOf(m.substrate, c)}x ${printed(m.substrate, c)}`)
                 .chancedOutput(`af9:broken_${s.id}_wafer`, m.baseBreak, 0)
-                .duration(900)
-                .EUt(VA[s.tier], 4)
+                .duration(AF9_WAFERS.orbitalTicks[m.id] || 900)
+                .EUt(VA[AF9_WAFERS.orbitalTier[m.id] || s.tier], 4)
             // 7 nm: 32 CWU/t
             if (m.id == '7nm') recipe.CWUt(32)
         })
@@ -660,7 +664,7 @@ ServerEvents.recipes(event => {
             .itemOutputsRanged(printed(chromodynium.index, c), AF9_WAFERS.orbitalYield[c.native][0],
                 AF9_WAFERS.orbitalYield[c.native][1])
             .chancedOutput(`af9:broken_${chromodynium.id}_wafer`, AF9_WAFERS.orbital.baseBreak, 0)
-            .duration(10000)
+            .duration(AF9_WAFERS.orbitalTicks['1nm'])
             .EUt(VA[chromodynium.tier], 1)
             .CWUt(96)
             .stationResearch(b => b.researchStack(Item.of(AF9_WAFERS.reticleItem(c, AF9_WAFERS.maskClass(chromodynium.index))))
