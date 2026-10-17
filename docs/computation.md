@@ -41,3 +41,13 @@ frames at 2 ticks, 11 at 3), picked by the block position (`Mth.getSeed`), so se
 | HV CWU Server | Assembler, HV, 10 s | 2 HV circuits, 4 APU, 8 RAM, 2 ASIC chips, 2 fine borosilicate glass wire, 288 mB soldering alloy |
 | EV CWU Server | Assembler, EV, 10 s | 2 EV circuits, 8 APU, 16 RAM, 4 ASIC chips, 4 fine borosilicate glass wire, 432 mB soldering alloy |
 | IV CWU Server | Assembler, IV, 10 s | 2 IV circuits, 8 APU, 4 eDRAM, 4 MRAM, 8 ASIC chips, 4 fine borosilicate glass wire, 576 mB soldering alloy |
+
+## Wireless computation hatches
+
+`gtceu:uv_wireless_computation_transmitter` / `_receiver` (`WirelessComputationHatch`, an `OpticalComputationHatchMachine`): the
+transmitter takes the place of GT's Computation Data Transmission Hatch on an HPCA, the receiver that of the Reception Hatch
+(same part abilities, so every multiblock that takes the GT hatches takes them). The link ID is typed into the hatch's
+screen. It is saved in each hatch's own save data; the loaded transmitters register by ID in an in-memory map (on load,
+removed on unload), and a receiver asks that map when computation is requested. Nothing is stored in the world beyond the
+hatches, so restarts, unloaded chunks and other dimensions cannot leave a stale or broken link: no transmitter loaded means no
+computation until it loads again. A second transmitter with an ID already in use sends nothing (the screen says so).

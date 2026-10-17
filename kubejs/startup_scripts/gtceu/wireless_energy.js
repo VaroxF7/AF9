@@ -53,3 +53,39 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                     variants[tier][0]))
         })
 })
+
+// Wireless Computation Transmitter / Receiver (behaviour: af9-core WirelessComputationHatch). The transmitter replaces GT's
+// Computation Data Transmission Hatch on an HPCA, the receiver GT's Reception Hatch on any machine that uses computation.
+// The ID typed on the hatch's screen pairs them; it is saved in the hatches themselves, so a restart or an unloaded chunk
+// never breaks a link (the receiver finds its transmitter again as soon as that loads).
+const $WirelessComputationHatch = Java.loadClass('com.af9.core.wireless.WirelessComputationHatch')
+
+GTCEuStartupEvents.registry('gtceu:machine', event => {
+    event.create('wireless_computation_receiver', 'custom')
+        .tiers(GTValues.UV)
+        .machine((holder, tier) => new $WirelessComputationHatch(holder, false))
+        .definition((tier, builder) => {
+            builder
+                .langValue('Wireless Computation Reception Hatch')
+                .rotationState(RotationState.ALL)
+                .abilities(PartAbility.COMPUTATION_DATA_RECEPTION)
+                ['overlayTieredHullModel(java.lang.String)']('computation_data_hatch')
+                ['tooltips(net.minecraft.network.chat.Component[])']([
+                    Component.translatable('af9.wireless_cwu_receiver.tooltip.0'),
+                    Component.translatable('af9.wireless_cwu_receiver.tooltip.1')])
+        })
+
+    event.create('wireless_computation_transmitter', 'custom')
+        .tiers(GTValues.UV)
+        .machine((holder, tier) => new $WirelessComputationHatch(holder, true))
+        .definition((tier, builder) => {
+            builder
+                .langValue('Wireless Computation Transmission Hatch')
+                .rotationState(RotationState.ALL)
+                .abilities(PartAbility.COMPUTATION_DATA_TRANSMISSION)
+                ['overlayTieredHullModel(java.lang.String)']('computation_data_hatch')
+                ['tooltips(net.minecraft.network.chat.Component[])']([
+                    Component.translatable('af9.wireless_cwu_transmitter.tooltip.0'),
+                    Component.translatable('af9.wireless_cwu_transmitter.tooltip.1')])
+        })
+})

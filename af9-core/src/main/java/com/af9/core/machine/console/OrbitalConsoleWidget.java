@@ -492,8 +492,8 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
             // computation: what the hatches' network supplies at most / what the node needs
             int needed = active.computation();
             row(graphics, x, y + 38, w, "af9.orbital.console.compute",
-                    needed > 0 ? compact(console.compute) + "/" + needed + " CWU/t" : "-",
-                    needed <= 0 ? MUTED : console.compute >= needed ? GOOD : BAD);
+                    needed > 0 ? compact(console.compute) + " CWU/t, " + needed + " in all" : "-",
+                    needed <= 0 ? MUTED : console.compute >= 1 ? GOOD : BAD);
             row(graphics, x, y + 47, w, "af9.orbital.console.field",
                     Component.translatable(console.field ? "af9.orbital.console.field_on" :
                             "af9.orbital.console.field_off").getString(),

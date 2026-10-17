@@ -607,7 +607,7 @@ ServerEvents.recipes(event => {
     // vacuum cleanliness, line version) when the print is done: a broken print gives one broken wafer and no chip wafers
     // (af9-core LithoMachine). The orbital station adds its coolant itself (af9-core OrbitalLithographyMachine), and
     // only takes the reticle from its reticle slot (a reticle in an input bus does not count there).
-    // Computation: the 7 nm prints (here) and the 1 nm prints (below) draw CWU/t from a computation hatch.
+    // Computation: the 7 nm prints (here) and the 1 nm prints (below) need 1000 CWU in all (per print, not per tick) from a computation hatch.
     modes.forEach(m => {
         const s = substrates[m.substrate]
         const chemicals = Math.pow(1.5, m.index)
@@ -644,14 +644,14 @@ ServerEvents.recipes(event => {
                 .chancedOutput(`af9:broken_${s.id}_wafer`, m.baseBreak, 0)
                 .duration(AF9_WAFERS.orbitalTicks[m.id] || 900)
                 .EUt(VA[AF9_WAFERS.orbitalTier[m.id] || s.tier], 4)
-            // 7 nm: 32 CWU/t
-            if (m.id == '7nm') recipe.CWUt(32)
+            // 7 nm: 1000 CWU in all per print (not per tick; af9-core LithoMachine.updateTotalComputation)
+            if (m.id == '7nm') recipe.addData('af9_total_cwu', 1000)
         })
     })
 
     // ---- Printed wafers (Orbital Lithography Station, 1 nm) ----
     // X-ray FEL, dry resist; plain UHV (1A, one energy hatch, no amperage stacking) for 500 s, 20 times the base amounts
-    // (20 dry resist cartridges, and the coolant the station adds: 10,000 mB supercooled endion per print); 96 CWU/t.
+    // (20 dry resist cartridges, and the coolant the station adds: 10,000 mB supercooled endion per print); 1000 CWU in all (drawn over the run).
     // The yield is a range per chip class (ORBITAL_YIELD), rolled when the run ends.
     // Research, like GT's assembly line: every 1 nm print is unlocked on its own. The Research Station scans the chip's
     // reticle (2A of ZPM, 48 CWU/t, 256000 CWU) into a data orb, which goes in the station's data hatch (or a data
@@ -666,7 +666,7 @@ ServerEvents.recipes(event => {
             .chancedOutput(`af9:broken_${chromodynium.id}_wafer`, AF9_WAFERS.orbital.baseBreak, 0)
             .duration(AF9_WAFERS.orbitalTicks['1nm'])
             .EUt(VA[chromodynium.tier], 1)
-            .CWUt(96)
+            .addData('af9_total_cwu', 1000)
             .stationResearch(b => b.researchStack(Item.of(AF9_WAFERS.reticleItem(c, AF9_WAFERS.maskClass(chromodynium.index))))
                 .researchId(`af9_litho_1nm_${c.id}`).EUt(VA[GTValues.ZPM], 2).CWUt(48, 256000))
     })

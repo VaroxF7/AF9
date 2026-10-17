@@ -548,8 +548,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         }
         if (getInputTier() < mode.hatchTier) return ConsoleWidget.STATUS_NO_POWER;
         if (reticleSlot.getStackInSlot(0).isEmpty()) return ConsoleWidget.STATUS_NO_RETICLE;
-        // a computation hatch alone is not enough: something (an HPCA) has to supply the node's CWU/t through it
-        if (mode.computation() > 0 && availableComputation() < mode.computation()) {
+        // a computation hatch alone is not enough: something (an HPCA) has to supply computation through it
+        if (mode.computation() > 0 && availableComputation() < 1) {
             return ConsoleWidget.STATUS_NO_COMPUTATION;
         }
         if (mode.needsResearch() && !hasDataHatch()) return ConsoleWidget.STATUS_NO_DATA;

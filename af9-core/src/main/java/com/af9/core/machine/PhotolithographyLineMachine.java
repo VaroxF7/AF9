@@ -331,6 +331,10 @@ public class PhotolithographyLineMachine extends LithoMachine {
             }
             // GT's own lines for the computation ("Min. Computation") and the research ("Requires Research") are not
             // shown: the data hatch and the machine's console say it, and the research has its slot on the page
+            if (mode.computation() > 0) {
+                type.addDataInfo(data -> Component.translatable("af9.recipe.litho_cwu_total",
+                        data.getInt(LithoMachine.TOTAL_CWU_TAG)).getString());
+            }
             if (mode.computation() > 0 || mode.needsResearch()) {
                 type.setUiBuilder(PhotolithographyLineMachine::hideRequirementTexts);
             }

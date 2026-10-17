@@ -278,6 +278,47 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine
         updateVacuum();
         updateCooling();
         updateOpc();
+        updateTotalComputation();
+    }
+
+    /** Recipe data: the computation a print needs in all, CWU (per print, times its parallels and batch). */
+    public static final String TOTAL_CWU_TAG = "af9_total_cwu";
+
+    /** The run's computation in all (0: none) and what has been drawn so far; both survive a restart. */
+    @Persisted
+    private long cwuNeed;
+    @Persisted
+    private long cwuPaid;
+
+    public long getCwuNeed() {
+        return cwuNeed;
+    }
+
+    public long getCwuPaid() {
+        return cwuPaid;
+    }
+
+    /**
+     * Computation in all: while a run with {@link #TOTAL_CWU_TAG} works, the machine draws the next tick's share from
+     * the computation hatches (more to catch up) and the run may not get ahead of what has been paid: its progress is
+     * held back to the paid share. So a network that gives at least need/duration per tick loses no time, a smaller
+     * one stretches the run, and the total drawn is exactly the need.
+     */
+    private void updateTotalComputation() {
+        if (cwuNeed <= 0 || !isFormed() || !getRecipeLogic().isWorking()) return;
+        if (cwuPaid < cwuNeed && hasOpcSource()) {
+            int duration = Math.max(1, getRecipeLogic().getDuration());
+            int next = Math.min(duration, getRecipeLogic().getProgress() + 1);
+            long due = (cwuNeed * next + duration - 1) / duration - cwuPaid;
+            if (due > 0) {
+                cwuPaid += requestOpc((int) Math.min(due, Integer.MAX_VALUE), false);
+                markDirty();
+            }
+        }
+        if (cwuPaid < cwuNeed && getRecipeLogic() instanceof LithoRecipeLogic logic) {
+            int duration = Math.max(1, getRecipeLogic().getDuration());
+            logic.holdProgress((int) (cwuPaid * duration / cwuNeed));
+        }
     }
 
     /** A broken structure loses its vacuum: the next time it forms it pumps down from 0. */
@@ -379,6 +420,9 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine
         coolingLapsed = false;
         opcSum = 0;
         opcTicks = 0;
+        long total = recipe.data.getInt(TOTAL_CWU_TAG);
+        cwuNeed = total * printsIn(recipe);
+        cwuPaid = 0;
         return true;
     }
 

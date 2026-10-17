@@ -28,6 +28,11 @@ public class LithoRecipeLogic extends RecipeLogic {
         return MANAGED_FIELD_HOLDER;
     }
 
+    /** Takes the run back to the given progress (the total-computation hold; never forward). */
+    public void holdProgress(int held) {
+        if (held < progress) progress = Math.max(0, held);
+    }
+
     @Override
     public void onRecipeFinish() {
         // decide before super.onRecipeFinish() puts out lastRecipe's outputs; the machine re-modifies the next run

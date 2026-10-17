@@ -36,3 +36,18 @@ ServerEvents.recipes(event => {
             .EUt(voltage)
     })
 })
+
+// Wireless computation hatches (startup_scripts/gtceu/wireless_energy.js): GT's computation hatch of the kind, a UV
+// field generator, two UV circuits, two RF Transceiver chips and a SAW Filter (the radio link) with soldering alloy.
+ServerEvents.recipes(event => {
+    ;[['receiver', 'reception', 'sensor'], ['transmitter', 'transmitter', 'emitter']].forEach(([kind, _, part]) => {
+        event.recipes.gtceu.assembler(`af9:uv_wireless_computation_${kind}`)
+            .itemInputs(`gtceu:computation_${kind}_hatch`, `2x gtceu:uv_${part}`, 'gtceu:uv_field_generator',
+                '2x #gtceu:circuits/uv', '2x af9:rf_transceiver_chip', 'af9:saw_filter_chip',
+                '2x gtceu:aluminium_nitride_dust')
+            .inputFluids(Fluid.of('gtceu:soldering_alloy', 576))
+            .itemOutputs(`gtceu:uv_wireless_computation_${kind}`)
+            .duration(600)
+            .EUt(GTValues.VA[GTValues.UV])
+    })
+})

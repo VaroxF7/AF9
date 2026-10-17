@@ -202,11 +202,14 @@ public enum LithoMode {
         return this == N1;
     }
 
-    /** Computation a print draws from a computation hatch, CWU/t (0: none): 7 nm 32, 1 nm 96. */
+    /**
+     * Computation a print needs from a computation hatch, in all (CWU per print, not per tick; 0: none): 7 nm and 1 nm
+     * 1000. The machine draws it over the run ({@link com.af9.core.machine.LithoMachine#updateTotalComputation}); a
+     * network that gives less per tick makes the run take longer. Must match TOTAL_CWU in photolithography.js.
+     */
     public int computation() {
         return switch (this) {
-            case N7 -> 32;
-            case N1 -> 96;
+            case N7, N1 -> 1000;
             default -> 0;
         };
     }
