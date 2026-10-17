@@ -48,6 +48,8 @@
     "af9.litho.light.euv_high_na.long": "high-NA EUV from a tin plasma, 13.5 nm",
     "af9.litho.light.xfel": "X-ray FEL 1nm",
     "af9.litho.light.xfel.long": "X-ray free-electron laser, 1 nm (in orbit)",
+    "af9.console.status.-1": "...",
+    "af9.orbital.hint.-1": "",
     "af9.console.status.0": "OFFLINE",
     "af9.console.status.1": "IDLE",
     "af9.console.status.2": "RUNNING",

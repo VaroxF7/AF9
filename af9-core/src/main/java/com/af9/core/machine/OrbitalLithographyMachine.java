@@ -957,8 +957,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         int before = startupTicks;
         boolean on = getRecipeLogic().isWorkingEnabled();
         long drain = pumpDrainPerInterval();
-        if (on && energyContainer != null && drain > 0 && energyContainer.getEnergyStored() >= drain) {
-            energyContainer.removeEnergy(drain);
+        if (on && drain > 0 && (getBaseAuxiliaryEUt() > 0 && getRecipeLogic().isWorking() || drawStartupPower(drain))) {
             unpoweredTicks = 0;
             startupTicks = Math.min(STARTUP_TICKS, startupTicks + VACUUM_INTERVAL);
         } else {
@@ -968,6 +967,34 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         fieldActive = on && startupTicks > 0;
         if (startupTicks != before) markDirty();
         updateFocus();
+    }
+
+    /**
+     * The start-up power of one interval: the auxiliary hatches pay it, else the primary ones. A running print pays it
+     * through the auxiliary power ({@link #getBaseAuxiliaryEUt()}), so the start-up draws nothing then.
+     */
+    private boolean drawStartupPower(long drain) {
+        if (!getAuxiliaryHatches().isEmpty()) return drawAuxiliary(drain);
+        if (energyContainer != null && energyContainer.getEnergyStored() >= drain) {
+            energyContainer.removeEnergy(drain);
+            return true;
+        }
+        return false;
+    }
+
+    /** Voltage that sets the start-up power: the auxiliary hatches', else the primary ones'. */
+    @Override
+    public long pumpDrainPerInterval() {
+        long voltage = 0;
+        for (var hatch : getAuxiliaryHatches()) voltage = Math.max(voltage, hatch.energyContainer.getInputVoltage());
+        if (voltage <= 0 && energyContainer != null) voltage = energyContainer.getHighestInputVoltage();
+        return voltage / 8 * VACUUM_INTERVAL;
+    }
+
+    /** The auxiliary hatches keep the systems up: the start-up power every tick (0 without auxiliary hatches). */
+    @Override
+    protected long getBaseAuxiliaryEUt() {
+        return isFormed() && !getAuxiliaryHatches().isEmpty() ? pumpDrainPerInterval() / VACUUM_INTERVAL : 0;
     }
 
     /** Start-up progress, 0 to 100. */

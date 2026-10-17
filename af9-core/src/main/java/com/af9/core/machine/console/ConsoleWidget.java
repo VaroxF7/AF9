@@ -34,6 +34,8 @@ public abstract class ConsoleWidget extends Widget {
             STATUS_NO_DIMENSION = 21, STATUS_ALIGNING = 22, STATUS_MK2_ONLY = 23, STATUS_STAR_TAKEN = 24,
             STATUS_NO_STAR = 25, STATUS_NO_PARTS = 26;
 
+    private int resend;
+
     protected ConsoleWidget(int x, int y, int width, int height) {
         super(x, y, width, height);
     }
@@ -52,7 +54,11 @@ public abstract class ConsoleWidget extends Widget {
     @Override
     public void detectAndSendChanges() {
         super.detectAndSendChanges();
-        if (sample()) writeUpdateInfo(1, this::writeState);
+        // also once a second whatever changed: a page the screen rebuilds (switching tabs) has no initial data on the client
+        if (sample() | ++resend >= 20) {
+            resend = 0;
+            writeUpdateInfo(1, this::writeState);
+        }
     }
 
     @Override
