@@ -151,7 +151,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
                 depth = Math.max(depth, band.d0() + band.t());
             }
             return box.minmax(new AABB(StructureSkins.at(machine.self(), -reach, -reach, 0)))
-                    .minmax(new AABB(StructureSkins.at(machine.self(), reach, reach, depth + 2)));
+                    .minmax(new AABB(StructureSkins.at(machine.self(), reach, reach, Math.max(depth + 2, 165))));
         }
         if (skin.cabinet() != null) {
             int length = Math.max(StructureSkins.lengthOf(pos), skin.cabinet().maxLength());

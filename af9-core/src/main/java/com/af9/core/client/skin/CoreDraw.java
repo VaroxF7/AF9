@@ -19,8 +19,8 @@ final class CoreDraw {
     /** The core's place, in the middle of the upper chamber, and the orbits' span. */
     private static final float CORE_Z = 30F, ORBIT_Z0 = 14F, ORBIT_Z1 = 56F;
     private static final float CX = 0.5F, CY = 0.5F;
-    /** The lance's span along the back axis: the source inside the foot chamber to the tip, some 45 blocks below the foot. */
-    private static final float LANCE_Z0 = 92F, LANCE_Z1 = 150F;
+    /** The lance's span along the back axis: from the bottom ring's level down through the foot (levels 104) and 20 beyond. */
+    private static final float LANCE_Z0 = 59F, LANCE_Z1 = 124F, FOOT_Z = 104F;
 
     private CoreDraw() {}
 
@@ -102,23 +102,26 @@ final class CoreDraw {
         float k = level * flicker;
         float r = 0.6F, g = 0.35F, b = 1F;
 
-        // the source: a glow and a turning ring inside the chamber
-        sphere(c, m, CX, CY, LANCE_Z0, 1.3F, 6, 10, r, g, b, 0.28F * k);
-        sphere(c, m, CX, CY, LANCE_Z0, 0.7F, 5, 8, 0.9F, 0.95F, 1F, 0.5F * k);
+        // the source: a glow and a turning ring at the bottom ring's level, inside the tower
+        sphere(c, m, CX, CY, LANCE_Z0, 0.9F, 6, 10, r, g, b, 0.28F * k);
+        sphere(c, m, CX, CY, LANCE_Z0, 0.45F, 5, 8, 0.9F, 0.95F, 1F, 0.5F * k);
         float a = phase * 0.08F;
-        ring(c, m, CX, CY, LANCE_Z0, Mth.cos(a), Mth.sin(a), 0, -Mth.sin(a) * 0.5F, Mth.cos(a) * 0.5F, 0.866F, 2.2F,
-                0.18F, 32, r, g, b, 0.55F * k);
+        ring(c, m, CX, CY, LANCE_Z0, Mth.cos(a), Mth.sin(a), 0, -Mth.sin(a) * 0.5F, Mth.cos(a) * 0.5F, 0.866F, 1.3F,
+                0.14F, 28, r, g, b, 0.5F * k);
 
-        // the beam: sheath and thread, strong at the nozzle and gone at the tip
-        fade(c, m, LANCE_Z0, LANCE_Z1, 0.5F, 1.15F, 10, r, g, b, 0.38F * k, 0F);
-        fade(c, m, LANCE_Z0, LANCE_Z1, 0.3F, 0.55F, 8, r, g, b, 0.3F * k, 0F);
-        fade(c, m, LANCE_Z0, LANCE_Z1 - 12F, 0.12F, 0.2F, 6, 1F, 1F, 1F, 0.8F * k, 0F);
+        // the beam: steady down the hollow, then widening and fading out 20 blocks below the foot
+        fade(c, m, LANCE_Z0, FOOT_Z, 0.42F, 0.6F, 10, r, g, b, 0.36F * k, 0.3F * k);
+        fade(c, m, FOOT_Z, LANCE_Z1, 0.6F, 1.25F, 10, r, g, b, 0.3F * k, 0F);
+        fade(c, m, LANCE_Z0, FOOT_Z, 0.26F, 0.32F, 8, r, g, b, 0.3F * k, 0.28F * k);
+        fade(c, m, FOOT_Z, LANCE_Z1, 0.32F, 0.5F, 8, r, g, b, 0.28F * k, 0F);
+        fade(c, m, LANCE_Z0, LANCE_Z1 - 4F, 0.1F, 0.16F, 6, 1F, 1F, 1F, 0.8F * k, 0F);
 
-        // shock rings leaving the nozzle, widening and fading
-        for (int i = 0; i < 6; i++) {
-            float t = (phase * 0.014F + i / 6F) % 1F;
-            float z = LANCE_Z0 + 8F + (LANCE_Z1 - LANCE_Z0 - 8F) * t;
-            disc(c, m, CX, CY, z, 0.6F + 1.3F * t, 0.2F, 14, r, g, b, 0.6F * (1F - t) * k);
+        // shock rings running down it, widening and fading
+        for (int i = 0; i < 9; i++) {
+            float t = (phase * 0.012F + i / 9F) % 1F;
+            float z = LANCE_Z0 + (LANCE_Z1 - LANCE_Z0) * t;
+            float rad = z < FOOT_Z ? 0.7F : 0.7F + 0.8F * (z - FOOT_Z) / (LANCE_Z1 - FOOT_Z);
+            disc(c, m, CX, CY, z, rad, 0.16F, 12, r, g, b, 0.6F * Mth.sin(t * Mth.PI) * k);
         }
     }
 

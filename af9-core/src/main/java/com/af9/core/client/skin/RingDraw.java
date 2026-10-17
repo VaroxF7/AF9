@@ -41,8 +41,8 @@ import java.util.Map;
  */
 final class RingDraw {
 
-    /** The speed of a ring that idles, against one that works (the rings never stop while the station is formed). */
-    private static final float IDLE_SPEED = 0.35F;
+    /** The rings' one speed (they spin up to it when the station is powered and never speed up while it works). */
+    private static final float RUN_SPEED = 0.5F;
     private static final int IDLE_COLOR = 0x6FA8FF;
 
     /** Per controller: each ring's angle (radians), the speed factor, the time of the last frame (client thread). */
@@ -53,7 +53,9 @@ final class RingDraw {
     private static final class State {
 
         float[] angle;
-        float factor = IDLE_SPEED;
+        float factor = 0F;
+        /** How hard the effects burn: eased from 0 (idle) to 1 (working). */
+        float power;
         float last = Float.NaN;
         /** The effects' clock: ticks, run on faster while the machine works. */
         float phase;
@@ -110,22 +112,21 @@ final class RingDraw {
             }
         }
         // the energy core in the tower's hollow
-        float power = Mth.clamp((state.factor - IDLE_SPEED) / (1F - IDLE_SPEED), 0F, 1F);
-        if (online) CoreDraw.draw(beams, poseStack.last().pose(), color, state.phase, power);
+        if (online) CoreDraw.draw(beams, poseStack.last().pose(), color, state.phase, state.power);
     }
 
-    /** The rings' angles now: each keeps turning from where it was, still without power, spinning up when the station is switched on and powered, faster while it works. */
+    /** The rings' angles now: each keeps turning from where it was, still without power, spinning up when the station is switched on and powered. */
     private static float[] advance(MetaMachine self, List<Band> bands, boolean working, boolean powered, float time) {
         State state = STATES.computeIfAbsent(self.getPos().asLong(), key -> new State());
         if (state.angle == null) state.angle = new float[bands.size()];
         float dt = Float.isNaN(state.last) ? 0 : Math.max(0, Math.min(time - state.last, 20));
         state.last = time;
-        // the speed eases between idling and working
-        // (still without standby power the rings stand; with it they spin up on their own once the station is formed)
-        float target = !powered ? 0F : working ? 1F : IDLE_SPEED;
-        float rate = target > state.factor && state.factor < IDLE_SPEED ? 0.012F : 0.03F;
-        state.factor += (target - state.factor) * Math.min(1F, dt * rate);
+        // without standby power the rings stand; with it they spin up on their own to one speed, whatever the machine does
+        float target = powered ? RUN_SPEED : 0F;
+        state.factor += (target - state.factor) * Math.min(1F, dt * 0.012F);
         if (target == 0F && state.factor < 0.002F) state.factor = 0F;
+        // the effects (beams, core, lance) burn brighter while it works, but nothing speeds up
+        state.power += ((working && powered ? 1F : 0F) - state.power) * Math.min(1F, dt * 0.03F);
         state.phase += dt * state.factor;
         for (int i = 0; i < state.angle.length && i < bands.size(); i++) {
             state.angle[i] = (state.angle[i] + dt * bands.get(i).spin() * state.factor) % Mth.TWO_PI;
@@ -199,7 +200,7 @@ final class RingDraw {
         for (int i = 0; i < pieces; i++) {
             float t0 = from + (to - from) * i / pieces, t1 = from + (to - from) * (i + 1) / pieces;
             // pulses running out along the beam (faster and brighter while the machine works)
-            float wave = 0.5F + 0.5F * Mth.sin(i * 0.9F - time * (working ? 0.45F : 0.15F) + side * 1.7F);
+            float wave = 0.5F + 0.5F * Mth.sin(i * 0.9F - time * 0.3F + side * 1.7F);
             float alpha = (working ? 0.35F : 0.2F) + (working ? 0.55F : 0.3F) * wave;
             for (int cross = 0; cross < 2; cross++) {
                 // two ribbons standing across each other, both along the beam: one wide across the ring's plane
