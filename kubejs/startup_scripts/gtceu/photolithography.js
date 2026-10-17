@@ -105,6 +105,7 @@ const ORBITAL_BASIC = [
 const ORBITAL_MK2 = 73          // width of the plane, the tower at its centre (36)
 const ORBITAL_MID = 36
 const ORBITAL_DEPTH = 130       // levels: the crown at the top, the open foot at the bottom (the last 25 are empty)
+const ORBITAL_TOP = 3         // levels above the controller's: the module columns on the ridge stand there
 const ORBITAL_HALF = 9          // half width of the ring collars, the beams start outside it
 const ORBITAL_RINGS = [         // d of the ring's top level, levels thick, outer radius, band width (every ring one band of casing)
     { d: 22, t: 2, r: 26, w: 4 },
@@ -180,6 +181,7 @@ const orbitalDeepInside = (d, dx, dz) => {
 var orbitalCoil = (d, along) => d > 21 && (d + along) % 9 === 0
 const orbitalTowerCell = (d, dx, dz) => {
     if (d === 0 && dx === 0 && dz === 0) return 'K'
+    if (d < 0) return ' '   // above the controller: only the module columns (orbitalModuleCell)
     if (d > 104) return ' '   // the tower ends at its foot; the plasma lance below it is drawn, not built
     if (Math.abs(dx) > 17 || Math.abs(dz) > 17) return ' '
     // the thruster shaft: the foot's chamber is open at the bottom through a 3 x 3 hole, the lance leaves it
@@ -233,7 +235,20 @@ const orbitalRingCell = (d, dx, dz) => {
     })
     return found
 }
+// the Array Mk2's module slots: four columns along the crown's ridge, two on each side of the controller, stepping down with
+// it. A column is casing ('Q'), the slot ('Y': a module controller, or nothing) and casing again, as the Space Elevator's
+// module slots (a module is a small multiblock of its own, af9-core OrbitalModuleMachine; the module needs the casings
+// above and below it). orbitalModuleY is the level of the slot's middle at each column's x. Keep in step with af9-core
+// OrbitalLithographyMachine.MODULE_SLOTS.
+const orbitalModuleY = dx => Math.abs(dx) === 4 ? -2 : Math.abs(dx) === 8 ? 1 : null
+const orbitalModuleCell = (d, dx, dz) => {
+    const y = dz === 0 ? orbitalModuleY(dx) : null
+    if (y === null || Math.abs(d - y) > 1) return ' '
+    return d === y ? 'Y' : 'Q'
+}
 const orbitalMk2Cell = (d, dx, dz) => {
+    const module = orbitalModuleCell(d, dx, dz)
+    if (module !== ' ') return module
     const tower = orbitalTowerCell(d, dx, dz)
     return tower !== ' ' ? tower : orbitalRingCell(d, dx, dz)
 }
@@ -245,7 +260,7 @@ const ORBITAL_MK2_SLICES = (() => {
     const slices = []
     Array(ORBITAL_MK2).fill(0).forEach((_, az) => {
         const aisle = []
-        Array(ORBITAL_DEPTH).fill(0).forEach((_, row) => {
+        Array(ORBITAL_DEPTH + ORBITAL_TOP).fill(0).forEach((_, row) => {
             const d = ORBITAL_DEPTH - 1 - row
             const cells = []
             Array(ORBITAL_MK2).fill(0).forEach((_, ax) => {
@@ -433,6 +448,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             ['F', Predicates.blocks(mk2 ? 'gtceu:tungsten_carbide_frame' : 'gtceu:hsss_frame')],
             ['H', Predicates.blocks(mk2 ? 'gtceu:atomic_casing' : 'gtceu:shock_proof_cutting_casing')],
             ['L', Predicates.blocks('gtceu:stress_proof_casing')],
+            // a module slot of the Array Mk2: a module (any type) or nothing; the station finds them when it forms
+            // the casing above and below a module slot: PTFE, no hatches
+            ['Q', Predicates.blocks('gtceu:inert_machine_casing')],
+            ['Y', mk2 ? $OrbitalLithographyMachine.modules().or(Predicates.air()) : Predicates.air()],
             ['C', Predicates.blocks('gtceu:nonconducting_casing')],
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview)): the track
             // chemicals through fluid input hatches, the supercooled coolant through coolant hatches, computation

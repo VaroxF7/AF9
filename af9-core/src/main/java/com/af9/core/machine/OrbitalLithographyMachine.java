@@ -20,6 +20,10 @@ import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.IRecipeHandler;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.gui.fancy.TabsWidget;
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
+import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CombinedDirectionalFancyConfigurator;
@@ -263,7 +267,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         return modified -> {
             GTRecipe cooled = modified.copy();
             List<Content> fluids = new ArrayList<>(cooled.inputs.getOrDefault(FluidRecipeCapability.CAP, List.of()));
-            fluids.add(new Content(FluidIngredient.of(coolant.fluid(), mode.coolantPerPrint()),
+            fluids.add(new Content(FluidIngredient.of(coolant.fluid(), station.coolantPerPrint(mode)),
                     ChanceLogic.getMaxChancedValue(), ChanceLogic.getMaxChancedValue(), 0));
             cooled.inputs.put(FluidRecipeCapability.CAP, fluids);
             cooled.duration = Math.max(1, (int) Math.round(cooled.duration * Math.pow(Coolant.TIME_FACTOR, steps)));
@@ -321,6 +325,30 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         int tier = station.coilTier();
         if (tier <= 0) return ModifierFunction.IDENTITY;
         return ModifierFunction.builder().durationMultiplier(coilTime(tier)).eutMultiplier(coilEnergy(tier)).build();
+    };
+
+    /**
+     * The module bonus of the Array Mk2 ({@link OrbitalModuleMachine.Kind}): shorter runs and less EU/t from the Chrono and
+     * Thrift modules, extra parallels from the Multiplex modules (before a parallel hatch's, which multiply with them).
+     * Place it after {@link #COILS} and before the parallel hatch and the overclocks.
+     */
+    public static final RecipeModifier MODULES = (machine, recipe) -> {
+        if (!(machine instanceof OrbitalLithographyMachine station)) {
+            return RecipeModifier.nullWrongType(OrbitalLithographyMachine.class, machine);
+        }
+        if (!station.isExtended() || !station.isFormed()) return ModifierFunction.IDENTITY;
+        double time = station.moduleTime();
+        double energy = station.moduleEnergy();
+        int parallels = 1;
+        if (station.moduleParallels() > 1) {
+            parallels = ParallelLogic.getParallelAmount(machine, recipe, station.moduleParallels());
+            if (parallels == 0) return ModifierFunction.NULL;
+        }
+        if (time >= 1 && energy >= 1 && parallels == 1) return ModifierFunction.IDENTITY;
+        ModifierFunction.FunctionBuilder builder = ModifierFunction.builder().durationMultiplier(time)
+                .eutMultiplier(energy * parallels);
+        if (parallels > 1) builder.modifyAllContents(ContentModifier.multiplier(parallels)).parallels(parallels);
+        return builder.build();
     };
 
     /**
@@ -534,6 +562,141 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     }
 
     //////////////////////////////////////
+    // ********* Modules *************//
+    //////////////////////////////////////
+
+    /** The id prefix of the module blocks ({@code gtceu:orbital_module_<kind>}, {@link OrbitalModuleMachine.Kind}). */
+    public static final String MODULE_PREFIX = "orbital_module_";
+    private static final String MODULE_POS_KEY = "OrbitalModulePositions";
+    /**
+     * The module slots of the Array Mk2, as offsets in the tower's frame (across the crown, levels below the controller):
+     * the ridge's steps either side of the controller. The pattern in photolithography.js (orbitalModuleSlot) has the same
+     * slots: keep them in step.
+     */
+    public static final int[][] MODULE_SLOTS = { { -8, 1 }, { -4, -2 }, { 4, -2 }, { 8, 1 } };
+
+    /** Where the modules stand that the check found (block positions as longs), as noted by {@link #modules()}. */
+    private final LongList modulePositions = new LongArrayList();
+    /** Modules of each kind that give their bonus, recounted every {@link #MODULE_RECOUNT} ticks. */
+    private final int[] moduleCount = new int[OrbitalModuleMachine.Kind.values().length];
+    private long moduleCounted = Long.MIN_VALUE / 2;
+    private static final int MODULE_RECOUNT = 20;
+
+    /**
+     * A module in a module slot, any kind: a small multiblock of its own ({@link OrbitalModuleMachine}). The check notes
+     * where they stand ({@link #onStructureFormed}); the station links them and counts the ones whose own structure
+     * stands.
+     */
+    public static TraceabilityPredicate modules() {
+        return new TraceabilityPredicate(state -> {
+            if (moduleKindOf(state.getBlockState()) == null) return false;
+            state.getMatchContext().getOrCreate(MODULE_POS_KEY, LongArrayList::new).add(state.getPos().asLong());
+            return true;
+        }, OrbitalLithographyMachine::moduleCandidates)
+                .addTooltips(Component.translatable("af9.orbital_lithography_station.pattern.module"));
+    }
+
+    private static OrbitalModuleMachine.Kind moduleKindOf(BlockState state) {
+        ResourceLocation key = ForgeRegistries.BLOCKS.getKey(state.getBlock());
+        if (key == null || !key.getNamespace().equals("gtceu")) return null;
+        return OrbitalModuleMachine.Kind.ofBlock(key.getPath());
+    }
+
+    private static BlockInfo[] moduleCandidates() {
+        return java.util.Arrays.stream(OrbitalModuleMachine.Kind.values())
+                .map(kind -> ForgeRegistries.BLOCKS.getValue(new ResourceLocation("gtceu", MODULE_PREFIX + kind.id())))
+                .filter(block -> block != null && block != Blocks.AIR)
+                .map(BlockInfo::fromBlock).toArray(BlockInfo[]::new);
+    }
+
+    private void linkModules(LongList found) {
+        unlinkModules();
+        if (found == null || getLevel() == null) return;
+        modulePositions.addAll(found);
+        for (long pos : modulePositions) {
+            if (MetaMachine.getMachine(getLevel(), BlockPos.of(pos)) instanceof OrbitalModuleMachine module) {
+                module.link(getPos().asLong());
+            }
+        }
+        moduleCounted = Long.MIN_VALUE / 2;
+    }
+
+    private void unlinkModules() {
+        if (getLevel() != null) {
+            for (long pos : modulePositions) {
+                if (MetaMachine.getMachine(getLevel(), BlockPos.of(pos)) instanceof OrbitalModuleMachine module) {
+                    module.unlink();
+                }
+            }
+        }
+        modulePositions.clear();
+        java.util.Arrays.fill(moduleCount, 0);
+    }
+
+    /** Modules of a kind that give their bonus now (their own structure stands). */
+    public int moduleCount(OrbitalModuleMachine.Kind kind) {
+        if (getLevel() == null || modulePositions.isEmpty()) return 0;
+        long now = getLevel().getGameTime();
+        if (now - moduleCounted >= MODULE_RECOUNT || now < moduleCounted) {
+            moduleCounted = now;
+            java.util.Arrays.fill(moduleCount, 0);
+            for (long pos : modulePositions) {
+                if (MetaMachine.getMachine(getLevel(), BlockPos.of(pos)) instanceof OrbitalModuleMachine module &&
+                        module.isFormed()) {
+                    moduleCount[module.getKind().ordinal()]++;
+                }
+            }
+        }
+        return moduleCount[kind.ordinal()];
+    }
+
+    public int modulesTotal() {
+        int sum = 0;
+        for (OrbitalModuleMachine.Kind kind : OrbitalModuleMachine.Kind.values()) sum += moduleCount(kind);
+        return sum;
+    }
+
+    private double moduleFactor(java.util.function.ToDoubleFunction<OrbitalModuleMachine.Kind> per) {
+        if (!extended || !isFormed()) return 1;
+        double factor = 1;
+        for (OrbitalModuleMachine.Kind kind : OrbitalModuleMachine.Kind.values()) {
+            factor *= Math.pow(per.applyAsDouble(kind), moduleCount(kind));
+        }
+        return factor;
+    }
+
+    public double moduleTime() {
+        return moduleFactor(kind -> kind.time);
+    }
+
+    public double moduleEnergy() {
+        return moduleFactor(kind -> kind.energy);
+    }
+
+    public double moduleBreak() {
+        return moduleFactor(kind -> kind.breakChance);
+    }
+
+    public double moduleCoolant() {
+        return moduleFactor(kind -> kind.coolant);
+    }
+
+    /** Parallels the Multiplex modules add (1 without them). */
+    public int moduleParallels() {
+        if (!extended || !isFormed()) return 1;
+        int parallels = 1;
+        for (OrbitalModuleMachine.Kind kind : OrbitalModuleMachine.Kind.values()) {
+            parallels += kind.parallels * moduleCount(kind);
+        }
+        return parallels;
+    }
+
+    /** Coolant (mB) a print of the mode takes: the mode's, less what the Thrift modules save. */
+    public int coolantPerPrint(LithoMode mode) {
+        return Math.max(1, (int) Math.round(mode.coolantPerPrint() * moduleCoolant()));
+    }
+
+    //////////////////////////////////////
     // ********* Array Mk2 ***********//
     //////////////////////////////////////
 
@@ -715,7 +878,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         Coolant best = mode.bestCoolant();
         if (min == null || best == null) return null;
         Map<Coolant, Long> stock = coolantStock();
-        long needed = mode.coolantPerPrint();
+        long needed = coolantPerPrint(mode);
         Coolant[] all = Coolant.values();
         for (int i = best.ordinal(); i >= min.ordinal(); i--) {
             if (stock.getOrDefault(all[i], 0L) >= needed) return all[i];
@@ -749,7 +912,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         GTRecipe run = measured ? getRecipeLogic().getLastRecipe() : null;
         Coolant coolant = run != null ? coolantOf(run) : chooseCoolant(mode);
         double cooled = coolant == null ? 1 : Math.pow(Coolant.BREAK_FACTOR, coolant.steps(mode));
-        return cooled * focusBreakFactor() * coilBreak(coilTier);
+        return cooled * focusBreakFactor() * coilBreak(coilTier) * moduleBreak();
     }
 
     //////////////////////////////////////
@@ -925,12 +1088,14 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         // the Mk2's light-strip coils are one type all over the tower (GT's coil predicate); the basic station's are fixed
         coilTier = extended && getMultiblockState().getMatchContext().get("CoilType") instanceof ICoilType coil ?
                 coil.getTier() : -1;
+        linkModules(extended ? getMultiblockState().getMatchContext().get(MODULE_POS_KEY) : null);
         markDirty();
     }
 
     @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
+        unlinkModules();
         coilTier = -1;
         fieldActive = false;
         setColumnLight(false);
