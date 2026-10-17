@@ -203,13 +203,11 @@ const orbitalTowerCell = (d, dx, dz) => {
         return d <= 80 && d % 12 === 0 ? 'C' : ' '
     }
     // the crown and the roof: plain PTFE casing all round, the hatches go on it
-    if (d <= 20 && up && d % 6 === 3 && !(east && west && north && south)) return 'F'   // a rib of frame round the crown
     if (d <= 10 || (d <= 20 && !up)) return 'O'
     const part = orbitalFin(d, dx, dz)
     if (part === 'R') return 'C'
-    if (part === 'F') return !up || !down ? 'F' : 'L'
-    // corners and the rims of plates: tungsten carbide frames
-    if ((east ? 1 : 0) + (west ? 1 : 0) + (north ? 1 : 0) + (south ? 1 : 0) <= 2) return 'F'
+    if (part === 'F') return 'L'
+    // no frame blocks on the tower's body: corners and rims are casing like the walls
     // walls: stress-proof casing columns with non-conducting panels between, a light strip (HSS-G coil) up each third
     // column, broken every 18 levels
     const along = Math.abs(!north || !south ? dx : dz)
