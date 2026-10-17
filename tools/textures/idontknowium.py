@@ -104,14 +104,11 @@ def plasma_frame(frame):
                 total += math.sin(kx * (u + 0.5 * warp) + ky * (v - 0.5 * warp) + speed * p + i)
             t = 0.5 + 0.5 * total / len(waves) * 1.9
             col = list(ramp(max(0.0, min(1.0, t)) ** 1.3))
-            # the arcs: thin bright lines where the field crosses a level
+            # the arcs: thin white-blue lightning filaments where the field crosses a level
             ridge = abs(math.sin(2.5 * total + p))
-            if ridge > 0.975:
-                col = [255, 70 + 120 * (ridge - 0.975) / 0.025, 235]
-            # magenta flares
-            flare = math.sin(3 * u + 2 * v + 2 * p) * math.sin(2 * u - 3 * v - p)
-            if flare > 0.985:
-                col = [max(col[0], 255), 90, 240]
+            if ridge > 0.96:
+                k = (ridge - 0.96) / 0.04
+                col = [150 + 105 * k, 215 + 40 * k, 255]
             px[x, y] = (clamp(col[0]), clamp(col[1]), clamp(col[2]), 255)
     return img
 
