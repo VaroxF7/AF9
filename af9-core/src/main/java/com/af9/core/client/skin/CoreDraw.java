@@ -40,7 +40,7 @@ final class CoreDraw {
         sphere(c, m, CX, CY, LANCE_Z0, 1.1F, 6, 10, r, g, b, 0.3F * k);
         sphere(c, m, CX, CY, LANCE_Z0, 0.55F, 5, 8, 0.9F, 0.95F, 1F, 0.55F * k);
         float a = phase * 0.08F;
-        ring(c, m, CX, CY, LANCE_Z0 + 0.3F, Mth.cos(a), Mth.sin(a), 0, -Mth.sin(a) * 0.5F, Mth.cos(a) * 0.5F, 1.3F,
+        ring(c, m, CX, CY, LANCE_Z0 + 0.3F, Mth.cos(a), Mth.sin(a), 0, -Mth.sin(a) * 0.5F, Mth.cos(a) * 0.5F, 0.866F, 1.3F,
                 0.14F, 28, r, g, b, 0.5F * k);
 
         // the beam: widening and fading out 20 blocks below the foot
