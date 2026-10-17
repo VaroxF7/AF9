@@ -81,7 +81,7 @@ blank patterns, view cell, quartz glass, all ten portable cells — builds in th
 at MV from processors, steel/iron plates, quartz glass, quartz fiber, crystals and
 fluix (tin/soldering-alloy pair; cables and fiber are dry single recipes).
 
-The **controller** builds at MV without a cleanroom (tin/soldering-alloy pair): 6x sky stone block + 4x good integrated circuit + 8x of one processor kind (logic, calculation or engineering, three recipes).
+The **controller** builds at MV without a cleanroom (tin/soldering-alloy pair): 6x sky stone block + 4x good integrated circuit + 8x of the `#af9:ae2_processors` tag (logic, calculation or engineering, one recipe plus the tin / soldering-alloy twin).
 
 Only the fluix base of each cable family is redefined (glass, covered, dense, smart,
 dense smart); dye variants follow. Quartz fiber is redefined (certus crystal + glass).

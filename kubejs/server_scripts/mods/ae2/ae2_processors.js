@@ -34,6 +34,11 @@ ServerEvents.recipes(event => {
         'gtceu:forming_press/aae/quantum_circuit', 'gtceu:forming_press/ae2/calculation_circuit',
         'gtceu:forming_press/megacells/accumulation_circuit', 'gtceu:forming_press/ae2/engineering_circuit'
     ].forEach(id => event.remove({ id: id }))
+    // GT's forming press circuit imports of AE2 and its addons, by id pattern and by output, in case an id differs
+    event.remove({ id: /^gtceu:forming_press\/(ae2|appflux|aae|megacells)\// })
+    ;['ae2:logic_processor', 'ae2:calculation_processor', 'ae2:engineering_processor', 'appflux:energy_processor',
+        'advanced_ae:quantum_processor', 'megacells:accumulation_processor'
+    ].forEach(out => event.remove({ type: 'gtceu:forming_press', output: out }))
 
     // ---- Other mods' printed silicon recipes (ExtendedAE cutter, GT forming press) ----
     event.remove({ id: 'expatternprovider:cutter/silicon' })
@@ -83,4 +88,9 @@ ServerEvents.recipes(event => {
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
             .itemOutputs(`ae2:${out}`).duration(ticks).EUt(MV)
     })
+})
+
+// One tag for the three AE2 processors: recipes that take "a processor of choice" use it instead of a recipe per kind
+ServerEvents.tags('item', event => {
+    event.add('af9:ae2_processors', ['ae2:logic_processor', 'ae2:calculation_processor', 'ae2:engineering_processor'])
 })
