@@ -110,7 +110,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         TowerDraw.clear();
     }
 
-    private static final int RING_VIEW_DISTANCE = 256;
+    private static final int RING_VIEW_DISTANCE = 192; // 12 chunks
 
     @Override
     public DynamicRenderType<IMultiController, StructureSkinRender> getType() {
@@ -122,11 +122,19 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         return RING_VIEW_DISTANCE;
     }
 
-    /** The tower's rings are seen from far off (the tower is 130 blocks tall, the big ring 72 across); the rest from 112. */
+    /** The tower's rings are seen from up to 12 chunks off (the tower is 130 blocks tall, the big ring 72 across); the rest from 112. */
     @Override
     public boolean shouldRender(IMultiController machine, Vec3 cameraPos) {
         StructureSkin skin = StructureSkins.skinOf(machine.self().getDefinition());
-        int distance = skin != null && skin.rings() != null ? RING_VIEW_DISTANCE : 112;
+        if (skin != null && skin.rings() != null) {
+            // 12 chunks to the nearest point of the whole tower, so a player under the foot still sees it
+            AABB box = getRenderBoundingBox(machine);
+            double dx = Math.max(Math.max(box.minX - cameraPos.x, 0), cameraPos.x - box.maxX);
+            double dy = Math.max(Math.max(box.minY - cameraPos.y, 0), cameraPos.y - box.maxY);
+            double dz = Math.max(Math.max(box.minZ - cameraPos.z, 0), cameraPos.z - box.maxZ);
+            return dx * dx + dy * dy + dz * dz <= (double) RING_VIEW_DISTANCE * RING_VIEW_DISTANCE;
+        }
+        int distance = 112;
         return Vec3.atCenterOf(machine.self().getPos()).closerThan(cameraPos, distance);
     }
 
