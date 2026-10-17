@@ -237,15 +237,14 @@ const orbitalRingCell = (d, dx, dz) => {
     })
     return found
 }
-// the Array Mk2's module slots: fourteen columns on the crown's roof, four along the ridge (two each side of the controller)
-// and five on each side of it, every one standing on the roof's surface at its place. A column is casing ('Q'), the slot
+// the Array Mk2's module slots: six columns on the crown's roof, three on each side of the ridge (in front of the controller and behind it),
+// every one standing on the roof's surface at its place. A column is casing ('Q'), the slot
 // ('Y': a module controller, or nothing) and casing again, as the Space Elevator's module slots (a module is a small
 // multiblock of its own, af9-core OrbitalModuleMachine; the module needs the casing above and below it). The Array takes
 // 6 Parallel Processing Computers, 6 Energy Efficiency Modules, 2 Evaporation Stacks and 1 Sequencer at most.
 const orbitalModuleSlots = (() => {
     const slots = []
-    ;[-8, -4, 4, 8].forEach(dx => slots.push([dx, 0]))
-    ;[-2, 2].forEach(dz => [-8, -4, 0, 4, 8].forEach(dx => slots.push([dx, dz])))
+    ;[-2, 2].forEach(dz => [-4, 0, 4].forEach(dx => slots.push([dx, dz])))
     return slots
 })()
 // the level of the slot's middle: two above the roof's surface there

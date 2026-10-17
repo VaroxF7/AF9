@@ -727,7 +727,7 @@
     "af9.orbital_lithography_station.tooltip.30": "§7Runs the §f1nm§7 prints; has beam focus and a coil bonus.",
     "af9.orbital_lithography_station.tooltip.31": "§7No parallel hatch: §fmodules§7 on the crown's roof give",
     "af9.orbital_lithography_station.tooltip.32": "§7parallels, less energy, speed and less auxiliary power.",
-    "af9.orbital_lithography_station.tooltip.33": "§7Up to §f14 modules§7: 6 Parallel, 6 Efficiency, 2 Stack, 1 Sequencer.",
+    "af9.orbital_lithography_station.tooltip.33": "§76 module slots, 3 on each side of the roof.",
     "af9.orbital_lithography_station.pattern.module": "§7Array Mk2 module slot: an Orbital Array module or nothing",
     "af9.orbital_module_parallel.tooltip.0": "§7Module of the §dOrbital Lithography Array Mk2§7.",
     "af9.orbital_module_parallel.tooltip.1": " ",
