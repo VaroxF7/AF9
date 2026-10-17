@@ -64,7 +64,7 @@ def star_frame(frame, radius, beam):
                 # the surface: hot at the middle, swirling bands
                 heat = 1.0 - (d / radius) ** 1.4
                 heat += 0.18 * math.sin(3 * angle + phase * 2 + d * 1.3) * (1 - heat)
-                col = ramp(heat)
+                col = magenta_ramp(heat)
                 r, g, b, a = col[0], col[1], col[2], 255
             # the pulsar's two beams, turning with the frames
             for k in (0, 1):
@@ -75,11 +75,11 @@ def star_frame(frame, radius, beam):
                     if strength > 0.12:
                         mix = clamp(255 * min(1.0, strength))
                         if a < mix:
-                            r, g, b, a = 150 + 90 * min(1.0, strength), 235, 255, mix
+                            r, g, b, a = 200 + 55 * min(1.0, strength), 120 + 70 * min(1.0, strength), 245, mix
             # the shell of arcs
             arc = radius + 1.4 + 0.5 * math.sin(4 * angle - phase * 2)
             if abs(d - arc) < 0.55 and a < 200:
-                r, g, b, a = 255, 60, 220, 190
+                r, g, b, a = 255, 150, 245, 190
             if a > 0:
                 px[x, y] = (clamp(r), clamp(g), clamp(b), clamp(a))
     # sparks
@@ -88,7 +88,7 @@ def star_frame(frame, radius, beam):
         sx = int(c + (radius + 2.5) * math.cos(phase * (1 + i) + i * 2.1))
         sy = int(c + (radius + 2.5) * math.sin(phase * (1 + i) + i * 2.1))
         if 0 <= sx < 16 and 0 <= sy < 16 and s % 2 == 0:
-            px[sx, sy] = (255, 120, 240, 230)
+            px[sx, sy] = (255, 200, 250, 230)
     return img
 
 

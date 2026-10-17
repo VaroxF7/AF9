@@ -854,7 +854,7 @@ public final class AF9Materials {
                 .dust()
                 // its own animated texture (fluid.idontknowium_plasma.png), no tint on top of it; tools/textures/idontknowium.py
                 .plasma(new FluidBuilder().state(FluidState.PLASMA).temperature(12000).customStill().disableColor())
-                .color(0x28aaff).secondaryColor(0xff3cd2)
+                .color(0xc01ec8).secondaryColor(0xf55aeb)
                 .iconSet(IDONTKNOWIUM)
                 .formula("Idk"));
     }
