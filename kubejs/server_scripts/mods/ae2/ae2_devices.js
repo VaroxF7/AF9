@@ -228,12 +228,10 @@ ServerEvents.recipes(event => {
         mv(id, inputs, out, ticks)
     })
 
-    // ---- Controller (MV, no cleanroom): 4 MV circuits + 8 processors of choice (logic, calculation or engineering) ----
+    // ---- Controller (MV, no cleanroom): 4 MV circuits + 8 processors of choice (the af9:ae2_processors tag) ----
     remove('ae2:controller')
-    ;['logic', 'calculation', 'engineering'].forEach(kind => {
-        mv(`ae2_controller_${kind}`, ['6x ae2:sky_stone_block', '4x gtceu:good_integrated_circuit',
-            `8x ae2:${kind}_processor`], 'ae2:controller', 400)
-    })
+    mv('ae2_controller', ['6x ae2:sky_stone_block', '4x gtceu:good_integrated_circuit',
+        '8x #af9:ae2_processors'], 'ae2:controller', 400)
 
     // ---- Cables (dry): only the fluix base of each family; dye variants follow ----
     const cables = [
