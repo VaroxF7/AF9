@@ -25,6 +25,7 @@ GTCEu release), `-Paf9RequireFork` fails the build where the fork is missing.
   recipes"; any other error in a recipe script ends that script only (`Error in recipe script ...`).
 * `0004`-`0008` Hidden machines, auxiliary power (energy hatch modes, Power Management tab), Assembly Line laser hatch.
 * `0009` Fusion reactors: no start buffer or heat; constant auxiliary standby power (4 A) and running power (1 A) instead.
+* `0011` The multiblock preview zooms out to fit a structure over 40 blocks (the scene clipped the Mk2 tower to a third of itself).
 
 ## Changing the fork
 
