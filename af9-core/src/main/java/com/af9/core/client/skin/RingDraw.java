@@ -89,9 +89,6 @@ final class RingDraw {
         int color = working && self instanceof ILightRingMachine ring ? ring.getRingColor() : IDLE_COLOR;
         float time = level.getGameTime() + partialTick;
 
-        // the tower's white shell, entity shader, lit by the normals (the sky of the orbit is the light)
-        VertexConsumer solid = buffer.getBuffer(RenderType.entityCutoutNoCull(AF9RenderTypes.WHITE));
-        TowerDraw.draw(self.getPos().asLong(), solid, poseStack.last(), overlay);
         // the rings: their own blocks, drawn with their own models turning about the tower (RingBlocks)
         VertexConsumer blocks = buffer.getBuffer(RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS));
         for (int i = 0; i < bands.size(); i++) {
