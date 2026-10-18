@@ -135,17 +135,17 @@ def sheen(base, x, y, amp=0.12):
 def truss_field(sprite, x, y):
     """The Truss's field: smooth steel-blue panels with a diagonal sheen that runs on through the blocks and a faint joint
     where two panels meet (every 16 px, in the middle of a block)."""
-    px = sheen((58, 74, 102), x, y)
+    px = sheen((52, 62, 80), x, y, 0.08)
     if x % 16 == 8 or y % 16 == 8:
-        return shade(px, 0.7)
+        return shade(px, 0.84)
     if x % 16 == 9 or y % 16 == 9:
-        return shade(px, 1.12)
+        return shade(px, 1.06)
     return px
 
 
 def girder_field(sprite, x, y):
     """The Girder's field: graphite diamond plate (short ribs, 4 px, turning every other cell), as on gangways."""
-    base = sheen((54, 56, 66), x, y, 0.08)
+    base = sheen((50, 52, 59), x, y, 0.05)
     u, v = x % 4, y % 4
     if (x // 4 + y // 4) % 2:
         rib = u + v == 3
@@ -154,15 +154,15 @@ def girder_field(sprite, x, y):
         rib = u == v
         shadow = u - v == 1
     if rib:
-        return shade(base, 1.75)
+        return shade(base, 1.24)
     if shadow:
-        return shade(base, 0.6)
+        return shade(base, 0.82)
     return base
 
 
 FRAMES = {                       # (outermost px, bevel top / left, bevel bottom / right, inner groove)
-    'truss': ((14, 18, 28), (112, 132, 166), (38, 48, 68), (24, 30, 44)),
-    'girder': ((11, 12, 15), (122, 126, 140), (34, 36, 44), (22, 23, 28)),
+    'truss': ((18, 21, 28), (82, 94, 116), (36, 42, 54), (28, 33, 43)),
+    'girder': ((16, 17, 20), (84, 87, 96), (34, 36, 42), (26, 27, 32)),
 }
 
 
