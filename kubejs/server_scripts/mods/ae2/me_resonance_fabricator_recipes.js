@@ -5,7 +5,7 @@
 //
 // Differences from TFG: Cryogenized Fluix (and Fluix) become Liquid Certus Quartz (their amounts added together), the
 // TFC workbench tag becomes a Crafting Table, the material info is not generated, and the three Spatial Cell Components
-// (they need TFG's UV LEDs) are left out. Each section is guarded by its mod ids. Ids: af9:me_assembler/<mod>/<name>.
+// (they need TFG's UV LEDs) are left out. Each section is guarded by its mod ids. Ids: af9:<mod>/<name> (GregTech prefixes the type, af9:me_assembler/<mod>/<name>).
 // The recipes overlap with the pack's own MV AE2 chain (ae2_*.js); these are the Fabricator's faster, Moon-bound routes.
 // Machine: kubejs/startup_scripts/gtceu/me_resonance_fabricator.js
 
@@ -13,7 +13,7 @@ const $OxygenatedCondition = Java.loadClass('com.af9.core.common.OxygenatedCondi
 
 ServerEvents.recipes(event => {
     // AE2
-    event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/crafting_card')
+    event.recipes.gtceu.me_assembler('af9:tfg/crafting_card')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs('1x ae2:basic_card', '4x ae2:cell_component_16k', '4x minecraft:crafting_table')
         .itemOutputs('ae2:crafting_card')
@@ -22,7 +22,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(9)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/ae2/energy_cell')
+    event.recipes.gtceu.me_assembler('af9:tfg/ae2/energy_cell')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs('gtceu:titanium_frame', '6x gtceu:titanium_plate', '6x gtceu:titanium_screw', 'gtceu:energy_crystal')
         .itemOutputs('ae2:energy_cell')
@@ -31,7 +31,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(8)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/ae2/dense_energy_cell')
+    event.recipes.gtceu.me_assembler('af9:tfg/ae2/dense_energy_cell')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs('8x ae2:energy_cell', '8x gtceu:silver_quadruple_wire', '4x #gtceu:circuits/ev')
         .itemOutputs('ae2:dense_energy_cell')
@@ -40,11 +40,11 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(9)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/blank_pattern_pvc')
+    event.recipes.gtceu.me_assembler('af9:ae2/blank_pattern_pvc')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '3x #forge:plates/steel',
-            '2x #forge:sheets/polyvinyl_chloride',
+            '2x #forge:plates/polyvinyl_chloride',
             '4x #forge:fine_wires/red_alloy',
             '#gtceu:circuits/mv')
         .itemOutputs('4x ae2:blank_pattern')
@@ -53,11 +53,11 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(1)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/blank_pattern_ptfe')
+    event.recipes.gtceu.me_assembler('af9:ae2/blank_pattern_ptfe')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '3x #forge:plates/steel',
-            '2x #forge:sheets/polytetrafluoroethylene',
+            '2x #forge:plates/polytetrafluoroethylene',
             '4x #forge:fine_wires/red_alloy',
             '#gtceu:circuits/hv')
         .itemOutputs('16x ae2:blank_pattern')
@@ -66,11 +66,11 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(2)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/blank_pattern_pbi')
+    event.recipes.gtceu.me_assembler('af9:ae2/blank_pattern_pbi')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '3x #forge:plates/steel',
-            '2x #forge:sheets/polybenzimidazole',
+            '2x #forge:plates/polybenzimidazole',
             '4x #forge:fine_wires/red_alloy',
             '#gtceu:circuits/ev')
         .itemOutputs('64x ae2:blank_pattern')
@@ -79,10 +79,10 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(3)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/annihilation_core_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/annihilation_core_moon')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
-            '1x #forge:rods/certus_quartz',
+            '1x ae2:certus_quartz_crystal',
             '1x ae2:engineering_processor',
             '#forge:gems/quartzite')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
@@ -92,10 +92,10 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(1)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/annihilation_core_moon_bulk')
+    event.recipes.gtceu.me_assembler('af9:ae2/annihilation_core_moon_bulk')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
-            '1x #forge:rods/certus_quartz',
+            '1x ae2:certus_quartz_crystal',
             '1x ae2:engineering_processor',
             '#forge:gems/quartzite')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
@@ -105,10 +105,10 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(2)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/formation_core_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/formation_core_moon')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
-            '1x #forge:rods/nether_quartz',
+            '1x minecraft:quartz',
             '1x ae2:engineering_processor',
             '#forge:gems/quartzite')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
@@ -118,10 +118,10 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(3)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/formation_core_moon_bulk')
+    event.recipes.gtceu.me_assembler('af9:ae2/formation_core_moon_bulk')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
-            '1x #forge:rods/nether_quartz',
+            '1x minecraft:quartz',
             '1x ae2:engineering_processor',
             '#forge:gems/quartzite')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
@@ -131,7 +131,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(4)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/cell_component_1k')
+    event.recipes.gtceu.me_assembler('af9:ae2/cell_component_1k')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '2x #gtceu:circuits/lv',
@@ -145,7 +145,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(1)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/cell_component_4k')
+    event.recipes.gtceu.me_assembler('af9:ae2/cell_component_4k')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '2x #gtceu:circuits/hv',
@@ -160,7 +160,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(2)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/cell_component_16k')
+    event.recipes.gtceu.me_assembler('af9:ae2/cell_component_16k')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '2x #gtceu:circuits/ev',
@@ -175,7 +175,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(3)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/cell_component_64k')
+    event.recipes.gtceu.me_assembler('af9:ae2/cell_component_64k')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '2x #gtceu:circuits/iv',
@@ -190,7 +190,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(4)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/cell_component_256k')
+    event.recipes.gtceu.me_assembler('af9:ae2/cell_component_256k')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '2x #gtceu:circuits/luv',
@@ -207,7 +207,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(5)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/storage_bus')
+    event.recipes.gtceu.me_assembler('af9:ae2/storage_bus')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '#ae2:interface',
@@ -220,7 +220,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(1)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/storage_bus_moon_bulk')
+    event.recipes.gtceu.me_assembler('af9:ae2/storage_bus_moon_bulk')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '#ae2:interface',
@@ -233,7 +233,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(2)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/import_bus')
+    event.recipes.gtceu.me_assembler('af9:ae2/import_bus')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '#forge:plates/stainless_steel',
@@ -247,7 +247,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(6)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/export_bus')
+    event.recipes.gtceu.me_assembler('af9:ae2/export_bus')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '#forge:plates/stainless_steel',
@@ -261,7 +261,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(6)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/crafting_unit')
+    event.recipes.gtceu.me_assembler('af9:ae2/crafting_unit')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'ae2:logic_processor',
@@ -276,7 +276,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(4)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/crafting_unit_bulk')
+    event.recipes.gtceu.me_assembler('af9:ae2/crafting_unit_bulk')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'ae2:logic_processor',
@@ -291,7 +291,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(2)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/molecular_assembler_hv')
+    event.recipes.gtceu.me_assembler('af9:ae2/molecular_assembler_hv')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '1x #gtceu:circuits/hv',
@@ -307,7 +307,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(1)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/molecular_assembler_iv')
+    event.recipes.gtceu.me_assembler('af9:ae2/molecular_assembler_iv')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '1x #gtceu:circuits/ev',
@@ -323,7 +323,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(2)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/controller')
+    event.recipes.gtceu.me_assembler('af9:tfg/controller')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '8x ae2:engineering_processor',
@@ -337,7 +337,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(7)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/controller_shulker')
+    event.recipes.gtceu.me_assembler('af9:tfg/controller_shulker')
         .itemInputs(
             '8x ae2:engineering_processor',
             '2x #gtceu:circuits/hv',
@@ -350,7 +350,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(7)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/interface_mv_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/interface_mv_moon')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'gtceu:mv_conveyor_module',
@@ -365,7 +365,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(1)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/interface_iv_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/interface_iv_moon')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'gtceu:iv_conveyor_module',
@@ -380,7 +380,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(2)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/pattern_provider_mv_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/pattern_provider_mv_moon')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'gtceu:mv_robot_arm',
@@ -395,7 +395,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(3)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/pattern_provider_iv_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/pattern_provider_iv_moon')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'gtceu:iv_robot_arm',
@@ -410,7 +410,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(3)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/logic_processor')
+    event.recipes.gtceu.me_assembler('af9:ae2/logic_processor')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'ae2:printed_silicon',
@@ -425,7 +425,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(1)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/logic_processor_bulk')
+    event.recipes.gtceu.me_assembler('af9:ae2/logic_processor_bulk')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '2x ae2:printed_silicon',
@@ -440,7 +440,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(2)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/calculation_processor')
+    event.recipes.gtceu.me_assembler('af9:ae2/calculation_processor')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'ae2:printed_silicon',
@@ -455,7 +455,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(3)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/calculation_processor_bulk')
+    event.recipes.gtceu.me_assembler('af9:ae2/calculation_processor_bulk')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '2x ae2:printed_silicon',
@@ -470,7 +470,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(4)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/engineering_processor')
+    event.recipes.gtceu.me_assembler('af9:ae2/engineering_processor')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'ae2:printed_silicon',
@@ -485,7 +485,7 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(5)
 
-    event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/engineering_processor_bulk')
+    event.recipes.gtceu.me_assembler('af9:ae2/engineering_processor_bulk')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '2x ae2:printed_silicon',
@@ -501,7 +501,7 @@ ServerEvents.recipes(event => {
         .circuit(6)
     // expatternprovider
     if (Platform.isLoaded('expatternprovider')) {
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/tag_export_bus')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/tag_export_bus')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'expatternprovider:ex_export_bus_part',
@@ -513,7 +513,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(1)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/tag_storage_bus')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/tag_storage_bus')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'ae2:storage_bus',
@@ -525,7 +525,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(2)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/mod_export_bus')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/mod_export_bus')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'ae2:export_bus',
@@ -537,7 +537,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(3)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/mod_storage_bus')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/mod_storage_bus')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'ae2:storage_bus',
@@ -549,7 +549,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(3)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/precise_export_bus')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/precise_export_bus')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'ae2:export_bus',
@@ -561,7 +561,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(4)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/precise_storage_bus')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/precise_storage_bus')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'ae2:storage_bus',
@@ -573,7 +573,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(4)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/threshold_level_emitter')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/threshold_level_emitter')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'ae2:level_emitter',
@@ -585,7 +585,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(9)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/ex_molecular_assembler_iv')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_molecular_assembler_iv')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '2x #gtceu:circuits/iv',
@@ -601,7 +601,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(5)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/ex_molecular_assembler_zpm')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_molecular_assembler_zpm')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '2x #gtceu:circuits/zpm',
@@ -617,7 +617,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(6)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/ingredient_buffer')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/ingredient_buffer')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs('gtceu:hv_buffer', 'ae2:cell_component_1k')
             .itemOutputs('expatternprovider:ingredient_buffer')
@@ -626,7 +626,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(8)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/assembler_matrix_wall_luv')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_wall_luv')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '#forge:frames/polytetrafluoroethylene',
@@ -640,7 +640,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(1)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/assembler_matrix_glass')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_glass')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '#forge:frames/polytetrafluoroethylene',
@@ -656,7 +656,7 @@ ServerEvents.recipes(event => {
     }
     // expatternprovider, megacells
     if (Platform.isLoaded('expatternprovider') && Platform.isLoaded('megacells')) {
-        event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/ex_interface_iv_moon')
+        event.recipes.gtceu.me_assembler('af9:tfg/ex_interface_iv_moon')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:iv_conveyor_module',
@@ -673,7 +673,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(5)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/ex_interface_zpm_cr')
+        event.recipes.gtceu.me_assembler('af9:tfg/ex_interface_zpm_cr')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:zpm_conveyor_module',
@@ -690,7 +690,7 @@ ServerEvents.recipes(event => {
             .circuit(6)
             .dimension('ad_astra:moon')
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/interface_upgrade_iv_moon')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/interface_upgrade_iv_moon')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:iv_conveyor_module',
@@ -706,7 +706,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(6)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/interface_upgrade_zpm')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/interface_upgrade_zpm')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:zpm_conveyor_module',
@@ -722,7 +722,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(5)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/oversize_interface_iv_moon')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/oversize_interface_iv_moon')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '1x #expatternprovider:extended_interface',
@@ -738,7 +738,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(7)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/oversize_interface_zpm')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/oversize_interface_zpm')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '8x #expatternprovider:extended_interface',
@@ -754,7 +754,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(8)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/ex_pattern_provider_iv')
+        event.recipes.gtceu.me_assembler('af9:tfg/ex_pattern_provider_iv')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:iv_robot_arm',
@@ -771,7 +771,7 @@ ServerEvents.recipes(event => {
             .circuit(5)
             .dimension('ad_astra:moon')
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/ex_pattern_provider_zpm')
+        event.recipes.gtceu.me_assembler('af9:tfg/ex_pattern_provider_zpm')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:zpm_robot_arm',
@@ -788,7 +788,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(6)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/pattern_provider_upgrade_iv_moon')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/pattern_provider_upgrade_iv_moon')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:iv_robot_arm',
@@ -804,7 +804,7 @@ ServerEvents.recipes(event => {
             .circuit(6)
             .dimension('ad_astra:moon')
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/pattern_provider_upgrade_zpm')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/pattern_provider_upgrade_zpm')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:zpm_robot_arm',
@@ -820,7 +820,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(5)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/ex_import_bus_part')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_import_bus_part')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '1x #forge:plates/titanium',
@@ -834,7 +834,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(1)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/ex_export_bus_part')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_export_bus_part')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '1x #forge:plates/titanium',
@@ -848,7 +848,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(2)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/threshold_export_bus')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/threshold_export_bus')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'ae2:export_bus',
@@ -860,7 +860,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(4)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/active_formation_plane')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/active_formation_plane')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'ae2:formation_plane',
@@ -872,7 +872,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(8)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/wireless_connect')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/wireless_connect')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '2x gtceu:iv_machine_casing',
@@ -888,7 +888,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(9)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/ex_io_port')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_io_port')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:ev_machine_casing',
@@ -903,7 +903,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(8)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/ex_drive')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_drive')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:ev_machine_casing',
@@ -918,7 +918,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(9)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/drive_upgrade')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/drive_upgrade')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:ev_machine_casing',
@@ -932,7 +932,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(8)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/assembler_matrix_frame_moon')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_frame_moon')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '8x gtceu:plascrete',
@@ -950,7 +950,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(9)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/assembler_matrix_pattern')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_pattern')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '#expatternprovider:extended_pattern_provider',
@@ -967,7 +967,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(7)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/assembler_matrix_crafter')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_crafter')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 "#expatternprovider:oversize_interface",
@@ -984,7 +984,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(7)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/expatternprovider/assembler_matrix_speed_luv')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_speed_luv')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 "megacells:mega_crafting_accelerator",
@@ -1003,7 +1003,7 @@ ServerEvents.recipes(event => {
     }
     // expatternprovider, megacells, merequester
     if (Platform.isLoaded('expatternprovider') && Platform.isLoaded('megacells') && Platform.isLoaded('merequester')) {
-        event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/merequester/merequester')
+        event.recipes.gtceu.me_assembler('af9:tfg/merequester/merequester')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'expatternprovider:ex_pattern_provider',
@@ -1021,7 +1021,7 @@ ServerEvents.recipes(event => {
     }
     // megacells
     if (Platform.isLoaded('megacells')) {
-        event.recipes.gtceu.me_assembler('af9:me_assembler/megacells/mega_energy_cell')
+        event.recipes.gtceu.me_assembler('af9:megacells/mega_energy_cell')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs('8x ae2:dense_energy_cell', '8x gtceu:nichrome_quadruple_wire', '4x #gtceu:circuits/iv')
             .itemOutputs('megacells:mega_energy_cell')
@@ -1030,7 +1030,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(9)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/mega_pattern_provider')
+        event.recipes.gtceu.me_assembler('af9:tfg/mega_pattern_provider')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:ev_robot_arm',
@@ -1049,7 +1049,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(3)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/accumulation_processor')
+        event.recipes.gtceu.me_assembler('af9:ae2/accumulation_processor')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'ae2:printed_silicon',
@@ -1064,7 +1064,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(1)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/ae2/accumulation_processor_cr')
+        event.recipes.gtceu.me_assembler('af9:ae2/accumulation_processor_cr')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'ae2:printed_silicon',
@@ -1079,7 +1079,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(2)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/megacells/mega_item_cell_housing')
+        event.recipes.gtceu.me_assembler('af9:megacells/mega_item_cell_housing')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '1x #gtceu:circuits/iv',
@@ -1097,7 +1097,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(6)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/megacells/mega_fluid_cell_housing')
+        event.recipes.gtceu.me_assembler('af9:megacells/mega_fluid_cell_housing')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '1x #gtceu:circuits/iv',
@@ -1115,7 +1115,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(6)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/megacells/cell_component_1m')
+        event.recipes.gtceu.me_assembler('af9:megacells/cell_component_1m')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '4x #gtceu:circuits/zpm',
@@ -1137,7 +1137,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(6)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/megacells/cell_component_4m')
+        event.recipes.gtceu.me_assembler('af9:megacells/cell_component_4m')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '4x #gtceu:circuits/uv',
@@ -1159,7 +1159,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(7)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/megacells/cell_component_16m')
+        event.recipes.gtceu.me_assembler('af9:megacells/cell_component_16m')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '4x #gtceu:circuits/uhv',
@@ -1182,7 +1182,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(8)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/megacells/cell_component_64m')
+        event.recipes.gtceu.me_assembler('af9:megacells/cell_component_64m')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '8x #gtceu:circuits/uhv',
@@ -1205,7 +1205,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(9)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/megacells/mega_crafting_unit')
+        event.recipes.gtceu.me_assembler('af9:megacells/mega_crafting_unit')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '4x megacells:accumulation_processor',
@@ -1222,7 +1222,7 @@ ServerEvents.recipes(event => {
             .dimension('ad_astra:moon')
             .circuit(3)
 
-        event.recipes.gtceu.me_assembler('af9:me_assembler/tfg/me_pattern_buffer_proxy')
+        event.recipes.gtceu.me_assembler('af9:tfg/me_pattern_buffer_proxy')
             .itemInputs(
                 'gtceu:luv_machine_hull',
                 '2x gtceu:luv_sensor',
