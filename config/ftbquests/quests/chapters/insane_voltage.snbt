@@ -5,7 +5,7 @@
 	group: "1DA67E79B40AB130"
 	icon: "gtceu:micro_processor_mainframe"
 	id: "00E59A3B38CB7EEA"
-	order_index: 6
+	order_index: 7
 	progression_mode: "flexible"
 	quest_links: [
 		{
@@ -25,6 +25,12 @@
 			linked_quest: "252CAC018BD24ABB"
 			x: -11.3d
 			y: 10.0d
+		}
+		{
+			id: "0339ECF95DE7C615"
+			linked_quest: "7B7D79E0976AE710"
+			x: -9.5d
+			y: 2.5d
 		}
 	]
 	quests: [
@@ -196,34 +202,6 @@
 			}]
 			x: -7.0d
 			y: 0.8000000000000003d
-		}
-		{
-			dependencies: ["540B4CE165EE4D5B"]
-			description: ["{atm9.quest.gregtech.iv.desc.tungstenUsage}"]
-			icon: "gtceu:tungsten_ingot"
-			id: "08D48D7C2C6EEF54"
-			rewards: [{
-				count: 8
-				id: "219B073AAA2814B2"
-				item: "gtceu:tungsten_ingot"
-				random_bonus: 4
-				type: "item"
-			}]
-			tasks: [{
-				icon: "gtceu:tungsten_ingot"
-				id: "36397CBA6D39DC0D"
-				item: {
-					Count: 1
-					id: "itemfilters:tag"
-					tag: {
-						value: "forge:ingots/tungsten"
-					}
-				}
-				title: "{atm9.quest.gregtech.iv.tungstenIngot}"
-				type: "item"
-			}]
-			x: -9.67142857142858d
-			y: 2.3392857142857153d
 		}
 		{
 			dependencies: [
@@ -2582,15 +2560,16 @@
 			y: -3.4999999999999996d
 		}
 		{
-			dependencies: ["4632DA3CE9D95064"]
+			dependencies: [
+				"4632DA3CE9D95064"
+				"21DF1C6B8761F0F3"
+			]
 			description: [
 				"{atm9.quest.gregtech.iv.desc.iridiumOre.1}"
 				""
 				"{atm9.quest.gregtech.iv.desc.iridiumOre.2}"
 			]
-			hide_dependency_lines: true
 			id: "2EE52FD7129D3D87"
-			optional: true
 			rewards: [{
 				count: 8
 				id: "2BB47D5128FF5D50"
@@ -2604,7 +2583,7 @@
 				item: "gtceu:rarest_metal_mixture_dust"
 				type: "item"
 			}]
-			x: 3.5d
+			x: 4.5d
 			y: -2.5d
 		}
 		{
@@ -2690,73 +2669,29 @@
 			y: -4.5d
 		}
 		{
-			can_repeat: false
-			description: [
-				"This Quest has been authored by &6AllTheMods Staff&r, or a &2Community contributor&r for use in AllTheMods Modpacks."
-				"As all &6AllTheMods&r packs are licensed under &eAll Rights Reserved&r, this Quest is not allowed to be used in any public packs not released by the &6AllTheMods Team&r, without explicit permission."
-				""
-				""
-				""
-				"This quest is intentionally hidden, if you're seeing this, you're in editing mode."
-			]
-			disable_toast: true
-			hide_details_until_startable: true
-			hide_until_deps_visible: true
-			icon: {
-				Count: 1
-				id: "ftbquests:custom_icon"
-				tag: {
-					Icon: "minecraft:item/barrier"
-				}
-			}
-			id: "0D0EE0D7770F7B5C"
-			invisible: true
-			optional: true
-			shape: "octagon"
-			tasks: [
-				{
-					disable_toast: true
-					id: "5F01CDDCA2549DC3"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-				{
-					id: "78FED3ADEBDCD785"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-			]
-			x: -7.0d
-			y: 4.5d
+			dependencies: ["7B7D79E0976AE710"]
+			id: "18F437B2BDE05B13"
+			tasks: [{
+				id: "3C281B5015808CE7"
+				item: "gtceu:ev_large_miner"
+				type: "item"
+			}]
+			x: -9.5d
+			y: 4.0d
 		}
 		{
-			description: ["{af9.quest.iv.metals}"]
-			id: "30C5810673F9AFE6"
-			rewards: [{
-				id: "36493D816F3F0AFC"
-				type: "xp"
-				xp: 100
+			id: "21DF1C6B8761F0F3"
+			tasks: [{
+				id: "4896C2572431B914"
+				item: {
+					Count: 1
+					id: "ad_astra:tier_3_rocket"
+					tag: { }
+				}
+				type: "item"
 			}]
-			tasks: [
-				{
-					id: "44EB749C2F0FE5E7"
-					item: "gtceu:fine_tungsten_steel_wire"
-					type: "item"
-				}
-				{
-					id: "449964B3C76CC2A3"
-					item: "gtceu:tungsten_single_wire"
-					type: "item"
-				}
-				{
-					id: "66232B7B0DE7AA8A"
-					item: "gtceu:tungsten_steel_frame"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.title.ivMetals}"
-			x: -8.0d
-			y: 4.5d
+			x: 4.5d
+			y: -8.0d
 		}
 	]
 	title: "{atm9.chapters.31.title}"
