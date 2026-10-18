@@ -463,14 +463,15 @@ public final class AF9Materials {
                 .blastTemp(2100, GasTier.MID, GTValues.VA[GTValues.EV], 600));
 
         // EV: nichrome-platinum frame alloy (the Advanced Circuit Manufacturer's controller). Mixed like the
-        // other circuit alloys (circuits_af9.js), melted in the EBF from the blast property; the frame flag is
-        // what the controller recipe takes (gtceu:nichrome_platinum_frame).
+        // other circuit alloys (circuits_af9.js), melted in the EBF from the blast property; 3000 K is above the
+        // Kanthal coil (2700 K), so it needs a Nichrome coil. The frame flag is what the controller recipe takes
+        // (gtceu:nichrome_platinum_frame).
         add(material("nichrome_platinum")
                 .ingot()
                 .color(0xb9c2cf).iconSet(MaterialIconSet.METALLIC)
                 .components(GTMaterials.Nichrome, 1, GTMaterials.Platinum, 1)
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_FRAME)
-                .blastTemp(2000, GasTier.MID, GTValues.VA[GTValues.EV], 600));
+                .blastTemp(3000, GasTier.MID, GTValues.VA[GTValues.EV], 600));
 
         // ---- Zircon ----
         // Heavy mineral sand with ilmenite and monazite (no rutile: only ilmenite gives rutile). Formulas only (no components), so GT adds no
