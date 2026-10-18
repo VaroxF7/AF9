@@ -318,9 +318,10 @@ public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMach
         type.onRecipeBuild(ResearchManager::createDefaultResearchRecipe);
         type.addDataInfo(data -> Component.translatable("af9.me_fabricator.recipe_hint").getString());
         type.setUiBuilder((recipe, widgetGroup) -> {
-            int maxWidth = (widgetGroup.getSize().width - 40) / 2;
-            int outX = maxWidth + 40 + (maxWidth - 26) / 2 + 4;
-            int outY = (widgetGroup.getSize().height - 26) / 2 + 4;
+            // GregTech puts the inputs on the left, the arrow in the middle and the output on the right, with the
+            // info lines under them; the data orb and the budding grades go in one row under the arrow, above the lines
+            int centre = widgetGroup.getSize().width / 2;
+            int rowY = 62;
 
             List<ItemStack> sticks = new ArrayList<>();
             for (RecipeCondition<?> condition : recipe.conditions) {
@@ -330,18 +331,18 @@ public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMach
                     }
                 }
             }
-            if (!sticks.isEmpty()) {
-                widgetGroup.addWidget(new SlotWidget(new CycleItemStackHandler(List.of(sticks)), 0,
-                        outX, outY + 1, false, false)
-                        .setBackground(new GuiTextureGroup(GuiTextures.SLOT, GuiTextures.DATA_ORB_OVERLAY)));
-            }
-
             List<ItemStack> buddings = new ArrayList<>();
             for (int t = 1; t <= BuddingTiers.MAX_TIER; t++) {
                 buddings.add(new ItemStack(BuddingTiers.blockOf(t)));
             }
+            int buddingX = sticks.isEmpty() ? centre - 9 : centre + 2;
+            if (!sticks.isEmpty()) {
+                widgetGroup.addWidget(new SlotWidget(new CycleItemStackHandler(List.of(sticks)), 0,
+                        centre - 20, rowY, false, false)
+                        .setBackground(new GuiTextureGroup(GuiTextures.SLOT, GuiTextures.DATA_ORB_OVERLAY)));
+            }
             widgetGroup.addWidget(new SlotWidget(new CycleItemStackHandler(List.of(buddings)), 0,
-                    outX, outY + 30, false, false).setBackground(GuiTextures.SLOT));
+                    buddingX, rowY, false, false).setBackground(GuiTextures.SLOT));
         });
     }
 

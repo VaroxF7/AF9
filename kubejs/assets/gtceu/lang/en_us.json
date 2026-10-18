@@ -810,6 +810,6 @@
     "af9.me_redstone_port.tooltip.0": "§7Can be used as part of an ME Resonance Fabricator.",
     "af9.me_redstone_port.tooltip.1": "§7Redstone signal by the Budding Certus in the middle:",
     "af9.me_redstone_port.tooltip.2": "§70: Nothing, 1: Certus Block, 2: Chipped, 3: Flawed, 4: Flawless, 5: Exquisite Budding Certus",
-    "af9.recipe_condition.oxygenated.true": "§bIn Oxygenated Environment",
-    "af9.recipe_condition.oxygenated.false": "§5In De-oxygenated Environment"
+    "af9.recipe_condition.oxygenated.true": "§bOxygenated Environment",
+    "af9.recipe_condition.oxygenated.false": "§5De-oxygenated Environment"
 }
