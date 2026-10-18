@@ -54,6 +54,11 @@ def magnet(sprite, f):
     return out
 
 
+def cells_after_border(sprite, x, y):
+    """The light casing's inside: its 8 x 8 cells start where the 4 px border ends, so a face is always whole cells."""
+    return sprite.getpixel((4 + (x + 4) % 8, 4 + (y + 4) % 8))
+
+
 def strip(frames):
     w, h = frames[0].size
     im = Image.new('RGBA', (w, h * len(frames)))
@@ -63,11 +68,12 @@ def strip(frames):
 
 
 def main():
-    for name, anim, tx, ty in (('orbital_light_casing', light, 4, 4), ('orbital_magnet_casing', magnet, 1, 2)):
+    for name, anim, tx, ty, inside in (('orbital_light_casing', light, 4, 4, cells_after_border),
+                                       ('orbital_magnet_casing', magnet, 1, 2, se.middle)):
         base = Image.open(os.path.join(SRC, name + '.png')).convert('RGBA')
         frames = [anim(base, f) for f in range(FRAMES)]
         strip(frames).save(os.path.join(OUT, name + '.png'))
-        strip([se.ctm_sheet(fr, tx, ty) for fr in frames]).save(os.path.join(OUT, name + '_ctm.png'))
+        strip([se.ctm_sheet(fr, tx, ty, inside) for fr in frames]).save(os.path.join(OUT, name + '_ctm.png'))
         animation = {'animation': {'frametime': FRAMETIME, 'interpolate': True}}
         with open(os.path.join(OUT, name + '.png.mcmeta'), 'w', newline='\n') as f:
             json.dump(dict(animation, ldlib={'connection': 'af9:block/%s_ctm' % name}), f, indent=2)
