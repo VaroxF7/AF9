@@ -14,7 +14,7 @@ Janne writes the recipes that use both. Lapis Butene-II-Sulfonate is the pack's 
 | 5. sulfonation | 1000 mB butene, 1000 mB SO3 | 1000 mB butene sulfonic acid |
 | 6. ion exchange | 2000 mB sulfonic acid, 1000 mB leach liquor | 2000 mB Lapis Butene-II-Sulfonate, 1000 mB sulfuric acid |
 
-The sulfuric acid of step 6 feeds step 1 again. Texture: lapis-blue tint as a placeholder until Janne's own liquid texture is in.
+The sulfuric acid of step 6 feeds step 1 again. Texture: own animated liquid, lapis blue with drifting gold pyrite flecks (`tools/textures/lapis_sulfonate.py`).
 
 ## Annealed Bronze
 

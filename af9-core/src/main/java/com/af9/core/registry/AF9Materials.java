@@ -1404,14 +1404,14 @@ public final class AF9Materials {
     /**
      * Lapis Butene-II-Sulfonate, the pack's "iron(III) chloride from lapis" (lapis_sulfonate.js, docs/lapis-sulfonate.md):
      * the lapis is leached in sulfuric acid, its sulfide burns to SO2 and over vanadium pentoxide to SO3, the SO3 sulfonates
-     * butene, and the sulfonic acid is exchanged against the lapis liquor. Texture: a lapis-blue tint until Janne's own
-     * liquid texture is in.
+     * butene, and the sulfonic acid is exchanged against the lapis liquor. Own animated texture
+     * (tools/textures/lapis_sulfonate.py): lapis blue with drifting pyrite flecks.
      */
     private static void lapisSulfonate() {
         liquid("lapis_leach_liquor", 0x7a8fc4, "Na2SO4(Al2(SO4)3)(H2O)");
         roughDust("vanadium_pentoxide", 0xd9a21b, "V2O5");
         liquid("butene_sulfonic_acid", 0xe3dba8, "C4H7SO3H");
-        liquid("lapis_butene_ii_sulfonate", 0x2a4aa8, "Na(C4H7SO3)");
+        add(material("lapis_butene_ii_sulfonate").liquid(ownLiquid()).color(0x2a4aa8).formula("Na(C4H7SO3)"));
     }
 
     /**
