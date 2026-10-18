@@ -54,9 +54,31 @@ def magnet(sprite, f):
     return out
 
 
-def cells_after_border(sprite, x, y):
-    """The light casing's inside: its 8 x 8 cells start where the 4 px border ends, so a face is always whole cells."""
-    return sprite.getpixel((4 + (x + 4) % 8, 4 + (y + 4) % 8))
+FLOOR = [(30, 31, 38), (36, 37, 45), (24, 25, 31)]
+RIVET = [(246, 247, 251), (200, 205, 216), (150, 156, 170), (104, 109, 124)]
+
+
+def joined_interior(sprite, x, y):
+    """The light casing's inside where blocks join: one calm cell per block. The sprite's own glyph sits in the middle (4..11),
+    a gold rail runs along the block seams (two pixels where two blocks meet, hidden under the border at the face's outer
+    edge) and four 2 px conductors link the glyph to it and chrome rivets sit in the corners. Rail and conductors take their gold from the glyph's bright gold
+    pixel (7, 4), so they pulse with it."""
+    if 4 <= x <= 11 and 4 <= y <= 11:
+        return sprite.getpixel((x, y))
+    gold = sprite.getpixel((7, 4))
+
+    def tone(f):
+        return tuple(clamp(c * f) for c in gold[:3]) + (255,)
+
+    if x in (0, 15) or y in (0, 15):
+        return tone(0.86 if x == 0 or y == 0 else 0.64)
+    if x in (7, 8) and (y < 4 or y > 11):
+        return tone(0.82 if x == 7 else 0.68)
+    if y in (7, 8) and (x < 4 or x > 11):
+        return tone(0.82 if y == 7 else 0.68)
+    if x in (1, 2, 13, 14) and y in (1, 2, 13, 14):         # chrome rivets, four of them where four cells meet
+        return RIVET[(x in (13, 14)) + (y in (13, 14)) + (x in (2, 14) and y in (2, 14))] + (255,)
+    return FLOOR[(x * 3 + y * 5) % 3] + (255,)
 
 
 def strip(frames):
@@ -68,7 +90,7 @@ def strip(frames):
 
 
 def main():
-    for name, anim, tx, ty, inside in (('orbital_light_casing', light, 4, 4, cells_after_border),
+    for name, anim, tx, ty, inside in (('orbital_light_casing', light, 4, 4, joined_interior),
                                        ('orbital_magnet_casing', magnet, 1, 2, se.middle)):
         base = Image.open(os.path.join(SRC, name + '.png')).convert('RGBA')
         frames = [anim(base, f) for f in range(FRAMES)]
