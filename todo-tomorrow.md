@@ -1,0 +1,90 @@
+# To-Do (Oct 19, 2026)
+
+- [ ] AE2 processor recipes in the ME Resonance Chamber
+  - Screenshot: https://prnt.sc/bDo4SOkAipx6
+- [ ] Resonance Chamber → MV Mover
+  - Screenshot: _pending_
+- [ ] Remove old processor recipes from AE2
+  - Screenshot: _pending_
+- [ ] Cheaper printed processors (all printed processors have to be changed)
+  - Screenshot: https://prnt.sc/TE5pC8L_-Nut
+  - Screenshot: https://prnt.sc/6xvqLJIo99ai
+  - Screenshot: https://prnt.sc/xjUQaHDiN9H9
+- [ ] Fix missing stuff in current EV quest line
+  - Screenshot: https://prnt.sc/J1upMYW-UUrh
+- [ ] Fix textures for the cone, fin and insulation — inspired by TFG insulation for the HV rocket
+  - Screenshot: https://prnt.sc/2QgseXn7gZHp
+- [ ] Fix recipe for the neutron collection in the planetary satellite
+  - Screenshot: https://prnt.sc/DeNBA1FC0fll
+- [ ] New ME Resonance multiblock theme, structure, and functionality
+  - Screenshot: https://prnt.sc/HeRvoiB7lxbF
+- [ ] Electric Implosion Compressor texture & better multiblock structure
+  - Screenshot: https://prnt.sc/sVfRyvKCGUOn
+  - Screenshot: https://prnt.sc/Y1Do-Z9_dheg
+- [ ] Connected textures for the new Saw Cutting Machine
+  - Screenshot: https://prnt.sc/BOrKQul0TV6Y
+- [ ] Connected textures, better structure, render, functionality of the HILE
+  - Screenshot: https://prnt.sc/dAQmTCa2AbZs
+- [ ] Fix Void Miner JEI looking weird
+  - Screenshot: https://prnt.sc/gs23oDR0baRO
+- [ ] Remove Dimension Scanner from ATM9 and the data it collects
+- [ ] Move SMC Chemical Reactor into the normal Chemical Reactor — remove old structures & single blocks, fix all issues
+- [ ] Same for all other SMC machines — move them into their original machines, remove new SMC stuff
+- [ ] No more MK1/MK2 structures for the DTPF — only 1 multiblock + machine upgrades
+- [ ] Remove all nuclear content — rework soon (like TFG): spent fuel pool, FX Reactor MK1 & MK2
+- [ ] Remove Bacteria Breeding Station & Water Filtration — rework and add to the Evaporation Condensation Well
+- [ ] New fusion structures for MK1, MK2 & MK3
+  - Screenshot: https://prnt.sc/JqHcK7HhmmRg
+  - Screenshot: https://prnt.sc/LhTCS-pNqPBY
+  - Screenshot: https://prnt.sc/nukjDueGUzg3
+- [ ] Better tooltip for fusion reactors
+  - Screenshot: https://prnt.sc/KCsnr3biUElm
+- [ ] Remove all neutronium recipes not inside the collector — all fusion recipes need to go
+  - Screenshot: https://prnt.sc/jNqJ6Ya5pSsa
+- [ ] Add 3 new tiers for the Neutron Collector — similar texture to the Iridium Neutron Reflector
+  - Screenshot: https://prnt.sc/34Eu6hSvw_9T
+- [ ] Better structure for the Hearth AF9 — added new casings, looks bad right now
+  - Screenshot: https://prnt.sc/ahQNnUG7NuqE
+- [ ] Add all components for the new XOS tier
+- [ ] XPS circuit board texture — similar to all the other GT boards already added
+- [ ] Replace lead ingots with cobalt ingots inside the Particle Collider recipe
+  - Screenshot: https://prnt.sc/rq477bQRbSfF
+- [ ] Rework overclock inside the Particle Accelerator
+  - Screenshot: https://prnt.sc/Rw73ywYjMTjC
+- [ ] New recipe for Orbital Litho machine
+  - Screenshot: https://prnt.sc/EbWncoRdIwpo
+- [ ] Rework nuclear reactors into nuclear naquadah reactors — EV Nuclear, IV Nuclear, LUV Naquadah
+- [ ] Silicon boule rework
+  - Screenshot: https://prnt.sc/CFacpaIwhEhA
+- [ ] Add quartz crucible for silicon boule rework
+  - Screenshot: https://prnt.sc/KOYiehuLFpKQ
+- [ ] Polysilicon to liquid (not dust) in boule form — multiblock should scale all the way up to max voltage tier (universal)
+  - Reference: https://prnt.sc/Ll3w7xQ0z1Cx
+  - Reference: https://prnt.sc/7ruRKoV43nti
+  - Reference: https://prnt.sc/ciaGAB4IX98Z
+  - Reference: https://prnt.sc/mxZTSO0Ai8bp
+  - Reference: https://prnt.sc/juSJFrH5OLY9
+- [ ] Copy silicon processing line from TFG for the polysilicon moon line in AF9
+- [ ] Change texture of Soldering Alloy to lead color & better texture (TFG texture copy)
+  - Reference: https://prnt.sc/M2pC4Rpd36S5
+- [ ] Re-do textures for High Grade Soldering Alloy
+  - Screenshot: https://prnt.sc/nPT-Zkb9rsb6
+
+## Current Processor Recipes (for reference)
+
+Cheaper processors — compare against current MV/HV recipes:
+
+### Advanced Processor (MV) — current
+![Advanced Processor MV](adv_processor_mv.png)
+
+### Advanced Processor (HV)
+![Advanced Processor HV](adv_processor_hv.png)
+
+### Ultimate Processor
+![Ultimate Processor](ultimate_processor.png)
+
+## TFG Reference Screenshots
+
+- https://prnt.sc/cBKmQ5mYkX8H
+- https://prnt.sc/RHcvp3BurQF7
+- https://prnt.sc/XG-V2MwaFwYL
