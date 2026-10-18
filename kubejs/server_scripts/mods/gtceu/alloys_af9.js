@@ -94,6 +94,25 @@ ServerEvents.recipes(event => {
     mix('rheniloy', ['8x gtceu:rhenium_nickel_master_alloy_dust', 'gtceu:tantalum_dust', 'gtceu:tungsten_dust'],
         '10x gtceu:rheniloy_dust', 11, GTValues.EV, 30)
 
+    // ---- the superalloys (docs/superalloys.md): 20 dust of each, circuits 12-17; Kovar's mix is in circuits_af9.js ----
+    // 625: Ni 60, Cr 20, Mo 10, Fe 5, Nb 5
+    mix('inconel_625', ['12x gtceu:nickel_dust', '4x gtceu:chromium_dust', '2x gtceu:molybdenum_dust',
+        'gtceu:iron_dust', 'gtceu:niobium_dust'], '20x gtceu:inconel_625_dust', 12, GTValues.HV, 25)
+    // 718: Ni 50, Cr 20, Fe 20, Nb 5, Mo 5
+    mix('inconel_718', ['10x gtceu:nickel_dust', '4x gtceu:chromium_dust', '4x gtceu:iron_dust',
+        'gtceu:niobium_dust', 'gtceu:molybdenum_dust'], '20x gtceu:inconel_718_dust', 13, GTValues.HV, 25)
+    // 738: Ni 60, Cr 15 (15 nichrome dust are 12 Ni + 3 Cr), Co 10, Al, Ti, W 5 each
+    mix('inconel_738', ['15x gtceu:nichrome_dust', '2x gtceu:cobalt_dust', 'gtceu:tungsten_dust',
+        'gtceu:titanium_dust', 'gtceu:aluminium_dust'], '20x gtceu:inconel_738_dust', 14, GTValues.EV, 30)
+    // Havar: Co 40, Cr 20, Ni 15, Fe 15, W 10
+    mix('havar', ['8x gtceu:cobalt_dust', '4x gtceu:chromium_dust', '3x gtceu:nickel_dust', '3x gtceu:iron_dust',
+        '2x gtceu:tungsten_dust'], '20x gtceu:havar_dust', 15, GTValues.HV, 25)
+    // Stellite 1: Co 50, Cr 30, W 15, C 5; Stellite 12: Co 55, Cr 30, W 10, C 5
+    mix('stellite_1', ['10x gtceu:cobalt_dust', '6x gtceu:chromium_dust', '3x gtceu:tungsten_dust',
+        'gtceu:carbon_dust'], '20x gtceu:stellite_1_dust', 16, GTValues.HV, 25)
+    mix('stellite_12', ['11x gtceu:cobalt_dust', '6x gtceu:chromium_dust', '2x gtceu:tungsten_dust',
+        'gtceu:carbon_dust'], '20x gtceu:stellite_12_dust', 17, GTValues.EV, 30)
+
     // ---- hafnium: Kroll reduction of the hafnium tetrachloride the zircon line distils (electronics_metallurgy.js) ----
     // HfCl4 + 2 Mg -> Hf + 2 MgCl2 (the EBF's gas tier is the argon blanket)
     gt.electric_blast_furnace('af9:alloys/hafnium_kroll')

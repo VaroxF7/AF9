@@ -93,3 +93,9 @@ registered in KubeJS (`startup_scripts/gtceu/me_resonance_fabricator.js`). Textu
 Not taken over: the shader maps (`_n`, `_s`) of the AE2 casing. The Fabricator's recipes (`kubejs/server_scripts/mods/ae2/me_resonance_fabricator_recipes.js`) and the `OxygenatedCondition` (Ad Astra's oxygen instead of TFG's environment system) are copied from TFG's `me_assembler` recipes and `OxygenatedCondition`, 82 recipes; the three Spatial Cell Components are left out (TFG's UV LEDs).
 Substitutions: TFG's `cryogenized_fluix` in the AE2 casing recipe is `gtceu:liquid_certus_quartz`; the Moon-only rule of its
 recipes sits in TFG's recipes, not the machine. Its AE2 blocks are read by id, so AF9 Core compiles without AE2.
+
+## Superalloy item textures
+
+The silhouettes and shading of the Kovar, Inconel, Havar, Hastelloy and Stellite parts (`assets/gtceu/textures/item/material_sets/<alloy>`) are
+recoloured from the SHINY icon set of **GregTech CEu Modern** (<https://github.com/GregTechCEu/GregTech-Modern>, LGPL-3.0), repainted
+with a palette and grain per alloy by `tools/textures/superalloys.py`.

@@ -529,6 +529,7 @@ material gtceu:gold_free_liquor
 material gtceu:gst_alloy
 material gtceu:hafnitinol
 material gtceu:hafnium_tetrachloride
+material gtceu:havar
 material gtceu:heavy_naphtha
 material gtceu:heavy_water
 material gtceu:hexamethyldisilazane
@@ -542,6 +543,9 @@ material gtceu:hydrazobisisobutyronitrile
 material gtceu:hydroxyacetophenone
 material gtceu:idontknowium
 material gtceu:impure_oil
+material gtceu:inconel_625
+material gtceu:inconel_718
+material gtceu:inconel_738
 material gtceu:iron_molybdate
 material gtceu:irradiated_fuel
 material gtceu:irradiated_mox
@@ -653,6 +657,8 @@ material gtceu:spent_resist_solvent
 material gtceu:star_matter_plasma_steel
 material gtceu:stellarite ore
 material gtceu:stellarium
+material gtceu:stellite_1
+material gtceu:stellite_12
 material gtceu:strange_matter
 material gtceu:sulfur_dichloride
 material gtceu:supercooled_argon
