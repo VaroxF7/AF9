@@ -90,6 +90,6 @@ registered in KubeJS (`startup_scripts/gtceu/me_resonance_fabricator.js`). Textu
 | `af9-core/.../textures/block/ae2_machine_casing{,_active,_active_emissive}.png` (+ `_ctm.png`, `.mcmeta`) | `casings/machine_casing_ae2{,_active,_active_emissive}{,_ctm}.png` |
 | `kubejs/assets/gtceu/textures/block/multiblock/me_assembler_redstone_port/overlay_front.png` (+ `.mcmeta`) | `machines/redstone_port/overlay_front.png` |
 
-Not taken over: the shader maps (`_n`, `_s`) of the AE2 casing; TFG's recipes for the Fabricator (they craft TFG's items).
+Not taken over: the shader maps (`_n`, `_s`) of the AE2 casing. The Fabricator's recipes (`kubejs/server_scripts/mods/ae2/me_resonance_fabricator_recipes.js`) and the `OxygenatedCondition` (Ad Astra's oxygen instead of TFG's environment system) are copied from TFG's `me_assembler` recipes and `OxygenatedCondition`, 82 recipes; the three Spatial Cell Components are left out (TFG's UV LEDs).
 Substitutions: TFG's `cryogenized_fluix` in the AE2 casing recipe is `gtceu:liquid_certus_quartz`; the Moon-only rule of its
 recipes sits in TFG's recipes, not the machine. Its AE2 blocks are read by id, so AF9 Core compiles without AE2.

@@ -33,9 +33,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         return lines
     }
 
-    // the recipe page (data orb, budding grades), research recipes, hint line
-    $MEFabricator.configureRecipeType()
-
     // ME Redstone Port: a part of the Fabricator that outputs the grade of the Budding Certus (0-5)
     event.create('me_assembler_redstone_port', 'custom')
         .tiers(GTValues.HV)
