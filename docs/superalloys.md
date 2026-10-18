@@ -23,7 +23,7 @@ brackets, rounded to the 20 parts.
 | Alloy | Mix (20 parts) | Real alloy | EBF | Coil | Gas |
 |---|---|---|---|---|---|
 | Kovar | 6 Fe, 3 Ni, 2 Co (circuits_af9.js) | Fe 54, Ni 29, Co 17 | 1,720 K, MV | Cupronickel | nitrogen |
-| Havar | 8 Co, 4 Cr, 3 Ni, 3 Fe, 2 W | Co 42, Cr 20, Ni 13, Fe 18, W 3, Mo 2 | 2,900 K, HV | Kanthal | argon |
+| Havar | 8 Co, 4 Cr, 3 Ni, 3 Fe, 2 W | Co 42, Cr 20, Ni 13, Fe 18, W 3, Mo 2 | 2,900 K, HV | Nichrome (above Kanthal's 2,700 K) | argon |
 | Stellite 1 | 10 Co, 6 Cr, 3 W, 1 C | Co 50, Cr 31, W 12.5, C 2.5 | 3,100 K, HV | Nichrome | argon |
 | Inconel 625 | 12 Ni, 4 Cr, 2 Mo, 1 Fe, 1 Nb | Ni 58+, Cr 21, Mo 9, Nb 3.6, Fe 5 | 3,300 K, HV | Nichrome | argon |
 | Stellite 12 | 11 Co, 6 Cr, 2 W, 1 C | Co 56, Cr 30, W 8.5, C 1.4 | 3,400 K, EV | Nichrome | argon |

@@ -701,6 +701,7 @@ material gtceu:vanadium_spring_steel
 material gtceu:vanadyl_pyrophosphate
 material gtceu:vitrified_waste
 material gtceu:wolfram_invar
+material gtceu:xps_alloy
 material gtceu:yellowcake
 material gtceu:zinc_chloride
 material gtceu:zincarry
