@@ -449,6 +449,7 @@ material gtceu:ammonium_hexachloroosmate
 material gtceu:ammonium_hexachloroplatinate
 material gtceu:ammonium_hexachlororuthenate
 material gtceu:ammonium_perrhenate
+material gtceu:annealed_bronze
 material gtceu:anti_matter
 material gtceu:ares_gas
 material gtceu:arf_excimer_gas
@@ -463,6 +464,7 @@ material gtceu:boron_nitride
 material gtceu:boron_trichloride
 material gtceu:brannerite ore
 material gtceu:butanol
+material gtceu:butene_sulfonic_acid
 material gtceu:ceranium
 material gtceu:ceraquadalloy
 material gtceu:ceresite ore
@@ -538,6 +540,8 @@ material gtceu:krypton_xenon_concentrate
 material gtceu:l_01
 material gtceu:lactic_acid
 material gtceu:lactonitrile
+material gtceu:lapis_butene_ii_sulfonate
+material gtceu:lapis_leach_liquor
 material gtceu:lesolite
 material gtceu:light_naphtha
 material gtceu:liquid_certus_quartz
@@ -670,6 +674,7 @@ material gtceu:ultrapure_water
 material gtceu:unfiltered_arf_photoresist
 material gtceu:unfiltered_krf_photoresist
 material gtceu:uranyl_sulfate_solution
+material gtceu:vanadium_pentoxide
 material gtceu:vanadium_spring_steel
 material gtceu:vanadyl_pyrophosphate
 material gtceu:vitrified_waste

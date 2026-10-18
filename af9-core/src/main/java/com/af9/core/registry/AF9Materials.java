@@ -105,6 +105,8 @@ public final class AF9Materials {
         motorParts();
         waterFiltration();
         alloys();
+        lapisSulfonate();
+        annealedBronze();
         rutileFromIlmeniteOnly();
     }
 
@@ -1397,6 +1399,32 @@ public final class AF9Materials {
 
         ebfAlloy("xps_alloy", 0xb8b0a0, "(SiO2)(SiO2)", 1200, GasTier.LOW, GTValues.VA[GTValues.LV], 400,
                 MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL, MaterialFlags.GENERATE_FINE_WIRE);
+    }
+
+    /**
+     * Lapis Butene-II-Sulfonate, the pack's "iron(III) chloride from lapis" (lapis_sulfonate.js, docs/lapis-sulfonate.md):
+     * the lapis is leached in sulfuric acid, its sulfide burns to SO2 and over vanadium pentoxide to SO3, the SO3 sulfonates
+     * butene, and the sulfonic acid is exchanged against the lapis liquor. Texture: a lapis-blue tint until Janne's own
+     * liquid texture is in.
+     */
+    private static void lapisSulfonate() {
+        liquid("lapis_leach_liquor", 0x7a8fc4, "Na2SO4(Al2(SO4)3)(H2O)");
+        roughDust("vanadium_pentoxide", 0xd9a21b, "V2O5");
+        liquid("butene_sulfonic_acid", 0xe3dba8, "C4H7SO3H");
+        liquid("lapis_butene_ii_sulfonate", 0x2a4aa8, "Na(C4H7SO3)");
+    }
+
+    /**
+     * Annealed Bronze: bronze softened in a nitrogen atmosphere like GT's annealed copper (annealed_bronze.js); plate and
+     * foil, the foil is what the pack asks of it.
+     */
+    private static void annealedBronze() {
+        add(material("annealed_bronze")
+                .ingot().fluid()
+                .color(0xd9923a).secondaryColor(0x7a4a14)
+                .iconSet(MaterialIconSet.SHINY)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL)
+                .formula("Cu3Sn"));
     }
 
     /** An EBF alloy: formula only, plus the blast property that makes GT melt its dust. */
