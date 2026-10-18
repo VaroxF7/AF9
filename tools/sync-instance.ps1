@@ -39,12 +39,13 @@ function Backup-File([string] $rel) {
     Copy-Item (Join-Path $Instance $rel) $dst
 }
 
-$copied = 0; $kept = @(); $adopted = @(); $conflicts = @()
+$copied = 0; $kept = @(); $adopted = @(); $conflicts = @(); $managedNow = @()
 foreach ($dir in 'kubejs', 'config') {
     foreach ($file in Get-ChildItem (Join-Path $Repo $dir) -Recurse -File) {
         $rel = $file.FullName.Substring($Repo.Length + 1)
         $target = Join-Path $Instance $rel
         $isQuest = $rel -like 'config\ftbquests\*' -and $file.Extension -eq '.snbt'
+        if (-not $isQuest) { $managedNow += $rel }
         if (-not (Test-Path $target)) {
             New-Item -ItemType Directory -Force (Split-Path $target) | Out-Null
             Copy-Item $file.FullName $target; $copied++
@@ -72,8 +73,23 @@ foreach ($dir in 'kubejs', 'config') {
         }
     }
 }
+# files the repo used to hold and no longer does (a removed machine's script or texture) would stay in the instance and
+# break it (a script naming a class that is gone): move them out, to the backup folder, never delete. The list of what the
+# repo held at the last sync is kept in the state file; quest files are never touched here.
+$removed = @()
+foreach ($rel in @($state['__managed'])) {
+    if (-not $rel -or $managedNow -contains $rel) { continue }
+    $stale = Join-Path $Instance $rel
+    if (Test-Path $stale) {
+        $dst = Join-Path (Join-Path $backup 'removed-from-repo') $rel
+        New-Item -ItemType Directory -Force (Split-Path $dst) | Out-Null
+        Move-Item $stale $dst -Force; $removed += $rel
+    }
+}
+$state['__managed'] = $managedNow
 $state | ConvertTo-Json | Set-Content $statePath -Encoding utf8
 "copied into the instance: $copied   (backup: $backup)"
 if ($adopted) { "EDITED IN GAME, copied into the repo (commit them):"; $adopted | ForEach-Object { "  $_" } }
 if ($conflicts) { "CONFLICT, edited in game and changed in the repo, left alone (merge by hand):"; $conflicts | ForEach-Object { "  $_" } }
 if ($kept) { "quest files the game only reformatted, kept: $($kept.Count)" }
+if ($removed) { "removed from the repo, moved out of the instance (into $backupemoved-from-repo):"; $removed | ForEach-Object { "  $_" } }
