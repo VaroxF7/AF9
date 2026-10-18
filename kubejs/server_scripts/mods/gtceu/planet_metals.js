@@ -16,6 +16,9 @@
 // the 200 nm prints (and with them ASIC, and with it the tier 2 rocket) come before Mars. The chlorohydrin route
 // (propene + chlorine + water, the old industrial way) makes the same oxide with Earth chemistry; HPPO stays as the
 // clean upgrade once rutile flows.
+//
+// Rutile dust comes from ilmenite only: no other ore has it as a by-product (af9-core, AF9Materials). Ilmenite and
+// the zircon sands are Mars veins (vein_mars.js).
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
@@ -56,6 +59,18 @@ ServerEvents.recipes(event => {
         .outputFluids(Fluid.of('gtceu:helium', 120))
         .duration(320)
         .EUt(20)
+
+    // ---- The Moon's bridge to EV titanium: TiCl4 straight from moon sand, HV, very inefficient ----
+    // Ilmenite and rutile are on Mars only (the tier 2 rocket needs titanium to get there), so the first titanium has
+    // to come from the Moon's regolith, which holds only traces: 64 moon sand with carbon and chlorine give 100 mB of
+    // TiCl4 (GT's rutile route gives 1000 mB per dust). Kroll from there is GT's own (blast furnace with magnesium).
+    event.recipes.gtceu.chemical_reactor('af9:moon_sand_titanium_tetrachloride')
+        .itemInputs('64x ad_astra:moon_sand', '2x gtceu:carbon_dust')
+        .inputFluids(Fluid.of('gtceu:chlorine', 4000))
+        .itemOutputs('16x gtceu:silicon_dioxide_dust')
+        .outputFluids(Fluid.of('gtceu:titanium_tetrachloride', 100))
+        .duration(1200)
+        .EUt(VA[GTValues.HV])
 
     // ---- Mars: ilmenite out of Mars sand ----
     // Physical route (ilmenite is strongly magnetic): the separator pulls it out of the sand, silica stays behind.

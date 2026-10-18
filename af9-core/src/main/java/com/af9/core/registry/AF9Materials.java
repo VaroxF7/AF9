@@ -2,6 +2,7 @@ package com.af9.core.registry;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.event.MaterialEvent;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlag;
@@ -12,6 +13,7 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.DustProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.FluidProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.IngotProperty;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.OreProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.fluids.FluidBuilder;
 import com.gregtechceu.gtceu.api.fluids.FluidState;
@@ -103,6 +105,22 @@ public final class AF9Materials {
         motorParts();
         waterFiltration();
         alloys();
+        rutileFromIlmeniteOnly();
+    }
+
+    /**
+     * Rutile dust comes from ilmenite and nowhere else (planet_metals.js): every other ore (GT's bauxite, AF9's zircon
+     * and the rest) loses rutile from its ore by-products. Ilmenite keeps its own.
+     */
+    private static void rutileFromIlmeniteOnly() {
+        for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
+            if (material == GTMaterials.Ilmenite || !material.hasProperty(PropertyKey.ORE)) continue;
+            OreProperty ore = material.getProperty(PropertyKey.ORE);
+            if (!ore.getOreByProducts().contains(GTMaterials.Rutile)) continue;
+            ore.setOreByProducts(ore.getOreByProducts().stream()
+                    .filter(byproduct -> byproduct != GTMaterials.Rutile)
+                    .toArray(Material[]::new));
+        }
     }
 
     private static Material.Builder material(String id) {
@@ -451,13 +469,13 @@ public final class AF9Materials {
                 .blastTemp(2000, GasTier.MID, GTValues.VA[GTValues.EV], 600));
 
         // ---- Zircon ----
-        // Heavy mineral sand with ilmenite, rutile and monazite. Formulas only (no components), so GT adds no
+        // Heavy mineral sand with ilmenite and monazite (no rutile: only ilmenite gives rutile). Formulas only (no components), so GT adds no
         // electrolyzer shortcut past the refining chain.
         add(material("zircon")
                 .dust().ore()
                 .color(0xb77f4f).iconSet(MaterialIconSet.ROUGH)
                 .formula("ZrSiO4")
-                .addOreByproducts(GTMaterials.Ilmenite, GTMaterials.Rutile, GTMaterials.Monazite));
+                .addOreByproducts(GTMaterials.Ilmenite, GTMaterials.Monazite));
 
         add(material("zirconia")
                 .dust()

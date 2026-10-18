@@ -1,5 +1,5 @@
 // AF9 - Electronics metallurgy recipes (materials: af9-core, registry/AF9Materials)
-// The zircon -> zirconium / hafnium chain and the zircon sands vein. The alloy dusts of the circuit metals (Al-Tq, Kovar,
+// The zircon -> zirconium / hafnium chain (the zircon sands vein is on Mars: vein_mars.js). The alloy dusts of the circuit metals (Al-Tq, Kovar,
 // Pt-Ir: mixers) and the circuits using them are in circuits_af9.js. Spec: docs/semiconductor-factory.md
 
 ServerEvents.recipes(event => {
@@ -42,25 +42,4 @@ ServerEvents.recipes(event => {
         .blastFurnaceTemp(1150)
         .duration(400)
         .EUt(VA[GTValues.HV])
-})
-
-// Zircon sands vein in the Mining Dimension (where the pack puts every GT vein), stone layer, same form as its other
-// veins
-GTCEuServerEvents.oreVeins(event => {
-    const dike = (material, weight) => new GTDikeBlockDefinition['(com.gregtechceu.gtceu.api.data.chemical.material.Material,int,int,int)'](
-        GTMaterials.get(material), weight, 129, 248)
-    event.add('af9:zircon_sands_vein', builder => {
-        builder.clusterSize(35)
-            .weight(30)
-            .density(0.6)
-            .discardChanceOnAirExposure(0.0)
-            .layer('stone')
-            .dimensions('allthemodium:mining')
-            .biomes('#allthemodium:mining_features/mining_biomes')
-            .heightRangeUniform(129, 248)
-            .dikeVeinGenerator(generator => generator
-                .withBlock(dike('zircon', 5))
-                .withBlock(dike('monazite', 2))
-                .withBlock(dike('almandine', 1)))
-    })
 })

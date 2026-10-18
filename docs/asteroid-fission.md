@@ -366,6 +366,8 @@ Each rocket tier flies on the metal of the world before it, and titanium and tun
 | **Titanium** | **Mars Sand** only: electromagnetic separator (4 sand: ilmenite + 3 silica, MV) or sulfuric acid leach (HV Chemical Reactor, 3 ilmenite per 4 sand); GT's chain on from there (rutile, TiCl4, Kroll) | tier 3 rocket, EV machines, the Void Miner MK2 |
 | **Tungsten** | **Venus Sand** only: washing (a chance of scheelite) or the acid leach (2 scheelite per 4 sand); GT's chain on from there (tungstic acid, electrolysis) | tier 4 parts, IV and up |
 
+Ilmenite and zircon veins generate on Mars only (`af9_mars` layer, `vein_mars.js`; the zircon vein used to be in the Mining Dimension). Rutile is a by-product of ilmenite alone: bauxite, zircon and every other ore lost it. A very inefficient HV TiCl4 recipe from 64 moon sand (100 mB) bridges to EV titanium before Mars.
+
 Closed on Earth: the GT veins holding ilmenite, rutile, scheelite or tungstate (weight 0, by id or by material, AF9's own veins
 spared), the zircon dike's ilmenite (zircon and monazite only now), the Void Miner's End mode (bauxite without ilmenite, no scheelite
 mode), the bauxite electrolysis and sludge centrifuging and end stone's tungstate (rutile and tungstate are gone from their outputs),

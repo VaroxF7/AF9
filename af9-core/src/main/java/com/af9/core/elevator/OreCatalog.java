@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * An ore is a material with GT's ore property. Its tier is the lowest tier of the world-gen layers of the veins that hold it:
  * <ol>
  * <li>stone, deepslate and the Moon ({@code af9_moon}): the Overworld and the Moon;</li>
- * <li>netherrack: the Nether;</li>
+ * <li>netherrack and Mars ({@code af9_mars}): the Nether and Mars;</li>
  * <li>end stone: the End;</li>
  * <li>the {@code af9_asteroid} layer: the Asteroid Field.</li>
  * </ol>
@@ -64,7 +64,7 @@ public final class OreCatalog {
     public static int tierOfLayer(String key) {
         return switch (key) {
             case "stone", "deepslate", "af9_moon" -> 1;
-            case "netherrack" -> 2;
+            case "netherrack", "af9_mars" -> 2;
             case "endstone" -> 3;
             case "af9_asteroid" -> 4;
             default -> 3;

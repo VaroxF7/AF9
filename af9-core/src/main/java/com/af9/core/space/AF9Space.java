@@ -167,6 +167,15 @@ public final class AF9Space {
      */
     public static final TagKey<Block> MOON_ROCK = BlockTags.create(new ResourceLocation(AF9Core.MOD_ID,
             "moon_rock"));
+    /** Mars (Ad Astra): the ilmenite and zircon veins generate nowhere else. */
+    public static final ResourceLocation MARS_DIMENSION = new ResourceLocation("ad_astra",
+            "mars");
+    /** Mars's rock: Ad Astra's mars stone and mars sand (data/af9/tags/blocks/mars_rock.json). */
+    public static final TagKey<Block> MARS_ROCK = BlockTags.create(new ResourceLocation(AF9Core.MOD_ID,
+            "mars_rock"));
+    /** The layer GT's Mars veins grow into (the veins: KubeJS, vein_mars.js). */
+    public static final String MARS_LAYER = "af9_mars";
+
     /** The layer GT's Moon veins grow into (the veins: KubeJS, vein_moon.js). */
     public static final String MOON_LAYER = "af9_moon";
 
@@ -177,6 +186,7 @@ public final class AF9Space {
         new SimpleWorldGenLayer(ORE_LAYER, () -> new TagMatchTest(ASTEROID_ROCK),
                 Set.of(ASTEROID_FIELD_DIMENSION, CERES_DIMENSION));
         new SimpleWorldGenLayer(MOON_LAYER, () -> new TagMatchTest(MOON_ROCK), Set.of(MOON_DIMENSION));
+        new SimpleWorldGenLayer(MARS_LAYER, () -> new TagMatchTest(MARS_ROCK), Set.of(MARS_DIMENSION));
     }
 
     private static void fillCreativeTabs(BuildCreativeModeTabContentsEvent event) {
