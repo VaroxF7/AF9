@@ -67,12 +67,13 @@ The component numbers in `RackComponent` and the structure are TecTech's, the co
 
 The Rack Heat Vent icons (`item/rack_heat_vent_mk1-4.png`) are AF9's own (`tools/textures/rack_vents.py`).
 
-## Mk2 Orbital Array casings (Cosmic Frontiers)
+## Mk2 Orbital Array casings
 
-Two block textures are taken from **CosmicCore / Cosmic Frontiers** (`resources/assets/cosmiccore/textures/block/casings/solid/`;
+`orbital_light_casing` (+ `_ctm`) is AF9's own art, drawn from scratch (`tools/textures/orbital_light_src.py`, then `orbital_casings.py`); it replaces the Cosmic Frontiers texture.
+
+The magnet casing texture is taken from **CosmicCore / Cosmic Frontiers** (`resources/assets/cosmiccore/textures/block/casings/solid/`;
 textures in `block` are MIT-licensed per its license section, `licenses` in the archive), unchanged:
 
 | af9 file (`af9-core/.../textures/block/`) | CosmicCore source |
 |---|---|
 | `orbital_magnet_casing.png` | `stellar_neutronium_grade_magnet.png` |
-| `orbital_light_casing.png` | `resonantly_tuned_virtue_meld_casing.png` |
