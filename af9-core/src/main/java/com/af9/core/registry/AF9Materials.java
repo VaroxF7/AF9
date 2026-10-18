@@ -16,6 +16,7 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.IngotProperty
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.OreProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.fluids.FluidBuilder;
+import com.gregtechceu.gtceu.api.fluids.attribute.FluidAttributes;
 import com.gregtechceu.gtceu.api.fluids.FluidState;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
@@ -90,6 +91,7 @@ public final class AF9Materials {
         lithiumBrine();
         oil();
         planetMetals();
+        rocketInsulation();
         particleAccelerator();
         antimatter();
         photolithography();
@@ -776,6 +778,55 @@ public final class AF9Materials {
                 .formula("Ds")
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD,
                         MaterialFlags.GENERATE_BOLT_SCREW));
+    }
+
+    /**
+     * The tier 2 rocket's hull and the electric implosion compressor's materials (docs/electric-implosion.md):
+     * <ul>
+     * <li>Desh Titanium Rocket Alloy: mixed from titanium, desh and chromium dust; the hull's dense plates are never
+     * bent from plates, they are imploded from the dust (implosion compressor, or electric with the vapor).</li>
+     * <li>Alumina Silicate Insulation (dust) and its liquid mixture: the rocket's insulation chain. Only the forms exist
+     * for now (foil, wool and the rocket insulation are items, {@link AF9Items}); the recipes are Janne's to come.</li>
+     * <li>Twi-re-sten Insulation: a tungsten-rhenium carbide cermet, the insulation foil of the EV nichrome coil.</li>
+     * <li>Lunar Acid Vapor: the acidic cut of Lunar Air that the electric implosion compressor needs.</li>
+     * </ul>
+     * Formulas only (no components), so GT adds no electrolyzer or centrifuge shortcut. Recipes: rocket_hull.js,
+     * electric_implosion.js
+     */
+    private static void rocketInsulation() {
+        add(material("desh_titanium_rocket_alloy")
+                .ingot().fluid()
+                .color(0xa9856b).secondaryColor(0x4b4f5c)
+                .iconSet(MaterialIconSet.METALLIC)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_DENSE)
+                .blastTemp(2800, GasTier.LOW, GTValues.VA[GTValues.HV], 1200)
+                .formula("Ti2DsCr8"));
+
+        add(material("alumina_silicate_insulation")
+                .dust()
+                .color(0xf1e6cf)
+                .iconSet(MaterialIconSet.DULL)
+                .formula("Al2SiO5"));
+
+        add(material("alumina_silicate_insulation_mixture")
+                .liquid()
+                .color(0xe9d9ae)
+                .formula("(Al2SiO5)(H2O)"));
+
+        add(material("twiresten_insulation")
+                .ingot().fluid()
+                .color(0x7389a8).secondaryColor(0x263248)
+                .iconSet(MaterialIconSet.SHINY)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_FOIL,
+                        MaterialFlags.GENERATE_FINE_WIRE)
+                .blastTemp(4200, GasTier.HIGH, GTValues.VA[GTValues.IV], 1600)
+                .formula("W3ReC"));
+
+        // acidic: pipes and tanks that are not acid-proof refuse it
+        add(material("lunar_acid_vapor")
+                .gas(new FluidBuilder().attribute(FluidAttributes.ACID))
+                .color(0xc9dc5a)
+                .formula("(HF)(SO2)"));
     }
 
     /**

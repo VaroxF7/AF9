@@ -177,6 +177,15 @@ public final class AF9Items {
         item("fiber_interconnects", 64, 1);
         item("optical_fiber_cable", 64, 1);
 
+        // ---- Tier 2 rocket: the parts of its own, and the insulation chain (recipes: rocket_hull.js; the insulation's
+        // own recipes are still to come) ----
+        item("rocket_cone_tier_2", 64, 1);
+        item("rocket_fin_tier_2", 64, 1);
+        item("alumina_silicate_rocket_insulation", 64, 1);
+        item("alumina_silicate_insulation_foil", 64, 1);
+        // wool spun to a fine wire
+        item("insulation_wool", 64, 1);
+
         // ---- Particle Accelerator ----
         item("beryllium_spallation_target", 64, 1);
         item("magnetic_trap", 64, 1);

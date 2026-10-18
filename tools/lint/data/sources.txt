@@ -33,3 +33,5 @@ gtceu:lunar_air
 gtceu:lxa_1
 # the dimension markers: icons of GregTech's dimension slots, nothing to craft (registry/AF9DimensionMarkers)
 af9:*_marker
+# the tier 2 rocket's insulation: its recipes (and those of the foil, wool, dust and mixture) are Janne's to come
+af9:alumina_silicate_rocket_insulation

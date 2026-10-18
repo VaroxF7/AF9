@@ -1,0 +1,8 @@
+{
+  "animation": {
+    "frametime": 2
+  },
+  "ldlib": {
+    "connection": "af9:block/shock_capacitor_casing_ctm"
+  }
+}
