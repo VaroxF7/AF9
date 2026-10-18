@@ -1449,5 +1449,8 @@
     "af9.fiber.status_unlinked": "Fibre: not linked (data stick, right-click both ports)",
     "af9.litho.console.light": "LIGHT SOURCE",
     "af9.litho.console.hatch_tier": "ENERGY IN",
-    "af9.litho.console.needs_power": "needs %sA %s"
+    "af9.litho.console.needs_power": "needs %sA %s",
+    "af9.recipe.void_mining.duration": "Duration: %s secs",
+    "af9.recipe.void_mining.total": "Total: %s EU",
+    "af9.recipe.void_mining.usage": "Usage: %s A @ %s"
 }

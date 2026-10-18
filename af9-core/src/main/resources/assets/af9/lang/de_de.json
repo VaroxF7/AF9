@@ -75,5 +75,8 @@
     "af9.staged.jade.step": "Rezeptschritt %s von %s",
     "af9.recipe.staged.extra_inputs": "Die Stufen-Inputs sind nicht die einzigen Inputs in der Maschine.",
     "af9.recipe.staged.step": "Schritt %s",
-    "item.af9.staged_step_detector": "Stufendetektor"
+    "item.af9.staged_step_detector": "Stufendetektor",
+    "af9.recipe.void_mining.duration": "Dauer: %s s",
+    "af9.recipe.void_mining.total": "Gesamt: %s EU",
+    "af9.recipe.void_mining.usage": "Verbrauch: %s A @ %s"
 }
