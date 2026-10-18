@@ -1,0 +1,272 @@
+From 5008eb907cc8c5d4da6e5d21582b2d21c6d86ef5 Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Sun, 18 Oct 2026 08:36:11 +0000
+Subject: [PATCH] HPCA: expandable (3 to 12 slices of 3 component slots),
+ Active Coolers cool by coolant (PCB 2, supercooled 8 to 20) (7.5.3-af9.11)
+
+- The array's component section repeats 3 to 12 times (9 to 36 slots); the controller screen draws the whole grid, the
+  client finds the slices by walking back from the controller.
+- Active Coolers: the cooling of a coolant at the full 8 mB/t is a table (HPCAMachine.registerCoolant): PCB Coolant and any
+  other fluid of the coolants tag 2, supercooled hydrogen / argon / xenon / endion 8 / 12 / 16 / 20. The strongest coolant
+  present is drawn first, and a stronger coolant needs less fluid to hold the temperature.
+---
+ gradle.properties                             |   2 +-
+ .../data/machines/GTResearchMachines.java     |   6 +-
+ .../electric/research/HPCAMachine.java        | 154 +++++++++++-------
+ 3 files changed, 103 insertions(+), 59 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 6150d52..b053be0 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.8
++mod_version = 7.5.3-af9.11
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTResearchMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTResearchMachines.java
+index 6c21338..304bb1b 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTResearchMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTResearchMachines.java
+@@ -202,11 +202,13 @@ public class GTResearchMachines {
+             .appearanceBlock(COMPUTER_CASING)
+             .recipeType(GTRecipeTypes.DUMMY_RECIPES)
+             .tooltips(LangHandler.getMultiLang("gtceu.machine.high_performance_computation_array.tooltip"))
++            .tooltips(Component.translatable("gtceu.machine.high_performance_computation_array.expandable"),
++                    Component.translatable("gtceu.machine.high_performance_computation_array.coolant"))
+             .pattern(definition -> FactoryBlockPattern.start()
+                     .aisle("AA", "CC", "CC", "CC", "AA")
++                    // AF9: the array grows by slices of 3 component slots, MIN_SLICES to MAX_SLICES of them
+                     .aisle("VA", "XV", "XV", "XV", "VA")
+-                    .aisle("VA", "XV", "XV", "XV", "VA")
+-                    .aisle("VA", "XV", "XV", "XV", "VA")
++                    .setRepeatable(HPCAMachine.MIN_SLICES, HPCAMachine.MAX_SLICES)
+                     .aisle("SA", "CC", "CC", "CC", "AA")
+                     .where('S', controller(blocks(definition.getBlock())))
+                     .where('A', blocks(ADVANCED_COMPUTER_CASING.get()))
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/research/HPCAMachine.java b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/research/HPCAMachine.java
+index 6fbf139..d9f34c8 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/research/HPCAMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/research/HPCAMachine.java
+@@ -43,15 +43,19 @@ import net.minecraft.core.Direction;
+ import net.minecraft.core.registries.BuiltInRegistries;
+ import net.minecraft.network.chat.Component;
+ import net.minecraft.network.chat.MutableComponent;
++import net.minecraft.resources.ResourceLocation;
+ import net.minecraft.server.TickTask;
+ import net.minecraft.server.level.ServerLevel;
+ import net.minecraft.world.level.Level;
+ import net.minecraft.world.level.block.entity.BlockEntity;
++import net.minecraft.world.level.material.Fluid;
+ import net.minecraftforge.fluids.FluidStack;
+ import net.minecraftforge.fluids.capability.IFluidHandler;
+ 
+ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
++import it.unimi.dsi.fastutil.objects.Object2IntMap;
++import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+ import lombok.Getter;
+@@ -73,6 +77,33 @@ public class HPCAMachine extends WorkableElectricMultiblockMachine
+     private static final double IDLE_TEMPERATURE = 200;
+     private static final double DAMAGE_TEMPERATURE = 1000;
+ 
++    /** The shortest and longest the array builds: slices of 3 component slots each (AF9: expandable). */
++    public static final int MIN_SLICES = 3;
++    public static final int MAX_SLICES = 12;
++
++    /**
++     * What an Active Cooler makes of a coolant at its full rate (8 mB/t): its cooling per tick. A fluid of the
++     * coolants tag that is not listed counts {@link #BASE_COOLANT_STRENGTH}, like the PCB Coolant.
++     */
++    public static final int BASE_COOLANT_STRENGTH = 2;
++    private static final Object2IntMap<ResourceLocation> COOLANT_STRENGTH = new Object2IntOpenHashMap<>();
++
++    static {
++        registerCoolant(new ResourceLocation("gtceu", "supercooled_hydrogen"), 8);
++        registerCoolant(new ResourceLocation("gtceu", "supercooled_argon"), 12);
++        registerCoolant(new ResourceLocation("gtceu", "supercooled_xenon"), 16);
++        registerCoolant(new ResourceLocation("gtceu", "supercooled_endion"), 20);
++    }
++
++    /** Sets the cooling an Active Cooler gets out of a fluid at its full rate (the PCB Coolant gives 2). */
++    public static void registerCoolant(ResourceLocation fluid, int strength) {
++        COOLANT_STRENGTH.put(fluid, strength);
++    }
++
++    public static int coolantStrength(Fluid fluid) {
++        return COOLANT_STRENGTH.getOrDefault(BuiltInRegistries.FLUID.getKey(fluid), BASE_COOLANT_STRENGTH);
++    }
++
+     private IMaintenanceMachine maintenance;
+     private IEnergyContainer energyContainer;
+     private IFluidHandler coolantHandler;
+@@ -259,9 +290,6 @@ public class HPCAMachine extends WorkableElectricMultiblockMachine
+                 74, 57, 47, 47, GuiTextures.HPCA_COMPONENT_OUTLINE)
+                 .setServerTooltipSupplier(hpcaHandler::addInfo)
+                 .setFillDirection(ProgressTexture.FillDirection.LEFT_TO_RIGHT));
+-        int startX = 76;
+-        int startY = 59;
+-
+         // we need to know what components we have on the client
+         if (getLevel().isClientSide) {
+             if (isFormed) {
+@@ -271,11 +299,18 @@ public class HPCAMachine extends WorkableElectricMultiblockMachine
+                 hpcaHandler.clearClientComponents();
+             }
+         }
++        // 3 rows by one column per slice; 3 columns fill the original grid, more shrink to fit the screen
++        int columns = Math.max(3, (hpcaHandler.components.size() + 2) / 3);
++        int pitch = columns <= 3 ? 15 : 11;
++        int size = pitch - 2;
++        int startX = 97 - pitch * columns / 2;
++        int startY = 59;
+         for (int i = 0; i < 3; i++) {
+-            for (int j = 0; j < 3; j++) {
+-                final int index = i * 3 + j;
++            for (int j = 0; j < columns; j++) {
++                final int index = i * columns + j;
+                 Supplier<IGuiTexture> textureSupplier = () -> hpcaHandler.getComponentTexture(index);
+-                builder.addWidget(new ImageWidget(startX + (15 * j), startY + (15 * i), 13, 13, textureSupplier));
++                builder.addWidget(new ImageWidget(startX + (pitch * j), startY + (pitch * i), size, size,
++                        textureSupplier));
+             }
+         }
+         return builder;
+@@ -487,44 +522,39 @@ public class HPCAMachine extends WorkableElectricMultiblockMachine
+             if (maxActiveCooling == 0 && maxCoolantDrain == 0) {
+                 return temperatureChange;
+             }
+-            if (forceCoolWithActive || maxActiveCooling <= temperatureChange) {
+-                // try to fully utilize active coolers
+-                int remainingCoolant = maxCoolantDrain;
+-                for (var fluid : BuiltInRegistries.FLUID.getTagOrEmpty(HPCA_COOLANTS)) {
+-                    FluidStack drained = GTTransferUtils.drainFluidAccountNotifiableList(coolantTank,
+-                            new FluidStack(fluid.get(), remainingCoolant), IFluidHandler.FluidAction.EXECUTE);
+-                    remainingCoolant -= drained.getAmount();
+-                    if (remainingCoolant <= 0) break;
+-                }
+-                if (remainingCoolant <= 0) {
+-                    // coolant requirement was fully met
+-                    temperatureChange -= maxActiveCooling;
+-                } else {
+-                    // coolant requirement was only partially met, cool proportional to fluid amount drained
+-                    // a * (b / c)
+-                    int coolantDrained = maxCoolantDrain - remainingCoolant;
+-                    temperatureChange -= maxActiveCooling * (1.0 * coolantDrained / maxCoolantDrain);
+-                }
+-            } else if (temperatureChange > 0) {
+-                // try to partially utilize active coolers to stabilize to zero
+-                double temperatureToDecrease = Math.min(temperatureChange, maxActiveCooling);
+-                int coolantToDrain = Math.max(1, (int) (maxCoolantDrain * (temperatureToDecrease / maxActiveCooling)));
+-                int remainingCoolant = coolantToDrain;
+-                for (var fluid : BuiltInRegistries.FLUID.getTagOrEmpty(HPCA_COOLANTS)) {
+-                    FluidStack drained = GTTransferUtils.drainFluidAccountNotifiableList(coolantTank,
+-                            new FluidStack(fluid.get(), remainingCoolant), IFluidHandler.FluidAction.EXECUTE);
+-                    remainingCoolant -= drained.getAmount();
+-                    if (remainingCoolant <= 0) break;
+-                }
+-                if (remainingCoolant <= 0) {
++            // the cooling still wanted of the active coolers: all they can do when running hot, else just what brings
++            // the temperature to a stop
++            double wanted = forceCoolWithActive ? Double.MAX_VALUE : Math.max(0, temperatureChange);
++            if (wanted <= 0 || maxCoolantDrain <= 0) {
++                return temperatureChange;
++            }
++
++            // the strongest coolant first; the active coolers' rate (maxCoolantDrain mB/t) is shared among them
++            List<Fluid> coolants = new ArrayList<>();
++            for (var fluid : BuiltInRegistries.FLUID.getTagOrEmpty(HPCA_COOLANTS)) {
++                coolants.add(fluid.value());
++            }
++            coolants.sort(Comparator.comparingInt(HPCAMachine::coolantStrength).reversed());
++
++            double rateLeft = 1.0;
++            for (Fluid coolant : coolants) {
++                if (wanted <= 0 || rateLeft <= 0) break;
++                // cooling of every active cooler at its full rate with this coolant
++                double fullCooling = maxActiveCooling * (double) coolantStrength(coolant) / BASE_COOLANT_STRENGTH;
++                double fraction = Math.min(rateLeft, wanted / fullCooling);
++                int toDrain = Math.max(1, (int) (maxCoolantDrain * fraction));
++                FluidStack drained = GTTransferUtils.drainFluidAccountNotifiableList(coolantTank,
++                        new FluidStack(coolant, toDrain), IFluidHandler.FluidAction.EXECUTE);
++                if (drained.isEmpty()) continue;
++                if (drained.getAmount() >= toDrain && wanted != Double.MAX_VALUE && fraction < rateLeft) {
+                     // successfully stabilized to zero
+                     return 0;
+-                } else {
+-                    // coolant requirement was only partially met, cool proportional to fluid amount drained
+-                    // a * (b / c)
+-                    int coolantDrained = (coolantToDrain - remainingCoolant);
+-                    temperatureChange -= temperatureToDecrease * (1.0 * coolantDrained / coolantToDrain);
+                 }
++                // cooling proportional to the fluid drained
++                double cooled = fullCooling * drained.getAmount() / maxCoolantDrain;
++                temperatureChange -= cooled;
++                wanted -= cooled;
++                rateLeft -= 1.0 * drained.getAmount() / maxCoolantDrain;
+             }
+             return temperatureChange;
+         }
+@@ -723,26 +753,38 @@ public class HPCAMachine extends WorkableElectricMultiblockMachine
+             Direction relativeUp = RelativeDirection.UP.getRelative(frontFacing, upwardsFacing, flip);
+ 
+             if (components.isEmpty()) {
+-                BlockPos testPos = pos
+-                        .relative(frontFacing.getOpposite(), 3)
+-                        .relative(relativeUp, 3);
+-
++                // the slices lie behind the controller, up to MAX_SLICES of them, three rows high; the controller sits
++                // below the lowest row. Row by row, slice by slice, so the grid is as wide as the array is long.
++                BlockPos top = pos.relative(relativeUp, 3);
++                List<IHPCAComponentHatch> found = new ArrayList<>();
++                int slices = 0;
++                for (int j = 1; j <= MAX_SLICES; j++) {
++                    BlockPos probe = top.relative(frontFacing.getOpposite(), j);
++                    if (clientComponent(world, probe) == null) break;
++                    slices = j;
++                }
+                 for (int i = 0; i < 3; i++) {
+-                    for (int j = 0; j < 3; j++) {
+-                        BlockPos tempPos = testPos.relative(frontFacing, j).relative(relativeUp.getOpposite(), i);
+-                        BlockEntity be = world.getBlockEntity(tempPos);
+-                        if (be instanceof IHPCAComponentHatch hatch) {
+-                            components.add(hatch);
+-                        } else if (be instanceof IMachineBlockEntity machineBE) {
+-                            MetaMachine machine = machineBE.getMetaMachine();
+-                            if (machine instanceof IHPCAComponentHatch hatch) {
+-                                components.add(hatch);
+-                            }
+-                        }
++                    for (int j = slices; j >= 1; j--) {
++                        BlockPos tempPos = top.relative(frontFacing.getOpposite(), j)
++                                .relative(relativeUp.getOpposite(), i);
++                        IHPCAComponentHatch hatch = clientComponent(world, tempPos);
+                         // if here without a hatch, something went wrong, better to skip than add a null into the mix.
++                        if (hatch != null) found.add(hatch);
+                     }
+                 }
++                components.addAll(found);
++            }
++        }
++
++        @Nullable
++        private static IHPCAComponentHatch clientComponent(Level world, BlockPos pos) {
++            BlockEntity be = world.getBlockEntity(pos);
++            if (be instanceof IHPCAComponentHatch hatch) return hatch;
++            if (be instanceof IMachineBlockEntity machineBE &&
++                    machineBE.getMetaMachine() instanceof IHPCAComponentHatch hatch) {
++                return hatch;
+             }
++            return null;
+         }
+ 
+         public void clearClientComponents() {
+-- 
+2.43.0
+

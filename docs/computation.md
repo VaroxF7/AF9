@@ -1,14 +1,14 @@
 # Computation
 
 Where AF9's computation (CWU/t) comes from, besides GT's own HPCA: a single-block **CWU Server** (LV to IV) and the
-multi-block **Quantum Computer** (UV, see the end of this file).
+expandable **HPCA** (see the end of this file).
 It is a GT computation source (`IOpticalComputationProvider`): GT's Optical Fiber Cable leads it to a reception hatch
 (a Research Station, the Orbital Station, a computation hatch on a Photolithography Line or Scanner). Code: af9-core
 `com.af9.core.machine.CWUServerMachine`; KubeJS `startup_scripts/gtceu/cwu_server.js`,
 `server_scripts/mods/gtceu/cwu_server.js`. The glass fibre in their recipes is fine borosilicate glass wire.
 
 *The N1 computation / supercomputer arrays (racks of CPU/GPU/RAM cards) were taken out of the pack. Larger
-computation now comes from GT's own HPCA and the Quantum Computer.*
+computation comes from GT's own HPCA, which the fork makes expandable.*
 
 *The machine bus (Optical Bus Cable, Bus Connector, Bus Controller, Interconnect Hatch, the Machine Bus Module for the Central
 Monitor, ME autocrafting through the controller), the ME Computation Link (ME networks needing computation for their channels)
@@ -62,8 +62,6 @@ transmission hatches give it out, up to 1,024 CWU/t, drawn from the store (so it
 draw). The stored amount is saved with the controller; removing items lowers the capacity and cuts the store to fit. As it is a
 Data Bank, its hatches also provide any research on the items stored in them.
 
-## Quantum Computer
+## HPCA
 
-GTNH's TecTech Quantum Computer (`gtceu:quantum_computer`, `QuantumComputerMachine`): a UV multiblock that is a computation
-source like the HPCA, but with racks of processors and heat vents in place of the HPCA's nine component slots. It takes GT's
-Computation Data Transmission Hatch (and AF9's wireless one) where the HPCA does. Spec: [quantum-computer.md](quantum-computer.md).
+GT's High Performance Computation Array, expandable and with coolant-scaled advanced coolers: [hpca.md](hpca.md).

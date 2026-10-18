@@ -35,9 +35,6 @@
     "af9:space_elevator_motor_mk3",
     "af9:space_elevator_motor_mk4",
     "af9:space_elevator_motor_mk5",
-    "af9:ultra_high_strength_concrete_floor",
-    "af9:quantum_computer_casing",
-    "af9:quantum_computer_vent_casing",
-    "af9:quantum_computer_advanced_casing"
+    "af9:ultra_high_strength_concrete_floor"
   ]
 }

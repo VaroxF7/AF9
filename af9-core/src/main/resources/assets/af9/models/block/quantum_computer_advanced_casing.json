@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:block/cube_column",
-  "textures": {
-    "side": "af9:block/quantum_computer_advanced_casing",
-    "end": "af9:block/quantum_computer_advanced_casing_end"
-  }
-}

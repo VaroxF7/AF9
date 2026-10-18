@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    { "id": "gtceu:supercooled_hydrogen", "required": false },
+    { "id": "gtceu:supercooled_argon", "required": false },
+    { "id": "gtceu:supercooled_xenon", "required": false },
+    { "id": "gtceu:supercooled_endion", "required": false }
+  ]
+}

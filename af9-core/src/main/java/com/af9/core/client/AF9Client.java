@@ -76,8 +76,6 @@ public final class AF9Client {
 
         @SubscribeEvent
         public static void onTooltip(ItemTooltipEvent event) {
-            // processors and vents a Quantum Computer's rack takes
-            com.af9.core.quantum.RackComponent.addTooltip(event.getItemStack(), event.getToolTip());
             WirelessLink link = WirelessLink.read(event.getItemStack());
             if (link != null) {
                 event.getToolTip().add(Math.min(1, event.getToolTip().size()),

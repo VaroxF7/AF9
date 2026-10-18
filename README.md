@@ -69,7 +69,7 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 |---|---|---|
 | 🔬 Semiconductor factory | quartz → EG polysilicon → CZ boules → 9 wafer substrates → fab chemistry → 350–1 nm lithography → GT + AF9 chips | [`docs/semiconductor-factory.md`](docs/semiconductor-factory.md) |
 | ☢️ Asteroid fission | Brannerite only in the Asteroid Field → yellowcake → FX-1 Reactor → supercritical steam + plutonium → Fusion Reactor Mk1 | [`docs/asteroid-fission.md`](docs/asteroid-fission.md) |
-| 🧮 Computation | CWU Servers (LV–IV) and GTNH's Quantum Computer (UV) as `IOpticalComputationProvider` | [`docs/computation.md`](docs/computation.md), [`docs/quantum-computer.md`](docs/quantum-computer.md) |
+| 🧮 Computation | CWU Servers (LV–IV) and GT's HPCA (expandable) as `IOpticalComputationProvider` | [`docs/computation.md`](docs/computation.md) |
 | 🛰️ Space Elevator | GTNH's 35×35×43 (ext. 47×47) tower, Mining Drones + Modules, ore expeditions + GTNH Space Pumping liquid missions | [`docs/space-elevator.md`](docs/space-elevator.md) |
 | ⚗️ Platinum-group refinery | matte → leach → chloride liquor → Pt/Pd/Au, then Ru/Os via tetroxides, Ir/Rh last — in GT's own machines | [`docs/platinum-group-metals.md`](docs/platinum-group-metals.md) |
 | 🛢️ Oil, off-world | Overworld oil off; Oil Regolith in asteroids → Impure → Shiny → Oil/Heavy Oil; fluids drilled in the Field | [`docs/oil.md`](docs/oil.md) |
@@ -205,9 +205,9 @@ hatches.
 | Source | Output | Notes |
 |---|---|---|
 | CWU Server LV→IV | 1 / 2 / 3 / 4 / 5 CWU/t | single block, EU→CWU (`VA/max` per CWU), front LEDs (red offline / green idle / blink busy) |
-| Quantum Computer (UV) | hundreds to tens of thousands CWU/t | GTNH's TecTech computer: a corridor of 1–13 rack slices, processors (crystal → NVM circuits) and heat vents in rack hatches, overclock / overvolt ratios; a GT computation source, takes GT's transmission hatch and the wireless one. [`docs/quantum-computer.md`](docs/quantum-computer.md) |
+| HPCA (expandable) | 3 to 36 component slots | GT's own array, grown by length (3-12 slices of 3 slots); advanced coolers scale with the coolant. [`docs/hpca.md`](docs/hpca.md) |
 
-The HPCA is GT's own; the Quantum Computer is the large source.
+The HPCA is GT's own, made expandable by the fork.
 
 > Removed and staying removed: N1 computation / supercomputer arrays (racks of cards), machine bus, ME Computation Link, Crafting CPU Array
 > (see history docs).

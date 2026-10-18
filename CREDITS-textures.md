@@ -51,22 +51,6 @@ LGPL-3.0 or later, <https://github.com/GTNewHorizons/GT5-Unofficial>; licence te
 | `af9-core/.../textures/block/satellite_casing.png` (+ `_ctm.png`, `.mcmeta`) | `gtnhintergalactic/textures/blocks/gasSiphon/SiphonCasing.png` | recoloured to the colours of Enriched Naquadah Trinium Europium Duranide (`tools/textures/satellite_casing.py`) |
 | `kubejs/assets/gtceu/textures/block/multiblock/planetary_satellite/overlay_front*.png` (controller face) | `gregtech/textures/blocks/iconsets/OVERLAY_FRONT_PLANETARYSIPHON{,_GLOW,_ACTIVE_GLOW}.png` | animated while working: the orb breathes, a glint sweeps over it (`tools/textures/satellite_casing.py`) |
 
-## Quantum Computer
-
-The Quantum Computer is a port of GTNH's TecTech Quantum Computer (GT5-Unofficial `MTEQuantumComputer` and `MTEHatchRack`;
-LGPL-3.0 or later, <https://github.com/GTNewHorizons/GT5-Unofficial>; licence text in `licenses/GT5-Unofficial-LGPL-3.0.txt`).
-The component numbers in `RackComponent` and the structure are TecTech's, the code is AF9's.
-
-| af9 file | GT5-Unofficial source (`src/main/resources/assets/gregtech/textures/blocks/iconsets/`) | Changes |
-|---|---|---|
-| `af9-core/.../textures/block/quantum_computer_casing.png`, `_end.png` | `EM_PC.png`, `EM_PC_NONSIDE.png` | none |
-| `af9-core/.../textures/block/quantum_computer_vent_casing.png`, `_end.png` | `EM_PC_VENT.png`, `EM_PC_VENT_NONSIDE.png` | none |
-| `af9-core/.../textures/block/quantum_computer_advanced_casing.png`, `_end.png` | `EM_PC_ADV.png`, `EM_PC_ADV_NONSIDE.png` | none |
-| `kubejs/assets/gtceu/textures/block/multiblock/quantum_computer/overlay_front*.png` (controller face) | `EM_COMPUTER.png`, `EM_COMPUTER_ACTIVE.png` (+ `.mcmeta`) | none; the paused face is the idle one |
-| `kubejs/assets/gtceu/textures/block/multiblock/computer_rack_hatch/overlay_front*.png` | `EM_RACK.png`, `EM_RACK_ACTIVE.png` (+ `.mcmeta`) | none; the paused face is the idle one |
-
-The Rack Heat Vent icons (`item/rack_heat_vent_mk1-4.png`) are AF9's own (`tools/textures/rack_vents.py`).
-
 ## Mk2 Orbital Array casings
 
 `orbital_light_casing` (+ `_ctm`) is derived from CosmicCore's `resonantly_tuned_virtue_meld_casing.png` (MIT, as below): its frame is kept and recoloured teal (`tools/textures/orbital_light_src.py`, base in `tools/textures/orbital_src/orbital_light_base.png`); the glow colour and the maze are AF9's own.

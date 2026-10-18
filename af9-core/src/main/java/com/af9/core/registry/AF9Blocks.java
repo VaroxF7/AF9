@@ -111,11 +111,6 @@ public final class AF9Blocks {
         // Europium Duranide ----
         block("satellite_casing", SoundType.METAL, 12F, 0, 0);
 
-        // ---- Quantum Computer: GTNH's TecTech computer casings (GT5-Unofficial, LGPL-3.0) ----
-        block("quantum_computer_casing", SoundType.METAL, 12F, 0, 0);
-        block("quantum_computer_vent_casing", SoundType.METAL, 12F, 0, 0);
-        block("quantum_computer_advanced_casing", SoundType.METAL, 12F, 0, 0);
-
         for (int tier = 1; tier <= MOTORS; tier++) block(MOTOR + tier, SoundType.METAL, 12F, 0, 2);
         // the Mining Modules are machines now (gtceu:space_mining_module_mk1 to mk3, SpaceModuleMachine)
     }
