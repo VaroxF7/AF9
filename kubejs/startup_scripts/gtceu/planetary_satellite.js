@@ -343,8 +343,8 @@ const SATELLITE_SHAPE = [
      '    CCCKCCC    ',
      '       C       ',
      '       C       ',
-     '       M       ',
-     '       L       ',
+     '               ',
+     '               ',
      '               ',
      '               ',
      '               ',
@@ -412,8 +412,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .where(' ', Predicates.any())
                 .where('B', Predicates.blocks('gtceu:hsss_frame'))
                 .where('K', Predicates.blocks('gtceu:superconducting_coil'))
-                .where('L', Predicates.blocks('af9:orbital_light_casing'))
-                .where('M', Predicates.blocks('af9:orbital_magnet_casing'))
                 .where('C', Predicates.blocks('af9:satellite_casing')
                     .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
                     .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(2, 1))
