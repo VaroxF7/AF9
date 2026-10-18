@@ -4,11 +4,7 @@ single blocks and of the Large Electric Implosion Compressor, and the items of t
 
 Run from the repository root (needs Pillow):  python3 tools/textures/electric_implosion.py [--preview <dir>]
 
-  casing   a bank of two capacitor cylinders per block, a copper bus between them, a clamp collar in the middle of the
-           block. Where blocks join, the frame goes: the cylinders run on as long tubes and the bus as one rail. A pulse
-           of cyan runs down the bus (every 16 px, so it runs on across blocks) and the cylinders shimmer after it.
-           16 frames, the sprite (16 x 16n) and its sheet (32 x 32n, the format tools/textures/space_elevator.py
-           describes) animated with the same frame time.
+  casing   GT's Stable Titanium Machine Casing and its connected sheet (gt_src/), recoloured teal.
   face     the controller and the single blocks: a bezel with a viewport on two electrodes, a lamp strip below it.
            Idle: dark, a red lamp. Active (8 frames): an arc jumps between the electrodes, the chamber flashes, a green
            lamp; the arc and the lamps are also written to the emissive layer.
@@ -66,97 +62,48 @@ def strip(frames):
     return im
 
 
-# ---------------------------------------------------------------------------------------------------------------------
-# The casing
-# ---------------------------------------------------------------------------------------------------------------------
 OUTLINE = (22, 25, 32)
 BEVEL_HI = (134, 144, 160)
 BEVEL_MID = (92, 101, 117)
 BEVEL_LO = (58, 64, 78)
-CYL = [(150, 178, 204), (118, 146, 172), (90, 114, 140), (66, 88, 112), (46, 64, 86), (30, 42, 58)]
 COPPER = [(226, 142, 80), (150, 80, 42)]
 BOLT = (246, 196, 140)
 CYAN_CORE = (214, 250, 255)
 CYAN = (64, 196, 255)
-SEAM = [(14, 17, 24), (20, 24, 32)]
 
 
-def pulse_at(x, f):
-    """How far into the runner's tail a pixel of the bus is: 0 is the head, 1 gone (None: not lit). Moves right 1 px a frame."""
-    d = (f - x) % 16
-    return None if d >= 6 else d / 6.0
-
-
-def interior(x, y, f):
-    """The face of the casing where blocks join (16 x 16 periodic, so it runs on across blocks)."""
-    y %= 16
-    x %= 16
-    p = pulse_at(x, f)
-    if y in (0, 15):
-        return SEAM[y == 15] + (255,)
-    if y in (7, 8):
-        base = COPPER[y == 8]
-        if x in (3, 12) and y == 7:
-            base = BOLT
-        if p is not None:
-            return mix(base, CYAN_CORE if p < 0.34 else CYAN, 0.92 - 0.55 * p)
-        return base + (255,)
-    tone = CYL[y - 1] if y < 7 else CYL[y - 9]
-    if x in (7, 8):                                          # the clamp collar
-        return shade(tone, 0.5 if x == 7 else 0.42)
-    if x in (6, 9):
-        return shade(tone, 1.14 if x == 6 else 0.8)
-    col = shade(tone, 1.0)
-    # the cylinders glow a little as the runner passes (the runner's light spills onto the nearest rows)
-    near = y in (6, 9)
-    if near and p is not None:
-        return mix(tone, CYAN, 0.45 * (1 - p))
-    # a very faint sweep so the tubes are never dead
-    k = 1.0 + 0.07 * math.sin(2 * math.pi * ((x - f) % 16) / 16.0)
-    return shade(tone, k) if k != 1.0 else col
-
-
-def frame_pixel(x, y):
-    """The 2 px frame of the lone block; None inside."""
-    if x in (0, 15) or y in (0, 15):
-        return OUTLINE + (255,)
-    if x == 1 or y == 1:
-        return BEVEL_HI + (255,)
-    if x == 14 or y == 14:
-        return BEVEL_LO + (255,)
-    return None
-
-
-def casing_sprite(f):
-    im = Image.new('RGBA', (16, 16))
-    for y in range(16):
-        for x in range(16):
-            px = frame_pixel(x, y)
-            im.putpixel((x, y), px if px is not None else interior(x, y, f))
-    # the frame's bevel meets at the corners: top-left light, bottom-right dark, the other two corners mid
-    for (x, y, c) in ((14, 1, BEVEL_MID), (1, 14, BEVEL_MID), (14, 14, BEVEL_LO), (1, 1, BEVEL_HI)):
-        im.putpixel((x, y), c + (255,))
-    return im
-
-
-def casing_ctm(f, sprite):
-    return se.ctm_sheet(sprite, 2, 2, lambda s, x, y: interior(x, y, f))
+def recolour(im, hue=0.5, sat=2.4, val=0.78):
+    """GT's Stable Titanium Machine Casing (tools/textures/gt_src, LGPL-3.0, CREDITS-textures.md) turned from violet to teal:
+    the tones keep their value, the hue is moved, so the bevels and the connected texture are GT's own."""
+    import colorsys
+    out = im.convert('RGBA')
+    for y in range(out.height):
+        for x in range(out.width):
+            r, g, b, a = out.getpixel((x, y))
+            h, sl, v = colorsys.rgb_to_hsv(r / 255, g / 255, b / 255)
+            r, g, b = colorsys.hsv_to_rgb(hue, min(0.85, max(sl, 0.12) * sat), v * val)
+            out.putpixel((x, y), (clamp(r * 255), clamp(g * 255), clamp(b * 255), a))
+    return out
 
 
 def write_casing():
-    sprites = [casing_sprite(f) for f in range(FRAMES)]
-    sheets = [casing_ctm(f, sprites[f]) for f in range(FRAMES)]
+    """The Shock Capacitor Casing: GT's Stable Titanium casing and its connected sheet, recoloured teal."""
     name = 'shock_capacitor_casing'
-    strip(sprites).save(os.path.join(BLOCK, name + '.png'))
-    strip(sheets).save(os.path.join(BLOCK, name + '_ctm.png'))
-    animation = {'animation': {'frametime': FRAMETIME}}
-    dump(os.path.join(BLOCK, name + '.png.mcmeta'), dict(animation, ldlib={'connection': 'af9:block/%s_ctm' % name}))
-    dump(os.path.join(BLOCK, name + '_ctm.png.mcmeta'), animation)
+    src = os.path.join(ROOT, 'tools/textures/gt_src')
+    sprite = recolour(Image.open(os.path.join(src, 'machine_casing_stable_titanium.png')))
+    sheet = recolour(Image.open(os.path.join(src, 'machine_casing_stable_titanium_ctm.png')))
+    sprite.save(os.path.join(BLOCK, name + '.png'))
+    sheet.save(os.path.join(BLOCK, name + '_ctm.png'))
+    dump(os.path.join(BLOCK, name + '.png.mcmeta'), {'ldlib': {'connection': 'af9:block/%s_ctm' % name}})
+    for stale in (name + '_ctm.png.mcmeta',):
+        path = os.path.join(BLOCK, stale)
+        if os.path.exists(path):
+            os.remove(path)
     dump(os.path.join(ASSETS, 'blockstates/%s.json' % name), {'variants': {'': {'model': 'af9:block/%s' % name}}})
     dump(os.path.join(ASSETS, 'models/block/%s.json' % name),
          {'parent': 'minecraft:block/cube_all', 'textures': {'all': 'af9:block/%s' % name}})
     dump(os.path.join(ASSETS, 'models/item/%s.json' % name), {'parent': 'af9:block/%s' % name})
-    return sprites, sheets
+    return [sprite] * FRAMES, [sheet] * FRAMES
 
 
 # ---------------------------------------------------------------------------------------------------------------------

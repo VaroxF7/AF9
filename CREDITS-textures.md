@@ -66,3 +66,9 @@ textures in `block` are MIT-licensed per its license section, `licenses` in the 
 | af9 file (`af9-core/.../textures/block/`) | CosmicCore source |
 |---|---|
 | `orbital_magnet_casing.png` | `stellar_neutronium_grade_magnet.png` |
+
+## Shock Capacitor Casing (Electric Implosion Compressor)
+
+`shock_capacitor_casing.png` and `_ctm.png` are GregTech CEu's `machine_casing_stable_titanium.png` and its `_ctm.png`
+(GregTech-Modern v7.5.3, LGPL-3.0, copies in `tools/textures/gt_src/`) with the hue moved from violet to teal
+(`tools/textures/electric_implosion.py`).

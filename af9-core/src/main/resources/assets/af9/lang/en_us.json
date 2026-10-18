@@ -1207,7 +1207,7 @@
     "block.af9.hearth_support_casing": "Hearth Support Casing",
     "block.af9.cutter_casing": "Cutter Machine Casing",
     "block.af9.shock_capacitor_casing": "Shock Capacitor Casing",
-    "block.af9.shock_capacitor_casing.tooltip.0": "§7A bank of capacitor cylinders on a copper bus.",
+    "block.af9.shock_capacitor_casing.tooltip.0": "§7Stable titanium plating in teal, joined across blocks.",
     "block.af9.shock_capacitor_casing.tooltip.1": "§7Casing of the Large Electric Implosion Compressor.",
     "block.af9.orbital_magnet_casing": "Orbital Magnet Casing",
     "block.af9.orbital_light_casing": "Orbital Light Casing",

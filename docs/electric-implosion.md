@@ -36,9 +36,10 @@ insulation. `tools/lint/data/sources.txt` lists the insulation as a source until
 * Multiblock `gtceu:large_electric_implosion_compressor`, 3 x 3 x 3 like GT's Large Chemical Reactor: 20 Shock Capacitor Casings (hatches
   go in them), 5 cupronickel coil blocks in the cross, a titanium frame in the middle, the controller in the middle of the front.
   Parallel hatch, perfect overclocks. Crafted from GT's Implosion Compressor, a piston, circuits, the new casing and gold cable.
-* Shock Capacitor Casing (`af9:shock_capacitor_casing`): a connected, animated texture (16 frames): capacitor cylinders and a copper
-  bus; where blocks join the frame goes and a cyan pulse runs down the bus across blocks. The face is shared by the single blocks and
-  the controller: a viewport on two electrodes, an arc that crackles while it works (emissive), a red / amber / green lamp.
+* Shock Capacitor Casing (`af9:shock_capacitor_casing`): GT's Stable Titanium Machine Casing with its connected sheet (copied to
+  `tools/textures/gt_src/`, LGPL-3.0), recoloured teal by `tools/textures/electric_implosion.py` (an earlier hand-drawn capacitor
+  casing was dropped). The face is shared by the single blocks and the controller: a viewport on two electrodes, an arc that
+  crackles while it works (emissive), a red / amber / green lamp.
 
 ## Lunar Acid Vapor
 
