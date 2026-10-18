@@ -5,8 +5,8 @@ Orbital Light Casing's glow) laid into it.
 
   orbital_combined_structure_casing   Stress-Proof Casing: same stone corners and cross, a teal core line in the cross;
                                       joins its neighbours (LDLib connected texture, like the original)
-  orbital_truss_casing                Sturdy HSS-E Casing, two plates and rivets: dark steel blue, gold rivets
-  orbital_girder_casing               the same plates turned on their side: graphite, teal rivets
+  orbital_truss_casing                Sturdy HSS-E Casing, ribbed steel-blue beam plating
+  orbital_girder_casing               the same beam on its side: graphite, a teal core in the groove
   orbital_deck_casing                 Inert PTFE Casing: the same inset plate, lit by a teal edge (hatches go on it)
 All four join their neighbours (the lone block is the original's shape; where blocks meet the frame goes and the plating
 runs on).
@@ -106,8 +106,6 @@ GIRDER_GRAPHITE = [(59, (17, 18, 21)), (69, (28, 29, 34)), (84, (46, 48, 56)), (
 def plates(stops, rivet):
     base = load('machine_casing_sturdy_hsse')
     out = remap(base, stops)
-    for x, y in RIVETS:
-        out.putpixel((x, y), rivet)
     return out
 
 
@@ -119,15 +117,61 @@ def girder_base():
     return plates(GIRDER_GRAPHITE, TEAL).transpose(Image.TRANSPOSE)
 
 
+def shade(px, k):
+    return tuple(max(0, min(255, round(c * k))) for c in px[:3]) + (255,)
+
+
+def beam(base, accent, a, c):
+    """A beam of plates: `a` runs along it, `c` across (both px of the face). Plates 8 px wide with a dark seam and a lit edge on
+    the left, a shaded edge on the right; a soft diagonal sheen (a band every 16 px, as the deck's); a groove down the middle of
+    each plate (its core `accent`, when it has one); a panel joint across every 16 px."""
+    cx, cy = c % 8, a % 16
+    px = shade(base, 0.94 + 0.12 * (1 - abs((a + c) % 16 - 7.5) / 7.5))
+    if cx == 0:
+        return shade(base, 0.38)
+    if cx == 1:
+        return shade(px, 1.3)
+    if cx == 7:
+        return shade(px, 0.7)
+    if cx == 3:
+        return shade(px, 0.55)
+    if cx == 4:
+        return accent if accent else shade(px, 1.18)
+    if cx == 5 and accent:
+        return shade(px, 1.18)
+    if cy == 0:
+        return shade(px, 0.55)
+    if cy == 1:
+        return shade(px, 1.2)
+    return px
+
+
+TRUSS_BASE = (62, 78, 106)
+GIRDER_BASE = (66, 68, 78)
+
+
 def plated(sprite, x, y):
-    """The face without the block's edge, vertical plates (the Truss): across the sprite as it is (two plates, seams and lit
-    edges between them), down it the 8 rows 3..10 (one row of rivets) repeated."""
-    return sprite.getpixel((x % 16, 3 + (y + 5) % 8))
+    """The Truss: vertical plates, steel blue."""
+    return beam(TRUSS_BASE, None, y, x)
 
 
 def plated_flat(sprite, x, y):
-    """The same turned on its side (the Girder, whose sprite is the Truss's transposed)."""
-    return sprite.getpixel((3 + (x + 5) % 8, y % 16))
+    """The Girder: the same beam on its side, graphite, a teal core in the groove."""
+    return beam(GIRDER_BASE, TEAL_FAINT, x, y)
+
+
+def plating(sprite, inside):
+    """The lone block: the same plating with a one-pixel frame, lit top and left, shaded bottom and right."""
+    out = Image.new('RGBA', (16, 16))
+    for y in range(16):
+        for x in range(16):
+            px = inside(sprite, x, y)
+            if min(x, y) == 0:
+                px = shade(px, 1.3)
+            elif max(x, y) == 15:
+                px = shade(px, 0.6)
+            out.putpixel((x, y), px)
+    return out
 
 
 DECK = [(27, (11, 14, 19)), (34, (17, 21, 29)), (40, (24, 29, 39)), (53, (40, 48, 63)), (59, (49, 58, 76)),
@@ -157,6 +201,11 @@ def save(im, name):
     im.save(os.path.join(OUT, name + '.png'))
 
 
+def plated_src(src, fn):
+    """The inside function bound to the plates' source sprite (the lone block's sprite is already shaded)."""
+    return lambda sprite, x, y: fn(src, x, y)
+
+
 def connected(name, sprite, inside, border):
     sheet = se.ctm_sheet(sprite, border, border, inside)
     save(sprite, name)
@@ -168,10 +217,11 @@ def connected(name, sprite, inside, border):
 
 
 def main():
-    sprites = {'orbital_combined_structure_casing': combined(), 'orbital_truss_casing': truss_base(),
-               'orbital_girder_casing': girder_base(), 'orbital_deck_casing': deck_base(True)}
-    insides = {'orbital_combined_structure_casing': (combined_inside, 3), 'orbital_truss_casing': (plated, 0),
-               'orbital_girder_casing': (plated_flat, 0), 'orbital_deck_casing': (deck_inside, 4)}
+    truss_src, girder_src = truss_base(), girder_base()
+    sprites = {'orbital_combined_structure_casing': combined(), 'orbital_truss_casing': plating(truss_src, plated),
+               'orbital_girder_casing': plating(girder_src, plated_flat), 'orbital_deck_casing': deck_base(True)}
+    insides = {'orbital_combined_structure_casing': (combined_inside, 3), 'orbital_truss_casing': (plated_src(truss_src, plated), 0),
+               'orbital_girder_casing': (plated_src(girder_src, plated_flat), 0), 'orbital_deck_casing': (deck_inside, 4)}
     sheets = {n: connected(n, sprites[n], *insides[n]) for n in sprites}
     if '--preview' in sys.argv:
         dest = sys.argv[sys.argv.index('--preview') + 1]
