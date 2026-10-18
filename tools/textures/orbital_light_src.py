@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """The Orbital Light Casing sprite (tools/textures/orbital_src/orbital_light_casing.png): the frame of the CosmicCore casing it
-started from (orbital_light_base.png, see CREDITS-textures.md), recoloured to cold gunmetal, around AF9's own coil window: worn steel windings with glowing emitter slits and riveted straps.
+started from (orbital_light_base.png, see CREDITS-textures.md), recoloured to warm gunmetal, around AF9's own magnet window: chrome and gold conductor tracks held by riveted straps.
 
 Run from the repository root (needs Pillow):  python3 tools/textures/orbital_light_src.py
 then tools/textures/orbital_casings.py for the animated strips and the connected-texture sheet (border 4 px, the 8 x 8 cell
-inside repeats; the emitter slits are the only blue-dominant pixels, which orbital_casings.py animates, which orbital_casings.py animates).
+inside repeats; the gold tracks are the only strongly red-over-blue pixels, which orbital_casings.py animates, which orbital_casings.py animates).
 """
 import colorsys
 import os
@@ -14,13 +14,14 @@ from PIL import Image
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..')
 SRC = os.path.join(ROOT, 'tools/textures/orbital_src')
 
-HUE = 0.60                      # cold gunmetal frame (the base frame is blue-violet, ~0.64), mostly desaturated
-DESAT = 0.45
-# the window: a coil bank in worn steel. Per 4 rows: a bevelled steel winding, a glowing emitter slit, a shadowed winding,
-# a dark groove; a riveted steel strap every 8 px; fine grain over all of it so nothing reads as flat colour.
-STEEL = [(169, 169, 172), (120, 121, 126), (74, 75, 80), (36, 36, 40)]
-SLIT = (74, 206, 236)
-STRAP = [(229, 229, 232), (197, 197, 200), (145, 146, 150), (97, 98, 102), (49, 49, 53)]
+HUE = 0.09                      # warm gunmetal frame (the base frame is blue-violet, ~0.64), mostly desaturated
+DESAT = 0.3
+# the window: conductor tracks of a magnet. Per 8 rows: a chrome track (bright edge, body, shaded edge), a dark gap, a gold
+# track (same), a dark gap; held by a dark strap with chrome rivets every 8 px; fine grain over all of it.
+CHROME = [(236, 238, 242), (190, 194, 202), (112, 116, 126)]
+GOLD = [(255, 236, 150), (226, 176, 58), (140, 92, 24)]
+GAP = (22, 21, 24)
+STRAP = [(118, 118, 124), (88, 88, 94), (62, 62, 68), (30, 30, 34)]
 
 
 def grain(k, m, amp):
@@ -40,17 +41,16 @@ def shade(rgb, f):
 
 
 def cell(k, m):
-    row = m % 4
-    if k in (3, 4):                                        # the strap, bevelled left-light / right-dark, with rivets
+    row = m % 8
+    if k in (3, 4):                                        # the strap, bevelled left-light / right-dark, with chrome rivets
         if m in (1, 5):
-            return shade(STRAP[0] if k == 3 else STRAP[3], grain(k, m, 0.04))
-        tone = {0: 1 if row else 0, 1: 2 if row != 3 else 3}[k - 3] if row != 3 else 4
-        return shade(STRAP[tone], grain(k, m, 0.05))
-    if row == 1:                                           # the emitter slit: hot in the middle of the cell, cooler to the strap
-        f = 1.0 + 0.35 * (k in (0, 1, 6, 7)) * -1 + 0.2 * (k in (2, 5))
-        return shade(SLIT, f * grain(k, m, 0.06))
-    f = 0.62 if k in (2, 5) and row != 3 else 1.0           # shadow beside the strap
-    return shade(STEEL[row], f * grain(k, m, 0.07))
+            return shade(CHROME[0] if k == 3 else CHROME[2], grain(k, m, 0.04))
+        return shade(STRAP[0 if k == 3 else 1] if row not in (3, 7) else STRAP[3], grain(k, m, 0.05))
+    if row in (3, 7):
+        return shade(GAP, grain(k, m, 0.1))
+    tone = (CHROME if row < 3 else GOLD)[row % 4]
+    f = 0.68 if k in (2, 5) else 1.0                       # shadow beside the strap
+    return shade(tone, f * grain(k, m, 0.05))
 
 
 def main():

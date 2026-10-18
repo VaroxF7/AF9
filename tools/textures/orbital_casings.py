@@ -7,7 +7,7 @@ The plain sprites are in tools/textures/orbital_src/; the script writes the anim
 32 x 32n, n frames each, both animated with the same frame time so the sheet follows the sprite) and the .mcmeta files.
 
   light   a ring of casings reads as one panel of lit windows (the border stays on the outside, the window repeats inside);
-          a pulse of current runs down the coil windings (every 8 px, so it runs on across blocks)
+          a pulse of current runs down the gold conductor tracks (every 8 px, so it runs on across blocks)
   magnet  the casing's bright pole pieces shimmer: a slow pulse travels along them (every 8 px, so it runs on across blocks)
 """
 import json
@@ -36,7 +36,7 @@ def light(sprite, f):
     for y in range(16):
         for x in range(16):
             r, g, b, a = sprite.getpixel((x, y))
-            if b - r > 80:                                     # the lit window: its tones breathe a little out of step
+            if r - b > 80 and r > 120:                                     # the lit window: its tones breathe a little out of step
                 k = 0.86 + 0.16 * math.sin(2 * math.pi * (t - ((y - 4) % 8) / 8.0))
                 out.putpixel((x, y), (clamp(r * k), clamp(g * k), clamp(b * k), a))
     return out
