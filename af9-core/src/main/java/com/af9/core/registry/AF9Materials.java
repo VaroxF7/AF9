@@ -94,6 +94,7 @@ public final class AF9Materials {
         platinumGroup();
         quantanium();
         ceranium();
+        orbitalStructureAlloy();
         solders();
         uhvSuperconductor();
         starMatterSteel();
@@ -1191,6 +1192,21 @@ public final class AF9Materials {
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL, MaterialFlags.GENERATE_FINE_WIRE)
                 .blastTemp(9000, GasTier.HIGH, GTValues.VA[GTValues.UV], 1800)
                 .formula("(Cs3Nb2Tt)"));
+    }
+
+    /**
+     * Ceraquadalloy: the metal of the Orbital Array Mk2's structure casings (docs/orbital-casings.md). Trinaquadalloy hardened with
+     * Ceranium, Quantanium and neutronium, so every ore of the asteroid belt and the satellite's neutronium go into the
+     * tower. Mixed at UHV (orbital_casings.js), melted by GT's EBF from the blast property (10800 K, UHV).
+     */
+    private static void orbitalStructureAlloy() {
+        add(material("ceraquadalloy")
+                .ingot().fluid()
+                .color(0x6f8fa6).secondaryColor(0x1f3a4d)
+                .iconSet(MaterialIconSet.METALLIC)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_ROD)
+                .blastTemp(10800, GasTier.HIGHEST, GTValues.VA[GTValues.UHV], 2400)
+                .formula("(Tq4Cn2QcNt)"));
     }
 
     /**

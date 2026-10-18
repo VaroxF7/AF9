@@ -10,16 +10,17 @@ Each level below is a top-down view (north/front = first row, x = columns, 73x73
 - `A` gtceu:hsse_frame (unused in Mk2 tower)
 - `S` gtceu:superconducting_coil (core tube)
 - `B` any heating coil (tier = bonus)
-- `D` gtceu:sturdy_machine_casing
+- `D` af9:orbital_truss_casing (was gtceu:sturdy_machine_casing; the inner half of the rings' bands, docs/orbital-casings.md)
+- `E` af9:orbital_girder_casing (was gtceu:sturdy_machine_casing; the outer half of the rings' bands)
 - `F` gtceu:tungsten_carbide_frame (Mk2)
 - `M` af9:orbital_magnet_casing
 - `N` af9:orbital_light_casing
 - `H` gtceu:atomic_casing (Mk2)
-- `L` gtceu:stress_proof_casing
-- `Q` gtceu:inert_machine_casing (above/below module slot)
+- `L` af9:orbital_combined_structure_casing (was gtceu:stress_proof_casing)
+- `Q` af9:orbital_deck_casing (was gtceu:inert_machine_casing; above/below module slot)
 - `Y` module slot: Orbital Module or air
 - `C` gtceu:nonconducting_casing
-- `O` gtceu:inert_machine_casing OR any hatch (top deck/crown: energy, laser, coolant, computation, data, optical, fluid in, item in/out, maintenance)
+- `O` af9:orbital_deck_casing (was gtceu:inert_machine_casing) OR any hatch (top deck/crown: energy, laser, coolant, computation, data, optical, fluid in, item in/out, maintenance)
 - `.` anything (any block / air; shown as .)
 
 ## Block counts (placed, excluding ' ')

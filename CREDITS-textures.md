@@ -71,6 +71,11 @@ The Rack Heat Vent icons (`item/rack_heat_vent_mk1-4.png`) are AF9's own (`tools
 
 `orbital_light_casing` (+ `_ctm`) is derived from CosmicCore's `resonantly_tuned_virtue_meld_casing.png` (MIT, as below): its frame is kept and recoloured teal (`tools/textures/orbital_light_src.py`, base in `tools/textures/orbital_src/orbital_light_base.png`); the glow colour and the maze are AF9's own.
 
+The four structure casings (`orbital_combined_structure_casing` (+ `_ctm`), `orbital_truss_casing`, `orbital_girder_casing`,
+`orbital_deck_casing`) are re-cut from GregTech CEu Modern's `gcym/stress_proof_casing.png`, `casings/solid/machine_casing_sturdy_hsse.png` and
+`machine_casing_inert_ptfe.png` (LGPL-3.0; the sources are in `tools/textures/gt_src/`): the same shapes on a cool steel
+colour ramp, with rivets and an inlay in AF9's teal (`tools/textures/orbital_mk2_casings.py`). The girder is the truss turned on its side.
+
 The magnet casing texture is taken from **CosmicCore / Cosmic Frontiers** (`resources/assets/cosmiccore/textures/block/casings/solid/`;
 textures in `block` are MIT-licensed per its license section, `licenses` in the archive), unchanged:
 

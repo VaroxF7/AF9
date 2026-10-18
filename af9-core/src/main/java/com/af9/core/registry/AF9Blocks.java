@@ -100,6 +100,12 @@ public final class AF9Blocks {
         // ---- Mk2 Orbital Array: the magnet pillars and light strips of the tower (textures from Cosmic Frontiers) ----
         block("orbital_magnet_casing", SoundType.METAL, 12F, 0, 0);
         block("orbital_light_casing", SoundType.METAL, 12F, 7, 0);
+        // the structure of the Array Mk2 itself: the casings that replace the Stress-Proof, Sturdy HSS-E and Inert PTFE ones
+        // (textures: tools/textures/orbital_mk2_casings.py)
+        block("orbital_combined_structure_casing", SoundType.METAL, 12F, 0, 0);
+        block("orbital_truss_casing", SoundType.METAL, 12F, 0, 0);
+        block("orbital_girder_casing", SoundType.METAL, 12F, 0, 0);
+        block("orbital_deck_casing", SoundType.METAL, 12F, 0, 0);
 
         // ---- Planetary Satellite: the casing of GTNH's Planetary Gas Siphon, in the colours of Enriched Naquadah Trinium
         // Europium Duranide ----

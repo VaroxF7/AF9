@@ -231,9 +231,9 @@ const orbitalRingCell = (d, dx, dz) => {
         if (found !== ' ' || d < ring.d || d >= ring.d + ring.t) return
         const r = Math.sqrt(dx * dx + dz * dz)
         const mid = ring.d + Math.floor(ring.t / 2)
-        // the band: sturdy casing, a stress-proof top and a non-conducting outer face
+        // the band: sturdy casing (a truss inside, a girder on its outer half), a stress-proof top and a non-conducting outer face
         if (r >= ring.r - ring.w && r <= ring.r + 0.3) {
-            found = d === ring.d ? 'L' : r > ring.r - 1 ? 'C' : 'D'
+            found = d === ring.d ? 'L' : r > ring.r - 1 ? 'C' : r > ring.r - 1 - (ring.w - 1) / 2 ? 'E' : 'D'
             return
         }
         // the beams out to it: the atomic beam between tungsten carbide frame rails, one level, along the axes
@@ -484,7 +484,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         const itemsOut = Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1)
         const maintenance = Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)
         // the top deck: PTFE casings and every hatch; hatches go here and nowhere else
-        const deck = Predicates.blocks('gtceu:inert_machine_casing').or(energy).or(laser).or(coolant).or(computation)
+        // (the Mk2's deck is the Orbital Deck Casing, not PTFE: orbital_casings.js)
+        const deck = Predicates.blocks(mk2 ? 'af9:orbital_deck_casing' : 'gtceu:inert_machine_casing').or(energy).or(laser).or(coolant).or(computation)
             .or(data).or(optical).or(fluids).or(itemsIn).or(itemsOut).or(maintenance)
                 return [
             ['K', Predicates.controller(Predicates.blocks(definition.get()))],
@@ -493,16 +494,19 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             // the Mk2's light strips are heating coils of any one tier (af9-core OrbitalLithographyMachine.COILS: the
             // tier is the bonus); the basic station's stay HSS-G
             ['B', mk2 ? Predicates.heatingCoils() : Predicates.blocks('gtceu:hssg_coil_block')],
-            ['D', Predicates.blocks('gtceu:sturdy_machine_casing')],
+            // the Mk2's structure has casings of its own in place of GT's (orbital_casings.js): the Combined Structure Casing
+            // for the Stress-Proof, the Truss ('D', inside of the rings' bands) and the Girder ('E', outside) for the Sturdy HSS-E
+            ['D', Predicates.blocks(mk2 ? 'af9:orbital_truss_casing' : 'gtceu:sturdy_machine_casing')],
+            ['E', Predicates.blocks(mk2 ? 'af9:orbital_girder_casing' : 'gtceu:sturdy_machine_casing')],
             ['F', Predicates.blocks(mk2 ? 'gtceu:tungsten_carbide_frame' : 'gtceu:hsss_frame')],
             // the Mk2 tower's magnet pillars and light strips (textures from Cosmic Frontiers)
             ['M', Predicates.blocks('af9:orbital_magnet_casing')],
             ['N', Predicates.blocks('af9:orbital_light_casing')],
             ['H', Predicates.blocks(mk2 ? 'gtceu:atomic_casing' : 'gtceu:shock_proof_cutting_casing')],
-            ['L', Predicates.blocks('gtceu:stress_proof_casing')],
+            ['L', Predicates.blocks(mk2 ? 'af9:orbital_combined_structure_casing' : 'gtceu:stress_proof_casing')],
             // a module slot of the Array Mk2: a module (any type) or nothing; the station finds them when it forms
             // the casing above and below a module slot: PTFE, no hatches
-            ['Q', Predicates.blocks('gtceu:inert_machine_casing')],
+            ['Q', Predicates.blocks(mk2 ? 'af9:orbital_deck_casing' : 'gtceu:inert_machine_casing')],
             ['Y', mk2 ? $OrbitalLithographyMachine.modules().or(Predicates.air()) : Predicates.air()],
             ['C', Predicates.blocks('gtceu:nonconducting_casing')],
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview)): the track
