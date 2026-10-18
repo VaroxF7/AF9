@@ -36,7 +36,7 @@ def light(sprite, f):
     for y in range(16):
         for x in range(16):
             r, g, b, a = sprite.getpixel((x, y))
-            if r > 200:                                       # the lit window: its tones breathe a little out of step
+            if g > 150:                                       # the lit window: its tones breathe a little out of step
                 k = 0.88 + 0.14 * math.sin(2 * math.pi * (t + ((x + y) % 4) / 16.0))
                 out.putpixel((x, y), (clamp(r * k), clamp(g * k), clamp(b * k), a))
     return out

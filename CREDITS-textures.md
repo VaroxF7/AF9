@@ -69,7 +69,7 @@ The Rack Heat Vent icons (`item/rack_heat_vent_mk1-4.png`) are AF9's own (`tools
 
 ## Mk2 Orbital Array casings
 
-`orbital_light_casing` (+ `_ctm`) is AF9's own art, drawn from scratch (`tools/textures/orbital_light_src.py`, then `orbital_casings.py`); it replaces the Cosmic Frontiers texture.
+`orbital_light_casing` (+ `_ctm`) is derived from CosmicCore's `resonantly_tuned_virtue_meld_casing.png` (MIT, as below): its frame is kept and recoloured teal (`tools/textures/orbital_light_src.py`, base in `tools/textures/orbital_src/orbital_light_base.png`); the glow colour and the maze are AF9's own.
 
 The magnet casing texture is taken from **CosmicCore / Cosmic Frontiers** (`resources/assets/cosmiccore/textures/block/casings/solid/`;
 textures in `block` are MIT-licensed per its license section, `licenses` in the archive), unchanged:
