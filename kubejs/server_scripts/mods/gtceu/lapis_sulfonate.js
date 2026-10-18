@@ -2,7 +2,7 @@
 // registry/AF9Materials (lapisSulfonate())). Spec: docs/lapis-sulfonate.md
 //
 //   lapis + H2SO4              -reactor->  leach liquor (Na2SO4, Al2(SO4)3) + H2S + SiO2 residue
-//   2 H2S + 3 O2               -reactor->  2 SO2 + 2 H2O                    (the sulfide of the lazurite, burnt)
+//   2 H2S + 3 O2               -LCR->      2 SO2 + 2 H2O                    (the sulfide of the lazurite, burnt)
 //   4 V + 5 O2                 -reactor->  2 V2O5                           (the contact catalyst)
 //   2 SO2 + O2 (V2O5)          -reactor->  2 SO3                            (contact process)
 //   butene + SO3               -reactor->  butene sulfonic acid             (alkene sulfonation, as for olefin sulfonates)
@@ -23,7 +23,7 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.HV])
 
     // ---- the sulfide burns to sulfur dioxide (the Claus recipe stops at sulfur, this one goes on) ----
-    gt.chemical_reactor('af9:lapis_sulfonate/hydrogen_sulfide_combustion')
+    gt.large_chemical_reactor('af9:lapis_sulfonate/hydrogen_sulfide_combustion')
         .circuit(2)
         .inputFluids(Fluid.of('gtceu:hydrogen_sulfide', 2000), Fluid.of('gtceu:oxygen', 3000))
         .outputFluids(Fluid.of('gtceu:sulfur_dioxide', 2000), Fluid.of('minecraft:water', 2000))

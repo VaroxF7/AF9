@@ -8,7 +8,7 @@ Janne writes the recipes that use both. Lapis Butene-II-Sulfonate is the pack's 
 | Step | Takes | Makes |
 |---|---|---|
 | 1. leach | 4 lapis dust, 2000 mB sulfuric acid | 2000 mB lapis leach liquor, 1000 mB H2S, 2 SiO2 dust |
-| 2. burn the sulfide | 2000 mB H2S, 3000 mB O2 (circuit 2) | 2000 mB SO2, 2000 mB water |
+| 2. burn the sulfide (LCR) | 2000 mB H2S, 3000 mB O2 (circuit 2) | 2000 mB SO2, 2000 mB water |
 | 3. catalyst (once) | 4 vanadium dust, 5000 mB O2 | 2 vanadium pentoxide dust |
 | 4. contact | 2000 mB SO2, 1000 mB O2, V2O5 (not consumed) | 2000 mB SO3 |
 | 5. sulfonation | 1000 mB butene, 1000 mB SO3 | 1000 mB butene sulfonic acid |
