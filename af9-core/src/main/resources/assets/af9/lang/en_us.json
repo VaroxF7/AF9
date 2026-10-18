@@ -912,6 +912,8 @@
     "item.af9.asic_package.tooltip.0": "An ASIC die with its RAM on a silicon interposer. HV-EV bridge of the linear ladder.",
     "item.af9.photonic_package": "Photonic Package",
     "item.af9.photonic_package.tooltip.0": "A photonic IC with its spin-logic memory on one package. XPS bridge of the linear ladder.",
+    "item.af9.mainframe_interconnect": "Mainframe Interconnect",
+    "item.af9.mainframe_interconnect.tooltip.0": "A gold-contact backplane connector that ties the computer boards of a mainframe together.",
     "item.af9.xps_processor": "XPS Processor",
     "item.af9.xps_processor.tooltip.0": "Extreme-photonic processor: UHV wetware mainframe recombined with photonics.",
     "item.af9.xps_processor_mainframe": "XPS Processor Mainframe",

@@ -310,17 +310,23 @@ ServerEvents.recipes(event => {
         .duration(100).EUt(2400)))
 
     // ================================= 6. IV (EV -> IV) =================================
+    // Mainframe Interconnect: the gold-contact backplane connector a Microprocessor Mainframe is built around.
+    event.recipes.gtceu.assembler('af9:mainframe_interconnect')
+        .itemInputs('gtceu:multilayer_fiber_reinforced_printed_circuit_board', '2x gtceu:tungsten_steel_plate',
+            '16x gtceu:fine_gold_wire', '4x gtceu:advanced_smd_diode')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 144))
+        .itemOutputs('af9:mainframe_interconnect')
+        .cleanroom(CleanroomType.CLEANROOM)
+        .duration(300).EUt(VA[GTValues.EV])
+
+    // Microprocessor Mainframe: nichrome-platinum frames, an interconnect, supercomputers, a superconducting
+    // bus and SBR insulation. (The old ASMD variant is gone: the recipe takes no loose passives.)
     highCircuit('mainframe_iv', 4, r => clean(r
-        .itemInputs('2x gtceu:tungsten_steel_frame', '2x gtceu:micro_processor_computer', '8x #gtceu:inductors', '16x #gtceu:capacitors',
-            chip('iv', 'ram', 16), '16x gtceu:tungsten_single_wire')
+        .itemInputs('4x gtceu:nichrome_platinum_frame', 'af9:mainframe_interconnect', '4x gtceu:micro_processor_computer',
+            '16x gtceu:mercury_barium_calcium_cuprate_single_wire', '32x gtceu:styrene_butadiene_rubber_foil',
+            chip('iv', 'ram', 8))
         .itemOutputs('gtceu:micro_processor_mainframe')
         .duration(800).EUt(VA[GTValues.HV])))
-
-    highCircuit('mainframe_iv_asmd', 4, r => clean(r
-        .itemInputs('2x gtceu:tungsten_steel_frame', '2x gtceu:micro_processor_computer', '2x gtceu:advanced_smd_inductor',
-            '4x gtceu:advanced_smd_capacitor', chip('iv', 'ram', 16), '16x gtceu:tungsten_single_wire')
-        .itemOutputs('gtceu:micro_processor_mainframe')
-        .duration(400).EUt(VA[GTValues.HV])))
 
     highCircuit('nano_computer_iv', 2, r => clean(r
         .itemInputs('gtceu:epoxy_printed_circuit_board', '2x gtceu:nano_processor_assembly', '8x gtceu:smd_diode',
@@ -355,7 +361,7 @@ ServerEvents.recipes(event => {
 
     // ---- IV lean (Stage 2 @LuV end, gate: vpu_chip; cache via edram packages) ----
     newHighCircuit('mainframe_iv_lean', 4, r => clean(r
-        .itemInputs('2x gtceu:tungsten_steel_frame', 'gtceu:micro_processor_computer', '4x af9:edram_cpu_package',
+        .itemInputs('2x gtceu:nichrome_platinum_frame', 'af9:mainframe_interconnect', 'gtceu:micro_processor_computer', '4x af9:edram_cpu_package',
             'af9:vpu_chip', '4x gtceu:tungsten_single_wire')
         .itemOutputs('2x gtceu:micro_processor_mainframe')
         .duration(400).EUt(VA[GTValues.HV])))
