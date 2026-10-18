@@ -132,7 +132,7 @@ public final class AF9Materials {
      * and the rest) loses rutile from its ore by-products. Ilmenite keeps its own.
      */
     private static void rutileFromIlmeniteOnly() {
-        for (Material material : GTCEuAPI.materialManager.getRegisteredMaterials()) {
+        for (Material material : GTCEuAPI.materialManager.getRegistry(GTCEu.MOD_ID).getAllMaterials()) {
             if (material == GTMaterials.Ilmenite || !material.hasProperty(PropertyKey.ORE)) continue;
             OreProperty ore = material.getProperty(PropertyKey.ORE);
             if (!ore.getOreByProducts().contains(GTMaterials.Rutile)) continue;
