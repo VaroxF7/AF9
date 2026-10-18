@@ -53,7 +53,7 @@ LGPL-3.0 or later, <https://github.com/GTNewHorizons/GT5-Unofficial>; licence te
 
 ## Mk2 Orbital Array casings
 
-`orbital_light_casing` (+ `_ctm`) is derived from CosmicCore's `resonantly_tuned_virtue_meld_casing.png` (MIT, as below): its frame is kept and recoloured teal (`tools/textures/orbital_light_src.py`, base in `tools/textures/orbital_src/orbital_light_base.png`); the window (a coil with straps) is AF9's own.
+`orbital_light_casing` (+ `_ctm`) is derived from CosmicCore's `resonantly_tuned_virtue_meld_casing.png` (MIT, as below): its frame is kept and recoloured to gunmetal (`tools/textures/orbital_light_src.py`, base in `tools/textures/orbital_src/orbital_light_base.png`); the window (steel coil bank with emitter slits) is AF9's own.
 
 The four structure casings (`orbital_combined_structure_casing` (+ `_ctm`), `orbital_truss_casing`, `orbital_girder_casing`,
 `orbital_deck_casing`) are re-cut from GregTech CEu Modern's `gcym/stress_proof_casing.png`, `casings/solid/machine_casing_sturdy_hsse.png` and
