@@ -19,7 +19,7 @@ ServerEvents.recipes(event => {
     event.recipes.gtceu.electric_implosion_compressor('af9:desh_titanium_rocket_alloy_dense_plate_electric')
         .itemInputs(`4x ${ALLOY}_dust`)
         .inputFluids(Fluid.of('gtceu:lunar_acid_vapor', 500))
-        .itemOutputs(`${ALLOY}_dense_plate`)
+        .itemOutputs('gtceu:dense_desh_titanium_rocket_alloy_plate')
         .duration(200)
         .EUt(VA[GTValues.HV])
 

@@ -22,17 +22,17 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.HV])
 
     // the only way to a dense plate (GT bends them from 9 plates or ingots)
-    event.remove({ output: `${ALLOY}_dense_plate`, type: 'gtceu:bender' })
+    event.remove({ output: 'gtceu:dense_desh_titanium_rocket_alloy_plate', type: 'gtceu:bender' })
 
     // GT's implosion compressor: the shock wave of explosives, as for every gem (4 dust in)
     event.recipes.gtceu.implosion_compressor('af9:desh_titanium_rocket_alloy_dense_plate_dynamite')
         .itemInputs(`4x ${ALLOY}_dust`, '2x gtceu:dynamite')
-        .itemOutputs(`${ALLOY}_dense_plate`)
+        .itemOutputs('gtceu:dense_desh_titanium_rocket_alloy_plate')
         .duration(20)
         .EUt(VA[GTValues.LV])
     event.recipes.gtceu.implosion_compressor('af9:desh_titanium_rocket_alloy_dense_plate_itnt')
         .itemInputs(`4x ${ALLOY}_dust`, 'gtceu:industrial_tnt')
-        .itemOutputs(`${ALLOY}_dense_plate`)
+        .itemOutputs('gtceu:dense_desh_titanium_rocket_alloy_plate')
         .duration(20)
         .EUt(VA[GTValues.LV])
 

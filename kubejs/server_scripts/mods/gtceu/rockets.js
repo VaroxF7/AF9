@@ -124,7 +124,7 @@ ServerEvents.recipes(event => {
         if (tier === 2) {
             // the tier 2 rocket: two engines and two tanks, its own cone and fins, the alloy hull and the insulation
             rocket.itemInputs('af9:rocket_cone_tier_2', '4x af9:rocket_fin_tier_2', '2x ad_astra:desh_engine',
-                '2x ad_astra:desh_tank', '4x gtceu:desh_titanium_rocket_alloy_dense_plate',
+                '2x ad_astra:desh_tank', '4x gtceu:dense_desh_titanium_rocket_alloy_plate',
                 '4x af9:alumina_silicate_rocket_insulation', `2x gtceu:${v}_robot_arm`)
         } else {
             rocket.itemInputs('ad_astra:rocket_nose_cone', `6x ${hull}`, '4x ad_astra:rocket_fin',
