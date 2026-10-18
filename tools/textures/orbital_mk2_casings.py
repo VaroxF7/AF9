@@ -5,8 +5,8 @@ Orbital Light Casing's glow) laid into it.
 
   orbital_combined_structure_casing   Stress-Proof Casing: same stone corners and cross, a teal core line in the cross;
                                       joins its neighbours (LDLib connected texture, like the original)
-  orbital_truss_casing                Sturdy HSS-E Casing, ribbed steel-blue beam plating
-  orbital_girder_casing               the same beam on its side: graphite, a teal core in the groove
+  orbital_truss_casing                Sturdy HSS-E Casing, smooth steel-blue panels in a bevelled frame
+  orbital_girder_casing               graphite diamond plate in a bevelled frame
   orbital_deck_casing                 Inert PTFE Casing: the same inset plate, lit by a teal edge (hatches go on it)
 All four join their neighbours (the lone block is the original's shape; where blocks meet the frame goes and the plating
 runs on).
@@ -121,56 +121,66 @@ def shade(px, k):
     return tuple(max(0, min(255, round(c * k))) for c in px[:3]) + (255,)
 
 
-def beam(base, accent, a, c):
-    """A beam of plates: `a` runs along it, `c` across (both px of the face). Plates 8 px wide with a dark seam and a lit edge on
-    the left, a shaded edge on the right; a soft diagonal sheen (a band every 16 px, as the deck's); a groove down the middle of
-    each plate (its core `accent`, when it has one); a panel joint across every 16 px."""
-    cx, cy = c % 8, a % 16
-    px = shade(base, 0.94 + 0.12 * (1 - abs((a + c) % 16 - 7.5) / 7.5))
-    if cx == 0:
-        return shade(base, 0.38)
-    if cx == 1:
-        return shade(px, 1.3)
-    if cx == 7:
+FRAME3 = 3
+
+
+def clamp(c):
+    return tuple(max(0, min(255, round(v))) for v in c) + (255,)
+
+
+def sheen(base, x, y, amp=0.12):
+    return shade(base, 1 - amp / 2 + amp * (1 - abs((x + y) % 16 - 7.5) / 7.5))
+
+
+def truss_field(sprite, x, y):
+    """The Truss's field: smooth steel-blue panels with a diagonal sheen that runs on through the blocks and a faint joint
+    where two panels meet (every 16 px, in the middle of a block)."""
+    px = sheen((58, 74, 102), x, y)
+    if x % 16 == 8 or y % 16 == 8:
         return shade(px, 0.7)
-    if cx == 3:
-        return shade(px, 0.55)
-    if cx == 4:
-        return accent if accent else shade(px, 1.18)
-    if cx == 5 and accent:
-        return shade(px, 1.18)
-    if cy == 0:
-        return shade(px, 0.55)
-    if cy == 1:
-        return shade(px, 1.2)
+    if x % 16 == 9 or y % 16 == 9:
+        return shade(px, 1.12)
     return px
 
 
-TRUSS_BASE = (62, 78, 106)
-GIRDER_BASE = (66, 68, 78)
+def girder_field(sprite, x, y):
+    """The Girder's field: graphite diamond plate (short ribs, 4 px, turning every other cell), as on gangways."""
+    base = sheen((54, 56, 66), x, y, 0.08)
+    u, v = x % 4, y % 4
+    if (x // 4 + y // 4) % 2:
+        rib = u + v == 3
+        shadow = u + v == 4 or (u == 0 and v == 0)
+    else:
+        rib = u == v
+        shadow = u - v == 1
+    if rib:
+        return shade(base, 1.75)
+    if shadow:
+        return shade(base, 0.6)
+    return base
 
 
-def plated(sprite, x, y):
-    """The Truss: vertical plates, steel blue."""
-    return beam(TRUSS_BASE, None, y, x)
+FRAMES = {                       # (outermost px, bevel top / left, bevel bottom / right, inner groove)
+    'truss': ((14, 18, 28), (112, 132, 166), (38, 48, 68), (24, 30, 44)),
+    'girder': ((11, 12, 15), (122, 126, 140), (34, 36, 44), (22, 23, 28)),
+}
 
 
-def plated_flat(sprite, x, y):
-    """The Girder: the same beam on its side, graphite, a teal core in the groove."""
-    return beam(GIRDER_BASE, TEAL_FAINT, x, y)
-
-
-def plating(sprite, inside):
-    """The lone block: the same plating with a one-pixel frame, lit top and left, shaded bottom and right."""
+def plating(sprite, field, kind='truss'):
+    """The block: the field with a 3 px bevelled frame (it stays only where the group of blocks ends)."""
+    outer, lit, dark, groove = FRAMES[kind]
     out = Image.new('RGBA', (16, 16))
     for y in range(16):
         for x in range(16):
-            px = inside(sprite, x, y)
-            if min(x, y) == 0:
-                px = shade(px, 1.3)
-            elif max(x, y) == 15:
-                px = shade(px, 0.6)
-            out.putpixel((x, y), px)
+            d = min(x, y, 15 - x, 15 - y)
+            if d >= FRAME3:
+                out.putpixel((x, y), field(None, x, y))
+            elif d == 0:
+                out.putpixel((x, y), clamp(outer))
+            elif d == 1:
+                out.putpixel((x, y), clamp(lit if min(x, y) < min(15 - x, 15 - y) else dark))
+            else:
+                out.putpixel((x, y), clamp(groove))
     return out
 
 
@@ -201,11 +211,6 @@ def save(im, name):
     im.save(os.path.join(OUT, name + '.png'))
 
 
-def plated_src(src, fn):
-    """The inside function bound to the plates' source sprite (the lone block's sprite is already shaded)."""
-    return lambda sprite, x, y: fn(src, x, y)
-
-
 def connected(name, sprite, inside, border):
     sheet = se.ctm_sheet(sprite, border, border, inside)
     save(sprite, name)
@@ -217,11 +222,10 @@ def connected(name, sprite, inside, border):
 
 
 def main():
-    truss_src, girder_src = truss_base(), girder_base()
-    sprites = {'orbital_combined_structure_casing': combined(), 'orbital_truss_casing': plating(truss_src, plated),
-               'orbital_girder_casing': plating(girder_src, plated_flat), 'orbital_deck_casing': deck_base(True)}
-    insides = {'orbital_combined_structure_casing': (combined_inside, 3), 'orbital_truss_casing': (plated_src(truss_src, plated), 0),
-               'orbital_girder_casing': (plated_src(girder_src, plated_flat), 0), 'orbital_deck_casing': (deck_inside, 4)}
+    sprites = {'orbital_combined_structure_casing': combined(), 'orbital_truss_casing': plating(None, truss_field, 'truss'),
+               'orbital_girder_casing': plating(None, girder_field, 'girder'), 'orbital_deck_casing': deck_base(True)}
+    insides = {'orbital_combined_structure_casing': (combined_inside, 3), 'orbital_truss_casing': (truss_field, FRAME3),
+               'orbital_girder_casing': (girder_field, FRAME3), 'orbital_deck_casing': (deck_inside, 4)}
     sheets = {n: connected(n, sprites[n], *insides[n]) for n in sprites}
     if '--preview' in sys.argv:
         dest = sys.argv[sys.argv.index('--preview') + 1]
