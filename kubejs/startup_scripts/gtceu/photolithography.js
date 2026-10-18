@@ -285,6 +285,43 @@ const ORBITAL_MK2_SLICES = (() => {
     })
     return slices
 })()
+// Hand edits to the generated Mk2 (from Janne's edited full pattern, docs/orbital-array-mk2-pattern.md): [d, aisle, row of the
+// 73 cells at that level (d below the controller; ' ' = anything)], applied over the generator's output, one row per entry.
+const ORBITAL_MK2_EDITS = [
+    [22, 45, '            LLLL  LCCCCLLCCCLLLCCCLLLLLCCCLLLCCCLLCCCCL  LLLL            '],
+    [24, 27, '                      LLNCCCLLMCCCLLMLLCCCMLLCCCNLL                      '],
+    [24, 28, '                     LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL                     '],
+    [24, 29, '                    LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL                    '],
+    [24, 30, '                       MMMMMMMMMCMMMCMMMCMMMMMMMMM                       '],
+    [24, 31, '                 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC                 '],
+    [24, 32, '                    CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC                    '],
+    [24, 33, '                           CCCCCCCCCCCCCCCCCCC                           '],
+    [24, 34, '                   LLLLLLLLCCCCCCCSSSSSCCCCCCCLLLLLLLL                   '],
+    [24, 35, '                 LLLLLLLLLLCCCCCCCS   SCCCCCCCLLLLLLLLLL                 '],
+    [24, 36, '                   MMMMMMMCCCCCCCCS   SCCCCCCCCMMMMMMM                   '],
+    [24, 37, '                 LLLLLLLLLLCCCCCCCS   SCCCCCCCLLLLLLLLLL                 '],
+    [24, 38, '                   LLLLLLLLCCCCCCCSSSSSCCCCCCCLLLLLLLL                   '],
+    [24, 39, '                           CCCCCCCCCCCCCCCCCCC                           '],
+    [24, 40, '                    CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC                    '],
+    [24, 41, '                 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC                 '],
+    [24, 42, '                       MMMMMMMMMCMMMCMMMCMMMMMMMMM                       '],
+    [24, 43, '                    LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL                    '],
+    [24, 44, '                     LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL                     '],
+    [24, 45, '                      LLNCCCLLMCCCLLMLLCCCMLLCCCNLL                      '],
+    [101, 34, '                                  LL LL                                  '],
+    [101, 38, '                                  LL LL                                  '],
+    [102, 34, '                                  LL LL                                  '],
+    [102, 38, '                                  LL LL                                  '],
+    [103, 34, '                                  LL LL                                  '],
+    [103, 38, '                                  LL LL                                  '],
+    [104, 35, '                                  LLLLL                                  '],
+    [104, 36, '                                 LLLLLLL                                 '],
+    [104, 37, '                                  LLLLL                                  '],
+]
+ORBITAL_MK2_EDITS.forEach(edit => {
+    const aisle = ORBITAL_MK2_SLICES[edit[1]]
+    aisle[ORBITAL_DEPTH - 1 - edit[0]] = edit[2]
+})
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
