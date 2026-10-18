@@ -53,7 +53,7 @@ LGPL-3.0 or later, <https://github.com/GTNewHorizons/GT5-Unofficial>; licence te
 
 ## Mk2 Orbital Array casings
 
-`orbital_light_casing` (+ `_ctm`) is derived from CosmicCore's `resonantly_tuned_virtue_meld_casing.png` (MIT, as below): its frame is kept and recoloured teal (`tools/textures/orbital_light_src.py`, base in `tools/textures/orbital_src/orbital_light_base.png`); the glow colour and the maze are AF9's own.
+`orbital_light_casing` (+ `_ctm`) is derived from CosmicCore's `resonantly_tuned_virtue_meld_casing.png` (MIT, as below): its frame is kept and recoloured to warm gunmetal (`tools/textures/orbital_light_src.py`, base in `tools/textures/orbital_src/orbital_light_base.png`); the window (chrome and gold conductor tracks) is AF9's own.
 
 The four structure casings (`orbital_combined_structure_casing` (+ `_ctm`), `orbital_truss_casing`, `orbital_girder_casing`,
 `orbital_deck_casing`) are re-cut from GregTech CEu Modern's `gcym/stress_proof_casing.png`, `casings/solid/machine_casing_sturdy_hsse.png` and
@@ -66,3 +66,36 @@ textures in `block` are MIT-licensed per its license section, `licenses` in the 
 | af9 file (`af9-core/.../textures/block/`) | CosmicCore source |
 |---|---|
 | `orbital_magnet_casing.png` | `stellar_neutronium_grade_magnet.png` |
+
+## Shock Capacitor Casing (Electric Implosion Compressor)
+
+`shock_capacitor_casing.png` and `_ctm.png` are GregTech CEu's `machine_casing_stable_titanium.png` and its `_ctm.png`
+(GregTech-Modern v7.5.3, LGPL-3.0, copies in `tools/textures/gt_src/`) with the hue moved from violet to teal
+(`tools/textures/electric_implosion.py`).
+
+## ME Resonance Fabricator
+
+The ME Resonance Fabricator is a copy of TerraFirmaGreg's ME Resonance Fabricator (their id `me_assembler`) from
+**TerraFirmaGreg-Team/Core-Modern** (commit `325b0835`, `MEAssemblerMachine`, `MEAssemblerRedstonePort`, `TFGPredicates`,
+`TFGMultiMachines.ME_ASSEMBLER`, `TFGTRecipeTypes.ME_ASSEMBLER`) and **TerraFirmaGreg-Team/Modpack-Modern** (commit
+`dd977368`, textures and crafting recipes), LGPL-3.0; licence text in `licenses/TerraFirmaGreg-Core-Modern-LGPL-3.0.txt`.
+The structure, the budding-grade speed table and wear, the redstone port and the recipe page are taken over; the Java is
+ported to AF9 Core (`MEResonanceFabricatorMachine`, `MERedstonePortPartMachine`, `BuddingTiers`) and the machine is
+registered in KubeJS (`startup_scripts/gtceu/me_resonance_fabricator.js`). Textures, copied unchanged (recipe textures
+`.mcmeta` with the namespace changed):
+
+| af9 file | TFG source (`kubejs/assets/tfg/textures/block/`) |
+|---|---|
+| `af9-core/.../textures/block/ptfe_black_casing.png` (+ `_ctm.png`, `.mcmeta`) | `casings/machine_casing_ptfe_black{,_ctm}.png` |
+| `af9-core/.../textures/block/ae2_machine_casing{,_active,_active_emissive}.png` (+ `_ctm.png`, `.mcmeta`) | `casings/machine_casing_ae2{,_active,_active_emissive}{,_ctm}.png` |
+| `kubejs/assets/gtceu/textures/block/multiblock/me_assembler_redstone_port/overlay_front.png` (+ `.mcmeta`) | `machines/redstone_port/overlay_front.png` |
+
+Not taken over: the shader maps (`_n`, `_s`) of the AE2 casing. The Fabricator's recipes (`kubejs/server_scripts/mods/ae2/me_resonance_fabricator_recipes.js`) and the `OxygenatedCondition` (Ad Astra's oxygen instead of TFG's environment system) are copied from TFG's `me_assembler` recipes and `OxygenatedCondition`, 82 recipes; the three Spatial Cell Components are left out (TFG's UV LEDs).
+Substitutions: TFG's `cryogenized_fluix` in the AE2 casing recipe is `gtceu:liquid_certus_quartz`; the Moon-only rule of its
+recipes sits in TFG's recipes, not the machine. Its AE2 blocks are read by id, so AF9 Core compiles without AE2.
+
+## Superalloy item textures
+
+The silhouettes and shading of the Kovar, Inconel, Havar, Hastelloy and Stellite parts (`assets/gtceu/textures/item/material_sets/<alloy>`) are
+recoloured from the SHINY icon set of **GregTech CEu Modern** (<https://github.com/GregTechCEu/GregTech-Modern>, LGPL-3.0), repainted
+with a palette and grain per alloy by `tools/textures/superalloys.py`.

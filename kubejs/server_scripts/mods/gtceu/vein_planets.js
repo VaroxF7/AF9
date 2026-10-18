@@ -4,7 +4,8 @@
 // Killed: ilmenite and rutile (titanium: bauxite_vein_end, anywhere else they hide), scheelite and tungstate
 // (tungsten: scheelite_vein and anywhere else). Kept on purpose: chromite (stainless steel for tier 1), quartzite
 // (LV sensors), bauxite (aluminium), magnesite/olivine (magnesium for Kroll), salt (chlorine, sodium).
-// A vein of AF9's own is never a target (same guard as vein_asteroid.js).
+// A vein of AF9's own is never a target (same guard as vein_asteroid.js): that is how the Mars ilmenite vein
+// (vein_mars.js) survives.
 //
 // Named to load AFTER the pack's mining_dim_ores.js (it moves every GT vein to the Mining Dimension first): server
 // scripts load in alphabetical order.

@@ -2,6 +2,7 @@ package com.af9.core.registry;
 
 import com.gregtechceu.gtceu.GTCEu;
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.event.MaterialEvent;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlag;
@@ -12,8 +13,11 @@ import com.gregtechceu.gtceu.api.data.chemical.material.properties.BlastProperty
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.DustProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.FluidProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.IngotProperty;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.OreProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
+import com.gregtechceu.gtceu.api.data.chemical.material.properties.RotorProperty;
 import com.gregtechceu.gtceu.api.fluids.FluidBuilder;
+import com.gregtechceu.gtceu.api.fluids.attribute.FluidAttributes;
 import com.gregtechceu.gtceu.api.fluids.FluidState;
 import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
@@ -54,6 +58,19 @@ public final class AF9Materials {
      * the set lacks fall back to its parent, SHINY.
      */
     private static final MaterialIconSet SOLDER = new MaterialIconSet("solder", MaterialIconSet.SHINY);
+    /**
+     * The superalloys' own looks (tools/textures/superalloys.py): one icon set each, every part (dust, ingot, plate,
+     * dense plate, fine wire, screw, rotor ...) painted in the alloy's own palette and grain. Shapes a set lacks fall
+     * back to SHINY.
+     */
+    private static final MaterialIconSet KOVAR = new MaterialIconSet("kovar", MaterialIconSet.SHINY);
+    private static final MaterialIconSet INCONEL_625 = new MaterialIconSet("inconel_625", MaterialIconSet.SHINY);
+    private static final MaterialIconSet INCONEL_718 = new MaterialIconSet("inconel_718", MaterialIconSet.SHINY);
+    private static final MaterialIconSet INCONEL_738 = new MaterialIconSet("inconel_738", MaterialIconSet.SHINY);
+    private static final MaterialIconSet HAVAR = new MaterialIconSet("havar", MaterialIconSet.SHINY);
+    private static final MaterialIconSet HASTELLOY = new MaterialIconSet("hastelloy", MaterialIconSet.SHINY);
+    private static final MaterialIconSet STELLITE_1 = new MaterialIconSet("stellite_1", MaterialIconSet.SHINY);
+    private static final MaterialIconSet STELLITE_12 = new MaterialIconSet("stellite_12", MaterialIconSet.SHINY);
 
     private static final List<Material> ALL = new ArrayList<>();
 
@@ -88,6 +105,7 @@ public final class AF9Materials {
         lithiumBrine();
         oil();
         planetMetals();
+        rocketInsulation();
         particleAccelerator();
         antimatter();
         photolithography();
@@ -103,6 +121,25 @@ public final class AF9Materials {
         motorParts();
         waterFiltration();
         alloys();
+        superalloys();
+        lapisSulfonate();
+        annealedBronze();
+        rutileFromIlmeniteOnly();
+    }
+
+    /**
+     * Rutile dust comes from ilmenite and nowhere else (planet_metals.js): every other ore (GT's bauxite, AF9's zircon
+     * and the rest) loses rutile from its ore by-products. Ilmenite keeps its own.
+     */
+    private static void rutileFromIlmeniteOnly() {
+        for (Material material : GTCEuAPI.materialManager.getRegistry(GTCEu.MOD_ID).getAllMaterials()) {
+            if (material == GTMaterials.Ilmenite || !material.hasProperty(PropertyKey.ORE)) continue;
+            OreProperty ore = material.getProperty(PropertyKey.ORE);
+            if (!ore.getOreByProducts().contains(GTMaterials.Rutile)) continue;
+            ore.setOreByProducts(ore.getOreByProducts().stream()
+                    .filter(byproduct -> byproduct != GTMaterials.Rutile)
+                    .toArray(Material[]::new));
+        }
     }
 
     private static Material.Builder material(String id) {
@@ -426,9 +463,12 @@ public final class AF9Materials {
         // MV: expands like glass, so it seals into IC packages; used for the pins
         add(material("kovar")
                 .ingot()
-                .color(0x8e9ba6).iconSet(MaterialIconSet.METALLIC)
+                .color(0x7d92ad).secondaryColor(0x3a4a66).iconSet(KOVAR)
                 .components(GTMaterials.Iron, 6, GTMaterials.Nickel, 3, GTMaterials.Cobalt, 2)
-                .flags(MaterialFlags.GENERATE_BOLT_SCREW)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_ROD,
+                        MaterialFlags.GENERATE_RING, MaterialFlags.GENERATE_BOLT_SCREW, MaterialFlags.GENERATE_FOIL,
+                        MaterialFlags.GENERATE_FINE_WIRE, MaterialFlags.GENERATE_ROTOR)
+                .rotorStats(110, 120, 2.5f, 600)
                 .blastTemp(1720, GasTier.LOW, GTValues.VA[GTValues.MV], 600));
 
         // EV: hard, inert platinum wire (probe tips, electrodes). Platinum is the EV metal; iridium comes from the EV-
@@ -441,23 +481,24 @@ public final class AF9Materials {
                 .blastTemp(2100, GasTier.MID, GTValues.VA[GTValues.EV], 600));
 
         // EV: nichrome-platinum frame alloy (the Advanced Circuit Manufacturer's controller). Mixed like the
-        // other circuit alloys (circuits_af9.js), melted in the EBF from the blast property; the frame flag is
-        // what the controller recipe takes (gtceu:nichrome_platinum_frame).
+        // other circuit alloys (circuits_af9.js), melted in the EBF from the blast property; 3000 K is above the
+        // Kanthal coil (2700 K), so it needs a Nichrome coil. The frame flag is what the controller recipe takes
+        // (gtceu:nichrome_platinum_frame).
         add(material("nichrome_platinum")
                 .ingot()
                 .color(0xb9c2cf).iconSet(MaterialIconSet.METALLIC)
                 .components(GTMaterials.Nichrome, 1, GTMaterials.Platinum, 1)
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_FRAME)
-                .blastTemp(2000, GasTier.MID, GTValues.VA[GTValues.EV], 600));
+                .blastTemp(3000, GasTier.MID, GTValues.VA[GTValues.EV], 600));
 
         // ---- Zircon ----
-        // Heavy mineral sand with ilmenite, rutile and monazite. Formulas only (no components), so GT adds no
+        // Heavy mineral sand with ilmenite and monazite (no rutile: only ilmenite gives rutile). Formulas only (no components), so GT adds no
         // electrolyzer shortcut past the refining chain.
         add(material("zircon")
                 .dust().ore()
                 .color(0xb77f4f).iconSet(MaterialIconSet.ROUGH)
                 .formula("ZrSiO4")
-                .addOreByproducts(GTMaterials.Ilmenite, GTMaterials.Rutile, GTMaterials.Monazite));
+                .addOreByproducts(GTMaterials.Ilmenite, GTMaterials.Monazite));
 
         add(material("zirconia")
                 .dust()
@@ -756,6 +797,55 @@ public final class AF9Materials {
                 .formula("Ds")
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD,
                         MaterialFlags.GENERATE_BOLT_SCREW));
+    }
+
+    /**
+     * The tier 2 rocket's hull and the electric implosion compressor's materials (docs/electric-implosion.md):
+     * <ul>
+     * <li>Desh Titanium Rocket Alloy: mixed from titanium, desh and chromium dust; the hull's dense plates are never
+     * bent from plates, they are imploded from the dust (implosion compressor, or electric with the vapor).</li>
+     * <li>Alumina Silicate Insulation (dust) and its liquid mixture: the rocket's insulation chain. Only the forms exist
+     * for now (foil, wool and the rocket insulation are items, {@link AF9Items}); the recipes are Janne's to come.</li>
+     * <li>Twi-re-sten Insulation: a tungsten-rhenium carbide cermet, the insulation foil of the EV nichrome coil.</li>
+     * <li>Lunar Acid Vapor: the acidic cut of Lunar Air that the electric implosion compressor needs.</li>
+     * </ul>
+     * Formulas only (no components), so GT adds no electrolyzer or centrifuge shortcut. Recipes: rocket_hull.js,
+     * electric_implosion.js
+     */
+    private static void rocketInsulation() {
+        add(material("desh_titanium_rocket_alloy")
+                .ingot().fluid()
+                .color(0xa9856b).secondaryColor(0x4b4f5c)
+                .iconSet(MaterialIconSet.METALLIC)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_DENSE)
+                .blastTemp(2800, GasTier.LOW, GTValues.VA[GTValues.HV], 1200)
+                .formula("Ti2DsCr8"));
+
+        add(material("alumina_silicate_insulation")
+                .dust()
+                .color(0xf1e6cf)
+                .iconSet(MaterialIconSet.DULL)
+                .formula("Al2SiO5"));
+
+        add(material("alumina_silicate_insulation_mixture")
+                .liquid()
+                .color(0xe9d9ae)
+                .formula("(Al2SiO5)(H2O)"));
+
+        add(material("twiresten_insulation")
+                .ingot().fluid()
+                .color(0x7389a8).secondaryColor(0x263248)
+                .iconSet(MaterialIconSet.SHINY)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_FOIL,
+                        MaterialFlags.GENERATE_FINE_WIRE)
+                .blastTemp(4200, GasTier.HIGH, GTValues.VA[GTValues.IV], 1600)
+                .formula("W3ReC"));
+
+        // acidic: pipes and tanks that are not acid-proof refuse it
+        add(material("lunar_acid_vapor")
+                .gas(new FluidBuilder().attribute(FluidAttributes.ACID))
+                .color(0xc9dc5a)
+                .formula("(HF)(SO2)"));
     }
 
     /**
@@ -1379,6 +1469,93 @@ public final class AF9Materials {
 
         ebfAlloy("xps_alloy", 0xb8b0a0, "(SiO2)(SiO2)", 1200, GasTier.LOW, GTValues.VA[GTValues.LV], 400,
                 MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL, MaterialFlags.GENERATE_FINE_WIRE);
+    }
+
+    /**
+     * The superalloys (2026-10-18): Inconel 625, 718 and 738, Havar, Stellite 1 and 12 are new; Kovar (the circuit
+     * pins, electronicsMetallurgy()) and GT's Hastelloy C-276 (GCYM) get the same parts and a look of their own.
+     * Every one has plate, double plate, dense plate, fine wire, screw (and the rod, ring, foil these need) and a
+     * turbine rotor with stats of its own. Mixes: alloys_af9.js; EBF recipes come from the blast property. Spec:
+     * docs/superalloys.md
+     * <pre>
+     *                     K      gas   EBF    rotor (power, efficiency, damage, durability)
+     *   kovar            1720   LOW   MV     110 120 2.5   600
+     *   havar            2900   MID   HV     150 125 3.5  1800
+     *   stellite_1       3100   MID   HV     160 120 4.0  3200
+     *   inconel_625      3300   MID   HV     170 150 4.0  2400
+     *   stellite_12      3400   MID   EV     175 140 4.5  4200
+     *   inconel_718      3600   HIGH  EV     200 165 5.0  3600
+     *   hastelloy c-276  3800   HIGH  EV     190 175 4.5  5000 (GT's blast property, kept)
+     *   inconel_738      4200   HIGH  IV     260 190 6.5  5600
+     * </pre>
+     */
+    private static void superalloys() {
+        // GT's Hastelloy C-276: its blast property, recipes and red stay; it gets the parts and a rotor
+        Material hastelloy = GTMaterials.HastelloyC276;
+        hastelloy.setMaterialIconSet(HASTELLOY);
+        hastelloy.addFlags(MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_RING,
+                MaterialFlags.GENERATE_BOLT_SCREW, MaterialFlags.GENERATE_FOIL, MaterialFlags.GENERATE_FINE_WIRE,
+                MaterialFlags.GENERATE_ROTOR);
+        hastelloy.setProperty(PropertyKey.ROTOR, new RotorProperty(190, 175, 4.5f, 5000));
+
+        // Ni 60 / Cr 20 / Mo 10 / Fe 5 / Nb 5 (625: Ni 58+, Cr 20-23, Mo 8-10, Nb 3.2-4.2, Fe <= 5)
+        superalloy("inconel_625", 0x5f7a85, 0x23363f, INCONEL_625, "Ni12Cr4Mo2FeNb", 3300, GasTier.MID,
+                GTValues.HV, 1000, 170, 150, 4.0f, 2400);
+        // Ni 50 / Cr 20 / Fe 20 / Nb 5 / Mo 5 (718: Ni 50-55, Cr 17-21, Fe balance 18, Nb 5, Mo 3)
+        superalloy("inconel_718", 0x8a6f58, 0x3e2c20, INCONEL_718, "Ni10Cr4Fe4NbMo", 3600, GasTier.HIGH,
+                GTValues.EV, 1200, 200, 165, 5.0f, 3600);
+        // Ni 60 / Cr 15 / Co 10 / Al, Ti, W 5 each (738: Ni 61, Cr 16, Co 8.5, Al 3.4, Ti 3.4, W 2.6)
+        superalloy("inconel_738", 0x3a3f4a, 0xc2562a, INCONEL_738, "Ni12Cr3Co2AlTiW", 4200, GasTier.HIGH,
+                GTValues.IV, 1400, 260, 190, 6.5f, 5600);
+        // Co 40 / Cr 20 / Ni 15 / Fe 15 / W 10 (Havar: Co 42, Cr 20, Ni 13, Fe 18, W 2.8, Mo 2)
+        superalloy("havar", 0xc79a3c, 0x5c3a12, HAVAR, "Co8Cr4Ni3Fe3W2", 2900, GasTier.MID,
+                GTValues.HV, 800, 150, 125, 3.5f, 1800);
+        // Co 50 / Cr 30 / W 15 / C 5 (Stellite 1: Co balance 50, Cr 31, W 12.5, C 2.5)
+        superalloy("stellite_1", 0xdfe6f2, 0x7c88a0, STELLITE_1, "Co10Cr6W3C", 3100, GasTier.MID,
+                GTValues.HV, 900, 160, 120, 4.0f, 3200);
+        // Co 55 / Cr 30 / W 10 / C 5 (Stellite 12: Co balance 56, Cr 30, W 8.5, C 1.4)
+        superalloy("stellite_12", 0x3f6fb0, 0x16294a, STELLITE_12, "Co11Cr6W2C", 3400, GasTier.MID,
+                GTValues.EV, 1000, 175, 140, 4.5f, 4200);
+    }
+
+    /** A superalloy: ingot and fluid, every part the pack asks of it, a rotor, and the blast property that makes GT melt its dust. */
+    private static Material superalloy(String id, int color, int secondary, MaterialIconSet look, String formula,
+            int kelvin, GasTier gas, int tier, int ticks, int power, int efficiency, float damage, int durability) {
+        return add(material(id)
+                .ingot().fluid()
+                .color(color).secondaryColor(secondary).iconSet(look)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_ROD,
+                        MaterialFlags.GENERATE_RING, MaterialFlags.GENERATE_BOLT_SCREW, MaterialFlags.GENERATE_FOIL,
+                        MaterialFlags.GENERATE_FINE_WIRE, MaterialFlags.GENERATE_ROTOR)
+                .rotorStats(power, efficiency, damage, durability)
+                .blastTemp(kelvin, gas, GTValues.VA[tier], ticks)
+                .formula(formula));
+    }
+
+    /**
+     * Lapis Butene-II-Sulfonate, the pack's "iron(III) chloride from lapis" (lapis_sulfonate.js, docs/lapis-sulfonate.md):
+     * the lapis is leached in sulfuric acid, its sulfide burns to SO2 and over vanadium pentoxide to SO3, the SO3 sulfonates
+     * butene, and the sulfonic acid is exchanged against the lapis liquor. Own animated texture
+     * (tools/textures/lapis_sulfonate.py): lapis blue with drifting pyrite flecks.
+     */
+    private static void lapisSulfonate() {
+        liquid("lapis_leach_liquor", 0x7a8fc4, "Na2SO4(Al2(SO4)3)(H2O)");
+        roughDust("vanadium_pentoxide", 0xd9a21b, "V2O5");
+        liquid("butene_sulfonic_acid", 0xe3dba8, "C4H7SO3H");
+        add(material("lapis_butene_ii_sulfonate").liquid(ownLiquid()).color(0x2a4aa8).formula("Na(C4H7SO3)"));
+    }
+
+    /**
+     * Annealed Bronze: bronze softened in a nitrogen atmosphere like GT's annealed copper (annealed_bronze.js); plate and
+     * foil, the foil is what the pack asks of it.
+     */
+    private static void annealedBronze() {
+        add(material("annealed_bronze")
+                .ingot().fluid()
+                .color(0xd9923a).secondaryColor(0x7a4a14)
+                .iconSet(MaterialIconSet.SHINY)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL)
+                .formula("Cu3Sn"));
     }
 
     /** An EBF alloy: formula only, plus the blast property that makes GT melt its dust. */

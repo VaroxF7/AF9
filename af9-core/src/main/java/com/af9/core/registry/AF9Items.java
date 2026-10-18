@@ -143,6 +143,8 @@ public final class AF9Items {
         // from loose passives into lithographed dies. ASIC package bridges HV-EV, photonic package XPS.
         item("asic_package", 64, 1);
         item("photonic_package", 64, 1);
+        // IV: backplane connector that joins the computers of a Microprocessor Mainframe
+        item("mainframe_interconnect", 64, 1);
         // Post-UHV circuits: XPS (photonic + spintronic) and NVM (memristive + quantum-dot).
         // Each tier has a processor and its mainframe so the ladder stays linear past UHV.
         item("xps_processor", 64, 1);
@@ -174,6 +176,15 @@ public final class AF9Items {
         item("nano_particles", 64, 1);
         item("fiber_interconnects", 64, 1);
         item("optical_fiber_cable", 64, 1);
+
+        // ---- Tier 2 rocket: the parts of its own, and the insulation chain (recipes: rocket_hull.js; the insulation's
+        // own recipes are still to come) ----
+        item("rocket_cone_tier_2", 64, 1);
+        item("rocket_fin_tier_2", 64, 1);
+        item("alumina_silicate_rocket_insulation", 64, 1);
+        item("alumina_silicate_insulation_foil", 64, 1);
+        // wool spun to a fine wire
+        item("insulation_wool", 64, 1);
 
         // ---- Particle Accelerator ----
         item("beryllium_spallation_target", 64, 1);

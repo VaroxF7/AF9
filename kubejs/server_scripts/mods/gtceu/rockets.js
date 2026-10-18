@@ -6,6 +6,9 @@
 //   rocket   metal             parts   chip in the engine   rocket made in             engine / tank
 //   tier 1   stainless steel   LV      4x LV circuits       Assembler, MV (expensive)  steel_engine, steel_tank       (the Moon)
 //   tier 2   desh              HV      ASIC                 Assembler, HV              desh_engine, desh_tank         (Mars, Ceres: the Asteroid Field)
+//            the tier 2 rocket has its own parts and hull (rocket_hull.js): Rocket Cone Tier 2, 4 Rocket Fins Tier 2, TWO
+//            desh engines and TWO desh tanks, 4 dense plates of Desh Titanium Rocket Alloy (imploded, not bent) and
+//            Alumina Silicate Rocket Insulation instead of six desh blocks
 //   tier 3   titanium          EV      2x EV circuits       Assembler, EV              ostrum_engine, ostrum_tank     (Venus, Mercury)
 //   tier 4   HSS-E             LuV     VPU                  Assembly Line, LuV         calorite_engine, calorite_tank (Glacio)
 // An engine and a tank take the previous tier's, as Ad Astra's crafting did. The Assembly Line recipes of tiers 3 and 4
@@ -88,8 +91,8 @@ ServerEvents.recipes(event => {
         const t1 = tier === 1
         const machineVoltage = t1 ? GTValues.MV : voltage
         const computer = t1 ? '4x #gtceu:circuits/lv' : tier === 3 ? '2x #gtceu:circuits/ev' : `2x ${chip}`
-        // The tier 2 hull is Ad Astra's blocks (GT makes no block of Desh, only plates, rods, bolts and screws).
-        const hull = tier === 2 ? 'ad_astra:desh_block' : `gtceu:${metal}_block`
+        // Tier 2's hull is not blocks at all: dense plates of the rocket alloy and insulation tiles (below).
+        const hull = `gtceu:${metal}_block`
         // The research of an assembly line rocket: the previous rocket. Declared here, not in the if block below: Rhino keeps
         // a const of a nested block once for the whole script, so the second tier that takes the block failed with
         // "redeclaration of var" (and left the first one without its outputs and duration).
@@ -118,8 +121,15 @@ ServerEvents.recipes(event => {
         // The rocket, as Ad Astra's workbench had it (nose cone, six hull blocks, four fins, two tanks and the engine) with
         // the hull of the tier's metal, and two robot arms that put it together
         const rocket = event.recipes.gtceu[machine](`af9:tier_${tier}_rocket`)
-            .itemInputs('ad_astra:rocket_nose_cone', `6x ${hull}`, '4x ad_astra:rocket_fin',
+        if (tier === 2) {
+            // the tier 2 rocket: two engines and two tanks, its own cone and fins, the alloy hull and the insulation
+            rocket.itemInputs('af9:rocket_cone_tier_2', '4x af9:rocket_fin_tier_2', '2x ad_astra:desh_engine',
+                '2x ad_astra:desh_tank', '4x gtceu:dense_desh_titanium_rocket_alloy_plate',
+                '4x af9:alumina_silicate_rocket_insulation', `2x gtceu:${v}_robot_arm`)
+        } else {
+            rocket.itemInputs('ad_astra:rocket_nose_cone', `6x ${hull}`, '4x ad_astra:rocket_fin',
                 `2x ad_astra:${name}_tank`, `ad_astra:${name}_engine`, `2x gtceu:${v}_robot_arm`)
+        }
         if (machine === 'assembly_line') {
             // the control circuits of the tier; the previous rocket is the research (a Scanner, one tier below the line)
             rocket.itemInputs(`4x #gtceu:circuits/${v}`)

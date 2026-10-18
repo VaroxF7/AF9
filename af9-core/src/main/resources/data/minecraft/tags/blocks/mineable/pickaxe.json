@@ -5,6 +5,7 @@
     "af9:black_plutonium_item_pipe_casing",
     "af9:bolted_iridium_casing",
     "af9:cutter_casing",
+    "af9:shock_capacitor_casing",
     "af9:orbital_magnet_casing",
     "af9:orbital_light_casing",
     "af9:orbital_combined_structure_casing",
@@ -35,6 +36,8 @@
     "af9:space_elevator_motor_mk3",
     "af9:space_elevator_motor_mk4",
     "af9:space_elevator_motor_mk5",
-    "af9:ultra_high_strength_concrete_floor"
+    "af9:ultra_high_strength_concrete_floor",
+    "af9:ptfe_black_casing",
+    "af9:ae2_machine_casing"
   ]
 }

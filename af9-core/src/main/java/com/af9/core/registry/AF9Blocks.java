@@ -3,6 +3,7 @@ package com.af9.core.registry;
 import com.af9.core.AF9Core;
 
 import com.gregtechceu.gtceu.api.GTCEuAPI;
+import com.gregtechceu.gtceu.api.block.ActiveBlock;
 import com.gregtechceu.gtceu.api.block.SimpleCoilType;
 import com.gregtechceu.gtceu.common.block.CoilBlock;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
@@ -97,6 +98,14 @@ public final class AF9Blocks {
         // ---- Industrial Cutting Machine: the purple plated casing (tools/textures/cutter.py) ----
         block("cutter_casing", SoundType.METAL, 12F, 0, 0);
 
+        // ---- ME Resonance Fabricator: TFG's black PTFE casing and its AE2 casing (an active block: a glowing, animated
+        // texture while the machine runs) ----
+        block("ptfe_black_casing", SoundType.METAL, 6F, 0, 0);
+        activeBlock("ae2_machine_casing", SoundType.METAL, 6F);
+
+        // ---- Electric Implosion Compressor: the capacitor bank casing (tools/textures/electric_implosion.py) ----
+        block("shock_capacitor_casing", SoundType.METAL, 12F, 0, 2);
+
         // ---- Mk2 Orbital Array: the magnet pillars and light strips of the tower (textures from Cosmic Frontiers) ----
         block("orbital_magnet_casing", SoundType.METAL, 12F, 0, 0);
         block("orbital_light_casing", SoundType.METAL, 12F, 7, 0);
@@ -128,6 +137,13 @@ public final class AF9Blocks {
         RegistryObject<Block> block = BLOCKS.register(id, () -> new Block(properties(sound, resistance, light)));
         withItem(id, block, tooltipLines);
         return block;
+    }
+
+    /** A casing that lights up while its machine runs (GT switches the {@code active} state of every such block in a structure). */
+    private static void activeBlock(String id, SoundType sound, float resistance) {
+        RegistryObject<Block> block = BLOCKS.register(id,
+                () -> new ActiveBlock(properties(sound, resistance, 0)));
+        withItem(id, block, 0);
     }
 
     /**

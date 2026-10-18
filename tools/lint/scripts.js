@@ -56,7 +56,7 @@ const isSource = id => globs.some(r => r.test(id))
 const VOLT = [8, 32, 128, 512, 2048, 8192, 32768, 131072, 524288, 2097152, 8388608, 33554432, 134217728, 536870912,
     2147483647]
 const TIERS = ['ULV', 'LV', 'MV', 'HV', 'EV', 'IV', 'LuV', 'ZPM', 'UV', 'UHV', 'UEV', 'UIV', 'UXV', 'OpV', 'MAX']
-const GTValues = { VA: VOLT, V: VOLT, VN: TIERS, VNF: TIERS, VLVH: TIERS, VLVT: TIERS }
+const GTValues = { VA: VOLT, VHA: VOLT, V: VOLT, VN: TIERS, VNF: TIERS, VLVH: TIERS, VLVT: TIERS }
 TIERS.forEach((t, i) => { GTValues[t] = i })
 const TIER_PREFIX = TIERS.map(t => t.toLowerCase())
 

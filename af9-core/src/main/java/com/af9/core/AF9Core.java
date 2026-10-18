@@ -4,7 +4,11 @@ import com.af9.core.blast.BouleMelting;
 import com.af9.core.client.AF9Client;
 import com.af9.core.common.AF9Sounds;
 import com.af9.core.compat.xei.StagedRecipeUI;
+import com.af9.core.common.OxygenatedCondition;
 import com.af9.core.compat.adastra.AdAstraCompat;
+import com.af9.core.machine.MEResonanceFabricatorMachine;
+import com.gregtechceu.gtceu.api.GTCEuAPI;
+import com.gregtechceu.gtceu.api.recipe.condition.RecipeConditionType;
 import com.af9.core.compat.powah.OrbMk2;
 import com.af9.core.compat.powah.client.OrbMk2Client;
 import com.af9.core.compat.extremereactors.ExtremeReactorsCompat;
@@ -76,6 +80,9 @@ public class AF9Core {
         PlaceableFluids.register(FMLJavaModLoadingContext.get().getModEventBus());
         // the Asteroid Field's feature
         AF9Space.register(FMLJavaModLoadingContext.get().getModEventBus());
+        // the recipe condition "in oxygenated air" (the ME Resonance Fabricator's recipes), in GregTech's condition registry
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(RecipeConditionType.class,
+                (GTCEuAPI.RegisterEvent<String, RecipeConditionType<?>> event) -> OxygenatedCondition.register(event));
         // supercritical steam in Extreme Reactors' turbines (only with Extreme Reactors loaded)
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ExtremeReactorsCompat::enqueue);
         // Powah's Energizing Orb takes counted ingredients (the mixins in com.af9.core.mixin.powah) and has a Mk2 with a screen
@@ -92,6 +99,7 @@ public class AF9Core {
         event.enqueueWork(PhotolithographyLineMachine::registerRecipeInfo);
         event.enqueueWork(ParticleAcceleratorMachine::registerRecipeInfo);
         event.enqueueWork(SanguiniteHearthRecipeUI::install);
+        event.enqueueWork(MEResonanceFabricatorMachine::configureRecipeType);
         event.enqueueWork(SpaceMissionMachine::registerRecipeInfo);
         event.enqueueWork(FabRecipeInfo::register);
         // Boule Melting: second mode of GT's Electric Blast Furnace (before any machine is created)

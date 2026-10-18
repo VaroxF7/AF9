@@ -164,10 +164,12 @@ ServerEvents.recipes(event => {
         .EUt(MV)
 
     // Lunar Air distillation (distillation tower, like liquid Ender Air): argon and radon off the sides,
-    // L-01 as the light product
+    // L-01 as the light product, and the acidic cut: Lunar Acid Vapor, the shock wave of the Electric Implosion
+    // Compressor (electric_implosion.js)
     event.recipes.gtceu.distillation_tower('af9:distill_lunar_air')
         .inputFluids(Fluid.of('gtceu:lunar_air', 4000))
-        .outputFluids(Fluid.of('gtceu:l_01', 2600), Fluid.of('gtceu:argon', 1000), Fluid.of('gtceu:radon', 160))
+        .outputFluids(Fluid.of('gtceu:l_01', 2600), Fluid.of('gtceu:argon', 700), Fluid.of('gtceu:radon', 160),
+            Fluid.of('gtceu:lunar_acid_vapor', 340))
         .duration(600)
         .EUt(MV)
 

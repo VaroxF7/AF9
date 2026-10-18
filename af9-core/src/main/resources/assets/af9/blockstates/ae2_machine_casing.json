@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "af9:block/ae2_machine_casing"
+    },
+    "active=true": {
+      "model": "af9:block/ae2_machine_casing_active"
+    }
+  }
+}

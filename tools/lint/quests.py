@@ -188,7 +188,9 @@ SHAPES = sorted(['dust', 'small_dust', 'tiny_dust', 'ingot', 'hot_ingot', 'plate
 
 def material_of(name):
     n = name
-    for p in ('small_', 'tiny_', 'fine_', 'long_', 'dense_', 'hot_', 'raw_', 'crushed_', 'purified_', 'impure_', 'pure_'):
+    if n.startswith('molten_'):
+        n = n[len('molten_'):]
+    for p in ('small_', 'tiny_', 'fine_', 'long_', 'double_', 'dense_', 'hot_', 'raw_', 'crushed_', 'purified_', 'impure_', 'pure_'):
         if n.startswith(p):
             n = n[len(p):]
             break

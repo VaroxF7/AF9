@@ -1,6 +1,7 @@
 # What AF9 Core registers: written by its dev run, read by the linters. Not edited by hand unless the run
 # is out of reach (it needs a pack instance); see tools/lint/README.md, "The registry list".
 block af9:acetone
+block af9:ae2_machine_casing
 block af9:amber_cloud
 block af9:arf_excimer_laser
 block af9:benzene
@@ -30,6 +31,7 @@ block af9:orbital_combined_structure_casing
 block af9:orbital_truss_casing
 block af9:orbital_girder_casing
 block af9:orbital_deck_casing
+block af9:ptfe_black_casing
 block af9:satellite_casing
 block af9:hydrogen_peroxide
 block af9:krf_excimer_laser
@@ -53,6 +55,7 @@ block af9:resonant_endion_coil_block
 block af9:rust_cloud
 block af9:salt_water
 block af9:seed_oil
+block af9:shock_capacitor_casing
 block af9:space_elevator_base_casing
 block af9:space_elevator_cable
 block af9:space_elevator_internal_structure
@@ -67,7 +70,10 @@ block af9:wood_vinegar
 item af9:acetone_bucket
 item af9:advanced_soc_euv_reticle
 item af9:advanced_soc_reticle
+item af9:ae2_machine_casing
 item af9:ai_acceleration_card
+item af9:alumina_silicate_insulation_foil
+item af9:alumina_silicate_rocket_insulation
 item af9:amber_cloud
 item af9:apu_chip
 item af9:apu_euv_reticle
@@ -238,6 +244,7 @@ item af9:ilc_reticle
 item af9:incomplete_circuit
 item af9:industrial_component_housing
 item af9:industrial_electric_motor_housing
+item af9:insulation_wool
 item af9:interconnect
 item af9:interconnect_pallet
 item af9:iv_motor_housing
@@ -252,6 +259,9 @@ item af9:orbital_combined_structure_casing
 item af9:orbital_truss_casing
 item af9:orbital_girder_casing
 item af9:orbital_deck_casing
+item af9:ptfe_black_casing
+item af9:rocket_cone_tier_2
+item af9:rocket_fin_tier_2
 item af9:satellite_casing
 item af9:krf_excimer_laser
 item af9:kronos_marker
@@ -268,6 +278,7 @@ item af9:lv_motor_housing
 item af9:lv_rotor
 item af9:lv_stator
 item af9:magnetic_trap
+item af9:mainframe_interconnect
 item af9:mcu_chip
 item af9:mcu_euv_reticle
 item af9:mcu_psm_reticle
@@ -331,6 +342,7 @@ item af9:photonic_package
 item af9:pico_board
 item af9:pico_circuit_rack
 item af9:pico_cpu
+item af9:shock_capacitor_casing
 item af9:xps_board
 item af9:plascrete_filter_casing
 item af9:plascrete_pipe_casing
@@ -438,6 +450,8 @@ material gtceu:acetoxystyrene
 material gtceu:acidic_ion_exchange_resin
 material gtceu:albeme
 material gtceu:alkylate
+material gtceu:alumina_silicate_insulation
+material gtceu:alumina_silicate_insulation_mixture
 material gtceu:aluminised_hydrolox
 material gtceu:aluminium_chloride
 material gtceu:aluminium_nitride
@@ -448,6 +462,7 @@ material gtceu:ammonium_hexachloroosmate
 material gtceu:ammonium_hexachloroplatinate
 material gtceu:ammonium_hexachlororuthenate
 material gtceu:ammonium_perrhenate
+material gtceu:annealed_bronze
 material gtceu:anti_matter
 material gtceu:ares_gas
 material gtceu:arf_excimer_gas
@@ -462,6 +477,7 @@ material gtceu:boron_nitride
 material gtceu:boron_trichloride
 material gtceu:brannerite ore
 material gtceu:butanol
+material gtceu:butene_sulfonic_acid
 material gtceu:ceranium
 material gtceu:ceraquadalloy
 material gtceu:ceresite ore
@@ -491,6 +507,7 @@ material gtceu:dense_hydrogen
 material gtceu:dense_xenon
 material gtceu:desalted_oil
 material gtceu:desh
+material gtceu:desh_titanium_rocket_alloy
 material gtceu:di_tert_butyl_dicarbonate
 material gtceu:diazonaphthoquinone
 material gtceu:dichloromethane
@@ -512,6 +529,7 @@ material gtceu:gold_free_liquor
 material gtceu:gst_alloy
 material gtceu:hafnitinol
 material gtceu:hafnium_tetrachloride
+material gtceu:havar
 material gtceu:heavy_naphtha
 material gtceu:heavy_water
 material gtceu:hexamethyldisilazane
@@ -525,6 +543,9 @@ material gtceu:hydrazobisisobutyronitrile
 material gtceu:hydroxyacetophenone
 material gtceu:idontknowium
 material gtceu:impure_oil
+material gtceu:inconel_625
+material gtceu:inconel_718
+material gtceu:inconel_738
 material gtceu:iron_molybdate
 material gtceu:irradiated_fuel
 material gtceu:irradiated_mox
@@ -537,6 +558,8 @@ material gtceu:krypton_xenon_concentrate
 material gtceu:l_01
 material gtceu:lactic_acid
 material gtceu:lactonitrile
+material gtceu:lapis_butene_ii_sulfonate
+material gtceu:lapis_leach_liquor
 material gtceu:lesolite
 material gtceu:light_naphtha
 material gtceu:liquid_certus_quartz
@@ -548,6 +571,7 @@ material gtceu:lithium_hydroxide
 material gtceu:lithium_niobate
 material gtceu:lithium_oxide
 material gtceu:living_solder
+material gtceu:lunar_acid_vapor
 material gtceu:lunar_air
 material gtceu:lxa_1
 material gtceu:maleic_anhydride
@@ -633,6 +657,8 @@ material gtceu:spent_resist_solvent
 material gtceu:star_matter_plasma_steel
 material gtceu:stellarite ore
 material gtceu:stellarium
+material gtceu:stellite_1
+material gtceu:stellite_12
 material gtceu:strange_matter
 material gtceu:sulfur_dichloride
 material gtceu:supercooled_argon
@@ -665,14 +691,17 @@ material gtceu:triniar
 material gtceu:triphenylsulfonium_chloride
 material gtceu:triphenylsulfonium_triflate
 material gtceu:tungsten_diselenide
+material gtceu:twiresten_insulation
 material gtceu:ultrapure_water
 material gtceu:unfiltered_arf_photoresist
 material gtceu:unfiltered_krf_photoresist
 material gtceu:uranyl_sulfate_solution
+material gtceu:vanadium_pentoxide
 material gtceu:vanadium_spring_steel
 material gtceu:vanadyl_pyrophosphate
 material gtceu:vitrified_waste
 material gtceu:wolfram_invar
+material gtceu:xps_alloy
 material gtceu:yellowcake
 material gtceu:zinc_chloride
 material gtceu:zincarry
