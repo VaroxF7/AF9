@@ -1,6 +1,7 @@
 # What AF9 Core registers: written by its dev run, read by the linters. Not edited by hand unless the run
 # is out of reach (it needs a pack instance); see tools/lint/README.md, "The registry list".
 block af9:acetone
+block af9:ae2_machine_casing
 block af9:amber_cloud
 block af9:arf_excimer_laser
 block af9:benzene
@@ -30,6 +31,7 @@ block af9:orbital_combined_structure_casing
 block af9:orbital_truss_casing
 block af9:orbital_girder_casing
 block af9:orbital_deck_casing
+block af9:ptfe_black_casing
 block af9:satellite_casing
 block af9:hydrogen_peroxide
 block af9:krf_excimer_laser
@@ -68,6 +70,7 @@ block af9:wood_vinegar
 item af9:acetone_bucket
 item af9:advanced_soc_euv_reticle
 item af9:advanced_soc_reticle
+item af9:ae2_machine_casing
 item af9:ai_acceleration_card
 item af9:alumina_silicate_insulation_foil
 item af9:alumina_silicate_rocket_insulation
@@ -256,6 +259,7 @@ item af9:orbital_combined_structure_casing
 item af9:orbital_truss_casing
 item af9:orbital_girder_casing
 item af9:orbital_deck_casing
+item af9:ptfe_black_casing
 item af9:rocket_cone_tier_2
 item af9:rocket_fin_tier_2
 item af9:satellite_casing

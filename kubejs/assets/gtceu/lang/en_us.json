@@ -791,5 +791,17 @@
     "af9.orbital_module.unformed": "§cStructure not formed",
     "af9.orbital_module.linked": "§aLinked to an Orbital Array Mk2",
     "af9.orbital_module.alone": "§7Not part of a formed Array Mk2 (put it in a module column)",
-    "af9.orbital_module.error.max": "Too many modules of one kind in this Array"
+    "af9.orbital_module.error.max": "Too many modules of one kind in this Array",
+    "gtceu.me_assembler": "ME Resonance Fabricator",
+    "af9.me_fabricator.tooltip.0": "§7Certus-powered AE2 assembler§r",
+    "af9.me_fabricator.tooltip.1": "§7Requires a Certus Block or a Budding Certus (has a chance to degrade) to run recipes§r",
+    "af9.me_fabricator.tooltip.2": "§7The higher the grade of the Budding Certus, the faster the recipe: from §6x8§r §7to§r §6x512§r §7faster§r",
+    "af9.me_fabricator.tooltip.3": "§7A §cME Redstone Port§7 outputs the current grade of Budding Certus",
+    "af9.me_fabricator.tooltip.4": "Accepts at most §6one§r energy hatch. No overclocks, batch mode is always on.",
+    "af9.me_fabricator.budding_tier": "Catalyst Acceleration: %s",
+    "af9.me_fabricator.budding_missing": "No Budding Certus detected",
+    "af9.me_fabricator.recipe_hint": "Faster with better Budding",
+    "af9.me_redstone_port.tooltip.0": "§7Can be used as part of an ME Resonance Fabricator.",
+    "af9.me_redstone_port.tooltip.1": "§7Redstone signal by the Budding Certus in the middle:",
+    "af9.me_redstone_port.tooltip.2": "§70: Nothing, 1: Certus Block, 2: Chipped, 3: Flawed, 4: Flawless, 5: Exquisite Budding Certus"
 }

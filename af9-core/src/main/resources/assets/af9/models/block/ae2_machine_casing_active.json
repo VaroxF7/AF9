@@ -1,0 +1,7 @@
+{
+  "parent": "gtceu:block/cube_2_layer/all",
+  "textures": {
+    "bot_all": "af9:block/ae2_machine_casing_active",
+    "top_all": "af9:block/ae2_machine_casing_active_emissive"
+  }
+}

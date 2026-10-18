@@ -72,3 +72,24 @@ textures in `block` are MIT-licensed per its license section, `licenses` in the 
 `shock_capacitor_casing.png` and `_ctm.png` are GregTech CEu's `machine_casing_stable_titanium.png` and its `_ctm.png`
 (GregTech-Modern v7.5.3, LGPL-3.0, copies in `tools/textures/gt_src/`) with the hue moved from violet to teal
 (`tools/textures/electric_implosion.py`).
+
+## ME Resonance Fabricator
+
+The ME Resonance Fabricator is a copy of TerraFirmaGreg's ME Resonance Fabricator (their id `me_assembler`) from
+**TerraFirmaGreg-Team/Core-Modern** (commit `325b0835`, `MEAssemblerMachine`, `MEAssemblerRedstonePort`, `TFGPredicates`,
+`TFGMultiMachines.ME_ASSEMBLER`, `TFGTRecipeTypes.ME_ASSEMBLER`) and **TerraFirmaGreg-Team/Modpack-Modern** (commit
+`dd977368`, textures and crafting recipes), LGPL-3.0; licence text in `licenses/TerraFirmaGreg-Core-Modern-LGPL-3.0.txt`.
+The structure, the budding-grade speed table and wear, the redstone port and the recipe page are taken over; the Java is
+ported to AF9 Core (`MEResonanceFabricatorMachine`, `MERedstonePortPartMachine`, `BuddingTiers`) and the machine is
+registered in KubeJS (`startup_scripts/gtceu/me_resonance_fabricator.js`). Textures, copied unchanged (recipe textures
+`.mcmeta` with the namespace changed):
+
+| af9 file | TFG source (`kubejs/assets/tfg/textures/block/`) |
+|---|---|
+| `af9-core/.../textures/block/ptfe_black_casing.png` (+ `_ctm.png`, `.mcmeta`) | `casings/machine_casing_ptfe_black{,_ctm}.png` |
+| `af9-core/.../textures/block/ae2_machine_casing{,_active,_active_emissive}.png` (+ `_ctm.png`, `.mcmeta`) | `casings/machine_casing_ae2{,_active,_active_emissive}{,_ctm}.png` |
+| `kubejs/assets/gtceu/textures/block/multiblock/me_assembler_redstone_port/overlay_front.png` (+ `.mcmeta`) | `machines/redstone_port/overlay_front.png` |
+
+Not taken over: the shader maps (`_n`, `_s`) of the AE2 casing; TFG's recipes for the Fabricator (they craft TFG's items).
+Substitutions: TFG's `cryogenized_fluix` in the AE2 casing recipe is `gtceu:liquid_certus_quartz`; the Moon-only rule of its
+recipes sits in TFG's recipes, not the machine. Its AE2 blocks are read by id, so AF9 Core compiles without AE2.

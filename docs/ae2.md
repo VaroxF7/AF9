@@ -167,3 +167,22 @@ that this pack does not redefine).
   IV → UHV, Infinity Booster is HV.
 - Unverified: written without compiling or in-game testing (cloud env cannot build).
 - Follow-ups, not done here: quest gating for the AE2 chapter, EMI descriptions.
+
+## ME Resonance Fabricator (`me_resonance_fabricator.js`, HV)
+
+A copy of TerraFirmaGreg's ME Assembler (id `gtceu:me_assembler`, credits in `CREDITS-textures.md`): a 9 x 5 x 5 assembler
+in black PTFE (`af9:ptfe_black_casing`) and AE2 casings (`af9:ae2_machine_casing`) round quartz vibrant glass, with a
+Certus Quartz Block or a Budding Certus in the middle (Spatial Pylons and Spatial IO Ports around it let ME spatial storage
+move the block in and out). Hatches: one energy hatch, one maintenance hatch, up to 3 fluid inputs, 1 item output, any number
+of item buses in the sides, a Data Access Hatch for the research slot, one ME Redstone Port.
+
+- **Speed** by the block in the middle: Certus Quartz Block x1, Chipped (AE2's damaged) x9, Flawed x33, Flawless x129,
+  Exquisite x513 (recipe time divided by 1 + 8 / 32 / 128 / 512). No overclocks, batch mode is always on (the machine
+  runs as many recipes at once as fit one batch). A recipe above the machine's voltage tier does not run.
+- **Wear**: every run uses up work (recipe time x batched runs / 500, at least 1) from the block's health, rolled
+  200-800 per grade; at 0 the block drops one grade (Exquisite to Flawless and so on, down to the plain Certus Block).
+  Breaking the machine keeps the health on the item.
+- **ME Redstone Port**: signal 0 nothing in the middle, 1 Certus Quartz Block, 2 Chipped ... 5 Exquisite.
+- **Recipes**: the type `gtceu:me_assembler` (9 items in, 1 out, 3 fluids in, research slot) has no recipes yet. TFG's
+  recipes craft TFG's items, so none were taken over; the machine, the port and both casings are craftable.
+
