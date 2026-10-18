@@ -27,10 +27,11 @@ trinaquadalloy, 2,100 ceranium, 1,050 quantanium and 1,050 neutronium. Material:
 
 ## Textures
 
-`tools/textures/orbital_mk2_casings.py` (sources in `tools/textures/gt_src/`, credits in `CREDITS-textures.md`). Each is the GT casing's own shape on a
-cool steel ramp with AF9's teal (the Orbital Light Casing's glow) as the accent: the Combined Structure Casing has the stress-proof stone corners and
-cross with a teal core line, and joins its neighbours like the original (LDLib connected texture); the Truss has gold rivets, the Girder is the same
-plates turned on their side in graphite with teal rivets, the Deck's inset plate is lit teal along its top and left.
+`tools/textures/orbital_mk2_casings.py` (sources in `tools/textures/gt_src/`, credits in `CREDITS-textures.md`). Each is the GT casing's own shape on a cool steel ramp with AF9's teal (the Orbital Light Casing's glow) as the accent, and all four are
+connected textures (LDLib, 32 x 32 `_ctm` sheet): where blocks meet the frame disappears and the plating runs on across them. The Combined
+Structure Casing has the stress-proof stone corners and cross with a teal core line, a stone frame at the edge of the group and a navy plate wall
+inside. The Truss (gold rivets) and the Girder (the same plates on their side, graphite, teal rivets) are the sturdy casing's two plates and rivets
+repeated, no frame; the Deck keeps the PTFE casing's frame with a teal inner edge and a diagonal sheen across the inset field.
 
 ## Notes
 

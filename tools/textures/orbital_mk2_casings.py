@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The four casings of the Orbital Array Mk2 that replace GTCEu's: each is the original's sprite (tools/textures/gt_src/,
+"""The four casings of the Orbital Array Mk2 that replace GTCEu's: each is based on the original's sprite (tools/textures/gt_src/,
 see CREDITS-textures.md) with its greys re-cut to a cool steel ramp and AF9's teal "orbital" accent (the colour of the
 Orbital Light Casing's glow) laid into it.
 
@@ -8,6 +8,8 @@ Orbital Light Casing's glow) laid into it.
   orbital_truss_casing                Sturdy HSS-E Casing, two plates and rivets: dark steel blue, gold rivets
   orbital_girder_casing               the same plates turned on their side: graphite, teal rivets
   orbital_deck_casing                 Inert PTFE Casing: the same inset plate, lit by a teal edge (hatches go on it)
+All four join their neighbours (the lone block is the original's shape; where blocks meet the frame goes and the plating
+runs on).
 
 Run from the repository root (needs Pillow):  python3 tools/textures/orbital_mk2_casings.py [--preview <dir>]
 """
@@ -91,9 +93,14 @@ def combined_inside(sprite, x, y):
     return (shade - 6, shade + 6, shade + 22, 255)
 
 
-# ---- Truss and Girder (HSS-E replacements) -------------------------------------------------------------------------
+# ---- Truss, Girder and Deck: the original's plating, running on across blocks ----------------------------------------
+# Where blocks join, the face is the original's own plating repeated without the block's edge (a plate is 8 px wide, so two
+# plates and their seam run on through every block); the frame stays only where the group of blocks ends (LDLib connected
+# texture, the 32 x 32 sheet space_elevator.ctm_sheet writes). The shading is the GT casing's, recoloured.
 # rivet pixels of the original, one in each corner of each plate
 RIVETS = [(3, 3), (11, 3), (3, 11), (11, 11)]
+TRUSS_STEEL = [(59, (20, 26, 38)), (69, (30, 38, 54)), (84, (52, 64, 88)), (106, (80, 98, 128)), (122, (116, 136, 168))]
+GIRDER_GRAPHITE = [(59, (17, 18, 21)), (69, (28, 29, 34)), (84, (46, 48, 56)), (106, (72, 75, 86)), (122, (104, 108, 122))]
 
 
 def plates(stops, rivet):
@@ -104,76 +111,82 @@ def plates(stops, rivet):
     return out
 
 
-TRUSS_STEEL = [(59, (20, 26, 38)), (69, (30, 38, 54)), (84, (52, 64, 88)), (106, (80, 98, 128)), (122, (116, 136, 168))]
-GIRDER_GRAPHITE = [(59, (17, 18, 21)), (69, (28, 29, 34)), (84, (46, 48, 56)), (106, (72, 75, 86)), (122, (104, 108, 122))]
-
-
-def truss():
+def truss_base():
     return plates(TRUSS_STEEL, (232, 184, 92, 255))
 
 
-def girder():
+def girder_base():
     return plates(GIRDER_GRAPHITE, TEAL).transpose(Image.TRANSPOSE)
 
 
-# ---- Deck casing (PTFE replacement) --------------------------------------------------------------------------------
+def plated(sprite, x, y):
+    """The face without the block's edge, vertical plates (the Truss): across the sprite as it is (two plates, seams and lit
+    edges between them), down it the 8 rows 3..10 (one row of rivets) repeated."""
+    return sprite.getpixel((x % 16, 3 + (y + 5) % 8))
+
+
+def plated_flat(sprite, x, y):
+    """The same turned on its side (the Girder, whose sprite is the Truss's transposed)."""
+    return sprite.getpixel((3 + (x + 5) % 8, y % 16))
+
+
 DECK = [(27, (11, 14, 19)), (34, (17, 21, 29)), (40, (24, 29, 39)), (53, (40, 48, 63)), (59, (49, 58, 76)),
         (65, (58, 68, 88)), (69, (65, 77, 98)), (78, (86, 99, 124))]
 
 
-def deck():
+def deck_base(lit):
     out = remap(load('machine_casing_inert_ptfe'), DECK)
-    # the inset plate is lit along its top and left edge, its bottom and right edge glows dim
-    for i in range(4, 12):
-        out.putpixel((4, i), TEAL_DIM)
-        out.putpixel((i, 4), TEAL_DIM)
-        out.putpixel((11, i), TEAL_FAINT)
-        out.putpixel((i, 11), TEAL_FAINT)
-    out.putpixel((4, 4), TEAL)
+    if lit:                                                   # the frame's inner edge glows: dim, lit a little more top-left
+        for i in range(3, 13):
+            out.putpixel((3, i), TEAL_DIM)
+            out.putpixel((i, 3), TEAL_DIM)
+            out.putpixel((12, i), TEAL_FAINT)
+            out.putpixel((i, 12), TEAL_FAINT)
+        out.putpixel((3, 3), TEAL)
     return out
+
+
+def deck_inside(sprite, x, y):
+    """The inset plate's sheen (the PTFE casing's diagonal, 53 -> 62 on its grey ramp): a diagonal band that runs on
+    through the blocks, one band every 16 px."""
+    v = 53 + 9 * (1 - abs((x + y) % 16 - 7.5) / 7.5)
+    return ramp(DECK, v) + (255,)
 
 
 def save(im, name):
     im.save(os.path.join(OUT, name + '.png'))
 
 
-def main():
-    sprites = {}
-    sprites['orbital_combined_structure_casing'] = combined()
-    sprites['orbital_truss_casing'] = truss()
-    sprites['orbital_girder_casing'] = girder()
-    sprites['orbital_deck_casing'] = deck()
-    for name, sprite in sprites.items():
-        save(sprite, name)
-    # only the Combined Structure Casing joins its neighbours (as the Stress-Proof Casing does): a 3 px border, the plate
-    # wall inside
-    name = 'orbital_combined_structure_casing'
-    sheet = se.ctm_sheet(sprites[name], 3, 3, combined_inside)
+def connected(name, sprite, inside, border):
+    sheet = se.ctm_sheet(sprite, border, border, inside)
+    save(sprite, name)
     save(sheet, name + '_ctm')
     with open(os.path.join(OUT, name + '.png.mcmeta'), 'w', newline='\n') as f:
         json.dump({'ldlib': {'connection': 'af9:block/%s_ctm' % name}}, f, indent=2)
         f.write('\n')
+    return sheet
+
+
+def main():
+    sprites = {'orbital_combined_structure_casing': combined(), 'orbital_truss_casing': truss_base(),
+               'orbital_girder_casing': girder_base(), 'orbital_deck_casing': deck_base(True)}
+    insides = {'orbital_combined_structure_casing': (combined_inside, 3), 'orbital_truss_casing': (plated, 0),
+               'orbital_girder_casing': (plated_flat, 0), 'orbital_deck_casing': (deck_inside, 4)}
+    sheets = {n: connected(n, sprites[n], *insides[n]) for n in sprites}
     if '--preview' in sys.argv:
         dest = sys.argv[sys.argv.index('--preview') + 1]
         os.makedirs(dest, exist_ok=True)
-        z = 6
-        orig = [load('stress_proof_casing'), load('machine_casing_sturdy_hsse'), load('machine_casing_sturdy_hsse'),
-                load('machine_casing_inert_ptfe')]
-        img = Image.new('RGBA', (4 * (16 * z + 8) + 3 * 16 * z + 8, 2 * 16 * z + 24 + 3 * 16 * z), (36, 38, 44, 255))
-        for i, (name, sprite) in enumerate(sprites.items()):
-            x0 = i * (16 * z + 8) + 4
-            img.paste(orig[i].resize((16 * z, 16 * z), Image.NEAREST), (x0, 4))
-            img.paste(sprite.resize((16 * z, 16 * z), Image.NEAREST), (x0, 16 * z + 12))
-        tiled = se.tile(sprites[name := 'orbital_combined_structure_casing'], sheet, 3, 3).resize((3 * 16 * z, 3 * 16 * z),
-                                                                                              Image.NEAREST)
-        img.paste(tiled, (4 * (16 * z + 8) + 4, 4))
-        # a 4 x 4 field of each plain casing, as a wall
-        for i, n in enumerate(('orbital_truss_casing', 'orbital_girder_casing', 'orbital_deck_casing')):
-            wall = Image.new('RGBA', (3 * 16, 3 * 16))
-            for a in range(3):
-                for b in range(3):
-                    wall.paste(sprites[n], (a * 16, b * 16))
-            img.paste(wall.resize((3 * 16 * 2, 3 * 16 * 2), Image.NEAREST), (4 * (16 * z + 8) + 4 + i * 100, 3 * 16 * z + 16))
+        z = 4
+        names = list(sprites)
+        shapes = ((1, 1), (1, 2), (3, 2), (3, 3))
+        w = max(sum(a * 16 * z + 8 for a, _ in shapes) , 1) + 8
+        img = Image.new('RGBA', (w, len(names) * (3 * 16 * z + 8) + 8), (36, 38, 44, 255))
+        for r, n in enumerate(names):
+            x0 = 4
+            for a, b in shapes:
+                t = se.tile(sprites[n], sheets[n], a, b).resize((a * 16 * z, b * 16 * z), Image.NEAREST)
+                img.paste(t, (x0, 4 + r * (3 * 16 * z + 8)))
+                x0 += a * 16 * z + 8
         img.save(os.path.join(dest, 'orbital_mk2_casings.png'))
 
 
