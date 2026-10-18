@@ -75,12 +75,6 @@
 			y: 3.0d
 		}
 		{
-			id: "6D45F1009D766C50"
-			linked_quest: "5D58E5CB4F4BDAD5"
-			x: 18.0d
-			y: 3.0d
-		}
-		{
 			id: "24B206DFD6148259"
 			linked_quest: "2CC82170BCE61940"
 			x: 25.5d
