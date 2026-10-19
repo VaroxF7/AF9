@@ -344,6 +344,11 @@ public final class AF9Materials {
                 .liquid()
                 .color(0x8fd3ef)
                 .formula("SiO2"));
+        // Liquid Resonating Fluix: the stabiliser of the Certus Resonating Manufacturer (extractor recipe in
+        // ae2_quartz.js), its own animated texture (fluids/fluid.liquid_resonating_fluix.png)
+        add(material("liquid_resonating_fluix")
+                .liquid(ownLiquid())
+                .color(0x9a7cf0));
         // Redstone only has dust in GT; ae2_quartz.js presses it to a plate and bends the foil
         GTMaterials.Redstone.addFlags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL);
         // GT's certus quartz has material data but no parts; the 256k storage component wants a

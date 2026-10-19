@@ -1,7 +1,7 @@
-From 00982d1fe503fe31c040c1b3872129bad0e112c6 Mon Sep 17 00:00:00 2001
+From 5e2acd6721dd3db1cbe5ba47e336d7ec5f97b187 Mon Sep 17 00:00:00 2001
 From: AF9 <a@b>
 Date: Fri, 9 Oct 2026 07:28:11 +0000
-Subject: [PATCH 2/2] Version 7.5.3-af9.1 to keep the fork out of upstream
+Subject: [PATCH 02/13] Version 7.5.3-af9.1 to keep the fork out of upstream
  caches
 
 ---
@@ -22,5 +22,5 @@ index 1d85681..b2df9bb 100644
  mod_license = LGPL-3.0 license
  mod_url = https://github.com/GregTechCEu/GregTech-Modern/
 -- 
-2.43.0
+2.54.0.windows.1
 

@@ -124,7 +124,7 @@
     "af9.space_mining_module_mk3.tooltip.3": "§7Does nothing outside an elevator: its energy comes from the tower's hatches.",
     "gtceu.sanguinite_hearth": "Sanguinite Hearth",
     "af9.industrial_cutting_machine.tooltip.0": "§7GTNH's §fIndustrial Cutting Machine§7, §f9x4x3§7: a big saw blade behind the front window spins up while it cuts. The blade texture follows the energy hatch tier.",
-    "af9.industrial_cutting_machine.tooltip.1": "§7Runs §fgtceu:cutter§7 recipes. A parallel hatch multiplies the cuts; overclocks are perfect.",
+    "af9.industrial_cutting_machine.tooltip.1": "§7Runs §fgtceu:cutter§7 and §fgtceu:lathe§7 recipes, switched with the mode tab. A parallel hatch multiplies the cuts; overclocks are perfect.",
     "af9.industrial_cutting_machine.tooltip.2": "§7Hatches go in the purple Cutting Factory Frame casings, never in the glass, frames or steel.",
     "af9.sanguinite_hearth_furnace.tooltip.0": "§7A §fRotary Hearth Furnace§7 rebuilt as a standalone multi: a brutalist sci-fi tower, §f15x29x15§7, (plus an optional Verteilerhaus), running only §cSanguinite§7.",
     "af9.sanguinite_hearth_furnace.tooltip.1": "§cNeither the EBF nor the Rotary Hearth can smelt sanguinite§7: the molten print lives on §fgtceu:sanguinite_hearth§7 only.",

@@ -1,7 +1,7 @@
-From 5008eb907cc8c5d4da6e5d21582b2d21c6d86ef5 Mon Sep 17 00:00:00 2001
+From e38da08f9797f5d410a3bef9a45055453ba9857c Mon Sep 17 00:00:00 2001
 From: AF9 <af9@localhost>
 Date: Sun, 18 Oct 2026 08:36:11 +0000
-Subject: [PATCH] HPCA: expandable (3 to 12 slices of 3 component slots),
+Subject: [PATCH 12/13] HPCA: expandable (3 to 12 slices of 3 component slots),
  Active Coolers cool by coolant (PCB 2, supercooled 8 to 20) (7.5.3-af9.11)
 
 - The array's component section repeats 3 to 12 times (9 to 36 slots); the controller screen draws the whole grid, the
@@ -268,5 +268,5 @@ index 6fbf139..d9f34c8 100644
  
          public void clearClientComponents() {
 -- 
-2.43.0
+2.54.0.windows.1
 

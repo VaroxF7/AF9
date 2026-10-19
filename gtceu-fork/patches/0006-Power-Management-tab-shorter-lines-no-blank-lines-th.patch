@@ -1,8 +1,8 @@
-From 2b2e6b6a7c9264df9a4aaf530047cf85181de65e Mon Sep 17 00:00:00 2001
+From dc4f20d86e2679871d53cfaab799919fc3d3a7d1 Mon Sep 17 00:00:00 2001
 From: AF9 <af9@localhost>
 Date: Fri, 9 Oct 2026 18:21:21 +0200
-Subject: [PATCH 6/6] Power Management tab: shorter lines, no blank lines, the
- hint in the tab tooltip, a panel that fits (7.5.3-af9.5)
+Subject: [PATCH 06/13] Power Management tab: shorter lines, no blank lines,
+ the hint in the tab tooltip, a panel that fits (7.5.3-af9.5)
 
 ---
  gradle.properties                                         | 2 +-

@@ -1,6 +1,6 @@
-// AF9 - Industrial Cutting Machine: crafting. It replaces GTCEu's Large Cutter (gtceu:large_cutter), whose crafting
-// recipe is removed here and which is hidden from the recipe viewer (client_scripts/industrial_cutter_hide.js).
-// Machine: startup_scripts/gtceu/industrial_cutter.js. The quest for it is in the LuV chapter (ludicrous_voltage).
+// AF9 - Industrial Cutting Machine: crafting. It replaces GTCEu's Large Cutter (gtceu:large_cutter), which the fork
+// no longer registers (gtceu-fork patch 0013); the remove below is a no-op safety net for older fork jars.
+// Machine: startup_scripts/gtceu/industrial_cutter.js (cutter + lathe modes). Quest: LuV chapter (ludicrous_voltage).
 
 ServerEvents.recipes(event => {
     event.remove({ output: 'gtceu:large_cutter' })

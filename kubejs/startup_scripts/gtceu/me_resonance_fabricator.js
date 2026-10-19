@@ -12,7 +12,6 @@
 // (gtceu:hv_me_assembler_redstone_port).
 
 const $MEFabricator = Java.loadClass('com.af9.core.machine.MEResonanceFabricatorMachine')
-const $MERedstonePort = Java.loadClass('com.af9.core.machine.part.MERedstonePortPartMachine')
 const $BuddingTiers = Java.loadClass('com.af9.core.pattern.BuddingTiers')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
@@ -33,19 +32,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         return lines
     }
 
-    // ME Redstone Port: a part of the Fabricator that outputs the grade of the Budding Certus (0-5)
-    event.create('me_assembler_redstone_port', 'custom')
-        .tiers(GTValues.HV)
-        .machine((holder, tier) => new $MERedstonePort(holder))
-        .definition((tier, builder) => {
-            builder
-                .langValue('ME Redstone Port')
-                .rotationState(RotationState.ALL)
-                .abilities($MERedstonePort.ME_REDSTONE_PORT)
-                .workableCasingModel('af9:block/ptfe_black_casing', 'gtceu:block/multiblock/me_assembler_redstone_port')
-                ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.me_redstone_port.tooltip', 3))
-        })
-
     // 7 wide x 9 high x 7 deep, aisles back -> front (the controller's last), rows bottom -> top. Layers: base deck (T, all
     // hatches, H the Data Access Hatch), black PTFE ring with the controller (X) in the front, AE2 casing band, three window
     // rows (G) with the Budding Certus (Q) in a glass cube in the middle, a second AE2 band, a PTFE ring and the roof; the
@@ -57,34 +43,27 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('me_assembler')])
         .alwaysTryModifyRecipe(true)
-        .recipeModifiers([$MEFabricator.BUDDING])
-        .appearanceBlock(() => Block.getBlock('af9:ptfe_black_casing'))
+        .appearanceBlock(() => Block.getBlock('af9:ae2_machine_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.me_fabricator.tooltip', 5))
         .pattern(definition => FactoryBlockPattern.start()
-            .aisle('TTTHTTT', 'BAAAAAB', 'BCCCCCB', 'BGGGGGB', 'BGGGGGB', 'BGGGGGB', 'BCCCCCB', 'BAAAAAB', 'BAAAAAB')
-            .aisle('TTTTTTT', 'A     A', 'C     C', 'G     G', 'G     G', 'G     G', 'C     C', 'A     A', 'AAAAAAA')
-            .aisle('TTTTTTT', 'A     A', 'C     C', 'G GGG G', 'G GGG G', 'G GGG G', 'C     C', 'A     A', 'AACCCAA')
-            .aisle('TTTTTTT', 'A     A', 'C     C', 'G GGG G', 'G GQG G', 'G GGG G', 'C     C', 'A     A', 'AACCCAA')
-            .aisle('TTTTTTT', 'A     A', 'C     C', 'G GGG G', 'G GGG G', 'G GGG G', 'C     C', 'A     A', 'AACCCAA')
-            .aisle('TTTTTTT', 'A     A', 'C     C', 'G     G', 'G     G', 'G     G', 'C     C', 'A     A', 'AAAAAAA')
-            .aisle('TTTTTTT', 'BAAXAAB', 'BCCCCCB', 'BGGGGGB', 'BGGGGGB', 'BGGGGGB', 'BCCCCCB', 'BAAAAAB', 'BAAAAAB')
+            .aisle(' CHC ', ' C C ', ' C C ', ' C C ')
+            .aisle('CCCCC', 'CCGCC', 'CCGCC', ' C C ')
+            .aisle('CCPCC', 'CC CC', 'CCGCC', ' C C ')
+            .aisle('CCCCC', 'CCGCC', 'CCGCC', ' C C ')
+            .aisle(' CXC ', ' C C ', ' C C ', ' C C ')
             .where('X', Predicates.controller(Predicates.blocks(definition.get())))
-            .where('A', Predicates.blocks('af9:ptfe_black_casing'))
-            .where('B', Predicates.frames(GTMaterials.StainlessSteel))
-            .where('C', Predicates.blocks('af9:ae2_machine_casing'))
+            .where('P', Predicates.blocks('gtceu:steel_pipe_casing'))
             .where('G', Predicates.blocks('ae2:quartz_vibrant_glass'))
-            .where('T', Predicates.blocks('af9:ptfe_black_casing')
+            .where('C', Predicates.blocks('af9:ae2_machine_casing')
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(9, 3))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(3, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities($MERedstonePort.ME_REDSTONE_PORT).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(1, 1)))
             .where('H', Predicates.dataHatchPredicate(Predicates.blocks('af9:ptfe_black_casing')))
-            .where('Q', $BuddingTiers.predicate())
             .where(' ', Predicates.any())
             .build())
         .shapeInfos(definition => $MEFabricator.previews(definition))
         // black PTFE casings with the laser engraver's controller face, as in TFG
-        .workableCasingModel('af9:block/ptfe_black_casing', 'gtceu:block/machines/laser_engraver')
+        .workableCasingModel('af9:block/ae2_machine_casing', 'gtceu:block/machines/laser_engraver')
 })

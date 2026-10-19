@@ -1,7 +1,7 @@
-From e471d81e94bd26dcfb57c3279a30546d888a6848 Mon Sep 17 00:00:00 2001
+From 4a1234b6826a5960b96ab4bb2e6a09b1bc49c22f Mon Sep 17 00:00:00 2001
 From: AF9 <af9@localhost>
 Date: Fri, 9 Oct 2026 18:25:03 +0200
-Subject: [PATCH 7/7] Auxiliary energy hatches show blue (7.5.3-af9.6)
+Subject: [PATCH 07/13] Auxiliary energy hatches show blue (7.5.3-af9.6)
 
 ---
  gradle.properties                                             | 2 +-

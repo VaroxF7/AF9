@@ -1,0 +1,127 @@
+From 9751c3045984c7b8d7ab0fe20613a9a30d2d7049 Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Mon, 19 Oct 2026 18:17:26 +0200
+Subject: [PATCH 13/13] Remove the Large Cutting Saw: AF9's Industrial Cutting
+ Machine replaces it (7.5.3-af9.12)
+
+The gtceu:large_cutter multiblock ran the cutter and lathe recipes; AF9's
+gtceu:industrial_cutting_machine now runs both modes itself. The machine,
+its crafting and part recipes, and the slicing blades block go; the shock
+proof cutting casing stays (AF9's photolithography line uses it).
+---
+ gradle.properties                             |  2 +-
+ .../gtceu/common/data/GCYMBlocks.java         |  2 --
+ .../common/data/machines/GCYMMachines.java    | 28 -------------------
+ .../gtceu/data/recipe/misc/GCYMRecipes.java   | 17 -----------
+ 4 files changed, 1 insertion(+), 48 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index b053be0..ff73545 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.11
++mod_version = 7.5.3-af9.12
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/GCYMBlocks.java b/src/main/java/com/gregtechceu/gtceu/common/data/GCYMBlocks.java
+index 9c882fb..ed1fec2 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/GCYMBlocks.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/GCYMBlocks.java
+@@ -41,8 +41,6 @@ public class GCYMBlocks {
+     public static final BlockEntry<Block> CASING_INDUSTRIAL_STEAM = createCasingBlock("industrial_steam_casing",
+             GTCEu.id("block/casings/gcym/industrial_steam_casing"));
+ 
+-    public static final BlockEntry<ActiveBlock> SLICING_BLADES = createActiveCasing("slicing_blades",
+-            "block/variant/slicing_blades");
+     public static final BlockEntry<ActiveBlock> MOLYBDENUM_DISILICIDE_COIL_BLOCK = createActiveCasing(
+             "molybdenum_disilicide_coil_block", "block/variant/molybdenum_disilicide_coil_block");
+     public static final BlockEntry<ActiveBlock> ELECTROLYTIC_CELL = createActiveCasing("electrolytic_cell",
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java
+index 5551ff7..6e882a9 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java
+@@ -588,34 +588,6 @@ public class GCYMMachines {
+                     GTCEu.id("block/multiblock/gcym/large_brewer"))
+             .register();
+ 
+-    public final static MultiblockMachineDefinition LARGE_CUTTER = REGISTRATE
+-            .multiblock("large_cutter", WorkableElectricMultiblockMachine::new)
+-            .langValue("Large Cutting Saw")
+-            .tooltips(Component.translatable("gtceu.multiblock.parallelizable.tooltip"))
+-            .tooltips(Component.translatable("gtceu.machine.available_recipe_map_2.tooltip",
+-                    Component.translatable("gtceu.cutter"), Component.translatable("gtceu.lathe")))
+-            .rotationState(RotationState.ALL)
+-            .recipeTypes(CUTTER_RECIPES, LATHE_RECIPES)
+-            .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH, OC_NON_PERFECT_SUBTICK, BATCH_MODE)
+-            .appearanceBlock(CASING_SHOCK_PROOF)
+-            .pattern(definition -> FactoryBlockPattern.start()
+-                    .aisle("XXXXXXX", "XXXXXXX", "XXXXXXX", "##XXXXX")
+-                    .aisle("XXXXXXX", "XAXCCCX", "XXXAAAX", "##XXXXX")
+-                    .aisle("XXXXXXX", "XAXCCCX", "XXXAAAX", "##XXXXX")
+-                    .aisle("XXXXXXX", "XSXGGGX", "XXXGGGX", "##XXXXX")
+-                    .where('S', controller(blocks(definition.get())))
+-                    .where('X', blocks(CASING_SHOCK_PROOF.get()).setMinGlobalLimited(65)
+-                            .or(autoAbilities(definition.getRecipeTypes()))
+-                            .or(autoAbilities(true, false, true)))
+-                    .where('G', blocks(CASING_TEMPERED_GLASS.get()))
+-                    .where('C', blocks(SLICING_BLADES.get()))
+-                    .where('A', air())
+-                    .where('#', any())
+-                    .build())
+-            .workableCasingModel(GTCEu.id("block/casings/gcym/shock_proof_cutting_casing"),
+-                    GTCEu.id("block/multiblock/gcym/large_cutter"))
+-            .register();
+-
+     public final static MultiblockMachineDefinition LARGE_DISTILLERY = REGISTRATE
+             .multiblock("large_distillery", DistillationTowerMachine::new)
+             .langValue("Large Fractionating Distillery")
+diff --git a/src/main/java/com/gregtechceu/gtceu/data/recipe/misc/GCYMRecipes.java b/src/main/java/com/gregtechceu/gtceu/data/recipe/misc/GCYMRecipes.java
+index 654faa4..3994689 100644
+--- a/src/main/java/com/gregtechceu/gtceu/data/recipe/misc/GCYMRecipes.java
++++ b/src/main/java/com/gregtechceu/gtceu/data/recipe/misc/GCYMRecipes.java
+@@ -128,11 +128,6 @@ public class GCYMRecipes {
+                 'Z', CustomTags.IV_CIRCUITS, 'S', new MaterialEntry(spring, MolybdenumDisilicide), 'F',
+                 FERMENTER[IV].asStack(), 'E', ELECTRIC_PUMP_IV.asStack(), 'B', BREWERY[IV].asStack(), 'H',
+                 FLUID_HEATER[IV].asStack(), 'K', new MaterialEntry(cableGtSingle, Platinum));
+-        VanillaRecipeHelper.addShapedRecipe(provider, true, "large_cutter", LARGE_CUTTER.asStack(), "SMS", "CZL", "EKE",
+-                'Z', CustomTags.IV_CIRCUITS, 'L', LATHE[IV].asStack(), 'E', ELECTRIC_MOTOR_IV.asStack(), 'C',
+-                CUTTER[IV].asStack(), 'M', CONVEYOR_MODULE_IV.asStack(), 'S',
+-                new MaterialEntry(toolHeadBuzzSaw, TungstenCarbide), 'K',
+-                new MaterialEntry(cableGtSingle, Platinum));
+         VanillaRecipeHelper.addShapedRecipe(provider, true, "large_distillery", LARGE_DISTILLERY.asStack(), "PZP",
+                 "EDE", "PZP", 'Z', CustomTags.IV_CIRCUITS, 'D', GTMultiMachines.DISTILLATION_TOWER.asStack(), 'E',
+                 ELECTRIC_PUMP_IV.asStack(), 'P', ChemicalHelper.get(pipeLargeFluid, Iridium));
+@@ -157,9 +152,6 @@ public class GCYMRecipes {
+         VanillaRecipeHelper.addShapedRecipe(provider, "crushing_wheels", CRUSHING_WHEELS.asStack(2), "TTT", "UCU",
+                 "UMU", 'T', new MaterialEntry(gearSmall, TungstenCarbide), 'U', ChemicalHelper.get(gear, Ultimet),
+                 'C', CASING_SECURE_MACERATION.asStack(), 'M', ELECTRIC_MOTOR_IV.asStack());
+-        VanillaRecipeHelper.addShapedRecipe(provider, "slicing_blades", SLICING_BLADES.asStack(2), "PPP", "UCU", "UMU",
+-                'P', new MaterialEntry(plate, TungstenCarbide), 'U', ChemicalHelper.get(gear, Ultimet), 'C',
+-                CASING_SHOCK_PROOF.asStack(), 'M', ELECTRIC_MOTOR_IV.asStack());
+         VanillaRecipeHelper.addShapedRecipe(provider, "electrolytic_cell", ELECTROLYTIC_CELL.asStack(2), "WWW", "WCW",
+                 "ZKZ", 'W', new MaterialEntry(wireGtDouble, Platinum), 'Z', CustomTags.IV_CIRCUITS, 'C',
+                 CASING_NONCONDUCTING.asStack(), 'K', ChemicalHelper.get(cableGtSingle, Tungsten));
+@@ -196,15 +188,6 @@ public class GCYMRecipes {
+                 .duration(50).EUt(16)
+                 .addMaterialInfo(true).save(provider);
+ 
+-        ASSEMBLER_RECIPES.recipeBuilder("slicing_blades")
+-                .inputItems(plate, TungstenCarbide, 2)
+-                .inputItems(gear, Ultimet, 3)
+-                .inputItems(CASING_SHOCK_PROOF.asStack())
+-                .inputItems(ELECTRIC_MOTOR_IV.asStack())
+-                .outputItems(SLICING_BLADES.asStack(ConfigHolder.INSTANCE.recipes.casingsPerCraft))
+-                .duration(50).EUt(16)
+-                .addMaterialInfo(true).save(provider);
+-
+         ASSEMBLER_RECIPES.recipeBuilder("electrolytic_cell")
+                 .inputItems(wireGtDouble, Platinum, 4)
+                 .inputItems(cableGtSingle, Tungsten, 1)
+-- 
+2.54.0.windows.1
+

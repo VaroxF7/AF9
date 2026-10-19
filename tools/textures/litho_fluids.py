@@ -33,6 +33,8 @@ TEXTURES = {
     'barc': ('viscous', 0xb99a3c, 0x6a561c),
     'tarc': ('clear', 0x9cc6c8, 0x50808a),
     'spent_resist_solvent': ('murky', 0x7c7248, 0x3e381e),
+    # AE2: the Certus Resonating Manufacturer's stabiliser, fluix in solution
+    'liquid_resonating_fluix': ('resonance', 0x9fe4ff, 0x271a4d),
     # developer, rinse and cleaning baths: clear blues and greys
     'tmah_developer': ('clear', 0x9cc2d2, 0x4c7c92),
     'ultrapure_water': ('clear', 0x78a8d8, 0x3a68a0),
@@ -61,6 +63,8 @@ TEXTURES = {
     'etch_plasma_gas': ('glow', 0x8c70b8, 0x44306c),
 }
 GASES = ('wisp', 'fog', 'glow')
+VIOLET = (0x7c, 0x4e, 0xd8)   # fluix's ender half
+SPARK = (0xff, 0x60, 0x4a)    # fluix's redstone half
 
 
 def rgb(c):
@@ -98,6 +102,9 @@ def field(style, x, y, p, seed):
         w = math.sin(2 * u + v + p + s) + 0.6 * math.sin(2 * v - 3 * u + p)
         crystal = max(0.0, math.sin(3 * u + 2 * v + s)) * max(0.0, math.sin(2 * u - 3 * v))
         return 0.42 + w / 5 + 0.3 * crystal
+    if style == 'resonance':  # fluix: slow waves of light through a dark liquid
+        w = math.sin(2 * u + v + p + s) + 0.7 * math.sin(v - 3 * u - p) + 0.5 * math.sin(2 * v + u + 2 * p)
+        return 0.5 + w / 4.4
     # gases
     if style == 'fog':
         w = math.sin(u + v - p + s) + 0.8 * math.sin(2 * v + u - p) + 0.4 * math.sin(3 * u - v + 2 * p)
@@ -130,6 +137,15 @@ def frame(name, style, light, dark, f):
                 if h > 0.93:
                     k = max(0.0, math.sin(p + h * 50)) ** 4
                     c = [c[i] + (255 - c[i]) * 0.55 * k for i in range(3)]
+            if style == 'resonance':
+                u, v = TAU * x / 16, TAU * y / 16
+                # the ender half of fluix washes through as slow violet
+                wash = 0.5 + 0.5 * math.sin(u - 2 * v + p + seed * 0.7)
+                c = [c[i] + (VIOLET[i] - c[i]) * 0.34 * wash for i in range(3)]
+                h = hash2(x, y, seed + 7)
+                if h > 0.86:                                     # redstone sparks that flare and fade
+                    k = max(0.0, math.sin(p + h * 60)) ** 3
+                    c = [c[i] + (SPARK[i] - c[i]) * 0.8 * k for i in range(3)]
             px[x, y] = tuple(max(0, min(255, int(v))) for v in c) + (a,)
     if style == 'bubbly':
         d = ImageDraw.Draw(img)

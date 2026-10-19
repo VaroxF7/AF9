@@ -1,7 +1,7 @@
-From 0f7e0efcc3192b7d30ae8c2bcf294b8a1b9f8018 Mon Sep 17 00:00:00 2001
+From 9e010f9c189cbbbc571e758c96e05a40bc7e1d41 Mon Sep 17 00:00:00 2001
 From: AF9 <af9@localhost>
 Date: Sat, 17 Oct 2026 10:18:25 +0000
-Subject: [PATCH] Multiblock preview zooms out to fit a big structure
+Subject: [PATCH 11/13] Multiblock preview zooms out to fit a big structure
  (7.5.3-af9.10)
 
 The preview scene's camera distance grows with the square root of the structure's largest side, which clips
@@ -68,5 +68,5 @@ index 3855367..1b13418 100644
              GTCEu.LOGGER.warn("Pattern formed checking failed: {}", controllerBase.self().getDefinition());
          }
 -- 
-2.43.0
+2.54.0.windows.1
 

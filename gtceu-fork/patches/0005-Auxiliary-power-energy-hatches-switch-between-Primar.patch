@@ -1,7 +1,7 @@
-From fe37e86471436256b42fbcf9a77fe31887b2a83b Mon Sep 17 00:00:00 2001
+From 0e0b576f4438aed5746f98c59b9c314cf13f4072 Mon Sep 17 00:00:00 2001
 From: AF9 <af9@localhost>
 Date: Fri, 9 Oct 2026 17:58:11 +0200
-Subject: [PATCH 5/5] Auxiliary power: energy hatches switch between Primary
+Subject: [PATCH 05/13] Auxiliary power: energy hatches switch between Primary
  and Auxiliary, multiblocks draw auxiliary power for the recipes that ask for
  it
 

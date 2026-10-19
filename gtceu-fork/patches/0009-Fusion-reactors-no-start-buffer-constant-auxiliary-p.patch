@@ -1,8 +1,8 @@
-From 3637da129d1b7a75410068cb74f96a2c202e2df5 Mon Sep 17 00:00:00 2001
+From d6d0c07b4bb9690b3086c17f0666ec9f519f7fcb Mon Sep 17 00:00:00 2001
 From: AF9 <af9@localhost>
 Date: Sat, 17 Oct 2026 09:25:20 +0000
-Subject: [PATCH] Fusion reactors: no start buffer, constant auxiliary power (4
- A standby, 1 A running) instead (7.5.3-af9.8)
+Subject: [PATCH 09/13] Fusion reactors: no start buffer, constant auxiliary
+ power (4 A standby, 1 A running) instead (7.5.3-af9.8)
 
 - FusionReactorMachine: the internal start energy buffer and the heat are gone. The reactor draws a standby power every tick it
   is not running (4 A of LuV; UV for a reactor above the Mk3, the Mega Fusion Reactor) and 1 A while a reaction runs, from the
@@ -370,5 +370,5 @@ index f140906..7320226 100644
      }
  
 -- 
-2.43.0
+2.54.0.windows.1
 

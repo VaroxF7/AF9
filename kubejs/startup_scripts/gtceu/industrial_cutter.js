@@ -2,8 +2,9 @@
 // LGPL-3.0; credits in CREDITS-textures.md, licence in licenses/) copied into GTCEu: the same 9 x 4 x 3 structure with
 // its purple Cutting Factory Frame casings, frame boxes (tungsten carbide here for GTNH's tantalum carbide), a glass
 // window in the front and the back, and in the middle the animated saw blade with the original sprites and spin-up
-// (af9-core SawBladeRender). It runs the Cutting Machine's recipes (gtceu:cutter). Controller logic: af9-core
-// IndustrialCutterMachine.
+// (af9-core SawBladeRender). It replaces GTCEu's Large Cutting Saw (gtceu:large_cutter, removed in the fork) and runs
+// both of that machine's modes: the Cutting Machine's recipes (gtceu:cutter) and the Lathe's (gtceu:lathe), switched
+// with GT's mode tab. Controller logic: af9-core IndustrialCutterMachine.
 //
 // Rows bottom -> top, aisles back -> front (the controller's last); GTNH's slices, reversed. The controller sits in the
 // front, third column of the shape, one row above the floor; the blade is centred 2.5 columns along from it, 1 block
@@ -25,7 +26,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .machine(holder => new $IndustrialCutterMachine(holder))
         .langValue('Industrial Cutting Machine')
         .rotationState(RotationState.NON_Y_AXIS)
-        .recipeTypes([GTRecipeTypes.get('cutter')])
+        .recipeTypes([GTRecipeTypes.get('cutter'), GTRecipeTypes.get('lathe')])
         // a parallel hatch multiplies the cuts; perfect overclocks
         .recipeModifiers([GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(() => Block.getBlock('af9:cutter_casing'))

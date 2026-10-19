@@ -1,7 +1,7 @@
-From 6c9a629f6ee995a469b29aff1c1c37df1c7d7a14 Mon Sep 17 00:00:00 2001
+From 6a9495f0dc2c7394c65887754d231cac2ef766cc Mon Sep 17 00:00:00 2001
 From: AF9 <af9@localhost>
 Date: Fri, 9 Oct 2026 16:20:05 +0200
-Subject: [PATCH 4/4] Machines can be hidden from the recipe viewers: no
+Subject: [PATCH 04/13] Machines can be hidden from the recipe viewers: no
  workstation entry in JEI, EMI or REI
 
 A machine that runs the recipes of another machine's missions (the Space Elevator's modules) is not listed as a workstation

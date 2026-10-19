@@ -1,7 +1,7 @@
-From 6d00ea62ebabee2e8b25a772a16161fa96b4ea8c Mon Sep 17 00:00:00 2001
+From 025b7646a2db98bc3e1bfd99152b3339f46b100a Mon Sep 17 00:00:00 2001
 From: AF9 <af9@localhost>
 Date: Fri, 9 Oct 2026 20:50:14 +0200
-Subject: [PATCH 8/8] Assembly Line takes a laser hatch too (7.5.3-af9.7)
+Subject: [PATCH 08/13] Assembly Line takes a laser hatch too (7.5.3-af9.7)
 
 An input laser hatch (up to 1) beside the energy hatches (up to 2) in the line's energy casings; the wireless energy receivers are energy hatches and fit already. The energy hatch minimum of 1 is gone, so a line with only a laser hatch forms.
 ---

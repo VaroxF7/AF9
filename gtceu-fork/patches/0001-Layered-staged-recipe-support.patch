@@ -1,7 +1,7 @@
-From 7440cf18997380b2a87448b2d9f948387473e96c Mon Sep 17 00:00:00 2001
+From 3ae1aef81d4755cf10f64062f0050d9695f39d7d Mon Sep 17 00:00:00 2001
 From: AF9 <a@b>
 Date: Fri, 9 Oct 2026 07:28:11 +0000
-Subject: [PATCH 1/2] Layered (staged) recipe support
+Subject: [PATCH 01/13] Layered (staged) recipe support
 
 ---
  .../resources/assets/gtceu/lang/en_us.json    |   13 +
@@ -3086,5 +3086,5 @@ literal 0
 HcmV?d00001
 
 -- 
-2.43.0
+2.54.0.windows.1
 

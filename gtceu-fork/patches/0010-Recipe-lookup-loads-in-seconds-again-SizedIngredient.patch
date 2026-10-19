@@ -1,7 +1,7 @@
-From 2ee4957ae9f428e065a1b73b78c252dbcff982ad Mon Sep 17 00:00:00 2001
+From b9d4f47144264ea8f60f78f7bd8a492ce26a0d05 Mon Sep 17 00:00:00 2001
 From: AF9 <af9@localhost>
 Date: Sat, 17 Oct 2026 11:30:32 +0200
-Subject: [PATCH 9/9] Recipe lookup loads in seconds again: SizedIngredient
+Subject: [PATCH 10/13] Recipe lookup loads in seconds again: SizedIngredient
  hashed its lazily filled item cache (7.5.3-af9.9)
 
 SizedIngredient.hashCode() hashed itemStacks, which is null until getItems() runs, so almost every sized ingredient hashed to 31*amount. equals() is identity, so the hash only has to be consistent: StagingRecipeDB.inputFrequencies() put tens of thousands of them into one Object2IntOpenHashMap, every put walked a huge collision cluster, and the recipe bake took ~2 min. Drop the override (identity hash).

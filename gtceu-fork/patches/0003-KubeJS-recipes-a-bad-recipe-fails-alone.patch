@@ -1,7 +1,7 @@
-From 826ee9a8f56aafe843cb3099a6a40476d707b68f Mon Sep 17 00:00:00 2001
+From d693f02dd9070390875bd3e237d90b1dff5d2acf Mon Sep 17 00:00:00 2001
 From: AF9 <af9@localhost>
 Date: Fri, 9 Oct 2026 14:29:00 +0200
-Subject: [PATCH 3/3] KubeJS recipes: a bad recipe fails alone
+Subject: [PATCH 03/13] KubeJS recipes: a bad recipe fails alone
 
 GT 7.5 throws from the recipe builders on an unknown or empty item / fluid, and KubeJS (2001.6.5-build.16) posts
 the recipe event without an exception handler: the first throw ended the event, and every recipe script after the

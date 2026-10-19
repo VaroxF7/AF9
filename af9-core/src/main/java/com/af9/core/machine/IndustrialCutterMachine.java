@@ -9,11 +9,12 @@ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 /**
- * The Industrial Cutting Machine (GTNH's cutting multiblock, GT5-Unofficial, LGPL-3.0): the Cutting Machine's recipes in
- * a walk-in housing, with a big saw blade behind a glass window that spins while a recipe runs
- * ({@link com.af9.core.client.render.SawBladeRender}). A plain GT electric multiblock; the blade is only drawn from its
- * formed / working state. GTNH picks the blade by the sawblade item in the controller; here the blade follows the
- * energy hatch's tier instead (the same four steps GTNH's sawblades limit hatches to): up to LuV, UV, UEV, above.
+ * The Industrial Cutting Machine (GTNH's cutting multiblock, GT5-Unofficial, LGPL-3.0): the Cutting Machine's and the
+ * Lathe's recipes in a walk-in housing, with a big saw blade behind a glass window that spins while a recipe runs
+ * ({@link com.af9.core.client.render.SawBladeRender}). A plain GT electric multiblock with GT's mode tab switching
+ * cutter / lathe; the blade is only drawn from its formed / working state. GTNH picks the blade by the sawblade item
+ * in the controller; here the blade follows the energy hatch's tier instead (the same four steps GTNH's sawblades limit
+ * hatches to): up to LuV, UV, UEV, above.
  */
 public class IndustrialCutterMachine extends WorkableElectricMultiblockMachine implements ISawMachine {
 
