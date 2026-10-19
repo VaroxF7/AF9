@@ -346,13 +346,6 @@ public final class AF9Materials {
                 .formula("SiO2"));
         // Redstone only has dust in GT; ae2_quartz.js presses it to a plate and bends the foil
         GTMaterials.Redstone.addFlags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL);
-        // GT's certus quartz has material data but no parts; the 256k storage component wants a
-        // fine certus wire, so the flag goes on here (GT registers fine_<material>_wire from it)
-        // and ae2_quartz.js draws it in the wiremill from the crystals.
-        GTMaterials certus = GTMaterials.get("certus_quartz");
-        if (!certus.hasFlag(MaterialFlags.GENERATE_FINE_WIRE)) {
-            certus.addFlags(MaterialFlags.GENERATE_FINE_WIRE);
-        }
     }
 
     private static void biofuels() {

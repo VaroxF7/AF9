@@ -45,12 +45,10 @@ All `ae2:inscriber` recipes are removed (crushing is replaced by the GT recipes 
 (the Mysterious Cube still drops one random press as a souvenir, meteorites still give
 sky stone).
 
-## Liquid certus quartz, redstone foil and fine certus wire (`ae2_quartz.js`, `AF9Materials.aeQuartz`)
+## Liquid certus quartz and redstone foil (`ae2_quartz.js`, `AF9Materials.aeQuartz`)
 
 New fluid `gtceu:liquid_certus_quartz` (extractor, MV: certus crystal → 144 mB, charged → 288 mB), a
-redstone plate (compressor, 4x redstone) and foil (bender, 4x per plate), and **fine certus wire**
-(wiremill, LV: certus crystal → 4x `gtceu:fine_certus_quartz_wire` — GT's fine-wire flag goes on the
-certus quartz material in `AF9Materials.aeQuartz`). The materials are registered in
+redstone plate (compressor, 4x redstone) and foil (bender, 4x per plate). The materials are registered in
 AF9 Core (Java), so this needs a rebuilt core jar.
 
 ## Components (cell components: ME Resonance Fabricator, ZPM; shells: `ae2_components.js`, MV)
@@ -68,11 +66,11 @@ glass + the RAM pile. **The 256k is the wall** (10 s → 900 s on the Moon).
 | `cell_component_4k` | 3x 1k + 1x `ram_chip` + 1x `lpic_chip` + 16x `af9:interconnect` (MV electrum/sterling silver strip, `interconnects.js`) |
 | `cell_component_16k` | 3x 4k + calculation processor + 4x glowstone + quartz glass + micro processor + 32x `ram_chip` |
 | `cell_component_64k` | 3x 16k + calculation processor + 4x glowstone + quartz glass + 5x micro processor + 64x `ram_chip` + 16x NAND |
-| `cell_component_256k` | **the wall**: 4x 64k + **10x IV circuits** + 4x cpu chip + 32x NAND + 128x fine certus wire (`gtceu:fine_certus_quartz_wire`) + 64x redstone foil — 900 s, 2304 mB |
+| `cell_component_256k` | **the wall**: 4x 64k + **10x IV circuits** + 4x cpu chip + 32x NAND + 128x fine electrum wire (`gtceu:fine_electrum_wire`) + 64x redstone foil — 900 s, 2304 mB |
 
 - **RAM**: the tiers 16k and 64k take `gtceu:ram_chip`: 32x (16k), 64x (64k); 1k takes 8x and 4k
   just 1x. The 256k takes no RAM directly — its chips are 4x cpu and 32x NAND memory (silicon and
-  phosphorus, no nano, no qbit), plus ten IV circuits, 128x fine certus wire and 64x redstone foil.
+  phosphorus, no nano, no qbit), plus ten IV circuits, 128x fine electrum wire and 64x redstone foil.
   Each step eats at least 3x the previous component, so the RAM still compounds through the 4x 64k:
   one 256k component costs about 1,500 RAM chips in total. The counts sit in the cell component
   block of `me_resonance_fabricator_recipes.js`.
