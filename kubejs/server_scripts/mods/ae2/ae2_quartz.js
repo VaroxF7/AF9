@@ -1,4 +1,6 @@
-// AF9 - Quartz crystal growth and polishing (MV).
+// AF9 - Quartz crystal growth and polishing (MV), plus the printed-circuit parts of the
+// processors and components: redstone plate/foil and the fine certus wire drawn from the
+// crystals (both LV).
 //
 // Growth: seeds + water in the autoclave beat throwing them in a pool. Water gives one
 // crystal slowly, distilled water gives two faster. Polishing: the cutter laps crystals
@@ -81,6 +83,14 @@ ServerEvents.recipes(event => {
         .itemInputs('gtceu:redstone_plate')
         .circuit(0)
         .itemOutputs('4x gtceu:redstone_foil')
+        .duration(100)
+        .EUt(VA[GTValues.LV])
+
+    // ---- Fine certus wire (wiremill, LV): drawn from the crystals, the 256k component's traces ----
+    // The item is GT's fine_<material>_wire of certus quartz (the flag goes on in AF9Materials.aeQuartz).
+    event.recipes.gtceu.wiremill('af9:fine_certus_quartz_wire')
+        .itemInputs('ae2:certus_quartz_crystal')
+        .itemOutputs('4x gtceu:fine_certus_quartz_wire')
         .duration(100)
         .EUt(VA[GTValues.LV])
 })
