@@ -50,7 +50,7 @@ ServerEvents.recipes(event => {
 
     // ---- Heavy-ion collision: quark-gluon plasma, caught in a magnetic trap ----
     event.recipes.gtceu.ion_collision('af9:qgp_trap')
-        .itemInputs('af9:magnetic_trap', '16x gtceu:lead_ingot')
+        .itemInputs('af9:magnetic_trap', '16x gtceu:cobalt_ingot')
         .inputFluids('#af9:coolant/argon 2000')
         .itemOutputs('af9:qgp_trap')
         .duration(600)

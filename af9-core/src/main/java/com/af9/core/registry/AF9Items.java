@@ -217,6 +217,14 @@ public final class AF9Items {
         // ---- Space Elevator ----
         for (int tier = 1; tier <= DRONES; tier++) item(DRONE + tier, 1, 3);
 
+        // ---- Planetary Satellite: the dish's three Neutron Ray Reflectors (server_scripts/mods/gtceu/
+        // planetary_satellite.js). The not-consumed input of the neutron_collection recipes: each wears one
+        // point a completed cycle (AF9Modifiers.satelliteWear) and breaks at the end, so they are the only
+        // durable items AF9 registers. The craft ladder climbs from GT's own Iridium Neutron Reflector.
+        reflector("iridium_ray_reflector", 1_000);
+        reflector("osmiridium_ray_reflector", 5_000);
+        reflector("unobtainium_vibranium_ray_reflector", 10_000);
+
         // ---- Powah: the shaping molds of the Energizing Orb Mk2 (server_scripts/mods/powah/orb_recipes.js) ----
         // GT's extruder molds cover the rod, bolt, gear, small gear and rotor; the screw mold is AF9's (GT has none).
         item("screw_extruder_mold", 64, 2);
@@ -263,6 +271,11 @@ public final class AF9Items {
 
     private static void item(String id, int stackSize, int tooltipLines) {
         ITEMS.register(id, () -> new TooltipItem(new Item.Properties().stacksTo(stackSize), tooltipLines));
+    }
+
+    /** One of the Planetary Satellite's reflectors: unstackable, and worn through after {@code cycles} runs. */
+    private static void reflector(String id, int cycles) {
+        ITEMS.register(id, () -> new TooltipItem(new Item.Properties().stacksTo(1).durability(cycles), 1));
     }
 
     public static void register(IEventBus modBus) {

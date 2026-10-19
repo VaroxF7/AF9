@@ -26,7 +26,7 @@ ServerEvents.recipes(event => {
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs('gtceu:titanium_frame', '6x gtceu:titanium_plate', '6x gtceu:titanium_screw', 'gtceu:energy_crystal')
         .itemOutputs('ae2:energy_cell')
-        .duration(20*10)
+        .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(8)
@@ -35,8 +35,8 @@ ServerEvents.recipes(event => {
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs('8x ae2:energy_cell', '8x gtceu:silver_quadruple_wire', '4x #gtceu:circuits/ev')
         .itemOutputs('ae2:dense_energy_cell')
-        .duration(20*250)
-        .EUt(GTValues.VA[GTValues.HV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(9)
 
@@ -131,79 +131,87 @@ ServerEvents.recipes(event => {
         .dimension('ad_astra:moon')
         .circuit(4)
 
+    // ---- Cell components (all ZPM): the pack's own chip ladder, not TFG's foil/logic one ----
+    // 1k is RAM + cpu chip + gold wire + redstone foil; 4k adds lpic chip + interconnects;
+    // 16k and up chain (3x previous + calculation processor + glowstone/sky + quartz glass +
+    // the RAM pile); the 256k is the wall: 4x 64k, an IV circuit and no quartz glass — eight
+    // items plus the circuit fill all nine slots. Liquid certus quartz doubles 144 -> 2304 mB.
     event.recipes.gtceu.me_assembler('af9:ae2/cell_component_1k')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
-            '2x #gtceu:circuits/lv',
-            '4x gtceu:cpu_chip',
-            '#forge:foils/polyethylene',
-            'ae2:logic_processor')
-        .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 288))
+            '8x gtceu:ram_chip',
+            '1x gtceu:cpu_chip',
+            '16x gtceu:fine_gold_wire',
+            '16x gtceu:redstone_foil')
+        .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('ae2:cell_component_1k')
         .duration(20*10)
-        .EUt(GTValues.VA[GTValues.MV])
+        .EUt(GTValues.VA[GTValues.ZPM])
         .dimension('ad_astra:moon')
         .circuit(1)
 
     event.recipes.gtceu.me_assembler('af9:ae2/cell_component_4k')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
-            '2x #gtceu:circuits/hv',
-            '8x gtceu:cpu_chip',
-            '4x #forge:foils/polyethylene',
-            '4x ae2:logic_processor',
-            '1x ae2:cell_component_1k')
+            '3x ae2:cell_component_1k',
+            '1x gtceu:ram_chip',
+            '1x gtceu:lpic_chip',
+            '16x af9:interconnect')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 288))
         .itemOutputs('ae2:cell_component_4k')
         .duration(20*60)
-        .EUt(GTValues.VA[GTValues.HV])
+        .EUt(GTValues.VA[GTValues.ZPM])
         .dimension('ad_astra:moon')
         .circuit(2)
 
     event.recipes.gtceu.me_assembler('af9:ae2/cell_component_16k')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
-            '2x #gtceu:circuits/ev',
-            '16x gtceu:ram_chip',
-            '16x #forge:foils/polyvinyl_chloride',
-            '16x ae2:logic_processor',
-            '1x ae2:cell_component_4k')
+            '3x ae2:cell_component_4k',
+            '1x ae2:calculation_processor',
+            '4x minecraft:glowstone_dust',
+            '1x ae2:quartz_glass',
+            '1x gtceu:micro_processor',
+            '32x gtceu:ram_chip')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 576))
         .itemOutputs('ae2:cell_component_16k')
         .duration(20*240)
-        .EUt(GTValues.VA[GTValues.EV])
+        .EUt(GTValues.VA[GTValues.ZPM])
         .dimension('ad_astra:moon')
         .circuit(3)
 
     event.recipes.gtceu.me_assembler('af9:ae2/cell_component_64k')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
-            '2x #gtceu:circuits/iv',
-            '8x gtceu:nano_cpu_chip',
-            '64x #forge:foils/polyvinyl_chloride',
-            '64x ae2:logic_processor',
-            '2x ae2:cell_component_16k')
+            '3x ae2:cell_component_16k',
+            '1x ae2:calculation_processor',
+            '4x minecraft:glowstone_dust',
+            '1x ae2:quartz_glass',
+            '5x gtceu:micro_processor',
+            '64x gtceu:ram_chip',
+            '16x gtceu:nand_memory_chip')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 1152))
         .itemOutputs('ae2:cell_component_64k')
         .duration(20*260)
-        .EUt(GTValues.VA[GTValues.EV])
+        .EUt(GTValues.VA[GTValues.ZPM])
         .dimension('ad_astra:moon')
         .circuit(4)
 
     event.recipes.gtceu.me_assembler('af9:ae2/cell_component_256k')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
-            '2x #gtceu:circuits/luv',
-            '16x gtceu:qbit_cpu_chip',
-            '64x #forge:foils/polyphenylene_sulfide',
-            '64x #forge:foils/polyphenylene_sulfide',
-            '64x ae2:logic_processor',
-            '64x ae2:logic_processor',
-            '2x ae2:cell_component_64k')
+            '4x ae2:cell_component_64k',
+            '1x ae2:calculation_processor',
+            '4x ae2:sky_dust',
+            '#gtceu:circuits/iv',
+            '64x gtceu:ram_chip',
+            '64x gtceu:ram_chip',
+            '32x gtceu:nand_memory_chip',
+            '16x gtceu:cpu_chip')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 2304))
         .itemOutputs('ae2:cell_component_256k')
         .duration(20*900)
-        .EUt(GTValues.VA[GTValues.IV])
+        .EUt(GTValues.VA[GTValues.ZPM])
         .dimension('ad_astra:moon')
         .circuit(5)
 
@@ -215,8 +223,8 @@ ServerEvents.recipes(event => {
             '#ae2:smart_cable')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('1x ae2:storage_bus')
-        .duration(20*10)
-        .EUt(GTValues.VA[GTValues.HV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(1)
 
@@ -228,8 +236,8 @@ ServerEvents.recipes(event => {
             '#ae2:smart_cable')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('8x ae2:storage_bus')
-        .duration(20*800)
-        .EUt(GTValues.VA[GTValues.IV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(2)
 
@@ -242,8 +250,8 @@ ServerEvents.recipes(event => {
             '#ae2:smart_cable')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('ae2:import_bus')
-        .duration(20*50)
-        .EUt(GTValues.VA[GTValues.HV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(6)
 
@@ -256,8 +264,8 @@ ServerEvents.recipes(event => {
             '#ae2:smart_cable')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('ae2:export_bus')
-        .duration(20*50)
-        .EUt(GTValues.VA[GTValues.HV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(6)
 
@@ -271,8 +279,8 @@ ServerEvents.recipes(event => {
             '6x #forge:plates/stainless_steel')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 5))
         .itemOutputs('ae2:crafting_unit')
-        .duration(20*50)
-        .EUt(GTValues.VA[GTValues.HV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(4)
 
@@ -286,8 +294,8 @@ ServerEvents.recipes(event => {
             '6x #forge:plates/tungsten_steel')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 5))
         .itemOutputs('4x ae2:crafting_unit')
-        .duration(20*800)
-        .EUt(GTValues.VA[GTValues.IV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(2)
 
@@ -302,8 +310,8 @@ ServerEvents.recipes(event => {
             '4x #forge:plates/stainless_steel')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('1x ae2:molecular_assembler')
-        .duration(20*45)
-        .EUt(GTValues.VA[GTValues.HV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(1)
 
@@ -318,8 +326,8 @@ ServerEvents.recipes(event => {
             '4x #forge:plates/tungsten_steel')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 8))
         .itemOutputs('8x ae2:molecular_assembler')
-        .duration(20*800)
-        .EUt(GTValues.VA[GTValues.IV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(2)
 
@@ -332,8 +340,8 @@ ServerEvents.recipes(event => {
             'ae2:fluix_block')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('ae2:controller')
-        .duration(12*20)
-        .EUt(GTValues.VA[GTValues.HV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(7)
 
@@ -345,8 +353,8 @@ ServerEvents.recipes(event => {
             'ae2:fluix_block')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('ae2:controller')
-        .duration(12*20)
-        .EUt(GTValues.VA[GTValues.HV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(7)
 
@@ -360,7 +368,7 @@ ServerEvents.recipes(event => {
             '1x ae2:formation_core')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('1x ae2:interface')
-        .duration(20 * 10)
+        .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(1)
@@ -375,8 +383,8 @@ ServerEvents.recipes(event => {
             '1x ae2:formation_core')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 8), Fluid.of('gtceu:argon', 144))
         .itemOutputs('8x ae2:interface')
-        .duration(20 * 900)
-        .EUt(GTValues.VA[GTValues.IV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(2)
 
@@ -390,7 +398,7 @@ ServerEvents.recipes(event => {
             '1x ae2:formation_core')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('1x ae2:pattern_provider')
-        .duration(20 * 10)
+        .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(3)
@@ -405,8 +413,8 @@ ServerEvents.recipes(event => {
             '1x ae2:formation_core')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 8), Fluid.of('gtceu:argon', 144))
         .itemOutputs('8x ae2:pattern_provider')
-        .duration(20 * 900)
-        .EUt(GTValues.VA[GTValues.IV])
+        .duration(20*25)
+        .EUt(GTValues.VA[GTValues.MV])
         .dimension('ad_astra:moon')
         .circuit(3)
 
@@ -508,8 +516,8 @@ ServerEvents.recipes(event => {
                 '2x ae2:logic_processor',
                 '#gtceu:circuits/ev')
             .itemOutputs('expatternprovider:tag_export_bus')
-            .duration(20*230)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(1)
 
@@ -520,8 +528,8 @@ ServerEvents.recipes(event => {
                 '2x ae2:logic_processor',
                 '#gtceu:circuits/ulv')
             .itemOutputs('expatternprovider:tag_storage_bus')
-            .duration(20*60)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(2)
 
@@ -532,8 +540,8 @@ ServerEvents.recipes(event => {
                 '2x ae2:calculation_processor',
                 '#gtceu:circuits/ev')
             .itemOutputs('expatternprovider:mod_export_bus')
-            .duration(20*230)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(3)
 
@@ -544,8 +552,8 @@ ServerEvents.recipes(event => {
                 '2x ae2:calculation_processor',
                 '#gtceu:circuits/ulv')
             .itemOutputs('expatternprovider:mod_storage_bus')
-            .duration(20*60)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(3)
 
@@ -556,8 +564,8 @@ ServerEvents.recipes(event => {
                 '2x ae2:engineering_processor',
                 '#gtceu:circuits/ev')
             .itemOutputs('expatternprovider:precise_export_bus')
-            .duration(20*230)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(4)
 
@@ -568,8 +576,8 @@ ServerEvents.recipes(event => {
                 '2x ae2:engineering_processor',
                 '#gtceu:circuits/ulv')
             .itemOutputs('expatternprovider:precise_storage_bus')
-            .duration(20*60)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(4)
 
@@ -580,8 +588,8 @@ ServerEvents.recipes(event => {
                 '2x minecraft:redstone_torch',
                 '2x ae2:calculation_processor')
             .itemOutputs('expatternprovider:threshold_level_emitter')
-            .duration(20*60)
-            .EUt(GTValues.VA[GTValues.HV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(9)
 
@@ -596,8 +604,8 @@ ServerEvents.recipes(event => {
                 'ae2:molecular_assembler')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 4))
             .itemOutputs('expatternprovider:ex_molecular_assembler')
-            .duration(20*900)
-            .EUt(GTValues.VA[GTValues.IV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(5)
 
@@ -612,8 +620,8 @@ ServerEvents.recipes(event => {
                 '8x ae2:molecular_assembler')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 16))
             .itemOutputs('8x expatternprovider:ex_molecular_assembler')
-            .duration(20*3600)
-            .EUt(GTValues.VA[GTValues.ZPM])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(6)
 
@@ -621,8 +629,8 @@ ServerEvents.recipes(event => {
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs('gtceu:hv_buffer', 'ae2:cell_component_1k')
             .itemOutputs('expatternprovider:ingredient_buffer')
-            .duration(20*60)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(8)
 
@@ -635,8 +643,8 @@ ServerEvents.recipes(event => {
             .inputFluids(
                 Fluid.of('gtceu:concrete', 144 * 4))
             .itemOutputs('expatternprovider:assembler_matrix_wall')
-            .duration(20*100)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(1)
 
@@ -649,8 +657,8 @@ ServerEvents.recipes(event => {
             .inputFluids(
                 Fluid.of('gtceu:concrete', 144 * 4))
             .itemOutputs("expatternprovider:assembler_matrix_glass")
-            .duration(20*100)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(2)
     }
@@ -668,8 +676,8 @@ ServerEvents.recipes(event => {
                 '1x #ae2:interface')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 8))
             .itemOutputs('1x expatternprovider:ex_interface')
-            .duration(20*900)
-            .EUt(GTValues.VA[GTValues.IV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(5)
 
@@ -685,8 +693,8 @@ ServerEvents.recipes(event => {
                 '8x #ae2:interface')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 8))
             .itemOutputs('8x expatternprovider:ex_interface')
-            .duration(20*3600)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .circuit(6)
             .dimension('ad_astra:moon')
 
@@ -701,8 +709,8 @@ ServerEvents.recipes(event => {
                 '1x megacells:accumulation_processor')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 8))
             .itemOutputs('1x expatternprovider:interface_upgrade')
-            .duration(20*900)
-            .EUt(GTValues.VA[GTValues.IV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(6)
 
@@ -717,8 +725,8 @@ ServerEvents.recipes(event => {
                 '1x megacells:accumulation_processor')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 8))
             .itemOutputs('8x expatternprovider:interface_upgrade')
-            .duration(20*3600)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(5)
 
@@ -733,8 +741,8 @@ ServerEvents.recipes(event => {
                 '#gtceu:circuits/luv')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 9))
             .itemOutputs("1x expatternprovider:oversize_interface")
-            .duration(20*1000)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(7)
 
@@ -749,8 +757,8 @@ ServerEvents.recipes(event => {
                 '#gtceu:circuits/zpm')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 9))
             .itemOutputs("8x expatternprovider:oversize_interface")
-            .duration(20*3600)
-            .EUt(GTValues.VA[GTValues.ZPM])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(8)
 
@@ -766,8 +774,8 @@ ServerEvents.recipes(event => {
                 '1x #ae2:pattern_provider')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 8))
             .itemOutputs('expatternprovider:ex_pattern_provider')
-            .duration(20*900)
-            .EUt(GTValues.VA[GTValues.IV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .circuit(5)
             .dimension('ad_astra:moon')
 
@@ -783,8 +791,8 @@ ServerEvents.recipes(event => {
                 '8x #ae2:pattern_provider')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 32))
             .itemOutputs('8x expatternprovider:ex_pattern_provider')
-            .duration(20*3600)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(6)
 
@@ -799,8 +807,8 @@ ServerEvents.recipes(event => {
                 '1x megacells:accumulation_processor')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 8))
             .itemOutputs('1x expatternprovider:pattern_provider_upgrade')
-            .duration(20*900)
-            .EUt(GTValues.VA[GTValues.IV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .circuit(6)
             .dimension('ad_astra:moon')
 
@@ -815,8 +823,8 @@ ServerEvents.recipes(event => {
                 '1x megacells:accumulation_processor')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 8))
             .itemOutputs('8x expatternprovider:pattern_provider_upgrade')
-            .duration(20*3600)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(5)
 
@@ -829,8 +837,8 @@ ServerEvents.recipes(event => {
                 '1x megacells:accumulation_processor')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
             .itemOutputs('expatternprovider:ex_import_bus_part')
-            .duration(20*230)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(1)
 
@@ -843,8 +851,8 @@ ServerEvents.recipes(event => {
                 '1x megacells:accumulation_processor')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
             .itemOutputs('expatternprovider:ex_export_bus_part')
-            .duration(20*230)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(2)
 
@@ -855,8 +863,8 @@ ServerEvents.recipes(event => {
                 '2x megacells:accumulation_processor',
                 'ae2:level_emitter')
             .itemOutputs('expatternprovider:threshold_export_bus')
-            .duration(20*230)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(4)
 
@@ -867,8 +875,8 @@ ServerEvents.recipes(event => {
                 'ae2:export_bus',
                 '2x megacells:accumulation_processor')
             .itemOutputs('expatternprovider:active_formation_plane')
-            .duration(20*230)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(8)
 
@@ -883,8 +891,8 @@ ServerEvents.recipes(event => {
                 '8x ae2:engineering_processor',
                 '4x megacells:accumulation_processor')
             .itemOutputs('2x expatternprovider:wireless_connect')
-            .duration(20*1500)
-            .EUt(GTValues.VA[GTValues.IV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(9)
 
@@ -898,8 +906,8 @@ ServerEvents.recipes(event => {
                 '4x ae2:engineering_processor',
                 '4x ae2:speed_card')
             .itemOutputs('expatternprovider:ex_io_port')
-            .duration(20*250)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(8)
 
@@ -913,8 +921,8 @@ ServerEvents.recipes(event => {
                 '4x ae2:engineering_processor',
                 '2x ae2:capacity_card')
             .itemOutputs('expatternprovider:ex_drive')
-            .duration(20*300)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(9)
 
@@ -927,8 +935,8 @@ ServerEvents.recipes(event => {
                 '4x ae2:engineering_processor',
                 '2x ae2:capacity_card')
             .itemOutputs('expatternprovider:drive_upgrade')
-            .duration(20*300)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(8)
 
@@ -945,8 +953,8 @@ ServerEvents.recipes(event => {
                 Fluid.of('gtceu:concrete', 144 * 8),
                 Fluid.of('gtceu:liquid_certus_quartz', 144 * 16))
             .itemOutputs('8x expatternprovider:assembler_matrix_frame')
-            .duration(20*200)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(9)
 
@@ -962,8 +970,8 @@ ServerEvents.recipes(event => {
                 Fluid.of('gtceu:liquid_certus_quartz', 144 * 16),
                 Fluid.of('gtceu:polybenzimidazole', 1430))
             .itemOutputs('expatternprovider:assembler_matrix_pattern')
-            .duration(20 * 3600)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(7)
 
@@ -979,8 +987,8 @@ ServerEvents.recipes(event => {
                 Fluid.of('gtceu:liquid_certus_quartz', 144 * 16),
                 Fluid.of('gtceu:polybenzimidazole', 1430))
             .itemOutputs('expatternprovider:assembler_matrix_crafter')
-            .duration(20 * 3600)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(7)
 
@@ -996,8 +1004,8 @@ ServerEvents.recipes(event => {
                 Fluid.of('gtceu:liquid_certus_quartz', 144 * 16),
                 Fluid.of('gtceu:polybenzimidazole', 1430))
             .itemOutputs('expatternprovider:assembler_matrix_speed')
-            .duration(20 * 3600)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(7)
     }
@@ -1014,8 +1022,8 @@ ServerEvents.recipes(event => {
                 '4x gtceu:exquisite_amethyst_gem')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 20))
             .itemOutputs('merequester:requester')
-            .duration(20*4800)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(9)
     }
@@ -1025,8 +1033,8 @@ ServerEvents.recipes(event => {
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs('8x ae2:dense_energy_cell', '8x gtceu:nichrome_quadruple_wire', '4x #gtceu:circuits/iv')
             .itemOutputs('megacells:mega_energy_cell')
-            .duration(20*240)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(9)
 
@@ -1044,8 +1052,8 @@ ServerEvents.recipes(event => {
             .researchStack(Item.of('ae2:pattern_provider'))
             .duration(20*30)
             .EUt(GTValues.VA[GTValues.HV]))
-            .duration(20 * 60)
-            .EUt(GTValues.VA[GTValues.EV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(3)
 
@@ -1217,8 +1225,8 @@ ServerEvents.recipes(event => {
                 'ae2:crafting_unit')
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144*8))
             .itemOutputs('megacells:mega_crafting_unit')
-            .duration(20*160)
-            .EUt(GTValues.VA[GTValues.IV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .dimension('ad_astra:moon')
             .circuit(3)
 
@@ -1235,8 +1243,8 @@ ServerEvents.recipes(event => {
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144 * 4))
             ['stationResearch(java.util.function.UnaryOperator)'](b => b.researchStack(Item.of('gtceu:me_pattern_buffer')).EUt(GTValues.VA[GTValues.LuV]).CWUt(32))
             .itemOutputs('gtceu:me_pattern_buffer_proxy')
-            .duration(30 * 20)
-            .EUt(GTValues.VA[GTValues.LuV])
+            .duration(20*25)
+            .EUt(GTValues.VA[GTValues.MV])
             .circuit(9)
     }
 })

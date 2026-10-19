@@ -1,12 +1,12 @@
 # To-Do (Oct 19, 2026)
 
-- [ ] AE2 processor recipes in the ME Resonance Chamber
+- [x] AE2 processor recipes in the ME Resonance Chamber (done: `me_resonance_fabricator_recipes.js` — single + bulk, moon-only)
   - Screenshot: https://prnt.sc/bDo4SOkAipx6
 - [ ] Resonance Chamber → MV Mover
   - Screenshot: _pending_
-- [ ] Remove old processor recipes from AE2
+- [x] Remove old processor recipes from AE2 (done: sweep now removes them from ALL mods/machines + inscriber id pattern)
   - Screenshot: _pending_
-- [ ] Cheaper printed processors (all printed processors have to be changed)
+- [x] Cheaper printed processors (done: 2 foil + plastic board + 16 fine wire + 4 redstone foil + solder each)
   - Screenshot: https://prnt.sc/TE5pC8L_-Nut
   - Screenshot: https://prnt.sc/6xvqLJIo99ai
   - Screenshot: https://prnt.sc/xjUQaHDiN9H9
@@ -47,7 +47,7 @@
   - Screenshot: https://prnt.sc/ahQNnUG7NuqE
 - [ ] Add all components for the new XOS tier
 - [ ] XPS circuit board texture — similar to all the other GT boards already added
-- [ ] Replace lead ingots with cobalt ingots inside the Particle Collider recipe
+- [x] Replace lead ingots with cobalt ingots inside the Particle Collider recipe (done: `qgp_trap` takes 16x cobalt)
   - Screenshot: https://prnt.sc/rq477bQRbSfF
 - [ ] Rework overclock inside the Particle Accelerator
   - Screenshot: https://prnt.sc/Rw73ywYjMTjC

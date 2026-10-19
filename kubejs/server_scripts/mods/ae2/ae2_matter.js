@@ -2,7 +2,7 @@
 //
 // The condenser block itself builds in ae2_devices.js; what changes here is what
 // goes through it: singularities assemble at HV (matter balls + fluix + an
-// engineering processor, solder pair), entangled pairs at EV, and the three
+// engineering processor, liquid certus quartz), entangled pairs at EV, and the three
 // spatial cells (2/16/128) assemble at HV from processors, quartz glass and
 // sky dust. Vanilla crafting-table recipes for these outputs are removed
 // mod-scoped. See docs/ae2.md.
@@ -14,20 +14,20 @@ ServerEvents.recipes(event => {
     const EV = VA[GTValues.EV]
     const gtr = event.recipes.gtceu
 
-    // Solder pair at a fixed voltage.
+    // Three solders: liquid certus quartz (canonical), soldering alloy (the normal one) and
+    // high-grade solder, which runs the same recipe at half the time.
     const soldered = (id, eut, inputs, outputs, ticks) => {
-        gtr.assembler('af9:' + id)
-            .itemInputs(inputs)
-            .inputFluids(Fluid.of('gtceu:tin', 144))
-            .itemOutputs(outputs)
-            .duration(ticks)
-            .EUt(eut)
-        gtr.assembler('af9:' + id + '_soldering_alloy')
-            .itemInputs(inputs)
-            .inputFluids(Fluid.of('gtceu:soldering_alloy', 72))
-            .itemOutputs(outputs)
-            .duration(ticks)
-            .EUt(eut)
+        const run = (suffix, fluid, time) => {
+            gtr.assembler('af9:' + id + suffix)
+                .itemInputs(inputs)
+                .inputFluids(fluid)
+                .itemOutputs(outputs)
+                .duration(time)
+                .EUt(eut)
+        }
+        run('', Fluid.of('gtceu:liquid_certus_quartz', 144), ticks)
+        run('_solder', Fluid.of('gtceu:soldering_alloy', 72), ticks)
+        run('_high_grade', Fluid.of('gtceu:high_grade_solder', 72), Math.ceil(ticks / 2))
     }
 
     // ---- Singularity: condensed matter, pressed at HV ----

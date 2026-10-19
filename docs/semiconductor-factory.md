@@ -317,6 +317,8 @@ Lens map (base, kept by AF9): red→ILC, green→RAM, light_blue→CPU, blue→U
 
 - Controller `gtceu:cleanroom`, dummy recipe type. Hollow box: walls `gtceu:plascrete` / `gtceu:cleanroom_glass`, floor `#gtceu:cleanroom_floors`, roof ring `gtceu:filter_casing` (normal) or `gtceu:sterilizing_filter_casing` (sterile — exact ID from `CleanroomFilterType.java`, NOT `filter_casing_sterile`), 1-3 energy hatches, ≤8 iron doors, ≤30 passthrough hatches. Bounds `MIN_RADIUS=2, MAX_RADIUS=7, MIN_DEPTH=3, MAX_DEPTH=14`.
 - Recipes carry `.cleanroom(CLEANROOM)` or `STERILE_CLEANROOM` (only `data_module` needs sterile in base). Machine must sit inside formed + powered volume.
+- AF9 gates the **Cleaning Maintenance Hatch** (`gtceu:cleaning_maintenance_hatch`) at **ZPM** (`kubejs/server_scripts/mods/gtceu/cleanroom_hatch.js`): the assembler builds it
+  from a plain maintenance hatch (still LV — the EBF and every hall need that early), a ZPM circuit, 2x filter casing and a ZPM pump.
 - Pack config: `enableCleanroom:true`, `cleanMultiblocks:false`. Do not disable — cutting most chips (§5.3) and most HV-LuV circuits need it in AF9, and disabling hides real gating.
 
 ## 4.5 What base GT does NOT have (why AF9 exists)

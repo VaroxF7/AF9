@@ -247,6 +247,7 @@ item af9:industrial_electric_motor_housing
 item af9:insulation_wool
 item af9:interconnect
 item af9:interconnect_pallet
+item af9:iridium_ray_reflector
 item af9:iv_motor_housing
 item af9:iv_rotor
 item af9:iv_stator
@@ -328,6 +329,7 @@ item af9:optical_cpu
 item af9:optical_fiber_cable
 item af9:optical_ram
 item af9:organized_pico_circuit
+item af9:osmiridium_ray_reflector
 item af9:pale_cloud
 item af9:phase_shift_mask_blank
 item af9:phenol_bucket
@@ -428,6 +430,7 @@ item af9:ulpic_euv_reticle
 item af9:ulpic_psm_reticle
 item af9:ulpic_reticle
 item af9:ultra_high_strength_concrete_floor
+item af9:unobtainium_vibranium_ray_reflector
 item af9:uv_motor_housing
 item af9:uv_rotor
 item af9:uv_stator

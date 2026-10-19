@@ -22,7 +22,8 @@ quantanium. No other recipe takes ceresite or ceranium.
 
 ## Notes
 
-- The gold/electrum `af9:interconnect` stays the UHV Advanced Circuit Manufacturer's trace strip; fibre interconnects were an
-  unused placeholder item and are now the UV one.
+- The gold/electrum `af9:interconnect` has two routes now: the MV one (electrum + sterling silver
+  foils, `interconnects.js`) and the UHV Advanced Circuit Manufacturer's fine-wire strip. Fibre
+  interconnects were an unused placeholder and are now the UV one.
 - Living solder is the UV bio chain's (`solders.js`), the same solder the wetware boards used.
 - Not yet tested in game; numbers to tune with a prospector (vein weight) and the mixer yield.

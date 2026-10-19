@@ -380,7 +380,7 @@ const SATELLITE_SHAPE = [
 const $SatelliteModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // the rays: a reflector plate in, liquid neutronium out
+    // the rays: a reflector in the dish, liquid neutronium out
     event.create('neutron_collection')
         .category('multiblock')
         .setEUIO('in')
@@ -402,6 +402,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeTypes([GTRecipeTypes.get('neutron_collection')])
         .recipeModifiers([GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.OC_NON_PERFECT,
             GTRecipeModifiers.BATCH_MODE, $SatelliteModifiers.SATELLITE_YIELD])
+        // one wear on the reflector a completed cycle: afterWorking is RecipeLogic.onRecipeFinish's first statement
+        .afterWorking(machine => $SatelliteModifiers.satelliteWear(machine))
         .appearanceBlock(() => Block.getBlock('af9:satellite_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.planetary_satellite.tooltip', 4))
         .pattern(definition => {

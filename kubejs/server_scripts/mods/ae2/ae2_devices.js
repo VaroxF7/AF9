@@ -2,7 +2,8 @@
 //
 // Everything the ME network is built from (machines, power, core, terminals, cables,
 // buses, planes, monitors, cards, tools, spatial, quantum, shells) builds in the assembler
-// at MV with solder (tin budget, soldering alloy canonical). Cables and fiber are dry
+// at MV on liquid certus quartz — or soldering alloy, or high-grade solder at half the
+// time (the `_solder` and `_high_grade` twins). Cables and fiber are dry
 // (no fluid) single recipes. Vanilla crafting-table recipes for these outputs are removed
 // mod-scoped, so the af9: recipes never match.
 //
@@ -17,20 +18,20 @@ ServerEvents.recipes(event => {
     const MV = VA[GTValues.MV]
     const remove = out => event.remove({ mod: 'ae2', output: out })
 
-    // Solder pair: tin budget + soldering alloy canonical.
+    // Three solders: liquid certus quartz (canonical), soldering alloy (the normal one) and
+    // high-grade solder, which runs the same recipe at half the time.
     const mv = (id, inputs, outputs, ticks) => {
-        event.recipes.gtceu.assembler(`af9:${id}`)
-            .itemInputs(inputs)
-            .inputFluids(Fluid.of('gtceu:tin', 144))
-            .itemOutputs(outputs)
-            .duration(ticks)
-            .EUt(MV)
-        event.recipes.gtceu.assembler(`af9:${id}_soldering_alloy`)
-            .itemInputs(inputs)
-            .inputFluids(Fluid.of('gtceu:soldering_alloy', 72))
-            .itemOutputs(outputs)
-            .duration(ticks)
-            .EUt(MV)
+        const run = (suffix, fluid, time) => {
+            event.recipes.gtceu.assembler(`af9:${id}${suffix}`)
+                .itemInputs(inputs)
+                .inputFluids(fluid)
+                .itemOutputs(outputs)
+                .duration(time)
+                .EUt(MV)
+        }
+        run('', Fluid.of('gtceu:liquid_certus_quartz', 144), ticks)
+        run('_solder', Fluid.of('gtceu:soldering_alloy', 72), ticks)
+        run('_high_grade', Fluid.of('gtceu:high_grade_solder', 72), Math.ceil(ticks / 2))
     }
     // Dry single recipe (cables, fiber): no fluid.
     const dry = (id, inputs, outputs, ticks) => {
@@ -110,9 +111,9 @@ ServerEvents.recipes(event => {
             ['ae2:logic_processor', 'ae2:calculation_processor', '2x ae2:quartz_glass',
                 'ae2:fluix_crystal'], 200],
         ['ae2_formation_core', 'ae2:formation_core',
-            ['ae2:logic_processor', '2x ae2:certus_quartz_crystal', 'ae2:fluix_dust'], 200],
+            ['ae2:logic_processor', '2x ae2:certus_quartz_crystal', 'ae2:fluix_dust'], 1200],
         ['ae2_annihilation_core', 'ae2:annihilation_core',
-            ['ae2:calculation_processor', '2x ae2:fluix_dust', 'ae2:certus_quartz_crystal'], 200],
+            ['ae2:calculation_processor', '2x ae2:fluix_dust', 'ae2:certus_quartz_crystal'], 1200],
         ['ae2_formation_plane', 'ae2:formation_plane',
             ['ae2:formation_core', '2x ae2:fluix_crystal', 'gtceu:steel_plate'], 200],
         ['ae2_annihilation_plane', 'ae2:annihilation_plane',

@@ -2,8 +2,8 @@
 // Manufacturer, true endgame), the Infinity Booster cards build at HV.
 //
 // MEGA components chain off base AE2's 256k component: 3x previous + engineering
-// processor + sky dust + quartz glass + its tier circuit, in the assembler with
-// high-grade solder (tin budget) in a cleanroom — one voltage tier per cell, 1m at
+// processor + sky dust + quartz glass + its tier circuit, in the assembler on liquid
+// certus quartz (or soldering alloy, or high-grade solder at half the time) in a cleanroom — one voltage tier per cell, 1m at
 // IV up to 64m at UV. The 256m goal builds only in the Advanced Circuit Manufacturer
 // at UHV on 300 A with computation (organized Pico circuit + sanguinite wire on top
 // of the 64m stack). Each file section is guarded by its mod id (neither addon is in
@@ -17,11 +17,17 @@ ServerEvents.recipes(event => {
     const HV = VA[GTValues.HV]
     const clean = recipe => recipe.cleanroom(CleanroomType.CLEANROOM)
 
-    // Tin budget + high-grade solder canonical pair.
-    const hvSoldered = (id, solder, build) => {
-        build(event.recipes.gtceu.assembler(`af9:${id}`), Fluid.of('gtceu:tin', 144 * solder))
-        build(event.recipes.gtceu.assembler(`af9:${id}_high_grade`),
-            Fluid.of('gtceu:high_grade_solder', 72 * solder))
+    // Three solders: liquid certus quartz (canonical), soldering alloy (normal) and high-grade
+    // solder, which runs the same recipe at half the time.
+    const hvSoldered = (id, solder, ticks, build) => {
+        const run = (suffix, fluid, time) => {
+            const recipe = event.recipes.gtceu.assembler(`af9:${id}${suffix}`)
+            build(recipe, fluid)
+            recipe.duration(time)
+        }
+        run('', Fluid.of('gtceu:liquid_certus_quartz', 144 * solder), ticks)
+        run('_solder', Fluid.of('gtceu:soldering_alloy', 72 * solder), ticks)
+        run('_high_grade', Fluid.of('gtceu:high_grade_solder', 72 * solder), Math.ceil(ticks / 2))
     }
 
     // ---- MEGA Cells (mod id megacells): the endgame ladder, IV -> UHV ----
@@ -49,12 +55,12 @@ ServerEvents.recipes(event => {
         mega.forEach(([out, prev, circuit, tier, ticks, solder]) => {
             event.remove({ mod: 'megacells', output: out })
             const shortId = out.split(':')[1]
-            hvSoldered(`mega_${shortId}`, solder, (recipe, fluid) => {
+            hvSoldered(`mega_${shortId}`, solder, ticks, (recipe, fluid) => {
                 clean(recipe.itemInputs(`3x ${prev}`, 'ae2:engineering_processor', '4x ae2:sky_dust',
                     'ae2:quartz_glass', circuit)
                     .itemInputs(megaRam[out])
                     .inputFluids(fluid).itemOutputs(out)
-                    .duration(ticks).EUt(VA[tier]))
+                    .EUt(VA[tier]))
             })
         })
         // 256m: the goal, only in the Advanced Circuit Manufacturer at UHV with computation.
@@ -72,36 +78,36 @@ ServerEvents.recipes(event => {
                 '8x gtceu:fine_sanguinite_wire',
                 '64x af9:mram_chip', '64x af9:mram_chip', '64x af9:edram_chip')
             .inputFluids(
-                Fluid.of('gtceu:high_grade_solder', 1152),
+                Fluid.of('gtceu:liquid_certus_quartz', 1152),
                 Fluid.of('gtceu:polybenzimidazole', 1152))
             .itemOutputs('megacells:cell_component_256m')
             .CWUt(128)
             .duration(1600)
             .EUt(VA[GTValues.UHV], 300)
         event.remove({ mod: 'megacells', output: 'megacells:bulk_item_cell' })
-        hvSoldered('mega_bulk_item_cell', 2, (recipe, fluid) => {
+        hvSoldered('mega_bulk_item_cell', 2, 400, (recipe, fluid) => {
             clean(recipe.itemInputs('ae2:chest', 'megacells:cell_component_1m',
                 'gtceu:nano_processor_computer', '4x ae2:sky_dust')
                 .inputFluids(fluid).itemOutputs('megacells:bulk_item_cell')
-                .duration(400).EUt(VA[GTValues.IV]))
+                .EUt(VA[GTValues.IV]))
         })
     }
 
     // ---- Infinity Booster (mod id aeinfinitybooster) ----
     if (Platform.isLoaded('aeinfinitybooster')) {
         event.remove({ mod: 'aeinfinitybooster', output: 'aeinfinitybooster:infinity_card' })
-        hvSoldered('ae2_infinity_card', 2, (recipe, fluid) => {
+        hvSoldered('ae2_infinity_card', 2, 300, (recipe, fluid) => {
             clean(recipe.itemInputs('ae2:engineering_processor', 'ae2:calculation_processor',
                 '4x ae2:fluix_crystal', 'gtceu:advanced_integrated_circuit')
                 .inputFluids(fluid).itemOutputs('aeinfinitybooster:infinity_card')
-                .duration(300).EUt(HV))
+                .EUt(HV))
         })
         event.remove({ mod: 'aeinfinitybooster', output: 'aeinfinitybooster:dimension_card' })
-        hvSoldered('ae2_dimension_card', 2, (recipe, fluid) => {
+        hvSoldered('ae2_dimension_card', 2, 300, (recipe, fluid) => {
             clean(recipe.itemInputs('aeinfinitybooster:infinity_card', 'ae2:engineering_processor',
                 '2x minecraft:diamond', 'gtceu:advanced_integrated_circuit')
                 .inputFluids(fluid).itemOutputs('aeinfinitybooster:dimension_card')
-                .duration(300).EUt(HV))
+                .EUt(HV))
         })
     }
 

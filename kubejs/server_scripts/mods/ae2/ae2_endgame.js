@@ -12,20 +12,20 @@ ServerEvents.recipes(event => {
     const EV = VA[GTValues.EV]
     const gtr = event.recipes.gtceu
 
-    // Solder pair at a fixed voltage.
+    // Three solders at a fixed voltage: certus (canonical), soldering alloy (normal) and
+    // high-grade, which runs at half the time.
     const soldered = (id, eut, inputs, outputs, ticks) => {
-        gtr.assembler('af9:' + id)
-            .itemInputs(inputs)
-            .inputFluids(Fluid.of('gtceu:tin', 144))
-            .itemOutputs(outputs)
-            .duration(ticks)
-            .EUt(eut)
-        gtr.assembler('af9:' + id + '_soldering_alloy')
-            .itemInputs(inputs)
-            .inputFluids(Fluid.of('gtceu:soldering_alloy', 72))
-            .itemOutputs(outputs)
-            .duration(ticks)
-            .EUt(eut)
+        const run = (suffix, fluid, time) => {
+            gtr.assembler('af9:' + id + suffix)
+                .itemInputs(inputs)
+                .inputFluids(fluid)
+                .itemOutputs(outputs)
+                .duration(time)
+                .EUt(eut)
+        }
+        run('', Fluid.of('gtceu:liquid_certus_quartz', 144), ticks)
+        run('_solder', Fluid.of('gtceu:soldering_alloy', 72), ticks)
+        run('_high_grade', Fluid.of('gtceu:high_grade_solder', 72), Math.ceil(ticks / 2))
     }
 
     // ---- Wireless booster: range for any wireless terminal ----

@@ -1,12 +1,13 @@
-// AF9 - AE2 processors from silicon dies. No AE2 presses, no inscriber prints.
+// AF9 - AE2 processors on boards and printed silicon. No AE2 presses, no inscriber prints.
 //
-//   1. Litho 350nm (existing prints) + cutter: coated silicon wafer -> GT chip wafer ->
-//      ilc / cpu / lpic / ram dies. Every chip is printed on silicon.
-//   2. Die packaging (assembler): silicon die + foil + copper foil + fine wire + RAM die
-//      -> AE2 printed circuit, all three at MV in a cleanroom, 80 s each.
-//   3. Carrier (cutter): a silicon wafer dices straight into printed silicon.
-//   4. Final assembly (assembler): printed + printed silicon + redstone + tier circuit
-//      (good integrated for logic and engineering, micro processor for calculation: every processor takes an MV circuit).
+//   1. Printed processor (assembler): plastic board + 2 foils + 16 fine wires + 4 redstone foils,
+//      120 s at MV in a cleanroom on certus or soldering alloy (60 s on high-grade solder). Cheap
+//      on purpose — the old die packaging (silicon die + copper foil + fine electrum + 4 RAM chips)
+//      is gone.
+//   2. Carrier (cutter): a silicon wafer dices straight into printed silicon.
+//   3. Final assembly (assembler): printed + printed silicon + redstone + tier circuit, 60 s at HV
+//      (good integrated for logic and engineering, micro processor for calculation: every
+//      processor takes an MV circuit).
 //
 // The AE2 presses are out of the chain (the Mysterious Cube still drops one random
 // press as a souvenir; meteorites still give sky stone). The inscriber
@@ -16,16 +17,22 @@ ServerEvents.recipes(event => {
     if (!Platform.isLoaded('ae2')) return
     const VA = GTValues.VA
     const MV = VA[GTValues.MV]
+    const HV = VA[GTValues.HV]
     const clean = recipe => recipe.cleanroom(CleanroomType.CLEANROOM)
 
     // ---- Removed vanilla paths: inscriber prints and processors ----
+    // Any recipe, from any mod and in any machine, that prints or builds one of these items is gone —
+    // AE2's own recipes, GT forming press imports, addon chambers and datapack leftovers included.
+    // (This sweep runs before AF9's own recipes below and before me_resonance_fabricator_recipes.js,
+    // so the assembler and me_assembler processor recipes survive it.)
     const vanilla = ['ae2:printed_silicon', 'ae2:printed_logic_processor',
         'ae2:printed_calculation_processor', 'ae2:printed_engineering_processor',
         'ae2:logic_processor', 'ae2:calculation_processor', 'ae2:engineering_processor']
-    vanilla.forEach(out => event.remove({ mod: 'ae2', output: out }))
+    vanilla.forEach(out => event.remove({ output: out }))
 
     // ---- All AE2 inscriber recipes, advanced_ae processor chambers and GT forming-press circuit imports ----
     event.remove({ type: 'ae2:inscriber' })
+    event.remove({ id: /^ae2:inscriber\// }) // belt and braces: an inscriber recipe that hides from the type filter
     ;[
         'advanced_ae:logic_processor_chamber', 'advanced_ae:accumulation_processor_chamber',
         'advanced_ae:energy_processor_chamber', 'advanced_ae:calculation_processor_chamber',
@@ -52,41 +59,51 @@ ServerEvents.recipes(event => {
         .duration(200)
         .EUt(MV)
 
-    // ---- Die packaging: silicon die + foils + wire + RAM -> AE2 printed circuit (assembler) ----
-    // Every printed circuit is made in a cleanroom at MV power, 80 s (1600t) each, from a heavy stack of
-    // MV-tier materials. Redstone foil and fine electrum wire carry the printed circuit; tin / soldering alloy.
-    // [processor, die, foil, wire]
+    // ---- Printed processors: board + foils + wire + solder (assembler) ----
+    // Cheap on purpose: 2 foils, one plastic board, 16 fine wires, 4 redstone foils per printed
+    // processor, in a cleanroom at MV power, 120 s (2400t) on certus or soldering alloy — or
+    // 60 s on high-grade solder. The die and RAM chips of the old packaging are gone — they
+    // keep their jobs in GT circuits.
+    // [processor, foil, wire]
     const packaging = [
-        ['logic_processor', 'gtceu:ilc_chip', 'electrum', 'gold'],
-        ['calculation_processor', 'gtceu:cpu_chip', 'electrum', 'gold'],
-        ['engineering_processor', 'gtceu:lpic_chip', 'platinum', 'platinum']
+        ['logic_processor', 'electrum', 'gold'],
+        ['calculation_processor', 'gold', 'gold'],
+        ['engineering_processor', 'platinum', 'platinum']
     ]
-    packaging.forEach(([out, die, foil, wire]) => {
-        const inputs = [die, `16x gtceu:${foil}_foil`, '16x gtceu:copper_foil', '16x gtceu:redstone_foil',
-            `32x gtceu:fine_${wire}_wire`, '16x gtceu:fine_electrum_wire', '4x gtceu:ram_chip']
-        const solders = [['', Fluid.of('gtceu:tin', 576)], ['_soldering_alloy', Fluid.of('gtceu:soldering_alloy', 288)]]
-        solders.forEach(([suffix, fluid]) => {
+    packaging.forEach(([out, foil, wire]) => {
+        const inputs = [`2x gtceu:${foil}_foil`, 'gtceu:plastic_printed_circuit_board',
+            `16x gtceu:fine_${wire}_wire`, '4x gtceu:redstone_foil']
+        const run = (suffix, fluid, time) => {
             clean(event.recipes.gtceu.assembler(`af9:ae2_printed_${out}${suffix}`)
-                .itemInputs(inputs).inputFluids(fluid)
-                .itemOutputs(`ae2:printed_${out}`).duration(1600).EUt(MV))
-        })
+                .itemInputs(inputs)
+                .inputFluids(fluid)
+                .itemOutputs(`ae2:printed_${out}`).duration(time).EUt(MV))
+        }
+        run('', Fluid.of('gtceu:liquid_certus_quartz', 144), 2400)
+        run('_solder', Fluid.of('gtceu:soldering_alloy', 72), 2400)
+        run('_high_grade', Fluid.of('gtceu:high_grade_solder', 72), 1200)
     })
 
-    // ---- Final assembly: printed + carrier + redstone + MV circuit on liquid certus quartz (assembler, MV) ----
-    // The assembler takes one fluid, so the solder went into the packaging above and this step runs on liquid
-    // certus quartz alone (the same foil and wire again). Every processor takes an MV circuit: good integrated for
-    // logic and engineering, micro processor for calculation.
+    // ---- Final assembly: printed + carrier + redstone + MV circuit (assembler, HV, 60 s) ----
+    // 60 s (1200t) at HV on certus or soldering alloy — or 30 s on high-grade solder. Every
+    // processor takes an MV circuit: good integrated for logic and engineering, micro
+    // processor for calculation.
     const processors = [
-        ['logic_processor', 'gtceu:good_integrated_circuit', 200],
-        ['calculation_processor', 'gtceu:micro_processor', 300],
-        ['engineering_processor', 'gtceu:good_integrated_circuit', 400]
+        ['logic_processor', 'gtceu:good_integrated_circuit', 1200],
+        ['calculation_processor', 'gtceu:micro_processor', 1200],
+        ['engineering_processor', 'gtceu:good_integrated_circuit', 1200]
     ]
     processors.forEach(([out, circuit, ticks]) => {
-        event.recipes.gtceu.assembler(`af9:ae2_${out}`)
-            .itemInputs(`ae2:printed_${out}`, 'ae2:printed_silicon', 'minecraft:redstone', circuit,
-                '2x gtceu:redstone_foil', '2x gtceu:fine_electrum_wire')
-            .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
-            .itemOutputs(`ae2:${out}`).duration(ticks).EUt(MV)
+        const run = (suffix, fluid, time) => {
+            event.recipes.gtceu.assembler(`af9:ae2_${out}${suffix}`)
+                .itemInputs(`ae2:printed_${out}`, 'ae2:printed_silicon', 'minecraft:redstone', circuit,
+                    '2x gtceu:redstone_foil', '2x gtceu:fine_electrum_wire')
+                .inputFluids(fluid)
+                .itemOutputs(`ae2:${out}`).duration(time).EUt(HV)
+        }
+        run('', Fluid.of('gtceu:liquid_certus_quartz', 144), ticks)
+        run('_solder', Fluid.of('gtceu:soldering_alloy', 72), ticks)
+        run('_high_grade', Fluid.of('gtceu:high_grade_solder', 72), Math.ceil(ticks / 2))
     })
 })
 
