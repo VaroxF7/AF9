@@ -204,7 +204,7 @@ ServerEvents.recipes(event => {
             '10x #gtceu:circuits/iv',
             '4x gtceu:cpu_chip',
             '32x gtceu:nand_memory_chip',
-            '128x gtceu:fine_certus_quartz_wire',
+            '128x gtceu:fine_certus_filament_wire',
             '64x gtceu:redstone_foil')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 2304))
         .itemOutputs('ae2:cell_component_256k')

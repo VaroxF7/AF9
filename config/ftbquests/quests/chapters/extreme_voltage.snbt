@@ -789,9 +789,9 @@
 		{
 			id: "05C42E602C69C259"
 			tasks: [{
-				id: "329E84B3DA18ABC2"
-				title: "Lapis Butene-II-Sulfonate"
-				type: "custom"
+				id: "52B61A37C654DF80"
+				item: "gtceu:lapis_butene_ii_sulfonate_bucket"
+				type: "item"
 			}]
 			x: 4.0d
 			y: 2.0d
@@ -799,9 +799,9 @@
 		{
 			id: "0F7255F456045BE1"
 			tasks: [{
-				id: "0A0F89688C995137"
-				title: "annealed bronze foil"
-				type: "custom"
+				id: "5E0ADE3BBBB9550B"
+				item: "gtceu:annealed_bronze_foil"
+				type: "item"
 			}]
 			x: 3.0d
 			y: 2.0d
@@ -822,18 +822,18 @@
 			id: "1087FE666198E29A"
 			tasks: [
 				{
-					id: "0014D5B70640237F"
-					title: "better rocket fin"
-					type: "custom"
-				}
-				{
-					id: "406ABE9EEA5E3389"
-					title: "cone"
-					type: "custom"
-				}
-				{
 					id: "2686504062A0D49C"
 					item: "ad_astra:desh_engine"
+					type: "item"
+				}
+				{
+					id: "275C9CEEE757CCEA"
+					item: "af9:rocket_cone_tier_2"
+					type: "item"
+				}
+				{
+					id: "20CF063EB25239C7"
+					item: "af9:rocket_fin_tier_2"
 					type: "item"
 				}
 			]
@@ -855,9 +855,9 @@
 			id: "6CD0CBF2EF0C37A4"
 			subtitle: "made from:"
 			tasks: [{
-				id: "033F9006114221F0"
-				title: "rocket sinsulation"
-				type: "custom"
+				id: "4E36431AD14A56F1"
+				item: "af9:alumina_silicate_rocket_insulation"
+				type: "item"
 			}]
 			x: -7.0d
 			y: -2.5d
@@ -930,11 +930,18 @@
 		{
 			dependencies: ["78A295D4D1A21BCA"]
 			id: "5695741C85B265E8"
-			tasks: [{
-				id: "5CF80BC9505DAFB3"
-				title: "desh, titanium rocket alloy"
-				type: "custom"
-			}]
+			tasks: [
+				{
+					id: "5CF80BC9505DAFB3"
+					title: "desh, titanium rocket alloy"
+					type: "custom"
+				}
+				{
+					id: "124C3AA5B0D45CA4"
+					item: "gtceu:dense_desh_titanium_rocket_alloy_plate"
+					type: "item"
+				}
+			]
 			x: -4.0d
 			y: -3.5d
 		}
@@ -947,9 +954,9 @@
 			id: "1D3241E927824195"
 			subtitle: "made inside implsotion compressor"
 			tasks: [{
-				id: "264FD27804976E12"
-				title: "ceramic insulation"
-				type: "custom"
+				id: "445613AA89AC1827"
+				item: "gtceu:twiresten_insulation_foil"
+				type: "item"
 			}]
 			x: 2.0d
 			y: -5.0d
@@ -980,9 +987,9 @@
 			id: "1366D03B112F342E"
 			subtitle: "moon distilaltion"
 			tasks: [{
-				id: "42330293DCD9785E"
-				title: "vapor"
-				type: "custom"
+				id: "34B617309FFD888D"
+				item: "gtceu:lunar_acid_vapor_bucket"
+				type: "item"
 			}]
 			x: 2.0d
 			y: -3.0d
@@ -1019,16 +1026,16 @@
 					type: "item"
 				}
 			]
-			x: -1.5d
-			y: 2.0d
+			x: -2.5d
+			y: 2.5d
 		}
 		{
 			dependencies: ["7327D5FD5F38FF7A"]
 			id: "54B31D7DD16B906A"
 			tasks: [{
-				id: "490054A00A572A55"
-				title: "Mainframe Interconnect"
-				type: "custom"
+				id: "5A44C6DC5F0F04C1"
+				item: "af9:mainframe_interconnect"
+				type: "item"
 			}]
 			x: 5.0d
 			y: 1.0d

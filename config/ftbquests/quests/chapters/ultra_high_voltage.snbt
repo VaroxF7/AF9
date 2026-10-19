@@ -998,84 +998,7 @@
 			y: 0.8000000000000007d
 		}
 		{
-			description: ["{atm9.quest.gregtech.zpm.desc.liquidLutetium}"]
-			id: "28F49121DEB0000A"
-			rewards: [{
-				id: "443A6F81AD167386"
-				item: {
-					Count: 1
-					ForgeCaps: {
-						Parent: {
-							Amount: 16000
-							FluidName: "gtceu:lutetium"
-							capacity: 16000
-						}
-					}
-					id: "evilcraft:dark_tank"
-					tag: {
-						Fluid: {
-							Amount: 16000
-							FluidName: "gtceu:lutetium"
-						}
-						capacity: 16000
-					}
-				}
-				type: "item"
-			}]
-			subtitle: "{atm9.quest.gregtech.zpm.subt.liquidLutetium}"
-			tasks: [{
-				id: "41A278CBAEF5905A"
-				item: "gtceu:lutetium_bucket"
-				type: "item"
-			}]
-			x: -8.0d
-			y: -0.5d
-		}
-		{
-			dependencies: ["28F49121DEB0000A"]
-			description: [
-				"{atm9.quest.gregtech.zpm.desc.liquidAmericium.1}"
-				""
-				"{atm9.quest.gregtech.zpm.desc.liquidAmericium.2}"
-			]
-			id: "5AD33290313151D6"
-			rewards: [{
-				id: "365681A8DF30134E"
-				item: {
-					Count: 1
-					ForgeCaps: {
-						Parent: {
-							Amount: 16000
-							FluidName: "gtceu:americium"
-							capacity: 16000
-						}
-					}
-					id: "evilcraft:dark_tank"
-					tag: {
-						Fluid: {
-							Amount: 16000
-							FluidName: "gtceu:americium"
-						}
-						capacity: 16000
-					}
-				}
-				type: "item"
-			}]
-			subtitle: "{atm9.quest.gregtech.zpm.subt.liquidAmericium}"
-			tasks: [{
-				id: "56FF9905F151C1C3"
-				item: "gtceu:americium_bucket"
-				type: "item"
-			}]
-			x: -7.0d
-			y: 0.0d
-		}
-		{
-			dependencies: [
-				"097735604CB11E83"
-				"5AD33290313151D6"
-				"6E18951E41103391"
-			]
+			dependencies: ["6E18951E41103391"]
 			description: ["{atm9.quest.gregtech.uhv.desc.neutronium}"]
 			id: "695E846B663EC185"
 			rewards: [{
@@ -1110,40 +1033,6 @@
 			}]
 			x: -5.449999999999999d
 			y: 0.775d
-		}
-		{
-			description: ["{atm9.quest.gregtech.uhv.desc.naquadria}"]
-			id: "097735604CB11E83"
-			rewards: [{
-				id: "559BE511F5D982CE"
-				item: {
-					Count: 1
-					ForgeCaps: {
-						Parent: {
-							Amount: 16000
-							FluidName: "gtceu:naquadria"
-							capacity: 16000
-						}
-					}
-					id: "evilcraft:dark_tank"
-					tag: {
-						Fluid: {
-							Amount: 16000
-							FluidName: "gtceu:naquadria"
-						}
-						capacity: 16000
-					}
-				}
-				type: "item"
-			}]
-			subtitle: "{atm9.quest.gregtech.zpm.subt.liquidNaquadria}"
-			tasks: [{
-				id: "65C1C5D7EF816179"
-				item: "gtceu:naquadria_bucket"
-				type: "item"
-			}]
-			x: -7.0d
-			y: 1.5d
 		}
 		{
 			dependencies: [
