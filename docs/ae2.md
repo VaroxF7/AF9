@@ -170,11 +170,13 @@ that this pack does not redefine).
 
 ## ME Resonance Fabricator (`me_resonance_fabricator.js`, HV)
 
-A copy of TerraFirmaGreg's ME Assembler (id `gtceu:me_assembler`, credits in `CREDITS-textures.md`): a 9 x 5 x 5 assembler
-in black PTFE (`af9:ptfe_black_casing`) and AE2 casings (`af9:ae2_machine_casing`) round quartz vibrant glass, with a
-Certus Quartz Block or a Budding Certus in the middle (Spatial Pylons and Spatial IO Ports around it let ME spatial storage
-move the block in and out). Hatches: one energy hatch, one maintenance hatch, up to 3 fluid inputs, 1 item output, any number
-of item buses in the sides, a Data Access Hatch for the research slot, one ME Redstone Port.
+The machine, recipe type (id `gtceu:me_assembler`) and recipes are TerraFirmaGreg's ME Assembler (credits in `CREDITS-textures.md`); the
+structure is AF9's own: a 7 x 9 x 7 tower of black PTFE (`af9:ptfe_black_casing`) with stainless steel corner pillars, two bands of AE2
+casing (`af9:ae2_machine_casing`), a window band of quartz vibrant glass and a roof plate. In the window band a glass cube holds the
+Certus Quartz Block or Budding Certus. Everything inside the walls may be any block (Spatial Pylons and IO Ports for ME spatial
+storage fit there). The controller sits on the front face above the base deck; all hatches go in the base deck (the bottom 7 x 7
+layer): one energy hatch, one maintenance hatch, up to 3 fluid inputs, 1 item output, up to 9 item buses, one ME Redstone Port,
+and a Data Access Hatch for the research slot.
 
 - **Speed** by the block in the middle: Certus Quartz Block x1, Chipped (AE2's damaged) x9, Flawed x33, Flawless x129,
   Exquisite x513 (recipe time divided by 1 + 8 / 32 / 128 / 512). No overclocks, batch mode is always on (the machine

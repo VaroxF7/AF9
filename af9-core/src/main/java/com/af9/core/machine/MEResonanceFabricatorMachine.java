@@ -353,7 +353,7 @@ public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMach
         return block == null ? Blocks.AIR : block;
     }
 
-    /** The preview pages: the Fabricator with a Certus Quartz Block and no spatial storage, and with an Exquisite Budding Certus between its Spatial Pylons. */
+    /** The preview pages: the Fabricator with a Certus Quartz Block in the core, and with an Exquisite Budding Certus. */
     public static List<MultiblockShapeInfo> previews(MultiblockMachineDefinition definition) {
         List<MultiblockShapeInfo> pages = new ArrayList<>();
         pages.add(shape(definition, false));
@@ -361,37 +361,31 @@ public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMach
         return pages;
     }
 
-    private static MultiblockShapeInfo shape(MultiblockMachineDefinition definition, boolean spatial) {
+    private static MultiblockShapeInfo shape(MultiblockMachineDefinition definition, boolean budding) {
         MachineDefinition port = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", PORT));
-        MultiblockShapeInfo.ShapeInfoBuilder builder = MultiblockShapeInfo.builder()
-                .aisle("  TTnTT  ", "TTr X TTT", "TCT   TCT", "TTT   TTT", "  TTmTT  ")
-                .aisle("AAACCCAAA", "ICGD  GCA", "ICG   GCA", "ICG  DGCA", "AAACCCAAA")
-                .aisle("ACCCCCCCA", "ICGDB GCA", "ICG q GCA", "ICG BDGCA", "ACCCCCCCA")
-                .aisle("AAACCCAAA", "ICGFDDGCA", "ICG  DGCA", "ICGDDFGCA", "AAACCCAAA")
-                .aisle("  TTpTT  ", "TTT H TTT", "TCT   TCT", "TTT   TTT", "  TToTT  ")
+        return MultiblockShapeInfo.builder()
+                .aisle("TTTHTTT", "BAAAAAB", "BCCCCCB", "BGGGGGB", "BGGGGGB", "BGGGGGB", "BCCCCCB", "BAAAAAB", "BAAAAAB")
+                .aisle("TTTrTTT", "A     A", "C     C", "G     G", "G     G", "G     G", "C     C", "A     A", "AAAAAAA")
+                .aisle("TTTTTTT", "A     A", "C     C", "G GGG G", "G GGG G", "G GGG G", "C     C", "A     A", "AACCCAA")
+                .aisle("TTTTTTT", "A     A", "C     C", "G GGG G", "G GqG G", "G GGG G", "C     C", "A     A", "AACCCAA")
+                .aisle("TTTTTTT", "A     A", "C     C", "G GGG G", "G GGG G", "G GGG G", "C     C", "A     A", "AACCCAA")
+                .aisle("TIIITTT", "A     A", "C     C", "G     G", "G     G", "G     G", "C     C", "A     A", "AAAAAAA")
+                .aisle("TpoTnmT", "BAAXAAB", "BCCCCCB", "BGGGGGB", "BGGGGGB", "BGGGGGB", "BCCCCCB", "BAAAAAB", "BAAAAAB")
                 .where('X', (IMachineBlock) definition.get(), Direction.NORTH)
                 .where('A', block("af9:ptfe_black_casing"))
                 .where('B', ChemicalHelper.getBlock(TagPrefix.frameGt, GTMaterials.StainlessSteel))
                 .where('C', block("af9:ae2_machine_casing"))
                 .where('G', block("ae2:quartz_vibrant_glass"))
-                .where('H', (IMachineBlock) GTResearchMachines.BASIC_DATA_ACCESS_HATCH.get(), Direction.SOUTH)
-                .where('I', (IMachineBlock) GTMachines.ITEM_IMPORT_BUS[GTValues.HV].get(), Direction.WEST)
                 .where('T', block("af9:ptfe_black_casing"))
-                .where('m', (IMachineBlock) GTMachines.ITEM_EXPORT_BUS[GTValues.HV].get(), Direction.NORTH)
-                .where('n', (IMachineBlock) GTMachines.MAINTENANCE_HATCH.get(), Direction.NORTH)
-                .where('r', (IMachineBlock) port.get(), Direction.NORTH)
-                .where('o', (IMachineBlock) GTMachines.FLUID_IMPORT_HATCH[GTValues.HV].get(), Direction.SOUTH)
-                .where('p', (IMachineBlock) GTMachines.ENERGY_INPUT_HATCH[GTValues.HV].get(), Direction.SOUTH)
-                .where(' ', Blocks.AIR);
-        if (spatial) {
-            builder.where('D', block("ae2:spatial_pylon"))
-                    .where('F', block("ae2:spatial_io_port"))
-                    .where('q', block("ae2:flawless_budding_quartz"));
-        } else {
-            builder.where('D', Blocks.AIR)
-                    .where('F', Blocks.AIR)
-                    .where('q', block("ae2:quartz_block"));
-        }
-        return builder.build();
+                .where('H', (IMachineBlock) GTResearchMachines.BASIC_DATA_ACCESS_HATCH.get(), Direction.DOWN)
+                .where('I', (IMachineBlock) GTMachines.ITEM_IMPORT_BUS[GTValues.HV].get(), Direction.DOWN)
+                .where('m', (IMachineBlock) GTMachines.ITEM_EXPORT_BUS[GTValues.HV].get(), Direction.DOWN)
+                .where('n', (IMachineBlock) GTMachines.MAINTENANCE_HATCH.get(), Direction.DOWN)
+                .where('r', (IMachineBlock) port.get(), Direction.DOWN)
+                .where('o', (IMachineBlock) GTMachines.FLUID_IMPORT_HATCH[GTValues.HV].get(), Direction.DOWN)
+                .where('p', (IMachineBlock) GTMachines.ENERGY_INPUT_HATCH[GTValues.HV].get(), Direction.DOWN)
+                .where('q', block(budding ? "ae2:flawless_budding_quartz" : "ae2:quartz_block"))
+                .where(' ', Blocks.AIR)
+                .build();
     }
 }
