@@ -346,6 +346,14 @@ public final class AF9Materials {
                 .formula("SiO2"));
         // Redstone only has dust in GT; ae2_quartz.js presses it to a plate and bends the foil
         GTMaterials.Redstone.addFlags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL);
+        // GT's certus quartz is a gem with no parts, and fine wire needs an ingot material (a flag added to the gem
+        // crashes startup), so the 256k storage component's wire is its own material: certus drawn to a filament.
+        // Item gtceu:fine_certus_filament_wire (named Fine Certus Quartz Wire), made in ae2_quartz.js.
+        add(material("certus_filament")
+                .ingot()
+                .color(0x8fd3ef).iconSet(MaterialIconSet.SHINY)
+                .flags(MaterialFlags.GENERATE_FINE_WIRE)
+                .formula("SiO2"));
     }
 
     private static void biofuels() {

@@ -134,7 +134,7 @@ ServerEvents.recipes(event => {
     // ---- Cell components (all ZPM): the pack's own chip ladder, not TFG's foil/logic one ----
     // 1k is RAM + cpu chip + gold wire + redstone foil; 4k adds lpic chip + interconnects;
     // 16k and up chain (3x previous + calculation processor + glowstone/sky + quartz glass +
-    // the RAM pile); the 256k is the wall: 4x 64k, ten IV circuits, fine electrum wire and
+    // the RAM pile); the 256k is the wall: 4x 64k, ten IV circuits, fine certus wire and
     // redstone foil on liquid certus quartz. Liquid certus doubles 144 -> 2304 mB.
     event.recipes.gtceu.me_assembler('af9:ae2/cell_component_1k')
         .addCondition(new $OxygenatedCondition(false, true))
@@ -204,7 +204,7 @@ ServerEvents.recipes(event => {
             '10x #gtceu:circuits/iv',
             '4x gtceu:cpu_chip',
             '32x gtceu:nand_memory_chip',
-            '128x gtceu:fine_electrum_wire',
+            '128x gtceu:fine_certus_filament_wire',
             '64x gtceu:redstone_foil')
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 2304))
         .itemOutputs('ae2:cell_component_256k')
