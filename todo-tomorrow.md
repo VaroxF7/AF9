@@ -69,6 +69,8 @@
   - Reference: https://prnt.sc/M2pC4Rpd36S5
 - [ ] Re-do textures for High Grade Soldering Alloy
   - Screenshot: https://prnt.sc/nPT-Zkb9rsb6
+- [ ] Replace sodium persulfate for circuit board with a new chemical
+  - TFG Reference: https://prnt.sc/TSxpxyPpERWI
 
 ## Current Processor Recipes (for reference)
 
