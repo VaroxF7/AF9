@@ -15,6 +15,7 @@
     "powah.OrbRecipeSerializerMixin",
     "powah.OrbTileMixin",
     "gtceu.FusionReactorMixin",
+    "zeta.ForgeZetaEventBusMixin",
     "ae2.FalloutMixin",
     "ae2.FalloutCopyMixin"
   ],
