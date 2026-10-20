@@ -1,22 +1,19 @@
 package com.af9.core.machine;
 
 import com.af9.core.AF9Core;
-import com.af9.core.machine.part.MERedstonePortPartMachine;
-import com.af9.core.pattern.BuddingTiers;
+import com.af9.core.machine.part.ResonanceHatchPartMachine;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.block.IMachineBlock;
 import com.gregtechceu.gtceu.api.gui.GuiTextures;
 import com.gregtechceu.gtceu.api.gui.widget.SlotWidget;
-import com.gregtechceu.gtceu.api.machine.ConditionalSubscriptionHandler;
+import com.gregtechceu.gtceu.api.gui.widget.TankWidget;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
-import com.gregtechceu.gtceu.api.machine.feature.IDropSaveMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
-import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.pattern.MultiblockShapeInfo;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
@@ -28,30 +25,26 @@ import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.common.data.GTMachines;
-import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.gregtechceu.gtceu.common.data.machines.GTResearchMachines;
 import com.gregtechceu.gtceu.common.recipe.condition.ResearchCondition;
 import com.gregtechceu.gtceu.config.ConfigHolder;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
-import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
 import com.gregtechceu.gtceu.integration.xei.handlers.item.CycleItemStackHandler;
 import com.gregtechceu.gtceu.utils.ResearchManager;
 
 import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup;
-import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
-import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import org.jetbrains.annotations.NotNull;
@@ -61,57 +54,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The ME Resonance Fabricator, copied from TerraFirmaGreg's ME Assembler ({@code MEAssemblerMachine},
+ * The Certus Resonating Manufacturer, copied from TerraFirmaGreg's ME Assembler ({@code MEAssemblerMachine},
  * TerraFirmaGreg-Team/Core-Modern, LGPL-3.0; credits in CREDITS-textures.md, licence in licenses/): a Certus-powered
- * assembler that runs on a Budding Certus in its middle. The grade of the block sets the speed (nothing for a Certus
- * Quartz Block, x8 / x32 / x128 / x512 for Chipped to Exquisite Budding Certus, as a recipe-time factor), every run
- * can wear the block down a grade (the higher the recipe's tier and the longer it runs, the likelier; each block
- * lasts a random 200 to 800 units of work), and a {@link MERedstonePortPartMachine} outputs the grade. No overclocks:
- * the speed comes from the block alone, and batch mode is always on. Structure, hatches and recipes: the KubeJS script
- * {@code startup_scripts/gtceu/me_resonance_fabricator.js}.
+ * assembler that runs on Liquid Resonating Fluix. The fluid is the stabiliser: while the Resonating Fluix Hatch has
+ * some, the Manufacturer batches its crafts (as many parallel runs as the batch time allows), and every craft cycle
+ * drinks a little of it; without it, each recipe runs alone. No overclocks: the fluid alone makes the difference.
+ * Structure, hatches and recipes: the KubeJS script {@code startup_scripts/gtceu/me_resonance_fabricator.js}.
  */
-@SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1
-public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMachine implements IDropSaveMachine {
+public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMachine {
 
     public static final String TYPE = "me_assembler";
-    public static final String PORT = "hv_me_assembler_redstone_port";
+    /** The Resonating Fluix Hatch at HV, in the structure preview. */
+    public static final String RESONANCE_HATCH = "hv_resonance_hatch";
+    /** The stabiliser the machine runs on. */
+    public static final String STABILISER = ResonanceHatchPartMachine.STABILISER;
 
     public static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             MEResonanceFabricatorMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
 
-    private static final int HEALTH_MIN = 200;
-    private static final int HEALTH_MAX = 800;
-    /** One unit of wear per this much work (recipe time x batched runs). */
-    private static final int WORK_PER_UNIT = 500;
-
-    private static final double[] BUDDING_SPEED_BONUS = { 0.0, 8.0, 32.0, 128.0, 512.0 };
-
-    @Persisted
-    @DescSynced
-    private int buddingTier = 0;
-
-    @Persisted
-    @DescSynced
-    private int buddingHealth = 0;
-
-    @Nullable
-    private BlockPos buddingPos = null;
-
-    private final List<MERedstonePortPartMachine> redstonePorts = new ArrayList<>();
-    private final ConditionalSubscriptionHandler buddingCheckSubscription;
+    private final List<ResonanceHatchPartMachine> stabilisers = new ArrayList<>();
 
     public MEResonanceFabricatorMachine(IMachineBlockEntity holder) {
         super(holder);
-        this.buddingCheckSubscription = new ConditionalSubscriptionHandler(this, this::tickBuddingCheck,
-                this::isFormed);
-    }
-
-    public int getBuddingTier() {
-        return buddingTier;
-    }
-
-    public int getBuddingHealth() {
-        return buddingHealth;
+        this.batchEnabled = true; // the machine batches on its own; the toggle in the GUI still switches it off
     }
 
     @Override
@@ -119,118 +84,49 @@ public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMach
         return MANAGED_FIELD_HOLDER;
     }
 
-    private void tickBuddingCheck() {
-        if (getOffsetTimer() % 20 != 0) return;
-        refreshBuddingTier();
-    }
-
-    private void refreshBuddingTier() {
-        if (buddingPos == null || getLevel() == null || getLevel().isClientSide) return;
-        buddingTier = BuddingTiers.tierOf(getLevel().getBlockState(buddingPos).getBlock());
-        updateRedstone();
-    }
-
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
-        this.buddingTier = 0;
-        this.buddingPos = null;
-        redstonePorts.clear();
-        var ctx = getMultiblockState().getMatchContext();
-        if (ctx.get("BuddingTier") instanceof Integer tier) {
-            this.buddingTier = tier;
-        }
-        if (ctx.get("BuddingPos") instanceof BlockPos pos) {
-            this.buddingPos = pos.immutable();
-        }
+        stabilisers.clear();
         for (IMultiPart part : getParts()) {
-            if (part instanceof MERedstonePortPartMachine port) {
-                redstonePorts.add(port);
+            if (part instanceof ResonanceHatchPartMachine hatch) {
+                stabilisers.add(hatch);
             }
         }
-        updateRedstone();
-        buddingCheckSubscription.updateSubscription();
-    }
-
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        buddingCheckSubscription.initialize(getLevel());
     }
 
     @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
-        for (var port : redstonePorts) port.trySetSignal(0);
-        redstonePorts.clear();
-        buddingCheckSubscription.updateSubscription();
+        stabilisers.clear();
     }
 
-    /** The wear of the block in the middle travels with the item, nothing else of the machine does. */
-    @Override
-    public void saveToItem(CompoundTag tag) {
-        tag.putInt("buddingHealth", buddingHealth);
+    /** The millibuckets of Liquid Resonating Fluix in the machine's hatches. */
+    public int stabiliserAmount() {
+        int total = 0;
+        for (ResonanceHatchPartMachine hatch : stabilisers) {
+            total += hatch.amount();
+        }
+        return total;
     }
 
-    @Override
-    public void loadFromItem(CompoundTag tag) {
-        buddingHealth = tag.getInt("buddingHealth");
+    /** While the stabiliser is there, the machine batches. */
+    public boolean isStabilised() {
+        return stabiliserAmount() > 0;
     }
 
     @Override
     public boolean beforeWorking(@Nullable GTRecipe recipe) {
         if (!super.beforeWorking(recipe)) return false;
-        refreshBuddingTier();
-        if (buddingTier < 0) {
-            RecipeLogic.putFailureReason(this, recipe,
-                    Component.translatable("af9.me_fabricator.budding_missing").withStyle(ChatFormatting.RED));
-            return false;
+        if (recipe == null) return true;
+        // the stabiliser pays for the craft: a few millibuckets per parallel run
+        int runs = Math.max(1, recipe.batchParallels);
+        int left = runs;
+        for (ResonanceHatchPartMachine hatch : stabilisers) {
+            if (left <= 0) break;
+            left -= hatch.drain(left);
         }
-        tryDegradeBudding(recipe);
         return true;
-    }
-
-    /** The port's signal: 0 nothing in the middle, 1 Certus Quartz Block, 2 to 5 Chipped to Exquisite Budding Certus. */
-    private void updateRedstone() {
-        int signal = buddingTier < 0 ? 0 : buddingTier + 1;
-        for (var port : redstonePorts) port.trySetSignal(signal);
-    }
-
-    private void rollHealth() {
-        buddingHealth = HEALTH_MIN + getLevel().getRandom().nextInt(HEALTH_MAX - HEALTH_MIN + 1);
-    }
-
-    private void tryDegradeBudding(@Nullable GTRecipe recipe) {
-        if (buddingTier <= 0 || buddingPos == null) return;
-        if (getLevel() == null || getLevel().isClientSide) return;
-
-        if (buddingHealth <= 0) rollHealth();
-
-        int executions = 1;
-        if (recipe != null) {
-            int dur = recipe.data.contains("nominal_duration") ? recipe.data.getInt("nominal_duration") :
-                    recipe.duration;
-            long work = (long) dur * Math.max(1, recipe.batchParallels);
-            executions = Math.max(1, (int) (work / WORK_PER_UNIT));
-        }
-
-        buddingHealth -= executions;
-
-        int tiersLost = 0;
-        while (buddingHealth <= 0 && (buddingTier - tiersLost) > 0) {
-            tiersLost++;
-            int overflow = -buddingHealth;
-            rollHealth();
-            buddingHealth -= overflow;
-        }
-
-        if (tiersLost == 0) return;
-
-        int actual = BuddingTiers.tierOf(getLevel().getBlockState(buddingPos).getBlock());
-        if (actual != buddingTier) return;
-
-        Block next = BuddingTiers.blockOf(buddingTier - tiersLost);
-        getLevel().setBlockAndUpdate(buddingPos, next.defaultBlockState());
     }
 
     @Override
@@ -238,29 +134,24 @@ public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMach
         super.addDisplayText(textList);
         if (!isFormed()) return;
 
-        if (buddingTier < 0) {
-            textList.add(Component.translatable("af9.me_fabricator.budding_missing").withStyle(ChatFormatting.RED));
-            return;
+        int amount = stabiliserAmount();
+        if (amount > 0) {
+            textList.add(Component.translatable("af9.me_fabricator.stabilised",
+                    Component.literal(String.format("%,d", amount)).withStyle(ChatFormatting.AQUA))
+                    .withStyle(ChatFormatting.GRAY));
+        } else {
+            textList.add(Component.translatable("af9.me_fabricator.unstabilised").withStyle(ChatFormatting.YELLOW));
         }
-
-        ChatFormatting color = switch (buddingTier) {
-            case 0 -> ChatFormatting.GRAY;
-            case 1, 2 -> ChatFormatting.YELLOW;
-            default -> ChatFormatting.GREEN;
-        };
-        int speedBonus = (int) (BUDDING_SPEED_BONUS[buddingTier] * 100);
-        textList.add(Component.translatable("af9.me_fabricator.budding_tier",
-                Component.literal(speedBonus + "%").withStyle(color)));
     }
 
     /**
-     * The Fabricator's only recipe modifier (used with {@code alwaysTryModifyRecipe}): no overclocks, so the speed
-     * comes from the Budding Certus alone, and batch mode is always on, because the speed gets so high. A recipe above
-     * the machine's voltage tier does not run.
+     * The Manufacturer's only recipe modifier (used with {@code alwaysTryModifyRecipe}): a recipe above the
+     * machine's voltage tier does not run, and with the stabiliser in the hatch the craft is batched (as many
+     * parallel runs as the batch time allows). Without it every recipe runs on its own.
      */
-    public static final RecipeModifier BUDDING = MEResonanceFabricatorMachine::buddingModifier;
+    public static final RecipeModifier RESONANCE = MEResonanceFabricatorMachine::resonanceModifier;
 
-    public static @NotNull ModifierFunction buddingModifier(@NotNull MetaMachine machine, @NotNull GTRecipe recipe) {
+    public static @NotNull ModifierFunction resonanceModifier(@NotNull MetaMachine machine, @NotNull GTRecipe recipe) {
         if (!(machine instanceof MEResonanceFabricatorMachine meMachine)) {
             return RecipeModifier.nullWrongType(MEResonanceFabricatorMachine.class, machine);
         }
@@ -269,45 +160,26 @@ public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMach
             return ModifierFunction.cancel(Component.translatable("gtceu.recipe_modifier.insufficient_voltage"));
         }
 
-        int tier = Math.max(0, Math.min(meMachine.getBuddingTier(), BuddingTiers.MAX_TIER));
-        double factor = tier > 0 ? 1.0 / (1.0 + BUDDING_SPEED_BONUS[tier]) : 1.0;
+        if (!meMachine.isBatchEnabled() || !meMachine.isStabilised()) return ModifierFunction.IDENTITY;
+        if (recipe.duration >= ConfigHolder.INSTANCE.machines.batchDuration) return ModifierFunction.IDENTITY;
 
-        ModifierFunction speedModifier = r -> {
-            var copy = r.copy();
-            copy.data = r.data.copy();
-            copy.data.putInt("nominal_duration", r.duration);
-            copy.duration = Math.max(1, (int) (r.duration * factor));
-            return copy;
-        };
+        int parallel = ConfigHolder.INSTANCE.machines.batchDuration / recipe.duration;
+        parallel = ParallelLogic.getParallelAmountWithoutEU(machine, recipe, parallel);
+        if (parallel <= 1) return ModifierFunction.IDENTITY;
 
-        GTRecipe sped = speedModifier.apply(recipe);
-        if (sped == null) return ModifierFunction.NULL;
-
-        if (sped.duration >= ConfigHolder.INSTANCE.machines.batchDuration) {
-            return speedModifier;
-        }
-
-        int parallel = ConfigHolder.INSTANCE.machines.batchDuration / sped.duration;
-        parallel = ParallelLogic.getParallelAmountWithoutEU(machine, sped, parallel);
-
-        if (parallel == 0) return ModifierFunction.NULL;
-        if (parallel == 1) return speedModifier;
-
-        ModifierFunction batchModifier = ModifierFunction.builder()
+        return ModifierFunction.builder()
                 .inputModifier(ContentModifier.multiplier(parallel))
                 .outputModifier(ContentModifier.multiplier(parallel))
                 .durationMultiplier(parallel)
                 .batchParallels(parallel)
                 .build();
-
-        return speedModifier.andThen(batchModifier);
     }
 
-    // ---- the recipe type: research slot, the data orb and the budding grades on the recipe page ----
+    // ---- the recipe type: research slot, the data orb and the stabiliser on the recipe page ----
 
     /**
      * Finishes the recipe type {@code gtceu:me_assembler} (made by the KubeJS script): the recipe page with the data
-     * orb of the recipe's research and the budding blocks cycling under it, the research recipes, a hint line.
+     * orb of the recipe's research and the stabiliser next to it, the research recipes, a hint line.
      */
     public static void configureRecipeType() {
         GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", TYPE));
@@ -319,7 +191,7 @@ public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMach
         type.addDataInfo(data -> Component.translatable("af9.me_fabricator.recipe_hint").getString());
         type.setUiBuilder((recipe, widgetGroup) -> {
             // GregTech puts the inputs on the left, the arrow in the middle and the output on the right, with the
-            // info lines under them; the data orb and the budding grades go in one row under the arrow, above the lines
+            // info lines under them; the data orb and the stabiliser go in one row under the arrow, above the lines
             int centre = widgetGroup.getSize().width / 2;
             int rowY = 62;
 
@@ -331,61 +203,62 @@ public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMach
                     }
                 }
             }
-            List<ItemStack> buddings = new ArrayList<>();
-            for (int t = 1; t <= BuddingTiers.MAX_TIER; t++) {
-                buddings.add(new ItemStack(BuddingTiers.blockOf(t)));
-            }
-            int buddingX = sticks.isEmpty() ? centre - 9 : centre + 2;
             if (!sticks.isEmpty()) {
                 widgetGroup.addWidget(new SlotWidget(new CycleItemStackHandler(List.of(sticks)), 0,
                         centre - 20, rowY, false, false)
                         .setBackground(new GuiTextureGroup(GuiTextures.SLOT, GuiTextures.DATA_ORB_OVERLAY)));
             }
-            widgetGroup.addWidget(new SlotWidget(new CycleItemStackHandler(List.of(buddings)), 0,
-                    buddingX, rowY, false, false).setBackground(GuiTextures.SLOT));
+            // the stabiliser: the fluid that batches the craft
+            Fluid fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(STABILISER));
+            if (fluid != null) {
+                FluidTank tank = new FluidTank(1000);
+                tank.setFluid(new FluidStack(fluid, 1000));
+                widgetGroup.addWidget(new TankWidget(tank, centre + 2, rowY, false, false)
+                        .setShowAmount(false)
+                        .setBackground(GuiTextures.FLUID_SLOT));
+            }
         });
     }
 
-    // ---- the structure preview: the empty middle and the full one ----
+    // ---- the structure preview: the cage with its hatches ----
 
     private static Block block(String id) {
         Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(id));
         return block == null ? Blocks.AIR : block;
     }
 
-    /** The preview pages: the Fabricator with a Certus Quartz Block in the core, and with an Exquisite Budding Certus. */
+    /** The preview page: the cage of AE2 casings, the glass core and the hatches on the deck. */
     public static List<MultiblockShapeInfo> previews(MultiblockMachineDefinition definition) {
         List<MultiblockShapeInfo> pages = new ArrayList<>();
-        pages.add(shape(definition, false));
-        pages.add(shape(definition, true));
+        pages.add(shape(definition));
         return pages;
     }
 
-    private static MultiblockShapeInfo shape(MultiblockMachineDefinition definition, boolean budding) {
-        MachineDefinition port = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", PORT));
-        return MultiblockShapeInfo.builder()
-                .aisle("TTTHTTT", "BAAAAAB", "BCCCCCB", "BGGGGGB", "BGGGGGB", "BGGGGGB", "BCCCCCB", "BAAAAAB", "BAAAAAB")
-                .aisle("TTTrTTT", "A     A", "C     C", "G     G", "G     G", "G     G", "C     C", "A     A", "AAAAAAA")
-                .aisle("TTTTTTT", "A     A", "C     C", "G GGG G", "G GGG G", "G GGG G", "C     C", "A     A", "AACCCAA")
-                .aisle("TTTTTTT", "A     A", "C     C", "G GGG G", "G GqG G", "G GGG G", "C     C", "A     A", "AACCCAA")
-                .aisle("TTTTTTT", "A     A", "C     C", "G GGG G", "G GGG G", "G GGG G", "C     C", "A     A", "AACCCAA")
-                .aisle("TIIITTT", "A     A", "C     C", "G     G", "G     G", "G     G", "C     C", "A     A", "AAAAAAA")
-                .aisle("TpoTnmT", "BAAXAAB", "BCCCCCB", "BGGGGGB", "BGGGGGB", "BGGGGGB", "BCCCCCB", "BAAAAAB", "BAAAAAB")
+    private static MultiblockShapeInfo shape(MultiblockMachineDefinition definition) {
+        MachineDefinition hatch = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", RESONANCE_HATCH));
+        MultiblockShapeInfo.ShapeInfoBuilder builder = MultiblockShapeInfo.builder()
+                .aisle(" CHC ", " C C ", " C C ", " C C ")
+                .aisle("iCCMo", "CCGCC", "CCGCC", " C C ")
+                .aisle("fCPre", "CC CC", "CCGCC", " C C ")
+                .aisle("iCCCi", "CCGCC", "CCGCC", " C C ")
+                .aisle(" CXC ", " C C ", " C C ", " C C ")
                 .where('X', (IMachineBlock) definition.get(), Direction.NORTH)
-                .where('A', block("af9:ptfe_black_casing"))
-                .where('B', ChemicalHelper.getBlock(TagPrefix.frameGt, GTMaterials.StainlessSteel))
                 .where('C', block("af9:ae2_machine_casing"))
                 .where('G', block("ae2:quartz_vibrant_glass"))
-                .where('T', block("af9:ptfe_black_casing"))
+                .where('P', block("gtceu:steel_pipe_casing"))
                 .where('H', (IMachineBlock) GTResearchMachines.BASIC_DATA_ACCESS_HATCH.get(), Direction.DOWN)
-                .where('I', (IMachineBlock) GTMachines.ITEM_IMPORT_BUS[GTValues.HV].get(), Direction.DOWN)
-                .where('m', (IMachineBlock) GTMachines.ITEM_EXPORT_BUS[GTValues.HV].get(), Direction.DOWN)
-                .where('n', (IMachineBlock) GTMachines.MAINTENANCE_HATCH.get(), Direction.DOWN)
-                .where('r', (IMachineBlock) port.get(), Direction.DOWN)
-                .where('o', (IMachineBlock) GTMachines.FLUID_IMPORT_HATCH[GTValues.HV].get(), Direction.DOWN)
-                .where('p', (IMachineBlock) GTMachines.ENERGY_INPUT_HATCH[GTValues.HV].get(), Direction.DOWN)
-                .where('q', block(budding ? "ae2:flawless_budding_quartz" : "ae2:quartz_block"))
-                .where(' ', Blocks.AIR)
-                .build();
+                .where('i', (IMachineBlock) GTMachines.ITEM_IMPORT_BUS[GTValues.HV].get(), Direction.DOWN)
+                .where('o', (IMachineBlock) GTMachines.ITEM_EXPORT_BUS[GTValues.HV].get(), Direction.DOWN)
+                .where('M', (IMachineBlock) GTMachines.MAINTENANCE_HATCH.get(), Direction.DOWN)
+                .where('f', (IMachineBlock) GTMachines.FLUID_IMPORT_HATCH[GTValues.HV].get(), Direction.DOWN)
+                .where('e', (IMachineBlock) GTMachines.ENERGY_INPUT_HATCH[GTValues.HV].get(), Direction.DOWN)
+                .where(' ', Blocks.AIR);
+        // the Resonating Fluix Hatch: the KubeJS script registers it, so it is there when the page is built
+        if (hatch == null) {
+            builder.where('r', Blocks.AIR);
+        } else {
+            builder.where('r', hatch.get(), Direction.DOWN);
+        }
+        return builder.build();
     }
 }

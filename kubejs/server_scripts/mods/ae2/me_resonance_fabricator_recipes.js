@@ -1,12 +1,12 @@
-// AF9 - ME Resonance Fabricator recipes: TerraFirmaGreg's me_assembler recipes (Core-Modern, LGPL-3.0; credits in
+// AF9 - Certus Resonating Manufacturer recipes: TerraFirmaGreg's me_assembler recipes (Core-Modern, LGPL-3.0; credits in
 // CREDITS-textures.md) for AE2, ExtendedAE, MEGA Cells, ME Requester and GregTech's ME Pattern Buffer Proxy, taken over
-// with their research (scanner / station), circuits and the Moon's air: most of them need an Oxygenated Environment
-// (OxygenatedCondition, Ad Astra's oxygen) and the dimension ad_astra:moon, as in TFG.
+// with their research (scanner / station) and circuits: most of them need an Oxygenated Environment (OxygenatedCondition,
+// Ad Astra's oxygen) and a cleanroom, as in TFG (where the cleanroom stood for the Moon).
 //
 // Differences from TFG: Cryogenized Fluix (and Fluix) become Liquid Certus Quartz (their amounts added together), the
 // TFC workbench tag becomes a Crafting Table, the material info is not generated, and the three Spatial Cell Components
 // (they need TFG's UV LEDs) are left out. Each section is guarded by its mod ids. Ids: af9:<mod>/<name> (GregTech prefixes the type, af9:me_assembler/<mod>/<name>).
-// The recipes overlap with the pack's own MV AE2 chain (ae2_*.js); these are the Fabricator's faster, Moon-bound routes.
+// The recipes overlap with the pack's own MV AE2 chain (ae2_*.js); these are the Manufacturer's faster, cleanroom-bound routes.
 // Machine: kubejs/startup_scripts/gtceu/me_resonance_fabricator.js
 
 const $OxygenatedCondition = Java.loadClass('com.af9.core.common.OxygenatedCondition')
@@ -19,7 +19,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:crafting_card')
         .duration(20*800)
         .EUt(GTValues.VA[GTValues.IV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(9)
 
     event.recipes.gtceu.me_assembler('af9:tfg/ae2/energy_cell')
@@ -28,7 +28,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:energy_cell')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(8)
 
     event.recipes.gtceu.me_assembler('af9:tfg/ae2/dense_energy_cell')
@@ -37,7 +37,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:dense_energy_cell')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(9)
 
     event.recipes.gtceu.me_assembler('af9:ae2/blank_pattern_pvc')
@@ -50,7 +50,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('4x ae2:blank_pattern')
         .duration(20*10)
         .EUt(GTValues.VHA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(1)
 
     event.recipes.gtceu.me_assembler('af9:ae2/blank_pattern_ptfe')
@@ -63,7 +63,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('16x ae2:blank_pattern')
         .duration(20*20)
         .EUt(GTValues.VHA[GTValues.HV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(2)
 
     event.recipes.gtceu.me_assembler('af9:ae2/blank_pattern_pbi')
@@ -76,10 +76,10 @@ ServerEvents.recipes(event => {
         .itemOutputs('64x ae2:blank_pattern')
         .duration(20*40)
         .EUt(GTValues.VHA[GTValues.EV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(3)
 
-    event.recipes.gtceu.me_assembler('af9:ae2/annihilation_core_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/annihilation_core')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '1x ae2:certus_quartz_crystal',
@@ -89,10 +89,10 @@ ServerEvents.recipes(event => {
         .itemOutputs('1x ae2:annihilation_core')
         .duration(20*10)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(1)
 
-    event.recipes.gtceu.me_assembler('af9:ae2/annihilation_core_moon_bulk')
+    event.recipes.gtceu.me_assembler('af9:ae2/annihilation_core_bulk')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '1x ae2:certus_quartz_crystal',
@@ -102,10 +102,10 @@ ServerEvents.recipes(event => {
         .itemOutputs('8x ae2:annihilation_core')
         .duration(20*600)
         .EUt(GTValues.VA[GTValues.IV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(2)
 
-    event.recipes.gtceu.me_assembler('af9:ae2/formation_core_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/formation_core')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '1x minecraft:quartz',
@@ -115,10 +115,10 @@ ServerEvents.recipes(event => {
         .itemOutputs('1x ae2:formation_core')
         .duration(20*10)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(3)
 
-    event.recipes.gtceu.me_assembler('af9:ae2/formation_core_moon_bulk')
+    event.recipes.gtceu.me_assembler('af9:ae2/formation_core_bulk')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '1x minecraft:quartz',
@@ -128,7 +128,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('8x ae2:formation_core')
         .duration(20*600)
         .EUt(GTValues.VA[GTValues.IV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(4)
 
     // ---- Cell components (all ZPM): the pack's own chip ladder, not TFG's foil/logic one ----
@@ -147,7 +147,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:cell_component_1k')
         .duration(20*10)
         .EUt(GTValues.VA[GTValues.ZPM])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(1)
 
     event.recipes.gtceu.me_assembler('af9:ae2/cell_component_4k')
@@ -161,7 +161,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:cell_component_4k')
         .duration(20*60)
         .EUt(GTValues.VA[GTValues.ZPM])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(2)
 
     event.recipes.gtceu.me_assembler('af9:ae2/cell_component_16k')
@@ -177,7 +177,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:cell_component_16k')
         .duration(20*240)
         .EUt(GTValues.VA[GTValues.ZPM])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(3)
 
     event.recipes.gtceu.me_assembler('af9:ae2/cell_component_64k')
@@ -194,7 +194,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:cell_component_64k')
         .duration(20*260)
         .EUt(GTValues.VA[GTValues.ZPM])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(4)
 
     event.recipes.gtceu.me_assembler('af9:ae2/cell_component_256k')
@@ -210,7 +210,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:cell_component_256k')
         .duration(20*900)
         .EUt(GTValues.VA[GTValues.ZPM])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(5)
 
     event.recipes.gtceu.me_assembler('af9:ae2/storage_bus')
@@ -223,10 +223,10 @@ ServerEvents.recipes(event => {
         .itemOutputs('1x ae2:storage_bus')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(1)
 
-    event.recipes.gtceu.me_assembler('af9:ae2/storage_bus_moon_bulk')
+    event.recipes.gtceu.me_assembler('af9:ae2/storage_bus_bulk')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             '#ae2:interface',
@@ -236,7 +236,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('8x ae2:storage_bus')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(2)
 
     event.recipes.gtceu.me_assembler('af9:ae2/import_bus')
@@ -250,7 +250,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:import_bus')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(6)
 
     event.recipes.gtceu.me_assembler('af9:ae2/export_bus')
@@ -264,7 +264,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:export_bus')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(6)
 
     event.recipes.gtceu.me_assembler('af9:ae2/crafting_unit')
@@ -279,7 +279,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:crafting_unit')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(4)
 
     event.recipes.gtceu.me_assembler('af9:ae2/crafting_unit_bulk')
@@ -294,7 +294,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('4x ae2:crafting_unit')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(2)
 
     event.recipes.gtceu.me_assembler('af9:ae2/molecular_assembler_hv')
@@ -310,7 +310,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('1x ae2:molecular_assembler')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(1)
 
     event.recipes.gtceu.me_assembler('af9:ae2/molecular_assembler_iv')
@@ -326,7 +326,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('8x ae2:molecular_assembler')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(2)
 
     event.recipes.gtceu.me_assembler('af9:tfg/controller')
@@ -340,7 +340,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:controller')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(7)
 
     event.recipes.gtceu.me_assembler('af9:tfg/controller_shulker')
@@ -353,10 +353,10 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:controller')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(7)
 
-    event.recipes.gtceu.me_assembler('af9:ae2/interface_mv_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/interface_mv')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'gtceu:mv_conveyor_module',
@@ -368,10 +368,10 @@ ServerEvents.recipes(event => {
         .itemOutputs('1x ae2:interface')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(1)
 
-    event.recipes.gtceu.me_assembler('af9:ae2/interface_iv_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/interface_iv')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'gtceu:iv_conveyor_module',
@@ -383,10 +383,10 @@ ServerEvents.recipes(event => {
         .itemOutputs('8x ae2:interface')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(2)
 
-    event.recipes.gtceu.me_assembler('af9:ae2/pattern_provider_mv_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/pattern_provider_mv')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'gtceu:mv_robot_arm',
@@ -398,10 +398,10 @@ ServerEvents.recipes(event => {
         .itemOutputs('1x ae2:pattern_provider')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(3)
 
-    event.recipes.gtceu.me_assembler('af9:ae2/pattern_provider_iv_moon')
+    event.recipes.gtceu.me_assembler('af9:ae2/pattern_provider_iv')
         .addCondition(new $OxygenatedCondition(false, true))
         .itemInputs(
             'gtceu:iv_robot_arm',
@@ -413,7 +413,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('8x ae2:pattern_provider')
         .duration(20*25)
         .EUt(GTValues.VA[GTValues.MV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(3)
 
     event.recipes.gtceu.me_assembler('af9:ae2/logic_processor')
@@ -428,7 +428,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('2x ae2:logic_processor')
         .duration(20 * 5)
         .EUt(GTValues.VA[GTValues.HV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(1)
 
     event.recipes.gtceu.me_assembler('af9:ae2/logic_processor_bulk')
@@ -443,7 +443,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('16x ae2:logic_processor')
         .duration(20 * 800)
         .EUt(GTValues.VA[GTValues.IV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(2)
 
     event.recipes.gtceu.me_assembler('af9:ae2/calculation_processor')
@@ -458,7 +458,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('2x ae2:calculation_processor')
         .duration(20 * 10)
         .EUt(GTValues.VA[GTValues.HV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(3)
 
     event.recipes.gtceu.me_assembler('af9:ae2/calculation_processor_bulk')
@@ -473,7 +473,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('16x ae2:calculation_processor')
         .duration(20 * 800)
         .EUt(GTValues.VA[GTValues.IV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(4)
 
     event.recipes.gtceu.me_assembler('af9:ae2/engineering_processor')
@@ -488,7 +488,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('2x ae2:engineering_processor')
         .duration(20 * 10)
         .EUt(GTValues.VA[GTValues.HV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(5)
 
     event.recipes.gtceu.me_assembler('af9:ae2/engineering_processor_bulk')
@@ -503,7 +503,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('16x ae2:engineering_processor')
         .duration(20 * 800)
         .EUt(GTValues.VA[GTValues.IV])
-        .dimension('ad_astra:moon')
+        .cleanroom(CleanroomType.CLEANROOM)
         .circuit(6)
     // expatternprovider
     if (Platform.isLoaded('expatternprovider')) {
@@ -516,7 +516,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:tag_export_bus')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(1)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/tag_storage_bus')
@@ -528,7 +528,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:tag_storage_bus')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(2)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/mod_export_bus')
@@ -540,7 +540,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:mod_export_bus')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(3)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/mod_storage_bus')
@@ -552,7 +552,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:mod_storage_bus')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(3)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/precise_export_bus')
@@ -564,7 +564,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:precise_export_bus')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(4)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/precise_storage_bus')
@@ -576,7 +576,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:precise_storage_bus')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(4)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/threshold_level_emitter')
@@ -588,7 +588,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:threshold_level_emitter')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(9)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_molecular_assembler_iv')
@@ -604,7 +604,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:ex_molecular_assembler')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(5)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_molecular_assembler_zpm')
@@ -620,7 +620,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('8x expatternprovider:ex_molecular_assembler')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(6)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/ingredient_buffer')
@@ -629,7 +629,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:ingredient_buffer')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(8)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_wall_luv')
@@ -643,7 +643,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:assembler_matrix_wall')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(1)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_glass')
@@ -657,12 +657,12 @@ ServerEvents.recipes(event => {
             .itemOutputs("expatternprovider:assembler_matrix_glass")
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(2)
     }
     // expatternprovider, megacells
     if (Platform.isLoaded('expatternprovider') && Platform.isLoaded('megacells')) {
-        event.recipes.gtceu.me_assembler('af9:tfg/ex_interface_iv_moon')
+        event.recipes.gtceu.me_assembler('af9:tfg/ex_interface_iv')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:iv_conveyor_module',
@@ -676,7 +676,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('1x expatternprovider:ex_interface')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(5)
 
         event.recipes.gtceu.me_assembler('af9:tfg/ex_interface_zpm_cr')
@@ -694,9 +694,9 @@ ServerEvents.recipes(event => {
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
             .circuit(6)
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
 
-        event.recipes.gtceu.me_assembler('af9:expatternprovider/interface_upgrade_iv_moon')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/interface_upgrade_iv')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:iv_conveyor_module',
@@ -709,7 +709,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('1x expatternprovider:interface_upgrade')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(6)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/interface_upgrade_zpm')
@@ -725,10 +725,10 @@ ServerEvents.recipes(event => {
             .itemOutputs('8x expatternprovider:interface_upgrade')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(5)
 
-        event.recipes.gtceu.me_assembler('af9:expatternprovider/oversize_interface_iv_moon')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/oversize_interface_iv')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '1x #expatternprovider:extended_interface',
@@ -741,7 +741,7 @@ ServerEvents.recipes(event => {
             .itemOutputs("1x expatternprovider:oversize_interface")
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(7)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/oversize_interface_zpm')
@@ -757,7 +757,7 @@ ServerEvents.recipes(event => {
             .itemOutputs("8x expatternprovider:oversize_interface")
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(8)
 
         event.recipes.gtceu.me_assembler('af9:tfg/ex_pattern_provider_iv')
@@ -775,7 +775,7 @@ ServerEvents.recipes(event => {
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
             .circuit(5)
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
 
         event.recipes.gtceu.me_assembler('af9:tfg/ex_pattern_provider_zpm')
             .addCondition(new $OxygenatedCondition(false, true))
@@ -791,10 +791,10 @@ ServerEvents.recipes(event => {
             .itemOutputs('8x expatternprovider:ex_pattern_provider')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(6)
 
-        event.recipes.gtceu.me_assembler('af9:expatternprovider/pattern_provider_upgrade_iv_moon')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/pattern_provider_upgrade_iv')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 'gtceu:iv_robot_arm',
@@ -808,7 +808,7 @@ ServerEvents.recipes(event => {
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
             .circuit(6)
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/pattern_provider_upgrade_zpm')
             .addCondition(new $OxygenatedCondition(false, true))
@@ -823,7 +823,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('8x expatternprovider:pattern_provider_upgrade')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(5)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_import_bus_part')
@@ -837,7 +837,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:ex_import_bus_part')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(1)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_export_bus_part')
@@ -851,7 +851,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:ex_export_bus_part')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(2)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/threshold_export_bus')
@@ -863,7 +863,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:threshold_export_bus')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(4)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/active_formation_plane')
@@ -875,7 +875,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:active_formation_plane')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(8)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/wireless_connect')
@@ -891,7 +891,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('2x expatternprovider:wireless_connect')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(9)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_io_port')
@@ -906,7 +906,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:ex_io_port')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(8)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/ex_drive')
@@ -921,7 +921,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:ex_drive')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(9)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/drive_upgrade')
@@ -935,10 +935,10 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:drive_upgrade')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(8)
 
-        event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_frame_moon')
+        event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_frame')
             .addCondition(new $OxygenatedCondition(false, true))
             .itemInputs(
                 '8x gtceu:plascrete',
@@ -953,7 +953,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('8x expatternprovider:assembler_matrix_frame')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(9)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_pattern')
@@ -970,7 +970,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:assembler_matrix_pattern')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(7)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_crafter')
@@ -987,7 +987,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:assembler_matrix_crafter')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(7)
 
         event.recipes.gtceu.me_assembler('af9:expatternprovider/assembler_matrix_speed_luv')
@@ -1004,7 +1004,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('expatternprovider:assembler_matrix_speed')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(7)
     }
     // expatternprovider, megacells, merequester
@@ -1022,7 +1022,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('merequester:requester')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(9)
     }
     // megacells
@@ -1033,7 +1033,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('megacells:mega_energy_cell')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(9)
 
         event.recipes.gtceu.me_assembler('af9:tfg/mega_pattern_provider')
@@ -1052,7 +1052,7 @@ ServerEvents.recipes(event => {
             .EUt(GTValues.VA[GTValues.HV]))
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(3)
 
         event.recipes.gtceu.me_assembler('af9:ae2/accumulation_processor')
@@ -1067,7 +1067,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('megacells:accumulation_processor')
             .duration(20*100)
             .EUt(GTValues.VA[GTValues.EV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(1)
 
         event.recipes.gtceu.me_assembler('af9:ae2/accumulation_processor_cr')
@@ -1082,7 +1082,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('4x megacells:accumulation_processor')
             .duration(20*600)
             .EUt(GTValues.VA[GTValues.EV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(2)
 
         event.recipes.gtceu.me_assembler('af9:megacells/mega_item_cell_housing')
@@ -1100,7 +1100,7 @@ ServerEvents.recipes(event => {
             .EUt(GTValues.VA[GTValues.EV]))
             .duration(20*60)
             .EUt(GTValues.VA[GTValues.IV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(6)
 
         event.recipes.gtceu.me_assembler('af9:megacells/mega_fluid_cell_housing')
@@ -1118,7 +1118,7 @@ ServerEvents.recipes(event => {
             .EUt(GTValues.VA[GTValues.EV]))
             .duration(20*60)
             .EUt(GTValues.VA[GTValues.IV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(6)
 
         event.recipes.gtceu.me_assembler('af9:megacells/cell_component_1m')
@@ -1140,7 +1140,7 @@ ServerEvents.recipes(event => {
             .EUt(GTValues.VA[GTValues.LuV]))
             .duration(20*1200)
             .EUt(GTValues.VA[GTValues.LuV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(6)
 
         event.recipes.gtceu.me_assembler('af9:megacells/cell_component_4m')
@@ -1162,7 +1162,7 @@ ServerEvents.recipes(event => {
             .EUt(GTValues.VA[GTValues.LuV]))
             .duration(20*3600)
             .EUt(GTValues.VA[GTValues.LuV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(7)
 
         event.recipes.gtceu.me_assembler('af9:megacells/cell_component_16m')
@@ -1185,7 +1185,7 @@ ServerEvents.recipes(event => {
             .EUt(GTValues.VA[GTValues.ZPM])
             .CWUt(32))
             .EUt(GTValues.VA[GTValues.ZPM])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(8)
 
         event.recipes.gtceu.me_assembler('af9:megacells/cell_component_64m')
@@ -1208,7 +1208,7 @@ ServerEvents.recipes(event => {
             .EUt(GTValues.VA[GTValues.UV])
             .CWUt(64))
             .EUt(GTValues.VA[GTValues.UV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(9)
 
         event.recipes.gtceu.me_assembler('af9:megacells/mega_crafting_unit')
@@ -1225,7 +1225,7 @@ ServerEvents.recipes(event => {
             .itemOutputs('megacells:mega_crafting_unit')
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
-            .dimension('ad_astra:moon')
+            .cleanroom(CleanroomType.CLEANROOM)
             .circuit(3)
 
         event.recipes.gtceu.me_assembler('af9:tfg/me_pattern_buffer_proxy')

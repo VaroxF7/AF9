@@ -567,6 +567,7 @@ material gtceu:lapis_leach_liquor
 material gtceu:lesolite
 material gtceu:light_naphtha
 material gtceu:liquid_certus_quartz
+material gtceu:liquid_resonating_fluix
 material gtceu:lithium_brine
 material gtceu:lithium_carbonate
 material gtceu:lithium_fluoride

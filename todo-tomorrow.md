@@ -1,6 +1,6 @@
 # To-Do (Oct 19, 2026)
 
-- [x] AE2 processor recipes in the ME Resonance Chamber (done: `me_resonance_fabricator_recipes.js` — single + bulk, moon-only)
+- [x] AE2 processor recipes in the Certus Resonating Manufacturer (done: `me_resonance_fabricator_recipes.js` — single + bulk, cleanroom + oxygenated air)
   - Screenshot: https://prnt.sc/bDo4SOkAipx6
 - [ ] Resonance Chamber → MV Mover
   - Screenshot: _pending_
@@ -16,7 +16,8 @@
   - Screenshot: https://prnt.sc/2QgseXn7gZHp
 - [ ] Fix recipe for the neutron collection in the planetary satellite
   - Screenshot: https://prnt.sc/DeNBA1FC0fll
-- [ ] New ME Resonance multiblock theme, structure, and functionality
+- [x] New multiblock theme, structure, and functionality of the Certus Resonating Manufacturer (done: the new cage, the
+  Resonating Fluix Hatch as its stabiliser, the new controller face, the lightened casings)
   - Screenshot: https://prnt.sc/HeRvoiB7lxbF
 - [ ] Electric Implosion Compressor texture & better multiblock structure
   - Screenshot: https://prnt.sc/sVfRyvKCGUOn

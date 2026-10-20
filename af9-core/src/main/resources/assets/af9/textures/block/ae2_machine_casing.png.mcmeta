@@ -1,5 +1,9 @@
 {
-    "ldlib": {
-        "connection": "af9:block/ae2_machine_casing_ctm"
-    }
+  "animation": {
+    "frametime": 4,
+    "interpolate": true
+  },
+  "ldlib": {
+    "connection": "af9:block/ae2_machine_casing_ctm"
+  }
 }

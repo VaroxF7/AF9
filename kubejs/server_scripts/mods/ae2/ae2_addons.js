@@ -111,7 +111,7 @@ ServerEvents.recipes(event => {
         })
     }
 
-    // ---- Addon processors (assembler, no cleanroom, liquid certus quartz) ----
+    // ---- Addon processors (assembler, cleanroom, liquid certus quartz) ----
     // The inscriber, the advanced_ae chambers and the forming press imports are gone, so the three addon
     // processors build from AF9's own AE2 processors instead. [id, output, base, extra inputs, eut, ticks]
     const addonProcessors = [
@@ -126,9 +126,9 @@ ServerEvents.recipes(event => {
         if (!Platform.isLoaded(mod)) return
         event.remove({ mod: mod, output: out })
         const id = out.split(':')[1]
-        event.recipes.gtceu.assembler(`af9:addon_${id}`)
+        clean(event.recipes.gtceu.assembler(`af9:addon_${id}`)
             .itemInputs([base].concat(extra))
             .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
-            .itemOutputs(out).duration(ticks).EUt(eut)
+            .itemOutputs(out).duration(ticks).EUt(eut))
     })
 })

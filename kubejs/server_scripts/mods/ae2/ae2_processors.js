@@ -5,9 +5,10 @@
 //      on purpose — the old die packaging (silicon die + copper foil + fine electrum + 4 RAM chips)
 //      is gone.
 //   2. Carrier (cutter): a silicon wafer dices straight into printed silicon.
-//   3. Final assembly (assembler): printed + printed silicon + redstone + tier circuit, 60 s at HV
-//      (good integrated for logic and engineering, micro processor for calculation: every
-//      processor takes an MV circuit).
+//   3. Final assembly: the Certus Resonating Manufacturer's alone (me_resonance_fabricator_recipes.js):
+//      printed + printed silicon + redstone + tier circuit, in a cleanroom with oxygenated air (good
+//      integrated for logic and engineering, micro processor for calculation: every processor takes
+//      an MV circuit). The plain assembler does not build the processors.
 //
 // The AE2 presses are out of the chain (the Mysterious Cube still drops one random
 // press as a souvenir; meteorites still give sky stone). The inscriber
@@ -17,7 +18,6 @@ ServerEvents.recipes(event => {
     if (!Platform.isLoaded('ae2')) return
     const VA = GTValues.VA
     const MV = VA[GTValues.MV]
-    const HV = VA[GTValues.HV]
     const clean = recipe => recipe.cleanroom(CleanroomType.CLEANROOM)
 
     // ---- Removed vanilla paths: inscriber prints and processors ----
@@ -84,27 +84,11 @@ ServerEvents.recipes(event => {
         run('_high_grade', Fluid.of('gtceu:high_grade_solder', 72), 1200)
     })
 
-    // ---- Final assembly: printed + carrier + redstone + MV circuit (assembler, HV, 60 s) ----
-    // 60 s (1200t) at HV on certus or soldering alloy — or 30 s on high-grade solder. Every
-    // processor takes an MV circuit: good integrated for logic and engineering, micro
-    // processor for calculation.
-    const processors = [
-        ['logic_processor', 'gtceu:good_integrated_circuit', 1200],
-        ['calculation_processor', 'gtceu:micro_processor', 1200],
-        ['engineering_processor', 'gtceu:good_integrated_circuit', 1200]
-    ]
-    processors.forEach(([out, circuit, ticks]) => {
-        const run = (suffix, fluid, time) => {
-            event.recipes.gtceu.assembler(`af9:ae2_${out}${suffix}`)
-                .itemInputs(`ae2:printed_${out}`, 'ae2:printed_silicon', 'minecraft:redstone', circuit,
-                    '2x gtceu:redstone_foil', '2x gtceu:fine_electrum_wire')
-                .inputFluids(fluid)
-                .itemOutputs(`ae2:${out}`).duration(time).EUt(HV)
-        }
-        run('', Fluid.of('gtceu:liquid_certus_quartz', 144), ticks)
-        run('_solder', Fluid.of('gtceu:soldering_alloy', 72), ticks)
-        run('_high_grade', Fluid.of('gtceu:high_grade_solder', 72), Math.ceil(ticks / 2))
-    })
+    // ---- Final assembly: the Certus Resonating Manufacturer's alone ----
+    // The processors themselves (logic, calculation, engineering) are assembled there
+    // (me_resonance_fabricator_recipes.js): the Certus Resonating Manufacturer binds the printed
+    // processor, the carrier and the circuit, and its recipes ask for a cleanroom and an oxygenated
+    // air. The plain assembler does not build them.
 })
 
 // One tag for the three AE2 processors: recipes that take "a processor of choice" use it instead of a recipe per kind

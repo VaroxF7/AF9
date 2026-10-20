@@ -84,26 +84,30 @@ textures in `block` are MIT-licensed per its license section, `licenses` in the 
 (GregTech-Modern v7.5.3, LGPL-3.0, copies in `tools/textures/gt_src/`) with the hue moved from violet to teal
 (`tools/textures/electric_implosion.py`).
 
-## ME Resonance Fabricator
+## Certus Resonating Manufacturer
 
-The ME Resonance Fabricator is a copy of TerraFirmaGreg's ME Resonance Fabricator (their id `me_assembler`) from
+The Certus Resonating Manufacturer is a copy of TerraFirmaGreg's ME Resonance Fabricator (their id `me_assembler`) from
 **TerraFirmaGreg-Team/Core-Modern** (commit `325b0835`, `MEAssemblerMachine`, `MEAssemblerRedstonePort`, `TFGPredicates`,
 `TFGMultiMachines.ME_ASSEMBLER`, `TFGTRecipeTypes.ME_ASSEMBLER`) and **TerraFirmaGreg-Team/Modpack-Modern** (commit
 `dd977368`, textures and crafting recipes), LGPL-3.0; licence text in `licenses/TerraFirmaGreg-Core-Modern-LGPL-3.0.txt`.
-The structure, the budding-grade speed table and wear, the redstone port and the recipe page are taken over; the Java is
-ported to AF9 Core (`MEResonanceFabricatorMachine`, `MERedstonePortPartMachine`, `BuddingTiers`) and the machine is
-registered in KubeJS (`startup_scripts/gtceu/me_resonance_fabricator.js`). Textures, copied unchanged (recipe textures
-`.mcmeta` with the namespace changed):
+The structure and the recipe page are taken over; the Java is ported to AF9 Core (`MEResonanceFabricatorMachine`,
+`ResonanceHatchPartMachine`) and the machine is registered in KubeJS
+(`startup_scripts/gtceu/me_resonance_fabricator.js`). The budding grades, the wear and the redstone port are gone: the
+Liquid Resonating Fluix in the Resonating Fluix Hatch stabilises the machine instead. Textures, copied unchanged at first
+(recipe textures `.mcmeta` with the namespace changed) and then lightened and given a slow shimmer by
+`tools/textures/resonator_casings.py`:
 
 | af9 file | TFG source (`kubejs/assets/tfg/textures/block/`) |
 |---|---|
 | `af9-core/.../textures/block/ptfe_black_casing.png` (+ `_ctm.png`, `.mcmeta`) | `casings/machine_casing_ptfe_black{,_ctm}.png` |
 | `af9-core/.../textures/block/ae2_machine_casing{,_active,_active_emissive}.png` (+ `_ctm.png`, `.mcmeta`) | `casings/machine_casing_ae2{,_active,_active_emissive}{,_ctm}.png` |
-| `kubejs/assets/gtceu/textures/block/multiblock/me_assembler_redstone_port/overlay_front.png` (+ `.mcmeta`) | `machines/redstone_port/overlay_front.png` |
 
-Not taken over: the shader maps (`_n`, `_s`) of the AE2 casing. The Fabricator's recipes (`kubejs/server_scripts/mods/ae2/me_resonance_fabricator_recipes.js`) and the `OxygenatedCondition` (Ad Astra's oxygen instead of TFG's environment system) are copied from TFG's `me_assembler` recipes and `OxygenatedCondition`, 82 recipes; the three Spatial Cell Components are left out (TFG's UV LEDs).
+The controller face is AF9's own: `kubejs/assets/gtceu/textures/block/multiblock/me_resonator/overlay_front*.png`
+(`tools/textures/resonator_face.py`) — a certus crystal in a fluix heart with a ring of light around it.
+
+Not taken over: the shader maps (`_n`, `_s`) of the AE2 casing. The Manufacturer's recipes (`kubejs/server_scripts/mods/ae2/me_resonance_fabricator_recipes.js`) and the `OxygenatedCondition` (Ad Astra's oxygen instead of TFG's environment system) are copied from TFG's `me_assembler` recipes and `OxygenatedCondition`, 82 recipes; the three Spatial Cell Components are left out (TFG's UV LEDs).
 Substitutions: TFG's `cryogenized_fluix` in the AE2 casing recipe is `gtceu:liquid_certus_quartz`; the Moon-only rule of its
-recipes sits in TFG's recipes, not the machine. Its AE2 blocks are read by id, so AF9 Core compiles without AE2.
+recipes became a cleanroom condition. Its AE2 blocks are read by id, so AF9 Core compiles without AE2.
 
 ## Superalloy item textures
 

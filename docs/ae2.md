@@ -41,7 +41,7 @@ No presses, no inscriber prints — every chip is printed on a silicon wafer:
 
 Removed: every recipe outputting the four printeds and the three processors — from any mod and in any machine
 (this includes the AE2 presses, the GT forming press imports and any datapack leftover).
-All `ae2:inscriber` recipes are removed (crushing is replaced by the GT recipes above; the name press is no longer craftable), as are the six `advanced_ae` processor chambers and the `gtceu:forming_press` circuit imports (ae2 logic/calculation/engineering, appflux energy, aae quantum, megacells accumulation); the addon processors (`megacells:accumulation_processor` HV, `appflux:energy_processor` EV, `advanced_ae:quantum_processor` IV, all assembler on 144 mB liquid certus quartz) build from AF9's own AE2 processors plus a tier circuit; meteorite presses are out of the chain
+All `ae2:inscriber` recipes are removed (crushing is replaced by the GT recipes above; the name press is no longer craftable), as are the six `advanced_ae` processor chambers and the `gtceu:forming_press` circuit imports (ae2 logic/calculation/engineering, appflux energy, aae quantum, megacells accumulation); the addon processors (`megacells:accumulation_processor` HV, `appflux:energy_processor` EV, `advanced_ae:quantum_processor` IV, all assembler in a cleanroom on 144 mB liquid certus quartz) build from AF9's own AE2 processors plus a tier circuit; meteorite presses are out of the chain
 (the Mysterious Cube still drops one random press as a souvenir, meteorites still give
 sky stone).
 
@@ -53,14 +53,14 @@ redstone plate (compressor, 4x redstone) and foil (bender, 4x per plate), and **
 fine-wire flag). The materials are registered in
 AF9 Core (Java), so this needs a rebuilt core jar.
 
-## Components (cell components: ME Resonance Fabricator, ZPM; shells: `ae2_components.js`, MV)
+## Components (cell components: Certus Resonating Manufacturer, ZPM; shells: `ae2_components.js`, MV)
 
-**Cell components climb 1k → 4k → 16k → 64k → 256k in the ME Resonance Fabricator alone** (the
-Moon route, `me_resonance_fabricator_recipes.js`): **all five at ZPM** on liquid certus quartz
+**Cell components climb 1k → 4k → 16k → 64k → 256k in the Certus Resonating Manufacturer alone** (the
+cleanroom route, `me_resonance_fabricator_recipes.js`): **all five at ZPM** on liquid certus quartz
 (144 mB for 1k, doubling per step). The assembler makes no components — `ae2_components.js` only
 sweeps AE2's own recipes away. The two entry tiers are cheap — chips, wire, foil and
 interconnects; 16k and up chain: 3x previous + calculation processor + bulk secondary + quartz
-glass + the RAM pile. **The 256k is the wall** (10 s → 900 s on the Moon).
+glass + the RAM pile. **The 256k is the wall** (10 s → 900 s in the Manufacturer).
 
 | Component | Inputs (plus the liquid certus quartz above) |
 |---|---|
@@ -88,17 +88,20 @@ Every other base-AE2 buildable — charger, inscriber, vibration chamber, crank,
 growth accelerator, sky stone tank, resonance generator, energy acceptor/cells, controller,
 drive, chest, IO port, workbench, all terminals (incl. wireless), interface, pattern
 provider, molecular assembler (takes a micro processor, like the drive),
-import/export/storage buses, formation/annihilation cores and planes, P2P tunnels, level
+import/export/storage buses, formation/annihilation planes, P2P tunnels, level
 emitters, toggle bus, all three monitors, all nine upgrade cards, network tool, memory
 card, color applicator, cable anchor, both wrenches and cutting knives, charged staff,
 entropy manipulator, matter cannon, tiny TNT, spatial IO/pylon/anchor, quantum ring/link,
 blank patterns, view cell, quartz glass, all ten portable cells — builds in the assembler
 at MV from processors, steel/iron plates, quartz glass, quartz fiber, crystals and
-fluix (144 mB liquid certus quartz; cables and fiber are dry single recipes).
+fluix (144 mB liquid certus quartz; cables and fiber are dry single recipes) **in a
+cleanroom**.
 
 The **controller** builds at MV without a cleanroom on 144 mB liquid certus quartz: 6x sky stone block + 4x good integrated circuit + 8x of the `#af9:ae2_processors` tag (logic, calculation or engineering).
 
-The **formation and annihilation cores** run 60 s (1200t) at MV — the high-grade strip halves that.
+The **formation and annihilation cores** are the Certus Resonating Manufacturer's alone
+(like the processors): they bind the network's crystals and want a cleanroom and an
+oxygenated air.
 
 Only the fluix base of each cable family is redefined (glass, covered, dense, smart,
 dense smart); dye variants follow. Quartz fiber is redefined (certus crystal + glass).
@@ -185,29 +188,27 @@ that this pack does not redefine).
 - Unverified: written without compiling or in-game testing (cloud env cannot build).
 - Follow-ups, not done here: quest gating for the AE2 chapter, EMI descriptions.
 
-## ME Resonance Fabricator (`me_resonance_fabricator.js`, HV)
+## Certus Resonating Manufacturer (`me_resonance_fabricator.js`, HV)
 
 The machine, recipe type (id `gtceu:me_assembler`) and recipes are TerraFirmaGreg's ME Assembler (credits in `CREDITS-textures.md`); the
-structure is AF9's own: a 7 x 9 x 7 tower of black PTFE (`af9:ptfe_black_casing`) with stainless steel corner pillars, two bands of AE2
-casing (`af9:ae2_machine_casing`), a window band of quartz vibrant glass and a roof plate. In the window band a glass cube holds the
-Certus Quartz Block or Budding Certus. Everything inside the walls may be any block (Spatial Pylons and IO Ports for ME spatial
-storage fit there). The controller sits on the front face above the base deck; all hatches go in the base deck (the bottom 7 x 7
-layer): one energy hatch, one maintenance hatch, up to 3 fluid inputs, 1 item output, up to 9 item buses, one ME Redstone Port,
-and a Data Access Hatch for the research slot.
+structure is AF9's own: a 5 x 4 x 5 cage of AE2 casing (`af9:ae2_machine_casing`) and steel pipe casing around a core of
+quartz vibrant glass. Everything inside the walls may be any block (Spatial Pylons and IO Ports for ME spatial
+storage fit there). The controller sits on the front face of the deck; all hatches go in the deck (the bottom 5 x 5
+layer): one energy hatch, one maintenance hatch, up to 3 fluid inputs, 1 item output, up to 9 item buses, one
+Resonating Fluix Hatch, and a Data Access Hatch for the research slot.
 
-- **Speed** by the block in the middle: Certus Quartz Block x1, Chipped (AE2's damaged) x9, Flawed x33, Flawless x129,
-  Exquisite x513 (recipe time divided by 1 + 8 / 32 / 128 / 512). No overclocks, batch mode is always on (the machine
-  runs as many recipes at once as fit one batch). A recipe above the machine's voltage tier does not run.
-- **Wear**: every run uses up work (recipe time x batched runs / 500, at least 1) from the block's health, rolled
-  200-800 per grade; at 0 the block drops one grade (Exquisite to Flawless and so on, down to the plain Certus Block).
-  Breaking the machine keeps the health on the item.
-- **ME Redstone Port**: signal 0 nothing in the middle, 1 Certus Quartz Block, 2 Chipped ... 5 Exquisite.
+- **The stabiliser**: the Resonating Fluix Hatch takes **Liquid Resonating Fluix** (`gtceu:liquid_resonating_fluix`,
+  extractor, MV: fluix crystal → 144 mB) and nothing else. While the machine has some, it **batches** its crafts: as
+  many parallel runs as the batch time allows. Every craft cycle drinks a millibucket per parallel run, so a full
+  hatch (8,000 mB at HV) lasts thousands of crafts. **Without the fluid every recipe runs on its own.**
+  No overclocks: the fluid alone makes the difference. A recipe above the machine's voltage tier does not run.
 - **Recipes**: the type `gtceu:me_assembler` (9 items in, 1 out, 3 fluids in, research slot) runs TFG's ported
-  recipes — cells, storage, the three processors single and bulk — all on liquid certus quartz;
-  the machine, the port and both casings are craftable.
+  recipes — cells, storage, the three processors single and bulk — all on liquid certus quartz. They ask for a
+  **cleanroom** (where TFG asked for the Moon) and most of them for an oxygenated air.
+  The machine, the hatch and both casings are craftable.
 - **Cell components** (1k → 256k) are the chamber's alone: **all ZPM** on the pack's own chip
   ladder (see §Components) — the machine needs a ZPM energy hatch for them.
-- **Machines and blocks** in the Fabricator (buses, interfaces, pattern providers, molecular assemblers,
+- **Machines and blocks** in the Manufacturer (buses, interfaces, pattern providers, molecular assemblers,
   controllers, drives, energy cells, matrix parts, the requester) run **25 s at MV**; parts — cores,
   processors, patterns — keep their own times and tiers.
 

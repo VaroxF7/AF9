@@ -1,5 +1,9 @@
 {
-    "ldlib": {
-        "connection": "af9:block/ptfe_black_casing_ctm"
-    }
+  "animation": {
+    "frametime": 4,
+    "interpolate": true
+  },
+  "ldlib": {
+    "connection": "af9:block/ptfe_black_casing_ctm"
+  }
 }

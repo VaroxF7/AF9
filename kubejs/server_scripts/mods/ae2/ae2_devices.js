@@ -3,9 +3,13 @@
 // Everything the ME network is built from (machines, power, core, terminals, cables,
 // buses, planes, monitors, cards, tools, spatial, quantum, shells) builds in the assembler
 // at MV on liquid certus quartz — or soldering alloy, or high-grade solder at half the
-// time (the `_solder` and `_high_grade` twins). Cables and fiber are dry
+// time (the `_solder` and `_high_grade` twins) — in a cleanroom. Cables and fiber are dry
 // (no fluid) single recipes. Vanilla crafting-table recipes for these outputs are removed
 // mod-scoped, so the af9: recipes never match.
+//
+// The formation and annihilation cores are the Certus Resonating Manufacturer's alone
+// (me_resonance_fabricator_recipes.js), like the processors: they bind the network's
+// crystals and want a cleanroom and an oxygenated air.
 //
 // Left vanilla on purpose: raw materials and world interaction (certus/fluix/sky dust,
 // budding, charging, crushing, fluix mixing, meteorite loot, decorative compacting,
@@ -28,6 +32,7 @@ ServerEvents.recipes(event => {
                 .itemOutputs(outputs)
                 .duration(time)
                 .EUt(MV)
+                .cleanroom(CleanroomType.CLEANROOM)
         }
         run('', Fluid.of('gtceu:liquid_certus_quartz', 144), ticks)
         run('_solder', Fluid.of('gtceu:soldering_alloy', 72), ticks)
@@ -110,10 +115,6 @@ ServerEvents.recipes(event => {
         ['ae2_storage_bus', 'ae2:storage_bus',
             ['ae2:logic_processor', 'ae2:calculation_processor', '2x ae2:quartz_glass',
                 'ae2:fluix_crystal'], 200],
-        ['ae2_formation_core', 'ae2:formation_core',
-            ['ae2:logic_processor', '2x ae2:certus_quartz_crystal', 'ae2:fluix_dust'], 1200],
-        ['ae2_annihilation_core', 'ae2:annihilation_core',
-            ['ae2:calculation_processor', '2x ae2:fluix_dust', 'ae2:certus_quartz_crystal'], 1200],
         ['ae2_formation_plane', 'ae2:formation_plane',
             ['ae2:formation_core', '2x ae2:fluix_crystal', 'gtceu:steel_plate'], 200],
         ['ae2_annihilation_plane', 'ae2:annihilation_plane',

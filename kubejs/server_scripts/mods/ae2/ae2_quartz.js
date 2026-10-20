@@ -6,7 +6,9 @@
 // (and sky stone, ender pearls) with distilled water into dust at 2x the inscriber's
 // 1:1 crushing. All additive: vanilla seeds, pool growth, budding and crushing stay as
 // the pre-MV path. Fluix pearls are redefined (assembler, MV) since the network eats them.
-// Spec: docs/ae2.md
+// The extractor also melts the crystals into their fluids: liquid certus quartz for the
+// processors' assembly, and the liquid resonating fluix that stabilises the Certus
+// Resonating Manufacturer. Spec: docs/ae2.md
 
 ServerEvents.recipes(event => {
     if (!Platform.isLoaded('ae2')) return
@@ -59,6 +61,7 @@ ServerEvents.recipes(event => {
         .itemOutputs('ae2:fluix_pearl')
         .duration(200)
         .EUt(MV)
+        .cleanroom(CleanroomType.CLEANROOM)
 
     // ---- Liquid certus quartz (extractor, MV): the fluid of every processor and component assembly ----
     event.recipes.gtceu.extractor('af9:liquid_certus_quartz')
@@ -70,6 +73,19 @@ ServerEvents.recipes(event => {
         .itemInputs('ae2:charged_certus_quartz_crystal')
         .outputFluids(Fluid.of('gtceu:liquid_certus_quartz', 288))
         .duration(80)
+        .EUt(MV)
+
+    // ---- Liquid Resonating Fluix (extractor, MV): the stabiliser of the Certus Resonating Manufacturer ----
+    // The fluix crystal is dissolved; the manufacturer drinks a few millibuckets per craft cycle.
+    event.recipes.gtceu.extractor('af9:liquid_resonating_fluix')
+        .itemInputs('ae2:fluix_crystal')
+        .outputFluids(Fluid.of('gtceu:liquid_resonating_fluix', 144))
+        .duration(80)
+        .EUt(MV)
+    event.recipes.gtceu.extractor('af9:liquid_resonating_fluix_dust')
+        .itemInputs('4x ae2:fluix_dust')
+        .outputFluids(Fluid.of('gtceu:liquid_resonating_fluix', 144))
+        .duration(120)
         .EUt(MV)
 
     // ---- Redstone foil (compressor + bender, LV): for the processors' printed circuits ----

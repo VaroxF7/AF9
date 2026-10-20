@@ -21,7 +21,7 @@ ServerEvents.recipes(event => {
         const run = (suffix, fluid, time) => {
             const recipe = event.recipes.gtceu.assembler(`af9:${id}${suffix}`)
             build(recipe, fluid)
-            recipe.duration(time).EUt(MV)
+            recipe.duration(time).EUt(MV).cleanroom(CleanroomType.CLEANROOM)
         }
         run('', Fluid.of('gtceu:liquid_certus_quartz', 144), ticks)
         run('_solder', Fluid.of('gtceu:soldering_alloy', 72), ticks)
