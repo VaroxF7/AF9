@@ -76,19 +76,8 @@
   - Screenshot: https://prnt.sc/nPT-Zkb9rsb6
 - [ ] Replace sodium persulfate for circuit board with a new chemical
   - TFG Reference: https://prnt.sc/TSxpxyPpERWI
+- Rework naquadah recipe, simialr to StarT with a new multiblock that consumes neter star shard for a small amount of naquadah & optinally a space elevator recipe, remove void miner recipes for naquadah and remove the naqudah from normal gt veins
 
-## Current Processor Recipes (for reference)
-
-Cheaper processors — compare against current MV/HV recipes:
-
-### Advanced Processor (MV) — current
-![Advanced Processor MV](adv_processor_mv.png)
-
-### Advanced Processor (HV)
-![Advanced Processor HV](adv_processor_hv.png)
-
-### Ultimate Processor
-![Ultimate Processor](ultimate_processor.png)
 
 ## TFG Reference Screenshots
 
