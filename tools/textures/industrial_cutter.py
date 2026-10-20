@@ -10,10 +10,10 @@ Run from the repository root (needs Pillow):  python3 tools/textures/industrial_
            .mcmeta points at it again. Its edge gradient would stutter block to block, so the sheet's frame is flat
            (the mean of the sprite's edge row / column) while the lone block keeps GTNH's gradient.
 
-  face     the controller: a viewport (the saw blade and the readout) over a deck of two cells and the lamp, split by
-           a hazard stripe. Idle: the blade still, a red readout, a dim lamp. Working (8 frames): the blade turns,
-           sparks fly off the cut, the readout fills green, the lamp lights. Paused: amber, blinking slowly. The lit
-           parts are written to the emissive layers too.
+  face     the controller: a viewport (the saw and a bar display) over a deck of two cells and the lamp, split by a
+           hazard stripe. Idle: the saw still, a red display, a dim lamp. Working (12 frames): the saw turns, sparks
+           fly off the cut, the display fills green, the lamp lights. Paused: amber, blinking slowly. The lit parts
+           are written to the emissive layers too.
 """
 import json
 import math
@@ -31,7 +31,7 @@ AF9_BLOCK = os.path.join(ROOT, 'af9-core/src/main/resources/assets/af9/textures/
 KJS_CASING = os.path.join(ROOT, 'kubejs/assets/gtceu/textures/block/casings/solid')
 KJS_FACE = os.path.join(ROOT, 'kubejs/assets/gtceu/textures/block/multiblock/industrial_cutter')
 
-ACTIVE_FRAMES = 8
+ACTIVE_FRAMES = 12
 IDLE_FRAMES = 4
 PAUSED_FRAMES = 4
 
@@ -59,13 +59,17 @@ def strip(frames):
 
 
 # ---- the casings ----------------------------------------------------------------------------------------------------
-def cutter_inside(color):
-    """Where the frames meet: the block's own inset (the bevelled square, rows 3..13) with flat plating in the band
-    the frame took up, so the wall is one field of inset panels."""
-    def inside(sprite, x, y):
+def cutter_inside(sprite):
+    """Where the frames meet: the block's own inset (the bevelled square, rows 3..12) with the plating of the field
+    in the band the frame took up, so the wall is one surface of panels."""
+    field = max((sprite.getpixel((x, y))[:3] for y in range(3, 13) for x in range(3, 13)),
+                key=lambda c: sum(1 for y in range(3, 13) for x in range(3, 13)
+                                  if sprite.getpixel((x, y))[:3] == c))
+
+    def inside(sprite_, x, y):
         if 3 <= x <= 12 and 3 <= y <= 12:
-            return sprite.getpixel((x, y))
-        return color[:3] + (255,)
+            return sprite_.getpixel((x, y))
+        return field[:3] + (255,)
     return inside
 
 
@@ -117,7 +121,7 @@ def write_casing():
     """cutter_casing + _ctm + .mcmeta (af9) and machine_casing_stable_titanium + _ctm + .mcmeta (kubejs/gtceu)."""
     out = {}
     cutter = Image.open(os.path.join(AF9_BLOCK, 'cutter_casing.png')).convert('RGBA')
-    sheet = se.ctm_sheet(cutter, 3, 3, cutter_inside(cutter.getpixel((8, 8))))
+    sheet = se.ctm_sheet(cutter, 3, 3, cutter_inside(cutter))
     sheet.save(os.path.join(AF9_BLOCK, 'cutter_casing_ctm.png'))
     dump(os.path.join(AF9_BLOCK, 'cutter_casing.png.mcmeta'),
          {'ldlib': {'connection': 'af9:block/cutter_casing_ctm'}})
@@ -146,7 +150,7 @@ def write_casing():
         col = [stable.getpixel((i, y)) for y in range(16)]
         edge.append((tuple(clamp(sum(p[k] for p in row) / 16) for k in range(3)) + (255,),
                      tuple(clamp(sum(p[k] for p in col) / 16) for k in range(3)) + (255,)))
-    inside = stable_inside(stable, palette, mid - 21, mid + 21)
+    inside = stable_inside(stable, palette, mid - 12, mid + 12)
     sheet = stable_sheet(stable, inside, edge)
     sheet.save(os.path.join(KJS_CASING, 'machine_casing_stable_titanium_ctm.png'))
     dump(os.path.join(KJS_CASING, 'machine_casing_stable_titanium.png.mcmeta'),
@@ -157,15 +161,15 @@ def write_casing():
 
 # ---- the face -------------------------------------------------------------------------------------------------------
 OUTLINE = (18, 20, 25)
-PLATE_HI = (70, 76, 88)
-PLATE = (50, 55, 66)
 PLATE_LO = (33, 37, 45)
 GLASS = (9, 12, 17)
+GLASS_HI = (20, 25, 34)
 SCREEN = (7, 9, 12)
 STEEL_HI = (198, 208, 224)
 STEEL = (138, 148, 164)
 STEEL_LO = (82, 90, 104)
 BLADE_HI = (214, 224, 238)
+BLADE = (150, 161, 178)
 CAP = (156, 118, 54)
 CAP_HI = (206, 164, 84)
 CAP_LO = (92, 68, 30)
@@ -193,42 +197,33 @@ def dot(im, x, y, c):
         im.putpixel((x, y), c + (255,) if len(c) == 3 else c)
 
 
-def disc(im, cx, cy, r, colour):
-    """A filled disc: light from the upper left, a dark rim at the lower right."""
-    for y in range(16):
-        for x in range(16):
-            dx, dy = x + 0.5 - cx, y + 0.5 - cy
-            d = math.hypot(dx, dy)
-            if d <= r:
-                k = 1.12 - 0.16 * (dx + dy + r) / (2 * r)
-                dot(im, x, y, shade(colour, k))
-            elif d <= r + 0.65:
-                dot(im, x, y, shade(colour, 0.55))
+SAW_SLOTS = ((7, 5), (7, 6), (6, 7), (5, 7), (4, 7), (3, 6),
+             (3, 5), (3, 4), (4, 3), (5, 3), (6, 3), (7, 4))
 
 
 def blade(im, em, frame, state):
-    """The saw in the viewport: a disc with eight teeth, turning while the machine works; sparks off the cut."""
-    cx, cy, r = 5.5, 5.0, 2.1
-    disc(im, cx, cy, r, (150, 161, 178))
-    dot(im, 5, 4, STEEL_HI)
-    dot(im, 5, 5, STEEL)
-    dot(im, 6, 5, STEEL_LO)
-    dot(im, 5, 6, STEEL_LO)
-    if state != 'active':
-        phase = 0.0 if state == 'idle' else 0.6
+    """The saw behind the glass: a disc three pixels wide with six teeth running round its rim, turning while the
+    machine works; sparks come off the cut."""
+    for y in range(4, 7):                                   # the body of the disc, light from the upper left
+        for x in range(4, 7):
+            dot(im, x, y, shade(BLADE, 1.2 - 0.16 * (x + y - 8)))
+    dot(im, 5, 5, (44, 48, 56))                            # the bore
+    if state == 'active':
+        phase = frame
+    elif state == 'idle':
+        phase = 0
     else:
-        phase = frame * (math.tau / 8)
-    for k in range(8):
-        a = phase + k * (math.tau / 8)
-        x, y = cx + (r + 0.55) * math.cos(a) - 0.5, cy + (r + 0.55) * math.sin(a) - 0.5
-        tooth = BLADE_HI if state == 'active' else STEEL
-        dot(im, round(x), round(y), tooth)
+        phase = 1
+    for k in range(6):                                      # the teeth, one slot further round every frame
+        x, y = SAW_SLOTS[(phase + k * 2) % 12]
+        tooth = BLADE_HI if state == 'active' else STEEL_HI
+        dot(im, x, y, tooth)
         if state == 'active':
-            dot(em, round(x), round(y), shade(tooth, 1.0))
+            dot(em, x, y, tooth)
     if state == 'active':                                   # sparks at the cut, flying down the kerf
         rnd = random.Random(frame * 17 + 3)
         for i in range(3):
-            sx = 7 + rnd.randrange(0, 4)
+            sx = 7 + rnd.randrange(0, 3)
             sy = 6 + rnd.randrange(0, 2) + (i == 0)
             c = SPARK if i else (255, 255, 255)
             dot(im, sx, sy, c)
@@ -238,41 +233,40 @@ def blade(im, em, frame, state):
 
 
 def readout(im, em, frame, state):
-    """The little screen beside the blade: bars that stand by in red, fill green while the machine cuts, and hold
+    """The screen beside the saw: a bar display that stands by in red, fills green while the machine cuts and holds
     amber while it is paused."""
-    rect(im, 9, 3, 13, 7, OUTLINE)
-    rect(im, 10, 4, 12, 6, SCREEN)
+    rect(im, 9, 2, 13, 7, OUTLINE)
+    rect(im, 10, 3, 12, 6, SCREEN)
     if state == 'idle':
-        lit = [(0, 1), (0, 0), (1, 0)]                       # a dim 'L' in the corner, like a standby mark
-        colour, dim = RED, shade(RED, 0.35)
-        blink = True
+        lit = {(0, 0)}                                     # one cell breathing in the corner, like a standby sign
+        colour, dim, blink = RED, shade(RED, 0.45), frame % 4 < 3
     elif state == 'paused':
-        lit = [(1, 0), (1, 1), (1, 2)]
-        colour, dim = AMBER, shade(AMBER, 0.35)
-        blink = frame % 4 < 2
+        lit = {(b, a) for b in (1, 2) for a in range(3)}   # two full bars, holding
+        colour, dim, blink = AMBER, shade(AMBER, 0.3), frame % 4 < 2
     else:
-        n = (frame + 1) % 5
-        lit = [(b, a) for b in range(3) for a in range(3) if (a * 3 + b) % 5 < n]
-        colour, dim = GREEN, shade(GREEN, 0.35)
-        blink = True
-    for b in range(3):
+        k = 1 + round(frame * 11 / 7)                      # the bars fill up, row by row
+        lit = {(b, a) for b in range(4) for a in range(3) if b * 3 + a < k}
+        colour, dim, blink = GREEN, shade(GREEN, 0.3), True
+    for b in range(4):
         for a in range(3):
-            c = colour if (b, a) in lit else dim
-            if not blink and (b, a) in lit:
+            on = (b, a) in lit
+            c = colour if on else dim
+            if on and not blink:
                 c = dim
-            dot(im, 10 + a, 4 + b, c)
-            if (b, a) in lit and (blink or state != 'paused'):
-                dot(em, 10 + a, 4 + b, c)
+            dot(im, 10 + a, 3 + b, c)
+            if on and blink:
+                dot(em, 10 + a, 3 + b, c)
 
 
 def deck(im, em, frame, state):
-    """The deck: two cells of coolant with their brass caps, and the lamp."""
-    rect(im, 1, 10, 7, 10, CAP)
+    """The deck under the window: a steel plate with two cells of coolant under their brass caps, and the lamp."""
+    rect(im, 1, 10, 14, 14, PLATE_LO)
+    rect(im, 1, 10, 7, 10, CAP)                            # the caps of the cells
     dot(im, 1, 10, CAP_LO)
     dot(im, 7, 10, CAP_LO)
     dot(im, 4, 10, CAP_LO)
     dot(im, 2, 10, CAP_HI)
-    for x0 in (2, 5):                                        # the two cells
+    for x0 in (2, 5):                                      # the two cells
         rect(im, x0, 11, x0 + 1, 14, FLUID)
         for y in range(11, 15):
             for x in range(x0, x0 + 2):
@@ -280,42 +274,36 @@ def deck(im, em, frame, state):
                     dot(im, x, y, FLUID_D)
         top = 11 if state != 'active' or frame % 2 == 0 else 12
         rect(im, x0, top, x0 + 1, top, FLUID_TOP)
-        if state == 'active' and frame % 4 == 0:             # a bubble rising
+        if state == 'active' and frame % 4 == 0:           # a bubble rising
             dot(im, x0 + (frame // 4) % 2, 14, shade(FLUID_TOP, 1.1))
     for x, c in ((1, STEEL), (4, STEEL_LO), (7, STEEL_LO)):
         rect(im, x, 11, x, 14, c)
     dot(im, 1, 11, STEEL_HI)
     dot(im, 7, 11, STEEL_HI)
 
-    rect(im, 9, 10, 14, 14, OUTLINE)                         # the lamp box
+    rect(im, 9, 10, 14, 14, OUTLINE)                       # the lamp
     rect(im, 10, 11, 13, 13, (12, 13, 16))
-    lamp = {'idle': ((168, 170, 174), (196, 168, 104)),
+    lamp = {'idle': ((150, 152, 156), (196, 168, 104)),
             'active': (LAMP, LAMP_CORE),
-            'paused': ((172, 150, 110), (214, 176, 96))}[state]
+            'paused': ((176, 150, 106), (214, 176, 96))}[state]
     if state == 'paused' and frame % 4 >= 2:
         lamp = (shade(lamp[0], 0.7), shade(lamp[1], 0.7))
-    disc(im, 11.5, 12.0, 1.7, lamp[0])
-    dot(im, 11, 12, lamp[1])
-    dot(im, 12, 12, lamp[1])
-    for x in range(10, 14):
-        dot(em, x, 12, shade(lamp[0], 1.0))
-    for x in (11, 12):
-        dot(em, x, 12, lamp[1])
+    for x, y in ((11, 11), (12, 11), (10, 12), (11, 12), (12, 12), (13, 12), (11, 13), (12, 13)):
+        c = lamp[1] if (y == 12 and x in (11, 12)) else (lamp[0] if x + y < 24 else shade(lamp[0], 0.8))
+        dot(im, x, y, c)
+        dot(em, x, y, c)
 
 
 def face_base(state, frame):
     im = Image.new('RGBA', (16, 16), (0, 0, 0, 0))
     em = Image.new('RGBA', (16, 16), (0, 0, 0, 0))
-    rect(im, 1, 1, 14, 8, OUTLINE)                           # the viewport
+    rect(im, 1, 1, 14, 8, OUTLINE)                         # the viewport
     rect(im, 2, 2, 13, 7, GLASS)
     for x in range(2, 14):
-        dot(im, x, 2, PLATE_HI)
-        dot(im, x, 7, PLATE_LO)
+        dot(im, x, 2, GLASS_HI)                            # the light on the glass
     for y in range(2, 8):
-        dot(im, 2, y, PLATE_HI)
-        dot(im, 13, y, PLATE_LO)
-    dot(im, 3, 3, GLASS)
-    for x in range(1, 15):                                   # the hazard stripe
+        dot(im, 2, y, GLASS_HI)
+    for x in range(1, 15):                                 # the hazard stripe under the window
         dot(im, x, 9, HAZ_Y if (x // 2) % 2 == 0 else HAZ_D)
     blade(im, em, frame, state)
     readout(im, em, frame, state)

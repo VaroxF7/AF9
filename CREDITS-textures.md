@@ -15,13 +15,14 @@ That project credits Jimbno's UU-Tex pack and other texture artists for parts of
 ## Industrial Cutting Machine
 
 The Industrial Cutting Machine is a copy of GTNH's (GT5-Unofficial `MTEIndustrialCuttingMachine`, LGPL-3.0 or later,
-<https://github.com/GTNewHorizons/GT5-Unofficial>; licence text in `licenses/GT5-Unofficial-LGPL-3.0.txt`). Copied, unchanged:
+<https://github.com/GTNewHorizons/GT5-Unofficial>; licence text in `licenses/GT5-Unofficial-LGPL-3.0.txt`). Its textures:
 
-| af9 file | GT5-Unofficial source (`src/main/resources/assets/`) |
-|---|---|
-| `af9-core/.../textures/entity/cutter/cutter_t1..t4.png` (saw blade, four blur frames each) | `gregtech/textures/model/cutter_t1..t4.png` |
-| `af9-core/.../textures/block/cutter_casing.png` (Cutting Factory Frame) | `gregtech/textures/blocks/iconsets/CUTTING_FACTORY_FRAME.png` |
-| `kubejs/assets/gtceu/textures/block/multiblock/industrial_cutter/overlay_front*.png` (+ `.mcmeta`, controller face) | `miscutils/textures/blocks/iconsets/controllerFaces/industrialCuttingMachine{,Active,Glow,ActiveGlow}.png` (the paused face reuses the idle one) |
+| af9 file | GT5-Unofficial source (`src/main/resources/assets/`) | Changes |
+|---|---|---|
+| `af9-core/.../textures/entity/cutter/cutter_t1..t4.png` (saw blade, four blur frames each) | `gregtech/textures/model/cutter_t1..t4.png` | none |
+| `af9-core/.../textures/block/cutter_casing.png` (Cutting Factory Frame) | `gregtech/textures/blocks/iconsets/CUTTING_FACTORY_FRAME.png` | none |
+| `af9-core/.../textures/block/cutter_casing_ctm.png` (+ `cutter_casing.png.mcmeta`) | — (our own sheet) | the connected texture: the frame stays only at the edge of a group of blocks, the plating runs on across them (`tools/textures/industrial_cutter.py`) |
+| `kubejs/assets/gtceu/textures/block/multiblock/industrial_cutter/overlay_front*.png` (+ `.mcmeta`, controller face) | `miscutils/textures/blocks/iconsets/controllerFaces/industrialCuttingMachine{,Active,Glow,ActiveGlow}.png` | redrawn in the same spirit: a viewport with the saw and a readout, two cells and the lamp; idle, working (the saw turns, sparks fly) and paused, each with an emissive layer (`tools/textures/industrial_cutter.py`) |
 
 The structure (9 x 4 x 3) and the blade's size, position, speed, spin-up and motion blur are taken from the original;
 `SawBladeRender` is a port of its `renderTESR` to 1.20 (the GL clip plane under the floor is a hand-made polygon clip).
@@ -34,7 +35,7 @@ into `kubejs/assets/gtceu/textures/block/` (they replace GTCEu's textures of the
 
 | af9 texture | GT5-Unofficial source (`textures/blocks/iconsets/`) | Changes |
 |---|---|---|
-| `casings/solid/machine_casing_stable_titanium.png` | `MACHINE_CASING_STABLE_TITANIUM.png` | none (plain, no connected textures) |
+| `casings/solid/machine_casing_stable_titanium.png` | `MACHINE_CASING_STABLE_TITANIUM.png` | the sprite is unchanged; it gets a connected texture of our own (`machine_casing_stable_titanium_ctm.png` + `.mcmeta`, `tools/textures/industrial_cutter.py`): the frame stays only at the edge of a group of blocks, the plating runs on across them |
 | `casings/gearbox/machine_casing_gearbox_titanium.png` | `MACHINE_CASING_GEARBOX_TITANIUM.png` | none |
 | `casings/pipe/machine_casing_engine_intake.png`, `..._extreme_engine_intake.png` | `MACHINE_CASING_ENGINE_INTAKE.png`, `MACHINE_CASING_EXTREME_ENGINE_INTAKE.png` | none |
 | `casings/pipe/machine_casing_*engine_intake_active.png` (+ `.mcmeta`) | same | 4-frame animation, a brightness pulse |
