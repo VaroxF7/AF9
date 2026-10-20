@@ -36,7 +36,7 @@ See Appendix A for the full map. The numbers live in three places that must agre
 
 ## 0.3 One-paragraph mental model
 
-Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Moon Sand polysilicon → melt charges + seed crystal (SMC) → boule (EBF Boule Melting) → cutter blank wafer of one of nine substrates → Coater Track (HMDS prime, BARC, resist, TARC, bake: the blank becomes a coated wafer, §6.5b) → Photolithography Line (built in 8 versions like the Assembly Line's lengths; the mode is the substrate: 350 nm silicon … 7 nm strange matter; a reticle of the node's mask class + developer, rinse water, clean air, etch plasma + the mode's laser gas / immersion water / HfCl4 / tin) → GT's chip wafers (as many as the substrate yields) or broken wafers, decided by the machine's vacuum, cooling and computation (§5.4, §18) → cutter dies → circuit assembler. Higher substrates print every lower substrate's chips too and give more chip wafers per blank. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion → EUV 13.5 nm → high-NA EUV) and the resist made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate → tin-oxo EUV resist); the 1 nm chromodynium node is an X-ray free-electron laser in orbit. Wafers taken into a player's inventory get contaminated unless the player wears gloves or stands in a clean Cleanroom.
+Real fab: quartz → MG-Si → ultra-pure polysilicon → Czochralski boule → diamond-wire wafers → RCA clean + CMP → repeat 100s of times: HMDS prime → resist coat → bake → expose through reticle → bake → develop → etch → implant → deposit → CMP. Wafer → probe → dice → package → PCB. In AF9/GregTech 1.20.1 this is compressed to: Moon Sand polysilicon → melt charges + seed crystal (blending mode) → boule (EBF Boule Melting) → cutter blank wafer of one of nine substrates → Coater Track (HMDS prime, BARC, resist, TARC, bake: the blank becomes a coated wafer, §6.5b) → Photolithography Line (built in 8 versions like the Assembly Line's lengths; the mode is the substrate: 350 nm silicon … 7 nm strange matter; a reticle of the node's mask class + developer, rinse water, clean air, etch plasma + the mode's laser gas / immersion water / HfCl4 / tin) → GT's chip wafers (as many as the substrate yields) or broken wafers, decided by the machine's vacuum, cooling and computation (§5.4, §18) → cutter dies → circuit assembler. Higher substrates print every lower substrate's chips too and give more chip wafers per blank. Reticles are the Minecraft reticle/mask, chemistries are HMDS/photoresist/TMAH fluids, the stepper is the multiblock. Each mode uses the light source its real node used (mercury i-line 365 nm → KrF 248 nm → ArF 193 nm → ArF immersion → EUV 13.5 nm → high-NA EUV) and the resist made for that light (DNQ-novolac → chemically amplified PHOST → chemically amplified methacrylate → tin-oxo EUV resist); the 1 nm chromodynium node is an X-ray free-electron laser in orbit. Wafers taken into a player's inventory get contaminated unless the player wears gloves or stands in a clean Cleanroom.
 
 ---
 
@@ -65,7 +65,7 @@ Net: SiO2 + 2C -> Si(l) + 2CO(g)
 - Refine: O2 lancing, slagging (CaO-Al2O3-SiO2), ladle treatment.
 - Byproducts: CO, CO2, SiO → microsilica fume, SiC dross, slag.
 - Failures: SiO loss (poor permeability), SiC inclusions, Al/Ca/Fe inclusions, CO hazard.
-- Minecraft map (AF9, §6.12): quartzite leached in HCl → `high_purity_quartz`, SMC thermal furnace (calcination & reduction) at 1800 K with coke → `metallurgical_grade_silicon` + CO.
+- Minecraft map (AF9, §6.12): quartzite leached in HCl → `high_purity_quartz`, Arc Furnace (calcination mode) at 1800 K with coke → `metallurgical_grade_silicon` + CO.
 
 ## 1.3 Stage 2 — Purification to electronic-grade polysilicon (9N-11N)
 
@@ -97,7 +97,7 @@ FBR is not modelled.
 - Alternative: Float Zone (FZ) — no crucible, RF coil, Oi 10-100× lower, resistivity to >5000 ohm-cm, limited to ~75-200mm, for power/RF/detectors. No B-O LID.
 - Anatomy: seed (Dash neck) → shoulder → body (prime) → tail (dislocated, high dopant) → heel residue. Yield target >80%.
 - Failures: loss of zero-dislocation (twinning/slip), swirl/COPs/voids (V/G control), O/dopant striations, crucible devitrification particles.
-- Minecraft map: melt charges (`electronic_grade_silicon` = etched poly chunks + Artemite from the Moon for p-type, or phosphorus for n-type; SMC blending), a seed crystal (SMC crystal growth) and a crucible (fused quartz; tritanium for the exotic melts) go into the EBF's **Boule Melting** mode under argon / xenon / endion (§12). `gtceu:silicon_boule` = p-type CZ boule, `gtceu:phosphorus_boule` = n-type.
+- Minecraft map: melt charges (`electronic_grade_silicon` = etched poly chunks + Artemite from the Moon for p-type, or phosphorus for n-type; blending mode), a seed crystal (crystal growth mode) and a crucible (fused quartz; tritanium for the exotic melts) go into the EBF's **Boule Melting** mode under argon / xenon / endion (§12). `gtceu:silicon_boule` = p-type CZ boule, `gtceu:phosphorus_boule` = n-type.
 
 ## 1.5 Stage 4 — Wafering (ingot → wafer)
 
@@ -531,7 +531,7 @@ Materials (startup `photolithography.js`): the XCDA / HMDS / i-line / TMAH set a
 
 ## 6.1 Step 0 — Boule (EBF Boule Melting, AF9)
 
-See §12. GT's four EBF boule recipes and the old SMC crystal-growth boules are removed; the SMC crystal growth mode now grows seed crystals.
+See §12. GT's four EBF boule recipes and the old crystal-growth boules are removed; the crystal growth mode now grows seed crystals.
 
 ## 6.2 Step 1 — Blank wafers (cutter)
 
@@ -617,7 +617,7 @@ Removed base (all substrates): `gtceu:laser_engraver/engrave_<ilc|ram|cpu|ulpic|
 
 ### Extreme clean dry air (XCDA)
 
-A fab's clean-dry-air plant, all five steps in the purification mode of the SMC Fractionating Still or Rectification Column (§11). The whole chain runs at MV but
+A fab's clean-dry-air plant, all five steps in the purification mode of the Distillery or the Distillation Tower (§11). The whole chain runs at MV but
 slowly: the MV cold step is a Joule-Thomson expander that only chills a quarter of its air per pass (the rest comes back
 as `dry_air`). HV adds a platinum oxidizer, a caustic scrubber and liquid-air cooling, which are 4× faster each and turn
 all of the air cold. Circuits 1/2 keep the two cold steps apart.
@@ -742,7 +742,7 @@ ore       af9:zircon_sands_vein — Mining Dimension, stone layer y129-248, dike
           (weight 30, cluster 35, density 0.6). Zircon ore byproducts: ilmenite, rutile, monazite.
 1 EBF     af9:zircon_dissociation        6x zircon_dust + 100 argon → 3x zirconia_dust + 3x silicon_dioxide_dust | 2300 K, 600t
 2 EBF     af9:zirconia_carbochlorination 3x zirconia_dust + 2x carbon_dust + 4000 chlorine → 1000 crude_zirconium_tetrachloride | 1300 K, 400t (CO flared)
-3 column  af9:zirconium_hafnium_separation 1000 crude_zirconium_tetrachloride → 900 zirconium_tetrachloride + 100 hafnium_tetrachloride | 600t HV | cleanroom (SMC Rectification Column only, no still cuts)
+3 column  af9:zirconium_hafnium_separation 1000 crude_zirconium_tetrachloride → 900 zirconium_tetrachloride + 100 hafnium_tetrachloride | 600t HV | cleanroom (Distillation Tower only, no still cuts)
 4 EBF     af9:zirconium_kroll            2x magnesium_dust + 1000 zirconium_tetrachloride → zirconium_dust + 6x magnesium_chloride_dust | 1150 K, 400t
 5 EBF     GT blast_zirconium             zirconium_dust → hot_zirconium_ingot → vacuum freezer → zirconium_ingot
 ```
@@ -761,7 +761,7 @@ Layout, left to right by voltage tier:
   light source) and explains version, power, yield, break chance and fluids per print.
 - **Above: chemistry** — fab plant, XCDA, air separation, HMDS, TMAH, Formox, i-line resist, photomask blank, reticles, the
   coater track (MV); from the HV Cleanroom: fluorine, triflic acid, rare gases, KrF gas and laser, resist building
-  blocks, PHOST, PAG, KrF resist, the SMC multiblocks (HV); methacrylates, ArF resist, ArF gas and laser, ultrapure water
+  blocks, PHOST, PAG, KrF resist, the Large Chemical Reactor, Distillation Tower and Large Electrolysis Chamber (HV); methacrylates, ArF resist, ArF gas and laser, ultrapure water
   (EV); zircon/hafnium; tin tetrachloride, EUV resist, EUV light source, dry resist cartridge, orbital station parts.
 - **Below: silicon and substrates** — MG-Si, chlorosilanes, Moon Sand polysilicon, Lunar Air, Artemite, EGS, HF, silicon charge/seed/crucible,
   then a "substrate highway" of melt charges (phosphorus ... chromodynium) with their boules; cryostat, coolant hatch,
@@ -787,14 +787,14 @@ so that no dependency line passes under another quest); new IDs are 63-bit rando
 
 Files: AF9 Core `registry/AF9Materials` (`fabChemistry()`: 72 materials, formulas only, so GT generates no electrolyzer/centrifuge shortcut), `server_scripts/mods/gtceu/fab_chemistry.js` (recipes). Five lines, each 10-20 unit operations with real chemistry, inspired by Nomifactory / Cosmic Frontiers style chains.
 
-All of these recipes run only in the SMC fab machines (§11): GT's Chemical Reactor, Large Chemical Reactor, mixer, bath, autoclave, blast furnace, electrolyzer and distillation tower have none of them. Non-thermal recipes from HV power on need a clean room (single blocks: a GT Cleanroom; the fab multiblocks bring their own filter ceiling).
+All of these recipes are modes of GT's machines (§11): the Chemical Reactor, Large Chemical Reactor, Distillery, Distillation Tower, Electrolyzer, Large Electrolysis Chamber, Arc Furnace and Electric Blast Furnace run them when their mode is switched on. Non-thermal recipes from HV power on need a clean room: the machine stands in a GT Cleanroom.
 
-Tier gating (GT 7.2.0 defaults, the pack does not change them): EBF needs LV circuits, Pyrolyse Oven MV, Large Chemical Reactor and Cracker HV circuits, **Distillation Tower and Vacuum Freezer EV circuits**; the SMC single blocks need their tier's circuits, the SMC Thermal Processing Furnace MV circuits, the other SMC multiblocks HV circuits. AF9 circuits need printed chips (GT's laser engraving is removed except the ULPIC bootstrap): HV circuits need the 350 nm mode running. Each mode's consumables must be reachable at the mode's own tier. So:
+Tier gating (GT 7.2.0 defaults, the pack does not change them): EBF needs LV circuits, Pyrolyse Oven MV, Large Chemical Reactor and Cracker HV circuits, **Distillation Tower and Vacuum Freezer EV circuits**; the modes need the circuits of the machine they run in (Distillation Tower and Vacuum Freezer: EV circuits). AF9 circuits need printed chips (GT's laser engraving is removed except the ULPIC bootstrap): HV circuits need the 350 nm mode running. Each mode's consumables must be reachable at the mode's own tier. So:
 
 | Phase | Machines | Must supply |
 |---|---|---|
-| MV0 (before the first print) | LV/MV single blocks incl. the MV SMC single blocks (the Fractionating Still takes column recipes one cut per circuit, EUt/4, twice the time), SMC Thermal Processing Furnace (2 MV hatches reach HV voltage), pyrolyse oven | silicon boule (EBF Boule Melting, one MV hatch), i-line resist, HMDS, TMAH, XCDA, argon, HF |
-| HV0 (350 nm runs: HV circuits) | + HV single blocks (in a Cleanroom), SMC LCR, SMC Rectification Column, SMC Membrane Cell Hall, cracker | KrF resist, KrF gas (neon, krypton, fluorine), phosphorus boule, HfCl4 |
+| MV0 (before the first print) | LV/MV single blocks incl. the MV Distillery (it takes column recipes one cut per circuit, EUt/4, twice the time), the Electric Blast Furnace (2 MV hatches reach HV voltage), pyrolyse oven | silicon boule (EBF Boule Melting, one MV hatch), i-line resist, HMDS, TMAH, XCDA, argon, HF |
+| HV0 (350 nm runs: HV circuits) | + HV single blocks (in a Cleanroom), Large Chemical Reactor, Distillation Tower, Large Electrolysis Chamber, cracker | KrF resist, KrF gas (neon, krypton, fluorine), phosphorus boule, HfCl4 |
 | EV0 (EV circuits) | + EV single blocks, Vacuum Freezer | ArF resist, ArF gas, ultrapure water |
 
 Earlier designs broke this: GT's formaldehyde is HV (i-line resist needed it at MV), krypton came from liquid air (Vacuum Freezer = EV circuits, but the 200 nm KrF mode is HV), fluorine had no source at all (AF9's fluorite has no decomposition flag; GT's only fluorine is uranium hexafluoride electrolysis), boron neither (GT 7.2.0 has no borax source). All fixed below.
@@ -836,8 +836,8 @@ af9:artemite_vein (Moon) clusterSize 24, weight 45, density 0.8, no air discard,
 
 Mass balance: a sand block is 8 polysilicon (2 silica → 2 Moon Sand → 8 poly). Lunar Air is drilled on the Moon
 (`af9:lunar_air`, the only deposit there) or shipped on a Mk-IV liquid mission; the elevator also draws Artemite
-(a tier-1 layer: every drone). At MV the chlorosilane distillation runs in the SMC Fractionating Still, one cut per
-circuit; the SMC Rectification Column (HV) runs it whole.
+(a tier-1 layer: every drone). At MV the chlorosilane distillation runs in the Distillery (fractionation mode), one cut per
+circuit; the Distillation Tower (HV) runs it whole.
 
 ## 6.13 Line 2 — Fluorochemicals (HF at MV, fluorine and triflic acid at HV)
 
@@ -1021,7 +1021,7 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 | rf_transceiver | wireless energy hatches, EV-UHV: 2 on top of each receiver / transmitter; AE2 Wireless Receiver (so the Wireless Access Point and every wireless terminal): 1, in the shape `F / IQI / IRI` | wireless_energy.js, chip_uses.js |
 | apu | extra MV Microprocessor: 1 APU in place of the CPU chip + RAM, 3 out instead of 2 | circuits_af9.js |
 | mcu | GT Machine Controller, Activity / Item / Fluid Detector covers: 1 on top (they had no circuit); extra LV / MV Robot Arm and Sensor Assembler recipes: 1 MCU in place of the circuit | chip_uses.js |
-| asic | on top: GT Large Miners EV 2 / IV 4 / LuV 8, Fluid Drilling Rigs HV 2 / EV 4 (not MV: before phosphorus), Void Miner 4; extra SMC fab multiblock controller recipes with ASICs in place of the circuits | chip_uses.js, miner.js, fab_machines.js |
+| asic | on top: GT Large Miners EV 2 / IV 4 / LuV 8, Fluid Drilling Rigs HV 2 / EV 4 (not MV: before phosphorus), Void Miner 4 | chip_uses.js, miner.js |
 | edram packages | extra, half the time, 1 package in place of 4 RAM: Quantum Computer (and ASMD) 4 CPU packages, Crystal Processor Assembly 6 SoC packages, the pack's Nano Mainframe (Assembly Line, 800 t) 4 CPU packages | circuits_af9.js |
 | mram | extra, half GT's time, no research, clean room: Data Orb (Circuit Assembler: epoxy board, CPU chip, 4 MRAM, 16 fine Pt wire), Data Bank (Assembler: computer casing, 16 MRAM, 2 CPU chips, 32 fine NbTi wire, 4 optical pipes), Advanced Data Access Hatch (Assembler: LuV input bus, 8 MRAM, 2 CPU chips, 32 fine NbTi wire) | chip_uses.js |
 | feram | the pack's UV memory (circuits) | chip_uses.js |
@@ -1051,7 +1051,7 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 - [ ] Numbers come from `AF9_WAFERS` (server), `AF9Items` (Java, the items) and `LithoMode` (Java) — change all three together (substrate order, node, tier, light, wavelength, NA, resist, base break chance, colours).
 - [ ] Light/resist: 350 nm i-line + `photoresist`, 200 nm KrF + `krf_photoresist` + `krf_excimer_gas`, 100/80 nm ArF + `arf_photoresist` + `arf_excimer_gas`, 65 nm + `ultrapure_water`, 50 nm + UPW + `hafnium_tetrachloride`, 20/7 nm `euv_photoresist` + molten tin + hydrogen + HfCl4, 1 nm `af9:dry_resist_cartridge` + `supercooled_endion`; fluid slots 5/6/6/6/7/8/8/8 and orbital 1 (`setMaxIOSize` in the startup script).
 - [ ] Fab chemistry goes on the `fab_*` recipe types only (§11), never on GT's chemical machines; within a fab type no recipe may hold every input of a circuit-less other one. Recipes AF9 still puts on GT machines (alloy mixers, zircon cracking, Kroll) must not hold every input of a circuit-less GT recipe of the same type (e.g. GT ethenone = sulfuric + acetic acid, acetic acid = CO + methanol); give both circuits or change the route.
-- [ ] Tier check for consumables (§6.11): 350 nm inputs at MV0 (single blocks ≤ MV incl. MV SMC single blocks and still cuts, SMC Thermal Processing Furnace, pyrolyse), 200 nm inputs at HV0 (+ HV single blocks, SMC multiblocks, cracker), no Distillation Tower / Vacuum Freezer before 200 nm chips. Run the reachability analysis over GT 7.2.0 + AF9 recipes after every chain change.
+- [ ] Tier check for consumables (§6.11): 350 nm inputs at MV0 (single blocks ≤ MV incl. the MV Distillery and its still cuts, the Electric Blast Furnace, pyrolyse), 200 nm inputs at HV0 (+ HV single blocks, the fab multiblocks, cracker), no Distillation Tower / Vacuum Freezer before 200 nm chips. Run the reachability analysis over GT 7.2.0 + AF9 recipes after every chain change.
 - [ ] Subset conflicts in both directions within each fab type and, for AF9 recipes on GT machines, against every GT 7.2.0 recipe of the same machine (CR recipes also run in the LCR); circuit-gated recipes only clash with the same circuit. Watch GT's generic ones: distilled-water electrolysis, clay/quartzite autoclave, graphite electrolysis, ethenone (sulfuric + acetic acid), acetic acid (CO + methanol), steel (iron + oxygen).
 - [ ] New fab materials: formula only, no components (no GT decomposition shortcut); ID must not exist in GT 7.2.0.
 - [ ] Prints: the mode's blank wafer + reticle (NC) + fluids → GT's chip wafer(s) (`AF9_WAFERS.yieldOf`) + the broken wafer as a chanced output at the base chance; 900t, `EUt(VA[tier], 4)` (orbital 1 nm: 10000t, `EUt(VA[UHV], 1)`); chemicals `round(base×1.5^i)`; a substrate prints exactly the chips whose native substrate is at or below it. Line versions (§5.5): `LithoMode` constants and `PhotolithographyLineMachine` light sources match the startup structure (lens aisle `setRepeatable(3, 10)`, `L` = lamp / KrF / ArF / EUV source).
@@ -1060,8 +1060,8 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 - [ ] Circuits: plain chips only (`AF9_WAFERS.chipStack`); no NBT, no mode tags.
 - [ ] Metals: a tier's circuits only use that tier's metals (Circuits quest page), each makeable with the previous tier's machines (mixer/EBF voltage one tier lower; two hatches give +1 tier on an EBF).
 - [ ] Bootstrap check for any change: a tier-T circuit, energy hatch or the line must never need something only tier-T machines make.
-- [ ] Fab recipes (§11): a free fluid input left for the changeover purge; circuits count as item inputs; thermal modes carry `blastFurnaceTemp`, the others none; `cleanroom(CLEANROOM)` exactly on the non-thermal recipes from HV power on; single-block modes of one family share one slot layout; single-block fluid amounts ≤ 16000 mB (MV tanks).
-- [ ] Dry run: load the AF9 server scripts (incl. `fab_machines.js`) with stubs and check no duplicate IDs, every tagged ingredient has a producer, every AF9 fluid/dust used has a producer, every recipe within its machine's slots (items in incl. NC, items out, fluids in incl. NC/out; 8 fluids at 50-7 nm), EBF recipes have a temperature, ≤64 per stack.
+- [ ] Fab recipes (§11): circuits count as item inputs; thermal modes carry `blastFurnaceTemp`, the others none; `cleanroom(CLEANROOM)` exactly on the non-thermal recipes from HV power on; every mode fits the slots of the machine it runs in (the machine takes the slots of its biggest mode).
+- [ ] Dry run: load the AF9 server scripts (incl. the fab recipes) with stubs and check no duplicate IDs, every tagged ingredient has a producer, every AF9 fluid/dust used has a producer, every recipe within its machine's slots (items in incl. NC, items out, fluids in incl. NC/out; 8 fluids at 50-7 nm), EBF recipes have a temperature, ≤64 per stack.
 - [ ] New mixer alloys: circuit number must not collide with a GT mixer recipe whose inputs are a subset (invar, cupronickel use circuit 1).
 - [ ] New materials need a `material.gtceu.<id>` line in `kubejs/assets/gtceu/lang/en_us.json`; new KubeJS items need a texture in `af9-core/src/main/resources/assets/af9/textures/item/`.
 - [ ] Multiblock parts (all AF9 multiblocks): a maximum only, never a minimum or exact count — `setMaxGlobalLimited(max, preview count)`, no `setMinGlobalLimited` / `setExactLimit` / GT `autoAbilities` (it forces energy and maintenance), no casing minimums (the dry run flags all of these). Every recipe must run on normal 2A hatches within those maximums (≤ 4A on two energy hatches).
@@ -1074,33 +1074,34 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 
 ---
 
-# 11. SMC fab machines (the semiconductor chemistry plant)
+# 11. The fab modes (the semiconductor chemistry plant)
 
-Fab chemistry is its own plant. None of GT's chemical machines (Chemical Reactor, Large Chemical Reactor, mixer, chemical bath, autoclave, electrolyzer, blast furnace, distillation tower) has any AF9 fab recipe: the 133 recipes of §6.5, §6.9 (Zr/Hf split) and §6.12-6.16 (21 of them still cuts) are on twelve `fab_*` recipe types, and only the SMC ("semiconductor") machines run those. Every family has a multiblock and tiered single blocks, and they share the family's modes (GT recipe types; GT's mode tab, or the console's mode tiles on multiblocks).
+Fab chemistry is no plant of its own. The 133 recipes of §6.5, §6.9 (Zr/Hf split) and §6.12-6.16 (21 of them still cuts) are on twelve `fab_*` recipe types, and those types are **modes** of GT's machines: a mode is a recipe type in the machine's list, GT's mode tab (the side tab of the machine's GUI) switches between them, and the machine runs the recipes of the mode it is in. So the chemistry of a Chemical Reactor is a mode of the Chemical Reactor, and the bulk of it a mode of the Large Chemical Reactor.
 
-Files: `kubejs/startup_scripts/gtceu/fab_machines.js` (types, machines, structures), `kubejs/server_scripts/mods/gtceu/fab_machines.js` (crafting), `af9-core/.../fab/` and `af9-core/.../machine/fab/` (behaviour, consoles).
+Files: `kubejs/startup_scripts/gtceu/fab_machines.js` (the twelve recipe types), AF9 Core `com.af9.core.fab.FabModes` (the modes on the GT machines), `com.af9.core.fab.FabThermal` (the heat of the thermal modes), `com.af9.core.fab.FabRecipeInfo` (the EMI / JEI lines).
 
-## 11.1 Families
+## 11.1 The modes on the machines
 
-| Family | Multiblock | Single blocks (MV-LuV) | Modes (`gtceu:` recipe types) | Changeover purge |
-|---|---|---|---|---|
-| Chemistry | `smc_large_chemical_reactor` (HV) | `<tier>_smc_chemical_reactor` | `fab_synthesis`, `fab_blending`, `fab_wet_processing` | 1000 mB N2 or Ar, +100 t |
-| Separation | `smc_rectification_column` (HV) | `<tier>_smc_fractionating_still` | column: `fab_distillation`, `fab_cryogenic_rectification`, `fab_fractionation`, `fab_purification`; still: `fab_fractionation`, `fab_purification` | 2000 mB N2, +100 t |
-| Electrochemistry | `smc_membrane_cell_hall` (HV) | `<tier>_smc_electrolytic_cell` | `fab_electrolysis`, `fab_electrofluorination` | 1000 mB distilled water, +100 t |
-| Thermal | `smc_thermal_processing_furnace` (MV) | `<tier>_smc_thermal_furnace` | `fab_calcination`, `fab_cvd`, `fab_crystal_growth` | 1000 mB Ar or N2, +200 t |
+| Machine | Fab modes (`gtceu:` recipe types) | What it is |
+|---|---|---|
+| Chemical Reactor, Large Chemical Reactor | `fab_synthesis`, `fab_blending`, `fab_wet_processing` | the chemistry of the reactor |
+| Distillery | `fab_fractionation`, `fab_purification` | one column cut per run (the circuit picks the cut) |
+| Distillation Tower | `fab_distillation`, `fab_cryogenic_rectification` | the whole column at once (the tower has one fluid input and no item input, so the cuts stay in the Distillery) |
+| Electrolyzer, Large Electrolysis Chamber | `fab_electrolysis`, `fab_electrofluorination` | the cells |
+| Arc Furnace, Electric Blast Furnace | `fab_calcination`, `fab_cvd`, `fab_crystal_growth` | the heat: the EBF has the coil's, the Arc Furnace its tier's |
 
-The multiblock tier is the circuit tier of its crafting recipe. The thermal multiblock is MV because the MV silicon line (MG-Si, silicon seed crystals) needs it or the MV single furnace.
+The modes are added in AF9 Core at common setup (`FabModes.install()`), before any machine is placed: the recipe types come from the KubeJS startup script, the machines from GT. The single blocks get their slots from all their modes (the fork's patch 0014): a chemical reactor has room for the fab chemistry's three item inputs, four fluid inputs and three fluid outputs next to its own recipes.
 
 ## 11.2 Modes (recipe types)
 
-Slot layout = items in, items out, fluids in, fluids out. A single block's slots come from its first mode, so a single block's modes share one layout; every layout leaves one fluid input free for the purge (checked by the dry run, circuits count as item inputs).
+Slot layout = items in, items out, fluids in, fluids out. It is the layout of the recipe type; a single block takes the slots of its biggest mode, so every mode has room for its inputs and outputs (circuits count as item inputs).
 
 | Type | Layout | Recipes (by EU/t tier) | What runs there |
 |---|---|---|---|
 | `fab_synthesis` | 3/2/4/3 | 61 (21 MV, 35 HV, 5 EV) | every reaction step: chlorosilanes, HF, KF, MSA → triflic acid, Pd/C, TEOS, TS-1, hydrazine → AIBN, PHOST route, Boc2O, PAG, THF, tributylamine, PO → PGMEA, MMA/MAA/tBMA, methacrylate resin, hopcalite, Formox, novolac, DNQ, HMDS, TMACl |
 | `fab_blending` | 3/2/4/3 | 10 (3 LV, 2 MV, 4 HV, 1 EV) | HNA etchant, KF·2HF and Simons electrolytes, excimer premixes, unfiltered resists, i-line resist, HMDS vapour, TMACl solution |
 | `fab_wet_processing` | 3/2/4/3 | 4 | HCl quartz leach, HNA poly etch, molecular sieve (hydrothermal), Moon Sand polysilicon bath |
-| `fab_distillation` | 1/1/2/6 | 3 | chlorosilanes, anhydrous HF, Zr/Hf split (column only) |
+| `fab_distillation` | 1/1/2/6 | 3 | chlorosilanes, anhydrous HF, Zr/Hf split (Distillation Tower only) |
 | `fab_cryogenic_rectification` | 1/1/2/6 | 3 | air (N2, O2, crude Ar, crude Ne, Kr/Xe), Ne/He, Kr/Xe |
 | `fab_fractionation` | 2/1/3/2 | 21 (16 LV, 5 MV) | one cut per run of each distillation / cryogenic recipe except the Zr/Hf split: circuit = cut number, EU/t ÷ 4, time × 2, the other cuts are lost (GT's distillery rule) |
 | `fab_purification` | 2/1/3/2 | 16 | XCDA (8 steps), NaF scrub of F2, argon deoxo, neon purification, Kr/Xe burner and drier, resist filtration, ultrapure water |
@@ -1110,77 +1111,28 @@ Slot layout = items in, items out, fluids in, fluids out. A single block's slots
 | `fab_cvd` | 3/2/2/2 | 7 | aluminium and silicon nitride, tungsten diselenide, boron nitride, MoSi mirror, phase-shift and EUV mask blanks |
 | `fab_crystal_growth` | 3/2/2/2 | 4 | seed crystals for the eight boules (§12) |
 
-Clean room: every non-thermal recipe from HV power on has `cleanroom(CLEANROOM)` (60 recipes). Single blocks need a GT Cleanroom for them; the four multiblocks with filter casings bring their own. Thermal recipes carry `blastFurnaceTemp` and never need a clean room.
+Clean room: every non-thermal recipe from HV power on has `cleanroom(CLEANROOM)` (60 recipes), like every other clean-room recipe of the pack: the machine stands in a GT Cleanroom. Thermal recipes carry `blastFurnaceTemp` and never need a clean room.
 
-## 11.3 Structures
+## 11.3 Behaviour
 
-```text
-SMC Large Chemical Reactor, 5 wide × 5 deep × 4 high (aisles back → front, rows bottom → top)
-  XXXXX XGGGX XGGGX XXXXX     X inert PTFE casing or hatches
-  XXXXX GACAG GAAAG XFFFX     A air: the open vessel (its mode's fluid shows here while it runs)
-  XXXXX GCPCG GAPAG XFFFX     C up to one heating coil (optional), else air (jacket)
-  XXXXX GACAG GAAAG XFFFX     P PTFE pipe casing (stirrer / dip pipe)
-  XXXXX XGSGX XGGGX XXXXX     G cleanroom glass, F filter casings (one type), S controller
-SMC Rectification Column, 3 × 3, 3-10 high (layers bottom → top)
-  XSX/XKX/XXX sump + cold box (K frostproof casing) | XXX/XPX/XXX × 1-8 trays (P PTFE pipe casing) | FFF/FFF/FFF filter hood
-  X clean stainless casing or hatches
-SMC Membrane Cell Hall, 3 wide × 4 high × 3-10 deep (aisles front → back: controller before the repeatable cells, for GT's auto-build)
-  front XXX/XSX/XXX/FFF | cells XXX/EPE/XXX/FFF × 1-8 (E titanium frame electrodes, P PTFE pipe casing membrane) | back plate XXX/XXX/XXX/FFF
-  X stable titanium casing or hatches
-SMC Thermal Processing Furnace, horizontal tube furnace, 5 × 5 × 5 (aisles back → front, rows bottom → top)
-  XXXXX XPPPX XPPPX XPPPX XXXXX     gas cabinet (P plascrete pipe casing: an MV machine, no PTFE)
-  XXXXX GCCCG GCTCG GCCCG XXXXX     heater zone 1: C heating coils (one type) around T, the process tube (tempered glass)
-  XXXXX GCCCG GCTCG GCCCG XXXXX     heater zone 2; G tempered-glass windows
-  XXXXX XRRRX XRTRX XRRRX XXXXX     wafer-boat load station (R steel gearbox)
-  XXXXX XGXGX XGSGX XGXGX XXXXX     front: S controller (GT's multi_furnace face) between two 3-high windows G;
-                                    X heatproof casing or hatches
-```
-
-Hatches on any X, maximums only (nothing is required): 2 energy, 4 item inputs, 4 item outputs, 8 fluid inputs, 8 fluid outputs, 1 maintenance, 1 parallel, 1 laser hatch.
-
-Filter roofs (`F`) take any GT cleanroom filter, all of one type, through `AF9Filters.cleanroomFilters()`: GT's own predicate with a fixed candidate order (GT's comes from a hash map, so its preview and the terminal's auto-build could pick the UV-tier sterilizing filter). First the MV `af9:plascrete_filter_casing` (below), then GT's Filter Casing, sterilizing filters last.
+- The modes are plain GT modes: the machine's own rules apply (overclocks, parallel hatches, batch mode, its structure and its hatches). The fab recipes have no rules of their own.
+- Heat: the thermal modes carry the temperature they need as GT's blast furnace recipes do (`ebf_temp`). The Electric Blast Furnace keeps GT's rules (the coil's temperature + 100 K per tier above MV, the EBF overclocks). The single-block Arc Furnace has the heat of its tier: MV 1800 K, HV 2700 K, EV 3600 K, IV 4500 K, LuV 5400 K (`FabThermal.TIER_TEMPERATURE`); seed crystals above 5400 K (neutronium 7200 K, strange matter 9000 K, chromodynium 12000 K) need the Electric Blast Furnace with hot enough coils (chromodynium: Resonant Endion). EMI shows the temperature, the coil and the smallest Arc Furnace on every thermal recipe (`FabRecipeInfo`).
+- The Distillation Tower hands its fluid outputs to the output hatches in order, one fluid per hatch (GT's rule); the fab distillation recipes have up to six fluid outputs, so the tower wants that many output hatches.
 
 Plascrete Filter Casing (`af9:plascrete_filter_casing`, block in `photolithography.js` startup): shaped `PBP/IMI/PRP` (plascrete, iron bars, item filter, MV motor, steel rotor) → 2, `af9:plascrete_filter_casing`. AF9 Core registers it in `GTCEuAPI.CLEANROOM_FILTERS` (`AF9Filters.FilterType.PLASCRETE`, ISO 5 like GT's Filter Casing) at common setup, so it also works in GT's Cleanroom. The lithography machines (Mk1 line, Mk2 scanner) take only this one in their ceilings. Connected textures through LDLib, like GT's filter casing: `plascrete_filter_casing.png.mcmeta` points to `plascrete_filter_casing_ctm.png`, the 2×2 sheet of all sides connected / up-down / left-right / inner corners, so a ceiling reads as one recessed louvre panel with the plascrete frame around its outline (generated offline, like the wafer textures).
 
-SMC LCR vessel fluid (`SmcReactorMachine` + `ModeFluidRender`): while the reactor is active, the air blocks of the 3 × 3 × 2 vessel (1-3 blocks behind the controller, its row and the one above, turned with the controller) are drawn as one fluid volume on every outer face, 1/16 inside the blocks: `fab_wet_processing` water, `fab_blending` distilled water, `fab_synthesis` Thermal's destabilized redstone (`thermal:redstone`; `gtceu:redstone` without Thermal). The mode is the running recipe's type (the selected mode is not synced to clients). The map lives in the startup script (`AF9MachineModels.workableCasingWithModeFluids(casing, overlay, {recipe type: fluid})` + `.hasBER(true)`); GT's "render fluids" client option turns it off.
+## 11.4 Crafting
 
-## 11.4 Behaviour (AF9 Core)
+Nothing: the machines are GT's own, with the fab chemistry as modes.
 
-- Changeover purge (`FabModifiers.PURGE`): when a machine starts a recipe other than the last one it finished (recipe ID), that first run also needs the family's purge fluid and takes the purge time on top (not overclocked or multiplied, applied after all other modifiers). The machine then keeps running the same recipe without purge. Counted on the console.
-- Built-in clean room (`FabMultiblockMachine`): the filter casings' type decides it: plascrete or GT filter casing = ISO 5 (`CLEANROOM`), sterilizing filter casing = ISO 3 (both types). It is a GT `DummyCleanroom`, not a provider block, so a fab multiblock can still stand inside a GT Cleanroom (the thermal furnace has no filters and uses the surrounding one if any; its recipes need none).
-- Parallels: PTFE pipe casings are trays (column) and membranes (cell hall), each one a parallel (`STRUCTURE_PARALLEL`, limited by inputs, output space and energy like GT's parallel hatch); the SMC LCR gets 2 with sterile filters. A parallel hatch multiplies on top.
-- Overclocks: SMC LCR perfect (like GT's LCR) with the coil discount (1/20 EU/t per coil tier above cupronickel, at most half; no coil, no discount); column and cell hall non-perfect; thermal furnace GT's EBF rules (coil temperature + 100 K per energy tier above MV, heat discounts and perfect overclocks per 1800 K surplus); all multiblocks batch mode. Single blocks non-perfect.
-- Single-block furnaces reach the temperature of their tier's coil: MV 1800 K, HV 2700 K, EV 3600 K, IV 4500 K, LuV 5400 K (`TIER_TEMPERATURE`); seed crystals above 5400 K (neutronium 7200 K, strange matter 9000 K, chromodynium 12000 K) need the multiblock with hot enough coils (chromodynium: Resonant Endion). EMI shows temperature, coil and the smallest single block on every thermal recipe (`FabRecipeInfo`).
+## 11.5 Quests
 
-## 11.5 Consoles
+MV chapter: "The Fab Plant" (the four machines of the fab chemistry and their modes) before HF, XCDA and the i-line chemistry quests; "Electric Blast Furnace" (optional). HV chapter: "Large Chemical Reactor", "Distillation Tower", "Large Electrolysis Chamber" (optional, after the fab plant). Texts `af9.quest.*.fabPlant|fabFurnace|lcr|column|cells`.
 
-Multiblocks replace GT's text display with the fab console (190 × 125): header with family and status LED (offline, idle, running, no power, paused, maintenance, purging), one tile per mode with its run counter (click to switch; tooltip lists the mode's process steps), power bar (needed vs available EU/t), progress with the purge share of the run, plant panel (clean-room class, parallels, heat, the family's purge), and the process-step track of the active mode (purge cell first on a changeover). Clicking the changeover counter resets the counters. Single blocks keep GT's slot page for the active mode with a console strip above it (mode, steps, progress, clean class, heat, purge).
+## 11.6 Verification (re-run on every change)
 
-Process steps per mode: synthesis CHRG HEAT REAC QNCH SEPR DSCH; blending DOSE MIX DGAS DSCH; wet LOAD SOAK RNSE DRY; purification FEED ADSB FILT PROD; distillation FEED BOIL RFLX DRAW; cryogenic COOL LIQF RECT DRAW; fractionation FEED BOIL CNDS DRAW; electrolysis FILL POL ELEC STRP; electrofluorination FILL POL FLUR STRP; calcination LOAD RAMP SOAK COOL; CVD PURG RAMP DEPO COOL; crystal growth MELT DIP NECK BODY TAIL COOL.
+Dry run of the startup and server scripts with stubs (slots incl. circuits, temperatures, clean-room rule, the layouts of the modes), subset conflicts within every fab type (0), tier reachability with the machines the modes run in (i-line inputs MV0, KrF HV0, ArF / ultrapure water EV0, HfCl4 HV0), Java checked against the GT 7.5.3 and LDLib sources plus a `javac` syntax pass; the real build runs on GitHub Actions (`.github/workflows/build-af9-core.yml`, the Maven repositories are not reachable from the agent sandbox).
 
-## 11.6 Crafting (`af9:` shaped)
-
-```text
-<tier>_smc_chemical_reactor      FPF / UXU / CPC   X <tier>_chemical_reactor, U <tier> pump
-<tier>_smc_fractionating_still   FPF / UXU / CPC   X <tier>_distillery, U <tier> pump
-<tier>_smc_electrolytic_cell     FPF / WXW / CPC   X <tier>_electrolyzer, W <tier> single cable (Cu, Au, Al, Pt, NbTi)
-<tier>_smc_thermal_furnace       FPF / WXW / CWC   X <tier>_arc_furnace, W <tier> heating wire, double (cupronickel … HSS-G)
-  F fluid filter, P fluid pipe (polyethylene at MV, PTFE from HV: GT's PTFE only comes at HV), C circuit of the tier
-smc_large_chemical_reactor       CRC / PMP / FXF   X GT Large Chemical Reactor + everything its recipe takes (HV circuits, stainless rotor, large PTFE pipes, HV motor), F filter casings
-smc_rectification_column         CPC / FHF / UPU   HV hull, HV pumps, large PTFE pipes, filter casings, HV circuits
-smc_membrane_cell_hall           CWC / EHE / FPF   HV electrolyzers, gold quadruple cable, HV hull, filter casings, large PTFE pipe, HV circuits
-smc_thermal_processing_furnace   CKC / PXP / WCW   X Electric Blast Furnace, K cupronickel coil block, polyethylene pipes, copper cable, MV circuits
-```
-
-## 11.7 Quests
-
-MV chapter: "The Fab Plant" (the four MV single blocks) before HF, XCDA and the i-line chemistry quests; "Thermal Processing Furnace" (optional). HV chapter: "SMC Large Chemical Reactor", "Rectification Column", "Membrane Cell Hall" (optional, after the fab plant). Texts `af9.quest.*.fabPlant|fabFurnace|smcLcr|smcColumn|smcCells`.
-
-## 11.8 Verification (re-run on every change)
-
-Dry run of the startup and server scripts with stubs (slots incl. circuits and purge headroom, temperatures, clean-room rule, single-block tank sizes, one layout per single block), subset conflicts within every fab type (0), tier reachability with the SMC machines (i-line inputs MV0, KrF HV0, ArF / ultrapure water EV0, HfCl4 HV0), Java checked against the GT 7.2.0 and LDLib sources plus a `javac` syntax pass; the real build runs on GitHub Actions (`.github/workflows/build-af9-core.yml`, the Maven repositories are not reachable from the agent sandbox).
-
----
 
 # 12. Boule Melting and the Endion coils
 
@@ -1190,7 +1142,7 @@ Files: `startup_scripts/gtceu/boule_melting.js` (recipe type), AF9 Core `registr
 
 A boule is **ten times the material** of GT's old boule, and so it fits the EBF's three input slots the material comes pre-blended: **10 melt charges + 1 seed crystal + 1 crucible**, under a protective gas. Energy as the user asked: 2× GT's for silicon, 4× phosphorus, 6× naquadah, 8× neutronium; the new substrates follow on. A boule draws at most **4A of its tier** (two normal energy hatches, the most GT's EBF takes; LV-HV have no 4A hatches); above 4× the run is longer instead (`BOULE_MAX_AMPS`), so the total energy keeps the multiplier.
 
-| Boule | Charge (SMC blending, per charge = GT's old boule) | Seed (SMC crystal growth) | Gas | Temp | EU/t (tier × amps) | Time | Crucible | → wafers |
+| Boule | Charge (blending mode, per charge = GT's old boule) | Seed (crystal growth mode) | Gas | Temp | EU/t (tier × amps) | Time | Crucible | → wafers |
 |---|---|---|---|---|---|---|---|---|
 | `gtceu:silicon_boule` | 32 EGS + tiny Artemite (MV) | 4 EGS + tiny Artemite, 100 Ar | 2500 Ar | 1784 K | MV × 2 | 9000t | fused quartz | 16 (GT) |
 | `gtceu:phosphorus_boule` | 64 EGS + 8 phosphorus (HV) | 4 EGS + small P, 200 Ar | 10000 Ar | 2484 K | HV × 4 | 12000t | fused quartz | 32 (GT) |
@@ -1205,7 +1157,7 @@ Power: GT 7.2 recipes carry real amps (`EUt(VA[tier], amps)`), so the EBF's hatc
 
 The charge blending is not thermal, so from HV on (every charge but silicon's) it needs a clean room like all non-thermal fab recipes (§11: single blocks a GT Cleanroom, the fab multiblocks bring their own filter ceiling).
 
-Seeds: 1200t at the charge tier and the boule's temperature (SMC thermal single blocks reach MV 1800 K … LuV 5400 K; hotter seeds need the SMC Thermal Processing Furnace with coils). Crucibles: `af9:fused_quartz_crucible` (EBF, 6 quartzite dust, 1800 K, MV), `af9:tritanium_crucible` (assembler, 6 tritanium plates + 500 supercooled argon, UV). New boule cutting `af9:cut_<id>_boule` (lubricant 250, cleanroom).
+Seeds: 1200t at the charge tier and the boule's temperature (the Arc Furnace reaches MV 1800 K … LuV 5400 K; hotter seeds need the Electric Blast Furnace with coils). Crucibles: `af9:fused_quartz_crucible` (EBF, 6 quartzite dust, 1800 K, MV), `af9:tritanium_crucible` (assembler, 6 tritanium plates + 500 supercooled argon, UV). New boule cutting `af9:cut_<id>_boule` (lubricant 250, cleanroom).
 
 **Endion** (`gtceu:endion`, gas, "Ed"): the End's noble gas. `af9:ender_air_separation` (centrifuge, replaces GT's): 10000 Ender Air → 3900 NO2 + 1000 D + **250 endion**, HV. `af9:distill_liquid_ender_air` (replaces GT's): GT's outputs + **8000 endion**, IV.
 
@@ -1265,7 +1217,7 @@ Materials: `strange_matter` (dust, "(uds)n"), `chromodynium` (ingot, 12000 K EBF
 AF9 Core `wafer/WaferContamination` (server player tick, every 10 ticks): when a player has a wafer or a chip in the inventory (incl. armor/offhand slots), on the cursor or in the 2×2 crafting grid, it becomes `af9:contaminated_<substrate>_wafer` / `af9:contaminated_<chip>` (same count), unless the player
 - wears an item of `#af9:wafer_gloves` (`gtceu:rubber_gloves`, `gtceu:hazmat_chestpiece`) in an armor slot or a Curios slot (GT tags its Rubber Gloves for the Curios `hands` slot; `compat/curios/CuriosCompat`, only when Curios is loaded), or
 - stands strictly inside the walls of a formed, clean GT Cleanroom whose controller is within one chunk.
-Spectators are exempt; creative players too only when `includeCreative = false` in `config/af9-common.toml` (default true, so testing in creative shows it). Machines, pipes, chests and ME systems never contaminate. Wafers = item tag `#af9:wafers` (all), `#af9:wafers/<substrate>` decides the contaminated item (server tags in `photolithography.js`: the blank wafer + every printed/derived wafer of the substrate; contaminated and broken wafers are not in them). Chips = `#af9:chips`, GT's 16 chips (`AF9_WAFERS.chips[].chip`); `af9:contaminated_<chip path>` items and textures (`textures/item/chips/`, GT's chip texture with grime, generated offline like the wafers) in `wafers.js`. Tooltip on every wafer and chip (`AF9Client`). Recovery: `af9:clean_contaminated_<substrate>_wafer` (SMC wet processing, 100 HF + 1000 distilled water, cleanroom) → the blank wafer (the print is lost); `af9:clean_contaminated_<chip>` (SMC wet processing, 10 HF + 250 distilled water, MV, no clean room) → the chip.
+Spectators are exempt; creative players too only when `includeCreative = false` in `config/af9-common.toml` (default true, so testing in creative shows it). Machines, pipes, chests and ME systems never contaminate. Wafers = item tag `#af9:wafers` (all), `#af9:wafers/<substrate>` decides the contaminated item (server tags in `photolithography.js`: the blank wafer + every printed/derived wafer of the substrate; contaminated and broken wafers are not in them). Chips = `#af9:chips`, GT's 16 chips (`AF9_WAFERS.chips[].chip`); `af9:contaminated_<chip path>` items and textures (`textures/item/chips/`, GT's chip texture with grime, generated offline like the wafers) in `wafers.js`. Tooltip on every wafer and chip (`AF9Client`). Recovery: `af9:clean_contaminated_<substrate>_wafer` (wet processing mode, 100 HF + 1000 distilled water, cleanroom) → the blank wafer (the print is lost); `af9:clean_contaminated_<chip>` (wet processing mode, 10 HF + 250 distilled water, MV, no clean room) → the chip.
 
 # 16. Jade
 
@@ -1336,7 +1288,7 @@ It is an extra, the print runs without it. The share of the demand the computati
 
 ## 18.6 Chemistry
 
-All in the SMC fab machines (§11), recipes in `server_scripts/mods/gtceu/litho_process.js`, materials in AF9 Core `registry/AF9Materials` (`lithoProcess()`).
+All in the fab modes (§11), recipes in `server_scripts/mods/gtceu/litho_process.js`, materials in AF9 Core `registry/AF9Materials` (`lithoProcess()`).
 
 - **RCA clean and strip.** SC-1 (ammonia, peroxide, water 1:1:5 → `sc1_solution`), SC-2 (HCl, peroxide, water 1:1:6 → `sc2_solution`), piranha (sulfuric acid, peroxide 3:1 → `piranha_solution`), blending at MV. The clean-up of **contaminated wafers** is now a real RCA clean (SC-1, a dilute HF dip, SC-2: `af9:clean_contaminated_<substrate>_wafer`); **broken wafers** can be **reworked** (`af9:rework_broken_<substrate>_wafer`: piranha strip, SC-1, SC-2 → the blank wafer back **60 %** of the time, spent piranha out) beside the grinding. Spent piranha + calcium hydroxide → gypsum (`af9:spent_piranha_neutralisation`).
 - **Ethyl lactate**: ethanol → acetaldehyde (copper) → lactonitrile (+ HCN, base) → lactic acid (+ water, sulfuric acid; ammonium bisulfate out) → ethyl lactate (+ ethanol, acid catalyst), MV.
@@ -1425,19 +1377,14 @@ af9-core/ (Forge mod `af9`, GTCEu 7.2.0 addon; built by GitHub Actions, jar → 
   compat/adastra/AdAstraCompat         # registers the field's gravity listener when Ad Astra is loaded
   common/AF9Sounds                     # sound events (assets/af9/sounds.json: vanilla sounds pitched down)
   machine/AF9MachineModels             # workable casing model + ModeFluidRender or LightRingRender, for KubeJS .model(...)
-  machine/fab/SmcReactorMachine        # SMC LCR: FabMultiblockMachine + IFluidRenderMulti (the open vessel's blocks)
   pattern/AF9Filters                   # Plascrete Filter Casing as a GT cleanroom filter; ordered filter predicate
   compat/curios/CuriosCompat           # gloves in a Curios slot
   wireless/WirelessEnergyHatch         # §17: shared part of the wireless hatches (run-time voltage, channel, screen)
   wireless/WirelessTransmitterHatch    # dynamo side: substation -> channel, voltage from the multiblock's inputs
   wireless/WirelessReceiverHatch       # energy input side: channel -> multiblock, re-forms it on a new voltage
   wireless/WirelessChannels, WirelessLink  # saved channels; the data stick's link
-  fab/FabFamily, IFabMachine           # §11: the four families (purge fluid/time, console colour, process steps per mode)
   fab/FabModifiers, FabRecipeLogic     # PURGE, STRUCTURE_PARALLEL, COIL_DISCOUNT, TIER_TEMPERATURE, THERMAL_OVERCLOCK; changeover bookkeeping
   fab/FabRecipeInfo                    # temperature, coil and single-block tier on the thermal modes' EMI pages
-  machine/fab/FabMultiblockMachine     # SMC multiblocks: built-in clean room from filter casings, PTFE-pipe parallels, counters, console
-  machine/fab/FabTieredMachine         # SMC single blocks: GT slot page + console strip, furnace temperature per tier
-  machine/fab/FabConsoleWidget         # the fab console (full for multiblocks, strip for single blocks)
   staged/StagedRecipeData, StagedRecipes # §19: the af9_staged tag shape; root recipe -> per-step recipes (cached)
   staged/StagedRecipeLogic             # §19: only staged recipes match, step chaining, exact-inputs rule, persisted root + stage
   machine/StagedAssemblyMachine        # §19: the Staged Assembly (console stage lines, final product, cancel, recipe info)
@@ -1464,8 +1411,7 @@ kubejs/server_scripts/mods/gtceu/particle_accelerator.js # accelerator + consuma
 kubejs/server_scripts/mods/gtceu/staged_assembly.js # §19: the staged() authoring helper, the two demo recipes
 kubejs/server_scripts/mods/gtceu/electronics_metallurgy.js # zircon chain, zircon sands ore vein
 kubejs/server_scripts/mods/gtceu/fab_chemistry.js  # lines 1-5 (§6.12-6.16): Moon Sand polysilicon + Lunar Air + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
-kubejs/startup_scripts/gtceu/fab_machines.js       # §11: 12 fab recipe types (slot layouts), 4 SMC single-block families (MV-LuV), 4 SMC multiblocks (structures, modifiers)
-kubejs/server_scripts/mods/gtceu/fab_machines.js   # §11: crafting of the SMC machines
+kubejs/startup_scripts/gtceu/fab_machines.js       # §11: the 12 fab recipe types (slot layouts); AF9 Core makes them modes of the GT machines
 kubejs/server_scripts/mods/gtceu/circuits_af9.js    # all of AF9's circuit crafting: alloy mixers (Al-Tq, Kovar, Pt-Ir), MV circuits without transistors/diodes, HV-LuV circuits (plain chips + tier metals), eDRAM versions
 config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in kubejs/assets/kubejs/lang/en_us.json (af9.quest.*)
 kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type/block names, tooltips, mode descriptions, AF9 material names

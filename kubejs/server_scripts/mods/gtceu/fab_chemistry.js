@@ -1,12 +1,13 @@
 // AF9 - Fab chemistry recipes (materials: af9-core, registry/AF9Materials)
 // Real industrial routes, one machine step per real unit operation. Spec: docs/semiconductor-factory.md §6.11-6.15
 //
-// All of it runs only in the SMC fab machines (startup_scripts/gtceu/fab_machines.js, spec §11): GT's Chemical
-// Reactor, Large Chemical Reactor, mixer, blast furnace and distillation tower have none of these recipes. Non-thermal
-// recipes from HV power on need a clean room (the fab multiblocks bring their own).
-// Tiers follow what a player can build at that point: the MV chains (silicon, HF, argon) run in MV single blocks
-// (the Fractionating Still takes column recipes one cut at a time); the fab multiblocks come with HV circuits, which
-// the Photolithography Line has to print first.
+// All of it runs in the fab modes (startup_scripts/gtceu/fab_machines.js, spec §11): the recipes are modes of
+// GT's Chemical Reactor, Large Chemical Reactor, Distillery, Distillation Tower, Electrolyzer, Large Electrolysis
+// Chamber, Arc Furnace and Electric Blast Furnace, and a machine runs them when its mode is switched on.
+// Non-thermal recipes from HV power on need a clean room: the machine stands in a GT Cleanroom.
+// Tiers follow what a player can build at that point: the MV chains (silicon, HF, argon) run in the MV single
+// blocks (the Distillery takes column recipes one cut at a time); the multiblocks come with HV circuits, which the
+// Photolithography Line has to print first.
 // Within each fab recipe type no recipe holds all inputs of a circuit-less other one (the lookup could pick it).
 
 ServerEvents.recipes(event => {
@@ -14,9 +15,9 @@ ServerEvents.recipes(event => {
     const LV = VA[GTValues.LV], MV = VA[GTValues.MV], HV = VA[GTValues.HV], EV = VA[GTValues.EV]
     const gt = event.recipes.gtceu
 
-    // Column recipes run whole in the SMC Rectification Column. The SMC Fractionating Still (single block) takes one
-    // cut per run instead: circuit = cut number, a quarter of the power, twice the time, the other cuts are lost (as
-    // GT's distillery does with Distillation Tower recipes). Clean room from HV, as for all non-thermal fab recipes.
+    // Column recipes run whole in the Distillation Tower. The Distillery (single block) takes one cut per run
+    // instead: circuit = cut number, a quarter of the power, twice the time, the other cuts are lost (as GT's
+    // distillery does with Distillation Tower recipes). Clean room from HV, as for all non-thermal fab recipes.
     const column = (type, id, input, cuts, duration, eut) => {
         const recipe = gt[type](id).inputFluids(input).outputFluids(cuts).duration(duration).EUt(eut)
         if (eut >= HV) recipe.cleanroom(CleanroomType.CLEANROOM)
@@ -123,7 +124,7 @@ ServerEvents.recipes(event => {
         .EUt(MV)
 
     // Czochralski growth: the boules are pulled in the EBF's Boule Melting mode from melt charges (the electronic-grade
-    // silicon above with its dopants, SMC blending), a seed crystal (SMC crystal growth) and a crucible. Artemite = p-type
+    // silicon above with its dopants, blending mode), a seed crystal (crystal growth mode) and a crucible. Artemite = p-type
     // (the CMOS substrate, ppm-level), phosphorus = n-type. All in boule_melting.js.
 
     // =============================================================================================================

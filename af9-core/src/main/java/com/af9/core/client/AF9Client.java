@@ -7,7 +7,6 @@ import com.af9.core.client.render.FiltrationBasinRender;
 import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.LithoChamberRender;
-import com.af9.core.client.render.ModeFluidRender;
 import com.af9.core.client.render.PondWalls;
 import com.af9.core.client.render.SawBladeRender;
 import com.af9.core.client.render.SpaceElevatorRender;
@@ -43,7 +42,6 @@ public final class AF9Client {
     /** Mod construction: the render types must exist before the machine models are built. */
     @SuppressWarnings("removal") // FMLJavaModLoadingContext.get() is the only way on 47.x
     public static void init() {
-        ModeFluidRender.register();
         LightRingRender.register();
         LithoChamberRender.register();
         SpaceElevatorRender.register();

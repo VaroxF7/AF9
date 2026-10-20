@@ -27,6 +27,11 @@ GTCEu release), `-Paf9RequireFork` fails the build where the fork is missing.
 * `0009` Fusion reactors: no start buffer or heat; constant auxiliary standby power (4 A) and running power (1 A) instead.
 * `0012` The HPCA is expandable (3 to 12 slices of 3 component slots) and its Active Coolers cool by coolant: PCB Coolant 2, supercooled hydrogen / argon / xenon / endion 8 / 12 / 16 / 20 ([docs/hpca.md](../docs/hpca.md)).
 * `0011` The multiblock preview zooms out to fit a structure over 40 blocks (the scene clipped the Mk2 tower to a third of itself).
+* `0014` A machine with several modes has the slots of its biggest mode: the tiered machines size their item and fluid
+  inventories from all their modes (not only the first), and `SimpleTieredMachine.createEditableUI` builds the GUI of a
+  machine with modes from that layout. AF9's fab modes are modes of the normal GT machines (Chemical Reactor, Distillery,
+  Electrolyzer, Arc Furnace, Large Chemical Reactor, Distillation Tower, Large Electrolysis Chamber, Electric Blast
+  Furnace), and the fab recipes need more slots than the GT machines had.
 
 ## Changing the fork
 

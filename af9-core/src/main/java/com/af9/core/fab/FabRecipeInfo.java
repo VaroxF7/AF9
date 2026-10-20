@@ -1,7 +1,6 @@
 package com.af9.core.fab;
 
 import com.af9.core.AF9Core;
-import com.af9.core.machine.fab.FabTieredMachine;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.block.ICoilType;
@@ -13,14 +12,14 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * Adds the furnace temperature to the EMI/JEI pages of the thermal fab modes (the recipes carry it as GT's
- * "ebf_temp", like the blast furnace's), with the coil the multiblock needs and the smallest single block that
- * reaches it.
+ * "ebf_temp", like the blast furnace's), with the coil the Electric Blast Furnace needs and the smallest Arc
+ * Furnace that reaches it.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1; GT uses it too
 public final class FabRecipeInfo {
 
     private static final String[] THERMAL_TYPES = { "fab_calcination", "fab_cvd", "fab_crystal_growth" };
-    /** Highest tier of the single-block furnaces (see kubejs/startup_scripts/gtceu/fab_machines.js). */
+    /** Highest tier of the single-block furnace (the Arc Furnace). */
     private static final int MAX_SINGLE_TIER = GTValues.LuV;
 
     private FabRecipeInfo() {}
@@ -52,7 +51,7 @@ public final class FabRecipeInfo {
     /** Lowest voltage tier whose single-block furnace reaches the temperature. */
     static int singleTierFor(int temperature) {
         int tier = GTValues.MV;
-        while (tier <= MAX_SINGLE_TIER && FabTieredMachine.temperatureOf(tier) < temperature) tier++;
+        while (tier <= MAX_SINGLE_TIER && FabThermal.temperatureOf(tier) < temperature) tier++;
         return tier;
     }
 }

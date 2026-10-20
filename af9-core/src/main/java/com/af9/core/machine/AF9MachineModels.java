@@ -6,7 +6,6 @@ import com.af9.core.client.render.HearthTurntableRender;
 import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.LithoChamberRender;
-import com.af9.core.client.render.ModeFluidRender;
 import com.af9.core.client.render.SawBladeRender;
 import com.af9.core.client.render.SpaceElevatorRender;
 
@@ -16,9 +15,7 @@ import com.gregtechceu.gtceu.common.data.models.GTMachineModels;
 
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.LinkedHashMap;
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * Machine models for KubeJS machine definitions ({@code .model(...)}): GT's workable casing model plus an AF9 dynamic
@@ -28,23 +25,6 @@ import java.util.Map;
 public final class AF9MachineModels {
 
     private AF9MachineModels() {}
-
-    /**
-     * GT's workable casing model (like {@code .workableCasingModel(casing, overlay)}) plus a fake fluid inside the
-     * running machine, per machine mode ({@link ModeFluidRender}). The machine must implement GT's
-     * {@code IFluidRenderMulti} and have a block entity renderer ({@code .hasBER(true)}).
-     *
-     * @param modeFluids recipe type id -> fluid id, e.g. {@code {'gtceu:fab_blending': 'gtceu:distilled_water'}}
-     */
-    public static MachineBuilder.ModelInitializer workableCasingWithModeFluids(ResourceLocation casing,
-                                                                                ResourceLocation overlay,
-                                                                                Map<?, ?> modeFluids) {
-        Map<ResourceLocation, ResourceLocation> fluids = new LinkedHashMap<>();
-        modeFluids.forEach((type, fluid) -> fluids.put(new ResourceLocation(String.valueOf(type)),
-                new ResourceLocation(String.valueOf(fluid))));
-        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
-                .andThen(model -> model.addDynamicRenderer(() -> ModeFluidRender.create(fluids)));
-    }
 
     /**
      * GT's workable casing model plus the Hyper-Intensity Laser Engraver's beam while it works

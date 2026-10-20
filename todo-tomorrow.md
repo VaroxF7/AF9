@@ -28,8 +28,12 @@
 - [ ] Fix Void Miner JEI looking weird
   - Screenshot: https://prnt.sc/gs23oDR0baRO
 - [ ] Remove Dimension Scanner from ATM9 and the data it collects
-- [ ] Move SMC Chemical Reactor into the normal Chemical Reactor — remove old structures & single blocks, fix all issues
-- [ ] Same for all other SMC machines — move them into their original machines, remove new SMC stuff
+- [x] Move SMC Chemical Reactor into the normal Chemical Reactor — remove old structures & single blocks, fix all issues
+  (done: the fab recipes are modes of GT's machines now — `af9-core/.../fab/FabModes`; the fork's patch 0014 gives a machine
+  with modes the slots of its biggest mode)
+- [x] Same for all other SMC machines — move them into their original machines, remove new SMC stuff
+  (done: all eight SMC machines are gone; the modes run in the Chemical Reactor, Large Chemical Reactor, Distillery,
+  Distillation Tower, Electrolyzer, Large Electrolysis Chamber, Arc Furnace and Electric Blast Furnace)
 - [ ] No more MK1/MK2 structures for the DTPF — only 1 multiblock + machine upgrades
 - [ ] Remove all nuclear content — rework soon (like TFG): spent fuel pool, FX Reactor MK1 & MK2
 - [ ] Remove Bacteria Breeding Station & Water Filtration — rework and add to the Evaporation Condensation Well

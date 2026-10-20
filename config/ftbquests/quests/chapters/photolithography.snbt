@@ -201,7 +201,7 @@
 				""
 				"{af9.quest.litho.fabPlant.4}"
 			]
-			icon: "gtceu:mv_smc_chemical_reactor"
+			icon: "gtceu:mv_chemical_reactor"
 			id: "5655F19FA33BD62B"
 			rewards: [{
 				id: "5A01A9F9AE85B0D8"
@@ -214,22 +214,22 @@
 			tasks: [
 				{
 					id: "6E855B1E0E33C038"
-					item: "gtceu:mv_smc_chemical_reactor"
+					item: "gtceu:mv_chemical_reactor"
 					type: "item"
 				}
 				{
 					id: "443596D176155DAD"
-					item: "gtceu:mv_smc_fractionating_still"
+					item: "gtceu:mv_distillery"
 					type: "item"
 				}
 				{
 					id: "422892223682EED7"
-					item: "gtceu:mv_smc_electrolytic_cell"
+					item: "gtceu:mv_electrolyzer"
 					type: "item"
 				}
 				{
 					id: "1842A7A360529878"
-					item: "gtceu:mv_smc_thermal_furnace"
+					item: "gtceu:mv_arc_furnace"
 					type: "item"
 				}
 			]
@@ -256,7 +256,7 @@
 			subtitle: "{af9.quest.litho.fabFurnace.subtitle}"
 			tasks: [{
 				id: "252CD05910277C41"
-				item: "gtceu:smc_thermal_processing_furnace"
+				item: "gtceu:electric_blast_furnace"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.fabFurnace.title}"
@@ -944,11 +944,11 @@
 		{
 			dependencies: ["62BBF61C9849CA26"]
 			description: [
-				"{af9.quest.litho.smcLcr.1}"
+				"{af9.quest.litho.lcr.1}"
 				""
-				"{af9.quest.litho.smcLcr.2}"
+				"{af9.quest.litho.lcr.2}"
 				""
-				"{af9.quest.litho.smcLcr.3}"
+				"{af9.quest.litho.lcr.3}"
 			]
 			id: "369DD864C99DCCEB"
 			rewards: [{
@@ -957,22 +957,22 @@
 				xp: 100
 			}]
 			shape: "square"
-			subtitle: "{af9.quest.litho.smcLcr.subtitle}"
+			subtitle: "{af9.quest.litho.lcr.subtitle}"
 			tasks: [{
 				id: "3BBB5DD5D5D5413C"
-				item: "gtceu:smc_large_chemical_reactor"
+				item: "gtceu:large_chemical_reactor"
 				type: "item"
 			}]
-			title: "{af9.quest.litho.smcLcr.title}"
+			title: "{af9.quest.litho.lcr.title}"
 			x: 16.5d
 			y: -4.5d
 		}
 		{
 			dependencies: ["369DD864C99DCCEB"]
 			description: [
-				"{af9.quest.litho.smcColumn.1}"
+				"{af9.quest.litho.column.1}"
 				""
-				"{af9.quest.litho.smcColumn.2}"
+				"{af9.quest.litho.column.2}"
 			]
 			id: "6EC67EC0823F6BA7"
 			rewards: [{
@@ -981,19 +981,19 @@
 				xp: 100
 			}]
 			shape: "square"
-			subtitle: "{af9.quest.litho.smcColumn.subtitle}"
+			subtitle: "{af9.quest.litho.column.subtitle}"
 			tasks: [{
 				id: "17AD2B6B31E4E914"
-				item: "gtceu:smc_rectification_column"
+				item: "gtceu:distillation_tower"
 				type: "item"
 			}]
-			title: "{af9.quest.litho.smcColumn.title}"
+			title: "{af9.quest.litho.column.title}"
 			x: 16.5d
 			y: -6.0d
 		}
 		{
 			dependencies: ["6EC67EC0823F6BA7"]
-			description: ["{af9.quest.litho.smcCells.1}"]
+			description: ["{af9.quest.litho.cells.1}"]
 			id: "5D823D017C7CE01F"
 			rewards: [{
 				id: "65FBC322DB68731C"
@@ -1001,13 +1001,13 @@
 				xp: 100
 			}]
 			shape: "square"
-			subtitle: "{af9.quest.litho.smcCells.subtitle}"
+			subtitle: "{af9.quest.litho.cells.subtitle}"
 			tasks: [{
 				id: "2C0FF52144368EA1"
-				item: "gtceu:smc_membrane_cell_hall"
+				item: "gtceu:large_electrolyzer"
 				type: "item"
 			}]
-			title: "{af9.quest.litho.smcCells.title}"
+			title: "{af9.quest.litho.cells.title}"
 			x: 16.5d
 			y: -7.5d
 		}

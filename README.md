@@ -79,8 +79,8 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 | 🚀 Drop pod | a player who joins a world for the first time is taken to the top of the sky and comes down in a pod that flattens the leaves, lands, opens and lifts off again (after Supersymmetry's arrival; `[dropPod]` in the config) | [`docs/drop-pod.md`](docs/drop-pod.md) |
 | 🧹 Lint | `bash tools/lint/run.sh` checks recipes, multiblocks, quests, textures, lang without starting the game | [`tools/lint/README.md`](tools/lint/README.md) · [`docs/review-findings.md`](docs/review-findings.md) |
 
-Plus the supporting machines: **SMC fab family** (chemistry / separation / electrochemistry / thermal,
-with changeover purges + built-in cleanrooms), **Coater Track**,
+Plus the supporting machines: **the fab modes** (the semiconductor chemistry as modes of GT's Chemical
+Reactor, Distillery, Electrolyzer, Arc Furnace and their multiblocks), **Coater Track**,
 **Supercooling Cryostat + Coolant Hatches**, **Particle Accelerator** (47×47 storage ring),
 **Wireless Energy** (substation transmitter → any multiblock receiver, data-stick channels), and
 **wafer contamination** (gloves or cleanroom, or the wafer is ruined).
@@ -95,7 +95,7 @@ Machine logic: [`af9-core/README.md`](af9-core/README.md) (classes `litho/*`, `f
 ### The chain
 
 ```text
-high-purity quartz → MG-Si (SMC thermal, coke, 1800 K)
+high-purity quartz → MG-Si (Arc Furnace, calcination mode, coke, 1800 K)
   → hydrochlorination → crude chlorosilanes → distillation (TCS/STC/DCS/BCl3 → fumed silica, boron)
 sand → silica + L-01 (from Lunar Air, drilled on the Moon) → Moon Sand → O2 bath → polysilicon
   (+ Artemite dopant, mined on the Moon)

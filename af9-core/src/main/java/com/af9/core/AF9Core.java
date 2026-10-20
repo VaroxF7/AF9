@@ -14,6 +14,7 @@ import com.af9.core.compat.powah.client.OrbMk2Client;
 import com.af9.core.compat.extremereactors.ExtremeReactorsCompat;
 import com.af9.core.droppod.AF9DropPod;
 import com.af9.core.elevator.SpaceMissionMachine;
+import com.af9.core.fab.FabModes;
 import com.af9.core.fab.FabRecipeInfo;
 import com.af9.core.fluid.PlaceableFluids;
 import com.af9.core.machine.FiltrationPlantMachine;
@@ -102,6 +103,8 @@ public class AF9Core {
         event.enqueueWork(MEResonanceFabricatorMachine::configureRecipeType);
         event.enqueueWork(SpaceMissionMachine::registerRecipeInfo);
         event.enqueueWork(FabRecipeInfo::register);
+        // the fab modes: AF9's semiconductor chemistry as modes of the normal GT machines (before any machine is created)
+        event.enqueueWork(FabModes::install);
         // Boule Melting: second mode of GT's Electric Blast Furnace (before any machine is created)
         event.enqueueWork(BouleMelting::install);
         // Void Miner, rebuilt: GT's controller block and structure stay, AF9 takes over the definition

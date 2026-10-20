@@ -258,7 +258,7 @@ ServerEvents.recipes(event => {
         .duration(4000)
         .EUt(VA[GTValues.ZPM])
 
-    // Plascrete Pipe Casing: the chemical lines of the MV machines (Photolithography Line, SMC Thermal Processing
+    // Plascrete Pipe Casing: the chemical lines of the MV machines (Photolithography Line, Arc Furnace
     // Furnace); GT's PTFE Pipe Casing only comes at HV. Like GT's pipe casings: plates, pipes, a frame.
     event.shaped('2x af9:plascrete_pipe_casing', ['PIP', 'IFI', 'PIP'], {
         P: 'gtceu:plascrete', I: 'gtceu:polyethylene_normal_fluid_pipe', F: 'gtceu:steel_frame'
@@ -359,7 +359,7 @@ ServerEvents.recipes(event => {
     })
 
     // ---- Extreme clean dry air (XCDA) ----
-    // A fab's clean-dry-air plant, the purification mode of the SMC fab machines: oxidize -> scrub CO2 -> dry ->
+    // A fab's clean-dry-air plant, the purification mode of the Distillery: oxidize -> scrub CO2 -> dry ->
     // cryo-cool -> filter.
     // Everything runs at MV, slowly (the expansion cooler recycles 3/4 of its air). HV adds a platinum oxidizer, a
     // caustic scrubber and liquid-air cooling, which together are much faster.
@@ -578,7 +578,7 @@ ServerEvents.recipes(event => {
     // HMDS prime, the bottom anti-reflective coat (the DUV nodes down to 65 nm), the resist made for the mode's light, the
     // topcoat (the immersion nodes), soft bake: the blank wafer of the substrate becomes its coated wafer, 1.5x the
     // chemicals a node. What the spin spins off is spent solvent (30 mB of 100 mB of resist's worth), distilled back in the
-    // SMC machines at 60 %. The orbital station's 1 nm print takes a blank wafer and deposits its resist dry.
+    // fab modes at 60 %. The orbital station's 1 nm print takes a blank wafer and deposits its resist dry.
     modes.forEach(m => {
         const s = substrates[m.substrate]
         const chemicals = Math.pow(1.5, m.index)

@@ -1,0 +1,174 @@
+From 67427548da62435152e3d814e481400ff18fbf8b Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Tue, 20 Oct 2026 19:43:02 +0200
+Subject: [PATCH] Machines with modes have the slots of their biggest mode
+ (7.5.3-af9.13)
+
+---
+ .../api/machine/SimpleTieredMachine.java      | 54 +++++++++++++++++++
+ .../api/machine/WorkableTieredMachine.java    | 31 +++++++++--
+ .../gtceu/api/recipe/GTRecipeType.java        | 21 ++++++++
+ 3 files changed, 102 insertions(+), 4 deletions(-)
+
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/SimpleTieredMachine.java b/src/main/java/com/gregtechceu/gtceu/api/machine/SimpleTieredMachine.java
+index f7b9f2e..3726041 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/SimpleTieredMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/SimpleTieredMachine.java
+@@ -419,6 +419,60 @@ public class SimpleTieredMachine extends WorkableTieredMachine
+                 }
+             }));
+ 
++    /**
++     * The GUI of a tiered machine with several modes: the slots of the biggest mode, so every mode has room for its
++     * inputs and outputs. The machine's own inventories are sized the same way (see {@link WorkableTieredMachine}).
++     * <p>
++     * Call it after the machine's modes are final: the layout is built from the modes it is given.
++     */
++    public static EditableMachineUI createEditableUI(ResourceLocation path, GTRecipeType[] recipeTypes) {
++        int itemInputs = 0;
++        int itemOutputs = 0;
++        int fluidInputs = 0;
++        int fluidOutputs = 0;
++        for (GTRecipeType recipeType : recipeTypes) {
++            itemInputs = Math.max(itemInputs, recipeType.getMaxInputs(ItemRecipeCapability.CAP));
++            itemOutputs = Math.max(itemOutputs, recipeType.getMaxOutputs(ItemRecipeCapability.CAP));
++            fluidInputs = Math.max(fluidInputs, recipeType.getMaxInputs(FluidRecipeCapability.CAP));
++            fluidOutputs = Math.max(fluidOutputs, recipeType.getMaxOutputs(FluidRecipeCapability.CAP));
++        }
++        GTRecipeType layout = GTRecipeType.layoutType(path, itemInputs, itemOutputs, fluidInputs, fluidOutputs);
++        // the progress bar of the machine's own mode
++        if (recipeTypes.length > 0) {
++            layout.getRecipeUI().setProgressBarTexture(recipeTypes[0].getRecipeUI().getProgressBarTexture());
++        }
++        return new EditableMachineUI("simple", path, () -> {
++            WidgetGroup template = layout.getRecipeUI().createEditableUITemplate(false, false).createDefault();
++            SlotWidget batterySlot = createBatterySlot().createDefault();
++            WidgetGroup group = new WidgetGroup(0, 0, template.getSize().width,
++                    Math.max(template.getSize().height, 78));
++            template.setSelfPosition(new Position(0, (group.getSize().height - template.getSize().height) / 2));
++            batterySlot.setSelfPosition(new Position(group.getSize().width / 2 - 9, group.getSize().height - 18));
++            group.addWidget(batterySlot);
++            group.addWidget(template);
++            return group;
++        }, (template, machine) -> {
++            if (machine instanceof SimpleTieredMachine tieredMachine) {
++                var storages = Tables.newCustomTable(new EnumMap<>(IO.class),
++                        LinkedHashMap<RecipeCapability<?>, Object>::new);
++                storages.put(IO.IN, ItemRecipeCapability.CAP, tieredMachine.importItems.storage);
++                storages.put(IO.OUT, ItemRecipeCapability.CAP, tieredMachine.exportItems.storage);
++                storages.put(IO.IN, FluidRecipeCapability.CAP, tieredMachine.importFluids);
++                storages.put(IO.OUT, FluidRecipeCapability.CAP, tieredMachine.exportFluids);
++                storages.put(IO.IN, CWURecipeCapability.CAP, tieredMachine.importComputation);
++                storages.put(IO.OUT, CWURecipeCapability.CAP, tieredMachine.exportComputation);
++
++                tieredMachine.getRecipeType().getRecipeUI().createEditableUITemplate(false, false).setupUI(template,
++                        new GTRecipeTypeUI.RecipeHolder(tieredMachine.recipeLogic::getProgressPercent,
++                                storages,
++                                new CompoundTag(),
++                                Collections.emptyList(),
++                                false, false));
++                createBatterySlot().setupUI(template, tieredMachine);
++            }
++        });
++    }
++
+     /**
+      * Create a battery slot widget.
+      */
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/WorkableTieredMachine.java b/src/main/java/com/gregtechceu/gtceu/api/machine/WorkableTieredMachine.java
+index df32c32..9196dd7 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/WorkableTieredMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/WorkableTieredMachine.java
+@@ -116,23 +116,46 @@ public abstract class WorkableTieredMachine extends TieredEnergyMachine implemen
+     }
+ 
+     protected NotifiableItemStackHandler createImportItemHandler(Object... args) {
+-        return new NotifiableItemStackHandler(this, getRecipeType().getMaxInputs(ItemRecipeCapability.CAP), IO.IN);
++        return new NotifiableItemStackHandler(this, maxInputs(ItemRecipeCapability.CAP), IO.IN);
+     }
+ 
+     protected NotifiableItemStackHandler createExportItemHandler(Object... args) {
+-        return new NotifiableItemStackHandler(this, getRecipeType().getMaxOutputs(ItemRecipeCapability.CAP), IO.OUT);
++        return new NotifiableItemStackHandler(this, maxOutputs(ItemRecipeCapability.CAP), IO.OUT);
+     }
+ 
+     protected NotifiableFluidTank createImportFluidHandler(Object... args) {
+-        return new NotifiableFluidTank(this, getRecipeType().getMaxInputs(FluidRecipeCapability.CAP),
++        return new NotifiableFluidTank(this, maxInputs(FluidRecipeCapability.CAP),
+                 this.tankScalingFunction.applyAsInt(this.getTier()), IO.IN);
+     }
+ 
+     protected NotifiableFluidTank createExportFluidHandler(Object... args) {
+-        return new NotifiableFluidTank(this, getRecipeType().getMaxOutputs(FluidRecipeCapability.CAP),
++        return new NotifiableFluidTank(this, maxOutputs(FluidRecipeCapability.CAP),
+                 this.tankScalingFunction.applyAsInt(this.getTier()), IO.OUT);
+     }
+ 
++    /**
++     * The most inputs any of the machine's modes takes: a machine with several modes has the slots of its biggest
++     * mode, so every mode has room for its inputs.
++     */
++    private int maxInputs(RecipeCapability<?> capability) {
++        int max = 0;
++        for (GTRecipeType recipeType : recipeTypes) {
++            max = Math.max(max, recipeType.getMaxInputs(capability));
++        }
++        return max;
++    }
++
++    /**
++     * The most outputs any of the machine's modes produces: see {@link #maxInputs(RecipeCapability)}.
++     */
++    private int maxOutputs(RecipeCapability<?> capability) {
++        int max = 0;
++        for (GTRecipeType recipeType : recipeTypes) {
++            max = Math.max(max, recipeType.getMaxOutputs(capability));
++        }
++        return max;
++    }
++
+     protected NotifiableComputationContainer createImportComputationContainer(Object... args) {
+         boolean transmitter = true;
+         if (args.length > 0 && args[args.length - 1] instanceof Boolean isTransmitter) {
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java b/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java
+index a4adc63..470d9f4 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/recipe/GTRecipeType.java
+@@ -80,6 +80,7 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
+     @Getter
+     protected final Map<RecipeType<?>, List<GTRecipe>> proxyRecipes;
+     @Getter
++    @Nullable
+     private final GTRecipeCategory category;
+     @Getter
+     private GTRecipeCategory syntheticCategory;
+@@ -116,6 +117,26 @@ public class GTRecipeType implements RecipeType<GTRecipe> {
+         this.proxyRecipes = map;
+     }
+ 
++    private GTRecipeType(ResourceLocation registryName, String group) {
++        this.registryName = registryName;
++        this.group = group;
++        this.category = null;
++        recipeBuilder = new GTRecipeBuilder(registryName, this);
++        this.proxyRecipes = new Object2ObjectLinkedOpenHashMap<>();
++    }
++
++    /**
++     * A recipe type that only carries a slot layout: no category, no recipes, not registered anywhere. The GUI of a
++     * machine with several modes is built from it, so every mode has the slots of the biggest one (see
++     * {@link com.gregtechceu.gtceu.api.machine.SimpleTieredMachine#createEditableUI}).
++     */
++    public static GTRecipeType layoutType(ResourceLocation id, int itemInputs, int itemOutputs, int fluidInputs,
++                                          int fluidOutputs) {
++        GTRecipeType type = new GTRecipeType(id, "layout");
++        type.setMaxIOSize(itemInputs, itemOutputs, fluidInputs, fluidOutputs);
++        return type;
++    }
++
+     public GTRecipeType enableSyntheticCategory() {
+         if (syntheticCategory == null) {
+             syntheticCategory = new GTRecipeCategory(registryName.withSuffix("_synthetic").getPath(), this);
+-- 
+2.54.0.windows.1
+
