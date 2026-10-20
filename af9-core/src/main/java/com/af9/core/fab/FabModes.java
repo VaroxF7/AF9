@@ -49,6 +49,8 @@ public final class FabModes {
     private FabModes() {}
 
     public static void install() {
+        // GT's tiered machines are one array with a hole for every tier that has no machine (ULV, and the tiers above
+        // UHV while the high tiers are off), so the loops below skip the empty ones
         // chemistry
         GTRecipeType synthesis = type("fab_synthesis");
         GTRecipeType blending = type("fab_blending");
@@ -68,6 +70,7 @@ public final class FabModes {
 
         // the chemistry of the chemical reactor, big and small
         for (MachineDefinition definition : GTMachines.CHEMICAL_REACTOR) {
+            if (definition == null) continue;
             modes(definition, synthesis, blending, wetProcessing);
         }
         modes(GTMultiMachines.LARGE_CHEMICAL_REACTOR, synthesis, blending, wetProcessing);
@@ -75,18 +78,21 @@ public final class FabModes {
         // the separations of the distillery and the distillation tower: the tower runs a whole column at once (it has
         // one fluid input and no item input, so the cuts, which take a circuit, stay in the distillery)
         for (MachineDefinition definition : GTMachines.DISTILLERY) {
+            if (definition == null) continue;
             modes(definition, fractionation, purification);
         }
         modes(GTMultiMachines.DISTILLATION_TOWER, distillation, cryogenic);
 
         // the electrochemistry of the electrolyzer and the large electrolysis chamber
         for (MachineDefinition definition : GTMachines.ELECTROLYZER) {
+            if (definition == null) continue;
             modes(definition, electrolysis, electrofluorination);
         }
         modes(GCYMMachines.LARGE_ELECTROLYZER, electrolysis, electrofluorination);
 
         // the heat of the furnaces: the blast furnace keeps GT's rules, the arc furnace has the heat of its tier
         for (MachineDefinition definition : GTMachines.ARC_FURNACE) {
+            if (definition == null) continue;
             modes(definition, calcination, cvd, crystalGrowth);
             heatOfTier(definition);
         }
@@ -104,6 +110,7 @@ public final class FabModes {
 
     /** Adds the modes to the machine, and gives the machine's GUI the slots of its biggest mode. */
     private static void modes(MachineDefinition definition, GTRecipeType... types) {
+        if (definition == null) return;
         List<GTRecipeType> all = new ArrayList<>(Arrays.asList(definition.getRecipeTypes()));
         boolean changed = false;
         for (GTRecipeType type : types) {
