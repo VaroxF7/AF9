@@ -29,7 +29,7 @@ ServerEvents.recipes(event => {
 // Each part is its own handler: a recipe that fails to load (an item id of another mod, a typo) stops only its own part.
 
 // ======================================================================================================
-// Chemistry (materials: startup_scripts/gtceu/litho_process.js). All in the SMC fab machines, like the
+// Chemistry (materials: startup_scripts/gtceu/litho_process.js). All in the fab modes, like the
 // rest of the fab chemistry; non-thermal recipes from HV power on need a clean room.
 // ======================================================================================================
 ServerEvents.recipes(event => {
@@ -181,7 +181,7 @@ ServerEvents.recipes(event => {
 })
 
 // ======================================================================================================
-// The new chip families (chips.js): the functional layers their cards use. Thermal steps in the SMC thermal furnace
+// The new chip families (chips.js): the functional layers their cards use. Thermal steps in the Arc Furnace
 // (blast temperature, no clean room), the rest from HV power on in a clean room.
 // ======================================================================================================
 ServerEvents.recipes(event => {

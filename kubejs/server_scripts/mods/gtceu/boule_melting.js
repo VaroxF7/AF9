@@ -2,7 +2,7 @@
 // startup_scripts/gtceu/boule_melting.js. Spec: docs/semiconductor-factory.md
 //
 // A boule is ten times the material of GT's old boule. So it fits the EBF's three input slots, the material is blended
-// into melt charges first (SMC blending): 10 charges + 1 seed crystal (SMC crystal growth) + 1 crucible.
+// into melt charges first (blending mode): 10 charges + 1 seed crystal (crystal growth mode) + 1 crucible.
 // EU/t: 2x GT's for silicon, 4x phosphorus, 6x naquadah, 8x neutronium (as amps of the same tier); the substrates in
 // between follow on.
 
@@ -68,7 +68,7 @@ ServerEvents.recipes(event => {
         .duration(400)
         .EUt(VA[GTValues.UV])
 
-    // ---- Melt charges (SMC blending), seed crystals (SMC crystal growth) and boules (EBF Boule Melting) ----
+    // ---- Melt charges (blending mode), seed crystals (crystal growth mode) and boules (EBF Boule Melting) ----
     // charge: one of GT's old boule inputs; seed: grown at the boule's temperature; boule: 10 charges + seed + crucible
     // eu: [voltage tier, energy multiplier] = the boule costs multiplier x (1A of that tier for `duration`). It draws at
     // most 4A, what two normal energy hatches give the EBF; a bigger multiplier makes the run longer instead.
@@ -107,7 +107,7 @@ ServerEvents.recipes(event => {
             seedGas: ['gtceu:endion', 400], gas: ['gtceu:endion', 80000], temp: 12000, duration: 24000,
             eu: [GTValues.UHV, 8], crucible: 'tritanium', boule: 'af9:chromodynium_boule' }
     ]
-    // GT's EBF boules (the CZ recipes of the SMC furnaces are gone too, fab_chemistry.js)
+    // GT's EBF boules (the CZ recipes of the old fab furnaces are gone too, fab_chemistry.js)
     // (batched: the same four ids removed in one filter call)
     ;['silicon_boule', 'phosphorus_boule', 'naquadah_boule', 'neutronium_boule']
         .forEach(boule => event.remove({ id: `gtceu:electric_blast_furnace/${boule}` }))

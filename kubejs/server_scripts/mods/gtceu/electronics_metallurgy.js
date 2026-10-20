@@ -26,7 +26,7 @@ ServerEvents.recipes(event => {
 
     // 3. Extractive distillation, the only practical way to split zirconium from hafnium. Real zircon holds ~2 % Hf;
     // this is richer so LUV lithography has enough. The hafnium tetrachloride is a fab precursor (high-k gate), so
-    // this runs in the SMC Rectification Column (fab_machines.js), whole: no single-block cuts.
+    // this runs in the Distillation Tower (the fab_distillation mode, fab_machines.js), whole: no still cuts.
     event.recipes.gtceu.fab_distillation('af9:zirconium_hafnium_separation')
         .inputFluids(Fluid.of('gtceu:crude_zirconium_tetrachloride', 1000))
         .outputFluids(Fluid.of('gtceu:zirconium_tetrachloride', 900), Fluid.of('gtceu:hafnium_tetrachloride', 100))
