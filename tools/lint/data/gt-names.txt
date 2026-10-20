@@ -498,7 +498,6 @@ large_chemical_bath
 large_chemical_reactor
 large_circuit_assembler
 large_combustion_engine
-large_cutter
 large_distillery
 large_electrolyzer
 large_electromagnet
@@ -887,7 +886,6 @@ silicon_wafer
 silicosis
 simple_soc
 simple_soc_wafer
-slicing_blades
 small_gear_casting_mold
 small_gear_extruder_mold
 small_pipe_casting_mold
