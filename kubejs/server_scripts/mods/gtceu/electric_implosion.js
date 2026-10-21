@@ -4,6 +4,7 @@
 //   Lunar Acid Vapor   a new cut of Lunar Air (distillation: fab_chemistry.js); acidic, so it needs acid-proof pipes
 //                      and tanks. The shock wave of the electric compressor: the discharge flashes it into plasma.
 //   dense plate        4 dust + 500 mB vapor -> 1 dense plate, HV (the explosive recipes are rocket_hull.js)
+//   naquadah           4 U-235 dust + 2,000 mB vapor -> 1 naquadah dust, EV: the discharge fuses the uranium nuclei
 //   Twi-re-sten        2 tungsten + rhenium + tungsten carbide -> 4 dust (mixer, EV); GT's blast property melts it in the
 //                      EBF, and its plate, foil, fine wire and dense plate come from the usual machines
 //   nichrome coil      GT's HV assembler recipe is replaced: EV, 4 quadruple nichrome wires, stainless foil AND
@@ -13,6 +14,7 @@
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
+    const V = GTValues.V
     const ALLOY = 'gtceu:desh_titanium_rocket_alloy'
 
     // ---- The recipes of the machine ----
@@ -22,6 +24,16 @@ ServerEvents.recipes(event => {
         .itemOutputs('gtceu:dense_desh_titanium_rocket_alloy_plate')
         .duration(200)
         .EUt(VA[GTValues.HV])
+
+    // Naquadah from U-235: the capacitor bank's discharge drives the fissile nuclei together hard enough to fuse them
+    // into naquadah. Four enriched dusts per dust, EV, two buckets of vapor: the uranium chain (asteroid_fission.js)
+    // is the feed, so this is a deliberate sink for enrichment, not a replacement for the field vein yet.
+    event.recipes.gtceu.electric_implosion_compressor('af9:naquadah_from_uranium_235')
+        .itemInputs('4x gtceu:uranium_235_dust')
+        .inputFluids(Fluid.of('gtceu:lunar_acid_vapor', 2000))
+        .itemOutputs('gtceu:naquadah_dust')
+        .duration(600)
+        .EUt(V[GTValues.EV])
 
     // ---- Twi-re-sten Insulation ----
     event.recipes.gtceu.mixer('af9:twiresten_insulation_dust')

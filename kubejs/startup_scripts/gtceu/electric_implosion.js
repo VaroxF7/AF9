@@ -3,11 +3,12 @@
 // Lunar Air) that the discharge flashes into plasma. Recipes: server_scripts/mods/gtceu/electric_implosion.js,
 // rocket_hull.js. Spec: docs/electric-implosion.md
 //
-//   single block   HV-LuV, one dust (and one more) in, one vapor, one plate out
+//   single block   HV-LuV, one dust (and one more) in, one vapor, one plate or naquadah dust out
 //   Large Electric Implosion Compressor, 3 x 3 x 3 like GT's Large Chemical Reactor: the Shock Capacitor Casing, five
 //   cupronickel coil blocks as the work coils (the middle of the cross and its four arms) round a titanium frame, the
 //   controller in the middle of the front. Hatches go in the casings. Parallel hatch, perfect overclocks.
 // Both run the recipe type `electric_implosion_compressor`; GT's own Implosion Compressor keeps the explosive recipes.
+// The naquadah recipe (4 U-235 dust + vapor -> 1 naquadah dust) is the electric implosion's transmutation.
 
 const $ElectricImplosionTiered = Java.loadClass('com.gregtechceu.gtceu.api.machine.SimpleTieredMachine')
 

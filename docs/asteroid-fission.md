@@ -289,8 +289,9 @@ reflection, so AF9 Core needs nothing of the mod to build. The server script put
 miner's circuit 5 (pitchblende, uraninite) and the raw plutonium in circuit 6, and every ore vein with pitchblende, uraninite
 or naquadah (`modifyAll`: weight 0, wherever the pack put them — GT's **naquadah vein** (`gtceu:naquadah_vein`) held plutonium
 besides the naquadah). The upper field's dike (`vein_field.js`) is the only naquadah left in worldgen, and it is pure
-naquadah, so the reactor chain stays the only way to plutonium. Naquadah stays renewable two ways: the void miner (End
-and Asteroids modes, standing in the dimension) and the space elevator (the belt veins are tier 4: the Mk-IV drone).
+naquadah, so the reactor chain stays the only way to plutonium. Naquadah stays renewable three ways: the void miner (End
+and Asteroids modes, standing in the dimension), the space elevator (the belt veins are tier 4: the Mk-IV drone), and the
+electric implosion of U-235 (4 dust + 2,000 mB Lunar Acid Vapor -> 1 naquadah dust, EV; `docs/electric-implosion.md`).
 Plutonium that is already in the world from the old vein can no longer be turned into Pu-241.
 
 **Fusion Reactor Mk1** (`kubejs/server_scripts/mods/gtceu/fusion_reactor.js`, `af9:fusion_reactor_mk1`, Assembly Line, LuV): GT's

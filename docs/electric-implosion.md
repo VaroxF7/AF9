@@ -46,6 +46,21 @@ insulation. `tools/lint/data/sources.txt` lists the insulation as a source until
 `gtceu:lunar_acid_vapor` (HF + SO2 formula, acid attribute: needs acid-proof pipes and tanks) is a new cut of the Lunar Air
 distillation (`fab_chemistry.js`): 4,000 mB Lunar Air -> 2,600 L-01, 700 argon (was 1,000), 160 radon, **340 vapor**.
 
+## Naquadah from U-235
+
+The capacitor bank's discharge is also the transmutation: the shock drives the fissile nuclei together until they fuse
+into naquadah. The reaction runs in the same recipe type, so the Large Electric Implosion Compressor and the single
+blocks HV-LuV all take it.
+
+| takes | gives | tier / time |
+|---|---|---|
+| 4 `gtceu:uranium_235_dust` + 2,000 mB Lunar Acid Vapor | 1 `gtceu:naquadah_dust` | EV, 1,920 EU/t, 600 ticks |
+
+The U-235 is the enriched product of the asteroid fission chain (`docs/asteroid-fission.md` §4). Four full dusts per
+naquadah dust make the implosion a deliberate sink for enrichment rather than a cheap route. The field naquadah vein,
+the void miner's naquadah circuits and the Mk-IV space elevator keep their naquadah for now; the implosion is a third
+source, not a replacement.
+
 ## Twi-re-sten Insulation
 
 Tungsten-rhenium carbide cermet (`gtceu:twiresten_insulation`): dust, ingot (EBF, 4,200 K, IV), plate, dense plate, foil, fine wire.
