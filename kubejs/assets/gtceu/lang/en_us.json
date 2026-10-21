@@ -34,6 +34,7 @@
     "gtceu.micro_universe_collector": "Micro Universe Collector",
     "gtceu.mega_fusion_reactor": "Mega Fusion Reactor",
     "tagprefix.ultradense_plate": "Ultradense %s Plate",
+    "tagprefix.wire_spool": "%s Wire Spool",
     "material.gtceu.inert_nether_essence": "Inert Nether Star Essence",
     "material.gtceu.trinaquadalloy": "Trinaquadalloy",
     "material.gtceu.fluorite": "Fluorite",
@@ -758,5 +759,13 @@
     "af9.resonance_hatch.tooltip.0": "§7Takes §bLiquid Resonating Fluix§7 only.",
     "af9.resonance_hatch.tooltip.1": "§7The stabiliser of the §fCertus Resonating Manufacturer§7: while it has the fluid, the machine batches its crafts.",
     "af9.recipe_condition.oxygenated.true": "§bOxygenated Environment",
-    "af9.recipe_condition.oxygenated.false": "§5De-oxygenated Environment"
+    "af9.recipe_condition.oxygenated.false": "§5De-oxygenated Environment",
+    "gtceu.spooling": "Wire Spooling",
+    "af9.spooler.tooltip.0": "§7Winds §f64 fine wires§7 of one material into one §bwire spool§7.",
+    "af9.spooler.tooltip.1": "§7A spool is §f8 ingots§7 of wire: compact stock for crafting and storage.",
+    "af9.spooler.tooltip.2": "§7LV to UHV. Higher tiers overclock the winding; one input, one output, no fluids.",
+    "af9.large_spooler.tooltip.0": "§7The multiblock Spooler: §f3 x 3 x 3§7 of robust tungstensteel casing.",
+    "af9.large_spooler.tooltip.1": "§7Runs the Spooler's winding recipes with §bparallel hatches§7 and §bperfect overclocks§7.",
+    "af9.large_spooler.tooltip.2": "§7Controller at §fIV§7; the energy hatch sets the tier it runs at.",
+    "af9.large_spooler.tooltip.3": "§7Hatches go in the casing; the frame and pipe casing form the reel."
 }

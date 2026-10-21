@@ -474,7 +474,7 @@ const SHAPES = ['dust', 'small_dust', 'tiny_dust', 'ingot', 'hot_ingot', 'plate'
     'small_gear', 'nugget', 'block', 'bolt', 'screw', 'ring', 'frame', 'gem', 'lens', 'rotor', 'spring', 'wire',
     'single_wire', 'double_wire', 'quadruple_wire', 'octal_wire', 'hex_wire', 'single_cable', 'double_cable', 'quadruple_cable', 'octal_cable', 'hex_cable', 'crushed', 'pure_dust', 'impure_dust',
     'crushed_purified', 'crushed_centrifuged', 'raw', 'dense_plate', 'round', 'buzz_saw_blade', 'turbine_blade',
-    'drill_head', 'bucket']
+    'drill_head', 'bucket', 'wire_spool']
 function materialOfItem(name) {
     // <mat>_<shape>, <prefix>_<mat>_<shape>, small_/tiny_ prefixes, fine_<mat>_wire
     let n = name

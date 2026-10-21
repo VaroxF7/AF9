@@ -31,6 +31,11 @@ import static com.gregtechceu.gtceu.api.GTValues.M;
  * The recipes follow GregTech's ({@link #addRecipes}): the Bender, four dense plates in, {@code 96 EU/t}, and the
  * mass of the material times the {@code 36} units an ultrdense plate holds, as the dense plate's recipe takes its
  * mass times the {@code 9} a dense plate holds.
+ * <p>
+ * The Wire Spool is the second part: 64 fine wires of one material wound onto one item
+ * ({@code gtceu:iron_wire_spool}), for every material that generates fine wire. The spool holds eight ingots of
+ * material ({@link TagPrefix#wireFine} is one eighth of an ingot), and its tag is {@code forge:wire_spools/<material>}.
+ * The winding recipe and the Spooler are KubeJS's; this class only makes GregTech register the item.
  */
 public final class AF9TagPrefixes {
 
@@ -56,6 +61,29 @@ public final class AF9TagPrefixes {
             .enableRecycling()
             .generateItem(true)
             .generationCondition(mat -> mat.hasFlag(MaterialFlags.GENERATE_DENSE));
+
+    /**
+     * The look of a wire spool: a dark reel and the material-coloured wire around it, under
+     * {@code assets/gtceu/{models,textures}/item/material_sets/<set>/wire_spool}.
+     */
+    private static final MaterialIconType WIRE_SPOOL = new MaterialIconType("wireSpool");
+
+    /**
+     * 64 fine wires in one item: fine wire is one eighth of an ingot ({@link TagPrefix#wireFine}), so a spool is
+     * {@code 8} ingots of material. The condition is fine wire, so the item appears exactly where a spool can be
+     * wound.
+     */
+    public static final TagPrefix wireSpool = new TagPrefix("wireSpool")
+            .idPattern("%s_wire_spool")
+            .defaultTagPath("wire_spools/%s")
+            .unformattedTagPath("wire_spools")
+            .langValue("%s Wire Spool")
+            .materialAmount(M * 8)
+            .materialIconType(WIRE_SPOOL)
+            .unificationEnabled(true)
+            .enableRecycling()
+            .generateItem(true)
+            .generationCondition(mat -> mat.hasFlag(MaterialFlags.GENERATE_FINE_WIRE));
 
     private AF9TagPrefixes() {}
 

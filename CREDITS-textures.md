@@ -114,3 +114,11 @@ recipes became a cleanroom condition. Its AE2 blocks are read by id, so AF9 Core
 The silhouettes and shading of the Kovar, Inconel, Havar, Hastelloy and Stellite parts (`assets/gtceu/textures/item/material_sets/<alloy>`) are
 recoloured from the SHINY icon set of **GregTech CEu Modern** (<https://github.com/GregTechCEu/GregTech-Modern>, LGPL-3.0), repainted
 with a palette and grain per alloy by `tools/textures/superalloys.py`.
+
+## Wire spool items
+
+The three spool textures (`af9-core/.../assets/gtceu/textures/item/material_sets/dull/wire_spool{,_secondary,_overlay}.png`)
+are from **StarT-Core** (<https://github.com/StarT-Dev-Team/StarT-Core>, LGPL-3.0 or later), unchanged. The eight
+`wire_spool.json` models under `af9-core/.../assets/gtceu/models/item/material_sets/` are the same `item/generated`
+models StarT-Core uses; they all point at the dull spool textures, which GregTech tints with the material colour.
+Licence text in `licenses/StarT-Core-LGPL-3.0.txt`.
