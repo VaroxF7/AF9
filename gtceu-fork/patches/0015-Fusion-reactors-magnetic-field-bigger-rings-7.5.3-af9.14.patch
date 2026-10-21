@@ -131,9 +131,9 @@ index de99103..0fae3fe 100644
 +                                        {"###############", "######OSO######", "###############"},
 +                                },
 +                                FusionStructure.extra(tier), 'S', 'G');
-+                        var builder = FactoryBlockPattern.start();
-+                        for (String[] aisle : rows) builder.aisle(aisle);
-+                        return builder
++                        var patternBuilder = FactoryBlockPattern.start();
++                        for (String[] aisle : rows) patternBuilder.aisle(aisle);
++                        return patternBuilder
                                  .where('S', controller(blocks(definition.get())))
                                  .where('G', blocks(FUSION_GLASS.get()).or(casing))
                                  .where('E', casing.or(
