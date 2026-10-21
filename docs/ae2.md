@@ -188,7 +188,7 @@ that this pack does not redefine).
 - Unverified: written without compiling or in-game testing (cloud env cannot build).
 - Follow-ups, not done here: quest gating for the AE2 chapter, EMI descriptions.
 
-## Certus Resonating Manufacturer (`me_resonance_fabricator.js`, HV)
+## Certus Resonating Manufacturer (`me_resonance_fabricator.js`, MV)
 
 The machine, recipe type (id `gtceu:me_assembler`) and recipes are TerraFirmaGreg's ME Assembler (credits in `CREDITS-textures.md`); the
 structure is AF9's own: a 5 x 4 x 5 cage of AE2 casing (`af9:ae2_machine_casing`) and steel pipe casing around a core of
@@ -205,7 +205,11 @@ Resonating Fluix Hatch, and a Data Access Hatch for the research slot.
 - **Recipes**: the type `gtceu:me_assembler` (9 items in, 1 out, 3 fluids in, research slot) runs TFG's ported
   recipes — cells, storage, the three processors single and bulk — all on liquid certus quartz. They ask for a
   **cleanroom** (where TFG asked for the Moon) and most of them for an oxygenated air.
-  The machine, the hatch and both casings are craftable.
+- **Crafting (MV)**: the machine and both casings take an **MV circuit**; the AE2 casing (`af9:ae2_machine_casing`,
+  6 certus plates + liquid certus on a **steel** frame — no stainless, which is HV) is the structure's block and the
+  controller's, too: `gtceu:me_assembler` is 3x that casing + 2 spatial pylons + 4 charged certus + an MV circuit.
+  **No PTFE anywhere in the machine** — TFG's black PTFE casing recipe stays as a spare block (its fluid is HV).
+  The Resonating Fluix Hatch keeps its HV → UHV ladder (the stabiliser is a bonus, not a gate).
 - **Cell components** (1k → 256k) are the chamber's alone: **all ZPM** on the pack's own chip
   ladder (see §Components) — the machine needs a ZPM energy hatch for them.
 - **Machines and blocks** in the Manufacturer (buses, interfaces, pattern providers, molecular assemblers,
