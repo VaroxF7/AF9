@@ -192,7 +192,7 @@ that this pack does not redefine).
 
 The machine, recipe type (id `gtceu:me_assembler`) and recipes are TerraFirmaGreg's ME Assembler (credits in `CREDITS-textures.md`); the
 structure is AF9's own: a 5 x 4 x 5 cage of AE2 casing (`af9:ae2_machine_casing`) and steel pipe casing around a core of
-quartz vibrant glass. Everything inside the walls may be any block (Spatial Pylons and IO Ports for ME spatial
+fusion glass. Everything inside the walls may be any block (Spatial Pylons and IO Ports for ME spatial
 storage fit there). The controller sits on the front face of the deck; all hatches go in the deck (the bottom 5 x 5
 layer): one energy hatch, one maintenance hatch, up to 3 fluid inputs, 1 item output, up to 9 item buses, one
 Resonating Fluix Hatch, and a Data Access Hatch for the research slot.

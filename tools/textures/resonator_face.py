@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""The controller face of the Certus Resonating Manufacturer: a resonance panel with a certus crystal in a fluix
-heart, a ring of light around it and three lamps below.
+"""The controller face of the Certus Resonating Manufacturer: a steel plate in the casing's colours with a tall
+slot of climbing certus light and three lamps below.
 
 Run from the repository root (needs Pillow):  python3 tools/textures/resonator_face.py [--preview preview.png]
 
@@ -21,9 +21,9 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..')
 OUT = os.path.join(ROOT, 'kubejs/assets/gtceu/textures/block/multiblock/me_resonator')
 TAU = 2 * math.pi
 
-RIM = (28, 30, 37)
-PLATE = (48, 53, 63)
-PLATE_HI = (66, 72, 84)
+RIM = (14, 20, 30)
+PLATE = (40, 52, 68)
+PLATE_HI = (82, 100, 122)
 WINDOW = (14, 16, 22)
 WINDOW_HI = (96, 108, 128)
 RIVET = (128, 136, 150)
@@ -61,93 +61,64 @@ def rect(im, x0, y0, x1, y1, c):
             dot(im, x, y, c)
 
 
-def diamond(im, cx, cy, c):
-    """The certus crystal: a diamond of light in the middle of the panel."""
-    for y in range(16):
-        for x in range(16):
-            d = abs(x + 0.5 - cx) + abs(y + 0.5 - cy)
-            if d <= 1.2:
-                dot(im, x, y, c)
-            elif d <= 2.3:
-                dot(im, x, y, shade(c, 0.85))
-            elif d <= 3.4:
-                dot(im, x, y, shade(c, 0.55))
-
-
-def ring(im, cx, cy, radius, c):
-    """The ring of resonance: a circle of light that runs out of the crystal."""
-    for y in range(16):
-        for x in range(16):
-            d = math.hypot(x + 0.5 - cx, y + 0.5 - cy)
-            if abs(d - radius) < 0.55:
-                dot(im, x, y, c)
-
-
 def face(state, frame, frames):
+    """A brutalist plate in the casing's steel: a tall slot (the glass column of the machine, seen from the front)
+    with a stack of certus segments in it, and three lamps in a bar below. Working: the light climbs the slot."""
     im = Image.new('RGBA', (16, 16), (0, 0, 0, 0))
     em = Image.new('RGBA', (16, 16), (0, 0, 0, 0))
 
-    # the panel: a steel plate with a dark window in it
     rect(im, 0, 0, 15, 15, RIM)
     rect(im, 1, 1, 14, 14, PLATE)
     for x in range(1, 15):
         dot(im, x, 1, PLATE_HI)
-    for x in (0, 15):
-        for y in (1, 14):
-            dot(im, x, y, RIM)
-    for x, y in ((1, 1), (14, 1), (1, 14), (14, 14)):
+    for y in range(1, 15):
+        dot(im, 1, y, PLATE_HI)
+    # the bolts in the corners
+    for x, y in ((2, 2), (13, 2), (2, 13), (13, 13)):
         dot(im, x, y, RIVET)
-    rect(im, 3, 2, 12, 11, WINDOW)
-    for x in range(3, 13):
-        dot(im, x, 2, WINDOW_HI)
+    # side rails: two dark grooves either side of the slot
+    for y in range(4, 12):
+        dot(im, 3, y, RIM)
+        dot(im, 12, y, RIM)
+    # the slot: a deep recess, a bright lip on its lower edge
+    rect(im, 6, 2, 9, 11, WINDOW)
+    for x in range(5, 11):
+        dot(im, x, 12, WINDOW_HI)
     for y in range(2, 12):
-        dot(im, 3, y, WINDOW_HI)
-    # the brackets of the sight
-    for x, y in ((3, 2), (4, 2), (3, 3), (12, 2), (11, 2), (12, 3),
-                 (3, 11), (4, 11), (3, 10), (12, 11), (11, 11), (12, 10)):
-        dot(im, x, y, WINDOW_HI)
+        dot(im, 5, y, RIM)
+        dot(im, 10, y, RIM)
 
     if state == 'active':
-        pulse = 0.5 + 0.5 * math.sin(TAU * frame / frames)
-        speed = 1.0
+        lit = lambda i: 1.0 if (i - frame * 10 // frames) % 5 < 2 else 0.35
+        colour = CERTUS
     elif state == 'paused':
-        pulse = 0.18 + 0.08 * math.sin(TAU * frame / frames)
-        speed = 0.25
+        lit = lambda i: 0.3 if i == 0 else 0.12
+        colour = LAMP_PAUSED
     else:
-        pulse = 0.35 + 0.25 * math.sin(TAU * frame / frames)
-        speed = 0.6
+        breathe = 0.35 + 0.3 * math.sin(TAU * frame / frames)
+        lit = lambda i: breathe if i in (0, 1) else 0.12
+        colour = CERTUS
+    # five segments of two rows each, the lowest (index 4) the first to light
+    for i in range(5):
+        k = lit(4 - i)   # i counts from the top, the level from the bottom
+        y0 = 2 + i * 2
+        c = mix(WINDOW, colour, k) if k < 1 else mix(colour, CERTUS_HI, 0.25)
+        for y in (y0, y0 + 1):
+            for x in (7, 8):
+                dot(im, x, y, c)
+                dot(em, x, y, c)
+        if k >= 1:
+            for x in (6, 9):
+                dot(im, x, y0, shade(colour, 0.7))
+                dot(em, x, y0, shade(colour, 0.7))
 
-    # the crystal: certus blue with a fluix heart that flares
-    heart = mix(FLUIX, FLUIX_HI, pulse)
-    core = mix(CERTUS, CERTUS_HI, pulse)
-    diamond(im, 7.5, 6.0, core)
-    diamond(em, 7.5, 6.0, mix(core, CERTUS_HI, 0.4))
-    # the fluix heart
-    dot(im, 7, 6, heart)
-    dot(im, 8, 6, heart)
-    dot(em, 7, 6, heart)
-    dot(em, 8, 6, heart)
-    # the redstone spark in the heart, wandering
-    sx = 7 + (1 if frame % 4 < 2 else 0)
-    sy = 6 if frame % 2 == 0 else 5
-    dot(im, sx, sy, SPARK)
-    dot(em, sx, sy, SPARK)
-
-    # the ring of resonance running out of the crystal
-    radius = 3.6 + speed * 1.6 * (0.5 + 0.5 * math.sin(TAU * frame / frames))
-    light = mix(CERTUS_LO, CERTUS, pulse * 0.9)
-    ring(im, 7.5, 6.0, radius, light)
-    ring(em, 7.5, 6.0, radius, mix(CERTUS_LO, CERTUS, 0.35 + 0.4 * pulse))
-
-    # the lamps below the window
     lamp = {'idle': LAMP_IDLE, 'active': LAMP_ACTIVE, 'paused': LAMP_PAUSED}[state]
+    rect(im, 4, 13, 11, 13, RIM)
     for i in range(3):
         x = 5 + i * 3
-        c = lamp if (i == 0 or (state == 'active' and i == 1)) else shade(lamp, 0.45)
+        c = lamp if (i == 0 or (state == 'active' and i == 1)) else shade(lamp, 0.4)
         dot(im, x, 13, c)
         dot(em, x, 13, c)
-    for x in range(3, 13):
-        dot(im, x, 14, RIM)
 
     return im, em
 

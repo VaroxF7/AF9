@@ -1,7 +1,9 @@
 {
-    "ldlib": {
-        "connection": "af9:block/ae2_machine_casing_active_emissive_ctm"
-    },
-    "animation": 
-        {"frametime": 5}
+  "animation": {
+    "frametime": 3,
+    "interpolate": true
+  },
+  "ldlib": {
+    "connection": "af9:block/ae2_machine_casing_active_emissive_ctm"
+  }
 }

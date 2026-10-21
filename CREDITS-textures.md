@@ -96,14 +96,9 @@ The Certus Resonating Manufacturer is a copy of TerraFirmaGreg's ME Resonance Fa
 The structure and the recipe page are taken over; the Java is ported to AF9 Core (`MEResonanceFabricatorMachine`,
 `ResonanceHatchPartMachine`) and the machine is registered in KubeJS
 (`startup_scripts/gtceu/me_resonance_fabricator.js`). The budding grades, the wear and the redstone port are gone: the
-Liquid Resonating Fluix in the Resonating Fluix Hatch stabilises the machine instead. Textures, copied unchanged at first
-(recipe textures `.mcmeta` with the namespace changed) and then lightened and given a slow shimmer by
-`tools/textures/resonator_casings.py`:
-
-| af9 file | TFG source (`kubejs/assets/tfg/textures/block/`) |
-|---|---|
-| `af9-core/.../textures/block/ptfe_black_casing.png` (+ `_ctm.png`, `.mcmeta`) | `casings/machine_casing_ptfe_black{,_ctm}.png` |
-| `af9-core/.../textures/block/ae2_machine_casing{,_active,_active_emissive}.png` (+ `_ctm.png`, `.mcmeta`) | `casings/machine_casing_ae2{,_active,_active_emissive}{,_ctm}.png` |
+Liquid Resonating Fluix in the Resonating Fluix Hatch stabilises the machine instead. The casings are GTCEu's Stable Titanium Machine Casing (`tools/textures/gt_src/`, LGPL-3.0) recoloured by
+`tools/textures/resonator_casings.py` (cold steel for `ae2_machine_casing`, whose seams glow certus blue while the machine
+works; graphite for `ptfe_black_casing`), joined by CTM. Recipe textures are TFG's.
 
 The controller face is AF9's own: `kubejs/assets/gtceu/textures/block/multiblock/me_resonator/overlay_front*.png`
 (`tools/textures/resonator_face.py`) — a certus crystal in a fluix heart with a ring of light around it.

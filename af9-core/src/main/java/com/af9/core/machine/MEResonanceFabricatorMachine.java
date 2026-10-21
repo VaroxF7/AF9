@@ -244,7 +244,7 @@ public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMach
                 .aisle(" CXC ", " C C ", " C C ", " C C ")
                 .where('X', (IMachineBlock) definition.get(), Direction.NORTH)
                 .where('C', block("af9:ae2_machine_casing"))
-                .where('G', block("ae2:quartz_vibrant_glass"))
+                .where('G', block("gtceu:fusion_glass"))
                 .where('P', block("gtceu:steel_pipe_casing"))
                 .where('H', (IMachineBlock) GTResearchMachines.BASIC_DATA_ACCESS_HATCH.get(), Direction.DOWN)
                 .where('i', (IMachineBlock) GTMachines.ITEM_IMPORT_BUS[GTValues.HV].get(), Direction.DOWN)

@@ -754,7 +754,7 @@
     "af9.me_fabricator.tooltip.4": "Accepts at most §6one§r energy hatch. No overclocks.",
     "af9.me_fabricator.stabilised": "Stabilised: %s mB of Liquid Resonating Fluix",
     "af9.me_fabricator.unstabilised": "No Liquid Resonating Fluix: every craft runs alone",
-    "af9.me_fabricator.recipe_hint": "Stabilised with Liquid Resonating Fluix",
+    "af9.me_fabricator.recipe_hint": "Stabiliser: Resonating Fluix",
     "af9.resonance_hatch.tooltip.0": "§7Takes §bLiquid Resonating Fluix§7 only.",
     "af9.resonance_hatch.tooltip.1": "§7The stabiliser of the §fCertus Resonating Manufacturer§7: while it has the fluid, the machine batches its crafts.",
     "af9.recipe_condition.oxygenated.true": "§bOxygenated Environment",
