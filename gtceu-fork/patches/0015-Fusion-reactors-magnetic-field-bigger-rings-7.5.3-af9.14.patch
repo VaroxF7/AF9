@@ -1,0 +1,532 @@
+From d4f2184b9cbcf69acf576a241a79d2e65d51e31b Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Wed, 21 Oct 2026 17:56:21 +0000
+Subject: [PATCH] Fusion reactors: magnetic field instead of standby power;
+ Mk1-Mk3 rings 19/23/27 blocks, ring render scales (7.5.3-af9.14)
+
+- FusionReactorMachine: the 4 A standby / 1 A running power is gone. The reactor builds a magnetic field (Mk1 1,000, Mk2 4,000,
+  Mk3 16,000, above 64,000; 1 % of it per tick for 1 A of its voltage) from the auxiliary hatches, else the primary ones. A
+  reaction starts at its min_field (recipe data, else eu_to_start / 160,000) and a run drains decay_rate (else a quarter of
+  min_field); below the minimum it waits. The field collapses with the structure. Adapted from CosmicCore's
+  MagneticFieldMachine (LGPL-3.0).
+- FusionStructure: the ring's centre row and column are repeated, so the ring is 19 / 23 / 27 blocks wide with the same shape.
+  The ring render follows.
+- New tooltip with field, size and run rules; controller screen and recipe label show the field.
+---
+ gradle.properties                             |   2 +-
+ .../machine/impl/FusionRingRender.java        |  13 +-
+ .../common/data/machines/GTMultiMachines.java |  84 +++++----
+ .../electric/FusionReactorMachine.java        | 166 ++++++++++--------
+ .../multiblock/electric/FusionStructure.java  |  59 +++++++
+ 5 files changed, 213 insertions(+), 111 deletions(-)
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionStructure.java
+
+diff --git a/gradle.properties b/gradle.properties
+index ff73545..a282f2f 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.12
++mod_version = 7.5.3-af9.14
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/client/renderer/machine/impl/FusionRingRender.java b/src/main/java/com/gregtechceu/gtceu/client/renderer/machine/impl/FusionRingRender.java
+index fb5e254..1b4792f 100644
+--- a/src/main/java/com/gregtechceu/gtceu/client/renderer/machine/impl/FusionRingRender.java
++++ b/src/main/java/com/gregtechceu/gtceu/client/renderer/machine/impl/FusionRingRender.java
+@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.client.renderer.machine.DynamicRenderType;
+ import com.gregtechceu.gtceu.client.util.BloomUtils;
+ import com.gregtechceu.gtceu.client.util.RenderBufferHelper;
+ import com.gregtechceu.gtceu.common.machine.multiblock.electric.FusionReactorMachine;
++import com.gregtechceu.gtceu.common.machine.multiblock.electric.FusionStructure;
+ 
+ import com.lowdragmc.shimmer.client.shader.RenderUtils;
+ 
+@@ -88,11 +89,13 @@ public class FusionRingRender extends DynamicRender<FusionReactorMachine, Fusion
+         var r = Mth.lerp(lerpFactor, red(lastColor), 255) / 255f;
+         var g = Mth.lerp(lerpFactor, green(lastColor), 255) / 255f;
+         var b = Mth.lerp(lerpFactor, blue(lastColor), 255) / 255f;
++        // AF9: the ring grows with the structure (FusionStructure): its centre is half the structure's width behind the controller
++        int half = FusionStructure.halfSize(machine.getTier());
+         RenderBufferHelper.renderRing(stack, buffer,
+-                back.getStepX() * 7 + 0.5F,
+-                back.getStepY() * 7 + 0.5F,
+-                back.getStepZ() * 7 + 0.5F,
+-                6, 0.2F, 10, 20,
++                back.getStepX() * half + 0.5F,
++                back.getStepY() * half + 0.5F,
++                back.getStepZ() * half + 0.5F,
++                half - 1, 0.2F, 10, Math.max(20, half * 3),
+                 r, g, b, alpha, axis);
+     }
+ 
+@@ -103,7 +106,7 @@ public class FusionRingRender extends DynamicRender<FusionReactorMachine, Fusion
+ 
+     @Override
+     public int getViewDistance() {
+-        return 32;
++        return 64;
+     }
+ 
+     @Override
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+index de99103..0fae3fe 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+@@ -656,31 +656,40 @@ public class GTMultiMachines {
+                     .recipeModifiers(DEFAULT_ENVIRONMENT_REQUIREMENT,
+                             FusionReactorMachine::recipeModifier, BATCH_MODE)
+                     .tooltips(
+-                            Component.translatable("gtceu.machine.fusion_reactor.capacity",
+-                                    Math.min(FusionReactorMachine.AF9_MAX_START_EU,
+-                                            FusionReactorMachine.calculateEnergyStorageFactor(tier, 16)) / 1000000L),
++                            Component.translatable("af9.fusion.tooltip.field",
++                                    FormattingUtil.formatNumbers(FusionReactorMachine.fieldCapacity(tier)),
++                                    FormattingUtil.formatNumbers(FusionReactorMachine.fieldRegen(tier)),
++                                    GTValues.VNF[Math.min(tier, GTValues.UV)]),
++                            Component.translatable("af9.fusion.tooltip.run"),
++                            Component.translatable("af9.fusion.tooltip.size",
++                                    15 + FusionStructure.extra(tier)),
+                             Component.translatable("gtceu.machine.fusion_reactor.overclocking"),
+                             Component.translatable("gtceu.multiblock.%s_fusion_reactor.description"
+                                     .formatted(VN[tier].toLowerCase(Locale.ROOT))))
+                     .appearanceBlock(() -> FusionReactorMachine.getCasingState(tier))
+                     .pattern((definition) -> {
+                         var casing = blocks(FusionReactorMachine.getCasingState(tier));
+-                        return FactoryBlockPattern.start()
+-                                .aisle("###############", "######OGO######", "###############")
+-                                .aisle("######ICI######", "####GGAAAGG####", "######ICI######")
+-                                .aisle("####CC###CC####", "###EAAOGOAAE###", "####CC###CC####")
+-                                .aisle("###C#######C###", "##EKEG###GEKE##", "###C#######C###")
+-                                .aisle("##C#########C##", "#GAE#######EAG#", "##C#########C##")
+-                                .aisle("##C#########C##", "#GAG#######GAG#", "##C#########C##")
+-                                .aisle("#I###########I#", "OAO#########OAO", "#I###########I#")
+-                                .aisle("#C###########C#", "GAG#########GAG", "#C###########C#")
+-                                .aisle("#I###########I#", "OAO#########OAO", "#I###########I#")
+-                                .aisle("##C#########C##", "#GAG#######GAG#", "##C#########C##")
+-                                .aisle("##C#########C##", "#GAE#######EAG#", "##C#########C##")
+-                                .aisle("###C#######C###", "##EKEG###GEKE##", "###C#######C###")
+-                                .aisle("####CC###CC####", "###EAAOGOAAE###", "####CC###CC####")
+-                                .aisle("######ICI######", "####GGAAAGG####", "######ICI######")
+-                                .aisle("###############", "######OSO######", "###############")
++                        var rows = FusionStructure.expand(new String[][] {
++                                        {"###############", "######OGO######", "###############"},
++                                        {"######ICI######", "####GGAAAGG####", "######ICI######"},
++                                        {"####CC###CC####", "###EAAOGOAAE###", "####CC###CC####"},
++                                        {"###C#######C###", "##EKEG###GEKE##", "###C#######C###"},
++                                        {"##C#########C##", "#GAE#######EAG#", "##C#########C##"},
++                                        {"##C#########C##", "#GAG#######GAG#", "##C#########C##"},
++                                        {"#I###########I#", "OAO#########OAO", "#I###########I#"},
++                                        {"#C###########C#", "GAG#########GAG", "#C###########C#"},
++                                        {"#I###########I#", "OAO#########OAO", "#I###########I#"},
++                                        {"##C#########C##", "#GAG#######GAG#", "##C#########C##"},
++                                        {"##C#########C##", "#GAE#######EAG#", "##C#########C##"},
++                                        {"###C#######C###", "##EKEG###GEKE##", "###C#######C###"},
++                                        {"####CC###CC####", "###EAAOGOAAE###", "####CC###CC####"},
++                                        {"######ICI######", "####GGAAAGG####", "######ICI######"},
++                                        {"###############", "######OSO######", "###############"},
++                                },
++                                FusionStructure.extra(tier), 'S', 'G');
++                        var builder = FactoryBlockPattern.start();
++                        for (String[] aisle : rows) builder.aisle(aisle);
++                        return builder
+                                 .where('S', controller(blocks(definition.get())))
+                                 .where('G', blocks(FUSION_GLASS.get()).or(casing))
+                                 .where('E', casing.or(
+@@ -697,22 +706,27 @@ public class GTMultiMachines {
+                     .shapeInfos((controller) -> {
+                         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+ 
+-                        MultiblockShapeInfo.ShapeInfoBuilder baseBuilder = MultiblockShapeInfo.builder()
+-                                .aisle("###############", "######NMN######", "###############")
+-                                .aisle("######DCD######", "####GG###GG####", "######UCU######")
+-                                .aisle("####CC###CC####", "###w##SGS##e###", "####CC###CC####")
+-                                .aisle("###C#######C###", "##nKsG###GsKn##", "###C#######C###")
+-                                .aisle("##C#########C##", "#G#e#######w#G#", "##C#########C##")
+-                                .aisle("##C#########C##", "#G#G#######G#G#", "##C#########C##")
+-                                .aisle("#D###########D#", "W#E#########W#E", "#U###########U#")
+-                                .aisle("#C###########C#", "G#G#########G#G", "#C###########C#")
+-                                .aisle("#D###########D#", "W#E#########W#E", "#U###########U#")
+-                                .aisle("##C#########C##", "#G#G#######G#G#", "##C#########C##")
+-                                .aisle("##C#########C##", "#G#e#######w#G#", "##C#########C##")
+-                                .aisle("###C#######C###", "##sKnG###GnKs##", "###C#######C###")
+-                                .aisle("####CC###CC####", "###w##NGN##e###", "####CC###CC####")
+-                                .aisle("######DCD######", "####GG###GG####", "######UCU######")
+-                                .aisle("###############", "######SGS######", "###############")
++                        var previewRows = FusionStructure.expand(new String[][] {
++                                        {"###############", "######NMN######", "###############"},
++                                        {"######DCD######", "####GG###GG####", "######UCU######"},
++                                        {"####CC###CC####", "###w##SGS##e###", "####CC###CC####"},
++                                        {"###C#######C###", "##nKsG###GsKn##", "###C#######C###"},
++                                        {"##C#########C##", "#G#e#######w#G#", "##C#########C##"},
++                                        {"##C#########C##", "#G#G#######G#G#", "##C#########C##"},
++                                        {"#D###########D#", "W#E#########W#E", "#U###########U#"},
++                                        {"#C###########C#", "G#G#########G#G", "#C###########C#"},
++                                        {"#D###########D#", "W#E#########W#E", "#U###########U#"},
++                                        {"##C#########C##", "#G#G#######G#G#", "##C#########C##"},
++                                        {"##C#########C##", "#G#e#######w#G#", "##C#########C##"},
++                                        {"###C#######C###", "##sKnG###GnKs##", "###C#######C###"},
++                                        {"####CC###CC####", "###w##NGN##e###", "####CC###CC####"},
++                                        {"######DCD######", "####GG###GG####", "######UCU######"},
++                                        {"###############", "######SGS######", "###############"},
++                                },
++                                FusionStructure.extra(tier), 'M', 'G');
++                        MultiblockShapeInfo.ShapeInfoBuilder baseBuilder = MultiblockShapeInfo.builder();
++                        for (String[] aisle : previewRows) baseBuilder.aisle(aisle);
++                        baseBuilder
+                                 .where('M', controller, Direction.NORTH)
+                                 .where('C', FusionReactorMachine.getCasingState(tier))
+                                 .where('G', FUSION_GLASS.get())
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
+index 7320226..c81d008 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
+@@ -20,6 +20,7 @@ import com.gregtechceu.gtceu.utils.GTUtil;
+ import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
+ import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
+ import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
++import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
+ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
+ import com.lowdragmc.lowdraglib.utils.LocalizationUtils;
+ 
+@@ -65,23 +66,31 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+     @Getter
+     private final int tier;
+     /**
+-     * AF9: the largest reaction (its eu_to_start data) a Mk1 to Mk3 starts: 160 M, 320 M, 640 M. The recipes' start energy is
+-     * no buffer any more, it only says which reactor a reaction needs.
++     * AF9: the largest reaction (its eu_to_start data) a Mk1 to Mk3 can run: 160 M, 320 M, 640 M. The recipes' start energy is
++     * no buffer: it only says which reactor class a reaction needs, and (divided by {@link #EU_PER_FIELD}) the magnetic field
++     * it needs when the recipe names no {@code min_field} of its own.
+      */
+     public static final long AF9_MAX_START_EU = 640000000L;
+-    /** AF9: auxiliary amperage while it stands by (ready), and while a reaction runs. */
+-    public static final int AF9_STANDBY_AMPS = 4;
+-    public static final int AF9_RUNNING_AMPS = 1;
++    /** AF9: EU of start class per point of minimum field, for a recipe without {@code min_field}: 160 M is 1,000 field. */
++    public static final long EU_PER_FIELD = 160000L;
++    /** AF9: the part of a reaction's minimum field a run drains, as 1 / this, for a recipe without {@code decay_rate}. */
++    public static final int FIELD_DECAY_DIVISOR = 4;
+ 
++    /**
++     * AF9: the magnetic field (adapted from CosmicCore's {@code MagneticFieldMachine}, LGPL-3.0): the reactor builds it
++     * from its energy hatches, a reaction starts only at its minimum field and each run drains a part of it. It collapses
++     * with the structure.
++     */
+     @Getter
++    @Persisted
+     @DescSynced
+-    private Integer color = -1;
+-    /** AF9: whether the last tick had its auxiliary power (standby or running); the reactor is ready only then. */
++    protected int fieldStrength = 0;
++
+     @Getter
+     @DescSynced
+-    protected boolean ready = false;
++    private Integer color = -1;
+     @Nullable
+-    protected TickableSubscription standbySubs;
++    protected TickableSubscription fieldSubs;
+ 
+     public FusionReactorMachine(IMachineBlockEntity holder, int tier) {
+         super(holder);
+@@ -96,37 +105,55 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+         return MANAGED_FIELD_HOLDER;
+     }
+ 
+-    /** AF9: the voltage tier of the auxiliary power: LuV for the Mk1 to Mk3, UV for the Mega Fusion Reactor above them. */
+-    public int getAuxiliaryTier() {
+-        return tier > GTValues.UV ? GTValues.UV : GTValues.LuV;
++    /** The largest field a reactor of this tier holds: 1,000 / 4,000 / 16,000 for the Mk1 / Mk2 / Mk3, 64,000 above them. */
++    public static int fieldCapacity(int tier) {
++        return switch (tier) {
++            case GTValues.LuV -> 1000;
++            case GTValues.ZPM -> 4000;
++            case GTValues.UV -> 16000;
++            default -> 64000;
++        };
+     }
+ 
+-    public long getStandbyEUt() {
+-        return AF9_STANDBY_AMPS * GTValues.V[getAuxiliaryTier()];
++    /** Field built per tick while the reactor is below its capacity (1 % of the capacity). */
++    public static int fieldRegen(int tier) {
++        return fieldCapacity(tier) / 100;
+     }
+ 
+-    public long getRunningEUt() {
+-        return AF9_RUNNING_AMPS * GTValues.V[getAuxiliaryTier()];
++    /** What building the field costs each tick: 1 A of the reactor's voltage (UV at most). */
++    public static long fieldChargeEUt(int tier) {
++        return GTValues.V[Math.min(tier, GTValues.UV)];
+     }
+ 
+-    /** AF9: the auxiliary hatches hold the power when there are any, else the primary hatches do. */
+-    protected boolean hasAuxiliaryHatches() {
+-        return !getAuxiliaryHatches().isEmpty();
++    public int getFieldCapacity() {
++        return fieldCapacity(tier);
+     }
+ 
+-    /** What the base class draws from the auxiliary hatches: 1 A while a reaction runs, 4 A otherwise. */
+-    @Override
+-    protected long getBaseAuxiliaryEUt() {
+-        if (!hasAuxiliaryHatches()) return 0;
+-        return recipeLogic.isWorking() ? getRunningEUt() : getStandbyEUt();
++    /** The field a reaction needs to start: its {@code min_field} data, else its start class over {@link #EU_PER_FIELD}. */
++    public static int minField(GTRecipe recipe) {
++        if (recipe.data.contains("min_field")) return recipe.data.getInt("min_field");
++        return (int) Math.max(1, recipe.data.getLong("eu_to_start") / EU_PER_FIELD);
++    }
++
++    /** What a run of the reaction drains: its {@code decay_rate} data, else a quarter of its minimum field. */
++    public static int fieldDecay(GTRecipe recipe) {
++        if (recipe.data.contains("decay_rate")) return recipe.data.getInt("decay_rate");
++        return minField(recipe) / FIELD_DECAY_DIVISOR;
+     }
+ 
+-    private boolean primaryHolds(long eut) {
+-        return getEnergyContainer() != null && getEnergyContainer().getEnergyStored() >= eut;
++    private void setFieldStrength(int value) {
++        value = Math.max(0, Math.min(value, getFieldCapacity()));
++        if (fieldStrength != value) {
++            fieldStrength = value;
++            markDirty();
++        }
+     }
+ 
+-    private boolean drawPrimary(long eut) {
+-        return primaryHolds(eut) && getEnergyContainer().removeEnergy(eut) > 0;
++    /** AF9: the auxiliary hatches pay the field when there are any, else the primary hatches do. */
++    private boolean drawField(long eut) {
++        if (!getAuxiliaryHatches().isEmpty()) return drawAuxiliary(eut);
++        return getEnergyContainer() != null && getEnergyContainer().getEnergyStored() >= eut &&
++                getEnergyContainer().removeEnergy(eut) > 0;
+     }
+ 
+     //////////////////////////////////////
+@@ -135,54 +162,56 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+     @Override
+     public void onLoad() {
+         super.onLoad();
+-        if (!isRemote()) updateStandbySubscription();
++        if (!isRemote()) updateFieldSubscription();
+     }
+ 
+     @Override
+     public void onStructureFormed() {
+         super.onStructureFormed();
+-        updateStandbySubscription();
++        updateFieldSubscription();
+     }
+ 
+     @Override
+     public void onStructureInvalid() {
+         super.onStructureInvalid();
+-        ready = false;
+-        updateStandbySubscription();
++        setFieldStrength(0);
++        updateFieldSubscription();
+     }
+ 
+-    protected void updateStandbySubscription() {
++    protected void updateFieldSubscription() {
+         if (isFormed()) {
+-            standbySubs = subscribeServerTick(standbySubs, this::standbyTick);
+-        } else if (standbySubs != null) {
+-            standbySubs.unsubscribe();
+-            standbySubs = null;
++            fieldSubs = subscribeServerTick(fieldSubs, this::fieldTick);
++        } else if (fieldSubs != null) {
++            fieldSubs.unsubscribe();
++            fieldSubs = null;
+         }
+     }
+ 
+-    /**
+-     * AF9: the reactor is always on: it draws its standby power every tick it is not running a reaction (a running one
+-     * draws the running power in onWorking). There is no start buffer to charge or heat to hold.
+-     */
+-    protected void standbyTick() {
+-        if (!isFormed()) return;
+-        if (recipeLogic.isWorking()) return;
+-        boolean powered = hasAuxiliaryHatches() ? drawAuxiliary(getStandbyEUt()) : drawPrimary(getStandbyEUt());
+-        if (ready != powered) ready = powered;
++    /** AF9: builds the field, also while a reaction runs; a full field draws nothing. */
++    protected void fieldTick() {
++        if (!isFormed() || !isWorkingEnabled()) return;
++        if (fieldStrength >= getFieldCapacity()) return;
++        if (drawField(fieldChargeEUt(tier))) {
++            setFieldStrength(fieldStrength + fieldRegen(tier));
++        }
+     }
+ 
+     @Override
+     public boolean beforeWorking(@Nullable GTRecipe recipe) {
+-        // the auxiliary case is checked by the base class (getBaseAuxiliaryEUt); without auxiliary hatches the primary ones pay
+-        if (!hasAuxiliaryHatches() && !primaryHolds(getStandbyEUt())) return false;
+-        return super.beforeWorking(recipe);
++        if (recipe == null) return false;
++        int min = minField(recipe);
++        if (fieldStrength < min) return false;
++        if (!super.beforeWorking(recipe)) return false;
++        setFieldStrength(fieldStrength - fieldDecay(recipe));
++        return true;
+     }
+ 
+     /**
+      * Recipe Modifier for <b>Fusion Reactors</b> - can be used as a valid {@link RecipeModifier}
+      * <p>
+-     * AF9: a reaction needs the reactor to be ready (standby power) and of a class that can start it: its recipe tier, and
+-     * the {@code eu_to_start} data against the largest start a tier holds (it is no buffer any more). Then
++     * AF9: a reaction needs a reactor of a class that can start it (its recipe tier, and the {@code eu_to_start} data against
++     * the largest start a tier holds, no buffer any more), a field capacity that reaches its minimum field, and the field
++     * itself: below the minimum the reaction waits for the field to build. Then
+      * {@link FusionReactorMachine#FUSION_OC} applies.
+      * </p>
+      *
+@@ -197,12 +226,13 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+         if (RecipeHelper.getRecipeEUtTier(recipe) > fusionReactorMachine.getTier() ||
+                 !recipe.data.contains("eu_to_start") ||
+                 recipe.data.getLong("eu_to_start") > Math.min(AF9_MAX_START_EU,
+-                        calculateEnergyStorageFactor(fusionReactorMachine.getTier(), 16))) {
++                        calculateEnergyStorageFactor(fusionReactorMachine.getTier(), 16)) ||
++                minField(recipe) > fusionReactorMachine.getFieldCapacity()) {
+             return ModifierFunction
+                     .cancel(Component.translatable("gtceu.recipe_modifier.insufficient_eu_to_start_fusion"));
+         }
+-        if (!fusionReactorMachine.ready) {
+-            return ModifierFunction.cancel(Component.translatable("af9.fusion.not_ready"));
++        if (fusionReactorMachine.fieldStrength < minField(recipe)) {
++            return ModifierFunction.cancel(Component.translatable("af9.fusion.field_low", minField(recipe)));
+         }
+         return FUSION_OC.getModifier(machine, recipe, fusionReactorMachine.getMaxVoltage(), false);
+     }
+@@ -211,12 +241,6 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+     public boolean onWorking() {
+         GTRecipe recipe = recipeLogic.getLastRecipe();
+         assert recipe != null;
+-        // without auxiliary hatches the running power comes from the primary ones; the reactor goes cold without it
+-        if (!hasAuxiliaryHatches() && !drawPrimary(getRunningEUt())) {
+-            ready = false;
+-            return false;
+-        }
+-
+         if (color == -1) {
+             if (!recipe.getOutputContents(FluidRecipeCapability.CAP).isEmpty()) {
+                 var stack = FluidRecipeCapability.CAP
+@@ -227,9 +251,7 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+                 }
+             }
+         }
+-        boolean ok = super.onWorking();
+-        ready = ok;
+-        return ok;
++        return super.onWorking();
+     }
+ 
+     @Override
+@@ -256,11 +278,15 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+     public void addDisplayText(List<Component> textList) {
+         super.addDisplayText(textList);
+         if (isFormed()) {
+-            boolean working = recipeLogic.isWorking();
+-            textList.add(Component.translatable(ready ? "af9.fusion.ready" : "af9.fusion.offline"));
+-            textList.add(Component.translatable("af9.fusion.aux", GTValues.VNF[getAuxiliaryTier()],
+-                    working ? AF9_RUNNING_AMPS : AF9_STANDBY_AMPS));
+-            if (!hasAuxiliaryHatches()) textList.add(Component.translatable("af9.fusion.aux_primary"));
++            textList.add(Component.translatable("af9.fusion.field", FormattingUtil.formatNumbers(fieldStrength),
++                    FormattingUtil.formatNumbers(getFieldCapacity()), fieldRegen(tier)));
++            if (fieldStrength < getFieldCapacity()) {
++                textList.add(Component.translatable("af9.fusion.field_charging", GTValues.VNF[Math.min(tier, GTValues.UV)]));
++            }
++            var last = recipeLogic.getLastRecipe();
++            if (last != null && last.data.contains("eu_to_start")) {
++                textList.add(Component.translatable("af9.fusion.field_recipe", minField(last), fieldDecay(last)));
++            }
+         }
+     }
+ 
+@@ -271,8 +297,8 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+         int fusionTier = findCeilingTier(euToStart);
+         int tier = Math.max(MINIMUM_TIER, Math.max(recipeTier, fusionTier));
+         group.addWidget(new LabelWidget(-8, group.getSizeHeight() - 10,
+-                LocalizationUtils.format("gtceu.recipe.eu_to_start",
+-                        FormattingUtil.formatNumberReadable2F(euToStart, false),
++                LocalizationUtils.format("af9.fusion.recipe_field",
++                        FormattingUtil.formatNumbers(minField(recipe)),
+                         FUSION_NAMES.get(tier))));
+     }
+ 
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionStructure.java b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionStructure.java
+new file mode 100644
+index 0000000..69b8e49
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionStructure.java
+@@ -0,0 +1,59 @@
++package com.gregtechceu.gtceu.common.machine.multiblock.electric;
++
++import com.gregtechceu.gtceu.api.GTValues;
++
++/**
++ * AF9: the size of the fusion reactors' ring. GT's ring is 15 x 15 blocks; the Mk1 to Mk3 get more of the same ring by
++ * lengthening its straight sides: the centre column and the centre row of the pattern are repeated, so the ring keeps its
++ * shape, its four coil blocks and its hatch positions. Mk1 is 19 x 19, Mk2 23 x 23, Mk3 27 x 27.
++ */
++public final class FusionStructure {
++
++    /** The column / row of GT's 15 x 15 pattern that is repeated: its centre. */
++    private static final int CENTER = 7;
++
++    private FusionStructure() {}
++
++    /** How many columns and rows are added to GT's 15 x 15 ring (even, so the controller stays in the middle). */
++    public static int extra(int tier) {
++        return switch (tier) {
++            case GTValues.LuV -> 4;
++            case GTValues.ZPM -> 8;
++            case GTValues.UV -> 12;
++            default -> 0;
++        };
++    }
++
++    /** Half the width of the ring, in blocks: 7 for GT's ring. The ring's centre is this far behind the controller. */
++    public static int halfSize(int tier) {
++        return CENTER + extra(tier) / 2;
++    }
++
++    /**
++     * GT's aisles (15 aisles of 3 strings of 15 characters) with the centre aisle and the centre column repeated {@code extra}
++     * times in all. {@code controller} (the controller character) is repeated as {@code fill} so there is only one controller.
++     */
++    public static String[][] expand(String[][] base, int extra, char controller, char fill) {
++        int half = extra / 2;
++        String[][] widened = new String[base.length][];
++        for (int a = 0; a < base.length; a++) {
++            widened[a] = new String[base[a].length];
++            for (int s = 0; s < base[a].length; s++) {
++                String row = base[a][s];
++                char mid = row.charAt(CENTER);
++                char dup = mid == controller ? fill : mid;
++                widened[a][s] = row.substring(0, CENTER) + String.valueOf(dup).repeat(half) + mid +
++                        String.valueOf(dup).repeat(half) + row.substring(CENTER + 1);
++            }
++        }
++        String[][] result = new String[base.length + extra][];
++        int out = 0;
++        for (int a = 0; a < widened.length; a++) {
++            result[out++] = widened[a];
++            if (a == CENTER) {
++                for (int i = 0; i < extra; i++) result[out++] = widened[a].clone();
++            }
++        }
++        return result;
++    }
++}
+-- 
+2.43.0
+

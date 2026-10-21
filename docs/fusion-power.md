@@ -17,7 +17,7 @@ Bold ones are new. A higher reactor runs the recipes of the lower ones, and the 
 one and a half times the power (the base pack's rule for GT's recipes, applied here to AF9's too).
 
 The *Start EU* columns below are a class gate, not a buffer: a reactor takes a reaction up to 160 M (Mk1), 320 M (Mk2) or
-640 M (Mk3, Mega), and the reaction needs the reactor's voltage tier too. Nothing is charged first (section 7).
+640 M (Mk3, Mega), and the reaction needs the reactor's voltage tier too. Nothing is charged first; the reactor builds a magnetic field instead (section 7).
 
 ## 2. The reactions
 
@@ -91,19 +91,31 @@ structure breaks, suspend). Every tier ramps, Mk1 through the Mega (one machine 
 mixin `FusionReactorMixin` on GT's `recipeModifier`). The controller screen shows the current
 discount (`af9.fusion.ramp`).
 
-## 7. Standby power instead of a start buffer
+## 7. Magnetic field instead of a start buffer
 
-A fusion reactor has no internal EU buffer and no heat to build up. It is **always on** and needs auxiliary power all the time
-(fork patch `0009`, `FusionReactorMachine`; see [auxiliary-power.md](auxiliary-power.md)):
+A fusion reactor has no internal EU buffer, no heat and no standby power. It builds a **magnetic field** instead (fork patch `0015`,
+`FusionReactorMachine`; adapted from CosmicCore's `MagneticFieldMachine`, LGPL-3.0):
 
-| Reactor | Standing by (ready) | While a reaction runs |
-| --- | --- | --- |
-| Mk1, Mk2, Mk3 | 4 A of LuV | 1 A of LuV |
-| Mega Fusion Reactor (and anything above the Mk3) | 4 A of UV | 1 A of UV |
+| Reactor | Ring | Field it holds | Builds per tick | Costs per tick while building |
+| --- | --- | --- | --- | --- |
+| Mk1 | 19 x 19 | 1,000 | 10 | 1 A of LuV |
+| Mk2 | 23 x 23 | 4,000 | 40 | 1 A of ZPM |
+| Mk3 | 27 x 27 | 16,000 | 160 | 1 A of UV |
+| Mega (above the Mk3) | its own | 64,000 | 640 | 1 A of UV |
 
-* Put an energy hatch in **Auxiliary** mode (screwdriver) for it. Without any auxiliary hatch the primary hatches pay it.
-* The reactor is **ready** only while it got its power that tick; the controller screen says "Standby power: ready" or
-  "OFFLINE". No reaction starts while it is offline (the recipe viewers' modifier says so), and when the power fails during a
-  run the reaction is lost.
-* The reaction's own EU/t is the primary power, as before, and overclocking is unchanged.
-* The recipe's *EU to start* label in JEI/EMI now reads "Needs the reactor class: (MKn)".
+* The field builds from the **auxiliary** energy hatches (screwdriver mode) when the reactor has any, else from the primary ones,
+  until it is full; a full field costs nothing. It builds while a reaction runs too.
+* A reaction **starts** only when the field is at its `min_field` and a run **drains** `decay_rate` of it (recipe data in KubeJS:
+  `.addData('min_field', 800)`, `.addData('decay_rate', 200)`). Without them: `min_field` = start class / 160,000 (160 M = 1,000)
+  and `decay_rate` = a quarter of that. Below the minimum the reactor just waits for the field to build.
+* A reactor whose capacity is under a reaction's `min_field` cannot run it (the start class gates stay as they were: 160 M /
+  320 M / 640 M).
+* The field collapses to 0 when the structure breaks.
+* The controller screen shows the field, what is building it, and the minimum and drain of the running reaction. The recipe
+  viewers' label reads "Needs magnetic field: N (MKn)".
+
+### The ring
+
+The Mk1 to Mk3 keep GT's ring but longer: the centre row and column of GT's 15 x 15 pattern are repeated (`FusionStructure`), so the
+shape, the four coil blocks and the hatch positions stay, and the straight sides grow: 19, 23, 27 blocks wide. The light ring follows
+the size. Existing reactors have to be rebuilt.
