@@ -13,7 +13,7 @@
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
-    const UHV_AMPS = 100
+    const UHV_AMPS = 48
     const gt = event.recipes.gtceu
 
     // ---- the mixes: dust to dust, then GT's EBF melts them ----
