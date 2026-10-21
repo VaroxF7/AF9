@@ -3,7 +3,7 @@
 //
 // The winding recipes are generated for every material that has fine wire, so a material added later gets its spool
 // without touching this file. The machine recipes are the usual hull + circuits + motors pattern; the Large Spooler
-// also takes four tungstensteel spools, so it needs an IV Spooler before it can be built.
+// also takes four tungstensteel spools, so it needs a Spooler of IV or higher before it can be built.
 
 const $GTCEuAPI = Java.loadClass('com.gregtechceu.gtceu.api.GTCEuAPI')
 const $MaterialFlags = Java.loadClass('com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags')
@@ -14,7 +14,6 @@ ServerEvents.recipes(event => {
     // ---- Spools: 64x fine wire -> 1 spool ----
     $GTCEuAPI.materialManager.getRegisteredMaterials().forEach(material => {
         if (!material.hasFlag($MaterialFlags.GENERATE_FINE_WIRE)) return
-        if (material.hasFlag($MaterialFlags.NO_UNIFICATION)) return
         if (material.hasFlag($MaterialFlags.DISABLE_MATERIAL_RECIPES)) return
 
         const name = material.getName()
@@ -26,9 +25,9 @@ ServerEvents.recipes(event => {
     })
 
     // ---- Spooler single blocks (LV-UHV) ----
-    // tier, the metal whose plates make the frame of that tier's machine, GT's tier index, and the tier whose
-    // motors/conveyors/robot arms go in. UHV parts are dev-only in GT, so the UHV Spooler uses UV parts with a UHV
-    // hull and UHV circuits, the way AF9's other UHV machines do.
+    // tier, the metal whose plates go into that tier's machine, GT's tier index, and the tier whose
+    // motors/conveyors/robot arms go in. UHV parts are dev-only in GT, so the UHV Spooler uses UV parts and UV
+    // circuits with a UHV hull, the way AF9's other UHV machines do.
     const tiers = [
         ['lv', 'steel', GTValues.LV, 'lv'],
         ['mv', 'aluminium', GTValues.MV, 'mv'],
@@ -41,6 +40,20 @@ ServerEvents.recipes(event => {
         ['uhv', 'neutronium', GTValues.UHV, 'uv']
     ]
     tiers.forEach(([tier, metal, voltage, parts]) => {
+        // GT's UHV assembler is off in the pack (gt-dev-only.txt), so a UHV-EUt assembler recipe could never run.
+        // The UHV Spooler is a shaped recipe with a UHV hull and UV parts and circuits instead, like AF9's other
+        // top-tier machines; it is craftable before the first UHV circuit.
+        if (tier === 'uhv') {
+            event.shaped(`gtceu:${tier}_spooler`, ['PMP', 'CHC', 'PVP'], {
+                P: `gtceu:${metal}_plate`,
+                M: `gtceu:${parts}_electric_motor`,
+                C: `#gtceu:circuits/${parts}`,
+                H: `gtceu:${tier}_machine_hull`,
+                V: `gtceu:${parts}_conveyor_module`
+            }).id(`af9:${tier}_spooler`)
+            return
+        }
+
         event.recipes.gtceu.assembler(`af9:${tier}_spooler`)
             .itemInputs(
                 `gtceu:${tier}_machine_hull`,
