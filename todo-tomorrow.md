@@ -2,7 +2,7 @@
 
 - [x] AE2 processor recipes in the Certus Resonating Manufacturer (done: `me_resonance_fabricator_recipes.js` — single + bulk, cleanroom + oxygenated air)
   - Screenshot: https://prnt.sc/bDo4SOkAipx6
-- [X] Resonance Chamber → MV Mover
+- [x] Resonance Chamber → MV Mover
   - Screenshot: _pending_
 - [x] Remove old processor recipes from AE2 (done: sweep now removes them from ALL mods/machines + inscriber id pattern)
   - Screenshot: _pending_
@@ -80,7 +80,7 @@
 
 
 ## TFG Reference Screenshots
-
+<>
 - https://prnt.sc/cBKmQ5mYkX8H
 - https://prnt.sc/RHcvp3BurQF7
 - https://prnt.sc/XG-V2MwaFwYL
