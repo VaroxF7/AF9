@@ -207,7 +207,8 @@ Resonating Fluix Hatch, and a Data Access Hatch for the research slot.
   **cleanroom** (where TFG asked for the Moon) and most of them for an oxygenated air.
 - **Crafting (MV)**: the machine and both casings take an **MV circuit**; the AE2 casing (`af9:ae2_machine_casing`,
   6 certus plates + liquid certus on a **steel** frame — no stainless, which is HV) is the structure's block and the
-  controller's, too: `gtceu:me_assembler` is 3x that casing + 2 spatial pylons + 4 charged certus + an MV circuit.
+  controller's, too: `gtceu:me_assembler` is 2x that casing (one casing craft) + 2 spatial pylons + 4 charged certus
+  + an MV circuit.
   **No PTFE anywhere in the machine** — TFG's black PTFE casing recipe stays as a spare block (its fluid is HV).
   The Resonating Fluix Hatch keeps its HV → UHV ladder (the stabiliser is a bonus, not a gate).
 - **Cell components** (1k → 256k) are the chamber's alone: **all ZPM** on the pack's own chip
