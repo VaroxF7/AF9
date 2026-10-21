@@ -52,7 +52,7 @@ LGPL-3.0 or later, <https://github.com/GTNewHorizons/GT5-Unofficial>; licence te
 | `af9-core/.../textures/block/satellite_casing.png` (+ `_ctm.png`, `.mcmeta`) | `gtnhintergalactic/textures/blocks/gasSiphon/SiphonCasing.png` | recoloured to the colours of Enriched Naquadah Trinium Europium Duranide (`tools/textures/satellite_casing.py`) |
 | `kubejs/assets/gtceu/textures/block/multiblock/planetary_satellite/overlay_front*.png` (controller face) | `gregtech/textures/blocks/iconsets/OVERLAY_FRONT_PLANETARYSIPHON{,_GLOW,_ACTIVE_GLOW}.png` | animated while working: the orb breathes, a glint sweeps over it (`tools/textures/satellite_casing.py`) |
 
-The three Neutron Ray Reflectors keep the plate of GregTech CEu Modern's Iridium Neutron Reflector
+The six Neutron Ray Reflectors keep the plate of GregTech CEu Modern's Iridium Neutron Reflector
 (`gtceu/textures/item/neutron_reflector.png`, <https://github.com/GregTechCEu/GregTech-Modern>, LGPL-3.0; copy in `tools/textures/gt_src/`),
 each tier on its own colour ramp with a glow sweeping over it (16-frame strip + `.mcmeta`, `tools/textures/ray_reflectors.py`):
 
@@ -61,6 +61,9 @@ each tier on its own colour ramp with a glow sweeping over it (16-frame strip + 
 | `iridium_ray_reflector.png` (+ `.mcmeta`) | recoloured cold silver; a glow band crosses it left to right |
 | `osmiridium_ray_reflector.png` (+ `.mcmeta`) | recoloured blue steel; the band crosses it diagonally |
 | `unobtainium_vibranium_ray_reflector.png` (+ `.mcmeta`) | recoloured violet; the band runs down it while it breathes |
+| `tritanium_ray_reflector.png` (+ `.mcmeta`) | recoloured teal; the band crosses it left to right |
+| `ceranium_ray_reflector.png` (+ `.mcmeta`) | recoloured amber; the band crosses it diagonally |
+| `neutronium_ray_reflector.png` (+ `.mcmeta`) | recoloured crimson; the band runs down it while it breathes |
 
 ## Mk2 Orbital Array casings
 

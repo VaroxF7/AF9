@@ -38,15 +38,15 @@
 - [ ] No more MK1/MK2 structures for the DTPF — only 1 multiblock + machine upgrades
 - [ ] Remove all nuclear content — rework soon (like TFG): spent fuel pool, FX Reactor MK1 & MK2
 - [ ] Remove Bacteria Breeding Station & Water Filtration — rework and add to the Evaporation Condensation Well
-- [ ] New fusion structures for MK1, MK2 & MK3
+- [x] New fusion structures for MK1, MK2 & MK3 (done: rings 19 / 23 / 27 and a magnetic field instead of standby power, fork patch 0015)
   - Screenshot: https://prnt.sc/JqHcK7HhmmRg
   - Screenshot: https://prnt.sc/LhTCS-pNqPBY
   - Screenshot: https://prnt.sc/nukjDueGUzg3
-- [ ] Better tooltip for fusion reactors
+- [x] Better tooltip for fusion reactors (done: field, run rules, ring size)
   - Screenshot: https://prnt.sc/KCsnr3biUElm
-- [ ] Remove all neutronium recipes not inside the collector — all fusion recipes need to go
+- [x] Remove all neutronium recipes not inside the collector — all fusion recipes need to go
   - Screenshot: https://prnt.sc/jNqJ6Ya5pSsa
-- [ ] Add 3 new tiers for the Neutron Collector — similar texture to the Iridium Neutron Reflector
+- [x] Add 3 new tiers for the Neutron Collector (done: tritanium, ceranium, neutronium reflectors) — similar texture to the Iridium Neutron Reflector
   - Screenshot: https://prnt.sc/34Eu6hSvw_9T
 - [ ] Better structure for the Hearth AF9 — added new casings, looks bad right now
   - Screenshot: https://prnt.sc/ahQNnUG7NuqE

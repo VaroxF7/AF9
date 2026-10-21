@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The Planetary Satellite's three Neutron Ray Reflectors (GTCEu's Iridium Neutron Reflector, recoloured).
+"""The Planetary Satellite's six Neutron Ray Reflectors (GTCEu's Iridium Neutron Reflector, recoloured).
 
 Run from the repository root (needs Pillow):  python3 tools/textures/ray_reflectors.py
 
@@ -30,6 +30,12 @@ TIERS = [
      [(0.0, (6, 16, 32)), (0.5, (40, 92, 152)), (1.0, (190, 230, 255))], 'xy', 3),
     ('unobtainium_vibranium_ray_reflector',
      [(0.0, (18, 8, 36)), (0.5, (124, 60, 200)), (1.0, (236, 210, 255))], 'y', 3),
+    ('tritanium_ray_reflector',
+     [(0.0, (4, 24, 26)), (0.5, (30, 150, 148)), (1.0, (186, 255, 240))], 'x', 3),
+    ('ceranium_ray_reflector',
+     [(0.0, (34, 14, 4)), (0.5, (190, 104, 28)), (1.0, (255, 226, 160))], 'xy', 2),
+    ('neutronium_ray_reflector',
+     [(0.0, (30, 4, 10)), (0.5, (184, 24, 52)), (1.0, (255, 214, 214))], 'y', 2),
 ]
 
 

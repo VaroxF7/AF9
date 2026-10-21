@@ -104,6 +104,7 @@ item af9:broken_silicon_wafer
 item af9:broken_strange_matter_wafer
 item af9:broken_transmuted_neutronium_wafer
 item af9:broken_trinium_wafer
+item af9:ceranium_ray_reflector
 item af9:ceres_marker
 item af9:chlorobenzene_bucket
 item af9:chromodynium_boule
@@ -254,6 +255,7 @@ item af9:iv_stator
 item af9:hearth_pipe_casing
 item af9:hearth_support_casing
 item af9:cutter_casing
+item af9:neutronium_ray_reflector
 item af9:orbital_magnet_casing
 item af9:orbital_light_casing
 item af9:orbital_combined_structure_casing
@@ -345,6 +347,7 @@ item af9:pico_board
 item af9:pico_circuit_rack
 item af9:pico_cpu
 item af9:shock_capacitor_casing
+item af9:tritanium_ray_reflector
 item af9:xps_board
 item af9:plascrete_filter_casing
 item af9:plascrete_pipe_casing

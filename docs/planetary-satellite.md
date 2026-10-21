@@ -34,17 +34,20 @@ hatches or batch mode every parallel run rolls on its own. The reflector sets th
 | Iridium (`af9:iridium_ray_reflector`) | 12 - 120 mB (avg 66) | 1,000 runs |
 | Osmiridium (`af9:osmiridium_ray_reflector`) | 36 - 120 mB (avg 78) | 5,000 runs |
 | Unobtainium-Vibranium (`af9:unobtainium_vibranium_ray_reflector`) | 96 - 120 mB (avg 108) | 10,000 runs |
+| Tritanium (`af9:tritanium_ray_reflector`) | 120 - 144 mB (avg 132) | 20,000 runs |
+| Ceranium (`af9:ceranium_ray_reflector`) | 144 - 168 mB (avg 156) | 40,000 runs |
+| Neutronium (`af9:neutronium_ray_reflector`) | 168 - 192 mB (avg 180) | 80,000 runs |
 
 The tier is read from the recipe id suffix (`af9:neutronium_rays_<reflector>`), recipes in `server_scripts/mods/gtceu/planetary_satellite.js`.
 
-GT's fusion recipe for neutronium plasma (americium and naquadria) is removed, so the satellite is the only source.
+Every fusion recipe for neutronium (GT's americium and naquadria one, and the Mega Fusion Reactor's copy of it) is removed, so the satellite is the only source.
 
 ## Crafting
 
 - Satellite Casing (2): stable titanium casing + 6 Enriched Naquadah Trinium Europium Duranide ingots + HSS-S frame (assembler, UV, circuit 27).
 - Controller: 4 UV circuits, 2 UV field generators, 2 UV sensors round a Satellite Casing.
 - Reflectors (assembler, UV, a ladder each built on the tier below): GT's Iridium Neutron Reflector + 4 Iridium plates -> Iridium;
-  Iridium + 4 Osmiridium plates -> Osmiridium; Osmiridium + 4 Unobtainium-Vibranium alloy ingots -> Unobtainium-Vibranium. A worn
+  Iridium + 4 Osmiridium plates -> Osmiridium; Osmiridium + 4 Unobtainium-Vibranium alloy ingots -> Unobtainium-Vibranium; then 4 Tritanium plates -> Tritanium, 4 Ceranium plates -> Ceranium, 4 Neutronium plates -> Neutronium. A worn
   reflector trades up the same way.
 
 The reflectors keep the plate of GTCEu's Iridium Neutron Reflector, recoloured per tier with a glow sweeping over it (a 16-frame

@@ -40,20 +40,38 @@ public final class AF9Modifiers {
         return ModifierFunction.IDENTITY;
     };
 
-    /** What the Planetary Satellite's rays are worth: the recipe's fluid is one 12 mB step, a run rolls 1 to 10 of them. */
+    /** What the Planetary Satellite's rays are worth: the recipe's fluid is one 12 mB step, a run rolls 1 to 16 of them. */
     public static final int SATELLITE_STEP = 12;
-    private static final int SATELLITE_STEPS = 10;
 
     /**
      * The Planetary Satellite's yield. The recipe's neutronium is {@link #SATELLITE_STEP} mB a run (times the parallels
-     * it was multiplied by); every run of them rolls its own steps (1 to 10, or fewer at the low end), and a better
-     * reflector (the recipe id ends in the reflector: unobtainium_vibranium, osmiridium; iridium is the plain roll)
-     * lifts the lowest roll: iridium 12 - 120 mB, osmiridium 36 - 120, unobtainium-vibranium 96 - 120. Put it after
-     * the parallels.
+     * it was multiplied by); every run of them rolls its own steps, and the reflector (the recipe id ends in the
+     * reflector's material) sets the range: iridium 12 - 120 mB (1 to 10 steps), osmiridium 36 - 120, unobtainium-vibranium
+     * 96 - 120, tritanium 120 - 144 (10 to 12), ceranium 144 - 168, neutronium 168 - 192. Put it after the parallels.
      */
     public static final RecipeModifier SATELLITE_YIELD = (machine, recipe) -> {
-        int min = recipe.id == null ? 1 : recipe.id.getPath().endsWith("_unobtainium_vibranium") ? 8 :
-                recipe.id.getPath().endsWith("_osmiridium") ? 3 : 1;
+        String path = recipe.id == null ? "" : recipe.id.getPath();
+        int min;
+        int max;
+        if (path.endsWith("_neutronium")) {
+            min = 14;
+            max = 16;
+        } else if (path.endsWith("_ceranium")) {
+            min = 12;
+            max = 14;
+        } else if (path.endsWith("_tritanium")) {
+            min = 10;
+            max = 12;
+        } else if (path.endsWith("_unobtainium_vibranium")) {
+            min = 8;
+            max = 10;
+        } else if (path.endsWith("_osmiridium")) {
+            min = 3;
+            max = 10;
+        } else {
+            min = 1;
+            max = 10;
+        }
         return (ModifierFunction) (GTRecipe modified) -> {
             List<Content> fluids = modified.outputs.get(FluidRecipeCapability.CAP);
             if (fluids == null || fluids.isEmpty()) return modified;
@@ -63,7 +81,7 @@ public final class AF9Modifiers {
             RandomSource random = machine.getLevel() != null ? machine.getLevel().getRandom() : RandomSource.create();
             long total = 0;
             for (int i = 0; i < runs; i++) {
-                total += SATELLITE_STEP * (long) (min + random.nextInt(SATELLITE_STEPS - min + 1));
+                total += SATELLITE_STEP * (long) (min + random.nextInt(max - min + 1));
             }
             GTRecipe result = modified.copy();
             result.outputs.put(FluidRecipeCapability.CAP, List.of(new Content(
