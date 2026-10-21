@@ -1,14 +1,14 @@
 // AF9 - Interconnects: gold/electrum Leiterbahnen, one strip or a pallet of them. Two routes:
-// the MV one lays them from electrum and sterling silver foils in the assembler, the Advanced
+// the MV one lays them from gold foil and fine electrum wire in the assembler, the Advanced
 // Circuit Manufacturer (computation through its hatch, UHV like the Pico circuits) lays the
 // fine-wire strips in PBI; the traces of everything from Pico to NVM (circuits coded later).
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
 
-    // ---- The MV route: two foils in, strips out ----
+    // ---- The MV route: foil and fine wire in, strips out ----
     event.recipes.gtceu.assembler('af9:interconnect_mv')
-        .itemInputs('2x gtceu:electrum_foil', '2x gtceu:sterling_silver_foil')
+        .itemInputs('2x gtceu:gold_foil', '2x gtceu:fine_electrum_wire')
         .itemOutputs('4x af9:interconnect')
         .duration(200)
         .EUt(VA[GTValues.MV])

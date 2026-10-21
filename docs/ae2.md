@@ -65,7 +65,7 @@ glass + the RAM pile. **The 256k is the wall** (10 s → 900 s in the Manufactur
 | Component | Inputs (plus the liquid certus quartz above) |
 |---|---|
 | `cell_component_1k` | 8x `ram_chip` + 1x `cpu_chip` + 16x fine gold wire + 16x redstone foil |
-| `cell_component_4k` | 3x 1k + 1x `ram_chip` + 1x `lpic_chip` + 16x `af9:interconnect` (MV electrum/sterling silver strip, `interconnects.js`) |
+| `cell_component_4k` | 3x 1k + 1x `ram_chip` + 1x `lpic_chip` + 16x `af9:interconnect` (MV gold foil/electrum wire strip, `interconnects.js`) |
 | `cell_component_16k` | 3x 4k + calculation processor + 4x glowstone + quartz glass + micro processor + 32x `ram_chip` |
 | `cell_component_64k` | 3x 16k + calculation processor + 4x glowstone + quartz glass + 5x micro processor + 64x `ram_chip` + 16x NAND |
 | `cell_component_256k` | **the wall**: 4x 64k + **10x IV circuits** + 4x cpu chip + 32x NAND + 128x fine certus quartz wire (`gtceu:fine_certus_filament_wire`) + 64x redstone foil — 900 s, 2304 mB |
