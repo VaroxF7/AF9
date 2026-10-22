@@ -65,8 +65,8 @@
 		{
 			id: "6A499EABE2B5AEEE"
 			linked_quest: "3820A788D384105B"
-			x: -9.7d
-			y: 7.5d
+			x: 8.5d
+			y: 0.0d
 		}
 	]
 	quests: [
@@ -76,6 +76,7 @@
 				""
 				"{atm9.quest.gregtech.mv.desc.overclocking.2}"
 			]
+			icon_scale: 1.5d
 			id: "262AE37765B139BE"
 			rewards: [{
 				count: 2
@@ -83,6 +84,7 @@
 				item: "gtceu:basic_electronic_circuit"
 				type: "item"
 			}]
+			shape: "none"
 			size: 1.5d
 			subtitle: "{atm9.quest.gregtech.mv.subt.welcomeMV}"
 			tasks: [{
@@ -91,15 +93,13 @@
 				type: "item"
 			}]
 			x: -7.5d
-			y: 0.19999999999999996d
+			y: 0.5d
 		}
 		{
 			dependencies: [
 				"57F1B60DEA622275"
 				"2B9BA85662BF637C"
 				"246882DD125868EC"
-				"0E603F1FE596DB2A"
-				"4E1D5EC061A4AE55"
 			]
 			description: [
 				"{atm9.quest.gregtech.mv.desc.highVoltage.1}"
@@ -175,35 +175,6 @@
 			y: -4.5d
 		}
 		{
-			dependencies: [
-				"063F5023D56CA6B1"
-				"6A82827978D3483B"
-				"06BBD7B736C564C1"
-			]
-			description: [
-				"{atm9.quest.gregtech.mv.desc.transistors.1}"
-				""
-				"{atm9.quest.gregtech.mv.desc.transistors.2}"
-				""
-				"{atm9.quest.gregtech.mv.desc.transistors.3}"
-			]
-			id: "0E603F1FE596DB2A"
-			rewards: [{
-				count: 4
-				id: "0477033EDE72D79B"
-				item: "gtceu:fine_tin_wire"
-				random_bonus: 6
-				type: "item"
-			}]
-			tasks: [{
-				id: "4EFE2448BBA41309"
-				item: "gtceu:transistor"
-				type: "item"
-			}]
-			x: 2.0d
-			y: 1.0d
-		}
-		{
 			dependencies: ["100ADA8508F6502A"]
 			description: ["{atm9.quest.gregtech.mv.desc.cuttingChips}"]
 			id: "57F1B60DEA622275"
@@ -277,6 +248,7 @@
 				""
 				"{atm9.quest.gregtech.mv.desc.polyethylene.4}"
 			]
+			icon: "gtceu:polyethylene_bucket"
 			id: "6A82827978D3483B"
 			rewards: [{
 				id: "0E430B94CAD6455B"
@@ -284,13 +256,20 @@
 				type: "item"
 			}]
 			subtitle: "{atm9.quest.gregtech.mv.subt.moreOxygen}"
-			tasks: [{
-				id: "6A3EF1D7987AA6BB"
-				item: "gtceu:polyethylene_bucket"
-				type: "item"
-			}]
-			x: 1.0d
-			y: 1.5d
+			tasks: [
+				{
+					id: "6A3EF1D7987AA6BB"
+					item: "gtceu:polyethylene_bucket"
+					type: "item"
+				}
+				{
+					id: "1B1EECE3300F0680"
+					item: "gtceu:polyethylene_plate"
+					type: "item"
+				}
+			]
+			x: -8.5d
+			y: 4.0d
 		}
 		{
 			dependencies: ["262AE37765B139BE"]
@@ -308,8 +287,8 @@
 				item: "gtceu:mv_assembler"
 				type: "item"
 			}]
-			x: -1.5d
-			y: 0.5d
+			x: -7.5d
+			y: 2.0d
 		}
 		{
 			dependencies: ["707EBA5717938515"]
@@ -607,31 +586,16 @@
 				"{atm9.quest.gregtech.mv.desc.aluminium.3}"
 			]
 			id: "1C1802ABF3EE3120"
-			rewards: [{
-				count: 8
-				id: "350821400A1DBB6F"
-				item: "alltheores:raw_aluminum"
-				random_bonus: 4
-				type: "item"
-			}]
 			shape: "pentagon"
 			size: 1.5d
 			subtitle: "{atm9.quest.gregtech.mv.subt.aluminium.1}"
 			tasks: [{
-				icon: "alltheores:aluminum_ingot"
-				id: "7B46FA23AF26BF76"
-				item: {
-					Count: 1
-					id: "itemfilters:tag"
-					tag: {
-						value: "forge:ingots/aluminum"
-					}
-				}
-				title: "{atm9.quest.gregtech.mv.aluminumIngot}"
+				id: "65D5723058EF43EA"
+				item: "gtceu:aluminium_tranquillite_ingot"
 				type: "item"
 			}]
 			x: -7.5d
-			y: -3.0d
+			y: -1.5d
 		}
 		{
 			dependencies: ["35B1F5439640C0EA"]
@@ -670,10 +634,7 @@
 			y: -2.4999999999999973d
 		}
 		{
-			dependencies: [
-				"629DC8DED0F6B578"
-				"579A41570D610B07"
-			]
+			dependencies: ["579A41570D610B07"]
 			description: [
 				"{atm9.quest.gregtech.mv.desc.ethylene.1}"
 				""
@@ -690,29 +651,8 @@
 				item: "gtceu:ethylene_bucket"
 				type: "item"
 			}]
-			x: 1.5d
-			y: 2.5d
-		}
-		{
-			dependencies: [
-				"307F92868E0F4EB3"
-				"22AC248B6BB88486"
-			]
-			description: ["{atm9.quest.gregtech.mv.desc.ethanol.1}"]
-			id: "629DC8DED0F6B578"
-			rewards: [{
-				id: "09DBB95EA63243FB"
-				item: "gtceu:biomass_bucket"
-				type: "item"
-			}]
-			subtitle: "{atm9.quest.gregtech.mv.subt.notForDrinking.1}"
-			tasks: [{
-				id: "70555BDDBADF02A3"
-				item: "gtceu:ethanol_bucket"
-				type: "item"
-			}]
-			x: 0.5d
-			y: 3.5d
+			x: -8.5d
+			y: 3.0d
 		}
 		{
 			description: [
@@ -775,534 +715,6 @@
 			y: -0.1d
 		}
 		{
-			dependencies: [
-				"492386DF6CA892BD"
-				"53AF056139DAACDB"
-			]
-			description: ["{atm9.quest.gregtech.mv.desc.biomass.1}"]
-			id: "307F92868E0F4EB3"
-			rewards: [{
-				count: 2
-				id: "6993315CE1780B9F"
-				item: "gtceu:bio_chaff"
-				type: "item"
-			}]
-			tasks: [{
-				id: "17A555336A386EDA"
-				item: "gtceu:biomass_bucket"
-				type: "item"
-			}]
-			x: -0.5d
-			y: 3.5d
-		}
-		{
-			dependencies: ["262AE37765B139BE"]
-			description: [
-				"{atm9.quest.gregtech.mv.desc.distillsCompounds.1}"
-				""
-				"{atm9.quest.gregtech.mv.desc.distillsCompounds.2}"
-			]
-			id: "22AC248B6BB88486"
-			rewards: [{
-				exclude_from_claim_all: true
-				id: "6E623304DC884B9A"
-				table_id: 7083859357644513434L
-				type: "loot"
-			}]
-			tasks: [{
-				id: "6DA7AD27CA056906"
-				item: "gtceu:mv_distillery"
-				type: "item"
-			}]
-			x: -1.5d
-			y: 5.5d
-		}
-		{
-			dependencies: ["262AE37765B139BE"]
-			id: "492386DF6CA892BD"
-			rewards: [{
-				exclude_from_claim_all: true
-				id: "498F5EA3939A2A64"
-				table_id: 7083859357644513434L
-				type: "loot"
-			}]
-			subtitle: "{atm9.quest.gregtech.mv.subt.notThatKindOfBrewery.1}"
-			tasks: [{
-				id: "47A9907066F31663"
-				item: {
-					Count: 1
-					id: "itemfilters:or"
-					tag: {
-						items: [
-							{
-								Count: 1b
-								id: "gtceu:lv_brewery"
-							}
-							{
-								Count: 1b
-								id: "gtceu:mv_brewery"
-							}
-						]
-					}
-				}
-				title: "{atm9.quest.gregtech.mv.aBrewery}"
-				type: "item"
-			}]
-			x: -1.5d
-			y: 2.5d
-		}
-		{
-			dependencies: ["6300791605A757B0"]
-			description: [
-				"{atm9.quest.gregtech.mv.desc.bioChaff.1}"
-				""
-				"{atm9.quest.gregtech.mv.desc.bioChaff.2}"
-			]
-			id: "53AF056139DAACDB"
-			rewards: [{
-				count: 2
-				id: "54C08D8193833F66"
-				item: "gtceu:plant_ball"
-				type: "item"
-			}]
-			tasks: [{
-				id: "646E2D0A688D28AD"
-				item: "gtceu:bio_chaff"
-				type: "item"
-			}]
-			x: -1.5d
-			y: 4.5d
-		}
-		{
-			dependencies: ["262AE37765B139BE"]
-			description: ["{atm9.quest.gregtech.mv.desc.rockCrusher.1}"]
-			icon: "gtceu:mv_rock_crusher"
-			id: "6275C90E5890C1E4"
-			optional: true
-			rewards: [
-				{
-					id: "32792BF84A213FBF"
-					item: "minecraft:diorite"
-					type: "item"
-				}
-				{
-					exclude_from_claim_all: true
-					id: "294610D7D543A42E"
-					table_id: 7083859357644513434L
-					type: "loot"
-				}
-			]
-			shape: "diamond"
-			size: 1.25d
-			subtitle: "{atm9.quest.gregtech.mv.subt.passiveAluminium.1}"
-			tasks: [{
-				id: "2D0B938BFFE7D76C"
-				item: "gtceu:mv_rock_crusher"
-				type: "item"
-			}]
-			title: "{atm9.quest.gregtech.mv.theClayline}"
-			x: -8.975000000000001d
-			y: 2.9749999999999996d
-		}
-		{
-			dependencies: ["262AE37765B139BE"]
-			description: ["{atm9.quest.gregtech.mv.desc.magneticIronRods.1}"]
-			id: "1BD5B25B80EC0F97"
-			rewards: [{
-				exclude_from_claim_all: true
-				id: "3CB7824290DDD795"
-				table_id: 7083859357644513434L
-				type: "loot"
-			}]
-			subtitle: "{atm9.quest.gregtech.mv.subt.magnetizing.1}"
-			tasks: [{
-				id: "4C32A748A4630A95"
-				item: "gtceu:mv_polarizer"
-				type: "item"
-			}]
-			x: -6.0d
-			y: -3.0d
-		}
-		{
-			dependencies: ["262AE37765B139BE"]
-			description: [
-				"{atm9.quest.gregtech.mv.desc.extruders.1}"
-				""
-				"{atm9.quest.gregtech.mv.desc.extruders.2}"
-			]
-			id: "0A2675CF16B6443B"
-			optional: true
-			rewards: [{
-				exclude_from_claim_all: true
-				id: "1922767923C7B993"
-				table_id: 7083859357644513434L
-				type: "loot"
-			}]
-			shape: "diamond"
-			tasks: [{
-				id: "0997C42AD73E0890"
-				item: "gtceu:mv_extruder"
-				type: "item"
-			}]
-			x: -6.0d
-			y: 3.0d
-		}
-		{
-			dependencies: ["0A2675CF16B6443B"]
-			id: "53E1B892386DD42F"
-			optional: true
-			rewards: [{
-				count: 2
-				id: "1C768CA0AE2851DA"
-				item: "alltheores:steel_plate"
-				random_bonus: 2
-				type: "item"
-			}]
-			shape: "diamond"
-			tasks: [{
-				id: "1724B18A1A47C232"
-				item: "gtceu:rotor_extruder_mold"
-				type: "item"
-			}]
-			x: -6.5d
-			y: 3.5d
-		}
-		{
-			dependencies: ["0A2675CF16B6443B"]
-			id: "54A619012A5FD814"
-			optional: true
-			rewards: [{
-				count: 2
-				id: "1B73202C86C5ADAE"
-				item: "alltheores:steel_plate"
-				random_bonus: 2
-				type: "item"
-			}]
-			shape: "diamond"
-			tasks: [{
-				id: "74B66E8EEC327F1D"
-				item: "gtceu:normal_pipe_extruder_mold"
-				type: "item"
-			}]
-			x: -6.0d
-			y: 4.0d
-		}
-		{
-			dependencies: ["0A2675CF16B6443B"]
-			id: "1E5032F8420016AB"
-			optional: true
-			rewards: [{
-				count: 2
-				id: "53CDC4546DC8F088"
-				item: "alltheores:steel_plate"
-				random_bonus: 2
-				type: "item"
-			}]
-			shape: "diamond"
-			tasks: [{
-				id: "4366765C95E0F2DA"
-				item: "gtceu:bolt_extruder_mold"
-				type: "item"
-			}]
-			x: -5.5d
-			y: 3.5d
-		}
-		{
-			dependencies: ["1BD5B25B80EC0F97"]
-			description: ["{atm9.quest.gregtech.mv.desc.mvElectricMotors.1}"]
-			id: "497028C92F886AE0"
-			rewards: [{
-				id: "7A94DDAC0325A87A"
-				item: "gtceu:magnetic_steel_rod"
-				random_bonus: 2
-				type: "item"
-			}]
-			tasks: [{
-				id: "638FE467700933F2"
-				item: "gtceu:magnetic_steel_rod"
-				type: "item"
-			}]
-			x: -5.0d
-			y: -3.5d
-		}
-		{
-			dependencies: ["72DACA35906D7E5B"]
-			description: ["{atm9.quest.gregtech.mv.desc.electrolyzeClayDust.1}"]
-			id: "41FCD7F5B7E6E261"
-			optional: true
-			rewards: [{
-				count: 3
-				id: "59E36712DBB6484F"
-				item: "gtceu:silicon_dust"
-				random_bonus: 2
-				type: "item"
-			}]
-			shape: "diamond"
-			subtitle: "{atm9.quest.gregtech.mv.subt.goodSourceOfSilicon.1}"
-			tasks: [{
-				id: "1AF82AB8FAD6E515"
-				item: "gtceu:mv_electrolyzer"
-				type: "item"
-			}]
-			x: -9.000000000000002d
-			y: 5.5d
-		}
-		{
-			dependencies: [
-				"6E9126ECA080E725"
-				"72DACA35906D7E5B"
-			]
-			description: [
-				"{atm9.quest.gregtech.mv.desc.firstCover.1}"
-				""
-				"{atm9.quest.gregtech.mv.desc.firstCover.2}"
-				""
-				"{atm9.quest.gregtech.mv.desc.firstCover.3}"
-			]
-			icon: "gtceu:lv_robot_arm"
-			id: "2341D611975C58AF"
-			optional: true
-			rewards: [{
-				count: 2
-				id: "5B1A93B5FB22A8D6"
-				item: "alltheores:steel_rod"
-				random_bonus: 2
-				type: "item"
-			}]
-			shape: "diamond"
-			subtitle: "{atm9.quest.gregtech.mv.subt.autoImport.1}"
-			tasks: [{
-				id: "4A4FD0588A9C3448"
-				item: "gtceu:lv_robot_arm"
-				type: "item"
-			}]
-			x: -8.300000000000002d
-			y: 4.800000000000001d
-		}
-		{
-			dependencies: ["6275C90E5890C1E4"]
-			description: [
-				"{atm9.quest.gregtech.mv.desc.grindDiorite.1}"
-				""
-				"{atm9.quest.gregtech.mv.desc.grindDiorite.2}"
-			]
-			id: "6E9126ECA080E725"
-			optional: true
-			rewards: [{
-				exclude_from_claim_all: true
-				id: "50081BD1D618A429"
-				table_id: 7083859357644513434L
-				type: "loot"
-			}]
-			shape: "diamond"
-			tasks: [{
-				id: "026C2FC05C707BFF"
-				item: "gtceu:mv_macerator"
-				type: "item"
-			}]
-			x: -9.000000000000002d
-			y: 4.100000000000001d
-		}
-		{
-			dependencies: ["6E9126ECA080E725"]
-			description: [
-				"{atm9.quest.gregtech.mv.desc.dioriteDustProcessing.1}"
-				""
-				"{atm9.quest.gregtech.mv.desc.dioriteDustProcessing.2}"
-				""
-				"{atm9.quest.gregtech.mv.desc.dioriteDustProcessing.3}"
-			]
-			id: "72DACA35906D7E5B"
-			optional: true
-			rewards: [{
-				exclude_from_claim_all: true
-				id: "27269BEDB3689DA1"
-				table_id: 7083859357644513434L
-				type: "loot"
-			}]
-			shape: "diamond"
-			tasks: [{
-				id: "2F87D396311C6602"
-				item: "gtceu:mv_centrifuge"
-				type: "item"
-			}]
-			x: -9.700000000000001d
-			y: 4.800000000000001d
-		}
-		{
-			dependencies: ["262AE37765B139BE"]
-			description: ["{atm9.quest.gregtech.mv.desc.steamUsage.1}"]
-			id: "2AEDB489A017AAF9"
-			optional: true
-			rewards: [
-				{
-					count: 6
-					id: "30E05DCEB338719C"
-					item: "alltheores:steel_plate"
-					random_bonus: 6
-					type: "item"
-				}
-				{
-					count: 3
-					id: "744C49134916734F"
-					item: "gtceu:aluminium_plate"
-					random_bonus: 2
-					type: "item"
-				}
-			]
-			subtitle: "{atm9.quest.gregtech.mv.subt.steamAhead.1}"
-			tasks: [{
-				id: "28BC15EC9BCAB1B6"
-				item: "gtceu:mv_steam_turbine"
-				type: "item"
-			}]
-			x: -9.5d
-			y: -1.0d
-		}
-		{
-			dependencies: ["262AE37765B139BE"]
-			description: ["{atm9.quest.gregtech.mv.desc.cableLoss.1}"]
-			id: "428C034C78923B6C"
-			optional: true
-			rewards: [
-				{
-					count: 2
-					id: "4E427896A544A91E"
-					item: "gtceu:red_alloy_single_wire"
-					random_bonus: 4
-					type: "item"
-				}
-				{
-					count: 4
-					id: "0B1328663DAC2B0E"
-					item: "gtceu:copper_single_wire"
-					random_bonus: 8
-					type: "item"
-				}
-				{
-					count: 3
-					id: "09A0EA5857D5AE4D"
-					item: "gtceu:aluminium_plate"
-					random_bonus: 2
-					type: "item"
-				}
-			]
-			tasks: [{
-				id: "71567A9437A86C2F"
-				item: {
-					Count: 1
-					id: "itemfilters:or"
-					tag: {
-						items: [
-							{
-								Count: 1b
-								id: "gtceu:mv_1a_energy_converter"
-							}
-							{
-								Count: 1b
-								id: "gtceu:mv_4a_energy_converter"
-							}
-							{
-								Count: 1b
-								id: "gtceu:mv_8a_energy_converter"
-							}
-							{
-								Count: 1b
-								id: "gtceu:mv_16a_energy_converter"
-							}
-						]
-					}
-				}
-				title: "{atm9.quest.gregtech.mv.mvEnergyConverter.1}"
-				type: "item"
-			}]
-			title: "{atm9.quest.gregtech.mv.mvEnergyConverters.1}"
-			x: -9.5d
-			y: 1.5d
-		}
-		{
-			description: [
-				"{atm9.quest.gregtech.mv.desc.plantBallCreation.1}"
-				""
-				"{atm9.quest.gregtech.mv.desc.plantBallCreation.2}"
-			]
-			id: "6300791605A757B0"
-			rewards: [{
-				count: 8
-				id: "7E0D1BD5A8DFD24A"
-				item: "minecraft:potato"
-				type: "item"
-			}]
-			shape: "square"
-			subtitle: "{atm9.quest.gregtech.mv.subt.compressedPlantMatter.1}"
-			tasks: [{
-				id: "577EEBAF4FACDCA1"
-				item: "gtceu:plant_ball"
-				type: "item"
-			}]
-			x: -2.5d
-			y: 3.5d
-		}
-		{
-			dependencies: ["24E3CB198F73524A"]
-			description: ["{atm9.quest.gregtech.mv.desc.annealedCopper.1}"]
-			id: "4E1D5EC061A4AE55"
-			rewards: [{
-				count: 2
-				id: "34166C7A9BD6EC7C"
-				item: "gtceu:annealed_copper_bolt"
-				random_bonus: 2
-				type: "item"
-			}]
-			tasks: [{
-				id: "5CB8068643C87602"
-				item: "gtceu:annealed_copper_ingot"
-				type: "item"
-			}]
-			x: -0.5d
-			y: -5.5d
-		}
-		{
-			dependencies: ["262AE37765B139BE"]
-			description: [
-				"{atm9.quest.gregtech.mv.desc.annealingCopper.1}"
-				""
-				"{atm9.quest.gregtech.mv.desc.annealingCopper.2}"
-			]
-			icon: "gtceu:mv_arc_furnace"
-			id: "24E3CB198F73524A"
-			rewards: [{
-				exclude_from_claim_all: true
-				id: "617745FCC8063446"
-				table_id: 7083859357644513434L
-				type: "loot"
-			}]
-			subtitle: "{atm9.quest.gregtech.mv.subt.arcingElectricity.1}"
-			tasks: [{
-				id: "77EF6FE6C54C104A"
-				item: {
-					Count: 1
-					id: "itemfilters:or"
-					tag: {
-						items: [
-							{
-								Count: 1b
-								id: "gtceu:lv_arc_furnace"
-							}
-							{
-								Count: 1b
-								id: "gtceu:mv_arc_furnace"
-							}
-						]
-					}
-				}
-				title: "{atm9.quest.gregtech.mv.arcFurnace.1}"
-				type: "item"
-			}]
-			x: -1.5d
-			y: -5.5d
-		}
-		{
 			dependencies: ["262AE37765B139BE"]
 			description: [
 				"{atm9.quest.gregtech.mv.desc.arcFurnaceUsage.1}"
@@ -1323,83 +735,8 @@
 				title: "{atm9.quest.gregtech.mv.chemicalReactor.1}"
 				type: "item"
 			}]
-			x: -1.5d
+			x: -8.5d
 			y: 1.5d
-		}
-		{
-			dependencies: ["4E1D5EC061A4AE55"]
-			description: [
-				"{atm9.quest.gregtech.mv.desc.resistorCrafting.1}"
-				""
-				"{atm9.quest.gregtech.mv.desc.resistorCrafting.2}"
-				""
-				"{atm9.quest.gregtech.mv.desc.resistorCrafting.3}"
-			]
-			id: "4AE05E80142C12A6"
-			optional: true
-			rewards: [{
-				count: 2
-				id: "0F34F1836D2E1927"
-				item: "gtceu:resistor"
-				random_bonus: 2
-				type: "item"
-			}]
-			tasks: [
-				{
-					count: 4L
-					id: "2F26EFD73DE0E8A1"
-					item: "gtceu:fine_annealed_copper_wire"
-					type: "item"
-				}
-				{
-					id: "427138127BEBAEAF"
-					item: {
-						Count: 1
-						id: "itemfilters:or"
-						tag: {
-							items: [
-								{
-									Count: 1b
-									id: "gtceu:carbon_dust"
-								}
-								{
-									Count: 1b
-									id: "chemlib:carbon_dust"
-								}
-								{
-									Count: 1b
-									id: "gtceu:charcoal_dust"
-								}
-								{
-									Count: 1b
-									id: "railcraft:charcoal_dust"
-								}
-								{
-									Count: 1b
-									id: "gtceu:coal_dust"
-								}
-								{
-									Count: 1b
-									id: "chemlib:coal_dust"
-								}
-								{
-									Count: 1b
-									id: "enderio:powdered_coal"
-								}
-								{
-									Count: 1b
-									id: "railcraft:coal_dust"
-								}
-							]
-						}
-					}
-					title: "{atm9.quest.gregtech.mv.carbonDust.1}"
-					type: "item"
-				}
-			]
-			title: "{atm9.quest.gregtech.mv.resistorsRevisited.1}"
-			x: 0.5d
-			y: -5.5d
 		}
 		{
 			description: [
@@ -1612,62 +949,6 @@
 			y: -1.3000000000000003d
 		}
 		{
-			dependencies: ["1F92F7314DF3C3E2"]
-			description: [
-				"{atm9.quest.gregtech.mv.desc.sapphireLens.1}"
-				""
-				"{\"clickEvent\": {\"action\": \"change_page\", \"value\": \"4DD7F3508B757EF0\"}, \"text\": \"How to make the gem plate\", \"color\": \"green\", \"hoverEvent\": { \"action\":\"show_text\", \"contents\": { \"text\":\"Click here for a reminder\" } }}"
-				""
-				"{\"clickEvent\": {\"action\": \"change_page\", \"value\": \"26004F997C758011\"}, \"text\": \"How to make the gem lens\", \"color\": \"yellow\", \"hoverEvent\": { \"action\":\"show_text\", \"contents\": { \"text\":\"Click here for a reminder\" } }}"
-			]
-			hide_dependency_lines: true
-			id: "20A0A574F51EEF74"
-			tasks: [{
-				id: "71285AC928BBD40E"
-				item: "gtceu:sapphire_lens"
-				type: "item"
-			}]
-			x: -3.5d
-			y: -0.20000000000000004d
-		}
-		{
-			dependencies: ["20A0A574F51EEF74"]
-			description: ["{af9.quest.mv.ulpicWafer}"]
-			id: "5B92DA55541B168B"
-			rewards: [{
-				count: 2
-				id: "0B4A34429F4F377A"
-				item: "gtceu:silicon_wafer"
-				random_bonus: 2
-				type: "item"
-			}]
-			tasks: [{
-				id: "0B0A35D87D18E3A1"
-				item: "gtceu:ulpic_wafer"
-				type: "item"
-			}]
-			x: -2.5d
-			y: -0.4d
-		}
-		{
-			dependencies: ["5B92DA55541B168B"]
-			description: ["{atm9.quest.gregtech.mv.desc.backToCutter.1}"]
-			id: "4E5FE40373675AED"
-			rewards: [{
-				id: "27DFB41D8F75BF3B"
-				type: "xp"
-				xp: 250
-			}]
-			tasks: [{
-				id: "1C973641E5F60EB4"
-				item: "gtceu:ulpic_chip"
-				type: "item"
-			}]
-			x: -1.5d
-			y: -0.4d
-		}
-		{
-			dependencies: ["4E5FE40373675AED"]
 			description: [
 				"{atm9.quest.gregtech.mv.desc.assemblerCrafting.1}"
 				""
@@ -1692,46 +973,6 @@
 			}]
 			x: -0.5d
 			y: -0.20000000000000004d
-		}
-		{
-			can_repeat: false
-			description: [
-				"This Quest has been authored by &6AllTheMods Staff&r, or a &2Community contributor&r for use in AllTheMods Modpacks."
-				"As all &6AllTheMods&r packs are licensed under &eAll Rights Reserved&r, this Quest is not allowed to be used in any public packs not released by the &6AllTheMods Team&r, without explicit permission."
-				""
-				""
-				""
-				"This quest is intentionally hidden, if you're seeing this, you're in editing mode."
-			]
-			disable_toast: true
-			hide_details_until_startable: true
-			hide_until_deps_visible: true
-			icon: {
-				Count: 1
-				id: "ftbquests:custom_icon"
-				tag: {
-					Icon: "minecraft:item/barrier"
-				}
-			}
-			id: "3578F6AB3A810572"
-			invisible: true
-			optional: true
-			shape: "octagon"
-			tasks: [
-				{
-					disable_toast: true
-					id: "196DF8FE38484BD9"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-				{
-					id: "7FC8CE068042076A"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-			]
-			x: -7.5d
-			y: 2.0d
 		}
 		{
 			description: [
@@ -1764,37 +1005,82 @@
 			y: 3.0d
 		}
 		{
-			dependencies: ["262AE37765B139BE"]
-			description: [
-				"{af9.quest.mv.create.1}"
-				""
-				"{af9.quest.mv.create.2}"
-				""
-				"{af9.quest.mv.create.3}"
-				""
-				"{af9.quest.mv.create.4}"
+			dependencies: [
+				"6A82827978D3483B"
+				"063F5023D56CA6B1"
+				"6E35A6C37BAC17D4"
+				"2889D5FCD150AF64"
 			]
-			id: "4FB74E442E3E3598"
-			rewards: [{
-				id: "384BA9DE1D13FDA9"
-				type: "xp"
-				xp: 100
+			id: "4D4F16777168DE9A"
+			tasks: [{
+				id: "1305954131EFEBDB"
+				item: "gtceu:photolithography_line"
+				type: "item"
 			}]
+			x: -7.5d
+			y: 5.0d
+		}
+		{
+			dependencies: ["73B8A2C975807197"]
+			id: "6E35A6C37BAC17D4"
 			tasks: [
 				{
-					id: "61132A6639268057"
-					item: "create:mechanical_press"
+					id: "7455F3A137CB6FB0"
+					item: "gtceu:extreme_clean_dry_air_bucket"
 					type: "item"
 				}
 				{
-					id: "43D851812C52EC1A"
-					item: "create:deployer"
+					id: "70FA1F96D5E2DA9D"
+					item: "gtceu:tmah_developer_bucket"
 					type: "item"
 				}
 			]
-			title: "{af9.quest.title.mvCreate}"
-			x: -6.0d
-			y: 0.2d
+			x: -6.5d
+			y: 4.0d
+		}
+		{
+			dependencies: ["262AE37765B139BE"]
+			id: "73B8A2C975807197"
+			tasks: [{
+				id: "4C27A693CC33AC3A"
+				item: "gtceu:mv_distillery"
+				type: "item"
+			}]
+			x: -6.5d
+			y: 1.5d
+		}
+		{
+			dependencies: ["7AF0E19DE2C31982"]
+			id: "2889D5FCD150AF64"
+			tasks: [{
+				id: "5F84FD9C5B6542F8"
+				item: "gtceu:mv_energy_input_hatch"
+				type: "item"
+			}]
+			x: -9.0d
+			y: 5.0d
+		}
+		{
+			dependencies: ["7860C30DC385B8AF"]
+			id: "7AF0E19DE2C31982"
+			tasks: [{
+				id: "71ADE9C7B05F76AC"
+				item: "gtceu:lv_voltage_coil"
+				type: "item"
+			}]
+			x: -10.0d
+			y: 4.0d
+		}
+		{
+			dependencies: ["262AE37765B139BE"]
+			id: "7860C30DC385B8AF"
+			tasks: [{
+				id: "57152F751E86FB18"
+				item: "gtceu:fine_black_steel_wire"
+				type: "item"
+			}]
+			x: -10.0d
+			y: 0.5d
 		}
 	]
 	title: "{atm9.chapters.28.title}"
