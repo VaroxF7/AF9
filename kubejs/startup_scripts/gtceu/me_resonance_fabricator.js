@@ -72,7 +72,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .aisle(' CXC ', ' C C ', ' C C ', ' C C ')
             .where('X', Predicates.controller(Predicates.blocks(definition.get())))
             .where('P', Predicates.blocks('gtceu:steel_pipe_casing'))
-            .where('G', Predicates.blocks('gtceu:fusion_glass'))
+            .where('G', Predicates.blocks('ae2:quartz_vibrant_glass'))
             .where('C', Predicates.blocks('af9:ae2_machine_casing')
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(9, 3))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
