@@ -47,6 +47,8 @@ const DTPF_DEPTH = 45       // z: 0 is the press's back, 44 the front wall
 const DTPF_AXIS_X = 10
 const DTPF_AXIS_Y = 10      // the bore's axis
 const DTPF_RING_Z = [11, 16, 21, 26, 31] // the first block of each coil ring (two thick)
+// the gaps between the rings (and near the ends) where the bore has windows
+const DTPF_GAP = z => DTPF_RING_Z.some(r => z >= r + 2 && z <= r + 4) || z === 9 || z === 36
 const dtpfCell = (x, y, z) => {
     const ax = Math.abs(x - DTPF_AXIS_X)
     const dy = y - DTPF_AXIS_Y, ady = Math.abs(dy)
@@ -79,19 +81,16 @@ const dtpfCell = (x, y, z) => {
     if (z >= 8 && z <= 39 && cheb <= 3 && ax + ady <= 5) {
         if (z >= 38) return 'N'                                                             // the end plate, two thick
         if (ax === 0 && dy === 0) return 'G'                                                // the plasma bar
-        const shell = ax === 3 || ady === 3 || ax + ady === 5
-        if (!shell) return ' '
-        const gap = DTPF_RING_Z.some(r => z >= r + 2 && z <= r + 4) || z === 9 || z === 36
-        return (gap && ((ax === 3 && ady <= 1) || (ady === 3 && ax <= 1))) ? 'G' : 'N'
+        if (!(ax === 3 || ady === 3 || ax + ady === 5)) return ' '                            // inside the tube
+        return (DTPF_GAP(z) && ((ax === 3 && ady <= 1) || (ady === 3 && ax <= 1))) ? 'G' : 'N'
     }
     // ---- the coil rings (resonance coil at the corners), their spokes to the bore, the rails and legs of the cage
     const ring = DTPF_RING_Z.some(r => z === r || z === r + 1)
     if (z >= 11 && z <= 32 && ax <= 5 && ady <= 5) {
-        const corner = ax === 5 && ady === 5
         if (ring) {
-            if (cheb === 5) return corner ? 'R' : 'K'
+            if (cheb === 5) return (ax === 5 && ady === 5) ? 'R' : 'K'
             if (ax === 4 && ady === 0 || ax === 0 && ady === 4) return 'N'                  // spokes
-        } else if (corner) {
+        } else if (ax === 5 && ady === 5) {
             return 'N'                                                                      // rails between the rings
         }
     }
