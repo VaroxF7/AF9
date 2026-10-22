@@ -25,7 +25,8 @@ GTCEu release), `-Paf9RequireFork` fails the build where the fork is missing.
   recipes"; any other error in a recipe script ends that script only (`Error in recipe script ...`).
 * `0004`-`0008` Hidden machines, auxiliary power (energy hatch modes, Power Management tab), Assembly Line laser hatch.
 * `0009` Fusion reactors: no start buffer or heat (its standby power was replaced by the field of `0015`).
-* `0015` Fusion reactors: a magnetic field instead of standby power, and the Mk1 to Mk3 rings 19 / 23 / 27 blocks wide ([docs/fusion-power.md](../docs/fusion-power.md)).
+* `0015` Fusion reactors: a magnetic field instead of standby power ([docs/fusion-power.md](../docs/fusion-power.md)); its 19 / 23 / 27 block rings were replaced by `0016`.
+* `0016` Fusion reactors: one round 19-block ring for Mk1 to Mk3, energy hatches optional in the structure.
 * `0012` The HPCA is expandable (3 to 12 slices of 3 component slots) and its Active Coolers cool by coolant: PCB Coolant 2, supercooled hydrogen / argon / xenon / endion 8 / 12 / 16 / 20 ([docs/hpca.md](../docs/hpca.md)).
 * `0011` The multiblock preview zooms out to fit a structure over 40 blocks (the scene clipped the Mk2 tower to a third of itself).
 * `0014` A machine with several modes has the slots of its biggest mode: the tiered machines size their item and fluid

@@ -1,0 +1,356 @@
+From 10687485c40b055aa5bd7d6233c49ec9c0d01417 Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Thu, 22 Oct 2026 18:12:05 +0000
+Subject: [PATCH] Fusion reactors: one round ring of 19 blocks for every tier,
+ energy hatches optional (7.5.3-af9.15)
+
+- FusionStructure: the ring is now generated as a true circle (channel radius 8, 19 x 19 blocks) instead of GT's octagon-like
+  frame stretched to 19 / 23 / 27. Mk1, Mk2 and Mk3 share it. Same parts as before: a 3 layer tube (air channel, casing above
+  and below, glass / casing walls), four coils on the inner wall, fluid import hatches (top and bottom) and export hatches
+  around the four poles, the controller on the outer wall at the south pole.
+- The structure no longer requires an energy hatch: the 'E' blocks are casing or an energy hatch (8 spots on the outer wall).
+  The reactor still needs power from a hatch to build its field and run a reaction.
+- Ring render and preview follow the new size; new tooltip line about the optional hatches.
+---
+ gradle.properties                             |   2 +-
+ .../common/data/machines/GTMultiMachines.java |  46 +---
+ .../multiblock/electric/FusionStructure.java  | 218 +++++++++++++++---
+ 3 files changed, 188 insertions(+), 78 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index a282f2f..2e54419 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.14
++mod_version = 7.5.3-af9.15
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+index c7eb15e..cab7ad2 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+@@ -661,40 +661,23 @@ public class GTMultiMachines {
+                                     FormattingUtil.formatNumbers(FusionReactorMachine.fieldRegen(tier)),
+                                     GTValues.VNF[Math.min(tier, GTValues.UV)]),
+                             Component.translatable("af9.fusion.tooltip.run"),
+-                            Component.translatable("af9.fusion.tooltip.size",
+-                                    15 + FusionStructure.extra(tier)),
++                            Component.translatable("af9.fusion.tooltip.size", FusionStructure.size(tier)),
++                            Component.translatable("af9.fusion.tooltip.hatches"),
+                             Component.translatable("gtceu.machine.fusion_reactor.overclocking"),
+                             Component.translatable("gtceu.multiblock.%s_fusion_reactor.description"
+                                     .formatted(VN[tier].toLowerCase(Locale.ROOT))))
+                     .appearanceBlock(() -> FusionReactorMachine.getCasingState(tier))
+                     .pattern((definition) -> {
+                         var casing = blocks(FusionReactorMachine.getCasingState(tier));
+-                        var rows = FusionStructure.expand(new String[][] {
+-                                        {"###############", "######OGO######", "###############"},
+-                                        {"######ICI######", "####GGAAAGG####", "######ICI######"},
+-                                        {"####CC###CC####", "###EAAOGOAAE###", "####CC###CC####"},
+-                                        {"###C#######C###", "##EKEG###GEKE##", "###C#######C###"},
+-                                        {"##C#########C##", "#GAE#######EAG#", "##C#########C##"},
+-                                        {"##C#########C##", "#GAG#######GAG#", "##C#########C##"},
+-                                        {"#I###########I#", "OAO#########OAO", "#I###########I#"},
+-                                        {"#C###########C#", "GAG#########GAG", "#C###########C#"},
+-                                        {"#I###########I#", "OAO#########OAO", "#I###########I#"},
+-                                        {"##C#########C##", "#GAG#######GAG#", "##C#########C##"},
+-                                        {"##C#########C##", "#GAE#######EAG#", "##C#########C##"},
+-                                        {"###C#######C###", "##EKEG###GEKE##", "###C#######C###"},
+-                                        {"####CC###CC####", "###EAAOGOAAE###", "####CC###CC####"},
+-                                        {"######ICI######", "####GGAAAGG####", "######ICI######"},
+-                                        {"###############", "######OSO######", "###############"},
+-                                },
+-                                FusionStructure.extra(tier), 'S', 'G');
++                        var rows = FusionStructure.pattern();
+                         var patternBuilder = FactoryBlockPattern.start();
+                         for (String[] aisle : rows) patternBuilder.aisle(aisle);
+                         return patternBuilder
+                                 .where('S', controller(blocks(definition.get())))
+                                 .where('G', blocks(FUSION_GLASS.get()).or(casing))
++                                // AF9: the reactor stores no energy, so energy hatches are allowed here but never required
+                                 .where('E', casing.or(
+-                                        blocks(PartAbility.INPUT_ENERGY.getBlockRange(tier, UV).toArray(Block[]::new))
+-                                                .setMinGlobalLimited(1).setPreviewCount(16)))
++                                        blocks(PartAbility.INPUT_ENERGY.getBlockRange(tier, UV).toArray(Block[]::new))))
+                                 .where('C', casing)
+                                 .where('K', blocks(FusionReactorMachine.getCoilState(tier)))
+                                 .where('O', casing.or(abilities(PartAbility.EXPORT_FLUIDS)))
+@@ -706,24 +689,7 @@ public class GTMultiMachines {
+                     .shapeInfos((controller) -> {
+                         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+ 
+-                        var previewRows = FusionStructure.expand(new String[][] {
+-                                        {"###############", "######NMN######", "###############"},
+-                                        {"######DCD######", "####GG###GG####", "######UCU######"},
+-                                        {"####CC###CC####", "###w##SGS##e###", "####CC###CC####"},
+-                                        {"###C#######C###", "##nKsG###GsKn##", "###C#######C###"},
+-                                        {"##C#########C##", "#G#e#######w#G#", "##C#########C##"},
+-                                        {"##C#########C##", "#G#G#######G#G#", "##C#########C##"},
+-                                        {"#D###########D#", "W#E#########W#E", "#U###########U#"},
+-                                        {"#C###########C#", "G#G#########G#G", "#C###########C#"},
+-                                        {"#D###########D#", "W#E#########W#E", "#U###########U#"},
+-                                        {"##C#########C##", "#G#G#######G#G#", "##C#########C##"},
+-                                        {"##C#########C##", "#G#e#######w#G#", "##C#########C##"},
+-                                        {"###C#######C###", "##sKnG###GnKs##", "###C#######C###"},
+-                                        {"####CC###CC####", "###w##NGN##e###", "####CC###CC####"},
+-                                        {"######DCD######", "####GG###GG####", "######UCU######"},
+-                                        {"###############", "######SGS######", "###############"},
+-                                },
+-                                FusionStructure.extra(tier), 'M', 'G');
++                        var previewRows = FusionStructure.preview();
+                         MultiblockShapeInfo.ShapeInfoBuilder baseBuilder = MultiblockShapeInfo.builder();
+                         for (String[] aisle : previewRows) baseBuilder.aisle(aisle);
+                         baseBuilder
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionStructure.java b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionStructure.java
+index 69b8e49..3ea04bc 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionStructure.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionStructure.java
+@@ -1,59 +1,203 @@
+ package com.gregtechceu.gtceu.common.machine.multiblock.electric;
+ 
+-import com.gregtechceu.gtceu.api.GTValues;
++import java.util.HashMap;
++import java.util.Map;
+ 
+ /**
+- * AF9: the size of the fusion reactors' ring. GT's ring is 15 x 15 blocks; the Mk1 to Mk3 get more of the same ring by
+- * lengthening its straight sides: the centre column and the centre row of the pattern are repeated, so the ring keeps its
+- * shape, its four coil blocks and its hatch positions. Mk1 is 19 x 19, Mk2 23 x 23, Mk3 27 x 27.
++ * AF9: the fusion reactors' ring. All three reactors (Mk1 to Mk3) have the same ring: a true circle {@value #SIZE} blocks
++ * across, laid flat. It is a tube of three layers: the plasma channel (air) is one block wide on a circle of
++ * {@value #RADIUS} blocks, covered by casing above and below, and walled in by glass / casing on both sides. Four coils sit
++ * on the inner wall (the diagonals), the fluid hatches around the four poles, and the controller is the outer wall block
++ * at the south pole, {@value #HALF} blocks from the ring's centre.
++ * <p>
++ * Pattern characters: {@code S} controller, {@code A} plasma channel (air), {@code C} casing, {@code G} glass or casing,
++ * {@code E} casing or an energy hatch (never required), {@code K} coil, {@code O} casing or an export fluid hatch,
++ * {@code I} casing or an import fluid hatch, {@code #} anything. Each aisle is one row of the ring (north to south), its
++ * three strings the layers (top, middle, bottom), the characters one row's columns (west to east).
+  */
+ public final class FusionStructure {
+ 
+-    /** The column / row of GT's 15 x 15 pattern that is repeated: its centre. */
+-    private static final int CENTER = 7;
++    /** The channel's radius, in blocks from the centre block. */
++    public static final int RADIUS = 8;
++    /** Distance from the centre to the controller (and to the outermost wall block): the channel's radius plus its wall. */
++    public static final int HALF = RADIUS + 1;
++    /** Width and depth of the whole structure. */
++    public static final int SIZE = 2 * HALF + 1;
++
++    private static final String[][] PATTERN = buildPattern();
++    private static final String[][] PREVIEW = buildPreview();
+ 
+     private FusionStructure() {}
+ 
+-    /** How many columns and rows are added to GT's 15 x 15 ring (even, so the controller stays in the middle). */
+-    public static int extra(int tier) {
+-        return switch (tier) {
+-            case GTValues.LuV -> 4;
+-            case GTValues.ZPM -> 8;
+-            case GTValues.UV -> 12;
+-            default -> 0;
+-        };
++    /** Half the width of the ring, in blocks: the ring's centre is this far behind the controller. Same for every tier. */
++    public static int halfSize(int tier) {
++        return HALF;
+     }
+ 
+-    /** Half the width of the ring, in blocks: 7 for GT's ring. The ring's centre is this far behind the controller. */
+-    public static int halfSize(int tier) {
+-        return CENTER + extra(tier) / 2;
++    /** The ring's width in blocks. */
++    public static int size(int tier) {
++        return SIZE;
++    }
++
++    /** The structure pattern: {@link #SIZE} aisles of 3 strings of {@link #SIZE} characters. */
++    public static String[][] pattern() {
++        return copy(PATTERN);
+     }
+ 
+     /**
+-     * GT's aisles (15 aisles of 3 strings of 15 characters) with the centre aisle and the centre column repeated {@code extra}
+-     * times in all. {@code controller} (the controller character) is repeated as {@code fill} so there is only one controller.
++     * The preview's pattern, turned around so the controller (M) is in the first aisle: M controller, {@code N S W E} fluid
++     * export hatches facing north / south / west / east (outward on the outer wall, inward on the inner one), {@code n s w e}
++     * energy hatches (optional), {@code D U} fluid import hatches (top / bottom layer), {@code C} casing, {@code G} glass,
++     * {@code K} coil, {@code #} air.
+      */
+-    public static String[][] expand(String[][] base, int extra, char controller, char fill) {
+-        int half = extra / 2;
+-        String[][] widened = new String[base.length][];
+-        for (int a = 0; a < base.length; a++) {
+-            widened[a] = new String[base[a].length];
+-            for (int s = 0; s < base[a].length; s++) {
+-                String row = base[a][s];
+-                char mid = row.charAt(CENTER);
+-                char dup = mid == controller ? fill : mid;
+-                widened[a][s] = row.substring(0, CENTER) + String.valueOf(dup).repeat(half) + mid +
+-                        String.valueOf(dup).repeat(half) + row.substring(CENTER + 1);
++    public static String[][] preview() {
++        return copy(PREVIEW);
++    }
++
++    private static String[][] copy(String[][] source) {
++        String[][] copy = new String[source.length][];
++        for (int i = 0; i < source.length; i++) copy[i] = source[i].clone();
++        return copy;
++    }
++
++    private static boolean isChannel(int x, int z) {
++        double d = Math.hypot(x, z);
++        return d >= RADIUS - 0.5 && d < RADIUS + 0.5;
++    }
++
++    private static boolean isWall(int x, int z) {
++        if (isChannel(x, z)) return false;
++        for (int dx = -1; dx <= 1; dx++) {
++            for (int dz = -1; dz <= 1; dz++) {
++                if (isChannel(x + dx, z + dz)) return true;
+             }
+         }
+-        String[][] result = new String[base.length + extra][];
+-        int out = 0;
+-        for (int a = 0; a < widened.length; a++) {
+-            result[out++] = widened[a];
+-            if (a == CENTER) {
+-                for (int i = 0; i < extra; i++) result[out++] = widened[a].clone();
++        return false;
++    }
++
++    private static int key(int x, int z) {
++        return (x + HALF) * SIZE + (z + HALF);
++    }
++
++    /** The wall block of the given kind nearest an angle (degrees, 0 = east, counter-clockwise on the map), first in row order on a tie. */
++    private static int[] nearestWall(double degrees, boolean inner) {
++        double target = Math.toRadians(degrees);
++        int[] best = null;
++        double bestAngle = 0, bestRadius = 0;
++        for (int z = -HALF; z <= HALF; z++) {
++            for (int x = -HALF; x <= HALF; x++) {
++                if (!isWall(x, z) || (Math.hypot(x, z) < RADIUS) != inner) continue;
++                double diff = Math.abs((Math.atan2(z, x) - target + Math.PI + 4 * Math.PI) % (2 * Math.PI) - Math.PI);
++                diff = Math.round(diff * 1000) / 1000.0;
++                double radius = Math.abs(Math.hypot(x, z) - (inner ? RADIUS - 1 : RADIUS + 1));
++                if (best == null || diff < bestAngle || (diff == bestAngle && radius < bestRadius)) {
++                    best = new int[] { x, z };
++                    bestAngle = diff;
++                    bestRadius = radius;
++                }
++            }
++        }
++        return best;
++    }
++
++    private static String[][] buildPattern() {
++        Map<Integer, Character> top = new HashMap<>();
++        Map<Integer, Character> mid = new HashMap<>();
++        for (int z = -HALF; z <= HALF; z++) {
++            for (int x = -HALF; x <= HALF; x++) {
++                if (isChannel(x, z)) {
++                    mid.put(key(x, z), 'A');
++                    top.put(key(x, z), 'C');
++                } else if (isWall(x, z)) {
++                    mid.put(key(x, z), 'G');
++                }
+             }
+         }
+-        return result;
++        // fluid hatches around the four poles: the channel's two blocks beside each pole take import hatches (top and bottom
++        // layer), the wall blocks beside them the export hatches
++        int pole = 0;
++        for (int z = 0; z <= HALF; z++) if (isChannel(1, z)) pole = z;
++        for (int side = -1; side <= 1; side += 2) {
++            for (int end = -1; end <= 1; end += 2) {
++                // north / south poles (the spot is beside the pole along x) and east / west poles (beside it along z)
++                for (int[] spot : new int[][] { { side, end * pole }, { end * pole, side } }) {
++                    top.put(key(spot[0], spot[1]), 'I');
++                    boolean northSouth = Math.abs(spot[1]) > Math.abs(spot[0]);
++                    for (int radial = -1; radial <= 1; radial += 2) {
++                        int x = northSouth ? spot[0] : spot[0] + radial;
++                        int z = northSouth ? spot[1] + radial : spot[1];
++                        if (isWall(x, z)) mid.put(key(x, z), 'O');
++                    }
++                }
++            }
++        }
++        // four coils on the inner wall at the diagonals, optional energy hatches on the outer wall either side of each
++        for (int k = 0; k < 4; k++) {
++            int[] coil = nearestWall(45 + 90 * k, true);
++            mid.put(key(coil[0], coil[1]), 'K');
++            for (int off = -1; off <= 1; off += 2) {
++                int[] e = nearestWall(45 + 90 * k + off * 22.5, false);
++                if (mid.get(key(e[0], e[1])) == 'G') mid.put(key(e[0], e[1]), 'E');
++            }
++        }
++        mid.put(key(0, HALF), 'S');
++
++        String[][] rows = new String[SIZE][];
++        for (int z = -HALF; z <= HALF; z++) {
++            StringBuilder t = new StringBuilder(), m = new StringBuilder();
++            for (int x = -HALF; x <= HALF; x++) {
++                t.append(top.getOrDefault(key(x, z), '#'));
++                m.append(mid.getOrDefault(key(x, z), '#'));
++            }
++            rows[z + HALF] = new String[] { t.toString(), m.toString(), t.toString() };
++        }
++        return rows;
++    }
++
++    private static String[][] buildPreview() {
++        String[][] pattern = PATTERN;
++        String[][] rows = new String[SIZE][];
++        for (int a = 0; a < SIZE; a++) {
++            // the preview is turned around: its first aisle is the pattern's last
++            String[] source = pattern[SIZE - 1 - a];
++            int z = a - HALF; // the row relative to the centre, north (the first aisle) negative
++            String[] row = new String[3];
++            for (int layer = 0; layer < 3; layer++) {
++                StringBuilder sb = new StringBuilder();
++                for (int c = 0; c < SIZE; c++) {
++                    int x = c - HALF;
++                    char ch = source[layer].charAt(c);
++                    sb.append(previewChar(ch, layer, x, z));
++                }
++                row[layer] = sb.toString();
++            }
++            rows[a] = row;
++        }
++        return rows;
++    }
++
++    private static char previewChar(char ch, int layer, int x, int z) {
++        switch (ch) {
++            case 'S': return 'M';
++            case 'A': return '#';
++            case 'I': return layer == 0 ? 'D' : 'U';
++            case 'O': return facing(x, z, hatchInner(x, z), 'N', 'S', 'W', 'E');
++            case 'E': return facing(x, z, false, 'n', 's', 'w', 'e');
++            default: return ch;
++        }
++    }
++
++    private static boolean hatchInner(int x, int z) {
++        return Math.hypot(x, z) < RADIUS;
++    }
++
++    /** The compass letter of a hatch at (x, z) from the centre (z negative = north): outward, or inward on the inner wall. */
++    private static char facing(int x, int z, boolean inward, char north, char south, char west, char east) {
++        boolean vertical = Math.abs(z) >= Math.abs(x);
++        char outward = vertical ? (z < 0 ? north : south) : (x < 0 ? west : east);
++        if (!inward) return outward;
++        if (outward == north) return south;
++        if (outward == south) return north;
++        return outward == west ? east : west;
+     }
+ }
+-- 
+2.43.0
+

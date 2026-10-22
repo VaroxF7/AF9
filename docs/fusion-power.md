@@ -98,9 +98,9 @@ A fusion reactor has no internal EU buffer, no heat and no standby power. It bui
 
 | Reactor | Ring | Field it holds | Builds per tick | Costs per tick while building |
 | --- | --- | --- | --- | --- |
-| Mk1 | 19 x 19 | 1,000 | 10 | 1 A of LuV |
-| Mk2 | 23 x 23 | 4,000 | 40 | 1 A of ZPM |
-| Mk3 | 27 x 27 | 16,000 | 160 | 1 A of UV |
+| Mk1 | round, 19 x 19 | 1,000 | 10 | 1 A of LuV |
+| Mk2 | round, 19 x 19 | 4,000 | 40 | 1 A of ZPM |
+| Mk3 | round, 19 x 19 | 16,000 | 160 | 1 A of UV |
 | Mega (above the Mk3) | its own | 64,000 | 640 | 1 A of UV |
 
 * The field builds from the **auxiliary** energy hatches (screwdriver mode) when the reactor has any, else from the primary ones,
@@ -116,6 +116,13 @@ A fusion reactor has no internal EU buffer, no heat and no standby power. It bui
 
 ### The ring
 
-The Mk1 to Mk3 keep GT's ring but longer: the centre row and column of GT's 15 x 15 pattern are repeated (`FusionStructure`), so the
-shape, the four coil blocks and the hatch positions stay, and the straight sides grow: 19, 23, 27 blocks wide. The light ring follows
-the size. Existing reactors have to be rebuilt.
+All three reactors (Mk1 to Mk3) build the same ring: a true circle, 19 x 19 blocks (`FusionStructure`, fork patch `0016`; GT's own
+ring is an octagon-like 15 x 15 frame). It is a flat tube of three layers: the plasma channel (air) is one block wide on a circle
+of radius 8, covered by casing above and below and walled in by glass or casing on both sides. Four coil blocks sit on the inner
+wall at the diagonals, the fluid hatches around the four poles (import hatches, at least two, in the casing above and below the
+channel; export hatches in the walls), and the controller is the outer wall block at the south pole, 9 blocks from the centre.
+The tiers differ in the field and the voltage, not the size. The light ring is the same circle. Existing reactors have to be rebuilt.
+
+**Energy hatches are optional.** The structure no longer forces any: eight spots on the outer wall take a casing or an energy
+hatch. The reactor stores no energy, but the field and every reaction still draw power, so a reactor with no hatch forms and then
+just never builds a field.

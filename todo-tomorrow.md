@@ -39,7 +39,7 @@
 - [ ] Remove all nuclear content — rework soon (like TFG): spent fuel pool, FX Reactor MK1 & MK2
 - [x] Remove Bacteria Breeding Station (done: replaced by the Bio Vat, GTNH's Bacterial Vat, `docs/bio-vat.md`)
 - [ ] Water Filtration — rework and add to the Evaporation Condensation Well
-- [x] New fusion structures for MK1, MK2 & MK3 (done: rings 19 / 23 / 27 and a magnetic field instead of standby power, fork patch 0015)
+- [x] New fusion structures for MK1, MK2 & MK3 (done: rings 19 / 23 / 27 and a magnetic field instead of standby power, fork patch 0015); then one round 19-block ring for all three, energy hatches optional (patch 0016)
   - Screenshot: https://prnt.sc/JqHcK7HhmmRg
   - Screenshot: https://prnt.sc/LhTCS-pNqPBY
   - Screenshot: https://prnt.sc/nukjDueGUzg3
