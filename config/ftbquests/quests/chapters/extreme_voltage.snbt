@@ -1163,6 +1163,43 @@
 			x: 7.0d
 			y: -4.5d
 		}
+		{
+			dependencies: ["5241693278027FFD"]
+			description: [
+				"{af9.quest.ev.ceramicBoard.1}"
+				""
+				"{af9.quest.ev.ceramicBoard.2}"
+			]
+			icon: "gtceu:plastic_printed_circuit_board"
+			id: "7A5974C486FBE6D1"
+			rewards: [{
+				count: 4
+				id: "102CFC78FA21CE95"
+				item: "gtceu:plastic_circuit_board"
+				type: "item"
+			}]
+			subtitle: "{af9.quest.ev.ceramicBoard.subtitle}"
+			tasks: [
+				{
+					id: "3773D2396DA92CFB"
+					item: "af9:beryllia_substrate"
+					type: "item"
+				}
+				{
+					id: "2333D66AFFD72CB5"
+					item: "gtceu:plastic_circuit_board"
+					type: "item"
+				}
+				{
+					id: "5B3891FB4C79C6DC"
+					item: "gtceu:plastic_printed_circuit_board"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.ev.ceramicBoard.title}"
+			x: -2.5d
+			y: -0.5d
+		}
 	]
 	title: "{atm9.chapters.30.title}"
 }

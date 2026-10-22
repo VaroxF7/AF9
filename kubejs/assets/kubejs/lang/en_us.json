@@ -8727,5 +8727,9 @@
 	"af9.quest.hv.ceramic.hvBoard.2": "The &eAlumina Substrate&r gives &b8 Ceramic Circuit Boards&r per batch (HV, 6 s): half the foil and acid per board.",
 	"af9.quest.hv.ceramic.evBoard.title": "EV: Beryllia Board",
 	"af9.quest.hv.ceramic.evBoard.1": "Burn beryllium dust in oxygen for beryllia, press a plate and fire it with 2 chromium dust in an EBF at 3,600 K.",
-	"af9.quest.hv.ceramic.evBoard.2": "The &eBeryllia Substrate&r gives &b16 Ceramic Circuit Boards&r per batch in 2.5 s (EV). Beryllium is the rare part: beryl and the Void Miner."
+	"af9.quest.hv.ceramic.evBoard.2": "The &eBeryllia Substrate&r gives &b16 Ceramic Circuit Boards&r per batch in 2.5 s (EV). Beryllium is the rare part: beryl and the Void Miner.",
+	"af9.quest.ev.ceramicBoard.title": "EV Ceramic Circuit Boards",
+	"af9.quest.ev.ceramicBoard.subtitle": "The EV board: sixteen at a time",
+	"af9.quest.ev.ceramicBoard.1": "At EV the base of every circuit is made from &eberyllia&r: burn beryllium dust in oxygen, press the plate and fire it with chromium dust in an &eEBF&r at 3,600 K for the &bBeryllia Substrate&r.",
+	"af9.quest.ev.ceramicBoard.2": "One substrate cut in the &eChemical Reactor&r (nickel dust, sulfuric acid) gives &b16 Ceramic Circuit Boards&r in 2.5 seconds. Etch them with copper foil for the printed board. The idea of this quest is TerraFirmaGreg's (LGPL-3.0)."
 }
