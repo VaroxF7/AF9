@@ -59,7 +59,7 @@ with `setExtendedPattern`; the preview has a second page for the Mk2 with the to
 tower (`ORBITAL_MK2_SLICES`, built from the cell functions `orbitalTowerCell` and `orbitalRingCell`, d counting levels
 below the controller), after the concept art: a hollow slab-sided body (17 x 11 above the big ring, 15 x 11 and 11 x 9
 below it, then a stepped taper) of stress-proof and non-conducting panel columns with tungsten carbide frame corner posts, ribs standing
-out of the faces, HSS-G coil light strips and rows of small lit windows, floors every 12 levels, round an
+out of the faces, straight light seams, heating-coil collars round the core and rows of small lit windows, floors every 12 levels, round an
 a tube of superconducting coils (5 x 5, a 3 x 3 hollow for the plasma column) for a core; an angular crown of PTFE casing on top (the controller's saddle in the middle, a tall blade at each edge, the same
 on both sides; the hatches go on the crown), an octagonal collar plate (19 wide) at each ring's middle level, pylons down the waist and a hollow foot with a plasma lance
 below, 130 levels in all. Three rings round it (`ORBITAL_RINGS`: top level, thickness, outer radius, band width): the middle one at d 40

@@ -316,7 +316,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
 
     /**
      * The coil bonus of the Array Mk2 ({@link #coilTime}, {@link #coilEnergy}): shorter runs and less EU/t the higher
-     * the tier of the tower's light-strip coils. Place it after {@link #FOCUS} and before the overclocks.
+     * the tier of the heating coils in the collars round the tower's core tube. Place it after {@link #FOCUS} and before the overclocks.
      */
     public static final RecipeModifier COILS = (machine, recipe) -> {
         if (!(machine instanceof OrbitalLithographyMachine station)) {
@@ -1078,7 +1078,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
-        // the Mk2's light-strip coils are one type all over the tower (GT's coil predicate); the basic station's are fixed
+        // the Mk2's core-tube coil collars are one type all over the tower (GT's coil predicate); the basic station's are fixed
         coilTier = extended && getMultiblockState().getMatchContext().get("CoilType") instanceof ICoilType coil ?
                 coil.getTier() : -1;
         linkModules(extended ? getMultiblockState().getMatchContext().get(MODULE_POS_KEY) : null);

@@ -100,7 +100,7 @@ const ORBITAL_BASIC = [
 // lance (drawn, not built) leaving the open foot; the rings' light rings glow just inside them and turn like the wheels of a station
 // (af9-core RING_MK2 / OrbitalLithographyMachine.ringSpecs, which read the same numbers: keep them in step). The
 // blocks are the basic station's: sturdy and stress-proof casing for the rings and the shell, non-conducting panels, the
-// atomic beams in tungsten carbide frame rails, HSS-G coil light strips, a tube of superconducting coils for the core. Rows bottom -> top as
+// atomic beams in tungsten carbide frame rails, straight light seams, a tube of superconducting coils for the core. Rows bottom -> top as
 // ORBITAL_BASIC, the controller on the top row. d below counts levels down from the controller.
 const ORBITAL_MK2 = 73          // width of the plane, the tower at its centre (36)
 const ORBITAL_MID = 36
@@ -116,10 +116,13 @@ const ORBITAL_RINGS = [         // d of the ring's top level, levels thick, oute
 const orbitalMid = ring => ring.d + Math.floor(ring.t / 2)
 const orbitalCollar = d => ORBITAL_RINGS.some(ring => Math.abs(d - orbitalMid(ring)) <= 1)
 // the deck round each ring: the levels above and below its collar plate reach out wide along the slab, over the beams
-// (which run at the middle level), as far as the ring's band allows. 28 is the most any tower cell may stand from the axis (the foot's plan is far smaller):
-// af9-core hides and redraws a 35 x 35 box (TOWER_BOX)
+// (which run at the middle level). The turning ring's light ring (af9-core Band.lightRadius: radius - width - 1.5) and the band
+// sweep a clear annulus, so nothing that stands still may come closer to the axis' far side than orbitalClear: 1.75 blocks
+// inside the light ring (its tube and its burn). The deck is cut to that circle, so no ring ever touches the tower.
+// 28 is the most any tower cell may stand from the axis (the foot's plan is far smaller): af9-core hides and redraws a 35 x 35 box (TOWER_BOX)
+const orbitalClear = ring => ring.r - ring.w - 3.25
 const orbitalDeck = (d, dx, dz) => ORBITAL_RINGS.some(ring => Math.abs(d - orbitalMid(ring)) === 1
-    && Math.abs(dx) <= Math.min(28, ring.r - ring.w - 2) && Math.abs(dz) <= 9 && Math.abs(dx) + Math.abs(dz) * 2 <= 36)
+    && Math.hypot(dx, dz) <= orbitalClear(ring) && Math.abs(dx) <= 28 && Math.abs(dz) <= 9 && Math.abs(dx) + Math.abs(dz) * 2 <= 36)
 // the set-backs between the rings: a two-level ledge, wider than the body, where the slab steps in
 const orbitalLedge = d => d === 36 || d === 37 || d === 54 || d === 55 || d === 72 || d === 73
 // the tower's half widths (x, z) d levels down: a crown on a slab-sided upper block, a slimmer waist, the long taper
@@ -180,8 +183,9 @@ const orbitalDeepInside = (d, dx, dz) => {
     }
     return true
 }
-// the light strips (HSS-G coils) on the walls: along is the distance along the wall from the tower's axis
-var orbitalCoil = (d, along) => d > 21 && (d + along) % 9 === 0
+// the plasma-injection coils: the Mk2's heating coils (tier bonus) stand inside the tower, never on its walls: six square collars
+// round the core tube, three behind each row of windows, seen through the open panels
+const orbitalCoilCollar = d => [26, 29, 32, 44, 47, 50].indexOf(d) >= 0
 const orbitalTowerCell = (d, dx, dz) => {
     if (d === 0 && dx === 0 && dz === 0) return 'K'
     if (d < 0) return ' '   // above the controller: nothing
@@ -202,27 +206,32 @@ const orbitalTowerCell = (d, dx, dz) => {
     const up = orbitalSolid(d - 1, dx, dz)
     const down = orbitalSolid(d + 1, dx, dz)
     if (east && west && north && south && up && down && orbitalDeepInside(d, dx, dz)) {
-        // inside the walls: a floor every 12 levels
+        // inside the walls: a floor every 12 levels, the coil collars round the core tube
+        if (orbitalCoilCollar(d) && core === 3) return 'B'
         return d <= 80 && d % 12 === 0 ? 'C' : ' '
+    }
+    const part = orbitalFin(d, dx, dz)
+    // the halo (ring and struts) is stress-proof casing, not hatch deck: only where it stands clear of the crown's body
+    if (part === 'F' && d <= 21) {
+        const crown = orbitalSection(d)
+        if (!(Math.abs(dx) <= crown[0] && Math.abs(dz) <= crown[1] && Math.abs(dx) + Math.abs(dz) <= crown[0] + crown[1] - 2)) return 'L'
     }
     // the crown and the roof: plain PTFE casing all round, the hatches go on it
     if (d <= 10 || (d <= 20 && !up)) return 'O'
-    const part = orbitalFin(d, dx, dz)
     if (part === 'R') return 'C'
     // the waist's pylons: atomic casing pillars either side of a narrow frame strip
     if (part === 'P') return dz === 0 ? 'F' : 'H'
     if (part === 'F') return 'L'
     // no frame blocks on the tower's body: corners and rims are casing like the walls
-    // walls: stress-proof casing columns with non-conducting panels between, a light strip (HSS-G coil) up each third
-    // column, broken every 18 levels
+    // walls: stress-proof casing columns with non-conducting panels between, magnet pillars and one straight light seam
+    // between each pair of them, all running the height of the body
     const along = Math.abs(!north || !south ? dx : dz)
     // windows: the wall panels of the upper block and of the middle one are open, so the core tube shows inside
     if (((d >= 25 && d <= 34) || (d >= 43 && d <= 52)) && (along % 6 === 4 || along % 6 === 5)) return ' '
-    // the diagonal light strips are light casing; a heating coil (the Mk2's tier bonus) stands only where a strip crosses
-    // the middle of a panel, one to a strip
-    if (orbitalCoil(d, along)) return along % 6 === 3 ? 'B' : 'N'
-    // magnet pillars up the tower (three to a face, the same on all four sides)
+    // magnet pillars up the tower (three to a face, the same on all four sides), a straight light seam (light casing)
+    // down the middle of each panel between them
     if (d >= 24 && d <= 80 && along % 6 === 0) return 'M'
+    if (d >= 24 && d <= 80 && along % 6 === 3) return 'N'
     return along % 6 < 3 ? 'L' : 'C'
 }
 const orbitalRingCell = (d, dx, dz) => {
@@ -491,7 +500,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             ['K', Predicates.controller(Predicates.blocks(definition.get()))],
             ['A', Predicates.blocks('gtceu:hsse_frame')],
             ['S', Predicates.blocks('gtceu:superconducting_coil')],
-            // the Mk2's light strips are heating coils of any one tier (af9-core OrbitalLithographyMachine.COILS: the
+            // the Mk2's plasma-injection coils (collars round the core tube) are heating coils of any one tier (af9-core OrbitalLithographyMachine.COILS: the
             // tier is the bonus); the basic station's stay HSS-G
             ['B', mk2 ? Predicates.heatingCoils() : Predicates.blocks('gtceu:hssg_coil_block')],
             // the Mk2's structure has casings of its own in place of GT's (orbital_casings.js): the Combined Structure Casing
@@ -499,7 +508,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             ['D', Predicates.blocks(mk2 ? 'af9:orbital_truss_casing' : 'gtceu:sturdy_machine_casing')],
             ['E', Predicates.blocks(mk2 ? 'af9:orbital_girder_casing' : 'gtceu:sturdy_machine_casing')],
             ['F', Predicates.blocks(mk2 ? 'gtceu:tungsten_carbide_frame' : 'gtceu:hsss_frame')],
-            // the Mk2 tower's magnet pillars and light strips (textures from Cosmic Frontiers)
+            // the Mk2 tower's magnet pillars and light seams (textures from Cosmic Frontiers)
             ['M', Predicates.blocks('af9:orbital_magnet_casing')],
             ['N', Predicates.blocks('af9:orbital_light_casing')],
             ['H', Predicates.blocks(mk2 ? 'gtceu:atomic_casing' : 'gtceu:shock_proof_cutting_casing')],
