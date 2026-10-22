@@ -157,7 +157,7 @@ has no recipes left (it would have none to show).
 |---|---|---|---|---|---|---|
 | 1 | stainless steel | LV (expensive MV assembler) | 4x LV circuits | `steel_engine`, `steel_tank` | Assembler, MV | Moon |
 | 2 | Desh (the Moon's metal; hull blocks are Ad Astra's) | HV | ASIC | `desh_engine`, `desh_tank` | Assembler, HV | Mars, Ceres, the Asteroid Field |
-| 3 | titanium (synthetic, Venus ilmenite later) | EV | 2x EV circuits | `ostrum_engine`, `ostrum_tank` | Assembler, EV | Venus, Mercury |
+| 3 | tungstensteel + Ostrum (hull: 3 + 3 blocks; engine and tank: half plates of each) | EV | 2x EV circuits | `ostrum_engine`, `ostrum_tank` | Assembler, EV | Venus, Mercury |
 | 4 | HSS-E | LuV | VPU | `calorite_engine`, `calorite_tank` | Assembly Line, LuV | Glacio |
 
 The rocket (`af9:tier_<n>_rocket`): the nose cone, six hull blocks of the tier's metal, four fins, two tanks, the engine and two robot

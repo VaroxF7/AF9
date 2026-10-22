@@ -131,3 +131,11 @@ The etching chain (redstone nitrate and chloride, p-toluenesulfonic acid, redsto
 `af9-core/.../textures/item/xps/xps_board.png` is GregTech CEu Modern's printed wetware circuit board
 (`wetware_printed_circuit_board.png`, <https://github.com/GregTechCEu/GregTech-Modern>, LGPL-3.0), recoloured: a sand laminate with
 sanguinite-red traces (`tools/textures/xps_board.py`).
+
+## Ceramic Circuit Boards
+
+`kubejs/assets/gtceu/textures/item/plastic_circuit_board.png` and `plastic_printed_circuit_board.png` (they replace GT's) and
+`af9-core/.../textures/item/ceramic/*_substrate.png` are GregTech CEu Modern's plastic circuit boards
+(<https://github.com/GregTechCEu/GregTech-Modern>, LGPL-3.0) redrawn as ivory ceramic with copper traces, two clipped corners and four
+drilled holes (`tools/textures/ceramic_boards.py`). The idea (a ceramic board in three tiers) is TerraFirmaGreg's
+(<https://github.com/TerraFirmaGreg-Team/Modpack-Modern>, LGPL-3.0, `recipes.circuit_board.js`); the recipes are rewritten.

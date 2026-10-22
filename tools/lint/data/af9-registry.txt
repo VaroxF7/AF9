@@ -339,6 +339,9 @@ item af9:pico_cpu
 item af9:shock_capacitor_casing
 item af9:tritanium_ray_reflector
 item af9:xps_board
+item af9:silicon_carbide_substrate
+item af9:alumina_substrate
+item af9:beryllia_substrate
 item af9:plascrete_filter_casing
 item af9:plascrete_pipe_casing
 item af9:plasma_cloud
@@ -714,6 +717,9 @@ material gtceu:vanadyl_pyrophosphate
 material gtceu:vitrified_waste
 material gtceu:wolfram_invar
 material gtceu:xps_alloy
+material gtceu:silicon_carbide
+material gtceu:alumina
+material gtceu:beryllia
 material gtceu:yellowcake
 material gtceu:zinc_chloride
 material gtceu:zincarry

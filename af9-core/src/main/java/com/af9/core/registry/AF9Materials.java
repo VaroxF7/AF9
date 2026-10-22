@@ -108,6 +108,7 @@ public final class AF9Materials {
         planetMetals();
         syntheticTitanium();
         rocketInsulation();
+        ceramicBoards();
         particleAccelerator();
         antimatter();
         photolithography();
@@ -838,6 +839,34 @@ public final class AF9Materials {
         liquid("titanium_extractant", 0xd6c47a, "(C4H9O)3PO(C12H26)");  // tributyl phosphate in diesel
         liquid("loaded_titanium_extract", 0xa8955a, "(TiOCl2)(C4H9O)3PO(C12H26)");  // organic phase carrying the titanium
         liquid("titanium_strip_liquor", 0xe4e8c0, "TiOCl2(HCl)(H2O)");  // stripped back into acid
+    }
+
+    /**
+     * The ceramics of the Ceramic Circuit Boards (MV, HV, EV; docs/ceramic-boards.md): silicon carbide, alumina and
+     * beryllia, pressed into plates and fired onto a metal foil. Dusts with a plate form; the recipes are
+     * ceramic_boards.js.
+     */
+    private static void ceramicBoards() {
+        add(material("silicon_carbide")
+                .dust()
+                .color(0x3f4654)
+                .iconSet(MaterialIconSet.DULL)
+                .flags(MaterialFlags.GENERATE_PLATE)
+                .formula("SiC"));
+
+        add(material("alumina")
+                .dust()
+                .color(0xe9e3d6)
+                .iconSet(MaterialIconSet.DULL)
+                .flags(MaterialFlags.GENERATE_PLATE)
+                .formula("Al2O3"));
+
+        add(material("beryllia")
+                .dust()
+                .color(0xf4efe4)
+                .iconSet(MaterialIconSet.DULL)
+                .flags(MaterialFlags.GENERATE_PLATE)
+                .formula("BeO"));
     }
 
     /**

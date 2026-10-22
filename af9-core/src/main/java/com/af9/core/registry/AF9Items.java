@@ -155,6 +155,11 @@ public final class AF9Items {
         item("pico_circuit_rack", 64, 1);
         // XPS board: placeholder alloy from sand + dirt, laid up in the HILE with sanguinite traces
         item("xps_board", 64, 1);
+        // Ceramic Circuit Board substrates (ceramic_boards.js): a ceramic plate fired onto a metal foil, one per voltage
+        // tier from MV; each is cut into boards in the chemical bath (docs/ceramic-boards.md).
+        item("silicon_carbide_substrate", 64, 1);
+        item("alumina_substrate", 64, 1);
+        item("beryllia_substrate", 64, 1);
         // AI Acceleration Card: TPU + memristor on a wetware board, traced in fine sanguinite wire
         // (circuits_af9.js, UHV); the compute card of the new DTPF (docs/dtpf.md).
         item("ai_acceleration_card", 64, 1);
