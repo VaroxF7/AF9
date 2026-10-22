@@ -62,7 +62,7 @@ sulfate/chloride tail at 10-20x the yield. Synthetic stages are not removed (the
 | 3 | Stage 2 + 3 recipes (about 14) | same file |
 | 4 | Switch off Mars ilmenite + Mars sand recipes (if confirmed) | `vein_mars.js`, `planet_metals.js` |
 | 5 | Quests: HV and EV chapters ("Almost Titanium" series, links in TFG-style) | quest files + lang |
-| 6 | Docs `docs/titanium.md`, update asteroid-fission section 7 | docs |
+| 6 | Docs a titanium doc (planned), update asteroid-fission section 7 | docs |
 
 ## Questions
 
