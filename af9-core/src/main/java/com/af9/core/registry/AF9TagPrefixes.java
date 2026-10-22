@@ -35,7 +35,7 @@ import static com.gregtechceu.gtceu.api.GTValues.M;
  * The Wire Spool is the second part: 64 fine wires of one material wound onto one item
  * ({@code gtceu:iron_wire_spool}), for every material that generates fine wire. The spool holds eight ingots of
  * material ({@link TagPrefix#wireFine} is one eighth of an ingot), and its tag is {@code forge:wire_spools/<material>}.
- * The winding recipe and the Spooler are KubeJS's; this class only makes GregTech register the item.
+ * The winding recipe (a Wiremill recipe) is KubeJS's; this class only makes GregTech register the item.
  */
 public final class AF9TagPrefixes {
 
