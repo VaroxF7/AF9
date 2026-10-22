@@ -3,7 +3,7 @@
 //
 //   Lunar Acid Vapor   a new cut of Lunar Air (distillation: fab_chemistry.js); acidic, so it needs acid-proof pipes
 //                      and tanks. The shock wave of the electric compressor: the discharge flashes it into plasma.
-//   dense plate        4 dust + 500 mB vapor -> 1 dense plate, HV (the explosive recipes are rocket_hull.js)
+//   implosions         every implosion recipe, explosive and electric, is in the IMPLOSIONS table below
 //   naquadah           4 U-235 dust + 2,000 mB vapor -> 1 naquadah dust, EV: the discharge fuses the uranium nuclei
 //   Twi-re-sten        2 tungsten + rhenium + tungsten carbide -> 4 dust (mixer, EV); GT's blast property melts it in the
 //                      EBF, and its plate, foil, fine wire and dense plate come from the usual machines
@@ -17,13 +17,34 @@ ServerEvents.recipes(event => {
     const V = GTValues.V
     const ALLOY = 'gtceu:desh_titanium_rocket_alloy'
 
-    // ---- The recipes of the machine ----
-    event.recipes.gtceu.electric_implosion_compressor('af9:desh_titanium_rocket_alloy_dense_plate_electric')
-        .itemInputs(`4x ${ALLOY}_dust`)
-        .inputFluids(Fluid.of('gtceu:lunar_acid_vapor', 500))
-        .itemOutputs('gtceu:dense_desh_titanium_rocket_alloy_plate')
-        .duration(200)
-        .EUt(VA[GTValues.HV])
+    // ---- Implosion recipes: the one place ----
+    // One rule for every implosion product. 4 dust in, 1 product out, two routes:
+    //   explosive   GT's Implosion Compressor, LV, 20 ticks: 2 dynamite or 1 industrial TNT
+    //   electric    the Electric Implosion Compressor, 500 mB Lunar Acid Vapor, no explosives
+    // Add a product here and both routes exist. (GT's own gem implosions stay explosive-only.)
+    const IMPLOSIONS = [
+        // id, dust, product, electric tier, electric ticks
+        ['desh_titanium_rocket_alloy_dense_plate', `4x ${ALLOY}_dust`, 'gtceu:dense_desh_titanium_rocket_alloy_plate',
+            GTValues.HV, 200],
+    ]
+    IMPLOSIONS.forEach(([id, dust, product, tier, ticks]) => {
+        event.recipes.gtceu.implosion_compressor(`af9:implosion/${id}/dynamite`)
+            .itemInputs(dust, '2x gtceu:dynamite')
+            .itemOutputs(product)
+            .duration(20)
+            .EUt(VA[GTValues.LV])
+        event.recipes.gtceu.implosion_compressor(`af9:implosion/${id}/industrial_tnt`)
+            .itemInputs(dust, 'gtceu:industrial_tnt')
+            .itemOutputs(product)
+            .duration(20)
+            .EUt(VA[GTValues.LV])
+        event.recipes.gtceu.electric_implosion_compressor(`af9:implosion/${id}/electric`)
+            .itemInputs(dust)
+            .inputFluids(Fluid.of('gtceu:lunar_acid_vapor', 500))
+            .itemOutputs(product)
+            .duration(ticks)
+            .EUt(VA[tier])
+    })
 
     // Naquadah from U-235: the capacitor bank's discharge drives the fissile nuclei together hard enough to fuse them
     // into naquadah. Four enriched dusts per dust, EV, two buckets of vapor: the uranium chain (asteroid_fission.js)

@@ -2,9 +2,8 @@
 // Spec: docs/electric-implosion.md. The rocket itself: rockets.js (the tier 2 row of its table).
 //
 //   mixer (HV)   4x titanium dust + 2x desh dust + 16x chromium dust -> 4x Desh Titanium Rocket Alloy dust
-//   the hull     4 dust implode to ONE dense plate: with dynamite or industrial TNT in GT's Implosion Compressor,
-//                or without explosives in the Electric Implosion Compressor (electric_implosion.js, with the vapor).
-//                GT's bender recipes (9 plates or 9 ingots -> dense plate) are gone for this alloy: the only way
+//   the hull     4 dust implode to ONE dense plate; every implosion recipe (explosive and electric) is defined
+//                in electric_implosion.js. GT's bender recipes (9 plates or 9 ingots -> dense plate) are gone for this alloy: the only way
 //                to a dense plate is the implosion.
 //   tier 2 parts the Rocket Cone Tier 2 and the Rocket Fin Tier 2 (4 at a time): the tier 1 parts, desh metal and the
 //                tier's guidance chips (HV assembler)
@@ -21,20 +20,9 @@ ServerEvents.recipes(event => {
         .duration(300)
         .EUt(VA[GTValues.HV])
 
-    // the only way to a dense plate (GT bends them from 9 plates or ingots)
+    // the only way to a dense plate (GT bends them from 9 plates or ingots); the implosion recipes themselves,
+    // explosive and electric, are all in electric_implosion.js
     event.remove({ output: 'gtceu:dense_desh_titanium_rocket_alloy_plate', type: 'gtceu:bender' })
-
-    // GT's implosion compressor: the shock wave of explosives, as for every gem (4 dust in)
-    event.recipes.gtceu.implosion_compressor('af9:desh_titanium_rocket_alloy_dense_plate_dynamite')
-        .itemInputs(`4x ${ALLOY}_dust`, '2x gtceu:dynamite')
-        .itemOutputs('gtceu:dense_desh_titanium_rocket_alloy_plate')
-        .duration(20)
-        .EUt(VA[GTValues.LV])
-    event.recipes.gtceu.implosion_compressor('af9:desh_titanium_rocket_alloy_dense_plate_itnt')
-        .itemInputs(`4x ${ALLOY}_dust`, 'gtceu:industrial_tnt')
-        .itemOutputs('gtceu:dense_desh_titanium_rocket_alloy_plate')
-        .duration(20)
-        .EUt(VA[GTValues.LV])
 
     // ---- The parts of the tier 2 rocket ----
     // the cone: the tier 1 cone with desh skin, an HV sensor and two ASICs for the guidance

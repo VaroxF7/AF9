@@ -1,7 +1,7 @@
 # Electric Implosion Compressor and the tier 2 rocket's hull
 
 Janne's spec of 2026-10-18. Machines: `kubejs/startup_scripts/gtceu/electric_implosion.js`. Recipes:
-`kubejs/server_scripts/mods/gtceu/electric_implosion.js`, `rocket_hull.js`, `rockets.js` (the tier 2 row), `fab_chemistry.js`
+`kubejs/server_scripts/mods/gtceu/electric_implosion.js` (all implosion recipes), `rocket_hull.js` (alloy, cone, fins), `rockets.js` (the tier 2 row), `fab_chemistry.js`
 (the vapor). Materials and items: `af9-core` (`AF9Materials.rocketInsulation()`, `AF9Items`, `AF9Blocks`). Art:
 `tools/textures/electric_implosion.py` (`--preview <dir>` writes contact sheets and an animated front view).
 
@@ -27,6 +27,18 @@ recipes are proposals (Janne gave only what the rocket takes); change them in `r
 Alumina Silicate Insulation (dust), Liquid Alumina Silicate Insulation Mixture (fluid), Alumina Silicate Insulation Foil, Insulation
 Wool (fine wire) and Alumina Silicate Rocket Insulation exist; no recipe makes or takes them yet except the rocket taking the
 insulation. `tools/lint/data/sources.txt` lists the insulation as a source until Janne's recipes land.
+
+## Implosion rules (one table)
+
+Every implosion recipe is generated from the `IMPLOSIONS` table in `server_scripts/mods/gtceu/electric_implosion.js`; nothing
+else defines one. Each product gets the same three recipes, ids `af9:implosion/<product>/<route>`:
+
+* `dynamite`: GT Implosion Compressor, LV, 20 ticks, 4 dust + 2 dynamite
+* `industrial_tnt`: same machine, 4 dust + 1 industrial TNT
+* `electric`: Electric Implosion Compressor, 4 dust + 500 mB Lunar Acid Vapor, tier and time per row (dense plate: HV, 200 ticks)
+
+Currently one product (the dense plate). GT's own gem implosions are untouched. Anything that needs an implosion product takes
+the item itself (`rockets.js` takes the dense plate), so it never cares about the route.
 
 ## Electric Implosion Compressor
 
