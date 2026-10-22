@@ -1,11 +1,11 @@
 // AF9 - Certus Resonating Manufacturer: TerraFirmaGreg's ME Assembler (Core-Modern, MEAssemblerMachine and
 // TFGMultiMachines, LGPL-3.0; credits in CREDITS-textures.md, licence in licenses/) copied into GTCEu with a structure
-// of AF9's own: a cage of AE2 casings and steel pipe casings around a core of fusion glass, the Resonating
+// of AF9's own: a cage of AE2 casings and steel pipe casings around a core of vibrant quartz glass, the Resonating
 // Fluix Hatch and the Data Access Hatch on the deck. The Liquid Resonating Fluix in the hatch is the stabiliser: while
 // there is some, the machine batches its crafts; every craft cycle drinks a few millibuckets of it. No overclocks.
 // Recipe type: gtceu:me_assembler (id as in TFG, so its recipes can be taken over unchanged).
 // Controller logic, the stabiliser hatch and the recipe page: AF9 Core (MEResonanceFabricatorMachine,
-// ResonanceHatchPartMachine). Blocks: af9:ae2_machine_casing (AF9Blocks), gtceu:steel_pipe_casing, gtceu:fusion_glass.
+// ResonanceHatchPartMachine). Blocks: af9:ae2_machine_casing (AF9Blocks), gtceu:steel_pipe_casing, ae2:quartz_vibrant_glass.
 //
 // Differences from TFG: parts have a maximum only (one energy hatch at most, one maintenance hatch at most), the machine
 // has no 'moon only' rule (its recipes ask for a cleanroom instead), and the Budding Certus is gone: the fluix
@@ -53,7 +53,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
 
     // 5 wide x 4 high x 5 deep, aisles back -> front (the controller's last), rows bottom -> top. The bottom layer
     // is the deck: AE2 casings (C) with the hatches, the Data Access Hatch (H) and the steel pipe casing (P) in the
-    // middle; above it a cage of AE2 casings around a core of fusion glass (G), the walls' inside is any
+    // middle; above it a cage of AE2 casings around a core of vibrant quartz glass (G), the walls' inside is any
     // block. Parts have a maximum only (setMaxGlobalLimited(max, preview count)).
     event.create('me_assembler', 'multiblock')
         .machine(holder => new $MEFabricator(holder))
