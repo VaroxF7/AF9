@@ -111,7 +111,10 @@ ServerEvents.recipes(event => {
     // (batched: the same four ids removed in one filter call)
     ;['silicon_boule', 'phosphorus_boule', 'naquadah_boule', 'neutronium_boule']
         .forEach(boule => event.remove({ id: `gtceu:electric_blast_furnace/${boule}` }))
-    boules.forEach(b => {
+    // silicon, phosphorus, naquadah and neutronium are TFG's boules now (High Temperature Precision Fabricator,
+    // precision_fabricator.js); the EBF mode keeps the substrates beyond them
+    const FABRICATOR_BOULES = ['silicon', 'phosphorus', 'naquadah', 'neutronium']
+    boules.filter(b => FABRICATOR_BOULES.indexOf(b.id) < 0).forEach(b => {
         const charge = event.recipes.gtceu.fab_blending(`af9:${b.id}_melt_charge`)
             .itemInputs(b.charge)
             .itemOutputs(`af9:${b.id}_melt_charge`)

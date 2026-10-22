@@ -556,7 +556,11 @@ public final class AF9Materials {
         liquid("silicon_tetrachloride", 0xd2d8d6, "SiCl4");  // STC, bp 58 C
         gas("dichlorosilane", 0xe2e7e4, "SiH2Cl2");  // DCS, bp 8 C
         gas("boron_trichloride", 0xd9e3d0, "BCl3");  // the boron impurity, bp 13 C
-        metal("polysilicon", 0x8a93a3, "Si");  // Siemens rods, 11N
+        // polysilicon is also a melt (1800 K): the High Temperature Precision Fabricator pulls its boules from it
+        add(material("polysilicon").ingot().iconSet(MaterialIconSet.METALLIC)
+                .liquid(new FluidBuilder().temperature(1800)).color(0x8a93a3).formula("Si"));  // 11N
+        gas("chlorosilane", 0xd8cb70, "SiH3Cl");  // the silane line (TFG's boule chain): Si + HCl + H2
+        gas("silane", 0x8383ae, "SiH4");  // electrolysed to polysilicon + hydrogen
         add(material("silicon_etchant").liquid(ownLiquid()).color(0xe8e0a8).formula("(HNO3)(HF)(CH3COOH)"));  // mixed-acid chunk etch
         dust("electronic_grade_silicon", 0x9aa6b8, "Si");  // etched poly chunks, CZ charge
 

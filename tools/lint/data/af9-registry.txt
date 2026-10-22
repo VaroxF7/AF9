@@ -489,6 +489,7 @@ material gtceu:ceraquadalloy
 material gtceu:ceresite ore
 material gtceu:certus_filament
 material gtceu:chloromethane_diesel
+material gtceu:chlorosilane
 material gtceu:chromodynium
 material gtceu:chronite ore
 material gtceu:chronite_oxide_mix
@@ -654,6 +655,7 @@ material gtceu:sc1_solution
 material gtceu:sc2_solution
 material gtceu:shiny_diesel
 material gtceu:shiny_oil
+material gtceu:silane
 material gtceu:silicon_etchant
 material gtceu:silicon_nitride
 material gtceu:silicon_tetrachloride
@@ -721,4 +723,3 @@ material gtceu:zincarry
 material gtceu:zircon ore
 material gtceu:zirconia
 material gtceu:zirconium_tetrachloride
-

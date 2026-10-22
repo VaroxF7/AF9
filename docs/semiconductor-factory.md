@@ -1449,3 +1449,16 @@ AF9_WAFERS.wafersOf(5)                          // every neutronium wafer item (
 - Numbers cross-checked against `LithoMode.java` + server scripts (§§5.2/5.3). Any conflict → code wins, flagged in §10.
 
 *End of spec — after any change run the §10 checklist (dry run, item/fluid id check, lang keys, textures) and let GitHub Actions build AF9 Core.*
+
+## High Temperature Precision Fabricator (TFG's boules, MV)
+
+Janne, 2026-10-22: the first four boules (silicon, phosphorus, naquadah, neutronium) are TerraFirmaGreg's recipes, unchanged, in their own
+multiblock at MV. `startup_scripts/gtceu/precision_fabricator.js` (recipe type `high_temperature_precision_fabricator`, an EBF-sized coil
+hall 3 x 4 x 3, heatproof casing, heating coils for the boule's temperature), recipes in `server_scripts/mods/gtceu/precision_fabricator.js`:
+the silane line (silicon dust + HCl + H2 -> chlorosilane + trichlorosilane -> dichlorosilane + silane -> polysilicon dust), liquid polysilicon
+(`gtceu:polysilicon`, 1800 K, an extractor melts the dust), `af9:silicon_seed_crystal` from polysilicon (autoclave), `af9:fused_quartz_crucible`
+from 5 quartzite in the arc furnace, and the four boules (seed + holder rod from the gem-rod tag `af9:precision_fabricator_holder_rods`,
+gallium arsenide, 5 / 20 / 50 / 99 % crucible loss, 1784 / 2484 / 5400 / 6484 K). Cleanroom variants as in TFG.
+The EBF's Boule Melting mode no longer makes those four (their melt charges are unused); trinium, naquadria, strange matter and
+chromodynium boules stay there. Source: TFG Modpack-Modern `recipes.boules.js` (LGPL-3.0). TFG's machine itself lives in TFG-Core
+(not public); the hall and the casing are ours, and the dipped-item render is not ported.
