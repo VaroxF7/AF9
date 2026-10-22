@@ -9,9 +9,12 @@
 //   heavy-ion collision   lead ions collide; the quark-gluon plasma is caught in magnetic (Penning) traps
 //   quark synthesis       quark-gluon plasma condenses into strange matter, and with strange matter into chromodynium,
 //                         the quark-level metal of the 1 nm wafers
+// Power: 2 energy hatches or 1 laser hatch at most, no parallel hatch, a perfect overclock. The magnetic field (min_field /
+// decay_rate in the recipes) is built by the hatches like the fusion reactors'; the empty tube is filled with Xenoxid gas.
 // Machine behaviour: AF9 Core (ParticleAcceleratorMachine). Recipes: server_scripts/mods/gtceu/particle_accelerator.js
 
 const $ParticleAcceleratorMachine = Java.loadClass('com.af9.core.machine.ParticleAcceleratorMachine')
+const $AmperageOverclock = Java.loadClass('com.af9.core.machine.AmperageOverclock')
 const $AccelCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $AccelModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 const $AccelMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
@@ -249,10 +252,13 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('neutron_irradiation'), GTRecipeTypes.get('ion_collision'),
             GTRecipeTypes.get('quark_synthesis')])
-        // POWER_GATE: only runs when the hatches supply the recipe's full EU/t
-        .recipeModifiers([$AccelModifiers.POWER_GATE, GTRecipeModifiers.OC_NON_PERFECT])
+        // POWER_GATE: only runs when the hatches supply the recipe's full EU/t; FIELD_GATE: the ring full of Xenoxid and
+        // the magnetic field at the recipe's min_field; a PERFECT overclock by the hatches' voltage (the amps stay as
+        // the recipe has them). No parallel: no parallel hatch in the pattern and no parallel modifier here.
+        .recipeModifiers([$AccelModifiers.POWER_GATE, $ParticleAcceleratorMachine.FIELD_GATE,
+            $AmperageOverclock.PERFECT_OC])
         .appearanceBlock(() => Block.getBlock('gtceu:clean_machine_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.particle_accelerator.tooltip', 9))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.particle_accelerator.tooltip', 11))
         .pattern(definition => {
             // aisles north -> south (the controller's aisle last), rows bottom -> top: the layers mirror at y 3
             let pattern = FactoryBlockPattern.start()
@@ -267,8 +273,11 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(4, 2))
-                .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(2, 0))
+                // the Xenoxid hatch: a plain fluid input hatch (the coolant hatches only take supercooled fluids)
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1, 1))
+                // power: 2 energy hatches at most, one laser hatch at most
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
+                .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 0))
             return pattern
                 .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                 .where('C', Predicates.blocks('gtceu:clean_machine_casing').or(parts))

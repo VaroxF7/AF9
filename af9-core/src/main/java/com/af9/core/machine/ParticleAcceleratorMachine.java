@@ -5,15 +5,20 @@ import com.af9.core.common.AF9Sounds;
 import com.af9.core.machine.console.AcceleratorConsoleWidget;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.SidePanelsUIWidget;
+import com.af9.core.machine.part.CoolantHatchPartMachine;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
+import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
+import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.api.registry.GTRegistries;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.FluidHatchPartMachine;
 import com.gregtechceu.gtceu.utils.GTUtil;
 
 import com.lowdragmc.lowdraglib.gui.modular.ModularUI;
@@ -28,12 +33,15 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.StringJoiner;
+
+import javax.annotation.Nullable;
 
 /**
  * Particle Accelerator (structure and recipes in KubeJS): a storage ring built like GTNH's Compact Fusion Computer, 47
@@ -49,6 +57,11 @@ import java.util.StringJoiner;
  * <li>Its own screen, the orbital station's layout: {@link AcceleratorConsoleWidget} in a
  * {@link SidePanelsUIWidget}.</li>
  * <li>The beam energy grows with the voltage tier: 1 GeV at ZPM, doubling per tier.</li>
+ * <li>Magnetic field, as the fusion reactors have it (fork patch 0015): the energy hatches build it, a run starts at
+ * the recipe's {@code min_field} and drains its {@code decay_rate}; the capacity follows the hatches' tier.</li>
+ * <li>The empty beam tube has to be filled with Xenoxid gas, which cools it: the machine pulls it from one fluid
+ * input hatch into the ring ({@link #RING_FILL_CAPACITY}), a run only starts with the ring full and loses
+ * {@link #LEAK_PER_RUN} of it.</li>
  * </ul>
  */
 public class ParticleAcceleratorMachine extends ProcessMachine implements ILightRingMachine {
@@ -73,6 +86,36 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
     /** How hard its ring glows ({@link ILightRingMachine#ringGlow()}): twice GT's, in the tube and its windows. */
     public static final float RING_GLOW = 2F;
 
+    /** The ring's Xenoxid (mB): what fills the beam tube. */
+    public static final int RING_FILL_CAPACITY = 50_000;
+    /** Most Xenoxid pulled from the hatch into the ring in a tick. */
+    public static final int RING_FILL_RATE = 500;
+    /** Xenoxid a run uses up (it takes the heat of the run with it). */
+    public static final int LEAK_PER_RUN = 1_000;
+    /** The gas that fills the ring (gtceu:xenoxid, AF9Materials). */
+    public static final ResourceLocation XENOXID = new ResourceLocation("gtceu", "xenoxid");
+
+    /**
+     * Only starts a run with the ring full of Xenoxid, a field capacity that reaches the recipe's minimum field and
+     * the field itself at that minimum: below it the run waits for the field to build.
+     */
+    public static final RecipeModifier FIELD_GATE = (machine, recipe) -> {
+        if (!(machine instanceof ParticleAcceleratorMachine accelerator)) {
+            return RecipeModifier.nullWrongType(ParticleAcceleratorMachine.class, machine);
+        }
+        int min = minField(recipe);
+        if (min > accelerator.getFieldCapacity()) {
+            return ModifierFunction.cancel(Component.translatable("af9.particle_accelerator.field_capacity", min));
+        }
+        if (accelerator.ringFill < RING_FILL_CAPACITY) {
+            return ModifierFunction.cancel(Component.translatable("af9.particle_accelerator.ring_empty"));
+        }
+        if (accelerator.fieldStrength < min) {
+            return ModifierFunction.cancel(Component.translatable("af9.particle_accelerator.field_low", min));
+        }
+        return ModifierFunction.IDENTITY;
+    };
+
     /** Colour of the ring: the mode of the run it lit up for (synced; GT does not sync the active recipe type). */
     @Persisted
     @DescSynced
@@ -80,6 +123,15 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
     /** Runs completed, for the screen's counter. */
     @Persisted
     private long runs;
+    /** The magnetic field (like the fusion reactors'); 0 when the structure breaks. */
+    @Persisted
+    @DescSynced
+    protected int fieldStrength;
+    /** Xenoxid in the ring, mB; lost when the structure breaks. */
+    @Persisted
+    @DescSynced
+    protected int ringFill;
+    private TickableSubscription ringSubs;
 
     public ParticleAcceleratorMachine(IMachineBlockEntity holder) {
         super(holder);
@@ -135,12 +187,140 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
     }
 
     //////////////////////////////////////
+    // ****** Magnetic field ******//
+    //////////////////////////////////////
+
+    /**
+     * The largest field the hatches' tier holds, as the fusion reactors' Mk1 to Mk3 (1,000 / 4,000 / 16,000) one tier
+     * up: ZPM or less 1,000, UV 4,000, UHV 16,000, above 64,000.
+     */
+    public static int fieldCapacity(int tier) {
+        if (tier <= GTValues.ZPM) return 1000;
+        return switch (tier) {
+            case GTValues.UV -> 4000;
+            case GTValues.UHV -> 16000;
+            default -> 64000;
+        };
+    }
+
+    /** Field built per tick below the capacity: 1 % of it. */
+    public static int fieldRegen(int tier) {
+        return fieldCapacity(tier) / 100;
+    }
+
+    /** What building the field costs each tick: 1 A of the hatches' voltage (UHV at most). */
+    public static long fieldChargeEUt(int tier) {
+        return GTValues.V[Math.min(tier, GTValues.UHV)];
+    }
+
+    private int hatchTier() {
+        return energyContainer == null ? 0 : GTUtil.getTierByVoltage(energyContainer.getInputVoltage());
+    }
+
+    public int getFieldCapacity() {
+        return isFormed() ? fieldCapacity(hatchTier()) : 0;
+    }
+
+    public int getFieldStrength() {
+        return fieldStrength;
+    }
+
+    public int getRingFill() {
+        return ringFill;
+    }
+
+    /** The field a run needs to start: its {@code min_field} data, else 1,000. */
+    public static int minField(GTRecipe recipe) {
+        return recipe.data.contains("min_field") ? recipe.data.getInt("min_field") : 1000;
+    }
+
+    /** What a run drains: its {@code decay_rate} data, else a quarter of its minimum field. */
+    public static int fieldDecay(GTRecipe recipe) {
+        return recipe.data.contains("decay_rate") ? recipe.data.getInt("decay_rate") : minField(recipe) / 4;
+    }
+
+    private void setFieldStrength(int value) {
+        value = Math.max(0, Math.min(value, getFieldCapacity()));
+        if (fieldStrength != value) {
+            fieldStrength = value;
+            markDirty();
+        }
+    }
+
+    private void setRingFill(int value) {
+        value = Math.max(0, Math.min(value, RING_FILL_CAPACITY));
+        if (ringFill != value) {
+            ringFill = value;
+            markDirty();
+        }
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (!isRemote()) updateRingSubscription();
+    }
+
+    @Override
+    public void onStructureFormed() {
+        super.onStructureFormed();
+        updateRingSubscription();
+    }
+
+    @Override
+    public void onStructureInvalid() {
+        super.onStructureInvalid();
+        setFieldStrength(0);
+        setRingFill(0);
+        updateRingSubscription();
+    }
+
+    private void updateRingSubscription() {
+        if (isFormed()) {
+            ringSubs = subscribeServerTick(ringSubs, this::ringTick);
+        } else if (ringSubs != null) {
+            ringSubs.unsubscribe();
+            ringSubs = null;
+        }
+    }
+
+    /** Builds the field from the hatches (also while a run goes on) and fills the ring from the Xenoxid hatch. */
+    private void ringTick() {
+        if (!isFormed() || !isWorkingEnabled()) return;
+        fillRing();
+        if (fieldStrength >= getFieldCapacity() || energyContainer == null) return;
+        long eut = fieldChargeEUt(hatchTier());
+        if (energyContainer.getEnergyStored() >= eut && energyContainer.removeEnergy(eut) > 0) {
+            setFieldStrength(fieldStrength + fieldRegen(hatchTier()));
+        }
+    }
+
+    private void fillRing() {
+        int want = Math.min(RING_FILL_RATE, RING_FILL_CAPACITY - ringFill);
+        if (want <= 0) return;
+        var fluid = ForgeRegistries.FLUIDS.getValue(XENOXID);
+        if (fluid == null) return;
+        for (var part : getParts()) {
+            if (!(part instanceof FluidHatchPartMachine hatch) || part instanceof CoolantHatchPartMachine) continue;
+            FluidStack drained = hatch.tank.drain(new FluidStack(fluid, want), IFluidHandler.FluidAction.EXECUTE);
+            if (drained.isEmpty()) continue;
+            setRingFill(ringFill + drained.getAmount());
+            want -= drained.getAmount();
+            if (want <= 0) return;
+        }
+    }
+
+    //////////////////////////////////////
     // ********** Runs ***********//
     //////////////////////////////////////
 
     @Override
-    public boolean beforeWorking(GTRecipe recipe) {
+    public boolean beforeWorking(@Nullable GTRecipe recipe) {
+        if (recipe == null) return false;
+        if (fieldStrength < minField(recipe) || ringFill < RING_FILL_CAPACITY) return false;
         if (!super.beforeWorking(recipe)) return false;
+        setFieldStrength(fieldStrength - fieldDecay(recipe));
+        setRingFill(ringFill - LEAK_PER_RUN);
         GTRecipeType[] types = getRecipeTypes();
         for (int i = 0; i < types.length; i++) {
             if (types[i] == recipe.recipeType) ringColor = modeColor(i);
@@ -241,6 +421,11 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
     }
 
     @Override
+    public int consoleLines() {
+        return 6;
+    }
+
+    @Override
     public List<Component> infoLines() {
         List<Component> lines = new ArrayList<>();
         lines.add(Component.translatable("af9.particle_accelerator.console.beam",
@@ -249,6 +434,10 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
         lines.add(coolant.isEmpty() ? Component.translatable("af9.particle_accelerator.console.no_coolant") :
                 Component.translatable("af9.particle_accelerator.console.coolant",
                         coolant.getDisplayName(), ConsoleWidget.compact(getCoolantAmount())));
+        lines.add(Component.translatable("af9.particle_accelerator.console.field",
+                fieldStrength, getFieldCapacity()));
+        lines.add(Component.translatable("af9.particle_accelerator.console.xenoxid",
+                ConsoleWidget.compact(ringFill), ConsoleWidget.compact(RING_FILL_CAPACITY)));
         boolean running = getRecipeLogic().isWorking();
         lines.add(Component.translatable(running ? "af9.particle_accelerator.console.beam_on" :
                 "af9.particle_accelerator.console.beam_off"));

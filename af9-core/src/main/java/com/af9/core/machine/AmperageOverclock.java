@@ -17,21 +17,28 @@ import net.minecraft.network.chat.Component;
  */
 public final class AmperageOverclock {
 
-    public static final RecipeModifier OC = (machine, recipe) -> {
-        if (!(machine instanceof IOverclockMachine overclocking)) return ModifierFunction.IDENTITY;
-        var eut = RecipeHelper.getRealEUt(recipe);
-        if (eut.isEmpty() || eut.voltage() <= 0) return ModifierFunction.IDENTITY;
-        int recipeTier = GTUtil.getTierByVoltage(eut.voltage());
-        if (recipeTier > overclocking.getMaxOverclockTier()) {
-            return ModifierFunction.cancel(Component.translatable("gtceu.recipe_modifier.insufficient_voltage"));
-        }
-        long maxVoltage = overclocking.getOverclockVoltage();
-        int overclocks = GTUtil.getOCTierByVoltage(maxVoltage) - recipeTier;
-        if (overclocks <= 0) return ModifierFunction.IDENTITY;
-        var result = OverclockingLogic.NON_PERFECT_OVERCLOCK.runOverclockingLogic(
-                new OverclockingLogic.OCParams(eut.voltage(), recipe.duration, overclocks, 1), maxVoltage);
-        return result.toModifier();
-    };
+    public static final RecipeModifier OC = modifier(OverclockingLogic.NON_PERFECT_OVERCLOCK);
+
+    /** The same, perfect: each overclock is four times the voltage for a quarter of the time (the Particle Accelerator). */
+    public static final RecipeModifier PERFECT_OC = modifier(OverclockingLogic.PERFECT_OVERCLOCK);
+
+    private static RecipeModifier modifier(OverclockingLogic logic) {
+        return (machine, recipe) -> {
+            if (!(machine instanceof IOverclockMachine overclocking)) return ModifierFunction.IDENTITY;
+            var eut = RecipeHelper.getRealEUt(recipe);
+            if (eut.isEmpty() || eut.voltage() <= 0) return ModifierFunction.IDENTITY;
+            int recipeTier = GTUtil.getTierByVoltage(eut.voltage());
+            if (recipeTier > overclocking.getMaxOverclockTier()) {
+                return ModifierFunction.cancel(Component.translatable("gtceu.recipe_modifier.insufficient_voltage"));
+            }
+            long maxVoltage = overclocking.getOverclockVoltage();
+            int overclocks = GTUtil.getOCTierByVoltage(maxVoltage) - recipeTier;
+            if (overclocks <= 0) return ModifierFunction.IDENTITY;
+            var result = logic.runOverclockingLogic(
+                    new OverclockingLogic.OCParams(eut.voltage(), recipe.duration, overclocks, 1), maxVoltage);
+            return result.toModifier();
+        };
+    }
 
     private AmperageOverclock() {}
 }

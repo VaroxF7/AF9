@@ -14,8 +14,9 @@ ServerEvents.tags('fluid', event => {
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
-    // UHV recipes draw 100 A of UHV power (Pico-scale work takes 300 A in the Advanced Circuit Manufacturer).
-    const UHV_AMPS = 100
+    // At most 2 energy hatches (or 1 laser hatch): no recipe draws more than 4 A of its voltage tier. A recipe also names
+    // the magnetic field it needs to start (min_field) and what a run drains (decay_rate); a UV hatch holds 4,000, a UHV
+    // hatch 16,000 (ParticleAcceleratorMachine.fieldCapacity).
 
     // ---- The accelerator and its parts ----
     event.recipes.gtceu.assembler('af9:particle_accelerator')
@@ -27,6 +28,13 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.ZPM])
     // the ring itself is GT's blocks: clean stainless steel casings, superconducting coils, fusion glass and
     // naquadah alloy frames
+
+    // Xenoxid (xenon tetroxide), the gas that fills the ring (50,000 mB; a run uses 1,000): xenon burnt in oxygen
+    event.recipes.gtceu.chemical_reactor('af9:xenoxid')
+        .inputFluids(Fluid.of('gtceu:xenon', 1000), Fluid.of('gtceu:oxygen', 4000))
+        .outputFluids(Fluid.of('gtceu:xenoxid', 1000))
+        .duration(200)
+        .EUt(VA[GTValues.IV])
 
     // consumables: the spallation target (four wafers each) and the reusable magnetic traps
     event.recipes.gtceu.assembler('af9:beryllium_spallation_target')
@@ -47,6 +55,8 @@ ServerEvents.recipes(event => {
         .itemOutputs('4x af9:transmuted_neutronium_wafer')
         .duration(1200)
         .EUt(VA[GTValues.UV], 2)
+        .addData('min_field', 2000)
+        .addData('decay_rate', 500)
 
     // ---- Heavy-ion collision: quark-gluon plasma, caught in a magnetic trap ----
     event.recipes.gtceu.ion_collision('af9:qgp_trap')
@@ -55,6 +65,8 @@ ServerEvents.recipes(event => {
         .itemOutputs('af9:qgp_trap')
         .duration(600)
         .EUt(VA[GTValues.UV], 4)
+        .addData('min_field', 3000)
+        .addData('decay_rate', 800)
 
     // ---- Quark synthesis: strange matter, then chromodynium; the traps come back empty ----
     event.recipes.gtceu.quark_synthesis('af9:strange_matter_dust')
@@ -62,11 +74,15 @@ ServerEvents.recipes(event => {
         .inputFluids('#af9:coolant/xenon 4000')
         .itemOutputs('gtceu:strange_matter_dust', '4x af9:magnetic_trap')
         .duration(1200)
-        .EUt(VA[GTValues.UHV], UHV_AMPS)
+        .EUt(VA[GTValues.UV], 4)
+        .addData('min_field', 4000)
+        .addData('decay_rate', 1500)
     event.recipes.gtceu.quark_synthesis('af9:chromodynium_dust')
         .itemInputs('8x af9:qgp_trap', 'gtceu:strange_matter_dust')
         .inputFluids('#af9:coolant/endion 4000')
         .itemOutputs('gtceu:chromodynium_dust', '8x af9:magnetic_trap')
         .duration(2400)
-        .EUt(VA[GTValues.UHV], UHV_AMPS)
+        .EUt(VA[GTValues.UHV], 4)
+        .addData('min_field', 12000)
+        .addData('decay_rate', 3000)
 })

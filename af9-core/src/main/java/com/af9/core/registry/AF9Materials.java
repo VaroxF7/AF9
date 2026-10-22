@@ -293,6 +293,9 @@ public final class AF9Materials {
         add(material("fission_off_gas")
                 .gas()
                 .color(0xaac4e0));
+        // Xenon tetroxide: the heavy cold gas that fills the Particle Accelerator's beam tube and cools it
+        // (xenon and oxygen in a chemical reactor, particle_accelerator.js)
+        gas("xenoxid", 0x7fe3d0, "XeO4");
 
         // GT defines neptunium and protactinium as bare elements with no items. Reprocessing parts them out
         // (minor actinides of the MOX and thorium lines, fission_fuels.js) and vitrification locks them in glass:
