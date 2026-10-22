@@ -485,9 +485,9 @@ material gtceu:brannerite ore
 material gtceu:butanol
 material gtceu:butene_sulfonic_acid
 material gtceu:ceranium
-material gtceu:certus_filament
 material gtceu:ceraquadalloy
 material gtceu:ceresite ore
+material gtceu:certus_filament
 material gtceu:chloromethane_diesel
 material gtceu:chromodynium
 material gtceu:chronite ore
@@ -602,6 +602,7 @@ material gtceu:nitronaphthalene
 material gtceu:novolac_resin
 material gtceu:osmium_tetroxide_vapour
 material gtceu:oxidized_air
+material gtceu:p_toluenesulfonic_acid
 material gtceu:palladium_chloride
 material gtceu:palladium_diammine_dichloride
 material gtceu:palladium_filtrate
@@ -634,6 +635,9 @@ material gtceu:quantanium ore
 material gtceu:quantum_dot_colloid
 material gtceu:rare_earth_carbonate
 material gtceu:rare_earth_sulfate_solution
+material gtceu:redstone_chloride
+material gtceu:redstone_nitrate
+material gtceu:redstone_tri_p_toluenesulfonate
 material gtceu:reformate
 material gtceu:reinforced_titanium_niobium_alloy
 material gtceu:rheniloy
@@ -657,6 +661,7 @@ material gtceu:simons_cell_electrolyte
 material gtceu:sodium_bifluoride
 material gtceu:sodium_fluoride
 material gtceu:sodium_hexanitritorhodate
+material gtceu:sodium_nitrate
 material gtceu:sodium_tert_butoxide
 material gtceu:spent_fuel_solution
 material gtceu:spent_mox_solution
@@ -716,3 +721,4 @@ material gtceu:zincarry
 material gtceu:zircon ore
 material gtceu:zirconia
 material gtceu:zirconium_tetrachloride
+

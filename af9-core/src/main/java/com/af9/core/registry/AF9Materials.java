@@ -100,6 +100,7 @@ public final class AF9Materials {
         moonSilicon();
         electronicsMetallurgy();
         fabChemistry();
+        circuitEtching();
         fusionPlasmas();
         lithoProcess();
         lithiumBrine();
@@ -1209,6 +1210,20 @@ public final class AF9Materials {
                 .color(0xdff4ff).iconSet(MaterialIconSet.METALLIC)
                 .flags(MaterialFlags.GENERATE_PLATE)
                 .formula("(Fe)(StM)"));
+    }
+
+    /**
+     * Redstone etching (TerraFirmaGreg's idea): the circuit-board etchant that replaces GT's sodium persulfate in the
+     * "persulfate" board recipes. Redstone dissolved in nitric acid, turned into the chloride with salt, then bound to
+     * p-toluenesulfonic acid (toluene + thionyl chloride + sulfuric acid). Recipes: circuit_etching.js
+     */
+    private static void circuitEtching() {
+        dust("redstone_nitrate", 0xa6080d, "Rs(NO3)2");  // redstone dissolved in nitric acid, crystallised
+        dust("sodium_nitrate", 0xcbf7ff, "NaNO3");  // the salt-swap by-product, back to nitric acid
+        liquid("redstone_chloride", 0xb02a2a, "RsCl2");
+        add(material("p_toluenesulfonic_acid").liquid(new FluidBuilder().attribute(FluidAttributes.ACID))
+                .color(0x872b0b).formula("CH3C6H4SO3H"));
+        liquid("redstone_tri_p_toluenesulfonate", 0xa6080d, "Rs(CH3C6H4SO3)3");
     }
 
     /**

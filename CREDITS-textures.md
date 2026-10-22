@@ -120,3 +120,8 @@ are from **StarT-Core** (<https://github.com/StarT-Dev-Team/StarT-Core>, LGPL-3.
 `wire_spool.json` models under `af9-core/.../assets/gtceu/models/item/material_sets/` are the same `item/generated`
 models StarT-Core uses; they all point at the dull spool textures, which GregTech tints with the material colour.
 Licence text in `licenses/StarT-Core-LGPL-3.0.txt`.
+
+## Redstone etching
+
+The etching chain (redstone nitrate and chloride, p-toluenesulfonic acid, redstone tri-p-toluenesulfonate) follows TerraFirmaGreg's
+`recipes.etching.js` / `recipes.circuit_board.js` (Modpack-Modern, LGPL-3.0), rewritten for AF9's materials (`circuit_etching.js`).
