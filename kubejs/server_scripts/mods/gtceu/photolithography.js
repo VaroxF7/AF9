@@ -198,8 +198,8 @@ ServerEvents.recipes(event => {
     const yieldOf = AF9_WAFERS.yieldOf
 
     // ---- Removed GT paths: the chip wafers come from the lithography machines ----
-    // Except one bootstrap: MV Energy Hatches need a ULPIC chip and the line needs MV Energy Hatches, so GT's plain
-    // ULPIC engraving on silicon stays (like the chip-free Good Electronic Circuit). GT's derived-wafer chemistry
+    // Except GT's plain ULPIC engraving on silicon, which stays for the parts that still take a ULPIC chip (the MV
+    // hatches do not, mv_energy_hatch.js) (like the chip-free Good Electronic Circuit). GT's derived-wafer chemistry
     // (Nano CPU, Qubit CPU, HPIC, UHPIC) and GT's cutter recipes of its own wafers stay as they are.
     const gtSubstrates = ['silicon', 'phosphorus', 'naquadah', 'neutronium']
     chips.filter(c => c.engrave).forEach(c => gtSubstrates.forEach(s => {

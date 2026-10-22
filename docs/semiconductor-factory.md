@@ -611,7 +611,7 @@ A print takes the reticle of its node's class (`AF9_WAFERS.reticleItem(chip, mas
 
 eDRAM packages (gtceu:assembler, IV, clean room): `gtceu:cpu_chip` or `gtceu:soc` + 2x `af9:edram_chip` + `gtceu:epoxy_plate` + 4x `gtceu:fine_gold_wire` + 72mB `gtceu:soldering_alloy` → `af9:edram_cpu_package` / `af9:edram_soc_package` | 400t.
 
-Removed base (all substrates): `gtceu:laser_engraver/engrave_<ilc|ram|cpu|ulpic|lpic|ssoc|nand|nor|pic|soc|asoc|hasoc>_<silicon|phosphorus|naquadah|neutronium>`, **except** `engrave_ulpic_silicon` (MV bootstrap, §6.8: MV Energy Hatches need ULPIC before the line can run).
+Removed base (all substrates): `gtceu:laser_engraver/engrave_<ilc|ram|cpu|ulpic|lpic|ssoc|nand|nor|pic|soc|asoc|hasoc>_<silicon|phosphorus|naquadah|neutronium>`, **except** `engrave_ulpic_silicon` (early ULPIC for the GT parts that still take it; the MV Energy and Dynamo Hatch recipes were copied without the chip, `mv_energy_hatch.js`).
 
 ## 6.5 Step 2c — Chemistries
 
@@ -711,7 +711,7 @@ EUV resist chain (`photolithography.js`): `af9:tin_tetrachloride` (fab synthesis
 
 Derived wafers (GT's chemistry on any substrate): `af9:chemical_reactor/<chip>_wafer[_suffix]_<substrate>` and the same on `large_chemical_reactor`, cleanroom, GT's EU/t and time: Nano CPU (CPU wafer + 16 carbon fibers + 576 glowstone, EV 1200t), Qubit CPU (Nano CPU wafer + 2 quantum eyes + 288 GaAs, EV 900t; or + 1 InGaP + 50 radon, EV 1200t), HPIC (MPIC wafer + 2 InGaP + 288 vanadium gallium, IV 1200t), UHPIC (HPIC wafer + 8 InGaP + 576 naquadah, LuV 1200t). GT's own recipes stay for GT's wafers.
 
-Removed base: GT's engraving of every chip wafer on every substrate except `engrave_ulpic_silicon` (the MV bootstrap).
+Removed base: GT's engraving of every chip wafer on every substrate except `engrave_ulpic_silicon` (early ULPIC; the MV hatches no longer need it).
 
 ## 6.7 Step 4 — Cutting (cutter)
 
@@ -767,7 +767,7 @@ Layout, left to right by voltage tier:
   then a "substrate highway" of melt charges (phosphorus ... chromodynium) with their boules; cryostat, coolant hatch,
   particle accelerator, transmuted neutronium, QGP, strange matter, chromodynium, tritanium crucible, Endion coils.
 - **Quest links** show the GT quests of the voltage chapters that belong to the flow (MV laser engraver, silicon boule,
-  cutter, silicon wafer, ULPIC wafer/chip, MV energy hatch, HV cleanroom, the printed chip wafers of each node, the
+  cutter, silicon wafer, MV energy hatch (no chip), HV cleanroom, the printed chip wafers of each node, the
   phosphorus/naquadah/neutronium boules, the derived Nano CPU / Qubit / HPIC / UHPIC wafers). They are the same quests.
 
 The AF9 quests that used to sit in the voltage chapters moved into this chapter; each old position now holds a quest link
