@@ -37,6 +37,16 @@ else defines one. Each product gets the same three recipes, ids `af9:implosion/<
 * `industrial_tnt`: same machine, 4 dust + 1 industrial TNT
 * `electric`: Electric Implosion Compressor, 4 dust + 500 mB Lunar Acid Vapor, tier and time per row (dense plate: HV, 200 ticks)
 
+### Charged route (capacitor bank)
+
+The Large Electric Implosion Compressor (Java: `LargeElectricImplosionMachine`) has an internal buffer of 8,000,000 EU. Its
+energy hatches fill it at their input rate whenever the structure is formed. A *charged* recipe takes no explosive and no
+vapor; it fires `burst_eu` (200,000 EU, per parallel) from the buffer when it starts, and is not found while the bank holds
+less. The charged recipes are generated for **every** `gtceu:implosion_compressor` recipe (GT's gems and our own table
+rows): same inputs without the dynamite / industrial TNT / TNT / powder barrel, same outputs, ids
+`af9:implosion/<product>/charged` and `af9:implosion_charged/<original id>`. They are their own recipe type, `charged_implosion` (the Large machine's second mode, screwdriver), so the single blocks have
+no bank and only run the vapor recipes. Vapor recipes do not touch the bank. The console shows the bank's charge.
+
 Currently one product (the dense plate). GT's own gem implosions are untouched. Anything that needs an implosion product takes
 the item itself (`rockets.js` takes the dense plate), so it never cares about the route.
 

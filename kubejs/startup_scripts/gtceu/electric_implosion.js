@@ -8,11 +8,20 @@
 //   cupronickel coil blocks as the work coils (the middle of the cross and its four arms) round a titanium frame, the
 //   controller in the middle of the front. Hatches go in the casings. Parallel hatch, perfect overclocks.
 // Both run the recipe type `electric_implosion_compressor`; GT's own Implosion Compressor keeps the explosive recipes.
-// The naquadah recipe (4 U-235 dust + vapor -> 1 naquadah dust) is the electric implosion's transmutation.
+// The Large one also holds a capacitor bank (LargeElectricImplosionMachine): charged recipes, one per normal implosion
+// recipe without its explosive, fire from the bank. The naquadah recipe (4 U-235 dust + vapor -> 1 naquadah dust) is the electric implosion's transmutation.
 
+const $LargeElectricImplosion = Java.loadClass('com.af9.core.machine.LargeElectricImplosionMachine')
 const $ElectricImplosionTiered = Java.loadClass('com.gregtechceu.gtceu.api.machine.SimpleTieredMachine')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
+    // the charged recipes (no explosive, no vapor; fired from the Large machine's capacitor bank): its second mode
+    event.create('charged_implosion')
+        .setEUIO('in')
+        .setMaxIOSize(2, 2, 0, 0)
+        .setProgressBar(GuiTextures.PROGRESS_BAR_COMPRESS, FillDirection.LEFT_TO_RIGHT)
+        .setSound(GTSoundEntries.ARC)
+
     // dust and a second item in, the plate (and a little residue) out, the vapor in
     event.create('electric_implosion_compressor')
         .setEUIO('in')
@@ -48,9 +57,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
 
     // ---- The multiblock ----
     event.create('large_electric_implosion_compressor', 'multiblock')
+        .machine(holder => new $LargeElectricImplosion(holder))
         .langValue('Large Electric Implosion Compressor')
         .rotationState(RotationState.NON_Y_AXIS)
-        .recipeTypes([GTRecipeTypes.get('electric_implosion_compressor')])
+        .recipeTypes([GTRecipeTypes.get('electric_implosion_compressor'), GTRecipeTypes.get('charged_implosion')])
         .recipeModifiers([GTRecipeModifiers.PARALLEL_HATCH, GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(() => Block.getBlock('af9:shock_capacitor_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.large_electric_implosion_compressor.tooltip', 4))

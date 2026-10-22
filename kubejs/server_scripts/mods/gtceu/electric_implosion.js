@@ -15,6 +15,7 @@
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
     const V = GTValues.V
+    const BURST_EU = 200000 // EU a charged implosion takes from the bank, per parallel
     const ALLOY = 'gtceu:desh_titanium_rocket_alloy'
 
     // ---- Implosion recipes: the one place ----
@@ -44,6 +45,33 @@ ServerEvents.recipes(event => {
             .itemOutputs(product)
             .duration(ticks)
             .EUt(VA[tier])
+        // charged: the same without vapor, fired from the Large machine's capacitor bank
+        event.recipes.gtceu.charged_implosion(`af9:implosion/${id}/charged`)
+            .itemInputs(dust)
+            .itemOutputs(product)
+            .duration(20)
+            .EUt(VA[GTValues.LV])
+            .addData('burst_eu', BURST_EU)
+    })
+
+    // Every other implosion recipe of the pack (GT's gems, other mods) becomes a charged recipe: the same inputs
+    // without the explosive, the same outputs, fired from the bank. Our own (af9:) are made above.
+    const seen = new Set()
+    const explosive = /dynamite|industrial_tnt|minecraft:tnt|powderbarrel/
+    event.forEachRecipe({ type: 'gtceu:implosion_compressor' }, r => {
+        const id = String(r.getId())
+        if (id.startsWith('af9:')) return
+        const json = JSON.parse(String(r.json))
+        const items = (json.inputs && json.inputs.item) || []
+        const kept = items.filter(c => !explosive.test(JSON.stringify(c)))
+        if (kept.length === 0 || kept.length === items.length) return
+        const key = JSON.stringify(kept) + JSON.stringify(json.outputs)
+        if (seen.has(key)) return
+        seen.add(key)
+        json.type = 'gtceu:charged_implosion'
+        json.inputs.item = kept
+        json.data = { burst_eu: BURST_EU }
+        event.custom(json).id(`af9:implosion_charged/${id.replace(':', '/')}`)
     })
 
     // Naquadah from U-235: the capacitor bank's discharge drives the fissile nuclei together hard enough to fuse them
