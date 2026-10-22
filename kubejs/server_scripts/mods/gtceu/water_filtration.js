@@ -68,7 +68,7 @@ ServerEvents.recipes(event => {
         .duration(200)
         .EUt(VA[GTValues.MV])
 
-    // ---- LuV biosorption (needs the breeding station built and piped): salt water straight to brine ----
+    // ---- LuV biosorption (needs the Bio Vat built and piped): salt water straight to brine ----
     event.recipes.gtceu.water_filtration('af9:luv_brine_biosorption')
         .notConsumable('gtceu:fluid_filter')
         .circuit(9)

@@ -1278,8 +1278,8 @@ public final class AF9Materials {
 
     /**
      * Bacterial cultures for the Water Filtration Plant's LuV/ZPM biosorption modes: biochaff fed
-     * to the Bacteria Breeding Station grows the LuV culture, which feeds the ZPM one. Mixtures, so
-     * no formulas (and no GT shortcuts). Recipes: bacteria_breeding.js, water_filtration.js.
+     * to the Bio Vat grows the LuV culture, which feeds the ZPM one. Mixtures, so
+     * no formulas (and no GT shortcuts). Recipes: bio_vat.js, water_filtration.js.
      * Spec: docs/water-filtration.md
      */
     private static void bioCultures() {

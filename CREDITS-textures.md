@@ -146,3 +146,21 @@ The molten-salt reactor concept (graphite moderator line, FLiBe coolant, heat ex
 **TerraFirmaGreg Modern**'s nuclear line (<https://github.com/TerraFirmaGreg-Team/Modpack-Modern>, LGPL-3.0); no code, recipe or texture was
 copied, the recipes and numbers are our own (`docs/nuclear-rework.md`). The new item textures are recolours of AF9's own thorium fuel
 textures (`tools/textures/nuclear_items.py`). Licence text in `licenses/TerraFirmaGreg-Core-Modern-LGPL-3.0.txt`.
+
+## Bio Vat
+
+The Bio Vat is GTNH's Bacterial Vat (BartWorks `MTEBioVat`, GT5-Unofficial `src/main/java/bartworks/common/tileentities/multis/MTEBioVat.java`,
+MIT licence of bartimaeusnek; GT5-Unofficial is LGPL-3.0 or later, <https://github.com/GTNewHorizons/GT5-Unofficial>; licence text in
+`licenses/GT5-Unofficial-LGPL-3.0.txt`). Its textures:
+
+| af9 file | GT5-Unofficial source (`src/main/resources/assets/gregtech/textures/blocks/iconsets/`) | Changes |
+|---|---|---|
+| `kubejs/assets/gtceu/textures/block/multiblock/bio_vat/overlay_front.png` | `OVERLAY_FRONT_DISTILLATION_TOWER.png` | none (converted to RGBA) |
+| `.../bio_vat/overlay_front_active.png` | `OVERLAY_FRONT_DISTILLATION_TOWER_ACTIVE.png` | none (converted to RGBA) |
+| `.../bio_vat/overlay_front_emissive.png` | `OVERLAY_FRONT_DISTILLATION_TOWER_GLOW.png` | none (converted to RGBA) |
+| `.../bio_vat/overlay_front_active_emissive.png` | `OVERLAY_FRONT_DISTILLATION_TOWER_ACTIVE_GLOW.png` | none (converted to RGBA) |
+| `.../bio_vat/overlay_front_paused.png`, `overlay_front_paused_emissive.png` | the idle face and its glow | copies of the idle ones |
+
+The structure (5 x 4 x 5), the glass-tier gate and the output-fill bonus are taken from the original; the culture in the tank is drawn
+(`BioVatRender`) instead of placed as fluid blocks. The radiation hatch and the petri-dish cultures are not ported.
+

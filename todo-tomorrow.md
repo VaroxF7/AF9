@@ -37,7 +37,8 @@
   Distillation Tower, Electrolyzer, Large Electrolysis Chamber, Arc Furnace and Electric Blast Furnace)
 - [ ] No more MK1/MK2 structures for the DTPF — only 1 multiblock + machine upgrades
 - [ ] Remove all nuclear content — rework soon (like TFG): spent fuel pool, FX Reactor MK1 & MK2
-- [ ] Remove Bacteria Breeding Station & Water Filtration — rework and add to the Evaporation Condensation Well
+- [x] Remove Bacteria Breeding Station (done: replaced by the Bio Vat, GTNH's Bacterial Vat, `docs/bio-vat.md`)
+- [ ] Water Filtration — rework and add to the Evaporation Condensation Well
 - [x] New fusion structures for MK1, MK2 & MK3 (done: rings 19 / 23 / 27 and a magnetic field instead of standby power, fork patch 0015)
   - Screenshot: https://prnt.sc/JqHcK7HhmmRg
   - Screenshot: https://prnt.sc/LhTCS-pNqPBY

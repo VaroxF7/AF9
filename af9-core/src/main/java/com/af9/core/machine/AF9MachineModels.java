@@ -1,5 +1,6 @@
 package com.af9.core.machine;
 
+import com.af9.core.client.render.BioVatRender;
 import com.af9.core.client.render.EcrwArmRender;
 import com.af9.core.client.render.FiltrationBasinRender;
 import com.af9.core.client.render.HearthTurntableRender;
@@ -185,5 +186,19 @@ public final class AF9MachineModels {
             ResourceLocation overlay, float up, float back) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(() -> FiltrationBasinRender.create(up, back)));
+    }
+
+    /**
+     * GT's workable casing model plus the Bio Vat's culture: a translucent body of the stored fluid standing as high
+     * as the hatches are full, bubbling while a run goes on. The machine must implement IBioVatMachine and have a
+     * block entity renderer ({@code .hasBER(true)}).
+     *
+     * @param up   the tank's floor above the controller's centre
+     * @param back the tank's centre behind the controller
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithBioVat(ResourceLocation casing,
+            ResourceLocation overlay, float up, float back) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(() -> BioVatRender.create(up, back)));
     }
 }

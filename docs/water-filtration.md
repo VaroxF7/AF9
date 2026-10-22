@@ -37,13 +37,14 @@ It is never voided by a recipe: every cleaning run pays its cake, and the cake p
 furnace fuel — KubeJS gives it coal's burn time (1600 ticks), so it burns in any furnace
 or trash-burns like coal. Lime cakes and distillation chars join the same dust.
 
-## Bacteria breeding upgrade (LuV/ZPM modes)
+## Bio Vat upgrade (LuV/ZPM modes)
 
-Circuits 9 and 10 need the **Bacteria Breeding Station** (`gtceu:bacteria_breeding_station`,
-5x4x5, MV bones) built and piped to the plant — the modes only run on what it grows:
+Circuits 9 and 10 need the **Bio Vat** (`gtceu:bio_vat`, 5x4x5, MV bones) built and piped to the
+plant — the modes only run on what it grows. The Bio Vat is GTNH's Bacterial Vat (BartWorks
+`MTEBioVat`, MIT, GT5-Unofficial), see `docs/bio-vat.md`:
 
-- biochaff + water (MV, circuit 1) → **bacteria culture** (LuV strain);
-- that culture + water (HV, circuit 2) → **enriched culture** (ZPM strain, subcultured).
+- biochaff + water (MV, circuit 1, laminated glass) → **bacteria culture** (LuV strain);
+- that culture + water (HV, circuit 2, fusion glass) → **enriched culture** (ZPM strain, subcultured).
 
 LuV biosorption turns 2,000 mB salt water + 500 mB culture straight into 1,000 mB lithium
 brine (better than the MV brine pumping it replaces); ZPM biosorption turns the same feed
