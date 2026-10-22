@@ -103,6 +103,8 @@ works; graphite for `ptfe_black_casing`), joined by CTM. Recipe textures are TFG
 The controller face is AF9's own: `kubejs/assets/gtceu/textures/block/multiblock/me_resonator/overlay_front*.png`
 (`tools/textures/resonator_face.py`) — a certus crystal in a fluix heart with a ring of light around it.
 
+The Liquid Resonating Fluix texture is built from Applied Energistics 2's own `fluix_block.png` and the palette of its `fluix_crystal.png` (AE2, LGPL-3.0; copies in `tools/textures/ae2_src/`, `tools/textures/litho_fluids.py`).
+
 Not taken over: the shader maps (`_n`, `_s`) of the AE2 casing. The Manufacturer's recipes (`kubejs/server_scripts/mods/ae2/me_resonance_fabricator_recipes.js`) and the `OxygenatedCondition` (Ad Astra's oxygen instead of TFG's environment system) are copied from TFG's `me_assembler` recipes and `OxygenatedCondition`, 82 recipes; the three Spatial Cell Components are left out (TFG's UV LEDs).
 Substitutions: TFG's `cryogenized_fluix` in the AE2 casing recipe is `gtceu:liquid_certus_quartz`; the Moon-only rule of its
 recipes became a cleanroom condition. Its AE2 blocks are read by id, so AF9 Core compiles without AE2.

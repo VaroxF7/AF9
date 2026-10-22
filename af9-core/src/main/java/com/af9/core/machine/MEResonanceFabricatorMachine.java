@@ -234,24 +234,30 @@ public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMach
         return pages;
     }
 
+    /**
+     * The page's cells are laid out like the pattern: aisles back (north) to front (south), so the controller in the last
+     * aisle faces SOUTH, and the hatches of the deck's edges face outward (west / east / north); the ones inside the deck
+     * face down. A part facing into the cage hides its overlay.
+     */
     private static MultiblockShapeInfo shape(MultiblockMachineDefinition definition) {
         MachineDefinition hatch = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", RESONANCE_HATCH));
         MultiblockShapeInfo.ShapeInfoBuilder builder = MultiblockShapeInfo.builder()
                 .aisle(" CHC ", " C C ", " C C ", " C C ")
                 .aisle("iCCMo", "CCGCC", "CCGCC", " C C ")
                 .aisle("fCPre", "CC CC", "CCGCC", " C C ")
-                .aisle("iCCCi", "CCGCC", "CCGCC", " C C ")
+                .aisle("iCCCI", "CCGCC", "CCGCC", " C C ")
                 .aisle(" CXC ", " C C ", " C C ", " C C ")
-                .where('X', (IMachineBlock) definition.get(), Direction.NORTH)
+                .where('X', (IMachineBlock) definition.get(), Direction.SOUTH)
                 .where('C', block("af9:ae2_machine_casing"))
                 .where('G', block("gtceu:fusion_glass"))
                 .where('P', block("gtceu:steel_pipe_casing"))
-                .where('H', (IMachineBlock) GTResearchMachines.BASIC_DATA_ACCESS_HATCH.get(), Direction.DOWN)
-                .where('i', (IMachineBlock) GTMachines.ITEM_IMPORT_BUS[GTValues.HV].get(), Direction.DOWN)
-                .where('o', (IMachineBlock) GTMachines.ITEM_EXPORT_BUS[GTValues.HV].get(), Direction.DOWN)
+                .where('H', (IMachineBlock) GTResearchMachines.BASIC_DATA_ACCESS_HATCH.get(), Direction.NORTH)
+                .where('i', (IMachineBlock) GTMachines.ITEM_IMPORT_BUS[GTValues.HV].get(), Direction.WEST)
+                .where('I', (IMachineBlock) GTMachines.ITEM_IMPORT_BUS[GTValues.HV].get(), Direction.EAST)
+                .where('o', (IMachineBlock) GTMachines.ITEM_EXPORT_BUS[GTValues.HV].get(), Direction.EAST)
                 .where('M', (IMachineBlock) GTMachines.MAINTENANCE_HATCH.get(), Direction.DOWN)
-                .where('f', (IMachineBlock) GTMachines.FLUID_IMPORT_HATCH[GTValues.HV].get(), Direction.DOWN)
-                .where('e', (IMachineBlock) GTMachines.ENERGY_INPUT_HATCH[GTValues.HV].get(), Direction.DOWN)
+                .where('f', (IMachineBlock) GTMachines.FLUID_IMPORT_HATCH[GTValues.HV].get(), Direction.WEST)
+                .where('e', (IMachineBlock) GTMachines.ENERGY_INPUT_HATCH[GTValues.HV].get(), Direction.EAST)
                 .where(' ', Blocks.AIR);
         // the Resonating Fluix Hatch: the KubeJS script registers it, so it is there when the page is built
         if (hatch == null) {

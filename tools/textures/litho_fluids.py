@@ -34,7 +34,7 @@ TEXTURES = {
     'tarc': ('clear', 0x9cc6c8, 0x50808a),
     'spent_resist_solvent': ('murky', 0x7c7248, 0x3e381e),
     # AE2: the Certus Resonating Manufacturer's stabiliser, fluix in solution
-    'liquid_resonating_fluix': ('resonance', 0xd8f2ff, 0x1c2a58),
+    'liquid_resonating_fluix': ('fluix', 0x7660cf, 0x5748a1),
     # developer, rinse and cleaning baths: clear blues and greys
     'tmah_developer': ('clear', 0x9cc2d2, 0x4c7c92),
     'ultrapure_water': ('clear', 0x78a8d8, 0x3a68a0),
@@ -115,7 +115,9 @@ def field(style, x, y, p, seed):
         w = math.sin(2 * u + v + p + s) + 0.6 * math.sin(2 * v - 3 * u + p)
         crystal = max(0.0, math.sin(3 * u + 2 * v + s)) * max(0.0, math.sin(2 * u - 3 * v))
         return 0.42 + w / 5 + 0.3 * crystal
-    if style == 'resonance':  # fluix: faceted liquid crystal, a sheen sweeping over the facets (no waves, unlike the plasmas)
+    if style == 'fluix':  # not a field: frame() builds it from AE2's own fluix block
+        return 0.5
+    if style == 'resonance':  # faceted liquid crystal, a sheen sweeping over the facets (no waves, unlike the plasmas)
         cell, edge = _facets(x, y, seed)
         sweep = max(0.0, math.sin(u + v - p)) ** 3
         return max(0.0, min(1.0, 0.25 + 0.4 * cell + 0.35 * sweep * (0.4 + cell) - 0.3 * edge))
@@ -127,7 +129,34 @@ def field(style, x, y, p, seed):
     return 0.5 + w / 4.6
 
 
+_AE2 = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'ae2_src')
+
+
+def fluix_frame(f):
+    """AE2's fluix block (Applied Energistics 2, LGPL-3.0: tools/textures/ae2_src) drifting down the tile, with glints in
+    the palette of the fluix crystal (pink, lilac, white) that flare and fade."""
+    block = Image.open(os.path.join(_AE2, 'fluix_block.png')).convert('RGBA')
+    crystal = Image.open(os.path.join(_AE2, 'fluix_crystal.png')).convert('RGBA')
+    glints = [(0xc0, 0x90, 0xf7), (0xff, 0x80, 0xd7), (0xdb, 0xbc, 0xff)]
+    img = Image.new('RGBA', (16, 16))
+    px, src = img.load(), block.load()
+    shift = (f * 16) // FRAMES   # one tile per loop, so the sheet repeats seamlessly
+    p = TAU * f / FRAMES
+    for y in range(16):
+        for x in range(16):
+            c = list(src[x, (y - shift) % 16][:3])
+            h = hash2(x, y, 11)
+            if h > 0.88:
+                k = max(0.0, math.sin(p + h * 60)) ** 3
+                g = glints[int(h * 1000) % 3]
+                c = [c[i] + (g[i] - c[i]) * 0.85 * k for i in range(3)]
+            px[x, y] = tuple(int(v) for v in c) + (255,)
+    return img
+
+
 def frame(name, style, light, dark, f):
+    if style == 'fluix':
+        return fluix_frame(f)
     seed = sum(ord(c) for c in name) % 97
     p = TAU * f / FRAMES
     lo, hi = rgb(dark), rgb(light)
