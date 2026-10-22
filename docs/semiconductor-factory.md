@@ -1136,6 +1136,10 @@ Dry run of the startup and server scripts with stubs (slots incl. circuits, temp
 
 # 12. Boule Melting and the Endion coils
 
+> **Superseded (2026-10-22):** every boule is pulled in the High Temperature Precision Fabricator now (see the section at the end of
+> this file). The melt charges and the seed crystals other than silicon's are removed; the EBF's Boule Melting mode has no recipes.
+> The recipe table below is the old design; the Endion coil numbers and the cutting recipes still apply.
+
 Files: `startup_scripts/gtceu/boule_melting.js` (recipe type), AF9 Core `registry` (`AF9Materials`: Endion, Endionite; `AF9Blocks`: the coils; `AF9Items`: charges, seeds, crucibles, new boules), `server_scripts/mods/gtceu/boule_melting.js` (recipes), AF9 Core `blast/BouleMelting` (adds the mode to GT's EBF at common setup, coil bonus, EMI info).
 
 **The EBF gets a second machine mode, `gtceu:boule_melting`** (GT's mode tab; `ELECTRIC_BLAST_FURNACE.setRecipeTypes([blast, boule_melting])`, modifier list `COIL_BONUS` + GT's own `ebfOverclock` + batch). The mode keeps GT's EBF rules (coil temperature + 100 K per tier above MV, `ebf_temp` on every recipe). Max IO 3 items in, 1 out, 1 fluid in. Its EMI/JEI icon is the EBF (`setIconSupplier`: GT only sets icons for types a machine builder registers).
@@ -1417,7 +1421,7 @@ config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in k
 kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type/block names, tooltips, mode descriptions, AF9 material names
 af9-core/src/main/resources/assets/af9/lang/en_us.json # consoles, Jade, recipe info, substrate/light names, wafer messages
 af9-core/src/main/resources/assets/af9/textures/item/wafers/*         # 5 new blanks, 9 broken, 9 contaminated, the own chips' wafers, the monitor wafer
-af9-core/src/main/resources/assets/af9/textures/item/boules/*         # melt charges, seed crystals, 4 new boules, 2 crucibles
+af9-core/src/main/resources/assets/af9/textures/item/boules/*         # silicon seed crystal, 4 new boules, 2 crucibles
 af9-core/src/main/resources/assets/af9/textures/item/accelerator/*    # spallation target, magnetic trap, QGP trap
 af9-core/src/main/resources/assets/af9/textures/item/                 # photomask blank, 12 reticles, molecular sieve (+ saturated), dry resist cartridge
 af9-core/src/main/resources/assets/af9/textures/block/*               # KrF / ArF lasers, EUV source
@@ -1461,5 +1465,5 @@ from 5 quartzite in the arc furnace, and the four boules (seed + holder rod from
 gallium arsenide, 5 / 20 / 50 / 99 % crucible loss, 1784 / 2484 / 5400 / 6484 K). Cleanroom variants as in TFG.
 The EBF's Boule Melting mode has no recipes left (Janne, 2026-10-22: every boule moves to the new multiblock): trinium (6000 K, IV),
 naquadria (6800 K, LuV), strange matter (9000 K, UV, tritanium crucible) and chromodynium (12000 K, UHV, tritanium crucible) continue
-TFG's pattern with more polysilicon, 4 seeds and the old dopants; melt charges and the other seed crystals are unused. Source: TFG Modpack-Modern `recipes.boules.js` (LGPL-3.0). TFG's machine itself lives in TFG-Core
+TFG's pattern with more polysilicon, 4 seeds and the old dopants. The melt charges and the other seed crystals are removed. Source: TFG Modpack-Modern `recipes.boules.js` (LGPL-3.0). TFG's machine itself lives in TFG-Core
 (not public); the hall and the casing are ours, and the dipped-item render is not ported.
