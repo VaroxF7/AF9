@@ -63,7 +63,9 @@ ServerEvents.recipes(event => {
     })
     swaps.forEach(swap => {
         event.remove({ id: swap.id })
-        event.custom(swap.json).id(`af9:chemical_reactor/${swap.board}_circuit_board_redstone_etching`)
+        const made = event.custom(swap.json)
+        if (made && typeof made.id === 'function') made.id(`af9:chemical_reactor/${swap.board}_circuit_board_redstone_etching`)
+        else console.warn(`circuit_etching.js: no recipe object for ${swap.id}`)
     })
     boards.forEach(board => event.remove({ id: `gtceu:large_chemical_reactor/${board}_circuit_board_persulfate` }))
 })

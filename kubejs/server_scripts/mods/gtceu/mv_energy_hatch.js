@@ -30,9 +30,9 @@ ServerEvents.recipes(event => {
             })
         } else if (json.inputs && json.inputs.item) {
             // GT recipe (assembler): drop the chip's input slot
-            const before = json.inputs.item.length
+            const slotsBefore = json.inputs.item.length
             json.inputs.item = json.inputs.item.filter(slot => JSON.stringify(slot).indexOf(CHIP) < 0)
-            changed = json.inputs.item.length < before
+            changed = json.inputs.item.length < slotsBefore
         }
         if (changed) copies.push({ id: id, json: json })
     }
@@ -43,7 +43,8 @@ ServerEvents.recipes(event => {
     copies.forEach(c => {
         const colon = c.id.indexOf(':')
         event.remove({ id: c.id })
-        event.custom(c.json).id(`af9:${c.id.substring(colon + 1)}_no_chip`)
+        const made = event.custom(c.json)
+        if (made && typeof made.id === 'function') made.id(`af9:${c.id.substring(colon + 1)}_no_chip`)
     })
     if (copies.length === 0) console.warn('mv_energy_hatch.js: no MV energy / dynamo hatch recipe with a ULPIC chip found')
 })

@@ -71,7 +71,9 @@ ServerEvents.recipes(event => {
         json.type = 'gtceu:charged_implosion'
         json.inputs.item = kept
         json.data = { burst_eu: BURST_EU }
-        event.custom(json).id(`af9:implosion_charged/${id.replace(':', '/')}`)
+        const made = event.custom(json)
+        if (made && typeof made.id === 'function') made.id(`af9:implosion_charged/${id.replace(':', '/')}`)
+        else console.warn(`electric_implosion.js: no recipe object for ${id}`)
     })
 
     // Naquadah from U-235: the capacitor bank's discharge drives the fissile nuclei together hard enough to fuse them

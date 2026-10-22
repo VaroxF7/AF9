@@ -15,8 +15,8 @@
 //                        heat, each rung leaving the next one; molten-salt cycles only, no moderator (fast spectrum)
 
 ServerEvents.tags('item', event => {
-    event.add('af9:radioactive', ['np', 'am', 'cm', 'cf'].flatMap(b =>
-        [`af9:fx_${b}_pellet`, `af9:fx_${b}_rod`, `af9:fx_spent_${b}_rod`]))
+    ;['np', 'am', 'cm', 'cf'].forEach(b =>
+        event.add('af9:radioactive', [`af9:fx_${b}_pellet`, `af9:fx_${b}_rod`, `af9:fx_spent_${b}_rod`]))
 })
 
 ServerEvents.recipes(event => {

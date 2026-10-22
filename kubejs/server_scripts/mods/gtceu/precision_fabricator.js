@@ -9,6 +9,8 @@ ServerEvents.tags('item', event => {
     // the gems a seed crystal can hang on
     ;['amethyst', 'opal', 'diamond', 'sapphire', 'green_sapphire', 'ruby', 'red_garnet', 'yellow_garnet', 'lapis']
         .forEach(gem => event.add('af9:precision_fabricator_holder_rods', `#forge:rods/${gem}`))
+    // the 2026-10-22 log shows the tag empty (the gem rods are not all GT items): metal rods hold a seed as well
+    event.add('af9:precision_fabricator_holder_rods', ['gtceu:steel_rod', 'gtceu:titanium_rod', 'gtceu:tungsten_steel_rod'])
 })
 
 ServerEvents.recipes(event => {
