@@ -5,55 +5,21 @@
 	group: "1DA67E79B40AB130"
 	icon: "gtceu:crystal_processor_mainframe"
 	id: "754B57DEA4C711A5"
-	images: [
-		{
-			height: 3.0d
-			image: "gtceu:item/uv_solar_panel"
-			rotation: 0.0d
-			width: 3.0d
-			x: 5.5d
-			y: -8.5d
-		}
-		{
-			height: 3.0d
-			image: "gtceu:item/uv_electric_motor"
-			rotation: 0.0d
-			width: 3.0d
-			x: 9.5d
-			y: 1.5d
-		}
-		{
-			height: 3.0d
-			image: "gtceu:item/uv_sensor"
-			rotation: 0.0d
-			width: 3.0d
-			x: 1.0d
-			y: 1.5d
-		}
-		{
-			height: 3.0d
-			image: "gtceu:item/uv_emitter"
-			rotation: 0.0d
-			width: 3.0d
-			x: -3.5d
-			y: 1.5d
-		}
-		{
-			height: 3.0d
-			image: "gtceu:item/uv_voltage_coil"
-			rotation: 0.0d
-			width: 3.0d
-			x: 5.0d
-			y: 1.5d
-		}
-	]
+	images: [{
+		height: 3.0d
+		image: "gtceu:item/uv_solar_panel"
+		rotation: 0.0d
+		width: 3.0d
+		x: 5.5d
+		y: -8.5d
+	}]
 	order_index: 9
 	progression_mode: "flexible"
 	quest_links: [{
 		id: "5AE579E46FCCC22D"
 		linked_quest: "0266685DD6B82444"
 		x: -10.5d
-		y: 5.0d
+		y: 1.5d
 	}]
 	quests: [
 		{
@@ -1640,46 +1606,6 @@
 			}]
 			x: -4.0d
 			y: -5.0d
-		}
-		{
-			can_repeat: false
-			description: [
-				"This Quest has been authored by &6AllTheMods Staff&r, or a &2Community contributor&r for use in AllTheMods Modpacks."
-				"As all &6AllTheMods&r packs are licensed under &eAll Rights Reserved&r, this Quest is not allowed to be used in any public packs not released by the &6AllTheMods Team&r, without explicit permission."
-				""
-				""
-				""
-				"This quest is intentionally hidden, if you're seeing this, you're in editing mode."
-			]
-			disable_toast: true
-			hide_details_until_startable: true
-			hide_until_deps_visible: true
-			icon: {
-				Count: 1
-				id: "ftbquests:custom_icon"
-				tag: {
-					Icon: "minecraft:item/barrier"
-				}
-			}
-			id: "5CCB34969AF38175"
-			invisible: true
-			optional: true
-			shape: "octagon"
-			tasks: [
-				{
-					disable_toast: true
-					id: "0B8410A78CA31E87"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-				{
-					id: "3E3975575FE59087"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-			]
-			x: -9.5d
-			y: -0.5d
 		}
 		{
 			dependencies: [

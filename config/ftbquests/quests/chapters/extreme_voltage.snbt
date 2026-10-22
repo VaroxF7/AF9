@@ -5,7 +5,7 @@
 	group: "1DA67E79B40AB130"
 	icon: "gtceu:micro_processor_computer"
 	id: "489F28A71282B3E7"
-	order_index: 6
+	order_index: 5
 	progression_mode: "flexible"
 	quest_links: [ ]
 	quests: [
@@ -240,6 +240,7 @@
 				""
 				"{atm9.quest.gregtech.ev.desc.coolHotIngot.2}"
 			]
+			icon: "gtceu:nichrome_dust"
 			id: "60736D37F7705B39"
 			tasks: [
 				{
@@ -955,6 +956,7 @@
 			y: -5.0d
 		}
 		{
+			icon: "thermal_extra:twinite_ingot"
 			id: "4F85C0657611F335"
 			tasks: [
 				{
@@ -989,6 +991,11 @@
 		}
 		{
 			dependencies: ["5241693278027FFD"]
+			icon: {
+				Count: 1
+				id: "gtceu:nanomuscle_helmet"
+				tag: { }
+			}
 			id: "44A80418C0157D24"
 			tasks: [
 				{
@@ -1001,19 +1008,28 @@
 					type: "item"
 				}
 				{
-					id: "511A5254708E07FB"
+					id: "0FA44B46157E6CCF"
 					item: {
 						Count: 1
-						id: "gtceu:advanced_nanomuscle_chestplate"
+						id: "gtceu:nanomuscle_chestplate"
 						tag: { }
 					}
 					type: "item"
 				}
 				{
-					id: "0FA44B46157E6CCF"
+					id: "5CDD4D05A2BBD480"
 					item: {
 						Count: 1
-						id: "gtceu:nanomuscle_chestplate"
+						id: "gtceu:nanomuscle_leggings"
+						tag: { }
+					}
+					type: "item"
+				}
+				{
+					id: "545ED98AAD46F79C"
+					item: {
+						Count: 1
+						id: "gtceu:nanomuscle_boots"
 						tag: { }
 					}
 					type: "item"
