@@ -112,7 +112,7 @@ A fusion reactor has no internal EU buffer, no heat and no standby power. It bui
   320 M / 640 M).
 * The field collapses to 0 when the structure breaks.
 * The controller screen shows the field, what is building it, and the minimum and drain of the running reaction. The recipe
-  viewers' label reads "Needs magnetic field: N (MKn)".
+  viewers' label reads "Field: N (MKn)".
 
 ### The ring
 
