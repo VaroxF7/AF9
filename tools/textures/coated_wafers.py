@@ -7,7 +7,9 @@ The blanks of silicon, phosphorus, naquadah and neutronium are GT's textures (GT
 matter wafer is animated (a strip of frames with an .mcmeta): every frame is coated, the .mcmeta is copied.
 The resist tints: i-line amber (350 nm), KrF rose, ArF teal (100 and 80 nm), the immersion nodes' resist under its topcoat sky blue,
 the 50 nm one lilac, the tin-oxo EUV resists silver-violet.
+The film is drawn thick: faint spin rings, a dark bead on the rim, a wet streak of light, so a coated wafer is told from a blank one at a glance.
 """
+import math
 import os
 import shutil
 import sys
@@ -32,22 +34,37 @@ SUBSTRATES = [
 
 
 def coat(frame, tint):
+    """The substrate under a spun film: the film hides most of the wafer's grain, shows faint rings where the spin left it
+    thicker or thinner, gathers into a darker, more saturated bead on the rim, and shines wet on the upper left."""
     out = frame.copy()
-    for y in range(frame.height):
-        for x in range(frame.width):
-            r, g, b, a = frame.getpixel((x, y))
-            if a == 0:
-                continue
-            luma = (0.3 * r + 0.59 * g + 0.11 * b) / 255
-            k = 0.62                                   # how much of the film shows over the wafer
-            film = tuple(min(255, int(c * (0.55 + 0.7 * luma))) for c in tint)
-            out.putpixel((x, y), (int(r * (1 - k) + film[0] * k), int(g * (1 - k) + film[1] * k),
-                                  int(b * (1 - k) + film[2] * k), a))
-    # the wet shine of a spun film: a bright speck on the upper left
-    for (x, y) in ((5, 4), (6, 4), (5, 5)):
-        if frame.getpixel((x, y))[3]:
-            r, g, b, a = out.getpixel((x, y))
-            out.putpixel((x, y), (min(255, r + 70), min(255, g + 70), min(255, b + 70), a))
+    w, h = frame.size
+    solid = [(x, y) for y in range(h) for x in range(w) if frame.getpixel((x, y))[3]]
+    cx = sum(x for x, _ in solid) / len(solid)
+    cy = sum(y for _, y in solid) / len(solid)
+
+    def edge(x, y):
+        return any(not (0 <= x + dx < w and 0 <= y + dy < h) or frame.getpixel((x + dx, y + dy))[3] == 0
+                   for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+
+    for (x, y) in solid:
+        r, g, b, a = frame.getpixel((x, y))
+        luma = (0.3 * r + 0.59 * g + 0.11 * b) / 255
+        d = math.hypot(x - cx, y - cy)
+        ring = 0.9 + 0.12 * math.sin(d * 2.1)                  # striations of the spin
+        film = [c * (0.62 + 0.55 * luma) * ring for c in tint]
+        k = 0.78                                               # how much of the film shows over the wafer
+        px = [r * (1 - k) + film[0] * k, g * (1 - k) + film[1] * k, b * (1 - k) + film[2] * k]
+        if edge(x, y):                                         # the edge bead
+            px = [c * 0.62 for c in px]
+            m = sum(px) / 3
+            px = [m + (c - m) * 1.35 for c in px]
+        # the wet shine: a diagonal streak on the upper left, a faint rim light on the lower right
+        lit = 0
+        if abs((x - cx) + (y - cy) + 3.2) < 1.1 and (x - cx) < 1 and (y - cy) < 1:
+            lit = 78
+        elif (x - cx) + (y - cy) > 6.5 and not edge(x, y):
+            lit = 22
+        out.putpixel((x, y), tuple(max(0, min(255, int(c + lit))) for c in px) + (a,))
     return out
 
 
