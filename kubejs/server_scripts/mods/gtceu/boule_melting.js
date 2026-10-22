@@ -68,76 +68,11 @@ ServerEvents.recipes(event => {
         .duration(400)
         .EUt(VA[GTValues.UV])
 
-    // ---- Melt charges (blending mode), seed crystals (crystal growth mode) and boules (EBF Boule Melting) ----
-    // charge: one of GT's old boule inputs; seed: grown at the boule's temperature; boule: 10 charges + seed + crucible
-    // eu: [voltage tier, energy multiplier] = the boule costs multiplier x (1A of that tier for `duration`). It draws at
-    // most 4A, what two normal energy hatches give the EBF; a bigger multiplier makes the run longer instead.
-    const BOULE_MAX_AMPS = 4
-    const boules = [
-        { id: 'silicon', charge: [`32x ${EG_SI}`, 'gtceu:tiny_artemite_dust'], chargeTier: GTValues.MV,
-            seed: [`4x ${EG_SI}`, 'gtceu:tiny_artemite_dust'], seedGas: ['gtceu:argon', 100],
-            gas: ['gtceu:argon', 2500], temp: 1784, duration: 9000, eu: [GTValues.MV, 2], crucible: 'fused_quartz',
-            boule: 'gtceu:silicon_boule' },
-        { id: 'phosphorus', charge: [`64x ${EG_SI}`, '8x gtceu:phosphorus_dust'], chargeTier: GTValues.HV,
-            seed: [`4x ${EG_SI}`, 'gtceu:small_phosphorus_dust'], seedGas: ['gtceu:argon', 200],
-            gas: ['gtceu:argon', 10000], temp: 2484, duration: 12000, eu: [GTValues.HV, 4], crucible: 'fused_quartz',
-            boule: 'gtceu:phosphorus_boule' },
-        { id: 'naquadah', charge: [`144x ${EG_SI}`, 'gtceu:naquadah_dust', 'gtceu:gallium_arsenide_dust'],
-            chargeTier: GTValues.EV, seed: [`4x ${EG_SI}`, 'gtceu:small_naquadah_dust'], seedGas: ['gtceu:argon', 400],
-            gas: ['gtceu:argon', 80000], temp: 5400, duration: 15000, eu: [GTValues.EV, 6], crucible: 'fused_quartz',
-            boule: 'gtceu:naquadah_boule' },
-        { id: 'trinium', charge: [`192x ${EG_SI}`, '2x gtceu:trinium_dust', 'gtceu:gallium_arsenide_dust'],
-            chargeTier: GTValues.IV, seed: [`4x ${EG_SI}`, 'gtceu:small_trinium_dust'], seedGas: ['gtceu:argon', 400],
-            gas: ['gtceu:argon', 80000], temp: 6000, duration: 16000, eu: [GTValues.IV, 6], crucible: 'fused_quartz',
-            boule: 'af9:trinium_boule' },
-        { id: 'naquadria', charge: [`240x ${EG_SI}`, '2x gtceu:naquadria_dust', '2x gtceu:gallium_arsenide_dust'],
-            chargeTier: GTValues.LuV, seed: [`4x ${EG_SI}`, 'gtceu:small_naquadria_dust'], seedGas: ['gtceu:xenon', 200],
-            gas: ['gtceu:xenon', 80000], temp: 6800, duration: 17000, eu: [GTValues.IV, 7], crucible: 'fused_quartz',
-            boule: 'af9:naquadria_boule' },
-        { id: 'neutronium', charge: [`288x ${EG_SI}`, '4x gtceu:neutronium_dust', '2x gtceu:gallium_arsenide_dust'],
-            chargeTier: GTValues.ZPM, seed: [`4x ${EG_SI}`, 'gtceu:small_neutronium_dust'], seedGas: ['gtceu:xenon', 400],
-            gas: ['gtceu:xenon', 80000], temp: 7200, duration: 18000, eu: [GTValues.IV, 8], crucible: 'fused_quartz',
-            boule: 'gtceu:neutronium_boule' },
-        { id: 'strange_matter', charge: [`288x ${EG_SI}`, 'gtceu:strange_matter_dust', '4x gtceu:neutronium_dust'],
-            chargeTier: GTValues.UV, seed: [`4x ${EG_SI}`, 'gtceu:small_strange_matter_dust'],
-            seedGas: ['gtceu:xenon', 800], gas: ['gtceu:xenon', 160000], temp: 9000, duration: 20000,
-            eu: [GTValues.UV, 8], crucible: 'tritanium', boule: 'af9:strange_matter_boule' },
-        { id: 'chromodynium', charge: ['4x gtceu:chromodynium_dust', 'gtceu:strange_matter_dust'],
-            chargeTier: GTValues.UHV, seed: ['4x gtceu:small_chromodynium_dust', 'gtceu:small_strange_matter_dust'],
-            seedGas: ['gtceu:endion', 400], gas: ['gtceu:endion', 80000], temp: 12000, duration: 24000,
-            eu: [GTValues.UHV, 8], crucible: 'tritanium', boule: 'af9:chromodynium_boule' }
-    ]
-    // GT's EBF boules (the CZ recipes of the old fab furnaces are gone too, fab_chemistry.js)
-    // (batched: the same four ids removed in one filter call)
+    // ---- Boules ----
+    // All boules are made in the High Temperature Precision Fabricator now (precision_fabricator.js); the EBF mode has
+    // no recipes left. GT's EBF boules go too (the CZ recipes of the old fab furnaces: fab_chemistry.js).
     ;['silicon_boule', 'phosphorus_boule', 'naquadah_boule', 'neutronium_boule']
         .forEach(boule => event.remove({ id: `gtceu:electric_blast_furnace/${boule}` }))
-    // silicon, phosphorus, naquadah and neutronium are TFG's boules now (High Temperature Precision Fabricator,
-    // precision_fabricator.js); the EBF mode keeps the substrates beyond them
-    const FABRICATOR_BOULES = ['silicon', 'phosphorus', 'naquadah', 'neutronium']
-    boules.filter(b => FABRICATOR_BOULES.indexOf(b.id) < 0).forEach(b => {
-        const charge = event.recipes.gtceu.fab_blending(`af9:${b.id}_melt_charge`)
-            .itemInputs(b.charge)
-            .itemOutputs(`af9:${b.id}_melt_charge`)
-            .duration(200)
-            .EUt(VA[b.chargeTier])
-        // non-thermal fab recipes from HV on need a clean room (docs/semiconductor-factory.md §11)
-        if (VA[b.chargeTier] >= VA[GTValues.HV]) charge.cleanroom(CleanroomType.CLEANROOM)
-        event.recipes.gtceu.fab_crystal_growth(`af9:${b.id}_seed_crystal`)
-            .itemInputs(b.seed)
-            .inputFluids(Fluid.of(b.seedGas[0], b.seedGas[1]))
-            .itemOutputs(`af9:${b.id}_seed_crystal`)
-            .blastFurnaceTemp(b.temp)
-            .duration(1200)
-            .EUt(VA[b.chargeTier])
-        event.recipes.gtceu.boule_melting(`af9:${b.id}_boule`)
-            .itemInputs(`10x af9:${b.id}_melt_charge`, `af9:${b.id}_seed_crystal`,
-                `af9:${b.crucible}_crucible`)
-            .inputFluids(Fluid.of(b.gas[0], b.gas[1]))
-            .itemOutputs(b.boule)
-            .blastFurnaceTemp(b.temp)
-            .duration(b.duration * b.eu[1] / Math.min(b.eu[1], BOULE_MAX_AMPS))
-            .EUt(VA[b.eu[0]], Math.min(b.eu[1], BOULE_MAX_AMPS))
-    })
 
     // ---- Cutting the new boules (GT cuts its own four) ----
     const cuts = [

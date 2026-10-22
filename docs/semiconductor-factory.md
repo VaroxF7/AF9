@@ -1459,6 +1459,7 @@ the silane line (silicon dust + HCl + H2 -> chlorosilane + trichlorosilane -> di
 (`gtceu:polysilicon`, 1800 K, an extractor melts the dust), `af9:silicon_seed_crystal` from polysilicon (autoclave), `af9:fused_quartz_crucible`
 from 5 quartzite in the arc furnace, and the four boules (seed + holder rod from the gem-rod tag `af9:precision_fabricator_holder_rods`,
 gallium arsenide, 5 / 20 / 50 / 99 % crucible loss, 1784 / 2484 / 5400 / 6484 K). Cleanroom variants as in TFG.
-The EBF's Boule Melting mode no longer makes those four (their melt charges are unused); trinium, naquadria, strange matter and
-chromodynium boules stay there. Source: TFG Modpack-Modern `recipes.boules.js` (LGPL-3.0). TFG's machine itself lives in TFG-Core
+The EBF's Boule Melting mode has no recipes left (Janne, 2026-10-22: every boule moves to the new multiblock): trinium (6000 K, IV),
+naquadria (6800 K, LuV), strange matter (9000 K, UV, tritanium crucible) and chromodynium (12000 K, UHV, tritanium crucible) continue
+TFG's pattern with more polysilicon, 4 seeds and the old dopants; melt charges and the other seed crystals are unused. Source: TFG Modpack-Modern `recipes.boules.js` (LGPL-3.0). TFG's machine itself lives in TFG-Core
 (not public); the hall and the casing are ours, and the dipped-item render is not ported.

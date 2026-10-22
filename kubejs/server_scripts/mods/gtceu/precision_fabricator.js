@@ -1,8 +1,9 @@
 // AF9 - the High Temperature Precision Fabricator and TerraFirmaGreg's boule recipes, as they are in TFG
 // (Modpack-Modern, recipes.boules.js, LGPL-3.0): the silane line, polysilicon as a melt, the seed crystal, the
 // quartz crucible and the four boules. Machine: startup_scripts/gtceu/precision_fabricator.js (MV).
-// The EBF's boule recipes are gone (boule_melting.js); the first four boules come from here, the new substrates
-// (trinium to chromodynium) still from the EBF's Boule Melting mode.
+// The EBF's boule recipes are gone (boule_melting.js): every boule comes from here. The first four are TFG's;
+// trinium, naquadria, strange matter and chromodynium continue the same pattern (more polysilicon and seeds, a hotter
+// coil, a tougher crucible).
 
 ServerEvents.tags('item', event => {
     // the gems a seed crystal can hang on
@@ -145,4 +146,44 @@ ServerEvents.recipes(event => {
         .blastFurnaceTemp(6484)
         .duration(900 * 20)
         .EUt(VA[GTValues.IV])
+    gt.high_temperature_precision_fabricator('af9:trinium_boule')
+        .chancedInput(CRUCIBLE, 6500, 0)
+        .itemInputs(`4x ${SEED}`, '2x gtceu:trinium_dust', `2x ${GAAS}`, ROD)
+        .inputFluids(Fluid.of('gtceu:polysilicon', 320 * 144), Fluid.of('gtceu:argon', 8000))
+        .itemOutputs('af9:trinium_boule')
+        .circuit(6)
+        .cleanroom(CleanroomType.CLEANROOM)
+        .blastFurnaceTemp(6000)
+        .duration(1000 * 20)
+        .EUt(VA[GTValues.IV])
+    gt.high_temperature_precision_fabricator('af9:naquadria_boule')
+        .chancedInput(CRUCIBLE, 8000, 0)
+        .itemInputs(`4x ${SEED}`, '2x gtceu:naquadria_dust', `2x ${GAAS}`, ROD)
+        .inputFluids(Fluid.of('gtceu:polysilicon', 384 * 144), Fluid.of('gtceu:xenon', 8000))
+        .itemOutputs('af9:naquadria_boule')
+        .circuit(7)
+        .cleanroom(CleanroomType.CLEANROOM)
+        .blastFurnaceTemp(6800)
+        .duration(1100 * 20)
+        .EUt(VA[GTValues.LuV])
+    gt.high_temperature_precision_fabricator('af9:strange_matter_boule')
+        .chancedInput('af9:tritanium_crucible', 5000, 0)
+        .itemInputs(`4x ${SEED}`, 'gtceu:strange_matter_dust', '4x gtceu:neutronium_dust', ROD)
+        .inputFluids(Fluid.of('gtceu:polysilicon', 448 * 144), Fluid.of('gtceu:xenon', 16000))
+        .itemOutputs('af9:strange_matter_boule')
+        .circuit(8)
+        .cleanroom(CleanroomType.CLEANROOM)
+        .blastFurnaceTemp(9000)
+        .duration(1200 * 20)
+        .EUt(VA[GTValues.UV])
+    gt.high_temperature_precision_fabricator('af9:chromodynium_boule')
+        .chancedInput('af9:tritanium_crucible', 7500, 0)
+        .itemInputs(`4x ${SEED}`, '4x gtceu:chromodynium_dust', 'gtceu:strange_matter_dust', ROD)
+        .inputFluids(Fluid.of('gtceu:polysilicon', 512 * 144), Fluid.of('gtceu:endion', 16000))
+        .itemOutputs('af9:chromodynium_boule')
+        .circuit(9)
+        .cleanroom(CleanroomType.CLEANROOM)
+        .blastFurnaceTemp(12000)
+        .duration(1400 * 20)
+        .EUt(VA[GTValues.UHV])
 })
