@@ -221,13 +221,7 @@
 					type: "item"
 				}
 				{
-					count: 16L
-					id: "4E15B886A44A5574"
-					item: "gtceu:uv_energy_input_hatch"
-					type: "item"
-				}
-				{
-					count: 48L
+					count: 120L
 					id: "272F201D0A7BA036"
 					item: "gtceu:fusion_casing_mk3"
 					type: "item"
@@ -239,9 +233,9 @@
 					type: "item"
 				}
 				{
-					count: 31L
+					count: 99L
 					id: "7FC436C406CF454A"
-					item: { Count: 31, id: "gtceu:fusion_glass" }
+					item: { Count: 99, id: "gtceu:fusion_glass" }
 					type: "item"
 				}
 			]

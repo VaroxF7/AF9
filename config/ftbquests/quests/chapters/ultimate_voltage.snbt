@@ -839,7 +839,7 @@
 					type: "item"
 				}
 				{
-					count: 48L
+					count: 120L
 					id: "5114D966C1029C52"
 					item: "gtceu:fusion_casing_mk2"
 					type: "item"
@@ -851,9 +851,9 @@
 					type: "item"
 				}
 				{
-					count: 31L
+					count: 99L
 					id: "6A4AB07796B318E1"
-					item: { Count: 31, id: "gtceu:fusion_glass" }
+					item: { Count: 99, id: "gtceu:fusion_glass" }
 					type: "item"
 				}
 			]

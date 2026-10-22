@@ -381,33 +381,27 @@
 					type: "item"
 				}
 				{
-					count: 16L
-					id: "17FDDF7FF634030E"
-					item: { Count: 16, id: "gtceu:luv_energy_input_hatch" }
-					type: "item"
-				}
-				{
-					count: 16L
+					count: 4L
 					id: "711D8DB312A7C5CD"
-					item: { Count: 16, id: "gtceu:lv_output_hatch" }
+					item: { Count: 4, id: "gtceu:lv_output_hatch" }
 					type: "item"
 				}
 				{
-					count: 16L
+					count: 4L
 					id: "0655BAC9EC4C7729"
-					item: { Count: 16, id: "gtceu:lv_input_hatch" }
+					item: { Count: 4, id: "gtceu:lv_input_hatch" }
 					type: "item"
 				}
 				{
-					count: 31L
+					count: 99L
 					id: "018F9E29F29B5C16"
-					item: { Count: 31, id: "gtceu:fusion_glass" }
+					item: { Count: 99, id: "gtceu:fusion_glass" }
 					type: "item"
 				}
 				{
-					count: 48L
+					count: 120L
 					id: "15E8CB4915A20A97"
-					item: { Count: 48, id: "gtceu:fusion_casing" }
+					item: { Count: 120, id: "gtceu:fusion_casing" }
 					type: "item"
 				}
 				{
