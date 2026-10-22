@@ -5,7 +5,7 @@
 //                      and tanks. The shock wave of the electric compressor: the discharge flashes it into plasma.
 //   implosions         every implosion recipe, explosive and electric, is in the IMPLOSIONS table below
 //   naquadah           4 U-235 dust + 2,000 mB vapor -> 1 naquadah dust, EV: the discharge fuses the uranium nuclei
-//   Twi-re-sten        2 tungsten + rhenium + tungsten carbide -> 4 dust (mixer, EV); GT's blast property melts it in the
+//   Twi-re-sten        twinite (Thermal Extra) + redstone + tungsten dust -> 3 dust (mixer, EV); GT's blast property melts it in the
 //                      EBF, and its plate, foil, fine wire and dense plate come from the usual machines
 //   nichrome coil      GT's HV assembler recipe is replaced: EV, 4 quadruple nichrome wires, stainless foil AND
 //                      Twi-re-sten foil, and the vapor
@@ -86,8 +86,8 @@ ServerEvents.recipes(event => {
 
     // ---- Twi-re-sten Insulation ----
     event.recipes.gtceu.mixer('af9:twiresten_insulation_dust')
-        .itemInputs('2x gtceu:tungsten_dust', 'gtceu:rhenium_dust', 'gtceu:tungsten_carbide_dust')
-        .itemOutputs('4x gtceu:twiresten_insulation_dust')
+        .itemInputs('thermal_extra:twinite_dust', 'minecraft:redstone', 'gtceu:tungsten_dust')
+        .itemOutputs('3x gtceu:twiresten_insulation_dust')
         .duration(300)
         .EUt(VA[GTValues.EV])
 

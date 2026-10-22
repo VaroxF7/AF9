@@ -909,7 +909,7 @@ public final class AF9Materials {
      * bent from plates, they are imploded from the dust (implosion compressor, or electric with the vapor).</li>
      * <li>Alumina Silicate Insulation (dust) and its liquid mixture: the rocket's insulation chain. Only the forms exist
      * for now (foil, wool and the rocket insulation are items, {@link AF9Items}); the recipes are Janne's to come.</li>
-     * <li>Twi-re-sten Insulation: a tungsten-rhenium carbide cermet, the insulation foil of the EV nichrome coil.</li>
+     * <li>Twi-re-sten Insulation: made of Thermal Extra twinite, redstone and tungsten, the insulation foil of the EV nichrome coil.</li>
      * <li>Lunar Acid Vapor: the acidic cut of Lunar Air that the electric implosion compressor needs.</li>
      * </ul>
      * Formulas only (no components), so GT adds no electrolyzer or centrifuge shortcut. Recipes: rocket_hull.js,
@@ -942,7 +942,7 @@ public final class AF9Materials {
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_DENSE, MaterialFlags.GENERATE_FOIL,
                         MaterialFlags.GENERATE_FINE_WIRE)
                 .blastTemp(4200, GasTier.HIGH, GTValues.VA[GTValues.IV], 1600)
-                .formula("W3ReC"));
+                .formula("TwRsW"));
 
         // acidic: pipes and tanks that are not acid-proof refuse it
         add(material("lunar_acid_vapor")

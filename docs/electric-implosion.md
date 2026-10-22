@@ -85,8 +85,8 @@ source, not a replacement.
 
 ## Twi-re-sten Insulation
 
-Tungsten-rhenium carbide cermet (`gtceu:twiresten_insulation`): dust, ingot (EBF, 4,200 K, IV), plate, dense plate, foil, fine wire.
-Mixer, EV: 2 tungsten + rhenium + tungsten carbide dust -> 4 dust (the rhenium comes from `alloys_af9.js`).
+Twinite-redstone-tungsten alloy (`gtceu:twiresten_insulation`): dust, ingot (EBF, 4,200 K, IV), plate, dense plate, foil, fine wire.
+Mixer, EV: twinite dust (`thermal_extra:twinite_dust`) + redstone dust + tungsten dust -> 3 dust.
 
 ## Nichrome coil (EV)
 
