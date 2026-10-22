@@ -125,3 +125,9 @@ Licence text in `licenses/StarT-Core-LGPL-3.0.txt`.
 
 The etching chain (redstone nitrate and chloride, p-toluenesulfonic acid, redstone tri-p-toluenesulfonate) follows TerraFirmaGreg's
 `recipes.etching.js` / `recipes.circuit_board.js` (Modpack-Modern, LGPL-3.0), rewritten for AF9's materials (`circuit_etching.js`).
+
+## XPS circuit board
+
+`af9-core/.../textures/item/xps/xps_board.png` is GregTech CEu Modern's printed wetware circuit board
+(`wetware_printed_circuit_board.png`, <https://github.com/GregTechCEu/GregTech-Modern>, LGPL-3.0), recoloured: a sand laminate with
+sanguinite-red traces (`tools/textures/xps_board.py`).
