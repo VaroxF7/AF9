@@ -68,9 +68,6 @@ public final class AF9Items {
      * 65 nm), reflective EUV (50 nm and finer). The class of a chip's own reticle has no suffix in the item's id.
      */
     private static final String[] MASK_SUFFIXES = { "", "_psm", "_euv" };
-    /** The substrates a boule of is pulled from melt charges and a seed crystal (EBF Boule Melting). */
-    private static final String[] MELTS = { "silicon", "phosphorus", "naquadah", "trinium", "naquadria", "neutronium",
-            "strange_matter", "chromodynium" };
     /** The Mining Drones of the Space Elevator ({@link com.af9.core.elevator.SpaceElevatorMachine}). */
     public static final int DRONES = 4;
     /** The id of a drone: this and its tier ({@code af9:space_mining_drone_mk2}). */
@@ -114,11 +111,8 @@ public final class AF9Items {
         item("fx_blanket_assembly", 64, 2);
         item("fx_spent_blanket", 64, 2);
 
-        // ---- Boule Melting: ten melt charges, a seed crystal and a crucible make a boule ----
-        for (String melt : MELTS) {
-            item(melt + "_melt_charge", 64, 1);
-            item(melt + "_seed_crystal", 64, 1);
-        }
+        // ---- Boules: pulled in the High Temperature Precision Fabricator from a seed crystal and a crucible ----
+        item("silicon_seed_crystal", 64, 1);
         // the boules of silicon, phosphorus, naquadah and neutronium are GT's
         for (String boule : new String[] { "trinium", "naquadria", "strange_matter", "chromodynium" }) {
             item(boule + "_boule", 64, 0);

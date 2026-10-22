@@ -172,7 +172,7 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.chem.boule.subtitle}"
-			tasks: [{ id: "2B090920542037E5" item: "af9:silicon_melt_charge" type: "item" } { id: "5F2F86E6B64F60DC" item: "gtceu:silicon_boule" type: "item" }]
+			tasks: [{ id: "2B090920542037E5" item: "af9:fused_quartz_crucible" type: "item" } { id: "5F2F86E6B64F60DC" item: "gtceu:silicon_boule" type: "item" }]
 			title: "{af9.quest.chem.boule.title}"
 			x: 24.0d
 			y: 0.0d

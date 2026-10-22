@@ -757,7 +757,7 @@
 			subtitle: "{af9.quest.litho.siCharge.subtitle}"
 			tasks: [{
 				id: "1E9E15A392CEF723"
-				item: "af9:silicon_melt_charge"
+				item: "af9:fused_quartz_crucible"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.siCharge.title}"
@@ -1302,13 +1302,8 @@
 			subtitle: "{af9.quest.litho.pCharge.subtitle}"
 			tasks: [
 				{
-					id: "20E7D2B368D9F0D3"
-					item: "af9:phosphorus_melt_charge"
-					type: "item"
-				}
-				{
-					id: "07714610CCE46BBF"
-					item: "af9:phosphorus_seed_crystal"
+					id: "3B073EAA24D21C59"
+					item: "gtceu:phosphorus_boule"
 					type: "item"
 				}
 			]
@@ -1537,13 +1532,8 @@
 			subtitle: "{af9.quest.litho.nqCharge.subtitle}"
 			tasks: [
 				{
-					id: "064FCF7803647F81"
-					item: "af9:naquadah_melt_charge"
-					type: "item"
-				}
-				{
-					id: "5AFA048A4D66A93D"
-					item: "af9:naquadah_seed_crystal"
+					id: "42A70F0A6BC324C0"
+					item: "gtceu:naquadah_boule"
 					type: "item"
 				}
 			]
@@ -1670,16 +1660,6 @@
 			subtitle: "{af9.quest.litho.trCharge.subtitle}"
 			tasks: [
 				{
-					id: "136EEFDD5A1D1AC2"
-					item: "af9:trinium_melt_charge"
-					type: "item"
-				}
-				{
-					id: "5965A24A94CFD78A"
-					item: "af9:trinium_seed_crystal"
-					type: "item"
-				}
-				{
 					id: "754FBE42CD74404B"
 					item: "af9:trinium_boule"
 					type: "item"
@@ -1772,16 +1752,6 @@
 			subtitle: "{af9.quest.litho.naCharge.subtitle}"
 			tasks: [
 				{
-					id: "71BB2B85858FAA48"
-					item: "af9:naquadria_melt_charge"
-					type: "item"
-				}
-				{
-					id: "7A495BC0C4904217"
-					item: "af9:naquadria_seed_crystal"
-					type: "item"
-				}
-				{
 					id: "5BF036DC9D8F4D3F"
 					item: "af9:naquadria_boule"
 					type: "item"
@@ -1873,13 +1843,8 @@
 			subtitle: "{af9.quest.litho.ntCharge.subtitle}"
 			tasks: [
 				{
-					id: "19509DD8AEFB4A0F"
-					item: "af9:neutronium_melt_charge"
-					type: "item"
-				}
-				{
-					id: "3499B768C85D249D"
-					item: "af9:neutronium_seed_crystal"
+					id: "202355B44A7B99AB"
+					item: "gtceu:neutronium_boule"
 					type: "item"
 				}
 			]
@@ -2213,16 +2178,6 @@
 			subtitle: "{af9.quest.litho.smBoule.subtitle}"
 			tasks: [
 				{
-					id: "29E6DACE1319D382"
-					item: "af9:strange_matter_melt_charge"
-					type: "item"
-				}
-				{
-					id: "65535D33DE97034E"
-					item: "af9:strange_matter_seed_crystal"
-					type: "item"
-				}
-				{
 					id: "4C1D63E7D1E8BED0"
 					item: "af9:strange_matter_boule"
 					type: "item"
@@ -2307,16 +2262,6 @@
 			}]
 			subtitle: "{af9.quest.litho.qcBoule.subtitle}"
 			tasks: [
-				{
-					id: "079E873801CD732F"
-					item: "af9:chromodynium_melt_charge"
-					type: "item"
-				}
-				{
-					id: "7A96B7424F1A905B"
-					item: "af9:chromodynium_seed_crystal"
-					type: "item"
-				}
 				{
 					id: "280A7304A5D5CF91"
 					item: "af9:chromodynium_boule"
