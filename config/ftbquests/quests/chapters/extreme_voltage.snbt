@@ -930,18 +930,11 @@
 		{
 			dependencies: ["78A295D4D1A21BCA"]
 			id: "5695741C85B265E8"
-			tasks: [
-				{
-					id: "5CF80BC9505DAFB3"
-					title: "desh, titanium rocket alloy"
-					type: "custom"
-				}
-				{
-					id: "124C3AA5B0D45CA4"
-					item: "gtceu:dense_desh_titanium_rocket_alloy_plate"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "124C3AA5B0D45CA4"
+				item: "gtceu:dense_desh_titanium_rocket_alloy_plate"
+				type: "item"
+			}]
 			x: -4.0d
 			y: -3.5d
 		}
