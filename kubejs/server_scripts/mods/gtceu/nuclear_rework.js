@@ -90,7 +90,7 @@ ServerEvents.recipes(event => {
 
     // ---- Molten-salt cycles of the thermal fuels: rod + FLiBe + moderator -> spent rod + hot FLiBe ----
     // the same rods and spent rods as the Mk1 cycles, so reprocessing does not change. `hot` is 1.5 times the Mk1 cycle's
-    // steam, in thousands of mB of salt; thorium, which burns best in salt, gets twice. Heating coils of Kanthal (2,700 K)
+    // steam, in thousands of mB of salt; thorium, which burns best in salt, gets three times. Heating coils of Kanthal (2,700 K)
     // or better: the Mk2 shell
     const thermal = [
         { id: 'fuel', rod: 'af9:fx_fuel_rod', spent: 'af9:fx_spent_fuel_rod', hot: 1000, ticks: 1200, eut: VA[GTValues.HV], temp: 2700 },

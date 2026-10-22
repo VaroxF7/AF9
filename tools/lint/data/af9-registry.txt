@@ -736,6 +736,7 @@ material gtceu:vanadyl_pyrophosphate
 material gtceu:vitrified_waste
 material gtceu:wolfram_invar
 material gtceu:xps_alloy
+material gtceu:xenoxid
 material gtceu:silicon_carbide
 material gtceu:alumina
 material gtceu:beryllia

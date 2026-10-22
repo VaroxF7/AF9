@@ -1867,6 +1867,8 @@
 				"{af9.quest.litho.accelerator.4}"
 				""
 				"{af9.quest.litho.accelerator.5}"
+				""
+				"{af9.quest.litho.accelerator.6}"
 			]
 			id: "3C1BAD339D082C68"
 			rewards: [{
@@ -1884,6 +1886,27 @@
 			title: "{af9.quest.litho.accelerator.title}"
 			x: 49.5d
 			y: 10.5d
+		}
+		{
+			dependencies: ["3C1BAD339D082C68"]
+			description: ["{af9.quest.litho.xenoxid.1}"]
+			icon: "gtceu:iv_chemical_reactor"
+			id: "5DB60CF94203844C"
+			rewards: [{
+				id: "3A7C1E92B4D05F68"
+				type: "xp"
+				xp: 100
+			}]
+			subtitle: "{af9.quest.litho.xenoxid.subtitle}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:xenoxid"
+				id: "6B1D4E8A07C93F25"
+				type: "fluid"
+			}]
+			title: "{af9.quest.litho.xenoxid.title}"
+			x: 46.5d
+			y: 12.0d
 		}
 		{
 			dependencies: [
