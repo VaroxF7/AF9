@@ -228,6 +228,22 @@ item af9:fx_spent_mox_rod
 item af9:fx_spent_thorium_rod
 item af9:fx_thorium_pellet
 item af9:fx_thorium_rod
+item af9:fx_np_pellet
+item af9:fx_np_rod
+item af9:fx_am_pellet
+item af9:fx_am_rod
+item af9:fx_cm_pellet
+item af9:fx_cm_rod
+item af9:fx_cf_pellet
+item af9:fx_cf_rod
+item af9:fx_spent_np_rod
+item af9:fx_spent_am_rod
+item af9:fx_spent_cm_rod
+item af9:fx_spent_cf_rod
+item af9:graphite_green_body
+item af9:graphite_baked_body
+item af9:graphite_billet
+item af9:graphite_moderator
 item af9:glass_tube_mold
 item af9:glass_tube_mold_filled
 item af9:glue_bucket
@@ -466,6 +482,7 @@ material gtceu:asphalt
 material gtceu:azobisisobutyronitrile
 material gtceu:bacteria_culture
 material gtceu:barc
+material gtceu:beryllium_fluoride
 material gtceu:bioethanol
 material gtceu:boron_nitride
 material gtceu:boron_trichloride
@@ -523,6 +540,7 @@ material gtceu:extreme_clean_dry_air
 material gtceu:ferrous_sulfate
 material gtceu:filter_cake
 material gtceu:fission_off_gas
+material gtceu:flibe
 material gtceu:gold_free_liquor
 material gtceu:gst_alloy
 material gtceu:hafnitinol
@@ -535,6 +553,7 @@ material gtceu:high_grade_solder
 material gtceu:high_purity_quartz
 material gtceu:hmds_vapor
 material gtceu:hopcalite
+material gtceu:hot_flibe
 material gtceu:hot_sodium_potassium
 material gtceu:hydrazine
 material gtceu:hydrazobisisobutyronitrile

@@ -128,6 +128,22 @@ public final class AF9Materials {
         lapisSulfonate();
         annealedBronze();
         rutileFromIlmeniteOnly();
+        actinideDusts();
+    }
+
+    /**
+     * Curium and californium are the end of the actinide burner ladder (neptunium -> americium -> curium -> californium
+     * rods in the molten-salt cycles of the FX Reactor Mk2, docs/nuclear-rework.md): they need dusts, as neptunium did.
+     * Looked up by name, once the registry is complete (like rutileFromIlmeniteOnly), so a GT without them costs the
+     * ladder its last rungs and not the startup.
+     */
+    private static void actinideDusts() {
+        for (Material element : GTCEuAPI.materialManager.getRegistry(GTCEu.MOD_ID).getAllMaterials()) {
+            String name = element.getName();
+            if ((name.equals("curium") || name.equals("californium")) && !element.hasProperty(PropertyKey.DUST)) {
+                element.setProperty(PropertyKey.DUST, new DustProperty());
+            }
+        }
     }
 
     /**
@@ -303,6 +319,20 @@ public final class AF9Materials {
         for (Material element : new Material[] { GTMaterials.Neptunium, GTMaterials.Protactinium }) {
             if (!element.hasProperty(PropertyKey.DUST)) element.setProperty(PropertyKey.DUST, new DustProperty());
         }
+
+        // ---- The nuclear rework (docs/nuclear-rework.md) ----
+        // The molten-salt coolant: FLiBe, lithium fluoride (defined with the lithium chain) and beryllium fluoride melted
+        // together (2 LiF : BeF2), a salt that takes the core's heat at ambient pressure. Hot FLiBe gives its heat to
+        // water in the Heat Exchanger.
+        roughDust("beryllium_fluoride", 0xc9d6c0, "BeF2");
+        add(material("flibe")
+                .liquid(773)
+                .color(0x8fa7ff)
+                .formula("Li2BeF4"));
+        add(material("hot_flibe")
+                .liquid(1100)
+                .color(0xff5a3a)
+                .formula("Li2BeF4*"));
 
         // ---- The reactor's coolant circuit ----
         // The coolant is GT's own sodium-potassium alloy (NaK, liquid at room temperature). It carries the heat out of

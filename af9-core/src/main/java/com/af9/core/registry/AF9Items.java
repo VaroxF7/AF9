@@ -111,6 +111,18 @@ public final class AF9Items {
         item("fx_blanket_assembly", 64, 2);
         item("fx_spent_blanket", 64, 2);
 
+        // ---- The nuclear rework (docs/nuclear-rework.md): the actinide burner rods of the molten-salt cycles ----
+        for (String burner : new String[] { "np", "am", "cm", "cf" }) {
+            item("fx_" + burner + "_pellet", 64, 2);
+            item("fx_" + burner + "_rod", 64, 2);
+            item("fx_spent_" + burner + "_rod", 64, 2);
+        }
+        // the graphite moderator, baked from a green body to a purified billet
+        item("graphite_green_body", 64, 1);
+        item("graphite_baked_body", 64, 1);
+        item("graphite_billet", 64, 1);
+        item("graphite_moderator", 64, 2);
+
         // ---- Boules: pulled in the High Temperature Precision Fabricator from a seed crystal and a crucible ----
         item("silicon_seed_crystal", 64, 1);
         // the boules of silicon, phosphorus, naquadah and neutronium are GT's

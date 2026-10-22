@@ -1105,6 +1105,176 @@
 			x: 9.0d
 			y: 3.0d
 		}
+		{
+			dependencies: ["6C5EB71A6F018C8C"]
+			description: [
+				"{af9.quest.fx.moderator.1}"
+				""
+				"{af9.quest.fx.moderator.2}"
+			]
+			icon: "af9:graphite_moderator"
+			id: "10126067E6684224"
+			rewards: [{
+				id: "4C67AE9A05731A70"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.moderator.subtitle}"
+			tasks: [{
+				id: "223B85BB6FED56F6"
+				item: "af9:graphite_moderator"
+				type: "item"
+			}]
+			title: "{af9.quest.fx.moderator.title}"
+			x: 42.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["6C5EB71A6F018C8C"]
+			description: [
+				"{af9.quest.fx.flibe.1}"
+				""
+				"{af9.quest.fx.flibe.2}"
+			]
+			icon: "gtceu:beryllium_fluoride_dust"
+			id: "579FBE624D0BFF23"
+			rewards: [{
+				id: "6539F6B6B2B86DA3"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.flibe.subtitle}"
+			tasks: [{
+				id: "01FE9A3AC69CE317"
+				item: "gtceu:beryllium_fluoride_dust"
+				type: "item"
+			}]
+			title: "{af9.quest.fx.flibe.title}"
+			x: 42.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["10126067E6684224" "579FBE624D0BFF23"]
+			description: [
+				"{af9.quest.fx.exchanger.1}"
+				""
+				"{af9.quest.fx.exchanger.2}"
+			]
+			icon: "gtceu:heat_exchanger"
+			id: "5E560BBB81B3BBB3"
+			rewards: [{
+				id: "69AA30AEEFCC3811"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.exchanger.subtitle}"
+			tasks: [{
+				id: "48C3DF00DA961E9E"
+				item: "gtceu:heat_exchanger"
+				type: "item"
+			}]
+			title: "{af9.quest.fx.exchanger.title}"
+			x: 45.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["5E560BBB81B3BBB3"]
+			description: ["{af9.quest.fx.np.1}"]
+			icon: "af9:fx_np_rod"
+			id: "032DFF566321C1AD"
+			rewards: [{
+				id: "4FA0310FCE219A54"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.np.subtitle}"
+			tasks: [{
+				id: "02DC00F3C9B39A52"
+				item: "af9:fx_np_rod"
+				type: "item"
+			}]
+			title: "{af9.quest.fx.np.title}"
+			x: 48.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["032DFF566321C1AD"]
+			description: ["{af9.quest.fx.am.1}"]
+			icon: "af9:fx_am_rod"
+			id: "4BB5C3C5A42C9F99"
+			rewards: [{
+				id: "64B7E30E4C3466C6"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.am.subtitle}"
+			tasks: [{
+				id: "785E6DEE09518C87"
+				item: "af9:fx_am_rod"
+				type: "item"
+			}]
+			title: "{af9.quest.fx.am.title}"
+			x: 51.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["4BB5C3C5A42C9F99"]
+			description: ["{af9.quest.fx.cm.1}"]
+			icon: "af9:fx_cm_rod"
+			id: "7C977DBF5DC91E61"
+			rewards: [{
+				id: "0A652FBFAFC8FA51"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.cm.subtitle}"
+			tasks: [{
+				id: "776C1146828D10FA"
+				item: "af9:fx_cm_rod"
+				type: "item"
+			}]
+			title: "{af9.quest.fx.cm.title}"
+			x: 54.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["7C977DBF5DC91E61"]
+			description: [
+				"{af9.quest.fx.cf.1}"
+				""
+				"{af9.quest.fx.cf.2}"
+			]
+			icon: "af9:fx_cf_rod"
+			id: "51E179DDBDFB68B3"
+			rewards: [{
+				id: "2C6D6B31DD2D9A21"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fx.cf.subtitle}"
+			tasks: [{
+				id: "3203AE98BE51B00C"
+				item: "af9:fx_cf_rod"
+				type: "item"
+			}]
+			title: "{af9.quest.fx.cf.title}"
+			x: 57.0d
+			y: 6.0d
+		}
 	]
 	subtitle: ["{af9.quest.fx.chapter.subtitle}"]
 	title: "{af9.quest.fx.chapter.title}"

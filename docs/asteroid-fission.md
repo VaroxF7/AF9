@@ -252,6 +252,8 @@ casing, maximums only: 2 energy, 1 + 1 item, 3 + 4 fluid, 1 maintenance. Overclo
 The coolant is GT's own **sodium-potassium** (`gtceu:sodium_potassium`, made in the chemical reactor); **hot sodium-potassium** is new.
 The loop is closed: 1:1, nothing is used up.
 
+> The molten-salt cycles of the Mk2 shell, the Heat Exchanger, the graphite moderator and the neptunium to californium burner rods are in `docs/nuclear-rework.md`.
+
 ## 5.3 Power
 
 Supercritical steam (`gtceu:supercritical_steam`, 647 K) is **80 EU per mB** in the steam turbine recipe (GT's steam: 0.5). The

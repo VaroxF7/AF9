@@ -139,3 +139,10 @@ sanguinite-red traces (`tools/textures/xps_board.py`).
 (<https://github.com/GregTechCEu/GregTech-Modern>, LGPL-3.0) redrawn as ivory ceramic with copper traces, two clipped corners and four
 drilled holes (`tools/textures/ceramic_boards.py`). The idea (a ceramic board in three tiers) is TerraFirmaGreg's
 (<https://github.com/TerraFirmaGreg-Team/Modpack-Modern>, LGPL-3.0, `recipes.circuit_board.js`); the recipes are rewritten.
+
+## Nuclear rework
+
+The molten-salt reactor concept (graphite moderator line, FLiBe coolant, heat exchanger, actinide burner rods) follows the idea of
+**TerraFirmaGreg Modern**'s nuclear line (<https://github.com/TerraFirmaGreg-Team/Modpack-Modern>, LGPL-3.0); no code, recipe or texture was
+copied, the recipes and numbers are our own (`docs/nuclear-rework.md`). The new item textures are recolours of AF9's own thorium fuel
+textures (`tools/textures/nuclear_items.py`). Licence text in `licenses/TerraFirmaGreg-Core-Modern-LGPL-3.0.txt`.

@@ -189,6 +189,10 @@ GT rocket (gregified parts, Aluminised Hydrolox) → Ceres → Asteroid Field (a
   **61,440 mB supercritical steam** (80 EU/mB in steam turbines; ~4 Large Steam Turbines per rod,
   ~4.3 M EU net) + hot NaK (vacuum-freezer loop, closed) + spent rod → reprocessing → plutonium.
   Enriched rungs (HEU-235, LEP-241, HEP-239) trade fissile cost for steam rate.
+- **Nuclear rework:** the reactor's Mk2 shell (heating coils) runs **molten-salt cycles** (FLiBe, a graphite
+  moderator for the thermal fuels) whose hot salt a new **Heat Exchanger** turns into 1.5x the steam;
+  neptunium → americium → curium → californium **burner rods** turn the minor actinides into power.
+  See [`docs/nuclear-rework.md`](docs/nuclear-rework.md).
 - **Old uranium closed:** pitchblende/uraninite veins weight 0, GT U-238/Pu separations removed,
   void-miner circuits rewritten — plutonium comes from spent fuel, ~4 ore per rod net.
 - **Radiation:** AF9 warns *above the hotbar* near radioactive inventory/drops/ores/running FX-1
@@ -380,6 +384,7 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 - [Semiconductor factory](docs/semiconductor-factory.md) — wafers, silicon, SoCs, chips, lithography
 - [AE2 integration](docs/ae2.md) — processors and storage components through the fab
 - [Asteroid fission](docs/asteroid-fission.md) — field, Brannerite, FX-1, plutonium, Mk1
+- [Nuclear rework](docs/nuclear-rework.md) — molten-salt FX Reactor Mk2, Heat Exchanger, graphite moderator, actinide burners
 - [Computation](docs/computation.md) — CWU servers
 - [Space Elevator](docs/space-elevator.md) — structure, drones, ore + liquid missions, screen
 - [Platinum-group metals](docs/platinum-group-metals.md) — refinery chain

@@ -28,6 +28,13 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setMaxIOSize(2, 2, 2, 2)
         .setProgressBar(GuiTextures.PROGRESS_BAR_BOILER_HEAT, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.BOILER)
+    // the molten-salt loop's second half: hot FLiBe and water in, steam and cooled FLiBe out (docs/nuclear-rework.md)
+    event.create('heat_exchanger')
+        .category('multiblock')
+        .setEUIO('in')
+        .setMaxIOSize(0, 0, 2, 2)
+        .setProgressBar(GuiTextures.PROGRESS_BAR_BOILER_HEAT, FillDirection.LEFT_TO_RIGHT)
+        .setSound(GTSoundEntries.BOILER)
     // cooling decladding: spent rods and water in, decladded dusts out
     event.create('spent_fuel_pool')
         .category('multiblock')
@@ -58,7 +65,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeTypes([GTRecipeTypes.get('fx1_reactor')])
         .recipeModifiers([GTRecipeModifiers.OC_NON_PERFECT])
         .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
-        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3, 4, 5, 6].map(i =>
+        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2, 3, 4, 5, 6, 7].map(i =>
             Component.translatable(`af9.fx1_reactor.tooltip.${i}`)))
         .pattern(definition => FactoryBlockPattern.start($Fx1Direction.LEFT, $Fx1Direction.UP, $Fx1Direction.BACK)
             .aisle('CCCCC', 'CCCCC', 'CCSCC', 'CCCCC', 'CCCCC') // front with the controller
@@ -82,6 +89,34 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .build())
         .workableCasingModel('gtceu:block/casings/solid/machine_casing_stable_titanium',
             'gtceu:block/multiblock/fusion_reactor')
+
+    // ---- Heat Exchanger: the FX Reactor Mk2's molten salt gives its heat to water ----
+    // A 3 x 3 x 5 tower of the reactor's own vocabulary: stable titanium vessel, the titanium pipe casing of the
+    // coolant channels as the column the salt climbs. Hatches on any casing, maximums only. HV: 480 EU/t.
+    event.create('heat_exchanger', 'multiblock')
+        .langValue('Heat Exchanger')
+        .machine(holder => new $Fx1Reactor(holder))
+        .rotationState(RotationState.NON_Y_AXIS)
+        .recipeTypes([GTRecipeTypes.get('heat_exchanger')])
+        .recipeModifiers([GTRecipeModifiers.OC_PERFECT])
+        .appearanceBlock(GTBlocks.CASING_TITANIUM_STABLE)
+        ['tooltips(net.minecraft.network.chat.Component[])']([0, 1, 2].map(i =>
+            Component.translatable(`af9.heat_exchanger.tooltip.${i}`)))
+        .pattern(definition => FactoryBlockPattern.start()
+            .aisle('XXX', 'XXX', 'XXX', 'XXX', 'XXX')
+            .aisle('XXX', 'XPX', 'XPX', 'XPX', 'XXX')
+            .aisle('XXX', 'XXX', 'XSX', 'XXX', 'XXX')
+            .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
+            .where('X', Predicates.blocks(GTBlocks.CASING_TITANIUM_STABLE.get())
+                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(2, 2))
+                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(2, 2))
+                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
+            .where('P', Predicates.blocks(GTBlocks.CASING_TITANIUM_PIPE.get()))
+            .build())
+        .workableCasingModel('gtceu:block/casings/solid/machine_casing_stable_titanium',
+            'gtceu:block/multiblock/large_chemical_reactor')
 
     // ---- Spent Fuel Pool: cooling decladding for every spent rod, the passive bulk path ----
     event.create('spent_fuel_pool', 'multiblock')
