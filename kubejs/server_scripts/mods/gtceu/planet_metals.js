@@ -1,10 +1,11 @@
-// AF9 - the planet metals: titanium from Mars sand only, tungsten from Venus sand only, and Desh (the Moon's
+// AF9 - the planet metals: titanium from Venus ilmenite and the synthetic chain, tungsten from Venus sand only, and Desh (the Moon's
 // metal, an AF9 material: registry/AF9Materials). Spec: docs/asteroid-fission.md
 //
 // Why gates: GT's titanium chain (ilmenite -> rutile -> TiCl4 -> Kroll with magnesium, HV) and its tungsten chain
 // (scheelite/tungstate -> tungstic acid -> electrolysis) are kept as they are; what changes is where the ore comes
-// from. Every Earth-side way into those chains is closed below, so the chains start on Mars sand (ilmenite, magnetic:
-// the electromagnetic separator pulls it out, the acid leach digests the rest) and Venus sand (scheelite) instead.
+// from. Every Earth-side way into those chains is closed below, so the titanium chain starts on Venus's ilmenite vein
+// (vein_venus.js; before the tier 3 rocket: the synthetic chain, titanium_synthetic.js) and the tungsten chain on Venus
+// sand (scheelite).
 // Magnesium turns over in GT's loop (MgCl2 + sodium), sodium and chlorine come from salt water, carbon from coke:
 // all Earth-side, so only the sand is gated.
 //
@@ -12,13 +13,13 @@
 // and screws (GT makes the parts once the material exists), and the furnace takes dust to ingot. The two shapeless
 // recipes swap Ad Astra's and GT's ingots either way (same metal, two item ids).
 //
-// Propylene oxide without titania: the HPPO route (propylene oxide over titanium silicalite) needs Mars rutile, but
-// the 200 nm prints (and with them ASIC, and with it the tier 2 rocket) come before Mars. The chlorohydrin route
+// Propylene oxide without titania: the HPPO route (propylene oxide over titanium silicalite) needs rutile, but
+// the 200 nm prints (and with them ASIC, and with it the tier 2 rocket) come before the synthetic rutile flows. The chlorohydrin route
 // (propene + chlorine + water, the old industrial way) makes the same oxide with Earth chemistry; HPPO stays as the
 // clean upgrade once rutile flows.
 //
-// Rutile dust comes from ilmenite only: no other ore has it as a by-product (af9-core, AF9Materials). Ilmenite and
-// the zircon sands are Mars veins (vein_mars.js).
+// Rutile dust comes from ilmenite and the synthetic chain only: no other ore has it as a by-product (af9-core,
+// AF9Materials). Ilmenite is a Venus vein (vein_venus.js), the zircon sands a Mars vein (vein_mars.js).
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
@@ -60,37 +61,11 @@ ServerEvents.recipes(event => {
         .duration(320)
         .EUt(20)
 
-    // ---- The Moon's bridge to EV titanium: TiCl4 straight from moon sand, HV, very inefficient ----
-    // Ilmenite and rutile are on Mars only (the tier 2 rocket needs titanium to get there), so the first titanium has
-    // to come from the Moon's regolith, which holds only traces: 64 moon sand with carbon and chlorine give 100 mB of
-    // TiCl4 (GT's rutile route gives 1000 mB per dust). Kroll from there is GT's own (blast furnace with magnesium).
-    event.recipes.gtceu.chemical_reactor('af9:moon_sand_titanium_tetrachloride')
-        .itemInputs('64x ad_astra:moon_sand', '2x gtceu:carbon_dust')
-        .inputFluids(Fluid.of('gtceu:chlorine', 4000))
-        .itemOutputs('16x gtceu:silicon_dioxide_dust')
-        .outputFluids(Fluid.of('gtceu:titanium_tetrachloride', 100))
-        .duration(1200)
-        .EUt(VA[GTValues.HV])
-
-    // ---- Mars: ilmenite out of Mars sand ----
-    // Physical route (ilmenite is strongly magnetic): the separator pulls it out of the sand, silica stays behind.
-    event.recipes.gtceu.electromagnetic_separator('af9:mars_sand_beneficiation')
-        .itemInputs('4x ad_astra:mars_sand')
-        .itemOutputs('gtceu:ilmenite_dust')
-        .itemOutputs('3x gtceu:silicon_dioxide_dust')
-        .duration(200)
-        .EUt(VA[GTValues.MV])
-    // Chemical route (the acid digests the silicates): three ilmenite for four sand, at HV.
-    event.recipes.gtceu.chemical_reactor('af9:mars_sand_acid_leach')
-        .itemInputs('4x ad_astra:mars_sand')
-        .inputFluids(Fluid.of('gtceu:sulfuric_acid', 2000))
-        .itemOutputs('3x gtceu:ilmenite_dust', '2x gtceu:silicon_dioxide_dust')
-        .outputFluids(Fluid.of('minecraft:water', 2000))
-        .duration(300)
-        .EUt(VA[GTValues.HV])
-    // From ilmenite GT's chain runs unchanged: blast furnace with carbon to rutile (1700 K, kanthal), chemical
-    // reactor with carbon and chlorine to titanium tetrachloride, blast furnace with magnesium to titanium (Kroll,
-    // 2141 K, kanthal), and the magnesium loop (MgCl2 + sodium) turns with salt-water sodium and chlorine.
+    // ---- Titanium: no ore until Venus ----
+    // Ilmenite generates on Venus only (vein_venus.js; the tier 3 rocket reaches it), so HV and EV titanium is synthetic:
+    // lunar regolith and the red mud of the Bayer process (titanium_synthetic.js). Both end in rutile dust; GT's chain
+    // runs unchanged from there: carbon and chlorine to titanium tetrachloride, blast furnace with magnesium to titanium
+    // (Kroll, 2141 K, kanthal), and the magnesium loop (MgCl2 + sodium) turns with salt-water sodium and chlorine.
 
     // ---- Venus: scheelite out of Venus sand ----
     // Poor route: washing the sand, a little scheelite with the silica.

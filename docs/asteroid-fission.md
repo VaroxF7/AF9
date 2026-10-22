@@ -141,7 +141,7 @@ dike replaces, so the same vein form works in both palettes.
 - `kubejs/server_scripts/mods/gtceu/vein_asteroid.js` only switches the pitchblende and uraninite veins off (weight 0)
   and makes the naquadah vein raw naquadah only.
 - **Brannerite** (`(U,Ca,Ce)(Ti,Fe)2O6`): dust and ore, two crushed ores per ore, by-products thorium, neodymium and iron (no rutile: its titanium stays in the
-  residue, titanium comes from Mars sand only), GT's radioactive hazard x0.6. No components, so GT adds no electrolyzer or centrifuge shortcut.
+  residue, titanium is synthetic until Venus's ilmenite), GT's radioactive hazard x0.6. No components, so GT adds no electrolyzer or centrifuge shortcut.
 
 # 3. Rockets and propellant
 
@@ -157,7 +157,7 @@ has no recipes left (it would have none to show).
 |---|---|---|---|---|---|---|
 | 1 | stainless steel | LV (expensive MV assembler) | 4x LV circuits | `steel_engine`, `steel_tank` | Assembler, MV | Moon |
 | 2 | Desh (the Moon's metal; hull blocks are Ad Astra's) | HV | ASIC | `desh_engine`, `desh_tank` | Assembler, HV | Mars, Ceres, the Asteroid Field |
-| 3 | titanium (from Mars sand) | EV | 2x EV circuits | `ostrum_engine`, `ostrum_tank` | Assembler, EV | Venus, Mercury |
+| 3 | titanium (synthetic, Venus ilmenite later) | EV | 2x EV circuits | `ostrum_engine`, `ostrum_tank` | Assembler, EV | Venus, Mercury |
 | 4 | HSS-E | LuV | VPU | `calorite_engine`, `calorite_tank` | Assembly Line, LuV | Glacio |
 
 The rocket (`af9:tier_<n>_rocket`): the nose cone, six hull blocks of the tier's metal, four fins, two tanks, the engine and two robot
@@ -364,10 +364,10 @@ Each rocket tier flies on the metal of the world before it, and titanium and tun
 | Metal | Source | Chain |
 |---|---|---|
 | **Desh** (AF9 material `desh`: plates, rods, bolts, screws) | Moon Desh Ore, Ad Astra's raw desh; macerator to 2 GT dust, furnace to ingot; the two ingots (Ad Astra's, GT's) swap by a shapeless recipe | tier 2 rocket parts (HV) |
-| **Titanium** | **Mars Sand** only: electromagnetic separator (4 sand: ilmenite + 3 silica, MV) or sulfuric acid leach (HV Chemical Reactor, 3 ilmenite per 4 sand); GT's chain on from there (rutile, TiCl4, Kroll) | tier 3 rocket, EV machines, the Void Miner MK2 |
+| **Titanium** | **Venus ilmenite** (the vein `af9:venus_ilmenite_vein`); before the tier 3 rocket synthetic: lunar regolith (HV) or the red mud of bauxite (EV), docs/titanium-synthetic.md; GT's chain on from rutile (TiCl4, Kroll) | tier 3 rocket, EV machines, the Void Miner MK2 |
 | **Tungsten** | **Venus Sand** only: washing (a chance of scheelite) or the acid leach (2 scheelite per 4 sand); GT's chain on from there (tungstic acid, electrolysis) | tier 4 parts, IV and up |
 
-Ilmenite and zircon veins generate on Mars (`af9_mars` layer, `vein_mars.js`; the zircon vein used to be in the Mining Dimension); a second, renewable ilmenite vein (`af9:venus_ilmenite_vein`, ilmenite 5 + iron 2, y 40-120) generates on Venus (`af9_venus` layer, `vein_venus.js`). Rutile is a by-product of ilmenite alone: bauxite, zircon and every other ore lost it. A very inefficient HV TiCl4 recipe from 64 moon sand (100 mB) bridges to EV titanium before Mars.
+The zircon vein generates on Mars (`af9_mars` layer, `vein_mars.js`; it used to be in the Mining Dimension); the only ilmenite vein (`af9:venus_ilmenite_vein`, ilmenite 5 + iron 2, y 40-120) is on Venus (`af9_venus` layer, `vein_venus.js`), and Mars has none. Rutile is a by-product of ilmenite alone: bauxite, zircon and every other ore lost it; the synthetic chain makes rutile dust directly (docs/titanium-synthetic.md).
 
 Closed on Earth: the GT veins holding ilmenite, rutile, scheelite or tungstate (weight 0, by id or by material, AF9's own veins
 spared), the zircon dike's ilmenite (zircon and monazite only now), the Void Miner's End mode (bauxite without ilmenite, no scheelite

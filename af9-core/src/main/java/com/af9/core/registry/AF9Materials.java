@@ -106,6 +106,7 @@ public final class AF9Materials {
         lithiumBrine();
         oil();
         planetMetals();
+        syntheticTitanium();
         rocketInsulation();
         particleAccelerator();
         antimatter();
@@ -815,6 +816,28 @@ public final class AF9Materials {
                 .formula("Ds")
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD,
                         MaterialFlags.GENERATE_BOLT_SCREW));
+    }
+
+    /**
+     * Synthetic titanium (HV to the end of EV, until Venus's ilmenite vein): the intermediates of the two ways to
+     * titanium without an ore: lunar regolith (separator, hydrogen reduction, the sulfate process) and the red mud of
+     * the Bayer process (hydrochloric leach, solvent extraction). Both end in GT's rutile dust, so GT's chlorination
+     * and Kroll take over. Formulas only (no components), so GT adds no electrolyzer or centrifuge shortcut.
+     * Recipes: titanium_synthetic.js. Spec: docs/titanium-synthetic.md
+     */
+    private static void syntheticTitanium() {
+        roughDust("lunar_ilmenite_concentrate", 0x4d4a52, "(FeTiO3)(SiO2)");  // magnetic fraction of the regolith
+        roughDust("reduced_titania_slag", 0x7c7771, "(TiO2)(SiO2)");  // after the hydrogen reduction
+        liquid("crude_titanyl_sulfate_liquor", 0x6a7a52, "TiOSO4(FeSO4)(H2O)");  // sulfuric digest of the slag
+        liquid("titanyl_sulfate_liquor", 0xc8d09a, "TiOSO4(H2O)");  // clarified, the copperas taken out
+        roughDust("ferrous_sulfate", 0x9cc2a0, "FeSO4");  // copperas, the waste of the sulfate process
+        dust("metatitanic_acid", 0xeeeee4, "H2TiO3");  // the hydrolysis precipitate
+        roughDust("red_mud", 0x8a3b26, "(Fe2O3)(TiO2)(Na2O(Al2O3)(SiO2))");  // the Bayer process residue
+        liquid("sodium_aluminate_liquor", 0xd4d8d2, "NaAlO2(H2O)");  // the Bayer liquor
+        liquid("red_mud_leach_liquor", 0xb06a2c, "FeCl3TiOCl2(H2O)");  // hydrochloric leach of the red mud
+        liquid("titanium_extractant", 0xd6c47a, "(C4H9O)3PO(C12H26)");  // tributyl phosphate in diesel
+        liquid("loaded_titanium_extract", 0xa8955a, "(TiOCl2)(C4H9O)3PO(C12H26)");  // organic phase carrying the titanium
+        liquid("titanium_strip_liquor", 0xe4e8c0, "TiOCl2(HCl)(H2O)");  // stripped back into acid
     }
 
     /**

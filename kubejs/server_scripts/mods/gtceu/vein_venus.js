@@ -1,9 +1,9 @@
 // AF9 - The Ilmenite vein of Venus (the layer: af9-core, space/AF9Space, af9_venus = Ad Astra's venus stone and
 // venus sand). Spec: docs/asteroid-fission.md (titanium).
 //
-// Titanium used to start on Mars sand alone; Venus gets a second ilmenite vein so the titanium chain has a renewable
-// source in the tier 3 world too (Mars's ilmenite vein is in vein_mars.js). Dike through the Venusian terrain, same
-// form as the Mars veins. Named to load after the pack's mining_dim_ores.js, which moves every GT vein to the Mining
+// The only ilmenite ore there is: until the tier 3 rocket reaches Venus, titanium is synthetic (titanium_synthetic.js);
+// from here on the titanium chain has a renewable source. Dike through the Venusian terrain, same
+// form as the Mars zircon vein. Named to load after the pack's mining_dim_ores.js, which moves every GT vein to the Mining
 // Dimension; vein_planets.js leaves AF9's own veins alone.
 
 GTCEuServerEvents.oreVeins(event => {
