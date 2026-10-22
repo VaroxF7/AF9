@@ -63,11 +63,6 @@ public final class StructureSkins {
                     model("multiblock/ebf_lower"), model("multiblock/ebf_upper"),
                     model("multiblock/ebf_glow_lower"), model("multiblock/ebf_glow_upper"),
                     new int[] { -1, 1, 1 }, new float[] { 0.5F, 2.0F, -0.05F, 0.75F, 0.5F }),
-            // the Photolithography Line (Mk1) and Scanner (Mk2): a white paneled cabinet, 3 wide, 3 high with the
-            // controller in the middle row of the front, 10-12 long (found from the blocks, see measure)
-            StructureSkin.cabinet(() -> machine("photolithography_line"), 1, 2, new StructureSkin.Cabinet(1, 10, 12)),
-            StructureSkin.cabinet(() -> machine("photolithography_scanner"), 1, 2,
-                    new StructureSkin.Cabinet(1, 10, 12)),
             // the Orbital Array Mk2's tower: its rings turn (only while the Mk2 size is switched on)
             StructureSkin.rings(() -> machine("orbital_lithography_station"),
                     new StructureSkin.Rings(OrbitalLithographyMachine.BANDS_MK2, OrbitalLithographyMachine.TOWER_HALF)));
