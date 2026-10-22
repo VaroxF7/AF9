@@ -35,8 +35,9 @@ const $LithoSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // [node, fluid inputs, item inputs]: substrate + reticle, + the ArF Excimer Laser for 80 and 65 nm (the scanner's
     // laser slot) or the EUV Light Source for 20 and 7 nm (both not consumed)
-    const lineModes = [['350nm', 3, 2], ['200nm', 5, 2], ['100nm', 5, 2], ['80nm', 5, 3], ['65nm', 6, 3],
-        ['50nm', 7, 2], ['20nm', 7, 3], ['7nm', 8, 3]]
+    // (+3 fluids on every mode: the transistors' polyethylene, silicon and electrum, docs/transistors.md)
+    const lineModes = [['350nm', 6, 2], ['200nm', 8, 2], ['100nm', 8, 2], ['80nm', 8, 3], ['65nm', 9, 3],
+        ['50nm', 10, 2], ['20nm', 10, 3], ['7nm', 11, 3]]
     // the orbital station's modes sound like it: a deep hum (af9-core AF9Sounds, vanilla sounds pitched down)
     const orbitalNodes = ['50nm', '20nm', '7nm']
     lineModes.forEach(([node, fluids, items]) => {
@@ -52,7 +53,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     event.create('orbital_lithography')
         .category('multiblock')
         .setEUIO('in')
-        .setMaxIOSize(3, 2, 0, 0)
+        .setMaxIOSize(3, 2, 3, 0) // the 1 nm transistors: polyethylene, silicon, electrum
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound($LithoSounds.ORBITAL_STATION)
     // plasma atomic soldering (UHV+ circuits, ion-by-ion deposition with plasma solder, no reflow): up to 9 item
@@ -381,7 +382,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 0))
                 // air cooling: the hatches carry the print's heat (cooling units, see air_conditioning.js)
                 .or(Predicates.abilities($LithoAirConditioning.AIR_CONDITIONING).setMaxGlobalLimited(2, 1))
-                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(11, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('af9:plascrete_filter_casing'))     // fan filter units
             .where('R', Predicates.blocks('gtceu:stainless_steel_gearbox'))      // robots and stages
@@ -446,7 +447,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities($LithoAirConditioning.AIR_CONDITIONING).setMaxGlobalLimited(2, 1))
                 // the fibre to its Logistics Hub (af9-core fiber): the hub's buses and hatches feed the scanner through it
                 .or(Predicates.abilities(Java.loadClass('com.af9.core.fiber.FiberLinkPortPartMachine').FIBER_LINK).setMaxGlobalLimited(2, 0))
-                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(11, 1))
                 .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
             .where('F', Predicates.blocks('af9:plascrete_filter_casing'))     // fan filter units
             .where('G', Predicates.blocks('gtceu:stainless_steel_gearbox'))      // wafer stages
@@ -488,7 +489,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         const computation = Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 1)
         const data = Predicates.abilities(PartAbility.DATA_ACCESS).setMaxGlobalLimited(1, 1)
         const optical = Predicates.abilities(PartAbility.OPTICAL_DATA_RECEPTION).setMaxGlobalLimited(1, 0)
-        const fluids = Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(8, 1)
+        const fluids = Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(11, 1)
         const itemsIn = Predicates.abilities(PartAbility.IMPORT_ITEMS).setPreviewCount(1)
         const itemsOut = Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1)
         const maintenance = Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)

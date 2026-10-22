@@ -58,6 +58,7 @@ def amounts(text):
     return sorted(int(n) for n in re.findall(r'(\d+) [A-Za-z][A-Za-z ]*?(?=,|;|\.|$)', text))
 
 
+TRANSISTOR_FLUIDS = ('gtceu:polyethylene', 'gtceu:silicon', 'gtceu:electrum')
 checked = 0
 for node, substrate in SUBSTRATE.items():
     prefix = f'af9.quest.litho.n{node[:-2]}.'
@@ -76,7 +77,8 @@ for node, substrate in SUBSTRATE.items():
         report(f'{key}: no print or coating recipe for the {node} node')
         continue
     checked += 1
-    want_print = sorted(a for _, a in print_recipe['fluidAmounts'])
+    # the transistor fluids (docs/transistors.md) differ per chip; the node texts list the node's own chemistry
+    want_print = sorted(a for f, a in print_recipe['fluidAmounts'] if f not in TRANSISTOR_FLUIDS)
     got_print = amounts(m.group(1))
     if want_print != got_print:
         report(f'{key}: the text says {got_print} mB per print, the recipe af9:print_*_{node} takes {want_print}', 'kubejs lang')

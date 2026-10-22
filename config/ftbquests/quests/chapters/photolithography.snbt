@@ -193,6 +193,34 @@
 		{
 			dependencies: ["4ABB101ED98AC19F"]
 			description: [
+				"{af9.quest.litho.transistors.1}"
+				""
+				"{af9.quest.litho.transistors.2}"
+				""
+				"{af9.quest.litho.transistors.3}"
+				""
+				"{af9.quest.litho.transistors.4}"
+			]
+			icon: "gtceu:cpu_wafer"
+			id: "7A3C5E1D9B2F4086"
+			rewards: [{
+				id: "2D8F6B0A4C7E1359"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			subtitle: "{af9.quest.litho.transistors.subtitle}"
+			tasks: [{
+				id: "5E1B9D3F7A2C8460"
+				type: "checkmark"
+			}]
+			title: "{af9.quest.litho.transistors.title}"
+			x: -1.5d
+			y: -1.5d
+		}
+		{
+			dependencies: ["4ABB101ED98AC19F"]
+			description: [
 				"{af9.quest.litho.fabPlant.1}"
 				""
 				"{af9.quest.litho.fabPlant.2}"

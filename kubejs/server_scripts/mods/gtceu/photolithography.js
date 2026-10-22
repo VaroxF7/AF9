@@ -62,6 +62,21 @@ const AF9_WAFERS = (() => {
     const ORBITAL_YIELD = { 0: [64, 86], 1: [32, 64], 2: [28, 56], 3: [24, 48], 4: [20, 40], 5: [16, 32], 6: [1, 16],
         7: [1, 16] }
 
+    // Transistors are no item: a silicon chip wafer carries a fixed count, and a print uses up the fluids that count costs.
+    // Per 100 transistors: 12 mB polyethylene (the dielectric), 1 mB silicon, 2 mB electrum (the metal), all through the
+    // machine's fluid hatches. The price of a transistor rises 20% with every node (350 nm 1x ... 1 nm 4.3x), per wafer
+    // printed. Only the silicon chips have a count for now. Docs: docs/transistors.md, JEI page: client_scripts/transistors_info.js
+    const TRANSISTORS = { cpu: 12000, ram: 8000, ilc: 4500, simple_soc: 6700, ulpic: 3540, lpic: 5000, rf_transceiver: 1200,
+        apu: 12000, mcu: 8200 }
+    const TRANSISTOR_COST = [['gtceu:polyethylene', 12], ['gtceu:silicon', 1], ['gtceu:electrum', 2]]
+    const NODE_PRICE = 1.2
+    // The fluids of printing `wafers` wafers of chip c at node index `node`; [] for a chip without a transistor count
+    const transistorFluids = (c, node, wafers) => {
+        if (!TRANSISTORS[c.id]) return []
+        const hundreds = TRANSISTORS[c.id] * wafers / 100 * Math.pow(NODE_PRICE, node)
+        return TRANSISTOR_COST.map(([fluid, per]) => [fluid, Math.max(1, Math.round(hundreds * per))])
+    }
+
     function own(id, native, lens, dies) {
         return { id: id, native: native, reticle: id, lens: lens, chip: `af9:${id}_chip`,
             wafer: `af9:${id}_wafer`, dies: dies }
@@ -157,7 +172,7 @@ const AF9_WAFERS = (() => {
         })
     })
     return { substrates: substrates, modes: modes, orbital: orbital, chips: chips, chip: chip, printed: printed,
-        yieldOf: yieldOf, orbitalConsumption: ORBITAL_CONSUMPTION, orbitalTicks: ORBITAL_TICKS, orbitalTier: ORBITAL_TIER, orbitalYield: ORBITAL_YIELD, wafersOf: wafersOf,
+        yieldOf: yieldOf, transistorFluids: transistorFluids, transistors: TRANSISTORS, orbitalConsumption: ORBITAL_CONSUMPTION, orbitalTicks: ORBITAL_TICKS, orbitalTier: ORBITAL_TIER, orbitalYield: ORBITAL_YIELD, wafersOf: wafersOf,
         chipStack: chipStack, classes: CLASSES, maskClass: maskClass, reticleItem: reticleItem, reticles: reticles }
 })()
 
@@ -638,8 +653,11 @@ ServerEvents.recipes(event => {
             // an input bus)
             if (m.laser) recipe.notConsumable(m.laser)
             if (m.euv) recipe.notConsumable('af9:euv_light_source')
+            // the transistors of the printed wafers (silicon chips only)
+            const transistors = AF9_WAFERS.transistorFluids(c, m.index, yieldOf(m.substrate, c))
+                .map(([fluid, amount]) => Fluid.of(fluid, amount))
             recipe
-                .inputFluids(fluids)
+                .inputFluids(fluids.concat(transistors))
                 .itemOutputs(`${yieldOf(m.substrate, c)}x ${printed(m.substrate, c)}`)
                 .chancedOutput(`af9:broken_${s.id}_wafer`, m.baseBreak, 0)
                 .duration(AF9_WAFERS.orbitalTicks[m.id] || 900)
@@ -658,7 +676,13 @@ ServerEvents.recipes(event => {
     // bank).
     const chromodynium = substrates[AF9_WAFERS.orbital.substrate]
     chips.filter(c => c.reticle).forEach(c => {
-        event.recipes.gtceu.orbital_lithography(`af9:print_${c.id}_1nm`)
+        // the transistors are billed for the average wafers of the roll
+        const range = AF9_WAFERS.orbitalYield[c.native]
+        const transistors = AF9_WAFERS.transistorFluids(c, AF9_WAFERS.orbital.substrate, Math.floor((range[0] + range[1]) / 2))
+            .map(([fluid, amount]) => Fluid.of(fluid, amount))
+        const orbitalPrint = event.recipes.gtceu.orbital_lithography(`af9:print_${c.id}_1nm`)
+        if (transistors.length) orbitalPrint.inputFluids(transistors)
+        orbitalPrint
             .itemInputs(chromodynium.blank, `${AF9_WAFERS.orbitalConsumption['1nm']}x af9:dry_resist_cartridge`)
             .notConsumable(AF9_WAFERS.reticleItem(c, AF9_WAFERS.maskClass(chromodynium.index)))
             .itemOutputsRanged(printed(chromodynium.index, c), AF9_WAFERS.orbitalYield[c.native][0],
