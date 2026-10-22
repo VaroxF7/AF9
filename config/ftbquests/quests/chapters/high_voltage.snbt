@@ -1462,6 +1462,75 @@
 			x: 8.0d
 			y: 8.5d
 		}
+		{
+			dependencies: ["124C2A904BF84254"]
+			description: [
+				"{af9.quest.hv.ceramic.mvBoard.1}"
+				""
+				"{af9.quest.hv.ceramic.mvBoard.2}"
+			]
+			id: "28A6632E20C63B50"
+			rewards: [{
+				count: 2
+				id: "64E2A2002B8C1663"
+				item: "gtceu:plastic_circuit_board"
+				type: "item"
+			}]
+			tasks: [{
+				id: "62D6D13FB794218B"
+				item: "af9:silicon_carbide_substrate"
+				type: "item"
+			}]
+			title: "{af9.quest.hv.ceramic.mvBoard.title}"
+			x: 2.5d
+			y: -8.5d
+		}
+		{
+			dependencies: ["28A6632E20C63B50"]
+			description: [
+				"{af9.quest.hv.ceramic.hvBoard.1}"
+				""
+				"{af9.quest.hv.ceramic.hvBoard.2}"
+			]
+			id: "029289BE94B4F0D8"
+			rewards: [{
+				count: 2
+				id: "589356943719965C"
+				item: "gtceu:plastic_circuit_board"
+				type: "item"
+			}]
+			tasks: [{
+				id: "044497F713033935"
+				item: "af9:alumina_substrate"
+				type: "item"
+			}]
+			title: "{af9.quest.hv.ceramic.hvBoard.title}"
+			x: 3.5d
+			y: -8.5d
+		}
+		{
+			dependencies: ["029289BE94B4F0D8"]
+			description: [
+				"{af9.quest.hv.ceramic.evBoard.1}"
+				""
+				"{af9.quest.hv.ceramic.evBoard.2}"
+			]
+			id: "5E4E486FC2223B9E"
+			rewards: [{
+				count: 2
+				id: "03A45052C64AEE4B"
+				item: "gtceu:plastic_circuit_board"
+				type: "item"
+			}]
+			tasks: [{
+				id: "02C4DFD10F7803D4"
+				item: "af9:beryllia_substrate"
+				type: "item"
+			}]
+			title: "{af9.quest.hv.ceramic.evBoard.title}"
+			x: 4.5d
+			y: -8.5d
+		}
 	]
 	title: "{atm9.chapters.29.title}"
 }
