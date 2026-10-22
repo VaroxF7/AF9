@@ -1027,7 +1027,7 @@
 			id: "54B31D7DD16B906A"
 			tasks: [{
 				id: "5A44C6DC5F0F04C1"
-				item: "af9:mainframe_interconnect"
+				item: "af9:superconductor_spool"
 				type: "item"
 			}]
 			x: 5.0d

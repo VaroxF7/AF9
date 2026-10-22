@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "af9:item/mainframe_interconnect"
+    "layer0": "af9:item/superconductor_spool"
   }
 }

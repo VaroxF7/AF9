@@ -300,7 +300,7 @@ item af9:lv_motor_housing
 item af9:lv_rotor
 item af9:lv_stator
 item af9:magnetic_trap
-item af9:mainframe_interconnect
+item af9:superconductor_spool
 item af9:mcu_chip
 item af9:mcu_euv_reticle
 item af9:mcu_psm_reticle
