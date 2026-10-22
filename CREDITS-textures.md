@@ -164,3 +164,19 @@ MIT licence of bartimaeusnek; GT5-Unofficial is LGPL-3.0 or later, <https://gith
 The structure (5 x 4 x 5), the glass-tier gate and the output-fill bonus are taken from the original; the culture in the tank is drawn
 (`BioVatRender`) instead of placed as fluid blocks. The radiation hatch and the petri-dish cultures are not ported.
 
+
+## Dimensionally Transcendent Plasma Forge
+
+The forge's three casings are GTNH's (GT5-Unofficial, LGPL-3.0 or later, <https://github.com/GTNewHorizons/GT5-Unofficial>; licence text
+in `licenses/GT5-Unofficial-LGPL-3.0.txt`), copied (sources in `tools/textures/gtnh_dtpf/`, written by `tools/textures/dtpf_blocks.py`):
+
+| af9 file (`af9-core/.../textures/block/`) | GT5-Unofficial source (`src/main/resources/assets/gregtech/textures/blocks/iconsets/`) | Changes |
+|---|---|---|
+| `dtpf_transcendent_casing.png` (Dimensionally Transcendent Casing) | `MACHINE_DIM_TRANS_CASING.png` | none |
+| `dtpf_transcendent_casing_ctm.png` (+ `.mcmeta`) | — (our own sheet) | the connected texture: the bevel stays at the edge of a group of blocks, the plating runs on |
+| `dtpf_injection_casing.png` (Dimensional Injection Casing) | `MACHINE_DIM_INJECTOR.png` | none |
+| `dtpf_bridge_casing.png` (Dimensional Bridge Casing, idle) | `MACHINE_DIM_BRIDGE.png`, third frame | none |
+| `dtpf_bridge_casing_active.png` (+ `.mcmeta`) | `MACHINE_DIM_BRIDGE.png` | none (animated, 4 frames) |
+| `dtpf_bridge_casing_active_emissive.png` (+ `.mcmeta`) | `MACHINE_DIM_BRIDGE.png` | only the bright grid kept, for the glow |
+
+`coils/dtpf_containment_coil*.png` and `coils/dtpf_resonance_coil*.png` are our own: AF9's Endion coil textures with the weave's hue changed.

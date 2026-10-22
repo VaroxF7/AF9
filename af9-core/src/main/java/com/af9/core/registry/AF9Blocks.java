@@ -120,6 +120,15 @@ public final class AF9Blocks {
         // Europium Duranide ----
         block("satellite_casing", SoundType.METAL, 12F, 0, 0);
 
+        // ---- Dimensionally Transcendent Plasma Forge: GTNH's three casings of the original (textures from GT5-Unofficial,
+        // tools/textures/dtpf_blocks.py) and two coils of its own, lit while the forge works. The coils are structure
+        // blocks only (no heating coils: nothing else reads them) ----
+        block("dtpf_transcendent_casing", SoundType.METAL, 12F, 0, 0);
+        block("dtpf_injection_casing", SoundType.METAL, 12F, 0, 0);
+        activeBlock("dtpf_bridge_casing", SoundType.METAL, 12F);
+        activeBlock("dtpf_containment_coil", SoundType.METAL, 12F);
+        activeBlock("dtpf_resonance_coil", SoundType.METAL, 12F);
+
         for (int tier = 1; tier <= MOTORS; tier++) block(MOTOR + tier, SoundType.METAL, 12F, 0, 2);
         // the Mining Modules are machines now (gtceu:space_mining_module_mk1 to mk3, SpaceModuleMachine)
     }

@@ -67,6 +67,11 @@ block af9:space_elevator_motor_mk5
 block af9:toluene
 block af9:ultra_high_strength_concrete_floor
 block af9:wood_vinegar
+block af9:dtpf_transcendent_casing
+block af9:dtpf_injection_casing
+block af9:dtpf_bridge_casing
+block af9:dtpf_containment_coil
+block af9:dtpf_resonance_coil
 item af9:acetone_bucket
 item af9:advanced_soc_euv_reticle
 item af9:advanced_soc_reticle
@@ -452,6 +457,11 @@ item af9:zephyr_marker
 item af9:zpm_motor_housing
 item af9:zpm_rotor
 item af9:zpm_stator
+item af9:dtpf_transcendent_casing
+item af9:dtpf_injection_casing
+item af9:dtpf_bridge_casing
+item af9:dtpf_containment_coil
+item af9:dtpf_resonance_coil
 material gtceu:acetaldehyde
 material gtceu:acetone_cyanohydrin
 material gtceu:acetoxyacetophenone

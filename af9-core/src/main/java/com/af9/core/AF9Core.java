@@ -20,6 +20,7 @@ import com.af9.core.fluid.PlaceableFluids;
 import com.af9.core.machine.FiltrationPlantMachine;
 import com.af9.core.machine.ParticleAcceleratorMachine;
 import com.af9.core.machine.PhotolithographyLineMachine;
+import com.af9.core.machine.PlasmaForgeRecipeUI;
 import com.af9.core.machine.SanguiniteHearthRecipeUI;
 import com.af9.core.machine.StagedAssemblyMachine;
 import com.af9.core.machine.VoidMinerMachine;
@@ -100,6 +101,7 @@ public class AF9Core {
         event.enqueueWork(PhotolithographyLineMachine::registerRecipeInfo);
         event.enqueueWork(ParticleAcceleratorMachine::registerRecipeInfo);
         event.enqueueWork(SanguiniteHearthRecipeUI::install);
+        event.enqueueWork(PlasmaForgeRecipeUI::install);
         event.enqueueWork(MEResonanceFabricatorMachine::configureRecipeType);
         event.enqueueWork(SpaceMissionMachine::registerRecipeInfo);
         event.enqueueWork(FabRecipeInfo::register);

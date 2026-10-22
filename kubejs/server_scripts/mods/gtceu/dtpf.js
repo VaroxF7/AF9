@@ -13,7 +13,7 @@ ServerEvents.recipes(event => {
     const UHV_AMPS = 100
     const forge = event.recipes.gtceu
 
-    // The controller: UHV hull in a frame of mk3 fusion casing, held by field generators,
+    // The controller: UHV hull in a frame of transcendent casing, held by field generators,
     // wired with sanguinite, computed with AI cards + qubit CPUs + eDRAM. Made in AF9's Advanced
     // Circuit Manufacturer (up to 16 items / 4 fluids; computation through its hatch; UHV on 300 A
     // through its laser hatch, like the Pico circuits in circuits_af9.js).
@@ -23,7 +23,7 @@ ServerEvents.recipes(event => {
     // The sanguinite is 8 stacks of 64 (a bus slot holds 64),
     // 8 inputs of 64x + 7 single inputs = 15 item inputs of 16 max.
     event.recipes.gtceu.advanced_circuit_manufacturer('af9:dtpf')
-        .itemInputs('16x #gtceu:circuits/uhv', 'gtceu:uhv_machine_hull', '8x gtceu:fusion_casing_mk3',
+        .itemInputs('16x #gtceu:circuits/uhv', 'gtceu:uhv_machine_hull', '8x af9:dtpf_transcendent_casing',
             '2x gtceu:uv_field_generator', '4x af9:ai_acceleration_card', '32x gtceu:qbit_cpu_chip',
             '16x af9:edram_chip',
             '64x gtceu:fine_sanguinite_wire', '64x gtceu:fine_sanguinite_wire',
@@ -35,6 +35,50 @@ ServerEvents.recipes(event => {
         .CWUt(128)
         .duration(1200)
         .EUt(VA[GTValues.UHV], 300)
+
+    // ---- The hall's blocks (structure: startup_scripts/gtceu/dtpf.js; textures GTNH's, tools/textures/dtpf_blocks.py) ----
+    // The casings: an assembler at UV from mk3 fusion casing and the metal of the original. Nothing here needs
+    // the forge's own products, so the first hall can be built from scratch.
+    event.recipes.gtceu.assembler('af9:dtpf_transcendent_casing')
+        .itemInputs('gtceu:fusion_casing_mk3', '2x gtceu:tritanium_plate', 'gtceu:neutronium_plate')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
+        .itemOutputs('2x af9:dtpf_transcendent_casing')
+        .duration(200)
+        .EUt(VA[GTValues.UV])
+    // the injection deck: the one casing that takes hatches
+    event.recipes.gtceu.assembler('af9:dtpf_injection_casing')
+        .itemInputs('2x af9:dtpf_transcendent_casing', '4x gtceu:tritanium_plate', 'gtceu:uv_emitter',
+            '8x gtceu:fine_sanguinite_wire')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
+        .itemOutputs('2x af9:dtpf_injection_casing')
+        .duration(240)
+        .EUt(VA[GTValues.UV])
+    // the bridge: lit while the forge works
+    event.recipes.gtceu.assembler('af9:dtpf_bridge_casing')
+        .itemInputs('2x af9:dtpf_transcendent_casing', 'gtceu:uv_emitter', 'gtceu:uv_sensor',
+            '16x gtceu:fine_endionite_wire')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
+        .itemOutputs('2x af9:dtpf_bridge_casing')
+        .duration(240)
+        .EUt(VA[GTValues.UV])
+
+    // The coils come at UHV, in the Assembly Line: a Resonant Endion coil (Boule Melting's best) wound anew round a
+    // field generator and UHV circuits; the resonance coil is a containment coil pushed further with neutronium
+    event.recipes.gtceu.assembly_line('af9:dtpf_containment_coil')
+        .itemInputs('af9:resonant_endion_coil_block', '8x gtceu:tritanium_plate', 'gtceu:uv_field_generator',
+            '2x #gtceu:circuits/uhv', '32x gtceu:fine_sanguinite_wire')
+        .inputFluids(Fluid.of('gtceu:plasma_solder', 1152), Fluid.of('gtceu:supercooled_endion', 1000))
+        .itemOutputs('2x af9:dtpf_containment_coil')
+        .duration(600)
+        .EUt(VA[GTValues.UHV])
+    event.recipes.gtceu.assembly_line('af9:dtpf_resonance_coil')
+        .itemInputs('af9:dtpf_containment_coil', '4x gtceu:neutronium_plate', '2x gtceu:uv_field_generator',
+            '2x #gtceu:circuits/uhv', '32x gtceu:fine_endionite_wire')
+        .inputFluids(Fluid.of('gtceu:plasma_solder', 1152), Fluid.of('gtceu:strange_matter_plasma', 500),
+            Fluid.of('gtceu:supercooled_endion', 1000))
+        .itemOutputs('af9:dtpf_resonance_coil')
+        .duration(800)
+        .EUt(VA[GTValues.UHV])
 
     // ---- Ionisation: dust and Endion in, plasma out ----
     forge.plasma_forge('af9:dtpf/strange_matter_plasma')
@@ -108,8 +152,8 @@ ServerEvents.recipes(event => {
     // ---- Mk2 refit: the Mk1 controller turned with the Plasma Heater's heart ----
     // the heater is integrated (sacrificed) into the Mk2: half the osmium for four times the amperage
     event.recipes.gtceu.assembly_line('af9:dtpf_mk2')
-        .itemInputs('gtceu:dtpf', 'gtceu:plasma_heater', '4x gtceu:fusion_casing_mk3',
-            '2x gtceu:uv_field_generator', '4x gtceu:double_tungsten_steel_plate')
+        .itemInputs('gtceu:dtpf', 'gtceu:plasma_heater', '4x af9:dtpf_bridge_casing',
+            '2x af9:dtpf_resonance_coil', '2x gtceu:uv_field_generator', '4x gtceu:double_tungsten_steel_plate')
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 2304), Fluid.of('gtceu:niobium_titanium', 2304))
         .itemOutputs('gtceu:dtpf_mk2')
         .duration(1200)

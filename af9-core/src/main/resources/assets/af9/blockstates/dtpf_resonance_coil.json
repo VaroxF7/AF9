@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "active=false": {
+      "model": "af9:block/dtpf_resonance_coil"
+    },
+    "active=true": {
+      "model": "af9:block/dtpf_resonance_coil_active"
+    }
+  }
+}
