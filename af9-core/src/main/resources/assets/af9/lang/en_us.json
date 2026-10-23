@@ -902,8 +902,6 @@
     "item.af9.asic_package.tooltip.0": "An ASIC die with its RAM on a silicon interposer. HV-EV bridge of the linear ladder.",
     "item.af9.photonic_package": "Photonic Package",
     "item.af9.photonic_package.tooltip.0": "A photonic IC with its spin-logic memory on one package. XPS bridge of the linear ladder.",
-    "item.af9.superconductor_spool": "Superconductor Spool",
-    "item.af9.superconductor_spool.tooltip.0": "Superconducting wire wound on a tungsten-steel reel. The busbar a Microprocessor Mainframe is built around.",
     "item.af9.xps_processor": "XPS Processor",
     "item.af9.xps_processor.tooltip.0": "Extreme-photonic processor: UHV wetware mainframe recombined with photonics.",
     "item.af9.xps_processor_mainframe": "XPS Processor Mainframe",

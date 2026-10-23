@@ -502,6 +502,12 @@ public final class AF9Materials {
             GTMaterials.NaquadahAlloy.addFlags(MaterialFlags.GENERATE_FINE_WIRE);
         }
 
+        // The IV Microprocessor Mainframe is built around a spool of MBCC superconductor wire; spools wind from fine
+        // wire (Spooling mode of the Wiremill), and GT's MBCC has none.
+        if (!GTMaterials.MercuryBariumCalciumCuprate.hasFlag(MaterialFlags.GENERATE_FINE_WIRE)) {
+            GTMaterials.MercuryBariumCalciumCuprate.addFlags(MaterialFlags.GENERATE_FINE_WIRE);
+        }
+
         // ---- Circuit alloys (mixed in server_scripts, melted in the EBF) ----
         // MV: aluminium wedge-bonding wire (tranquillite keeps it from work-softening, where silicon did:
         // aluminium and silicon never belonged in one mixer). Aluminium is the MV metal.

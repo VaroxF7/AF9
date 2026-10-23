@@ -43,12 +43,10 @@ recipe type, `<tier>_spooler` machines and a Large Spooler multiblock until they
 
 Use the `forge:wire_spools/<material>` tag in future component recipes where 64 fine wires would otherwise be listed.
 
-## Superconductor Spool
+## MBCC wire spool (IV mainframe)
 
-`af9:superconductor_spool` (AF9 Core item, replaces the removed Mainframe Interconnect) is the IV spool a Microprocessor
-Mainframe is built around. It is not a `wireSpool` TagPrefix item: superconductor materials have no fine wire.
-
-- **Winding**: Wiremill, id `af9:superconductor_spool`: 16x `gtceu:mercury_barium_calcium_cuprate_single_wire` + 2x
-  `gtceu:tungsten_steel_ring` (the reel), 300 ticks at HV (`circuits_af9.js`).
-- **Used by**: `mainframe_iv` (replaces the interconnect and the loose 16 MBCC wires) and `mainframe_iv_lean`.
-- **Removed**: `af9:mainframe_interconnect`, its assembler recipe, model and texture (items in existing worlds vanish).
+The Microprocessor Mainframe is built around `gtceu:mercury_barium_calcium_cuprate_wire_spool`, an ordinary wire spool.
+GT's MBCC superconductor has no fine wire, so `AF9Materials` adds `GENERATE_FINE_WIRE` to it; the fine wire, the spool and
+its Spooling-mode recipe (`af9:spool_mercury_barium_calcium_cuprate`) then come from the generic system. Used by
+`mainframe_iv` (replaces the old Mainframe Interconnect and the loose 16 MBCC wires) and `mainframe_iv_lean`.
+`af9:mainframe_interconnect` and the short-lived `af9:superconductor_spool` are removed (items in existing worlds vanish).

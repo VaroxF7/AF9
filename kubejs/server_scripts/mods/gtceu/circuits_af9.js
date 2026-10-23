@@ -310,16 +310,10 @@ ServerEvents.recipes(event => {
         .duration(100).EUt(2400)))
 
     // ================================= 6. IV (EV -> IV) =================================
-    // Superconductor Spool: MBCC superconductor wire wound on a tungsten-steel reel (Wiremill's Spooling mode, like the wire spools).
-    event.recipes.gtceu.spooling('af9:superconductor_spool')
-        .itemInputs('16x gtceu:mercury_barium_calcium_cuprate_single_wire', '2x gtceu:tungsten_steel_ring')
-        .itemOutputs('af9:superconductor_spool')
-        .duration(300).EUt(VA[GTValues.HV])
-
-    // Microprocessor Mainframe: nichrome-platinum frames, a superconductor spool, supercomputers
+    // Microprocessor Mainframe: nichrome-platinum frames, an MBCC wire spool, supercomputers
     // and SBR insulation. (The old ASMD variant is gone: the recipe takes no loose passives.)
     highCircuit('mainframe_iv', 4, r => clean(r
-        .itemInputs('4x gtceu:nichrome_platinum_frame', 'af9:superconductor_spool', '4x gtceu:micro_processor_computer',
+        .itemInputs('4x gtceu:nichrome_platinum_frame', 'gtceu:mercury_barium_calcium_cuprate_wire_spool', '4x gtceu:micro_processor_computer',
             '32x gtceu:styrene_butadiene_rubber_foil',
             chip('iv', 'ram', 8))
         .itemOutputs('gtceu:micro_processor_mainframe')
@@ -358,7 +352,7 @@ ServerEvents.recipes(event => {
 
     // ---- IV lean (Stage 2 @LuV end, gate: vpu_chip; cache via edram packages) ----
     newHighCircuit('mainframe_iv_lean', 4, r => clean(r
-        .itemInputs('2x gtceu:nichrome_platinum_frame', 'af9:superconductor_spool', 'gtceu:micro_processor_computer', '4x af9:edram_cpu_package',
+        .itemInputs('2x gtceu:nichrome_platinum_frame', 'gtceu:mercury_barium_calcium_cuprate_wire_spool', 'gtceu:micro_processor_computer', '4x af9:edram_cpu_package',
             'af9:vpu_chip', '4x gtceu:tungsten_single_wire')
         .itemOutputs('2x gtceu:micro_processor_mainframe')
         .duration(400).EUt(VA[GTValues.HV])))

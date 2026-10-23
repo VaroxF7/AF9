@@ -149,8 +149,6 @@ public final class AF9Items {
         // from loose passives into lithographed dies. ASIC package bridges HV-EV, photonic package XPS.
         item("asic_package", 64, 1);
         item("photonic_package", 64, 1);
-        // IV: superconducting wire wound on a reel, the busbar of a Microprocessor Mainframe
-        item("superconductor_spool", 64, 1);
         // Post-UHV circuits: XPS (photonic + spintronic) and NVM (memristive + quantum-dot).
         // Each tier has a processor and its mainframe so the ladder stays linear past UHV.
         item("xps_processor", 64, 1);
