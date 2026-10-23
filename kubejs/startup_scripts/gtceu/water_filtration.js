@@ -38,7 +38,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.water_filtration_plant.tooltip', 4))
         .pattern(definition => FactoryBlockPattern.start()
             // back wall
-            .aisle('XXXXXXX', 'XXXXXXX', 'XXXXXXX')
+            .aisle('XXXXXXX', 'XXXXXXX')
             // the basin: floor with the two filter strips (F), open water above
             .aisle('XXXXXXX', 'XAAAAAX')
             .aisle('XXFXFXX', 'XAAAAAX')
