@@ -3,7 +3,9 @@
 A 10x7x3 open watertight basin (controller in the middle of the 7-wide front wall, middle layer) with two
 1x6 strips of **Water Filter Casing** (`af9:water_filter_casing`, watertight plating with a wire-mesh screen, CTM-joined,
 `tools/textures/water_filter_casing.py`) in its floor, that filters water and aqueous waste. The 8x5 above the floor,
-two layers high, is the open water; walls, floor and rim are GCYM watertight casing, which also takes the hatches. Inside: animated water in the biome's own colour, 5–15 seeded debris chunks
+two layers high, is the open water; walls, floor and rim are GCYM watertight casing, which also takes the hatches.
+The Water Filter Casing is craftable from the start: 8 stainless steel plates, iron bars and a fluid filter make 2 (`server_scripts/mods/gtceu/water_filtration.js`).
+Inside: animated water in the biome's own colour, seeded debris chunks (more in the bigger basin)
 floating on top, and a 3D skimmer arm sweeping front to back at a steady speed while it runs.
 
 Code: `kubejs/startup_scripts/gtceu/water_filtration.js` (structure, `water_filtration` type),
