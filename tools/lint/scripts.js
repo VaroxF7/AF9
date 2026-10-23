@@ -830,6 +830,7 @@ state.machines.forEach(m => {
             const max = q.max == null ? Infinity : q.max
             if (/(IMPORT_FLUIDS|COOLANT_INPUT)$/.test(q.arg)) fluidIn += max   // AF9's coolant hatches are fluid inputs too
             if (/EXPORT_FLUIDS$/.test(q.arg)) fluidOut += max
+            if (/PrecisionPortPartMachine\.INPUT$/.test(q.arg)) fluidIn += 9 * max   // AF9's Precision Fabricator Input Port: 9 tanks
         }
     }))
     ;(m.types || []).forEach(t => {

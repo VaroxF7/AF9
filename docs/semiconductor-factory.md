@@ -1468,6 +1468,14 @@ naquadria (6800 K, LuV), strange matter (9000 K, UV, tritanium crucible) and chr
 TFG's pattern with more polysilicon, 4 seeds and the old dopants. The melt charges and the other seed crystals are removed. Source: TFG Modpack-Modern `recipes.boules.js` (LGPL-3.0). TFG's machine itself lives in TFG-Core
 (not public); the hall and the casing are ours, and the dipped-item render is not ported.
 
+### Precision Fabricator rework (af9-core 0.1.107)
+
+Janne, 2026-10-23: the hall is no coil hall any more. `startup_scripts/gtceu/precision_fabricator.js`, class `PrecisionFabricatorMachine` (batch mode on from the start, `OC_PERFECT` + `BATCH_MODE`, no parallel hatch).
+Structure (3 wide x 2 high x 2 deep, controller front bottom centre): bottom layer = back row three `gtceu:solid_machine_casing` (the only places for hatches), front row `gtceu:steel_firebox_casing` / controller / firebox; top layer = solid casings with a `gtceu:steel_gearbox` in the back middle. Hatches (maximum 1 each): one energy hatch and the two new parts below; no maintenance, muffler, laser, parallel hatch, and no ordinary item or fluid hatches.
+Parts (`PrecisionPortPartMachine`, MV-UHV, ids `gtceu:<tier>_precision_fabricator_input_port` / `_output_port`, assembler: hull + bus (+ hatch) + circuit): the **Input Port** is an input hatch and an input bus in one: 9 tanks (3 x 3, 4,000 mB x 2^tier each), 3 item inputs, 1 non-consumable slot, a ghost circuit (circuit button of the screen); the **Output Port** has 1 item output slot.
+There are no coils, so `blastFurnaceTemp` is gone from the boule recipes: the voltage tier of the hatch is the gate. To fit the port, a recipe has the crucible (chanced) plus two more item kinds at most; the holder rod is non-consumable now, the gallium arsenide dopant is dropped where the boule's own material doses it (phosphorus, trinium, naquadria), strange matter's neutronium is a melt (576 mB) and chromodynium takes 5 chromodynium dust instead of 4 + 1 strange matter dust.
+TFG's crucible model could not be copied: TFG-Core is not public (404), so the controller keeps GT's EBF face on the steel casing.
+
 ### Particle Accelerator rework (af9-core 0.1.81)
 
 * **Power:** at most 2 energy hatches or 1 laser hatch; no parallel hatch. No recipe draws more than 4 A of its tier any more (the 100 A of UHV is gone): neutron irradiation UV 2 A, ion collision UV 4 A, strange matter UV 4 A, chromodynium UHV 4 A. **Perfect overclock** by the hatches' voltage, the amps untouched (`AmperageOverclock.PERFECT_OC`).
