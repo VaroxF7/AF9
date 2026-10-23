@@ -2,7 +2,7 @@
 
 Wire spools are Star Technology's compressed wire stock: one item holds 64 fine wires of a single material, so a
 crafting recipe can ask for a spool instead of a stack of fragile wire. AF9 implements the item as a GregTech
-`TagPrefix`, the same way it implements the ultradense plate, and winds it in the Wiremill.
+`TagPrefix`, the same way it implements the ultradense plate, and winds it in the Wiremill's Spooling mode.
 
 ## The item
 
@@ -19,8 +19,10 @@ crafting recipe can ask for a spool instead of a stack of fragile wire. AF9 impl
 
 ## Winding (Wiremill)
 
-There is no separate Spooler machine: winding is a recipe of the Wiremill (`wiremill` recipe type), so every Wiremill
-(`gtceu:lv_wiremill` ... `gtceu:uv_wiremill`) and the Large Wiremill can wind spools. It was a separate `spooling`
+There is no separate Spooler machine: winding is the Spooling mode of the Wiremill: the `spooling` recipe type (1 or 2 item inputs, 1 output, no fluids) is
+added to every `gtceu:<tier>_wiremill` by AF9 Core (`fab/SpoolingMode`), switched with GT's mode tab like the fab modes.
+The 0.1.111 and earlier merge put the recipes into the plain `wiremill` type with no mode, so the Wiremill showed no
+Spooling mode. It was a separate `spooling`
 recipe type, `<tier>_spooler` machines and a Large Spooler multiblock until they were merged into the Wiremill.
 
 - **Winding recipe**: `64x #forge:fine_wires/<material>` -> `1x gtceu:<material>_wire_spool`, id `af9:spool_<material>`.
@@ -34,7 +36,9 @@ recipe type, `<tier>_spooler` machines and a Large Spooler multiblock until they
 | `af9-core/src/main/java/com/af9/core/registry/AF9TagPrefixes.java` | `wireSpool` tag prefix and icon type |
 | `af9-core/src/main/resources/assets/gtceu/models/item/material_sets/*/wire_spool.json` | item models |
 | `af9-core/src/main/resources/assets/gtceu/textures/item/material_sets/dull/wire_spool*.png` | item textures |
-| `kubejs/server_scripts/mods/gtceu/wire_spools.js` | winding recipes (Wiremill) |
+| `kubejs/startup_scripts/gtceu/spooling.js` | the `spooling` recipe type |
+| `af9-core/.../fab/SpoolingMode.java` | adds the type to the Wiremills as a mode |
+| `kubejs/server_scripts/mods/gtceu/wire_spools.js` | winding recipes (Spooling mode) |
 | `kubejs/assets/gtceu/lang/en_us.json` | item name |
 
 Use the `forge:wire_spools/<material>` tag in future component recipes where 64 fine wires would otherwise be listed.

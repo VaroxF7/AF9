@@ -833,5 +833,6 @@
     "af9.resonance_hatch.tooltip.0": "§7Takes §bLiquid Resonating Fluix§7 only.",
     "af9.resonance_hatch.tooltip.1": "§7The stabiliser of the §fCertus Resonating Manufacturer§7: while it has the fluid, the machine batches its crafts.",
     "af9.recipe_condition.oxygenated.true": "§bOxygenated Environment",
-    "af9.recipe_condition.oxygenated.false": "§5De-oxygenated Environment"
+    "af9.recipe_condition.oxygenated.false": "§5De-oxygenated Environment",
+    "gtceu.spooling": "Wire Spooling"
 }

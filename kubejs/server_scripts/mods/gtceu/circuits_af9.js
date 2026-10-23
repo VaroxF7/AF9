@@ -310,8 +310,8 @@ ServerEvents.recipes(event => {
         .duration(100).EUt(2400)))
 
     // ================================= 6. IV (EV -> IV) =================================
-    // Superconductor Spool: MBCC superconductor wire wound on a tungsten-steel reel (Wiremill, like the wire spools).
-    event.recipes.gtceu.wiremill('af9:superconductor_spool')
+    // Superconductor Spool: MBCC superconductor wire wound on a tungsten-steel reel (Wiremill's Spooling mode, like the wire spools).
+    event.recipes.gtceu.spooling('af9:superconductor_spool')
         .itemInputs('16x gtceu:mercury_barium_calcium_cuprate_single_wire', '2x gtceu:tungsten_steel_ring')
         .itemOutputs('af9:superconductor_spool')
         .duration(300).EUt(VA[GTValues.HV])
