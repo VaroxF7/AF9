@@ -60,7 +60,8 @@ public class OrbMk2JeiPlugin implements IModPlugin {
                 }
             }
             if (!hidden.isEmpty()) runtime.getRecipeManager().hideRecipes(powahType, hidden);
-        } catch (ReflectiveOperationException | LinkageError e) {
+        } catch (ReflectiveOperationException | LinkageError | IllegalStateException e) {
+            // IllegalStateException: JEI has no Powah energizing category (Powah's JEI plugin can be off), so nothing to hide
             AF9Core.LOGGER.warn("Energizing Orb Mk2: could not hide the pack's orb recipes from Powah's page: {}", e.toString());
         }
     }
