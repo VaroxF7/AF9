@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-"""The Particle Accelerator's casings: GT's Stable Titanium Machine Casing and its connected sheet (gt_src/, LGPL-3.0,
-CREDITS-textures.md), recoloured like the Shock Capacitor Casing (electric_implosion.py).
+"""The Particle Accelerator's casings: GT's fusion casing textures (gt_src/, LGPL-3.0, CREDITS-textures.md), recoloured
+"cold plasma": a deep teal shell and white-cyan core bands for the gates.
 
 Run from the repository root (needs Pillow):  python3 tools/textures/particle_accelerator_casings.py
 
-  collision_containment_casing   the ring's shell: dark gunmetal blue-grey
-  collision_shield_casing        the gates' corner bracing: hazard amber
+  collision_containment_casing   the ring's shell: Fusion Casing Mk3 plate, deep teal
+  collision_shield_casing        the gates' corner bracing: Fusion Casing Mk1 plate, white-cyan lit core
 """
 import colorsys
 import json
@@ -19,9 +19,9 @@ ASSETS = os.path.join(ROOT, 'af9-core/src/main/resources/assets/af9')
 BLOCK = os.path.join(ASSETS, 'textures/block')
 
 CASINGS = {
-    # name: (hue, saturation factor, value factor)
-    'collision_containment_casing': (0.60, 0.9, 0.55),
-    'collision_shield_casing': (0.09, 2.6, 0.95),
+    # name: (source texture, hue, saturation factor, value factor)
+    'collision_containment_casing': ('fusion_casing_mk3.png', 0.5, 0.9, 0.45),
+    'collision_shield_casing': ('fusion_casing_mk1.png', 0.52, 0.8, 1.45),
 }
 
 
@@ -44,12 +44,13 @@ def dump(path, data):
 
 
 def main():
-    sprite = Image.open(os.path.join(SRC, 'machine_casing_stable_titanium.png'))
-    sheet = Image.open(os.path.join(SRC, 'machine_casing_stable_titanium_ctm.png'))
-    for name, (hue, sat, val) in CASINGS.items():
-        recolour(sprite, hue, sat, val).save(os.path.join(BLOCK, name + '.png'))
-        recolour(sheet, hue, sat, val).save(os.path.join(BLOCK, name + '_ctm.png'))
-        dump(os.path.join(BLOCK, name + '.png.mcmeta'), {'ldlib': {'connection': 'af9:block/%s_ctm' % name}})
+    for name, (src, hue, sat, val) in CASINGS.items():
+        recolour(Image.open(os.path.join(SRC, src)), hue, sat, val).save(os.path.join(BLOCK, name + '.png'))
+        # not connected textures any more (the fusion casings are plain plates)
+        for stale in (name + '_ctm.png', name + '.png.mcmeta'):
+            path = os.path.join(BLOCK, stale)
+            if os.path.exists(path):
+                os.remove(path)
         dump(os.path.join(ASSETS, 'blockstates/%s.json' % name), {'variants': {'': {'model': 'af9:block/%s' % name}}})
         dump(os.path.join(ASSETS, 'models/block/%s.json' % name),
              {'parent': 'minecraft:block/cube_all', 'textures': {'all': 'af9:block/%s' % name}})
@@ -57,7 +58,6 @@ def main():
         dump(os.path.join(ROOT, 'af9-core/src/main/resources/data/af9/loot_tables/blocks/%s.json' % name),
              {'type': 'minecraft:block', 'pools': [{'rolls': 1, 'entries': [{'type': 'minecraft:item',
               'name': 'af9:' + name}], 'conditions': [{'condition': 'minecraft:survives_explosion'}]}]})
-
 
 if __name__ == '__main__':
     main()

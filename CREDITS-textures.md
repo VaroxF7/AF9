@@ -187,9 +187,9 @@ The EV quest "EV Ceramic Circuit Boards" (`extreme_voltage.snbt`) follows TerraF
 
 ## Collision Containment Casing and Collision Shield Casing (Particle Accelerator)
 
-`collision_containment_casing` / `collision_shield_casing` (`.png` and `_ctm.png`) are GregTech CEu's
-`machine_casing_stable_titanium.png` and its `_ctm.png` (GregTech-Modern v7.5.3, LGPL-3.0, copies in `tools/textures/gt_src/`)
-with the hue moved to gunmetal blue-grey and hazard amber (`tools/textures/particle_accelerator_casings.py`).
+`collision_containment_casing.png` / `collision_shield_casing.png` are GregTech CEu's `fusion_casing_mk3.png` and
+`fusion_casing.png` (GregTech-Modern 1.20.1, LGPL-3.0, copies in `tools/textures/gt_src/`) with the hue moved to deep teal and
+white-cyan (`tools/textures/particle_accelerator_casings.py`).
 
 ## Water Filter Casing (Water Filtration Plant)
 
