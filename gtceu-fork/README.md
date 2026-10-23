@@ -29,6 +29,7 @@ GTCEu release), `-Paf9RequireFork` fails the build where the fork is missing.
 * `0016` Fusion reactors: one round 19-block ring for Mk1 to Mk3, energy hatches optional in the structure (the ring was dropped again by `0017`).
 * `0017` Fusion reactors: GT's own 15 x 15 ring structure and render again; energy hatches stay optional (no minimum).
 * `0018` Electric Blast Furnace: a cross-shaped structure (5 x 5 without the corners, 4 high): a ring of 12 coils round a 3 x 3 chamber, the muffler on top.
+* `0019` Fusion reactors: at most two energy hatches in the structure.
 * `0012` The HPCA is expandable (3 to 12 slices of 3 component slots) and its Active Coolers cool by coolant: PCB Coolant 2, supercooled hydrogen / argon / xenon / endion 8 / 12 / 16 / 20 ([docs/hpca.md](../docs/hpca.md)).
 * `0011` The multiblock preview zooms out to fit a structure over 40 blocks (the scene clipped the Mk2 tower to a third of itself).
 * `0014` A machine with several modes has the slots of its biggest mode: the tiered machines size their item and fluid

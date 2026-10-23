@@ -1,0 +1,67 @@
+From 9e60242c1a6c2e089127afa67c4a5fc5fa6054a7 Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 23 Oct 2026 12:41:23 +0000
+Subject: [PATCH] Fusion reactors: at most two energy hatches in the structure
+ (7.5.3-af9.18)
+
+The 'E' spots of GT's ring take casing or an energy hatch, none required and two at most (setMaxGlobalLimited(2)); the preview shows two.
+---
+ gradle.properties                                 |  2 +-
+ .../common/data/machines/GTMultiMachines.java     | 15 ++++++++-------
+ 2 files changed, 9 insertions(+), 8 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 90ecfb5..1d83ea2 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.16
++mod_version = 7.5.3-af9.18
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+index b888a4d..0ca0b25 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+@@ -686,9 +686,10 @@ public class GTMultiMachines {
+                                 .aisle("###############", "######OSO######", "###############")
+                                 .where('S', controller(blocks(definition.get())))
+                                 .where('G', blocks(FUSION_GLASS.get()).or(casing))
+-                                // AF9: the reactor stores no energy, so energy hatches are allowed here but never required
++                                // AF9: the reactor stores no energy, so energy hatches are allowed here (two at most) but never required
+                                 .where('E', casing.or(
+-                                        blocks(PartAbility.INPUT_ENERGY.getBlockRange(tier, UV).toArray(Block[]::new))))
++                                        blocks(PartAbility.INPUT_ENERGY.getBlockRange(tier, UV).toArray(Block[]::new))
++                                                .setMaxGlobalLimited(2)))
+                                 .where('C', casing)
+                                 .where('K', blocks(FusionReactorMachine.getCoilState(tier)))
+                                 .where('O', casing.or(abilities(PartAbility.EXPORT_FLUIDS)))
+@@ -704,16 +705,16 @@ public class GTMultiMachines {
+                                 .aisle("###############", "######NMN######", "###############")
+                                 .aisle("######DCD######", "####GG###GG####", "######UCU######")
+                                 .aisle("####CC###CC####", "###w##SGS##e###", "####CC###CC####")
+-                                .aisle("###C#######C###", "##nKsG###GsKn##", "###C#######C###")
+-                                .aisle("##C#########C##", "#G#e#######w#G#", "##C#########C##")
++                                .aisle("###C#######C###", "##CKCG###GCKC##", "###C#######C###")
++                                .aisle("##C#########C##", "#G#C#######C#G#", "##C#########C##")
+                                 .aisle("##C#########C##", "#G#G#######G#G#", "##C#########C##")
+                                 .aisle("#D###########D#", "W#E#########W#E", "#U###########U#")
+                                 .aisle("#C###########C#", "G#G#########G#G", "#C###########C#")
+                                 .aisle("#D###########D#", "W#E#########W#E", "#U###########U#")
+                                 .aisle("##C#########C##", "#G#G#######G#G#", "##C#########C##")
+-                                .aisle("##C#########C##", "#G#e#######w#G#", "##C#########C##")
+-                                .aisle("###C#######C###", "##sKnG###GnKs##", "###C#######C###")
+-                                .aisle("####CC###CC####", "###w##NGN##e###", "####CC###CC####")
++                                .aisle("##C#########C##", "#G#C#######C#G#", "##C#########C##")
++                                .aisle("###C#######C###", "##CKCG###GCKC##", "###C#######C###")
++                                .aisle("####CC###CC####", "###C##NGN##C###", "####CC###CC####")
+                                 .aisle("######DCD######", "####GG###GG####", "######UCU######")
+                                 .aisle("###############", "######SGS######", "###############")
+                                 .where('M', controller, Direction.NORTH)
+-- 
+2.43.0
+

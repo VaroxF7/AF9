@@ -121,5 +121,5 @@ round 19-block ring of `0016` and the 19 / 23 / 27 rings of `0015`). The tiers d
 The light ring is GT's. Reactors built as the round ring have to be rebuilt.
 
 **Energy hatches are optional.** GT's structure forces one; here the spots GT has for them (the 'E' blocks of the ring) take a casing or an energy
-hatch, none required. The reactor stores no energy, but the field and every reaction still draw power, so a reactor with no hatch forms and then
+hatch, none required and **two at most** (fork patch `0019`). The reactor stores no energy, but the field and every reaction still draw power, so a reactor with no hatch forms and then
 just never builds a field.
