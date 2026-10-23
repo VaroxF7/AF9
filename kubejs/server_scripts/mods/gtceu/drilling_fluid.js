@@ -13,7 +13,7 @@ ServerEvents.recipes(event => {
     const gt = event.recipes.gtceu
 
     // GT's mud is gone; the void miner (miner.js) takes the new one
-    event.remove({ id: ['gtceu:mixer/drilling_fluid', 'gtceu:mixer/drilling_fluid_distilled'] })
+    for (const id of ['gtceu:mixer/drilling_fluid', 'gtceu:mixer/drilling_fluid_distilled']) event.remove({ id: id })
 
     // ---- hard water would flocculate the clay: soda ash takes calcium and magnesium out as carbonate ----
     gt.mixer('af9:drilling_fluid/water_softening')

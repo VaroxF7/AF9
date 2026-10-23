@@ -15,10 +15,8 @@ ServerEvents.recipes(event => {
     const gt = event.recipes.gtceu
 
     // GT's one-step PCB and its water mix are gone (the large reactor copy of the PCB recipe too)
-    event.remove({
-        id: ['gtceu:chemical_reactor/polychlorinated_biphenyl', 'gtceu:large_chemical_reactor/polychlorinated_biphenyl',
-            'gtceu:mixer/pcb_coolant']
-    })
+    for (const id of ['gtceu:chemical_reactor/polychlorinated_biphenyl', 'gtceu:large_chemical_reactor/polychlorinated_biphenyl',
+        'gtceu:mixer/pcb_coolant']) event.remove({ id: id })
 
     // ---- the biphenyl is chlorinated in two goes: ferric chloride makes the ring take chlorine ----
     gt.chemical_reactor('af9:pcb_coolant/dichlorobiphenyl')
