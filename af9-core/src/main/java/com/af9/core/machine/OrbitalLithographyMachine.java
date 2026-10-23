@@ -1030,18 +1030,32 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     }
 
     /**
-     * Takes one interval of the lock's supplemental power from an energy hatch that holds it: the hatches of the
-     * station that are not the laser hatch, so the lock needs a connection of its own beside the main power.
+     * Takes one interval of the lock's supplemental power from the input energy hatches of EV or better (the laser hatch
+     * is no energy hatch, it carries the main power). The hatches pay together, auxiliary ones first, so the start-up
+     * power the auxiliary hatches also pay, or a recipe drawing on a primary hatch, no longer starves the lock.
      */
     private boolean supplementalPaid() {
         long need = (long) SUPPLEMENT_EUT * VACUUM_INTERVAL;
+        List<EnergyHatchPartMachine> hatches = new ArrayList<>();
+        long stored = 0;
         for (IMultiPart part : partsOnce()) {
-            if (part instanceof EnergyHatchPartMachine hatch && hatch.energyContainer.getEnergyStored() >= need) {
-                hatch.energyContainer.removeEnergy(need);
-                return true;
+            if (part instanceof EnergyHatchPartMachine hatch &&
+                    hatch.energyContainer.getInputVoltage() >= GTValues.V[GTValues.EV]) {
+                hatches.add(hatch);
+                stored += hatch.energyContainer.getEnergyStored();
             }
         }
-        return false;
+        if (stored < need) return false;
+        hatches.sort((x, y) -> Boolean.compare(y.isAuxiliaryInput(), x.isAuxiliaryInput()));
+        long left = need;
+        for (EnergyHatchPartMachine hatch : hatches) {
+            long take = Math.min(left, hatch.energyContainer.getEnergyStored());
+            if (take <= 0) continue;
+            hatch.energyContainer.changeEnergy(-take);
+            left -= take;
+            if (left <= 0) break;
+        }
+        return true;
     }
 
     @Override
