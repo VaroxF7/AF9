@@ -166,6 +166,22 @@ def sprite(shape, name, spec):
             if t == 0:
                 col = pal[0]
             out.putpixel((x, y), col)
+    if ovl is not None:
+        # Overlay pixels outside the base silhouette are shape in their own right: the spool of wire_fine and
+        # the glow of ingot_hot. Dropping them left the fine wire as a bare thread with no spool.
+        olums = [luminance(ovl.getpixel((x, y))) for y in range(ovl.size[1]) for x in range(ovl.size[0])
+                 if ovl.getpixel((x, y))[3] and not base.getpixel((x, y))[3]]
+        if olums:
+            olo = min(olums)
+            ospan = max(1.0, max(olums) - olo)
+            for y in range(ovl.size[1]):
+                for x in range(ovl.size[0]):
+                    p = ovl.getpixel((x, y))
+                    if p[3] and not base.getpixel((x, y))[3]:
+                        light = (luminance(p) - olo) / ospan
+                        t = tone(min(0.999, light))
+                        g = grain(name, x, y, light, spec) if shape != 'ingot_hot' else None
+                        out.putpixel((x, y), g if g is not None and t > 0 else pal[t])
     return out
 
 
