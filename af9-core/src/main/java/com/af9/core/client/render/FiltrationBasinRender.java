@@ -32,11 +32,11 @@ import java.util.Random;
 /**
  * The Water Filtration Plant's open basin, seen through the glass:
  * <ul>
- * <li>animated <b>water</b> in the biome's own water colour: a translucent surface with a slow ripple
- * and a highlight that travels across it while the plant runs;</li>
- * <li><b>debris</b> floating on top: 5-15 pieces of flotsam (sand, gravel, leaves, sticks, clay),
- * seeded by the basin's position so every plant floats its own mix; they bob, drift, and pile up
- * ahead of the skimmer while it sweeps;</li>
+ * <li>animated <b>water</b> in the biome's own water colour: a translucent surface that is murky brown-green
+ * at the inlet (the front) and clears toward the back, a slow drifting cloud in it, and a highlight that
+ * travels across it while the plant runs;</li>
+ * <li><b>scum and foam</b> floating on top: flat patches, thickest at the inlet, seeded by the basin's
+ * position so every plant floats its own mix; they drift and pile up ahead of the skimmer while it sweeps;</li>
  * <li>a 3D <b>skimmer arm</b>: side rails along the basin and a gantry beam with a blade dipping into
  * the water, sweeping front to back at a steady speed while the plant runs (parked at the back idle).</li>
  * </ul>
@@ -67,8 +67,10 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
     /** Gantry beam height and the blade dipping into the water. */
     private static final float BEAM_Y = 0.44F, BLADE_TOP = 0.34F, BLADE_BOTTOM = 0.18F;
 
-    /** Debris palette: sand, gravel, leaf, stick, clay. */
-    private static final int[] DEBRIS_PALETTE = { 0xC2B280, 0x8A8D91, 0x4E9A3D, 0x7A5A33, 0x9AA4B0 };
+    /** Dirty inlet water (murky brown-green), the scum on it and the pale foam clumps. */
+    private static final int[] DIRTY = { 98, 104, 62 }, SCUM = { 86, 78, 48 }, FOAM = { 206, 198, 170 };
+    /** Edge of one cell of the water surface's colour grid (blocks): the water clears from the inlet to the far end. */
+    private static final float CELL = 0.25F;
     /** Fallback water tint (vanilla default) when no biome is loaded. */
     private static final int FALLBACK_WATER = 0x3F76E4;
 
@@ -166,7 +168,25 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
         float ripple = 0.5F + 0.5F * Mth.sin((float) (time * 2 * Math.PI / 46));
         quad(water, mat, frame, -hx, DEEP_Y, -hz, hx, DEEP_Y, hz, wr / 2, wg / 2, wb / 2, 0.35F);
         float surfaceAlpha = working ? 0.50F + 0.06F * ripple : 0.34F + 0.04F * ripple;
-        quad(water, mat, frame, -hx, WATER_Y, -hz, hx, WATER_Y, hz, wr, wg, wb, surfaceAlpha);
+        // murky at the inlet (the front, by the hatches), clearing toward the back, slowly drifting cloud
+        int nx = Math.max(1, Math.round(2 * hx / CELL)), nz = Math.max(1, Math.round(2 * hz / CELL));
+        float cw = 2 * hx / nx, cd = 2 * hz / nz;
+        for (int i = 0; i < nx; i++) {
+            for (int j = 0; j < nz; j++) {
+                float x0 = -hx + i * cw, z0 = -hz + j * cd;
+                float cx = x0 + cw / 2, cz = z0 + cd / 2;
+                float dirt = Mth.clamp((hz - cz) / (2 * hz), 0F, 1F);
+                float n = 0.5F + 0.25F * Mth.sin(cx * 2.3F + cz * 1.7F + (float) time / 90F)
+                        + 0.25F * Mth.sin(cx * 1.1F - cz * 2.9F - (float) time / 70F);
+                float k = Mth.clamp(dirt * (0.55F + 0.45F * n), 0F, 1F);
+                float shade = 0.85F + 0.3F * n;
+                int r = Mth.clamp((int) (Mth.lerp(k, wr, DIRTY[0]) * shade), 0, 255);
+                int g = Mth.clamp((int) (Mth.lerp(k, wg, DIRTY[1]) * shade), 0, 255);
+                int b = Mth.clamp((int) (Mth.lerp(k, wb, DIRTY[2]) * shade), 0, 255);
+                quad(water, mat, frame, x0, WATER_Y, z0, x0 + cw, WATER_Y, z0 + cd, r, g, b,
+                        Math.min(0.92F, surfaceAlpha + 0.28F * k));
+            }
+        }
         // travelling highlight while running: a bright band crossing front to back
         if (working) {
             float band = (float) ((time % 60) / 60);
@@ -184,15 +204,14 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
             carriageZ = Mth.lerp(sweep, sweepFront, sweepBack);
         }
 
-        // --- debris floating on top: this basin's own mix, bobbing, drifting, piling ahead of the blade ---
+        // --- scum and foam floating on top: flat patches, thicker at the inlet, drifting, piling ahead of the blade ---
         float[][] debris = debrisFor(basinPos, hx, hz);
         for (int i = 0; i < debris.length; i++) {
             float bx = debris[i][0];
             float bz = debris[i][1];
             float size = debris[i][2];
-            int rgb = (int) debris[i][3];
+            boolean foam = debris[i][3] > 0.5F;
             float phase = i * 1.1F;
-            float bob = 0.02F * Mth.sin((float) (time * 2 * Math.PI / 30) + phase);
             float driftX = 0.08F * Mth.sin((float) (time * 2 * Math.PI / 70) + phase * 2);
             float driftZ = 0.08F * Mth.cos((float) (time * 2 * Math.PI / 60) + phase);
             float dx = bx + driftX;
@@ -202,9 +221,12 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
                 float ahead = dz - carriageZ;
                 if (ahead > 0 && ahead < 0.5F) dz += (0.5F - ahead) * 0.6F;
             }
-            float dy = WATER_Y + 0.015F + bob;
-            SolidBox.box(solid, mat, frame, dx - size / 2, dy, dz - size / 4,
-                    dx + size / 2, dy + size / 2, dz + size / 4, rgb);
+            float dy = WATER_Y + 0.006F;
+            int[] c = foam ? FOAM : SCUM;
+            quad(water, mat, frame, dx - size * 1.2F, dy, dz - size * 0.7F, dx + size * 1.2F, dy, dz + size * 0.7F,
+                    c[0], c[1], c[2], foam ? 0.80F : 0.55F);
+            quad(water, mat, frame, dx - size * 0.6F, dy + 0.002F, dz - size * 1.1F, dx + size * 0.5F, dy + 0.002F,
+                    dz + size * 0.2F, c[0], c[1], c[2], foam ? 0.70F : 0.45F);
         }
 
         // --- skimmer arm: static side rails, moving gantry beam, posts, dipping blade ---
@@ -252,18 +274,19 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
     }
 
     /**
-     * This basin's debris: 5-15 pieces of flotsam on the water, seeded by the basin's position so every
-     * plant floats its own mix but it never flickers. Each piece is x, z, size, colour.
+     * This basin's debris: 10-20 scum and foam patches (scaled to the basin) on the water, seeded by the basin's position so every
+     * plant floats its own mix but it never flickers. Each piece is x, z, size, kind (0 scum, 1 foam).
      */
     private static float[][] debrisFor(BlockPos basin, float hx, float hz) {
         Random rand = new Random(basin.asLong());
-        int count = (int) ((5 + rand.nextInt(11)) * hx * hz / 2.25F);
+        int count = (int) ((10 + rand.nextInt(11)) * hx * hz / 2.25F);
         float[][] out = new float[count][];
         for (int i = 0; i < count; i++) {
             float x = (rand.nextFloat() * 2F - 1F) * (hx - 0.2F);
-            float z = (rand.nextFloat() * 2F - 1F) * (hz - 0.2F);
-            float size = 0.08F + rand.nextFloat() * 0.09F;
-            out[i] = new float[] { x, z, size, DEBRIS_PALETTE[rand.nextInt(DEBRIS_PALETTE.length)] };
+            // thickest at the front (the inlet): z from -hz at the front, squared toward the back
+            float z = -(hz - 0.2F) + (float) Math.pow(rand.nextFloat(), 1.8F) * 2F * (hz - 0.2F);
+            float size = 0.06F + rand.nextFloat() * 0.10F;
+            out[i] = new float[] { x, z, size, rand.nextInt(3) == 0 ? 1F : 0F };
         }
         return out;
     }
