@@ -48,7 +48,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .aisle('XXFXFXX', 'XAAAAAX', 'XAAAAAX')
             .aisle('XXFXFXX', 'XAAAAAX', 'XAAAAAX')
             .aisle('XXXXXXX', 'XAAAAAX', 'XAAAAAX')
-            // front wall, the controller in its middle
             .aisle('XXXXXXX', 'XXXSXXX', 'XXXXXXX')
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
