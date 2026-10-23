@@ -196,10 +196,9 @@ with the hue moved to gunmetal blue-grey and hazard amber (`tools/textures/parti
 `water_filter_casing` (`.png` and `_ctm.png`) are GregTech CEu's `watertight_casing.png` and its `_ctm.png` (GCYM, GregTech-Modern, LGPL-3.0,
 copies in `tools/textures/gt_src/`) with a diagonal wire mesh in place of the plate field (`tools/textures/water_filter_casing.py`).
 
-## High Temperature Precision Fabricator: crucible
+## Crucible items (fused quartz, tritanium)
 
-The quartz crucible on the Precision Fabricator's roof (`CrucibleRender`, `textures/entity/precision_fabricator/quartz_crucible_side.png` and
-`_top.png`) is TerraFirmaGreg's: the `tfg:quartz_crucible` block model and its two textures, and the movement of the dipped rod and boule from
-`BouleRender`, from **TerraFirmaGreg-Team/Core-Modern** (commit `d6a44863`), LGPL-3.0; licence text in
-`licenses/TerraFirmaGreg-Core-Modern-LGPL-3.0.txt`. The Java is ported to AF9 Core; TFG's crucible is a block in its structure, here it is drawn on the
-roof of the closed hall, and the melt is a flat quad (TFG draws the fluid's own texture).
+The 3D item models of both crucibles (`models/item/fused_quartz_crucible.json`, `tritanium_crucible.json`) are TerraFirmaGreg's `tfg:quartz_crucible`
+block model, and `fused_quartz_crucible_{side,top}.png` are its two textures; the tritanium textures are the same two recoloured
+(`tools/textures/crucibles.py`). From **TerraFirmaGreg-Team/Core-Modern** (commit `d6a44863`), LGPL-3.0; licence text in
+`licenses/TerraFirmaGreg-Core-Modern-LGPL-3.0.txt`.

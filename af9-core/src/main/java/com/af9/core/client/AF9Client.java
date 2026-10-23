@@ -2,7 +2,6 @@ package com.af9.core.client;
 
 import com.af9.core.AF9Core;
 import com.af9.core.client.render.BioVatRender;
-import com.af9.core.client.render.CrucibleRender;
 import com.af9.core.client.render.HearthTurntableRender;
 import com.af9.core.client.render.FiltrationBasinRender;
 import com.af9.core.client.render.LaserEngraverRender;
@@ -50,7 +49,6 @@ public final class AF9Client {
         LaserEngraverRender.register();
         HearthTurntableRender.register();
         SawBladeRender.register();
-        CrucibleRender.register();
         WireDrawRender.register();
         FiltrationBasinRender.register();
         BioVatRender.register();
