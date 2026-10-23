@@ -310,7 +310,8 @@ public final class AF9Materials {
         // Dissolver off-gas: volatile fission gases (Kr, Xe) swept out with the acid fumes
         add(material("fission_off_gas")
                 .gas()
-                .color(0xaac4e0));
+                .color(0xaac4e0)
+                .formula("(Kr)(Xe)(NO2)"));
         // Xenon tetroxide: the heavy cold gas that fills the Particle Accelerator's beam tube and cools it
         // (xenon and oxygen in a chemical reactor, particle_accelerator.js)
         gas("xenoxid", 0x7fe3d0, "XeO4");
@@ -386,7 +387,8 @@ public final class AF9Materials {
         // ae2_quartz.js), its own animated texture (fluids/fluid.liquid_resonating_fluix.png)
         add(material("liquid_resonating_fluix")
                 .liquid(ownLiquid())
-                .color(0x9a7cf0));
+                .color(0x9a7cf0)
+                .formula("(SiO2)(Fx)"));
         // Redstone only has dust in GT; ae2_quartz.js presses it to a plate and bends the foil
         GTMaterials.Redstone.addFlags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FOIL);
         // GT's certus quartz is a gem with no parts, and fine wire needs an ingot material (a flag added to the gem
@@ -656,14 +658,14 @@ public final class AF9Materials {
         liquid("tetraethyl_orthosilicate", 0xe8ecf0, "Si(OC2H5)4");  // TEOS
         dust("titanium_silicalite", 0xeeeef4, "(TiO2)(SiO2)50");  // TS-1 epoxidation catalyst
         liquid("propylene_oxide", 0xe6ecee, "C3H6O");
-        add(material("unfiltered_krf_photoresist").liquid(ownLiquid()).color(0xc8a458));
+        add(material("unfiltered_krf_photoresist").liquid(ownLiquid()).color(0xc8a458).formula("(C8H8O)n(C5H8O2)m((C6H5)3S(CF3SO3))((C4H9)3N)(C6H12O3)"));
 
         // ---- 5. ArF resist ----
         liquid("methacrylamide_sulfate", 0xcfc6a0, "CH2=C(CH3)CONH2(H2SO4)");
         liquid("methacrylic_acid", 0xe6eae0, "CH2=C(CH3)COOH");
         liquid("tert_butyl_methacrylate", 0xe8ece4, "CH2=C(CH3)COOC(CH3)3");  // the acid-labile monomer
         dust("ammonium_bisulfate", 0xf2f2ea, "NH4HSO4");
-        add(material("unfiltered_arf_photoresist").liquid(ownLiquid()).color(0xd8cc98));
+        add(material("unfiltered_arf_photoresist").liquid(ownLiquid()).color(0xd8cc98).formula("(C5H8O2)n(C8H14O2)m(C4H6O2)k((C6H5)3S(CF3SO3))((C4H9)3N)(C6H12O3)"));
 
         // ---- MUV chemistry support ----
         dust("molybdenum_trioxide", 0xe0e4a0, "MoO3");
@@ -689,8 +691,8 @@ public final class AF9Materials {
         add(material("methacrylate_resin").dust().color(0xdfe8ea).formula("(C5H8O2)n(C8H14O2)m(C4H6O2)k"));
         add(material("propylene_glycol_methyl_ether").liquid().color(0xe6f0ea).formula("C4H10O2"));
         add(material("propylene_glycol_methyl_ether_acetate").liquid().color(0xdcebe6).formula("C6H12O3"));
-        add(material("krf_photoresist").liquid(ownLiquid()).color(0xd9b45c));
-        add(material("arf_photoresist").liquid(ownLiquid()).color(0xe6dcaa));
+        add(material("krf_photoresist").liquid(ownLiquid()).color(0xd9b45c).formula("(C8H8O)n(C5H8O2)m((C6H5)3S(CF3SO3))((C4H9)3N)(C6H12O3)"));
+        add(material("arf_photoresist").liquid(ownLiquid()).color(0xe6dcaa).formula("(C5H8O2)n(C8H14O2)m(C4H6O2)k((C6H5)3S(CF3SO3))((C4H9)3N)(C6H12O3)"));
 
         // Immersion film for LUV: 18 MOhm cm, degassed. Water (n = 1.44 at 193 nm) lets the lens reach NA 1.35.
         add(material("ultrapure_water").liquid(ownLiquid()).color(0x8cc4ff).formula("H2O"));
@@ -764,8 +766,8 @@ public final class AF9Materials {
      */
     private static void lithiumBrine() {
         // Raw salar brine and its evaporation-pond concentrate: mixtures, so no formulas (and no GT shortcuts)
-        liquid("lithium_brine", 0x7fd4c1);
-        liquid("concentrated_lithium_brine", 0x2fa386);
+        liquid("lithium_brine", 0x7fd4c1, "(LiCl)(NaCl)(KCl)(H2O)");
+        liquid("concentrated_lithium_brine", 0x2fa386, "(LiCl)(NaCl)(H2O)");
         // The battery trio and the electrolyte pair
         dust("lithium_carbonate", 0xf2f2f2, "Li2CO3");
         dust("lithium_hydroxide", 0xe9e9e9, "LiOH");
@@ -964,17 +966,20 @@ public final class AF9Materials {
         // fluid.impure_oil.png), no tint on top of it.
         add(material("impure_oil")
                 .liquid(new FluidBuilder().customStill().disableColor())
-                .color(0x2a1a0e));
+                .color(0x2a1a0e)
+                .formula("(CnHm)(NaCl)(S)"));
 
         // Shiny Oil: what the wash leaves, amber with glints running over it (fluid.shiny_oil.png, animated)
         add(material("shiny_oil")
                 .liquid(new FluidBuilder().customStill().disableColor())
-                .color(0xb87a1a));
+                .color(0xb87a1a)
+                .formula("(CnHm)(NaCl)(S)"));
 
         // Desalted Oil: the salt wash leaves a deep olive crude (fluid.desalted_oil.png, animated)
         add(material("desalted_oil")
                 .liquid(new FluidBuilder().customStill().disableColor())
-                .color(0x4a5a1a));
+                .color(0x4a5a1a)
+                .formula("(CnHm)(S)"));
 
         // Asphalt: the vacuum bottoms, a near-black rough dust. Coked to coke and fuel gas, or burned as is
         roughDust("asphalt", 0x1f1a14, "(C)n");
@@ -1081,25 +1086,30 @@ public final class AF9Materials {
         // -> cryogenic cooling (freezes out the last traces) -> re-warmed through a membrane filter = XCDA
         add(material("oxidized_air")
                 .gas()
-                .color(0xd8e4ec));
+                .color(0xd8e4ec)
+                .formula("(N2)(O2)(CO2)(H2O)"));
 
         add(material("decarbonated_air")
                 .gas()
-                .color(0xdfeefa));
+                .color(0xdfeefa)
+                .formula("(N2)(O2)(H2O)"));
 
         add(material("dry_air")
                 .gas()
-                .color(0xe8f4ff));
+                .color(0xe8f4ff)
+                .formula("(N2)(O2)(Ar)"));
 
         // Held just above its liquefaction point (95 K): cryogenic, like liquid air
         add(material("cryogenic_supercooled_air")
                 .gas(95)
-                .color(0x9fd8ff));
+                .color(0x9fd8ff)
+                .formula("(N2)(O2)(Ar)"));
 
         // Purge gas for the exposure tool
         add(material("extreme_clean_dry_air")
                 .gas(ownGas())
-                .color(0xe6f2ff));
+                .color(0xe6f2ff)
+                .formula("(N2)(O2)"));
 
         // Room-temperature CO oxidation catalyst (copper manganese spinel, as in gas-mask filters)
         add(material("hopcalite")
@@ -1141,7 +1151,8 @@ public final class AF9Materials {
         // Novolac + DNQ dissolved in xylene
         add(material("photoresist")
                 .liquid(ownLiquid())
-                .color(0xb04a1f));
+                .color(0xb04a1f)
+                .formula("(C7H6O)n(C10H6N2O)(C8H10)"));
 
         // TMAH developer chain: (CH3)2NH + 2 CH3Cl -> (CH3)4NCl + HCl
         add(material("tetramethylammonium_chloride")
@@ -1165,7 +1176,8 @@ public final class AF9Materials {
         // Tin-oxo carboxylate clusters (methacrylate ligands) in PGMEA: dense tin absorbs EUV far better than carbon
         add(material("euv_photoresist")
                 .liquid(ownLiquid())
-                .color(0xd9c27a));
+                .color(0xd9c27a)
+                .formula("(Sn12O14(OH)6(C4H5O2)12)(C6H12O3)"));
     }
 
     /**
@@ -1285,8 +1297,8 @@ public final class AF9Materials {
      * Spec: docs/water-filtration.md
      */
     private static void bioCultures() {
-        liquid("bacteria_culture", 0x4a9a3d);
-        liquid("enriched_bacteria_culture", 0x2a7a4d);
+        liquid("bacteria_culture", 0x4a9a3d, "(C6H12O6)(H2O)(Bc)");
+        liquid("enriched_bacteria_culture", 0x2a7a4d, "(C6H12O6)(H2O)(Bc)2");
     }
 
     /**
@@ -1683,8 +1695,8 @@ public final class AF9Materials {
     private static void askarel() {
         liquid("dichlorobiphenyl", 0xd8da6a, "(C6H4Cl)2");
         liquid("trichlorobenzene", 0xb9c46a, "C6H3Cl3");
-        liquid("askarel", 0xc4c850);
-        liquid("dry_askarel", 0xd2d65c);
+        liquid("askarel", 0xc4c850, "(C6H4Cl)2(C6H3Cl3)(H2O)");
+        liquid("dry_askarel", 0xd2d65c, "(C6H4Cl)2(C6H3Cl3)");
     }
 
     /**
