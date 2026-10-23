@@ -21,7 +21,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .abilities($AirConditioningHatch.AIR_CONDITIONING)
                 // GT's overlayTieredHullModel(String) sets this, the ResourceLocation version we need does not: without
                 // it the hatch never knows it is formed and keeps its tier hull instead of taking the casing's texture
-                .kjs$modelPropertyBool($AirConditioningModelProperties.IS_FORMED, false)
+                .modelPropertyBool($AirConditioningModelProperties.IS_FORMED, false)
                 ['overlayTieredHullModel(net.minecraft.resources.ResourceLocation)'](
                     'af9:block/machine/part/air_conditioning')
                 ['tooltips(net.minecraft.network.chat.Component[])']([
