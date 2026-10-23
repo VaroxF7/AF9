@@ -48,9 +48,3 @@ Mainframe is built around. It is not a `wireSpool` TagPrefix item: superconducto
   `gtceu:tungsten_steel_ring` (the reel), 300 ticks at HV (`circuits_af9.js`).
 - **Used by**: `mainframe_iv` (replaces the interconnect and the loose 16 MBCC wires) and `mainframe_iv_lean`.
 - **Removed**: `af9:mainframe_interconnect`, its assembler recipe, model and texture (items in existing worlds vanish).
-
-## Voltage coils
-
-`kubejs/server_scripts/mods/gtceu/voltage_coils.js` edits GT's own assembler recipes in place: the 16x fine wire input
-becomes 2x wire spool (the rest of the recipe is GT's). LV coil: 2x `gtceu:black_steel_wire_spool`; MV coil: 2x
-`gtceu:aluminium_wire_spool`. A spool is 64 fine wires, so a coil now costs 128 fine wires of material instead of 16.
