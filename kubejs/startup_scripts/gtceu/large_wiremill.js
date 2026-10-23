@@ -40,7 +40,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('A', Predicates.air())
             .where('G', Predicates.blocks('gtceu:laminated_glass'))
             .where('F', Predicates.blocks('gtceu:steel_frame'))
-            .where('D', Predicates.blocks('gtceu:stress_proof_casing').setMinGlobalLimited(120)
+            .where('D', Predicates.blocks('gtceu:stress_proof_casing')
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1))
