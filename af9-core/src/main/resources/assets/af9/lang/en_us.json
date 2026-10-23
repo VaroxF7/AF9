@@ -564,7 +564,6 @@
     "af9.fusion.recipe_field": "Field: %1$s (%2$s)",
     "af9.fusion.tooltip.field": "§7Magnetic field: holds up to §e%1$s§7, builds §e%2$s§7 per tick for 1A %3$s while it is below that",
     "af9.fusion.tooltip.run": "§7A reaction starts at its minimum field and each run drains part of it; the field collapses when the structure breaks",
-    "af9.fusion.tooltip.size": "§7Ring: a circle §f%1$s x %1$s§7 blocks wide",
     "af9.fusion.tooltip.hatches": "§7Energy hatches are optional in the structure, but the field and the reactions draw from the ones you place",
     "af9.tooltip.page": "Page %s / %s: hold Shift and scroll",
     "af9.space_elevator.display.title": "Space Elevator",
