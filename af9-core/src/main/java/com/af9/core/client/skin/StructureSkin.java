@@ -12,7 +12,7 @@ import java.util.function.Supplier;
  * Engineering draws its multiblocks. The machine works exactly as before, only the picture changes.
  * <p>
  * Positions are relative to the controller as GT's pattern names them: {@code right} to its right, {@code up} above it,
- * {@code back} behind its front face. The model is authored in the same space (see {@code tools/ebf_model.py}).
+ * {@code back} behind its front face. The model is authored in the same space (see {@link StructureSkins}).
  *
  * @param definition  the machine this skin is for
  * @param right       the pattern's extent to the right of the controller, -right..right
@@ -49,7 +49,7 @@ public record StructureSkin(Supplier<? extends MachineDefinition> definition, in
      */
     public record Rings(java.util.List<com.af9.core.machine.OrbitalLithographyMachine.Band> bands, int towerHalf) {}
 
-    /** A model skin (the Electric Blast Furnace). */
+    /** A model skin. */
     public StructureSkin(Supplier<? extends MachineDefinition> definition, int right, int up, int back,
                          ResourceLocation lower, ResourceLocation upper, ResourceLocation glowLower,
                          ResourceLocation glowUpper, int[] coilProbe, float[] window) {

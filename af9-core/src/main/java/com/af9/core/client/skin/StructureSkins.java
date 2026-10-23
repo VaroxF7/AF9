@@ -58,11 +58,6 @@ import java.util.Set;
 public final class StructureSkins {
 
     public static final List<StructureSkin> SKINS = List.of(
-            // the Electric Blast Furnace: 3 wide, 4 high, 3 deep, the controller in the middle of the front, at the bottom
-            new StructureSkin(() -> GTMultiMachines.ELECTRIC_BLAST_FURNACE, 1, 4, 3,
-                    model("multiblock/ebf_lower"), model("multiblock/ebf_upper"),
-                    model("multiblock/ebf_glow_lower"), model("multiblock/ebf_glow_upper"),
-                    new int[] { -1, 1, 1 }, new float[] { 0.5F, 2.0F, -0.05F, 0.75F, 0.5F }),
             // the Orbital Array Mk2's tower: its rings turn (only while the Mk2 size is switched on)
             StructureSkin.rings(() -> machine("orbital_lithography_station"),
                     new StructureSkin.Rings(OrbitalLithographyMachine.BANDS_MK2, OrbitalLithographyMachine.TOWER_HALF)));
