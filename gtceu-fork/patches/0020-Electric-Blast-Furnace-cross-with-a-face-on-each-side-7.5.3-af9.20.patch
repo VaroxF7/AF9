@@ -1,15 +1,16 @@
-From 00e7055f43a09b5642e4c41fe541022d195161c0 Mon Sep 17 00:00:00 2001
+From 6c60dba8919becb2242965d3038a6296346b69bf Mon Sep 17 00:00:00 2001
 From: AF9 <af9@localhost>
 Date: Fri, 23 Oct 2026 12:43:24 +0000
-Subject: [PATCH] Electric Blast Furnace: a cross-shaped casing (5 x 5 without
- the corners, 4 high) round the normal 3 x 3 coil-ring furnace (7.5.3-af9.19)
+Subject: [PATCH] Electric Blast Furnace: the normal 3 x 3 furnace with a 3 x 4
+ coil face added on each side, the controller one block further out
+ (7.5.3-af9.20)
 
 ---
  .../common/data/machines/GTMultiMachines.java | 20 ++++++++++++-------
  1 file changed, 13 insertions(+), 7 deletions(-)
 
 diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
-index 0ca0b25..8340c97 100644
+index 0ca0b25..5958ad9 100644
 --- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
 +++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
 @@ -138,11 +138,15 @@ public class GTMultiMachines {
@@ -19,16 +20,16 @@ index 0ca0b25..8340c97 100644
 -                    .aisle("XXX", "CCC", "CCC", "XXX")
 -                    .aisle("XXX", "C#C", "C#C", "XMX")
 -                    .aisle("XSX", "CCC", "CCC", "XXX")
-+                    // a cross (5 x 5 without the corners, 4 high) round the normal furnace: the 3 x 3 coil ring and
-+                    // its chamber stay in the middle
-+                    .aisle(" XXX ", " XXX ", " XXX ", " XXX ")
-+                    .aisle("XXXXX", "XCCCX", "XCCCX", "XXXXX")
-+                    .aisle("XXXXX", "XC#CX", "XC#CX", "XXMXX")
-+                    .aisle("XXXXX", "XCCCX", "XCCCX", "XXXXX")
-+                    .aisle(" XSX ", " XXX ", " XXX ", " XXX ")
++                    // the normal 3 x 3 furnace in the middle, a 3 x 4 face of casing and coils added on each of its
++                    // sides (a cross, 5 x 5 without the corners); the controller is in the front one
++                    .aisle(" XXX ", " CCC ", " CCC ", " XXX ")
++                    .aisle("XXXXX", "CCCCC", "CCCCC", "XXXXX")
++                    .aisle("XXXXX", "CC#CC", "CC#CC", "XXMXX")
++                    .aisle("XXXXX", "CCCCC", "CCCCC", "XXXXX")
++                    .aisle(" XSX ", " CCC ", " CCC ", " XXX ")
                      .where('S', controller(blocks(definition.getBlock())))
 -                    .where('X', blocks(CASING_INVAR_HEATPROOF.get()).setMinGlobalLimited(9)
-+                    .where('X', blocks(CASING_INVAR_HEATPROOF.get()).setMinGlobalLimited(50)
++                    .where('X', blocks(CASING_INVAR_HEATPROOF.get()).setMinGlobalLimited(30)
                              .or(autoAbilities(definition.getRecipeTypes()))
                              .or(autoAbilities(true, false, false)))
                      .where('M', abilities(PartAbility.MUFFLER))
@@ -39,11 +40,11 @@ index 0ca0b25..8340c97 100644
 -                        .aisle("ISO", "CCC", "CCC", "XMX")
 -                        .aisle("FXD", "C#C", "C#C", "XHX")
 -                        .aisle("EEX", "CCC", "CCC", "XXX")
-+                        .aisle(" ISO ", " XXX ", " XXX ", " XMX ")
-+                        .aisle("FXXXD", "XCCCX", "XCCCX", "XXXXX")
-+                        .aisle("XXXXX", "XC#CX", "XC#CX", "XXHXX")
-+                        .aisle("XXXXX", "XCCCX", "XCCCX", "XXXXX")
-+                        .aisle(" EEX ", " XXX ", " XXX ", " XXX ")
++                        .aisle(" ISO ", " CCC ", " CCC ", " XMX ")
++                        .aisle("FXXXD", "CCCCC", "CCCCC", "XXXXX")
++                        .aisle("XXXXX", "CC#CC", "CC#CC", "XXHXX")
++                        .aisle("XXXXX", "CCCCC", "CCCCC", "XXXXX")
++                        .aisle(" EEX ", " CCC ", " CCC ", " XXX ")
                          .where('X', CASING_INVAR_HEATPROOF.getDefaultState())
                          .where('S', definition, Direction.NORTH)
                          .where('#', Blocks.AIR.defaultBlockState())

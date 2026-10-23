@@ -28,7 +28,7 @@ GTCEu release), `-Paf9RequireFork` fails the build where the fork is missing.
 * `0015` Fusion reactors: a magnetic field instead of standby power ([docs/fusion-power.md](../docs/fusion-power.md)); its 19 / 23 / 27 block rings were replaced by `0016`.
 * `0016` Fusion reactors: one round 19-block ring for Mk1 to Mk3, energy hatches optional in the structure (the ring was dropped again by `0017`).
 * `0017` Fusion reactors: GT's own 15 x 15 ring structure and render again; energy hatches stay optional (no minimum).
-* `0020` Electric Blast Furnace: a cross-shaped casing (5 x 5 without the corners, 4 high) round the normal 3 x 3 coil-ring furnace, which stays inside it.
+* `0020` Electric Blast Furnace: the normal 3 x 3 furnace with a 3 x 4 face of casing and coils added on each side (a cross, 5 x 5 without the corners, 4 high); the controller is in the front face, one block further out.
 * `0019` Fusion reactors: at most two energy hatches in the structure.
 * `0012` The HPCA is expandable (3 to 12 slices of 3 component slots) and its Active Coolers cool by coolant: PCB Coolant 2, supercooled hydrogen / argon / xenon / endion 8 / 12 / 16 / 20 ([docs/hpca.md](../docs/hpca.md)).
 * `0011` The multiblock preview zooms out to fit a structure over 40 blocks (the scene clipped the Mk2 tower to a third of itself).
