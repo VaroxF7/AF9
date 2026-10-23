@@ -3,9 +3,9 @@
 // Controller behaviour: AF9 Core (FiltrationPlantMachine). Basin render: FiltrationBasinRender
 // (animated water, floating debris, 3D skimmer arm). Recipes: server_scripts/mods/gtceu/water_filtration.js
 //
-// 10 x 7 x 3 basin (10 deep), aisles back -> front, rows bottom -> top. The floor carries two 1 x 6 strips
-// of Water Filter Casing (F); the 8 x 5 above the floor, two layers high, is open air (the basin the
-// render draws its water in); the controller sits in the middle of the front wall, middle layer.
+// 10 x 7 x 2 basin (10 deep), aisles back -> front, rows bottom -> top. The floor carries two 1 x 6 strips
+// of Water Filter Casing (F); the 8 x 5 above the floor, one layer high, is open air (the basin the
+// render draws its water in); the controller sits in the middle of the front wall, in the top layer.
 
 const $FiltrationPlantMachine = Java.loadClass('com.af9.core.machine.FiltrationPlantMachine')
 const $FiltrationModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
@@ -63,7 +63,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('A', Predicates.air())
             .build())
         // watertight casing + LCR overlay, and the basin while it runs: water, debris, skimmer arm.
-        // The water is 5 wide and 8 long, centred 4.5 behind the controller, at the controller's height
+        // The water is 5 wide and 8 long, centred 4.5 behind the controller, in the controller's layer
         .model($FiltrationModels.workableCasingWithFiltrationBasin(
             'gtceu:block/casings/gcym/watertight_casing',
             'gtceu:block/multiblock/large_chemical_reactor', 0.0, 4.5, 0.0, 5.0, 8.0))

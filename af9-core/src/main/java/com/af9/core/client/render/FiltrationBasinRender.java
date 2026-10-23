@@ -65,7 +65,7 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
     /** Steady sweep speed: one full pass across the basin in this many ticks. */
     private static final float SWEEP_PASS_TICKS = 120F;
     /** Gantry beam height and the blade dipping into the water. */
-    private static final float BEAM_Y = 0.78F, BLADE_TOP = 0.34F, BLADE_BOTTOM = 0.18F;
+    private static final float BEAM_Y = 0.44F, BLADE_TOP = 0.34F, BLADE_BOTTOM = 0.18F;
 
     /** Debris palette: sand, gravel, leaf, stick, clay. */
     private static final int[] DEBRIS_PALETTE = { 0xC2B280, 0x8A8D91, 0x4E9A3D, 0x7A5A33, 0x9AA4B0 };
