@@ -21,7 +21,7 @@ rings with the open tank inside, casing roof. Hatches go in the casings, maximum
   `y` half the output capacity and `x` what is stored, the bonus is `ceil((y - (x-y)^2 / y) / y * max)`, clamped to
   `1..max`, so most at half full, less again towards full. The multiplier is parallel runs without extra EU, as many as the
   inputs allow. `max` is 1000 in GTNH and **64** here.
-- **The tank is seen.** The culture stands in the tank as high as the hatches are full, in the fluid's colour, with a rippling
+- **The tank is seen.** A formed vat is always liquid-filled (very transparent culture green when the hatches are empty); the culture stands in the tank as high as the hatches are full, in the fluid's colour, with a rippling
   surface and bubbles while a run goes on. GTNH places fluid blocks in the world; this is drawn, nothing is left in the world.
 
 Not ported: the **radiation hatch** (sieverts) and the **petri-dish bio cultures** with DNA/plasmid chains. The cultures here

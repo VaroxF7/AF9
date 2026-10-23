@@ -80,7 +80,7 @@ public class BioVatRender extends DynamicRender<IBioVatMachine, BioVatRender> {
 
     @Override
     public boolean shouldRender(IBioVatMachine machine, Vec3 cameraPos) {
-        if (!machine.isVatFormed() || machine.getVatFill() <= 0) return false;
+        if (!machine.isVatFormed()) return false;
         MetaMachine self = machine.self();
         Frame frame = frame(self);
         return Vec3.atLowerCornerOf(self.getPos()).add(frame.x, frame.y, frame.z).closerThan(cameraPos,
@@ -103,15 +103,19 @@ public class BioVatRender extends DynamicRender<IBioVatMachine, BioVatRender> {
     @Override
     public void render(IBioVatMachine machine, float partialTick, PoseStack poseStack, MultiBufferSource buffer,
                        int packedLight, int packedOverlay) {
-        if (!machine.isVatFormed() || machine.getVatFill() <= 0) return;
+        if (!machine.isVatFormed()) return;
         if (IrisCompat.renderingShadowPass()) return;
         MetaMachine self = machine.self();
         Frame frame = frame(self);
         double time = self.getOffsetTimer() + partialTick;
-        float height = Mth.clamp(machine.getVatFill() / 1000F, 0F, 1F) * TANK_HEIGHT;
+        // a formed vat is always liquid-filled: full of the faint culture green while the hatches are empty, then as
+        // high as they are full, in the fluid's colour
+        boolean stocked = machine.getVatFill() > 0;
+        float height = stocked ? Mth.clamp(machine.getVatFill() / 1000F, 0F, 1F) * TANK_HEIGHT : TANK_HEIGHT;
         if (height < 0.05F) return;
+        float fade = stocked ? 1F : 0.6F;
 
-        int rgb = colour(machine.getVatFluid());
+        int rgb = stocked ? colour(machine.getVatFluid()) : FALLBACK;
         int r = (rgb >> 16) & 0xFF, g = (rgb >> 8) & 0xFF, b = rgb & 0xFF;
         boolean working = machine.isVatActive();
 
@@ -121,14 +125,14 @@ public class BioVatRender extends DynamicRender<IBioVatMachine, BioVatRender> {
         VertexConsumer c = buffer.getBuffer(AF9RenderTypes.LIGHT_RING);
 
         // the body: four sides and the surface, darker down the tank
-        float side = 0.55F;
+        float side = 0.22F * fade;
         float ripple = 0.5F + 0.5F * Mth.sin((float) (time * 2 * Math.PI / 54));
         float top = height - 0.02F * ripple;
         wall(c, mat, frame, -HALF, 0, -HALF, HALF, top, -HALF, r, g, b, side);
         wall(c, mat, frame, -HALF, 0, HALF, HALF, top, HALF, r, g, b, side);
         wall(c, mat, frame, -HALF, 0, -HALF, -HALF, top, HALF, r, g, b, side);
         wall(c, mat, frame, HALF, 0, -HALF, HALF, top, HALF, r, g, b, side);
-        float surface = working ? 0.78F : 0.68F;
+        float surface = (working ? 0.42F : 0.34F) * fade;
         quad(c, mat, frame, -HALF, top, -HALF, HALF, top, -HALF, HALF, top, HALF, -HALF, top, HALF, r, g, b,
                 surface);
 
@@ -144,9 +148,9 @@ public class BioVatRender extends DynamicRender<IBioVatMachine, BioVatRender> {
                 float wobble = 0.05F * Mth.sin((float) (time * 0.15 + i));
                 float x = fx + wobble;
                 quad(c, mat, frame, x - s, y, fz, x + s, y, fz, x + s, y + 2 * s, fz, x - s, y + 2 * s, fz, br, bg,
-                        bb, 0.55F);
+                        bb, 0.4F);
                 quad(c, mat, frame, x, y, fz - s, x, y, fz + s, x, y + 2 * s, fz + s, x, y + 2 * s, fz - s, br, bg,
-                        bb, 0.55F);
+                        bb, 0.4F);
             }
         }
 
