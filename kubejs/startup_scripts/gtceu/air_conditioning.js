@@ -8,6 +8,7 @@
 // 20% fewer wafers. The warm air leaves from the hatch's front (the hook for the Temperature Update).
 
 const $AirConditioningHatch = Java.loadClass('com.af9.core.machine.part.AirConditioningHatchPartMachine')
+const $AirConditioningModelProperties = Java.loadClass('com.gregtechceu.gtceu.api.machine.property.GTMachineModelProperties')
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     event.create('air_conditioning_hatch', 'custom')
@@ -18,6 +19,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .langValue(`${GTValues.VN[tier]} Air Conditioning Hatch`)
                 .rotationState(RotationState.ALL)
                 .abilities($AirConditioningHatch.AIR_CONDITIONING)
+                // GT's overlayTieredHullModel(String) sets this, the ResourceLocation version we need does not: without
+                // it the hatch never knows it is formed and keeps its tier hull instead of taking the casing's texture
+                .modelProperty($AirConditioningModelProperties.IS_FORMED, false)
                 ['overlayTieredHullModel(net.minecraft.resources.ResourceLocation)'](
                     'af9:block/machine/part/air_conditioning')
                 ['tooltips(net.minecraft.network.chat.Component[])']([
