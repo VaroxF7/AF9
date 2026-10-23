@@ -57,12 +57,8 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
 
     private static final int FULL_BRIGHT = 0xF000F0;
 
-    /** Basin half extents: 3 x 3 of open water. */
-    private static final float HX = 1.5F, HZ = 1.5F;
     /** Water surface above the basin centre, and the darker depth layer below it. */
     private static final float WATER_Y = 0.30F, DEEP_Y = 0.22F;
-    /** Skimmer travel along the basin (blocks from the centre); parked at the back while idle. */
-    private static final float SWEEP_FRONT = -1.2F, SWEEP_BACK = 1.2F;
     /** Steady sweep speed: one full pass across the basin in this many ticks. */
     private static final float SWEEP_PASS_TICKS = 120F;
     /** Gantry beam height and the blade dipping into the water. */
@@ -75,15 +71,22 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
 
     private final float up;
     private final float back;
+    private final float left;
+    /** Basin half extents across (left) and along (back) the basin: the open water. */
+    private final float hx;
+    private final float hz;
 
-    public FiltrationBasinRender(float up, float back) {
+    public FiltrationBasinRender(float up, float back, float left, float width, float length) {
         this.up = up;
         this.back = back;
+        this.left = left;
+        this.hx = width / 2F;
+        this.hz = length / 2F;
     }
 
     /** Typed as GT's base class, so common code that builds a model never loads this client class. */
-    public static DynamicRender<?, ?> create(float up, float back) {
-        return new FiltrationBasinRender(up, back);
+    public static DynamicRender<?, ?> create(float up, float back, float left, float width, float length) {
+        return new FiltrationBasinRender(up, back, left, width, length);
     }
 
     /** Client, before the models are built (mod construction). */
@@ -120,7 +123,7 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
         MetaMachine self = machine.self();
         Frame frame = frame(self);
         Vec3 centre = Vec3.atLowerCornerOf(self.getPos()).add(frame.x, frame.y, frame.z);
-        return new AABB(centre, centre).inflate(2.5);
+        return new AABB(centre, centre).inflate(Math.max(hx, hz) + 1F);
     }
 
     @Override
@@ -158,27 +161,28 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
 
         // --- water: depth layer + rippling surface ---
         float ripple = 0.5F + 0.5F * Mth.sin((float) (time * 2 * Math.PI / 46));
-        quad(water, mat, frame, -HX, DEEP_Y, -HZ, HX, DEEP_Y, HZ, wr / 2, wg / 2, wb / 2, 0.35F);
+        quad(water, mat, frame, -hx, DEEP_Y, -hz, hx, DEEP_Y, hz, wr / 2, wg / 2, wb / 2, 0.35F);
         float surfaceAlpha = working ? 0.50F + 0.06F * ripple : 0.34F + 0.04F * ripple;
-        quad(water, mat, frame, -HX, WATER_Y, -HZ, HX, WATER_Y, HZ, wr, wg, wb, surfaceAlpha);
+        quad(water, mat, frame, -hx, WATER_Y, -hz, hx, WATER_Y, hz, wr, wg, wb, surfaceAlpha);
         // travelling highlight while running: a bright band crossing front to back
         if (working) {
             float band = (float) ((time % 60) / 60);
-            float bz = Mth.lerp(band, -HZ, HZ);
-            quad(water, mat, frame, -HX, WATER_Y + 0.005F, bz - 0.12F, HX, WATER_Y + 0.005F, bz + 0.12F,
+            float bz = Mth.lerp(band, -hz, hz);
+            quad(water, mat, frame, -hx, WATER_Y + 0.005F, bz - 0.12F, hx, WATER_Y + 0.005F, bz + 0.12F,
                     Math.min(255, wr + 110), Math.min(255, wg + 110), Math.min(255, wb + 110), 0.28F);
         }
 
         // --- skimmer: steady ping-pong sweep while running, parked at the back idle ---
-        float carriageZ = SWEEP_BACK;
+        float sweepFront = -(hz - 0.3F), sweepBack = hz - 0.3F;
+        float carriageZ = sweepBack;
         if (working) {
             float phase = (float) (time / SWEEP_PASS_TICKS) % 2.0F;
             float sweep = phase < 1.0F ? phase : 2.0F - phase;
-            carriageZ = Mth.lerp(sweep, SWEEP_FRONT, SWEEP_BACK);
+            carriageZ = Mth.lerp(sweep, sweepFront, sweepBack);
         }
 
         // --- debris floating on top: this basin's own mix, bobbing, drifting, piling ahead of the blade ---
-        float[][] debris = debrisFor(basinPos);
+        float[][] debris = debrisFor(basinPos, hx, hz);
         for (int i = 0; i < debris.length; i++) {
             float bx = debris[i][0];
             float bz = debris[i][1];
@@ -202,24 +206,24 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
 
         // --- skimmer arm: static side rails, moving gantry beam, posts, dipping blade ---
         // rails along both sides (always there)
-        SolidBox.box(solid, mat, frame, -1.45F, BEAM_Y - 0.05F, -HZ, -1.25F, BEAM_Y + 0.05F, HZ, 0x4B5567);
-        SolidBox.box(solid, mat, frame, 1.25F, BEAM_Y - 0.05F, -HZ, 1.45F, BEAM_Y + 0.05F, HZ, 0x4B5567);
-        for (float tie = -1.2F; tie <= 1.21F; tie += 0.4F) {
-            SolidBox.box(solid, mat, frame, -1.45F, BEAM_Y - 0.06F, tie - 0.03F, -1.25F, BEAM_Y - 0.02F,
+        SolidBox.box(solid, mat, frame, -(hx - 0.05F), BEAM_Y - 0.05F, -hz, -(hx - 0.25F), BEAM_Y + 0.05F, hz, 0x4B5567);
+        SolidBox.box(solid, mat, frame, (hx - 0.25F), BEAM_Y - 0.05F, -hz, (hx - 0.05F), BEAM_Y + 0.05F, hz, 0x4B5567);
+        for (float tie = -(hz - 0.3F); tie <= hz - 0.29F; tie += 0.4F) {
+            SolidBox.box(solid, mat, frame, -(hx - 0.05F), BEAM_Y - 0.06F, tie - 0.03F, -(hx - 0.25F), BEAM_Y - 0.02F,
                     tie + 0.03F, 0x6B7688);
-            SolidBox.box(solid, mat, frame, 1.25F, BEAM_Y - 0.06F, tie - 0.03F, 1.45F, BEAM_Y - 0.02F,
+            SolidBox.box(solid, mat, frame, (hx - 0.25F), BEAM_Y - 0.06F, tie - 0.03F, (hx - 0.05F), BEAM_Y - 0.02F,
                     tie + 0.03F, 0x6B7688);
         }
         // gantry beam across the basin at the carriage
-        SolidBox.box(solid, mat, frame, -1.45F, BEAM_Y - 0.06F, carriageZ - 0.09F, 1.45F, BEAM_Y + 0.06F,
+        SolidBox.box(solid, mat, frame, -(hx - 0.05F), BEAM_Y - 0.06F, carriageZ - 0.09F, (hx - 0.05F), BEAM_Y + 0.06F,
                 carriageZ + 0.09F, 0x8A94A6);
         // posts down to the blade at both ends
-        SolidBox.box(solid, mat, frame, -1.42F, BLADE_TOP, carriageZ - 0.06F, -1.28F, BEAM_Y - 0.06F,
+        SolidBox.box(solid, mat, frame, -(hx - 0.08F), BLADE_TOP, carriageZ - 0.06F, -(hx - 0.22F), BEAM_Y - 0.06F,
                 carriageZ + 0.06F, 0x6B7688);
-        SolidBox.box(solid, mat, frame, 1.28F, BLADE_TOP, carriageZ - 0.06F, 1.42F, BEAM_Y - 0.06F,
+        SolidBox.box(solid, mat, frame, (hx - 0.22F), BLADE_TOP, carriageZ - 0.06F, (hx - 0.08F), BEAM_Y - 0.06F,
                 carriageZ + 0.06F, 0x6B7688);
         // blade dipping into the water
-        SolidBox.box(solid, mat, frame, -1.35F, BLADE_BOTTOM, carriageZ - 0.05F, 1.35F, BLADE_TOP,
+        SolidBox.box(solid, mat, frame, -(hx - 0.15F), BLADE_BOTTOM, carriageZ - 0.05F, (hx - 0.15F), BLADE_TOP,
                 carriageZ + 0.05F, working ? 0xB8C4D4 : 0x4B5567);
         if (working) {
             float blink = 0.45F + 0.25F * Mth.sin((float) (time * 2 * Math.PI / 30));
@@ -230,7 +234,7 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
         poseStack.popPose();
     }
 
-    /** Basin centre in block-local coords (0.5 + up/back along the controller's axes). */
+    /** Basin centre in block-local coords (0.5 + up/back/left along the controller's axes). */
     private Frame frame(MetaMachine self) {
         boolean flipped = self instanceof MultiblockControllerMachine controller && controller.isFlipped();
         Direction upDir = RelativeDirection.UP.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), flipped);
@@ -238,9 +242,9 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
                 flipped);
         Direction leftDir = RelativeDirection.LEFT.getRelative(self.getFrontFacing(), self.getUpwardsFacing(),
                 flipped);
-        float x = 0.5F + upDir.getStepX() * up + backDir.getStepX() * back;
-        float y = 0.5F + upDir.getStepY() * up + backDir.getStepY() * back;
-        float z = 0.5F + upDir.getStepZ() * up + backDir.getStepZ() * back;
+        float x = 0.5F + upDir.getStepX() * up + backDir.getStepX() * back + leftDir.getStepX() * left;
+        float y = 0.5F + upDir.getStepY() * up + backDir.getStepY() * back + leftDir.getStepY() * left;
+        float z = 0.5F + upDir.getStepZ() * up + backDir.getStepZ() * back + leftDir.getStepZ() * left;
         return new Frame(x, y, z, leftDir, upDir, backDir);
     }
 
@@ -248,13 +252,13 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
      * This basin's debris: 5-15 pieces of flotsam on the water, seeded by the basin's position so every
      * plant floats its own mix but it never flickers. Each piece is x, z, size, colour.
      */
-    private static float[][] debrisFor(BlockPos basin) {
+    private static float[][] debrisFor(BlockPos basin, float hx, float hz) {
         Random rand = new Random(basin.asLong());
-        int count = 5 + rand.nextInt(11);
+        int count = (int) ((5 + rand.nextInt(11)) * hx * hz / 2.25F);
         float[][] out = new float[count][];
         for (int i = 0; i < count; i++) {
-            float x = rand.nextFloat() * 2.6F - 1.3F;
-            float z = rand.nextFloat() * 2.6F - 1.3F;
+            float x = (rand.nextFloat() * 2F - 1F) * (hx - 0.2F);
+            float z = (rand.nextFloat() * 2F - 1F) * (hz - 0.2F);
             float size = 0.08F + rand.nextFloat() * 0.09F;
             out[i] = new float[] { x, z, size, DEBRIS_PALETTE[rand.nextInt(DEBRIS_PALETTE.length)] };
         }

@@ -164,13 +164,16 @@ public final class AF9MachineModels {
      * debris and the 3D skimmer arm. The machine must implement IFiltrationPlantMachine and have a
      * block entity renderer ({@code .hasBER(true)}).
      *
-     * @param up   basin centre along the controller's up
-     * @param back basin centre behind the controller
+     * @param up     basin centre along the controller's up
+     * @param back   basin centre behind the controller
+     * @param left   basin centre to the controller's left
+     * @param width  open water across the basin (blocks)
+     * @param length open water along the basin, front to back (blocks)
      */
     public static MachineBuilder.ModelInitializer workableCasingWithFiltrationBasin(ResourceLocation casing,
-            ResourceLocation overlay, float up, float back) {
+            ResourceLocation overlay, float up, float back, float left, float width, float length) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
-                .andThen(model -> model.addDynamicRenderer(() -> FiltrationBasinRender.create(up, back)));
+                .andThen(model -> model.addDynamicRenderer(() -> FiltrationBasinRender.create(up, back, left, width, length)));
     }
 
     /**

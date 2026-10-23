@@ -189,7 +189,7 @@
     "af9.atmospheric_simulation_room.tooltip.1": "§7Builds §fXPS and NVM circuits§7 in lunar air (Moon drilling or elevator missions). §aPerfect OC§7.",
     "af9.atmospheric_simulation_room.tooltip.2": "§cLunar air inside:§7 a player without a full space suit takes Ad Astra's oxygen damage. Bring a suit.",
     "af9.atmospheric_simulation_room.tooltip.3": "§7Parts are optional, with a maximum: §f2§7 energy, §f2+2§7 item buses, §f2+1§7 fluid hatches, §f1§7 maintenance, §f1§7 fluid input hatch (for the Xenoxid).",
-    "af9.water_filtration_plant.tooltip.0": "§7An open stainless basin behind glass: dirty water in, §bdistilled water§7 out, debris skimmed off the top.",
+    "af9.water_filtration_plant.tooltip.0": "§7An open watertight basin with two filter strips in its floor: dirty water in, §bdistilled water§7 out, debris skimmed off the top.",
     "af9.water_filtration_plant.tooltip.1": "§7The §fskimmer arm§7 sweeps front to back once per run and parks at the back; debris piles up ahead of its blade.",
     "af9.water_filtration_plant.tooltip.2": "§7The §ffluid filter§7 is never used up. Better tiers filter more water per run. §aPerfect OC§7.",
     "af9.water_filtration_plant.tooltip.3": "§7Parts are optional, with a maximum: §f2§7 energy, §f1+1§7 item buses, §f2+2§7 fluid hatches, §f1§7 maintenance, §f1§7 fluid input hatch (for the Xenoxid).",

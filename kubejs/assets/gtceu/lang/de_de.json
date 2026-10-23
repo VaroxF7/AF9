@@ -55,7 +55,7 @@
     "af9.staged_assembly.tooltip.1": "§7Eine Stufe läuft nur mit §fexakt ihren Inputs§7 in den Luken; die Konsole nennt die wartende Stufe.",
     "af9.staged_assembly.tooltip.2": "§fEMI§7 zeigt jede Stufe mit ihren Inputs. §aPerfektes OC§7.",
     "af9.staged_assembly.tooltip.3": "§7Teile sind optional, mit Maximum: §f2§7 Energie, §f2+2§7 Item-Busse, §f2§7 Fluid-Luken, §f1§7 Wartung.",
-    "af9.water_filtration_plant.tooltip.0": "§7Offenes Edelstahlbecken hinter Glas: Schmutzwasser rein, §bdestilliertes Wasser§7 raus, Schmutz oben abgeschöpft.",
+    "af9.water_filtration_plant.tooltip.0": "§7Offenes wasserdichtes Becken mit zwei Filterstreifen im Boden: Schmutzwasser rein, §bdestilliertes Wasser§7 raus, Schmutz oben abgeschöpft.",
     "af9.water_filtration_plant.tooltip.1": "§7Der §fAbstreifer§7 fährt pro Lauf einmal durch und parkt hinten; der Schmutz staut sich vor seiner Klinge.",
     "af9.water_filtration_plant.tooltip.2": "§7Der §fFluidfilter§7 bleibt drin. Höhere Stufen filtern mehr Wasser pro Lauf. §aPerfektes OC§7.",
     "af9.water_filtration_plant.tooltip.3": "§7Teile sind optional, mit Maximum: §f2§7 Energie, §f1+1§7 Item-Busse, §f2+2§7 Fluid-Luken, §f1§7 Wartung.",

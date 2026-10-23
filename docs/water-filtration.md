@@ -1,7 +1,9 @@
 # Water Filtration Plant: the basin that skims
 
-A 5x3x5 open stainless basin behind glass (controller front-bottom-centre) that filters water
-and aqueous waste. Inside: animated water in the biome's own colour, 5–15 seeded debris chunks
+A 10x7x3 open watertight basin (controller in the middle of the 7-wide front wall, middle layer) with two
+1x6 strips of **Water Filter Casing** (`af9:water_filter_casing`, watertight plating with a wire-mesh screen, CTM-joined,
+`tools/textures/water_filter_casing.py`) in its floor, that filters water and aqueous waste. The 8x5 above the floor,
+two layers high, is the open water; walls, floor and rim are GCYM watertight casing, which also takes the hatches. Inside: animated water in the biome's own colour, 5–15 seeded debris chunks
 floating on top, and a 3D skimmer arm sweeping front to back at a steady speed while it runs.
 
 Code: `kubejs/startup_scripts/gtceu/water_filtration.js` (structure, `water_filtration` type),
