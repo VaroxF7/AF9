@@ -1,5 +1,6 @@
 // AF9 - Stainless steel melts in the Alloy Blast Smelter again.
 //
+// Temperature: GT's 1700 K (cupronickel) is raised to 2700 K, so stainless steel needs Kanthal-tier coils.
 // GT hands the ABS recipe of a stainless-like alloy the *liquid* fluid when the metal has no hot ingot (stainless blasts
 // at 1700 K, below the 1750 K hot-ingot line), and then makes no freezer recipe for it either. Stainless steel does have a
 // molten fluid (gtceu:molten_stainless_steel, GT registers it with the alloy-blast property), it was just never used.
@@ -13,7 +14,7 @@
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
 
-    // ---- 1. The ABS recipes: same inputs and numbers as GT's (9 units out, blast property 1100 t at HV), molten out ----
+    // ---- 1. The ABS recipes: same inputs and numbers as GT's (9 units out, HV), now needing Kanthal coils (2700 K), molten out ----
     event.remove({ id: 'gtceu:alloy_blast_smelter/stainless_steel' })
     event.remove({ id: 'gtceu:alloy_blast_smelter/stainless_steel_gas' })
 
@@ -23,7 +24,7 @@ ServerEvents.recipes(event => {
         .circuit(4)
         .itemInputs(dusts)
         .outputFluids(Fluid.of('gtceu:molten_stainless_steel', 1296))
-        .blastFurnaceTemp(1700)
+        .blastFurnaceTemp(2700)
         .duration(7425)
         .EUt(VA[GTValues.HV])
 
@@ -32,7 +33,7 @@ ServerEvents.recipes(event => {
         .itemInputs(dusts)
         .inputFluids(Fluid.of('gtceu:nitrogen', 9000))
         .outputFluids(Fluid.of('gtceu:molten_stainless_steel', 1296))
-        .blastFurnaceTemp(1700)
+        .blastFurnaceTemp(2700)
         .duration(4974)
         .EUt(VA[GTValues.HV])
 
