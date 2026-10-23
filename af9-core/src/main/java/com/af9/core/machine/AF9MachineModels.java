@@ -2,7 +2,6 @@ package com.af9.core.machine;
 
 import com.af9.core.client.render.BioVatRender;
 import com.af9.core.client.render.CrucibleRender;
-import com.af9.core.client.render.EcrwArmRender;
 import com.af9.core.client.render.FiltrationBasinRender;
 import com.af9.core.client.render.HearthTurntableRender;
 import com.af9.core.client.render.LaserEngraverRender;
@@ -114,22 +113,6 @@ public final class AF9MachineModels {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(
                         () -> LightRingRender.create(up, back, radius, thickness, axis, arcs, wall)));
-    }
-
-    /**
-     * GT's workable casing model plus the ECRW's rake arm ({@link EcrwArmRender}): a steel truss across the pond
-     * that turns while a recipe runs. The machine must implement {@link IEcrwMachine} and have a block entity
-     * renderer ({@code .hasBER(true)}).
-     *
-     * @param back   pond centre behind the controller (blocks)
-     * @param armY   arm plane above the controller block's floor (blocks)
-     * @param radius arm half-length in blocks (stays clear of the wall)
-     */
-    public static MachineBuilder.ModelInitializer workableCasingWithEcrwArm(ResourceLocation casing,
-                                                                            ResourceLocation overlay, float back,
-                                                                            float armY, float radius) {
-        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
-                .andThen(model -> model.addDynamicRenderer(() -> EcrwArmRender.create(back, armY, radius)));
     }
 
     /**

@@ -3,12 +3,10 @@ package com.af9.core.client;
 import com.af9.core.AF9Core;
 import com.af9.core.client.render.BioVatRender;
 import com.af9.core.client.render.CrucibleRender;
-import com.af9.core.client.render.EcrwArmRender;
 import com.af9.core.client.render.HearthTurntableRender;
 import com.af9.core.client.render.FiltrationBasinRender;
 import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
-import com.af9.core.client.render.PondWalls;
 import com.af9.core.client.render.SawBladeRender;
 import com.af9.core.client.render.SpaceElevatorRender;
 import com.af9.core.client.render.WireDrawRender;
@@ -50,12 +48,10 @@ public final class AF9Client {
         LightRingRender.register();
         SpaceElevatorRender.register();
         LaserEngraverRender.register();
-        EcrwArmRender.register();
         HearthTurntableRender.register();
         SawBladeRender.register();
         CrucibleRender.register();
         WireDrawRender.register();
-        PondWalls.register();
         FiltrationBasinRender.register();
         BioVatRender.register();
         // the placeable buckets tint their content layer with the fluid's colour

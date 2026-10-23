@@ -1,14 +1,11 @@
 package com.af9.core.client.skin;
 
-import com.af9.core.client.render.PondWalls;
-
 import net.minecraft.core.BlockPos;
 import net.minecraftforge.client.event.RenderHighlightEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 /**
- * The positions the client does not draw because a model takes their place (the structure skins and the pond's round
- * wall). A hidden block is as good as air to the eye, so the render treats it that way: its neighbours draw their faces
+ * The positions the client does not draw because a model takes their place (the structure skins). A hidden block is as good as air to the eye, so the render treats it that way: its neighbours draw their faces
  * towards it (no see-through seam where the model does not fill the block), liquids do not stop at it, and it casts
  * neither occlusion nor ambient shade (no dark squares round it). Used by the mixins of {@code com.af9.core.mixin.client}.
  * Only the client's render asks: the server and the physics never see a hidden block.
@@ -19,11 +16,11 @@ public final class HiddenBlocks {
 
     /** Whether anything is hidden at all: the fast exit of every hook. */
     public static boolean any() {
-        return StructureSkins.anyHidden() || PondWalls.anyHidden();
+        return StructureSkins.anyHidden();
     }
 
     public static boolean isHidden(long packedPos) {
-        return StructureSkins.isHidden(packedPos) || PondWalls.isHidden(packedPos);
+        return StructureSkins.isHidden(packedPos);
     }
 
     public static boolean isHidden(BlockPos pos) {

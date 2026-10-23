@@ -541,8 +541,6 @@
     "vapor.af9.supercritical_steam": "Supercritical Steam",
     "af9.voidminer.console.title": "Void Miner",
     "af9.dtpf.console.title": "Plasma Forge",
-    "af9.ecrw.console.title": "ECRW",
-    "af9.ecrw.console.progress": "Evaporating: %ss / %ss",
     "af9.dtpf.console.ramp": "Ramp: %s%%",
     "af9.dtpf.console.discount": "EU -%s%%, time -%s%%",
     "af9.dtpf.console.warming": "Warming up",

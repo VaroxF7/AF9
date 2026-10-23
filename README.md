@@ -395,7 +395,6 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 - [Drilling Fluid](docs/drilling-fluid.md) — a six-step water-based mud (bentonite, CMC, salt), nothing above HV
 - [PCB Coolant](docs/pcb-coolant.md) — an askarel: chlorinated biphenyl and trichlorobenzene, dried and stabilised
 - [Lesolite](docs/lesolite.md) — the EV SMD mineral, Moon blob vein beside artemite
-- [ECRW](docs/ecrw.md) — the evaporation pond (salt water to salt), spinning rake arm
 - [Early game](docs/early-game.md) — Create circuits (LV, MV), HV components in Powah's Energizing Orb
 - [Lithium brine](docs/lithium-brine.md) — salar water to LiCl, carbonate, hydroxide, oxide, LiPF6 (MV–LuV)
 - [Water filtration](docs/water-filtration.md) — skimmer basin: water, brine, desalination, wastewater cleaning
