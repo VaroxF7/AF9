@@ -9,6 +9,7 @@
 
 const $PrecisionFab = Java.loadClass('com.af9.core.machine.PrecisionFabricatorMachine')
 const $PrecisionPort = Java.loadClass('com.af9.core.machine.part.PrecisionPortPartMachine')
+const $PrecisionModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $PrecisionIO = Java.loadClass('com.gregtechceu.gtceu.api.capability.recipe.IO')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
@@ -80,6 +81,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities($PrecisionPort.INPUT).setMaxGlobalLimited(1, 1))
                 .or(Predicates.abilities($PrecisionPort.OUTPUT).setMaxGlobalLimited(1, 1)))
             .build())
-        .workableCasingModel('gtceu:block/casings/solid/machine_casing_solid_steel',
-            'gtceu:block/multiblock/electric_blast_furnace')
+        // solid steel casing with the blast furnace's controller face, and TFG's quartz crucible on the roof (af9-core
+        // CrucibleRender): melt, holder rod and boule dipped and pulled while a recipe runs
+        .model($PrecisionModels.workableCasingWithCrucible('gtceu:block/casings/solid/machine_casing_solid_steel',
+            'gtceu:block/multiblock/electric_blast_furnace'))
+        .hasBER(true)
 })

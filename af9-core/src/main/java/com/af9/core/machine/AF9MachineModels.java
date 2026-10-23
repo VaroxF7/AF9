@@ -1,6 +1,7 @@
 package com.af9.core.machine;
 
 import com.af9.core.client.render.BioVatRender;
+import com.af9.core.client.render.CrucibleRender;
 import com.af9.core.client.render.EcrwArmRender;
 import com.af9.core.client.render.FiltrationBasinRender;
 import com.af9.core.client.render.HearthTurntableRender;
@@ -157,6 +158,17 @@ public final class AF9MachineModels {
                                                                              float side, float up, float size) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(() -> SawBladeRender.create(back, side, up, size)));
+    }
+
+    /**
+     * GT's workable casing model plus the Precision Fabricator's quartz crucible on the hall's roof, with the melt and
+     * the dipped rod and boule ({@link CrucibleRender}, from TerraFirmaGreg's BouleRender). The machine needs a block
+     * entity renderer ({@code .hasBER(true)}).
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithCrucible(ResourceLocation casing,
+                                                                             ResourceLocation overlay) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(CrucibleRender::create));
     }
 
     /**
