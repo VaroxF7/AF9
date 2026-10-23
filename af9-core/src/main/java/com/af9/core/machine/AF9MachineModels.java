@@ -6,7 +6,6 @@ import com.af9.core.client.render.FiltrationBasinRender;
 import com.af9.core.client.render.HearthTurntableRender;
 import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
-import com.af9.core.client.render.LithoChamberRender;
 import com.af9.core.client.render.SawBladeRender;
 import com.af9.core.client.render.SpaceElevatorRender;
 
@@ -113,21 +112,6 @@ public final class AF9MachineModels {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(
                         () -> LightRingRender.create(up, back, radius, thickness, axis, arcs, wall)));
-    }
-
-    /**
-     * GT's workable casing model plus the lithography exposure chamber ({@link LithoChamberRender}): violet UV
-     * fill, the wafer exposing die by die, the scanning laser and the wafer robot on its slide. The machine must
-     * implement {@link ILithoChamberMachine} and have a block entity renderer ({@code .hasBER(true)}).
-     *
-     * @param up   chamber centre along the controller's up
-     * @param back chamber centre behind the controller
-     */
-    public static MachineBuilder.ModelInitializer workableCasingWithChamber(ResourceLocation casing,
-                                                                             ResourceLocation overlay, float up,
-                                                                             float back) {
-        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
-                .andThen(model -> model.addDynamicRenderer(() -> LithoChamberRender.create(up, back)));
     }
 
     /**
