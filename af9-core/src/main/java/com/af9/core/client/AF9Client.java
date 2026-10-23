@@ -10,6 +10,7 @@ import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.PondWalls;
 import com.af9.core.client.render.SawBladeRender;
 import com.af9.core.client.render.SpaceElevatorRender;
+import com.af9.core.client.render.WireDrawRender;
 import com.af9.core.client.skin.StructureSkinRender;
 import com.af9.core.client.skin.StructureSkins;
 import com.af9.core.compat.emi.EmiAcceleratorCompat;
@@ -51,6 +52,7 @@ public final class AF9Client {
         EcrwArmRender.register();
         HearthTurntableRender.register();
         SawBladeRender.register();
+        WireDrawRender.register();
         PondWalls.register();
         FiltrationBasinRender.register();
         BioVatRender.register();

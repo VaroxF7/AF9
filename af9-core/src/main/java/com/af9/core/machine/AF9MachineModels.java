@@ -8,6 +8,7 @@ import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.SawBladeRender;
 import com.af9.core.client.render.SpaceElevatorRender;
+import com.af9.core.client.render.WireDrawRender;
 
 import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
@@ -184,5 +185,16 @@ public final class AF9MachineModels {
             ResourceLocation overlay, float up, float back) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(() -> BioVatRender.create(up, back)));
+    }
+
+    /**
+     * GT's workable casing model plus the Large Wiremill's wire drawing machine ({@link WireDrawRender}): a die, a
+     * flyer and a take-up spool in the glass chamber, turning while a recipe runs. The machine must implement
+     * {@link IWiremillMachine} and have a block entity renderer ({@code .hasBER(true)}).
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithWireDraw(ResourceLocation casing,
+                                                                             ResourceLocation overlay) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(WireDrawRender::create));
     }
 }

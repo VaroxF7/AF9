@@ -1,0 +1,250 @@
+From 452730733bcbe9b6c00b9bad89b27d2f424cf26d Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 23 Oct 2026 16:01:57 +0000
+Subject: [PATCH] Remove the GCYM Large Wiremill: AF9's Large Wiremill replaces
+ it (7.5.3-af9.22)
+
+The gtceu:large_wiremill multiblock, its crafting recipe and its generated
+blockstate and models go; AF9 registers a machine of the same id (a KubeJS
+multiblock with a rendered wire drawing machine) that keeps the quest,
+recipes and items that name it.
+---
+ .../gtceu/blockstates/large_wiremill.json     | 114 ------------------
+ .../models/block/machine/large_wiremill.json  |  90 --------------
+ .../gtceu/models/item/large_wiremill.json     |   3 -
+ 3 files changed, 207 deletions(-)
+ delete mode 100644 src/generated/resources/assets/gtceu/blockstates/large_wiremill.json
+ delete mode 100644 src/generated/resources/assets/gtceu/models/block/machine/large_wiremill.json
+ delete mode 100644 src/generated/resources/assets/gtceu/models/item/large_wiremill.json
+
+diff --git a/src/generated/resources/assets/gtceu/blockstates/large_wiremill.json b/src/generated/resources/assets/gtceu/blockstates/large_wiremill.json
+deleted file mode 100644
+index 2553979..0000000
+--- a/src/generated/resources/assets/gtceu/blockstates/large_wiremill.json
++++ /dev/null
+@@ -1,114 +0,0 @@
+-{
+-  "variants": {
+-    "facing=down,upwards_facing=east": {
+-      "gtceu:z": 90,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "x": 90
+-    },
+-    "facing=down,upwards_facing=north": {
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "x": 90
+-    },
+-    "facing=down,upwards_facing=south": {
+-      "gtceu:z": 180,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "x": 90
+-    },
+-    "facing=down,upwards_facing=west": {
+-      "gtceu:z": 270,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "x": 90
+-    },
+-    "facing=east,upwards_facing=east": {
+-      "gtceu:z": 270,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 90
+-    },
+-    "facing=east,upwards_facing=north": {
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 90
+-    },
+-    "facing=east,upwards_facing=south": {
+-      "gtceu:z": 180,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 90
+-    },
+-    "facing=east,upwards_facing=west": {
+-      "gtceu:z": 90,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 90
+-    },
+-    "facing=north,upwards_facing=east": {
+-      "gtceu:z": 270,
+-      "model": "gtceu:block/machine/large_wiremill"
+-    },
+-    "facing=north,upwards_facing=north": {
+-      "model": "gtceu:block/machine/large_wiremill"
+-    },
+-    "facing=north,upwards_facing=south": {
+-      "gtceu:z": 180,
+-      "model": "gtceu:block/machine/large_wiremill"
+-    },
+-    "facing=north,upwards_facing=west": {
+-      "gtceu:z": 90,
+-      "model": "gtceu:block/machine/large_wiremill"
+-    },
+-    "facing=south,upwards_facing=east": {
+-      "gtceu:z": 270,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 180
+-    },
+-    "facing=south,upwards_facing=north": {
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 180
+-    },
+-    "facing=south,upwards_facing=south": {
+-      "gtceu:z": 180,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 180
+-    },
+-    "facing=south,upwards_facing=west": {
+-      "gtceu:z": 90,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 180
+-    },
+-    "facing=up,upwards_facing=east": {
+-      "gtceu:z": 90,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "x": 270
+-    },
+-    "facing=up,upwards_facing=north": {
+-      "gtceu:z": 180,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "x": 270
+-    },
+-    "facing=up,upwards_facing=south": {
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "x": 270
+-    },
+-    "facing=up,upwards_facing=west": {
+-      "gtceu:z": 270,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "x": 270
+-    },
+-    "facing=west,upwards_facing=east": {
+-      "gtceu:z": 270,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 270
+-    },
+-    "facing=west,upwards_facing=north": {
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 270
+-    },
+-    "facing=west,upwards_facing=south": {
+-      "gtceu:z": 180,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 270
+-    },
+-    "facing=west,upwards_facing=west": {
+-      "gtceu:z": 90,
+-      "model": "gtceu:block/machine/large_wiremill",
+-      "y": 270
+-    }
+-  }
+-}
+\ No newline at end of file
+diff --git a/src/generated/resources/assets/gtceu/models/block/machine/large_wiremill.json b/src/generated/resources/assets/gtceu/models/block/machine/large_wiremill.json
+deleted file mode 100644
+index 83b9d1f..0000000
+--- a/src/generated/resources/assets/gtceu/models/block/machine/large_wiremill.json
++++ /dev/null
+@@ -1,90 +0,0 @@
+-{
+-  "parent": "minecraft:block/block",
+-  "loader": "gtceu:machine",
+-  "machine": "gtceu:large_wiremill",
+-  "texture_overrides": {
+-    "all": "gtceu:block/casings/gcym/stress_proof_casing"
+-  },
+-  "variants": {
+-    "is_formed=false,recipe_logic_status=idle": {
+-      "model": {
+-        "parent": "gtceu:block/machine/template/cube_all/sided",
+-        "textures": {
+-          "all": "gtceu:block/casings/gcym/stress_proof_casing",
+-          "overlay_front": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front",
+-          "overlay_front_emissive": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_emissive"
+-        }
+-      }
+-    },
+-    "is_formed=false,recipe_logic_status=suspend": {
+-      "model": {
+-        "parent": "gtceu:block/machine/template/cube_all/sided",
+-        "textures": {
+-          "all": "gtceu:block/casings/gcym/stress_proof_casing",
+-          "overlay_front": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_paused",
+-          "overlay_front_emissive": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_paused_emissive"
+-        }
+-      }
+-    },
+-    "is_formed=false,recipe_logic_status=waiting": {
+-      "model": {
+-        "parent": "gtceu:block/machine/template/cube_all/sided",
+-        "textures": {
+-          "all": "gtceu:block/casings/gcym/stress_proof_casing",
+-          "overlay_front": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_active",
+-          "overlay_front_emissive": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_active_emissive"
+-        }
+-      }
+-    },
+-    "is_formed=false,recipe_logic_status=working": {
+-      "model": {
+-        "parent": "gtceu:block/machine/template/cube_all/sided",
+-        "textures": {
+-          "all": "gtceu:block/casings/gcym/stress_proof_casing",
+-          "overlay_front": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_active",
+-          "overlay_front_emissive": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_active_emissive"
+-        }
+-      }
+-    },
+-    "is_formed=true,recipe_logic_status=idle": {
+-      "model": {
+-        "parent": "gtceu:block/machine/template/cube_all/sided",
+-        "textures": {
+-          "all": "gtceu:block/casings/gcym/stress_proof_casing",
+-          "overlay_front": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front",
+-          "overlay_front_emissive": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_emissive"
+-        }
+-      }
+-    },
+-    "is_formed=true,recipe_logic_status=suspend": {
+-      "model": {
+-        "parent": "gtceu:block/machine/template/cube_all/sided",
+-        "textures": {
+-          "all": "gtceu:block/casings/gcym/stress_proof_casing",
+-          "overlay_front": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_paused",
+-          "overlay_front_emissive": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_paused_emissive"
+-        }
+-      }
+-    },
+-    "is_formed=true,recipe_logic_status=waiting": {
+-      "model": {
+-        "parent": "gtceu:block/machine/template/cube_all/sided",
+-        "textures": {
+-          "all": "gtceu:block/casings/gcym/stress_proof_casing",
+-          "overlay_front": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_active",
+-          "overlay_front_emissive": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_active_emissive"
+-        }
+-      }
+-    },
+-    "is_formed=true,recipe_logic_status=working": {
+-      "model": {
+-        "parent": "gtceu:block/machine/template/cube_all/sided",
+-        "textures": {
+-          "all": "gtceu:block/casings/gcym/stress_proof_casing",
+-          "overlay_front": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_active",
+-          "overlay_front_emissive": "gtceu:block/multiblock/gcym/large_wiremill/overlay_front_active_emissive"
+-        }
+-      }
+-    }
+-  }
+-}
+\ No newline at end of file
+diff --git a/src/generated/resources/assets/gtceu/models/item/large_wiremill.json b/src/generated/resources/assets/gtceu/models/item/large_wiremill.json
+deleted file mode 100644
+index d38949f..0000000
+--- a/src/generated/resources/assets/gtceu/models/item/large_wiremill.json
++++ /dev/null
+@@ -1,3 +0,0 @@
+-{
+-  "parent": "gtceu:block/machine/large_wiremill"
+-}
+\ No newline at end of file
+-- 
+2.43.0
+
