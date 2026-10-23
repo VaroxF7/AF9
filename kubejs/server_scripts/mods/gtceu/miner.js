@@ -24,21 +24,17 @@ ServerEvents.recipes((event) => {
     // (batched: the same collected ids removed in one filter call)
     if (foreign.length) event.remove({ id: foreign })
 
+    // MK1 is an MV machine: MV miner and field generators, MV circuits, stainless steel plates (stainless is
+    // reachable by MV). No ASIC here: the mining ASIC needs phosphorus, which comes after MV (chip_uses.js);
+    // MK2 and MK3 still take it.
     gtr.assembler("gtceu:void_miner")
-        .itemInputs("gtceu:lv_miner",
-            "gtceu:mv_miner",
-            "gtceu:hv_miner",
-            "4x gtceu:lv_field_generator",
+        .itemInputs("gtceu:mv_miner",
             "4x gtceu:mv_field_generator",
-            "4x gtceu:hv_field_generator",
-            "4x #gtceu:circuits/hv",
-            "4x af9:asic_chip", // AF9: the mining ASIC (chip_uses.js)
-            // (the assembler has 9 item slots: with the ASIC the recipe had 10 and could not be loaded; the long titanium
-            // rod is gone, the plates are stainless now: titanium comes from Mars sand only, after this machine)
+            "4x #gtceu:circuits/mv",
             "4x gtceu:stainless_steel_plate")
         .inputFluids("gtceu:soldering_alloy 1440")
         .itemOutputs("gtceu:void_miner")
-        .EUt(GTValues.VA[GTValues.HV])
+        .EUt(GTValues.VA[GTValues.MV])
         .duration(800)
 
     // MK2 and MK3 assemble from the tier below plus that tier's parts (field generator, circuits, plates, the ASIC

@@ -18,7 +18,7 @@ shale inhibitor, calcite as weight, caustic soda for pH. GT's two mixer recipes 
 
 ## Progression
 
-The first thing that drinks drilling fluid is the HV Void Miner (2000 mB a run); GT's Large Miner (EV) is the other.
+The first thing that drinks drilling fluid is the Void Miner (2000 mB a run); GT's Large Miner (EV) is the other.
 Everything above is HV or lower. The inputs: bentonite (deepslate olivine vein, mined, not void-mined), soda ash (EBF from
 calcite and salt, or lye and CO2), sawdust (logs), lye and chlorine (salt water), acetic acid (bioethanol to ethylene to
 acetic acid, or methanol and CO). No step needs oil, asteroids, lubricant or an ore of the Void Miner. The old recipe's
