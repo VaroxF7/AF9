@@ -1,0 +1,52 @@
+From 1be4435002dc8ef86c79f70480833ad273d30970 Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 23 Oct 2026 12:39:08 +0000
+Subject: [PATCH] Electric Blast Furnace: a cross-shaped structure, 5 x 5
+ without the corners and 4 high, a ring of 12 coils round a 3 x 3 chamber
+ (7.5.3-af9.17)
+
+---
+ .../common/data/machines/GTMultiMachines.java | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
+
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+index b888a4d..2db0980 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+@@ -138,11 +138,14 @@ public class GTMultiMachines {
+             .recipeModifiers(GTRecipeModifiers::ebfOverclock, BATCH_MODE)
+             .appearanceBlock(CASING_INVAR_HEATPROOF)
+             .pattern(definition -> FactoryBlockPattern.start()
+-                    .aisle("XXX", "CCC", "CCC", "XXX")
+-                    .aisle("XXX", "C#C", "C#C", "XMX")
+-                    .aisle("XSX", "CCC", "CCC", "XXX")
++                    // a cross: 5 x 5 without the corners, 4 high; a ring of 12 coils round a 3 x 3 chamber
++                    .aisle(" XXX ", " CCC ", " CCC ", " XXX ")
++                    .aisle("XXXXX", "C###C", "C###C", "XXXXX")
++                    .aisle("XXXXX", "C###C", "C###C", "XXMXX")
++                    .aisle("XXXXX", "C###C", "C###C", "XXXXX")
++                    .aisle(" XSX ", " CCC ", " CCC ", " XXX ")
+                     .where('S', controller(blocks(definition.getBlock())))
+-                    .where('X', blocks(CASING_INVAR_HEATPROOF.get()).setMinGlobalLimited(9)
++                    .where('X', blocks(CASING_INVAR_HEATPROOF.get()).setMinGlobalLimited(26)
+                             .or(autoAbilities(definition.getRecipeTypes()))
+                             .or(autoAbilities(true, false, false)))
+                     .where('M', abilities(PartAbility.MUFFLER))
+@@ -152,9 +155,11 @@ public class GTMultiMachines {
+             .shapeInfos(definition -> {
+                 List<MultiblockShapeInfo> shapeInfo = new ArrayList<>();
+                 var builder = MultiblockShapeInfo.builder()
+-                        .aisle("ISO", "CCC", "CCC", "XMX")
+-                        .aisle("FXD", "C#C", "C#C", "XHX")
+-                        .aisle("EEX", "CCC", "CCC", "XXX")
++                        .aisle(" ISO ", " CCC ", " CCC ", " XMX ")
++                        .aisle("FXXXD", "C###C", "C###C", "XXXXX")
++                        .aisle("XXXXX", "C###C", "C###C", "XXHXX")
++                        .aisle("XXXXX", "C###C", "C###C", "XXXXX")
++                        .aisle(" EEX ", " CCC ", " CCC ", " XXX ")
+                         .where('X', CASING_INVAR_HEATPROOF.getDefaultState())
+                         .where('S', definition, Direction.NORTH)
+                         .where('#', Blocks.AIR.defaultBlockState())
+-- 
+2.43.0
+
