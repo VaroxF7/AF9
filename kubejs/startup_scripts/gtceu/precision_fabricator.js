@@ -33,7 +33,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .langValue(`${GTValues.VN[tier]} Precision Fabricator Input Port`)
                 .rotationState(RotationState.ALL)
                 .abilities($PrecisionPort.INPUT)
-                ['overlayTieredHullModel(java.lang.String)']('item_bus.import')
+                ['colorOverlayTieredHullModel(java.lang.String,java.lang.String,java.lang.String)'](
+                    'overlay_pipe_in_emissive', null, 'overlay_fluid_hatch')
                 ['tooltips(net.minecraft.network.chat.Component[])']([
                     Component.translatable('af9.precision_port.input.tooltip.0'),
                     Component.translatable('af9.precision_port.input.tooltip.1'),
@@ -48,7 +49,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .langValue(`${GTValues.VN[tier]} Precision Fabricator Output Port`)
                 .rotationState(RotationState.ALL)
                 .abilities($PrecisionPort.OUTPUT)
-                ['overlayTieredHullModel(java.lang.String)']('item_bus.export')
+                ['colorOverlayTieredHullModel(java.lang.String,java.lang.String,java.lang.String)'](
+                    'overlay_pipe_out_emissive', null, 'overlay_fluid_hatch')
                 ['tooltips(net.minecraft.network.chat.Component[])']([
                     Component.translatable('af9.precision_port.output.tooltip.0')])
         })
