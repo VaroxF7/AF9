@@ -27,14 +27,13 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static com.af9.core.litho.LithoRecipeUI.*;
 
 /**
  * The drawing behind a lithography recipe's slots ({@link LithoRecipeUI}): a pipe off every row (the items, the fluid
  * rows) into a manifold, the manifold into the machine's frame (the controller drawn large, the node's colour, the node
- * above and the machine's name below), and dashes flowing along all of it to the machine: in the node's colour from
+ * above), and dashes flowing along all of it to the machine: in the node's colour from
  * the items, in the colours of each row's fluids from the track. The 1 nm station's dry process has no track: a note
  * stands where the fluids would be, clear of the manifold. A researched print's data orb has a row of its own:
  * "RESEARCH" beside it and a data line into the manifold, bits flowing along it in the data colour.
@@ -53,17 +52,24 @@ public class LithoFlowWidget extends Widget {
     private final LithoMode mode;
     /** Top of the research row, -1 without one. */
     private final int researchY;
+    /** The blue box's slots, the fabrication's fluids (green) and the auxiliary inputs (red) the recipe has. */
+    private final int mainItems;
+    private final int fabMax;
     private int items;
     private int fluids;
+    private int aux;
     private boolean research;
     private List<FluidStack> fluidStacks = List.of();
     private ItemStack machine;
 
-    public LithoFlowWidget(LithoMode mode, int items, int fluids, int researchY, int height) {
+    public LithoFlowWidget(LithoMode mode, int mainItems, int fabFluids, int aux, int researchY, int height) {
         super(0, 0, WIDTH, height);
         this.mode = mode;
-        this.items = items;
-        this.fluids = fluids;
+        this.mainItems = mainItems;
+        this.fabMax = fabFluids;
+        this.items = mainItems;
+        this.fluids = fabFluids;
+        this.aux = aux;
         this.researchY = researchY;
         this.research = researchY >= 0;
     }
@@ -86,16 +92,26 @@ public class LithoFlowWidget extends Widget {
                 recipe.conditions.stream().anyMatch(ResearchCondition.class::isInstance);
         int itemCount = 0;
         for (Content content : recipe.inputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
-            if (itemCount < PER_ROW) itemCount++;
+            if (itemCount < PER_ROW + 1) itemCount++;
         }
         List<FluidStack> stacks = new ArrayList<>();
         for (Content content : recipe.inputs.getOrDefault(FluidRecipeCapability.CAP, List.of())) {
             FluidStack[] options = FluidRecipeCapability.CAP.of(content.content).getStacks();
-            if (options.length > 0 && stacks.size() < PER_ROW * FLUID_ROWS) stacks.add(options[0]);
+            if (options.length > 0 && stacks.size() < PER_ROW * FLUID_ROWS + TRANSISTOR_FLUIDS) {
+                stacks.add(options[0]);
+            }
         }
-        items = itemCount;
-        fluids = stacks.size();
-        fluidStacks = stacks;
+        items = Math.min(mainItems, itemCount);
+        // the fabrication's fluids in their slots' order, the auxiliary ones counted apart
+        List<FluidStack> normal = new ArrayList<>();
+        int auxFluids = 0;
+        for (int i = 0; i < stacks.size(); i++) {
+            if (auxFluid(mode, i)) auxFluids++;
+            else normal.add(stacks.get(i));
+        }
+        fluids = normal.size();
+        aux = Math.max(0, itemCount - mainItems) + auxFluids;
+        fluidStacks = normal;
     }
 
     @Override
@@ -126,7 +142,8 @@ public class LithoFlowWidget extends Widget {
             top = Math.min(top, y);
             bottom = Math.max(bottom, y);
         }
-        if (fluids == 0) {
+        // (the auxiliary slots below the grid have no pipe)
+        if (fabMax == 0) {
             // the dry process: no track chemicals. The note stays clear of the manifold, and of the research row
             // under it (one line then; its hover says the rest)
             int width = MANIFOLD_X - 3 - (SLOTS_X + 2);
@@ -172,9 +189,7 @@ public class LithoFlowWidget extends Widget {
         }
         // the node above it, the machine below it (under the frame's glow and the manifold's end)
         drawSmallCentered(graphics, mode.nodeNm + " nm", bx + BOX_SIZE / 2, by - 9, node);
-        drawSmallCentered(graphics, Component.translatable("af9.recipe.litho_page.machine." +
-                mode.machine.name().toLowerCase(Locale.ROOT) + (mode.mk2Only() ? "_mk2" : "")).getString(),
-                bx + BOX_SIZE / 2, by + BOX_SIZE + 5, LABEL);
+        // (the machine's name is in the frame's tooltip, not under it)
         super.drawInBackground(graphics, mouseX, mouseY, partialTicks);
     }
 

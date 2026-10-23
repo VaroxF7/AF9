@@ -7,6 +7,7 @@ import com.af9.core.machine.console.ScannerConsoleWidget;
 import com.af9.core.machine.console.ScannerUIWidget;
 import com.af9.core.registry.AF9Blocks;
 
+import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.pattern.BlockPattern;
@@ -338,8 +339,9 @@ public class PhotolithographyLineMachine extends LithoMachine {
                         "af9.recipe.litho_tier_t2" : "af9.recipe.litho_tier_t1").getString());
                 case SCANNER -> type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node_scanner",
                         mode.nodeNm, light, mode.level()).getString());
-                default -> type.addDataInfo(data -> Component.translatable("af9.recipe.litho_node", mode.nodeNm,
-                        light, mode.level()).getString());
+                // the node the recipe prints, in the colour of its substrate's voltage tier (350 nm: MV blue)
+                default -> type.addDataInfo(data -> GTValues.VNF[mode.hatchTier].substring(0, 2) +
+                        Component.translatable("af9.recipe.litho_node_line", mode.nodeNm).getString());
             }
             // GT's own lines for the computation ("Min. Computation") and the research ("Requires Research") are not
             // shown: the data hatch and the machine's console say it, and the research has its slot on the page

@@ -28,6 +28,7 @@ import com.gregtechceu.gtceu.utils.ResearchManager;
 import com.lowdragmc.lowdraglib.gui.texture.ColorBorderTexture;
 import com.lowdragmc.lowdraglib.gui.texture.ColorRectTexture;
 import com.lowdragmc.lowdraglib.gui.texture.GuiTextureGroup;
+import com.lowdragmc.lowdraglib.gui.texture.IGuiTexture;
 import com.lowdragmc.lowdraglib.gui.widget.ProgressWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
@@ -45,6 +46,7 @@ import com.google.common.base.Suppliers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Supplier;
 
 /**
@@ -68,7 +70,13 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
 
     public static final int WIDTH = 176, HEIGHT = 66;
     /** Layout: slot columns and rows, the manifold, the machine frame, the arrow, the outputs. */
-    public static final int SLOTS_X = 4, ITEMS_Y = 4, FLUIDS_Y = 26, PER_ROW = 4, FLUID_ROWS = 2;
+    public static final int SLOTS_X = 4, ITEMS_Y = 4, FLUIDS_Y = 26, PER_ROW = 4, FLUID_ROWS = 2, AUX_SLOTS = 3;
+    /** Top of the auxiliary row: under the 2 x 4 fluid grid, a little apart from it. */
+    public static final int AUX_Y = FLUIDS_Y + 18 * FLUID_ROWS + 6;
+    /** The blue box: the substrate (wafer) and the reticle; everything else an item input is auxiliary. */
+    public static final int MAIN_ITEMS = 2;
+    /** The auxiliary slots' frame: ice on dark frost, as the coolant's (see {@code SpaceMiningRecipeUI}). */
+    public static final int AUX_BG = 0xFF0B2530, AUX_EDGE = 0xFF7FE7FF;
     public static final int MANIFOLD_X = 82, BOX_X = 94, BOX_SIZE = 34, ARROW_X = 131, OUT_X = 155;
     /**
      * The machine's line: the frame, the arrow and the outputs centre on it, level with the first track row's pipe, so
@@ -98,9 +106,41 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
         type.setRecipeUI(ui);
     }
 
-    /** The research row's top: under the track's rows (on the dry 1 nm page, the second track row). */
-    public static int researchY(int fluids) {
-        return FLUIDS_Y + 18 * Math.max(1, (fluids + PER_ROW - 1) / PER_ROW);
+    /** Fluid inputs after a mode's own: the transistors' polyethylene, silicon and electrum (the auxiliary slots). */
+    public static final int TRANSISTOR_FLUIDS = 3;
+
+    /**
+     * Whether the {@code index}th fluid input of a mode is an auxiliary one (the red box: the transistors' three fluids,
+     * always last) and not one of the fabrication's (the green box, a grid of 2 x 4). The fabrication's fluids are in the
+     * order the recipes list them in (kubejs photolithography.js, {@code fluidList}).
+     */
+    public static boolean auxFluid(LithoMode mode, int index) {
+        int own = 3; // developer, rinse water, extreme clean dry air
+        if (mode.ordinal() >= 1) own++; // etch plasma
+        if (mode.light.equals("krf") || mode.light.startsWith("arf")) own++; // excimer laser gas
+        if (mode.light.equals("arf_immersion")) own++; // ultrapure water
+        if (mode.light.startsWith("euv")) own += 2; // tin, hydrogen
+        if (mode.nodeNm <= 50 && !mode.isXfel()) own++; // hafnium tetrachloride
+        if (mode == LithoMode.N7) own++; // Idontknowium plasma
+        return index >= own;
+    }
+
+    /** Fluid slots of the green box among {@code slots}. */
+    public static int normalFluids(LithoMode mode, int slots) {
+        int n = 0;
+        for (int i = 0; i < slots; i++) if (!auxFluid(mode, i)) n++;
+        return n;
+    }
+
+
+    /** The research row's top: under the auxiliary row. */
+    public static int researchY() {
+        return AUX_Y + 22;
+    }
+
+    /** The item slot index of the blue box's {@code n}th slot: the 1 nm page lists its cartridges between them. */
+    public static int mainItemIndex(LithoMode mode, int n) {
+        return mode.isXfel() && n == 1 ? 2 : n;
     }
 
     /** Our layout; GT's binding of the recipe to the slots (by their ids) and the arrow, then the research. */
@@ -114,24 +154,54 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
     }
 
     private WidgetGroup layout() {
-        int items = Math.min(PER_ROW, type.maxInputs.getInt(ItemRecipeCapability.CAP));
-        int fluids = Math.min(PER_ROW * FLUID_ROWS, type.maxInputs.getInt(FluidRecipeCapability.CAP));
+        int items = Math.min(PER_ROW + 1, type.maxInputs.getInt(ItemRecipeCapability.CAP));
+        int fluidSlots = Math.min(PER_ROW * FLUID_ROWS + TRANSISTOR_FLUIDS, type.maxInputs.getInt(FluidRecipeCapability.CAP));
+        int fab = normalFluids(mode, fluidSlots);
+        int mainItems = Math.min(MAIN_ITEMS, items);
+        int auxItems = items - mainItems;
+        int aux = auxItems + fluidSlots - fab;
         int outputs = Math.min(2, type.maxOutputs.getInt(ItemRecipeCapability.CAP));
-        int research = mode.needsResearch() ? researchY(fluids) : -1;
-        int height = research < 0 ? HEIGHT : Math.max(HEIGHT, research + 22);
+        int research = mode.needsResearch() ? researchY() : -1;
+        int height = research < 0 ? Math.max(HEIGHT, AUX_Y + 22) : Math.max(HEIGHT, research + 22);
         WidgetGroup group = new WidgetGroup(0, 0, WIDTH, height);
         // the pipes and the machine first: the slots draw over them
-        LithoFlowWidget flow = new LithoFlowWidget(mode, items, fluids, research, height);
+        LithoFlowWidget flow = new LithoFlowWidget(mode, mainItems, fab, aux, research, height);
         flow.setId(FLOW_ID);
         group.addWidget(flow);
+        // blue box: the substrate and the reticle
+        for (int n = 0; n < mainItems; n++) {
+            int index = mainItemIndex(mode, n);
+            // the last of the two (the reticle) keeps GT's lens overlay
+            slot(group, ItemRecipeCapability.CAP, IO.IN, index, n == mainItems - 1 ? index + 1 : Integer.MAX_VALUE,
+                    SLOTS_X + 18 * n, ITEMS_Y);
+        }
+        // green box: the fluid inputs, a grid of 2 x 4 (the unused slots stay empty); the 1 nm page has none
+        if (fluidSlots > 0) {
+            int g = 0;
+            for (int i = 0; i < fluidSlots; i++) {
+                if (auxFluid(mode, i)) continue;
+                slot(group, FluidRecipeCapability.CAP, IO.IN, i, Integer.MAX_VALUE, SLOTS_X + 18 * (g % PER_ROW),
+                        FLUIDS_Y + 18 * (g / PER_ROW));
+                g++;
+            }
+            for (; g < PER_ROW * FLUID_ROWS; g++) {
+                var empty = new Widget(SLOTS_X + 18 * (g % PER_ROW), FLUIDS_Y + 18 * (g / PER_ROW), 18, 18);
+                empty.setBackground(getOverlaysForSlot(false, FluidRecipeCapability.CAP, false, false, false));
+                group.addWidget(empty);
+            }
+        }
+        // red box, below it: the auxiliary inputs (light source, cartridge, laser gas ...), framed in ice like the coolant
+        IGuiTexture auxBackground = new GuiTextureGroup(new ColorRectTexture(AUX_BG),
+                new ColorBorderTexture(1, AUX_EDGE));
+        int n = 0;
         for (int i = 0; i < items; i++) {
-            slot(group, ItemRecipeCapability.CAP, IO.IN, i, items, SLOTS_X + 18 * i, ITEMS_Y);
+            if (i == mainItemIndex(mode, 0) || i == mainItemIndex(mode, 1)) continue;
+            auxSlot(group, ItemRecipeCapability.CAP, i, n++, auxBackground);
         }
-        for (int i = 0; i < fluids; i++) {
-            slot(group, FluidRecipeCapability.CAP, IO.IN, i, fluids, SLOTS_X + 18 * (i % PER_ROW),
-                    FLUIDS_Y + 18 * (i / PER_ROW));
+        for (int i = 0; i < fluidSlots; i++) {
+            if (auxFluid(mode, i)) auxSlot(group, FluidRecipeCapability.CAP, i, n++, auxBackground);
         }
-        if (fluids == 0) {
+        if (fluidSlots == 0) {
             // the dry process note's hover (the flow draws the note)
             var dry = new Widget(SLOTS_X, FLUIDS_Y, MANIFOLD_X - 2 - SLOTS_X, 16);
             dry.setHoverTooltips(Component.translatable("af9.recipe.litho_page.dry_hover"));
@@ -159,10 +229,23 @@ public class LithoRecipeUI extends GTRecipeTypeUI {
         hover.add(Component.translatable("block.gtceu." + LithoFlowWidget.machineId(mode)));
         hover.add(Component.translatable("af9.recipe.litho_page.node", mode.nodeNm,
                 Component.translatable("af9.litho.light." + mode.light)));
+        if (mode.level() > 0) {
+            hover.add(Component.translatable("af9.recipe.litho_page.version." + mode.machine.name().toLowerCase(Locale.ROOT),
+                    mode.level()));
+        }
         if (mode.mk2Only()) hover.add(Component.translatable("af9.recipe.litho_page.mk2_only"));
         machine.setHoverTooltips(hover);
         group.addWidget(machine);
         return group;
+    }
+
+    /** The {@code n}th auxiliary slot, from {@link #AUX_Y}, in the ice frame. */
+    private void auxSlot(WidgetGroup group, RecipeCapability<?> cap, int index, int n, IGuiTexture background) {
+        Widget slot = cap.createWidget();
+        slot.setSelfPosition(new Position(SLOTS_X + 18 * n, AUX_Y));
+        slot.setBackground(background);
+        slot.setId(cap.slotName(IO.IN, index));
+        group.addWidget(slot);
     }
 
     private void slot(WidgetGroup group, RecipeCapability<?> cap, IO io, int index, int count, int x, int y) {
