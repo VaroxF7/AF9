@@ -1,0 +1,28 @@
+From 124dc1fcd8addf9ff9757fb91c0bc797be0bf8ff Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 23 Oct 2026 15:12:08 +0000
+Subject: [PATCH] Recipe UI editor: recipe types without a group go under
+ "other" instead of crashing the template menu (7.5.3-af9.21)
+
+---
+ .../gregtechceu/gtceu/api/gui/editor/RecipeTypeUIProject.java | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/gui/editor/RecipeTypeUIProject.java b/src/main/java/com/gregtechceu/gtceu/api/gui/editor/RecipeTypeUIProject.java
+index 5927ded..9809aeb 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/gui/editor/RecipeTypeUIProject.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/gui/editor/RecipeTypeUIProject.java
+@@ -121,7 +121,9 @@ public class RecipeTypeUIProject extends UIProject {
+         } else if (name.equals("template_tab")) {
+             Map<String, List<GTRecipeType>> categories = new LinkedHashMap<>();
+             for (GTRecipeType recipeType : GTRegistries.RECIPE_TYPES) {
+-                categories.computeIfAbsent(recipeType.group, group -> new ArrayList<>()).add(recipeType);
++                // KubeJS recipe types made without a category have no group: the menu's branch names must not be null
++                categories.computeIfAbsent(recipeType.group == null ? "other" : recipeType.group,
++                        group -> new ArrayList<>()).add(recipeType);
+             }
+             categories.forEach((groupName, recipeTypes) -> menu.branch(groupName, m -> {
+                 for (GTRecipeType recipeType : recipeTypes) {
+-- 
+2.43.0
+
