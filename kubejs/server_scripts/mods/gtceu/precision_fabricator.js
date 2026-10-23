@@ -194,19 +194,16 @@ ServerEvents.recipes(event => {
         .duration(1400 * 20)
         .EUt(VA[GTValues.UHV])
 
-    // ---- Precision Fabricator Input and Output Ports: hull + bus + hatch (output: hull + bus) ----
-    ;['mv', 'hv', 'ev', 'iv', 'luv', 'zpm', 'uv', 'uhv'].forEach((tier, i) => {
-        const t = GTValues.MV + i
-        gt.assembler(`af9:precision_fabricator_input_port_${tier}`)
-            .itemInputs(`gtceu:${tier}_machine_hull`, `gtceu:${tier}_input_bus`, `gtceu:${tier}_input_hatch`,
-                `2x #gtceu:circuits/${tier}`)
-            .itemOutputs(`gtceu:${tier}_precision_fabricator_input_port`)
-            .duration(200)
-            .EUt(VA[t])
-        gt.assembler(`af9:precision_fabricator_output_port_${tier}`)
-            .itemInputs(`gtceu:${tier}_machine_hull`, `gtceu:${tier}_output_bus`, `#gtceu:circuits/${tier}`)
-            .itemOutputs(`gtceu:${tier}_precision_fabricator_output_port`)
-            .duration(200)
-            .EUt(VA[t])
-    })
+    // ---- Precision Fabricator Input and Output Ports (MV, the only tier): hull + bus + hatch (output: hull + bus) ----
+    gt.assembler('af9:precision_fabricator_input_port_mv')
+        .itemInputs('gtceu:mv_machine_hull', 'gtceu:mv_input_bus', 'gtceu:mv_input_hatch', '2x #gtceu:circuits/mv')
+        .itemOutputs('gtceu:mv_precision_fabricator_input_port')
+        .duration(200)
+        .EUt(VA[GTValues.MV])
+    gt.assembler('af9:precision_fabricator_output_port_mv')
+        .itemInputs('gtceu:mv_machine_hull', 'gtceu:mv_output_bus', '#gtceu:circuits/mv')
+        .itemOutputs('gtceu:mv_precision_fabricator_output_port')
+        .duration(200)
+        .EUt(VA[GTValues.MV])
+
 })

@@ -39,8 +39,8 @@ public class PrecisionPortPartMachine extends TieredPartMachine implements IFanc
     public static final PartAbility OUTPUT = new PartAbility("af9_precision_output");
 
     public static final int FLUID_TANKS = 9, ITEM_SLOTS = 3;
-    /** A tank holds this many millibuckets at LV and doubles per tier (the boules' polysilicon is up to 73,728 mB). */
-    public static final int TANK_BASE = 4000;
+    /** A tank holds this many millibuckets: the one (MV) port has to take the biggest boule's polysilicon, 73,728 mB. */
+    public static final int TANK_CAPACITY = 80_000;
 
     public final IO io;
     @Persisted
@@ -57,7 +57,7 @@ public class PrecisionPortPartMachine extends TieredPartMachine implements IFanc
         nonConsumable = new NotifiableItemStackHandler(this, 1, in ? IO.IN : IO.NONE, in ? IO.IN : IO.NONE);
         circuit = new NotifiableItemStackHandler(this, 1, in ? IO.IN : IO.NONE, IO.NONE)
                 .setFilter(IntCircuitBehaviour::isIntegratedCircuit).shouldSearchContent(false);
-        tanks = new NotifiableFluidTank(this, in ? FLUID_TANKS : 1, TANK_BASE << tier, in ? IO.IN : IO.NONE,
+        tanks = new NotifiableFluidTank(this, in ? FLUID_TANKS : 1, TANK_CAPACITY, in ? IO.IN : IO.NONE,
                 in ? IO.IN : IO.NONE);
     }
 

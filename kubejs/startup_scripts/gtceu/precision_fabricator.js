@@ -23,11 +23,10 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     // Precision Fabricator Input Port: input hatch and input bus in one. 9 fluid tanks (3 x 3), 3 item inputs, 1
-    // non-consumable slot, a ghost circuit (the circuit button on the screen). Tank: 4,000 mB x 2^tier per tank.
-    // Output Port: the one item output slot. MV-UHV (the boules run at MV to UHV).
+    // non-consumable slot, a ghost circuit (the circuit button on the screen). Tank: 80,000 mB each.
+    // Output Port: the one item output slot. One tier only, MV: the energy hatch sets the voltage the boules run at.
     event.create('precision_fabricator_input_port', 'custom')
-        .tiers(GTValues.MV, GTValues.HV, GTValues.EV, GTValues.IV, GTValues.LuV, GTValues.ZPM,
-            GTValues.UV, GTValues.UHV)
+        .tiers(GTValues.MV)
         .machine((holder, tier) => new $PrecisionPort(holder, tier, $PrecisionIO.IN))
         .definition((tier, builder) => {
             builder
@@ -39,11 +38,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                     Component.translatable('af9.precision_port.input.tooltip.0'),
                     Component.translatable('af9.precision_port.input.tooltip.1'),
                     Component.translatable('gtceu.universal.tooltip.fluid_storage_capacity_mult', 9,
-                        `${$PrecisionPort.TANK_BASE << tier}`)])
+                        `${$PrecisionPort.TANK_CAPACITY}`)])
         })
     event.create('precision_fabricator_output_port', 'custom')
-        .tiers(GTValues.MV, GTValues.HV, GTValues.EV, GTValues.IV, GTValues.LuV, GTValues.ZPM,
-            GTValues.UV, GTValues.UHV)
+        .tiers(GTValues.MV)
         .machine((holder, tier) => new $PrecisionPort(holder, tier, $PrecisionIO.OUT))
         .definition((tier, builder) => {
             builder
