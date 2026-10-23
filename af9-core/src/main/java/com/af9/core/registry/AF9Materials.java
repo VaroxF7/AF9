@@ -126,6 +126,8 @@ public final class AF9Materials {
         alloys();
         superalloys();
         lapisSulfonate();
+        drillingMud();
+        askarel();
         annealedBronze();
         rutileFromIlmeniteOnly();
         actinideDusts();
@@ -1660,6 +1662,29 @@ public final class AF9Materials {
         roughDust("vanadium_pentoxide", 0xd9a21b, "V2O5");
         liquid("butene_sulfonic_acid", 0xe3dba8, "C4H7SO3H");
         add(material("lapis_butene_ii_sulfonate").liquid(ownLiquid()).color(0x2a4aa8).formula("Na(C4H7SO3)"));
+    }
+
+    /**
+     * Drilling Fluid, the water-based mud (drilling_fluid.js, docs/drilling-fluid.md): softened water, sodium-activated
+     * bentonite slurry, and carboxymethyl cellulose made from wood pulp and chloroacetic acid. Plain tinted liquids.
+     */
+    private static void drillingMud() {
+        liquid("softened_water", 0x9fd0ea, "H2O(Na+)");
+        liquid("sodium_bentonite_slurry", 0x8a7a5c, "Na(Al,Mg)2Si4O10(OH)2(H2O)");
+        liquid("alkali_cellulose", 0xd9d2b0, "(C6H9O4ONa)n");
+        liquid("chloroacetic_acid", 0xc9e0c0, "ClCH2COOH");
+        liquid("cmc_solution", 0xe8e2c8, "(C6H7O2(OH)2OCH2COONa)n");
+    }
+
+    /**
+     * PCB Coolant, an askarel: polychlorinated biphenyl thinned with trichlorobenzene, dried over calcium chloride and
+     * stabilised with an epoxide that mops up HCl (pcb_coolant.js, docs/pcb-coolant.md).
+     */
+    private static void askarel() {
+        liquid("dichlorobiphenyl", 0xd8da6a, "(C6H4Cl)2");
+        liquid("trichlorobenzene", 0xb9c46a, "C6H3Cl3");
+        liquid("askarel", 0xc4c850);
+        liquid("dry_askarel", 0xd2d65c);
     }
 
     /**

@@ -1436,7 +1436,7 @@
 			y: -1.0d
 		}
 		{
-			dependencies: ["402FE874C854840C"]
+			dependencies: ["402FE874C854840C" "21D7C80DB6E2913F"]
 			description: ["{atm9.quest.gregtech.zpm.desc.pcbcool}"]
 			id: "615C8496F7CCD9A4"
 			rewards: [{
@@ -1470,7 +1470,7 @@
 			y: -3.0d
 		}
 		{
-			dependencies: ["42F7E5E834C63270"]
+			dependencies: ["6882FA3557FCA60F"]
 			description: ["{atm9.quest.gregtech.zpm.desc.polybiphenyl}"]
 			id: "402FE874C854840C"
 			rewards: [{
@@ -1934,6 +1934,63 @@
 			]
 			x: 10.0d
 			y: -3.0d
+		}
+		{
+			dependencies: ["42F7E5E834C63270"]
+			description: ["{af9.quest.pcb.dichloro.1}"]
+			icon: "gtceu:dichlorobiphenyl"
+			id: "6882FA3557FCA60F"
+			rewards: [{
+				id: "5AF96657F19534F6"
+				type: "xp"
+				xp: 25
+			}]
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:dichlorobiphenyl"
+				id: "19C886AF0D1B31F9"
+				type: "fluid"
+			}]
+			x: 7.5d
+			y: -4.0d
+		}
+		{
+			dependencies: ["42F7E5E834C63270"]
+			description: ["{af9.quest.pcb.tcb.1}"]
+			icon: "gtceu:trichlorobenzene"
+			id: "0F8D27A66C70A628"
+			rewards: [{
+				id: "300A125FC549CFEC"
+				type: "xp"
+				xp: 25
+			}]
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:trichlorobenzene"
+				id: "033234D611946D1D"
+				type: "fluid"
+			}]
+			x: 7.5d
+			y: -5.0d
+		}
+		{
+			dependencies: ["402FE874C854840C" "0F8D27A66C70A628"]
+			description: ["{af9.quest.pcb.askarel.1}" "" "{af9.quest.pcb.askarel.2}"]
+			icon: "gtceu:askarel"
+			id: "21D7C80DB6E2913F"
+			rewards: [{
+				id: "529B13A155CEFFC0"
+				type: "xp"
+				xp: 25
+			}]
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:askarel"
+				id: "7ACF670B9FDFB3FE"
+				type: "fluid"
+			}]
+			x: 8.5d
+			y: -5.0d
 		}
 	]
 	title: "{atm9.chapters.33.title}"

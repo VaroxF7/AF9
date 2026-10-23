@@ -756,3 +756,12 @@ material gtceu:zincarry
 material gtceu:zircon ore
 material gtceu:zirconia
 material gtceu:zirconium_tetrachloride
+material gtceu:softened_water
+material gtceu:sodium_bentonite_slurry
+material gtceu:alkali_cellulose
+material gtceu:chloroacetic_acid
+material gtceu:cmc_solution
+material gtceu:dichlorobiphenyl
+material gtceu:trichlorobenzene
+material gtceu:askarel
+material gtceu:dry_askarel

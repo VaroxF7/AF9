@@ -167,6 +167,145 @@
 			x: 9.0d
 			y: 2.5d
 		}
+		{
+			dependencies: ["7DCAE35A2C3059C3"]
+			description: ["{af9.quest.dm.intro.1}" "" "{af9.quest.dm.intro.2}"]
+			icon: "gtceu:drilling_fluid_bucket"
+			id: "67FCFDFE631E20CF"
+			rewards: [{
+				id: "768488AAC875F605"
+				type: "xp"
+				xp: 25
+			}]
+			shape: "gear"
+			title: "{af9.quest.dm.intro.title}"
+			tasks: [{
+				id: "2AA068FD57A129A5"
+				type: "checkmark"
+			}]
+			x: 0.0d
+			y: 5.0d
+		}
+		{
+			dependencies: ["67FCFDFE631E20CF"]
+			description: ["{af9.quest.dm.water.1}"]
+			icon: "gtceu:softened_water"
+			id: "7A79BBCCD089DCA6"
+			rewards: [{
+				id: "6761EA3632622CBF"
+				type: "xp"
+				xp: 25
+			}]
+			title: "{af9.quest.dm.water.title}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:softened_water"
+				id: "6911D945032508B6"
+				type: "fluid"
+			}]
+			x: 3.0d
+			y: 5.0d
+		}
+		{
+			dependencies: ["7A79BBCCD089DCA6"]
+			description: ["{af9.quest.dm.slurry.1}"]
+			icon: "gtceu:sodium_bentonite_slurry"
+			id: "01B63F59668FFF83"
+			rewards: [{
+				id: "67F6175388C60099"
+				type: "xp"
+				xp: 25
+			}]
+			title: "{af9.quest.dm.slurry.title}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:sodium_bentonite_slurry"
+				id: "2D93F4FEF132D89D"
+				type: "fluid"
+			}]
+			x: 6.0d
+			y: 5.0d
+		}
+		{
+			dependencies: ["67FCFDFE631E20CF"]
+			description: ["{af9.quest.dm.chloroacetic.1}"]
+			icon: "gtceu:chloroacetic_acid"
+			id: "4AE6AED23428989B"
+			rewards: [{
+				id: "20C10D5C26569708"
+				type: "xp"
+				xp: 25
+			}]
+			title: "{af9.quest.dm.chloroacetic.title}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:chloroacetic_acid"
+				id: "2C647959850AAA6A"
+				type: "fluid"
+			}]
+			x: 3.0d
+			y: 7.5d
+		}
+		{
+			dependencies: ["67FCFDFE631E20CF"]
+			description: ["{af9.quest.dm.alkali.1}"]
+			icon: "gtceu:alkali_cellulose"
+			id: "56DC35082311DA92"
+			rewards: [{
+				id: "75BB6E4326C2E089"
+				type: "xp"
+				xp: 25
+			}]
+			title: "{af9.quest.dm.alkali.title}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:alkali_cellulose"
+				id: "7679B68CD211553D"
+				type: "fluid"
+			}]
+			x: 6.0d
+			y: 7.5d
+		}
+		{
+			dependencies: ["4AE6AED23428989B" "56DC35082311DA92"]
+			description: ["{af9.quest.dm.cmc.1}"]
+			icon: "gtceu:cmc_solution"
+			id: "03F1D32E65D80022"
+			rewards: [{
+				id: "6940D565C45BE278"
+				type: "xp"
+				xp: 25
+			}]
+			title: "{af9.quest.dm.cmc.title}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:cmc_solution"
+				id: "246C439FEF13955F"
+				type: "fluid"
+			}]
+			x: 9.0d
+			y: 7.5d
+		}
+		{
+			dependencies: ["01B63F59668FFF83" "03F1D32E65D80022"]
+			description: ["{af9.quest.dm.fluid.1}"]
+			icon: "gtceu:drilling_fluid"
+			id: "4F9AFE5EFC616DAC"
+			rewards: [{
+				id: "04F6402CC6E5467A"
+				type: "xp"
+				xp: 25
+			}]
+			title: "{af9.quest.dm.fluid.title}"
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:drilling_fluid"
+				id: "572CA2A4B8DE1534"
+				type: "fluid"
+			}]
+			x: 9.0d
+			y: 5.0d
+		}
 	]
 	subtitle: ["{af9.quest.vm.chapter.subtitle}"]
 	title: "{af9.quest.vm.chapter.title}"

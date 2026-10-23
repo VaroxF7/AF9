@@ -392,6 +392,8 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 - [UHV superconductor](docs/uhv-superconductor.md) — Sanguinite: Ares gas, LXA-1 missions, RHF smelt
 - [Rubber](docs/rubber.md) — latex from plants, rubber / liquid rubber / silicone / SBR
 - [Quantanium](docs/quantanium.md) — the UHV unlock ore, Asteroid Field dike vein
+- [Drilling Fluid](docs/drilling-fluid.md) — a six-step water-based mud (bentonite, CMC, salt), nothing above HV
+- [PCB Coolant](docs/pcb-coolant.md) — an askarel: chlorinated biphenyl and trichlorobenzene, dried and stabilised
 - [Lesolite](docs/lesolite.md) — the EV SMD mineral, Moon blob vein beside artemite
 - [ECRW](docs/ecrw.md) — the evaporation pond (salt water to salt), spinning rake arm
 - [Early game](docs/early-game.md) — Create circuits (LV, MV), HV components in Powah's Energizing Orb
