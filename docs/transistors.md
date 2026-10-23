@@ -2,6 +2,8 @@
 
 Transistors are no item. A silicon chip wafer carries a fixed count; printing it uses up the fluids that count costs.
 
+The fluids go in through the machine's auxiliary fluid hatches (line 8, scanner 9, station 11).
+
 | per 100 transistors | |
 |---|---|
 | Polyethylene | 12 mB |
