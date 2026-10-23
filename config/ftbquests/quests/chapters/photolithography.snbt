@@ -33,18 +33,6 @@
 			y: 1.5d
 		}
 		{
-			id: "3A18116FF850ECA6"
-			linked_quest: "5B92DA55541B168B"
-			x: 9.0d
-			y: -1.5d
-		}
-		{
-			id: "5F3A316AF0986368"
-			linked_quest: "4E5FE40373675AED"
-			x: 10.5d
-			y: -1.5d
-		}
-		{
 			id: "6A92C28EF990AEE8"
 			linked_quest: "3DCCEDC5A817EBEB"
 			x: 12.0d
