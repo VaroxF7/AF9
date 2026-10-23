@@ -1,0 +1,67 @@
+From 644445524437c3f6b242eaedba67f2631e5069bf Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 23 Oct 2026 17:02:26 +0000
+Subject: [PATCH] Remove GCYM's Large Wiremill registration and recipe: patch
+ 0022 only deleted its generated assets, so gtceu:large_wiremill was
+ registered twice (7.5.3-af9.23)
+
+AF9's Large Wiremill (a KubeJS multiblock with the same id) hit 'registry gtceu:machine contains key gtceu:large_wiremill already' at startup.
+---
+ .../common/data/machines/GCYMMachines.java    | 25 -------------------
+ .../gtceu/data/recipe/misc/GCYMRecipes.java   |  4 ---
+ 2 files changed, 29 deletions(-)
+
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java
+index 6e882a9..8b0fccd 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java
+@@ -759,31 +759,6 @@ public class GCYMMachines {
+                     GTCEu.id("block/multiblock/gcym/large_solidifier"))
+             .register();
+ 
+-    public final static MultiblockMachineDefinition LARGE_WIREMILL = REGISTRATE
+-            .multiblock("large_wiremill", WorkableElectricMultiblockMachine::new)
+-            .langValue("Large Wire Factory")
+-            .tooltips(Component.translatable("gtceu.multiblock.parallelizable.tooltip"))
+-            .tooltips(Component.translatable("gtceu.machine.available_recipe_map_1.tooltip",
+-                    Component.translatable("gtceu.wiremill")))
+-            .rotationState(RotationState.ALL)
+-            .recipeType(WIREMILL_RECIPES)
+-            .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH, OC_NON_PERFECT_SUBTICK, BATCH_MODE)
+-            .appearanceBlock(CASING_STRESS_PROOF)
+-            .pattern(definition -> FactoryBlockPattern.start()
+-                    .aisle("XXXXX", "XXXXX", "XXX##")
+-                    .aisle("XXXXX", "X#CCX", "XXXXX")
+-                    .aisle("XXXXX", "XSXXX", "XXX##")
+-                    .where('S', controller(blocks(definition.get())))
+-                    .where('X', blocks(CASING_STRESS_PROOF.get()).setMinGlobalLimited(25)
+-                            .or(autoAbilities(definition.getRecipeTypes()))
+-                            .or(autoAbilities(true, false, true)))
+-                    .where('C', blocks(CASING_TITANIUM_GEARBOX.get()))
+-                    .where('#', any())
+-                    .build())
+-            .workableCasingModel(GTCEu.id("block/casings/gcym/stress_proof_casing"),
+-                    GTCEu.id("block/multiblock/gcym/large_wiremill"))
+-            .register();
+-
+     // spotless:off
+     public final static MultiblockMachineDefinition MEGA_BLAST_FURNACE = REGISTRATE
+             .multiblock("mega_blast_furnace", CoilWorkableElectricMultiblockMachine::new)
+diff --git a/src/main/java/com/gregtechceu/gtceu/data/recipe/misc/GCYMRecipes.java b/src/main/java/com/gregtechceu/gtceu/data/recipe/misc/GCYMRecipes.java
+index 3994689..e01d000 100644
+--- a/src/main/java/com/gregtechceu/gtceu/data/recipe/misc/GCYMRecipes.java
++++ b/src/main/java/com/gregtechceu/gtceu/data/recipe/misc/GCYMRecipes.java
+@@ -142,10 +142,6 @@ public class GCYMRecipes {
+                 "ESE", "PKP", 'Z', CustomTags.IV_CIRCUITS, 'S', FLUID_SOLIDIFIER[IV].asStack(), 'E',
+                 ELECTRIC_PUMP_IV.asStack(), 'P', ChemicalHelper.get(pipeNormalFluid, Polyethylene), 'K',
+                 new MaterialEntry(cableGtSingle, Platinum));
+-        VanillaRecipeHelper.addShapedRecipe(provider, true, "large_wiremill", LARGE_WIREMILL.asStack(), "PZP", "SWS",
+-                "MKM", 'Z', CustomTags.IV_CIRCUITS, 'W', WIREMILL[IV].asStack(), 'P',
+-                new MaterialEntry(plate, HSLASteel), 'S', new MaterialEntry(spring, HSLASteel), 'M',
+-                ELECTRIC_MOTOR_IV.asStack(), 'K', new MaterialEntry(cableGtSingle, Platinum));
+     }
+ 
+     private static void registerPartsRecipes(Consumer<FinishedRecipe> provider) {
+-- 
+2.43.0
+
