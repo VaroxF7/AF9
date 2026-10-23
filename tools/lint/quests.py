@@ -183,7 +183,7 @@ SHAPES = sorted(['dust', 'small_dust', 'tiny_dust', 'ingot', 'hot_ingot', 'plate
                  'small_gear', 'nugget', 'block', 'bolt', 'screw', 'ring', 'frame', 'gem', 'lens', 'rotor', 'spring',
                  'wire', 'single_wire', 'double_wire', 'quadruple_wire', 'octal_wire', 'hex_wire', 'single_cable',
                  'double_cable', 'quadruple_cable', 'octal_cable', 'hex_cable', 'crushed', 'pure_dust', 'impure_dust',
-                 'raw', 'dense_plate', 'round', 'bucket'], key=len, reverse=True)
+                 'raw', 'dense_plate', 'round', 'bucket', 'wire_spool'], key=len, reverse=True)
 
 
 def material_of(name):
