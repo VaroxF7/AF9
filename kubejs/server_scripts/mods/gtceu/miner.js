@@ -122,7 +122,8 @@ ServerEvents.recipes((event) => {
 
     // emitRecipes(typeBase, table, euT, dimensions, m): the tables are MK1's, m scales them (counts and amperage up,
     // duration down: 1200 / m ticks), so each ore costs the same energy however the tier draws it. Drilling fluid,
-    // circuit, chances and dimensions stay as the table says. The recipe type is typeBase plus '' / '_mk2' /
+    // circuit, chances and dimensions stay as the table says; an entry may carry a fourth element, its own voltage
+    // (the Moon's tranquillite runs at MV, its mode's euT stays EV). The recipe type is typeBase plus '' / '_mk2' /
     // '_mk3' - gtceu:void_miner runs the four base types, void_miner_mk2 and void_miner_mk3 the suffixed copies.
     function emitRecipes(typeBase, table, euT, dimensions, m) {
         const suffix = m === 1 ? '' : '_mk' + m
@@ -138,7 +139,7 @@ ServerEvents.recipes((event) => {
                 recipe.dimension(dimension)
             })
             recipe.circuit(entry[1])
-                .EUt(euT, m)
+                .EUt(entry[3] || euT, m)
                 .duration(1200 / m)
             entry[0].forEach((line) => {
                 recipe.chancedOutput(scaleCount(line, m), 2000, 0)
@@ -369,11 +370,11 @@ ServerEvents.recipes((event) => {
     // The Moon gives one ore a circuit, like the belt: the new Moon minerals (lesolite, tranquillite).
     // Artemite stays out (the dopant's trickle is the elevator's, like the old uranium ways).
     const moon_raw_ores =
-        [[["60x gtceu:raw_tranquillite"], "1", "af9:vm_moon_tranquillite"],
+        [[["60x gtceu:raw_tranquillite"], "1", "af9:vm_moon_tranquillite", GTValues.VA[GTValues.MV]],
 
         [["30x gtceu:raw_lesolite"], "2", "af9:vm_moon_lesolite"]]
 
-    // Moon: the mode is Earth's Moon alone, at the overworld's voltage
+    // Moon: the mode is Earth's Moon alone, at the overworld's voltage (tranquillite alone at MV, see its entry)
     tier_multipliers.forEach((m) => emitRecipes("void_mining_moon", moon_raw_ores,
         GTValues.VA[GTValues.EV], moon_dimensions, m))
 })
