@@ -111,6 +111,9 @@ public final class AF9Blocks {
         block("collision_containment_casing", SoundType.NETHERITE_BLOCK, 1200F, 0, 2);
         block("collision_shield_casing", SoundType.NETHERITE_BLOCK, 1200F, 0, 2);
 
+        // ---- Water Filtration Plant: the filter strips of the basin floor (tools/textures/water_filter_casing.py) ----
+        block("water_filter_casing", SoundType.METAL, 6F, 0, 2);
+
         // ---- Mk2 Orbital Array: the magnet pillars and light strips of the tower (textures from Cosmic Frontiers) ----
         block("orbital_magnet_casing", SoundType.METAL, 12F, 0, 0);
         // lit while the station works: brighter, and a glowing animated layer (orbital_casings.py)

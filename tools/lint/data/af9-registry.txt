@@ -68,6 +68,7 @@ block af9:space_elevator_motor_mk4
 block af9:space_elevator_motor_mk5
 block af9:toluene
 block af9:ultra_high_strength_concrete_floor
+block af9:water_filter_casing
 block af9:wood_vinegar
 block af9:dtpf_transcendent_casing
 block af9:dtpf_injection_casing
@@ -363,6 +364,7 @@ item af9:pico_circuit_rack
 item af9:pico_cpu
 item af9:shock_capacitor_casing
 item af9:tritanium_ray_reflector
+item af9:water_filter_casing
 item af9:xps_board
 item af9:silicon_carbide_substrate
 item af9:alumina_substrate
