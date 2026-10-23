@@ -131,6 +131,8 @@ public class PhotolithographyLineMachine extends LithoMachine {
     private final Spec spec;
     // rebuilt on every structure check
     private int version;
+    // highest version the light source in the structure allows; rebuilt with the version
+    private int lightCap;
 
     /** The Mk1 line (the KubeJS definition of photolithography_line). */
     public PhotolithographyLineMachine(IMachineBlockEntity holder) {
@@ -198,6 +200,15 @@ public class PhotolithographyLineMachine extends LithoMachine {
     public void onStructureInvalid() {
         super.onStructureInvalid();
         version = 0;
+        lightCap = 0;
+    }
+
+    /**
+     * Highest version the light source block allows (1 mercury lamp, 2 KrF, 3 ArF), 0 while not formed; machines
+     * without light blocks (the scanner keeps its laser in a slot) allow every version.
+     */
+    public int getLightCap() {
+        return isFormed() ? lightCap : 0;
     }
 
     /** min(lens slices - (V1 slices - 1), light source cap), 1 to the last version; 0 while not formed. Without light
@@ -212,7 +223,7 @@ public class PhotolithographyLineMachine extends LithoMachine {
         if (level == null) return 1;
         Block lens = ForgeRegistries.BLOCKS.getValue(spec.lensBlock());
         int lensBlocks = 0;
-        int lightCap = spec.hasLightBlocks() ? 1 : spec.maxVersion();
+        int lightCap = spec.hasLightBlocks() ? 0 : spec.maxVersion();
         for (BlockPos pos : getMultiblockState().getCache()) {
             Block block = level.getBlockState(pos).getBlock();
             if (block == lens) {
@@ -224,9 +235,10 @@ public class PhotolithographyLineMachine extends LithoMachine {
                 if (spec.lights()[i].equals(id)) lightCap = Math.max(lightCap, spec.lightCaps()[i]);
             }
         }
+        this.lightCap = lightCap;
         int slices = lensBlocks / Math.max(1, spec.lensPerSlice());
         int byLens = slices - spec.lensSlicesV1() + 1;
-        return Math.max(1, Math.min(spec.maxVersion(), Math.min(byLens, lightCap)));
+        return Math.max(1, Math.min(spec.maxVersion(), Math.min(byLens, Math.max(1, lightCap))));
     }
 
     /** Structure preview pages of the Mk1 line. */

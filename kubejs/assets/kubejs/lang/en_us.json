@@ -7539,7 +7539,7 @@
 	"af9.quest.litho.track.title": "The Coater Track",
 	"af9.quest.litho.track.subtitle": "Prime, coat, bake",
 	"af9.quest.litho.track.1": "A wafer is coated before it is exposed. The &eCoater Track&r (MV, plascrete, 3x3x6, hatches on any plascrete) spins on the &eHMDS primer&r, the bottom anti-reflective coat, the node's &eresist&r and, for the immersion nodes, the top coat, and bakes it: a blank wafer becomes a &eCoated Wafer&r of its substrate.",
-	"af9.quest.litho.track.2": "The &ePhotolithography Line&r, &eScanner&r and &eOrbital Station&r print coated wafers only (the 1 nm station deposits its resist dry on a blank wafer). A 350 nm wafer takes 40 mB HMDS vapor and 100 mB photoresist; every finer node takes &c1.5x&r the node before it. A Parallel Hatch coats several wafers at once.",
+	"af9.quest.litho.track.2": "The &ePhotolithography Line&r, &eScanner&r and &eOrbital Station&r print coated wafers only (the 1 nm station deposits its resist dry on a blank wafer). A 350 nm wafer takes 40 mB HMDS vapor and 100 mB photoresist; every finer node takes &c1.5x&r the node before it. The Coater Track takes a Parallel Hatch to coat several wafers at once; the Line and the Scanner take none and print several wafers in &ebatch mode&r.",
 	"af9.quest.litho.mgsi.title": "Metallurgical-Grade Silicon",
 	"af9.quest.litho.mgsi.subtitle": "Quartz + coke, 1800 K",
 	"af9.quest.litho.mgsi.1": "Chip silicon has to be 99.999999999 % pure. Start with &eQuartzite&r: leach its dust in hydrochloric acid (wet processing mode) into &eHigh-Purity Quartz&r, then reduce it with two coke dust in the Arc Furnace at 1800 K: &eMetallurgical-Grade Silicon&r, 99 % pure, and carbon monoxide.",

@@ -237,9 +237,17 @@ public abstract class LithoMachine extends WorkableElectricMultiblockMachine
         return true;
     }
 
-    /** Status while the machine is not ready to print yet ({@link #isVacuumSealed()} false): pumping down. */
+    /**
+     * Status while the machine is not ready to print yet ({@link #isVacuumSealed()} false): pumping down, or no power
+     * while the pumps are starved (a venting or never-started vacuum is not "pumping").
+     */
     public int notReadyStatus() {
-        return ConsoleWidget.STATUS_PUMPING_DOWN;
+        return pumpsStarved() ? ConsoleWidget.STATUS_NO_POWER : ConsoleWidget.STATUS_PUMPING_DOWN;
+    }
+
+    /** The pumps found no energy in the hatches at their last check (server side). */
+    public boolean pumpsStarved() {
+        return isFormed() && unpoweredTicks > 0;
     }
 
     /** The Array Mk2's focus lock: 0 off, 1 armed (the option is on), 2 latched; 0 where the machine has none. */

@@ -58,10 +58,10 @@ public class ScannerConsoleWidget extends ConsoleWidget {
     public static final int PANEL_X = 250, PANEL_Y = 4, PANEL_W = 130, PANEL_H = 140;
     /** The ArF laser slot. */
     public static final int SLOT_X = PANEL_X + 5, SLOT_Y = 58;
-    public static final int SWITCH_X = PANEL_X + 5, SWITCH_Y = 80, SWITCH_W = PANEL_W - 10, SWITCH_H = 16;
-    /** The wafer (centre) in the field. */
-    private static final int WAFER_X = FIELD_X + FIELD_W / 2, WAFER_Y = 72;
-    private static final WaferView WAFER = new WaferView(32, 8);
+    public static final int SWITCH_X = PANEL_X + 5, SWITCH_Y = 86, SWITCH_W = PANEL_W - 10, SWITCH_H = 14;
+    /** The wafer (centre) in the field: its progress ring stays between the node's name and the state text. */
+    private static final int WAFER_X = FIELD_X + FIELD_W / 2, WAFER_Y = FIELD_Y + 70;
+    private static final WaferView WAFER = new WaferView(28, 8);
     /** Structure length of version 1 (the line adds 1 block a version, the scanner 2: the spec's aisles per slice). */
     public static final int LENGTH_V1 = 10;
 
@@ -86,6 +86,10 @@ public class ScannerConsoleWidget extends ConsoleWidget {
     /** Prints in the running batch (0: nothing running). */
     private int batch;
     private boolean laser;
+    /** The line's light source: the highest version it allows (1 mercury lamp, 2 KrF, 3 ArF), 0 where none is built. */
+    private int lightCap;
+    /** The pumps found no energy in the hatches. */
+    private boolean starved;
     /** Air cooling (units given / heat load, doublings above it, lapsed), OPC percent (-1: none). */
     private int coolCapacity;
     private int coolLoad;
@@ -117,7 +121,8 @@ public class ScannerConsoleWidget extends ConsoleWidget {
             if (!click.isRemote) machine.setWorkingEnabled(!machine.isWorkingEnabled());
         });
         power.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
-        power.setHoverTooltips(Component.translatable("af9.scanner.console.switch_tooltip"));
+        power.setHoverTooltips(Component.translatable(machine instanceof PhotolithographyScannerMachine ?
+                "af9.scanner.console.switch_tooltip" : "af9.line.console.switch_tooltip"));
         page.addWidget(power);
         return page;
     }
@@ -144,10 +149,11 @@ public class ScannerConsoleWidget extends ConsoleWidget {
                 machine.needsAirCooling(active) ? active.heatLoad() : 0, machine.coolingSteps(active),
                 machine.hasCoolingLapsed() && logic.isWorking() ? 1 : 0,
                 opcPercent(machine.getOpcRatio(active, logic.isWorking())),
-                machine.isMultiPatterned(active) ? 1 : 0 };
+                machine.isMultiPatterned(active) ? 1 : 0, machine.getSpec().hasLightBlocks() ? machine.getLightCap() : 0,
+                machine.pumpsStarved() ? 1 : 0 };
         int[] before = { status, mode, version, tier, progress, duration, cleanliness, printVacuum, vacuum,
                 breakChance, workingEnabled ? 1 : 0, batchEnabled ? 1 : 0, batch, laser ? 1 : 0, coolCapacity,
-                coolLoad, coolSteps, coolLapsed ? 1 : 0, opc, multi ? 1 : 0 };
+                coolLoad, coolSteps, coolLapsed ? 1 : 0, opc, multi ? 1 : 0, lightCap, starved ? 1 : 0 };
         long newAvailable = machine.getAvailableEUt();
         String newProduct = current == null ? "" : current.toString();
         boolean changed = !Arrays.equals(now, before) || newAvailable != available ||
@@ -173,6 +179,8 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         coolLapsed = now[17] == 1;
         opc = now[18];
         multi = now[19] == 1;
+        lightCap = now[20];
+        starved = now[21] == 1;
         available = newAvailable;
         printed = machine.getPrinted();
         broken = machine.getBroken();
@@ -208,6 +216,8 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         buffer.writeBoolean(coolLapsed);
         buffer.writeVarInt(opc + 1);
         buffer.writeBoolean(multi);
+        buffer.writeVarInt(lightCap);
+        buffer.writeBoolean(starved);
         buffer.writeVarLong(available);
         buffer.writeVarLong(printed);
         buffer.writeVarLong(broken);
@@ -236,6 +246,8 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         coolLapsed = buffer.readBoolean();
         opc = buffer.readVarInt() - 1;
         multi = buffer.readBoolean();
+        lightCap = buffer.readVarInt();
+        starved = buffer.readBoolean();
         available = buffer.readVarLong();
         printed = buffer.readVarLong();
         broken = buffer.readVarLong();
@@ -283,14 +295,14 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         boolean locked = active.level() > version;
         String node = active.nodeNm + " NM";
         graphics.pose().pushPose();
-        graphics.pose().translate(x + FIELD_W / 2F, y + 8, 0);
+        graphics.pose().translate(x + FIELD_W / 2F, y + 6, 0);
         graphics.pose().scale(2F, 2F, 1F);
         graphics.drawString(font, node, -font.width(node) / 2, 0, locked ? BAD : active.argb, false);
         graphics.pose().popPose();
         String detail = locked ? Component.translatable("af9.scanner.console.needs", active.level()).getString() :
                 Component.translatable("af9.litho.substrate." + active.substrate).getString() + "  " +
                         Component.translatable("af9.litho.light." + active.light).getString();
-        drawSmall(graphics, detail, x + FIELD_W / 2, y + 28, locked ? BAD : MUTED, true);
+        drawSmall(graphics, fit(detail, FIELD_W * 4 / 3 - 16), x + FIELD_W / 2, y + 24, locked ? BAD : MUTED, true);
 
         boolean running = status == STATUS_RUNNING;
         double fraction = duration <= 0 ? 0 : Math.min(1.0, (progress + (running ? partialTicks : 0)) / duration);
@@ -300,7 +312,7 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         // the wafer from above in the middle, exposed die by die; the beam from the top of the field to the die
         int cx = x0 + WAFER_X, cy = y0 + WAFER_Y;
         int[] die = WAFER.draw(graphics, cx, cy, fraction, running, status == STATUS_OFFLINE, color, time);
-        if (die != null) WaferView.drawBeam(graphics, cx, y + 38, die[0], die[1], color, time);
+        if (die != null) WaferView.drawBeam(graphics, cx, y + 33, die[0], die[1], color, time);
 
         // state and run time
         int midX = x + FIELD_W / 2;
@@ -308,12 +320,12 @@ public class ScannerConsoleWidget extends ConsoleWidget {
                 Component.translatable("af9.scanner.console.exposing").getString() + "  " +
                         Math.round(fraction * 100) + "%" :
                 Component.translatable("af9.console.status." + status).getString();
-        graphics.drawString(font, state, midX - font.width(state) / 2, y + 117, running ? color : statusColor(status),
+        graphics.drawString(font, state, midX - font.width(state) / 2, y + 112, running ? color : statusColor(status),
                 false);
-        bar(graphics, x + 8, y + 128, FIELD_W - 16, 4, running ? fraction : 0, color);
+        bar(graphics, x + 8, y + 124, FIELD_W - 16, 4, running ? fraction : 0, color);
         String timeText = running ? seconds(progress) + " / " + seconds(duration) :
                 Component.translatable("af9.console.no_run").getString();
-        drawSmall(graphics, timeText, midX, y + 133, running ? TEXT : MUTED, true);
+        drawSmall(graphics, timeText, midX, y + 130, running ? TEXT : MUTED, true);
     }
 
     /** The exposure panel: node, product, laser slot, version bonus, switches, break chance, counters, hint. */
@@ -347,10 +359,10 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         // the laser slot (left) and the version's bonus (right)
         drawSmall(graphics, Component.translatable(hasLaserSlot() ? "af9.scanner.console.laser" :
                 "af9.litho.console.light").getString(), x0 + SLOT_X, y + 46, MUTED, false);
-        drawSmall(graphics, fit(Component.translatable(laser ? "af9.scanner.console.laser_in" :
-                "af9.scanner.console.laser_missing").getString(), 40), x0 + SLOT_X + (hasLaserSlot() ? 21 : 0),
-                y0 + SLOT_Y + 6, laser ? GOOD : BAD, false);
+        int lightX = hasLaserSlot() ? 21 : 0;
         int bx0 = x + 70;
+        drawSmall(graphics, fit(lightText(), (bx0 - (x0 + SLOT_X) - lightX - 3) * 4 / 3), x0 + SLOT_X + lightX,
+                y0 + SLOT_Y + 6, lightColor(active), false);
         int bw = PANEL_W - 75;
         drawSmall(graphics, Component.translatable("af9.scanner.console.version").getString(), bx0, y + 46, MUTED,
                 false);
@@ -380,13 +392,16 @@ public class ScannerConsoleWidget extends ConsoleWidget {
         graphics.drawString(font, switchText, sx + 7 + (SWITCH_W - 7 - font.width(switchText)) / 2, sy + 4,
                 workingEnabled ? GOOD : MUTED, false);
         // what to do now (up to 3 lines), then the air conditioning and the OPC the computation gave (up to 2)
-        Component hint = Component.translatableWithFallback("af9.scanner.hint." + status,
+        String hintKey = "af9.scanner.hint." + status;
+        if (status == STATUS_NO_POWER && starved) hintKey = "af9.scanner.hint.3p";
+        else if (status == STATUS_LOCKED && !hasLaserSlot()) hintKey = "af9.line.hint.6";
+        Component hint = Component.translatableWithFallback(hintKey,
                 Component.translatable("af9.console.status." + status).getString());
         int line = 0;
         for (FormattedCharSequence part : font.split(hint, (PANEL_W - 10) * 4 / 3)) {
             if (line >= 3) break;
             graphics.pose().pushPose();
-            graphics.pose().translate(x + 5, y + 102 + line * 7, 0);
+            graphics.pose().translate(x + 5, y + 101 + line * 7, 0);
             graphics.pose().scale(0.75F, 0.75F, 1F);
             graphics.drawString(font, part, 0, 0, status == STATUS_RUNNING ? MUTED : statusColor(status), false);
             graphics.pose().popPose();
@@ -408,6 +423,23 @@ public class ScannerConsoleWidget extends ConsoleWidget {
             graphics.pose().popPose();
             line++;
         }
+    }
+
+    /** The scanner's laser (in its slot or missing) or the line's light source block (the one built into it). */
+    private String lightText() {
+        if (hasLaserSlot()) {
+            return Component.translatable(laser ? "af9.scanner.console.laser_in" :
+                    "af9.scanner.console.laser_missing").getString();
+        }
+        return lightCap > 0 ? Component.translatable("af9.litho.console.light_source." + Math.min(lightCap, 3))
+                .getString() : "-";
+    }
+
+    /** Green when the light source can expose the node (the line's: its cap reaches the node's version). */
+    private int lightColor(LithoMode active) {
+        if (hasLaserSlot()) return laser ? GOOD : BAD;
+        if (lightCap <= 0) return MUTED;
+        return lightCap >= active.level() - (multi ? 1 : 0) ? GOOD : BAD;
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -465,32 +497,34 @@ public class ScannerConsoleWidget extends ConsoleWidget {
             int pumpState = console.status == STATUS_OFFLINE ? LithoMachine.VACUUM_OFF : console.vacuum;
             String pump = Component.translatable(LithoConsoleWidget.vacuumKey(pumpState)).getString();
             double low = console.printVacuum / 10.0;
-            if (console.status == STATUS_RUNNING && low < 99.95) {
+            boolean dipped = console.status == STATUS_RUNNING && low < 99.95;
+            if (dipped) {
                 pump = Component.translatable("af9.litho.console.print_vacuum",
                         String.format(Locale.ROOT, "%.1f", low)).getString();
             }
-            drawSmall(graphics, fit(pump, w * 4 / 3), x, y + 13, console.status == STATUS_RUNNING && low < 99.95 ?
-                    BAD : LithoConsoleWidget.vacuumColor(pumpState), false);
-            // the version: its length and window sections
+            drawSmall(graphics, fit(pump, w * 4 / 3), x, y + 13, dipped ? BAD :
+                    LithoConsoleWidget.vacuumColor(pumpState), false);
+            // the version: the structure's length and its lens slices (the scanner's window sections)
             int version = console.version;
-            row(graphics, x, y + 22, w, "af9.scanner.console.version", version > 0 ? "V" + version : "-",
+            row(graphics, x, y + 23, w, "af9.scanner.console.version", version > 0 ? "V" + version : "-",
                     version > 0 ? TEXT : MUTED);
             if (version > 0) {
-                drawSmall(graphics, fit(Component.translatable("af9.scanner.console.length",
+                drawSmall(graphics, fit(Component.translatable(console.hasLaserSlot() ?
+                        "af9.scanner.console.length" : "af9.litho.console.length_lens",
                         LENGTH_V1 + (version - 1) * console.machine.getSpec().aislesPerSlice(),
-                        console.slices(version)).getString(), w * 4 / 3), x, y + 29,
-                        MUTED, false);
+                        console.slices(version)).getString(), w * 4 / 3), x, y + 30, MUTED, false);
             }
-            // immersion (65 nm) and the laser
-            row(graphics, x, y + 38, w, "af9.scanner.console.immersion",
-                    Component.translatable(active.immersion() ? "af9.scanner.console.immersion_on" :
-                            "af9.scanner.console.immersion_off").getString(),
-                    active.immersion() ? INFO : MUTED);
-            row(graphics, x, y + 47, w, console.hasLaserSlot() ? "af9.scanner.console.laser" :
-                    "af9.litho.console.light",
-                    Component.translatable(console.laser ? "af9.scanner.console.laser_in" :
-                            "af9.scanner.console.laser_missing").getString(),
-                    console.laser ? GOOD : BAD);
+            int next = y + 40;
+            // immersion: only the scanner's 65 nm prints are exposed through water
+            if (console.hasLaserSlot()) {
+                row(graphics, x, next, w, "af9.scanner.console.immersion",
+                        Component.translatable(active.immersion() ? "af9.scanner.console.immersion_on" :
+                                "af9.scanner.console.immersion_off").getString(),
+                        active.immersion() ? INFO : MUTED);
+                next += 9;
+            }
+            row(graphics, x, next, w, console.hasLaserSlot() ? "af9.scanner.console.laser" :
+                    "af9.litho.console.light", console.lightText(), console.lightColor(active));
         }
 
         @OnlyIn(Dist.CLIENT)
@@ -500,22 +534,27 @@ public class ScannerConsoleWidget extends ConsoleWidget {
                     statusColor(console.status));
             // power: what the energy hatches supply against what the node's prints draw, both in EU/t
             long needed = active.eut();
-            boolean enough = console.available >= needed;
+            boolean enough = console.available >= needed && !console.starved;
             row(graphics, x, y + 10, w, "af9.console.power",
                     compact(console.available) + "/" + compact(needed), enough ? TEXT : BAD);
             bar(graphics, x, y + 18, w, 3, needed <= 0 ? 0 : Math.min(1.0, (double) console.available / needed),
                     enough ? GOOD : BAD);
-            drawSmall(graphics, Component.translatable("af9.litho.console.needs_power", active.amperage(),
-                    GTValues.VN[active.hatchTier]).getString(), x, y + 23, MUTED, false);
+            // the node's need; the pumps are what runs without a print, so say when the hatches hold no energy
+            drawSmall(graphics, console.starved ?
+                    Component.translatable("af9.litho.console.hatches_empty").getString() :
+                    Component.translatable("af9.litho.console.needs_power", active.amperage(),
+                            GTValues.VN[active.hatchTier]).getString(), x, y + 23, console.starved ? BAD : MUTED,
+                    false);
             // the voltage tier of the energy hatches (the controller's own tier says nothing)
             boolean tierOk = console.tier >= active.hatchTier;
             row(graphics, x, y + 33, w, "af9.litho.console.hatch_tier",
                     console.tier < 0 ? "-" : GTValues.VNF[Math.min(console.tier, GTValues.VNF.length - 1)],
                     console.tier < 0 ? MUTED : tierOk ? TEXT : BAD);
+            // batch mode: the switch, and the prints in the running batch
             String batchText = !console.batchEnabled ?
                     Component.translatable("af9.orbital.console.batch_off").getString() :
-                    console.batch > 1 ? console.batch + "x" :
-                            Component.translatable("af9.orbital.console.batch_on").getString();
+                    Component.translatable("af9.orbital.console.batch_on").getString() +
+                            (console.batch > 1 ? " " + console.batch + "x" : "");
             row(graphics, x, y + 43, w, "af9.orbital.console.batch", batchText,
                     !console.batchEnabled ? MUTED : console.batch > 1 ? GOOD : INFO);
             row(graphics, x, y + 53, w, "af9.orbital.console.switch",
