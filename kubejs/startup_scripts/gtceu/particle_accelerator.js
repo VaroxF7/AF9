@@ -1,8 +1,9 @@
 // AF9 - Particle Accelerator: a storage ring for the wafers beyond neutronium. Spec: docs/semiconductor-factory.md
 //
 // A ring 47 blocks across and 7 high, built after GTNH's Compact Fusion Computer (its layout, GT5-Unofficial
-// MTELargeFusionComputer): an empty beam tube inside a clean-steel shell (the bending magnets), four glass gates at the compass
-// points; the hatches go anywhere on the clean-steel casing (and in the gates' glass spots). The magnets are cooled from
+// MTELargeFusionComputer): an empty beam tube inside a shell of Collision Containment Casing (the bending magnets; stainless steel
+// would not survive the collisions), four glass gates at the compass points braced by Collision Shield Casing; the
+// hatches go anywhere on the containment casing (and in the gates' glass spots). The magnets are cooled from
 // Coolant Hatches only (supercooled fluids, cryogenics.js). Three modes:
 //   neutron irradiation   protons on a beryllium spallation target; the neutron flux transmutes neutronium-doped
 //                         wafers into transmuted neutronium wafers (the 20 nm substrate)
@@ -46,8 +47,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     }
 
     // The ring, top views of its layers (GTNH's Compact Fusion Computer): rows north -> south, the controller in the
-    // south gate's outer wall facing out. C clean stainless steel casing (the bending magnets), H the beam tube (air),
-    // B fusion glass, F naquadah alloy frame; I a gate's glass spot and E a casing spot (GTNH's hatch and energy spots:
+    // south gate's outer wall facing out. C Collision Containment Casing (the bending magnets), H the beam tube (air),
+    // B fusion glass, F Collision Shield Casing (the gates' bracing); I a gate's glass spot and E a casing spot (GTNH's hatch and energy spots:
     // here, like every C, they take any part). The shell is a diamond around the magnets: 3 wide at y 1 and 5, 5 wide in
     // between.
     // y = 0 and 6
@@ -257,7 +258,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // the recipe has them). No parallel: no parallel hatch in the pattern and no parallel modifier here.
         .recipeModifiers([$AccelModifiers.POWER_GATE, $ParticleAcceleratorMachine.FIELD_GATE,
             $AmperageOverclock.PERFECT_OC])
-        .appearanceBlock(() => Block.getBlock('gtceu:clean_machine_casing'))
+        .appearanceBlock(() => Block.getBlock('af9:collision_containment_casing'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.particle_accelerator.tooltip', 11))
         .pattern(definition => {
             // aisles north -> south (the controller's aisle last), rows bottom -> top: the layers mirror at y 3
@@ -267,7 +268,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                     RING_L1[row], RING_L0[row])
             }
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count)). One set of
-            // them for the whole ring, so the maximums count across it: on any clean-steel casing, and in the gates'
+            // them for the whole ring, so the maximums count across it: on any containment casing, and in the gates'
             // glass hatch spots
             const parts = Predicates.abilities($AccelCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1)
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
@@ -280,23 +281,23 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 0))
             return pattern
                 .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-                .where('C', Predicates.blocks('gtceu:clean_machine_casing').or(parts))
+                .where('C', Predicates.blocks('af9:collision_containment_casing').or(parts))
                 // the beam tube: empty, so the beam (the light ring) runs through it, seen through the gates' glass
                 .where('H', Predicates.air())
                 .where('B', Predicates.blocks('gtceu:fusion_glass'))
-                .where('F', Predicates.blocks('gtceu:naquadah_alloy_frame'))
+                .where('F', Predicates.blocks('af9:collision_shield_casing'))
                 .where('I', Predicates.blocks('gtceu:fusion_glass').or(parts))
-                .where('E', Predicates.blocks('gtceu:clean_machine_casing').or(parts))
+                .where('E', Predicates.blocks('af9:collision_containment_casing').or(parts))
                 .where(' ', Predicates.any())
                 .build()
         })
-        .workableCasingModel('gtceu:block/casings/solid/machine_casing_clean_stainless_steel',
+        .workableCasingModel('af9:block/collision_containment_casing',
             'gtceu:block/multiblock/fusion_reactor')
         // the same model plus the light ring, the beam: along the middle of the empty tube (it shows through the gates'
         // glass), no lightning; the numbers live in af9-core (RING_*): 23 behind the controller, radius 20, lying flat,
         // 2.5 out from the tube's inner face (where its sparks spit off)
         .model($AccelMachineModels.workableCasingWithLightRing(
-            'gtceu:block/casings/solid/machine_casing_clean_stainless_steel', 'gtceu:block/multiblock/fusion_reactor',
+            'af9:block/collision_containment_casing', 'gtceu:block/multiblock/fusion_reactor',
             $ParticleAcceleratorMachine.RING_UP, $ParticleAcceleratorMachine.RING_BACK,
             $ParticleAcceleratorMachine.RING_RADIUS, $ParticleAcceleratorMachine.RING_THICKNESS, 'up', false,
             $ParticleAcceleratorMachine.RING_WALL))

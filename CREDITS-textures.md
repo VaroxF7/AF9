@@ -184,3 +184,9 @@ in `licenses/GT5-Unofficial-LGPL-3.0.txt`), copied (sources in `tools/textures/g
 `coils/dtpf_containment_coil*.png` and `coils/dtpf_resonance_coil*.png` are our own: AF9's Endion coil textures with the weave's hue changed.
 The EV quest "EV Ceramic Circuit Boards" (`extreme_voltage.snbt`) follows TerraFirmaGreg's EV circuit board quest
 (Modpack-Modern, LGPL-3.0, `ev__extreme_voltage.snbt`: the board and printed board as one quest), with af9 items and texts.
+
+## Collision Containment Casing and Collision Shield Casing (Particle Accelerator)
+
+`collision_containment_casing` / `collision_shield_casing` (`.png` and `_ctm.png`) are GregTech CEu's
+`machine_casing_stable_titanium.png` and its `_ctm.png` (GregTech-Modern v7.5.3, LGPL-3.0, copies in `tools/textures/gt_src/`)
+with the hue moved to gunmetal blue-grey and hazard amber (`tools/textures/particle_accelerator_casings.py`).

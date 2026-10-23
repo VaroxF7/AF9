@@ -11,6 +11,8 @@ block af9:black_plutonium_item_pipe_casing
 block af9:bolted_iridium_casing
 block af9:bolted_naquadah_alloy_casing
 block af9:chlorobenzene
+block af9:collision_containment_casing
+block af9:collision_shield_casing
 block af9:concrete
 block af9:core_plasma
 block af9:creosote
@@ -112,6 +114,8 @@ item af9:broken_trinium_wafer
 item af9:ceranium_ray_reflector
 item af9:ceres_marker
 item af9:chlorobenzene_bucket
+item af9:collision_containment_casing
+item af9:collision_shield_casing
 item af9:chromodynium_boule
 item af9:chromodynium_wafer
 item af9:cleansed_pico_board

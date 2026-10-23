@@ -189,7 +189,7 @@
     "af9.water_filtration_plant.tooltip.1": "§7The §fskimmer arm§7 sweeps front to back once per run and parks at the back; debris piles up ahead of its blade.",
     "af9.water_filtration_plant.tooltip.2": "§7The §ffluid filter§7 is never used up. Better tiers filter more water per run. §aPerfect OC§7.",
     "af9.water_filtration_plant.tooltip.3": "§7Parts are optional, with a maximum: §f2§7 energy, §f1+1§7 item buses, §f2+2§7 fluid hatches, §f1§7 maintenance, §f1§7 fluid input hatch (for the Xenoxid).",
-    "af9.particle_accelerator.tooltip.0": "§7A storage ring §f47§7 blocks across and §f7§7 high: an §fempty beam tube§7 in a clean-steel shell (the bending magnets), four glass gates.",
+    "af9.particle_accelerator.tooltip.0": "§7A storage ring §f47§7 blocks across and §f7§7 high: an §fempty beam tube§7 in a shell of §fCollision Containment Casing§7 (the bending magnets), four glass gates braced by §fCollision Shield Casing§7.",
     "af9.particle_accelerator.tooltip.1": "§aNeutron Irradiation§7: a spallation neutron beam turns §fNeutronium-doped Wafers§7",
     "af9.particle_accelerator.tooltip.2": " §7into §fTransmuted Neutronium Wafers§7 (the 20 nm substrate).",
     "af9.particle_accelerator.tooltip.3": "§6Heavy-Ion Collision§7: lead ions collide, the §fquark-gluon plasma§7 goes into magnetic traps.",

@@ -20,14 +20,27 @@ ServerEvents.recipes(event => {
 
     // ---- The accelerator and its parts ----
     event.recipes.gtceu.assembler('af9:particle_accelerator')
-        .itemInputs('gtceu:zpm_machine_hull', '4x gtceu:zpm_field_generator', '4x gtceu:zpm_emitter',
+        // twelve UV Fusion Reactors: the ring is a fusion ring's worth of magnets and plasma physics, 12 times over
+        .itemInputs('12x gtceu:uv_fusion_reactor', 'gtceu:zpm_machine_hull', '4x gtceu:zpm_field_generator', '4x gtceu:zpm_emitter',
             '4x #gtceu:circuits/zpm', '2x gtceu:zpm_sensor', '8x gtceu:niobium_titanium_plate')
         .inputFluids(Fluid.of('gtceu:supercooled_hydrogen', 4000))
         .itemOutputs('gtceu:particle_accelerator')
         .duration(3000)
-        .EUt(VA[GTValues.ZPM])
-    // the ring itself is GT's blocks: clean stainless steel casings, superconducting coils, fusion glass and
-    // naquadah alloy frames
+        .EUt(VA[GTValues.UV])
+    // the ring itself: Collision Containment Casing (shell) and Collision Shield Casing (gate bracing), fusion glass
+    // (af9-core, tools/textures/particle_accelerator_casings.py)
+    // a stable titanium casing armoured with tungsten steel and niobium-titanium (the shell), or with naquadah alloy
+    // (the gates' bracing, replacing the old frames)
+    event.recipes.gtceu.assembler('af9:collision_containment_casing')
+        .itemInputs('2x gtceu:stable_machine_casing', '4x gtceu:tungsten_steel_plate', '2x gtceu:niobium_titanium_plate')
+        .itemOutputs('2x af9:collision_containment_casing')
+        .duration(200)
+        .EUt(VA[GTValues.LuV])
+    event.recipes.gtceu.assembler('af9:collision_shield_casing')
+        .itemInputs('2x gtceu:stable_machine_casing', '4x gtceu:naquadah_alloy_plate', '2x gtceu:niobium_titanium_plate')
+        .itemOutputs('2x af9:collision_shield_casing')
+        .duration(200)
+        .EUt(VA[GTValues.LuV])
 
     // Xenoxid (xenon tetroxide), the gas that fills the ring (50,000 mB; a run uses 1,000): xenon burnt in oxygen
     event.recipes.gtceu.chemical_reactor('af9:xenoxid')
