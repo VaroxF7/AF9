@@ -18,6 +18,17 @@ ServerEvents.recipes(event => {
         M: 'gtceu:mv_machine_hull'
     }).id('af9:water_filtration_plant')
 
+    // ---- Water Filter Casing: the two filter strips of the basin floor (a screen of bars over a fluid filter) ----
+    event.shaped('2x af9:water_filter_casing', [
+        'SBS',
+        'BFB',
+        'SBS'
+    ], {
+        S: '#forge:plates/stainless_steel',
+        B: 'minecraft:iron_bars',
+        F: 'gtceu:fluid_filter'
+    }).id('af9:water_filter_casing')
+
     // ---- LV: river water, 60% clean ----
     event.recipes.gtceu.water_filtration('af9:river_water_filtration')
         .notConsumable('gtceu:fluid_filter')

@@ -34,17 +34,18 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * The Large Wiremill's wire drawing machine, in the glass chamber of its 13 x 5 x 5 structure (kubejs/startup_scripts/
- * gtceu/large_wiremill.js). The wire comes out of the right-hand casing box, runs through the die in the frame plate
- * (the hole in the middle of the steel frames), on along the machine's axis through a flyer (two spoked wheels on four
- * rods, the white guide rollers of a cabling machine) and ends on a take-up spool at the casing end on the far side:
- * the flyer's arm carries it out to a pulley and lays it on the spool. While a recipe runs the flyer turns about the
- * axis and the wire feeds (light and dark stripes run towards the spool); it eases up to speed and coasts down. The
- * wire is one unbroken line from the right-hand casing wall to the arm: no gap between the die, the flyer and the casings.
+ * The Large Wiremill's wire drawing machine, in the glass chamber of its 9 x 4 x 3 structure (kubejs/startup_scripts/
+ * gtceu/large_wiremill.js): a 4-long, one-block-wide air channel between the left casing wall and the die plate of
+ * steel frames. The wire comes out of the plate's hole (the die) and runs left along the channel's axis through a
+ * flyer (two spoked wheels on four rods, with the white guide rollers of a cabling machine) and ends on a take-up
+ * spool at the casing wall on the far side: the flyer's arm carries it out to a pulley and lays it on the spool. While
+ * a recipe runs the flyer turns about the axis and the wire feeds (light and dark stripes run towards the spool); it
+ * eases up to speed and coasts down. The wire is one unbroken line from the die plate's right face (where the casing
+ * box starts) to the arm: no gap between the casings, the die, the flyer and the spool.
  * <p>
  * Everything is drawn in "structure columns": the machine's axis runs along the controller's left (the pattern's
- * column direction), the controller is column 10, aisle 4 (the front), row 2, and the axis is the middle of the 5 x 5
- * cross-section, 2 blocks behind the controller's aisle and half a block above its floor. Model side:
+ * column direction); the controller is column 7, aisle 2 (the front), row 1, and the axis is the middle of the
+ * channel (aisle 1, row 1), one block behind the controller's aisle and half a block above its floor. Model side:
  * {@link com.af9.core.machine.AF9MachineModels#workableCasingWithWireDraw}. One render object serves every Large
  * Wiremill, so the spin is kept per controller position (capped).
  */
@@ -54,32 +55,35 @@ public class WireDrawRender extends DynamicRender<IWiremillMachine, WireDrawRend
     public static final Codec<WireDrawRender> CODEC = Codec.unit(WireDrawRender::new);
     public static final DynamicRenderType<IWiremillMachine, WireDrawRender> TYPE = new DynamicRenderType<>(CODEC);
 
-    /** The controller's column in the pattern, and the axis: columns count along the left of the controller. */
-    private static final float CONTROLLER_COLUMN = 10.5F;
+    /** The controller's column in the pattern (its middle), and the axis: columns count along the left of the controller. */
+    private static final float CONTROLLER_COLUMN = 7.5F;
     /** Axis height above the controller block's floor, and its distance behind the controller block's middle. */
     private static final float AXIS_UP = 0.5F;
-    private static final float AXIS_BACK = 2.0F;
+    private static final float AXIS_BACK = 1.0F;
+    /** The middle of the channel along the columns (for the render's bounds and light). */
+    private static final float CHANNEL_MIDDLE = 3.0F;
 
     /** Turns per tick at full speed (one turn a second) and ticks to get up to speed / coast down. */
     private static final float SPEED = (float) (2 * Math.PI / 20.0);
     private static final float INERTIA_TICKS = 30F;
     /** Wire feed at full speed, blocks per tick (stripes run this fast). */
-    private static final float FEED = 0.16F;
-    private static final float STRIPE = 0.25F;
+    private static final float FEED = 0.1F;
+    private static final float STRIPE = 0.15F;
 
     // positions along the axis (structure columns; ax() makes them axis-relative)
-    private static final float WALL = 12.0F;      // inner face of the right-hand casing box's end wall
-    private static final float DIE = 8.5F;        // the die, in the middle of the frame plate (column 8)
-    private static final float EYELET = 7.3F;     // the wire guide on its strut
-    private static final float FLYER_FRONT = 6.4F;
-    private static final float FLYER_REAR = 5.0F; // the arm
-    private static final float SPOOL_RIGHT = 4.8F;
-    private static final float SPOOL_LEFT = 3.6F;
-    private static final float FLOOR = -1.5F;     // the chamber floor, relative to the axis
+    private static final float WALL = 6.0F;       // the right face of the die plate: the casing box starts here
+    private static final float DIE = 5.5F;        // the die, in the middle of the frame plate (column 5)
+    private static final float EYELET = 4.6F;     // the wire guide on its strut
+    private static final float FLYER_FRONT = 3.9F;
+    private static final float FLYER_REAR = 3.0F; // the arm
+    private static final float SPOOL_RIGHT = 2.7F;
+    private static final float SPOOL_LEFT = 1.4F;
+    private static final float WALL_LEFT = 1.0F;  // the left casing wall's inner face
+    private static final float FLOOR = -0.5F;     // the channel floor, relative to the axis
 
-    private static final float WIRE = 0.035F;
-    private static final float FLYER_R = 1.1F;
-    private static final float WOUND_R = 0.80F;
+    private static final float WIRE = 0.02F;
+    private static final float FLYER_R = 0.44F;
+    private static final float WOUND_R = 0.33F;
 
     // colours (flat: the entity shader lights them by their normals)
     private static final int STEEL = 0x6C7480, DARK = 0x2F343C, DARKER = 0x1E2228, ORANGE = 0xD2691E;
@@ -116,13 +120,13 @@ public class WireDrawRender extends DynamicRender<IWiremillMachine, WireDrawRend
         return relative.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), flipped);
     }
 
-    /** The middle of the chamber (column 6, two aisles behind the controller's) in the world. */
+    /** The middle of the channel (column 3, one aisle behind the controller's) in the world. */
     private Vec3 centre(MetaMachine self) {
         Direction left = dir(self, RelativeDirection.LEFT);
         Direction back = dir(self, RelativeDirection.BACK);
         BlockPos pos = self.getPos();
-        return new Vec3(pos.getX() + 0.5 + left.getStepX() * (6.5 - CONTROLLER_COLUMN) + back.getStepX() * AXIS_BACK,
-                pos.getY() + AXIS_UP, pos.getZ() + 0.5 + left.getStepZ() * (6.5 - CONTROLLER_COLUMN) +
+        return new Vec3(pos.getX() + 0.5 + left.getStepX() * (CHANNEL_MIDDLE - CONTROLLER_COLUMN) + back.getStepX() * AXIS_BACK,
+                pos.getY() + AXIS_UP, pos.getZ() + 0.5 + left.getStepZ() * (CHANNEL_MIDDLE - CONTROLLER_COLUMN) +
                         back.getStepZ() * AXIS_BACK);
     }
 
@@ -139,7 +143,7 @@ public class WireDrawRender extends DynamicRender<IWiremillMachine, WireDrawRend
     @Override
     public AABB getRenderBoundingBox(IWiremillMachine machine) {
         Vec3 c = centre(machine.self());
-        return new AABB(c.x - 7.5, c.y - 2, c.z - 7.5, c.x + 7.5, c.y + 2, c.z + 7.5);
+        return new AABB(c.x - 5, c.y - 1.5, c.z - 5, c.x + 5, c.y + 1.5, c.z + 5);
     }
 
     private static float ax(float column) {
@@ -203,33 +207,33 @@ public class WireDrawRender extends DynamicRender<IWiremillMachine, WireDrawRend
     /** What stands still: the die, the eyelet and its strut, the spool, and the wire from the wall to the flyer's arm. */
     private static void drawFixed(Mesh m, float feed) {
         // the die in the frame plate's hole: a plate with a bore, a tungsten bell behind it
-        m.ring(ax(DIE) - 0.07F, ax(DIE) + 0.07F, 0.06F, 0.46F, 20, DARKER);
-        m.ring(ax(DIE) - 0.1F, ax(DIE) - 0.07F, 0.06F, 0.4F, 20, STEEL);
-        m.ring(ax(DIE) + 0.07F, ax(DIE) + 0.16F, 0.055F, 0.2F, 16, TUNGSTEN);
+        m.ring(ax(DIE) - 0.05F, ax(DIE) + 0.05F, 0.03F, 0.34F, 20, DARKER);
+        m.ring(ax(DIE) - 0.07F, ax(DIE) - 0.05F, 0.03F, 0.3F, 20, STEEL);
+        m.ring(ax(DIE) + 0.05F, ax(DIE) + 0.12F, 0.025F, 0.1F, 16, TUNGSTEN);
 
         // the eyelet on its strut from the floor
-        m.ring(ax(EYELET) - 0.04F, ax(EYELET) + 0.04F, 0.06F, 0.15F, 14, STEEL);
-        m.box(ax(EYELET) - 0.03F, FLOOR, -0.03F, ax(EYELET) + 0.03F, -0.14F, 0.03F, DARK);
-        m.box(ax(EYELET) - 0.16F, FLOOR, -0.12F, ax(EYELET) + 0.16F, FLOOR + 0.06F, 0.12F, DARKER);
+        m.ring(ax(EYELET) - 0.03F, ax(EYELET) + 0.03F, 0.03F, 0.08F, 14, STEEL);
+        m.box(ax(EYELET) - 0.02F, FLOOR, -0.02F, ax(EYELET) + 0.02F, -0.08F, 0.02F, DARK);
+        m.box(ax(EYELET) - 0.1F, FLOOR, -0.08F, ax(EYELET) + 0.1F, FLOOR + 0.04F, 0.08F, DARKER);
 
         // the take-up spool: flanges, core, the winding as bands of two coppers, a shaft out to the wall
-        m.ring(ax(SPOOL_LEFT), ax(SPOOL_LEFT) + 0.1F, 0.2F, 0.97F, 24, STEEL);
-        m.ring(ax(SPOOL_RIGHT) - 0.1F, ax(SPOOL_RIGHT), 0.2F, 0.97F, 24, STEEL);
-        m.ring(ax(SPOOL_LEFT) - 0.02F, ax(SPOOL_LEFT), 0.5F, 0.97F, 24, DARKER);
-        m.ring(ax(SPOOL_LEFT) + 0.1F, ax(SPOOL_RIGHT) - 0.1F, 0.4F, 0.42F, 24, DARK);
-        float band = 0.055F;
-        float x = ax(SPOOL_LEFT) + 0.1F;
-        float end = ax(SPOOL_RIGHT) - 0.1F;
+        m.ring(ax(SPOOL_LEFT), ax(SPOOL_LEFT) + 0.07F, 0.1F, 0.41F, 24, STEEL);
+        m.ring(ax(SPOOL_RIGHT) - 0.07F, ax(SPOOL_RIGHT), 0.1F, 0.41F, 24, STEEL);
+        m.ring(ax(SPOOL_LEFT) - 0.02F, ax(SPOOL_LEFT), 0.2F, 0.41F, 24, DARKER);
+        m.ring(ax(SPOOL_LEFT) + 0.07F, ax(SPOOL_RIGHT) - 0.07F, 0.2F, 0.22F, 24, DARK);
+        float band = 0.035F;
+        float x = ax(SPOOL_LEFT) + 0.07F;
+        float end = ax(SPOOL_RIGHT) - 0.07F;
         for (int k = 0; x < end - 1e-3F; k++) {
             float x1 = Math.min(x + band, end);
             m.tube(x, x1, 0F, 0F, WOUND_R, 20, k % 2 == 0 ? WIND_A : WIND_B);
             x = x1;
         }
-        m.tube(ax(1.0F), ax(SPOOL_LEFT), 0F, 0F, 0.14F, 12, DARK);
+        m.tube(ax(WALL_LEFT), ax(SPOOL_LEFT), 0F, 0F, 0.06F, 12, DARK);
 
         // the wire: one line from the right-hand wall to the flyer's arm, light and dark stripes running to the spool
         float from = ax(FLYER_REAR);
-        float to = ax(WALL);
+        float to = ax(WALL) + 0.01F;
         int k = 0;
         for (float s = from - feed; s < to; s += STRIPE, k++) {
             float a = Math.max(s, from), b = Math.min(s + STRIPE, to);
@@ -240,29 +244,30 @@ public class WireDrawRender extends DynamicRender<IWiremillMachine, WireDrawRend
     /** What turns about the axis (drawn in the flyer's frame, its arm along +y): two spoked wheels, rods, rollers, the arm. */
     private static void drawFlyer(Mesh m) {
         for (float column : new float[] { FLYER_FRONT, FLYER_REAR }) {
-            float x0 = ax(column) - 0.06F, x1 = ax(column) + 0.06F;
-            m.ring(x0, x1, 0.1F, 0.3F, 12, STEEL);
-            m.ring(x0 - 0.02F, x1 + 0.02F, FLYER_R - 0.14F, FLYER_R + 0.04F, 24, ORANGE);
+            float x0 = ax(column) - 0.035F, x1 = ax(column) + 0.035F;
+            m.ring(x0, x1, 0.05F, 0.13F, 12, STEEL);
+            m.ring(x0 - 0.01F, x1 + 0.01F, FLYER_R - 0.07F, FLYER_R + 0.03F, 24, ORANGE);
             for (int k = 0; k < 4; k++) {
                 float a = k * Mth.HALF_PI;
-                m.bar(x0 + 0.06F, 0.28F * Mth.cos(a), 0.28F * Mth.sin(a), x0 + 0.06F, (FLYER_R - 0.12F) * Mth.cos(a),
-                        (FLYER_R - 0.12F) * Mth.sin(a), 0.045F, DARK);
+                m.bar(x0 + 0.035F, 0.12F * Mth.cos(a), 0.12F * Mth.sin(a), x0 + 0.035F,
+                        (FLYER_R - 0.06F) * Mth.cos(a), (FLYER_R - 0.06F) * Mth.sin(a), 0.02F, DARK);
             }
         }
         // four rods between the wheels, a white guide roller on each at the front wheel
         for (int k = 0; k < 4; k++) {
             float a = Mth.HALF_PI * k + Mth.PI / 4F;
-            float y = (FLYER_R - 0.04F) * Mth.cos(a), z = (FLYER_R - 0.04F) * Mth.sin(a);
-            m.bar(ax(FLYER_REAR), y, z, ax(FLYER_FRONT), y, z, 0.04F, DARK);
-            float ry = 0.82F * Mth.cos(a), rz = 0.82F * Mth.sin(a);
-            m.tube(ax(FLYER_FRONT) + 0.08F, ax(FLYER_FRONT) + 0.34F, ry, rz, 0.13F, 12, WHITE);
-            m.tube(ax(FLYER_FRONT) + 0.06F, ax(FLYER_FRONT) + 0.08F, ry, rz, 0.04F, 8, STEEL);
+            float y = (FLYER_R - 0.03F) * Mth.cos(a), z = (FLYER_R - 0.03F) * Mth.sin(a);
+            m.bar(ax(FLYER_REAR), y, z, ax(FLYER_FRONT), y, z, 0.018F, DARK);
+            float ry = 0.3F * Mth.cos(a), rz = 0.3F * Mth.sin(a);
+            m.tube(ax(FLYER_FRONT) + 0.05F, ax(FLYER_FRONT) + 0.19F, ry, rz, 0.055F, 10, WHITE);
+            m.tube(ax(FLYER_FRONT) + 0.035F, ax(FLYER_FRONT) + 0.05F, ry, rz, 0.02F, 8, STEEL);
         }
         // the arm: the wire leaves the axis at the rear wheel, goes out to a pulley and down onto the spool's winding
         float xr = ax(FLYER_REAR);
-        m.bar(xr, 0F, 0F, xr, FLYER_R - 0.1F, 0F, WIRE, COPPER_A);
-        m.tube(xr - 0.07F, xr + 0.07F, FLYER_R - 0.1F, 0F, 0.1F, 12, STEEL);
-        m.bar(xr - 0.01F, FLYER_R - 0.1F, 0F, ax(SPOOL_RIGHT) - 0.12F, WOUND_R + WIRE, 0F, WIRE, COPPER_A);
+        float pulley = FLYER_R - 0.06F;
+        m.bar(xr, 0F, 0F, xr, pulley, 0F, WIRE, COPPER_A);
+        m.tube(xr - 0.035F, xr + 0.035F, pulley, 0F, 0.04F, 10, STEEL);
+        m.bar(xr - 0.005F, pulley, 0F, ax(SPOOL_RIGHT) - 0.1F, WOUND_R + WIRE, 0F, WIRE, COPPER_A);
     }
 
     /** One render's spin state per controller. */

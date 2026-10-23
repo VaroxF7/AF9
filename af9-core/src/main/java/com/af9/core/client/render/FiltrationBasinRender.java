@@ -49,7 +49,10 @@ public class FiltrationBasinRender extends DynamicRender<IFiltrationPlantMachine
     // spotless:off
     public static final Codec<FiltrationBasinRender> CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.FLOAT.fieldOf("up").forGetter(render -> render.up),
-            Codec.FLOAT.fieldOf("back").forGetter(render -> render.back)
+            Codec.FLOAT.fieldOf("back").forGetter(render -> render.back),
+            Codec.FLOAT.fieldOf("left").forGetter(render -> render.left),
+            Codec.FLOAT.fieldOf("width").forGetter(render -> render.hx * 2F),
+            Codec.FLOAT.fieldOf("length").forGetter(render -> render.hz * 2F)
     ).apply(instance, FiltrationBasinRender::new));
     // spotless:on
     public static final DynamicRenderType<IFiltrationPlantMachine, FiltrationBasinRender> TYPE =
