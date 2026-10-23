@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
+    "active=false": {
       "model": "af9:block/orbital_light_casing"
+    },
+    "active=true": {
+      "model": "af9:block/orbital_light_casing_active"
     }
   }
 }

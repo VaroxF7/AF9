@@ -5,6 +5,7 @@ import com.af9.core.AF9Core;
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.block.ActiveBlock;
 import com.gregtechceu.gtceu.api.block.SimpleCoilType;
+import com.gregtechceu.gtceu.api.block.property.GTBlockStateProperties;
 import com.gregtechceu.gtceu.common.block.CoilBlock;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 
@@ -108,7 +109,8 @@ public final class AF9Blocks {
 
         // ---- Mk2 Orbital Array: the magnet pillars and light strips of the tower (textures from Cosmic Frontiers) ----
         block("orbital_magnet_casing", SoundType.METAL, 12F, 0, 0);
-        block("orbital_light_casing", SoundType.METAL, 12F, 7, 0);
+        // lit while the station works: brighter, and a glowing animated layer (orbital_casings.py)
+        activeBlock("orbital_light_casing", SoundType.METAL, 12F, 7, 15);
         // the structure of the Array Mk2 itself: the casings that replace the Stress-Proof, Sturdy HSS-E and Inert PTFE ones
         // (textures: tools/textures/orbital_mk2_casings.py)
         block("orbital_combined_structure_casing", SoundType.METAL, 12F, 0, 0);
@@ -150,8 +152,14 @@ public final class AF9Blocks {
 
     /** A casing that lights up while its machine runs (GT switches the {@code active} state of every such block in a structure). */
     private static void activeBlock(String id, SoundType sound, float resistance) {
+        activeBlock(id, sound, resistance, 0, 0);
+    }
+
+    /** The same, giving off light while it is idle and while it is active. */
+    private static void activeBlock(String id, SoundType sound, float resistance, int idleLight, int activeLight) {
         RegistryObject<Block> block = BLOCKS.register(id,
-                () -> new ActiveBlock(properties(sound, resistance, 0)));
+                () -> new ActiveBlock(properties(sound, resistance, 0)
+                        .lightLevel(state -> state.getValue(GTBlockStateProperties.ACTIVE) ? activeLight : idleLight)));
         withItem(id, block, 0);
     }
 

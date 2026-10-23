@@ -42,6 +42,21 @@ def light(sprite, f):
     return out
 
 
+def light_glow(image, f):
+    """The light casing's emissive layer while its station works (the `_active_emissive` texture, drawn over the plain one so it
+    blooms): only the lit gold and chrome kept (of the sprite and of the connected sheet alike), driven harder than the idle
+    pulse and running twice as fast down the coils."""
+    t = f / FRAMES
+    out = Image.new('RGBA', image.size, (0, 0, 0, 0))
+    for y in range(image.size[1]):
+        for x in range(image.size[0]):
+            r, g, b, a = image.getpixel((x, y))
+            if r - b > 80 and r > 120:
+                k = 1.05 + 0.25 * math.sin(2 * math.pi * (2 * t - ((y - 4) % 8) / 8.0))
+                out.putpixel((x, y), (clamp(r * k), clamp(g * k), clamp(b * k), a))
+    return out
+
+
 def magnet(sprite, f):
     t = f / FRAMES
     out = sprite.copy()
@@ -89,7 +104,24 @@ def strip(frames):
     return im
 
 
+def write_glow(name, tx, ty, inside):
+    base = Image.open(os.path.join(SRC, name + '.png')).convert('RGBA')
+    frames = [light(base, f) for f in range(FRAMES)]
+    glow = name + '_active_emissive'
+    strip([light_glow(fr, f) for f, fr in enumerate(frames)]).save(os.path.join(OUT, glow + '.png'))
+    strip([light_glow(se.ctm_sheet(fr, tx, ty, inside), f) for f, fr in enumerate(frames)]).save(
+        os.path.join(OUT, glow + '_ctm.png'))
+    animation = {'animation': {'frametime': FRAMETIME, 'interpolate': True}}
+    with open(os.path.join(OUT, glow + '.png.mcmeta'), 'w', newline='\n') as f:
+        json.dump(dict(animation, ldlib={'connection': 'af9:block/%s_ctm' % glow}), f, indent=2)
+        f.write('\n')
+    with open(os.path.join(OUT, glow + '_ctm.png.mcmeta'), 'w', newline='\n') as f:
+        json.dump(animation, f, indent=2)
+        f.write('\n')
+
+
 def main():
+    write_glow('orbital_light_casing', 4, 4, joined_interior)
     for name, anim, tx, ty, inside in (('orbital_light_casing', light, 4, 4, joined_interior),
                                        ('orbital_magnet_casing', magnet, 1, 2, se.middle)):
         base = Image.open(os.path.join(SRC, name + '.png')).convert('RGBA')
