@@ -124,26 +124,26 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // appearance are replaced here, the same shape in AF9's aluminium-tranquillite: frame and casing (the casing is
     // the hatch spot, like the original's, with exactly one maintenance hatch). Runs last, so the definition exists.
     try {
-        const mk1 = $AF9Registries.MACHINES.get(new $AF9ResourceLocation('gtceu', 'void_miner'))
-        let mk1Pattern = null
-        mk1.setPatternFactory(() => {
-            if (mk1Pattern === null) {
-                mk1Pattern = FactoryBlockPattern.start()
+        var miner1 = $AF9Registries.MACHINES.get(new $AF9ResourceLocation('gtceu', 'void_miner'))
+        var miner1Pattern = null
+        miner1.setPatternFactory(() => {
+            if (miner1Pattern === null) {
+                miner1Pattern = FactoryBlockPattern.start()
                     .aisle('XXX', '#F#', '#F#', '#F#', '###', '###', '###')
                     .aisle('XXX', 'FCF', 'FCF', 'FCF', '#F#', '#F#', '#F#')
                     .aisle('XSX', '#F#', '#F#', '#F#', '###', '###', '###')
-                    .where('S', Predicates.controller(Predicates.blocks(mk1.get())))
+                    .where('S', Predicates.controller(Predicates.blocks(miner1.get())))
                     .where('X', Predicates.blocks('af9:aluminium_tranquillite_casing')
-                        .or(Predicates.autoAbilities(mk1.getRecipeTypes()))
+                        .or(Predicates.autoAbilities(miner1.getRecipeTypes()))
                         .or(Predicates.abilities(PartAbility.MAINTENANCE).setExactLimit(1)))
                     .where('C', Predicates.blocks('af9:aluminium_tranquillite_casing'))
                     .where('F', Predicates.blocks('gtceu:aluminium_tranquillite_frame'))
                     .where('#', Predicates.any())
                     .build()
             }
-            return mk1Pattern
+            return miner1Pattern
         })
-        mk1.setAppearance(() => Block.getBlock('af9:aluminium_tranquillite_casing').defaultBlockState())
+        miner1.setAppearance(() => Block.getBlock('af9:aluminium_tranquillite_casing').defaultBlockState())
     } catch (e) {
         console.error('AF9 void miner MK1: could not replace the structure: ' + e)
     }
