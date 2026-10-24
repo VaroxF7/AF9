@@ -10,14 +10,18 @@ import net.minecraft.resources.ResourceLocation;
 /**
  * Keeps the pack's orb recipes (the GT shaping, {@code af9:powah/*}) off the plain orb's page in EMI: Powah's EMI plugin lists
  * every recipe of its type under the plain Energizing Orb, but these run in the Mk2 only ({@code OrbTileMixin}). Powah's own
- * recipes stay. EMI loads this class only when it is installed.
+ * recipes stay, and so do the Mk2's own page entries (same ids, other recipe class). EMI loads this class only when it is installed.
  */
 @EmiEntrypoint
 public class OrbMk2EmiPlugin implements EmiPlugin {
 
+    private static final String POWAH_ENERGIZING = "owmii.powah.compat.emi.EnergizingEmiRecipe";
+
     @Override
     public void register(EmiRegistry registry) {
         registry.removeRecipes(recipe -> {
+            // only Powah's own EMI page: the Mk2's page (bridged from JEI) shares these recipe ids and must stay
+            if (!POWAH_ENERGIZING.equals(recipe.getClass().getName())) return false;
             ResourceLocation id = recipe.getId();
             return id != null && AF9Core.MOD_ID.equals(id.getNamespace()) && id.getPath().startsWith("powah/");
         });
