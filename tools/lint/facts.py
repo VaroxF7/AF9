@@ -93,10 +93,10 @@ VOLT = {'MV': 128, 'HV': 512, 'EV': 2048, 'IV': 8192, 'LuV': 32768, 'ZPM': 13107
 java = open(os.path.join(ROOT, 'af9-core/src/main/java/com/af9/core/litho/LithoMode.java'), encoding='utf-8').read()
 # the enum constants span two lines: join them first
 flat = re.sub(r'\n\s+', ' ', java)
-modes = re.findall(r'\bN(\d+)\("(\w+)", "(\w+)", \d+, GTValues\.(\w+), .*?, (\d+), Machine\.\w+, \d+\)', flat)
+modes = re.findall(r'\bN(\d+)\("(\w+)", "(\w+)", \d+, GTValues\.(\w+), .*?, (\d+), Machine\.(\w+), \d+\)', flat)
 if len(modes) != 9:
     report(f'LithoMode.java: found {len(modes)} modes, expected 9 (did its constants change shape? then fix tools/lint/facts.py)', code='X2')
-for nm, mid, substrate, tier, base in modes:
+for nm, mid, substrate, tier, base, machine in modes:
     rtype = 'orbital_lithography' if nm == '1' else f'lithography_{mid}'
     prints = [r for r in recipes if r['type'] == rtype]
     if not prints:
@@ -112,7 +112,7 @@ for nm, mid, substrate, tier, base in modes:
         if broken not in r['chanceItems'] or int(base) not in r['chances']:
             report(f'{r["id"]}: broken wafer {r["chanceItems"]} at {r["chances"]}, LithoMode {mid} wants {broken} at {base}', r['file'], 'X2')
         eut = r['EUt']
-        want_eut = [VOLT[tier], 1 if nm == '1' else 4]
+        want_eut = [VOLT[tier], 1 if nm == '1' or machine == 'LINE' else 4]
         if not eut or [int(x) for x in eut] != want_eut:
             report(f'{r["id"]}: EUt {eut}, LithoMode {mid} wants {want_eut} (tier {tier}, amps)', r['file'], 'X2')
 

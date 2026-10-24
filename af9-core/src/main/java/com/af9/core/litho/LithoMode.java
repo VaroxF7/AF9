@@ -18,7 +18,7 @@ import java.util.Locale;
  * Photolithography Scanner (Mk2) 80 and 65 nm, the Orbital Lithography Station 50 nm down to 1 nm (in orbit only).
  * <p>
  * A mode prints on its own substrate (the 350 nm mode on silicon wafers, 200 nm on phosphorus wafers, ...) and draws
- * 4A of its voltage tier (the station's 50 nm prints LuV for 800 s, 20 nm ZPM for 700 s, 7 nm UHV for 350 s); the orbital 1 nm mode draws 1A of UHV (an ordinary UHV energy hatch, no amperage stacking).
+ * 4A of its voltage tier (1A on the Mk1 line; the station's 50 nm prints LuV for 800 s, 20 nm ZPM for 700 s, 7 nm UHV for 350 s); the orbital 1 nm mode draws 1A of UHV (an ordinary UHV energy hatch, no amperage stacking).
  * A print is always GT's own chip wafer; a higher substrate gives more of them per blank (GT's engraving yields,
  * extended; the 1 nm prints roll a range, see photolithography.js ORBITAL_YIELD).
  * <p>
@@ -68,8 +68,9 @@ public enum LithoMode {
     /** Break chance a completely dirty vacuum (cleanliness 0) adds on top of the mode's base chance. */
     public static final double DIRT_BREAK = 0.5;
     public static final double MAX_BREAK = 0.95;
-    /** Amps every mode draws (two 2A energy hatches); the X-ray FEL mode draws {@link #ORBITAL_AMPERAGE}: plain UHV. */
+    /** Amps the Scanner's and the station's modes draw (two 2A energy hatches). */
     public static final int AMPERAGE = 4;
+    /** Amps of the Mk1 line's modes (one normal hatch) and of the X-ray FEL mode (plain UHV). */
     public static final int ORBITAL_AMPERAGE = 1;
 
     /** Air cooling: per doubling of the cooling units above a print's heat load (up to this many): see {@link Coolant}. */
@@ -260,10 +261,10 @@ public enum LithoMode {
     }
 
     public int amperage() {
-        return isXfel() ? ORBITAL_AMPERAGE : AMPERAGE;
+        return isXfel() || machine == Machine.LINE ? ORBITAL_AMPERAGE : AMPERAGE;
     }
 
-    /** EU/t the mode's recipes draw: 4A of its tier (480 for 350 nm), 1A of UHV (2,097,152) for the 1 nm mode. */
+    /** EU/t the mode's recipes draw: 1A of its tier on the Mk1 line (120 for 350 nm), 4A elsewhere, 1A of UHV (2,097,152) for the 1 nm mode. */
     public long eut() {
         return (long) GTValues.VA[hatchTier] * amperage();
     }
