@@ -88,7 +88,7 @@
     "af9.photolithography_line.tooltip.9": " §7the light source allows up to: §fpurple lamp§7 V1, §fKrF laser§7 V2, §fArF laser§7 V3.",
     "af9.photolithography_line.tooltip.10": "§7Per version above a mode: §a0.8x time§7, §a0.75x break chance§7.",
     "af9.photolithography_line.tooltip.11": "§7Light: mercury i-line (350nm), KrF excimer (200nm), ArF excimer (100nm).",
-    "af9.photolithography_line.tooltip.12": "§7Power: up to §f2 Energy Hatches§7; a print needs 4A of the mode's tier (two normal hatches). §aPerfect OC§7, §fbatch mode§7.",
+    "af9.photolithography_line.tooltip.12": "§7Power: up to §f2 Energy Hatches§7; a print needs 1A of the mode's tier (one normal hatch). §aPerfect OC§7, §fbatch mode§7.",
     "af9.photolithography_line.tooltip.13": "§7Parts are optional, with a maximum: §f2§7 energy, §f8§7 fluid input, §f1§7 maintenance, §f2+2§7 item buses at the controller.",
     "af9.photolithography_line.tooltip.14": "§7Built from §fPlascrete§7 with §fPlascrete Pipe§7 and §fFilter Casings§7; it needs no Cleanroom.",
     "af9.photolithography_line.tooltip.15": "§cWafers contaminate in a player's inventory§7: wear §fRubber Gloves§7 or work in a Cleanroom.",

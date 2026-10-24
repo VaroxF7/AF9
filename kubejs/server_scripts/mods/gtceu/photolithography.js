@@ -594,6 +594,8 @@ ServerEvents.recipes(event => {
     // topcoat (the immersion nodes), soft bake: the blank wafer of the substrate becomes its coated wafer, 1.5x the
     // chemicals a node. What the spin spins off is spent solvent (30 mB of 100 mB of resist's worth), distilled back in the
     // fab modes at 60 %. The orbital station's 1 nm print takes a blank wafer and deposits its resist dry.
+    // the Mk1 line's modes draw a single amp of their tier; the scanner and the station keep 4A
+    const LINE_MODES = ['350nm', '200nm', '100nm']
     modes.forEach(m => {
         const s = substrates[m.substrate]
         const chemicals = Math.pow(1.5, m.index)
@@ -612,7 +614,7 @@ ServerEvents.recipes(event => {
     })
 
     // ---- Printed wafers (Photolithography Line) ----
-    // Coated wafer in: exposure, PEB, TMAH develop, DI rinse, plasma etch, hard bake, 4A of the mode's tier, each step 1.5x
+    // Coated wafer in: exposure, PEB, TMAH develop, DI rinse, plasma etch, hard bake, 1A of the mode's tier on the Mk1 line (350-100 nm; 4A from 80 nm), each step 1.5x
     // the chemicals. The excimer lasers burn their premix; immersion modes expose through ultrapure water; from 50 nm a
     // high-k HfO2 gate is grown from HfCl4 + water (ALD); the EUV modes burn tin droplets in a hydrogen buffer; from 200 nm
     // on the etch is a plasma of CF4, chlorine, argon and oxygen. The reticle is of the mask class of the node
@@ -623,6 +625,8 @@ ServerEvents.recipes(event => {
     // (af9-core LithoMachine). The orbital station adds its coolant itself (af9-core OrbitalLithographyMachine), and
     // only takes the reticle from its reticle slot (a reticle in an input bus does not count there).
     // Computation: the 7 nm prints (here) and the 1 nm prints (below) need 1000 CWU in all (per print, not per tick) from a computation hatch.
+    // the Mk1 line's modes draw a single amp of their tier; the scanner and the station keep 4A
+    const LINE_MODES = ['350nm', '200nm', '100nm']
     modes.forEach(m => {
         const s = substrates[m.substrate]
         const chemicals = Math.pow(1.5, m.index)
@@ -661,7 +665,7 @@ ServerEvents.recipes(event => {
                 .itemOutputs(`${yieldOf(m.substrate, c)}x ${printed(m.substrate, c)}`)
                 .chancedOutput(`af9:broken_${s.id}_wafer`, m.baseBreak, 0)
                 .duration(AF9_WAFERS.orbitalTicks[m.id] || 900)
-                .EUt(VA[AF9_WAFERS.orbitalTier[m.id] || s.tier], 4)
+                .EUt(VA[AF9_WAFERS.orbitalTier[m.id] || s.tier], LINE_MODES.includes(m.id) ? 1 : 4)
             // 7 nm: 1000 CWU in all per print (not per tick; af9-core LithoMachine.updateTotalComputation)
             if (m.id == '7nm') recipe.addData('af9_total_cwu', 1000)
         })

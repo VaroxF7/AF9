@@ -347,10 +347,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeTypes(['350nm', '200nm', '100nm'].map(node => GTRecipeTypes.get(`lithography_${node}`)))
         // LITHO_GATE: only prints a mode the line's version allows, when the two energy hatches can supply its EU/t
         // STRIP_BROKEN: the chanced broken wafer is only for the recipe viewers, the break roll decides
-        // LITHO_VERSION: faster per version above the mode; perfect overclocks above that; batch mode (GT's: once
-        // overclocked below 5 s, several prints in one run, each rolling its own break). No parallel hatch.
+        // Mk1: perfect overclocks and batch mode (GT's: once overclocked below 5 s, several prints in one run, each
+        // rolling its own break), nothing else (no version speed-up, no parallel hatch). A print draws 1A of its mode's tier.
         .recipeModifiers([$LithoMachine.LITHO_GATE, $LithoMachine.STRIP_BROKEN,
-            $PhotolithographyLineMachine.LITHO_VERSION, GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
+            GTRecipeModifiers.OC_PERFECT, GTRecipeModifiers.BATCH_MODE])
         .appearanceBlock(() => Block.getBlock('gtceu:plascrete'))
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.photolithography_line.tooltip', 17))
         // 3 wide x 3 high x 10-12 long, built from plascrete like a clean room. Aisles run from the front (controller)
@@ -376,7 +376,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
                 .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(2, 1)))
             .where('C', Predicates.blocks('gtceu:plascrete')
-                // up to two normal 2A hatches = 4A, what every print needs; their voltage decides the modes
+                // a print draws 1A of its mode's tier; the hatches' voltage decides the modes (a second hatch is allowed, not needed)
                 .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 2))
                 // a computation hatch: the optical proximity correction's computation (an extra)
                 .or(Predicates.abilities(PartAbility.COMPUTATION_DATA_RECEPTION).setMaxGlobalLimited(1, 0))
