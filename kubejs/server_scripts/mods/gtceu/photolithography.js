@@ -594,8 +594,6 @@ ServerEvents.recipes(event => {
     // topcoat (the immersion nodes), soft bake: the blank wafer of the substrate becomes its coated wafer, 1.5x the
     // chemicals a node. What the spin spins off is spent solvent (30 mB of 100 mB of resist's worth), distilled back in the
     // fab modes at 60 %. The orbital station's 1 nm print takes a blank wafer and deposits its resist dry.
-    // the Mk1 line's modes draw a single amp of their tier; the scanner and the station keep 4A
-    const LINE_MODES = ['350nm', '200nm', '100nm']
     modes.forEach(m => {
         const s = substrates[m.substrate]
         const chemicals = Math.pow(1.5, m.index)
