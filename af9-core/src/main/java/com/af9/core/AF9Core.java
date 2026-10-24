@@ -9,6 +9,8 @@ import com.af9.core.compat.adastra.AdAstraCompat;
 import com.af9.core.machine.MEResonanceFabricatorMachine;
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.recipe.condition.RecipeConditionType;
+import com.gregtechceu.gtceu.common.data.GCYMRecipeTypes;
+import com.gregtechceu.gtceu.common.data.GTSoundEntries;
 import com.af9.core.compat.powah.OrbMk2;
 import com.af9.core.compat.powah.client.OrbMk2Client;
 import com.af9.core.compat.extremereactors.ExtremeReactorsCompat;
@@ -119,6 +121,8 @@ public class AF9Core {
         event.enqueueWork(StagedAssemblyMachine::registerRecipeInfo);
         event.enqueueWork(StagedRecipeUI::install);
         event.enqueueWork(FiltrationPlantMachine::registerRecipeInfo);
+        // the Alloy Blast Smelter has no sound of its own and played the fusion reactor's: a furnace roar like the EBF
+        event.enqueueWork(() -> GCYMRecipeTypes.ALLOY_BLAST_RECIPES.setSound(GTSoundEntries.FURNACE));
         // the blocks exist now; structures are only checked later
         event.enqueueWork(AF9Filters::register);
         // the orbital station's magnetic field sets gravity through Ad Astra
