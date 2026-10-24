@@ -370,6 +370,13 @@ ServerEvents.recipes((event) => {
     tier_multipliers.forEach((m) => emitRecipes("void_mining_asteroids", asteroids_raw_ores,
         GTValues.VA[GTValues.IV], asteroids_dimensions, m))
 
+    // Circuit 9 of the belt is the MK3's alone: neutronite shard, the exotic asteroid's ore (the elevator's Mk-IV brings it
+    // too), at UV. MK1 and MK2 have no circuit 9, so only the MK3 table carries it. The shard has no neutronium byproduct
+    // (AF9Materials): the Planetary Satellite stays the only neutronium source (docs/planetary-satellite.md).
+    const asteroids_mk3_ores =
+        [[["20x gtceu:raw_neutronite_shard"], "9", "af9:vm_asteroids_neutronite_shard", GTValues.VA[GTValues.UV]]]
+    emitRecipes("void_mining_asteroids", asteroids_mk3_ores, GTValues.VA[GTValues.IV], asteroids_dimensions, 3)
+
     // The Moon gives one ore a circuit, like the belt: the new Moon minerals (lesolite, tranquillite).
     // Artemite stays out (the dopant's trickle is the elevator's, like the old uranium ways).
     const moon_raw_ores =

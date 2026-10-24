@@ -1547,7 +1547,7 @@ public final class AF9Materials {
                 .color(0xcfd4ff).secondaryColor(0x4a4f80)
                 .iconSet(MaterialIconSet.SHINY)
                 .formula("(Nt)(Nq)")
-                .addOreByproducts(GTMaterials.Naquadria, GTMaterials.Trinium, GTMaterials.Neutronium));
+                .addOreByproducts(GTMaterials.Naquadria, GTMaterials.Trinium, GTMaterials.Osmium));
 
         // ---- the EBF alloys (mixed in alloys_af9.js, melted by GT's EBF recipe from the blast property) ----
         ebfAlloy("duralumin", 0xc9d1dc, "(Al9CuMg)", 1200, GasTier.LOW, GTValues.VA[GTValues.HV], 500,

@@ -122,12 +122,14 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
     /**
      * Lean ores: materials whose elevator missions bring fewer stacks, as a divisor of their share. Quantanium is the
      * UHV gate and would flood the pack at full Mk-IV yields (24-48 stacks of pure ore a mission); pitchblende and
-     * uraninite are the closed old uranium ways, kept as a trickle on the exotic asteroid only.
+     * uraninite are the closed old uranium ways, kept as a trickle on the exotic asteroid only; the neutronite shard is the
+     * endgame ore of the same asteroid, at half its share.
      */
     private static final java.util.Map<String, Integer> LEAN_DIVISOR = java.util.Map.of(
             "quantanium", 4,
             "uraninite", 4,
-            "pitchblende", 4);
+            "pitchblende", 4,
+            "neutronite_shard", 2);
     /** How many of the exotic ores one exotic asteroid holds, and its share of the Mk4 draws (1 in this many). */
     private static final int EXOTIC_ORES = 3;
     private static final int EXOTIC_ONE_IN = 6;

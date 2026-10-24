@@ -35,6 +35,9 @@ Code: `AF9Materials.alloys()` (materials), `kubejs/server_scripts/mods/gtceu/all
 * **Chronium**: chronite (Ceres dike vein, weight 15, void miner asteroids circuit 8) -> sulfuric acid leach (niobium stays) -> soda
   ash precipitates the carbonate -> calcination to the oxide mix -> calcium reduction under argon -> chronium.
 * **Stellarite and neutronite shard** have no vein: they come only from the Space Elevator's exotic asteroid (Mk-IV).
+  The neutronite shard is also the **MK3 Void Miner's** asteroid circuit 9 (UV, 20 stacks of raw shard at MK1 counts, tripled by the MK3; MK1/MK2 have no circuit 9),
+  and a lean ore of the elevator (half share, `SpaceMissionMachine.LEAN_DIVISOR`). Its ore byproducts are naquadria, trinium and osmium: **no neutronium** from the
+  ore, the Planetary Satellite stays the only neutronium source.
 * **Beryllium, vanadium, cobalt, tantalum, mercury** are GT's own (vanadium magnetite, beryl, cinnabar and so on).
 
 ## Not done yet (to decide)
