@@ -97,8 +97,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('I', Predicates.abilities(PartAbility.IMPORT_ITEMS, PartAbility.IMPORT_FLUIDS, PartAbility.INPUT_LASER /*change to INPUT_LASER after that's released*/)
                 .or(Predicates.blocks('gtceu:atomic_casing'))
                 // AF9: the Wireless Energy Receivers (wireless_energy.js) instead of laser hatches, if wanted
-                .or(Predicates.blocks('gtceu:ev_wireless_energy_receiver'))
-                .or(Predicates.blocks('gtceu:iv_wireless_energy_receiver'))
                 .or(Predicates.blocks('gtceu:luv_wireless_energy_receiver'))
                 .or(Predicates.blocks('gtceu:zpm_wireless_energy_receiver'))
                 .or(Predicates.blocks('gtceu:uv_wireless_energy_receiver'))
