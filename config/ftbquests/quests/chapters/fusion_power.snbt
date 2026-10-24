@@ -27,12 +27,10 @@
 			shape: "gear"
 			size: 2.5d
 			subtitle: "{af9.quest.fusion.intro.subtitle}"
-			tasks: [
-				{
-					id: "3C8CB644D89F4020"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "3C8CB644D89F4020"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.intro.title}"
 			x: 0.0d
 			y: 0.0d
@@ -54,13 +52,11 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.reactor.subtitle}"
-			tasks: [
-				{
-					id: "6288EB3EB0BB5302"
-					item: "gtceu:luv_fusion_reactor"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "6288EB3EB0BB5302"
+				item: "gtceu:luv_fusion_reactor"
+				type: "item"
+			}]
 			title: "{af9.quest.fusion.reactor.title}"
 			x: 3.0d
 			y: 0.0d
@@ -84,12 +80,10 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.field.subtitle}"
-			tasks: [
-				{
-					id: "41ADD16359BAA096"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "41ADD16359BAA096"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.field.title}"
 			x: 6.0d
 			y: 0.0d
@@ -113,12 +107,10 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.upkeep.subtitle}"
-			tasks: [
-				{
-					id: "4B830E303371C9D3"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "4B830E303371C9D3"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.upkeep.title}"
 			x: 9.0d
 			y: 0.0d
@@ -140,12 +132,10 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.dt.subtitle}"
-			tasks: [
-				{
-					id: "34DFA6A89E0B7AF2"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "34DFA6A89E0B7AF2"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.dt.title}"
 			x: 3.0d
 			y: 3.0d
@@ -169,18 +159,19 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.turbine.subtitle}"
-			tasks: [
-				{
-					id: "138CED2825A204E5"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "138CED2825A204E5"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.turbine.title}"
 			x: 6.0d
 			y: 3.0d
 		}
 		{
-			dependencies: ["5D45234E2F8423D5", "70016AF6458271E3"]
+			dependencies: [
+				"5D45234E2F8423D5"
+				"70016AF6458271E3"
+			]
 			description: [
 				"{af9.quest.fusion.dtmath.1}"
 				""
@@ -196,14 +187,12 @@
 				xp: 100
 			}]
 			shape: "square"
-			size: 2d
+			size: 2.0d
 			subtitle: "{af9.quest.fusion.dtmath.subtitle}"
-			tasks: [
-				{
-					id: "37736D520F32248F"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "37736D520F32248F"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.dtmath.title}"
 			x: 9.0d
 			y: 3.0d
@@ -225,14 +214,12 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.he3.subtitle}"
-			tasks: [
-				{
-					amount: 1000L
-					fluid: "gtceu:helium_3"
-					id: "1945D95BD4E6484C"
-					type: "fluid"
-				}
-			]
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:helium_3"
+				id: "1945D95BD4E6484C"
+				type: "fluid"
+			}]
 			title: "{af9.quest.fusion.he3.title}"
 			x: 3.0d
 			y: 6.0d
@@ -254,12 +241,10 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.calcium.subtitle}"
-			tasks: [
-				{
-					id: "17CABF0CB1C717C2"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "17CABF0CB1C717C2"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.calcium.title}"
 			x: 6.0d
 			y: 6.0d
@@ -281,13 +266,11 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.mk2.subtitle}"
-			tasks: [
-				{
-					id: "64D4BF49512172F3"
-					item: "gtceu:zpm_fusion_reactor"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "64D4BF49512172F3"
+				item: "gtceu:zpm_fusion_reactor"
+				type: "item"
+			}]
 			title: "{af9.quest.fusion.mk2.title}"
 			x: 12.0d
 			y: 3.0d
@@ -311,12 +294,10 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.mk2fuel.subtitle}"
-			tasks: [
-				{
-					id: "74D10FF883D58990"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "74D10FF883D58990"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.mk2fuel.title}"
 			x: 15.0d
 			y: 3.0d
@@ -338,13 +319,11 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.mk3.subtitle}"
-			tasks: [
-				{
-					id: "3763FB8C07BE0659"
-					item: "gtceu:uv_fusion_reactor"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "3763FB8C07BE0659"
+				item: "gtceu:uv_fusion_reactor"
+				type: "item"
+			}]
 			title: "{af9.quest.fusion.mk3.title}"
 			x: 18.0d
 			y: 3.0d
@@ -368,12 +347,10 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.bismuth.subtitle}"
-			tasks: [
-				{
-					id: "12B372EF5C3BDA6D"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "12B372EF5C3BDA6D"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.bismuth.title}"
 			x: 21.0d
 			y: 3.0d
@@ -395,12 +372,10 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.mega.subtitle}"
-			tasks: [
-				{
-					id: "20E763FDB63FABF2"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "20E763FDB63FABF2"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.mega.title}"
 			x: 24.0d
 			y: 3.0d
@@ -422,14 +397,12 @@
 				xp: 150
 			}]
 			shape: "square"
-			size: 2d
+			size: 2.0d
 			subtitle: "{af9.quest.fusion.megafuel.subtitle}"
-			tasks: [
-				{
-					id: "6F3CC2C208D43F45"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "6F3CC2C208D43F45"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.megafuel.title}"
 			x: 27.0d
 			y: 3.0d
@@ -451,12 +424,10 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.star.subtitle}"
-			tasks: [
-				{
-					id: "63B02EF4A34153A8"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "63B02EF4A34153A8"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.star.title}"
 			x: 24.0d
 			y: 6.0d
@@ -478,18 +449,19 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fusion.ramp.subtitle}"
-			tasks: [
-				{
-					id: "23DF43A9A51146CD"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "23DF43A9A51146CD"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.ramp.title}"
 			x: 3.0d
 			y: -3.0d
 		}
 		{
-			dependencies: ["6BE7205671A8E8E9", "5F32ED0D66152E12"]
+			dependencies: [
+				"6BE7205671A8E8E9"
+				"5F32ED0D66152E12"
+			]
 			description: [
 				"{af9.quest.fusion.ledger.1}"
 				""
@@ -509,12 +481,10 @@
 			shape: "gear"
 			size: 2.5d
 			subtitle: "{af9.quest.fusion.ledger.subtitle}"
-			tasks: [
-				{
-					id: "42D48550CDFC9FA3"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "42D48550CDFC9FA3"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.fusion.ledger.title}"
 			x: 30.0d
 			y: 0.0d
