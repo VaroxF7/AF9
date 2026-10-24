@@ -1,0 +1,525 @@
+{
+	default_hide_dependency_lines: false
+	default_quest_shape: ""
+	filename: "fusion_power"
+	group: "1DA67E79B40AB130"
+	icon: "gtceu:uv_fusion_reactor"
+	id: "3ECD73AF4FD0CD8C"
+	order_index: 21
+	progression_mode: "flexible"
+	quest_links: [ ]
+	quests: [
+		{
+			description: [
+				"{af9.quest.fusion.intro.1}"
+				""
+				"{af9.quest.fusion.intro.2}"
+				""
+				"{af9.quest.fusion.intro.3}"
+			]
+			icon: "gtceu:luv_fusion_reactor"
+			id: "4A794D6A8A1BE906"
+			rewards: [{
+				id: "0D4EBF3F0F10A085"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "gear"
+			size: 2.5d
+			subtitle: "{af9.quest.fusion.intro.subtitle}"
+			tasks: [
+				{
+					id: "3C8CB644D89F4020"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.intro.title}"
+			x: 0.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["4A794D6A8A1BE906"]
+			description: [
+				"{af9.quest.fusion.reactor.1}"
+				""
+				"{af9.quest.fusion.reactor.2}"
+			]
+			icon: "gtceu:luv_fusion_reactor"
+			id: "750A8BE2ACA52AA3"
+			rewards: [{
+				id: "55F5BB9F3D467C72"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.reactor.subtitle}"
+			tasks: [
+				{
+					id: "6288EB3EB0BB5302"
+					item: "gtceu:luv_fusion_reactor"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fusion.reactor.title}"
+			x: 3.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["750A8BE2ACA52AA3"]
+			description: [
+				"{af9.quest.fusion.field.1}"
+				""
+				"{af9.quest.fusion.field.2}"
+				""
+				"{af9.quest.fusion.field.3}"
+			]
+			icon: "gtceu:fusion_coil"
+			id: "67B3D1C1B4BB2CF8"
+			rewards: [{
+				id: "170D84432191CC1C"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.field.subtitle}"
+			tasks: [
+				{
+					id: "41ADD16359BAA096"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.field.title}"
+			x: 6.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["67B3D1C1B4BB2CF8"]
+			description: [
+				"{af9.quest.fusion.upkeep.1}"
+				""
+				"{af9.quest.fusion.upkeep.2}"
+				""
+				"{af9.quest.fusion.upkeep.3}"
+			]
+			icon: "gtceu:fusion_casing"
+			id: "70016AF6458271E3"
+			rewards: [{
+				id: "2413DA4B2C313453"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.upkeep.subtitle}"
+			tasks: [
+				{
+					id: "4B830E303371C9D3"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.upkeep.title}"
+			x: 9.0d
+			y: 0.0d
+		}
+		{
+			dependencies: ["750A8BE2ACA52AA3"]
+			description: [
+				"{af9.quest.fusion.dt.1}"
+				""
+				"{af9.quest.fusion.dt.2}"
+			]
+			icon: "gtceu:helium_plasma_bucket"
+			id: "473CD7F960BF4F53"
+			rewards: [{
+				id: "549E821F371672B4"
+				type: "xp"
+				xp: 75
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.dt.subtitle}"
+			tasks: [
+				{
+					id: "34DFA6A89E0B7AF2"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.dt.title}"
+			x: 3.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["473CD7F960BF4F53"]
+			description: [
+				"{af9.quest.fusion.turbine.1}"
+				""
+				"{af9.quest.fusion.turbine.2}"
+				""
+				"{af9.quest.fusion.turbine.3}"
+			]
+			icon: "gtceu:helium_plasma_bucket"
+			id: "5D45234E2F8423D5"
+			rewards: [{
+				id: "38DF379A0E3D56D5"
+				type: "xp"
+				xp: 75
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.turbine.subtitle}"
+			tasks: [
+				{
+					id: "138CED2825A204E5"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.turbine.title}"
+			x: 6.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["5D45234E2F8423D5", "70016AF6458271E3"]
+			description: [
+				"{af9.quest.fusion.dtmath.1}"
+				""
+				"{af9.quest.fusion.dtmath.2}"
+				""
+				"{af9.quest.fusion.dtmath.3}"
+			]
+			icon: "minecraft:redstone"
+			id: "046B5ABDB2A6D2F0"
+			rewards: [{
+				id: "3B5D8307C81C8233"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 2d
+			subtitle: "{af9.quest.fusion.dtmath.subtitle}"
+			tasks: [
+				{
+					id: "37736D520F32248F"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.dtmath.title}"
+			x: 9.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["473CD7F960BF4F53"]
+			description: [
+				"{af9.quest.fusion.he3.1}"
+				""
+				"{af9.quest.fusion.he3.2}"
+			]
+			icon: "gtceu:helium_3_bucket"
+			id: "25F963BE70160B0A"
+			rewards: [{
+				id: "6BB45AE4BEAF6651"
+				type: "xp"
+				xp: 75
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.he3.subtitle}"
+			tasks: [
+				{
+					amount: 1000L
+					fluid: "gtceu:helium_3"
+					id: "1945D95BD4E6484C"
+					type: "fluid"
+				}
+			]
+			title: "{af9.quest.fusion.he3.title}"
+			x: 3.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["25F963BE70160B0A"]
+			description: [
+				"{af9.quest.fusion.calcium.1}"
+				""
+				"{af9.quest.fusion.calcium.2}"
+			]
+			icon: "gtceu:calcium_dust"
+			id: "6352C8485128321F"
+			rewards: [{
+				id: "74F128A67667EF1A"
+				type: "xp"
+				xp: 75
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.calcium.subtitle}"
+			tasks: [
+				{
+					id: "17CABF0CB1C717C2"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.calcium.title}"
+			x: 6.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["046B5ABDB2A6D2F0"]
+			description: [
+				"{af9.quest.fusion.mk2.1}"
+				""
+				"{af9.quest.fusion.mk2.2}"
+			]
+			icon: "gtceu:zpm_fusion_reactor"
+			id: "3D0889122A19DFC3"
+			rewards: [{
+				id: "757AEDED989E6B16"
+				type: "xp"
+				xp: 75
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.mk2.subtitle}"
+			tasks: [
+				{
+					id: "64D4BF49512172F3"
+					item: "gtceu:zpm_fusion_reactor"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fusion.mk2.title}"
+			x: 12.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["3D0889122A19DFC3"]
+			description: [
+				"{af9.quest.fusion.mk2fuel.1}"
+				""
+				"{af9.quest.fusion.mk2fuel.2}"
+				""
+				"{af9.quest.fusion.mk2fuel.3}"
+			]
+			icon: "gtceu:niobium_dust"
+			id: "4CB4F4AD8D7BC339"
+			rewards: [{
+				id: "1EDE9B092C7B40BA"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.mk2fuel.subtitle}"
+			tasks: [
+				{
+					id: "74D10FF883D58990"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.mk2fuel.title}"
+			x: 15.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["4CB4F4AD8D7BC339"]
+			description: [
+				"{af9.quest.fusion.mk3.1}"
+				""
+				"{af9.quest.fusion.mk3.2}"
+			]
+			icon: "gtceu:uv_fusion_reactor"
+			id: "7C409D66DFA3F771"
+			rewards: [{
+				id: "70A48B1FD119CEDB"
+				type: "xp"
+				xp: 75
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.mk3.subtitle}"
+			tasks: [
+				{
+					id: "3763FB8C07BE0659"
+					item: "gtceu:uv_fusion_reactor"
+					type: "item"
+				}
+			]
+			title: "{af9.quest.fusion.mk3.title}"
+			x: 18.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["7C409D66DFA3F771"]
+			description: [
+				"{af9.quest.fusion.bismuth.1}"
+				""
+				"{af9.quest.fusion.bismuth.2}"
+				""
+				"{af9.quest.fusion.bismuth.3}"
+			]
+			icon: "gtceu:bismuth_dust"
+			id: "7532DCE69E55EBFB"
+			rewards: [{
+				id: "7B488A0A91DB96FC"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.bismuth.subtitle}"
+			tasks: [
+				{
+					id: "12B372EF5C3BDA6D"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.bismuth.title}"
+			x: 21.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["7532DCE69E55EBFB"]
+			description: [
+				"{af9.quest.fusion.mega.1}"
+				""
+				"{af9.quest.fusion.mega.2}"
+			]
+			icon: "gtceu:mega_fusion_reactor"
+			id: "12F34516E8403F79"
+			rewards: [{
+				id: "23DF5CC629E5EA1E"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.mega.subtitle}"
+			tasks: [
+				{
+					id: "20E763FDB63FABF2"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.mega.title}"
+			x: 24.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["12F34516E8403F79"]
+			description: [
+				"{af9.quest.fusion.megafuel.1}"
+				""
+				"{af9.quest.fusion.megafuel.2}"
+				""
+				"{af9.quest.fusion.megafuel.3}"
+			]
+			icon: "gtceu:plutonium_241_dust"
+			id: "6BE7205671A8E8E9"
+			rewards: [{
+				id: "5C72B7E4E6C74C81"
+				type: "xp"
+				xp: 150
+			}]
+			shape: "square"
+			size: 2d
+			subtitle: "{af9.quest.fusion.megafuel.subtitle}"
+			tasks: [
+				{
+					id: "6F3CC2C208D43F45"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.megafuel.title}"
+			x: 27.0d
+			y: 3.0d
+		}
+		{
+			dependencies: ["12F34516E8403F79"]
+			description: [
+				"{af9.quest.fusion.star.1}"
+				""
+				"{af9.quest.fusion.star.2}"
+			]
+			icon: "gtceu:star_matter_plasma_bucket"
+			id: "5F32ED0D66152E12"
+			rewards: [{
+				id: "524DAAE1ADD5870E"
+				type: "xp"
+				xp: 100
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.star.subtitle}"
+			tasks: [
+				{
+					id: "63B02EF4A34153A8"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.star.title}"
+			x: 24.0d
+			y: 6.0d
+		}
+		{
+			dependencies: ["750A8BE2ACA52AA3"]
+			description: [
+				"{af9.quest.fusion.ramp.1}"
+				""
+				"{af9.quest.fusion.ramp.2}"
+			]
+			icon: "minecraft:clock"
+			id: "28D7532AB0880674"
+			rewards: [{
+				id: "2418AB55ECE5362B"
+				type: "xp"
+				xp: 50
+			}]
+			shape: "square"
+			size: 1.5d
+			subtitle: "{af9.quest.fusion.ramp.subtitle}"
+			tasks: [
+				{
+					id: "23DF43A9A51146CD"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.ramp.title}"
+			x: 3.0d
+			y: -3.0d
+		}
+		{
+			dependencies: ["6BE7205671A8E8E9", "5F32ED0D66152E12"]
+			description: [
+				"{af9.quest.fusion.ledger.1}"
+				""
+				"{af9.quest.fusion.ledger.2}"
+				""
+				"{af9.quest.fusion.ledger.3}"
+				""
+				"{af9.quest.fusion.ledger.4}"
+			]
+			icon: "minecraft:emerald"
+			id: "39449E2D09A7D1BC"
+			rewards: [{
+				id: "7451603A522F8CA2"
+				type: "xp"
+				xp: 200
+			}]
+			shape: "gear"
+			size: 2.5d
+			subtitle: "{af9.quest.fusion.ledger.subtitle}"
+			tasks: [
+				{
+					id: "42D48550CDFC9FA3"
+					type: "checkmark"
+				}
+			]
+			title: "{af9.quest.fusion.ledger.title}"
+			x: 30.0d
+			y: 0.0d
+		}
+	]
+	subtitle: ["{af9.quest.fusion.chapter.subtitle}"]
+	title: "{af9.quest.fusion.chapter.title}"
+}
