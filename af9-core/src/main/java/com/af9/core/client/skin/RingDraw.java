@@ -7,7 +7,7 @@ import com.af9.core.machine.OrbitalLithographyMachine.Band;
 
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 
-import net.minecraft.client.Lighting;
+import com.mojang.blaze3d.platform.Lighting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
