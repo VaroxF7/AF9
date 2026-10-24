@@ -5,7 +5,7 @@
 	group: "1DA67E79B40AB130"
 	icon: "gtceu:void_miner"
 	id: "68BBA4603FE1EF0C"
-	order_index: 18
+	order_index: 19
 	progression_mode: "flexible"
 	quest_links: [ ]
 	quests: [
@@ -25,21 +25,17 @@
 			shape: "gear"
 			size: 2.5d
 			subtitle: "{af9.quest.vm.intro.subtitle}"
-			tasks: [
-				{
-					id: "77DFCCE3B0D76741"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "77DFCCE3B0D76741"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.vm.intro.title}"
 			x: 0.0d
 			y: 0.0d
 		}
 		{
 			dependencies: ["2C56DB9B1465E2B9"]
-			description: [
-				"{af9.quest.vm.miner.1}"
-			]
+			description: ["{af9.quest.vm.miner.1}"]
 			icon: "gtceu:void_miner"
 			id: "7DCAE35A2C3059C3"
 			rewards: [{
@@ -50,22 +46,18 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.vm.miner.subtitle}"
-			tasks: [
-				{
-					id: "12EB0FBB2EF1AA05"
-					item: "gtceu:void_miner"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "12EB0FBB2EF1AA05"
+				item: "gtceu:void_miner"
+				type: "item"
+			}]
 			title: "{af9.quest.vm.miner.title}"
 			x: 3.0d
 			y: 0.0d
 		}
 		{
 			dependencies: ["7DCAE35A2C3059C3"]
-			description: [
-				"{af9.quest.vm.ore.1}"
-			]
+			description: ["{af9.quest.vm.ore.1}"]
 			icon: "gtceu:raw_magnetite"
 			id: "4013256F055DDE30"
 			rewards: [{
@@ -76,23 +68,19 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.vm.ore.subtitle}"
-			tasks: [
-				{
-					count: 64L
-					id: "3CE64C6A0CD2B99D"
-					item: "gtceu:raw_magnetite"
-					type: "item"
-				}
-			]
+			tasks: [{
+				count: 64L
+				id: "3CE64C6A0CD2B99D"
+				item: "gtceu:raw_magnetite"
+				type: "item"
+			}]
 			title: "{af9.quest.vm.ore.title}"
 			x: 6.0d
 			y: 0.0d
 		}
 		{
 			dependencies: ["4013256F055DDE30"]
-			description: [
-				"{af9.quest.vm.asteroid.1}"
-			]
+			description: ["{af9.quest.vm.asteroid.1}"]
 			icon: "gtceu:raw_brannerite"
 			id: "7A951C26AD77ECA2"
 			rewards: [{
@@ -103,23 +91,19 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.vm.asteroid.subtitle}"
-			tasks: [
-				{
-					count: 8L
-					id: "29ADC8FC99787108"
-					item: "gtceu:raw_brannerite"
-					type: "item"
-				}
-			]
+			tasks: [{
+				count: 8L
+				id: "29ADC8FC99787108"
+				item: "gtceu:raw_brannerite"
+				type: "item"
+			}]
 			title: "{af9.quest.vm.asteroid.title}"
 			x: 9.0d
 			y: 0.0d
 		}
 		{
 			dependencies: ["7DCAE35A2C3059C3"]
-			description: [
-				"{af9.quest.vm.mk2.1}"
-			]
+			description: ["{af9.quest.vm.mk2.1}"]
 			icon: "gtceu:void_miner_mk2"
 			id: "22D8A2C2A0F18263"
 			rewards: [{
@@ -130,22 +114,18 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.vm.mk2.subtitle}"
-			tasks: [
-				{
-					id: "6E7CD77FB598638D"
-					item: "gtceu:void_miner_mk2"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "6E7CD77FB598638D"
+				item: "gtceu:void_miner_mk2"
+				type: "item"
+			}]
 			title: "{af9.quest.vm.mk2.title}"
 			x: 6.0d
 			y: 2.5d
 		}
 		{
 			dependencies: ["22D8A2C2A0F18263"]
-			description: [
-				"{af9.quest.vm.mk3.1}"
-			]
+			description: ["{af9.quest.vm.mk3.1}"]
 			icon: "gtceu:void_miner_mk3"
 			id: "159CE979F18B8915"
 			rewards: [{
@@ -156,20 +136,22 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.vm.mk3.subtitle}"
-			tasks: [
-				{
-					id: "054AA4DB65045780"
-					item: "gtceu:void_miner_mk3"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "054AA4DB65045780"
+				item: "gtceu:void_miner_mk3"
+				type: "item"
+			}]
 			title: "{af9.quest.vm.mk3.title}"
 			x: 9.0d
 			y: 2.5d
 		}
 		{
 			dependencies: ["7DCAE35A2C3059C3"]
-			description: ["{af9.quest.dm.intro.1}" "" "{af9.quest.dm.intro.2}"]
+			description: [
+				"{af9.quest.dm.intro.1}"
+				""
+				"{af9.quest.dm.intro.2}"
+			]
 			icon: "gtceu:drilling_fluid_bucket"
 			id: "67FCFDFE631E20CF"
 			rewards: [{
@@ -178,11 +160,11 @@
 				xp: 25
 			}]
 			shape: "gear"
-			title: "{af9.quest.dm.intro.title}"
 			tasks: [{
 				id: "2AA068FD57A129A5"
 				type: "checkmark"
 			}]
+			title: "{af9.quest.dm.intro.title}"
 			x: 0.0d
 			y: 5.0d
 		}
@@ -196,13 +178,13 @@
 				type: "xp"
 				xp: 25
 			}]
-			title: "{af9.quest.dm.water.title}"
 			tasks: [{
 				amount: 1000L
 				fluid: "gtceu:softened_water"
 				id: "6911D945032508B6"
 				type: "fluid"
 			}]
+			title: "{af9.quest.dm.water.title}"
 			x: 3.0d
 			y: 5.0d
 		}
@@ -216,13 +198,13 @@
 				type: "xp"
 				xp: 25
 			}]
-			title: "{af9.quest.dm.slurry.title}"
 			tasks: [{
 				amount: 1000L
 				fluid: "gtceu:sodium_bentonite_slurry"
 				id: "2D93F4FEF132D89D"
 				type: "fluid"
 			}]
+			title: "{af9.quest.dm.slurry.title}"
 			x: 6.0d
 			y: 5.0d
 		}
@@ -236,13 +218,13 @@
 				type: "xp"
 				xp: 25
 			}]
-			title: "{af9.quest.dm.chloroacetic.title}"
 			tasks: [{
 				amount: 1000L
 				fluid: "gtceu:chloroacetic_acid"
 				id: "2C647959850AAA6A"
 				type: "fluid"
 			}]
+			title: "{af9.quest.dm.chloroacetic.title}"
 			x: 3.0d
 			y: 7.5d
 		}
@@ -256,18 +238,21 @@
 				type: "xp"
 				xp: 25
 			}]
-			title: "{af9.quest.dm.alkali.title}"
 			tasks: [{
 				amount: 1000L
 				fluid: "gtceu:alkali_cellulose"
 				id: "7679B68CD211553D"
 				type: "fluid"
 			}]
+			title: "{af9.quest.dm.alkali.title}"
 			x: 6.0d
 			y: 7.5d
 		}
 		{
-			dependencies: ["4AE6AED23428989B" "56DC35082311DA92"]
+			dependencies: [
+				"4AE6AED23428989B"
+				"56DC35082311DA92"
+			]
 			description: ["{af9.quest.dm.cmc.1}"]
 			icon: "gtceu:cmc_solution"
 			id: "03F1D32E65D80022"
@@ -276,18 +261,21 @@
 				type: "xp"
 				xp: 25
 			}]
-			title: "{af9.quest.dm.cmc.title}"
 			tasks: [{
 				amount: 1000L
 				fluid: "gtceu:cmc_solution"
 				id: "246C439FEF13955F"
 				type: "fluid"
 			}]
+			title: "{af9.quest.dm.cmc.title}"
 			x: 9.0d
 			y: 7.5d
 		}
 		{
-			dependencies: ["01B63F59668FFF83" "03F1D32E65D80022"]
+			dependencies: [
+				"01B63F59668FFF83"
+				"03F1D32E65D80022"
+			]
 			description: ["{af9.quest.dm.fluid.1}"]
 			icon: "gtceu:drilling_fluid"
 			id: "4F9AFE5EFC616DAC"
@@ -296,13 +284,13 @@
 				type: "xp"
 				xp: 25
 			}]
-			title: "{af9.quest.dm.fluid.title}"
 			tasks: [{
 				amount: 1000L
 				fluid: "gtceu:drilling_fluid"
 				id: "572CA2A4B8DE1534"
 				type: "fluid"
 			}]
+			title: "{af9.quest.dm.fluid.title}"
 			x: 9.0d
 			y: 5.0d
 		}
