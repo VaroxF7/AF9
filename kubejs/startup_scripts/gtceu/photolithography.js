@@ -39,7 +39,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     const lineModes = [['350nm', 6, 2], ['200nm', 8, 2], ['100nm', 8, 2], ['80nm', 8, 3], ['65nm', 9, 3],
         ['50nm', 10, 2], ['20nm', 10, 3], ['7nm', 11, 3]]
     // the orbital station's modes sound like it: a deep hum (af9-core AF9Sounds, vanilla sounds pitched down); the Mk1 line
-    // (350 to 100 nm) and the Mk2 scanner (80 and 65 nm) have a very quiet ambient room tone
+    // (350 to 100 nm) and the Mk2 scanner (80 and 65 nm) play the Circuit Assembler's sound (GTSoundEntries.ASSEMBLER)
     const orbitalNodes = ['50nm', '20nm', '7nm']
     lineModes.forEach(([node, fluids, items]) => {
         event.create(`lithography_${node}`)
@@ -48,7 +48,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
             .setMaxIOSize(items, 2, fluids, 0) // GT's chip wafers + the chanced broken wafer out
             .setSlotOverlay(false, false, true, GuiTextures.LENS_OVERLAY)
             .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-            .setSound(orbitalNodes.includes(node) ? $LithoSounds.ORBITAL_STATION : $LithoSounds.LITHOGRAPHY_AMBIENT)
+            .setSound(orbitalNodes.includes(node) ? $LithoSounds.ORBITAL_STATION : GTSoundEntries.ASSEMBLER)
     })
     // chromodynium wafer, reticle, dry resist cartridge; the coolant comes from the station (af9-core)
     event.create('orbital_lithography')
