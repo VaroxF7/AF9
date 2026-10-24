@@ -35,7 +35,7 @@ Q = [
     ('reactor', 3, 0, 1.5, 'square', 'gtceu:luv_fusion_reactor', ('item', 'gtceu:luv_fusion_reactor'), ['intro'], 50,
      'Fusion Reactor Mk1', 'LuV, the first ring',
      ["The &eFusion Reactor Mk1&r is a LuV machine on GT's 15 x 15 ring. It takes reactions up to a start class of &e160 M&r and makes helium and calcium plasma.",
-      "&eEnergy hatches are optional&r on the ring, and two at most. The reactor stores no EU: it has no start buffer, no heat and no standby draw."]),
+      "&eHatches go on any casing block of the ring&r: one fluid input hatch, one fluid output hatch, one laser hatch, no maintenance hatch. Power comes from &etwo energy hatches&r or a laser hatch; any further energy hatch has to be set to &eAuxiliary&r (screwdriver), else the reactor builds no field. The reactor stores no EU: it has no start buffer, no heat and no standby draw."]),
     ('field', 6, 0, 1.5, 'square', 'gtceu:fusion_coil', ('check',), ['reactor'], 50,
      'The Magnetic Field', 'Upkeep instead of a start buffer',
      ["Every reaction needs a &emagnetic field&r before it starts, and each run &edrains&r some of it. The reactor rebuilds it from its energy hatches (the auxiliary ones first, set with a screwdriver) at &e1 A&r of its tier per tick until it is full.",

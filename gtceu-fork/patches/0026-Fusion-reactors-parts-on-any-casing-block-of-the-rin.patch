@@ -1,0 +1,182 @@
+From 0bd7ed22760f41322c865191057fedae305ef147 Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Sat, 24 Oct 2026 16:14:18 +0000
+Subject: [PATCH] Fusion reactors: parts on any casing block of the ring; one
+ input and one output fluid hatch, one laser hatch, two primary energy hatches
+ (7.5.3-af9.26)
+
+The ring's casing blocks all take hatches. Fluid input (1, required) and output (1), laser (1) are limited by the structure; energy hatches are not, but only two may be primary power: any further one has to be Auxiliary, else the reactor builds no field and runs nothing. No maintenance hatch.
+---
+ gradle.properties                             |  2 +-
+ .../common/data/machines/GTMultiMachines.java | 43 +++++++++----------
+ .../electric/FusionReactorMachine.java        | 36 +++++++++++++++-
+ 3 files changed, 57 insertions(+), 24 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index a3d6cf831f..38fa03d33d 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.25
++mod_version = 7.5.3-af9.26
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+index 5958ad9cad..9456d1ce4d 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+@@ -674,6 +674,14 @@ public class GTMultiMachines {
+                     .appearanceBlock(() -> FusionReactorMachine.getCasingState(tier))
+                     .pattern((definition) -> {
+                         var casing = blocks(FusionReactorMachine.getCasingState(tier));
++                        // AF9: the parts go on any casing block of the ring, within these limits: one input and one output fluid
++                        // hatch, at most one laser hatch, no maintenance hatch; energy hatches are not limited by the structure
++                        // (the machine allows two as primary power, any further one only in Auxiliary mode)
++                        var parts = casing
++                                .or(abilities(PartAbility.IMPORT_FLUIDS).setMinGlobalLimited(1).setMaxGlobalLimited(1))
++                                .or(abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(1))
++                                .or(abilities(PartAbility.INPUT_ENERGY))
++                                .or(abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1));
+                         return FactoryBlockPattern.start()
+                                 .aisle("###############", "######OGO######", "###############")
+                                 .aisle("######ICI######", "####GGAAAGG####", "######ICI######")
+@@ -691,16 +699,13 @@ public class GTMultiMachines {
+                                 .aisle("######ICI######", "####GGAAAGG####", "######ICI######")
+                                 .aisle("###############", "######OSO######", "###############")
+                                 .where('S', controller(blocks(definition.get())))
+-                                .where('G', blocks(FUSION_GLASS.get()).or(casing))
+-                                // AF9: the reactor stores no energy, so energy hatches are allowed here (two at most) but never required
+-                                .where('E', casing.or(
+-                                        blocks(PartAbility.INPUT_ENERGY.getBlockRange(tier, UV).toArray(Block[]::new))
+-                                                .setMaxGlobalLimited(2)))
+-                                .where('C', casing)
++                                .where('G', blocks(FUSION_GLASS.get()).or(parts))
++                                .where('E', parts)
++                                .where('C', parts)
+                                 .where('K', blocks(FusionReactorMachine.getCoilState(tier)))
+-                                .where('O', casing.or(abilities(PartAbility.EXPORT_FLUIDS)))
++                                .where('O', parts)
+                                 .where('A', air())
+-                                .where('I', casing.or(abilities(PartAbility.IMPORT_FLUIDS).setMinGlobalLimited(2)))
++                                .where('I', parts)
+                                 .where('#', any())
+                                 .build();
+                     })
+@@ -708,34 +713,28 @@ public class GTMultiMachines {
+                         List<MultiblockShapeInfo> shapeInfos = new ArrayList<>();
+ 
+                         MultiblockShapeInfo.ShapeInfoBuilder baseBuilder = MultiblockShapeInfo.builder()
+-                                .aisle("###############", "######NMN######", "###############")
+-                                .aisle("######DCD######", "####GG###GG####", "######UCU######")
+-                                .aisle("####CC###CC####", "###w##SGS##e###", "####CC###CC####")
++                                .aisle("###############", "######CMN######", "###############")
++                                .aisle("######DCC######", "####GG###GG####", "######CCC######")
++                                .aisle("####CC###CC####", "###w##CGC##e###", "####CC###CC####")
+                                 .aisle("###C#######C###", "##CKCG###GCKC##", "###C#######C###")
+                                 .aisle("##C#########C##", "#G#C#######C#G#", "##C#########C##")
+                                 .aisle("##C#########C##", "#G#G#######G#G#", "##C#########C##")
+-                                .aisle("#D###########D#", "W#E#########W#E", "#U###########U#")
++                                .aisle("#C###########C#", "C#C#########C#C", "#C###########C#")
+                                 .aisle("#C###########C#", "G#G#########G#G", "#C###########C#")
+-                                .aisle("#D###########D#", "W#E#########W#E", "#U###########U#")
++                                .aisle("#C###########C#", "C#C#########C#C", "#C###########C#")
+                                 .aisle("##C#########C##", "#G#G#######G#G#", "##C#########C##")
+                                 .aisle("##C#########C##", "#G#C#######C#G#", "##C#########C##")
+                                 .aisle("###C#######C###", "##CKCG###GCKC##", "###C#######C###")
+-                                .aisle("####CC###CC####", "###C##NGN##C###", "####CC###CC####")
+-                                .aisle("######DCD######", "####GG###GG####", "######UCU######")
+-                                .aisle("###############", "######SGS######", "###############")
++                                .aisle("####CC###CC####", "###C##CGC##C###", "####CC###CC####")
++                                .aisle("######CCC######", "####GG###GG####", "######CCC######")
++                                .aisle("###############", "######CGC######", "###############")
+                                 .where('M', controller, Direction.NORTH)
+                                 .where('C', FusionReactorMachine.getCasingState(tier))
+                                 .where('G', FUSION_GLASS.get())
+                                 .where('K', FusionReactorMachine.getCoilState(tier))
+-                                .where('W', GTMachines.FLUID_EXPORT_HATCH[tier], Direction.WEST)
+-                                .where('E', GTMachines.FLUID_EXPORT_HATCH[tier], Direction.EAST)
+-                                .where('S', GTMachines.FLUID_EXPORT_HATCH[tier], Direction.SOUTH)
+                                 .where('N', GTMachines.FLUID_EXPORT_HATCH[tier], Direction.NORTH)
+                                 .where('w', GTMachines.ENERGY_INPUT_HATCH[tier], Direction.WEST)
+                                 .where('e', GTMachines.ENERGY_INPUT_HATCH[tier], Direction.EAST)
+-                                .where('s', GTMachines.ENERGY_INPUT_HATCH[tier], Direction.SOUTH)
+-                                .where('n', GTMachines.ENERGY_INPUT_HATCH[tier], Direction.NORTH)
+-                                .where('U', GTMachines.FLUID_IMPORT_HATCH[tier], Direction.UP)
+                                 .where('D', GTMachines.FLUID_IMPORT_HATCH[tier], Direction.DOWN)
+                                 .where('#', Blocks.AIR.defaultBlockState());
+ 
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
+index 24a6eaaccd..46bf5b3cc5 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
+@@ -149,6 +149,34 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+         }
+     }
+ 
++    /** AF9: most primary energy hatches (not in Auxiliary mode) and laser hatches the power may come from. */
++    public static final int MAX_PRIMARY_ENERGY_HATCHES = 2;
++    public static final int MAX_LASER_HATCHES = 1;
++
++    /** AF9: energy hatches in primary mode (the wireless receivers too); Auxiliary ones do not count. */
++    public int countPrimaryEnergyHatches() {
++        int n = 0;
++        for (var part : getParts()) {
++            if (part instanceof com.gregtechceu.gtceu.api.machine.feature.IAuxiliaryPowerPart aux) {
++                if (!aux.isAuxiliaryInput()) n++;
++            }
++        }
++        return n;
++    }
++
++    public int countLaserHatches() {
++        int n = 0;
++        for (var part : getParts()) {
++            if (part instanceof com.gregtechceu.gtceu.common.machine.multiblock.part.LaserHatchPartMachine) n++;
++        }
++        return n;
++    }
++
++    /** AF9: the structure takes any number of energy hatches; only two may be primary, the rest must be Auxiliary. */
++    public boolean isPowerLayoutValid() {
++        return countPrimaryEnergyHatches() <= MAX_PRIMARY_ENERGY_HATCHES && countLaserHatches() <= MAX_LASER_HATCHES;
++    }
++
+     /** AF9: the auxiliary hatches pay the field when there are any, else the primary hatches do. */
+     private boolean drawField(long eut) {
+         if (hasAuxiliary()) return drawAuxiliary(eut);
+@@ -189,7 +217,7 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+ 
+     /** AF9: builds the field, also while a reaction runs; a full field draws nothing. */
+     protected void fieldTick() {
+-        if (!isFormed() || !isWorkingEnabled()) return;
++        if (!isFormed() || !isWorkingEnabled() || !isPowerLayoutValid()) return;
+         if (fieldStrength >= getFieldCapacity()) return;
+         if (drawField(fieldChargeEUt(tier))) {
+             setFieldStrength(fieldStrength + fieldRegen(tier));
+@@ -231,6 +259,9 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+             return ModifierFunction
+                     .cancel(Component.translatable("gtceu.recipe_modifier.insufficient_eu_to_start_fusion"));
+         }
++        if (!fusionReactorMachine.isPowerLayoutValid()) {
++            return ModifierFunction.cancel(Component.translatable("af9.fusion.too_many_hatches"));
++        }
+         if (fusionReactorMachine.fieldStrength < minField(recipe)) {
+             return ModifierFunction.cancel(Component.translatable("af9.fusion.field_low", minField(recipe)));
+         }
+@@ -278,6 +309,9 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+     public void addDisplayText(List<Component> textList) {
+         super.addDisplayText(textList);
+         if (isFormed()) {
++            if (!isPowerLayoutValid()) {
++                textList.add(Component.translatable("af9.fusion.too_many_hatches"));
++            }
+             textList.add(Component.translatable("af9.fusion.field", FormattingUtil.formatNumbers(fieldStrength),
+                     FormattingUtil.formatNumbers(getFieldCapacity()), fieldRegen(tier)));
+             if (fieldStrength < getFieldCapacity()) {
+-- 
+2.43.0
+
