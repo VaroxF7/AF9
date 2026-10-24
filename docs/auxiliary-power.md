@@ -16,7 +16,7 @@ power mode. Right-click it with a **screwdriver** to switch it between
 The machine collects its hatches again at once, no rebuilding. A receiver in Auxiliary shows blue like GT's hatches and its
 screen says the mode. Laser hatches have no such mode.
 
-**Orbital Array Mk2:** its primary power comes only from wireless receivers and laser hatches. Plain energy input hatches
+**Orbital Array Mk2:** its primary power comes only from wireless receivers (in Primary mode) and laser hatches. Its auxiliary power and start-up draw come from every `IAuxiliaryPowerPart` in Auxiliary mode (energy hatches and wireless receivers). Plain energy input hatches
 in the Mk2 are forced to Auxiliary (wireless receivers stay as they are set) (`OrbitalLithographyMachine.forceAuxiliaryHatches`, set again every tick, so the
 screwdriver cannot switch them back). The basic Orbital Station is unchanged.
 

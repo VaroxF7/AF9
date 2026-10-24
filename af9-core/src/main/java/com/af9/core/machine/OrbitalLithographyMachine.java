@@ -29,6 +29,7 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CombinedDirectionalFancyConfigurator;
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
+import com.gregtechceu.gtceu.api.machine.feature.IAuxiliaryPowerPart;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
 import com.gregtechceu.gtceu.api.pattern.BlockPattern;
@@ -1030,28 +1031,29 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     }
 
     /**
-     * Takes one interval of the lock's supplemental power from the input energy hatches of EV or better (the laser hatch
-     * is no energy hatch, it carries the main power). The hatches pay together, auxiliary ones first, so the start-up
+     * Takes one interval of the lock's supplemental power from the input energy hatches and wireless receivers of EV or
+     * better (the laser hatch carries the main power). The hatches pay together, auxiliary ones first, so the start-up
      * power the auxiliary hatches also pay, or a recipe drawing on a primary hatch, no longer starves the lock.
      */
     private boolean supplementalPaid() {
         long need = (long) SUPPLEMENT_EUT * VACUUM_INTERVAL;
-        List<EnergyHatchPartMachine> hatches = new ArrayList<>();
+        List<IAuxiliaryPowerPart> hatches = new ArrayList<>();
         long stored = 0;
         for (IMultiPart part : partsOnce()) {
-            if (part instanceof EnergyHatchPartMachine hatch &&
-                    hatch.energyContainer.getInputVoltage() >= GTValues.V[GTValues.EV]) {
+            if (part instanceof IAuxiliaryPowerPart hatch &&
+                    hatch.getAuxiliaryContainer().getInputVoltage() >= GTValues.V[GTValues.EV]) {
                 hatches.add(hatch);
-                stored += hatch.energyContainer.getEnergyStored();
+                stored += hatch.getAuxiliaryContainer().getEnergyStored();
             }
         }
         if (stored < need) return false;
         hatches.sort((x, y) -> Boolean.compare(y.isAuxiliaryInput(), x.isAuxiliaryInput()));
         long left = need;
-        for (EnergyHatchPartMachine hatch : hatches) {
-            long take = Math.min(left, hatch.energyContainer.getEnergyStored());
+        for (IAuxiliaryPowerPart hatch : hatches) {
+            var container = hatch.getAuxiliaryContainer();
+            long take = Math.min(left, container.getEnergyStored());
             if (take <= 0) continue;
-            hatch.energyContainer.changeEnergy(-take);
+            container.changeEnergy(-take);
             left -= take;
             if (left <= 0) break;
         }
@@ -1101,8 +1103,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     }
 
     /**
-     * The Array Mk2 takes its primary power only from wireless receivers and laser hatches: every plain energy input
-     * hatch is held in Auxiliary mode (a screwdriver cannot switch it back; it is set again every tick).
+     * The Array Mk2 takes its primary power only from wireless receivers (in Primary mode) and laser hatches: every plain
+     * energy input hatch is held in Auxiliary mode (a wireless receiver keeps the mode it is set to) (a screwdriver cannot switch it back; it is set again every tick).
      */
     private void forceAuxiliaryHatches() {
         if (!extended || isRemote()) return;
@@ -1165,7 +1167,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * through the auxiliary power ({@link #getBaseAuxiliaryEUt()}), so the start-up draws nothing then.
      */
     private boolean drawStartupPower(long drain) {
-        if (!getAuxiliaryHatches().isEmpty()) return drawAuxiliary(drain);
+        if (hasAuxiliary()) return drawAuxiliary(drain);
         if (energyContainer != null && energyContainer.getEnergyStored() >= drain) {
             energyContainer.removeEnergy(drain);
             return true;
@@ -1177,7 +1179,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     @Override
     public long pumpDrainPerInterval() {
         long voltage = 0;
-        for (var hatch : getAuxiliaryHatches()) voltage = Math.max(voltage, hatch.energyContainer.getInputVoltage());
+        for (var part : getAuxiliaryParts()) voltage = Math.max(voltage, part.getAuxiliaryContainer().getInputVoltage());
         if (voltage <= 0 && energyContainer != null) voltage = energyContainer.getHighestInputVoltage();
         return (long) (voltage / 8 * VACUUM_INTERVAL * moduleAux());
     }
@@ -1185,7 +1187,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     /** The auxiliary hatches keep the systems up: the start-up power every tick (0 without auxiliary hatches). */
     @Override
     protected long getBaseAuxiliaryEUt() {
-        return isFormed() && !getAuxiliaryHatches().isEmpty() ? pumpDrainPerInterval() / VACUUM_INTERVAL : 0;
+        return isFormed() && hasAuxiliary() ? pumpDrainPerInterval() / VACUUM_INTERVAL : 0;
     }
 
     /** Start-up progress, 0 to 100. */
