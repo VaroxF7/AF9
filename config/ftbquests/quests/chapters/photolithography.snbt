@@ -5,51 +5,9 @@
 	group: "1DA67E79B40AB130"
 	icon: "gtceu:photolithography_line"
 	id: "70D15441226DBA75"
-	order_index: 13
+	order_index: 14
 	progression_mode: "flexible"
 	quest_links: [
-		{
-			id: "69D37B34C4DB3546"
-			linked_quest: "11F7D3DDF5683EB3"
-			x: 12.5d
-			y: -8.0d
-		}
-		{
-			id: "62E4BBEDC947CDD6"
-			linked_quest: "26D1F1ECF66194E6"
-			x: 9.0d
-			y: 6.0d
-		}
-		{
-			id: "2F3E7E69D785E886"
-			linked_quest: "0D1A6B32FEB51FAD"
-			x: 9.0d
-			y: 1.5d
-		}
-		{
-			id: "1618656B6C65F4E3"
-			linked_quest: "688AFF76CF5E599A"
-			x: 10.5d
-			y: 1.5d
-		}
-		{
-			id: "6A92C28EF990AEE8"
-			linked_quest: "3DCCEDC5A817EBEB"
-			x: 12.0d
-			y: -1.5d
-		}
-		{
-			id: "489CE88F2B4CE1C7"
-			linked_quest: "100ADA8508F6502A"
-			x: 12.0d
-			y: 3.0d
-		}
-		{
-			id: "1CE81CF3430A7B76"
-			linked_quest: "7EFA4F2C0A895502"
-			x: 13.5d
-			y: 3.0d
-		}
 		{
 			id: "49A1FEFD822A99AE"
 			linked_quest: "3FDC2A2BBAC0EF1B"
@@ -537,7 +495,7 @@
 		{
 			dependencies: [
 				"0D38A04D59E6CFA0"
-				"11F7D3DDF5683EB3"
+				"2B8D8CE5840C6A56"
 			]
 			description: [
 				"{af9.quest.litho.reticles.1}"
@@ -800,7 +758,6 @@
 			y: 6.0d
 		}
 		{
-			dependencies: ["688AFF76CF5E599A"]
 			description: [
 				"{af9.quest.litho.gloves.1}"
 				""
@@ -829,8 +786,6 @@
 			dependencies: [
 				"5D896A31EC1C125F"
 				"412010740F2B823B"
-				"3DCCEDC5A817EBEB"
-				"688AFF76CF5E599A"
 			]
 			description: [
 				"{af9.quest.litho.line.1}"
@@ -923,10 +878,6 @@
 			y: -4.5d
 		}
 		{
-			dependencies: [
-				"100ADA8508F6502A"
-				"7EFA4F2C0A895502"
-			]
 			description: [
 				"{af9.quest.litho.dicing.1}"
 				""
@@ -1303,7 +1254,6 @@
 			y: -4.5d
 		}
 		{
-			dependencies: ["26D1F1ECF66194E6"]
 			description: [
 				"{af9.quest.litho.pCharge.1}"
 				""
@@ -1316,13 +1266,11 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.pCharge.subtitle}"
-			tasks: [
-				{
-					id: "3B073EAA24D21C59"
-					item: "gtceu:phosphorus_boule"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "3B073EAA24D21C59"
+				item: "gtceu:phosphorus_boule"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.pCharge.title}"
 			x: 24.0d
 			y: 7.5d
@@ -1546,13 +1494,11 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.nqCharge.subtitle}"
-			tasks: [
-				{
-					id: "42A70F0A6BC324C0"
-					item: "gtceu:naquadah_boule"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "42A70F0A6BC324C0"
+				item: "gtceu:naquadah_boule"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.nqCharge.title}"
 			x: 33.0d
 			y: 7.5d
@@ -1674,13 +1620,11 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.trCharge.subtitle}"
-			tasks: [
-				{
-					id: "754FBE42CD74404B"
-					item: "af9:trinium_boule"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "754FBE42CD74404B"
+				item: "af9:trinium_boule"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.trCharge.title}"
 			x: 40.5d
 			y: 7.5d
@@ -1766,13 +1710,11 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.naCharge.subtitle}"
-			tasks: [
-				{
-					id: "5BF036DC9D8F4D3F"
-					item: "af9:naquadria_boule"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "5BF036DC9D8F4D3F"
+				item: "af9:naquadria_boule"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.naCharge.title}"
 			x: 46.5d
 			y: 7.5d
@@ -1857,13 +1799,11 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.ntCharge.subtitle}"
-			tasks: [
-				{
-					id: "202355B44A7B99AB"
-					item: "gtceu:neutronium_boule"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "202355B44A7B99AB"
+				item: "gtceu:neutronium_boule"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.ntCharge.title}"
 			x: 52.5d
 			y: 7.5d
@@ -2215,13 +2155,11 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.smBoule.subtitle}"
-			tasks: [
-				{
-					id: "4C1D63E7D1E8BED0"
-					item: "af9:strange_matter_boule"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "4C1D63E7D1E8BED0"
+				item: "af9:strange_matter_boule"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.smBoule.title}"
 			x: 61.5d
 			y: 7.5d
@@ -2300,13 +2238,11 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.qcBoule.subtitle}"
-			tasks: [
-				{
-					id: "280A7304A5D5CF91"
-					item: "af9:chromodynium_boule"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "280A7304A5D5CF91"
+				item: "af9:chromodynium_boule"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.qcBoule.title}"
 			x: 67.5d
 			y: 7.5d
@@ -2470,7 +2406,10 @@
 			y: -3.0d
 		}
 		{
-			dependencies: ["24ABE0333646E550" "40B385B8B576D272"]
+			dependencies: [
+				"24ABE0333646E550"
+				"40B385B8B576D272"
+			]
 			description: [
 				"{af9.quest.litho.orbitalStation.1}"
 				""
@@ -2896,13 +2835,11 @@
 				xp: 50
 			}]
 			subtitle: "{af9.quest.litho.airConditioning.subtitle}"
-			tasks: [
-				{
-					id: "2242B3C0E2563E4B"
-					item: "gtceu:mv_air_conditioning_hatch"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "2242B3C0E2563E4B"
+				item: "gtceu:mv_air_conditioning_hatch"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.airConditioning.title}"
 			x: 16.5d
 			y: 1.5d
@@ -2947,9 +2884,7 @@
 		}
 		{
 			dependencies: ["50E638CEB7052664"]
-			description: [
-				"{af9.quest.litho.ethylLactate.1}"
-			]
+			description: ["{af9.quest.litho.ethylLactate.1}"]
 			id: "7204393564551FDF"
 			rewards: [{
 				id: "39EF80FC7AD93428"
@@ -2957,14 +2892,12 @@
 				xp: 50
 			}]
 			subtitle: "{af9.quest.litho.ethylLactate.subtitle}"
-			tasks: [
-				{
-					amount: 1000L
-					fluid: "gtceu:ethyl_lactate"
-					id: "2E18EA202F634FDF"
-					type: "fluid"
-				}
-			]
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:ethyl_lactate"
+				id: "2E18EA202F634FDF"
+				type: "fluid"
+			}]
 			title: "{af9.quest.litho.ethylLactate.title}"
 			x: 10.5d
 			y: 4.5d
@@ -2983,14 +2916,12 @@
 				xp: 50
 			}]
 			subtitle: "{af9.quest.litho.barc.subtitle}"
-			tasks: [
-				{
-					amount: 1000L
-					fluid: "gtceu:barc"
-					id: "68E9BE41B2133A63"
-					type: "fluid"
-				}
-			]
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:barc"
+				id: "68E9BE41B2133A63"
+				type: "fluid"
+			}]
 			title: "{af9.quest.litho.barc.title}"
 			x: 10.5d
 			y: 6.0d
@@ -3000,9 +2931,7 @@
 				"366BC95EF3EB2F45"
 				"0A7EB273ED631834"
 			]
-			description: [
-				"{af9.quest.litho.oxoResist.1}"
-			]
+			description: ["{af9.quest.litho.oxoResist.1}"]
 			id: "4CB1AF9F1FC4BE40"
 			rewards: [{
 				id: "0743BCB4BAD1F704"
@@ -3010,23 +2939,19 @@
 				xp: 50
 			}]
 			subtitle: "{af9.quest.litho.oxoResist.subtitle}"
-			tasks: [
-				{
-					amount: 1000L
-					fluid: "gtceu:euv_photoresist"
-					id: "31D92CC973144F18"
-					type: "fluid"
-				}
-			]
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:euv_photoresist"
+				id: "31D92CC973144F18"
+				type: "fluid"
+			}]
 			title: "{af9.quest.litho.oxoResist.title}"
 			x: 58.5d
 			y: -1.5d
 		}
 		{
 			dependencies: ["418DC14B94C9272A"]
-			description: [
-				"{af9.quest.litho.sawFilter.1}"
-			]
+			description: ["{af9.quest.litho.sawFilter.1}"]
 			id: "181785702661DDFE"
 			rewards: [{
 				id: "521C23E797802716"
@@ -3034,22 +2959,18 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.sawFilter.subtitle}"
-			tasks: [
-				{
-					id: "0FA48AAA7CDD48DD"
-					item: "af9:saw_filter_chip"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "0FA48AAA7CDD48DD"
+				item: "af9:saw_filter_chip"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.sawFilter.title}"
 			x: 36.0d
 			y: 6.0d
 		}
 		{
 			dependencies: ["46CAB00FF64D12DE"]
-			description: [
-				"{af9.quest.litho.photonicIc.1}"
-			]
+			description: ["{af9.quest.litho.photonicIc.1}"]
 			id: "5DD86B41C286C20E"
 			rewards: [{
 				id: "6A1BEFB01B91E6B0"
@@ -3057,22 +2978,18 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.photonicIc.subtitle}"
-			tasks: [
-				{
-					id: "75137804AD4F23B9"
-					item: "af9:photonic_ic_chip"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "75137804AD4F23B9"
+				item: "af9:photonic_ic_chip"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.photonicIc.title}"
 			x: 42.0d
 			y: 6.0d
 		}
 		{
 			dependencies: ["106D52BD58E747F8"]
-			description: [
-				"{af9.quest.litho.spinLogic.1}"
-			]
+			description: ["{af9.quest.litho.spinLogic.1}"]
 			id: "5680075613F329C0"
 			rewards: [{
 				id: "30D6AFA57E70B161"
@@ -3080,22 +2997,18 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.spinLogic.subtitle}"
-			tasks: [
-				{
-					id: "168502B6FFC83D74"
-					item: "af9:spin_logic_chip"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "168502B6FFC83D74"
+				item: "af9:spin_logic_chip"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.spinLogic.title}"
 			x: 48.0d
 			y: 6.0d
 		}
 		{
 			dependencies: ["37C6FB7A87A3E12F"]
-			description: [
-				"{af9.quest.litho.tmdLogic.1}"
-			]
+			description: ["{af9.quest.litho.tmdLogic.1}"]
 			id: "04C526F822E3F570"
 			rewards: [{
 				id: "593A78D36C5FE71B"
@@ -3103,22 +3016,18 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.tmdLogic.subtitle}"
-			tasks: [
-				{
-					id: "50F1870B2D747416"
-					item: "af9:tmd_logic_chip"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "50F1870B2D747416"
+				item: "af9:tmd_logic_chip"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.tmdLogic.title}"
 			x: 54.0d
 			y: 6.0d
 		}
 		{
 			dependencies: ["0266685DD6B82444"]
-			description: [
-				"{af9.quest.litho.memristor.1}"
-			]
+			description: ["{af9.quest.litho.memristor.1}"]
 			id: "17E5AC19E466E705"
 			rewards: [{
 				id: "435D2078BA9B6711"
@@ -3126,22 +3035,18 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.memristor.subtitle}"
-			tasks: [
-				{
-					id: "06F17E1748ED81E7"
-					item: "af9:memristor_chip"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "06F17E1748ED81E7"
+				item: "af9:memristor_chip"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.memristor.title}"
 			x: 60.0d
 			y: 6.0d
 		}
 		{
 			dependencies: ["23C7AC818504BEB9"]
-			description: [
-				"{af9.quest.litho.quantumDot.1}"
-			]
+			description: ["{af9.quest.litho.quantumDot.1}"]
 			id: "3087B2F37678CC69"
 			rewards: [{
 				id: "38D1A4C87C41C41A"
@@ -3149,22 +3054,18 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.quantumDot.subtitle}"
-			tasks: [
-				{
-					id: "7ABE5A41042A39BB"
-					item: "af9:quantum_dot_ic_chip"
-					type: "item"
-				}
-			]
+			tasks: [{
+				id: "7ABE5A41042A39BB"
+				item: "af9:quantum_dot_ic_chip"
+				type: "item"
+			}]
 			title: "{af9.quest.litho.quantumDot.title}"
 			x: 66.0d
 			y: 6.0d
 		}
 		{
 			dependencies: ["5D896A31EC1C125F"]
-			description: [
-				"{af9.quest.litho.solventLoop.1}"
-			]
+			description: ["{af9.quest.litho.solventLoop.1}"]
 			id: "64D467E9A7915657"
 			rewards: [{
 				id: "6BBE4EA90CB323F4"
@@ -3172,23 +3073,19 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.solventLoop.subtitle}"
-			tasks: [
-				{
-					amount: 1000L
-					fluid: "gtceu:spent_resist_solvent"
-					id: "5CDE074424C5FC10"
-					type: "fluid"
-				}
-			]
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:spent_resist_solvent"
+				id: "5CDE074424C5FC10"
+				type: "fluid"
+			}]
 			title: "{af9.quest.litho.solventLoop.title}"
 			x: 9.0d
 			y: 0.0d
 		}
 		{
 			dependencies: ["6976E80CCBF9952F"]
-			description: [
-				"{af9.quest.litho.tarc.1}"
-			]
+			description: ["{af9.quest.litho.tarc.1}"]
 			id: "2F578A86CA7DA117"
 			rewards: [{
 				id: "1437F21D526CFBB9"
@@ -3196,20 +3093,21 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.tarc.subtitle}"
-			tasks: [
-				{
-					amount: 1000L
-					fluid: "gtceu:tarc"
-					id: "25AAC6EC302B7252"
-					type: "fluid"
-				}
-			]
+			tasks: [{
+				amount: 1000L
+				fluid: "gtceu:tarc"
+				id: "25AAC6EC302B7252"
+				type: "fluid"
+			}]
 			title: "{af9.quest.litho.tarc.title}"
 			x: 12.0d
 			y: 6.0d
 		}
 		{
-			dependencies: ["6369E339EBE7EE5D" "77433AD935185101"]
+			dependencies: [
+				"6369E339EBE7EE5D"
+				"77433AD935185101"
+			]
 			description: [
 				"{af9.quest.litho.etchPlasma.1}"
 				""
@@ -3254,12 +3152,10 @@
 				xp: 100
 			}]
 			subtitle: "{af9.quest.litho.multiPatterning.subtitle}"
-			tasks: [
-				{
-					id: "48559EC892352192"
-					type: "checkmark"
-				}
-			]
+			tasks: [{
+				id: "48559EC892352192"
+				type: "checkmark"
+			}]
 			title: "{af9.quest.litho.multiPatterning.title}"
 			x: 13.5d
 			y: 1.5d

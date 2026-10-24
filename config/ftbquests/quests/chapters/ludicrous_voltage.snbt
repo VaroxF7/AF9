@@ -55,7 +55,7 @@
 			y: -0.5d
 		}
 	]
-	order_index: 7
+	order_index: 8
 	progression_mode: "flexible"
 	quest_links: [
 		{
@@ -102,7 +102,6 @@
 		{
 			dependencies: [
 				"3C31FA990D387437"
-				"22CFDFD1FB8A2298"
 				"1090A47B70EBF704"
 			]
 			description: ["{atm9.quest.gregtech.luv.desc.welcomeQuantumAge.1}"]
@@ -2112,46 +2111,6 @@
 			}]
 			x: -7.0d
 			y: -3.0d
-		}
-		{
-			can_repeat: false
-			description: [
-				"This Quest has been authored by &6AllTheMods Staff&r, or a &2Community contributor&r for use in AllTheMods Modpacks."
-				"As all &6AllTheMods&r packs are licensed under &eAll Rights Reserved&r, this Quest is not allowed to be used in any public packs not released by the &6AllTheMods Team&r, without explicit permission."
-				""
-				""
-				""
-				"This quest is intentionally hidden, if you're seeing this, you're in editing mode."
-			]
-			disable_toast: true
-			hide_details_until_startable: true
-			hide_until_deps_visible: true
-			icon: {
-				Count: 1
-				id: "ftbquests:custom_icon"
-				tag: {
-					Icon: "minecraft:item/barrier"
-				}
-			}
-			id: "0C47BAAF366EB5B1"
-			invisible: true
-			optional: true
-			shape: "octagon"
-			tasks: [
-				{
-					disable_toast: true
-					id: "356D37D6791EC945"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-				{
-					id: "7FCBEBD1FC163C44"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-			]
-			x: -9.5d
-			y: 0.0d
 		}
 		{
 			description: ["{atm9.quest.gregtech.luv.desc.datastick}"]

@@ -13,6 +13,7 @@
 	id: "560EF4C38DEACA03"
 	order_index: 13
 	progression_mode: "flexible"
+	quest_links: [ ]
 	quests: [
 		{
 			disable_toast: true
@@ -170,6 +171,7 @@
 			y: -5.5d
 		}
 		{
+			dependencies: ["237F09283F60E319"]
 			disable_toast: true
 			id: "3054C2EE03C6A808"
 			tasks: [{
@@ -177,7 +179,7 @@
 				item: "gtceu:nand_chip"
 				type: "item"
 			}]
-			x: -4.0d
+			x: -3.5d
 			y: -3.5d
 		}
 		{
@@ -212,23 +214,11 @@
 				item: "gtceu:basic_integrated_circuit"
 				type: "item"
 			}]
-			x: -3.0d
+			x: -2.5d
 			y: -4.5d
 		}
 		{
 			dependencies: ["237F09283F60E319"]
-			disable_toast: true
-			id: "0CA6344F1A4514BE"
-			tasks: [{
-				id: "116DBA468508D2F4"
-				item: "gtceu:good_integrated_circuit"
-				type: "item"
-			}]
-			x: -2.0d
-			y: -4.5d
-		}
-		{
-			dependencies: ["0CA6344F1A4514BE"]
 			disable_toast: true
 			id: "7D563D47D0A9FE64"
 			tasks: [{
@@ -240,6 +230,7 @@
 			y: -4.5d
 		}
 		{
+			dependencies: ["7D563D47D0A9FE64"]
 			disable_toast: true
 			id: "0A73BB97755CFC45"
 			tasks: [{
@@ -247,10 +238,11 @@
 				item: "gtceu:microchip_processor"
 				type: "item"
 			}]
-			x: -3.0d
-			y: -3.5d
+			x: 0.5d
+			y: -4.5d
 		}
 		{
+			dependencies: ["0A73BB97755CFC45"]
 			disable_toast: true
 			id: "4B40D39B0CEC9D85"
 			tasks: [{
@@ -258,23 +250,11 @@
 				item: "gtceu:micro_processor"
 				type: "item"
 			}]
-			x: -2.0d
-			y: -3.5d
+			x: 2.0d
+			y: -4.5d
 		}
 		{
 			dependencies: ["4B40D39B0CEC9D85"]
-			disable_toast: true
-			id: "3A6EC5903B620549"
-			tasks: [{
-				id: "6A956C371D74BF60"
-				item: "gtceu:micro_processor_assembly"
-				type: "item"
-			}]
-			x: -1.0d
-			y: -3.5d
-		}
-		{
-			dependencies: ["3A6EC5903B620549"]
 			disable_toast: true
 			id: "0B0A1657FAB2F27F"
 			tasks: [{
@@ -282,8 +262,8 @@
 				item: "gtceu:micro_processor_computer"
 				type: "item"
 			}]
-			x: 0.0d
-			y: -3.5d
+			x: 3.5d
+			y: -4.5d
 		}
 		{
 			dependencies: ["0B0A1657FAB2F27F"]
@@ -294,10 +274,11 @@
 				item: "gtceu:micro_processor_mainframe"
 				type: "item"
 			}]
-			x: 1.0d
-			y: -2.5d
+			x: 5.0d
+			y: -4.5d
 		}
 		{
+			dependencies: ["35FF52379AC802F8"]
 			disable_toast: true
 			id: "7F4B8E279A9B042A"
 			tasks: [{
@@ -305,23 +286,11 @@
 				item: "gtceu:nano_processor"
 				type: "item"
 			}]
-			x: -1.0d
-			y: -1.5d
+			x: 6.5d
+			y: -4.5d
 		}
 		{
 			dependencies: ["7F4B8E279A9B042A"]
-			disable_toast: true
-			id: "3BB333BE6C087472"
-			tasks: [{
-				id: "621FA365B700E157"
-				item: "gtceu:nano_processor_assembly"
-				type: "item"
-			}]
-			x: 0.0d
-			y: -1.5d
-		}
-		{
-			dependencies: ["3BB333BE6C087472"]
 			disable_toast: true
 			id: "6FCDB6DC3116410C"
 			tasks: [{
@@ -329,8 +298,8 @@
 				item: "gtceu:nano_processor_computer"
 				type: "item"
 			}]
-			x: 1.0d
-			y: -1.5d
+			x: 8.0d
+			y: -4.5d
 		}
 		{
 			dependencies: ["6FCDB6DC3116410C"]
@@ -341,10 +310,11 @@
 				item: "gtceu:nano_processor_mainframe"
 				type: "item"
 			}]
-			x: 2.0d
-			y: -1.5d
+			x: 9.5d
+			y: -4.5d
 		}
 		{
+			dependencies: ["6EF00359D597EA15"]
 			disable_toast: true
 			id: "3C31FA990D387437"
 			tasks: [{
@@ -352,46 +322,11 @@
 				item: "gtceu:quantum_processor"
 				type: "item"
 			}]
-			x: 0.0d
-			y: -0.5d
+			x: 11.0d
+			y: -4.5d
 		}
 		{
-			dependencies: ["3C31FA990D387437"]
-			disable_toast: true
-			id: "396D2F4ACC475C80"
-			tasks: [{
-				id: "2F1C0959E3D12B93"
-				item: "gtceu:quantum_processor_assembly"
-				type: "item"
-			}]
-			x: 1.0d
-			y: -0.5d
-		}
-		{
-			dependencies: ["396D2F4ACC475C80"]
-			disable_toast: true
-			id: "22CFDFD1FB8A2298"
-			tasks: [{
-				id: "3E4E56877891C389"
-				item: "gtceu:quantum_processor_computer"
-				type: "item"
-			}]
-			x: 2.0d
-			y: -0.5d
-		}
-		{
-			dependencies: ["22CFDFD1FB8A2298"]
-			disable_toast: true
-			id: "6F17FA543C36A520"
-			tasks: [{
-				id: "386BE1E124A5E01A"
-				item: "gtceu:quantum_processor_mainframe"
-				type: "item"
-			}]
-			x: 3.0d
-			y: -0.5d
-		}
-		{
+			dependencies: ["050D424EA03F1642"]
 			disable_toast: true
 			id: "73D0E6F7A59B873F"
 			tasks: [{
@@ -399,35 +334,11 @@
 				item: "gtceu:crystal_processor"
 				type: "item"
 			}]
-			x: 1.0d
-			y: 0.5d
+			x: 14.0d
+			y: -4.5d
 		}
 		{
 			dependencies: ["73D0E6F7A59B873F"]
-			disable_toast: true
-			id: "098C64EC6DE06AF1"
-			tasks: [{
-				id: "030057C4C8583879"
-				item: "gtceu:crystal_processor_assembly"
-				type: "item"
-			}]
-			x: 2.0d
-			y: 0.5d
-		}
-		{
-			dependencies: ["098C64EC6DE06AF1"]
-			disable_toast: true
-			id: "16C3295B64CA4522"
-			tasks: [{
-				id: "72A8205F1198225D"
-				item: "gtceu:crystal_processor_computer"
-				type: "item"
-			}]
-			x: 3.0d
-			y: 0.5d
-		}
-		{
-			dependencies: ["16C3295B64CA4522"]
 			disable_toast: true
 			id: "233FEC2426765665"
 			tasks: [{
@@ -435,10 +346,11 @@
 				item: "gtceu:crystal_processor_mainframe"
 				type: "item"
 			}]
-			x: 4.0d
-			y: 0.5d
+			x: 15.5d
+			y: -4.5d
 		}
 		{
+			dependencies: ["233FEC2426765665"]
 			disable_toast: true
 			id: "507F0902EE5E1F53"
 			tasks: [{
@@ -446,35 +358,11 @@
 				item: "gtceu:wetware_processor"
 				type: "item"
 			}]
-			x: 2.0d
-			y: 1.5d
+			x: 17.0d
+			y: -4.5d
 		}
 		{
 			dependencies: ["507F0902EE5E1F53"]
-			disable_toast: true
-			id: "40FCF122AB900473"
-			tasks: [{
-				id: "46D5998D9BD7DA16"
-				item: "gtceu:wetware_processor_assembly"
-				type: "item"
-			}]
-			x: 3.0d
-			y: 1.5d
-		}
-		{
-			dependencies: ["40FCF122AB900473"]
-			disable_toast: true
-			id: "5DA2D177CCD90B18"
-			tasks: [{
-				id: "5B69360D91D7C031"
-				item: "gtceu:wetware_processor_computer"
-				type: "item"
-			}]
-			x: 4.0d
-			y: 1.5d
-		}
-		{
-			dependencies: ["5DA2D177CCD90B18"]
 			disable_toast: true
 			id: "620E6D375642DCC6"
 			tasks: [{
@@ -482,8 +370,8 @@
 				item: "gtceu:wetware_processor_mainframe"
 				type: "item"
 			}]
-			x: 5.0d
-			y: 1.5d
+			x: 18.5d
+			y: -4.5d
 		}
 		{
 			dependencies: ["620E6D375642DCC6"]
@@ -494,104 +382,8 @@
 				item: "af9:xps_processor"
 				type: "item"
 			}]
-			x: 6.0d
-			y: 1.5d
-		}
-		{
-			dependencies: ["61A2B3C4D5E60718"]
-			disable_toast: true
-			id: "62B3C4D5E6F70819"
-			tasks: [{
-				id: "62B3C4D5E6F7081B"
-				item: "af9:xps_processor_mainframe"
-				type: "item"
-			}]
-			x: 7.0d
-			y: 1.5d
-		}
-		{
-			dependencies: ["62B3C4D5E6F70819"]
-			disable_toast: true
-			id: "63C4D5E6F708192A"
-			tasks: [{
-				id: "63C4D5E6F708192B"
-				item: "af9:nvm_processor"
-				type: "item"
-			}]
-			x: 6.0d
-			y: 2.5d
-		}
-		{
-			dependencies: ["63C4D5E6F708192A"]
-			disable_toast: true
-			id: "64D5E6F708192A3B"
-			tasks: [{
-				id: "64D5E6F708192A4B"
-				item: "af9:nvm_processor_mainframe"
-				type: "item"
-			}]
-			x: 7.0d
-			y: 2.5d
-		}
-		{
-			dependencies: ["64D5E6F708192A3B"]
-			disable_toast: true
-			id: "701A2B3C4D5E6F70"
-			tasks: [{
-				id: "701A2B3C4D5E6F71"
-				item: "gtceu:advanced_circuit_manufacturer"
-				type: "item"
-			}]
-			x: 8.0d
-			y: 1.5d
-		}
-		{
-			dependencies: ["701A2B3C4D5E6F70"]
-			disable_toast: true
-			id: "702A2B3C4D5E6F70"
-			tasks: [{
-				id: "702A2B3C4D5E6F71"
-				item: "af9:pico_board"
-				type: "item"
-			}]
-			x: 9.0d
-			y: 1.5d
-		}
-		{
-			dependencies: ["702A2B3C4D5E6F70"]
-			disable_toast: true
-			id: "703A2B3C4D5E6F70"
-			tasks: [{
-				id: "703A2B3C4D5E6F71"
-				item: "af9:pico_cpu"
-				type: "item"
-			}]
-			x: 10.0d
-			y: 1.5d
-		}
-		{
-			dependencies: ["703A2B3C4D5E6F70"]
-			disable_toast: true
-			id: "704A2B3C4D5E6F70"
-			tasks: [{
-				id: "704A2B3C4D5E6F71"
-				item: "af9:organized_pico_circuit"
-				type: "item"
-			}]
-			x: 11.0d
-			y: 1.5d
-		}
-		{
-			dependencies: ["704A2B3C4D5E6F70"]
-			disable_toast: true
-			id: "705A2B3C4D5E6F70"
-			tasks: [{
-				id: "705A2B3C4D5E6F71"
-				item: "af9:pico_circuit_rack"
-				type: "item"
-			}]
-			x: 12.0d
-			y: 1.5d
+			x: 20.0d
+			y: -4.5d
 		}
 		{
 			icon: "gtceu:lv_machine_hull"
@@ -1193,6 +985,17 @@
 			title: "{atm9.quest.gregtech.circuits.steamAge}"
 			x: -5.0d
 			y: -6.5d
+		}
+		{
+			dependencies: ["3C31FA990D387437"]
+			id: "050D424EA03F1642"
+			tasks: [{
+				id: "6F3F91001E6770D1"
+				item: "gtceu:quantum_processor_computer"
+				type: "item"
+			}]
+			x: 12.5d
+			y: -4.5d
 		}
 	]
 	title: "{atm9.chapters.37.title}"
