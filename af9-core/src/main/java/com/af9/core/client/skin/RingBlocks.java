@@ -17,6 +17,7 @@ import net.minecraftforge.client.model.data.ModelData;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.Arrays;
@@ -203,6 +204,8 @@ final class RingBlocks {
         if (meshes == null || band >= meshes.length || meshes[band] == null) return;
         Mesh mesh = meshes[band];
         Vector3f view = new Vector3f();
+        // the camera in the ring's frame (the origin of the view space), for leaving out the quads that face away
+        Vector3f cam = new Matrix4f(pose.pose()).invert().transformPosition(new Vector3f());
         for (int sector = 0; sector < SECTORS; sector++) {
             float[] d = mesh.data[sector];
             if (d == null) continue;
@@ -212,10 +215,16 @@ final class RingBlocks {
             // the camera looks down -z in view space: behind it, or beyond a wide view cone, nothing of it can show
             float ahead = -view.z + r;
             if (ahead < 0 || Math.abs(view.x) > ahead * 3.4F + r || Math.abs(view.y) > ahead * 2.2F + r) continue;
-            for (int i = 0; i < mesh.size[sector]; i += FLOATS) {
-                c.vertex(pose.pose(), d[i], d[i + 1], d[i + 2]).color(1F, 1F, 1F, 1F).uv(d[i + 6], d[i + 7])
-                        .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(Float.floatToRawIntBits(d[i + 8]))
-                        .normal(pose.normal(), d[i + 3], d[i + 4], d[i + 5]).endVertex();
+            for (int q = 0; q < mesh.size[sector]; q += 4 * FLOATS) {
+                // a quad facing away from the camera is hidden by the ring's own blocks: a closed skin of outer faces
+                if (d[q + 3] * (cam.x - d[q]) + d[q + 4] * (cam.y - d[q + 1]) + d[q + 5] * (cam.z - d[q + 2]) <= 0F) {
+                    continue;
+                }
+                for (int i = q; i < q + 4 * FLOATS; i += FLOATS) {
+                    c.vertex(pose.pose(), d[i], d[i + 1], d[i + 2]).color(1F, 1F, 1F, 1F).uv(d[i + 6], d[i + 7])
+                            .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(Float.floatToRawIntBits(d[i + 8]))
+                            .normal(pose.normal(), d[i + 3], d[i + 4], d[i + 5]).endVertex();
+                }
             }
         }
     }
