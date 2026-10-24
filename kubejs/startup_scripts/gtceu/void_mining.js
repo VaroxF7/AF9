@@ -119,6 +119,11 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .appearanceBlock(() => Block.getBlock('af9:mining_neutronium_casing'))
         .pattern(definition => minerPattern(definition, MK3_SHAPE, mk3Parts()))
         .workableCasingModel('af9:block/mining_neutronium_casing', 'gtceu:block/multiblock/void_miner_mk3')
+})
+
+// The MK1 swap runs after the registries are filled: during the machine registry event the definition does not exist
+// yet (the lookup gave null).
+StartupEvents.postInit(event => {
     // MK1 is ATM9's own multiblock (kubejs/startup_scripts/gtceu/miner.js of the base pack: a 3 x 3 x 7 tower of
     // stable titanium casing round a titanium frame pillar). It stays the one registered there; only its pattern and
     // appearance are replaced here, the same shape in AF9's aluminium-tranquillite: frame and casing (the casing is
