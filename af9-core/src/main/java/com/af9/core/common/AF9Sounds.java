@@ -17,6 +17,8 @@ import net.minecraftforge.registries.ForgeRegistries;
  * <ul>
  * <li>{@link #ORBITAL_STATION}: the Orbital Lithography Station's working sound (GT loops it while a print runs;
  * set on its recipe types in kubejs/startup_scripts/gtceu/photolithography.js): a deep beacon hum or portal roar;</li>
+ * <li>{@link #LITHOGRAPHY_LINE} / {@link #LITHOGRAPHY_SCANNER}: the Photolithography Line (Mk1) and Scanner (Mk2) working
+ * sounds (the 350 to 65 nm modes, photolithography.js): the conduit's hum pitched up, the scanner a little higher;</li>
  * <li>{@link #ORBITAL_PULSE}: a low throb (warden heartbeat) each time its light ring flashes;</li>
  * <li>{@link #ORBITAL_IGNITE}: the end portal opening, an octave down, when the ring lights up.</li>
  * <li>{@link #PARTICLE_ACCELERATOR}: the Particle Accelerator's working sound (all three modes,
@@ -33,6 +35,8 @@ public final class AF9Sounds {
             ForgeRegistries.SOUND_EVENTS, AF9Core.MOD_ID);
 
     public static final SoundEvent ORBITAL_STATION_EVENT = event("orbital_station");
+    public static final SoundEvent LITHOGRAPHY_LINE_EVENT = event("lithography_line");
+    public static final SoundEvent LITHOGRAPHY_SCANNER_EVENT = event("lithography_scanner");
     public static final SoundEvent ORBITAL_PULSE = event("orbital_station_pulse");
     public static final SoundEvent ORBITAL_IGNITE = event("orbital_station_ignite");
     public static final SoundEvent PARTICLE_ACCELERATOR_EVENT = event("particle_accelerator");
@@ -41,6 +45,9 @@ public final class AF9Sounds {
 
     /** GT's wrappers of the working sounds, for {@code GTRecipeType.setSound}. */
     public static final SoundEntry ORBITAL_STATION = new ExistingSoundEntry(ORBITAL_STATION_EVENT, SoundSource.BLOCKS);
+    public static final SoundEntry LITHOGRAPHY_LINE = new ExistingSoundEntry(LITHOGRAPHY_LINE_EVENT, SoundSource.BLOCKS);
+    public static final SoundEntry LITHOGRAPHY_SCANNER = new ExistingSoundEntry(LITHOGRAPHY_SCANNER_EVENT,
+            SoundSource.BLOCKS);
     public static final SoundEntry PARTICLE_ACCELERATOR = new ExistingSoundEntry(PARTICLE_ACCELERATOR_EVENT,
             SoundSource.BLOCKS);
 

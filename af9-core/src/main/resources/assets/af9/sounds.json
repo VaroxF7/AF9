@@ -1,4 +1,16 @@
 {
+  "lithography_line": {
+    "subtitle": "af9.subtitle.lithography_line",
+    "sounds": [
+      { "name": "minecraft:block/conduit/ambient", "pitch": 1.5, "volume": 0.7, "attenuation_distance": 32 }
+    ]
+  },
+  "lithography_scanner": {
+    "subtitle": "af9.subtitle.lithography_scanner",
+    "sounds": [
+      { "name": "minecraft:block/conduit/ambient", "pitch": 1.9, "volume": 0.7, "attenuation_distance": 32 }
+    ]
+  },
   "orbital_station": {
     "subtitle": "af9.subtitle.orbital_station",
     "sounds": [
