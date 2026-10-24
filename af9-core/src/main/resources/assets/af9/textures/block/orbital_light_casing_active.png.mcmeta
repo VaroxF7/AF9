@@ -1,0 +1,9 @@
+{
+  "animation": {
+    "frametime": 4,
+    "interpolate": true
+  },
+  "ldlib": {
+    "connection": "af9:block/orbital_light_casing_active_ctm"
+  }
+}

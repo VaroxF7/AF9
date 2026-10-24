@@ -120,6 +120,19 @@ def write_glow(name, tx, ty, inside):
         f.write('\n')
 
 
+def write_active_copy(name):
+    """The active model's bottom layer is its own `_active` texture (like every other af9 active casing): a copy of the plain one."""
+    import shutil
+    for suffix in ('', '_ctm'):
+        for ext in ('.png', '.png.mcmeta'):
+            shutil.copyfile(os.path.join(OUT, name + suffix + ext), os.path.join(OUT, name + '_active' + suffix + ext))
+    path = os.path.join(OUT, name + '_active.png.mcmeta')
+    with open(path) as f:
+        text = f.read().replace(name + '_ctm', name + '_active_ctm')
+    with open(path, 'w', newline='\n') as f:
+        f.write(text)
+
+
 def main():
     write_glow('orbital_light_casing', 4, 4, joined_interior)
     for name, anim, tx, ty, inside in (('orbital_light_casing', light, 4, 4, joined_interior),
@@ -135,6 +148,7 @@ def main():
         with open(os.path.join(OUT, name + '_ctm.png.mcmeta'), 'w', newline='\n') as f:
             json.dump(animation, f, indent=2)
             f.write('\n')
+    write_active_copy('orbital_light_casing')
 
 
 if __name__ == '__main__':
