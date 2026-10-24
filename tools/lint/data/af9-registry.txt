@@ -34,6 +34,7 @@ block af9:orbital_truss_casing
 block af9:orbital_girder_casing
 block af9:orbital_deck_casing
 block af9:ptfe_black_casing
+block af9:aluminium_tranquillite_casing
 block af9:satellite_casing
 block af9:hydrogen_peroxide
 block af9:krf_excimer_laser
@@ -287,6 +288,7 @@ item af9:orbital_truss_casing
 item af9:orbital_girder_casing
 item af9:orbital_deck_casing
 item af9:ptfe_black_casing
+item af9:aluminium_tranquillite_casing
 item af9:rocket_cone_tier_2
 item af9:rocket_fin_tier_2
 item af9:satellite_casing

@@ -516,7 +516,9 @@ public final class AF9Materials {
                 .ingot()
                 .color(0xc4ccd6).iconSet(MaterialIconSet.METALLIC)
                 .components(GTMaterials.Aluminium, 16, tranquillite, 1)
-                .flags(MaterialFlags.GENERATE_FINE_WIRE)
+                // plate and frame: the Void Miner MK1's structure is built of them (void_mining.js)
+                .flags(MaterialFlags.GENERATE_FINE_WIRE, MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD,
+                        MaterialFlags.GENERATE_FRAME)
                 .blastTemp(1700, GasTier.LOW, GTValues.VA[GTValues.MV], 400));
 
         // MV: expands like glass, so it seals into IC packages; used for the pins

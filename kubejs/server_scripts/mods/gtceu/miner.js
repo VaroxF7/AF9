@@ -77,6 +77,13 @@ ServerEvents.recipes((event) => {
             .duration(200)
             .EUt(GTValues.VA[GTValues.EV])
     }
+    // MK1's casing: aluminium-tranquillite plates round a frame of it (the MV bond-wire alloy), at MV
+    gtr.assembler('af9:aluminium_tranquillite_casing')
+        .itemInputs('6x gtceu:aluminium_tranquillite_plate', 'gtceu:aluminium_tranquillite_frame')
+        .circuit(27)
+        .itemOutputs('2x af9:aluminium_tranquillite_casing')
+        .duration(200)
+        .EUt(GTValues.VA[GTValues.MV])
     casing('bolted_naquadah_alloy_casing', 20, '2x af9:bolted_naquadah_alloy_casing',
         ['4x gtceu:naquadah_alloy_plate', 'gtceu:naquadah_alloy_frame'])
     casing('rebolted_naquadah_alloy_casing', 21, '2x af9:rebolted_naquadah_alloy_casing',

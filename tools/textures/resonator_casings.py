@@ -28,6 +28,7 @@ TAU = 2 * math.pi
 # luminance (of the source, 82..230) -> colour
 STEEL = [(0.0, (14, 20, 30)), (0.45, (40, 52, 68)), (0.75, (82, 100, 122)), (1.0, (150, 172, 194))]
 GRAPHITE = [(0.0, (10, 11, 13)), (0.45, (28, 30, 34)), (0.75, (52, 55, 62)), (1.0, (104, 110, 122))]
+ALU_TQ = [(0.0, (12, 26, 28)), (0.45, (38, 74, 76)), (0.75, (88, 142, 138)), (1.0, (170, 214, 206))]  # silver-teal
 CERTUS = (96, 200, 255)
 SEAM_LUM = 0.26     # the grooves: the darkest source pixels carry the light
 
@@ -111,7 +112,8 @@ def main():
     sprite = Image.open(os.path.join(SRC, 'machine_casing_stable_titanium.png')).convert('RGBA')
     sheet = Image.open(os.path.join(SRC, 'machine_casing_stable_titanium_ctm.png')).convert('RGBA')
 
-    for name, stops in (('ae2_machine_casing', STEEL), ('ptfe_black_casing', GRAPHITE)):
+    for name, stops in (('ae2_machine_casing', STEEL), ('ptfe_black_casing', GRAPHITE),
+                        ('aluminium_tranquillite_casing', ALU_TQ)):
         recolour(sprite, stops).save(os.path.join(OUT, name + '.png'))
         apply(sheet, lambda t, s=stops: recolour(t, s)).save(os.path.join(OUT, name + '_ctm.png'))
         for suffix in ('', '_ctm'):

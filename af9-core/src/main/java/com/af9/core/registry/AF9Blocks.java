@@ -78,7 +78,9 @@ public final class AF9Blocks {
         block("space_elevator_base_casing", SoundType.METAL, 12F, 0, 0);
         block("space_elevator_internal_structure", SoundType.METAL, 12F, 0, 0);
         block("ultra_high_strength_concrete_floor", SoundType.STONE, 12F, 0, 0);
-        // ---- Void Miner MK2 / MK3: GTNH's mining casings, item pipe casing and bolted casings of their structures ----
+        // ---- Void Miner MK1 / MK2 / MK3: GTNH's mining casings, item pipe casing and bolted casings of their structures ----
+        // MK1 is built of aluminium-tranquillite (the MV bond-wire alloy): its casing, in void_mining.js
+        block("aluminium_tranquillite_casing", SoundType.METAL, 12F, 0, 0);
         block("mining_black_plutonium_casing", SoundType.METAL, 12F, 0, 0);
         block("black_plutonium_item_pipe_casing", SoundType.METAL, 12F, 0, 0);
         block("bolted_naquadah_alloy_casing", SoundType.METAL, 12F, 0, 0);
