@@ -15,7 +15,15 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.client.model.data.ModelData;
 
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -47,6 +55,8 @@ final class RingBlocks {
     private static final class Mesh {
 
         long[] signature;
+        /** The whole ring uploaded once (the GPU draws it under the ring's pose); null until first drawn that way. */
+        VertexBuffer vbo;
         final float[][] data = new float[SECTORS][];
         final int[] size = new int[SECTORS];
         /** Per sector: the bounding sphere (centre and radius), in the ring's frame. */
@@ -93,12 +103,29 @@ final class RingBlocks {
 
     private RingBlocks() {}
 
+    /** Switch for the uploaded-mesh path: -Daf9.noRingVbo=true draws every frame from the arrays again. */
+    private static final boolean VBO_ALLOWED = !Boolean.getBoolean("af9.noRingVbo");
+    private static boolean vboFailed;
+
     static void forget(long controller) {
-        MESHES.remove(controller);
+        free(MESHES.remove(controller));
     }
 
     static void clear() {
+        for (Mesh[] meshes : MESHES.values()) free(meshes);
         MESHES.clear();
+    }
+
+    private static void free(Mesh[] meshes) {
+        if (meshes == null) return;
+        for (Mesh mesh : meshes) {
+            if (mesh != null && mesh.vbo != null) mesh.vbo.close();
+        }
+    }
+
+    /** Whether the rings can be drawn from uploaded buffers (not under a shader pack: it draws through its own programs). */
+    static boolean canUpload() {
+        return VBO_ALLOWED && !vboFailed && !com.af9.core.client.render.IrisCompat.shaderPackInUse();
     }
 
     /**
@@ -119,6 +146,7 @@ final class RingBlocks {
         }
         Arrays.sort(signature);
         if (meshes[band] != null && Arrays.equals(meshes[band].signature, signature)) return;
+        if (meshes[band] != null && meshes[band].vbo != null) meshes[band].vbo.close();
         Mesh mesh = new Mesh();
         mesh.signature = signature;
 
@@ -199,6 +227,52 @@ final class RingBlocks {
      * frame to the view (camera) space, so a stretch of the ring that is behind the camera or well out of the view is
      * left out whole.
      */
+    /**
+     * Draws one band from its uploaded buffer under the pose (entity shader state set up here); false when it could not,
+     * so the caller draws it the slow way. The normals are in the ring's frame, so the caller sets the level's lights
+     * into that frame first ({@link RingDraw}).
+     */
+    static boolean drawUploaded(long controller, int band, PoseStack.Pose pose) {
+        Mesh[] meshes = MESHES.get(controller);
+        if (meshes == null || band >= meshes.length || meshes[band] == null) return true;
+        Mesh mesh = meshes[band];
+        try {
+            if (mesh.vbo == null) {
+                int quads = 0;
+                for (int s = 0; s < SECTORS; s++) quads += mesh.size[s] / (4 * FLOATS);
+                if (quads == 0) return true;
+                BufferBuilder builder = new BufferBuilder(quads * 4 * DefaultVertexFormat.NEW_ENTITY.getVertexSize());
+                builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.NEW_ENTITY);
+                for (int s = 0; s < SECTORS; s++) {
+                    float[] d = mesh.data[s];
+                    for (int i = 0; d != null && i < mesh.size[s]; i += FLOATS) {
+                        builder.vertex(d[i], d[i + 1], d[i + 2]).color(1F, 1F, 1F, 1F).uv(d[i + 6], d[i + 7])
+                                .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(Float.floatToRawIntBits(d[i + 8]))
+                                .normal(d[i + 3], d[i + 4], d[i + 5]).endVertex();
+                    }
+                }
+                VertexBuffer buffer = new VertexBuffer(VertexBuffer.Usage.STATIC);
+                buffer.bind();
+                buffer.upload(builder.end());
+                VertexBuffer.unbind();
+                mesh.vbo = buffer;
+            }
+            RenderType type = RenderType.entityCutoutNoCull(TextureAtlas.LOCATION_BLOCKS);
+            type.setupRenderState();
+            try {
+                mesh.vbo.bind();
+                mesh.vbo.drawWithShader(pose.pose(), RenderSystem.getProjectionMatrix(), RenderSystem.getShader());
+                VertexBuffer.unbind();
+            } finally {
+                type.clearRenderState();
+            }
+            return true;
+        } catch (RuntimeException | LinkageError e) {
+            vboFailed = true;
+            return false;
+        }
+    }
+
     static void draw(long controller, int band, VertexConsumer c, PoseStack.Pose pose) {
         Mesh[] meshes = MESHES.get(controller);
         if (meshes == null || band >= meshes.length || meshes[band] == null) return;

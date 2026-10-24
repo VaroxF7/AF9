@@ -230,6 +230,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
                 b.getStepX(), b.getStepY(), b.getStepZ(), 0,
                 0, 0, 0, 1);
 
+        Matrix4f view = new Matrix4f(poseStack.last().pose());
         poseStack.pushPose();
         // the model's origin is the controller block's minimum corner; turn about the block's middle
         poseStack.translate(0.5, 0.5, 0.5);
@@ -238,7 +239,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         poseStack.translate(-0.5, -0.5, -0.5);
 
         if (skin.rings() != null) {
-            RingDraw.draw(self, skin.rings(), working, partialTick, poseStack, buffer, packedOverlay);
+            RingDraw.draw(self, skin.rings(), working, partialTick, poseStack, buffer, packedOverlay, view);
             poseStack.popPose();
             return;
         }
