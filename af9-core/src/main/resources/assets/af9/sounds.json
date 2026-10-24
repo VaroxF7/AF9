@@ -1,4 +1,10 @@
 {
+  "lithography_ambient": {
+    "subtitle": "af9.subtitle.lithography_ambient",
+    "sounds": [
+      { "name": "af9:lithography_ambient", "volume": 0.5, "attenuation_distance": 24 }
+    ]
+  },
   "orbital_station": {
     "subtitle": "af9.subtitle.orbital_station",
     "sounds": [
