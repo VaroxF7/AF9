@@ -1,0 +1,29 @@
+From 96ad1f594c28cf512071da4e603b8413ebfa71c5 Mon Sep 17 00:00:00 2001
+From: AF9 <a@b>
+Date: Sat, 24 Oct 2026 11:36:03 +0000
+Subject: [PATCH] Side tabs: the page is at least as tall as its tab strip, so
+ every tab (Power Management) is clickable on a short page (7.5.3-af9.24)
+
+---
+ .../gtceu/api/gui/fancy/FancyMachineUIWidget.java            | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/gui/fancy/FancyMachineUIWidget.java b/src/main/java/com/gregtechceu/gtceu/api/gui/fancy/FancyMachineUIWidget.java
+index 5e62d3b..5df5ae1 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/gui/fancy/FancyMachineUIWidget.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/gui/fancy/FancyMachineUIWidget.java
+@@ -192,7 +192,10 @@ public class FancyMachineUIWidget extends WidgetGroup {
+ 
+         // layout
+         var size = new Size(Math.max(172, page.getSize().width + border * 2),
+-                Math.max(86, page.getSize().height + border * 2));
++                Math.max(Math.max(86, page.getSize().height + border * 2),
++                        // AF9: the vertical tab strip is only clickable within the page's height: a short page left the
++                        // last tabs (Power Management) drawn but dead
++                        8 + 24 * (sideTabsWidget.getSubTabs().size() + 1) + 4));
+         setSize(new Size(size.width,
+                 size.height + (!showInventory || playerInventory == null ? 0 : playerInventory.getSize().height)));
+         if (GTCEu.isClientSide() && getGui() != null) {
+-- 
+2.43.0
+
