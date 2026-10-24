@@ -733,7 +733,7 @@
     "af9.orbital_lithography_station.tooltip.5": "§7It starts up in §f10s§7: no vacuum to pump, it is space.",
     "af9.orbital_lithography_station.tooltip.6": " ",
     "af9.orbital_lithography_station.tooltip.7": "§ePower",
-    "af9.orbital_lithography_station.tooltip.8": "§7Up to §f3 Energy Hatches§7 or a Laser Hatch.",
+    "af9.orbital_lithography_station.tooltip.8": "§7Up to §f3 Energy Hatches§7 or a Laser Hatch. §dMk2§7: only §fWireless§7 and §fLaser Hatches§7 power it; Energy Hatches there are §eAuxiliary§7 only.",
     "af9.orbital_lithography_station.tooltip.9": "§74A of the node's tier; §f1nm§7 plain §eUHV§7 (1A).",
     "af9.orbital_lithography_station.tooltip.10": "§aPerfect overclocks§7 up to §eUXV§7, §fbatch mode§7 on the console.",
     "af9.orbital_lithography_station.tooltip.11": " ",

@@ -14,6 +14,10 @@ power mode. Right-click it with a **screwdriver** to switch it between
 
 The machine collects its hatches again at once, no rebuilding. Laser hatches and the wireless receivers have no such mode.
 
+**Orbital Array Mk2:** its primary power comes only from wireless receivers and laser hatches. Plain energy input hatches
+in the Mk2 are forced to Auxiliary (`OrbitalLithographyMachine.forceAuxiliaryHatches`, set again every tick, so the
+screwdriver cannot switch them back). The basic Orbital Station is unchanged.
+
 ## The machine
 
 * A recipe names its auxiliary demand in its data: `.addData('af9_aux_eut', 128)` in KubeJS (EU/t, a long). The recipe

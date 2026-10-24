@@ -1096,7 +1096,22 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         coilTier = extended && getMultiblockState().getMatchContext().get("CoilType") instanceof ICoilType coil ?
                 coil.getTier() : -1;
         linkModules(extended ? getMultiblockState().getMatchContext().get(MODULE_POS_KEY) : null);
+        forceAuxiliaryHatches();
         markDirty();
+    }
+
+    /**
+     * The Array Mk2 takes its primary power only from wireless receivers and laser hatches: every plain energy input
+     * hatch is held in Auxiliary mode (a screwdriver cannot switch it back; it is set again every tick).
+     */
+    private void forceAuxiliaryHatches() {
+        if (!extended || isRemote()) return;
+        for (IMultiPart part : getParts()) {
+            if (part instanceof EnergyHatchPartMachine hatch && hatch.energyContainer.getHandlerIO() == IO.IN &&
+                    !hatch.isAuxiliaryInput()) {
+                hatch.setAuxiliary(true);
+            }
+        }
     }
 
     @Override
@@ -1127,6 +1142,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     @Override
     protected void updateVacuum() {
         if (!isFormed()) return;
+        forceAuxiliaryHatches();
         if (getOffsetTimer() % 2 == 0 && isRingLit()) burnRingTouchers();
         if (getOffsetTimer() % VACUUM_INTERVAL != 0) return;
         int before = startupTicks;
