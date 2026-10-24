@@ -16,7 +16,7 @@ import net.minecraftforge.registries.ForgeRegistries;
  * AF9's sound events. The sounds are vanilla files pitched down, defined in assets/af9/sounds.json:
  * <ul>
  * <li>{@link #ORBITAL_STATION}: the Orbital Lithography Station's working sound (GT loops it while a print runs;
- * set on its recipe types in kubejs/startup_scripts/gtceu/photolithography.js): a deep beacon hum or portal roar;</li>
+ * set on its recipe types in kubejs/startup_scripts/gtceu/photolithography.js): a very quiet low drone (assets/af9/sounds/orbital_ambient.ogg);</li>
  * <li>{@link #LITHOGRAPHY_AMBIENT}: the Photolithography Line (Mk1) and Scanner (Mk2) working sound (350 to 65 nm modes,
  * photolithography.js): a very quiet, shallow room-tone loop (assets/af9/sounds/lithography_ambient.ogg);</li>
  * <li>{@link #ORBITAL_PULSE}: a low throb (warden heartbeat) each time its light ring flashes;</li>

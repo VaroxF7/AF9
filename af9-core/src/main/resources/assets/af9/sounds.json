@@ -8,7 +8,7 @@
   "orbital_station": {
     "subtitle": "af9.subtitle.orbital_station",
     "sounds": [
-      { "name": "minecraft:block/beacon/ambient", "pitch": 0.5, "volume": 1.0, "attenuation_distance": 48 }
+      { "name": "af9:orbital_ambient", "volume": 0.5, "attenuation_distance": 48 }
     ]
   },
   "orbital_station_pulse": {
