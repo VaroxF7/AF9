@@ -227,6 +227,8 @@
     "block.gtceu.uhv_coolant_hatch": "UHV Coolant Hatch",
     "block.gtceu.lv_input_hatch_4x": "LV Quadruple Input Hatch",
     "block.gtceu.lv_output_hatch_4x": "LV Quadruple Output Hatch",
+    "block.gtceu.mv_input_hatch_4x": "MV Quadruple Input Hatch",
+    "block.gtceu.mv_output_hatch_4x": "MV Quadruple Output Hatch",
     "block.gtceu.hv_resonance_hatch": "HV Resonating Fluix Hatch",
     "block.gtceu.ev_resonance_hatch": "EV Resonating Fluix Hatch",
     "block.gtceu.iv_resonance_hatch": "IV Resonating Fluix Hatch",
