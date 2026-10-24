@@ -1,0 +1,537 @@
+{
+  "Enabled": true,
+  "Coolants": {
+    "WipeExistingValuesBeforeAdding": false,
+    "Add": [
+      {
+        "Name": "af9_distilled_water",
+        "BoilingPoint": 374.0,
+        "EnthalpyOfVaporization": 100.0,
+        "TranslationKey": "coolant.af9.distilled_water"
+      },
+      {
+        "Name": "af9_flibe",
+        "BoilingPoint": 1400.0,
+        "EnthalpyOfVaporization": 9216.0,
+        "TranslationKey": "coolant.af9.flibe"
+      }
+    ],
+    "Remove": []
+  },
+  "Vapors": {
+    "WipeExistingValuesBeforeAdding": false,
+    "Add": [
+      {
+        "Name": "af9_hot_flibe",
+        "FluidEnergyDensity": 1.0,
+        "TranslationKey": "vapor.af9.hot_flibe"
+      }
+    ],
+    "Remove": []
+  },
+  "CoolantSources": {
+    "WipeExistingValuesBeforeAdding": false,
+    "Add": [
+      {
+        "SourceTagId": "af9:er/coolant/distilled_water",
+        "ProductName": "af9_distilled_water",
+        "ProductQuantity": 1
+      },
+      {
+        "SourceTagId": "af9:er/coolant/flibe",
+        "ProductName": "af9_flibe",
+        "ProductQuantity": 1
+      }
+    ],
+    "Remove": []
+  },
+  "VaporSources": {
+    "WipeExistingValuesBeforeAdding": false,
+    "Add": [
+      {
+        "SourceTagId": "af9:er/vapor/hot_flibe",
+        "ProductName": "af9_hot_flibe",
+        "ProductQuantity": 1
+      }
+    ],
+    "Remove": []
+  },
+  "FluidTransitions": {
+    "WipeExistingValuesBeforeAdding": false,
+    "Add": [
+      {
+        "Source": "af9_distilled_water",
+        "SourceQuantity": 1,
+        "Product": "supercritical_steam",
+        "ProductQuantity": 1
+      },
+      {
+        "Source": "af9_flibe",
+        "SourceQuantity": 1,
+        "Product": "af9_hot_flibe",
+        "ProductQuantity": 1
+      }
+    ],
+    "Remove": []
+  },
+  "ReactorReactants": {
+    "WipeExistingValuesBeforeAdding": false,
+    "Add": [
+      {
+        "Name": "af9_leu",
+        "TranslationKey": "reactant.af9.leu",
+        "IsFuel": true,
+        "RgbColour": 13162044,
+        "FuelProperties": {
+          "ModerationFactor": 1.8,
+          "AbsorptionCoefficient": 0.55,
+          "HardnessDivisor": 1.5
+        }
+      },
+      {
+        "Name": "af9_leu_waste",
+        "TranslationKey": "reactant.af9.leu_waste",
+        "IsFuel": false,
+        "RgbColour": 4387348
+      },
+      {
+        "Name": "af9_thorium",
+        "TranslationKey": "reactant.af9.thorium",
+        "IsFuel": true,
+        "RgbColour": 9421962,
+        "FuelProperties": {
+          "ModerationFactor": 1.6,
+          "AbsorptionCoefficient": 0.5,
+          "HardnessDivisor": 1.2
+        }
+      },
+      {
+        "Name": "af9_thorium_waste",
+        "TranslationKey": "reactant.af9.thorium_waste",
+        "IsFuel": false,
+        "RgbColour": 3140654
+      },
+      {
+        "Name": "af9_mox",
+        "TranslationKey": "reactant.af9.mox",
+        "IsFuel": true,
+        "RgbColour": 11075404,
+        "FuelProperties": {
+          "ModerationFactor": 2.0,
+          "AbsorptionCoefficient": 0.6,
+          "HardnessDivisor": 2.0
+        }
+      },
+      {
+        "Name": "af9_mox_waste",
+        "TranslationKey": "reactant.af9.mox_waste",
+        "IsFuel": false,
+        "RgbColour": 3691801
+      },
+      {
+        "Name": "af9_mox_2",
+        "TranslationKey": "reactant.af9.mox_2",
+        "IsFuel": true,
+        "RgbColour": 10152517,
+        "FuelProperties": {
+          "ModerationFactor": 2.1,
+          "AbsorptionCoefficient": 0.62,
+          "HardnessDivisor": 2.2
+        }
+      },
+      {
+        "Name": "af9_mox_2_waste",
+        "TranslationKey": "reactant.af9.mox_2_waste",
+        "IsFuel": false,
+        "RgbColour": 3384172
+      },
+      {
+        "Name": "af9_heu",
+        "TranslationKey": "reactant.af9.heu",
+        "IsFuel": true,
+        "RgbColour": 4651590,
+        "FuelProperties": {
+          "ModerationFactor": 2.2,
+          "AbsorptionCoefficient": 0.62,
+          "HardnessDivisor": 2.2
+        }
+      },
+      {
+        "Name": "af9_heu_waste",
+        "TranslationKey": "reactant.af9.heu_waste",
+        "IsFuel": false,
+        "RgbColour": 1550530
+      },
+      {
+        "Name": "af9_lep",
+        "TranslationKey": "reactant.af9.lep",
+        "IsFuel": true,
+        "RgbColour": 16742988,
+        "FuelProperties": {
+          "ModerationFactor": 2.3,
+          "AbsorptionCoefficient": 0.65,
+          "HardnessDivisor": 2.4
+        }
+      },
+      {
+        "Name": "af9_lep_waste",
+        "TranslationKey": "reactant.af9.lep_waste",
+        "IsFuel": false,
+        "RgbColour": 5580996
+      },
+      {
+        "Name": "af9_mox_3",
+        "TranslationKey": "reactant.af9.mox_3",
+        "IsFuel": true,
+        "RgbColour": 9230654,
+        "FuelProperties": {
+          "ModerationFactor": 2.4,
+          "AbsorptionCoefficient": 0.66,
+          "HardnessDivisor": 2.5
+        }
+      },
+      {
+        "Name": "af9_mox_3_waste",
+        "TranslationKey": "reactant.af9.mox_3_waste",
+        "IsFuel": false,
+        "RgbColour": 3076884
+      },
+      {
+        "Name": "af9_hep",
+        "TranslationKey": "reactant.af9.hep",
+        "IsFuel": true,
+        "RgbColour": 16731212,
+        "FuelProperties": {
+          "ModerationFactor": 2.6,
+          "AbsorptionCoefficient": 0.7,
+          "HardnessDivisor": 2.8
+        }
+      },
+      {
+        "Name": "af9_hep_waste",
+        "TranslationKey": "reactant.af9.hep_waste",
+        "IsFuel": false,
+        "RgbColour": 5577070
+      },
+      {
+        "Name": "af9_mox_4",
+        "TranslationKey": "reactant.af9.mox_4",
+        "IsFuel": true,
+        "RgbColour": 8308791,
+        "FuelProperties": {
+          "ModerationFactor": 2.8,
+          "AbsorptionCoefficient": 0.72,
+          "HardnessDivisor": 3.0
+        }
+      },
+      {
+        "Name": "af9_mox_4_waste",
+        "TranslationKey": "reactant.af9.mox_4_waste",
+        "IsFuel": false,
+        "RgbColour": 2769597
+      },
+      {
+        "Name": "af9_np",
+        "TranslationKey": "reactant.af9.np",
+        "IsFuel": true,
+        "RgbColour": 3135688,
+        "FuelProperties": {
+          "ModerationFactor": 4.0,
+          "AbsorptionCoefficient": 0.85,
+          "HardnessDivisor": 3.0
+        }
+      },
+      {
+        "Name": "af9_np_waste",
+        "TranslationKey": "reactant.af9.np_waste",
+        "IsFuel": false,
+        "RgbColour": 1045229
+      },
+      {
+        "Name": "af9_am",
+        "TranslationKey": "reactant.af9.am",
+        "IsFuel": true,
+        "RgbColour": 15114812,
+        "FuelProperties": {
+          "ModerationFactor": 4.4,
+          "AbsorptionCoefficient": 0.88,
+          "HardnessDivisor": 3.4
+        }
+      },
+      {
+        "Name": "af9_am_waste",
+        "TranslationKey": "reactant.af9.am_waste",
+        "IsFuel": false,
+        "RgbColour": 5038270
+      },
+      {
+        "Name": "af9_cm",
+        "TranslationKey": "reactant.af9.cm",
+        "IsFuel": true,
+        "RgbColour": 10513632,
+        "FuelProperties": {
+          "ModerationFactor": 4.8,
+          "AbsorptionCoefficient": 0.92,
+          "HardnessDivisor": 3.8
+        }
+      },
+      {
+        "Name": "af9_cm_waste",
+        "TranslationKey": "reactant.af9.cm_waste",
+        "IsFuel": false,
+        "RgbColour": 3504544
+      },
+      {
+        "Name": "af9_cf",
+        "TranslationKey": "reactant.af9.cf",
+        "IsFuel": true,
+        "RgbColour": 14693962,
+        "FuelProperties": {
+          "ModerationFactor": 5.2,
+          "AbsorptionCoefficient": 0.95,
+          "HardnessDivisor": 4.2
+        }
+      },
+      {
+        "Name": "af9_cf_waste",
+        "TranslationKey": "reactant.af9.cf_waste",
+        "IsFuel": false,
+        "RgbColour": 4897987
+      }
+    ],
+    "Remove": []
+  },
+  "ReactorReactantSources": {
+    "WipeExistingValuesBeforeAdding": false,
+    "Add": [
+      {
+        "SourceTagId": "af9:er/fuel/leu",
+        "ProductName": "af9_leu",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/leu",
+        "ProductName": "af9_leu_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/thorium",
+        "ProductName": "af9_thorium",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/thorium",
+        "ProductName": "af9_thorium_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/mox",
+        "ProductName": "af9_mox",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/mox",
+        "ProductName": "af9_mox_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/mox_2",
+        "ProductName": "af9_mox_2",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/mox_2",
+        "ProductName": "af9_mox_2_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/heu",
+        "ProductName": "af9_heu",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/heu",
+        "ProductName": "af9_heu_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/lep",
+        "ProductName": "af9_lep",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/lep",
+        "ProductName": "af9_lep_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/mox_3",
+        "ProductName": "af9_mox_3",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/mox_3",
+        "ProductName": "af9_mox_3_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/hep",
+        "ProductName": "af9_hep",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/hep",
+        "ProductName": "af9_hep_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/mox_4",
+        "ProductName": "af9_mox_4",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/mox_4",
+        "ProductName": "af9_mox_4_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/np",
+        "ProductName": "af9_np",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/np",
+        "ProductName": "af9_np_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/am",
+        "ProductName": "af9_am",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/am",
+        "ProductName": "af9_am_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/cm",
+        "ProductName": "af9_cm",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/cm",
+        "ProductName": "af9_cm_waste",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/fuel/cf",
+        "ProductName": "af9_cf",
+        "ProductQuantity": 1000
+      },
+      {
+        "SourceTagId": "af9:er/waste/cf",
+        "ProductName": "af9_cf_waste",
+        "ProductQuantity": 1000
+      }
+    ],
+    "Remove": []
+  },
+  "ReactorReactantReaction": {
+    "WipeExistingValuesBeforeAdding": false,
+    "Add": [
+      {
+        "SourceReactant": "af9_leu",
+        "ProductReactant": "af9_leu_waste",
+        "Reactivity": 1.06,
+        "FissionRate": 0.02
+      },
+      {
+        "SourceReactant": "af9_thorium",
+        "ProductReactant": "af9_thorium_waste",
+        "Reactivity": 1.065,
+        "FissionRate": 0.012
+      },
+      {
+        "SourceReactant": "af9_mox",
+        "ProductReactant": "af9_mox_waste",
+        "Reactivity": 1.08,
+        "FissionRate": 0.04
+      },
+      {
+        "SourceReactant": "af9_mox_2",
+        "ProductReactant": "af9_mox_2_waste",
+        "Reactivity": 1.09,
+        "FissionRate": 0.05
+      },
+      {
+        "SourceReactant": "af9_heu",
+        "ProductReactant": "af9_heu_waste",
+        "Reactivity": 1.09,
+        "FissionRate": 0.05
+      },
+      {
+        "SourceReactant": "af9_lep",
+        "ProductReactant": "af9_lep_waste",
+        "Reactivity": 1.095,
+        "FissionRate": 0.06
+      },
+      {
+        "SourceReactant": "af9_mox_3",
+        "ProductReactant": "af9_mox_3_waste",
+        "Reactivity": 1.1,
+        "FissionRate": 0.06
+      },
+      {
+        "SourceReactant": "af9_hep",
+        "ProductReactant": "af9_hep_waste",
+        "Reactivity": 1.105,
+        "FissionRate": 0.075
+      },
+      {
+        "SourceReactant": "af9_mox_4",
+        "ProductReactant": "af9_mox_4_waste",
+        "Reactivity": 1.11,
+        "FissionRate": 0.07
+      },
+      {
+        "SourceReactant": "af9_np",
+        "ProductReactant": "af9_np_waste",
+        "Reactivity": 1.12,
+        "FissionRate": 0.085
+      },
+      {
+        "SourceReactant": "af9_am",
+        "ProductReactant": "af9_am_waste",
+        "Reactivity": 1.135,
+        "FissionRate": 0.1
+      },
+      {
+        "SourceReactant": "af9_cm",
+        "ProductReactant": "af9_cm_waste",
+        "Reactivity": 1.15,
+        "FissionRate": 0.12
+      },
+      {
+        "SourceReactant": "af9_cf",
+        "ProductReactant": "af9_cf_waste",
+        "Reactivity": 1.18,
+        "FissionRate": 0.15
+      }
+    ],
+    "Remove": []
+  },
+  "ReactorSolidModerators": {
+    "WipeExistingValuesBeforeAdding": false,
+    "Add": [
+      {
+        "TagId": "af9:er/moderator/nuclear_graphite",
+        "Absorption": 0.1,
+        "HeatEfficiency": 0.6,
+        "Moderation": 3.0,
+        "HeatConductivity": 2.5
+      }
+    ],
+    "Remove": []
+  }
+}

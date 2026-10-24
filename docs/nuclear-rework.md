@@ -6,6 +6,8 @@ salt into steam, a **graphite moderator** makes the thermal fuels burn, and four
 californium) turn the minor actinides of reprocessing into power instead of vitrified waste. Nothing of the Mk1 route changes: every
 old recipe, rod and spent rod stays as it was.
 
+> The reactor side moved to Extreme Reactors 2: `docs/extreme-reactors.md`. The FX Reactor cycles below stay until that route has been run in game.
+
 Code: `kubejs/server_scripts/mods/gtceu/nuclear_rework.js` (all recipes), `kubejs/startup_scripts/gtceu/asteroid_fission.js` (the
 Heat Exchanger and its recipe type), `af9-core` `AF9Materials.asteroidFission()` / `actinideDusts()` (FLiBe and the dusts) and
 `AF9Items` (the burner rods and the graphite items). Textures: `tools/textures/nuclear_items.py`.

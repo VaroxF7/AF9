@@ -73,6 +73,10 @@ public final class AF9Blocks {
         // comes at HV) ----
         block("plascrete_pipe_casing", SoundType.METAL, 6F, 0, 0);
 
+        // ---- Nuclear rework: the Extreme Reactors moderator block (docs/extreme-reactors.md), made of the graphite
+        // moderators; the reactor's interior volume takes it as a solid moderator (config/extremereactors/modpack_api.json) ----
+        block("nuclear_graphite_block", SoundType.STONE, 6F, 0, 1);
+
         // ---- Space Elevator: the blocks of the tower (GTNH's), the motors round the cable (all 88 of a tower are of
         // one tier, the elevator's), the Mining Modules in the module slots ----
         block("space_elevator_base_casing", SoundType.METAL, 12F, 0, 0);

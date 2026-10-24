@@ -192,7 +192,8 @@ GT rocket (gregified parts, Aluminised Hydrolox) → Ceres → Asteroid Field (a
 - **Nuclear rework:** the reactor's Mk2 shell (heating coils) runs **molten-salt cycles** (FLiBe, a graphite
   moderator for the thermal fuels) whose hot salt a new **Heat Exchanger** turns into 1.5x the steam;
   neptunium → americium → curium → californium **burner rods** turn the minor actinides into power.
-  See [`docs/nuclear-rework.md`](docs/nuclear-rework.md).
+  See [`docs/nuclear-rework.md`](docs/nuclear-rework.md). The reactor itself is **Extreme Reactors 2**
+  with AF9's fuels, coolants and moderator on top of its progression: [`docs/extreme-reactors.md`](docs/extreme-reactors.md).
 - **Old uranium closed:** pitchblende/uraninite veins weight 0, GT U-238/Pu separations removed,
   void-miner circuits rewritten — plutonium comes from spent fuel, ~4 ore per rod net.
 - **Radiation:** AF9 warns *above the hotbar* near radioactive inventory/drops/ores/running FX-1
