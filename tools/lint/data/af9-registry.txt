@@ -573,7 +573,6 @@ material gtceu:high_purity_quartz
 material gtceu:hmds_vapor
 material gtceu:hopcalite
 material gtceu:hot_flibe
-material gtceu:hot_sodium_potassium
 material gtceu:hydrazine
 material gtceu:hydrazobisisobutyronitrile
 material gtceu:hydroxyacetophenone

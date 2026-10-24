@@ -8,6 +8,7 @@
 // mappings are the mod's own, so GT's uranium and plutonium ingots burn there as well.
 
 const ER_FUELS = [
+    ['blanket', 'af9:fx_blanket_assembly', 'af9:fx_spent_blanket'],
     ['leu', 'af9:fx_fuel_rod', 'af9:fx_spent_fuel_rod'],
     ['thorium', 'af9:fx_thorium_rod', 'af9:fx_spent_thorium_rod'],
     ['mox', 'af9:fx_mox_rod', 'af9:fx_spent_mox_rod'],

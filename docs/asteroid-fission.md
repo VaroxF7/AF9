@@ -1,5 +1,5 @@
 ---
-title: "AF9 Asteroid Fission: the Asteroid Field, Brannerite, the FX-1 Reactor, supercritical steam, plutonium and the Fusion Reactor Mk1"
+title: "AF9 Asteroid Fission: the Asteroid Field, Brannerite, the Extreme Reactors reactor, supercritical steam, plutonium and the Fusion Reactor Mk1"
 branch: "main"
 minecraft: "1.20.1"
 forge: "47.4.0"
@@ -14,7 +14,7 @@ agent_hint: "`gtceu:` = base GregTech, AF9's materials (AF9 Core registers them 
 
 The old way to uranium and plutonium was a vein and an electrolyzer. It is closed. Uranium comes from **Brannerite**, an ore
 that generates only in the **Asteroid Field**, a void dimension near Mars that an Ad Astra rocket reaches; the ore becomes
-yellowcake, the yellowcake fuel rods, and the **FX-1 Reactor** turns rods, water and coolant into **supercritical steam**
+yellowcake, the yellowcake fuel rods, and an **Extreme Reactors reactor** (`docs/extreme-reactors.md`) burns the rods and, with distilled water, turns them into **supercritical steam**
 (power, in GT's and Extreme Reactors' turbines) and **spent fuel**, which is reprocessed into **plutonium**. Plutonium-241 is
 what the **Fusion Reactor Mk1** needs, and that is what the whole update is for.
 
@@ -25,12 +25,12 @@ Ad Astra rocket (gregified parts, Aluminised Hydrolox)
              -> purified dust -> leach (uranyl sulfate) -> yellowcake -> reduction (EBF, hydrogen) -> uranium dust
                   -> (UF6 -> GT's enrichment -> U-235 dust)
                   -> pellets (EBF) -> fuel rod (assembler, zirconium)
-                  -> HEU pellets (EBF, U + U-235) -> HEU rod -> twice the steam rate
-                  -> LEP/HEP pellets (EBF, U/Pu + Pu-241) -> fast and fastest cycles, MOX-stream reprocessing
-                  -> MOX pellets (EBF, Pu) -> MOX rod -> hotter, longer cycles, Pu back and more
-                  -> thorium pellets (EBF, Th + U-235 driver) -> thorium rod -> long, gentle cycles, Th + Pa back
-                  -> blanket assemblies (assembler, depleted U) ride a uranium cycle (heavy-water moderated)
-                       -> FX-1 Reactor (+ water, + NaK) -> supercritical steam -> Large Steam Turbines / Extreme Reactors
+                  -> HEU pellets (EBF, U + U-235) -> HEU rod -> a hotter fuel
+                  -> LEP/HEP pellets (EBF, U/Pu + Pu-241) -> hot fuels, MOX-stream reprocessing
+                  -> MOX pellets (EBF, Pu) -> MOX rod -> hotter fuels, Pu back and more
+                  -> thorium pellets (EBF, Th + U-235 driver) -> thorium rod -> a slow fuel, Th + Pa back
+                  -> blanket assemblies (assembler, depleted U) breed in a running core (an ER fuel of their own)
+                       -> Extreme Reactors reactor (+ distilled water) -> supercritical steam -> Large Steam Turbines / Extreme Reactors
                        -> spent rods -> macerator -> nitric acid -> centrifuge -> plutonium (239 and 241), uranium back
                        -> minor actinides (Np, Am, Pa) locked in vitrified glass
                             -> Fusion Reactor Mk1 (3 double plates of Pu-241, 4 ingots Pu-239, AF9's chips)
@@ -227,34 +227,23 @@ pitchblende and uraninite veins replaced by the asteroids nothing else did (the 
 and 4 tiny U-235 dust and the reprocessing gives back 8 and 2 x 60 %: about **4 ore per rod net**. Tiny U-235 dust also comes from
 `af9:uranium_238_separation` (GT's centrifuge on uranium dust, 23 %, its tiny plutonium removed).
 
-# 5. The FX-1 Reactor
+# 5. The reactor: Extreme Reactors
 
-## 5.1 Structure (`kubejs/startup_scripts/gtceu/asteroid_fission.js`)
+The FX-1 Reactor that stood here is gone: the reactor side is **Extreme Reactors 2** (`docs/extreme-reactors.md`), and the
+rods of this chapter are its fuels. A rod in an Access Port is one fuel unit (1,000 mB, like an ingot) and comes out as a spent
+rod; the numbers of every fuel (reactivity, fission rate, moderation) sit in the same range as the mod's own yellorium, blutonium
+and verderium, in `tools/er/gen_modpack_api.py`.
 
-5 x 5 x 5 (a plain GT multiblock, `gtceu:fx1_reactor`): a vessel of stable titanium casing (`gtceu:stable_machine_casing`) around a
-core of heatproof casing, titanium pipe casing as the coolant channels (6) and one air block, the fuel rod's. Hatches on any
-casing, maximums only: 2 energy, 1 + 1 item, 3 + 4 fluid, 1 maintenance. Overclocks like any GT multiblock (EV hatches).
-
-## 5.2 Recipes
+## 5.1 Recipes kept here
 
 | Recipe | Machine, tier | Takes | Gives | Time |
 |---|---|---|---|---|
-| `af9:fx1_fuel_cycle` | FX-1 Reactor, HV (480 EU/t) | 1 fuel rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent rod, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,200 ticks |
-| `af9:fx1_heu_cycle` | FX-1 Reactor, HV | 1 HEU rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent HEU rod, 122,880 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,200 ticks |
-| `af9:fx1_lep_cycle` | FX-1 Reactor, HV | 1 LEP rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent LEP rod, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 600 ticks |
-| `af9:fx1_hep_cycle` | FX-1 Reactor, HV | 1 HEP rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent HEP rod, 122,880 mB supercritical steam, 1,000 mB hot sodium-potassium | 600 ticks |
-| `af9:fx1_mox_cycle` | FX-1 Reactor, HV | 1 MOX rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent MOX rod, 92,160 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,800 ticks |
-| `af9:fx1_thorium_cycle` | FX-1 Reactor, HV | 1 thorium rod, 640 mB distilled water, 1,000 mB sodium-potassium | the spent thorium rod, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 2,400 ticks |
-| `af9:fx1_breeder_cycle` | FX-1 Reactor, HV | 1 fuel rod, 1 blanket, 640 mB heavy water (moderator), 1,000 mB sodium-potassium | the spent rod, the spent blanket, 61,440 mB supercritical steam, 1,000 mB hot sodium-potassium | 1,200 ticks |
-| `af9:cool_hot_sodium_potassium` | Vacuum Freezer, HV | 1,000 mB hot sodium-potassium | 1,000 mB sodium-potassium | 100 ticks |
 | `af9:supercritical_steam` | any steam turbine (GT's `steam_turbine` type), -512 EU/t | 128 mB supercritical steam | 1 mB distilled water | 20 ticks |
 
-The coolant is GT's own **sodium-potassium** (`gtceu:sodium_potassium`, made in the chemical reactor); **hot sodium-potassium** is new.
-The loop is closed: 1:1, nothing is used up.
+Distilled water is the reactor's coolant (Extreme Reactors turns it into `gtceu:supercritical_steam`, registered by AF9 Core); the
+molten-salt route (FLiBe and the Heat Exchanger) and the graphite moderator are in `docs/nuclear-rework.md`.
 
-> The molten-salt cycles of the Mk2 shell, the Heat Exchanger, the graphite moderator and the neptunium to californium burner rods are in `docs/nuclear-rework.md`.
-
-## 5.3 Power
+## 5.2 Power
 
 Supercritical steam (`gtceu:supercritical_steam`, 647 K) is **80 EU per mB** in the steam turbine recipe (GT's steam: 0.5). The
 recipe's 512 EU/t is below the Large Steam Turbine's maximum (HV: 1,024 EU/t at full rotor power), so every Large Steam
@@ -307,8 +296,7 @@ ITBTC wire as before. Six ingots of plutonium-241 are about **20 spent rods**.
 GT's hazard system poisons a player who carries radioactive material without a full hazmat suit. `RadiationWatch`
 (`af9-core/src/main/java/com/af9/core/radiation/RadiationWatch.java`) warns before it happens: once a second, near radioactive
 material, a message above the hotbar (mild, strong, dangerous) with whether the player's hazmat suit is complete. Sources: the
-inventory (1 per stack, up to 2), dropped items within 6 blocks, ore blocks of radioactive materials within 3 blocks, a running
-FX-1 Reactor within 16 blocks. Radioactive is GT's notion (a carcinogenic hazard that anything triggers, or an element with a
+inventory (1 per stack, up to 2), dropped items within 6 blocks, ore blocks of radioactive materials within 3 blocks. Radioactive is GT's notion (a carcinogenic hazard that anything triggers, or an element with a
 half-life) plus the item tag `#af9:radioactive` (the pellet, the rod, the spent rod). Brannerite, yellowcake and the irradiated fuel
 carry GT's radioactive hazard themselves. Setting: `[radiation] hints` in `config/af9-common.toml`.
 
@@ -330,7 +318,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 2. the dikes in the rock (brannerite and the metals in Ceres; naquadah, platinum, quantanium and iridium in the
    field) piercing the islands top to bottom, at every height, not in slabs;
 3. the radiation warning above the hotbar, with and without a hazmat suit (GT's hazard system must be on);
-4. the FX-1 in the multiblock preview, one fuel cycle, a Large Steam Turbine on the steam;
+4. an Extreme Reactors reactor burning an AF9 rod, a Large Steam Turbine on the steam;
 5. Extreme Reactors, if installed: the log line `Extreme Reactors: could not ...` means the vapor was not registered;
 6. the quest task "dimension" of `af9.quest.fx.field` (an FTB Quests task type);
 7. how the field looks with the closer clusters and satellites (§2.2: `CELL`, `CLUSTER_CHANCE`,
@@ -342,7 +330,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 
 | File | Holds |
 |---|---|
-| `kubejs/startup_scripts/gtceu/asteroid_fission.js` | the FX-1's recipe type and structure |
+| `kubejs/startup_scripts/gtceu/asteroid_fission.js` | the recipe types and structures of the Heat Exchanger, Spent Fuel Pool and Fuel Fabrication Bay |
 | `af9-core/src/main/java/com/af9/core/registry/` | the materials (`AF9Materials`, `asteroidFission()`), the fuel pellet and rods (`AF9Items`) |
 | `af9-core/src/main/java/com/af9/core/space/AF9Space.java` | the ore layer `af9_asteroid` and the tag of its stones |
 | `kubejs/server_scripts/mods/gtceu/asteroid_fission.js` | the closed old ways, the uranium chain, the reactor, steam turbine, reprocessing, tags |

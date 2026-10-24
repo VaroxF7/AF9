@@ -1,18 +1,17 @@
-// AF9 - Nuclear rework: the molten-salt branch of the FX Reactor. Spec: docs/nuclear-rework.md
+// AF9 - Nuclear rework: the molten-salt branch (FLiBe, Heat Exchanger, graphite, burner rods). Spec: docs/nuclear-rework.md
 //
 // The idea is taken from TerraFirmaGreg Modern's nuclear line (a graphite-moderated reactor, a molten-salt (FLiBe)
 // coolant loop, a heat exchanger that turns the hot coolant into power, and fuel rods that burn the minor actinides up
 // to californium: github.com/TerraFirmaGreg-Team/Modpack-Modern, LGPL-3.0, credited in CREDITS-textures.md). The recipes
-// and numbers are AF9's own and build on the FX-1 Reactor of asteroid_fission.js / fission_fuels.js.
+// and numbers are AF9's own and build on the Extreme Reactors reactor (er_bridge.js) and the rods of asteroid_fission.js / fission_fuels.js.
 //
 //   Graphite moderator   graphite + coal tar -> green body -> baked body -> purified billet -> moderator (never used up)
 //   FLiBe                lithium fluoride + beryllium fluoride, melted together: the molten-salt coolant
-//   Molten-salt cycles   FX Reactor Mk2 (heating coils, Kanthal or better): a rod and FLiBe (and the moderator for the
-//                        thermal fuels) in, the spent rod and hot FLiBe out; no water in the core
-//   Heat Exchanger       hot FLiBe + distilled water -> supercritical steam and FLiBe again: 1.5 times the steam of the
-//                        Mk1 cycle of the same rod; thorium, burning best in salt, makes twice
+//   Molten-salt cycles   an Extreme Reactors reactor with FLiBe as coolant (and nuclear graphite as moderator): the hot
+//                        FLiBe comes out as a vapour-like fluid (config/extremereactors/modpack_api.json)
+//   Heat Exchanger       hot FLiBe + distilled water -> supercritical steam and FLiBe again
 //   Burner rods          neptunium, americium, curium and californium: the minor actinides of reprocessing burned for
-//                        heat, each rung leaving the next one; molten-salt cycles only, no moderator (fast spectrum)
+//                        heat, each rung leaving the next one; fast spectrum, no moderator needed
 
 ServerEvents.tags('item', event => {
     ;['np', 'am', 'cm', 'cf'].forEach(b =>
@@ -80,53 +79,27 @@ ServerEvents.recipes(event => {
         .itemOutputs('gtceu:heat_exchanger')
         .duration(400)
         .EUt(VA[GTValues.HV])
-    // 1,000 mB of hot salt carry the heat of 92,160 mB of supercritical steam (the Mk1 cycle's 96 mB of water per
-    // 1,000 mB of steam, 1.5 times the rod's heat: the salt runs hotter than the sodium-potassium)
+    // 1,000 mB of hot salt carry the heat of 92,160 mB of supercritical steam (96 mB of water per 100 mB of steam)
     event.recipes.gtceu.heat_exchanger('af9:flibe_heat_exchange')
         .inputFluids(Fluid.of('gtceu:hot_flibe', 1000), Fluid.of('gtceu:distilled_water', 960))
         .outputFluids(Fluid.of('gtceu:supercritical_steam', 92160), Fluid.of('gtceu:flibe', 1000))
         .duration(400)
         .EUt(VA[GTValues.HV])
 
-    // ---- Molten-salt cycles of the thermal fuels: rod + FLiBe + moderator -> spent rod + hot FLiBe ----
-    // the same rods and spent rods as the Mk1 cycles, so reprocessing does not change. `hot` is 1.5 times the Mk1 cycle's
-    // steam, in thousands of mB of salt; thorium, which burns best in salt, gets three times. Heating coils of Kanthal (2,700 K)
-    // or better: the Mk2 shell
-    const thermal = [
-        { id: 'fuel', rod: 'af9:fx_fuel_rod', spent: 'af9:fx_spent_fuel_rod', hot: 1000, ticks: 1200, eut: VA[GTValues.HV], temp: 2700 },
-        { id: 'heu', rod: 'af9:fx_heu_rod', spent: 'af9:fx_spent_heu_rod', hot: 2000, ticks: 1200, eut: VA[GTValues.HV], temp: 2700 },
-        { id: 'lep', rod: 'af9:fx_lep_rod', spent: 'af9:fx_spent_lep_rod', hot: 1000, ticks: 600, eut: VA[GTValues.HV], temp: 2700 },
-        { id: 'hep', rod: 'af9:fx_hep_rod', spent: 'af9:fx_spent_hep_rod', hot: 2000, ticks: 600, eut: VA[GTValues.HV], temp: 2700 },
-        { id: 'mox', rod: 'af9:fx_mox_rod', spent: 'af9:fx_spent_mox_rod', hot: 1500, ticks: 1800, eut: VA[GTValues.HV], temp: 2700 },
-        { id: 'mox_2', rod: 'af9:fx_mox_2_rod', spent: 'af9:fx_spent_mox_2_rod', hot: 2000, ticks: 1800, eut: VA[GTValues.HV], temp: 2700 },
-        { id: 'mox_3', rod: 'af9:fx_mox_3_rod', spent: 'af9:fx_spent_mox_3_rod', hot: 2500, ticks: 1800, eut: VA[GTValues.EV], temp: 2700 },
-        { id: 'mox_4', rod: 'af9:fx_mox_4_rod', spent: 'af9:fx_spent_mox_4_rod', hot: 3000, ticks: 1800, eut: VA[GTValues.EV], temp: 3600 },
-        { id: 'thorium', rod: 'af9:fx_thorium_rod', spent: 'af9:fx_spent_thorium_rod', hot: 2000, ticks: 2400, eut: VA[GTValues.HV], temp: 2700 },
-    ]
-    thermal.forEach(fuel => {
-        event.recipes.gtceu.fx1_reactor(`af9:fx1_${fuel.id}_flibe_cycle`)
-            .itemInputs(fuel.rod)
-            .notConsumable(MODERATOR)
-            .inputFluids(Fluid.of('gtceu:flibe', fuel.hot))
-            .itemOutputs(fuel.spent)
-            .outputFluids(Fluid.of('gtceu:hot_flibe', fuel.hot))
-            .blastFurnaceTemp(fuel.temp)
-            .duration(fuel.ticks)
-            .EUt(fuel.eut)
-    })
+    // The molten-salt cycles themselves are Extreme Reactors' (er_bridge.js, config/extremereactors/modpack_api.json): FLiBe
+    // goes in as coolant and comes out as hot FLiBe, which the Heat Exchanger above turns into steam.
 
     // ---- The actinide burner rods: neptunium -> americium -> curium -> californium ----
-    // Fast-spectrum fuels: no moderator, only salt, and a hotter shell for each rung (Kanthal, Nichrome, Tungstensteel,
-    // HSS-G). Each leaves the next rung behind: a spent rod is decladded straight to dusts (no acid), and what is left of
+    // Fast-spectrum fuels, hotter and more reactive each rung (see tools/er/gen_modpack_api.py). Each leaves the next rung behind: a spent rod is decladded straight to dusts (no acid), and what is left of
     // the last rung is vitrified waste. The matrix is the fuel's inert carrier.
     const burners = [
-        { id: 'np', name: 'neptunium', dusts: ['4x gtceu:neptunium_dust', '4x gtceu:uranium_dust'], temp: 2700, ticks: 2400, hot: 2000,
+        { id: 'np', name: 'neptunium', dusts: ['4x gtceu:neptunium_dust', '4x gtceu:uranium_dust'],
             outs: ['2x gtceu:plutonium_dust'], chances: [['gtceu:americium_dust', 5000]] },
-        { id: 'am', name: 'americium', dusts: ['4x gtceu:americium_dust', '4x gtceu:thorium_dust'], temp: 3600, ticks: 2400, hot: 3000,
+        { id: 'am', name: 'americium', dusts: ['4x gtceu:americium_dust', '4x gtceu:thorium_dust'],
             outs: ['3x gtceu:curium_dust'], chances: [['gtceu:plutonium_dust', 5000]] },
-        { id: 'cm', name: 'curium', dusts: ['4x gtceu:curium_dust', '4x gtceu:plutonium_dust'], temp: 4500, ticks: 3000, hot: 5000,
+        { id: 'cm', name: 'curium', dusts: ['4x gtceu:curium_dust', '4x gtceu:plutonium_dust'],
             outs: ['2x gtceu:curium_dust'], chances: [['gtceu:californium_dust', 5000]] },
-        { id: 'cf', name: 'californium', dusts: ['2x gtceu:californium_dust', '6x gtceu:plutonium_dust'], temp: 5400, ticks: 3000, hot: 8000,
+        { id: 'cf', name: 'californium', dusts: ['2x gtceu:californium_dust', '6x gtceu:plutonium_dust'],
             outs: ['2x gtceu:vitrified_waste_dust'], chances: [['gtceu:plutonium_241_dust', 2000]] },
     ]
     burners.forEach(fuel => {
@@ -142,14 +115,6 @@ ServerEvents.recipes(event => {
             .itemOutputs(`af9:fx_${fuel.id}_rod`)
             .duration(200)
             .EUt(VA[GTValues.HV])
-        event.recipes.gtceu.fx1_reactor(`af9:fx1_${fuel.id}_flibe_cycle`)
-            .itemInputs(`af9:fx_${fuel.id}_rod`)
-            .inputFluids(Fluid.of('gtceu:flibe', fuel.hot))
-            .itemOutputs(`af9:fx_spent_${fuel.id}_rod`)
-            .outputFluids(Fluid.of('gtceu:hot_flibe', fuel.hot))
-            .blastFurnaceTemp(fuel.temp)
-            .duration(fuel.ticks)
-            .EUt(VA[GTValues.EV])
         // decladding: macerator or the Spent Fuel Pool (slow, hands-free), the same dusts
         const declad = recipe => {
             recipe.itemOutputs(fuel.outs.concat(['gtceu:zirconium_dust']))

@@ -35,3 +35,6 @@ gtceu:lxa_1
 af9:*_marker
 # the tier 2 rocket's insulation: its recipes (and those of the foil, wool, dust and mixture) are Janne's to come
 af9:alumina_silicate_rocket_insulation
+# made by an Extreme Reactors reactor (the spent rods of its Access Port, the hot FLiBe of its coolant port; docs/extreme-reactors.md)
+af9:fx_spent_*
+gtceu:hot_flibe

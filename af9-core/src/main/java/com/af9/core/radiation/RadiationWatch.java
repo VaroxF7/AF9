@@ -3,14 +3,11 @@ package com.af9.core.radiation;
 import com.af9.core.AF9Config;
 import com.af9.core.AF9Core;
 
-import com.gregtechceu.gtceu.api.blockentity.MetaMachineBlockEntity;
 import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.HazardProperty;
 import com.gregtechceu.gtceu.api.data.chemical.material.properties.PropertyKey;
 import com.gregtechceu.gtceu.api.block.MaterialBlock;
-import com.gregtechceu.gtceu.api.machine.MetaMachine;
-import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine;
 import com.gregtechceu.gtceu.common.data.GTMedicalConditions;
 
 import net.minecraft.ChatFormatting;
@@ -25,9 +22,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -40,7 +35,7 @@ import net.minecraftforge.fml.common.Mod;
  * Radioactive is what GregTech calls radioactive: a material with a carcinogenic hazard that anything triggers
  * ({@code Material.Builder#radioactiveHazard}: plutonium, uranium, the Brannerite of the asteroids ...), or an element
  * with a half-life. Counted are the player's inventory, dropped items within {@value #ITEM_RANGE} blocks, ore blocks of
- * such a material within {@value #BLOCK_RANGE} blocks and running FX-1 Reactors within {@value #REACTOR_RANGE} blocks;
+ * such a material within {@value #BLOCK_RANGE} blocks;
  * items of the tag {@code #af9:radioactive} (fuel pellets and rods, the spent ones, the reactor's waste) count too. The
  * warning says how strong the source is and whether the player wears a full hazmat suit; the damage itself is GT's
  * (its hazard system works on the inventory), this only tells the player before it happens.
@@ -54,15 +49,10 @@ public final class RadiationWatch {
     /** Items that are radioactive without being GT materials. */
     public static final TagKey<Item> RADIOACTIVE_ITEMS = ItemTags.create(
             new ResourceLocation(AF9Core.MOD_ID, "radioactive"));
-    /** The controller of the FX-1 Reactor (kubejs/startup_scripts/gtceu/asteroid_fission.js). */
-    public static final ResourceLocation REACTOR_ID = new ResourceLocation("gtceu", "fx1_reactor");
 
     public static final int INTERVAL = 20;
     public static final double ITEM_RANGE = 6.0;
     public static final int BLOCK_RANGE = 3;
-    public static final double REACTOR_RANGE = 16.0;
-    /** Strength of a running reactor right next to it (it falls off with the distance). */
-    public static final double REACTOR_STRENGTH = 8.0;
 
     /** Exposure below which the warning is the mild one, and from which it is the severe one. */
     private static final double MILD = 2.5;
@@ -92,7 +82,7 @@ public final class RadiationWatch {
         player.displayClientMessage(message, true);
     }
 
-    /** How much radiation is around the player: 1 per radioactive stack, less from dropped items, more from reactors. */
+    /** How much radiation is around the player: 1 per radioactive stack, less from dropped items and ore blocks. */
     public static double exposure(ServerPlayer player) {
         double total = 0;
         Inventory inventory = player.getInventory();
@@ -107,7 +97,6 @@ public final class RadiationWatch {
             if (isRadioactive(stack)) total += 0.6 + Math.min(stack.getCount(), 64) / 128.0;
         }
         total += blocks(level, player.blockPosition());
-        total += reactors(level, player);
         return total;
     }
 
@@ -127,35 +116,6 @@ public final class RadiationWatch {
                     }
                     int distSqr = dx * dx + dy * dy + dz * dz;
                     total += 0.5 / (1.0 + Math.sqrt(distSqr));
-                }
-            }
-        }
-        return total;
-    }
-
-    /** Running FX-1 Reactors in the 3 x 3 chunks around the player. */
-    private static double reactors(ServerLevel level, ServerPlayer player) {
-        double total = 0;
-        double rangeSqr = REACTOR_RANGE * REACTOR_RANGE;
-        var playerPos = player.position();
-        int chunkX = player.blockPosition().getX() >> 4;
-        int chunkZ = player.blockPosition().getZ() >> 4;
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dz = -1; dz <= 1; dz++) {
-                LevelChunk chunk = level.getChunkSource().getChunkNow(chunkX + dx, chunkZ + dz);
-                if (chunk == null) continue;
-                for (BlockEntity blockEntity : chunk.getBlockEntities().values()) {
-                    if (!(blockEntity instanceof MetaMachineBlockEntity machineEntity)) continue;
-                    MetaMachine machine = machineEntity.getMetaMachine();
-                    if (!REACTOR_ID.equals(machine.getDefinition().getId())) continue;
-                    if (!(machine instanceof WorkableMultiblockMachine reactor) || !reactor.isFormed() ||
-                            !reactor.getRecipeLogic().isWorking()) {
-                        continue;
-                    }
-                    double distSqr = blockEntity.getBlockPos().distToCenterSqr(playerPos);
-                    if (distSqr > rangeSqr) continue;
-                    double distance = Math.sqrt(distSqr);
-                    total += REACTOR_STRENGTH * (1.0 - distance / (REACTOR_RANGE + 1.0));
                 }
             }
         }

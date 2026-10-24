@@ -4,8 +4,8 @@
 // 1. Veins:   (vein_asteroid.js) Brannerite (the uranium ore) and three metal ores in the asteroids of af9:asteroid_field; GT's old uranium
 //             veins (pitchblende, uraninite) switched off
 // 2. Uranium: ore -> leach -> yellowcake -> UF6 (GT enriches it) -> pellets -> fuel rods
-// 3. Reactor: FX-1 Reactor: rod + water + NaK -> spent rod + supercritical steam + hot NaK; the Vacuum Freezer cools the
-//             alloy; GT's Large Steam Turbines (and Extreme Reactors') turn the steam into power
+// 3. Reactor: an Extreme Reactors reactor burns the rods (er_bridge.js); GT's Large Steam Turbines (and Extreme
+//             Reactors') turn the supercritical steam into power
 // 4. Plutonium: spent rod -> macerator (cladding off) -> nitric acid -> centrifuge: plutonium, uranium back, fission
 //             products. GT's two shortcuts to plutonium (U-238 and Pu-239 centrifuging) are gone.
 
@@ -101,29 +101,7 @@ ServerEvents.recipes(event => {
         .duration(200)
         .EUt(VA[GTValues.HV])
 
-    // ---- 3. The reactor ----
-    // The controller: an EV hull between the coolant pumps, lead shielding at the sides, EV circuits in the corners
-    event.shaped('gtceu:fx1_reactor', ['CPC', 'LHL', 'CPC'], {
-        C: '#gtceu:circuits/ev', P: 'gtceu:ev_electric_pump', L: 'gtceu:lead_plate', H: 'gtceu:ev_machine_hull'
-    }).id('af9:fx1_reactor')
-    // One rod per 1,200 ticks (a minute); 61,440 mB of supercritical steam (51 mB/t, 4,096 EU/t in four Large Steam
-    // Turbines at full rotor power) for 640 mB of water, HV: 480 EU/t, so the rod is worth about 4.3 million EU net.
-    // The coolant goes through the core and comes out hot, in equal amounts. Overclocking (EV hatches) runs it faster.
-    event.recipes.gtceu.fx1_reactor('af9:fx1_fuel_cycle')
-        .itemInputs('af9:fx_fuel_rod')
-        .inputFluids(Fluid.of('gtceu:distilled_water', 640))
-        .inputFluids(Fluid.of('gtceu:sodium_potassium', 1000))
-        .itemOutputs('af9:fx_spent_fuel_rod')
-        .outputFluids(Fluid.of('gtceu:supercritical_steam', 61440))
-        .outputFluids(Fluid.of('gtceu:hot_sodium_potassium', 1000))
-        .duration(1200)
-        .EUt(VA[GTValues.HV])
-    // The Vacuum Freezer gives the heat to space (well, to its coolant loop): hot NaK back to NaK
-    event.recipes.gtceu.vacuum_freezer('af9:cool_hot_sodium_potassium')
-        .inputFluids(Fluid.of('gtceu:hot_sodium_potassium', 1000))
-        .outputFluids(Fluid.of('gtceu:sodium_potassium', 1000))
-        .duration(100)
-        .EUt(VA[GTValues.HV])
+    // ---- 3. The reactor: Extreme Reactors' (er_bridge.js); the rods are its fuel ----
     // Power: GT's steam turbine recipe type, so every steam turbine of GT runs it (the Large Steam Turbine from HV: it
     // needs the recipe's 512 EU/t below its own maximum). 80 EU per mB (steam: 0.5). A trickle of water comes out.
     event.recipes.gtceu.steam_turbine('af9:supercritical_steam')

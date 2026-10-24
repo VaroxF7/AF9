@@ -7,7 +7,7 @@ import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 
 /**
- * Supercritical steam in Extreme Reactors' turbines. The FX-1 Reactor makes {@code gtceu:supercritical_steam}; GT's
+ * Supercritical steam in Extreme Reactors' turbines. AF9's rods in a reactor make {@code gtceu:supercritical_steam}; GT's
  * Large Steam Turbines run it through a steam turbine recipe (kubejs/server_scripts/mods/gtceu/asteroid_fission.js),
  * and here Extreme Reactors learns it as a vapor of its own, 320 FE per mB (32 times its steam), made from the fluid
  * tag {@code forge:supercritical_steam}. The API calls go through Extreme Reactors' own inter-mod messages (the two

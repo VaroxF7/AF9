@@ -135,7 +135,7 @@ public final class AF9Materials {
 
     /**
      * Curium and californium are the end of the actinide burner ladder (neptunium -> americium -> curium -> californium
-     * rods in the molten-salt cycles of the FX Reactor Mk2, docs/nuclear-rework.md): they need dusts, as neptunium did.
+     * rods burnt in Extreme Reactors, docs/nuclear-rework.md): they need dusts, as neptunium did.
      * Looked up by name, once the registry is complete (like rutileFromIlmeniteOnly), so a GT without them costs the
      * ladder its last rungs and not the startup.
      */
@@ -255,8 +255,8 @@ public final class AF9Materials {
 
     /**
      * Asteroid fission, the new way to uranium and plutonium: brannerite, a uranium-titanium ore, generates only in
-     * the Asteroid Field. The ore becomes yellowcake, the yellowcake the FX-1 Reactor's fuel rods, and the reactor
-     * turns the rods, water and a sodium-potassium coolant into supercritical steam and spent rods, which are
+     * the Asteroid Field. The ore becomes yellowcake, the yellowcake the fuel rods of the Extreme Reactors reactor, and the reactor
+     * turns the rods and distilled water into supercritical steam and spent rods, which are
      * reprocessed into plutonium. Recipes: asteroid_fission.js, rockets.js. Spec: docs/asteroid-fission.md
      */
     private static void asteroidFission() {
@@ -337,13 +337,7 @@ public final class AF9Materials {
                 .color(0xff5a3a)
                 .formula("Li2BeF4*"));
 
-        // ---- The reactor's coolant circuit ----
-        // The coolant is GT's own sodium-potassium alloy (NaK, liquid at room temperature). It carries the heat out of
-        // the core and gives it to the water in the same machine; the hot alloy goes back to NaK in a Vacuum Freezer.
-        add(material("hot_sodium_potassium")
-                .liquid(800)
-                .color(0xff8a3d)
-                .formula("NaK*"));
+        // ---- Supercritical steam, the reactor's output ----
         // Water above the critical point (647 K, 22 MPa): no boiling, so no drying out. 80 EU per mB in a steam turbine
         // (steam: 0.5), 320 FE in Extreme Reactors' (af9-core ExtremeReactorsCompat).
         add(material("supercritical_steam")

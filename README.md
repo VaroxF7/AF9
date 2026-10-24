@@ -68,7 +68,7 @@ quartz → MG-Si → polysilicon → boule (EBF Boule Melting) → blank wafer �
 | System | One line | Deep doc |
 |---|---|---|
 | 🔬 Semiconductor factory | quartz → EG polysilicon → CZ boules → 9 wafer substrates → fab chemistry → 350–1 nm lithography → GT + AF9 chips | [`docs/semiconductor-factory.md`](docs/semiconductor-factory.md) |
-| ☢️ Asteroid fission | Brannerite only in the Asteroid Field → yellowcake → FX-1 Reactor → supercritical steam + plutonium → Fusion Reactor Mk1 | [`docs/asteroid-fission.md`](docs/asteroid-fission.md) |
+| ☢️ Asteroid fission | Brannerite only in the Asteroid Field → yellowcake → Extreme Reactors reactor → supercritical steam + plutonium → Fusion Reactor Mk1 | [`docs/asteroid-fission.md`](docs/asteroid-fission.md) |
 | 🧮 Computation | CWU Servers (LV–IV) and GT's HPCA (expandable) as `IOpticalComputationProvider` | [`docs/computation.md`](docs/computation.md) |
 | 🛰️ Space Elevator | GTNH's 35×35×43 (ext. 47×47) tower, Mining Drones + Modules, ore expeditions + GTNH Space Pumping liquid missions | [`docs/space-elevator.md`](docs/space-elevator.md) |
 | ⚗️ Platinum-group refinery | matte → leach → chloride liquor → Pt/Pd/Au, then Ru/Os via tetroxides, Ir/Rh last — in GT's own machines | [`docs/platinum-group-metals.md`](docs/platinum-group-metals.md) |
@@ -174,7 +174,7 @@ Full spec: [`docs/asteroid-fission.md`](docs/asteroid-fission.md).
 GT rocket (gregified parts, Aluminised Hydrolox) → Ceres → Asteroid Field (af9:asteroid_field)
   → Brannerite ore → purified dust → uranyl sulfate → yellowcake → uranium dust (+ UF6 → U-235)
   → pellets (EBF) → fuel rod (assembler, zirconium)
-  → FX-1 Reactor (+ water + NaK) → supercritical steam → turbines → spent rod → Pu-239 / Pu-241
+  → Extreme Reactors reactor (+ distilled water) → supercritical steam → turbines → spent rod → Pu-239 / Pu-241
   → Fusion Reactor Mk1 (needs Pu-241 + AF9 chips)
 ```
 
@@ -185,18 +185,17 @@ GT rocket (gregified parts, Aluminised Hydrolox) → Ceres → Asteroid Field (a
   Line with scanner research). T2 (titanium/ASIC) reaches Ceres; propellant is 2 recipes from 4 base
   ingredients (Al dust + ethylene + H₂ + O₂ → triethylaluminium → **Aluminised Hydrolox**, 3,000 mB =
   one launch). No oil needed for the first flight (ethylene via ethanol).
-- **FX-1 Reactor** (`gtceu:fx1_reactor`, 5×5×5, HV 480 EU/t): 1 rod + distilled water + NaK →
-  **61,440 mB supercritical steam** (80 EU/mB in steam turbines; ~4 Large Steam Turbines per rod,
-  ~4.3 M EU net) + hot NaK (vacuum-freezer loop, closed) + spent rod → reprocessing → plutonium.
-  Enriched rungs (HEU-235, LEP-241, HEP-239) trade fissile cost for steam rate.
-- **Nuclear rework:** the reactor's Mk2 shell (heating coils) runs **molten-salt cycles** (FLiBe, a graphite
-  moderator for the thermal fuels) whose hot salt a new **Heat Exchanger** turns into 1.5x the steam;
-  neptunium → americium → curium → californium **burner rods** turn the minor actinides into power.
-  See [`docs/nuclear-rework.md`](docs/nuclear-rework.md). The reactor itself is **Extreme Reactors 2**
-  with AF9's fuels, coolants and moderator on top of its progression: [`docs/extreme-reactors.md`](docs/extreme-reactors.md).
+- **Reactor: Extreme Reactors 2** (`bigreactors`): the AF9 rods are its fuels (one rod = one fuel unit; reactivity and fission rate
+  in ER's own range, from the blanket 1.03 up to californium 1.115), distilled water becomes **supercritical steam** (80 EU/mB in
+  steam turbines), spent rod → reprocessing → plutonium. The FX-1 Reactor was removed. Fuel table: `tools/er/gen_modpack_api.py`.
+  Enriched rungs (HEU-235, LEP-241, HEP-239) trade fissile cost for rate.
+- **Nuclear rework:** **FLiBe** as a second ER coolant, whose hot salt a new **Heat Exchanger** turns into steam, a
+  **Nuclear Graphite Block** moderator and neptunium → americium → curium → californium **burner rods** that turn the minor
+  actinides into power. See [`docs/nuclear-rework.md`](docs/nuclear-rework.md) and
+  [`docs/extreme-reactors.md`](docs/extreme-reactors.md).
 - **Old uranium closed:** pitchblende/uraninite veins weight 0, GT U-238/Pu separations removed,
   void-miner circuits rewritten — plutonium comes from spent fuel, ~4 ore per rod net.
-- **Radiation:** AF9 warns *above the hotbar* near radioactive inventory/drops/ores/running FX-1
+- **Radiation:** AF9 warns *above the hotbar* near radioactive inventory/drops/ores
   (GT hazards + `#af9:radioactive`), before GT's hazmat punishment. Toggle: `[radiation] hints`.
 
 ---
@@ -288,7 +287,7 @@ Oil Regolith (asteroid pockets, ~7% of rock, falling sand-like block)
 | Stage | You build | It unlocks |
 |---|---|---|
 | MV | quartz → MG-Si → polysilicon → Si boule → 350 nm line V1, CWU Server LV/MV, Coater Track | GT LV–MV chips on Si; computation for research |
-| HV | 200 nm (KrF), FX-1 fuel chain, Oil Regolith → oil, PGM matte (Pt/Pd) | ASIC/MCU/APU; first fission power; benzene/propene |
+| HV | 200 nm (KrF), fission fuel chain, Oil Regolith → oil, PGM matte (Pt/Pd) | ASIC/MCU/APU; first fission power; benzene/propene |
 | EV | 100 nm (ArF dry), rockets T2 → Ceres/Field, Supercooling Cryostat | Naquadah circuits; brannerite; cold coolants |
 | IV–LuV | Scanner 80/65 nm (ArF + immersion), rockets T3–T4, Particle Accelerator | trinium/naquadria chips; e/m/FE-RAM, VPU; transmuted neutronium (NTD) |
 | ZPM | Orbital Station (50 nm), Space Elevator Mk-I+, Fusion Reactor Mk1 (Pu-241) | renewable ore; neutronium HASoC; TPU path |
@@ -384,8 +383,8 @@ CI (`.github/workflows/build-af9-core.yml`, on pushes to `main` touching `af9-co
 
 - [Semiconductor factory](docs/semiconductor-factory.md) — wafers, silicon, SoCs, chips, lithography
 - [AE2 integration](docs/ae2.md) — processors and storage components through the fab
-- [Asteroid fission](docs/asteroid-fission.md) — field, Brannerite, FX-1, plutonium, Mk1
-- [Nuclear rework](docs/nuclear-rework.md) — molten-salt FX Reactor Mk2, Heat Exchanger, graphite moderator, actinide burners
+- [Asteroid fission](docs/asteroid-fission.md) — field, Brannerite, the fuels, plutonium, Mk1
+- [Nuclear rework](docs/nuclear-rework.md) — molten salt, Heat Exchanger, graphite moderator, actinide burners
 - [Computation](docs/computation.md) — CWU servers
 - [Space Elevator](docs/space-elevator.md) — structure, drones, ore + liquid missions, screen
 - [Platinum-group metals](docs/platinum-group-metals.md) — refinery chain

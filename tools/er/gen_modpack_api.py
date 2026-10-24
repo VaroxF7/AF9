@@ -4,28 +4,30 @@
     python3 tools/er/gen_modpack_api.py            # from the repository root
 
 Spec: docs/extreme-reactors.md. The fuel ladder is one table here: the rod, the spent rod, the numbers. Extreme Reactors' own
-fuels (yellorium, blutonium, verderium) are not touched; these are added above them. Run it after editing the table.
+fuels (yellorium, blutonium, verderium) are not touched; these are added around and above them. Run it after editing the table.
 """
 import json
 from pathlib import Path
 
 # id, fuel rod, spent rod, colour, moderation, absorption, hardness, reactivity, fission rate
 # Extreme Reactors' own: yellorium 1.5/0.5/1.0 (reactivity 1.05, rate 0.01), blutonium 2.23/0.6/2.0 (1.0871, 0.051),
-# verderium 3.74/0.874/2.005 (1.0984, 0.0743). Ours start between yellorium and blutonium and end above verderium.
+# verderium 3.74/0.874/2.005 (1.0984, 0.0743). Ours stay in that range: the entry fuels sit just above yellorium, the
+# plutonium fuels around blutonium, and only the burner rods (Np to Cf) reach and pass verderium, up to 1.115 / 0.10.
 FUELS = [
-    ('leu', 'fx_fuel_rod', 'fx_spent_fuel_rod', 0xC8D63C, 1.8, 0.55, 1.5, 1.060, 0.020),
-    ('thorium', 'fx_thorium_rod', 'fx_spent_thorium_rod', 0x8FC48A, 1.6, 0.50, 1.2, 1.065, 0.012),
-    ('mox', 'fx_mox_rod', 'fx_spent_mox_rod', 0xA8FF4C, 2.0, 0.60, 2.0, 1.080, 0.040),
-    ('mox_2', 'fx_mox_2_rod', 'fx_spent_mox_2_rod', 0x9AEA45, 2.1, 0.62, 2.2, 1.090, 0.050),
-    ('heu', 'fx_heu_rod', 'fx_spent_heu_rod', 0x46FA46, 2.2, 0.62, 2.2, 1.090, 0.050),
-    ('lep', 'fx_lep_rod', 'fx_spent_lep_rod', 0xFF7A4C, 2.3, 0.65, 2.4, 1.095, 0.060),
-    ('mox_3', 'fx_mox_3_rod', 'fx_spent_mox_3_rod', 0x8CD93E, 2.4, 0.66, 2.5, 1.100, 0.060),
-    ('hep', 'fx_hep_rod', 'fx_spent_hep_rod', 0xFF4C4C, 2.6, 0.70, 2.8, 1.105, 0.075),
-    ('mox_4', 'fx_mox_4_rod', 'fx_spent_mox_4_rod', 0x7EC837, 2.8, 0.72, 3.0, 1.110, 0.070),
-    ('np', 'fx_np_rod', 'fx_spent_np_rod', 0x2FD8C8, 4.0, 0.85, 3.0, 1.120, 0.085),
-    ('am', 'fx_am_rod', 'fx_spent_am_rod', 0xE6A23C, 4.4, 0.88, 3.4, 1.135, 0.100),
-    ('cm', 'fx_cm_rod', 'fx_spent_cm_rod', 0xA06CE0, 4.8, 0.92, 3.8, 1.150, 0.120),
-    ('cf', 'fx_cf_rod', 'fx_spent_cf_rod', 0xE0364A, 5.2, 0.95, 4.2, 1.180, 0.150),
+    ('blanket', 'fx_blanket_assembly', 'fx_spent_blanket', 0x6E7F4A, 1.2, 0.40, 1.0, 1.030, 0.006),
+    ('leu', 'fx_fuel_rod', 'fx_spent_fuel_rod', 0xC8D63C, 1.6, 0.52, 1.2, 1.055, 0.015),
+    ('thorium', 'fx_thorium_rod', 'fx_spent_thorium_rod', 0x8FC48A, 1.5, 0.50, 1.1, 1.058, 0.012),
+    ('mox', 'fx_mox_rod', 'fx_spent_mox_rod', 0xA8FF4C, 2.0, 0.58, 1.8, 1.070, 0.030),
+    ('mox_2', 'fx_mox_2_rod', 'fx_spent_mox_2_rod', 0x9AEA45, 2.1, 0.60, 1.9, 1.076, 0.040),
+    ('heu', 'fx_heu_rod', 'fx_spent_heu_rod', 0x46FA46, 2.2, 0.60, 2.0, 1.080, 0.045),
+    ('lep', 'fx_lep_rod', 'fx_spent_lep_rod', 0xFF7A4C, 2.3, 0.62, 2.0, 1.084, 0.050),
+    ('mox_3', 'fx_mox_3_rod', 'fx_spent_mox_3_rod', 0x8CD93E, 2.4, 0.64, 2.0, 1.088, 0.055),
+    ('hep', 'fx_hep_rod', 'fx_spent_hep_rod', 0xFF4C4C, 2.6, 0.68, 2.0, 1.092, 0.060),
+    ('mox_4', 'fx_mox_4_rod', 'fx_spent_mox_4_rod', 0x7EC837, 2.8, 0.70, 2.0, 1.095, 0.065),
+    ('np', 'fx_np_rod', 'fx_spent_np_rod', 0x2FD8C8, 3.2, 0.78, 2.0, 1.098, 0.070),
+    ('am', 'fx_am_rod', 'fx_spent_am_rod', 0xE6A23C, 3.4, 0.82, 2.0, 1.102, 0.078),
+    ('cm', 'fx_cm_rod', 'fx_spent_cm_rod', 0xA06CE0, 3.6, 0.86, 2.0, 1.108, 0.088),
+    ('cf', 'fx_cf_rod', 'fx_spent_cf_rod', 0xE0364A, 3.8, 0.90, 2.0, 1.115, 0.100),
 ]
 
 

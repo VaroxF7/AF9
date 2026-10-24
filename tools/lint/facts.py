@@ -15,7 +15,7 @@ A number in a quest text that a recipe could change is a promise: when the recip
   * (X3) the quests of the Asteroid Fission chapter (`af9.quest.fx.*`) state the fluid amounts and run times of the recipes of
     kubejs/server_scripts/mods/gtceu/asteroid_fission.js and rockets.js (the reactor cycle, the leach, the propellant ...)
   * (X4) names that Java, data and scripts share: the rock AsteroidFieldFeature builds and the stones of the ore layer, the
-    reactor id RadiationWatch looks for, the fluid tag ExtremeReactorsCompat maps, the dimensions of the asteroid layer, the ore
+    fluid tag ExtremeReactorsCompat maps, the dimensions of the asteroid layer, the ore
     veins and the planets and the space station recipe
 
 Run by tools/lint/run.sh. When you change a print or coating recipe, run it: the message names the key to rewrite.
@@ -124,8 +124,8 @@ def quest_text(key):
 FLUID_QUESTS = {
     'tea': 'af9:triethylaluminium', 'fuel': 'af9:aluminised_hydrolox', 'leach': 'af9:brannerite_leach',
     'yellowcake': 'af9:yellowcake_precipitation', 'uf6': 'af9:uranium_hexafluoride_from_yellowcake',
-    'pellets': 'af9:fx_fuel_pellets', 'reactor': 'af9:fx1_fuel_cycle', 'dissolve': 'af9:dissolve_irradiated_fuel',
-    'plutonium': 'af9:separate_spent_fuel', 'coolant': 'af9:cool_hot_sodium_potassium',
+    'pellets': 'af9:fx_fuel_pellets', 'dissolve': 'af9:dissolve_irradiated_fuel',
+    'plutonium': 'af9:separate_spent_fuel',
 }
 for key, rid in FLUID_QUESTS.items():
     recipe = next((r for r in recipes if r['id'] == rid), None)
@@ -141,19 +141,8 @@ for key, rid in FLUID_QUESTS.items():
         if f'{amount:,} mB' not in text:
             report(f'af9.quest.fx.{key}: the recipe {rid} moves {amount:,} mB of {fluid}, the text does not say "{amount:,} mB"',
                    'kubejs lang', 'X3')
-reactor = next((r for r in recipes if r['id'] == 'af9:fx1_fuel_cycle'), None)
-freezer = next((r for r in recipes if r['id'] == 'af9:cool_hot_sodium_potassium'), None)
 turbine = next((r for r in recipes if r['id'] == 'af9:supercritical_steam'), None)
-if reactor and freezer and turbine:
-    steam = dict(reactor['fluidAmounts'])['gtceu:supercritical_steam']
-    cycle = int(reactor['duration'][0])
-    if f'{cycle:,} ticks' not in quest_text('reactor'):
-        report(f'af9.quest.fx.reactor: the cycle is {cycle:,} ticks, the text does not say so', 'kubejs lang', 'X3')
-    if f'{int(freezer["duration"][0])} ticks' not in quest_text('coolant'):
-        report(f'af9.quest.fx.coolant: the Vacuum Freezer takes {int(freezer["duration"][0])} ticks, the text does not say so',
-               'kubejs lang', 'X3')
-    if f'{round(steam / cycle)} mB/t' not in quest_text('steam') or f'{steam:,} mB' not in quest_text('steam'):
-        report(f'af9.quest.fx.steam: a rod makes {steam:,} mB, {round(steam / cycle)} mB/t: the text says otherwise', 'kubejs lang', 'X3')
+if turbine:
     amount, ticks, eut = dict(turbine['fluidAmounts'])['gtceu:supercritical_steam'], int(turbine['duration'][0]), abs(int(turbine['EUt'][0]))
     per_turbine = f'{2 * amount / ticks:g} mB/t'     # two parallels in a Large Steam Turbine
     if per_turbine not in quest_text('turbines') or f'{2 * eut:,} EU/t' not in quest_text('turbines'):
@@ -201,11 +190,6 @@ if rock_m and layer_m and tag_m:
     if layer is not None and rock != layer:
         report(f'AsteroidFieldFeature builds {rock}, the layer af9_asteroid (the tag af9:asteroid_rock) lets ores grow into {layer}: '
                f'ore veins would miss or replace the wrong rock', code='X4')
-rad = code('af9-core/src/main/java/com/af9/core/radiation/RadiationWatch.java', r'REACTOR_ID = new ResourceLocation\("(\w+)", "(\w+)"\)', 'REACTOR_ID')
-if rad:
-    checked += 1
-    if f"event.create('{rad.group(2)}', 'multiblock')" not in read(startup) or rad.group(1) != 'gtceu':
-        report(f'RadiationWatch.REACTOR_ID is {rad.group(1)}:{rad.group(2)}, the startup script defines no such multiblock', code='X4')
 tag = code('af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeReactorsCompat.java', r'FLUID_TAG = "([^"]+)"', 'FLUID_TAG')
 vapor = code('af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeReactorsCompat.java', r'VAPOR_LANG_KEY = "([^"]+)"', 'VAPOR_LANG_KEY')
 if tag and vapor:

@@ -540,7 +540,7 @@
 		{
 			dependencies: ["0F6FB959B352121D"]
 			description: ["{af9.quest.ev.reactor}"]
-			icon: "gtceu:fx1_reactor"
+			icon: "bigreactors:basic_reactorcontroller"
 			id: "6A10B20C30D40E5F"
 			rewards: [{
 				exclude_from_claim_all: true
@@ -552,7 +552,7 @@
 			size: 1.5d
 			tasks: [{
 				id: "6A10B20C30D40E60"
-				item: "gtceu:fx1_reactor"
+				item: "bigreactors:basic_reactorcontroller"
 				type: "item"
 			}]
 			title: "{af9.quest.title.evNuclear}"

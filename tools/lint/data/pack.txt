@@ -27,3 +27,6 @@ gtceu:stainless_steel_crate
 gtceu:titanium_crate
 gtceu:tungsten_steel_crate
 gtceu:star_matter_plasma
+bigreactors:basic_reactorcontroller
+bigreactors:basic_reactorcasing
+bigreactors:basic_reactorfuelrod

@@ -3,7 +3,7 @@
 	default_quest_shape: ""
 	filename: "asteroid_fission"
 	group: "1DA67E79B40AB130"
-	icon: "gtceu:fx1_reactor"
+	icon: "bigreactors:basic_reactorcontroller"
 	id: "723D005691F3F573"
 	order_index: 14
 	progression_mode: "flexible"
@@ -19,7 +19,7 @@
 				""
 				"{af9.quest.fx.intro.4}"
 			]
-			icon: "gtceu:fx1_reactor"
+			icon: "bigreactors:basic_reactorcontroller"
 			id: "37CA1C9FEECE96C4"
 			rewards: [{
 				id: "6D798937374BEED7"
@@ -547,7 +547,7 @@
 				""
 				"{af9.quest.fx.reactor.3}"
 			]
-			icon: "gtceu:fx1_reactor"
+			icon: "bigreactors:basic_reactorcontroller"
 			id: "16D7A64CE82A800F"
 			rewards: [{
 				id: "5318206D2145267C"
@@ -560,25 +560,19 @@
 			tasks: [
 				{
 					id: "199FCD32E0559523"
-					item: "gtceu:fx1_reactor"
+					item: "bigreactors:basic_reactorcontroller"
 					type: "item"
 				}
 				{
-					count: 70L
-					id: "0E7687F5C8FB9FB2"
-					item: "gtceu:stable_machine_casing"
-					type: "item"
-				}
-				{
-					count: 20L
+					count: 40L
 					id: "0BBF19B575737F03"
-					item: "gtceu:heatproof_machine_casing"
+					item: "bigreactors:basic_reactorcasing"
 					type: "item"
 				}
 				{
-					count: 6L
+					count: 8L
 					id: "2DB8EA925EF425C0"
-					item: "gtceu:titanium_pipe_casing"
+					item: "bigreactors:basic_reactorfuelrod"
 					type: "item"
 				}
 			]
@@ -589,7 +583,7 @@
 		{
 			dependencies: ["16D7A64CE82A800F"]
 			description: ["{af9.quest.fx.coolant.1}"]
-			icon: "gtceu:vacuum_freezer"
+			icon: "minecraft:water_bucket"
 			id: "4BD64327DED2295D"
 			rewards: [{
 				id: "096228A42630722F"
@@ -599,19 +593,12 @@
 			shape: "square"
 			size: 1.5d
 			subtitle: "{af9.quest.fx.coolant.subtitle}"
-			tasks: [
-				{
-					amount: 4000L
-					fluid: "gtceu:sodium_potassium"
-					id: "6B37AA53B12197D6"
-					type: "fluid"
-				}
-				{
-					id: "771F9D50575C2C0A"
-					item: "gtceu:vacuum_freezer"
-					type: "item"
-				}
-			]
+			tasks: [{
+				amount: 4000L
+				fluid: "gtceu:distilled_water"
+				id: "6B37AA53B12197D6"
+				type: "fluid"
+			}]
 			title: "{af9.quest.fx.coolant.title}"
 			x: 33.0d
 			y: 3.0d
@@ -619,7 +606,7 @@
 		{
 			dependencies: ["16D7A64CE82A800F"]
 			description: ["{af9.quest.fx.steam.1}"]
-			icon: "gtceu:fx1_reactor"
+			icon: "bigreactors:basic_reactorcontroller"
 			id: "226D9DFA1DBF3540"
 			rewards: [{
 				id: "6017B42C7744D10B"

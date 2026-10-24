@@ -4755,24 +4755,6 @@
 		}
 		{
 			dependencies: ["12D4DF384684972B"]
-			icon: "gtceu:hot_sodium_potassium"
-			id: "7C0449EE647980C1"
-			rewards: [{
-				id: "73F2AF496E927423"
-				type: "xp"
-				xp: 10
-			}]
-			tasks: [{
-				amount: 1000L
-				fluid: "gtceu:hot_sodium_potassium"
-				id: "7CB1AE58D4A73C88"
-				type: "fluid"
-			}]
-			x: 12.0d
-			y: 70.5d
-		}
-		{
-			dependencies: ["12D4DF384684972B"]
 			icon: "gtceu:supercritical_steam"
 			id: "4288F69FDBBB96D1"
 			rewards: [{

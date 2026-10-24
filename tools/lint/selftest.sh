@@ -57,7 +57,7 @@ lang = root / 'kubejs/assets/kubejs/lang/en_us.json'
 t = lang.read_text(encoding='utf-8')
 t = t.rstrip().rstrip('}').rstrip() + ',\n\t"af9.selftest.dup": "one",\n\t"af9.selftest.dup": "two",\n\t"af9.selftest.fmt": "50%d done"\n}\n'
 t = t.replace('Fluids per print: 300 TMAH', 'Fluids per print: 301 TMAH', 1)   # X1: a quest text that no longer matches its recipe
-t = t.replace('&b61,440 mB supercritical steam&r', '&b61,441 mB supercritical steam&r', 1)   # X3: the reactor's steam, in its quest text
+t = t.replace('&e80 EU per mB&r', '&e81 EU per mB&r', 1)   # X3: the steam's worth in the turbines, in its quest text
 lang.write_text(t, encoding='utf-8')
 lm = root / 'af9-core/src/main/java/com/af9/core/litho/LithoMode.java'
 lm.write_text(lm.read_text(encoding='utf-8').replace('"photoresist", 200, Machine.LINE', '"photoresist", 201, Machine.LINE', 1), encoding='utf-8')   # X2

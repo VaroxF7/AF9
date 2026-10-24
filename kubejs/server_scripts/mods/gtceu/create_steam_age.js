@@ -19,7 +19,7 @@
 // The coke oven and the primitive blast furnace STAY (they are multiblocks,
 // not steam single-blocks) but both are far more expensive than before, so
 // Create is the main path and GT is the slow bulk path. Steam turbines (LV+
-// power gen, incl. the large turbine the FX-1 feeds) are untouched.
+// power gen, incl. the large turbine the reactors feed) are untouched.
 //
 // Why plain Create JSON (event.custom): the linter has no Create stubs, so
 // event.recipes.create.* would fail the offline check while raw JSON passes

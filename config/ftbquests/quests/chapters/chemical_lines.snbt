@@ -404,7 +404,7 @@
 		{
 			dependencies: ["5723567D07A77479"]
 			description: ["{af9.quest.chem.fission.1}" "" "{af9.quest.chem.fission.2}" "" "{af9.quest.chem.fission.3}"]
-			icon: "gtceu:fx1_reactor"
+			icon: "bigreactors:basic_reactorcontroller"
 			id: "38C086B9FDF3BD6E"
 			rewards: [{ id: "7A879BC37DE35D89" type: "xp" xp: 50 }]
 			shape: "circle"

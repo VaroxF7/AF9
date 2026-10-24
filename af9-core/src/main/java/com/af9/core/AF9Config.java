@@ -53,7 +53,7 @@ public final class AF9Config {
         builder.pop();
         builder.comment("Radiation: GregTech's hazard system poisons players that carry radioactive material without a",
                 "hazmat suit. AF9 adds the warning: near radioactive material (in the inventory, dropped, as ore",
-                "blocks close by, a running FX-1 Reactor) a message above the hotbar says how strong it is.")
+                "blocks close by) a message above the hotbar says how strong it is.")
                 .push("radiation");
         RADIATION_HINTS = builder
                 .comment("Warn above the hotbar when radioactive material is near.")

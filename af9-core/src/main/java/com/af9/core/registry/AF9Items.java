@@ -74,7 +74,7 @@ public final class AF9Items {
     public static final String DRONE = "space_mining_drone_mk";
 
     static {
-        // ---- Asteroid fission: the FX-1 Reactor's fuel ----
+        // ---- Asteroid fission: the fuel of the Extreme Reactors reactor ----
         item("fx_fuel_pellet", 64, 2);
         item("fx_fuel_rod", 64, 2);
         item("fx_spent_fuel_rod", 64, 2);

@@ -25,9 +25,21 @@ spent rod comes out, and the GT reprocessing (macerator or Spent Fuel Pool, nitr
 | AF9 | MOX 1-2, HEU-235, LEP-241, MOX 3, HEP-239, MOX 4 | plutonium from reprocessing | spent rods |
 | AF9 | neptunium, americium, curium, californium rods | minor actinides of reprocessing | the next rung's spent rod |
 
-Reactivity and fission rate rise along the ladder (1.060 / 0.020 for LEU to 1.180 / 0.150 for californium; ER: yellorium 1.05 / 0.01,
-verderium 1.0984 / 0.0743), and so do moderation, absorption and hardness, so the later fuels need the better moderator and cooling.
-The numbers are first guesses: Extreme Reactors' output depends on the reactor's size and rod layout.
+| AF9 | breeder blanket | depleted uranium and steel | weak fuel that breeds plutonium (then the centrifuge) |
+
+The numbers stay in the range of ER's own fuels (reactivity / fission rate; ER: yellorium 1.05 / 0.01, blutonium 1.0871 / 0.051,
+verderium 1.0984 / 0.0743):
+
+| Fuel | Reactivity / rate | Moderation / absorption / hardness |
+|---|---|---|
+| blanket | 1.030 / 0.006 | 1.2 / 0.40 / 1.0 |
+| LEU, thorium | 1.055 / 0.015, 1.058 / 0.012 | 1.6 / 0.52 / 1.2, 1.5 / 0.50 / 1.1 |
+| MOX 1-4 | 1.070 / 0.030 to 1.095 / 0.065 | 2.0 / 0.58 / 1.8 up to 2.8 / 0.70 / 2.0 |
+| HEU, LEP, HEP | 1.080 / 0.045, 1.084 / 0.050, 1.092 / 0.060 | 2.2 to 2.6 / 0.60 to 0.68 / 2.0 |
+| Np, Am, Cm, Cf | 1.098 / 0.070 to 1.115 / 0.100 | 3.2 / 0.78 / 2.0 up to 3.8 / 0.90 / 2.0 |
+
+Only the burner rods pass verderium's rate (0.0743), by design: the ladder is the late game of ER. The exact table is in
+`tools/er/gen_modpack_api.py`; the output of a reactor depends on its size and rod layout, so these are first guesses.
 
 ## 3. Cooling and steam
 
@@ -54,7 +66,7 @@ Every item of the ladder was followed back to raw materials; nothing needs a lat
   iron/steel: yellorite ore (ER worldgen, to check in the instance) or GT uranium ingots from the asteroid chain. Either route alone is
   enough, and the asteroid chain needs rockets, not a reactor.
 - **LEU rod** needs asteroid uranium dust, tiny U-235 (from uranium dust) and zirconium: no reactor needed.
-- **Plutonium** (HEP, MOX, LEP) comes from reprocessing LEU spent rods, which burn in an ER reactor (or the old FX-1): a first reactor
+- **Plutonium** (HEP, MOX, LEP) comes from reprocessing LEU spent rods, which burn in an ER reactor: a first reactor
   exists before any plutonium is needed.
 - **Neptunium and americium** come from MOX reprocessing (chances), **curium** from spent americium rods, **californium** from spent
   curium rods: a strict ladder, each rung made by the one below.
@@ -62,7 +74,8 @@ Every item of the ladder was followed back to raw materials; nothing needs a lat
   chlorine and titanium; the **Heat Exchanger** HV parts; none of them needs a reactor.
 - **Coolants and tags**: `gtceu:distilled_water`, `flibe` and `hot_flibe` are in the tags the API file names; the vapors are Extreme
   Reactors' IMC (`supercritical_steam`) and the file's (`af9_hot_flibe`).
-- Not covered: the breeder blanket (an FX-only mode), and the FX-1's own cycles, which stay until the ER route has been run in game.
+- **Breeder blanket**: an ER fuel of its own (reactivity 1.03: slow), so it burns beside a real fuel and gives its plutonium in the centrifuge.
+- The earlier FX-1 Reactor and its cycles are gone; nothing needs them.
 
 ## 6. Check in the game
 

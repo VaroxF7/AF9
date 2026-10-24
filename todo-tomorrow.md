@@ -36,7 +36,7 @@
   (done: all eight SMC machines are gone; the modes run in the Chemical Reactor, Large Chemical Reactor, Distillery,
   Distillation Tower, Electrolyzer, Large Electrolysis Chamber, Arc Furnace and Electric Blast Furnace)
 - [ ] No more MK1/MK2 structures for the DTPF — only 1 multiblock + machine upgrades
-- [ ] Remove all nuclear content — rework soon (like TFG): spent fuel pool, FX Reactor MK1 & MK2
+- [ ] Remove all nuclear content — rework soon (like TFG): spent fuel pool (the FX Reactor is gone, ER is the reactor)
 - [x] Remove Bacteria Breeding Station (done: replaced by the Bio Vat, GTNH's Bacterial Vat, `docs/bio-vat.md`)
 - [ ] Water Filtration — rework and add to the Evaporation Condensation Well
 - [x] New fusion structures for MK1, MK2 & MK3 (done: rings 19 / 23 / 27 and a magnetic field instead of standby power, fork patch 0015); then one round 19-block ring for all three, energy hatches optional (patch 0016); the ring then went back to GT's own 15 x 15 structure (patch 0017)
