@@ -4,7 +4,7 @@
 // the roof, the machine inside), a plate of steel frames (column 5, rising one block above the roof) with a hole in
 // the middle (the die), and a three-long casing box on the right (columns 6-8) with the controller in its front wall,
 // one block further right than the first sketch put it. The channel's middle row is open (spaces: anything, keep it
-// free): af9-core WireDrawRender draws the wire from the die plate along the axis, through a turning flyer and onto a
+// free): af9-core WireDrawRender draws the wire from the die plate along the axis, through a turning bobbin carrier (six bobbins, a closing die) and onto a
 // take-up spool at the left end wall, with no gap. It runs the Wiremill's recipes and its Spooling mode
 // (SpoolingMode.java), switched with GT's mode tab. Controller logic: af9-core LargeWiremillMachine. Docs:
 // docs/large-wiremill.md.

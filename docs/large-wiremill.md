@@ -18,8 +18,10 @@ Runs the Wiremill's recipes and its Spooling mode, parallel hatch, non-perfect o
 
 ## Render
 
-The wire is one unbroken line from the die plate's right face (where the casing box starts), through the die and the flyer's two
-wheels, to the arm that carries it to a pulley and lays it on the take-up spool at the left end. While a recipe runs the flyer turns (a turn a
-second at full speed, eased up and down) and light and dark stripes run along the wire; idle, everything stands still.
-The controller face has an idle animation (8 frames: breathing display and lamp, the wire's glint crawling), a working one
-(12) and a paused one (4), like the Industrial Cutting Machine's.
+A cabling machine like the real one (the reference photo): two solid orange discs on six rods carry six white bobbins;
+a strand runs from each bobbin to a closing die on the axis, where they come together into one wire. The wire runs
+through the die in the frame plate (its right end is the plate's right face, where the casing box starts) and, the other
+way, through the discs into the take-up spool at the left casing wall: one unbroken line, no gap. While a recipe runs
+the carrier turns (a turn a second at full speed, eased up and down) and light and dark stripes run along the wire;
+idle, everything stands still. The controller face has an idle animation (8 frames), a working one (12) and a paused
+one (4), like the Industrial Cutting Machine's.

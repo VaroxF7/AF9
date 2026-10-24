@@ -11,6 +11,6 @@ public interface IWiremillMachine extends IMachineFeature {
     /** Whether the structure is formed: the wire drawing machine is drawn then. */
     boolean wiremillFormed();
 
-    /** Whether the structure is formed and a recipe is running: the flyer turns and the wire feeds then. */
+    /** Whether the structure is formed and a recipe is running: the bobbin carrier turns and the wire feeds then. */
     boolean wiremillRunning();
 }
