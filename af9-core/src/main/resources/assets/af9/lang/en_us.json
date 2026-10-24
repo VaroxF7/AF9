@@ -234,8 +234,6 @@
     "af9.death.vaporized": "VAPORIZED",
     "death.attack.af9.orbital_ring": "%1$s touched the light ring of an Orbital Lithography Station and was vaporized",
     "death.attack.af9.orbital_ring.player": "%1$s touched the light ring of an Orbital Lithography Station while fighting %2$s",
-    "af9.subtitle.lithography_line": "Photolithography line hums",
-    "af9.subtitle.lithography_scanner": "Photolithography scanner hums",
     "af9.subtitle.orbital_station": "Orbital station hums",
     "af9.subtitle.orbital_station_pulse": "Orbital station throbs",
     "af9.subtitle.orbital_station_ignite": "Orbital station ignites",
