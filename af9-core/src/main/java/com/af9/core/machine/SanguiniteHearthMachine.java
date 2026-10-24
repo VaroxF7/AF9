@@ -175,7 +175,7 @@ public class SanguiniteHearthMachine extends CoilWorkableElectricMultiblockMachi
         long drain = heaterDrainPerInterval();
         // the heaters draw on the auxiliary hatches where there are any (energy hatches switched to Auxiliary), else on the
         // primary ones as before
-        boolean auxiliary = !getAuxiliaryHatches().isEmpty();
+        boolean auxiliary = hasAuxiliary();
         boolean powered = energyContainer != null && drain > 0 && isHeatingTier() &&
                 (auxiliary ? getAuxiliaryStored() >= drain : energyContainer.getEnergyStored() >= drain);
         if ((getRecipeLogic().isWorkingEnabled() || working) && powered) {

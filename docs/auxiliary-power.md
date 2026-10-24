@@ -5,17 +5,19 @@ recipes ask for **auxiliary power**, a second kind of power besides the recipe's
 
 ## The hatches
 
-Every energy **input** hatch (GT's, in every tier and amperage, and the pack's own such as the Micro Universe hatch) has a
+Every energy **input** hatch (GT's, in every tier and amperage, and the pack's own such as the Micro Universe hatch) and every
+**Wireless Energy Receiver** has a
 power mode. Right-click it with a **screwdriver** to switch it between
 
 * **Primary** (the default): it feeds the recipes of the machine it is in, as always;
 * **Auxiliary**: it is no part of the primary power any more (no recipe draws on it) and its energy only goes to the
   machine's auxiliary demand.
 
-The machine collects its hatches again at once, no rebuilding. Laser hatches and the wireless receivers have no such mode.
+The machine collects its hatches again at once, no rebuilding. A receiver in Auxiliary shows blue like GT's hatches and its
+screen says the mode. Laser hatches have no such mode.
 
 **Orbital Array Mk2:** its primary power comes only from wireless receivers and laser hatches. Plain energy input hatches
-in the Mk2 are forced to Auxiliary (`OrbitalLithographyMachine.forceAuxiliaryHatches`, set again every tick, so the
+in the Mk2 are forced to Auxiliary (wireless receivers stay as they are set) (`OrbitalLithographyMachine.forceAuxiliaryHatches`, set again every tick, so the
 screwdriver cannot switch them back). The basic Orbital Station is unchanged.
 
 ## The machine
@@ -37,5 +39,6 @@ stored EU and what is needed.
 ## Where it is
 
 The fork's patch `0005` (`gtceu-fork/patches`): `EnergyHatchPartMachine` (mode, screwdriver),
-`WorkableMultiblockMachine` (demand, draw, collecting the handlers again), `PowerManagementFancyTab`, `GTRecipeWidget` (the
+`WorkableMultiblockMachine` (demand, draw, collecting the handlers again; `getAuxiliaryParts` / `hasAuxiliary` over every
+`IAuxiliaryPowerPart`, patch `0025`: GT's energy hatches and `WirelessReceiverHatch`), `PowerManagementFancyTab`, `GTRecipeWidget` (the
 tooltip). Texts: `af9.power.*` in the AF9 Core lang files.

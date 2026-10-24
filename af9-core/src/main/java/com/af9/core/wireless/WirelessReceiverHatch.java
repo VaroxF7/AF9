@@ -2,18 +2,28 @@ package com.af9.core.wireless;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.feature.IAuxiliaryPowerPart;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
+import com.gregtechceu.gtceu.api.machine.multiblock.WorkableMultiblockMachine;
+import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
+import com.gregtechceu.gtceu.api.machine.trait.RecipeHandlerList;
 import com.gregtechceu.gtceu.utils.FormattingUtil;
 
+import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
+import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
+import com.lowdragmc.lowdraglib.syncdata.annotation.RequireRerender;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,14 +35,72 @@ import java.util.UUID;
  * <p>
  * It works at the transmitter's voltage and draws up to its own amperage per tick. When that voltage changes (the
  * first link, a new substation input) the multiblock re-forms, since GT reads its hatches' voltage when it forms.
+ * <p>
+ * Like GT's energy input hatches it has a power mode (screwdriver): Primary feeds the recipes, Auxiliary only the machine's
+ * auxiliary demand (docs/auxiliary-power.md).
  */
-public class WirelessReceiverHatch extends WirelessEnergyHatch {
+public class WirelessReceiverHatch extends WirelessEnergyHatch implements IAuxiliaryPowerPart {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             WirelessReceiverHatch.class, WirelessEnergyHatch.MANAGED_FIELD_HOLDER);
 
+    @Persisted
+    @DescSynced
+    @RequireRerender
+    protected boolean auxiliary;
+
     public WirelessReceiverHatch(IMachineBlockEntity holder, int tier, int amperage) {
         super(holder, tier, IO.IN, amperage);
+    }
+
+    //////////////////////////////////////
+    // ****** Auxiliary power *******//
+    //////////////////////////////////////
+
+    @Override
+    public boolean isAuxiliaryInput() {
+        return auxiliary;
+    }
+
+    @Override
+    public NotifiableEnergyContainer getAuxiliaryContainer() {
+        return energyContainer;
+    }
+
+    public void setAuxiliary(boolean auxiliary) {
+        if (this.auxiliary == auxiliary) return;
+        this.auxiliary = auxiliary;
+        markDirty();
+        if (!isRemote()) {
+            for (IMultiController controller : new java.util.ArrayList<>(getControllers())) {
+                if (controller instanceof WorkableMultiblockMachine workable) workable.rebuildRecipeHandlers();
+            }
+        }
+    }
+
+    /** An auxiliary receiver is no part of the primary power: the recipes do not see it. */
+    @Override
+    public List<RecipeHandlerList> getRecipeHandlers() {
+        return auxiliary ? List.of() : super.getRecipeHandlers();
+    }
+
+    @Override
+    protected InteractionResult onScrewdriverClick(Player playerIn, InteractionHand hand, Direction gridSide,
+                                                   BlockHitResult hitResult) {
+        if (playerIn.isShiftKeyDown()) return super.onScrewdriverClick(playerIn, hand, gridSide, hitResult);
+        if (!isRemote()) {
+            setAuxiliary(!auxiliary);
+            playerIn.displayClientMessage(Component.translatable(auxiliary ? "af9.power.hatch_aux" :
+                    "af9.power.hatch_primary"), true);
+        }
+        return InteractionResult.sidedSuccess(isRemote());
+    }
+
+    /** Cyan as a primary receiver, blue as an auxiliary one (like GT's energy hatches). */
+    @Override
+    public int tintColor(int index) {
+        if (index == 2 && auxiliary) return 0xFF2F7BFF;
+        return super.tintColor(index);
     }
 
     @Override
@@ -141,6 +209,7 @@ public class WirelessReceiverHatch extends WirelessEnergyHatch {
             text.add(Component.translatable("af9.wireless.channel_buffer", FormattingUtil.formatNumbers(link.stored),
                     FormattingUtil.formatNumbers(link.capacity)));
         }
+        text.add(Component.translatable(auxiliary ? "af9.wireless.mode_auxiliary" : "af9.wireless.mode_primary"));
         text.add(Component.translatable("af9.wireless.voltage", voltageText(voltage)));
         text.add(Component.translatable("af9.wireless.throughput", amperage,
                 FormattingUtil.formatNumbers(Math.max(0, voltage) * amperage)));

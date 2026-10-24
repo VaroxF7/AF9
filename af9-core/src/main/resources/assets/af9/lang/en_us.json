@@ -129,6 +129,8 @@
     "af9.litho.console.print_vacuum": "this print dipped to %s",
     "af9.litho.console.wait_seal": "prints start once sealed",
     "af9.litho.console.coolant": "COOLANT",
+    "af9.wireless.mode_primary": "Mode: Primary power (runs the recipes) - screwdriver switches",
+    "af9.wireless.mode_auxiliary": "Mode: Auxiliary power (keeps the machine hot, runs no recipe) - screwdriver switches",
     "af9.wireless.where": "%s %s %s in %s",
     "af9.wireless.none": "none",
     "af9.wireless.stick_written": "Data stick holds the link to the transmitter at %s",

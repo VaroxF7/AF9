@@ -1,0 +1,159 @@
+From bc40a7b9eb09c4228395ba0e0a1f6915835a001b Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Sat, 24 Oct 2026 12:25:08 +0000
+Subject: [PATCH] Auxiliary power: the Wireless Energy Receivers can be
+ Auxiliary too (IAuxiliaryPowerPart; getAuxiliaryParts / hasAuxiliary on the
+ multiblock) (7.5.3-af9.25)
+
+---
+ gradle.properties                             |  2 +-
+ .../PowerManagementFancyTab.java              |  2 +-
+ .../machine/feature/IAuxiliaryPowerPart.java  | 16 +++++++++++
+ .../multiblock/WorkableMultiblockMachine.java | 27 +++++++++++++++----
+ .../electric/FusionReactorMachine.java        |  2 +-
+ .../part/EnergyHatchPartMachine.java          |  8 +++++-
+ 6 files changed, 48 insertions(+), 9 deletions(-)
+ create mode 100644 src/main/java/com/gregtechceu/gtceu/api/machine/feature/IAuxiliaryPowerPart.java
+
+diff --git a/gradle.properties b/gradle.properties
+index c4e311d..a3d6cf8 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.18
++mod_version = 7.5.3-af9.25
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java b/src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java
+index 3222fc6..e23eb9b 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/fancyconfigurator/PowerManagementFancyTab.java
+@@ -72,7 +72,7 @@ public class PowerManagementFancyTab implements IFancyUIProvider {
+             out.add(Component.translatable("af9.power.none").withStyle(ChatFormatting.GRAY));
+         }
+         out.add(Component.translatable("af9.power.auxiliary").withStyle(ChatFormatting.GOLD));
+-        int hatches = machine.getAuxiliaryHatches().size();
++        int hatches = machine.getAuxiliaryParts().size();
+         long need = machine.getAuxiliaryEUt();
+         long stored = machine.getAuxiliaryStored();
+         if (hatches == 0) {
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/feature/IAuxiliaryPowerPart.java b/src/main/java/com/gregtechceu/gtceu/api/machine/feature/IAuxiliaryPowerPart.java
+new file mode 100644
+index 0000000..87bb84f
+--- /dev/null
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/feature/IAuxiliaryPowerPart.java
+@@ -0,0 +1,16 @@
++package com.gregtechceu.gtceu.api.machine.feature;
++
++import com.gregtechceu.gtceu.api.machine.trait.NotifiableEnergyContainer;
++
++/**
++ * AF9: an energy input part that can be switched to Auxiliary power (the energy hatches, the Wireless Energy Receivers). A
++ * multiblock draws its auxiliary demand from every such part that is in Auxiliary mode.
++ */
++public interface IAuxiliaryPowerPart {
++
++    /** Whether the part is an input set to Auxiliary. */
++    boolean isAuxiliaryInput();
++
++    /** The buffer the auxiliary power is drawn from. */
++    NotifiableEnergyContainer getAuxiliaryContainer();
++}
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableMultiblockMachine.java b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableMultiblockMachine.java
+index 744ccb3..b0fffd9 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableMultiblockMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/multiblock/WorkableMultiblockMachine.java
+@@ -302,21 +302,38 @@ public abstract class WorkableMultiblockMachine extends MultiblockControllerMach
+         return hatches;
+     }
+ 
++    /** Every part in Auxiliary mode: GT's energy hatches and the Wireless Energy Receivers. */
++    public List<com.gregtechceu.gtceu.api.machine.feature.IAuxiliaryPowerPart> getAuxiliaryParts() {
++        List<com.gregtechceu.gtceu.api.machine.feature.IAuxiliaryPowerPart> parts = new ArrayList<>();
++        for (IMultiPart part : getParts()) {
++            if (part instanceof com.gregtechceu.gtceu.api.machine.feature.IAuxiliaryPowerPart aux &&
++                    aux.isAuxiliaryInput()) {
++                parts.add(aux);
++            }
++        }
++        return parts;
++    }
++
++    public boolean hasAuxiliary() {
++        return !getAuxiliaryParts().isEmpty();
++    }
++
+     public long getAuxiliaryStored() {
+         long stored = 0;
+-        for (var hatch : getAuxiliaryHatches()) stored += hatch.energyContainer.getEnergyStored();
++        for (var part : getAuxiliaryParts()) stored += part.getAuxiliaryContainer().getEnergyStored();
+         return stored;
+     }
+ 
+-    /** Takes EU from the auxiliary hatches; false (and nothing taken) when they hold less. */
++    /** Takes EU from the auxiliary parts; false (and nothing taken) when they hold less. */
+     public boolean drawAuxiliary(long eut) {
+         if (eut <= 0) return true;
+         if (getAuxiliaryStored() < eut) return false;
+         long left = eut;
+-        for (var hatch : getAuxiliaryHatches()) {
+-            long take = Math.min(left, hatch.energyContainer.getEnergyStored());
++        for (var part : getAuxiliaryParts()) {
++            var container = part.getAuxiliaryContainer();
++            long take = Math.min(left, container.getEnergyStored());
+             if (take > 0) {
+-                hatch.energyContainer.changeEnergy(-take);
++                container.changeEnergy(-take);
+                 left -= take;
+             }
+             if (left <= 0) break;
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
+index c81d008..24a6eaa 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/FusionReactorMachine.java
+@@ -151,7 +151,7 @@ public class FusionReactorMachine extends WorkableElectricMultiblockMachine impl
+ 
+     /** AF9: the auxiliary hatches pay the field when there are any, else the primary hatches do. */
+     private boolean drawField(long eut) {
+-        if (!getAuxiliaryHatches().isEmpty()) return drawAuxiliary(eut);
++        if (hasAuxiliary()) return drawAuxiliary(eut);
+         return getEnergyContainer() != null && getEnergyContainer().getEnergyStored() >= eut &&
+                 getEnergyContainer().removeEnergy(eut) > 0;
+     }
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java
+index 7a5d41a..59f37ea 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/part/EnergyHatchPartMachine.java
+@@ -32,7 +32,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
+ 
+ @ParametersAreNonnullByDefault
+ @MethodsReturnNonnullByDefault
+-public class EnergyHatchPartMachine extends TieredIOPartMachine implements IExplosionMachine {
++public class EnergyHatchPartMachine extends TieredIOPartMachine implements IExplosionMachine, com.gregtechceu.gtceu.api.machine.feature.IAuxiliaryPowerPart {
+ 
+     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
+             EnergyHatchPartMachine.class, TieredIOPartMachine.MANAGED_FIELD_HOLDER);
+@@ -94,10 +94,16 @@ public class EnergyHatchPartMachine extends TieredIOPartMachine implements IExpl
+     }
+ 
+     /** Whether this is an input hatch set to Auxiliary. */
++    @Override
+     public boolean isAuxiliaryInput() {
+         return auxiliary && io == IO.IN;
+     }
+ 
++    @Override
++    public NotifiableEnergyContainer getAuxiliaryContainer() {
++        return energyContainer;
++    }
++
+     /** An auxiliary hatch is no part of the primary power: the recipes do not see it. */
+     @Override
+     public java.util.List<RecipeHandlerList> getRecipeHandlers() {
+-- 
+2.43.0
+
