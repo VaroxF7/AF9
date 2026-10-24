@@ -345,33 +345,6 @@
 			y: 6.0d
 		}
 		{
-			dependencies: [
-				"054D2D3C20C2D32F"
-				"6786C701B7C4980B"
-			]
-			description: [
-				"{atm9.quest.gregtech.uhv.desc.parallelControl.1}"
-				""
-				"{atm9.quest.gregtech.uhv.desc.parallelControl.2}"
-			]
-			id: "0D59094D0C23C44F"
-			optional: true
-			rewards: [{
-				exclude_from_claim_all: true
-				id: "28EC4958E4D86290"
-				table_id: 341947171990021391L
-				type: "loot"
-			}]
-			subtitle: "{atm9.quest.gregtech.uhv.subt.notEnough64}"
-			tasks: [{
-				id: "685632AB2A3AFA5C"
-				item: "gtceu:uv_parallel_hatch"
-				type: "item"
-			}]
-			x: 1.8000000000000007d
-			y: -1.299999999999999d
-		}
-		{
 			dependencies: ["6786C701B7C4980B"]
 			description: [
 				"{atm9.quest.gregtech.uhv.desc.uvFieldGenerator.1}"
