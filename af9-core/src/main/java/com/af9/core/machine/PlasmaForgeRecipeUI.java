@@ -27,7 +27,8 @@ import net.minecraft.resources.ResourceLocation;
  * forge's plasma bore in the middle (a glass tube through three coil rings, a plasma bar that burns hotter the more
  * the recipe takes), GT's arrow over the bore, and the forged matter piped out to the right, items over fluids
  * ({@link PlasmaForgeFlowWidget}). GT's own slots (same ids), so EMI shows and looks them up as usual. The page says
- * what the forge needs to start it: a core at {@value PlasmaForgeMachine#FORGE_READY} K, burning osmium plasma.
+ * what the forge needs to start it: its magnetic field up, which takes osmium plasma and 10 A of LuV stabiliser power
+ * (two short lines under the recipe: a data line is one unwrapped label, so each is kept to the page's width).
  */
 public class PlasmaForgeRecipeUI extends GTRecipeTypeUI {
 
@@ -60,9 +61,9 @@ public class PlasmaForgeRecipeUI extends GTRecipeTypeUI {
         ui.setProgressBarTexture(old.getProgressBarTexture());
         ui.setMaxTooltips(old.getMaxTooltips());
         type.setRecipeUI(ui);
-        // rendered as plain labels, so the texts must not contain '%'
-        type.addDataInfo(data -> Component.translatable("af9.recipe.forge_ready", PlasmaForgeMachine.FORGE_READY)
-                .getString());
+        // rendered as plain labels, so the texts must not contain '%' and must fit the page (176 px) in one line
+        type.addDataInfo(data -> Component.translatable("af9.recipe.forge_field").getString());
+        type.addDataInfo(data -> Component.translatable("af9.recipe.forge_stabilisers").getString());
     }
 
     /** Our layout; GT's binding of the recipe to the slots (by their ids) and the arrow. */
@@ -94,7 +95,9 @@ public class PlasmaForgeRecipeUI extends GTRecipeTypeUI {
         var bore = new Widget(BORE_X0, BORE_Y - 14, BORE_X1 - BORE_X0, 28);
         bore.setHoverTooltips(Component.translatable("block.gtceu.dtpf"),
                 Component.translatable("block.gtceu.dtpf_mk2"),
-                Component.translatable("af9.recipe.forge_page.fuel", PlasmaForgeMachine.FORGE_READY));
+                Component.translatable("af9.recipe.forge_page.fuel"),
+                Component.translatable("af9.recipe.forge_page.power"),
+                Component.translatable("af9.recipe.forge_page.run"));
         group.addWidget(bore);
         return group;
     }

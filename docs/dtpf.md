@@ -4,64 +4,83 @@ After GTNH's: a vast hall that forges plasma into matter. The machine is `gtceu:
 structure and the machine definition in `kubejs/startup_scripts/gtceu/dtpf.js`; the recipes in
 `kubejs/server_scripts/mods/gtceu/dtpf.js`). The structure is AF9's own design, not a copy of GTNH's.
 
-## 1. The structure (21 x 22 x 45): a forge line
+## 1. The structure (43 x 13 x 11): a beam hall
 
-Rebuilt from scratch (the first hall was a 37 x 29 x 37 skeleton of pylons and struts). The archetype is a *line* that teaches
-the process from the front: inputs on the **injection deck**, ionised and compressed in the **plasma bore**, forged in the
-**press**. One function, `dtpfCell(x, y, z)` in `kubejs/startup_scripts/gtceu/dtpf.js`, is the whole design; the aisles follow
-it. About 3,700 blocks, all connected, symmetric left to right (checked offline). From the front:
+Janne's own build, taken 1:1 from the structure he exported from his world (`dtpf.nbt`) and written into
+`kubejs/startup_scripts/gtceu/dtpf.js` as `DTPF_AISLES`: 43 plates, back to front, each a hand-written grid of characters
+(no maths, no loops). 587 blocks, 11 wide, 13 high, 43 long. The first hall (a 21 x 22 x 45 forge line) and the second (a
+37 x 29 x 37 skeleton) are gone. From the front, where the controller is:
 
 | Part | Where | Blocks |
 |---|---|---|
-| Foundation | a slab 21 x 45 at y 0, the axis lit down it | N, B |
-| Injection deck | a low hall 17 wide and 6 deep at the front, roof at y 4; its front wall (y 1-3) is the hatch wall, the controller is in it two up | W (hatches), N |
-| Feed conduits | along both sides from the deck to the press, 3 high; the top row is a dashed line of bridge casing | N, B |
-| Plasma bore | an octagonal tube 31 long (radius 3) at y 10, on a pier from the deck's roof; glass windows in the gaps between the rings, a glass plasma bar down its axis, a 2-thick end plate at the front | N, G |
-| Coil rings | five 11 x 11 square rings, two thick, 5 blocks apart, round the bore: containment coil, resonance coil at the corners; spokes to the bore, rails between the rings, legs under their feet | K, R, N |
-| Press | at the back, 19 x 13 x 8 plated, a bridge band at y 6, the bore's mouth ringed with resonance coil; a hammer head and two exhaust stacks (capped with bridge casing) on its roof | N, B, R |
+| Front plate | z 42: a 7 x 7 plus-shaped plate of transcendent casing, the controller in the middle (x 5, y 6) | N, S |
+| Front ring | z 41: an 11-wide ring of transcendent casing, open in the middle where the plate sits, a 3 x 3 ring of bridge casing round the end of the beam | N, B |
+| The beam | a line of superconducting coil down the axis (x 5, y 6), z 1 to 41 | C |
+| Big rings | z 11, 21, 31: 61 blocks of transcendent casing round the beam, a bridge casing either side of the beam and an injection casing above and below it | N, B, W |
+| Small rings | z 6, 16, 26, 36: 33 blocks of transcendent casing with an injection casing either side of the beam | N, W |
+| Pairs and clusters | injection casings beside the beam at z 5, 7, 15, 17, 25, 27, 35, 37; a bridge casing and an injection casing at z 10, 12, 20, 22, 30, 32 | W, B |
+| Back ring and plate | z 1 and z 0: as the front's, the plate without a controller | N, B |
 
-Blocks (all AF9 Core's, `registry/AF9Blocks`; textures in `tools/textures/dtpf_blocks.py`):
+Blocks (AF9 Core's `registry/AF9Blocks`, textures in `tools/textures/dtpf_blocks.py`):
 
-* **Dimensionally Transcendent Casing** `af9:dtpf_transcendent_casing` (N): GT5-Unofficial's `MACHINE_DIM_TRANS_CASING`,
-  unchanged, with a connected-texture sheet so the plating runs on across blocks.
-* **Dimensional Injection Casing** `af9:dtpf_injection_casing` (W): the original's `MACHINE_DIM_INJECTOR`. The controller's
-  casing, and the only block that takes hatches.
+* **Dimensionally Transcendent Casing** `af9:dtpf_transcendent_casing` (N): GT5-Unofficial's `MACHINE_DIM_TRANS_CASING`, with a
+  connected-texture sheet.
+* **Dimensional Injection Casing** `af9:dtpf_injection_casing` (W): the original's `MACHINE_DIM_INJECTOR`. The controller's casing
+  and the **only block that takes hatches**: any of them may be a hatch. Its texture is an animated *field stabilising pulse*
+  (9 frames, a core that contracts and flares), after GTNH's.
 * **Dimensional Bridge Casing** `af9:dtpf_bridge_casing` (B): the original's `MACHINE_DIM_BRIDGE`, an active block: dark while the
   forge idles, the four animated frames and an emissive layer while it works.
-* **Plasma Containment Coil** `af9:dtpf_containment_coil` (K) and **Plasma Resonance Coil** `af9:dtpf_resonance_coil` (R): AF9's
-  own, the Endion coils' weave turned to the DTPF's blue (containment) and ice cyan (resonance), with bloom while the forge works.
-  Structure blocks only, not GT heating coils (nothing else reads them, so the Electric Blast Furnace is untouched).
-* `gtceu:fusion_glass` (G) for the bore's windows and plasma bar.
+* **Superconducting Coil** `gtceu:superconducting_coil` (C): GT's own, the beam.
+* The **Plasma Containment Coil** and **Plasma Resonance Coil** (`af9:dtpf_containment_coil`, `af9:dtpf_resonance_coil`) are no
+  part of the hall any more; the resonance coil is still an ingredient of the Mk2 refit.
 
 Recipes of the blocks (`server_scripts/mods/gtceu/dtpf.js`): the casings in the UV assembler (transcendent from mk3 fusion casing
-and tritanium / neutronium plates; injection and bridge from it); the coils at **UHV** in the Assembly Line (containment: a Resonant
-Endion coil, tritanium, a field generator, UHV circuits, sanguinite wire, plasma solder and supercooled Endion; resonance: a containment
-coil with neutronium, strange matter plasma and more). Nothing needs the forge's own products, so the first hall builds from scratch.
-The controller takes 8 transcendent casings, the Mk2 refit 4 bridge casings and 2 resonance coils.
+and tritanium / neutronium plates; injection and bridge from it). Nothing needs the forge's own products, so the first hall builds
+from scratch. The controller takes 8 transcendent casings, the Mk2 refit 4 bridge casings and 2 resonance coils.
 
-The controller is in the front wall, two up (the face is GTNH's DTPF overlay).
+**The controller's face** (`tools/textures/dtpf_face.py`, AF9's own): a screen that looks down the beam tube, a bright dot for
+the beam and the field's hoops round it. Idle they stand dim; working, two hoops at a time run out of the beam towards you
+(8 frames, with an emissive copy); paused, the beam is red.
+
+**The force field** (`af9-core` `ForceFieldRender` / `ForceFieldGeometry`, a block entity renderer on the controller): a tube 2.6
+blocks in radius round the beam between the two end rings (the rings' blocks come as near as 2.9 blocks to the beam, so it clips
+nothing), low while the hall stands and hard while a recipe runs. Four styles (`DTPF_FIELD_STYLE` in `dtpf.js`): 0 hoops,
+1 plasma sheath (**the one in use**, slowed to a fifth of its first pace), 2 helix, 3 lattice. The geometry is plain Java with no
+Minecraft in it, so the previews of the styles are made from the same code the game runs.
 
 ## 2. The machine
 
-* **Hatches** only on the injection deck's front wall (the fix for "hatches everywhere" of the first hall): up to 4 energy, 2 laser
-  target, 8 fluid input, 4 fluid output, 4 item input and 4 item output buses, 2 plasma hatches, 1 maintenance
-  (`setMaxGlobalLimited`: maximums, never required counts).
-* **Gate** (`FORGE_GATE`): it starts a recipe only when its hatches can supply the recipe's full EU/t (voltage x amps of all
-  of them), as the lithography stations do — and only while ready (below).
-* **Readiness**: the forge keeps a core temperature (console + Jade, 0-12,000 K). It burns **osmium plasma** out of its
-  plasma hatches: 100 mB a second climbing, 50 mB holding (2,000 mB per 20 s, 500 mB per 10 s). Fed, it climbs 150 K a
-  second to 9,000 K (ready) in about a minute and tops at 12,000 K; starved, it cools three times as fast, and a broken
-  structure goes cold. No plasma, no forging — the gate holds every recipe until readiness.
-* **Plasma Heater** (`gtceu:plasma_heater`, 5x4x5, EV): the sub multi that ionises 4 osmium dust with 2,000 mB Endion
-  to 2,000 mB osmium plasma, the forge's only heater fuel. Its plasma hatches are filled from here.
-* **Mk2** (`gtceu:dtpf_mk2`, same hall): the Mk1 controller turned with the heater's heart (assembly line refit).
-  Half the osmium (50/25 mB a second) for **four times the input amperage** — the same recipes, hungrier power.
-* **Running-time ramp** (`RAMP`, from GTNH's discount): while a recipe runs the forge warms up, 1 tick of warmth per tick of
-  running time, to 30 minutes; a pause cools it three times as fast. Warmth scales the recipe's EU/t by up to **-50 %** and
-  its run time by up to **-25 %**. A broken structure starts cold. The console and Jade show the ramp.
-* Perfect overclocks.
+* **Hatches** on any injection casing (`setMaxGlobalLimited`: maximums, never required counts): **1 laser hatch** (the recipes'
+  power), up to 6 energy hatches or wireless receivers (auxiliary power), 8 fluid input, 4 fluid output, 4 item input and 4 item
+  output buses, 2 plasma hatches. **No maintenance hatch, no coolant.**
+* **Power.** The recipes' own power comes through **one input only**: the laser hatch, or one wireless energy receiver in Primary
+  mode (`PlasmaForgeMachine.isPowerLayoutValid`; a laser hatch and a primary receiver together hold the forge, with a message).
+  Every plain energy input hatch is held in **Auxiliary** mode (set again every second, a screwdriver cannot switch it back); a
+  wireless receiver keeps the mode it is set to. The auxiliary power is `docs/auxiliary-power.md`'s.
+* **The magnetic field.** The hall holds a field round the beam, and keeping it up is what it costs to run it:
+  * **osmium plasma** from the plasma hatches: 100 mB a second while it builds, 50 mB holding (the Mk2 half of both);
+  * **the stabilisers**: **10 A of LuV** (327,680 EU/t) of auxiliary power, every tick, whatever the hall is doing.
+  Both paid, the field climbs 150 of 12,000 a second and is **ready at 75 %** (about a minute); either missing, it falls three
+  times as fast. A missed tick or two is forgiven (the second only counts as unpowered after three). A switched-off controller
+  or a broken structure lets the field go; a hall that has just formed starts cold.
+  * **Ready (75 %)** is the gate for starting a recipe (`FORGE_GATE`, with the message "The magnetic field is not up").
+  * **Below 40 %** a running recipe collapses and the run is lost (`onWorking`), so a flicker in the power does not cost a
+    twenty minute run, but a real outage does.
+* **Gate** (`FORGE_GATE`): it starts a recipe only when its primary power can supply the recipe's full EU/t, the field is up, and
+  the power layout is valid.
+* **Perfect overclocks** (`OC_PERFECT`), and the **running-time ramp** (`RAMP`, from GTNH's discount): while a recipe runs the
+  forge warms up, 1 tick of warmth per tick of running time, to 30 minutes; a pause cools it three times as fast. Warmth scales
+  the recipe's EU/t by up to **-50 %** and its run time by up to **-25 %**. A broken structure starts cold.
+* **Plasma Heater** (`gtceu:plasma_heater`, 5x4x5, EV): the sub multi that ionises 4 osmium dust with 2,000 mB Endion to 2,000 mB
+  osmium plasma, the field's only fuel. Its plasma hatches are filled from here.
+* **Mk2** (`gtceu:dtpf_mk2`, same hall): the Mk1 controller turned with the heater's heart (assembly line refit). Half the osmium
+  (50/25 mB a second) for **four times the input amperage**: the same recipes, hungrier power.
+* **The console** (`PlasmaForgeConsoleWidget`): four gauges (the magnetic field with its two marks, the stabilisers, the osmium
+  plasma, the primary power and its inputs), what is being made, the ramp and the run-time bar, with a tooltip on each gauge.
+  Every text was checked against the font's glyph widths: the widest label and value of a column take 90 of its 100 px.
+* **Modules** are not built yet: `docs/dtpf-modules.md` is the concept.
 
-## 3. The recipes (`plasma_forge`, 3 items and 3 fluids in, 3 and 3 out; UHV voltage, 100 A)
+## 3. The recipes (`plasma_forge`, 3 items and 3 fluids in, 3 and 3 out; UHV voltage, 100 A, **1200 s** each)
 
 | Recipe | Takes | Gives |
 |---|---|---|
@@ -99,5 +118,6 @@ The compute card of the new DTPF: its recipes take the card.
 in a row top left with the fluids in a row under them, piped into the plasma bore (a glass tube through three coil rings that light
 in turn, a plasma bar in the tint of the recipe's first fluid), GT's arrow over the bore, the forged matter piped out to the right,
 items over fluids. Only the pipes of slots the recipe uses are drawn; GT's own slot ids, so EMI looks recipes up as usual. Hovering the
-bore names the Mk1 and Mk2 and says what the forge needs (a core at 9,000 K, osmium plasma); the page also carries that as a data line.
+bore names the Mk1 and Mk2 and says what the forge needs (its field up: osmium plasma and 10 A of LuV stabiliser power, one laser hatch,
+1200 s a run); the page also carries two short data lines (each fits the page's 176 px in one line).
 The recipe type's maximum is 3 of each so the rows fit.

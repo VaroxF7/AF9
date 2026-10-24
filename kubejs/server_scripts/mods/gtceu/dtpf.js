@@ -4,13 +4,16 @@
 // Two plasmas ionised here from their dust and Endion, and forged back into matter with a yield above what the
 // furnaces give: the forge's own pull. Idontknowium plasma is forged here too, out of the star matter plasma and the
 // anti-matter plasma the Mega Fusion Reactor fuses (fusion_reactor.js). The running-time ramp (-50 % EU/t, -25 % time after
-// half an hour) comes on top.
+// half an hour) comes on top. All of them run 1200 s at UHV at the lowest, on a laser hatch (one primary input), while the
+// hall's magnetic field is held with osmium plasma and 10 A of LuV auxiliary power (af9-core PlasmaForgeMachine).
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
     // UHV recipes draw 100 A of UHV power (Pico-scale work takes 300 A in the Advanced Circuit Manufacturer).
     // The controller below is built in the Advanced Circuit Manufacturer like the Pico circuits: UHV on 300 A.
     const UHV_AMPS = 100
+    // Every forging recipe runs 1200 s at UHV at the lowest (perfect overclocks shorten it, the running-time ramp more)
+    const FORGE_TICKS = 1200 * 20
     const forge = event.recipes.gtceu
 
     // The controller: UHV hull in a frame of transcendent casing, held by field generators,
@@ -85,19 +88,19 @@ ServerEvents.recipes(event => {
         .itemInputs('8x gtceu:strange_matter_dust')
         .inputFluids(Fluid.of('gtceu:endion', 2000))
         .outputFluids(Fluid.of('gtceu:strange_matter_plasma', 2000))
-        .duration(600)
+        .duration(FORGE_TICKS)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
     forge.plasma_forge('af9:dtpf/chromodynium_plasma')
         .itemInputs('4x gtceu:chromodynium_dust')
         .inputFluids(Fluid.of('gtceu:endion', 4000))
         .outputFluids(Fluid.of('gtceu:chromodynium_plasma', 2000))
-        .duration(800)
+        .duration(FORGE_TICKS)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
     forge.plasma_forge('af9:dtpf/carbon_plasma')
         .itemInputs('8x gtceu:carbon_dust')
         .inputFluids(Fluid.of('gtceu:endion', 2000))
         .outputFluids(Fluid.of('gtceu:carbon_plasma', 2000))
-        .duration(600)
+        .duration(FORGE_TICKS)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
 
     // ---- Forging: plasma back into matter, half as much again as the dust it came from ----
@@ -105,21 +108,21 @@ ServerEvents.recipes(event => {
     forge.plasma_forge('af9:dtpf/chromodynium_plates')
         .inputFluids(Fluid.of('gtceu:chromodynium_plasma', 2000))
         .itemOutputs('6x gtceu:chromodynium_plate')
-        .duration(400)
+        .duration(FORGE_TICKS)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
     // strange matter plasma hardens tritanium: 4 ingots -> 6 plates
     forge.plasma_forge('af9:dtpf/tritanium_plates')
         .itemInputs('4x gtceu:tritanium_ingot')
         .inputFluids(Fluid.of('gtceu:strange_matter_plasma', 500))
         .itemOutputs('6x gtceu:tritanium_plate')
-        .duration(300)
+        .duration(FORGE_TICKS)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
     // and neutronium: 4 ingots -> 6 plates
     forge.plasma_forge('af9:dtpf/neutronium_plates')
         .itemInputs('4x gtceu:neutronium_ingot')
         .inputFluids(Fluid.of('gtceu:strange_matter_plasma', 1000))
         .itemOutputs('6x gtceu:neutronium_plate')
-        .duration(500)
+        .duration(FORGE_TICKS)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
 
     // ---- Idontknowium: nobody knows what it is. Star matter and anti-matter held together in the forge's field ----
@@ -127,7 +130,7 @@ ServerEvents.recipes(event => {
     forge.plasma_forge('af9:dtpf/idontknowium_plasma')
         .inputFluids(Fluid.of('gtceu:star_matter_plasma', 2000), Fluid.of('gtceu:anti_matter_plasma', 2000))
         .outputFluids(Fluid.of('gtceu:idontknowium_plasma', 1000))
-        .duration(1200)
+        .duration(FORGE_TICKS)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
 
     // ---- Star Matter Plasma Steel: the NVM board steel, forged as a superstate ----
@@ -137,7 +140,7 @@ ServerEvents.recipes(event => {
         .itemInputs('4x gtceu:steel_ingot')
         .inputFluids(Fluid.of('gtceu:star_matter_plasma', 1000))
         .outputFluids(Fluid.of('gtceu:star_matter_plasma_steel_plasma', 1000))
-        .duration(800)
+        .duration(FORGE_TICKS)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
 
     // ---- Nano particles: carbon plasma caught in a magnetic trap, after GTNH ----
@@ -146,7 +149,7 @@ ServerEvents.recipes(event => {
         .notConsumable('af9:magnetic_trap')
         .inputFluids(Fluid.of('gtceu:carbon_plasma', 1000))
         .itemOutputs('4x af9:nano_particles')
-        .duration(600)
+        .duration(FORGE_TICKS)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
 
     // ---- Mk2 refit: the Mk1 controller turned with the Plasma Heater's heart ----

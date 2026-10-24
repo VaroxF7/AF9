@@ -25,8 +25,8 @@ import static com.af9.core.machine.PlasmaForgeRecipeUI.*;
 /**
  * The drawing behind a plasma forge recipe's slots ({@link PlasmaForgeRecipeUI}): the pipes of what goes in (items
  * above, fluids below) meeting in a manifold in front of the bore, the bore itself (a glass tube through three coil
- * rings, a plasma bar down its middle in the colour of the recipe's first fluid), and the pipes of the forged matter
- * out to the right. Only the pipes of slots the recipe uses are drawn.
+ * rings, a plasma bar down its middle in the colour of the recipe's first fluid, the field's hoops running down it),
+ * and the pipes of the forged matter out to the right. Only the pipes of slots the recipe uses are drawn.
  */
 public class PlasmaForgeFlowWidget extends Widget {
 
@@ -107,6 +107,13 @@ public class PlasmaForgeFlowWidget extends Widget {
         graphics.fill(bx0 + 1, cy - 3, bx1 - 1, cy + 3, withAlpha(plasma, (int) (0x38 + 0x30 * pulse)));
         graphics.fill(bx0 + 1, cy - 1, bx1 - 1, cy + 1, withAlpha(plasma, (int) (0xA0 + 0x5F * pulse)));
         graphics.fill(bx0 + 1, cy, bx1 - 1, cy + 1, withAlpha(0xFFFFFF, 0xC0));
+        // the field's hoops run down the bore, two at a time, as they do in the hall
+        for (int hoop = 0; hoop < 2; hoop++) {
+            float phase = (time / 1600.0F + hoop * 0.5F) % 1F;
+            int hx = bx0 + 1 + Math.round(phase * (bx1 - bx0 - 3));
+            int alpha = (int) (0xE0 * Math.sin(phase * Math.PI));
+            graphics.fill(hx, cy - 6, hx + 1, cy + 6, withAlpha(COIL_LIT, alpha));
+        }
         for (int ring = 0; ring < 3; ring++) {
             int rx = bx0 + 6 + ring * 13;
             // the rings light up one after the other, in the direction of the flow

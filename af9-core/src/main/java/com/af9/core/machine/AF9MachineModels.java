@@ -2,6 +2,7 @@ package com.af9.core.machine;
 
 import com.af9.core.client.render.BioVatRender;
 import com.af9.core.client.render.FiltrationBasinRender;
+import com.af9.core.client.render.ForceFieldRender;
 import com.af9.core.client.render.HearthTurntableRender;
 import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
@@ -182,5 +183,21 @@ public final class AF9MachineModels {
                                                                              ResourceLocation overlay) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(WireDrawRender::create));
+    }
+
+    /**
+     * GT's workable casing model plus the DTPF's force field ({@link ForceFieldRender}): a tube of light round the beam,
+     * from {@code start} to {@code end} blocks behind the controller's centre. The machine must implement
+     * {@link IForceFieldMachine} and have a block entity renderer ({@code .hasBER(true)}).
+     *
+     * @param style  0 hoops, 1 plasma sheath, 2 helix, 3 lattice
+     * @param radius the tube's radius in blocks
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithForceField(ResourceLocation casing,
+                                                                                ResourceLocation overlay, int style,
+                                                                                float radius, float start,
+                                                                                float end) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(() -> ForceFieldRender.create(style, radius, start, end)));
     }
 }

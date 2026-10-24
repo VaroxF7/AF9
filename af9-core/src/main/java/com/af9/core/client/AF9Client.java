@@ -4,6 +4,7 @@ import com.af9.core.AF9Core;
 import com.af9.core.client.render.BioVatRender;
 import com.af9.core.client.render.HearthTurntableRender;
 import com.af9.core.client.render.FiltrationBasinRender;
+import com.af9.core.client.render.ForceFieldRender;
 import com.af9.core.client.render.LaserEngraverRender;
 import com.af9.core.client.render.LightRingRender;
 import com.af9.core.client.render.SawBladeRender;
@@ -52,6 +53,7 @@ public final class AF9Client {
         WireDrawRender.register();
         FiltrationBasinRender.register();
         BioVatRender.register();
+        ForceFieldRender.register();
         // the placeable buckets tint their content layer with the fluid's colour
         FMLJavaModLoadingContext.get().getModEventBus()
                 .addListener((RegisterColorHandlersEvent.Item event) -> BucketTint.register(event));

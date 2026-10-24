@@ -1,15 +1,22 @@
 package com.af9.core.machine;
 
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
-import com.gregtechceu.gtceu.utils.GTUtil;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.LaserHatchPartMachine;
 
+import com.af9.core.machine.console.ConsoleWidget;
+import com.af9.core.machine.console.PlasmaForgeConsoleWidget;
 import com.af9.core.machine.part.PlasmaHatchPartMachine;
+import com.af9.core.wireless.WirelessReceiverHatch;
 
+import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
@@ -28,13 +35,22 @@ import java.util.List;
  * {@value #RAMP_MINUTES} minutes), and a pause costs it that warmth ({@value #COOLING_FACTOR} times as fast as it
  * built). It runs only a recipe its hatches can fully supply ({@link #FORGE_GATE}).
  * <p>
- * The forge also keeps a core temperature like the Sanguinite Hearth's heat: it burns osmium plasma out of its
- * plasma hatches (100 mB a second ramping, 50 mB holding; the Mk2 halves both) and only forges while ready
- * ({@link #FORGE_READY} K). Starved of plasma it cools three times as fast as it climbed and goes cold on a
- * broken structure. The Mk2 forges the same recipes for half the plasma but only on four
- * times the input amperage ({@link #MK2_AMPS}).
+ * <b>The magnetic field.</b> The hall holds a field round the beam that has to be kept up all the time, and that is
+ * what it costs to run it: osmium plasma out of its plasma hatches (100 mB a second building, 50 mB holding; the Mk2
+ * halves both) and {@value #AUX_AMPS} A of LuV auxiliary power ({@link #AUX_EUT} EU/t, every tick; the energy hatches
+ * are held in Auxiliary mode, a wireless receiver keeps the mode it is set to). Both fed, the field climbs to
+ * {@link #FIELD_READY} (75 %) in about a minute and only then forges; starved of either it falls
+ * {@value #FIELD_FALL_FACTOR} times as fast as it climbed, and a run that finds it below {@link #FIELD_HOLD} collapses
+ * with it. A broken structure or a switched-off controller lets it go.
+ * <p>
+ * The recipes' own power comes from a single input only: one laser hatch, or one wireless receiver in Primary mode
+ * ({@link #isPowerLayoutValid()}). No maintenance, no coolant. The Mk2 forges the same recipes for half the plasma but
+ * only on four times the input amperage ({@link #MK2_AMPS}).
+ * <p>
+ * A force field burns in the middle of the hall ({@link com.af9.core.client.render.ForceFieldRender}): low while it
+ * stands, hard while a recipe runs.
  */
-public class PlasmaForgeMachine extends ProcessMachine {
+public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMachine {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(PlasmaForgeMachine.class,
             ProcessMachine.MANAGED_FIELD_HOLDER);
@@ -42,34 +58,46 @@ public class PlasmaForgeMachine extends ProcessMachine {
     /** Minutes of running for the full ramp; the discounts at the full ramp, percent; how much faster it cools. */
     public static final int RAMP_MINUTES = 30, ENERGY_PERCENT = 50, TIME_PERCENT = 25, COOLING_FACTOR = 3;
     public static final int RAMP_TICKS = RAMP_MINUTES * 60 * 20;
-    /** Ticks between two updates of the ramp. */
+    /** Ticks between two updates of the ramp and the field. */
     private static final int RAMP_INTERVAL = 20;
 
-    /** Core heat, K: ready at {@link #FORGE_READY}, hottest at {@link #FORGE_MAX}. */
-    public static final int FORGE_READY = 9000, FORGE_MAX = 12000;
-    /** Heat a fed second builds; an unfed second cools this many times as fast. */
-    private static final int HEAT_CLIMB = 150, HEAT_COOLING_FACTOR = 3;
-    /** Osmium plasma a fed second burns ramping (full feed) and holding (topped up); the Mk2 halves both. */
+    /** Field strength: ready at {@link #FIELD_READY}, strongest at {@link #FIELD_MAX}, a run is lost below {@link #FIELD_HOLD}. */
+    public static final int FIELD_READY = 9000, FIELD_MAX = 12000, FIELD_HOLD = 4800;
+    /** Strength a fed second builds; an unfed second loses this many times as much. */
+    private static final int FIELD_CLIMB = 150, FIELD_FALL_FACTOR = 3;
+    /** Osmium plasma a fed second burns building (full feed) and holding (topped up); the Mk2 halves both. */
     private static final int PLASMA_RAMP = 100, PLASMA_STABLE = 50;
+    /** The stabilisers: 10 A of LuV, every tick, from the auxiliary hatches. */
+    public static final int AUX_AMPS = 10;
+    public static final long AUX_EUT = AUX_AMPS * GTValues.V[GTValues.LuV];
+    /** Ticks of a second the stabilisers may miss their power before the second counts as unpowered. */
+    private static final int AUX_GRACE_TICKS = 3;
     /** The Mk2's power: four times the input amperage of the recipe. */
     public static final int MK2_AMPS = 4;
+
+    /** The field state the console and Jade show. */
+    public static final int FIELD_COLD = 0, FIELD_BUILDING = 1, FIELD_HOLDING = 2, FIELD_FALLING = 3;
 
     /** The hall's colour in its console: forge orange. */
     private static final int COLOR = 0xFFFF9A3C;
 
     /**
      * Only starts a recipe the hatches can fully supply: GT's own voltage check would let a hatch of the tier below
-     * start it and then starve it. GT keeps retrying a gated recipe. The forge must also be ready (burning osmium
-     * plasma), and a Mk2 needs four times the recipe's input amperage on top.
+     * start it and then starve it. GT keeps retrying a gated recipe. The field must also be ready (burning osmium
+     * plasma and its stabilisers powered), the recipes' power must come from one input only, and a Mk2 needs four
+     * times the recipe's input amperage on top.
      */
     public static final RecipeModifier FORGE_GATE = (machine, recipe) -> {
         if (!(machine instanceof PlasmaForgeMachine forge)) {
             return RecipeModifier.nullWrongType(PlasmaForgeMachine.class, machine);
         }
+        if (!forge.isPowerLayoutValid()) {
+            return ModifierFunction.cancel(Component.translatable("af9.dtpf.too_many_inputs"));
+        }
         long need = RecipeHelper.getRealEUt(recipe).getTotalEU();
         if (forge.mk2) need *= MK2_AMPS;
         if (forge.getAvailableEUt() < need) return ModifierFunction.NULL;
-        if (!forge.isReady()) return ModifierFunction.NULL;
+        if (!forge.isReady()) return ModifierFunction.cancel(Component.translatable("af9.dtpf.field_low"));
         return ModifierFunction.IDENTITY;
     };
 
@@ -89,11 +117,18 @@ public class PlasmaForgeMachine extends ProcessMachine {
     /** Ticks of warmth, 0 to {@link #RAMP_TICKS}. */
     @Persisted
     private int warmth;
-    /** Core heat, K, 0 to {@link #FORGE_MAX}. */
+    /** Field strength, 0 to {@link #FIELD_MAX}. */
     @Persisted
-    private int forgeHeat;
+    private int fieldStrength;
     /** The Mk2: half the plasma, four times the amperage. Structural, from the KubeJS definition. */
     private final boolean mk2;
+
+    /** Ticks of the current second the stabilisers did not get their power. */
+    private int auxMissed;
+    /** What the last full second did to the field: one of {@code FIELD_*}. */
+    private int fieldState = FIELD_COLD;
+    /** Whether the last second's plasma and stabiliser power were paid. */
+    private boolean plasmaFed, auxPaid;
 
     private TickableSubscription rampSubs;
 
@@ -121,6 +156,16 @@ public class PlasmaForgeMachine extends ProcessMachine {
         return COLOR;
     }
 
+    public boolean isMk2() {
+        return mk2;
+    }
+
+    /** The forge's own console: the field, the plasma, the stabilisers, the primary power, the ramp. */
+    @Override
+    public Widget createUIWidget() {
+        return PlasmaForgeConsoleWidget.create(this);
+    }
+
     //////////////////////////////////////
     // ************ Ramp *************//
     //////////////////////////////////////
@@ -128,16 +173,21 @@ public class PlasmaForgeMachine extends ProcessMachine {
     @Override
     public void onStructureFormed() {
         super.onStructureFormed();
-        rampSubs = subscribeServerTick(rampSubs, this::tickRamp);
+        forceAuxiliaryHatches();
+        rampSubs = subscribeServerTick(rampSubs, this::tickForge);
     }
 
-    /** A broken hall loses its warmth: the next time it forms it starts cold. */
+    /** A broken hall loses its warmth and its field: the next time it forms it starts cold. */
     @Override
     public void onStructureInvalid() {
         super.onStructureInvalid();
         unsubscribeRamp();
         warmth = 0;
-        forgeHeat = 0;
+        fieldStrength = 0;
+        fieldState = FIELD_COLD;
+        plasmaFed = false;
+        auxPaid = false;
+        auxMissed = 0;
         markDirty();
     }
 
@@ -154,29 +204,46 @@ public class PlasmaForgeMachine extends ProcessMachine {
         }
     }
 
-    private void tickRamp() {
-        if (getOffsetTimer() % RAMP_INTERVAL != 0 || !isFormed()) return;
+    /**
+     * Every tick while formed: the stabilisers take their power (a running recipe pays it through the auxiliary power
+     * of {@link #getBaseAuxiliaryEUt()}); every second the ramp and the field step.
+     */
+    private void tickForge() {
+        if (!isFormed()) return;
+        var logic = getRecipeLogic();
+        if (logic.isWorkingEnabled() && !logic.isWorking()) drawAuxiliary(AUX_EUT);
+        if (getOffsetTimer() % RAMP_INTERVAL != 0) return;
+        forceAuxiliaryHatches();
         int before = warmth;
-        if (getRecipeLogic().isWorking()) {
+        if (logic.isWorking()) {
             warmth = Math.min(RAMP_TICKS, warmth + RAMP_INTERVAL);
         } else {
             warmth = Math.max(0, warmth - RAMP_INTERVAL * COOLING_FACTOR);
         }
         if (warmth != before) markDirty();
-        tickHeat();
+        tickField();
     }
 
-    /** Burns osmium plasma out of the plasma hatches: climbing to readiness fed, cooling starved. */
-    private void tickHeat() {
-        int before = forgeHeat;
-        int pull = forgeHeat < FORGE_MAX ? PLASMA_RAMP : PLASMA_STABLE;
-        if (mk2) pull /= 2;
-        if (drainPlasma(pull) >= pull) {
-            forgeHeat = Math.min(FORGE_MAX, forgeHeat + HEAT_CLIMB);
+    /**
+     * Burns osmium plasma out of the plasma hatches and checks the stabilisers' power of the last second: both paid,
+     * the field climbs; either missing, it falls three times as fast. A switched-off controller burns nothing and lets
+     * the field go.
+     */
+    private void tickField() {
+        int before = fieldStrength;
+        boolean enabled = getRecipeLogic().isWorkingEnabled();
+        int pull = getPlasmaPull();
+        plasmaFed = enabled && drainPlasma(pull) >= pull;
+        auxPaid = enabled && auxMissed <= AUX_GRACE_TICKS;
+        auxMissed = 0;
+        if (plasmaFed && auxPaid) {
+            fieldStrength = Math.min(FIELD_MAX, fieldStrength + FIELD_CLIMB);
+            fieldState = fieldStrength >= FIELD_MAX ? FIELD_HOLDING : FIELD_BUILDING;
         } else {
-            forgeHeat = Math.max(0, forgeHeat - HEAT_CLIMB * HEAT_COOLING_FACTOR);
+            fieldStrength = Math.max(0, fieldStrength - FIELD_CLIMB * FIELD_FALL_FACTOR);
+            fieldState = fieldStrength > 0 ? FIELD_FALLING : FIELD_COLD;
         }
-        if (forgeHeat != before) markDirty();
+        if (fieldStrength != before) markDirty();
     }
 
     /** mB of osmium plasma drawn from the plasma hatches this second. */
@@ -194,9 +261,123 @@ public class PlasmaForgeMachine extends ProcessMachine {
         return need - left;
     }
 
-    /** Hot enough to forge. */
+    /** mB of osmium plasma in the plasma hatches. */
+    public long getPlasmaStored() {
+        long amount = 0;
+        for (var part : getParts()) {
+            if (!(part instanceof PlasmaHatchPartMachine hatch)) continue;
+            for (int i = 0; i < hatch.tank.getTanks(); i++) {
+                FluidStack stack = hatch.tank.getFluidInTank(i);
+                if (PlasmaHatchPartMachine.isPlasma(stack)) amount += stack.getAmount();
+            }
+        }
+        return amount;
+    }
+
+    /** mB of osmium plasma a second burns now: building, then holding (the Mk2 half). */
+    public int getPlasmaPull() {
+        int pull = fieldStrength < FIELD_MAX ? PLASMA_RAMP : PLASMA_STABLE;
+        return mk2 ? pull / 2 : pull;
+    }
+
+    //////////////////////////////////////
+    // ******** Auxiliary power *******//
+    //////////////////////////////////////
+
+    /** The stabilisers' power: 10 A of LuV, whatever the hall is doing. */
+    @Override
+    protected long getBaseAuxiliaryEUt() {
+        return isFormed() ? AUX_EUT : 0;
+    }
+
+    /**
+     * The stabilisers' draw, whether the hall's tick or a running recipe makes it. A miss is counted for the second's
+     * field step; the run is only lost when the field has fallen below {@link #FIELD_HOLD}, so a flicker in the power
+     * does not cost a twenty minute run.
+     */
+    @Override
+    public boolean drawAuxiliary(long eut) {
+        boolean paid = super.drawAuxiliary(eut);
+        if (eut != AUX_EUT) return paid;
+        if (!paid) auxMissed++;
+        return paid || fieldStrength >= FIELD_HOLD;
+    }
+
+    /** A run on a collapsed field is lost. */
+    @Override
+    public boolean onWorking() {
+        if (fieldStrength < FIELD_HOLD) return false;
+        return super.onWorking();
+    }
+
+    /**
+     * The hall's primary power comes from one input only: every plain energy input hatch is held in Auxiliary mode (a
+     * screwdriver cannot switch it back); a wireless receiver keeps the mode it is set to.
+     */
+    private void forceAuxiliaryHatches() {
+        if (isRemote()) return;
+        for (IMultiPart part : getParts()) {
+            if (part instanceof EnergyHatchPartMachine hatch && hatch.energyContainer.getHandlerIO() == IO.IN &&
+                    !hatch.isAuxiliaryInput()) {
+                hatch.setAuxiliary(true);
+            }
+        }
+    }
+
+    /** The inputs the recipes' power comes through: the laser hatch and the wireless receivers in Primary mode. */
+    public int countPrimaryInputs() {
+        int count = 0;
+        for (IMultiPart part : getParts()) {
+            if (part instanceof LaserHatchPartMachine) {
+                count++;
+            } else if (part instanceof WirelessReceiverHatch receiver) {
+                if (!receiver.isAuxiliaryInput()) count++;
+            } else if (part instanceof EnergyHatchPartMachine hatch && hatch.energyContainer.getHandlerIO() == IO.IN &&
+                    !hatch.isAuxiliaryInput()) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /** One primary input at most: a laser hatch and a primary wireless receiver together hold the forge. */
+    public boolean isPowerLayoutValid() {
+        return countPrimaryInputs() <= 1;
+    }
+
+    // ---- the renderer's view ----
+
+    @Override
+    public boolean isFieldFormed() {
+        return isFormed();
+    }
+
+    @Override
+    public boolean isFieldBurning() {
+        return isFormed() && getRecipeLogic().isWorking();
+    }
+
+    /** The field is strong enough to forge. */
     public boolean isReady() {
-        return isFormed() && forgeHeat >= FORGE_READY;
+        return isFormed() && fieldStrength >= FIELD_READY;
+    }
+
+    /** Field strength, 0 to {@link #FIELD_MAX}. */
+    public int getFieldStrength() {
+        return isFormed() ? fieldStrength : 0;
+    }
+
+    /** One of {@code FIELD_*}. */
+    public int getFieldState() {
+        return isFormed() ? fieldState : FIELD_COLD;
+    }
+
+    public boolean isPlasmaFed() {
+        return isFormed() && plasmaFed;
+    }
+
+    public boolean isAuxPaid() {
+        return isFormed() && auxPaid;
     }
 
     /** How warm the forge has run, 0 to 1. */
@@ -205,16 +386,31 @@ public class PlasmaForgeMachine extends ProcessMachine {
     }
 
     @Override
+    public int getStatus() {
+        if (!isFormed()) return ConsoleWidget.STATUS_OFFLINE;
+        var logic = getRecipeLogic();
+        if (!logic.isWorkingEnabled()) return ConsoleWidget.STATUS_PAUSED;
+        if (!isPowerLayoutValid()) return ConsoleWidget.STATUS_TOO_MANY_INPUTS;
+        if (logic.isWorking()) return ConsoleWidget.STATUS_RUNNING;
+        if (!isReady()) {
+            return fieldState == FIELD_BUILDING ? ConsoleWidget.STATUS_STARTING_UP : ConsoleWidget.STATUS_NO_FIELD;
+        }
+        if (logic.isWaiting() || getAvailableEUt() < minimumEUt()) return ConsoleWidget.STATUS_NO_POWER;
+        return ConsoleWidget.STATUS_IDLE;
+    }
+
+    @Override
     public List<Component> infoLines() {
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.translatable("af9.dtpf.console.heat", forgeHeat, FORGE_READY,
-                Component.translatable(isReady() ? "af9.dtpf.console.ready" : "af9.dtpf.console.cold")));
+        lines.add(Component.translatable("af9.dtpf.console.field", Math.round(100.0 * getFieldStrength() / FIELD_MAX),
+                Component.translatable("af9.dtpf.console.field." + getFieldState())));
+        lines.add(Component.translatable(isPlasmaFed() ? "af9.dtpf.console.plasma_fed" : "af9.dtpf.console.plasma_dry",
+                getPlasmaPull()));
+        lines.add(Component.translatable(isAuxPaid() ? "af9.dtpf.console.aux_paid" : "af9.dtpf.console.aux_short",
+                ConsoleWidget.compact(AUX_EUT)));
         double ramp = getRamp();
-        lines.add(Component.translatable("af9.dtpf.console.ramp", Math.round(ramp * 100)));
         lines.add(Component.translatable("af9.dtpf.console.discount", Math.round(ENERGY_PERCENT * ramp),
                 Math.round(TIME_PERCENT * ramp)));
-        lines.add(Component.translatable(getRecipeLogic().isWorking() ? "af9.dtpf.console.warming" :
-                warmth > 0 ? "af9.dtpf.console.cooling" : "af9.dtpf.console.cold"));
         return lines;
     }
 }
