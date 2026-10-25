@@ -30,7 +30,7 @@ import java.util.Objects;
  */
 public class PlasmaForgeConsoleWidget extends ConsoleWidget {
 
-    public static final int WIDTH = 220, HEIGHT = 134;
+    public static final int WIDTH = 220, HEIGHT = 150;
     /** The two columns: left edge, width. */
     private static final int LX = 6, RX = 114, COL_W = 100;
     /** Rows of the gauges: the label, the bar, the line under it. */
@@ -67,7 +67,7 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
         group.addWidget(tip(RX, ROW_B, COL_W, 26, "power", 1, ""));
         group.addWidget(tip(RX, ROW_C, COL_W, 26, "ramp", PlasmaForgeMachine.ENERGY_PERCENT,
                 PlasmaForgeMachine.TIME_PERCENT));
-        group.addWidget(tip(6, 116, WIDTH - 12, 12, "modules", PlasmaForgeMachine.BASE_HEAT, ""));
+        group.addWidget(tip(6, 131, WIDTH - 12, 16, "modules", PlasmaForgeMachine.BASE_HEAT, ""));
         return group;
     }
 
@@ -232,7 +232,9 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
                 .getString(), x0 + RX, y0 + ROW_B, oneInput ? MUTED : BAD);
         bar(graphics, x0 + RX, y0 + ROW_B + 7, COL_W, 6, needed == 0 ? (available > 0 ? 1 : 0) :
                 Math.min(1.0, (double) available / needed), powerColor);
-        drawSmall(graphics, compact(available) + " / " + (needed == 0 ? "-" : compact(needed)) + " EU/t",
+        drawSmall(graphics, needed == 0 ?
+                Component.translatable("af9.dtpf.console.power_free", compact(available)).getString() :
+                compact(available) + " / " + compact(needed) + " EU/t",
                 x0 + RX, y0 + ROW_B + 16, enough ? TEXT : BAD, false);
 
         // what is being made, and the ramp
@@ -241,19 +243,36 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
         drawOutput(graphics, x0 + LX, y0 + ROW_C + 8, COL_W);
         label(graphics, "af9.dtpf.console.l.ramp", ramp + " %", x0 + RX, y0 + ROW_C, MUTED);
         bar(graphics, x0 + RX, y0 + ROW_C + 8, COL_W, 5, ramp / 100.0, INFO);
-        drawSmall(graphics, Component.translatable("af9.dtpf.console.discount",
-                Math.round(PlasmaForgeMachine.ENERGY_PERCENT * ramp / 100.0),
-                Math.round(PlasmaForgeMachine.TIME_PERCENT * ramp / 100.0)).getString(), x0 + RX, y0 + ROW_C + 16,
-                TEXT, false);
+        long energyCut = Math.round(PlasmaForgeMachine.ENERGY_PERCENT * ramp / 100.0);
+        long timeCut = Math.round(PlasmaForgeMachine.TIME_PERCENT * ramp / 100.0);
+        drawSmall(graphics, energyCut == 0 && timeCut == 0 ?
+                Component.translatable("af9.dtpf.console.discount_none").getString() :
+                Component.translatable("af9.dtpf.console.discount", energyCut, timeCut).getString(), x0 + RX,
+                y0 + ROW_C + 16, energyCut == 0 && timeCut == 0 ? MUTED : TEXT, false);
 
         drawRuntime(graphics, x0 + 6, y0 + 103, WIDTH - 12, progress, duration, status == STATUS_RUNNING, accent);
 
-        // the modules (parallel, heater, sequencer, forge) and the field's heat
-        drawSmall(graphics, Component.translatable("af9.dtpf.console.modules", modules & 0xFF, (modules >> 8) & 0xFF,
-                (modules >> 16) & 0xFF, (modules >>> 24) & 0xFF).getString(), x0 + 6, y0 + 118,
-                modules == 0 ? MUTED : TEXT, false);
-        drawSmallRight(graphics, Component.translatable("af9.dtpf.console.heat", String.format("%,d", heat)).getString(),
-                x0 + WIDTH - 6, y0 + 118, heat > PlasmaForgeMachine.BASE_HEAT ? WARN : MUTED);
+        // the field's heat, and the modules that are installed (by name; none installed: none)
+        drawSmall(graphics, Component.translatable("af9.dtpf.console.heat", String.format("%,d", heat)).getString(),
+                x0 + 6, y0 + 133, heat > PlasmaForgeMachine.BASE_HEAT ? WARN : MUTED, false);
+        drawSmall(graphics, fit(modulesText(), (WIDTH - 12) * 4 / 3), x0 + 6, y0 + 141, modules == 0 ? MUTED : TEXT,
+                false);
+    }
+
+    /** "MODULES  6 Parallel  1 Superheater ...": only the kinds that are installed, or "none". */
+    @OnlyIn(Dist.CLIENT)
+    private String modulesText() {
+        String[] keys = {"af9.dtpf.console.m.parallel", "af9.dtpf.console.m.superheater", "af9.dtpf.console.m.sequencer",
+                "af9.dtpf.console.m.forge"};
+        StringBuilder text = new StringBuilder(Component.translatable("af9.dtpf.console.modules").getString());
+        if (modules == 0) return text.append(' ').append(Component.translatable("af9.dtpf.console.modules.none")
+                .getString()).toString();
+        for (int kind = 0; kind < keys.length; kind++) {
+            int count = (modules >> (8 * kind)) & 0xFF;
+            if (count > 0) text.append("  ").append(Component.translatable(keys[kind], count)
+                    .getString());
+        }
+        return text.toString();
     }
 
     /** A gauge's label on the left and its value on the right, both small. */
@@ -296,6 +315,6 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
                 return;
             }
         }
-        graphics.drawString(font, Component.translatable("af9.console.nothing").getString(), x, y + 4, MUTED, false);
+        graphics.drawString(font, Component.translatable("af9.dtpf.console.making_none").getString(), x, y + 4, MUTED, false);
     }
 }
