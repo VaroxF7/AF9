@@ -52,7 +52,7 @@ public final class ChemicalPlantPipes {
             new Pipe(4, 3, 2, "gtceu:bronze_huge_fluid_pipe", 3),
             new Pipe(2, 4, 2, "gtceu:stainless_steel_quadruple_fluid_pipe", 3),
             new Pipe(4, 4, 2, "gtceu:bronze_huge_fluid_pipe", 5),
-            new Pipe(2, 5, 2, "gtceu:stainless_steel_quadruple_fluid_pipe", 5),
+            new Pipe(2, 5, 2, "gtceu:stainless_steel_quadruple_fluid_pipe", 5)
     );
 
     private ChemicalPlantPipes() {}
