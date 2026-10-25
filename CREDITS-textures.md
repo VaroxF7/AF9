@@ -213,3 +213,9 @@ GregTech CEu Modern (<https://github.com/GregTechCEu/GregTech-Modern>, LGPL-3.0;
 
 `dtpf_module_casing.png` and `dtpf_module_casing_ctm.png` are GregTech CEu Modern's `casings/gcym/atomic_casing.png` and `atomic_casing_ctm.png` (LGPL-3.0)
 with the hue changed from purple to blue (`tools/textures/dtpf_module_casing.py`; the originals are in `tools/textures/gt_src/`).
+
+## Particle Accelerator cells
+
+`tungsten_cell`, `rhenium_127_cell` and `osmium_plasma_cell` (item textures) are GregTech CEu Modern's Universal Cell
+(`item/universal_fluid_cell/base.png` and the first frame of `overlay.png`, LGPL-3.0) with the fluid's colour on the overlay
+(`tools/textures/accelerator_cells.py`).

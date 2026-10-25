@@ -201,6 +201,10 @@ public final class AF9Items {
         item("beryllium_spallation_target", 64, 1);
         item("magnetic_trap", 64, 1);
         item("qgp_trap", 64, 1);
+        // Universal Cells holding what the ion collisions work on (recipes: particle_accelerator.js)
+        item("tungsten_cell", 16, 1);
+        item("rhenium_127_cell", 16, 1);
+        item("osmium_plasma_cell", 16, 1);
 
         // ---- Photolithography ----
         item("photomask_blank", 64, 0);

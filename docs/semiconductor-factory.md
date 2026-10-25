@@ -1216,7 +1216,7 @@ Coolant grades: a recipe takes its coolant or any colder one. It asks for the gr
 
 Materials: `strange_matter` (dust, "(uds)n"), `chromodynium` (ingot, 12000 K EBF, plate/foil/rod/frame, "Qc"), `anti_matter` (plasma only, "(Aq)n"), each with its own animated icon set (GT icon sets `strange_matter` and `chromodynium`, children of `shiny`; af9-core `assets/gtceu/.../material_sets/<set>`: an item model per shape whose untinted top layer is the animated art, the tinted layers empty; Chromodynium's block and frame grey, tinted by GT): Strange Matter a dark violet void with twinkling glints (32 frames), Chromodynium a pearl metal with a sheen sweeping through its colour charge, pink, orange, yellow, mint (24 frames), both at 2 ticks a frame; their wafers, boules, melt charges and seed crystals carry the same effects over their own art. Items: `af9:beryllium_spallation_target` (4 Be plates + 2 tungstensteel plates, LuV), `af9:magnetic_trap` (ZPM field generator + 4 NbTi plates + 2 tungstensteel plates, ZPM), `af9:qgp_trap`. Console: mode tiles NEUTRONS / COLLIDER / QUARKS, beam energy (1 GeV at ZPM, ×2 per tier), coolant fluid + amount (NO COOLANT status when dry), beam on/off, run-time bar.
 
-Osmium plasma (ion collision, 2 steps): a Universal Cell of molten tungsten -> a cell of molten Rhenium-127 (`gtceu:rhenium_127`) -> a cell of osmium plasma, the Plasma Forge's field fuel (details: `docs/dtpf.md`).
+Osmium plasma (ion collision, 2 steps): a Universal Cell of molten tungsten (`af9:tungsten_cell`) -> a cell of molten Rhenium-127 (`af9:rhenium_127_cell`, `gtceu:rhenium_127`) -> a cell of osmium plasma (`af9:osmium_plasma_cell`, an Extractor empties it), the Plasma Forge's field fuel (details: `docs/dtpf.md`).
 
 # 15. Wafer and chip contamination
 
