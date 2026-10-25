@@ -22,7 +22,7 @@ import java.util.Locale;
  * A module of the Dimensionally Transcendent Plasma Forge ({@link PlasmaForgeMachine}): the controller of one of the hall's
  * six module slots. The slot is a floating plate of {@value #CASINGS} Inconel 738 Module Casings behind the middle
  * injection casing of a big ring, with the controller in the middle of it, facing the field. A module runs no recipe: the
- * hall finds it ({@link PlasmaForgeMachine#modules()}), turns it to face the field, links it and gives its bonus
+ * hall finds it ({@link PlasmaForgeMachine#modules()}), turns it to face outwards, away from the field, links it and gives its bonus
  * ({@link Kind}) to every run while the slot's casings are all in place. An empty slot is simply gone from the structure.
  * <p>
  * Made in KubeJS ({@code startup_scripts/gtceu/dtpf_modules.js}, {@code gtceu:dtpf_module_<kind>}); its recipes are the

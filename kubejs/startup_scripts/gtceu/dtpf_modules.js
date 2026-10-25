@@ -1,7 +1,7 @@
 // AF9 - The Dimensionally Transcendent Plasma Forge's modules: the controllers of the hall's six module slots (the hall's
 // pattern, dtpf.js: a floating plate of 12 Inconel 738 Module Casings with a controller in its middle, behind the middle
 // injection casing at the top and bottom of each big ring; an empty slot is simply not part of the structure). A module runs no
-// recipe: the hall finds it, turns it to face the field (the controller is rotatable to every side), links it and gives its
+// recipe: the hall finds it, turns it to face outwards (the controller is rotatable to every side), links it and gives its
 // bonus to every run while the slot's casings are all in place (af9-core PlasmaForgeMachine.scanModules, DtpfModuleMachine.Kind).
 //   Parallel Processing Assembly      +10 parallels each (as the energy allows; no batch mode)            max 6
 //   Superheating Element              field heat x10 (1,000 K to 10,000 K), recipe EU/t x2                 max 1

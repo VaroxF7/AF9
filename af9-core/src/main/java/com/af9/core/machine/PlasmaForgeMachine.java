@@ -474,7 +474,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
 
     /**
      * A module controller in a slot, any kind (or nothing): the hall takes only so many of a kind. Its facing is the
-     * hall's business ({@link #scanModules()} turns it to the field).
+     * hall's business ({@link #scanModules()} turns it outwards).
      */
     public static TraceabilityPredicate modules() {
         return new TraceabilityPredicate(state -> {
@@ -533,7 +533,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     }
 
     /**
-     * Looks at the six slots: a module controller in one is turned to face the field and linked, and counts when all its
+     * Looks at the six slots: a module controller in one is turned to face outwards (away from the field, to the player) and linked, and counts when all its
      * casings stand (a hall takes only so many of a kind). Runs when the hall forms and every second, so a module set up
      * or broken later is noticed.
      */
@@ -546,8 +546,8 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
             java.util.Arrays.fill(moduleCount, 0);
             for (int slot = 0; slot < 6; slot++) {
                 if (!(MetaMachine.getMachine(getLevel(), slotCenter(slot)) instanceof DtpfModuleMachine module)) continue;
-                Direction toField = slotOutward(slot).getOpposite();
-                if (module.getFrontFacing() != toField) module.setFrontFacing(toField);
+                Direction outwards = slotOutward(slot);
+                if (module.getFrontFacing() != outwards) module.setFrontFacing(outwards);
                 DtpfModuleMachine.Kind kind = module.getKind();
                 boolean counted = slotComplete(slot) && moduleCount[kind.ordinal()] < kind.max;
                 if (counted) moduleCount[kind.ordinal()]++;

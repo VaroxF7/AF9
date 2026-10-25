@@ -10,7 +10,7 @@ pattern accepts air in all 13 cells), so the hall forms with no modules at all.
 ```
   y+2      M M     M M          (M = Inconel 738 Module Casing, P = the module controller, W = the injection casing)
   y+1    M M M P M M M
-  y        . . M W M . .        the controller P faces the field (down at the top, up at the bottom)
+  y        . . M W M . .        the controller P faces outwards (up at the top, down at the bottom)
 ```
 
 ## 1. The slots
@@ -20,7 +20,7 @@ pattern accepts air in all 13 cells), so the hall forms with no modules at all.
 * The hall's pattern (`dtpf.js`) has `M` (module casing or air) and `P` (any module controller or air,
   `PlasmaForgeMachine.modules()`, which also enforces the maximum of each kind with an error message).
 * **The hall owns the check** (no sub-pattern in the modules): every second `scanModules()` looks at the six slots. A
-  controller found in one is **turned to face the field** (`setFrontFacing`: down at the top, up at the bottom, whatever the
+  controller found in one is **turned to face outwards, away from the field** (`setFrontFacing`: up at the top, down at the bottom, whatever the
   hall's rotation), linked, and counted when all 12 casings stand and the hall has room for its kind. A module set up or broken
   later is noticed within a second. Turning a module changes its block state, which makes GT check the hall again (and form it, and scan again): a guard
   (`scanningModules`) lets only the outermost scan turn anything (the first version recursed until the server crashed, 0.1.165). Without its casings a module shows "not all in place" and gives nothing.
