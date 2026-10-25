@@ -13,6 +13,7 @@ import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.FluidHatchPartMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.LaserHatchPartMachine;
 
@@ -21,6 +22,7 @@ import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
 import com.af9.core.common.AF9DamageTypes;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.PlasmaForgeConsoleWidget;
+import com.af9.core.machine.part.CoolantHatchPartMachine;
 import com.af9.core.machine.part.PlasmaHatchPartMachine;
 import com.af9.core.network.AF9Network;
 import com.af9.core.wireless.WirelessReceiverHatch;
@@ -313,7 +315,9 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
             else if (got < burn) fieldState = FIELD_FALLING;
             else fieldState = fieldStrength >= FIELD_MAX - burn ? FIELD_HOLDING : FIELD_BUILDING;
         } else {
-            plasmaFed = false;
+            // nothing is taken in without the stabilisers' power; the plasma is still reported as it stands, so a dry
+            // readout never hides a missing power supply
+            plasmaFed = getPlasmaStored() >= burn;
             fieldStrength = Math.max(0, fieldStrength - burn * FIELD_FALL_FACTOR);
             if (sequenced && before > 0) fieldStrength = Math.max(fieldStrength, sequencerFloor());
             fieldState = fieldStrength > 0 ? FIELD_FALLING : FIELD_COLD;
@@ -321,11 +325,16 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         if (fieldStrength != before) markDirty();
     }
 
+    /** The hatches the field draws osmium plasma from: plasma hatches and every other fluid input hatch (not coolant). */
+    private static boolean takesPlasma(FluidHatchPartMachine hatch) {
+        return hatch.tank.getHandlerIO() == IO.IN && !(hatch instanceof CoolantHatchPartMachine);
+    }
+
     /** mB of osmium plasma drawn from the plasma hatches this second. */
     private long drainPlasma(long need) {
         long left = need;
         for (var part : getParts()) {
-            if (!(part instanceof PlasmaHatchPartMachine hatch) || left <= 0) continue;
+            if (!(part instanceof FluidHatchPartMachine hatch) || !takesPlasma(hatch) || left <= 0) continue;
             for (int i = 0; i < hatch.tank.getTanks() && left > 0; i++) {
                 FluidStack stack = hatch.tank.getFluidInTank(i);
                 if (!PlasmaHatchPartMachine.isPlasma(stack)) continue;
@@ -340,7 +349,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     public long getPlasmaStored() {
         long amount = 0;
         for (var part : getParts()) {
-            if (!(part instanceof PlasmaHatchPartMachine hatch)) continue;
+            if (!(part instanceof FluidHatchPartMachine hatch) || !takesPlasma(hatch)) continue;
             for (int i = 0; i < hatch.tank.getTanks(); i++) {
                 FluidStack stack = hatch.tank.getFluidInTank(i);
                 if (PlasmaHatchPartMachine.isPlasma(stack)) amount += stack.getAmount();
@@ -706,7 +715,9 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         if (!isPowerLayoutValid()) return ConsoleWidget.STATUS_TOO_MANY_INPUTS;
         if (logic.isWorking()) return ConsoleWidget.STATUS_RUNNING;
         if (!isReady()) {
-            return fieldState == FIELD_BUILDING ? ConsoleWidget.STATUS_STARTING_UP : ConsoleWidget.STATUS_NO_FIELD;
+            if (fieldState == FIELD_BUILDING) return ConsoleWidget.STATUS_STARTING_UP;
+            // a cold hall without the stabilisers' power takes in no plasma at all: say so
+            return auxPaid ? ConsoleWidget.STATUS_NO_FIELD : ConsoleWidget.STATUS_NO_POWER;
         }
         if (logic.isWaiting() || getAvailableEUt() < minimumEUt()) return ConsoleWidget.STATUS_NO_POWER;
         return ConsoleWidget.STATUS_IDLE;
