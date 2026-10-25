@@ -50,23 +50,24 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 
 // The DTPF, layer by layer: DTPF_AISLES[z] is the z-th plate, back (0) to front (42, the controller's); a plate's rows are
 // y, bottom (0) to top (12); a row's characters are x, 0 to 10, the beam at x 5, y 6.
-//   S controller, N transcendent casing, W injection casing (hatches), B bridge casing (glows),
+//   S controller, N transcendent casing, W injection casing, H a casing of the back plate (transcendent casing or any
+//   hatch: the only place for hatches), B bridge casing (glows),
 //   C beam (superconducting coil); a space is nothing (anything may be there).
 //   M module casing (Inconel 738) or nothing, P a module controller or nothing: the six module slots, a plate of 12 M round a P
 //   at the top and bottom of each big ring (x 5, y 11 and y 1), behind the middle injection casing.
 const DTPF_AISLES = [
-    // z 0: the back plate (as the front plate, casing where the controller is)
+    // z 0: the back plate, the round end of the hall: transcendent casing, and the ONLY place for hatches (H)
     [
         '           ',  // y 0
         '           ',  // y 1
         '           ',  // y 2
-        '    N N    ',  // y 3
-        '   NNNNN   ',  // y 4
-        '  NNNNNNN  ',  // y 5
-        '   NNNNN   ',  // y 6
-        '  NNNNNNN  ',  // y 7
-        '   NNNNN   ',  // y 8
-        '    N N    ',  // y 9
+        '    H H    ',  // y 3
+        '   HHHHH   ',  // y 4
+        '  HHHHHHH  ',  // y 5
+        '   HHHHH   ',  // y 6
+        '  HHHHHHH  ',  // y 7
+        '   HHHHH   ',  // y 8
+        '    H H    ',  // y 9
         '           ',  // y 10
         '           ',  // y 11
         '           ',  // y 12
@@ -753,12 +754,12 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     }
 
     // The hall's pattern: Parts have a maximum only, never a required count
-    // (setMaxGlobalLimited(max, preview count)); any injection casing ('W') may be one, nowhere else.
+    // (setMaxGlobalLimited(max, preview count)); only the back plate ('H') may be one, nowhere else.
     // Power: the recipes' own power comes through ONE laser hatch (or one wireless receiver in Primary mode: the machine
     // checks it); every energy hatch is held in Auxiliary mode and only pays the field's stabilisers (10 A of LuV).
     // No maintenance hatch, no coolant.
     const dtpfPattern = definition => {
-        const wall = Predicates.blocks('af9:dtpf_injection_casing')
+        const backPlate = Predicates.blocks('af9:dtpf_transcendent_casing')
             .or(Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 1))
             // auxiliary power for the stabilisers: energy hatches and wireless receivers
             .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(6, 2))
@@ -773,7 +774,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         return pattern
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             .where(' ', Predicates.any())
-            .where('W', wall)
+            .where('W', Predicates.blocks('af9:dtpf_injection_casing'))
+            .where('H', backPlate)
             .where('N', Predicates.blocks('af9:dtpf_transcendent_casing'))
             .where('B', Predicates.blocks('af9:dtpf_bridge_casing'))
             .where('C', Predicates.blocks('gtceu:superconducting_coil'))

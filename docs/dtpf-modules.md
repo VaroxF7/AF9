@@ -22,7 +22,8 @@ pattern accepts air in all 13 cells), so the hall forms with no modules at all.
 * **The hall owns the check** (no sub-pattern in the modules): every second `scanModules()` looks at the six slots. A
   controller found in one is **turned to face the field** (`setFrontFacing`: down at the top, up at the bottom, whatever the
   hall's rotation), linked, and counted when all 12 casings stand and the hall has room for its kind. A module set up or broken
-  later is noticed within a second. Without its casings a module shows "not all in place" and gives nothing.
+  later is noticed within a second. Turning a module changes its block state, which makes GT check the hall again (and form it, and scan again): a guard
+  (`scanningModules`) lets only the outermost scan turn anything (the first version recursed until the server crashed, 0.1.165). Without its casings a module shows "not all in place" and gives nothing.
 * The controllers are single-block multiblocks (`gtceu:dtpf_module_<kind>`, `DtpfModuleMachine`, rotation state ALL) with an
   animated face (`tools/textures/dtpf_modules.py`), lit while they count. The casing (`af9:dtpf_module_casing`) is the
   Dimensionally Transcendent Casing's grid in Inconel 738 slate, seams lit blue, rust rivets, connected texture. Its recipe is in

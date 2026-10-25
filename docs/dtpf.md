@@ -19,7 +19,7 @@ Janne's own build, taken 1:1 from the structure he exported from his world (`dtp
 | Big rings | z 11, 21, 31: 61 blocks of transcendent casing round the beam, a bridge casing either side of the beam and an injection casing above and below it | N, B, W |
 | Small rings | z 6, 16, 26, 36: 33 blocks of transcendent casing with an injection casing either side of the beam | N, W |
 | Pairs and clusters | injection casings beside the beam at z 5, 7, 15, 17, 25, 27, 35, 37; a bridge casing and an injection casing at z 10, 12, 20, 22, 30, 32 | W, B |
-| Back ring and plate | z 1 and z 0: as the front's, the plate without a controller | N, B |
+| Back ring and plate | z 1 and z 0: as the front's, the plate without a controller; **the 33 casings of the back plate (z 0) are the only place for hatches** | N, B, H |
 
 Blocks (AF9 Core's `registry/AF9Blocks`, textures in `tools/textures/dtpf_blocks.py`):
 
@@ -63,7 +63,7 @@ Minecraft in it, so the previews of the styles are made from the same code the g
 
 ## 2. The machine
 
-* **Hatches** on any injection casing (`setMaxGlobalLimited`: maximums, never required counts): **1 laser hatch** (the recipes'
+* **Hatches** only on the **back plate** (z 0, the round end opposite the controller; its 33 cells 'H' take transcendent casing or a hatch; the injection casings take none) (`setMaxGlobalLimited`: maximums, never required counts): **1 laser hatch** (the recipes'
   power), up to 6 energy hatches or wireless receivers (auxiliary power), 8 fluid input, 4 fluid output, 4 item input and 4 item
   output buses, 2 plasma hatches. **No maintenance hatch, no coolant.**
 * **Power.** The recipes' own power comes through **one input only**: the laser hatch, or one wireless energy receiver in Primary

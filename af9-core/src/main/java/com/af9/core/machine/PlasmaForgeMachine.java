@@ -469,6 +469,8 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
             { -3, 1 }, { -2, 1 }, { 2, 1 }, { 3, 1 }, { -1, -1 }, { 1, -1 } };
     /** Modules of each kind that give their bonus, recounted every {@link #RAMP_INTERVAL} ticks. */
     private final int[] moduleCount = new int[DtpfModuleMachine.Kind.values().length];
+    /** Set while {@link #scanModules()} runs (it turns modules, which makes GT form this hall again, which scans again). */
+    private boolean scanningModules;
 
     /**
      * A module controller in a slot, any kind (or nothing): the hall takes only so many of a kind. Its facing is the
@@ -536,16 +538,23 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
      * or broken later is noticed.
      */
     private void scanModules() {
-        if (getLevel() == null || getLevel().isClientSide) return;
-        java.util.Arrays.fill(moduleCount, 0);
-        for (int slot = 0; slot < 6; slot++) {
-            if (!(MetaMachine.getMachine(getLevel(), slotCenter(slot)) instanceof DtpfModuleMachine module)) continue;
-            Direction toField = slotOutward(slot).getOpposite();
-            if (module.getFrontFacing() != toField) module.setFrontFacing(toField);
-            DtpfModuleMachine.Kind kind = module.getKind();
-            boolean counted = slotComplete(slot) && moduleCount[kind.ordinal()] < kind.max;
-            if (counted) moduleCount[kind.ordinal()]++;
-            module.link(getPos().asLong(), counted);
+        if (getLevel() == null || getLevel().isClientSide || scanningModules) return;
+        // turning a module changes its block state, and GT then checks this hall's structure again, which forms it and
+        // scans again: only the outermost scan may turn anything
+        scanningModules = true;
+        try {
+            java.util.Arrays.fill(moduleCount, 0);
+            for (int slot = 0; slot < 6; slot++) {
+                if (!(MetaMachine.getMachine(getLevel(), slotCenter(slot)) instanceof DtpfModuleMachine module)) continue;
+                Direction toField = slotOutward(slot).getOpposite();
+                if (module.getFrontFacing() != toField) module.setFrontFacing(toField);
+                DtpfModuleMachine.Kind kind = module.getKind();
+                boolean counted = slotComplete(slot) && moduleCount[kind.ordinal()] < kind.max;
+                if (counted) moduleCount[kind.ordinal()]++;
+                module.link(getPos().asLong(), counted);
+            }
+        } finally {
+            scanningModules = false;
         }
     }
 
