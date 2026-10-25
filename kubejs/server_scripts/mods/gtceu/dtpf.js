@@ -63,7 +63,7 @@ ServerEvents.recipes(event => {
             .researchStack(Item.of('af9:dimensional_seed'))
             .CWUt(64)
             .EUt(VA[GTValues.ZPM]))
-        .duration(600)
+        .duration(2400) // 120 s at UV, 60 s at UHV (one overclock)
         .EUt(VA[GTValues.UV])
     // the injection deck: the one casing that takes hatches. Assembly Line at UV, wound with spools (dearer than fine wire);
     // four fluids of the UV to UHV tiers, among them the cryogenics and the resonating fluix nobody used yet
@@ -78,7 +78,7 @@ ServerEvents.recipes(event => {
             .researchStack(Item.of('af9:dtpf_transcendent_casing'))
             .CWUt(64)
             .EUt(VA[GTValues.ZPM]))
-        .duration(800)
+        .duration(2400) // 120 s at UV, 60 s at UHV (one overclock)
         .EUt(VA[GTValues.UV])
     // the module slots' casing: a plate of Inconel 738 on a transcendent casing (the controllers' recipes are the pack owner's)
     event.recipes.gtceu.assembler('af9:dtpf_module_casing')
