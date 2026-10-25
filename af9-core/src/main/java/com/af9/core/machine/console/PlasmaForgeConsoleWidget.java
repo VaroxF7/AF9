@@ -1,5 +1,6 @@
 package com.af9.core.machine.console;
 
+import com.af9.core.machine.DtpfModuleMachine;
 import com.af9.core.machine.PlasmaForgeMachine;
 
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
@@ -44,6 +45,8 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
     private boolean plasmaFed, auxPaid;
     private long plasmaStored, auxStored, available, needed;
     private int plasmaPull, inputs, ramp, progress, duration;
+    /** The modules that count, a byte for each kind (parallel in the lowest), and the field's heat in Kelvin. */
+    private int modules, heat;
     private String output = "";
 
     public PlasmaForgeConsoleWidget(PlasmaForgeMachine machine, int x, int y) {
@@ -59,10 +62,12 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
                 PlasmaForgeMachine.FIELD_MAX, PlasmaForgeMachine.FIELD_HOLD * 100 / PlasmaForgeMachine.FIELD_MAX));
         group.addWidget(tip(RX, ROW_A, COL_W, 28, "aux", PlasmaForgeMachine.AUX_AMPS,
                 compact(PlasmaForgeMachine.AUX_EUT)));
-        group.addWidget(tip(LX, ROW_B, COL_W, 26, "plasma", PlasmaForgeMachine.PLASMA_FILL, machine.isMk2() ? 125 : 250));
+        group.addWidget(tip(LX, ROW_B, COL_W, 26, "plasma", PlasmaForgeMachine.PLASMA_FILL,
+                machine.isMk2() ? PlasmaForgeMachine.PLASMA_BURN / 2 : PlasmaForgeMachine.PLASMA_BURN));
         group.addWidget(tip(RX, ROW_B, COL_W, 26, "power", 1, ""));
         group.addWidget(tip(RX, ROW_C, COL_W, 26, "ramp", PlasmaForgeMachine.ENERGY_PERCENT,
                 PlasmaForgeMachine.TIME_PERCENT));
+        group.addWidget(tip(6, 116, WIDTH - 12, 12, "modules", PlasmaForgeMachine.BASE_HEAT, ""));
         return group;
     }
 
@@ -92,6 +97,11 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
         long newNeeded = machine.getNeededEUt();
         int newPlasmaPull = machine.getPlasmaPull();
         int newInputs = machine.isFormed() ? machine.countPrimaryInputs() : 0;
+        int newModules = 0;
+        for (var kind : DtpfModuleMachine.Kind.values()) {
+            newModules |= machine.moduleCount(kind) << (8 * kind.ordinal());
+        }
+        int newHeat = machine.isFormed() ? machine.getFieldHeat() : 0;
         int newRamp = (int) Math.round(machine.getRamp() * 100);
         int newProgress = logic.isWorking() ? logic.getProgress() : 0;
         int newDuration = logic.isWorking() ? logic.getDuration() : 0;
@@ -99,7 +109,8 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
         boolean changed = newStatus != status || newField != field || newFieldState != fieldState ||
                 newPlasmaFed != plasmaFed || newAuxPaid != auxPaid || newPlasmaStored != plasmaStored ||
                 newAuxStored != auxStored || newAvailable != available || newNeeded != needed ||
-                newPlasmaPull != plasmaPull || newInputs != inputs || newRamp != ramp || newProgress != progress ||
+                newPlasmaPull != plasmaPull || newInputs != inputs || newRamp != ramp || newModules != modules ||
+                newHeat != heat || newProgress != progress ||
                 newDuration != duration || !Objects.equals(newOutput, output);
         status = newStatus;
         field = newField;
@@ -113,6 +124,8 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
         plasmaPull = newPlasmaPull;
         inputs = newInputs;
         ramp = newRamp;
+        modules = newModules;
+        heat = newHeat;
         progress = newProgress;
         duration = newDuration;
         output = newOutput;
@@ -133,6 +146,8 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
         buffer.writeVarInt(plasmaPull);
         buffer.writeVarInt(inputs);
         buffer.writeVarInt(ramp);
+        buffer.writeInt(modules);
+        buffer.writeVarInt(heat);
         buffer.writeVarInt(progress);
         buffer.writeVarInt(duration);
         buffer.writeUtf(output);
@@ -152,6 +167,8 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
         plasmaPull = buffer.readVarInt();
         inputs = buffer.readVarInt();
         ramp = buffer.readVarInt();
+        modules = buffer.readInt();
+        heat = buffer.readVarInt();
         progress = buffer.readVarInt();
         duration = buffer.readVarInt();
         output = buffer.readUtf();
@@ -230,6 +247,13 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
                 TEXT, false);
 
         drawRuntime(graphics, x0 + 6, y0 + 103, WIDTH - 12, progress, duration, status == STATUS_RUNNING, accent);
+
+        // the modules (parallel, heater, sequencer, forge) and the field's heat
+        drawSmall(graphics, Component.translatable("af9.dtpf.console.modules", modules & 0xFF, (modules >> 8) & 0xFF,
+                (modules >> 16) & 0xFF, (modules >>> 24) & 0xFF).getString(), x0 + 6, y0 + 118,
+                modules == 0 ? MUTED : TEXT, false);
+        drawSmallRight(graphics, Component.translatable("af9.dtpf.console.heat", String.format("%,d", heat)).getString(),
+                x0 + WIDTH - 6, y0 + 118, heat > PlasmaForgeMachine.BASE_HEAT ? WARN : MUTED);
     }
 
     /** A gauge's label on the left and its value on the right, both small. */

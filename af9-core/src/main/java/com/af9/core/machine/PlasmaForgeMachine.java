@@ -3,10 +3,15 @@ package com.af9.core.machine;
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
+import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
+import com.gregtechceu.gtceu.api.pattern.error.PatternStringError;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
+import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
+import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.LaserHatchPartMachine;
@@ -21,23 +26,28 @@ import com.af9.core.network.AF9Network;
 import com.af9.core.wireless.WirelessReceiverHatch;
 
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
+import com.lowdragmc.lowdraglib.utils.BlockInfo;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
+import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -91,7 +101,9 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     /** An unpowered second loses this many times the burn. */
     private static final int FIELD_FALL_FACTOR = 3;
     /** Osmium plasma a second the hall takes in at most, and burns to stay up (the Mk2 halves the burn). */
-    public static final int PLASMA_FILL = 2500, PLASMA_BURN = 250;
+    public static final int PLASMA_FILL = 2500, PLASMA_BURN = 576;
+    /** The field's heat in Kelvin: what the recipes' {@code forge_heat} is measured against (ten times that with a Superheating Element). */
+    public static final int BASE_HEAT = 1000;
     /** The stabilisers: 10 A of LuV, every tick, from the auxiliary hatches. */
     public static final int AUX_AMPS = 10;
     public static final long AUX_EUT = AUX_AMPS * GTValues.V[GTValues.LuV];
@@ -129,10 +141,42 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         if (forge.mk2) need *= MK2_AMPS;
         double penalty = forge.getFieldPenalty();
         need = (long) Math.ceil(need * penalty);
+        need = (long) Math.ceil(need * forge.moduleEnergy());
         if (forge.getAvailableEUt() < need) return ModifierFunction.NULL;
         if (!forge.isReady()) return ModifierFunction.cancel(Component.translatable("af9.dtpf.field_low"));
+        int heat = recipe.data.contains(FORGE_HEAT_KEY) ? recipe.data.getInt(FORGE_HEAT_KEY) : 0;
+        if (heat > forge.getFieldHeat()) {
+            return ModifierFunction.cancel(Component.translatable("af9.dtpf.heat_low", heat, forge.getFieldHeat()));
+        }
         if (penalty <= 1.0001) return ModifierFunction.IDENTITY;
         return ModifierFunction.builder().eutMultiplier(penalty).durationMultiplier(penalty).build();
+    };
+
+    /** The recipe data that says how hot the field must be for it, Kelvin ({@link #getFieldHeat()}). */
+    public static final String FORGE_HEAT_KEY = "forge_heat";
+
+    /**
+     * The module bonus ({@link DtpfModuleMachine.Kind}): faster runs (Manipulated Celestial Forges), twice the EU/t
+     * (the Superheating Element) and parallels (Parallel Processing Assemblies, as many as the energy allows; the hall has
+     * no parallel hatch and no batch mode). Place it after {@link #RAMP} and before the overclocks.
+     */
+    public static final RecipeModifier MODULES = (machine, recipe) -> {
+        if (!(machine instanceof PlasmaForgeMachine forge)) {
+            return RecipeModifier.nullWrongType(PlasmaForgeMachine.class, machine);
+        }
+        if (!forge.isFormed()) return ModifierFunction.IDENTITY;
+        double time = forge.moduleTime();
+        double energy = forge.moduleEnergy();
+        int parallels = 1;
+        if (forge.moduleParallels() > 1) {
+            parallels = ParallelLogic.getParallelAmount(machine, recipe, forge.moduleParallels());
+            if (parallels == 0) return ModifierFunction.NULL;
+        }
+        if (time >= 1 && energy <= 1 && parallels == 1) return ModifierFunction.IDENTITY;
+        ModifierFunction.FunctionBuilder builder = ModifierFunction.builder().durationMultiplier(time)
+                .eutMultiplier(energy * parallels);
+        if (parallels > 1) builder.modifyAllContents(ContentModifier.multiplier(parallels)).parallels(parallels);
+        return builder.build();
     };
 
     /** The running-time ramp: the recipe's EU/t and run time, scaled by how warm the forge has run. */
@@ -210,6 +254,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     public void onStructureFormed() {
         super.onStructureFormed();
         forceAuxiliaryHatches();
+        scanModules();
         rampSubs = subscribeServerTick(rampSubs, this::tickForge);
     }
 
@@ -218,6 +263,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     public void onStructureInvalid() {
         super.onStructureInvalid();
         unsubscribeRamp();
+        unlinkModules();
         warmth = 0;
         fieldStrength = 0;
         fieldState = FIELD_COLD;
@@ -251,6 +297,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         if (logic.isWorkingEnabled() && !logic.isWorking()) drawAuxiliary(AUX_EUT);
         if (getOffsetTimer() % RAMP_INTERVAL != 0) return;
         forceAuxiliaryHatches();
+        scanModules();
         int before = warmth;
         if (logic.isWorking()) {
             warmth = Math.min(RAMP_TICKS, warmth + RAMP_INTERVAL);
@@ -271,6 +318,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         int before = fieldStrength;
         boolean enabled = getRecipeLogic().isWorkingEnabled();
         int burn = getPlasmaPull();
+        boolean sequenced = enabled && moduleCount(DtpfModuleMachine.Kind.SEQUENCER) > 0;
         auxPaid = enabled && auxMissed <= AUX_GRACE_TICKS;
         auxMissed = 0;
         if (auxPaid) {
@@ -278,12 +326,14 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
             long got = drainPlasma(want);
             plasmaFed = got >= burn;
             fieldStrength = (int) Math.max(0, Math.min(FIELD_MAX, fieldStrength + got - burn));
+            if (sequenced && fieldStrength > 0) fieldStrength = Math.max(fieldStrength, sequencerFloor());
             if (fieldStrength <= 0) fieldState = FIELD_COLD;
             else if (got < burn) fieldState = FIELD_FALLING;
             else fieldState = fieldStrength >= FIELD_MAX - burn ? FIELD_HOLDING : FIELD_BUILDING;
         } else {
             plasmaFed = false;
             fieldStrength = Math.max(0, fieldStrength - burn * FIELD_FALL_FACTOR);
+            if (sequenced && before > 0) fieldStrength = Math.max(fieldStrength, sequencerFloor());
             fieldState = fieldStrength > 0 ? FIELD_FALLING : FIELD_COLD;
         }
         if (fieldStrength != before) markDirty();
@@ -317,9 +367,24 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         return amount;
     }
 
-    /** mB of osmium plasma a second the field burns (the Mk2 half). */
+    /** mB of osmium plasma a second the field burns (the Mk2 half, a Stabilisation Sequencer half again). */
     public int getPlasmaPull() {
-        return mk2 ? PLASMA_BURN / 2 : PLASMA_BURN;
+        double burn = mk2 ? PLASMA_BURN / 2.0 : PLASMA_BURN;
+        if (moduleCount(DtpfModuleMachine.Kind.SEQUENCER) > 0) burn *= DtpfModuleMachine.SEQUENCER_BURN;
+        return (int) Math.round(burn);
+    }
+
+    /** The least strength the Sequencer keeps the field at. */
+    private static int sequencerFloor() {
+        return (int) Math.round(FIELD_MAX * DtpfModuleMachine.SEQUENCER_FLOOR);
+    }
+
+    /**
+     * How hot the field is, Kelvin: {@link #BASE_HEAT}, ten times that with a Superheating Element. A recipe needs the
+     * field at least as hot as its {@link #FORGE_HEAT_KEY}.
+     */
+    public int getFieldHeat() {
+        return moduleCount(DtpfModuleMachine.Kind.SUPERHEATER) > 0 ? BASE_HEAT * DtpfModuleMachine.HEAT_FACTOR : BASE_HEAT;
     }
 
     /**
@@ -364,7 +429,8 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     /** A run on a collapsed field is lost. */
     @Override
     public boolean onWorking() {
-        if (fieldStrength < FIELD_HOLD) return false;
+        // a Stabilisation Sequencer's hall never loses a run to a weak field
+        if (fieldStrength < FIELD_HOLD && moduleCount(DtpfModuleMachine.Kind.SEQUENCER) == 0) return false;
         return super.onWorking();
     }
 
@@ -401,6 +467,140 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     /** One primary input at most: a laser hatch and a primary wireless receiver together hold the forge. */
     public boolean isPowerLayoutValid() {
         return countPrimaryInputs() <= 1;
+    }
+
+    //////////////////////////////////////
+    // ********* Modules *************//
+    //////////////////////////////////////
+
+    /** The id prefix of the module controllers ({@code gtceu:dtpf_module_<kind>}, {@link DtpfModuleMachine.Kind}). */
+    public static final String MODULE_PREFIX = "dtpf_module_";
+    private static final String MODULE_COUNT_KEY = "DtpfModuleCounts";
+    /**
+     * The six slots: behind the middle injection casing at the top and the bottom of the three big rings, {@link #SLOT_BACK}
+     * blocks behind the controller and {@link #SLOT_UP} up or down. The controller of a module stands in the slot's middle,
+     * facing the field; the {@link #SLOT_CASINGS} (sideways, outwards) round it are its structure.
+     */
+    private static final int[] SLOT_BACK = { 31, 21, 11 };
+    private static final int SLOT_UP = 5;
+    private static final int[][] SLOT_CASINGS = { { -3, 0 }, { -2, 0 }, { -1, 0 }, { 1, 0 }, { 2, 0 }, { 3, 0 },
+            { -3, 1 }, { -2, 1 }, { 2, 1 }, { 3, 1 }, { -1, -1 }, { 1, -1 } };
+    /** Modules of each kind that give their bonus, recounted every {@link #RAMP_INTERVAL} ticks. */
+    private final int[] moduleCount = new int[DtpfModuleMachine.Kind.values().length];
+
+    /**
+     * A module controller in a slot, any kind (or nothing): the hall takes only so many of a kind. Its facing is the
+     * hall's business ({@link #scanModules()} turns it to the field).
+     */
+    public static TraceabilityPredicate modules() {
+        return new TraceabilityPredicate(state -> {
+            DtpfModuleMachine.Kind kind = moduleKindOf(state.getBlockState());
+            if (kind == null) return false;
+            int[] counts = state.getMatchContext().getOrCreate(MODULE_COUNT_KEY,
+                    () -> new int[DtpfModuleMachine.Kind.values().length]);
+            if (++counts[kind.ordinal()] > kind.max) {
+                state.setError(new PatternStringError("af9.dtpf_module.error.max"));
+                return false;
+            }
+            return true;
+        }, PlasmaForgeMachine::moduleCandidates)
+                .addTooltips(Component.translatable("af9.dtpf.pattern.module"));
+    }
+
+    private static DtpfModuleMachine.Kind moduleKindOf(BlockState state) {
+        ResourceLocation key = ForgeRegistries.BLOCKS.getKey(state.getBlock());
+        if (key == null || !key.getNamespace().equals("gtceu")) return null;
+        return DtpfModuleMachine.Kind.ofBlock(key.getPath());
+    }
+
+    private static BlockInfo[] moduleCandidates() {
+        return java.util.Arrays.stream(DtpfModuleMachine.Kind.values())
+                .map(kind -> ForgeRegistries.BLOCKS.getValue(new ResourceLocation("gtceu", MODULE_PREFIX + kind.id())))
+                .filter(block -> block != null && block != net.minecraft.world.level.block.Blocks.AIR)
+                .map(BlockInfo::fromBlock).toArray(BlockInfo[]::new);
+    }
+
+    /** Where the controller of a slot (0 to 5: ring, then top before bottom) stands. */
+    private BlockPos slotCenter(int slot) {
+        Direction back = RelativeDirection.BACK.getRelative(getFrontFacing(), getUpwardsFacing(), isFlipped());
+        return getPos().relative(back, SLOT_BACK[slot / 2]).relative(slotOutward(slot), SLOT_UP);
+    }
+
+    /** Away from the beam: up for the top slots, down for the bottom ones. */
+    private Direction slotOutward(int slot) {
+        Direction up = RelativeDirection.UP.getRelative(getFrontFacing(), getUpwardsFacing(), isFlipped());
+        return slot % 2 == 0 ? up : up.getOpposite();
+    }
+
+    /** Whether all {@value DtpfModuleMachine#CASINGS} casings round the slot's controller are Module Casings. */
+    private boolean slotComplete(int slot) {
+        if (getLevel() == null) return false;
+        Direction left = RelativeDirection.LEFT.getRelative(getFrontFacing(), getUpwardsFacing(), isFlipped());
+        Direction out = slotOutward(slot);
+        BlockPos center = slotCenter(slot);
+        for (int[] casing : SLOT_CASINGS) {
+            BlockPos pos = center.relative(left, casing[0]).relative(out, casing[1]);
+            ResourceLocation key = ForgeRegistries.BLOCKS.getKey(getLevel().getBlockState(pos).getBlock());
+            if (key == null || !key.getNamespace().equals("af9") || !key.getPath().equals("dtpf_module_casing")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Looks at the six slots: a module controller in one is turned to face the field and linked, and counts when all its
+     * casings stand (a hall takes only so many of a kind). Runs when the hall forms and every second, so a module set up
+     * or broken later is noticed.
+     */
+    private void scanModules() {
+        if (getLevel() == null || getLevel().isClientSide) return;
+        java.util.Arrays.fill(moduleCount, 0);
+        for (int slot = 0; slot < 6; slot++) {
+            if (!(MetaMachine.getMachine(getLevel(), slotCenter(slot)) instanceof DtpfModuleMachine module)) continue;
+            Direction toField = slotOutward(slot).getOpposite();
+            if (module.getFrontFacing() != toField) module.setFrontFacing(toField);
+            DtpfModuleMachine.Kind kind = module.getKind();
+            boolean counted = slotComplete(slot) && moduleCount[kind.ordinal()] < kind.max;
+            if (counted) moduleCount[kind.ordinal()]++;
+            module.link(getPos().asLong(), counted);
+        }
+    }
+
+    private void unlinkModules() {
+        java.util.Arrays.fill(moduleCount, 0);
+        if (getLevel() == null || getLevel().isClientSide) return;
+        for (int slot = 0; slot < 6; slot++) {
+            if (MetaMachine.getMachine(getLevel(), slotCenter(slot)) instanceof DtpfModuleMachine module) {
+                module.unlink();
+            }
+        }
+    }
+
+    /** Modules of a kind that give their bonus now (a client sees the last sync of its own count: always 0). */
+    public int moduleCount(DtpfModuleMachine.Kind kind) {
+        return isFormed() ? moduleCount[kind.ordinal()] : 0;
+    }
+
+    public int modulesTotal() {
+        int sum = 0;
+        for (DtpfModuleMachine.Kind kind : DtpfModuleMachine.Kind.values()) sum += moduleCount(kind);
+        return sum;
+    }
+
+    /** The factor of the run time: every Celestial Forge makes the runs 1.5 times as fast. */
+    public double moduleTime() {
+        return Math.pow(1 / DtpfModuleMachine.FORGE_SPEED, moduleCount(DtpfModuleMachine.Kind.FORGE));
+    }
+
+    /** The factor of the recipes' EU/t: a Superheating Element doubles it. */
+    public double moduleEnergy() {
+        return Math.pow(DtpfModuleMachine.HEAT_ENERGY, moduleCount(DtpfModuleMachine.Kind.SUPERHEATER));
+    }
+
+    /** The parallels the Parallel Processing Assemblies allow (1 without them; six make 61, under the pack's 64). */
+    public int moduleParallels() {
+        return 1 + DtpfModuleMachine.PARALLEL_STEP * moduleCount(DtpfModuleMachine.Kind.PARALLEL);
     }
 
     //////////////////////////////////////

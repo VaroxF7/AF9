@@ -179,6 +179,7 @@ ServerEvents.recipes(event => {
     // ---- the Plasma Forge (the DTPF): iron plasma and the exotic ores ----
     // 5 Fe (plasma) + 2 stellarite + 1 quantanium: eight ingots' worth, 1152 mB
     gt.plasma_forge('af9:alloys/stellarium')
+        .addData('forge_heat', 2000)
         .itemInputs('2x gtceu:stellarite_dust', 'gtceu:quantanium_dust')
         .inputFluids(Fluid.of('gtceu:iron_plasma', 5000))
         .outputFluids(Fluid.of('gtceu:stellarium', 1152))
@@ -186,6 +187,7 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.UHV], UHV_AMPS)
     // 4 stellarium + 2 neutronite shard, struck by strange matter and chromodynium plasma: five ingots' worth
     gt.plasma_forge('af9:alloys/pulsium')
+        .addData('forge_heat', 5000)
         .itemInputs('4x gtceu:stellarium_ingot', '2x gtceu:neutronite_shard_dust')
         .inputFluids(Fluid.of('gtceu:strange_matter_plasma', 1000), Fluid.of('gtceu:chromodynium_plasma', 500))
         .outputFluids(Fluid.of('gtceu:pulsium', 720))

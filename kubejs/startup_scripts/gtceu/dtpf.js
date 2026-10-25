@@ -60,6 +60,8 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 // y, bottom (0) to top (12); a row's characters are x, 0 to 10, the beam at x 5, y 6.
 //   S controller, N transcendent casing, W injection casing (hatches), B bridge casing (glows),
 //   C beam (superconducting coil); a space is nothing (anything may be there).
+//   M module casing (Inconel 738) or nothing, P a module controller or nothing: the six module slots, a plate of 12 M round a P
+//   at the top and bottom of each big ring (x 5, y 11 and y 1), behind the middle injection casing.
 const DTPF_AISLES = [
     // z 0: the back plate (as the front plate, casing where the controller is)
     [
@@ -239,9 +241,9 @@ const DTPF_AISLES = [
     ],
     // z 11: the big ring: transcendent casing, a bridge casing either side of the beam, injection casings above and below (hatch spots)
     [
-        '  NN   NN  ',  // y 0
-        '  NNNNNNN  ',  // y 1
-        '    NWN    ',  // y 2
+        '  MM   MM  ',  // y 0
+        '  MMMPMMM  ',  // y 1
+        '    MWM    ',  // y 2
         ' NN     NN ',  // y 3
         'NNN     NNN',  // y 4
         'NN       NN',  // y 5
@@ -249,9 +251,9 @@ const DTPF_AISLES = [
         'NN       NN',  // y 7
         'NNN     NNN',  // y 8
         ' NN     NN ',  // y 9
-        '    NWN    ',  // y 10
-        '  NNNNNNN  ',  // y 11
-        '  NN   NN  ',  // y 12
+        '    MWM    ',  // y 10
+        '  MMMPMMM  ',  // y 11
+        '  MM   MM  ',  // y 12
     ],
     // z 12: the beam, a bridge casing either side, an injection casing above and below (hatch spots)
     [
@@ -399,9 +401,9 @@ const DTPF_AISLES = [
     ],
     // z 21: the big ring: transcendent casing, a bridge casing either side of the beam, injection casings above and below (hatch spots)
     [
-        '  NN   NN  ',  // y 0
-        '  NNNNNNN  ',  // y 1
-        '    NWN    ',  // y 2
+        '  MM   MM  ',  // y 0
+        '  MMMPMMM  ',  // y 1
+        '    MWM    ',  // y 2
         ' NN     NN ',  // y 3
         'NNN     NNN',  // y 4
         'NN       NN',  // y 5
@@ -409,9 +411,9 @@ const DTPF_AISLES = [
         'NN       NN',  // y 7
         'NNN     NNN',  // y 8
         ' NN     NN ',  // y 9
-        '    NWN    ',  // y 10
-        '  NNNNNNN  ',  // y 11
-        '  NN   NN  ',  // y 12
+        '    MWM    ',  // y 10
+        '  MMMPMMM  ',  // y 11
+        '  MM   MM  ',  // y 12
     ],
     // z 22: the beam, a bridge casing either side, an injection casing above and below (hatch spots)
     [
@@ -559,9 +561,9 @@ const DTPF_AISLES = [
     ],
     // z 31: the big ring: transcendent casing, a bridge casing either side of the beam, injection casings above and below (hatch spots)
     [
-        '  NN   NN  ',  // y 0
-        '  NNNNNNN  ',  // y 1
-        '    NWN    ',  // y 2
+        '  MM   MM  ',  // y 0
+        '  MMMPMMM  ',  // y 1
+        '    MWM    ',  // y 2
         ' NN     NN ',  // y 3
         'NNN     NNN',  // y 4
         'NN       NN',  // y 5
@@ -569,9 +571,9 @@ const DTPF_AISLES = [
         'NN       NN',  // y 7
         'NNN     NNN',  // y 8
         ' NN     NN ',  // y 9
-        '    NWN    ',  // y 10
-        '  NNNNNNN  ',  // y 11
-        '  NN   NN  ',  // y 12
+        '    MWM    ',  // y 10
+        '  MMMPMMM  ',  // y 11
+        '  MM   MM  ',  // y 12
     ],
     // z 32: the beam, a bridge casing either side, an injection casing above and below (hatch spots)
     [
@@ -783,6 +785,10 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('N', Predicates.blocks('af9:dtpf_transcendent_casing'))
             .where('B', Predicates.blocks('af9:dtpf_bridge_casing'))
             .where('C', Predicates.blocks('gtceu:superconducting_coil'))
+            // the six module slots (af9-core PlasmaForgeMachine.modules(), dtpf_modules.js): a floating plate of module casing round
+            // the module's controller, behind the middle injection casing of each big ring; an empty slot is simply not there
+            .where('M', Predicates.blocks('af9:dtpf_module_casing').or(Predicates.air()))
+            .where('P', $PlasmaForgeMachine.modules().or(Predicates.air()))
             .build()
     }
 
@@ -793,9 +799,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeTypes([GTRecipeTypes.get('plasma_forge')])
         // FORGE_GATE: only a recipe the hatches can fully supply, with the field up; RAMP: the longer it runs, the cheaper
         // and faster (af9-core); perfect overclocks
-        .recipeModifiers([$PlasmaForgeMachine.FORGE_GATE, $PlasmaForgeMachine.RAMP, GTRecipeModifiers.OC_PERFECT])
+        .recipeModifiers([$PlasmaForgeMachine.FORGE_GATE, $PlasmaForgeMachine.RAMP, $PlasmaForgeMachine.MODULES, GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(() => Block.getBlock('af9:dtpf_injection_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 8))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 9))
         .pattern(dtpfPattern)
         // the controller: injection casing with GTNH's DTPF face (kubejs assets, overlay_front*), the force field behind it
         .model(dtpfModel())
@@ -809,9 +815,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .rotationState(RotationState.NON_Y_AXIS)
         .recipeTypes([GTRecipeTypes.get('plasma_forge')])
         // FORGE_GATE covers the Mk2 too (readiness plus four times the amperage); RAMP as ever
-        .recipeModifiers([$PlasmaForgeMachine.FORGE_GATE, $PlasmaForgeMachine.RAMP, GTRecipeModifiers.OC_PERFECT])
+        .recipeModifiers([$PlasmaForgeMachine.FORGE_GATE, $PlasmaForgeMachine.RAMP, $PlasmaForgeMachine.MODULES, GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(() => Block.getBlock('af9:dtpf_injection_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 8))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 9))
         .pattern(dtpfPattern)
         .model(dtpfModel())
         .hasBER(true)

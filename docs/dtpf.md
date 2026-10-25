@@ -73,7 +73,7 @@ Minecraft in it, so the previews of the styles are made from the same code the g
   wireless receiver keeps the mode it is set to. The auxiliary power is `docs/auxiliary-power.md`'s.
 * **The magnetic field.** The field is *made of osmium plasma*, and keeping it up is what it costs to run the hall:
   * **osmium plasma** from the plasma hatches fills it: up to 2,500 mB a second in, **250,000 mB for a full field**, and it burns
-    250 mB a second to stay up (the Mk2 half the burn);
+    576 mB a second to stay up (the Mk2 half the burn);
   * **the stabilisers**: **10 A of LuV** (327,680 EU/t) of auxiliary power, every tick, whatever the hall is doing.
   A freshly built hall has **no field and no force field**: it exists only once the stabilisers have their power and the plasma
   flows (the force field is drawn, and kills, while the field holds any plasma, and it grows brighter with it). Powered, the
@@ -102,7 +102,9 @@ Minecraft in it, so the previews of the styles are made from the same code the g
 * **The console** (`PlasmaForgeConsoleWidget`): four gauges (the magnetic field with its two marks, the stabilisers, the osmium
   plasma, the primary power and its inputs), what is being made, the ramp and the run-time bar, with a tooltip on each gauge.
   Every text was checked against the font's glyph widths: the widest label and value of a column take 90 of its 100 px.
-* **Modules** are not built yet: `docs/dtpf-modules.md` is the concept.
+* **Modules**: six optional slots (floating plates of 12 Inconel 738 Module Casings at the top and bottom of the three big rings,
+  each with a module controller facing the field): Parallel Processing Assembly (6), Superheating Element (1), Osmic Retention
+  Stabilisation Sequencer (1), Manipulated Celestial Forge (2), and the recipes' field heat in Kelvin. See `docs/dtpf-modules.md`.
 
 ## 3. The recipes (`plasma_forge`, 3 items and 3 fluids in, 3 and 3 out; UHV voltage, 100 A, **1200 s** each)
 

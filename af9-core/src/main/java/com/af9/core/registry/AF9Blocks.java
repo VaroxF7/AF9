@@ -143,6 +143,8 @@ public final class AF9Blocks {
         activeBlock("dtpf_bridge_casing", SoundType.METAL, 12F);
         activeBlock("dtpf_containment_coil", SoundType.METAL, 12F);
         activeBlock("dtpf_resonance_coil", SoundType.METAL, 12F);
+        // the casing of the hall's six module slots (Inconel 738; textures: tools/textures/dtpf_modules.py)
+        block("dtpf_module_casing", SoundType.METAL, 12F, 0, 0);
 
         for (int tier = 1; tier <= MOTORS; tier++) block(MOTOR + tier, SoundType.METAL, 12F, 0, 2);
         // the Mining Modules are machines now (gtceu:space_mining_module_mk1 to mk3, SpaceModuleMachine)

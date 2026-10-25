@@ -64,6 +64,10 @@ public class PlasmaForgeRecipeUI extends GTRecipeTypeUI {
         // rendered as plain labels, so the texts must not contain '%' and must fit the page (176 px) in one line
         type.addDataInfo(data -> Component.translatable("af9.recipe.forge_field").getString());
         type.addDataInfo(data -> Component.translatable("af9.recipe.forge_stabilisers").getString());
+        // the field heat the recipe needs, Kelvin (modules: the Superheating Element makes the field ten times hotter)
+        type.addDataInfo(data -> data.contains(PlasmaForgeMachine.FORGE_HEAT_KEY) ?
+                Component.translatable("af9.recipe.forge_heat", String.format("%,d",
+                        data.getInt(PlasmaForgeMachine.FORGE_HEAT_KEY))).getString() : "");
     }
 
     /** Our layout; GT's binding of the recipe to the slots (by their ids) and the arrow. */
