@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """The DTPF's module blocks: the Inconel 738 Module Casing and the four module controllers' faces.
 
-  dtpf_module_casing   a plate of Inconel 738 (the alloy's dark slate, its rust-orange on a few rivets) in the blue grid of the
-                       Dimensionally Transcendent Casing, seams lit blue; joins its neighbours (LDLib connected texture).
-                       The 12 casings round a module's controller are the module's structure.
+  dtpf_module_casing   Inconel 738 after GregTech CEu's Atomic Casing: the "Atomic Blue" texture of dtpf_module_casing.py, joins its
+                       neighbours (LDLib connected texture). The 12 casings round a module's controller are the module's structure.
   overlay_front*       the controllers' faces (kubejs/assets/gtceu/textures/block/multiblock/dtpf_module_<kind>/): a bezel of
                        the same plate and a small screen with the module's sign; idle dim, paused red, working animated
                        (4 frames, with an emissive copy).
@@ -44,43 +43,8 @@ def mix(a, b, t):
     return tuple(round(a[i] + (b[i] - a[i]) * t) for i in range(3))
 
 
-def casing_sprite():
-    """The plate: the dimensional casing's grid in Inconel, the seams a lit blue."""
-    src = db.load(os.path.join(db.SRC, 'MACHINE_DIM_TRANS_CASING.png'))
-    out = Image.new('RGBA', (16, 16))
-    for y in range(16):
-        for x in range(16):
-            r, g, b, _ = src.getpixel((x, y))
-            lum = b / 255.0                                # 0.1 (deep groove) to 0.55 (bright seam)
-            grain = 0.5 + 0.5 * math.sin((x * 1.7 + y * 0.45) * 2.3)   # a faint brushed grain along the plate
-            base = mix((26, 36, 54), (70, 98, 136), (lum - 0.15) * 1.9 + 0.06 * grain)   # Inconel slate with the hall's blue cast
-            seam = max(0.0, (lum - 0.42) * 4.0)            # the bright lines of the grid
-            c = mix(base, BLUE, seam * 0.95)
-            out.putpixel((x, y), (c[0], c[1], c[2], 255))
-    # the outer frame: a lit top and left edge, a shaded bottom and right edge, so the blocks read as plates
-    for i in range(16):
-        for (x, y, k) in ((i, 0, 0.5), (0, i, 0.5)):
-            r, g, b, _ = out.getpixel((x, y))
-            c = mix((r, g, b), ICE, k * 0.45)
-            out.putpixel((x, y), (c[0], c[1], c[2], 255))
-        for (x, y) in ((i, 15), (15, i)):
-            r, g, b, _ = out.getpixel((x, y))
-            out.putpixel((x, y), (int(r * 0.55), int(g * 0.55), int(b * 0.6), 255))
-    # four rivets of the alloy's rust colour in the corners of the inner panel, and a lit node in the middle
-    for (x, y) in ((3, 3), (12, 3), (3, 12), (12, 12)):
-        out.putpixel((x, y), RUST + (255,))
-        c = mix(RUST, (60, 28, 14), 0.6)
-        out.putpixel((x + 1, y), c + (255,))
-        out.putpixel((x, y + 1), c + (255,))
-    for (x, y, k) in ((7, 7, 1.0), (8, 7, 0.8), (7, 8, 0.8), (8, 8, 0.6)):
-        c = mix(BLUE, ICE, k)
-        out.putpixel((x, y), c + (255,))
-    return out
-
-
 def casing():
-    se.OUT = db.BLOCK
-    se.connected('dtpf_module_casing', casing_sprite(), 2, 2)
+    # the texture is tools/textures/dtpf_module_casing.py's (Atomic Blue, connected)
     db.plain_block('dtpf_module_casing')
     db.cube('dtpf_module_casing', 'dtpf_module_casing')
 

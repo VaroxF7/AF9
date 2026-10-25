@@ -5,6 +5,7 @@ import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.LithoConsoleWidget;
 import com.af9.core.machine.LithoMachine;
 import com.af9.core.machine.OrbitalLithographyMachine;
+import com.af9.core.machine.PlasmaForgeMachine;
 import com.af9.core.machine.ProcessMachine;
 import com.af9.core.machine.SanguiniteHearthMachine;
 import com.af9.core.machine.console.ConsoleWidget;
@@ -112,6 +113,15 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             tag.putBoolean("preheated", hearth.isPreheated());
             tag.putInt("progress", logic.isWorking() ? logic.getProgress() : 0);
             tag.putInt("duration", logic.isWorking() ? logic.getDuration() : 0);
+        } else if (machine instanceof PlasmaForgeMachine forge) {
+            var logic = forge.getRecipeLogic();
+            tag.putString("kind", "dtpf");
+            tag.putInt("status", forge.getStatus());
+            tag.putString("modeKey", ProcessMachine.modeKey(forge.getRecipeType()));
+            tag.putString("product", forge.getCurrentOutput());
+            tag.putInt("progress", logic.isWorking() ? logic.getProgress() : 0);
+            tag.putInt("duration", logic.isWorking() ? logic.getDuration() : 0);
+            DtpfJade.write(tag, forge);
         } else if (machine instanceof ProcessMachine process) {
             var logic = process.getRecipeLogic();
             tag.putString("kind", "process");
@@ -214,6 +224,17 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             } else if (!tag.getBoolean("preheated")) {
                 tooltip.add(Component.translatable("af9.jade.preheating").withStyle(ChatFormatting.GRAY));
             }
+        } else if (tag.getString("kind").equals("dtpf")) {
+            tooltip.add(statusLine(status, Component.translatable(tag.getString("modeKey"))
+                    .withStyle(ChatFormatting.AQUA)));
+            if (running) {
+                Component product = productName(tag.getString("product"));
+                if (product != null) {
+                    tooltip.add(Component.translatable("af9.jade.making", product).withStyle(ChatFormatting.GRAY));
+                }
+            }
+            DtpfJade.append(tooltip, helper, tag, running ? runtime(helper, progress, duration, 0xFF4CBB17) : null,
+                    DtpfJade.STYLE);
         } else {
             tooltip.add(statusLine(status, Component.translatable(tag.getString("modeKey"))
                     .withStyle(ChatFormatting.AQUA)));
