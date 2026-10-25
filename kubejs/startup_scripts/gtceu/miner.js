@@ -1,3 +1,5 @@
+// This File has been authored by AllTheMods Staff, or a Community contributor for use in AllTheMods - AllTheMods 9.
+// As all AllTheMods packs are licensed under All Rights Reserved, this file is not allowed to be used in any public packs not released by the AllTheMods Team, without explicit permission.
 // AF9 - overrides ATM9's startup_scripts/gtceu/miner.js (same path, so the sync replaces it). Only the Void Miner (MK1)
 // multiblock and its recipe type stay; the Dimension Scanner machines, their world_data_scanner recipe type and the
 // kubejs:overworld_data / nether_data / end_data items that ATM9 registered here are gone (not registered at all now).

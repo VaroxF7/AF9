@@ -759,7 +759,7 @@ state.machines.forEach(m => {
     })
     if (!m.pattern) return
     let pat
-    try { pat = m.pattern({ get: () => 'CONTROLLER' }) } catch (e) { report('ERROR', 'M1', `${m.id}: the pattern function threw: ${e.message.split('\n')[0]}`, where); return }
+    try { pat = m.pattern({ get: () => 'CONTROLLER', getRecipeTypes: () => [] }) } catch (e) { report('ERROR', 'M1', `${m.id}: the pattern function threw: ${e.message.split('\n')[0]}`, where); return }
     if (!pat || !pat.aisles) { report('ERROR', 'M1', `${m.id}: the pattern has no aisles`, where); return }
     // sizes
     const rowCount = new Set(pat.aisles.map(a => a.length))
@@ -818,7 +818,7 @@ state.recipeTypes.forEach((info, id) => {
 state.machines.forEach(m => {
     if (!m.pattern) return
     let pat
-    try { pat = m.pattern({ get: () => 'CONTROLLER' }) } catch (e) { return }
+    try { pat = m.pattern({ get: () => 'CONTROLLER', getRecipeTypes: () => [] }) } catch (e) { return }
     if (!pat || !pat.where) return
     const where = `${m.file}: machine ${m.id}`
     let fluidIn = 0, fluidOut = 0
