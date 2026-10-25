@@ -9,15 +9,11 @@ ServerEvents.recipes((event) => {
     // ticks - the same energy per ore, drawn faster and at more power. The extra power is amperage, not voltage: a
     // recipe keeps the base miner's voltage, so every tier runs on the hatches of its area (x2 / x3 voltage would put
     // MK2's End and MK3's Overworld a whole hatch tier higher). GT's and ATM's recipes of the old void_miner
-    // and world_data_scanner types go; only af9: ids may remain. The removal mirrors the repo's
+    // type go; only af9: ids may remain. The removal mirrors the repo's
     // event.remove({ id: ... }) filter style (boule_melting.js): no precedent removes whole types, so the foreign
     // ids are collected first and removed one by one.
     const foreign = []
     event.forEachRecipe({ type: "gtceu:void_miner" }, (recipe) => {
-        let id = String(recipe.getId())
-        if (!id.startsWith("af9:")) foreign.push(id)
-    })
-    event.forEachRecipe({ type: "gtceu:world_data_scanner" }, (recipe) => {
         let id = String(recipe.getId())
         if (!id.startsWith("af9:")) foreign.push(id)
     })
