@@ -141,8 +141,6 @@ public final class AF9Blocks {
         block("dtpf_transcendent_casing", SoundType.METAL, 12F, 0, 0);
         block("dtpf_injection_casing", SoundType.METAL, 12F, 0, 0);
         activeBlock("dtpf_bridge_casing", SoundType.METAL, 12F);
-        activeBlock("dtpf_containment_coil", SoundType.METAL, 12F);
-        activeBlock("dtpf_resonance_coil", SoundType.METAL, 12F);
         // the casing of the hall's six module slots (Inconel 738; textures: tools/textures/dtpf_modules.py)
         block("dtpf_module_casing", SoundType.METAL, 12F, 0, 0);
 

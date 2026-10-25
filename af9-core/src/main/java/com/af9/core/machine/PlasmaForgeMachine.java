@@ -62,7 +62,7 @@ import java.util.List;
  * <p>
  * <b>The magnetic field.</b> The hall holds a field round the beam that is made of osmium plasma: it is built up out of the
  * plasma hatches ({@value #PLASMA_FILL} mB a second at most, up to {@value #FIELD_MAX} mB for a full field) and burns
- * {@value #PLASMA_BURN} mB a second to stay up (the Mk2 half), while {@value #AUX_AMPS} A of LuV auxiliary power
+ * {@value #PLASMA_BURN} mB a second to stay up, while {@value #AUX_AMPS} A of LuV auxiliary power
  * ({@link #AUX_EUT} EU/t, every tick; the energy hatches are held in Auxiliary mode, a wireless receiver keeps the mode
  * it is set to) stabilise it. A freshly built hall has no field at all: it is there only once the stabilisers have their
  * power and the plasma flows. Without the power it falls {@value #FIELD_FALL_FACTOR} times as fast and takes in nothing;
@@ -72,8 +72,7 @@ import java.util.List;
  * switched-off controller lets it go.
  * <p>
  * The recipes' own power comes from a single input only: one laser hatch, or one wireless receiver in Primary mode
- * ({@link #isPowerLayoutValid()}). No maintenance, no coolant. The Mk2 forges the same recipes for half the plasma but
- * only on four times the input amperage ({@link #MK2_AMPS}).
+ * ({@link #isPowerLayoutValid()}). No maintenance, no coolant.
  * <p>
  * A force field burns in the middle of the hall ({@link com.af9.core.client.render.ForceFieldRender}): it is there while
  * the field has any strength, faint while it builds and hard while a recipe runs, and every injection casing feeds it
@@ -100,7 +99,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     public static final int FIELD_MAX = 250_000, FIELD_READY = FIELD_MAX / 2, FIELD_HOLD = FIELD_MAX / 4;
     /** An unpowered second loses this many times the burn. */
     private static final int FIELD_FALL_FACTOR = 3;
-    /** Osmium plasma a second the hall takes in at most, and burns to stay up (the Mk2 halves the burn). */
+    /** Osmium plasma a second the hall takes in at most, and burns to stay up. */
     public static final int PLASMA_FILL = 2500, PLASMA_BURN = 576;
     /** The field's heat in Kelvin: what the recipes' {@code forge_heat} is measured against (ten times that with a Superheating Element). */
     public static final int BASE_HEAT = 1000;
@@ -109,9 +108,6 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     public static final long AUX_EUT = AUX_AMPS * GTValues.V[GTValues.LuV];
     /** Ticks of a second the stabilisers may miss their power before the second counts as unpowered. */
     private static final int AUX_GRACE_TICKS = 3;
-    /** The Mk2's power: four times the input amperage of the recipe. */
-    public static final int MK2_AMPS = 4;
-
     /** The field state the console and Jade show. */
     public static final int FIELD_COLD = 0, FIELD_BUILDING = 1, FIELD_HOLDING = 2, FIELD_FALLING = 3;
 
@@ -130,8 +126,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     /**
      * Only starts a recipe the hatches can fully supply: GT's own voltage check would let a hatch of the tier below
      * start it and then starve it. GT keeps retrying a gated recipe. The field must also be ready (burning osmium
-     * plasma and its stabilisers powered), the recipes' power must come from one input only, and a Mk2 needs four
-     * times the recipe's input amperage on top.
+     * plasma and its stabilisers powered), and the recipes' power must come from one input only.
      */
     public static final RecipeModifier FORGE_GATE = (machine, recipe) -> {
         if (!(machine instanceof PlasmaForgeMachine forge)) {
@@ -141,7 +136,6 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
             return ModifierFunction.cancel(Component.translatable("af9.dtpf.too_many_inputs"));
         }
         long need = RecipeHelper.getRealEUt(recipe).getTotalEU();
-        if (forge.mk2) need *= MK2_AMPS;
         double penalty = forge.getFieldPenalty();
         need = (long) Math.ceil(need * penalty);
         need = (long) Math.ceil(need * forge.moduleEnergy());
@@ -199,9 +193,6 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     @Persisted
     @DescSynced
     private int fieldStrength;
-    /** The Mk2: half the plasma, four times the amperage. Structural, from the KubeJS definition. */
-    private final boolean mk2;
-
     /** Ticks of the current second the stabilisers did not get their power. */
     private int auxMissed;
     /** What the last full second did to the field: one of {@code FIELD_*}. */
@@ -213,12 +204,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     private TickableSubscription rampSubs;
 
     public PlasmaForgeMachine(IMachineBlockEntity holder) {
-        this(holder, false);
-    }
-
-    public PlasmaForgeMachine(IMachineBlockEntity holder, boolean mk2) {
         super(holder);
-        this.mk2 = mk2;
     }
 
     @Override
@@ -234,10 +220,6 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     @Override
     public int modeColor(int index) {
         return COLOR;
-    }
-
-    public boolean isMk2() {
-        return mk2;
     }
 
     /** The forge's own console: the field, the plasma, the stabilisers, the primary power, the ramp. */
@@ -367,9 +349,9 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         return amount;
     }
 
-    /** mB of osmium plasma a second the field burns (the Mk2 half, a Stabilisation Sequencer half again). */
+    /** mB of osmium plasma a second the field burns (a Stabilisation Sequencer halves it). */
     public int getPlasmaPull() {
-        double burn = mk2 ? PLASMA_BURN / 2.0 : PLASMA_BURN;
+        double burn = PLASMA_BURN;
         if (moduleCount(DtpfModuleMachine.Kind.SEQUENCER) > 0) burn *= DtpfModuleMachine.SEQUENCER_BURN;
         return (int) Math.round(burn);
     }

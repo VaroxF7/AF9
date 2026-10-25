@@ -3322,40 +3322,8 @@
 			y: -8.5d
 		}
 		{
-			dependencies: ["1DA3BD197A5A074C"]
-			description: [
-				"{af9.quest.dtpf_coils.1}"
-				""
-				"{af9.quest.dtpf_coils.2}"
-			]
-			icon: "af9:dtpf_containment_coil"
-			id: "7E0D2B38746F5C48"
-			rewards: [{
-				id: "7D0972A8A1E6680C"
-				type: "xp"
-				xp: 300
-			}]
-			subtitle: "{af9.quest.dtpf_coils.subtitle}"
-			tasks: [
-				{
-					id: "342EA56F9EC6093C"
-					item: "af9:dtpf_containment_coil"
-					type: "item"
-				}
-				{
-					id: "44D674CDE98AEC91"
-					item: "af9:dtpf_resonance_coil"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.dtpf_coils.title}"
-			x: 64.5d
-			y: -8.5d
-		}
-		{
 			dependencies: [
 				"6FA942303877EB24"
-				"7E0D2B38746F5C48"
 			]
 			description: [
 				"{af9.quest.dtpf.1}"

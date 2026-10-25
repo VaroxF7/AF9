@@ -12,7 +12,7 @@
 //     side of the beam), five apart, and between them four small rings with an injection casing either side of the beam,
 //     each with a pair of injection casings a few blocks to either side of it along the beam.
 // Every injection casing is a spot for a hatch (the maximums are below); the force field is drawn in the empty middle
-// (the model, af9-core ForceFieldRender). Mk2 is the same hall.
+// (the model, af9-core ForceFieldRender).
 
 const $PlasmaForgeMachine = Java.loadClass('com.af9.core.machine.PlasmaForgeMachine')
 const $ForgePlasmaHatch = Java.loadClass('com.af9.core.machine.part.PlasmaHatchPartMachine')
@@ -752,7 +752,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         return lines
     }
 
-    // The hall's pattern: one for the Mk1 and the Mk2. Parts have a maximum only, never a required count
+    // The hall's pattern: Parts have a maximum only, never a required count
     // (setMaxGlobalLimited(max, preview count)); any injection casing ('W') may be one, nowhere else.
     // Power: the recipes' own power comes through ONE laser hatch (or one wireless receiver in Primary mode: the machine
     // checks it); every energy hatch is held in Auxiliary mode and only pays the field's stabilisers (10 A of LuV).
@@ -796,21 +796,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 9))
         .pattern(dtpfPattern)
         // the controller: injection casing with GTNH's DTPF face (kubejs assets, overlay_front*), the force field behind it
-        .model(dtpfModel())
-        .hasBER(true)
-
-    // the Mk2: the same hall, half the osmium for four times the amperage.
-    // The controller is turned from the Mk1's with a UV machine hull (server dtpf.js).
-    event.create('dtpf_mk2', 'multiblock')
-        .langValue('Dimensionally Transcendent Plasma Forge Mk2')
-        .machine(holder => new $PlasmaForgeMachine(holder, true))
-        .rotationState(RotationState.NON_Y_AXIS)
-        .recipeTypes([GTRecipeTypes.get('plasma_forge')])
-        // FORGE_GATE covers the Mk2 too (readiness plus four times the amperage); RAMP as ever
-        .recipeModifiers([$PlasmaForgeMachine.FORGE_GATE, $PlasmaForgeMachine.RAMP, $PlasmaForgeMachine.MODULES, GTRecipeModifiers.OC_PERFECT])
-        .appearanceBlock(() => Block.getBlock('af9:dtpf_injection_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 9))
-        .pattern(dtpfPattern)
         .model(dtpfModel())
         .hasBER(true)
 

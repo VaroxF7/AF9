@@ -1297,8 +1297,6 @@
     "block.af9.dtpf_module_casing": "Inconel 738 Module Casing",
     "block.af9.dtpf_injection_casing": "Dimensional Injection Casing",
     "block.af9.dtpf_bridge_casing": "Dimensional Bridge Casing",
-    "block.af9.dtpf_containment_coil": "Plasma Containment Coil",
-    "block.af9.dtpf_resonance_coil": "Plasma Resonance Coil",
     "af9.recipe.forge_field": "Field up: osmium plasma",
     "af9.recipe.forge_stabilisers": "Stabilisers: 10 A LuV aux",
     "af9.recipe.forge_page.fuel": "Needs the magnetic field up",

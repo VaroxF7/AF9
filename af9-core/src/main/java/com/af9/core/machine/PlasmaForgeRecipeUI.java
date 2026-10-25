@@ -98,7 +98,6 @@ public class PlasmaForgeRecipeUI extends GTRecipeTypeUI {
         // the bore's tooltip: the machines and what they need
         var bore = new Widget(BORE_X0, BORE_Y - 14, BORE_X1 - BORE_X0, 28);
         bore.setHoverTooltips(Component.translatable("block.gtceu.dtpf"),
-                Component.translatable("block.gtceu.dtpf_mk2"),
                 Component.translatable("af9.recipe.forge_page.fuel"),
                 Component.translatable("af9.recipe.forge_page.power"),
                 Component.translatable("af9.recipe.forge_page.run"));

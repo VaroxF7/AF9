@@ -31,12 +31,11 @@ Blocks (AF9 Core's `registry/AF9Blocks`, textures in `tools/textures/dtpf_blocks
 * **Dimensional Bridge Casing** `af9:dtpf_bridge_casing` (B): the original's `MACHINE_DIM_BRIDGE`, an active block: dark while the
   forge idles, the four animated frames and an emissive layer while it works.
 * **Superconducting Coil** `gtceu:superconducting_coil` (C): GT's own, the beam.
-* The **Plasma Containment Coil** and **Plasma Resonance Coil** (`af9:dtpf_containment_coil`, `af9:dtpf_resonance_coil`) are no
-  part of the hall any more; the resonance coil is still an ingredient of the Mk2 refit.
+* The Plasma Containment and Resonance Coils are gone (removed 2026-10-25); the beam is plain superconducting coil.
 
 Recipes of the blocks (`server_scripts/mods/gtceu/dtpf.js`): the casings in the UV assembler (transcendent from mk3 fusion casing
 and tritanium / neutronium plates; injection and bridge from it). Nothing needs the forge's own products, so the first hall builds
-from scratch. The controller takes 8 transcendent casings, the Mk2 refit 4 bridge casings and 2 resonance coils.
+from scratch. The controller takes 8 transcendent casings.
 
 **The controller's face** (`tools/textures/dtpf_face.py`, AF9's own): a screen that looks down the beam tube, a bright dot for
 the beam and the field's hoops round it. Idle they stand dim; working, two hoops at a time run out of the beam towards you
@@ -73,7 +72,7 @@ Minecraft in it, so the previews of the styles are made from the same code the g
   wireless receiver keeps the mode it is set to. The auxiliary power is `docs/auxiliary-power.md`'s.
 * **The magnetic field.** The field is *made of osmium plasma*, and keeping it up is what it costs to run the hall:
   * **osmium plasma** from the plasma hatches fills it: up to 2,500 mB a second in, **250,000 mB for a full field**, and it burns
-    576 mB a second to stay up (the Mk2 half the burn);
+    576 mB a second to stay up;
   * **the stabilisers**: **10 A of LuV** (327,680 EU/t) of auxiliary power, every tick, whatever the hall is doing.
   A freshly built hall has **no field and no force field**: it exists only once the stabilisers have their power and the plasma
   flows (the force field is drawn, and kills, while the field holds any plasma, and it grows brighter with it). Powered, the
@@ -95,8 +94,7 @@ Minecraft in it, so the previews of the styles are made from the same code the g
   An assembler fills a cell with 1,000 mB molten tungsten (a cell cannot take it by hand, it holds 1,800 K); collision 1 turns it into a
   cell of molten **Rhenium-127** (`gtceu:rhenium_127`, GT's rhenium icon set tinted blue), collision 2 into a cell of 1,000 mB
   `gtceu:osmium_plasma`, emptied by right-clicking it on a Plasma Hatch. Recipes: `server_scripts/mods/gtceu/particle_accelerator.js`.
-* **Mk2** (`gtceu:dtpf_mk2`, same hall): the Mk1 controller turned with a UV machine hull (assembly line refit). Half the osmium
-  (50/25 mB a second) for **four times the input amperage**: the same recipes, hungrier power.
+* There is no Mk2 (the refit controller was removed 2026-10-25); `gtceu:dtpf` is the only controller.
 * **The console** (`PlasmaForgeConsoleWidget`): four gauges (the magnetic field with its two marks, the stabilisers, the osmium
   plasma, the primary power and its inputs), what is being made, the ramp and the run-time bar, with a tooltip on each gauge.
   Every text was checked against the font's glyph widths: the widest label and value of a column take 90 of its 100 px.
@@ -142,6 +140,6 @@ The compute card of the new DTPF: its recipes take the card.
 in a row top left with the fluids in a row under them, piped into the plasma bore (a glass tube through three coil rings that light
 in turn, a plasma bar in the tint of the recipe's first fluid), GT's arrow over the bore, the forged matter piped out to the right,
 items over fluids. Only the pipes of slots the recipe uses are drawn; GT's own slot ids, so EMI looks recipes up as usual. Hovering the
-bore names the Mk1 and Mk2 and says what the forge needs (its field up: osmium plasma and 10 A of LuV stabiliser power, one laser hatch,
+bore names the forge and says what the forge needs (its field up: osmium plasma and 10 A of LuV stabiliser power, one laser hatch,
 1200 s a run); the page also carries two short data lines (each fits the page's 176 px in one line).
 The recipe type's maximum is 3 of each so the rows fit.

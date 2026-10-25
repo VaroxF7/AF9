@@ -96,24 +96,6 @@ ServerEvents.recipes(event => {
         .duration(240)
         .EUt(VA[GTValues.UV])
 
-    // The coils come at UHV, in the Assembly Line: a Resonant Endion coil (Boule Melting's best) wound anew round a
-    // field generator and UHV circuits; the resonance coil is a containment coil pushed further with neutronium
-    event.recipes.gtceu.assembly_line('af9:dtpf_containment_coil')
-        .itemInputs('af9:resonant_endion_coil_block', '8x gtceu:tritanium_plate', 'gtceu:uv_field_generator',
-            '2x #gtceu:circuits/uhv', '32x gtceu:fine_sanguinite_wire')
-        .inputFluids(Fluid.of('gtceu:plasma_solder', 1152), Fluid.of('gtceu:supercooled_endion', 1000))
-        .itemOutputs('2x af9:dtpf_containment_coil')
-        .duration(600)
-        .EUt(VA[GTValues.UHV])
-    event.recipes.gtceu.assembly_line('af9:dtpf_resonance_coil')
-        .itemInputs('af9:dtpf_containment_coil', '4x gtceu:neutronium_plate', '2x gtceu:uv_field_generator',
-            '2x #gtceu:circuits/uhv', '32x gtceu:fine_endionite_wire')
-        .inputFluids(Fluid.of('gtceu:plasma_solder', 1152), Fluid.of('gtceu:strange_matter_plasma', 500),
-            Fluid.of('gtceu:supercooled_endion', 1000))
-        .itemOutputs('af9:dtpf_resonance_coil')
-        .duration(800)
-        .EUt(VA[GTValues.UHV])
-
     // ---- Ionisation: dust and Endion in, plasma out ----
     forge.plasma_forge('af9:dtpf/strange_matter_plasma')
         .addData('forge_heat', 3000)
@@ -191,14 +173,4 @@ ServerEvents.recipes(event => {
         .itemOutputs('4x af9:nano_particles')
         .duration(FORGE_TICKS)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
-
-    // ---- Mk2 refit: the Mk1 controller turned with a UV hull ----
-    // half the osmium for four times the amperage
-    event.recipes.gtceu.assembly_line('af9:dtpf_mk2')
-        .itemInputs('gtceu:dtpf', 'gtceu:uv_machine_hull', '4x af9:dtpf_bridge_casing',
-            '2x af9:dtpf_resonance_coil', '2x gtceu:uv_field_generator', '4x gtceu:double_tungsten_steel_plate')
-        .inputFluids(Fluid.of('gtceu:soldering_alloy', 2304), Fluid.of('gtceu:niobium_titanium', 2304))
-        .itemOutputs('gtceu:dtpf_mk2')
-        .duration(1200)
-        .EUt(VA[GTValues.UHV])
 })

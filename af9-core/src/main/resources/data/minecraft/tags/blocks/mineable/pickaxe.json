@@ -47,8 +47,6 @@
     "af9:dtpf_module_casing",
     "af9:dtpf_transcendent_casing",
     "af9:dtpf_injection_casing",
-    "af9:dtpf_bridge_casing",
-    "af9:dtpf_containment_coil",
-    "af9:dtpf_resonance_coil"
+    "af9:dtpf_bridge_casing"
   ]
 }

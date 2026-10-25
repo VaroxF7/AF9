@@ -63,7 +63,7 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
         group.addWidget(tip(RX, ROW_A, COL_W, 28, "aux", PlasmaForgeMachine.AUX_AMPS,
                 compact(PlasmaForgeMachine.AUX_EUT)));
         group.addWidget(tip(LX, ROW_B, COL_W, 26, "plasma", PlasmaForgeMachine.PLASMA_FILL,
-                machine.isMk2() ? PlasmaForgeMachine.PLASMA_BURN / 2 : PlasmaForgeMachine.PLASMA_BURN));
+                PlasmaForgeMachine.PLASMA_BURN));
         group.addWidget(tip(RX, ROW_B, COL_W, 26, "power", 1, ""));
         group.addWidget(tip(RX, ROW_C, COL_W, 26, "ramp", PlasmaForgeMachine.ENERGY_PERCENT,
                 PlasmaForgeMachine.TIME_PERCENT));
@@ -186,7 +186,7 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
         int y0 = getPosition().y;
         int accent = machine.modeColor(0);
 
-        drawFrame(graphics, Component.translatable(machine.titleKey()).getString(), machine.isMk2() ? "Mk2" : "",
+        drawFrame(graphics, Component.translatable(machine.titleKey()).getString(), "",
                 accent, status, accent);
 
         // the magnetic field, with the mark where a run is lost and where the forge is ready

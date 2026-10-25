@@ -51,7 +51,7 @@ pattern accepts air in all 13 cells), so the hall forms with no modules at all.
   | star matter plasma steel plasma | 8,000 | | idontknowium plasma | 10,000 |
 
 * **The Sequencer's numbers.** The field's burn is **576 mB of osmium plasma a second** (288 per 10 ticks), 288 mB/s with the
-  Sequencer (the Mk2 halves both: 288 and 144). The floor applies while the controller is switched on and the field exists
+  Sequencer. The floor applies while the controller is switched on and the field exists
   (a hall that has never been fed has no field to hold); below the 50 % start line the run still costs up to 1.93x time and EU/t
   (`getFieldPenalty`).
 
