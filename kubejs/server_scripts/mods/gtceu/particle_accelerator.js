@@ -81,6 +81,35 @@ ServerEvents.recipes(event => {
         .addData('min_field', 3000)
         .addData('decay_rate', 800)
 
+    // ---- Heavy-ion collision: osmium plasma, in two collisions ----
+    // The recipes work on Universal Cells holding the fluid (the ring takes fluids only as coolant): a cell of molten
+    // tungsten is collided into rhenium-127 (the cell comes back full of molten rhenium-127), and that into osmium plasma
+    // (the cell comes back full of it; right-click it on a Plasma Hatch). A cell cannot be filled by hand with the molten
+    // metal (it holds only up to 1,800 K), so the assembler does it.
+    const cell = (fluid, amount) => Item.of('gtceu:universal_fluid_cell', `{Fluid:{Amount:${amount},FluidName:"${fluid}"}}`)
+    event.recipes.gtceu.assembler('af9:tungsten_cell')
+        .itemInputs('gtceu:universal_fluid_cell')
+        .inputFluids(Fluid.of('gtceu:tungsten', 1000))
+        .itemOutputs(cell('gtceu:tungsten', 1000))
+        .duration(40)
+        .EUt(VA[GTValues.LuV])
+    event.recipes.gtceu.ion_collision('af9:rhenium_127')
+        .itemInputs(cell('gtceu:tungsten', 1000))
+        .inputFluids('#af9:coolant/argon 1000')
+        .itemOutputs(cell('gtceu:rhenium_127', 1000))
+        .duration(400)
+        .EUt(VA[GTValues.UV], 4)
+        .addData('min_field', 3000)
+        .addData('decay_rate', 800)
+    event.recipes.gtceu.ion_collision('af9:osmium_plasma')
+        .itemInputs(cell('gtceu:rhenium_127', 1000))
+        .inputFluids('#af9:coolant/argon 1000')
+        .itemOutputs(cell('gtceu:osmium_plasma', 1000))
+        .duration(400)
+        .EUt(VA[GTValues.UV], 4)
+        .addData('min_field', 3000)
+        .addData('decay_rate', 800)
+
     // ---- Quark synthesis: strange matter, then chromodynium; the traps come back empty ----
     event.recipes.gtceu.quark_synthesis('af9:strange_matter_dust')
         .itemInputs('4x af9:qgp_trap', 'gtceu:neutronium_dust')

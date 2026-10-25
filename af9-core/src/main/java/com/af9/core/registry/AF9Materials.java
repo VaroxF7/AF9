@@ -1518,6 +1518,15 @@ public final class AF9Materials {
         dust("ammonium_perrhenate", 0xf0eee0, "NH4ReO4");
         roughDust("rhenium_nickel_master_alloy", 0x7a8590, "Ni3Re");
 
+        // Rhenium-127: what the Particle Accelerator's ion collision makes of molten tungsten (its molten fluid is the
+        // second collision's input, which makes osmium plasma). GT's rhenium icon set, a slight blue tint on its colour.
+        // Recipes: particle_accelerator.js
+        add(material("rhenium_127")
+                .ingot().liquid(3459)
+                .color(0xb4c9f0).secondaryColor(0x2b3a66)
+                .iconSet(MaterialIconSet.SHINY)
+                .formula("127Re"));
+
         // ---- chronite and chronium: a rare-earth pyrochlore of Ceres, split in a leach and a calcium reduction ----
         add(material("chronite")
                 .dust().ore(2, 1)
