@@ -22,7 +22,22 @@ public final class AF9DamageTypes {
     public static final ResourceKey<DamageType> ORBITAL_RING = ResourceKey.create(Registries.DAMAGE_TYPE,
             new ResourceLocation(AF9Core.MOD_ID, "orbital_ring"));
 
+    /**
+     * The magnetic field of a Dimensionally Transcendent Plasma Forge: the same damage as the ring (burns, bypasses
+     * armour, enchantments and effects); death message death.attack.af9.dtpf_field.
+     */
+    @SuppressWarnings("removal")
+    public static final ResourceKey<DamageType> DTPF_FIELD = ResourceKey.create(Registries.DAMAGE_TYPE,
+            new ResourceLocation(AF9Core.MOD_ID, "dtpf_field"));
+
     private AF9DamageTypes() {}
+
+    /** The forge field's damage source (plain fire if the damage type is missing from the data). */
+    public static DamageSource dtpfField(Level level) {
+        return level.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE).getHolder(DTPF_FIELD)
+                .map(DamageSource::new)
+                .orElseGet(() -> level.damageSources().inFire());
+    }
 
     /** The ring's damage source (plain fire if the damage type is missing from the data). */
     public static DamageSource orbitalRing(Level level) {

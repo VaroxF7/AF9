@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "af9:orbital_ring"
+    "af9:orbital_ring",
+    "af9:dtpf_field"
   ]
 }

@@ -27,7 +27,8 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 /**
- * The DTPF's force field: a tube of light round the beam, from the front ring to the back ring, in one of four styles
+ * The DTPF's force field: a tube of light round the beam, from the front ring to the back ring, with a beam from every
+ * injection casing into it, in one of four styles
  * ({@link ForceFieldGeometry}: 0 hoops, 1 plasma sheath, 2 helix, 3 lattice). A hall that merely stands glows low; a
  * recipe running makes it burn hard (the change is eased over a second or two).
  * <p>
@@ -45,32 +46,59 @@ public class ForceFieldRender extends DynamicRender<IForceFieldMachine, ForceFie
             Codec.INT.fieldOf("style").forGetter(render -> render.style),
             Codec.FLOAT.fieldOf("radius").forGetter(render -> render.radius),
             Codec.FLOAT.fieldOf("start").forGetter(render -> render.start),
-            Codec.FLOAT.fieldOf("end").forGetter(render -> render.end)
+            Codec.FLOAT.fieldOf("end").forGetter(render -> render.end),
+            Codec.STRING.fieldOf("injectors").forGetter(render -> render.injectorSpec)
     ).apply(instance, ForceFieldRender::new));
     // spotless:on
     public static final DynamicRenderType<IForceFieldMachine, ForceFieldRender> TYPE = new DynamicRenderType<>(CODEC);
 
     /** How hard the field burns while the hall stands, and while a recipe runs; how fast it moves between (per frame). */
     private static final float IDLE = 0.4F, BURNING = 1F, EASE = 0.04F;
+    /** How fast the injectors ramp up and down (per frame). */
+    private static final float FEED_EASE = 0.03F;
 
-    /** The burn of each machine on screen, eased towards its target; machines that unload drop out. */
+    /** The burn and the injectors' feed of each machine on screen, eased towards their targets; machines that unload drop out. */
     private static final Map<MetaMachine, float[]> POWER = new WeakHashMap<>();
 
     private final int style;
     private final float radius;
     private final float start;
     private final float end;
+    private final String injectorSpec;
+    private final float[] injectors;
 
-    public ForceFieldRender(int style, float radius, float start, float end) {
+    public ForceFieldRender(int style, float radius, float start, float end, String injectors) {
         this.style = Mth.clamp(style, 0, ForceFieldGeometry.STYLES - 1);
         this.radius = radius;
         this.start = start;
         this.end = end;
+        this.injectorSpec = injectors;
+        this.injectors = parse(injectors);
     }
 
     /** Typed as GT's base class, so common code that builds a model never loads this client class. */
-    public static DynamicRender<?, ?> create(int style, float radius, float start, float end) {
-        return new ForceFieldRender(style, radius, start, end);
+    public static DynamicRender<?, ?> create(int style, float radius, float start, float end, String injectors) {
+        return new ForceFieldRender(style, radius, start, end, injectors);
+    }
+
+    /** "x,y,z;x,y,z" to a flat array; a malformed entry is skipped. */
+    private static float[] parse(String spec) {
+        String[] entries = spec.isBlank() ? new String[0] : spec.split(";");
+        float[] out = new float[entries.length * 3];
+        int n = 0;
+        for (String entry : entries) {
+            String[] parts = entry.trim().split(",");
+            if (parts.length != 3) continue;
+            try {
+                out[n] = Float.parseFloat(parts[0].trim());
+                out[n + 1] = Float.parseFloat(parts[1].trim());
+                out[n + 2] = Float.parseFloat(parts[2].trim());
+                n += 3;
+            } catch (NumberFormatException e) {
+                // skipped
+            }
+        }
+        return java.util.Arrays.copyOf(out, n);
     }
 
     /** Client, before the models are built (mod construction). */
@@ -119,9 +147,12 @@ public class ForceFieldRender extends DynamicRender<IForceFieldMachine, ForceFie
         if (!machine.isFieldFormed()) return;
         if (IrisCompat.renderingShadowPass()) return;
         MetaMachine self = machine.self();
-        float target = machine.isFieldBurning() ? BURNING : IDLE;
-        float[] eased = POWER.computeIfAbsent(self, key -> new float[] { target });
+        // the field burns with its strength: faint while it builds, hard while a recipe runs
+        float target = (machine.isFieldBurning() ? BURNING : IDLE) * (0.35F + 0.65F * machine.getFieldLevel());
+        float feedTarget = machine.isFieldInjecting() ? 1F : 0F;
+        float[] eased = POWER.computeIfAbsent(self, key -> new float[] { target, feedTarget });
         eased[0] += (target - eased[0]) * EASE;
+        eased[1] += (feedTarget - eased[1]) * FEED_EASE;
         float power = eased[0];
         float time = self.getOffsetTimer() + partialTick;
 
@@ -148,7 +179,7 @@ public class ForceFieldRender extends DynamicRender<IForceFieldMachine, ForceFie
                         x * left.getStepZ() + y * up.getStepZ() + z * back.getStepZ())
                         .color(v[o + 3], v[o + 4], v[o + 5], v[o + 6]).endVertex();
             }
-        }, radius, start, end, time, power).emit(style);
+        }, radius, start, end, time, power).injectors(injectors, eased[1]).emit(style);
         poseStack.popPose();
     }
 

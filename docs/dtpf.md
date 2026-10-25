@@ -45,7 +45,20 @@ the beam and the field's hoops round it. Idle they stand dim; working, two hoops
 **The force field** (`af9-core` `ForceFieldRender` / `ForceFieldGeometry`, a block entity renderer on the controller): a tube 2.6
 blocks in radius round the beam between the two end rings (the rings' blocks come as near as 2.9 blocks to the beam, so it clips
 nothing), low while the hall stands and hard while a recipe runs. Four styles (`DTPF_FIELD_STYLE` in `dtpf.js`): 0 hoops,
-1 plasma sheath (**the one in use**, slowed to a fifth of its first pace), 2 helix, 3 lattice. The geometry is plain Java with no
+1 plasma sheath (**the one in use**, slowed to a fifth of its first pace), 2 helix, 3 lattice.
+
+**The injectors.** Every one of the 42 injection casings feeds the field with a beam (after Draconic Evolution's reactor
+stabilisers): a soft blue beam round a white core, droplets of osmium plasma running in, a flare at the casing and ripples
+where the beam lands on the outside of the field. The beams are a glimmer while the field is not being fed and pump hard while
+it takes osmium plasma and the stabilisers' power (`isFieldInjecting`). The casings' positions come from `DTPF_AISLES`
+(`dtpfInjectors()` in `dtpf.js`), so they follow the pattern. The field itself is only there while it has any strength (a cold
+hall shows nothing, a charging one is faint).
+
+**The field kills.** Anything living within 2.6 blocks of the beam between the end rings (`PlasmaForgeMachine.touchesField`,
+checked every other tick while the field has strength) is set alight for 10 s and takes 1,000,000 damage of the damage type
+`af9:dtpf_field`: it bypasses armour, enchantments, effects and shields like the Orbital Station's light ring. A player it kills
+gets the same vaporised death screen as the ring (`AF9Network.sendRingDeath`) with its own message ("... touched the magnetic
+field of a Dimensionally Transcendent Plasma Forge and was vaporized"). Creative and spectator players are spared. The geometry is plain Java with no
 Minecraft in it, so the previews of the styles are made from the same code the game runs.
 
 ## 2. The machine

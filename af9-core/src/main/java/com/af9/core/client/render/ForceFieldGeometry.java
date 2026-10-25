@@ -20,6 +20,11 @@ package com.af9.core.client.render;
  * </ol>
  * Colours are the forge's: deep blue, ice cyan and a white-hot core. The quads are drawn from both sides.
  * {@code power} (0 to 1) is how hard it burns: low while the hall only stands, high while a recipe runs.
+ * <p>
+ * The injectors: a beam from every injection casing to the outside of the field ({@link #injectors}), after Draconic
+ * Evolution's stabilisers feeding the reactor: a wide soft beam round a white core, droplets of osmium plasma running
+ * into the field, a flare at the casing and ripples where the beam lands. {@code feed} (0 to 1) is how hard they pump:
+ * a glimmer while the field is not being fed, full while it takes osmium plasma and the stabilisers' power.
  */
 public final class ForceFieldGeometry {
 
@@ -41,6 +46,9 @@ public final class ForceFieldGeometry {
     private final float radius, start, end, time, power;
     private final float[] q = new float[28];
     private float cr, cg, cb;
+    /** The injection casings' centres (x, y, z triples) and how hard they feed the field. */
+    private float[] casings = new float[0];
+    private float feed;
 
     public ForceFieldGeometry(Sink sink, float radius, float start, float end, float time, float power) {
         this.sink = sink;
@@ -51,7 +59,14 @@ public final class ForceFieldGeometry {
         this.power = power;
     }
 
-    /** Emits one frame of the given style. */
+    /** The injection casings (centres as x, y, z triples in the field's frame) and how hard they feed the field. */
+    public ForceFieldGeometry injectors(float[] centres, float feed) {
+        this.casings = centres;
+        this.feed = clamp(feed);
+        return this;
+    }
+
+    /** Emits one frame of the given style, and the injectors' beams. */
     public void emit(int style) {
         switch (style) {
             case SHEATH -> sheath();
@@ -59,6 +74,7 @@ public final class ForceFieldGeometry {
             case LATTICE -> lattice();
             default -> hoops();
         }
+        for (int i = 0; i + 2 < casings.length; i += 3) injector(i / 3, casings[i], casings[i + 1], casings[i + 2]);
     }
 
     // ---------------------------------------------------------------------------------------------- colours
@@ -206,6 +222,86 @@ public final class ForceFieldGeometry {
     private float shellAlpha(float base, float ripple, float speed, float theta, float z) {
         float wave = 0.5F + 0.5F * sin(theta * 3 + z * 0.45F - time * speed);
         return (base + ripple * wave) * env(z) * (0.55F + 0.45F * power);
+    }
+
+
+    // ---------------------------------------------------------------------------------------------- the injectors
+
+    /**
+     * One injection casing's beam, from the casing's inner face in to the outside of the field: a soft blue beam, a cyan
+     * body and a white core (two crossing ribbons each), droplets running inwards, a flare at the casing and ripples
+     * where the beam lands on the field.
+     */
+    private void injector(int n, float cx, float cy, float cz) {
+        float dist = (float) Math.hypot(cx, cy);
+        if (dist < radius + 0.6F) return;
+        float dx = cx / dist, dy = cy / dist;
+        float tx = -dy, ty = dx;
+        float s0 = dist - 0.5F, s1 = radius;
+        float len = s0 - s1;
+        float lit = 0.22F + 0.78F * feed;
+        float e = (0.55F + 0.45F * power) * lit;
+        float pulse = 0.8F + 0.2F * sin(time * 0.12F + n * 1.3F);
+
+        // the beam: three layers of two crossing ribbons, brightest at the casing and thinning towards the field
+        colour(BLUE);
+        beam(dx, dy, tx, ty, cz, s0, s1, 0.62F, 0.22F * e, 0.06F * e);
+        colour(CYAN);
+        beam(dx, dy, tx, ty, cz, s0, s1, 0.30F, 0.40F * e, 0.14F * e);
+        colour(WHITE);
+        beam(dx, dy, tx, ty, cz, s0, s1, 0.11F, 0.85F * e * pulse, 0.35F * e);
+
+        // droplets of osmium plasma running into the field
+        for (int k = 0; k < 3; k++) {
+            float u = frac(time * (0.012F + 0.03F * feed) + hash(n * 7 + k) + k / 3F);
+            float s = s0 - u * len;
+            colour(CYAN, WHITE, 0.5F + 0.5F * sin(u * 6F + n));
+            dot(dx * s, dy * s, cz, 0.07F + 0.06F * feed, 0.95F * lit * (1F - 0.4F * u));
+        }
+
+        // the flare at the casing
+        colour(CYAN);
+        dot(dx * (s0 - 0.04F), dy * (s0 - 0.04F), cz, 0.30F, 0.55F * e * pulse);
+
+        // where it lands: a glow on the field and ripples spreading from it
+        colour(BLUE);
+        landing(dx, dy, tx, ty, cz, s1, 0F, 0.50F, 0.32F * e, 0F);
+        for (int k = 0; k < 2; k++) {
+            float phase = frac(time * (0.008F + 0.02F * feed) + hash(n * 3 + 900) + k * 0.5F);
+            colour(CYAN);
+            landing(dx, dy, tx, ty, cz, s1, 0.10F + 0.75F * phase, 0.16F + 0.80F * phase, 0.5F * (1F - phase) * lit,
+                    0F);
+        }
+    }
+
+    /** A ribbon of the beam, in both of its crossing planes, from the casing's face (width and alpha a0) to the field. */
+    private void beam(float dx, float dy, float tx, float ty, float cz, float s0, float s1, float width, float a0,
+                      float a1) {
+        float h = width / 2;
+        // across the beam in the xy plane
+        quad(GLOW, dx * s0 - tx * h, dy * s0 - ty * h, cz, a0, dx * s0 + tx * h, dy * s0 + ty * h, cz, a0,
+                dx * s1 + tx * h * 0.6F, dy * s1 + ty * h * 0.6F, cz, a1, dx * s1 - tx * h * 0.6F,
+                dy * s1 - ty * h * 0.6F, cz, a1);
+        // across the beam along the tube
+        quad(GLOW, dx * s0, dy * s0, cz - h, a0, dx * s0, dy * s0, cz + h, a0, dx * s1, dy * s1, cz + h * 0.6F, a1,
+                dx * s1, dy * s1, cz - h * 0.6F, a1);
+    }
+
+    /**
+     * A flat ring on the field where a beam lands (in the plane across the beam), from radius r0 to r1, fading from the
+     * alpha {@code aInner} at its inner edge to {@code aOuter} at its outer.
+     */
+    private void landing(float dx, float dy, float tx, float ty, float cz, float s, float r0, float r1, float aInner,
+                         float aOuter) {
+        int segments = 16;
+        float x = dx * s, y = dy * s;
+        for (int i = 0; i < segments; i++) {
+            float th0 = TAU * i / segments, th1 = TAU * (i + 1) / segments;
+            float c0 = cos(th0), n0 = sin(th0), c1 = cos(th1), n1 = sin(th1);
+            quad(GLOW, x + tx * c0 * r0, y + ty * c0 * r0, cz + n0 * r0, aInner, x + tx * c1 * r0, y + ty * c1 * r0,
+                    cz + n1 * r0, aInner, x + tx * c1 * r1, y + ty * c1 * r1, cz + n1 * r1, aOuter,
+                    x + tx * c0 * r1, y + ty * c0 * r1, cz + n0 * r1, aOuter);
+        }
     }
 
     // ---------------------------------------------------------------------------------------------- 0: hoops

@@ -192,12 +192,15 @@ public final class AF9MachineModels {
      *
      * @param style  0 hoops, 1 plasma sheath, 2 helix, 3 lattice
      * @param radius the tube's radius in blocks
+     * @param injectors the injection casings' centres in the field's frame (x to the controller's left, y up, z behind
+     *                  its centre), "x,y,z;x,y,z;..." (each feeds the field with a beam), or empty
      */
     public static MachineBuilder.ModelInitializer workableCasingWithForceField(ResourceLocation casing,
                                                                                 ResourceLocation overlay, int style,
                                                                                 float radius, float start,
-                                                                                float end) {
+                                                                                float end, String injectors) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
-                .andThen(model -> model.addDynamicRenderer(() -> ForceFieldRender.create(style, radius, start, end)));
+                .andThen(model -> model
+                        .addDynamicRenderer(() -> ForceFieldRender.create(style, radius, start, end, injectors)));
     }
 }

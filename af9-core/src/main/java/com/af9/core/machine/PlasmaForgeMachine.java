@@ -11,16 +11,31 @@ import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.EnergyHatchPartMachine;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.LaserHatchPartMachine;
 
+import com.gregtechceu.gtceu.api.pattern.util.RelativeDirection;
+
+import com.af9.core.common.AF9DamageTypes;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.PlasmaForgeConsoleWidget;
 import com.af9.core.machine.part.PlasmaHatchPartMachine;
+import com.af9.core.network.AF9Network;
 import com.af9.core.wireless.WirelessReceiverHatch;
 
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
+import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
 import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler.FluidAction;
 
@@ -47,8 +62,12 @@ import java.util.List;
  * ({@link #isPowerLayoutValid()}). No maintenance, no coolant. The Mk2 forges the same recipes for half the plasma but
  * only on four times the input amperage ({@link #MK2_AMPS}).
  * <p>
- * A force field burns in the middle of the hall ({@link com.af9.core.client.render.ForceFieldRender}): low while it
- * stands, hard while a recipe runs.
+ * A force field burns in the middle of the hall ({@link com.af9.core.client.render.ForceFieldRender}): it is there while
+ * the field has any strength, faint while it builds and hard while a recipe runs, and every injection casing feeds it
+ * with a beam. <b>It kills</b>: whatever living thing comes within {@value #FIELD_RADIUS} blocks of the beam between the
+ * end rings is set alight and takes {@value #FIELD_DAMAGE} damage that no armour, effect or enchantment turns, and a
+ * player it kills gets the Orbital Station's ring death screen with the field's own message
+ * ({@link AF9DamageTypes#dtpfField}).
  */
 public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMachine {
 
@@ -77,6 +96,12 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
 
     /** The field state the console and Jade show. */
     public static final int FIELD_COLD = 0, FIELD_BUILDING = 1, FIELD_HOLDING = 2, FIELD_FALLING = 3;
+
+    /** The force field: its radius round the beam, and from where to where it runs, blocks behind the controller's centre. */
+    public static final float FIELD_RADIUS = 2.6F, FIELD_START = 1.6F, FIELD_END = 40.4F;
+    /** What the field does to what touches it (the Orbital Station ring's), and how long it sets it alight, seconds. */
+    public static final float FIELD_DAMAGE = 1.0E6F;
+    private static final int FIELD_FIRE_SECONDS = 10;
 
     /** The hall's colour in its console: forge orange. */
     private static final int COLOR = 0xFFFF9A3C;
@@ -119,6 +144,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     private int warmth;
     /** Field strength, 0 to {@link #FIELD_MAX}. */
     @Persisted
+    @DescSynced
     private int fieldStrength;
     /** The Mk2: half the plasma, four times the amperage. Structural, from the KubeJS definition. */
     private final boolean mk2;
@@ -128,6 +154,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     /** What the last full second did to the field: one of {@code FIELD_*}. */
     private int fieldState = FIELD_COLD;
     /** Whether the last second's plasma and stabiliser power were paid. */
+    @DescSynced
     private boolean plasmaFed, auxPaid;
 
     private TickableSubscription rampSubs;
@@ -211,6 +238,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     private void tickForge() {
         if (!isFormed()) return;
         var logic = getRecipeLogic();
+        if (getOffsetTimer() % 2 == 0 && fieldStrength > 0) burnFieldTouchers();
         if (logic.isWorkingEnabled() && !logic.isWorking()) drawAuxiliary(AUX_EUT);
         if (getOffsetTimer() % RAMP_INTERVAL != 0) return;
         forceAuxiliaryHatches();
@@ -345,11 +373,75 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         return countPrimaryInputs() <= 1;
     }
 
+    //////////////////////////////////////
+    // ********* The deadly field *******//
+    //////////////////////////////////////
+
+    /** The field burns every living thing that touches it (players in creative or spectator mode aside). */
+    private void burnFieldTouchers() {
+        if (!(getLevel() instanceof ServerLevel level)) return;
+        Direction back = RelativeDirection.BACK.getRelative(getFrontFacing(), getUpwardsFacing(), isFlipped());
+        Vec3 axis = new Vec3(back.getStepX(), back.getStepY(), back.getStepZ());
+        Vec3 origin = Vec3.atCenterOf(getPos());
+        AABB near = new AABB(origin.add(axis.scale(FIELD_START)), origin.add(axis.scale(FIELD_END)))
+                .inflate(FIELD_RADIUS + 1);
+        for (LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, near,
+                PlasmaForgeMachine::canBurn)) {
+            if (touchesField(entity.getBoundingBox(), origin, axis)) burn(level, entity);
+        }
+    }
+
+    private static boolean canBurn(LivingEntity entity) {
+        if (!entity.isAlive() || entity.isSpectator()) return false;
+        return !(entity instanceof Player player) || !player.getAbilities().invulnerable;
+    }
+
+    /**
+     * Whether the box reaches into the field: the tube of {@link #FIELD_RADIUS} round the axis between
+     * {@link #FIELD_START} and {@link #FIELD_END}, the box's half width added. Checked at five heights of the box's
+     * middle line.
+     */
+    public static boolean touchesField(AABB box, Vec3 origin, Vec3 axis) {
+        double half = Math.max(box.getXsize(), box.getZsize()) / 2;
+        Vec3 middle = box.getCenter();
+        for (int i = 0; i <= 4; i++) {
+            Vec3 point = new Vec3(middle.x, box.minY + box.getYsize() * i / 4, middle.z);
+            Vec3 offset = point.subtract(origin);
+            double along = offset.dot(axis);
+            if (along < FIELD_START - half || along > FIELD_END + half) continue;
+            if (offset.subtract(axis.scale(along)).length() < FIELD_RADIUS + half) return true;
+        }
+        return false;
+    }
+
+    /** Sets it alight and kills it with the field's damage; a player it kills gets the vaporised death screen. */
+    private static void burn(ServerLevel level, LivingEntity entity) {
+        double y = entity.getY() + entity.getBbHeight() / 2;
+        entity.setSecondsOnFire(FIELD_FIRE_SECONDS);
+        level.sendParticles(ParticleTypes.FLAME, entity.getX(), y, entity.getZ(), 30, 0.3, 0.6, 0.3, 0.03);
+        level.sendParticles(ParticleTypes.LAVA, entity.getX(), y, entity.getZ(), 8, 0.3, 0.5, 0.3, 0);
+        level.playSound(null, entity.getX(), y, entity.getZ(), SoundEvents.FIRECHARGE_USE, SoundSource.BLOCKS, 1.2F,
+                0.6F);
+        boolean killed = entity.hurt(AF9DamageTypes.dtpfField(level), FIELD_DAMAGE) && entity.isDeadOrDying();
+        if (killed && entity instanceof ServerPlayer player) AF9Network.sendRingDeath(player);
+    }
+
     // ---- the renderer's view ----
 
+    /** The field is there while it has any strength: it is what the renderer draws, and what kills. */
     @Override
     public boolean isFieldFormed() {
-        return isFormed();
+        return isFormed() && fieldStrength > 0;
+    }
+
+    @Override
+    public float getFieldLevel() {
+        return (float) getFieldStrength() / FIELD_MAX;
+    }
+
+    @Override
+    public boolean isFieldInjecting() {
+        return isFormed() && plasmaFed && auxPaid;
     }
 
     @Override

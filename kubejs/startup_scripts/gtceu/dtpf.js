@@ -20,11 +20,24 @@ const $ForgePlasmaHatch = Java.loadClass('com.af9.core.machine.part.PlasmaHatchP
 const $DtpfModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 
 // The force field in the hall's middle (af9-core ForceFieldRender): 0 hoops, 1 plasma sheath, 2 helix, 3 lattice. A tube
-// round the beam between the two end rings (1.6 to 40.4 blocks behind the controller's centre). The rings' blocks come as
-// near as 2.9 blocks to the beam, so the radius is 2.6.
+// round the beam between the two end rings; its size is PlasmaForgeMachine's (FIELD_RADIUS 2.6: the rings' blocks come as
+// near as 2.9 blocks to the beam, so it clips nothing; the same tube is what kills whatever touches it).
 const DTPF_FIELD_STYLE = 1
+
+// Where the injection casings stand, in the field's frame (x to the controller's left, y up, z blocks behind the
+// controller's centre; the controller is at x 5, y 6 of the last plate): the renderer feeds the field with a beam from each.
+const dtpfInjectors = () => {
+    const spots = []
+    DTPF_AISLES.forEach((aisle, z) => aisle.forEach((row, y) => row.split('').forEach((ch, x) => {
+        if (ch === 'W') {
+            spots.push(`${(5.5 - (x + 0.5)).toFixed(2)},${(y + 0.5 - 6.5).toFixed(2)},${(DTPF_AISLES.length - 1 - z).toFixed(2)}`)
+        }
+    })))
+    return spots.join(';')
+}
 const dtpfModel = () => $DtpfModels.workableCasingWithForceField('af9:block/dtpf_injection_casing',
-    'gtceu:block/multiblock/dtpf', DTPF_FIELD_STYLE, 2.6, 1.6, 40.4)
+    'gtceu:block/multiblock/dtpf', DTPF_FIELD_STYLE, $PlasmaForgeMachine.FIELD_RADIUS, $PlasmaForgeMachine.FIELD_START,
+    $PlasmaForgeMachine.FIELD_END, dtpfInjectors())
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
     // plasma and matter in, forged matter and fluids out (three of each: the recipe page lays out rows of three)
@@ -782,7 +795,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // and faster (af9-core); perfect overclocks
         .recipeModifiers([$PlasmaForgeMachine.FORGE_GATE, $PlasmaForgeMachine.RAMP, GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(() => Block.getBlock('af9:dtpf_injection_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 7))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 8))
         .pattern(dtpfPattern)
         // the controller: injection casing with GTNH's DTPF face (kubejs assets, overlay_front*), the force field behind it
         .model(dtpfModel())
@@ -798,7 +811,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // FORGE_GATE covers the Mk2 too (readiness plus four times the amperage); RAMP as ever
         .recipeModifiers([$PlasmaForgeMachine.FORGE_GATE, $PlasmaForgeMachine.RAMP, GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(() => Block.getBlock('af9:dtpf_injection_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 7))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 8))
         .pattern(dtpfPattern)
         .model(dtpfModel())
         .hasBER(true)
