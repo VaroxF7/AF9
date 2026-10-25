@@ -65,25 +65,25 @@ Minecraft in it, so the previews of the styles are made from the same code the g
 
 * **Hatches** only on the **back plate** (z 0, the round end opposite the controller; its 33 cells 'H' take transcendent casing or a hatch; the injection casings take none) (`setMaxGlobalLimited`: maximums, never required counts): **1 laser hatch** (the recipes'
   power), up to 6 energy hatches or wireless receivers (auxiliary power), 8 fluid input, 4 fluid output, 4 item input and 4 item
-  output buses, 2 plasma hatches. **No maintenance hatch, no coolant.**
+  output buses. **No maintenance hatch, no coolant.**
 * **Power.** The recipes' own power comes through **one input only**: the laser hatch, or one wireless energy receiver in Primary
   mode (`PlasmaForgeMachine.isPowerLayoutValid`; a laser hatch and a primary receiver together hold the forge, with a message).
   Every plain energy input hatch is held in **Auxiliary** mode (set again every second, a screwdriver cannot switch it back); a
   wireless receiver keeps the mode it is set to. The auxiliary power is `docs/auxiliary-power.md`'s.
 * **The magnetic field.** The field is *made of osmium plasma*, and keeping it up is what it costs to run the hall:
-  * **osmium plasma** from the plasma hatches fills it: up to 2,500 mB a second in, **250,000 mB for a full field**, and it burns
+  * **osmium plasma** from the fluid input hatches fills it: up to 2,500 mB a second in, **250,000 mB for a full field**, and it burns
     576 mB a second to stay up;
   * **the stabilisers**: **10 A of LuV** (327,680 EU/t) of auxiliary power, every tick, whatever the hall is doing.
   A freshly built hall has **no field and no force field**: it exists only once the stabilisers have their power and the plasma
   flows (the force field is drawn, and kills, while the field holds any plasma, and it grows brighter with it). Powered, the
   field gains what the hall drew less the burn; with too little plasma it falls slowly; without the stabilisers' power it takes
-  in nothing and falls three times the burn a second. A missed tick or two is forgiven (the second only counts as unpowered
-  after three). A switched-off controller or a broken structure lets the field go.
+  in nothing and falls three times the burn a second. Each tick takes what the auxiliary hatches hold, up to the 10 A; a second counts as powered when it got nine
+  tenths of the full draw. A switched-off controller or a broken structure lets the field go.
   * **Ready (50 %)** is the gate for starting a recipe (`FORGE_GATE`, with the message "The magnetic field is below 50%").
   * **A weaker field costs more**: when a run starts, its time and its EU/t are multiplied by `getFieldPenalty()`, 1 at a full
     field rising linearly to **2 at 25 %** (so 1.67 at the 50 % start). It is fixed for the run.
   * **Below 25 %** a running recipe collapses and the run is lost (`onWorking`), so a flicker in the power does not cost a
-    twenty minute run, but a real outage or a dry plasma hatch does.
+    twenty minute run, but a real outage or a dry hatch does.
 * **Gate** (`FORGE_GATE`): it starts a recipe only when its primary power can supply the recipe's full EU/t, the field is up, and
   the power layout is valid.
 * **Perfect overclocks** (`OC_PERFECT`), and the **running-time ramp** (`RAMP`, from GTNH's discount): while a recipe runs the
@@ -93,7 +93,7 @@ Minecraft in it, so the previews of the styles are made from the same code the g
   recipes work on Universal Cells (`gtceu:universal_fluid_cell`) holding the fluid, since the ring takes fluids only as coolant.
   An assembler fills a cell with 1,000 mB molten tungsten (a cell cannot take it by hand, it holds 1,800 K); collision 1 turns it into a
   cell of molten **Rhenium-127** (`gtceu:rhenium_127`, GT's rhenium icon set tinted blue), collision 2 into a cell of 1,000 mB
-  `gtceu:osmium_plasma`, emptied by right-clicking it on a Plasma Hatch. Recipes: `server_scripts/mods/gtceu/particle_accelerator.js`.
+  `gtceu:osmium_plasma`, emptied by right-clicking it on a fluid input hatch. Recipes: `server_scripts/mods/gtceu/particle_accelerator.js`.
 * There is no Mk2 (the refit controller was removed 2026-10-25); `gtceu:dtpf` is the only controller.
 * **The console** (`PlasmaForgeConsoleWidget`): four gauges (the magnetic field with its two marks, the stabilisers, the osmium
   plasma, the primary power and its inputs), what is being made, the ramp and the run-time bar, with a tooltip on each gauge.

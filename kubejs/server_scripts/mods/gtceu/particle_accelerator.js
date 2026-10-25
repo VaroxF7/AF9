@@ -84,7 +84,7 @@ ServerEvents.recipes(event => {
     // ---- Heavy-ion collision: osmium plasma, in two collisions ----
     // The recipes work on Universal Cells holding the fluid (the ring takes fluids only as coolant): a cell of molten
     // tungsten is collided into rhenium-127 (the cell comes back full of molten rhenium-127), and that into osmium plasma
-    // (the cell comes back full of it; right-click it on a Plasma Hatch). A cell cannot be filled by hand with the molten
+    // (the cell comes back full of it; right-click it on a fluid input hatch). A cell cannot be filled by hand with the molten
     // metal (it holds only up to 1,800 K), so the assembler does it.
     const cell = (fluid, amount) => Item.of('gtceu:universal_fluid_cell', `{Fluid:{Amount:${amount},FluidName:"${fluid}"}}`)
     event.recipes.gtceu.assembler('af9:tungsten_cell')

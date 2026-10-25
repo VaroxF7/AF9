@@ -15,7 +15,6 @@
 // (the model, af9-core ForceFieldRender).
 
 const $PlasmaForgeMachine = Java.loadClass('com.af9.core.machine.PlasmaForgeMachine')
-const $ForgePlasmaHatch = Java.loadClass('com.af9.core.machine.part.PlasmaHatchPartMachine')
 const $DtpfModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 
 // The force field in the hall's middle (af9-core ForceFieldRender): 0 hoops, 1 plasma sheath, 2 helix, 3 lattice. A tube
@@ -767,8 +766,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(4, 1))
             .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(4, 1))
             .or(Predicates.abilities(PartAbility.EXPORT_ITEMS).setMaxGlobalLimited(4, 1))
-            // osmium plasma for the field goes through plasma hatches only (never recipe inputs)
-            .or(Predicates.abilities($ForgePlasmaHatch.PLASMA_INPUT).setMaxGlobalLimited(2, 1))
         let pattern = FactoryBlockPattern.start()
         DTPF_AISLES.forEach(aisle => { pattern = pattern.aisle(aisle) })
         return pattern
@@ -802,23 +799,4 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // the controller: injection casing with GTNH's DTPF face (kubejs assets, overlay_front*), the force field behind it
         .model(dtpfModel())
         .hasBER(true)
-
-        // Plasma Hatch: an input hatch for osmium plasma only, HV-UHV. The forge burns readiness
-    // through these; a plasma cell from the Particle Accelerator fills them.
-    event.create('plasma_hatch', 'custom')
-        .tiers(GTValues.HV, GTValues.EV, GTValues.IV, GTValues.LuV, GTValues.ZPM, GTValues.UV,
-            GTValues.UHV)
-        .machine((holder, tier, tankScaling) => new $ForgePlasmaHatch(holder, tier))
-        .definition((tier, builder) => {
-            builder
-                .langValue(`${GTValues.VN[tier]} Plasma Hatch`)
-                .rotationState(RotationState.ALL)
-                ['colorOverlayTieredHullModel(java.lang.String,java.lang.String,java.lang.String)'](
-                    'overlay_pipe_in_emissive', null, 'overlay_fluid_hatch')
-                .abilities(PartAbility.IMPORT_FLUIDS, $ForgePlasmaHatch.PLASMA_INPUT)
-                ['tooltips(net.minecraft.network.chat.Component[])']([
-                    Component.translatable('af9.plasma_hatch.tooltip.0'),
-                    Component.translatable('af9.plasma_hatch.tooltip.1'),
-                    Component.translatable('gtceu.universal.tooltip.fluid_storage_capacity', `${1000 << tier}`)])
-        })
 })

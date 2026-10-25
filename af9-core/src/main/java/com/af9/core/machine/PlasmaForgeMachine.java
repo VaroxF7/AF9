@@ -23,7 +23,6 @@ import com.af9.core.common.AF9DamageTypes;
 import com.af9.core.machine.console.ConsoleWidget;
 import com.af9.core.machine.console.PlasmaForgeConsoleWidget;
 import com.af9.core.machine.part.CoolantHatchPartMachine;
-import com.af9.core.machine.part.PlasmaHatchPartMachine;
 import com.af9.core.network.AF9Network;
 import com.af9.core.wireless.WirelessReceiverHatch;
 
@@ -63,7 +62,7 @@ import java.util.List;
  * built). It runs only a recipe its hatches can fully supply ({@link #FORGE_GATE}).
  * <p>
  * <b>The magnetic field.</b> The hall holds a field round the beam that is made of osmium plasma: it is built up out of the
- * plasma hatches ({@value #PLASMA_FILL} mB a second at most, up to {@value #FIELD_MAX} mB for a full field) and burns
+ * fluid input hatches ({@value #PLASMA_FILL} mB a second at most, up to {@value #FIELD_MAX} mB for a full field) and burns
  * {@value #PLASMA_BURN} mB a second to stay up, while {@value #AUX_AMPS} A of LuV auxiliary power
  * ({@link #AUX_EUT} EU/t, every tick; the energy hatches are held in Auxiliary mode, a wireless receiver keeps the mode
  * it is set to) stabilise it. A freshly built hall has no field at all: it is there only once the stabilisers have their
@@ -108,8 +107,6 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     /** The stabilisers: 10 A of LuV, every tick, from the auxiliary hatches. */
     public static final int AUX_AMPS = 10;
     public static final long AUX_EUT = AUX_AMPS * GTValues.V[GTValues.LuV];
-    /** Ticks of a second the stabilisers may miss their power before the second counts as unpowered. */
-    private static final int AUX_GRACE_TICKS = 3;
     /** The field state the console and Jade show. */
     public static final int FIELD_COLD = 0, FIELD_BUILDING = 1, FIELD_HOLDING = 2, FIELD_FALLING = 3;
 
@@ -195,8 +192,9 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     @Persisted
     @DescSynced
     private int fieldStrength;
-    /** Ticks of the current second the stabilisers did not get their power. */
-    private int auxMissed;
+    /** The current second's stabiliser power: ticks asked and EU taken. */
+    private int auxTicks;
+    private long auxDrawn;
     /** What the last full second did to the field: one of {@code FIELD_*}. */
     private int fieldState = FIELD_COLD;
     /** Whether the last second's plasma and stabiliser power were paid. */
@@ -253,7 +251,8 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         fieldState = FIELD_COLD;
         plasmaFed = false;
         auxPaid = false;
-        auxMissed = 0;
+        auxTicks = 0;
+        auxDrawn = 0;
         markDirty();
     }
 
@@ -293,7 +292,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     }
 
     /**
-     * Takes osmium plasma out of the plasma hatches into the field and checks the stabilisers' power of the last second.
+     * Takes osmium plasma out of the fluid input hatches into the field and checks the stabilisers' power of the last second.
      * The field burns {@link #getPlasmaPull()} mB a second; powered, the hall draws what the field lacks (up to
      * {@link #PLASMA_FILL}) and the field gains what it drew less the burn. Unpowered it takes in nothing and loses three
      * times the burn. A switched-off controller lets the field go the same way.
@@ -303,8 +302,10 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         boolean enabled = getRecipeLogic().isWorkingEnabled();
         int burn = getPlasmaPull();
         boolean sequenced = enabled && moduleCount(DtpfModuleMachine.Kind.SEQUENCER) > 0;
-        auxPaid = enabled && auxMissed <= AUX_GRACE_TICKS;
-        auxMissed = 0;
+        // paid when the second's power came to at least nine tenths of 10 A of LuV every tick
+        auxPaid = enabled && auxTicks > 0 && auxDrawn * 10 >= AUX_EUT * auxTicks * 9;
+        auxTicks = 0;
+        auxDrawn = 0;
         if (auxPaid) {
             long want = Math.min(PLASMA_FILL, FIELD_MAX - fieldStrength + burn);
             long got = drainPlasma(want);
@@ -325,19 +326,25 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         if (fieldStrength != before) markDirty();
     }
 
-    /** The hatches the field draws osmium plasma from: plasma hatches and every other fluid input hatch (not coolant). */
+    /** gtceu:osmium_plasma. */
+    public static boolean isPlasma(FluidStack stack) {
+        if (stack.isEmpty()) return false;
+        return new ResourceLocation("gtceu", "osmium_plasma").equals(ForgeRegistries.FLUIDS.getKey(stack.getFluid()));
+    }
+
+    /** The hatches the field draws osmium plasma from: every fluid input hatch (not coolant). */
     private static boolean takesPlasma(FluidHatchPartMachine hatch) {
         return hatch.tank.getHandlerIO() == IO.IN && !(hatch instanceof CoolantHatchPartMachine);
     }
 
-    /** mB of osmium plasma drawn from the plasma hatches this second. */
+    /** mB of osmium plasma drawn from the fluid input hatches this second. */
     private long drainPlasma(long need) {
         long left = need;
         for (var part : getParts()) {
             if (!(part instanceof FluidHatchPartMachine hatch) || !takesPlasma(hatch) || left <= 0) continue;
             for (int i = 0; i < hatch.tank.getTanks() && left > 0; i++) {
                 FluidStack stack = hatch.tank.getFluidInTank(i);
-                if (!PlasmaHatchPartMachine.isPlasma(stack)) continue;
+                if (!isPlasma(stack)) continue;
                 FluidStack take = new FluidStack(stack, (int) Math.min(left, stack.getAmount()));
                 left -= hatch.tank.drain(take, FluidAction.EXECUTE).getAmount();
             }
@@ -345,14 +352,14 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         return need - left;
     }
 
-    /** mB of osmium plasma in the plasma hatches. */
+    /** mB of osmium plasma in the fluid input hatches. */
     public long getPlasmaStored() {
         long amount = 0;
         for (var part : getParts()) {
             if (!(part instanceof FluidHatchPartMachine hatch) || !takesPlasma(hatch)) continue;
             for (int i = 0; i < hatch.tank.getTanks(); i++) {
                 FluidStack stack = hatch.tank.getFluidInTank(i);
-                if (PlasmaHatchPartMachine.isPlasma(stack)) amount += stack.getAmount();
+                if (isPlasma(stack)) amount += stack.getAmount();
             }
         }
         return amount;
@@ -405,16 +412,19 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     }
 
     /**
-     * The stabilisers' draw, whether the hall's tick or a running recipe makes it. A miss is counted for the second's
-     * field step; the run is only lost when the field has fallen below {@link #FIELD_HOLD}, so a flicker in the power
-     * does not cost a twenty minute run.
+     * The stabilisers' draw, whether the hall's tick or a running recipe makes it: what the auxiliary hatches hold, up
+     * to the 10 A, every tick, and counted for the second's field step (a second's worth of at least nine tenths is
+     * paid). A tick short of the full draw does not cost the run while the field is above {@link #FIELD_HOLD}, so a
+     * flicker in the power does not cost a twenty minute run.
      */
     @Override
     public boolean drawAuxiliary(long eut) {
-        boolean paid = super.drawAuxiliary(eut);
-        if (eut != AUX_EUT) return paid;
-        if (!paid) auxMissed++;
-        return paid || fieldStrength >= FIELD_HOLD;
+        if (eut != AUX_EUT) return super.drawAuxiliary(eut);
+        long take = Math.min(eut, getAuxiliaryStored());
+        if (take > 0) super.drawAuxiliary(take);
+        auxTicks++;
+        auxDrawn += take;
+        return take >= eut || fieldStrength >= FIELD_HOLD;
     }
 
     /** A run on a collapsed field is lost. */
