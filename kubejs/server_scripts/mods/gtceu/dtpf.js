@@ -41,13 +41,29 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.UHV], 300)
 
     // ---- The hall's blocks (structure: startup_scripts/gtceu/dtpf.js; textures GTNH's, tools/textures/dtpf_blocks.py) ----
-    // The casings: an assembler at UV from mk3 fusion casing and the metal of the original. Nothing here needs
-    // the forge's own products, so the first hall can be built from scratch.
-    event.recipes.gtceu.assembler('af9:dtpf_transcendent_casing')
-        .itemInputs('gtceu:fusion_casing_mk3', '2x gtceu:tritanium_plate', 'gtceu:neutronium_plate')
-        .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
-        .itemOutputs('2x af9:dtpf_transcendent_casing')
-        .duration(200)
+    // the research item: a neutronium seed grown on a UV emitter
+    event.recipes.gtceu.assembler('af9:dimensional_seed')
+        .itemInputs('2x gtceu:neutronium_plate', 'gtceu:uv_emitter', 'gtceu:tritanium_plate')
+        .inputFluids(Fluid.of('gtceu:soldering_alloy', 144))
+        .itemOutputs('af9:dimensional_seed')
+        .duration(400)
+        .EUt(VA[GTValues.UV])
+    // The casings: an Assembly Line at UV, researched on the Dimensional Seed. Zeron 100 parts and mk3 fusion casings,
+    // four fluids of the ZPM and UV tiers (high grade solder, polybenzimidazole, soldering alloy and the molten
+    // ruthenium trinium americium neutronate). Nothing here needs the forge's own products, so the first hall can be built from scratch.
+    event.recipes.gtceu.assembly_line('af9:dtpf_transcendent_casing')
+        .itemInputs('4x gtceu:fusion_casing_mk3', '16x gtceu:zeron_100_plate', '8x gtceu:zeron_100_rod',
+            '2x gtceu:uv_field_generator', '2x gtceu:uv_emitter')
+        .inputFluids(Fluid.of('gtceu:molten_ruthenium_trinium_americium_neutronate', 1152),
+            Fluid.of('gtceu:soldering_alloy', 1152),
+            Fluid.of('gtceu:high_grade_solder', 1152),
+            Fluid.of('gtceu:polybenzimidazole', 1152))
+        .itemOutputs('8x af9:dtpf_transcendent_casing')
+        .stationResearch(b => b
+            .researchStack(Item.of('af9:dimensional_seed'))
+            .CWUt(64)
+            .EUt(VA[GTValues.ZPM]))
+        .duration(600)
         .EUt(VA[GTValues.UV])
     // the injection deck: the one casing that takes hatches
     event.recipes.gtceu.assembler('af9:dtpf_injection_casing')

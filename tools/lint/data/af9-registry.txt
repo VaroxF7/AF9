@@ -373,6 +373,7 @@ item af9:xps_board
 item af9:silicon_carbide_substrate
 item af9:alumina_substrate
 item af9:beryllia_substrate
+item af9:dimensional_seed
 item af9:plascrete_filter_casing
 item af9:plascrete_pipe_casing
 item af9:plasma_cloud

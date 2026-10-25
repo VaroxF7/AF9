@@ -125,6 +125,8 @@ public final class AF9Items {
 
         // ---- Boules: pulled in the High Temperature Precision Fabricator from a seed crystal and a crucible ----
         item("silicon_seed_crystal", 64, 1);
+        // the research item of the Dimensionally Transcendent Casing (Assembly Line, kubejs/.../dtpf.js)
+        item("dimensional_seed", 64, 1);
         // the boules of silicon, phosphorus, naquadah and neutronium are GT's
         for (String boule : new String[] { "trinium", "naquadria", "strange_matter", "chromodynium" }) {
             item(boule + "_boule", 64, 0);

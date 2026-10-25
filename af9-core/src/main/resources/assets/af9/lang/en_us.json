@@ -867,6 +867,8 @@
     "item.af9.graphite_moderator.tooltip.0": "§7Slows the neutrons: four of them pressed together make the Nuclear Graphite Block, an Extreme Reactors moderator.",
     "item.af9.graphite_moderator.tooltip.1": "§7The fast burners (neptunium to californium) run without it.",
     "material.gtceu.vitrified_waste": "Vitrified Waste",
+    "item.af9.dimensional_seed": "Dimensional Seed",
+    "item.af9.dimensional_seed.tooltip.0": "A seed of folded space. Research for the Dimensionally Transcendent Casing.",
     "item.af9.silicon_seed_crystal": "Silicon Seed Crystal",
     "item.af9.silicon_seed_crystal.tooltip.0": "Dipped into the melt and pulled; grows into the boule. Grown from polysilicon in the autoclave.",
     "item.af9.trinium_boule": "Trinium-doped Monocrystalline Silicon Boule",
