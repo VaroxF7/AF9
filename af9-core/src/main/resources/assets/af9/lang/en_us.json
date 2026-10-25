@@ -1614,5 +1614,6 @@
     "af9.litho.console.needs_power": "needs %sA %s",
     "af9.recipe.void_mining.duration": "Duration: %s secs",
     "af9.recipe.void_mining.total": "Total: %s EU",
-    "af9.recipe.void_mining.usage": "Usage: %s A @ %s"
+    "af9.recipe.void_mining.usage": "Usage: %s A @ %s",
+    "af9.chemical_plant.pipe_connections": "The Chemical Plant needs this pipe with exactly these connections"
 }

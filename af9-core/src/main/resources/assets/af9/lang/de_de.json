@@ -78,5 +78,6 @@
     "item.af9.staged_step_detector": "Stufendetektor",
     "af9.recipe.void_mining.duration": "Dauer: %s s",
     "af9.recipe.void_mining.total": "Gesamt: %s EU",
-    "af9.recipe.void_mining.usage": "Verbrauch: %s A @ %s"
+    "af9.recipe.void_mining.usage": "Verbrauch: %s A @ %s",
+    "af9.chemical_plant.pipe_connections": "Die Chemiefabrik braucht dieses Rohr mit genau diesen Verbindungen"
 }
