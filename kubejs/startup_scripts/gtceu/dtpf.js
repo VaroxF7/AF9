@@ -795,7 +795,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         // and faster (af9-core); perfect overclocks
         .recipeModifiers([$PlasmaForgeMachine.FORGE_GATE, $PlasmaForgeMachine.RAMP, $PlasmaForgeMachine.MODULES, GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(() => Block.getBlock('af9:dtpf_injection_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 9))
+        // the hatches (back plate only) take the transcendent casing as their base, not the controller's injection casing
+        .partAppearance((controller, part, side) => Block.getBlock('af9:dtpf_transcendent_casing').defaultBlockState())
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.dtpf.tooltip', 16))
         .pattern(dtpfPattern)
         // the controller: injection casing with GTNH's DTPF face (kubejs assets, overlay_front*), the force field behind it
         .model(dtpfModel())
