@@ -337,7 +337,10 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         return hatch.tank.getHandlerIO() == IO.IN && !(hatch instanceof CoolantHatchPartMachine);
     }
 
-    /** mB of osmium plasma drawn from the fluid input hatches this second. */
+    /**
+     * mB of osmium plasma drawn from the fluid input hatches this second. {@code drainInternal}: an input hatch's own
+     * {@code drain} gives nothing (its capability is input only), which is all the outside world may do with it.
+     */
     private long drainPlasma(long need) {
         long left = need;
         for (var part : getParts()) {
@@ -346,7 +349,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
                 FluidStack stack = hatch.tank.getFluidInTank(i);
                 if (!isPlasma(stack)) continue;
                 FluidStack take = new FluidStack(stack, (int) Math.min(left, stack.getAmount()));
-                left -= hatch.tank.drain(take, FluidAction.EXECUTE).getAmount();
+                left -= hatch.tank.drainInternal(take, FluidAction.EXECUTE).getAmount();
             }
         }
         return need - left;

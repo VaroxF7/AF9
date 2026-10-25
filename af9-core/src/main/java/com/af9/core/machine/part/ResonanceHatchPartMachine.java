@@ -66,7 +66,7 @@ public class ResonanceHatchPartMachine extends FluidHatchPartMachine {
     /** Takes millibuckets of stabiliser out of the tank, as much as it has. */
     public int drain(int millibuckets) {
         if (millibuckets <= 0) return 0;
-        FluidStack drained = tank.drain(millibuckets, IFluidHandler.FluidAction.EXECUTE);
+        FluidStack drained = tank.drainInternal(millibuckets, IFluidHandler.FluidAction.EXECUTE);
         return drained == null || drained.isEmpty() ? 0 : drained.getAmount();
     }
 }

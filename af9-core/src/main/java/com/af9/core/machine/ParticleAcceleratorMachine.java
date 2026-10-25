@@ -302,7 +302,7 @@ public class ParticleAcceleratorMachine extends ProcessMachine implements ILight
         if (fluid == null) return;
         for (var part : getParts()) {
             if (!(part instanceof FluidHatchPartMachine hatch) || part instanceof CoolantHatchPartMachine) continue;
-            FluidStack drained = hatch.tank.drain(new FluidStack(fluid, want), IFluidHandler.FluidAction.EXECUTE);
+            FluidStack drained = hatch.tank.drainInternal(new FluidStack(fluid, want), IFluidHandler.FluidAction.EXECUTE);
             if (drained.isEmpty()) continue;
             setRingFill(ringFill + drained.getAmount());
             want -= drained.getAmount();
