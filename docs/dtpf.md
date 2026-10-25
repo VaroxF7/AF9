@@ -143,3 +143,7 @@ items over fluids. Only the pipes of slots the recipe uses are drawn; GT's own s
 bore names the forge and says what the forge needs (its field up: osmium plasma and 10 A of LuV stabiliser power, one laser hatch,
 1200 s a run); the page also carries two short data lines (each fits the page's 176 px in one line).
 The recipe type's maximum is 3 of each so the rows fit.
+
+**The Jade tooltip** (`compat/jade/DtpfJade.java`, `DtpfJade.STYLE`): four finished layouts (1 gauges, 2 checklist, 3 compact, 4 readout);
+the **readout** (4) is in use: status line, a Magnetic field section (strength with mB, plasma burn, stabilisers), the run bar, a
+Forge section (field heat, warm-up discount) and a Modules section that lists only the installed modules (none: no section).

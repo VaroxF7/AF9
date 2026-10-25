@@ -29,7 +29,7 @@ import java.util.Locale;
 public final class DtpfJade {
 
     /** The layout in use, 1 to 4. */
-    public static final int STYLE = 1;
+    public static final int STYLE = 4;
 
     private static final int GOOD = 0xFF4ADE80, WARN = 0xFFFBBF24, BAD = 0xFFEF4444;
     private static final String YES = "✔", NO = "✘";
@@ -135,13 +135,11 @@ public final class DtpfJade {
         int[] mods = tag.getIntArray("mods");
         int total = 0;
         for (int count : mods) total += count;
-        tooltip.add(section("af9.jade.dtpf.s_modules"));
-        if (total == 0) {
-            tooltip.add(Component.translatable("af9.jade.dtpf.no_modules").withStyle(ChatFormatting.DARK_GRAY));
-        } else {
+        if (total > 0) {
+            tooltip.add(section("af9.jade.dtpf.s_modules"));
             for (DtpfModuleMachine.Kind kind : DtpfModuleMachine.Kind.values()) {
                 if (kind.ordinal() < mods.length && mods[kind.ordinal()] > 0) {
-                    tooltip.add(Component.literal(mods[kind.ordinal()] + "x ").withStyle(ChatFormatting.WHITE)
+                    tooltip.add(Component.literal("  " + mods[kind.ordinal()] + "x ").withStyle(ChatFormatting.WHITE)
                             .append(Component.translatable(moduleKey(kind)).withStyle(ChatFormatting.GRAY)));
                 }
             }
