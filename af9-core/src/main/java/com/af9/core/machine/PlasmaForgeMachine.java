@@ -124,6 +124,9 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     /** The hall's colour in its console: forge orange. */
     private static final int COLOR = 0xFFFF9A3C;
 
+    /** The recipe data that says how hot the field must be for it, Kelvin ({@link #getFieldHeat()}). */
+    public static final String FORGE_HEAT_KEY = "forge_heat";
+
     /**
      * Only starts a recipe the hatches can fully supply: GT's own voltage check would let a hatch of the tier below
      * start it and then starve it. GT keeps retrying a gated recipe. The field must also be ready (burning osmium
@@ -151,9 +154,6 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         if (penalty <= 1.0001) return ModifierFunction.IDENTITY;
         return ModifierFunction.builder().eutMultiplier(penalty).durationMultiplier(penalty).build();
     };
-
-    /** The recipe data that says how hot the field must be for it, Kelvin ({@link #getFieldHeat()}). */
-    public static final String FORGE_HEAT_KEY = "forge_heat";
 
     /**
      * The module bonus ({@link DtpfModuleMachine.Kind}): faster runs (Manipulated Celestial Forges), twice the EU/t
