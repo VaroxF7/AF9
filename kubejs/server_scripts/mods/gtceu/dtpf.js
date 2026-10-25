@@ -65,13 +65,20 @@ ServerEvents.recipes(event => {
             .EUt(VA[GTValues.ZPM]))
         .duration(600)
         .EUt(VA[GTValues.UV])
-    // the injection deck: the one casing that takes hatches
-    event.recipes.gtceu.assembler('af9:dtpf_injection_casing')
-        .itemInputs('2x af9:dtpf_transcendent_casing', '4x gtceu:tritanium_plate', 'gtceu:uv_emitter',
-            '8x gtceu:fine_sanguinite_wire')
-        .inputFluids(Fluid.of('gtceu:soldering_alloy', 288))
-        .itemOutputs('2x af9:dtpf_injection_casing')
-        .duration(240)
+    // the injection deck: the one casing that takes hatches. Assembly Line at UV, wound with spools (dearer than fine wire);
+    // four fluids of the UV to UHV tiers, among them the cryogenics and the resonating fluix nobody used yet
+    event.recipes.gtceu.assembly_line('af9:dtpf_injection_casing')
+        .itemInputs('4x af9:dtpf_transcendent_casing', '32x gtceu:yttrium_barium_cuprate_wire_spool', '4x gtceu:uv_emitter',
+            '12x gtceu:dense_ruthenium_trinium_americium_neutronate_plate', '16x gtceu:zeron_100_screw',
+            '64x gtceu:zeron_100_ring')
+        .inputFluids(Fluid.of('gtceu:dense_xenon', 2000), Fluid.of('gtceu:dense_argon', 2000),
+            Fluid.of('gtceu:dense_endion', 1000), Fluid.of('gtceu:liquid_resonating_fluix', 1152))
+        .itemOutputs('8x af9:dtpf_injection_casing')
+        .stationResearch(b => b
+            .researchStack(Item.of('af9:dtpf_transcendent_casing'))
+            .CWUt(64)
+            .EUt(VA[GTValues.ZPM]))
+        .duration(800)
         .EUt(VA[GTValues.UV])
     // the module slots' casing: a plate of Inconel 738 on a transcendent casing (the controllers' recipes are the pack owner's)
     event.recipes.gtceu.assembler('af9:dtpf_module_casing')
