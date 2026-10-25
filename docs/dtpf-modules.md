@@ -26,7 +26,7 @@ pattern accepts air in all 13 cells), so the hall forms with no modules at all.
   (`scanningModules`) lets only the outermost scan turn anything (the first version recursed until the server crashed, 0.1.165). Without its casings a module shows "not all in place" and gives nothing.
 * The controllers are single-block multiblocks (`gtceu:dtpf_module_<kind>`, `DtpfModuleMachine`, rotation state ALL) with an
   animated face (`tools/textures/dtpf_modules.py`), lit while they count. The casing (`af9:dtpf_module_casing`) is the
-  Dimensionally Transcendent Casing's grid in Inconel 738 slate, seams lit blue, rust rivets, connected texture. Its recipe is in
+  GregTech CEu's Atomic Casing (sprite and connected-texture sheet) with only its colour moved from purple to the hall's blue (`tools/textures/dtpf_module_casing.py`). Its recipe is in
   `server_scripts/mods/gtceu/dtpf.js` (assembler, UV); **the controllers' recipes are the pack owner's**.
 
 ## 2. The four modules
