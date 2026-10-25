@@ -90,14 +90,12 @@ Minecraft in it, so the previews of the styles are made from the same code the g
 * **Perfect overclocks** (`OC_PERFECT`), and the **running-time ramp** (`RAMP`, from GTNH's discount): while a recipe runs the
   forge warms up, 1 tick of warmth per tick of running time, to 30 minutes; a pause cools it three times as fast. Warmth scales
   the recipe's EU/t by up to **-50 %** and its run time by up to **-25 %**. A broken structure starts cold.
-* **Plasma Heater** (`gtceu:plasma_heater`, 5x4x5, EV): the sub multi that ionises 4 osmium dust with 2,000 mB Endion to 2,000 mB
-  osmium plasma, a fuel of the field. Its plasma hatches are filled from here, or from a plasma cell (the Particle Accelerator's, below).
 * **Osmium plasma from the Particle Accelerator** (ion collision mode, UV, `min_field` 3,000, 1,000 mB supercooled argon a run, 20 s): the
   recipes work on Universal Cells (`gtceu:universal_fluid_cell`) holding the fluid, since the ring takes fluids only as coolant.
   An assembler fills a cell with 1,000 mB molten tungsten (a cell cannot take it by hand, it holds 1,800 K); collision 1 turns it into a
   cell of molten **Rhenium-127** (`gtceu:rhenium_127`, GT's rhenium icon set tinted blue), collision 2 into a cell of 1,000 mB
   `gtceu:osmium_plasma`, emptied by right-clicking it on a Plasma Hatch. Recipes: `server_scripts/mods/gtceu/particle_accelerator.js`.
-* **Mk2** (`gtceu:dtpf_mk2`, same hall): the Mk1 controller turned with the heater's heart (assembly line refit). Half the osmium
+* **Mk2** (`gtceu:dtpf_mk2`, same hall): the Mk1 controller turned with a UV machine hull (assembly line refit). Half the osmium
   (50/25 mB a second) for **four times the input amperage**: the same recipes, hungrier power.
 * **The console** (`PlasmaForgeConsoleWidget`): four gauges (the magnetic field with its two marks, the stabilisers, the osmium
   plasma, the primary power and its inputs), what is being made, the ramp and the run-time bar, with a tooltip on each gauge.

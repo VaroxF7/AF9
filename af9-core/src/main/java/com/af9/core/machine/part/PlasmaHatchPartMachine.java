@@ -15,7 +15,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 /**
  * Plasma Hatch: a fluid input hatch that only takes osmium plasma. The Plasma Forge burns it for
  * readiness through these ({@link #PLASMA_INPUT}); the forging recipes never draw on them. The
- * Plasma Heater fills them.
+ * Particle Accelerator's plasma cells fill them.
  */
 public class PlasmaHatchPartMachine extends FluidHatchPartMachine {
 

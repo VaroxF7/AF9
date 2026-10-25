@@ -15,7 +15,6 @@
 // (the model, af9-core ForceFieldRender). Mk2 is the same hall.
 
 const $PlasmaForgeMachine = Java.loadClass('com.af9.core.machine.PlasmaForgeMachine')
-const $PlasmaHeaterMachine = Java.loadClass('com.af9.core.machine.PlasmaHeaterMachine')
 const $ForgePlasmaHatch = Java.loadClass('com.af9.core.machine.part.PlasmaHatchPartMachine')
 const $DtpfModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 
@@ -47,13 +46,6 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setMaxIOSize(3, 3, 3, 3)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC)
-    // osmium dust and Endion in, heater plasma out
-    event.create('plasma_heating')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(2, 1, 2, 1)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.FURNACE)
 })
 
 // The DTPF, layer by layer: DTPF_AISLES[z] is the z-th plate, back (0) to front (42, the controller's); a plate's rows are
@@ -808,7 +800,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .hasBER(true)
 
     // the Mk2: the same hall, half the osmium for four times the amperage.
-    // The controller is turned from the Mk1's with the Plasma Heater's heart (server dtpf.js).
+    // The controller is turned from the Mk1's with a UV machine hull (server dtpf.js).
     event.create('dtpf_mk2', 'multiblock')
         .langValue('Dimensionally Transcendent Plasma Forge Mk2')
         .machine(holder => new $PlasmaForgeMachine(holder, true))
@@ -823,7 +815,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .hasBER(true)
 
         // Plasma Hatch: an input hatch for osmium plasma only, HV-UHV. The forge burns readiness
-    // through these; the heater fills them.
+    // through these; a plasma cell from the Particle Accelerator fills them.
     event.create('plasma_hatch', 'custom')
         .tiers(GTValues.HV, GTValues.EV, GTValues.IV, GTValues.LuV, GTValues.ZPM, GTValues.UV,
             GTValues.UHV)
@@ -840,33 +832,4 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                     Component.translatable('af9.plasma_hatch.tooltip.1'),
                     Component.translatable('gtceu.universal.tooltip.fluid_storage_capacity', `${1000 << tier}`)])
         })
-
-    // Plasma Heater: the sub multi that ionises osmium dust with Endion to osmium plasma,
-    // the forge's heater fuel. 5 x 4 x 5, controller front-bottom-centre.
-    event.create('plasma_heater', 'multiblock')
-        .machine(holder => new $PlasmaHeaterMachine(holder))
-        .langValue('Plasma Heater')
-        .rotationState(RotationState.NON_Y_AXIS)
-        .recipeTypes([GTRecipeTypes.get('plasma_heating')])
-        .recipeModifiers([GTRecipeModifiers.OC_PERFECT])
-        .appearanceBlock(GTBlocks.CASING_STAINLESS_CLEAN)
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.plasma_heater.tooltip', 3))
-        .pattern(definition => FactoryBlockPattern.start()
-            .aisle('XXXXX', 'XXXXX', 'XXXXX', 'XXXXX')
-            .aisle('XXXXX', 'XX#XX', 'XX#XX', 'XXXXX')
-            .aisle('XXXXX', 'XX#XX', 'XX#XX', 'XXXXX')
-            .aisle('XXXXX', 'XX#XX', 'XX#XX', 'XXXXX')
-            .aisle('XXSXX', 'XX#XX', 'XX#XX', 'XXXXX')
-            .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-            // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
-            .where('X', Predicates.blocks(GTBlocks.CASING_STAINLESS_CLEAN.get())
-                .or(Predicates.abilities(PartAbility.INPUT_ENERGY).setMaxGlobalLimited(2, 1))
-                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(1, 1))
-                .or(Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)))
-            .where('#', Predicates.air())
-            .build())
-        .workableCasingModel('gtceu:block/casings/solid/machine_casing_clean_stainless_steel',
-            'gtceu:block/multiblock/multi_furnace')
 })

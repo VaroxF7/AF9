@@ -169,10 +169,10 @@ ServerEvents.recipes(event => {
         .duration(FORGE_TICKS)
         .EUt(VA[GTValues.UHV], UHV_AMPS)
 
-    // ---- Mk2 refit: the Mk1 controller turned with the Plasma Heater's heart ----
-    // the heater is integrated (sacrificed) into the Mk2: half the osmium for four times the amperage
+    // ---- Mk2 refit: the Mk1 controller turned with a UV hull ----
+    // half the osmium for four times the amperage
     event.recipes.gtceu.assembly_line('af9:dtpf_mk2')
-        .itemInputs('gtceu:dtpf', 'gtceu:plasma_heater', '4x af9:dtpf_bridge_casing',
+        .itemInputs('gtceu:dtpf', 'gtceu:uv_machine_hull', '4x af9:dtpf_bridge_casing',
             '2x af9:dtpf_resonance_coil', '2x gtceu:uv_field_generator', '4x gtceu:double_tungsten_steel_plate')
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 2304), Fluid.of('gtceu:niobium_titanium', 2304))
         .itemOutputs('gtceu:dtpf_mk2')
