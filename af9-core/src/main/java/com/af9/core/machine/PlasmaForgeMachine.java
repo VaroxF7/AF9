@@ -50,13 +50,16 @@ import java.util.List;
  * {@value #RAMP_MINUTES} minutes), and a pause costs it that warmth ({@value #COOLING_FACTOR} times as fast as it
  * built). It runs only a recipe its hatches can fully supply ({@link #FORGE_GATE}).
  * <p>
- * <b>The magnetic field.</b> The hall holds a field round the beam that has to be kept up all the time, and that is
- * what it costs to run it: osmium plasma out of its plasma hatches (100 mB a second building, 50 mB holding; the Mk2
- * halves both) and {@value #AUX_AMPS} A of LuV auxiliary power ({@link #AUX_EUT} EU/t, every tick; the energy hatches
- * are held in Auxiliary mode, a wireless receiver keeps the mode it is set to). Both fed, the field climbs to
- * {@link #FIELD_READY} (75 %) in about a minute and only then forges; starved of either it falls
- * {@value #FIELD_FALL_FACTOR} times as fast as it climbed, and a run that finds it below {@link #FIELD_HOLD} collapses
- * with it. A broken structure or a switched-off controller lets it go.
+ * <b>The magnetic field.</b> The hall holds a field round the beam that is made of osmium plasma: it is built up out of the
+ * plasma hatches ({@value #PLASMA_FILL} mB a second at most, up to {@value #FIELD_MAX} mB for a full field) and burns
+ * {@value #PLASMA_BURN} mB a second to stay up (the Mk2 half), while {@value #AUX_AMPS} A of LuV auxiliary power
+ * ({@link #AUX_EUT} EU/t, every tick; the energy hatches are held in Auxiliary mode, a wireless receiver keeps the mode
+ * it is set to) stabilise it. A freshly built hall has no field at all: it is there only once the stabilisers have their
+ * power and the plasma flows. Without the power it falls {@value #FIELD_FALL_FACTOR} times as fast and takes in nothing;
+ * with too little plasma it falls slowly. A run starts at {@link #FIELD_READY} (50 %) and is lost below
+ * {@link #FIELD_HOLD} (25 %). The weaker the field when a run starts, the longer the run and the dearer its power: up to
+ * twice both at {@link #FIELD_HOLD}, normal at a full field ({@link #getFieldPenalty()}). A broken structure or a
+ * switched-off controller lets it go.
  * <p>
  * The recipes' own power comes from a single input only: one laser hatch, or one wireless receiver in Primary mode
  * ({@link #isPowerLayoutValid()}). No maintenance, no coolant. The Mk2 forges the same recipes for half the plasma but
@@ -80,12 +83,15 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     /** Ticks between two updates of the ramp and the field. */
     private static final int RAMP_INTERVAL = 20;
 
-    /** Field strength: ready at {@link #FIELD_READY}, strongest at {@link #FIELD_MAX}, a run is lost below {@link #FIELD_HOLD}. */
-    public static final int FIELD_READY = 9000, FIELD_MAX = 12000, FIELD_HOLD = 4800;
-    /** Strength a fed second builds; an unfed second loses this many times as much. */
-    private static final int FIELD_CLIMB = 150, FIELD_FALL_FACTOR = 3;
-    /** Osmium plasma a fed second burns building (full feed) and holding (topped up); the Mk2 halves both. */
-    private static final int PLASMA_RAMP = 100, PLASMA_STABLE = 50;
+    /**
+     * Field strength is the osmium plasma held in the field, mB: a run starts at {@link #FIELD_READY}, the field is
+     * strongest at {@link #FIELD_MAX}, a run is lost below {@link #FIELD_HOLD}.
+     */
+    public static final int FIELD_MAX = 250_000, FIELD_READY = FIELD_MAX / 2, FIELD_HOLD = FIELD_MAX / 4;
+    /** An unpowered second loses this many times the burn. */
+    private static final int FIELD_FALL_FACTOR = 3;
+    /** Osmium plasma a second the hall takes in at most, and burns to stay up (the Mk2 halves the burn). */
+    public static final int PLASMA_FILL = 2500, PLASMA_BURN = 250;
     /** The stabilisers: 10 A of LuV, every tick, from the auxiliary hatches. */
     public static final int AUX_AMPS = 10;
     public static final long AUX_EUT = AUX_AMPS * GTValues.V[GTValues.LuV];
@@ -121,9 +127,12 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         }
         long need = RecipeHelper.getRealEUt(recipe).getTotalEU();
         if (forge.mk2) need *= MK2_AMPS;
+        double penalty = forge.getFieldPenalty();
+        need = (long) Math.ceil(need * penalty);
         if (forge.getAvailableEUt() < need) return ModifierFunction.NULL;
         if (!forge.isReady()) return ModifierFunction.cancel(Component.translatable("af9.dtpf.field_low"));
-        return ModifierFunction.IDENTITY;
+        if (penalty <= 1.0001) return ModifierFunction.IDENTITY;
+        return ModifierFunction.builder().eutMultiplier(penalty).durationMultiplier(penalty).build();
     };
 
     /** The running-time ramp: the recipe's EU/t and run time, scaled by how warm the forge has run. */
@@ -142,7 +151,7 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     /** Ticks of warmth, 0 to {@link #RAMP_TICKS}. */
     @Persisted
     private int warmth;
-    /** Field strength, 0 to {@link #FIELD_MAX}. */
+    /** Field strength: mB of osmium plasma in the field, 0 to {@link #FIELD_MAX}. */
     @Persisted
     @DescSynced
     private int fieldStrength;
@@ -253,22 +262,28 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
     }
 
     /**
-     * Burns osmium plasma out of the plasma hatches and checks the stabilisers' power of the last second: both paid,
-     * the field climbs; either missing, it falls three times as fast. A switched-off controller burns nothing and lets
-     * the field go.
+     * Takes osmium plasma out of the plasma hatches into the field and checks the stabilisers' power of the last second.
+     * The field burns {@link #getPlasmaPull()} mB a second; powered, the hall draws what the field lacks (up to
+     * {@link #PLASMA_FILL}) and the field gains what it drew less the burn. Unpowered it takes in nothing and loses three
+     * times the burn. A switched-off controller lets the field go the same way.
      */
     private void tickField() {
         int before = fieldStrength;
         boolean enabled = getRecipeLogic().isWorkingEnabled();
-        int pull = getPlasmaPull();
-        plasmaFed = enabled && drainPlasma(pull) >= pull;
+        int burn = getPlasmaPull();
         auxPaid = enabled && auxMissed <= AUX_GRACE_TICKS;
         auxMissed = 0;
-        if (plasmaFed && auxPaid) {
-            fieldStrength = Math.min(FIELD_MAX, fieldStrength + FIELD_CLIMB);
-            fieldState = fieldStrength >= FIELD_MAX ? FIELD_HOLDING : FIELD_BUILDING;
+        if (auxPaid) {
+            long want = Math.min(PLASMA_FILL, FIELD_MAX - fieldStrength + burn);
+            long got = drainPlasma(want);
+            plasmaFed = got >= burn;
+            fieldStrength = (int) Math.max(0, Math.min(FIELD_MAX, fieldStrength + got - burn));
+            if (fieldStrength <= 0) fieldState = FIELD_COLD;
+            else if (got < burn) fieldState = FIELD_FALLING;
+            else fieldState = fieldStrength >= FIELD_MAX - burn ? FIELD_HOLDING : FIELD_BUILDING;
         } else {
-            fieldStrength = Math.max(0, fieldStrength - FIELD_CLIMB * FIELD_FALL_FACTOR);
+            plasmaFed = false;
+            fieldStrength = Math.max(0, fieldStrength - burn * FIELD_FALL_FACTOR);
             fieldState = fieldStrength > 0 ? FIELD_FALLING : FIELD_COLD;
         }
         if (fieldStrength != before) markDirty();
@@ -302,10 +317,25 @@ public class PlasmaForgeMachine extends ProcessMachine implements IForceFieldMac
         return amount;
     }
 
-    /** mB of osmium plasma a second burns now: building, then holding (the Mk2 half). */
+    /** mB of osmium plasma a second the field burns (the Mk2 half). */
     public int getPlasmaPull() {
-        int pull = fieldStrength < FIELD_MAX ? PLASMA_RAMP : PLASMA_STABLE;
-        return mk2 ? pull / 2 : pull;
+        return mk2 ? PLASMA_BURN / 2 : PLASMA_BURN;
+    }
+
+    /**
+     * How good the field is for a run: 0 at {@link #FIELD_HOLD} (25 %), 1 at a full field.
+     */
+    public double getFieldQuality() {
+        double q = (double) (fieldStrength - FIELD_HOLD) / (FIELD_MAX - FIELD_HOLD);
+        return q < 0 ? 0 : Math.min(q, 1);
+    }
+
+    /**
+     * What a weak field costs a run: its time and its EU/t are multiplied by this, 1 at a full field and 2 at
+     * {@link #FIELD_HOLD}. Set when the run starts.
+     */
+    public double getFieldPenalty() {
+        return isFormed() ? 2 - getFieldQuality() : 1;
     }
 
     //////////////////////////////////////

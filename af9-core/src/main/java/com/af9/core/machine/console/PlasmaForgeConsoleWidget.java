@@ -59,7 +59,7 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
                 PlasmaForgeMachine.FIELD_MAX, PlasmaForgeMachine.FIELD_HOLD * 100 / PlasmaForgeMachine.FIELD_MAX));
         group.addWidget(tip(RX, ROW_A, COL_W, 28, "aux", PlasmaForgeMachine.AUX_AMPS,
                 compact(PlasmaForgeMachine.AUX_EUT)));
-        group.addWidget(tip(LX, ROW_B, COL_W, 26, "plasma", machine.isMk2() ? 50 : 100, machine.isMk2() ? 25 : 50));
+        group.addWidget(tip(LX, ROW_B, COL_W, 26, "plasma", PlasmaForgeMachine.PLASMA_FILL, machine.isMk2() ? 125 : 250));
         group.addWidget(tip(RX, ROW_B, COL_W, 26, "power", 1, ""));
         group.addWidget(tip(RX, ROW_C, COL_W, 26, "ramp", PlasmaForgeMachine.ENERGY_PERCENT,
                 PlasmaForgeMachine.TIME_PERCENT));
@@ -197,11 +197,11 @@ public class PlasmaForgeConsoleWidget extends ConsoleWidget {
         drawSmallRight(graphics, Component.translatable(auxPaid ? "af9.dtpf.console.paid" : "af9.dtpf.console.short")
                 .getString(), x0 + RX + COL_W, y0 + ROW_A + 19, auxColor);
 
-        // the osmium plasma: a minute of it in the hatches fills the bar
+        // the osmium plasma: enough in the hatches to fill a whole field fills the bar
         int plasmaColor = plasmaFed ? GOOD : BAD;
         label(graphics, "af9.dtpf.console.l.plasma", plasmaPull + " mB/s", x0 + LX, y0 + ROW_B, MUTED);
         bar(graphics, x0 + LX, y0 + ROW_B + 7, COL_W, 6,
-                Math.min(1.0, (double) plasmaStored / Math.max(1, plasmaPull * 60L)), plasmaColor);
+                Math.min(1.0, (double) plasmaStored / PlasmaForgeMachine.FIELD_MAX), plasmaColor);
         drawSmall(graphics, Component.translatable("af9.dtpf.console.stored_mb", compact(plasmaStored)).getString(),
                 x0 + LX, y0 + ROW_B + 16, TEXT, false);
         drawSmallRight(graphics, Component.translatable(plasmaFed ? "af9.dtpf.console.burning" :

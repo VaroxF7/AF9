@@ -148,7 +148,7 @@ public class ForceFieldRender extends DynamicRender<IForceFieldMachine, ForceFie
         if (IrisCompat.renderingShadowPass()) return;
         MetaMachine self = machine.self();
         // the field burns with its strength: faint while it builds, hard while a recipe runs
-        float target = (machine.isFieldBurning() ? BURNING : IDLE) * (0.35F + 0.65F * machine.getFieldLevel());
+        float target = (machine.isFieldBurning() ? BURNING : IDLE) * (0.12F + 0.88F * machine.getFieldLevel());
         float feedTarget = machine.isFieldInjecting() ? 1F : 0F;
         float[] eased = POWER.computeIfAbsent(self, key -> new float[] { target, feedTarget });
         eased[0] += (target - eased[0]) * EASE;

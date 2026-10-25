@@ -21,6 +21,8 @@ package com.af9.core.client.render;
  * Colours are the forge's: deep blue, ice cyan and a white-hot core. The quads are drawn from both sides.
  * {@code power} (0 to 1) is how hard it burns: low while the hall only stands, high while a recipe runs.
  * <p>
+ * The bloom: a slight blue haze round the field that tints the blocks near it, as if it lit them ({@link #bloom}).
+ * <p>
  * The injectors: a beam from every injection casing to the outside of the field ({@link #injectors}), after Draconic
  * Evolution's stabilisers feeding the reactor: a wide soft beam round a white core, droplets of osmium plasma running
  * into the field, a flare at the casing and ripples where the beam lands. {@code feed} (0 to 1) is how hard they pump:
@@ -49,6 +51,7 @@ public final class ForceFieldGeometry {
     /** The injection casings' centres (x, y, z triples) and how hard they feed the field. */
     private float[] casings = new float[0];
     private float feed;
+    private int injectorStyle = FUNNEL;
 
     public ForceFieldGeometry(Sink sink, float radius, float start, float end, float time, float power) {
         this.sink = sink;
@@ -66,7 +69,13 @@ public final class ForceFieldGeometry {
         return this;
     }
 
-    /** Emits one frame of the given style, and the injectors' beams. */
+    /** Which vortex the injectors draw: {@link #FUNNEL}, {@link #BRAID}, {@link #CYCLONE} or {@link #ROTOR}. */
+    public ForceFieldGeometry injectorStyle(int style) {
+        this.injectorStyle = Math.floorMod(style, INJECTOR_STYLES);
+        return this;
+    }
+
+    /** Emits one frame of the given style, and the injectors' vortices. */
     public void emit(int style) {
         switch (style) {
             case SHEATH -> sheath();
@@ -74,7 +83,49 @@ public final class ForceFieldGeometry {
             case LATTICE -> lattice();
             default -> hoops();
         }
-        for (int i = 0; i + 2 < casings.length; i += 3) injector(i / 3, casings[i], casings[i + 1], casings[i + 2]);
+        bloom();
+        injectors();
+    }
+
+    // ---------------------------------------------------------------------------------------------- the bloom
+
+    /**
+     * A slight blue bloom round the field, and the light it throws on the hall: three wider hazes (added light, so they
+     * tint the blocks they pass over), a soft core along the beam, and a pool of light on the rings at each station.
+     */
+    private void bloom() {
+        float b = (0.45F + 0.55F * power) * (0.92F + 0.08F * sin(time * 0.06F));
+        // hazes: concentric tubes, fainter the wider they are
+        float[] widths = { 1.22F, 1.55F, 2.0F };
+        float[] alphas = { 0.075F, 0.045F, 0.022F };
+        int steps = Math.max(1, Math.round(length() / 2F));
+        for (int h = 0; h < widths.length; h++) {
+            colour(h == 0 ? CYAN : BLUE);
+            float r = radius * widths[h];
+            for (int k = 0; k < steps; k++) {
+                float z0 = start + length() * k / steps, z1 = start + length() * (k + 1) / steps;
+                float e0 = env(z0) * alphas[h] * b, e1 = env(z1) * alphas[h] * b;
+                for (int i = 0; i < 32; i++) {
+                    float th0 = TAU * i / 32, th1 = TAU * (i + 1) / 32;
+                    patch(GLOW, r, th0, th1, z0, z1, e0, e0, e1, e1);
+                }
+            }
+        }
+        // a soft core along the beam
+        colour(CYAN);
+        for (int k = 0; k < steps; k++) {
+            float z0 = start + length() * k / steps, z1 = start + length() * (k + 1) / steps;
+            float e0 = env(z0) * 0.10F * b, e1 = env(z1) * 0.10F * b;
+            for (int i = 0; i < 16; i++) {
+                float th0 = TAU * i / 16, th1 = TAU * (i + 1) / 16;
+                patch(GLOW, 0.9F, th0, th1, z0, z1, e0, e0, e1, e1);
+            }
+        }
+        // pools of light across the tube at the rings and the ends
+        colour(BLUE);
+        for (float station : STATIONS) disc(GLOW, station, 0F, radius * 2.0F, 0.09F * b, 0F, 32);
+        disc(GLOW, start + 0.15F, 0F, radius * 1.9F, 0.12F * b, 0F, 32);
+        disc(GLOW, end - 0.15F, 0F, radius * 1.9F, 0.12F * b, 0F, 32);
     }
 
     // ---------------------------------------------------------------------------------------------- colours
@@ -227,80 +278,343 @@ public final class ForceFieldGeometry {
 
     // ---------------------------------------------------------------------------------------------- the injectors
 
+    /** The vortex styles of an injector: a funnel of spiral arms, a braid of three strands, a cyclone of comets, a rotor of rings. */
+    public static final int FUNNEL = 0, BRAID = 1, CYCLONE = 2, ROTOR = 3, INJECTOR_STYLES = 4;
+
+    /** The frame of the group being drawn: outward and sideways unit vectors, the group's depth, mouth and field distances. */
+    private float gdx, gdy, gtx, gty, gz, gs0, gs1, gspan, ge, glit, gpulse;
+    private int gn;
+    /** The point {@link #pt} found. */
+    private float px, py, pz;
+
     /**
-     * One injection casing's beam, from the casing's inner face in to the outside of the field: a soft blue beam, a cyan
-     * body and a white core (two crossing ribbons each), droplets running inwards, a flare at the casing and ripples
-     * where the beam lands on the field.
+     * Joins the casings into groups of neighbours (same side, depth within a block of each other: the three casings in a
+     * row) and draws one vortex for each group.
      */
-    private void injector(int n, float cx, float cy, float cz) {
+    private void injectors() {
+        int count = casings.length / 3;
+        boolean[] used = new boolean[count];
+        int group = 0;
+        for (int i = 0; i < count; i++) {
+            if (used[i]) continue;
+            used[i] = true;
+            float x = casings[i * 3], y = casings[i * 3 + 1], zMin = casings[i * 3 + 2], zMax = zMin;
+            boolean grew = true;
+            while (grew) {
+                grew = false;
+                for (int j = 0; j < count; j++) {
+                    float z = casings[j * 3 + 2];
+                    if (used[j] || Math.abs(casings[j * 3] - x) > 0.01F || Math.abs(casings[j * 3 + 1] - y) > 0.01F
+                            || z < zMin - 1.01F || z > zMax + 1.01F) {
+                        continue;
+                    }
+                    used[j] = true;
+                    zMin = Math.min(zMin, z);
+                    zMax = Math.max(zMax, z);
+                    grew = true;
+                }
+            }
+            vortex(group++, x, y, (zMin + zMax) / 2F, zMax - zMin + 1F);
+        }
+    }
+
+    /**
+     * One group's vortex: the osmium plasma of the casings swirls together into a funnel and spins into the field, ending
+     * on the outside of it where it spreads as a spiral. {@code span} is how many blocks the casings cover.
+     */
+    private void vortex(int n, float cx, float cy, float cz, float span) {
         float dist = (float) Math.hypot(cx, cy);
         if (dist < radius + 0.6F) return;
-        float dx = cx / dist, dy = cy / dist;
-        float tx = -dy, ty = dx;
-        float s0 = dist - 0.5F, s1 = radius;
-        float len = s0 - s1;
-        float lit = 0.22F + 0.78F * feed;
-        float e = (0.55F + 0.45F * power) * lit;
-        float pulse = 0.8F + 0.2F * sin(time * 0.12F + n * 1.3F);
+        gdx = cx / dist;
+        gdy = cy / dist;
+        gtx = -gdy;
+        gty = gdx;
+        gz = cz;
+        gs0 = dist - 0.5F;
+        gs1 = radius;
+        gspan = span;
+        gn = n;
+        glit = 0.22F + 0.78F * feed;
+        ge = (0.55F + 0.45F * power) * glit;
+        gpulse = 0.8F + 0.2F * sin(time * 0.12F + n * 1.3F);
 
-        // the beam: three layers of two crossing ribbons, brightest at the casing and thinning towards the field
-        colour(BLUE);
-        beam(dx, dy, tx, ty, cz, s0, s1, 0.62F, 0.22F * e, 0.06F * e);
-        colour(CYAN);
-        beam(dx, dy, tx, ty, cz, s0, s1, 0.30F, 0.40F * e, 0.14F * e);
-        colour(WHITE);
-        beam(dx, dy, tx, ty, cz, s0, s1, 0.11F, 0.85F * e * pulse, 0.35F * e);
-
-        // droplets of osmium plasma running into the field
-        for (int k = 0; k < 3; k++) {
-            float u = frac(time * (0.012F + 0.03F * feed) + hash(n * 7 + k) + k / 3F);
-            float s = s0 - u * len;
-            colour(CYAN, WHITE, 0.5F + 0.5F * sin(u * 6F + n));
-            dot(dx * s, dy * s, cz, 0.07F + 0.06F * feed, 0.95F * lit * (1F - 0.4F * u));
+        switch (injectorStyle) {
+            case BRAID -> braid();
+            case CYCLONE -> cyclone();
+            case ROTOR -> rotor();
+            default -> funnel();
         }
-
-        // the flare at the casing
+        // the axis of the vortex: a thin white thread, and a flare at every casing of the group
+        colour(WHITE);
+        pt(gs0, 0F, 0F);
+        float ax = px, ay = py, az = pz;
+        pt(gs1, 0F, 0F);
+        ribbon(ax, ay, az, px, py, pz, 0.07F, 0.03F, 0.45F * ge * gpulse, 0.2F * ge);
         colour(CYAN);
-        dot(dx * (s0 - 0.04F), dy * (s0 - 0.04F), cz, 0.30F, 0.55F * e * pulse);
-
-        // where it lands: a glow on the field and ripples spreading from it
-        colour(BLUE);
-        landing(dx, dy, tx, ty, cz, s1, 0F, 0.50F, 0.32F * e, 0F);
-        for (int k = 0; k < 2; k++) {
-            float phase = frac(time * (0.008F + 0.02F * feed) + hash(n * 3 + 900) + k * 0.5F);
-            colour(CYAN);
-            landing(dx, dy, tx, ty, cz, s1, 0.10F + 0.75F * phase, 0.16F + 0.80F * phase, 0.5F * (1F - phase) * lit,
-                    0F);
+        for (int k = 0; k < Math.round(span); k++) {
+            pt(gs0 - 0.04F, 0F, -span / 2F + 0.5F + k);
+            dot(px, py, pz, 0.28F, 0.5F * ge * gpulse);
         }
     }
 
-    /** A ribbon of the beam, in both of its crossing planes, from the casing's face (width and alpha a0) to the field. */
-    private void beam(float dx, float dy, float tx, float ty, float cz, float s0, float s1, float width, float a0,
-                      float a1) {
-        float h = width / 2;
-        // across the beam in the xy plane
-        quad(GLOW, dx * s0 - tx * h, dy * s0 - ty * h, cz, a0, dx * s0 + tx * h, dy * s0 + ty * h, cz, a0,
-                dx * s1 + tx * h * 0.6F, dy * s1 + ty * h * 0.6F, cz, a1, dx * s1 - tx * h * 0.6F,
-                dy * s1 - ty * h * 0.6F, cz, a1);
-        // across the beam along the tube
-        quad(GLOW, dx * s0, dy * s0, cz - h, a0, dx * s0, dy * s0, cz + h, a0, dx * s1, dy * s1, cz + h * 0.6F, a1,
-                dx * s1, dy * s1, cz - h * 0.6F, a1);
+    private float au() {
+        return 0.7F;
+    }
+
+    private float av() {
+        return 0.5F * gspan;
+    }
+
+    /** How wide the vortex still is after p of its way (1 at the casings, a point at the field). */
+    private static float narrow(float p) {
+        return 0.07F + 0.93F * (float) Math.pow(1F - p, 1.25F);
+    }
+
+    /** A point of the vortex's frame: s from the axis (outwards), u sideways, v along the tube from the group's middle. */
+    private void pt(float s, float u, float v) {
+        px = gdx * s + gtx * u;
+        py = gdy * s + gty * u;
+        pz = gz + v;
+    }
+
+    /** The point p of the way in, on the ellipse of angle phi and of size fraction k of the vortex there. */
+    private void swirl(float p, float phi, float k) {
+        float f = narrow(p) * k;
+        pt(gs0 - p * (gs0 - gs1), au() * f * cos(phi), av() * f * sin(phi));
     }
 
     /**
-     * A flat ring on the field where a beam lands (in the plane across the beam), from radius r0 to r1, fading from the
-     * alpha {@code aInner} at its inner edge to {@code aOuter} at its outer.
+     * A ribbon of two crossing strips between two points (one lies across the vortex's axis, the other along it), in the
+     * colour set last, width and alpha at both ends.
      */
-    private void landing(float dx, float dy, float tx, float ty, float cz, float s, float r0, float r1, float aInner,
-                         float aOuter) {
-        int segments = 16;
-        float x = dx * s, y = dy * s;
-        for (int i = 0; i < segments; i++) {
-            float th0 = TAU * i / segments, th1 = TAU * (i + 1) / segments;
-            float c0 = cos(th0), n0 = sin(th0), c1 = cos(th1), n1 = sin(th1);
-            quad(GLOW, x + tx * c0 * r0, y + ty * c0 * r0, cz + n0 * r0, aInner, x + tx * c1 * r0, y + ty * c1 * r0,
-                    cz + n1 * r0, aInner, x + tx * c1 * r1, y + ty * c1 * r1, cz + n1 * r1, aOuter,
-                    x + tx * c0 * r1, y + ty * c0 * r1, cz + n0 * r1, aOuter);
+    private void ribbon(float ax, float ay, float az, float bx, float by, float bz, float wa, float wb, float aa,
+                        float ab) {
+        float vx = bx - ax, vy = by - ay, vz = bz - az;
+        if (vx * vx + vy * vy + vz * vz < 1.0E-8F) return;
+        float o1x = -vz * gdy, o1y = vz * gdx, o1z = vx * gdy - vy * gdx;
+        float l = (float) Math.sqrt(o1x * o1x + o1y * o1y + o1z * o1z);
+        if (l < 1.0E-4F) {
+            o1x = gtx;
+            o1y = gty;
+            o1z = 0F;
+            l = 1F;
+        }
+        o1x /= l;
+        o1y /= l;
+        o1z /= l;
+        float o2x = vy * o1z - vz * o1y, o2y = vz * o1x - vx * o1z, o2z = vx * o1y - vy * o1x;
+        l = (float) Math.sqrt(o2x * o2x + o2y * o2y + o2z * o2z);
+        o2x /= l;
+        o2y /= l;
+        o2z /= l;
+        float ha = wa / 2, hb = wb / 2;
+        quad(GLOW, ax - o1x * ha, ay - o1y * ha, az - o1z * ha, aa, ax + o1x * ha, ay + o1y * ha, az + o1z * ha, aa,
+                bx + o1x * hb, by + o1y * hb, bz + o1z * hb, ab, bx - o1x * hb, by - o1y * hb, bz - o1z * hb, ab);
+        quad(GLOW, ax - o2x * ha, ay - o2y * ha, az - o2z * ha, aa, ax + o2x * ha, ay + o2y * ha, az + o2z * ha, aa,
+                bx + o2x * hb, by + o2y * hb, bz + o2z * hb, ab, bx - o2x * hb, by - o2y * hb, bz - o2z * hb, ab);
+    }
+
+    /** A spiral arm on the field where the vortex lands: from the middle out to k of the vortex's mouth, turning with time. */
+    private void landingArm(float base, float turns, float rot, float reach, float width, float alpha) {
+        float ox = 0, oy = 0, oz = 0, oa = 0;
+        int segs = 10;
+        for (int k = 0; k <= segs; k++) {
+            float q = k / (float) segs;
+            float phi = base + TAU * turns * q - rot;
+            float f = q * reach;
+            pt(gs1 + 0.02F, au() * 1.1F * f * cos(phi), av() * 1.1F * f * sin(phi));
+            float a = alpha * (1F - q) * (1F - q) * 1.4F;
+            if (k > 0) ribbon(ox, oy, oz, px, py, pz, width * (1F - 0.5F * q), width * (1F - 0.5F * q), oa, a);
+            ox = px;
+            oy = py;
+            oz = pz;
+            oa = a;
+        }
+    }
+
+    /** The landing: a glow on the field and spiral arms turning on it. */
+    private void landing(int arms, float turns, float rot, float width) {
+        colour(BLUE);
+        for (int k = 0; k < arms; k++) landingArm(TAU * k / arms, turns, rot, 1F, width * 2.2F, 0.30F * ge);
+        colour(CYAN);
+        for (int k = 0; k < arms; k++) landingArm(TAU * k / arms, turns, rot, 0.9F, width, 0.55F * ge);
+        colour(BLUE);
+        pt(gs1 + 0.02F, 0F, 0F);
+        dot(px, py, pz, 0.5F, 0.32F * ge);
+    }
+
+    // 0: a funnel of six spiral arms, wide on the casings and drawn together on the field
+    private void funnel() {
+        float rot = time * 0.10F;
+        int arms = 6, segs = 12;
+        for (int layer = 0; layer < 3; layer++) {
+            if (layer == 0) colour(BLUE);
+            else if (layer == 1) colour(CYAN);
+            else colour(WHITE);
+            for (int arm = 0; arm < arms; arm++) {
+                if (layer == 2 && arm % 2 == 1) continue;
+                float ox = 0, oy = 0, oz = 0, oa = 0, ow = 0;
+                for (int k = 0; k <= segs; k++) {
+                    float p = k / (float) segs;
+                    float phi = TAU * arm / arms + TAU * 1.1F * p - rot;
+                    swirl(p, phi, 1F);
+                    float flow = 0.55F + 0.45F * sin(TAU * (p * 2F - time * 0.02F) + arm * 1.7F);
+                    float a = (0.20F + 0.70F * p) * flow * ge * (layer == 0 ? 0.35F : layer == 1 ? 0.65F : 1F);
+                    float w = (layer == 0 ? 0.34F : layer == 1 ? 0.14F : 0.05F) * (1F - 0.4F * p);
+                    if (k > 0) ribbon(ox, oy, oz, px, py, pz, ow, w, oa, a);
+                    ox = px;
+                    oy = py;
+                    oz = pz;
+                    oa = a;
+                    ow = w;
+                }
+            }
+        }
+        landing(3, 0.8F, rot * 1.4F, 0.10F);
+    }
+
+    // 1: three strands, one from each casing, braiding into a single rope that winds into the field
+    private void braid() {
+        float rot = time * 0.09F;
+        int strands = Math.max(3, Math.round(gspan));
+        int segs = 14;
+        for (int layer = 0; layer < 3; layer++) {
+            if (layer == 0) colour(BLUE);
+            else if (layer == 1) colour(CYAN);
+            else colour(WHITE);
+            for (int k = 0; k < strands; k++) {
+                float start = -gspan / 2F + 0.5F + k * (gspan - 1F) / Math.max(1, strands - 1);
+                float ox = 0, oy = 0, oz = 0, oa = 0, ow = 0;
+                for (int i = 0; i <= segs; i++) {
+                    float p = i / (float) segs;
+                    float m = p * p * (3 - 2 * p);
+                    float phi = TAU * k / strands + TAU * 1.6F * p - rot;
+                    float r = 0.42F * (1F - 0.65F * p);
+                    float u = r * cos(phi) * m;
+                    float v = start * (1F - m) + r * sin(phi) * m;
+                    pt(gs0 - p * (gs0 - gs1), u, v);
+                    float a = (0.45F + 0.5F * p) * ge * (layer == 0 ? 0.35F : layer == 1 ? 0.7F : 1F);
+                    float w = (layer == 0 ? 0.30F : layer == 1 ? 0.16F : 0.06F) * (1F - 0.35F * p);
+                    if (i > 0) ribbon(ox, oy, oz, px, py, pz, ow, w, oa, a);
+                    ox = px;
+                    oy = py;
+                    oz = pz;
+                    oa = a;
+                    ow = w;
+                }
+                // beads of plasma running down the strand
+                for (int b = 0; b < 3; b++) {
+                    float p = frac(time * 0.014F + b / 3F + k * 0.21F);
+                    float m = p * p * (3 - 2 * p);
+                    float phi = TAU * k / strands + TAU * 1.6F * p - rot;
+                    float r = 0.42F * (1F - 0.65F * p);
+                    if (layer == 2) {
+                        pt(gs0 - p * (gs0 - gs1), r * cos(phi) * m, start * (1F - m) + r * sin(phi) * m);
+                        colour(CYAN, WHITE, 0.6F);
+                        dot(px, py, pz, 0.10F, 0.9F * glit);
+                        colour(WHITE);
+                    }
+                }
+            }
+        }
+        landing(strands, 0.6F, rot * 1.3F, 0.09F);
+    }
+
+    // 2: a cyclone: a faint cone, and comets of plasma that spiral in faster and faster
+    private void cyclone() {
+        float rot = time * 0.06F;
+        // the cone, a veil
+        colour(BLUE);
+        int sides = 14;
+        for (int ring = 0; ring < 4; ring++) {
+            float p0 = ring / 4F, p1 = (ring + 1) / 4F;
+            for (int i = 0; i < sides; i++) {
+                float t0 = TAU * i / sides - rot * 0.5F, t1 = TAU * (i + 1) / sides - rot * 0.5F;
+                float a0 = 0.07F * ge * (1F - 0.5F * p0), a1 = 0.07F * ge * (1F - 0.5F * p1);
+                swirl(p0, t0, 1F);
+                float x0 = px, y0 = py, z0 = pz;
+                swirl(p0, t1, 1F);
+                float x1 = px, y1 = py, z1 = pz;
+                swirl(p1, t1, 1F);
+                float x2 = px, y2 = py, z2 = pz;
+                swirl(p1, t0, 1F);
+                quad(GLOW, x0, y0, z0, a0, x1, y1, z1, a0, x2, y2, z2, a1, px, py, pz, a1);
+            }
+        }
+        // the comets
+        int comets = 22;
+        for (int c = 0; c < comets; c++) {
+            float u = frac(time * (0.010F + 0.012F * feed) + hash(c * 5 + 1));
+            float tilt = 0.55F + 0.45F * hash(c * 5 + 2);
+            float ox = 0, oy = 0, oz = 0, oa = 0, ow = 0;
+            for (int t = 0; t <= 7; t++) {
+                float p = u - t * 0.045F;
+                if (p < 0F) break;
+                float eased = (float) Math.pow(p, 1.5F);
+                float phi = hash(c * 5 + 3) * TAU + TAU * 1.8F * eased * (0.7F + 0.6F * tilt) - rot * 1.6F;
+                swirl(eased, phi, tilt);
+                float tail = 1F - t / 8F;
+                float a = (0.2F + 0.7F * eased) * glit * tail;
+                float w = 0.11F * tail;
+                if (t == 0) {
+                    colour(CYAN, WHITE, 0.4F + 0.6F * eased);
+                    dot(px, py, pz, 0.09F + 0.04F * glit, 0.9F * glit);
+                    colour(c % 3 == 0 ? WHITE : CYAN);
+                } else {
+                    ribbon(ox, oy, oz, px, py, pz, ow, w, oa, a);
+                }
+                ox = px;
+                oy = py;
+                oz = pz;
+                oa = a;
+                ow = w;
+            }
+        }
+        landing(4, 0.5F, rot * 2F, 0.08F);
+    }
+
+    // 3: a rotor: rings of broken light that spin as they travel in, tightening round the field
+    private void rotor() {
+        float rot = time * 0.08F;
+        int rings = 5;
+        for (int k = 0; k < rings; k++) {
+            float p = frac(time * 0.011F + k / (float) rings);
+            float fade = sin(p * (float) Math.PI) * ge;
+            float dir = k % 2 == 0 ? 1F : -1F;
+            for (int layer = 0; layer < 2; layer++) {
+                if (layer == 0) colour(BLUE);
+                else colour(WHITE);
+                for (int arc = 0; arc < 3; arc++) {
+                    float base = TAU * arc / 3F + dir * (rot * (1F + 1.5F * p) + p * TAU * 0.5F);
+                    float ox = 0, oy = 0, oz = 0;
+                    for (int i = 0; i <= 6; i++) {
+                        float phi = base + i * TAU * 0.26F / 6F;
+                        swirl(p, phi, 1F);
+                        float edge = (float) Math.sin(Math.PI * i / 6.0);
+                        if (i > 0) {
+                            ribbon(ox, oy, oz, px, py, pz, layer == 0 ? 0.30F : 0.07F, layer == 0 ? 0.30F : 0.07F,
+                                    (layer == 0 ? 0.30F : 0.9F) * fade * edge, (layer == 0 ? 0.30F : 0.9F) * fade * edge);
+                        }
+                        ox = px;
+                        oy = py;
+                        oz = pz;
+                    }
+                }
+            }
+        }
+        landing(2, 0.5F, rot * 1.6F, 0.10F);
+        // rings on the field, spinning
+        colour(CYAN);
+        for (int k = 0; k < 2; k++) {
+            float phase = frac(time * 0.010F + k * 0.5F);
+            for (int i = 0; i < 12; i++) {
+                float t0 = TAU * i / 12F + rot, t1 = TAU * (i + 1) / 12F + rot;
+                if (i % 2 == 1) continue;
+                pt(gs1 + 0.02F, au() * (0.2F + 0.9F * phase) * cos(t0), av() * (0.2F + 0.9F * phase) * sin(t0));
+                float x0 = px, y0 = py, z0 = pz;
+                pt(gs1 + 0.02F, au() * (0.2F + 0.9F * phase) * cos(t1), av() * (0.2F + 0.9F * phase) * sin(t1));
+                ribbon(x0, y0, z0, px, py, pz, 0.08F, 0.08F, 0.6F * (1F - phase) * glit, 0.6F * (1F - phase) * glit);
+            }
         }
     }
 

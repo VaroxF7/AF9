@@ -109,7 +109,7 @@
     "af9.dtpf.tooltip.1": "§6Running-time ramp§7: the longer it runs without a pause, the cheaper and faster it forges: up to §f-50%% EU/t§7 and §f-25%% time§7 after §f30 minutes§7. A pause cools it three times as fast as it warmed.",
     "af9.dtpf.tooltip.2": "§7Runs only a recipe its hatches can §ffully supply§7. Perfect overclocks. §fUHV§7 at the lowest, §f1200 s§7 a run.",
     "af9.dtpf.tooltip.3": "§7Any §finjection casing§7 takes hatches: §f1§7 laser hatch (or one wireless receiver in Primary mode) for the recipes' power, up to §f6§7 energy hatches or receivers (auxiliary only), §f8§7 fluid input, §f4§7 fluid output, §f4§7 item buses each way, §f2§7 plasma hatches. No maintenance hatch, no coolant.",
-    "af9.dtpf.tooltip.4": "§bMagnetic field§7: kept up with §fosmium plasma§7 (100 mB/s building, 50 holding; the Mk2 half) and §f10 A of LuV§7 auxiliary power. Below §f75%%§7 nothing forges; below §f40%%§7 a run collapses.",
+    "af9.dtpf.tooltip.4": "§bMagnetic field§7: built from §fosmium plasma§7 (up to §f250,000 mB§7, burns 250 mB/s; the Mk2 half) and held by §f10 A of LuV§7 auxiliary power; there is none until both flow. Runs start at §f50%%§7; a weaker field means longer runs and up to §f2x EU/t§7; below §f25%%§7 a run is lost.",
     "af9.dtpf.tooltip.5": "§cThe field kills§7: anything living that comes within §f2.6 blocks§7 of the beam between the end rings is set alight and vaporized, armour or not. Every injection casing feeds it with a beam.",
     "af9.dtpf.tooltip.6": "§7The ionised matter is §dstrange matter plasma§7 and §dchromodynium plasma§7, made here from their dust and §dEndion§7.",
     "af9.dtpf.tooltip.7": "§7After GTNH's Dimensionally Transcendent Plasma Forge, built differently.",
