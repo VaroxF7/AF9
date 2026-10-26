@@ -2,16 +2,16 @@ package com.af9.core.distillation;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
-import com.gregtechceu.gtceu.api.machine.feature.multiblock.IParallelHatch;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
-import com.gregtechceu.gtceu.api.recipe.ContentModifier;
+import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.ParallelHatchPartMachine;
 import com.gregtechceu.gtceu.utils.GTUtil;
 
 import com.lowdragmc.lowdraglib.gui.util.ClickData;
@@ -64,7 +64,7 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         }
         int hatch = 1;
         for (var part : module.getParts()) {
-            if (part instanceof IParallelHatch parallel) hatch = Math.max(hatch, parallel.getCurrentParallel());
+            if (part instanceof ParallelHatchPartMachine parallel) hatch = Math.max(hatch, parallel.getCurrentParallel());
         }
         int limit = Math.min(hatch, TOWER_MAX_PARALLEL);
         if (limit <= 1) return ModifierFunction.IDENTITY;
