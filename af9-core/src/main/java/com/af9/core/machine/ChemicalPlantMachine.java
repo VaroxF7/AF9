@@ -10,8 +10,8 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 /**
  * The Chemical Plant: a walk-through of real GT fluid pipes (a 6 x 6 x 4 structure, see {@link ChemicalPlantPipes}) that runs
- * the Chemical Reactor's and the Large Chemical Reactor's recipes. Until it forms, it connects the pipes of the structure
- * to the file's exact connections once a second, so an auto-built plant forms without wrench work. The plant itself is
+ * the Chemical Reactor's and the Large Chemical Reactor's recipes. Once a second it marks the pipes of the structure and sets their
+ * connections to the file's exact ones, so an auto-built plant forms without wrench work. The plant itself is
  * a plain GT electric multiblock.
  */
 public class ChemicalPlantMachine extends WorkableElectricMultiblockMachine {
@@ -46,7 +46,8 @@ public class ChemicalPlantMachine extends WorkableElectricMultiblockMachine {
     }
 
     private void repairTick() {
-        if (isFormed() || getOffsetTimer() % 20 != 0 || getLevel() == null) return;
-        if (ChemicalPlantPipes.repair(getLevel(), getPos(), getFrontFacing())) checkPattern();
+        if (getOffsetTimer() % 20 != 0 || getLevel() == null) return;
+        // formed or not: marks the pipes (GT would trim the connections toward casings and air) and sets their connections
+        if (ChemicalPlantPipes.repair(getLevel(), getPos(), getFrontFacing()) && !isFormed()) checkPattern();
     }
 }

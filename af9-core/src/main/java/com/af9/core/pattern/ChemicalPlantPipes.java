@@ -12,9 +12,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.registries.ForgeRegistries;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -104,15 +104,33 @@ public final class ChemicalPlantPipes {
         }, () -> new BlockInfo[] { BlockInfo.fromBlockState(block(blockId).defaultBlockState()) });
     }
 
-    /** Sets the connections of every right pipe that stands where the file has one; true if anything changed. */
+    /**
+     * The pipe's own data tag that marks a pipe of a plant: GT closes a connection whenever a neighbour changes and the
+     * side has nothing to connect to (air, a casing), so the file's connections toward casings and air would not last;
+     * a marked pipe keeps its connections as they are (com.af9.core.mixin.gtceu.PipeBlockMixin).
+     */
+    public static final String LOCK_TAG = "af9_plant_pipe";
+
+    /** Marks every right pipe that stands where the file has one, then sets their connections; true if anything changed. */
     public static boolean repair(Level level, BlockPos controller, Direction facing) {
         boolean changed = false;
+        // mark them all first, so no neighbour update caused by the first pipe's change trims the next one
+        List<PipeBlockEntity<?, ?>> found = new ArrayList<>();
+        List<Pipe> spots = new ArrayList<>();
         for (Pipe spot : PIPES) {
             BlockPos pos = worldPos(controller, facing, spot);
             if (!level.isLoaded(pos) || !level.getBlockState(pos).is(block(spot.block()))) continue;
-            BlockEntity be = level.getBlockEntity(pos);
-            if (!(be instanceof PipeBlockEntity<?, ?> pipe)) continue;
-            int want = rotate(spot.mask(), facing);
+            if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity<?, ?> pipe)) continue;
+            if (!pipe.getPersistentData().getBoolean(LOCK_TAG)) {
+                pipe.getPersistentData().putBoolean(LOCK_TAG, true);
+                pipe.setChanged();
+            }
+            found.add(pipe);
+            spots.add(spot);
+        }
+        for (int i = 0; i < found.size(); i++) {
+            PipeBlockEntity<?, ?> pipe = found.get(i);
+            int want = rotate(spots.get(i).mask(), facing);
             for (Direction side : Direction.values()) {
                 boolean open = (want & (1 << side.ordinal())) != 0;
                 if (pipe.isConnected(side) != open) {

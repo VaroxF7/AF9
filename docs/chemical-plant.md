@@ -13,3 +13,7 @@ A 6 x 4 x 6 plant of **real GT fluid pipes**, built 1:1 from Janne's `testing.nb
   Hatches go in any casing (maximums only).
 * Recipes: the Chemical Reactor's and the Large Chemical Reactor's (mode tab), parallel hatch, perfect overclock. The step-skipping chains come later.
 * Pipes of a formed plant are still ordinary working pipes (no cosmetic flag yet).
+* GT closes a pipe's side on every neighbour update when nothing there can take a connection (air, a casing), so the file's connections toward
+  casings and air did not last. The controller marks the pipes of the plant (data tag `af9_plant_pipe`) once a second, and
+  `PipeBlockMixin` makes `PipeBlock.canConnect` answer "as it is now" for a marked pipe, so nothing opens or closes.
+  Marked pipes stay marked after the plant is gone (they then keep their connections until a wrench changes them).
