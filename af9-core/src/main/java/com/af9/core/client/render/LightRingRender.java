@@ -100,8 +100,16 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     public static final float FADEOUT = 60;
     /** Ticks of one pulse (colour to white and back), as GT's fusion ring. */
     public static final int PULSE_TICKS = 50;
-    /** Glow layers around the ring: tube radius and opacity relative to the ring's. */
-    private static final float[][] HALO = { { 1.7F, 0.45F }, { 2.8F, 0.26F }, { 4.5F, 0.14F }, { 7F, 0.06F } };
+    /**
+     * Glow layers around the ring: half-width of a camera-facing ribbon (relative to the tube's radius) and its opacity
+     * in the middle; it fades smoothly to nothing at its edges, so no outline shows.
+     */
+    private static final float[][] HALO = { { 2.2F, 0.5F }, { 4F, 0.3F }, { 7F, 0.16F }, { 11F, 0.07F } };
+    /** Across a glow ribbon: offset (of the half-width) and opacity factor, a soft falloff. */
+    private static final float[][] FALLOFF = { { -1F, 0F }, { -0.55F, 0.22F }, { 0F, 1F }, { 0.55F, 0.22F },
+            { 1F, 0F } };
+    /** Sides of the tube and of its core (round, no visible facets). */
+    private static final int TUBE_SIDES = 20, CORE_SIDES = 14;
     /** The white-hot core inside the tube: radius and opacity relative to the ring's (a hot ring's: fatter, opaque). */
     private static final float CORE = 0.45F, CORE_ALPHA = 0.85F, HOT_CORE = 0.6F;
     /** All the glow layers; a hot ring's inner layers that also bloom (with Shimmer). */
@@ -221,7 +229,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
     private void renderDeferred(ILightRingMachine machine, Effects state, float alpha, float partialTick,
                                 PoseStack poseStack, MultiBufferSource.BufferSource buffers) {
         renderRing(machine, state, alpha, partialTick, poseStack, buffers, AF9RenderTypes.LIGHT_RING,
-                machine.ringGlow() > 1 ? AF9RenderTypes.LIGHT_RING_GLOW : AF9RenderTypes.LIGHT_RING, ALL_LAYERS);
+                AF9RenderTypes.LIGHT_RING_GLOW, ALL_LAYERS);
         buffers.endBatch(AF9RenderTypes.LIGHT_RING);
         buffers.endBatch(AF9RenderTypes.LIGHT_RING_GLOW);
         if (arcs && machine.isRingLit() && !state.bolts.isEmpty()) {
@@ -263,9 +271,9 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
                           int lastColor) {
         Frame frame = frame(machine.self(), spec.back());
         float ring = spec.radius();
-        int segments = Math.max(20, Math.round(ring * 5));
+        int segments = Math.max(48, Math.round(ring * 8));
         VertexConsumer tube = source.getBuffer(tubeType);
-        torus(tube, mat, frame, ring, thickness, 10, segments, r, g, b, alpha);
+        torus(tube, mat, frame, ring, thickness, TUBE_SIDES, segments, r, g, b, alpha);
         if (spec.spin() != 0) {
             // the station's modules, turning round the ring (ticks of the machine's own timer, so it keeps turning
             // while the ring fades out)
@@ -282,7 +290,7 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
             }
         }
         // the white-hot core inside it
-        torus(tube, mat, frame, ring, thickness * (hot ? HOT_CORE : CORE), 8, segments, 1F, 1F, 1F,
+        torus(tube, mat, frame, ring, thickness * (hot ? HOT_CORE : CORE), CORE_SIDES, segments, 1F, 1F, 1F,
                 alpha * (hot ? 1F : CORE_ALPHA));
         if (layers <= 0) return;
         // the glow in the plain colour, breathing with the pulse
@@ -292,9 +300,48 @@ public class LightRingRender extends DynamicRender<ILightRingMachine, LightRingR
         int drawn = 0;
         for (float[] layer : HALO) {
             if (drawn++ >= layers) return;
-            torus(glow, mat, frame, ring, thickness * layer[0], 10, segments, cr, cg, cb,
+            ribbon(glow, mat, frame, eye(machine), ring, thickness * layer[0], segments, cr, cg, cb,
                     Math.min(MAX_GLOW_ALPHA, alpha * layer[1] * breath));
         }
+    }
+
+    /** The camera, block-local (the pose is at the machine's block). */
+    private static Vec3 eye(ILightRingMachine machine) {
+        BlockPos pos = machine.self().getPos();
+        return Minecraft.getInstance().gameRenderer.getMainCamera().getPosition()
+                .subtract(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    /**
+     * A glow round the ring: a flat band that always turns to the camera, brightest on the ring and fading smoothly to
+     * nothing at its edges ({@link #FALLOFF}), so unlike a fat tube it has no facets and no outline.
+     */
+    private static void ribbon(VertexConsumer consumer, Matrix4f mat, Frame frame, Vec3 eye, float radius,
+                               float halfWidth, int segments, float r, float g, float b, float alpha) {
+        Vec3[] centre = new Vec3[segments + 1], side = new Vec3[segments + 1];
+        for (int i = 0; i <= segments; i++) {
+            float angle = Mth.TWO_PI * i / segments;
+            Vec3 p = frame.onRing(angle, radius, 0);
+            Vec3 ahead = frame.onRing(angle + 0.01F, radius, 0).subtract(p);
+            Vec3 across = ahead.cross(eye.subtract(p));
+            centre[i] = p;
+            side[i] = across.lengthSqr() < 1.0E-10 ? Vec3.ZERO : across.normalize().scale(halfWidth);
+        }
+        for (int i = 0; i < segments; i++) {
+            for (int k = 0; k < FALLOFF.length - 1; k++) {
+                float[] from = FALLOFF[k], to = FALLOFF[k + 1];
+                put(consumer, mat, centre[i], side[i], from, r, g, b, alpha);
+                put(consumer, mat, centre[i + 1], side[i + 1], from, r, g, b, alpha);
+                put(consumer, mat, centre[i + 1], side[i + 1], to, r, g, b, alpha);
+                put(consumer, mat, centre[i], side[i], to, r, g, b, alpha);
+            }
+        }
+    }
+
+    private static void put(VertexConsumer consumer, Matrix4f mat, Vec3 centre, Vec3 side, float[] column, float r,
+                            float g, float b, float alpha) {
+        consumer.vertex(mat, (float) (centre.x + side.x * column[0]), (float) (centre.y + side.y * column[0]),
+                (float) (centre.z + side.z * column[0])).color(r, g, b, alpha * column[1]).endVertex();
     }
 
     /**
