@@ -218,3 +218,9 @@ with the hue changed from purple to blue (`tools/textures/dtpf_module_casing.py`
 `tungsten_cell`, `rhenium_127_cell` and `osmium_plasma_cell` (item textures) are GregTech CEu Modern's Universal Cell
 (`item/universal_fluid_cell/base.png` and the first frame of `overlay.png`, LGPL-3.0) with the fluid's colour on the overlay
 (`tools/textures/accelerator_cells.py`).
+
+## Stainless Steel Firebox Casing
+
+`stainless_firebox_casing.png` and `stainless_firebox_casing_ctm.png` are GregTech CEu Modern's Titanium Firebox side texture
+(`casings/firebox/machine_casing_firebox_titanium`, LGPL-3.0) recoloured to the palette of the Clean Stainless Steel Casing
+(`tools/textures/stainless_firebox.py`; the originals are in `tools/textures/gt_src/`). Its glowing layer and block model are GT's own.

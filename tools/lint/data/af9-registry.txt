@@ -28,6 +28,7 @@ block af9:glue
 block af9:hearth_pipe_casing
 block af9:hearth_support_casing
 block af9:cutter_casing
+block af9:stainless_firebox_casing
 block af9:orbital_magnet_casing
 block af9:orbital_light_casing
 block af9:orbital_combined_structure_casing
@@ -281,6 +282,7 @@ item af9:iv_stator
 item af9:hearth_pipe_casing
 item af9:hearth_support_casing
 item af9:cutter_casing
+item af9:stainless_firebox_casing
 item af9:neutronium_ray_reflector
 item af9:orbital_magnet_casing
 item af9:orbital_light_casing

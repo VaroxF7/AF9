@@ -105,6 +105,10 @@ public final class AF9Blocks {
         // ---- Industrial Cutting Machine: the purple plated casing (tools/textures/cutter.py) ----
         block("cutter_casing", SoundType.METAL, 12F, 0, 0);
 
+        // ---- Stainless Steel Firebox Casing: GT's firebox in the colours of the Clean Stainless Steel Casing; lit while its
+        // machine runs (tools/textures/stainless_firebox.py) ----
+        activeBlock("stainless_firebox_casing", SoundType.METAL, 12F);
+
         // ---- ME Resonance Fabricator: TFG's black PTFE casing and its AE2 casing (an active block: a glowing, animated
         // texture while the machine runs) ----
         block("ptfe_black_casing", SoundType.METAL, 6F, 0, 0);
