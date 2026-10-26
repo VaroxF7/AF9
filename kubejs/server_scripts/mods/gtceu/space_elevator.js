@@ -52,8 +52,10 @@ ServerEvents.recipes(event => {
     // and a time that rises along the table from 1200 s (the nearest planet's fluid) to 3600 s (the last of the far dark's).
     // The recipe names its fluid in the data too (af9_cargo, PlanetCatalog.Cargo#code): the module's run reads it from there.
     const $PlanetCatalog = Java.loadClass('com.af9.core.elevator.PlanetCatalog')
+    const $PumpArrayList = Java.loadClass('java.util.ArrayList')
     const $PumpForge = Java.loadClass('net.minecraftforge.registries.ForgeRegistries')
-    const cargoes = $PlanetCatalog.all()
+    // a copy: the catalog's own list is an immutable one, which Rhino cannot call a method on
+    const cargoes = new $PumpArrayList($PlanetCatalog.all())
     const perDrone = {}
     const pump = (cargo, i) => {
         const tier = cargo.drone()
