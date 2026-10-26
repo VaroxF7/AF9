@@ -10,5 +10,5 @@ ServerEvents.recipes(event => {
         .itemInputs('3x gtceu:stainless_steel_rod', 'gtceu:stainless_steel_frame', '3x gtceu:stainless_steel_plate')
         .itemOutputs('2x af9:stainless_firebox_casing')
         .duration(250)
-        .EUt(VA[GTValues.HV])
+        .EUt(120)
 })
