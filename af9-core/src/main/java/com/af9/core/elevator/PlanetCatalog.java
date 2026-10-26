@@ -196,6 +196,19 @@ public final class PlanetCatalog {
         return cargoes;
     }
 
+    /**
+     * The n-th (from 1) of the fluids whose planet the Mining Drone of a tier is the one for ({@link Cargo#drone()}), in the
+     * table's order: the fluid a pumping recipe of that drone and programmed circuit n brings. Null when there is none.
+     */
+    public static Cargo ofDrone(int droneTier, int n) {
+        if (n < 1) return null;
+        int seen = 0;
+        for (Cargo cargo : all()) {
+            if (cargo.drone() == droneTier && ++seen == n) return cargo;
+        }
+        return null;
+    }
+
     /** The fluids a drone of a tier reaches. */
     public static List<Cargo> reach(int droneTier) {
         List<Cargo> cargoes = new ArrayList<>();

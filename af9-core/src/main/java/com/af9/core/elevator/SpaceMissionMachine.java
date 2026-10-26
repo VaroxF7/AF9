@@ -99,10 +99,9 @@ import java.util.function.Supplier;
  * bring a quarter of their share. Re-rolled for every run ({@link #MISSION}); the recipes themselves
  * (KubeJS: {@code server_scripts/mods/gtceu/space_elevator.js}) only name the drone, the fluids and the energy.
  * <p>
- * Instead of the asteroids a mission can go to a planet and bring home a fluid: a <b>liquid mission</b>
- * ({@link PlanetCatalog}: GTNH's Space Pumping table), picked on the screen ({@link #setMission}). It takes the same
- * drone, hydrogen, coolant and energy as the drone's ore mission; its fluid goes to the fluid output hatches. A module flies one
- * kind of mission at a time: the kind is its recipe type that is on ({@code space_mining} or {@code space_pumping}).
+ * The Pumping Module ({@link SpacePumpingModuleMachine}) flies <b>liquid missions</b> instead ({@link PlanetCatalog}: GTNH's
+ * Space Pumping table): one {@code space_pumping} recipe a fluid, set by the drone and the programmed circuit; its fluid goes to
+ * the fluid output hatches.
  * <p>
  * Its screen is a console in the Orbital Lithography Station's layout ({@link SpaceElevatorConsoleWidget}); what it shows,
  * and above all what the module lacks when nothing flies, comes from {@link #getStatus()}.
@@ -152,14 +151,6 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
      */
     @Persisted
     public final NotifiableItemStackHandler droneSlot;
-    /**
-     * The fluid picked for the liquid missions: GTNH's planet type and gas type ({@link PlanetCatalog}), 0 and 0 while
-     * the elevator mines the asteroids.
-     */
-    @Persisted
-    private int planetType;
-    @Persisted
-    private int gasType;
     /**
      * Expeditions flown, items of ore and millibuckets of fluid brought home since the counters were reset (the screen
      * shows them).
@@ -455,70 +446,30 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
         return LIQUID_RECIPE_TYPE.equals(getRecipeType().registryName.getPath());
     }
 
-    /** GTNH's planet type and gas type of the fluid picked for the liquid missions, 0 while the asteroids are mined. */
+    /** GTNH's planet type and gas type of the fluid of the liquid mission that is set, 0 on an ore mission or with none. */
     public int getPlanetType() {
-        return planetType;
+        PlanetCatalog.Cargo cargo = chosenCargo();
+        return cargo == null ? 0 : cargo.planet();
     }
 
     public int getGasType() {
-        return gasType;
-    }
-
-    /** The fluid a liquid mission brings: the one picked on the screen. Null on an ore mission. */
-    public PlanetCatalog.Cargo chosenCargo() {
-        if (!isLiquidMission()) return null;
-        // the planet is picked on the screen, its fluid by the programmed circuit (the n-th of the planet's, the first without one)
-        List<PlanetCatalog.Cargo> cargoes = PlanetCatalog.of(planetType);
-        if (cargoes.isEmpty()) return null;
-        return cargoes.get(Math.max(0, Math.min(circuitSet() - 1, cargoes.size() - 1)));
+        PlanetCatalog.Cargo cargo = chosenCargo();
+        return cargo == null ? 0 : cargo.gas();
     }
 
     /**
-     * Picks the mission: a planet type and a gas type of {@link PlanetCatalog} for a liquid mission, anything else for
-     * the asteroids. A run that is on flies to its end; what was drawn for the mission before does not start.
+     * The fluid a liquid mission brings: the n-th of the fluids the chosen drone reaches, n the programmed circuit set on
+     * the module ({@link PlanetCatalog#ofDrone}); the recipe of that circuit and drone brings it. Null on an ore mission.
      */
-    public void setMission(int planet, int gas) {
-        PlanetCatalog.Cargo cargo = PlanetCatalog.find(planet, gas);
-        int type = typeIndex(cargo == null ? RECIPE_TYPE : LIQUID_RECIPE_TYPE);
-        // no such recipe type: the startup script is not loaded
-        if (type < 0) return;
-        planetType = cargo == null ? 0 : planet;
-        gasType = cargo == null ? 0 : gas;
-        setActiveRecipeType(type);
-        outputFull = false;
-        recipeLogic.markLastRecipeDirty();
-        markDirty();
+    public PlanetCatalog.Cargo chosenCargo() {
+        if (!isLiquidMission()) return null;
+        return PlanetCatalog.ofDrone(chosenDrone(), circuitSet());
     }
 
-    private int typeIndex(String name) {
-        GTRecipeType[] types = getRecipeTypes();
-        for (int i = 0; i < types.length; i++) {
-            if (types[i].registryName.getPath().equals(name)) return i;
-        }
-        return -1;
-    }
+    /** The mission is the recipe the module's drone and circuit pick: nothing to cycle on the screen. */
+    public void cycleTarget(int step) {}
 
-    /** The screen's target selector: the asteroids, then the planet types from the nearest, round and round. */
-    public void cycleTarget(int step) {
-        List<Integer> planets = PlanetCatalog.planets();
-        int index = isLiquidMission() ? planets.indexOf(planetType) + 1 : 0;
-        index = Math.floorMod(index + step, planets.size() + 1);
-        if (index == 0) {
-            setMission(0, 0);
-        } else {
-            int planet = planets.get(index - 1);
-            setMission(planet, PlanetCatalog.of(planet).get(0).gas());
-        }
-    }
-
-    /** The screen's fluid selector: the fluids of the planet type that is picked, round and round. */
-    public void cycleCargo(int step) {
-        PlanetCatalog.Cargo cargo = chosenCargo();
-        if (cargo == null) return;
-        List<PlanetCatalog.Cargo> cargoes = PlanetCatalog.of(planetType);
-        int index = Math.floorMod(cargoes.indexOf(cargo) + step, cargoes.size());
-        setMission(planetType, cargoes.get(index).gas());
-    }
+    public void cycleCargo(int step) {}
 
     /** GT's own mode tab (it would switch the recipe type) is left out: the mission is picked on the console. */
     @Override
@@ -551,15 +502,12 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
         Expedition needs = expedition(drone);
         if (needs == null) return ConsoleWidget.STATUS_NO_DRONE;
         boolean liquid = isLiquidMission();
-        if (liquid) {
-            // the planet that is picked lies beyond the drone
-            PlanetCatalog.Cargo cargo = chosenCargo();
-            if (cargo == null || cargo.drone() > drone) return ConsoleWidget.STATUS_NO_DRONE;
-        }
         if (getAvailableEUt() < needs.eut()) return ConsoleWidget.STATUS_NO_POWER;
         if (stockOf(GTMaterials.Hydrogen.getFluid()) < needs.hydrogen()) return ConsoleWidget.STATUS_NO_FUEL;
         if (stockOf(needs.coolant()) < needs.coolantAmount()) return ConsoleWidget.STATUS_NO_COOLANT;
         if (!liquid && !hasOreRecipe(drone)) return ConsoleWidget.STATUS_NO_DATA;
+        // a circuit that picks no fluid of the drone's planets
+        if (liquid && chosenCargo() == null) return ConsoleWidget.STATUS_NO_DATA;
         // the drill head and the crate an ore expedition uses up, in an item input bus of the tower or of the module
         if (!liquid && !hasPartsFor(drone)) return ConsoleWidget.STATUS_NO_PARTS;
         RecipeCapability<?> kind = liquid ? FluidRecipeCapability.CAP : ItemRecipeCapability.CAP;
@@ -669,12 +617,14 @@ public abstract class SpaceMissionMachine extends WorkableElectricMultiblockMach
             return ModifierFunction.NULL;
         }
         // a module flies the drones of its own tier and below (the MK-3 module also the MK-4 drone)
-        if (elevator instanceof SpaceModuleMachine module && module.getModuleTier() < Math.min(tier, 3)) {
+        if (elevator instanceof SpaceModuleMachine module && !(module instanceof SpacePumpingModuleMachine) &&
+                module.getModuleTier() < Math.min(tier, 3)) {
             return ModifierFunction.NULL;
         }
         boolean liquid = elevator.isLiquidMission();
-        PlanetCatalog.Cargo cargo = elevator.chosenCargo();
-        if (liquid && (cargo == null || cargo.drone() > tier)) return ModifierFunction.NULL;
+        // a pumping recipe names its fluid (data af9_cargo) and the drone that reaches its planet
+        PlanetCatalog.Cargo cargo = liquid ? PlanetCatalog.byCode(recipe.data.getInt(CARGO_TAG)) : null;
+        if (liquid && (cargo == null || cargo.drone() != tier)) return ModifierFunction.NULL;
         // one expedition a run, no parallels: more modules fly more expeditions, a faster run comes from overclocking
         if (elevator.getExpeditions() < 1 || elevator.getAvailableEUt() < eut) return ModifierFunction.NULL;
         int runs = 1;

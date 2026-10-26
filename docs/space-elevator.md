@@ -70,23 +70,25 @@ A bigger run takes the rest of its coolant from the **fluid input hatches**: to 
 takes a recipe's fluids from all of them together, so supercooled coolant in a fluid input hatch counts as well (the screen's coolant
 is `SpaceElevatorMachine.stockOf`: all of it).
 
-### Liquid missions
+### Liquid missions: the Pumping Module
 
-Instead of an asteroid an expedition can go to a **planet** and bring home a **fluid**: GTNH's Space Pumping
-(`gtnhintergalactic.recipe.SpacePumpingRecipes`, the table of its Space Pumping Module), as a mission of AF9's elevator.
+Instead of an asteroid the tower can bring home a **planet's fluid**: GTNH's Space Pumping
+(`gtnhintergalactic.recipe.SpacePumpingRecipes`, the table of its Space Pumping Module), done by a module of its own, the
+**Space Pumping Module** (`gtceu:space_pumping_module`, `SpacePumpingModuleMachine`), which stands in a module slot like the Mining Modules.
 
-* **The same flight**: a liquid mission takes what the drone's ore mission takes (the table above: hydrogen, coolant, energy, time)
-  and is flown by the same Mining Modules, as many at once. Its recipe is the ore mission's in a recipe type of its own
-  (`gtceu:space_pumping`); the fluid is not in the recipe: the run gets it when it starts (`SpaceElevatorMachine.MISSION`).
-* **Picked on the screen** (section 5): the target (the asteroids, or a **planet type**, GTNH's 2 to 8 plus AF9's
-  own type 9) and the planet's fluid. The
-  elevator flies **one kind of mission at a time**: the kind is its recipe type that is on (GT's own mode tab is left out of the
-  screen). A run that is on flies to its end.
-* **The drone says how far**: MK-I reaches planet types 2 and 3, MK-II 4 and 5, MK-III 6 and 7, MK-IV types 8 and 9
-  (`PlanetCatalog.droneFor`), each the nearer ones too.
-* **GTNH's amounts**: what GTNH's module pumps in a second (for 1A of UHV) is here what one mission brings. A better drone brings no
-  more of a planet's fluid, it only reaches further.
-* The fluid goes to **fluid output hatches** (up to 6; an ME one takes any run): a run flies as many missions as they have room for.
+* **One recipe a fluid** (`gtceu:space_pumping`, `af9:space_pumping_<planet>_<gas>`, made from `PlanetCatalog` by the server script): each
+  at **4A of ZPM** and a time from **120 s** (the nearest planet's first fluid) rising along the table to **360 s** (the last fluid
+  of the far dark), each with the fluid it brings as its output, so the recipe viewers list them all.
+* **The recipe is set in the module**: the Mining Drone that reaches the planet in its drone slot (MK-I types 2 and 3, MK-II 4 and 5,
+  MK-III 6 and 7, MK-IV types 8 and 9: the drone of the fluid's tier, `PlanetCatalog.droneFor`) and the **programmed circuit**
+  (the button on the left of its screen): circuit *n* is the *n*-th of that drone's fluids in the table below, in its order
+  (`PlanetCatalog.ofDrone`). A circuit past the drone's fluids says NO DATA.
+* **The run is the tower's**: it takes its hydrogen and its supercooled coolant (the drone's tier, as the ore flights) and its
+  energy from the tower's hatches and buffer, **only starts while the tower is switched on** (ONLINE), and the fluid goes to the
+  **tower's fluid output hatches** (up to 6; an ME one takes any run). The module counts as a MK-I module for the motors, and it
+  takes a slot like any other.
+* **GTNH's amounts**: what GTNH's module pumps in a second (for 1A of UHV) is here what one run brings. The fluids and amounts are
+  `PlanetCatalog`'s; the old combined recipe (`af9:space_pumping_mk<tier>`) with its picker on the screen is gone.
 
 | Planet type | Drone | Fluids (buckets a mission) |
 |---|---|---|
@@ -334,8 +336,7 @@ when it starts: **the ores this drone's asteroids hold**, taking turns in nine s
 
 GTNH's modules are machines of their own (mining, pumping, assembler; each with its own buses, drone, parameters and an asteroid filter); here
 the Mining Module is such a machine too (section 0: own screen, drone, hatches and energy buffer), but there are only Mining Modules, and no asteroid filter or parameters.
-GTNH's Space Pumping Module pumps all the time beside the mining, for energy alone, up to four fluids at once, set by parameters; here its
-fluids are liquid missions of the module itself, one kind of mission at a time, picked on its screen. There is no assembler module.
+GTNH's Space Pumping Module pumps all the time beside the mining, for energy alone, up to four fluids at once, set by parameters; here the Pumping Module runs one fluid recipe at a time, picked by its drone and circuit (section 1). There is no assembler module.
 GTNH's elevator also has a galaxy map for travel, and plasma, drill tips, rods and computation as inputs; here it runs on hydrogen and a coolant
 and has no travel function. GTNH's screen (a TecTech controller's, with its parameters) is not rebuilt: the elevator has AF9's console
 (section 5). GTNH's climber model and textures are GTNH's own and are not used: the climber, the cable and the block textures are made by

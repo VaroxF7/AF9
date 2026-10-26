@@ -22,6 +22,7 @@ const $ElevatorDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.uti
 const $ElevatorCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $SpaceModule = Java.loadClass('com.af9.core.elevator.SpaceModuleMachine')
 const $SpaceMission = Java.loadClass('com.af9.core.elevator.SpaceMissionMachine')
+const $SpacePumpingModule = Java.loadClass('com.af9.core.elevator.SpacePumpingModuleMachine')
 
 const SE_ROMAN = ['I', 'II', 'III', 'IV', 'V']
 // module slots the motors of each tier power, expeditions a Mining Module of each tier flies at once (GTNH's numbers; the
@@ -41,12 +42,12 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
         .setMaxIOSize(4, 1, 2, 0)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC)
-    // the same flights for a planet's fluid, the liquid missions: the fluid is put in when a run starts, the one picked on
-    // the elevator's screen (SpaceElevatorMachine, PlanetCatalog). The elevator flies the kind of mission that is picked
+    // the Pumping Module's recipes, one a fluid: a Mining Drone (not used up) and the programmed circuit that picks the
+    // fluid, hydrogen and the coolant in, the fluid out (server_scripts/mods/gtceu/space_elevator.js, PlanetCatalog)
     event.create('space_pumping')
         .category('multiblock')
         .setEUIO('in')
-        .setMaxIOSize(1, 0, 2, 1)
+        .setMaxIOSize(2, 0, 2, 1)
         .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
         .setSound(GTSoundEntries.ARC)
     // the modules are controllers of their own, but run no recipes: the elevator flies the missions (SpaceModuleMachine)
@@ -739,8 +740,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .langValue(`Space Mining Module MK-${roman}`)
             .machine(holder => new $SpaceModule(holder, tier))
             .rotationState(RotationState.NON_Y_AXIS)
-            .recipeTypes([GTRecipeTypes.get('space_mining'), GTRecipeTypes.get('space_pumping')])
-            // the missions only (the modifier is the engine: drone, asteroid or planet, expeditions at once)
+            .recipeTypes([GTRecipeTypes.get('space_mining')])
+            // the missions only (the modifier is the engine: drone, asteroid, expeditions at once)
             .recipeModifiers([$SpaceMission.MISSION])
             .appearanceBlock(() => Block.getBlock('af9:space_elevator_base_casing'))
             ['tooltips(net.minecraft.network.chat.Component[])'](tooltips(`af9.space_mining_module_mk${tier}.tooltip`, 4))
@@ -762,4 +763,31 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .workableCasingModel('af9:block/space_elevator_base_casing',
                 `gtceu:block/multiblock/space_mining_module_mk${tier}`)
     })
+
+    // ---- The Pumping Module: a module of its own in a module slot, as the Mining Modules, for the fluids of the planets. Its
+    // recipe is set in the module (the drone of the planet's reach and the programmed circuit that picks the fluid), the run is
+    // the tower's (energy, hydrogen and coolant from its hatches, switched on with it, the fluid to its output hatches)
+    event.create('space_pumping_module', 'multiblock')
+        .langValue('Space Pumping Module')
+        .machine(holder => new $SpacePumpingModule(holder))
+        .rotationState(RotationState.NON_Y_AXIS)
+        .recipeTypes([GTRecipeTypes.get('space_pumping')])
+        .recipeModifiers([$SpaceMission.MISSION])
+        .appearanceBlock(() => Block.getBlock('af9:space_elevator_base_casing'))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.space_pumping_module.tooltip', 4))
+        .pattern(definition => {
+            const slotPart = Predicates.blocks('af9:space_elevator_base_casing')
+                .or(Predicates.abilities(PartAbility.IMPORT_ITEMS).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.IMPORT_FLUIDS).setMaxGlobalLimited(2, 1))
+                .or(Predicates.abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(4, 1))
+                .or(Predicates.abilities($ElevatorCoolantHatch.COOLANT_INPUT).setMaxGlobalLimited(2, 1))
+                .or(Predicates.any())
+            return FactoryBlockPattern.start()
+                .aisle('MMM', 'MSM', 'MMM')
+                .where('S', Predicates.controller(Predicates.blocks(definition.get())))
+                .where('M', slotPart)
+                .build()
+        })
+        .workableCasingModel('af9:block/space_elevator_base_casing',
+            'gtceu:block/multiblock/space_pumping_module')
 })

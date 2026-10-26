@@ -238,9 +238,9 @@ Full spec: [`docs/space-elevator.md`](docs/space-elevator.md). Structure block-f
 | Mk-III | 1–3 (+End) | 96 B / 80 B Xe | 16A ZPM | 5 min | 16–32 |
 | Mk-IV | all + exotic | 100 B / 100 B endion | 32A ZPM | 6 min | 24–48 |
 
-- **Liquid missions** (`gtceu:space_pumping`, GTNH's Space Pumping table): same flight cost,
-  picked on the screen (ASTEROIDS / PLANET TYPE 2–8 → fluid), one kind at a time, to fluid hatches.
-  Drone range-gates planet types (MK-I → 2–3 … MK-IV → 8).
+- **Pumping Module** (`gtceu:space_pumping_module`, GTNH's Space Pumping table): one recipe a fluid
+  (`gtceu:space_pumping`, 4A ZPM, 120–360 s), set in the module (the drone that reaches the planet + the
+  programmed circuit), run on the tower's runtime, the fluid to the tower's fluid output hatches.
 - **Screen** tells the first missing thing (OFFLINE / PAUSED / NO SKY / NO MODULE / NO DRONE /
   NO POWER / NO HYDROGEN / NO COOLANT / NO ROOM / IDLE / RUNNING) with numbers.
 

@@ -56,9 +56,8 @@ import java.util.List;
  * stacks an expedition brings under them. The ores are outputs to the viewers, so looking up a raw ore finds the
  * expedition that brings it. GT's own slots (same ids) for the inputs.
  * <p>
- * The liquid missions' page ({@code space_pumping}) is the same with a planet for the asteroid and, in the nine slots,
- * <b>the fluids of the planets this drone reaches</b> ({@link PlanetCatalog}), each with the buckets a mission brings:
- * one of them a mission, the one picked on the elevator's screen.
+ * The pumping page ({@code space_pumping}) is the same with a planet for the asteroid, the programmed circuit that picks
+ * the recipe, and <b>the one fluid</b> the recipe brings ({@link PlanetCatalog}) with the buckets a mission brings.
  */
 public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
 
@@ -102,8 +101,8 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
 
     /** Rows of the grid: the ores' fixed, the fluids as many as the table needs. */
     private int rows() {
-        if (!liquid) return ORE_ROWS;
-        return Math.max(1, Math.min(ORE_ROWS, (PlanetCatalog.all().size() + GRID_COLUMNS - 1) / GRID_COLUMNS));
+        // a pumping recipe has the one fluid it brings
+        return liquid ? 1 : ORE_ROWS;
     }
 
     private int height() {
@@ -120,9 +119,11 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         slot(group, ItemRecipeCapability.CAP, IO.IN, 0, DRONE_X, TOP_Y,
                 getOverlaysForSlot(false, ItemRecipeCapability.CAP, true, false, false));
         // the circuit that picks the asteroid, and what a run uses up: a drill head and a crate
-        if (!liquid && type.maxInputs.getInt(ItemRecipeCapability.CAP) >= 4) {
+        if (type.maxInputs.getInt(ItemRecipeCapability.CAP) >= 2) {
             slot(group, ItemRecipeCapability.CAP, IO.IN, 1, CIRCUIT_X, TOP_Y,
                     getOverlaysForSlot(false, ItemRecipeCapability.CAP, true, false, false));
+        }
+        if (!liquid && type.maxInputs.getInt(ItemRecipeCapability.CAP) >= 4) {
             slot(group, ItemRecipeCapability.CAP, IO.IN, 2, DRILL_X, TOP_Y,
                     getOverlaysForSlot(false, ItemRecipeCapability.CAP, false, false, false));
             slot(group, ItemRecipeCapability.CAP, IO.IN, 3, CRATE_X, TOP_Y,
@@ -172,7 +173,7 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
             // into the page's own group: GT builds that anew when the page is redrawn, the slots with it
             if (flow.getParent() != null && FMLEnvironment.dist == Dist.CLIENT) {
                 addMarker(flow.getParent(), tier);
-                if (liquid) addFluids(flow.getParent(), tier);
+                if (liquid) addFluid(flow.getParent(), recipe);
                 else addAsteroid(flow.getParent(), tier, SpaceMissionMachine.circuitOf(recipe));
             }
         });
@@ -245,48 +246,25 @@ public class SpaceMiningRecipeUI extends GTRecipeTypeUI {
         }
     }
 
-    /**
-     * The slots the fluids take turns in, the buckets a mission brings on each: every fluid is an output the recipe
-     * viewers know.
-     */
-    private static void addFluids(WidgetGroup group, int tier) {
-        List<PlanetCatalog.Cargo> cargoes = new ArrayList<>();
-        for (PlanetCatalog.Cargo cargo : PlanetCatalog.all()) {
-            if (cargo.drone() == tier || (tier >= 4 && cargo.drone() > 4)) cargoes.add(cargo);
-        }
-        int slots = Math.max(1, Math.min(GRID_COLUMNS * ORE_ROWS, cargoes.size()));
+    /** The fluid this recipe brings, with the buckets a mission brings: an output the recipe viewers know. */
+    private static void addFluid(WidgetGroup group, GTRecipe recipe) {
+        PlanetCatalog.Cargo cargo = PlanetCatalog.byCode(recipe.data.getInt(SpaceMissionMachine.CARGO_TAG));
+        if (cargo == null) return;
+        int circuit = SpaceMissionMachine.circuitOf(recipe);
         List<List<FluidStack>> turns = new ArrayList<>();
-        for (int i = 0; i < slots; i++) turns.add(new ArrayList<>());
-        for (int i = 0; i < cargoes.size(); i++) {
-            PlanetCatalog.Cargo cargo = cargoes.get(i);
-            turns.get(i % slots).add(new FluidStack(cargo.fluid(), cargo.millibuckets()));
-        }
+        turns.add(List.of(new FluidStack(cargo.fluid(), cargo.millibuckets())));
         CycleFluidStackHandler handler = new CycleFluidStackHandler(turns);
-        for (int i = 0; i < slots; i++) {
-            TankWidget tank = new TankWidget(handler, i, GRID_X + 18 * (i % GRID_COLUMNS),
-                    GRID_Y + 18 * (i / GRID_COLUMNS), false, false);
-            tank.setBackground(GuiTextures.FLUID_SLOT);
-            tank.setIngredientIO(IngredientIO.OUTPUT);
-            tank.setOnAddedTooltips((widget, tooltips) -> {
-                PlanetCatalog.Cargo shown = cargoOf(widget.getFluid());
-                if (shown == null) return;
-                tooltips.add(Component.translatable("af9.recipe.space_pumping.fluid_tooltip.0", shown.planet(),
-                        FormattingUtil.formatNumbers(shown.buckets())).withStyle(ChatFormatting.AQUA));
-                tooltips.add(Component.translatable("af9.recipe.space_pumping.fluid_tooltip.1",
-                        SpaceElevatorMachine.mark(shown.drone())).withStyle(ChatFormatting.GRAY));
-                tooltips.add(Component.translatable("af9.recipe.space_pumping.fluid_tooltip.2")
-                        .withStyle(ChatFormatting.GRAY));
-            });
-            group.addWidget(tank);
-        }
-    }
-
-    /** The table's entry of a fluid a slot shows, null for none. */
-    private static PlanetCatalog.Cargo cargoOf(FluidStack stack) {
-        if (stack == null || stack.isEmpty()) return null;
-        for (PlanetCatalog.Cargo cargo : PlanetCatalog.all()) {
-            if (cargo.fluid().isSame(stack.getFluid())) return cargo;
-        }
-        return null;
+        TankWidget tank = new TankWidget(handler, 0, GRID_X, GRID_Y, false, false);
+        tank.setBackground(GuiTextures.FLUID_SLOT);
+        tank.setIngredientIO(IngredientIO.OUTPUT);
+        tank.setOnAddedTooltips((widget, tooltips) -> {
+            tooltips.add(Component.translatable("af9.recipe.space_pumping.fluid_tooltip.0", cargo.planet(),
+                    FormattingUtil.formatNumbers(cargo.buckets())).withStyle(ChatFormatting.AQUA));
+            tooltips.add(Component.translatable("af9.recipe.space_pumping.fluid_tooltip.1",
+                    SpaceElevatorMachine.mark(cargo.drone())).withStyle(ChatFormatting.GRAY));
+            tooltips.add(Component.translatable("af9.recipe.space_pumping.fluid_tooltip.2", circuit)
+                    .withStyle(ChatFormatting.GRAY));
+        });
+        group.addWidget(tank);
     }
 }

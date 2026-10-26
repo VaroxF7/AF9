@@ -143,6 +143,8 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     /** The Mining Module tiers there are: {@code gtceu:space_mining_module_mk1} to {@code mk3} (machines: {@link SpaceModuleMachine}). */
     public static final int MODULE_TIERS = AF9Blocks.MODULES;
     private static final String MODULE = AF9Blocks.MODULE;
+    /** The Pumping Module ({@code gtceu:space_pumping_module}, {@link SpacePumpingModuleMachine}): a module slot's MK-I module. */
+    private static final String PUMPING_MODULE = "space_pumping_module";
     /** The pattern check's notes (GT's match context): the motor tier, the tiers of the modules found. */
     private static final String MOTOR_KEY = "SpaceElevatorMotor";
     private static final String MODULES_KEY = "SpaceElevatorModules";
@@ -426,6 +428,8 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     /** The tier of a Mining Module controller ({@code gtceu:space_mining_module_mk<tier>}), 0 for any other block. */
     private static int moduleTierOf(BlockState state) {
         ResourceLocation key = ForgeRegistries.BLOCKS.getKey(state.getBlock());
+        // the Pumping Module takes a slot as a MK-I module
+        if (key != null && key.getNamespace().equals("gtceu") && key.getPath().equals(PUMPING_MODULE)) return 1;
         if (key == null || !key.getNamespace().equals("gtceu") || !key.getPath().startsWith(MODULE)) return 0;
         try {
             return Integer.parseInt(key.getPath().substring(MODULE.length()));
@@ -435,8 +439,9 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     }
 
     private static BlockInfo[] moduleCandidates() {
-        return IntStream.rangeClosed(1, MODULE_TIERS)
-                .mapToObj(tier -> ForgeRegistries.BLOCKS.getValue(new ResourceLocation("gtceu", MODULE + tier)))
+        return java.util.stream.Stream.concat(IntStream.rangeClosed(1, MODULE_TIERS).mapToObj(tier -> MODULE + tier),
+                java.util.stream.Stream.of(PUMPING_MODULE))
+                .map(name -> ForgeRegistries.BLOCKS.getValue(new ResourceLocation("gtceu", name)))
                 .filter(block -> block != null && block != Blocks.AIR)
                 .map(BlockInfo::fromBlock).toArray(BlockInfo[]::new);
     }

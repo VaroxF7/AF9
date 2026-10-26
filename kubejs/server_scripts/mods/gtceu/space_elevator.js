@@ -6,8 +6,9 @@
 // energy: the ore is not in the recipe, a run gets its asteroid when it starts (the recipe viewers' page lists the ores
 // the drone's asteroids hold: af9-core, SpaceMiningRecipeUI). The Mining Modules of the tower fly several of them at once,
 // each with the full inputs.
-// A liquid mission is the same flight for a planet's fluid (gtceu:space_pumping): the fluid is not in the recipe either,
-// the elevator puts in the one picked on its screen (af9-core, PlanetCatalog: GTNH's Space Pumping table).
+// The Pumping Module pumps a planet's fluid: one gtceu:space_pumping recipe a fluid of af9-core's PlanetCatalog (GTNH's Space
+// Pumping table), all at 4A of ZPM and 120 to 360 seconds, the drone of the planet's reach and the programmed circuit that
+// picks the fluid (the n-th of that drone's fluids, PlanetCatalog.ofDrone) set in the module.
 
 ServerEvents.recipes(event => {
     const VA = GTValues.VA
@@ -45,13 +46,33 @@ ServerEvents.recipes(event => {
                 .duration(seconds * 20)
                 .EUt(VA[GTValues.ZPM], amps)
         }
-        event.recipes.gtceu.space_pumping(`af9:space_pumping_mk${tier}`)
-            .notConsumable(`af9:space_mining_drone_mk${tier}`)
-            .inputFluids(Fluid.of('gtceu:hydrogen', hydrogen))
-            .inputFluids(Fluid.of(coolant, coolantMb))
-            .duration(seconds * 20)
-            .EUt(VA[GTValues.ZPM], amps)
     })
+
+    // ---- The Pumping Module's recipes: one a fluid ----
+    // The flight costs of the drone that reaches the planet (hydrogen, coolant), a ZPM recipe of 4 amps whatever the drone,
+    // and a time that rises along the table from 120 s (the nearest planet's fluid) to 360 s (the last of the far dark's).
+    // The recipe names its fluid in the data too (af9_cargo, PlanetCatalog.Cargo#code): the module's run reads it from there.
+    const $PlanetCatalog = Java.loadClass('com.af9.core.elevator.PlanetCatalog')
+    const $PumpForge = Java.loadClass('net.minecraftforge.registries.ForgeRegistries')
+    const cargoes = $PlanetCatalog.all()
+    const perDrone = {}
+    const pump = (cargo, i) => {
+        const tier = cargo.drone()
+        const flight = expeditions[tier - 1]
+        // the n-th fluid of its drone: the programmed circuit that picks it
+        perDrone[tier] = (perDrone[tier] || 0) + 1
+        const seconds = 120 + Math.round(240 * i / Math.max(1, cargoes.size() - 1) / 5) * 5
+        event.recipes.gtceu.space_pumping(`af9:space_pumping_${cargo.planet()}_${cargo.gas()}`)
+            .notConsumable(`af9:space_mining_drone_mk${tier}`)
+            .circuit(perDrone[tier])
+            .inputFluids(Fluid.of('gtceu:hydrogen', flight[1]))
+            .inputFluids(Fluid.of(flight[2], flight[3]))
+            .outputFluids(Fluid.of(String($PumpForge.FLUIDS.getKey(cargo.fluid())), cargo.millibuckets()))
+            .addData('af9_cargo', cargo.code())
+            .duration(seconds * 20)
+            .EUt(VA[GTValues.ZPM], 4)
+    }
+    for (let i = 0; i < cargoes.size(); i++) pump(cargoes.get(i), i)
 
     // ---- The Mining Drones: ZPM parts for the first, UV parts (GT's last tier with parts: highTierContent is off) for
     // the rest, more of them and a rarer plate for each tier ----
@@ -123,6 +144,15 @@ ServerEvents.recipes(event => {
             .duration(400)
             .EUt(VA[GTValues.UV])
     })
+
+    // ---- The Pumping Module (a module slot's MK-I module; the Mining Modules' parts, with pumps for the arms) ----
+    event.recipes.gtceu.assembler('gtceu:space_pumping_module')
+        .itemInputs('gtceu:zpm_machine_hull', '2x gtceu:zpm_electric_pump', '2x gtceu:zpm_sensor', '4x #gtceu:circuits/zpm',
+            '4x af9:space_elevator_base_casing')
+        .inputFluids(solder(1152))
+        .itemOutputs('gtceu:space_pumping_module')
+        .duration(600)
+        .EUt(VA[GTValues.ZPM])
 
     // ---- The Mining Modules (in the module slots: one expedition each at once, more modules fly more): MK-I from ZPM parts, the next from
     // the one before ----
