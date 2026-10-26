@@ -318,6 +318,7 @@ item af9:memristor_reticle
 item af9:memristor_wafer
 item af9:methanol_bucket
 item af9:mining_black_plutonium_casing
+item af9:mars_marker
 item af9:mining_dimension_marker
 item af9:mining_neutronium_casing
 item af9:mo_si_mirror
@@ -366,6 +367,7 @@ item af9:pico_circuit_rack
 item af9:pico_cpu
 item af9:shock_capacitor_casing
 item af9:tritanium_ray_reflector
+item af9:venus_marker
 item af9:water_filter_casing
 item af9:xps_board
 item af9:silicon_carbide_substrate

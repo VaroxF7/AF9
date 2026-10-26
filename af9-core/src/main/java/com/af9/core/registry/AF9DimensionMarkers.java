@@ -18,8 +18,8 @@ import java.util.List;
 /**
  * The dimension markers: the cube "planets" GregTech shows in the dimension slot of a recipe page and of an ore vein's
  * page (JEI / EMI). GregTech has three of its own (Overworld, Nether, End) and shows a barrier for every other
- * dimension; these are AF9's, for its own dimensions and for the two of other mods its recipes and veins name (the
- * Mining Dimension, the Moon). They are icons and nothing else: items no recipe makes and no tab lists, as
+ * dimension; these are AF9's, for its own dimensions and for the four of other mods its recipes and veins name (the
+ * Mining Dimension, the Moon, Mars, Venus). They are icons and nothing else: items no recipe makes and no tab lists, as
  * GregTech's own are.
  * <p>
  * To add one: a line in the static block, its name ({@code item.af9.<id>}) in the lang files, and its faces and model
@@ -38,6 +38,8 @@ public final class AF9DimensionMarkers {
         // the tier is the rocket's that gets there (data/af9/planets, Ad Astra's own for the Moon)
         marker("allthemodium:mining", "mining_dimension_marker", 0);
         marker("ad_astra:moon", "moon_marker", 1);
+        marker("ad_astra:mars", "mars_marker", 2);
+        marker("ad_astra:venus", "venus_marker", 3);
         marker("af9:asteroid_field", "asteroid_field_marker", 2);
         marker("af9:ceres", "ceres_marker", 2);
         marker("af9:zephyr", "zephyr_marker", 3);

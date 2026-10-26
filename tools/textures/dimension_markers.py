@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """AF9's dimension markers: the cube "planets" GregTech shows in the dimension slot of a recipe page and of an ore vein's
 page (JEI / EMI). GregTech has three of its own (Overworld, Nether, End: a map of the world wrapped round a cube) and a
-barrier for every other dimension; these are for AF9's dimensions and the two of other mods AF9's recipes name.
+barrier for every other dimension; these are for AF9's dimensions and the four of other mods AF9's recipes name.
 
 Run from the repository root (needs Pillow):  python3 tools/textures/dimension_markers.py
 
@@ -186,6 +186,14 @@ MARKERS = {
     # the Moon (ad_astra:moon): pale highlands, dark seas
     'moon': cratered(71, [(0x7C, 0x7D, 0x82), (0x98, 0x99, 0x9D), (0xB4, 0xB5, 0xB7), (0xCF, 0xD0, 0xD1)],
                      (9, 0.16, 0.3), maria=(0.42, [(0x52, 0x55, 0x5E), (0x60, 0x63, 0x6C), (0x6E, 0x71, 0x79)])),
+    # Mars (ad_astra:mars): rust plains, darker basalt, a pale polar cap
+    'mars': cratered(81, [(0x6E, 0x2E, 0x1A), (0x93, 0x44, 0x24), (0xB5, 0x5C, 0x34), (0xCF, 0x7A, 0x4C)],
+                     (6, 0.12, 0.24), maria=(0.36, [(0x3E, 0x24, 0x1E), (0x4E, 0x2E, 0x24), (0x5E, 0x38, 0x2C)]),
+                     spots=[((0.0, 1.0, 0.0), 0.3, (0xEE, 0xE8, 0xE2)), ((0.0, -1.0, 0.0), 0.26, (0xEE, 0xE8, 0xE2))]),
+    # Venus (ad_astra:venus): a thick yellow-white cloud deck in slow bands
+    'venus': banded(91, [(0xB8, 0x92, 0x4A), (0xD8, 0xB8, 0x6A), (0xEC, 0xD8, 0x98), (0xF6, 0xEA, 0xC0),
+                         (0xE2, 0xC8, 0x80), (0xEC, 0xD8, 0x98), (0xD0, 0xAA, 0x5A), (0xE2, 0xC8, 0x80),
+                         (0xB8, 0x92, 0x4A)], 1.1),
     'asteroid_field': rocks(51, [(0x2C, 0x29, 0x27), (0x4A, 0x43, 0x3D), (0x6A, 0x60, 0x58), (0x8A, 0x7E, 0x72)], 15),
     # Ceres: grey and cratered, with the two bright salt spots of its largest crater
     'ceres': cratered(41, [(0x4E, 0x49, 0x44), (0x66, 0x60, 0x5A), (0x80, 0x79, 0x70), (0x9A, 0x92, 0x88)],

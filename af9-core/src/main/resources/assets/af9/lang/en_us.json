@@ -569,6 +569,8 @@
     "planet.af9.asteroid_field": "Asteroid Field",
     "item.af9.mining_dimension_marker": "Mining Dimension",
     "item.af9.moon_marker": "Moon",
+    "item.af9.mars_marker": "Mars",
+    "item.af9.venus_marker": "Venus",
     "item.af9.asteroid_field_marker": "Asteroid Field",
     "item.af9.ceres_marker": "Ceres",
     "item.af9.zephyr_marker": "Zephyr",
