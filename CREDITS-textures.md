@@ -35,7 +35,6 @@ into `kubejs/assets/gtceu/textures/block/` (they replace GTCEu's textures of the
 
 | af9 texture | GT5-Unofficial source (`textures/blocks/iconsets/`) | Changes |
 |---|---|---|
-| `casings/solid/machine_casing_stable_titanium.png` | `MACHINE_CASING_STABLE_TITANIUM.png` | the sprite is unchanged; it gets a connected texture of our own (`machine_casing_stable_titanium_ctm.png` + `.mcmeta`, `tools/textures/industrial_cutter.py`): the frame stays only at the edge of a group of blocks, the plating runs on across them |
 | `casings/gearbox/machine_casing_gearbox_titanium.png` | `MACHINE_CASING_GEARBOX_TITANIUM.png` | none |
 | `casings/pipe/machine_casing_engine_intake.png`, `..._extreme_engine_intake.png` | `MACHINE_CASING_ENGINE_INTAKE.png`, `MACHINE_CASING_EXTREME_ENGINE_INTAKE.png` | none |
 | `casings/pipe/machine_casing_*engine_intake_active.png` (+ `.mcmeta`) | same | 4-frame animation, a brightness pulse |

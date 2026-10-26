@@ -118,7 +118,7 @@ def stable_sheet(sprite, inside, edge):
 
 
 def write_casing():
-    """cutter_casing + _ctm + .mcmeta (af9) and machine_casing_stable_titanium + _ctm + .mcmeta (kubejs/gtceu)."""
+    """cutter_casing + _ctm + .mcmeta (af9). The stable titanium sheet is only built for the preview: GT's own casing stays untouched."""
     out = {}
     cutter = Image.open(os.path.join(AF9_BLOCK, 'cutter_casing.png')).convert('RGBA')
     sheet = se.ctm_sheet(cutter, 3, 3, cutter_inside(cutter))
@@ -127,7 +127,7 @@ def write_casing():
          {'ldlib': {'connection': 'af9:block/cutter_casing_ctm'}})
     out['cutter'] = (cutter, sheet)
 
-    stable = Image.open(os.path.join(KJS_CASING, 'machine_casing_stable_titanium.png')).convert('RGBA')
+    stable = Image.open(os.path.join(ROOT, 'tools/textures/gt_src/machine_casing_stable_titanium.png')).convert('RGBA')
     ramp = sorted((sum(stable.getpixel((x, y))[:3]) / 3, stable.getpixel((x, y)))
                   for y in range(16) for x in range(16)
                   if min(x, y, 15 - x, 15 - y) >= 2 and (x, y) not in RIVETS)
@@ -152,9 +152,6 @@ def write_casing():
                      tuple(clamp(sum(p[k] for p in col) / 16) for k in range(3)) + (255,)))
     inside = stable_inside(stable, palette, mid - 12, mid + 12)
     sheet = stable_sheet(stable, inside, edge)
-    sheet.save(os.path.join(KJS_CASING, 'machine_casing_stable_titanium_ctm.png'))
-    dump(os.path.join(KJS_CASING, 'machine_casing_stable_titanium.png.mcmeta'),
-         {'ldlib': {'connection': 'gtceu:block/casings/solid/machine_casing_stable_titanium_ctm'}})
     out['stable'] = (stable, sheet)
     return out
 
