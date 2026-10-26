@@ -32,8 +32,8 @@ a module to face the right way.
 * **3 towers, 3 parallels.** Every tower runs one recipe at a time. With nothing locked, a tower takes whatever recipe the facility's inputs match, so three towers fed
   one fluid are three parallels of one recipe. With **[Lock to this recipe]** on the tower's screen (it locks to the recipe the tower runs or ran last) a tower only
   ever runs that recipe, so the three can run three different ones. **[Unlock]** releases it.
-* **At most 1 parallel hatch per tower**: in any casing of the tower. It gives that tower up to its own hatch's parallels (the pack's cap is 64 a run, so the
-  three towers together can reach 192 runs at once with three 64-parallel hatches). A second hatch in the same tower stops that tower from forming.
+* **At most 1 parallel hatch per tower**: in any casing of the tower. It gives that tower its hatch's parallels, **capped at 21 a tower** so the three towers together stay within the pack's 64 parallels
+  (63 runs at most). A second hatch in the same tower stops that tower from forming.
 * **Perfect overclock, no batch mode.**
 * The facility is **its own clean room** (clean stainless casing all over): the clean-room recipes of the fab modes run without building a GT Cleanroom round it.
 * The facility itself runs no recipe: it shows whether any tower works (the model is active, the rotors keep spinning, the muffler smokes while any tower works).

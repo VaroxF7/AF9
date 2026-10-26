@@ -2,12 +2,15 @@ package com.af9.core.distillation;
 
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IParallelHatch;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.ContentModifier;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
+import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 import com.gregtechceu.gtceu.utils.GTUtil;
 
@@ -47,6 +50,30 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             DistillationModuleMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
+
+    /** The pack allows 64 parallels at most on a machine: the three towers of a facility share them. */
+    public static final int TOWER_MAX_PARALLEL = 64 / 3;
+
+    /**
+     * The tower's parallel hatch, capped at {@link #TOWER_MAX_PARALLEL} so the facility's three towers together stay within
+     * the pack's 64 parallels. Replaces GT's Parallel Hatch modifier.
+     */
+    public static final RecipeModifier TOWER_PARALLEL = (machine, recipe) -> {
+        if (!(machine instanceof DistillationModuleMachine module)) {
+            return RecipeModifier.nullWrongType(DistillationModuleMachine.class, machine);
+        }
+        int hatch = 1;
+        for (var part : module.getParts()) {
+            if (part instanceof IParallelHatch parallel) hatch = Math.max(hatch, parallel.getCurrentParallel());
+        }
+        int limit = Math.min(hatch, TOWER_MAX_PARALLEL);
+        if (limit <= 1) return ModifierFunction.IDENTITY;
+        int parallels = ParallelLogic.getParallelAmount(machine, recipe, limit);
+        if (parallels == 0) return ModifierFunction.NULL;
+        if (parallels == 1) return ModifierFunction.IDENTITY;
+        return ModifierFunction.builder().modifyAllContents(ContentModifier.multiplier(parallels))
+                .eutMultiplier(parallels).parallels(parallels).build();
+    };
 
     /**
      * The facility's part in every run: only while the facility is formed and switched on, with a rotor spinning in the tower's

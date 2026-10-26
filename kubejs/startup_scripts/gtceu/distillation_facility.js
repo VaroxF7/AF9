@@ -43,7 +43,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .allowFlip(false)
         .recipeTypes(modes())
         // no batch mode: parallels from the hatch, the rotor's speed and energy, a perfect overclock
-        .recipeModifiers([GTRecipeModifiers.PARALLEL_HATCH, $DistillationModule.FACILITY, GTRecipeModifiers.OC_PERFECT])
+        .recipeModifiers([$DistillationModule.TOWER_PARALLEL, $DistillationModule.FACILITY, GTRecipeModifiers.OC_PERFECT])
         .appearanceBlock(() => Block.getBlock('gtceu:clean_machine_casing'))
         .pattern(definition => FactoryBlockPattern.start($DistillationDirection.RIGHT, $DistillationDirection.BACK, $DistillationDirection.UP)
             .aisle('CSC', 'CKC', 'CCC')
