@@ -815,6 +815,25 @@ state.recipeTypes.forEach((info, id) => {
     if (javaSource.includes(`"${id}"`)) report('INFO', 'M4', `recipe type ${id} is run by a machine AF9 Core sets up in Java`, info.file)
     else report('ERROR', 'M4', `recipe type ${id} is run by no machine`, info.file)
 })
+// the fluid hatches a multiblock's pattern takes: [in, out]
+const fluidHatches = m => {
+    let pat
+    try { pat = m.pattern({ get: () => 'CONTROLLER', getRecipeTypes: () => [] }) } catch (e) { return [0, 0] }
+    if (!pat || !pat.where) return [0, 0]
+    let fluidIn = 0, fluidOut = 0
+    Object.entries(pat.where).forEach(([ch, p]) => allPreds(p).forEach(q => {
+        if (q.kind === 'ability') {
+            const max = q.max == null ? Infinity : q.max
+            if (/(IMPORT_FLUIDS|COOLANT_INPUT)$/.test(q.arg)) fluidIn += max
+            if (/EXPORT_FLUIDS$/.test(q.arg)) fluidOut += max
+            if (/PrecisionPortPartMachine\.INPUT$/.test(q.arg)) fluidIn += 9 * max
+        }
+    }))
+    return [fluidIn, fluidOut]
+}
+// a module runs on the hatches of the machine it stands in (its own pattern has none of them): the Distillation Tower Modules
+// take the Distillation Facility's
+const HATCH_HOST = { distillation_module: 'distillation_facility' }
 state.machines.forEach(m => {
     if (!m.pattern) return
     let pat
@@ -822,6 +841,8 @@ state.machines.forEach(m => {
     if (!pat || !pat.where) return
     const where = `${m.file}: machine ${m.id}`
     let fluidIn = 0, fluidOut = 0
+    const host = HATCH_HOST[m.id] && state.machines.find(h => h.id === HATCH_HOST[m.id])
+    if (host && host.pattern) [fluidIn, fluidOut] = fluidHatches(host)
     Object.entries(pat.where).forEach(([ch, p]) => allPreds(p).forEach(q => {
         if (q.kind === 'blocks') String(q.arg).split(',').filter(Boolean).forEach(id => {
             if (!blockKnown(id)) report('ERROR', 'M3', `${m.id}: '${ch}' names the block ${id}, which nobody defines`, where)

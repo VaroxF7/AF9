@@ -16,6 +16,7 @@
     "powah.OrbTileMixin",
     "gtceu.FusionReactorMixin",
     "gtceu.PipeBlockMixin",
+    "gtceu.ParallelHatchPartMixin",
     "zeta.ForgeZetaEventBusMixin",
     "ae2.FalloutMixin",
     "ae2.FalloutCopyMixin"
