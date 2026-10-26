@@ -8,31 +8,6 @@
 	images: [
 		{
 			height: 3.0d
-			hover: ["atm9.quest.gregtech.zpm"]
-			image: "gtceu:item/zpm_solar_panel"
-			rotation: 0.0d
-			width: 3.0d
-			x: 3.0d
-			y: -3.0d
-		}
-		{
-			height: 3.0d
-			image: "gtceu:item/zpm_sensor"
-			rotation: 0.0d
-			width: 3.0d
-			x: 7.5d
-			y: -7.0d
-		}
-		{
-			height: 3.0d
-			image: "gtceu:item/zpm_emitter"
-			rotation: 0.0d
-			width: 3.0d
-			x: 0.5d
-			y: -7.0d
-		}
-		{
-			height: 3.0d
 			image: "gtceu:item/zpm_robot_arm"
 			rotation: 0.0d
 			width: 3.0d
@@ -56,7 +31,7 @@
 			y: 1.5d
 		}
 	]
-	order_index: 8
+	order_index: 9
 	progression_mode: "flexible"
 	quest_links: [
 		{
@@ -1436,7 +1411,10 @@
 			y: -1.0d
 		}
 		{
-			dependencies: ["402FE874C854840C" "21D7C80DB6E2913F"]
+			dependencies: [
+				"402FE874C854840C"
+				"21D7C80DB6E2913F"
+			]
 			description: ["{atm9.quest.gregtech.zpm.desc.pcbcool}"]
 			id: "615C8496F7CCD9A4"
 			rewards: [{
@@ -1838,8 +1816,8 @@
 					type: "item"
 				}
 			]
-			x: 10.0d
-			y: -4.0d
+			x: 9.5d
+			y: -2.5d
 		}
 		{
 			dependencies: ["586266B2096D27A7"]
@@ -1932,8 +1910,8 @@
 					type: "item"
 				}
 			]
-			x: 10.0d
-			y: -3.0d
+			x: 9.5d
+			y: -1.5d
 		}
 		{
 			dependencies: ["42F7E5E834C63270"]
@@ -1974,8 +1952,15 @@
 			y: -5.0d
 		}
 		{
-			dependencies: ["402FE874C854840C" "0F8D27A66C70A628"]
-			description: ["{af9.quest.pcb.askarel.1}" "" "{af9.quest.pcb.askarel.2}"]
+			dependencies: [
+				"402FE874C854840C"
+				"0F8D27A66C70A628"
+			]
+			description: [
+				"{af9.quest.pcb.askarel.1}"
+				""
+				"{af9.quest.pcb.askarel.2}"
+			]
 			icon: "gtceu:askarel"
 			id: "21D7C80DB6E2913F"
 			rewards: [{
