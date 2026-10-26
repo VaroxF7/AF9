@@ -209,17 +209,18 @@ All Assembler recipes; a craft makes many, the tower takes hundreds:
 
 | Block | A craft makes | From | Tier |
 |---|---|---|---|
-| Ultra High Strength Concrete Floor | 8 | 8 dark concrete, 2 tungsten steel rods, 72 mB polybenzimidazole | IV |
-| Base Casing | 16 | a naquadah alloy frame, 4 naquadah alloy plates, 8 tungsten steel plates (circuit 1) | LuV |
+| Ultra High Strength Concrete Floor | 8 | 8 dark concrete, 2 tungsten steel rods, 72 mB polybenzimidazole | UV |
+| Base Casing | 16 | a naquadah alloy frame, 4 naquadah alloy plates, 8 tungsten steel plates (circuit 1) | UV |
 | Stress-Proof Casing | GT's | GT's own LuV casing | LuV |
-| Internal Structure | 16 | a naquadah alloy frame, 4 osmiridium plates, 4 tungsten steel plates (circuit 2) | LuV |
-| Cable | 1 | 32 carbon fibre plates, 8 naquadah alloy rods, 2 LuV field generators, soldering alloy | ZPM |
-| Motor MK-I | 4 | 4 ZPM electric motors, a naquadah alloy frame, 4 naquadah alloy plates, soldering alloy | ZPM |
+| Internal Structure | 16 | a naquadah alloy frame, 4 osmiridium plates, 4 tungsten steel plates (circuit 2) | UV |
+| Cable | 1 | 32 carbon fibre plates, 8 naquadah alloy rods, 2 UV field generators, soldering alloy | UV |
+| Motor MK-I | 4 | 4 UV electric motors, a naquadah alloy frame, 4 naquadah alloy plates, soldering alloy | UV |
 | Motor MK-II | 4 | 4 MK-I, 4 UV electric motors, 4 tritanium plates | UV |
 | Motor MK-III | 4 | 4 MK-II, 4 UV electric motors, 4 neutronium plates, 8 endionite foil | UV |
 | Motor MK-IV | 4 | 4 MK-III, 4 UV field generators, 4 neutronium gears, 2 UHV circuits | UV |
 | Motor MK-V | 4 | 4 MK-IV, 2 gravi stars, 4 chromodynium plates, 4 UHV circuits | UV |
-| Mining Module MK-I | 1 | a ZPM machine hull, 2 robot arms, 2 sensors, 2 emitters and 4 circuits of ZPM, 4 base casings | ZPM |
+| Mining Module MK-I | 1 | a UV machine hull, 2 robot arms, 2 sensors, 2 emitters and 4 circuits of UV, 4 base casings | UV |
+| Pumping Module | 1 | a UV machine hull, 2 pumps, 2 sensors and 4 circuits of UV, 4 base casings | UV |
 | Mining Module MK-II | 1 | a MK-I, 2 robot arms, 2 sensors, 2 emitters and 4 circuits of UV, 4 tritanium plates | UV |
 | Mining Module MK-III | 1 | a MK-II, 4 UV robot arms, 2 UV field generators, 4 UHV circuits, 4 neutronium plates | UV |
 
@@ -227,10 +228,10 @@ The Neutronium Frame Boxes are GT's (neutronium comes from the Mk-III fusion rea
 
 ## 3. Crafting
 
-The Space Elevator: Assembly Line, **ZPM**, 1200 ticks: a ZPM machine hull, 8 motors, 4 field generators, 2 sensors, 2 emitters, 4 circuits, 16 base casings,
+The Space Elevator: Assembly Line, **UV**, 1200 ticks: a UV machine hull, 8 motors, 4 field generators, 2 sensors, 2 emitters, 4 circuits, 16 base casings,
 8 stress-proof casings, 8 internal structures, a cable, 4 double naquadah alloy plates, 4608 mB soldering alloy. The drones: assembler, 600 ticks, soldering alloy and
-parts of ZPM (Mk-I) or UV (GT has no parts above UV while `highTierContent` is off): Mk-I a robot arm, 2 sensors, an emitter, 4 circuits and 4 naquadah
-alloy plates; Mk-II the same in UV; Mk-III 2 arms, 4 sensors, 2 emitters, 8 circuits and 4 tritanium plates; Mk-IV 4 arms, 8 sensors, 4 emitters, 16
+parts of UV (GT has no parts above UV while `highTierContent` is off): Mk-I a robot arm, 2 sensors, an emitter, 4 circuits and 4 naquadah
+alloy plates; Mk-II a robot arm, 3 sensors, an emitter, 6 circuits and 6 naquadah alloy plates; Mk-III 2 arms, 4 sensors, 2 emitters, 8 circuits and 4 tritanium plates; Mk-IV 4 arms, 8 sensors, 4 emitters, 16
 circuits and 4 neutronium plates.
 
 ## 4. The cable and the climber

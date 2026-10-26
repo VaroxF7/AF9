@@ -9,7 +9,7 @@
 **AF9 turns a GregTech CEu Modern (7.5.3) pack on Minecraft 1.20.1 / Forge into a semiconductor factory:**
 quartz → polysilicon → Czochralski boules → wafers → real fab chemistry → lithography from
 **350&nbsp;nm down to 1&nbsp;nm** → AF9's own chips and circuits → the computation that feeds it all.
-Around the fab: uranium only from asteroids, a fission reactor, a ZPM space elevator that mines
+Around the fab: uranium only from asteroids, a fission reactor, a UV space elevator that mines
 renewable ore, a platinum-group refinery, and off-world oil.
 
 > 🌐 **Landing page:** <https://varoxf7.github.io/AF9/> (`docs/index.html` in this repo)
@@ -218,7 +218,7 @@ The HPCA is GT's own, made expandable by the fork.
 
 ---
 
-## 4 · Space Elevator (GTNH's, renewable ore from ZPM)
+## 4 · Space Elevator (GTNH's, renewable ore from UV)
 
 Full spec: [`docs/space-elevator.md`](docs/space-elevator.md). Structure block-for-block from GTNH
 (`STRUCTURE_PIECE_MAIN`/`EXTENDED`), code `com.af9.core.elevator`.
@@ -290,8 +290,8 @@ Oil Regolith (asteroid pockets, ~7% of rock, falling sand-like block)
 | HV | 200 nm (KrF), fission fuel chain, Oil Regolith → oil, PGM matte (Pt/Pd) | ASIC/MCU/APU; first fission power; benzene/propene |
 | EV | 100 nm (ArF dry), rockets T2 → Ceres/Field, Supercooling Cryostat | Naquadah circuits; brannerite; cold coolants |
 | IV–LuV | Scanner 80/65 nm (ArF + immersion), rockets T3–T4, Particle Accelerator | trinium/naquadria chips; e/m/FE-RAM, VPU; transmuted neutronium (NTD) |
-| ZPM | Orbital Station (50 nm), Space Elevator Mk-I+, Fusion Reactor Mk1 (Pu-241) | renewable ore; neutronium HASoC; TPU path |
-| UV–UHV | EUV 20/7 nm, high-NA, X-ray FEL 1 nm in orbit | strange-matter / chromodynium nodes; endgame computation |
+| ZPM | Orbital Station (50 nm), Fusion Reactor Mk1 (Pu-241) | renewable ore; neutronium HASoC; TPU path |
+| UV–UHV | EUV 20/7 nm, high-NA, X-ray FEL 1 nm in orbit, Space Elevator | strange-matter / chromodynium nodes; endgame computation |
 
 Quest chapters track this order: MV → HV → EV → IV → LuV → ZPM → UV → UHV, plus
 `photolithography`, `asteroid_fission`, `platinum_group`, `space_elevator`, `oil`, `circuits`.

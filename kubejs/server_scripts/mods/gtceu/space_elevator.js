@@ -14,9 +14,9 @@ ServerEvents.recipes(event => {
     const VA = GTValues.VA
     const solder = mb => Fluid.of('gtceu:soldering_alloy', mb)
 
-    // ---- The expeditions: drone tier, hydrogen (mB), coolant, coolant (mB), amps of ZPM, seconds ----
+    // ---- The expeditions: drone tier, hydrogen (mB), coolant, coolant (mB), amps of UV, seconds ----
     // 50 to 100 buckets of each. UV recipes of 4 amps, 20 to 60 minutes, for an endgame of many towers.
-    // [drone tier, hydrogen mB, coolant, coolant mB, amps of ZPM, seconds, drill head, crate]. The ore expeditions use up a drill
+    // [drone tier, hydrogen mB, coolant, coolant mB, amps of UV, seconds, drill head, crate]. The ore expeditions use up a drill
     // head and a crate (GT's; the rarer the ore the drone reaches the harder the drill head). The numbers are also in af9-core
     // SpaceElevatorMachine.REQUIREMENTS
     const expeditions = [
@@ -73,12 +73,12 @@ ServerEvents.recipes(event => {
     }
     for (let i = 0; i < cargoes.size(); i++) pump(cargoes.get(i), i)
 
-    // ---- The Mining Drones: ZPM parts for the first, UV parts (GT's last tier with parts: highTierContent is off) for
-    // the rest, more of them and a rarer plate for each tier ----
+    // ---- The Mining Drones: UV parts (GT's last tier with parts: highTierContent is off) for all, the whole elevator is
+    // UV crafting: more of them and a rarer plate for each tier ----
     // [tier, part tier, arms, sensors, emitters, circuits, plate, plates, solder mB, voltage]
     const drones = [
-        [1, 'zpm', 1, 2, 1, 4, 'naquadah_alloy', 4, 576, GTValues.ZPM],
-        [2, 'uv', 1, 2, 1, 4, 'naquadah_alloy', 4, 1152, GTValues.UV],
+        [1, 'uv', 1, 2, 1, 4, 'naquadah_alloy', 4, 576, GTValues.UV],
+        [2, 'uv', 1, 3, 1, 6, 'naquadah_alloy', 6, 1152, GTValues.UV],
         [3, 'uv', 2, 4, 2, 8, 'tritanium', 4, 1728, GTValues.UV],
         [4, 'uv', 4, 8, 4, 16, 'neutronium', 4, 2304, GTValues.UV]
     ]
@@ -100,34 +100,34 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:polybenzimidazole', 72))
         .itemOutputs('8x af9:ultra_high_strength_concrete_floor')
         .duration(100)
-        .EUt(VA[GTValues.IV])
+        .EUt(VA[GTValues.UV])
     event.recipes.gtceu.assembler('af9:space_elevator_base_casing')
         .itemInputs('gtceu:naquadah_alloy_frame', '4x gtceu:naquadah_alloy_plate', '8x gtceu:tungsten_steel_plate')
         .circuit(1)
         .itemOutputs('16x af9:space_elevator_base_casing')
         .duration(200)
-        .EUt(VA[GTValues.LuV])
+        .EUt(VA[GTValues.UV])
     event.recipes.gtceu.assembler('af9:space_elevator_internal_structure')
         .itemInputs('gtceu:naquadah_alloy_frame', '4x gtceu:osmiridium_plate', '4x gtceu:tungsten_steel_plate')
         .circuit(2)
         .itemOutputs('16x af9:space_elevator_internal_structure')
         .duration(200)
-        .EUt(VA[GTValues.LuV])
+        .EUt(VA[GTValues.UV])
     // one cable block: it stands on top of the motor shaft
     event.recipes.gtceu.assembler('af9:space_elevator_cable')
-        .itemInputs('32x gtceu:carbon_fiber_plate', '8x gtceu:naquadah_alloy_rod', '2x gtceu:luv_field_generator')
+        .itemInputs('32x gtceu:carbon_fiber_plate', '8x gtceu:naquadah_alloy_rod', '2x gtceu:uv_field_generator')
         .inputFluids(solder(288))
         .itemOutputs('af9:space_elevator_cable')
         .duration(300)
-        .EUt(VA[GTValues.ZPM])
+        .EUt(VA[GTValues.UV])
 
-    // ---- The motors (88 of one tier round the shaft): MK-I from ZPM motors, every tier after it from the tier before ----
+    // ---- The motors (88 of one tier round the shaft): MK-I from UV motors, every tier after it from the tier before ----
     event.recipes.gtceu.assembler('af9:space_elevator_motor_mk1')
-        .itemInputs('4x gtceu:zpm_electric_motor', 'gtceu:naquadah_alloy_frame', '4x gtceu:naquadah_alloy_plate')
+        .itemInputs('4x gtceu:uv_electric_motor', 'gtceu:naquadah_alloy_frame', '4x gtceu:naquadah_alloy_plate')
         .inputFluids(solder(288))
         .itemOutputs('4x af9:space_elevator_motor_mk1')
         .duration(400)
-        .EUt(VA[GTValues.ZPM])
+        .EUt(VA[GTValues.UV])
     // [tier, what four motors of the tier before take to become it]
     const motorUpgrades = [
         [2, ['4x gtceu:uv_electric_motor', '4x gtceu:tritanium_plate']],
@@ -146,22 +146,22 @@ ServerEvents.recipes(event => {
 
     // ---- The Pumping Module (a module slot's MK-I module; the Mining Modules' parts, with pumps for the arms) ----
     event.recipes.gtceu.assembler('gtceu:space_pumping_module')
-        .itemInputs('gtceu:zpm_machine_hull', '2x gtceu:zpm_electric_pump', '2x gtceu:zpm_sensor', '4x #gtceu:circuits/zpm',
+        .itemInputs('gtceu:uv_machine_hull', '2x gtceu:uv_electric_pump', '2x gtceu:uv_sensor', '4x #gtceu:circuits/uv',
             '4x af9:space_elevator_base_casing')
         .inputFluids(solder(1152))
         .itemOutputs('gtceu:space_pumping_module')
         .duration(600)
-        .EUt(VA[GTValues.ZPM])
+        .EUt(VA[GTValues.UV])
 
-    // ---- The Mining Modules (in the module slots: one expedition each at once, more modules fly more): MK-I from ZPM parts, the next from
+    // ---- The Mining Modules (in the module slots: one expedition each at once, more modules fly more): MK-I from UV parts, the next from
     // the one before ----
     event.recipes.gtceu.assembler('gtceu:space_mining_module_mk1')
-        .itemInputs('gtceu:zpm_machine_hull', '2x gtceu:zpm_robot_arm', '2x gtceu:zpm_sensor', '2x gtceu:zpm_emitter',
-            '4x #gtceu:circuits/zpm', '4x af9:space_elevator_base_casing')
+        .itemInputs('gtceu:uv_machine_hull', '2x gtceu:uv_robot_arm', '2x gtceu:uv_sensor', '2x gtceu:uv_emitter',
+            '4x #gtceu:circuits/uv', '4x af9:space_elevator_base_casing')
         .inputFluids(solder(1152))
         .itemOutputs('gtceu:space_mining_module_mk1')
         .duration(600)
-        .EUt(VA[GTValues.ZPM])
+        .EUt(VA[GTValues.UV])
     event.recipes.gtceu.assembler('gtceu:space_mining_module_mk2')
         .itemInputs('gtceu:space_mining_module_mk1', '2x gtceu:uv_robot_arm', '2x gtceu:uv_sensor',
             '2x gtceu:uv_emitter', '4x #gtceu:circuits/uv', '4x gtceu:tritanium_plate')
@@ -177,15 +177,15 @@ ServerEvents.recipes(event => {
         .duration(600)
         .EUt(VA[GTValues.UV])
 
-    // ---- The Space Elevator: ZPM ----
+    // ---- The Space Elevator: UV ----
     event.recipes.gtceu.assembly_line('af9:space_elevator')
-        .itemInputs('gtceu:zpm_machine_hull', '8x gtceu:zpm_electric_motor', '4x gtceu:zpm_field_generator',
-            '2x gtceu:zpm_sensor', '2x gtceu:zpm_emitter', '4x #gtceu:circuits/zpm',
+        .itemInputs('gtceu:uv_machine_hull', '8x gtceu:uv_electric_motor', '4x gtceu:uv_field_generator',
+            '2x gtceu:uv_sensor', '2x gtceu:uv_emitter', '4x #gtceu:circuits/uv',
             '16x af9:space_elevator_base_casing', '8x gtceu:stress_proof_casing',
             '8x af9:space_elevator_internal_structure', 'af9:space_elevator_cable',
             '4x gtceu:double_naquadah_alloy_plate')
         .inputFluids(solder(4608))
         .itemOutputs('gtceu:space_elevator')
         .duration(1200)
-        .EUt(VA[GTValues.ZPM])
+        .EUt(VA[GTValues.UV])
 })
