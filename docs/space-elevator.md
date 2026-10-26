@@ -40,15 +40,14 @@ Modules** of the tower fly several at once (below).
 
 | Drone | Reaches | Hydrogen | Coolant (supercooled) | Energy | Time | Stacks |
 |---|---|---|---|---|---|---|
-| Mk-I | tier 1 ores (Overworld's and Moon's) | 64 B | 50 B hydrogen | 4A ZPM (491,520 EU/t) | 3 min | 8-16 |
-| Mk-II | tier 1-2 (and the Nether's) | 80 B | 64 B argon | 8A ZPM (983,040 EU/t) | 4 min | 12-24 |
-| Mk-III | tier 1-3 (and the End's) | 96 B | 80 B xenon | 16A ZPM (1,966,080 EU/t) | 5 min | 16-32 |
-| Mk-IV | all, and the exotic asteroid | 100 B | 100 B endion | 32A ZPM (3,932,160 EU/t) | 6 min | 24-48 |
+| Mk-I | tier 1 ores (Overworld's and Moon's) | 64 B | 50 B hydrogen | 4A UV (2,097,152 EU/t) | 20 min | 8-16 |
+| Mk-II | tier 1-2 (and the Nether's) | 80 B | 64 B argon | 4A UV (2,097,152 EU/t) | 33 min | 12-24 |
+| Mk-III | tier 1-3 (and the End's) | 96 B | 80 B xenon | 4A UV (2,097,152 EU/t) | 47 min | 16-32 |
+| Mk-IV | all, and the exotic asteroid | 100 B | 100 B endion | 4A UV (2,097,152 EU/t) | 60 min | 24-48 |
 
-The coolants are the Supercooling Cryostat's (`cryogenics.js`). The energy is the recipe's, a ZPM recipe of several amps (the recipe
-viewers say "ZPM" and the amps): the machine only starts a run its hatches can
-supply in full (`IPowerGated`, as the Particle Accelerator): Mk-I runs on one 4A ZPM hatch, Mk-II on two, Mk-III on four (the most
-there are), Mk-IV on laser hatches (up to two). A run that cannot start waits.
+The coolants are the Supercooling Cryostat's (`cryogenics.js`). The energy is the recipe's, a UV recipe of 4 amps (an endgame of many towers: the runs last 20 to 60 minutes): the machine only starts a run its hatches can
+supply in full (`IPowerGated`, as the Particle Accelerator): every drone runs on one 4A UV hatch (up to four hatches, and lasers, overclock it; the most
+there are). A run that cannot start waits.
 
 ### The coolant: Coolant Hatches
 
@@ -77,7 +76,7 @@ Instead of an asteroid the tower can bring home a **planet's fluid**: GTNH's Spa
 **Space Pumping Module** (`gtceu:space_pumping_module`, `SpacePumpingModuleMachine`), which stands in a module slot like the Mining Modules.
 
 * **One recipe a fluid** (`gtceu:space_pumping`, `af9:space_pumping_<planet>_<gas>`, made from `PlanetCatalog` by the server script): each
-  at **4A of ZPM** and a time from **120 s** (the nearest planet's first fluid) rising along the table to **360 s** (the last fluid
+  at **4A of UV** and a time from **1200 s** (the nearest planet's first fluid) rising along the table to **3600 s** (the last fluid
   of the far dark), each with the fluid it brings as its output, so the recipe viewers list them all.
 * **The recipe is set in the module**: the Mining Drone that reaches the planet in its drone slot (MK-I types 2 and 3, MK-II 4 and 5,
   MK-III 6 and 7, MK-IV types 8 and 9: the drone of the fluid's tier, `PlanetCatalog.droneFor`) and the **programmed circuit**
@@ -304,7 +303,7 @@ order a run needs things, with the numbers of the drone that would fly:
 | NO SKY | something stands over the cable | it needs open sky |
 | NO MODULE | no Mining Module is powered | put one in a slot; or: *Mining Modules MK-III need Motors MK-III: these are MK-I* |
 | NO DRONE | no drone in the slot or in a bus; on a liquid mission also: the planet picked lies beyond the drone | put one in the slot; *Planet type 5 lies beyond this drone: it takes a Mining Drone MK-II or better* |
-| NO POWER | the hatches supply less than one expedition takes | *An expedition takes 491,520 EU/t (4A ZPM). The hatches supply 64.* |
+| NO POWER | the hatches supply less than one expedition takes | *An expedition takes 491,520 EU/t (4A UV). The hatches supply 64.* |
 | NO HYDROGEN | less hydrogen in the hatches than one expedition takes | how many buckets |
 | NO COOLANT | less of the drone's coolant than one expedition takes | how many buckets of which: *fill a Coolant Hatch* |
 | NO ROOM | the asteroid drawn does not fit the output buses, or there is none; a liquid mission: the fluid does not fit the fluid output hatches, or there is none | add or empty output buses, or fluid output hatches |

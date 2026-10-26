@@ -8538,7 +8538,7 @@
 	"af9.quest.chem.elevator_ore.2": "2. Fly a space_mining expedition: hydrogen plus a supercooled coolant (hydrogen for Mk1, argon/xenon/endion higher) and ZPM amps for minutes. Mining modules fly 2, 4 or 8 expeditions at once.",
 	"af9.quest.chem.elevator_fluid.title": "Elevator Liquid Missions",
 	"af9.quest.chem.elevator_fluid.subtitle": "Planet fluids by drone",
-	"af9.quest.chem.elevator_fluid.1": "1. Put a Space Pumping Module in a module slot of the elevator. Its recipes are one a fluid (4A ZPM, 120 to 360 s): the Mining Drone that reaches the planet in its drone slot, the programmed circuit of the fluid, hydrogen and supercooled coolant from the tower; the fluid goes to the tower's fluid output hatches.",
+	"af9.quest.chem.elevator_fluid.1": "1. Put a Space Pumping Module in a module slot of the elevator. Its recipes are one a fluid (4A UV, 20 to 60 min): the Mining Drone that reaches the planet in its drone slot, the programmed circuit of the fluid, hydrogen and supercooled coolant from the tower; the fluid goes to the tower's fluid output hatches.",
 	"af9.quest.chem.elevator_fluid.2": "2. Complete one liquid mission. Higher drone tiers reach higher planet types (Mk1 to type 3, Mk4 to type 8). Check this box when fluid has arrived.",
 	"af9.quest.chem.asteroid_manual.title": "Manual Asteroid Mining",
 	"af9.quest.chem.asteroid_manual.subtitle": "Fly out, mine rock and regolith",

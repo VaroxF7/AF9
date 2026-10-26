@@ -163,9 +163,9 @@ public class SpaceElevatorMachine extends WorkableElectricMultiblockMachine impl
     private record Requirement(long hydrogen, long coolant, String coolantFluid, int seconds) {}
 
     private static final Requirement[] REQUIREMENTS = {
-            new Requirement(64000, 50000, "gtceu:supercooled_hydrogen", 180),
-            new Requirement(80000, 64000, "gtceu:supercooled_argon", 240),
-            new Requirement(96000, 80000, "gtceu:supercooled_xenon", 300) };
+            new Requirement(64000, 50000, "gtceu:supercooled_hydrogen", 1200),
+            new Requirement(80000, 64000, "gtceu:supercooled_argon", 2000),
+            new Requirement(96000, 80000, "gtceu:supercooled_xenon", 2800) };
 
 
     /**

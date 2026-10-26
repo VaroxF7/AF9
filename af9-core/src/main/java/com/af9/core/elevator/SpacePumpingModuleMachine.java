@@ -6,7 +6,7 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 
 /**
  * The Space Elevator's Pumping Module: a module of its own ({@link SpaceModuleMachine}) that stands in a module slot and pumps
- * a planet's fluid. One recipe a fluid ({@code gtceu:space_pumping}, 4A of ZPM, 120 to 360 seconds): the recipe is set in the
+ * a planet's fluid. One recipe a fluid ({@code gtceu:space_pumping}, 4A of UV, 1200 to 3600 seconds): the recipe is set in the
  * module (the Mining Drone of the planet's reach in its drone slot, and the programmed circuit that picks the n-th of that
  * drone's fluids, {@link PlanetCatalog#ofDrone}); the run is the tower's: it draws the tower's energy, hydrogen and coolant, only
  * starts while the tower is switched on, and the fluid goes to the fluid output hatches of the tower.

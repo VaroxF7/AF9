@@ -7,7 +7,7 @@
 // the drone's asteroids hold: af9-core, SpaceMiningRecipeUI). The Mining Modules of the tower fly several of them at once,
 // each with the full inputs.
 // The Pumping Module pumps a planet's fluid: one gtceu:space_pumping recipe a fluid of af9-core's PlanetCatalog (GTNH's Space
-// Pumping table), all at 4A of ZPM and 120 to 360 seconds, the drone of the planet's reach and the programmed circuit that
+// Pumping table), all at 4A of UV and 1200 to 3600 seconds, the drone of the planet's reach and the programmed circuit that
 // picks the fluid (the n-th of that drone's fluids, PlanetCatalog.ofDrone) set in the module.
 
 ServerEvents.recipes(event => {
@@ -15,16 +15,15 @@ ServerEvents.recipes(event => {
     const solder = mb => Fluid.of('gtceu:soldering_alloy', mb)
 
     // ---- The expeditions: drone tier, hydrogen (mB), coolant, coolant (mB), amps of ZPM, seconds ----
-    // 50 to 100 buckets of each. ZPM recipes of several amps (as the Particle Accelerator's): Mk1 runs on one 4A ZPM
-    // hatch, Mk2 on two, Mk3 on four, Mk4 on lasers.
+    // 50 to 100 buckets of each. UV recipes of 4 amps, 20 to 60 minutes, for an endgame of many towers.
     // [drone tier, hydrogen mB, coolant, coolant mB, amps of ZPM, seconds, drill head, crate]. The ore expeditions use up a drill
     // head and a crate (GT's; the rarer the ore the drone reaches the harder the drill head). The numbers are also in af9-core
     // SpaceElevatorMachine.REQUIREMENTS
     const expeditions = [
-        [1, 64000, 'gtceu:supercooled_hydrogen', 50000, 4, 180, 'gtceu:tungsten_carbide_drill_head', 'gtceu:stainless_steel_crate'],
-        [2, 80000, 'gtceu:supercooled_argon', 64000, 8, 240, 'gtceu:hsse_drill_head', 'gtceu:titanium_crate'],
-        [3, 96000, 'gtceu:supercooled_xenon', 80000, 16, 300, 'gtceu:naquadah_alloy_drill_head', 'gtceu:tungsten_steel_crate'],
-        [4, 100000, 'gtceu:supercooled_endion', 100000, 32, 360, 'gtceu:neutronium_drill_head', 'gtceu:tungsten_steel_crate']
+        [1, 64000, 'gtceu:supercooled_hydrogen', 50000, 4, 1200, 'gtceu:tungsten_carbide_drill_head', 'gtceu:stainless_steel_crate'],
+        [2, 80000, 'gtceu:supercooled_argon', 64000, 4, 2000, 'gtceu:hsse_drill_head', 'gtceu:titanium_crate'],
+        [3, 96000, 'gtceu:supercooled_xenon', 80000, 4, 2800, 'gtceu:naquadah_alloy_drill_head', 'gtceu:tungsten_steel_crate'],
+        [4, 100000, 'gtceu:supercooled_endion', 100000, 4, 3600, 'gtceu:neutronium_drill_head', 'gtceu:tungsten_steel_crate']
     ]
     // One ore expedition recipe a programmed circuit of the drone's tier: the circuit's number picks the asteroid, the n-th of
     // the veins that tier first reaches (alphabetical, the exotic one last: af9-core OreCatalog.veinIds; the veins are not
@@ -44,13 +43,13 @@ ServerEvents.recipes(event => {
                 .addData('af9_expedition', 1)
                 .addData('af9_module', Math.min(tier, 3))
                 .duration(seconds * 20)
-                .EUt(VA[GTValues.ZPM], amps)
+                .EUt(VA[GTValues.UV], amps)
         }
     })
 
     // ---- The Pumping Module's recipes: one a fluid ----
-    // The flight costs of the drone that reaches the planet (hydrogen, coolant), a ZPM recipe of 4 amps whatever the drone,
-    // and a time that rises along the table from 120 s (the nearest planet's fluid) to 360 s (the last of the far dark's).
+    // The flight costs of the drone that reaches the planet (hydrogen, coolant), a UV recipe of 4 amps whatever the drone,
+    // and a time that rises along the table from 1200 s (the nearest planet's fluid) to 3600 s (the last of the far dark's).
     // The recipe names its fluid in the data too (af9_cargo, PlanetCatalog.Cargo#code): the module's run reads it from there.
     const $PlanetCatalog = Java.loadClass('com.af9.core.elevator.PlanetCatalog')
     const $PumpForge = Java.loadClass('net.minecraftforge.registries.ForgeRegistries')
@@ -61,7 +60,7 @@ ServerEvents.recipes(event => {
         const flight = expeditions[tier - 1]
         // the n-th fluid of its drone: the programmed circuit that picks it
         perDrone[tier] = (perDrone[tier] || 0) + 1
-        const seconds = 120 + Math.round(240 * i / Math.max(1, cargoes.size() - 1) / 5) * 5
+        const seconds = 1200 + Math.round(2400 * i / Math.max(1, cargoes.size() - 1) / 60) * 60
         event.recipes.gtceu.space_pumping(`af9:space_pumping_${cargo.planet()}_${cargo.gas()}`)
             .notConsumable(`af9:space_mining_drone_mk${tier}`)
             .circuit(perDrone[tier])
@@ -70,7 +69,7 @@ ServerEvents.recipes(event => {
             .outputFluids(Fluid.of(String($PumpForge.FLUIDS.getKey(cargo.fluid())), cargo.millibuckets()))
             .addData('af9_cargo', cargo.code())
             .duration(seconds * 20)
-            .EUt(VA[GTValues.ZPM], 4)
+            .EUt(VA[GTValues.UV], 4)
     }
     for (let i = 0; i < cargoes.size(); i++) pump(cargoes.get(i), i)
 

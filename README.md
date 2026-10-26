@@ -233,13 +233,13 @@ Full spec: [`docs/space-elevator.md`](docs/space-elevator.md). Structure block-f
 
 | Drone | Reaches | H₂ / coolant | Energy | Time | Stacks |
 |---|---|---|---|---|---|
-| Mk-I | tier 1 (Overworld) | 64 B / 50 B H₂ | 4A ZPM | 3 min | 8–16 |
-| Mk-II | 1–2 (+Nether) | 80 B / 64 B Ar | 8A ZPM | 4 min | 12–24 |
-| Mk-III | 1–3 (+End) | 96 B / 80 B Xe | 16A ZPM | 5 min | 16–32 |
-| Mk-IV | all + exotic | 100 B / 100 B endion | 32A ZPM | 6 min | 24–48 |
+| Mk-I | tier 1 (Overworld) | 64 B / 50 B H₂ | 4A UV | 20 min | 8–16 |
+| Mk-II | 1–2 (+Nether) | 80 B / 64 B Ar | 4A UV | 33 min | 12–24 |
+| Mk-III | 1–3 (+End) | 96 B / 80 B Xe | 4A UV | 47 min | 16–32 |
+| Mk-IV | all + exotic | 100 B / 100 B endion | 4A UV | 60 min | 24–48 |
 
 - **Pumping Module** (`gtceu:space_pumping_module`, GTNH's Space Pumping table): one recipe a fluid
-  (`gtceu:space_pumping`, 4A ZPM, 120–360 s), set in the module (the drone that reaches the planet + the
+  (`gtceu:space_pumping`, 4A UV, 20–60 min), set in the module (the drone that reaches the planet + the
   programmed circuit), run on the tower's runtime, the fluid to the tower's fluid output hatches.
 - **Screen** tells the first missing thing (OFFLINE / PAUSED / NO SKY / NO MODULE / NO DRONE /
   NO POWER / NO HYDROGEN / NO COOLANT / NO ROOM / IDLE / RUNNING) with numbers.

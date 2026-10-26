@@ -155,7 +155,7 @@
     "af9.space_mining_module_mk3.tooltip.2": "§7Needs motors of its own tier or better; the motors power as many modules as they have slots (best tier first).",
     "af9.space_mining_module_mk3.tooltip.3": "§7Does nothing outside an elevator: its energy comes from the tower's hatches.",
     "af9.space_pumping_module.tooltip.0": "§7A module of its own for a Space Elevator's §fmodule slot§7 (the casings above and below it are the slot's, hatches go there). It pumps a planet's fluid.",
-    "af9.space_pumping_module.tooltip.1": "§7One recipe a fluid, 4A of ZPM, 120 to 360 seconds: put the §fMining Drone§7 that reaches the planet in its drone slot and set the §fprogrammed circuit§7 of the fluid. The recipe viewers list them all.",
+    "af9.space_pumping_module.tooltip.1": "§7One recipe a fluid, 4A of UV, 20 to 60 minutes: put the §fMining Drone§7 that reaches the planet in its drone slot and set the §fprogrammed circuit§7 of the fluid. The recipe viewers list them all.",
     "af9.space_pumping_module.tooltip.2": "§7The run is the tower's: hydrogen, coolant and energy come from the tower's hatches, it only runs while the tower is switched on, and the fluid goes to the tower's fluid output hatches.",
     "af9.space_pumping_module.tooltip.3": "§7Counts as a MK-I module for the motors. Does nothing outside an elevator.",
     "gtceu.sanguinite_hearth": "Sanguinite Hearth",
