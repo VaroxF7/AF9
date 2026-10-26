@@ -231,7 +231,7 @@ The Neutronium Frame Boxes are GT's (neutronium comes from the Mk-III fusion rea
 The Space Elevator: Assembly Line, **UV**, 1200 ticks: a UV machine hull, 8 motors, 4 field generators, 2 sensors, 2 emitters, 4 circuits, 16 base casings,
 8 stress-proof casings, 8 internal structures, a cable, 4 double naquadah alloy plates, 4608 mB soldering alloy. The drones: assembler, 600 ticks, soldering alloy and
 parts of UV (GT has no parts above UV while `highTierContent` is off): Mk-I a robot arm, 2 sensors, an emitter, 4 circuits and 4 naquadah
-alloy plates; Mk-II a robot arm, 3 sensors, an emitter, 6 circuits and 6 naquadah alloy plates; Mk-III 2 arms, 4 sensors, 2 emitters, 8 circuits and 4 tritanium plates; Mk-IV 4 arms, 8 sensors, 4 emitters, 16
+alloy plates; Mk-II a robot arm, 3 sensors, an emitter, 6 circuits and 6 osmiridium plates; Mk-III 2 arms, 4 sensors, 2 emitters, 8 circuits and 4 tritanium plates; Mk-IV 4 arms, 8 sensors, 4 emitters, 16
 circuits and 4 neutronium plates.
 
 ## 4. The cable and the climber

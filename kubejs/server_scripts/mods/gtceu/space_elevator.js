@@ -78,7 +78,7 @@ ServerEvents.recipes(event => {
     // [tier, part tier, arms, sensors, emitters, circuits, plate, plates, solder mB, voltage]
     const drones = [
         [1, 'uv', 1, 2, 1, 4, 'naquadah_alloy', 4, 576, GTValues.UV],
-        [2, 'uv', 1, 3, 1, 6, 'naquadah_alloy', 6, 1152, GTValues.UV],
+        [2, 'uv', 1, 3, 1, 6, 'osmiridium', 6, 1152, GTValues.UV],
         [3, 'uv', 2, 4, 2, 8, 'tritanium', 4, 1728, GTValues.UV],
         [4, 'uv', 4, 8, 4, 16, 'neutronium', 4, 2304, GTValues.UV]
     ]
