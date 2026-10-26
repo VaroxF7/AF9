@@ -55,6 +55,9 @@ final class RingBlocks {
     private static final class Mesh {
 
         long[] signature;
+        /** The lights round the ring when it was baked, and when they were last compared (they come in as chunks light up). */
+        long lightHash;
+        long lightChecked;
         /** The whole ring uploaded once (the GPU draws it under the ring's pose); null until first drawn that way. */
         VertexBuffer vbo;
         final float[][] data = new float[SECTORS][];
@@ -145,10 +148,19 @@ final class RingBlocks {
             signature[i] = cell.pos().asLong() * 31 + Block.getId(cell.state());
         }
         Arrays.sort(signature);
-        if (meshes[band] != null && Arrays.equals(meshes[band].signature, signature)) return;
+        long now = System.currentTimeMillis();
+        Mesh old = meshes[band];
+        if (old != null && Arrays.equals(old.signature, signature)) {
+            // the baked lights go stale (a chunk's light arrives after the ring was baked: black stretches), so look again every second
+            if (now - old.lightChecked < 1000) return;
+            old.lightChecked = now;
+            if (old.lightHash == lightHash(cells, level)) return;
+        }
         if (meshes[band] != null && meshes[band].vbo != null) meshes[band].vbo.close();
         Mesh mesh = new Mesh();
         mesh.signature = signature;
+        mesh.lightHash = lightHash(cells, level);
+        mesh.lightChecked = now;
 
         Set<Long> present = new HashSet<>();
         for (Cell cell : cells) present.add(TowerDraw.key(cell.right(), cell.up(), cell.back()));
@@ -175,6 +187,24 @@ final class RingBlocks {
         meshes[band] = mesh;
     }
 
+    /** A hash of the light next to every cell, to know when the baked lights are out of date. */
+    private static long lightHash(List<Cell> cells, ClientLevel level) {
+        long h = 1125899906842597L;
+        for (Cell cell : cells) {
+            for (Direction d : Direction.values()) {
+                h = h * 31 + faceLight(level, cell.pos().relative(d));
+            }
+        }
+        return h;
+    }
+
+    /** The light of the air a face looks into; a solid block there is lit as sky, and unlit air (light not arrived yet) as full sky too, never black. */
+    private static int faceLight(ClientLevel level, BlockPos lit) {
+        if (level.getBlockState(lit).isSolidRender(level, lit)) return LightTexture.pack(0, 15);
+        int light = LevelRenderer.getLightColor(level, lit);
+        return light == 0 ? LightTexture.pack(0, 15) : light;
+    }
+
     private static final Direction[] FACES = { null, Direction.DOWN, Direction.UP, Direction.NORTH, Direction.SOUTH,
             Direction.WEST, Direction.EAST };
 
@@ -189,8 +219,7 @@ final class RingBlocks {
         Direction dir = quad.getDirection();
         // the light of the air the face looks into; a solid block there (a spoke the beam replaces) would be black
         BlockPos lit = cell.pos().relative(dir);
-        int light = level.getBlockState(lit).isSolidRender(level, lit) ? LightTexture.pack(0, 15)
-                : LevelRenderer.getLightColor(level, lit);
+        int light = faceLight(level, lit);
         float nx = dot(dir, right), ny = dot(dir, up), nz = dot(dir, back);
         float[] q = new float[4 * FLOATS];
         for (int i = 0; i < 4; i++) {
