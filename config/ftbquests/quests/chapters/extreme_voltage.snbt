@@ -907,17 +907,6 @@
 			y: -6.5d
 		}
 		{
-			dependencies: ["2E24C0E4814AF8DD"]
-			id: "7B7D79E0976AE710"
-			tasks: [{
-				id: "18AB79DE5A0238D3"
-				item: "gtceu:tungsten_ingot"
-				type: "item"
-			}]
-			x: -5.5d
-			y: -7.5d
-		}
-		{
 			dependencies: ["6A54E73E212BB1AF"]
 			id: "693C94475919120E"
 			tasks: [{
@@ -1178,6 +1167,29 @@
 			}]
 			x: 7.0d
 			y: -4.5d
+		}
+		{
+			dependencies: ["4C46AB12437830E9"]
+			id: "18F437B2BDE05B13"
+			subtitle: "tier 2.5 void miner ,with better overclocks etc"
+			tasks: [{
+				id: "6ED3168A3C579A33"
+				item: "gtceu:void_miner"
+				type: "item"
+			}]
+			x: -5.5d
+			y: -8.5d
+		}
+		{
+			dependencies: ["2E24C0E4814AF8DD"]
+			id: "4C46AB12437830E9"
+			tasks: [{
+				id: "03875A1315159226"
+				item: "gtceu:tungsten_ingot"
+				type: "item"
+			}]
+			x: -5.5d
+			y: -7.5d
 		}
 	]
 	title: "{atm9.chapters.30.title}"
