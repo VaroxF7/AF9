@@ -951,7 +951,7 @@
 			subtitle: "{af9.quest.litho.column.subtitle}"
 			tasks: [{
 				id: "17AD2B6B31E4E914"
-				item: "gtceu:distillation_tower"
+				item: "gtceu:distillation_facility"
 				type: "item"
 			}]
 			title: "{af9.quest.litho.column.title}"

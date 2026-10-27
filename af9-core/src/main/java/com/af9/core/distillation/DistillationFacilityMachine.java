@@ -3,6 +3,8 @@ package com.af9.core.distillation;
 import com.af9.core.pattern.DistillationFacilityPipes;
 
 import com.gregtechceu.gtceu.api.GTValues;
+import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.fluids.store.FluidStorageKeys;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
@@ -20,6 +22,13 @@ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
+import com.gregtechceu.gtceu.common.data.GTMaterials;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
+import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
+
+import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
+import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import com.lowdragmc.lowdraglib.utils.BlockInfo;
@@ -30,6 +39,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
@@ -88,6 +98,29 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
             return new RotorState(Component.translatable(key), Component.empty(), 0, 0, 0, 1, 1);
         }
     }
+
+    /** Filtered Distillation: liquid oxygen a second the facility needs while its cleanliness is built up and held. */
+    public static final int OXYGEN_PER_SECOND = 100;
+    /** Cleanliness (0-100) gained a second while the oxygen comes: 30 seconds from 0 to 100. */
+    public static final double CLEAN_PER_SECOND = 100.0 / 30;
+    /** Cleanliness lost a second without oxygen: 60 seconds from 100 to 0. */
+    public static final double DIRT_PER_SECOND = 100.0 / 60;
+    /** The facility is ready (filtered) at 100 % and stays so until the cleanliness falls below this. */
+    public static final double READY_LOST_BELOW = 80;
+
+    /** The cleanliness score, 0-100, like the clean room's. */
+    @Persisted
+    @DescSynced
+    private double cleanliness;
+    /** Filtered Distillation is up: the fab recipes may run. */
+    @Persisted
+    @DescSynced
+    private boolean filtered;
+    /** The oxygen of the last second came (for the screen). */
+    private boolean oxygenFed;
+    /** A Cleaning Maintenance Hatch is in the structure: always 100 %, no oxygen. */
+    @DescSynced
+    private boolean hatchClean;
 
     private TickableSubscription repairSubs;
     /** Where the modules of the structure stand (the pattern's find), empty while unformed. */
@@ -243,6 +276,7 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
             }
             if (module.getRecipeLogic().isWorking()) any = true;
         }
+        if (relink && isFormed()) tickCleanliness();
         if (!logic.isSuspend()) logic.setStatus(any ? RecipeLogic.Status.WORKING : RecipeLogic.Status.IDLE);
         // the maintenance hatch counts the facility's working time, once a tick however many towers work (as in any GT multiblock)
         if (any) {
@@ -291,7 +325,13 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
     // ******* The clean room *******//
     //////////////////////////////////////
 
-    /** The facility is its own clean room: its casings are the clean ones. */
+    /**
+     * Filtered Distillation: the facility is its own clean room, once it is filtered. A Cleaning Maintenance Hatch (UV) in the
+     * maintenance place makes that always so (100 %, no oxygen); without one, the facility needs liquid oxygen from a fluid
+     * input hatch, {@link #OXYGEN_PER_SECOND} mB a second, constantly: the cleanliness climbs to 100 % while it comes, the
+     * facility is filtered from there, and when the oxygen stops the cleanliness falls and the fab recipes stop below
+     * {@link #READY_LOST_BELOW} %. The plain distillation recipes do not ask for any of this.
+     */
     @Override
     public Set<CleanroomType> getTypes() {
         return Set.of(CleanroomType.CLEANROOM);
@@ -299,7 +339,56 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
 
     @Override
     public boolean isClean() {
-        return isFormed();
+        return isFormed() && filtered;
+    }
+
+    /** Whether the fab recipes may run now. */
+    public boolean isFiltered() {
+        return isFormed() && filtered;
+    }
+
+    public double getCleanliness() {
+        return isFormed() ? cleanliness : 0;
+    }
+
+    private boolean hasCleaningHatch() {
+        for (IMultiPart part : getParts()) {
+            if (part instanceof CleaningMaintenanceHatchPartMachine) return true;
+        }
+        return false;
+    }
+
+    /** Once a second, server side: the oxygen (or the hatch) sets the cleanliness. */
+    private void tickCleanliness() {
+        double before = cleanliness;
+        boolean wasFiltered = filtered;
+        hatchClean = hasCleaningHatch();
+        if (hatchClean) {
+            oxygenFed = false;
+            cleanliness = 100;
+            filtered = true;
+        } else {
+            oxygenFed = drawOxygen();
+            cleanliness = oxygenFed ? Math.min(100, cleanliness + CLEAN_PER_SECOND) :
+                    Math.max(0, cleanliness - DIRT_PER_SECOND);
+            if (cleanliness >= 100) filtered = true;
+            else if (cleanliness < READY_LOST_BELOW) filtered = false;
+        }
+        if (before != cleanliness || wasFiltered != filtered) {
+            markDirty();
+            // a fab recipe that was running when the filtering fell out stops now
+            if (wasFiltered && !filtered) {
+                for (DistillationModuleMachine module : modules(true)) module.getRecipeLogic().resetRecipeLogic();
+            }
+        }
+    }
+
+    /** Takes this second's liquid oxygen from the fluid input hatches; false if the hatches did not have it all. */
+    private boolean drawOxygen() {
+        GTRecipe oxygen = GTRecipeBuilder.ofRaw()
+                .inputFluids(GTMaterials.Oxygen.getFluid(FluidStorageKeys.LIQUID, OXYGEN_PER_SECOND)).buildRawRecipe();
+        return RecipeHelper.matchRecipe(this, oxygen).isSuccess() &&
+                RecipeHelper.handleRecipeIO(this, oxygen, IO.IN, recipeLogic.getChanceCaches()).isSuccess();
     }
 
     //////////////////////////////////////
@@ -365,6 +454,16 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
         List<DistillationModuleMachine> towers = modules(false);
         int running = 0;
         for (DistillationModuleMachine tower : towers) if (tower.getRecipeLogic().isWorking()) running++;
+        if (hatchClean) {
+            textList.add(Component.translatable("af9.distillation.display.filtered_hatch")
+                    .withStyle(ChatFormatting.GREEN));
+        } else {
+            textList.add(Component.translatable("af9.distillation.display.filtered", String.format(Locale.ROOT, "%.0f%%",
+                    cleanliness), Component.translatable(filtered ? "af9.distillation.display.filtered_on" :
+                            oxygenFed ? "af9.distillation.display.filtered_rising" : "af9.distillation.display.filtered_off"))
+                    .withStyle(filtered ? ChatFormatting.GREEN : ChatFormatting.YELLOW));
+            textList.add(Component.translatable("af9.distillation.display.oxygen", OXYGEN_PER_SECOND));
+        }
         textList.add(Component.translatable("af9.distillation.display.towers", running, towers.size()));
         int number = 0;
         for (DistillationModuleMachine tower : towers) {

@@ -28,7 +28,7 @@ import java.util.List;
  * <tr><th>Machine</th><th>Fab modes</th></tr>
  * <tr><td>Chemical Reactor, Large Chemical Reactor</td><td>synthesis, blending, wet processing</td></tr>
  * <tr><td>Distillery</td><td>fractionation, purification</td></tr>
- * <tr><td>Distillation Tower</td><td>distillation, cryogenic rectification</td></tr>
+ * <tr><td>Distillation Facility</td><td>distillation, cryogenic rectification (its own modes, see distillation_facility.js)</td></tr>
  * <tr><td>Electrolyzer, Large Electrolysis Chamber</td><td>electrolysis, electrofluorination</td></tr>
  * <tr><td>Arc Furnace, Electric Blast Furnace</td><td>calcination, CVD, crystal growth</td></tr>
  * </table>
@@ -36,7 +36,7 @@ import java.util.List;
  * The modes are GT recipe types, so GT's mode tab (the machine's side tab) switches between them. The single blocks
  * get their slots from all their modes (the fork's patch 0014), so every mode has room for its inputs and outputs.
  * <p>
- * A mode has to fit the machine it runs in: the Distillation Tower has one fluid input and no item input, so the
+ * A mode has to fit the machine it runs in: the (former) Distillation Tower had one fluid input and no item input, so the
  * cuts (which take a circuit) stay in the Distillery, and the column recipes (one fluid in, up to five out) run in
  * the tower.
  * <p>
@@ -81,7 +81,8 @@ public final class FabModes {
             if (definition == null) continue;
             modes(definition, fractionation, purification);
         }
-        modes(GTMultiMachines.DISTILLATION_TOWER, distillation, cryogenic);
+        // (the Distillation Tower is gone, the Distillation Facility runs the same three modes: it registers them itself)
+        facilityIcon();
 
         // the electrochemistry of the electrolyzer and the large electrolysis chamber
         for (MachineDefinition definition : GTMachines.ELECTROLYZER) {
@@ -97,6 +98,14 @@ public final class FabModes {
             heatOfTier(definition);
         }
         modes(GTMultiMachines.ELECTRIC_BLAST_FURNACE, calcination, cvd, crystalGrowth);
+    }
+
+    /** GT's distillation recipe type took its icon from the Distillation Tower: give it the Distillation Facility's. */
+    private static void facilityIcon() {
+        MachineDefinition facility = GTRegistries.MACHINES.get(new ResourceLocation("gtceu", "distillation_facility"));
+        GTRecipeType distillationRecipes = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", "distillation_tower"));
+        if (facility == null || distillationRecipes == null) return;
+        if (distillationRecipes.getIconSupplier() == null) distillationRecipes.setIconSupplier(facility::asStack);
     }
 
     /** The recipe type of the KubeJS startup script, or null when the script did not load. */

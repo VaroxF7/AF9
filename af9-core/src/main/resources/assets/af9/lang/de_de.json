@@ -99,5 +99,12 @@
     "af9.distillation.display.tower_unformed": "Turm %s: nicht geformt",
     "af9.distillation.display.tower": "Turm %s: %s",
     "af9.distillation.display.tower_rotor": "Turm %s: %s, Drehzahl %s, %s Tempo, %s Energie",
-    "af9.distillation.module.maintenance": "Die Wartungsluke der Anlage hat Probleme"
+    "af9.distillation.module.maintenance": "Die Wartungsluke der Anlage hat Probleme",
+    "af9.distillation.module.not_filtered": "Gefilterte Destillation läuft nicht (Flüssigsauerstoff oder Cleaning Maintenance Hatch)",
+    "af9.distillation.display.filtered": "Gefilterte Destillation: %s Sauberkeit (%s)",
+    "af9.distillation.display.filtered_hatch": "Gefilterte Destillation: 100% (Cleaning Maintenance Hatch)",
+    "af9.distillation.display.filtered_on": "gefiltert",
+    "af9.distillation.display.filtered_rising": "filtert",
+    "af9.distillation.display.filtered_off": "kein Flüssigsauerstoff",
+    "af9.distillation.display.oxygen": "Braucht %s mB/s Flüssigsauerstoff oder eine Cleaning Maintenance Hatch"
 }

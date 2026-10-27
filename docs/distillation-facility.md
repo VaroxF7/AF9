@@ -2,7 +2,7 @@
 
 The IV distillation path. A 10 x 7 x 15 walk-through of **real GT fluid pipes** round three **Distillation Tower Modules**, built 1:1 from
 Janne's `v3.nbt` (kubejs/startup_scripts/gtceu/distillation_facility.js, af9-core `com.af9.core.distillation`). It replaces the
-Distillation Tower as the machine to build for distillation; the Distillation Tower itself is **still there** (not disabled, see the open point at the end).
+Distillation Tower: **the Distillation Tower is gone** (gtceu-fork patch `0027` drops the machine and its crafting; its recipe type stays and is the first mode of every tower; the GCYM Large Distillery is built from an IV Distillery instead).
 
 ## The structure
 
@@ -35,7 +35,7 @@ a module to face the right way.
 * **At most 1 parallel hatch per tower**: in any casing of the tower. It gives that tower its hatch's parallels, **capped at 21 a tower** so the three towers together stay within the pack's 64 parallels
   (63 runs at most). A second hatch in the same tower stops that tower from forming.
 * **Perfect overclock, no batch mode.**
-* The facility is **its own clean room** (clean stainless casing all over): the clean-room recipes of the fab modes run without building a GT Cleanroom round it.
+* The facility is **its own clean room once it is filtered** (see Filtered Distillation below): the clean-room recipes of the fab modes run without a GT Cleanroom round it.
 * The facility itself runs no recipe: it shows whether any tower works (the model is active, the rotors keep spinning, the muffler smokes while any tower works).
 
 ### The three modes
@@ -68,9 +68,22 @@ The bonus is the **spin's share**: the holder's rotor speed against its top spee
 EV is at full spin after 75 seconds of work; when every tower stands still it slows down by 3 a tick (about 100 seconds from full). Each run is modified anew, so the bonus
 follows the spin. The rotor wears as in a turbine (1 durability a second of work).
 
+## Filtered Distillation
+
+The fab modes (Distillation, Cryogenic Rectification) are clean-room recipes: they run only while the facility is **filtered**. The plain distillation recipes (oil, air, the pack's fractions) never ask for it.
+
+* The facility has a **cleanliness score of 0-100 %**, like the clean room's (on its screen).
+* **Liquid Oxygen** (`gtceu:liquid_oxygen`) in any fluid input hatch, **100 mB every second**, constantly: while it comes the cleanliness climbs 100 % in 30 seconds; at 100 % the facility is filtered.
+* Without oxygen the cleanliness falls (100 % in 60 seconds). The facility stays filtered until it is below **80 %**, then the fab recipes stop (the running ones are reset). The plain recipes keep running.
+* A **Cleaning Maintenance Hatch** (UV in this pack's clean room type; in the maintenance place) replaces all of it: no oxygen, the cleanliness is always 100 % and the facility always filtered.
+
+(The numbers are constants of `DistillationFacilityMachine`: `OXYGEN_PER_SECOND`, `CLEAN_PER_SECOND`, `DIRT_PER_SECOND`, `READY_LOST_BELOW`.)
+
+## Crafting
+
+`kubejs/server_scripts/mods/gtceu/distillation_facility.js`: the module is the old tower's recipe (HV hull, 4 large stainless pipes, 4 EV circuits, 2 HV pumps); the facility is 3 modules round an IV hull with 2 IV circuits, 2 IV pumps and an IV motor.
+
 ## Open points
 
-* **The old Distillation Tower is not disabled.** Hiding it from the recipe viewers and the crafting is a one-line change once Janne says so (`FabModes` already gives it the fab
-  modes; the facility's modes are the same).
-* The file's spine casing is the **Steel Turbine Casing** (`gtceu:steel_turbine_casing`); that is what the pattern asks for.
-* The facility is its own clean room (a decision to confirm): the fab distillation and cryogenic modes would otherwise need a GT Cleanroom round a 10 x 15 facility.
+* The file's spine casing is the **Steel Turbine Casing** (`gtceu:steel_turbine_casing`); confirmed by Janne.
+* The quests that named the Distillation Tower (extreme_voltage, photolithography chapters) name the facility now.

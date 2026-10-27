@@ -1636,5 +1636,12 @@
     "af9.distillation.display.tower_unformed": "Tower %s: not formed",
     "af9.distillation.display.tower": "Tower %s: %s",
     "af9.distillation.display.tower_rotor": "Tower %s: %s, spin %s, %s speed, %s energy",
-    "af9.distillation.module.maintenance": "The facility's maintenance hatch has problems"
+    "af9.distillation.module.maintenance": "The facility's maintenance hatch has problems",
+    "af9.distillation.module.not_filtered": "Filtered Distillation is not up (liquid oxygen or a Cleaning Maintenance Hatch)",
+    "af9.distillation.display.filtered": "Filtered Distillation: %s cleanliness (%s)",
+    "af9.distillation.display.filtered_hatch": "Filtered Distillation: 100% (Cleaning Maintenance Hatch)",
+    "af9.distillation.display.filtered_on": "filtered",
+    "af9.distillation.display.filtered_rising": "filtering",
+    "af9.distillation.display.filtered_off": "no liquid oxygen",
+    "af9.distillation.display.oxygen": "Needs %s mB/s Liquid Oxygen, or a Cleaning Maintenance Hatch"
 }

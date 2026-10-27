@@ -182,7 +182,7 @@
 				""
 				"{atm9.quest.gregtech.ev.desc.distillationTower.6}"
 			]
-			icon: "gtceu:distillation_tower"
+			icon: "gtceu:distillation_facility"
 			id: "3BEDF19CD79D53D5"
 			min_width: 300
 			rewards: [{
@@ -194,7 +194,7 @@
 			subtitle: "{atm9.quest.gregtech.ev.subt.realFluidProcessing}"
 			tasks: [{
 				id: "2A5387EF0991FC1D"
-				item: "gtceu:distillation_tower"
+				item: "gtceu:distillation_facility"
 				type: "item"
 			}]
 			x: -4.0d

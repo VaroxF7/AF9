@@ -83,7 +83,7 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         if (!(machine instanceof DistillationModuleMachine module)) {
             return RecipeModifier.nullWrongType(DistillationModuleMachine.class, machine);
         }
-        return module.facilityModifier();
+        return module.facilityModifier(recipe);
     };
 
     /** The facility's block position as a long, {@link Long#MIN_VALUE} for none. */
@@ -216,7 +216,7 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         getRecipeLogic().updateTickSubscription();
     }
 
-    private ModifierFunction facilityModifier() {
+    private ModifierFunction facilityModifier(GTRecipe recipe) {
         DistillationFacilityMachine parent = parent();
         if (parent == null) return ModifierFunction.cancel(Component.translatable("af9.distillation.module.no_facility"));
         if (!parent.isWorkingEnabled()) {
@@ -224,6 +224,10 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         }
         if (parent.needsMaintenance()) {
             return ModifierFunction.cancel(Component.translatable("af9.distillation.module.maintenance"));
+        }
+        // Filtered Distillation: the fab chemistry's columns run only in a filtered facility (the plain distillation does not)
+        if (recipe.recipeType.registryName.getPath().startsWith("fab_") && !parent.isFiltered()) {
+            return ModifierFunction.cancel(Component.translatable("af9.distillation.module.not_filtered"));
         }
         DistillationFacilityMachine.RotorState rotor = parent.rotorOf(this);
         if (!rotor.ok()) return ModifierFunction.cancel(rotor.problem());
