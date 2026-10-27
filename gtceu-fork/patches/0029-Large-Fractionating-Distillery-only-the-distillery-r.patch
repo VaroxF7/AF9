@@ -1,0 +1,45 @@
+From 3761e5032b7fa29f319ecceb2a43d5933c868ca9 Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Tue, 27 Oct 2026 19:53:10 +0000
+Subject: [PATCH] Large Fractionating Distillery: only the distillery recipes,
+ the distillation recipes are the Distillation Facility's (7.5.3-af9.29)
+
+---
+ gradle.properties                                           | 2 +-
+ .../gtceu/common/data/machines/GCYMMachines.java            | 6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index acd0dd8..3ab3f13 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.28
++mod_version = 7.5.3-af9.29
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java
+index 8b0fccd..812e0f7 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GCYMMachines.java
+@@ -592,10 +592,10 @@ public class GCYMMachines {
+             .multiblock("large_distillery", DistillationTowerMachine::new)
+             .langValue("Large Fractionating Distillery")
+             .tooltips(Component.translatable("gtceu.multiblock.parallelizable.tooltip"))
+-            .tooltips(Component.translatable("gtceu.machine.available_recipe_map_2.tooltip",
+-                    Component.translatable("gtceu.distillation_tower"), Component.translatable("gtceu.distillery")))
++            .tooltips(Component.translatable("gtceu.machine.available_recipe_map_1.tooltip",
++                    Component.translatable("gtceu.distillery")))
+             .rotationState(RotationState.NON_Y_AXIS)
+-            .recipeTypes(DISTILLATION_RECIPES, DISTILLERY_RECIPES)
++            .recipeTypes(DISTILLERY_RECIPES)
+             .recipeModifiers(GTRecipeModifiers.PARALLEL_HATCH, OC_NON_PERFECT_SUBTICK, BATCH_MODE)
+             .appearanceBlock(CASING_WATERTIGHT)
+             .pattern(definition -> {
+-- 
+2.43.0
+

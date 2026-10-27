@@ -27,6 +27,7 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -207,6 +208,22 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         pinned = last.id.toString();
         markDirty();
         getRecipeLogic().updateTickSubscription();
+    }
+
+    /**
+     * Sets the tower to this recipe, from the recipe viewer's "+": its mode becomes the recipe's type and its recipe lock the recipe;
+     * false if the tower does not run that type.
+     */
+    public boolean pinTo(GTRecipe recipe) {
+        if (recipe.id == null) return false;
+        int mode = Arrays.asList(getRecipeTypes()).indexOf(recipe.recipeType);
+        if (mode < 0) return false;
+        if (mode != getActiveRecipeType()) setActiveRecipeType(mode);
+        pinned = recipe.id.toString();
+        markDirty();
+        getRecipeLogic().resetRecipeLogic();
+        getRecipeLogic().updateTickSubscription();
+        return true;
     }
 
     public void unlockRecipe() {

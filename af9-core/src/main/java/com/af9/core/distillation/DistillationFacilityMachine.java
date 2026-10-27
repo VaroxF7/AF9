@@ -23,6 +23,7 @@ import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
+import com.gregtechceu.gtceu.common.data.GTBlocks;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
@@ -39,6 +40,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -144,6 +146,17 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
     //////////////////////////////////////
     // ***** The pattern's parts ******//
     //////////////////////////////////////
+
+    /**
+     * What a part of the facility looks like: a part in a tower (the module is one of its controllers) wears the clean stainless
+     * casing, every other part (the spine's hatches) the Steel Turbine Casing, as the facility's controller does.
+     */
+    public static BlockState partAppearance(IMultiPart part) {
+        for (var controller : part.getControllers()) {
+            if (controller instanceof DistillationModuleMachine) return GTBlocks.CASING_STAINLESS_CLEAN.getDefaultState();
+        }
+        return GTBlocks.CASING_STEEL_TURBINE.getDefaultState();
+    }
 
     /** A Distillation Tower Module controller (any facing: the facility turns it), noted down with its place. */
     public static TraceabilityPredicate modules() {

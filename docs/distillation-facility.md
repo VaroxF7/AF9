@@ -83,6 +83,13 @@ The fab modes (Distillation, Cryogenic Rectification) are clean-room recipes: th
 
 `kubejs/server_scripts/mods/gtceu/distillation_facility.js`: the module is the old tower's recipe (HV hull, 4 large stainless pipes, 4 EV circuits, 2 HV pumps); the facility is 3 modules round an IV hull with 2 IV circuits, 2 IV pumps and an IV motor.
 
+## Parallel hatches, textures, recipe pinning
+
+* Each tower has its own pattern char (`l`, `m`, `n`) with **at most one Parallel Hatch**, so an auto-build puts one in every tower, not all three in the first. A module on its own also allows one.
+* Hatches in a tower wear the Clean Stainless casing; the controller and the hatches on the spine wear the Steel Turbine Casing (`DistillationFacilityMachine.partAppearance`).
+* The **Large Fractionating Distillery** now runs only distillery recipes (fork patch 0029); distillation recipes belong to the facility. Facility and modules share the recipe types, so the viewers group them as workstations.
+* **EMI "+" button**: open a module's screen, then press "+" on a recipe in EMI. The recipe is pinned on the module (mode and recipe lock) via `PinTowerRecipePacket` (`DistillationEmiPlugin`).
+
 ## Open points
 
 * The file's spine casing is the **Steel Turbine Casing** (`gtceu:steel_turbine_casing`); confirmed by Janne.
