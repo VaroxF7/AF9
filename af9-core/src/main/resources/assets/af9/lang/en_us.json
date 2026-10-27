@@ -1643,5 +1643,6 @@
     "af9.distillation.display.filtered_on": "filtered",
     "af9.distillation.display.filtered_rising": "filtering",
     "af9.distillation.display.filtered_off": "no liquid oxygen",
-    "af9.distillation.display.oxygen": "Needs %s mB/s Liquid Oxygen, or a Cleaning Maintenance Hatch"
+    "af9.distillation.display.oxygen": "Needs %s mB/s Liquid Oxygen, or a Cleaning Maintenance Hatch",
+    "af9.distillation_facility.pipe_frame": "A framed pipe needs a HSLA Steel Frame box on it"
 }

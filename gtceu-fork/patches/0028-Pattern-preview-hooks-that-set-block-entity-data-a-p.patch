@@ -1,0 +1,58 @@
+From 638fc4519ff53977b641fb526867a4736dad6f9b Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Tue, 27 Oct 2026 19:46:21 +0000
+Subject: [PATCH] Pattern preview: hooks that set block entity data (a pipe's
+ connections, its frame) before the structure is checked (7.5.3-af9.28)
+
+---
+ gradle.properties                                   |  2 +-
+ .../gtceu/api/gui/widget/PatternPreviewWidget.java  | 13 +++++++++++++
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 91f48f2..acd0dd8 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.27
++mod_version = 7.5.3-af9.28
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/gui/widget/PatternPreviewWidget.java b/src/main/java/com/gregtechceu/gtceu/api/gui/widget/PatternPreviewWidget.java
+index 1b13418..9febe70 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/gui/widget/PatternPreviewWidget.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/gui/widget/PatternPreviewWidget.java
+@@ -63,6 +63,12 @@ public class PatternPreviewWidget extends WidgetGroup {
+ 
+     private boolean isLoaded;
+     private static TrackedDummyWorld LEVEL;
++    /**
++     * AF9: hooks that touch up the preview's blocks once they stand in the preview world, before the structure is checked: a block
++     * entity's data (a pipe's connections, a frame) is not part of the preview's block info, so a structure that asks for it
++     * (the Distillation Facility's pipes) sets it here. Receives the controller and the preview world.
++     */
++    public static final List<java.util.function.BiConsumer<IMultiController, TrackedDummyWorld>> PREVIEW_HOOKS = new ArrayList<>();
+     private static final int REGION_SIZE = 512;
+     private static int LAST_OFFSET_INDEX = 0;
+     private static final Map<MultiblockMachineDefinition, MBPattern[]> CACHE = new HashMap<>();
+@@ -428,6 +434,13 @@ public class PatternPreviewWidget extends WidgetGroup {
+         LEVEL.addBlocks(blockMap);
+         if (controllerBase != null) {
+             LEVEL.setInnerBlockEntity(controllerBase.self().holder.getSelf());
++            for (var hook : PREVIEW_HOOKS) {
++                try {
++                    hook.accept(controllerBase, LEVEL);
++                } catch (RuntimeException e) {
++                    GTCEu.LOGGER.warn("A preview hook failed for {}", controllerBase.self().getDefinition(), e);
++                }
++            }
+         }
+ 
+         Map<ItemStackKey, PartInfo> parts = gatherBlockDrops(blockMap);
+-- 
+2.43.0
+

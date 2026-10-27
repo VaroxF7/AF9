@@ -68,6 +68,9 @@ public final class AF9Client {
         modBus.addListener(StructureSkins::registerModels);
         modBus.addListener(StructureSkins::attachRenders);
         modBus.addListener((FMLClientSetupEvent event) -> event.enqueueWork(StructureSkins::registerEmbeddium));
+        // the Distillation Facility's preview: its pipes get their connections and frames in the preview world (fork patch 0028)
+        modBus.addListener((FMLClientSetupEvent event) -> event.enqueueWork(() -> com.gregtechceu.gtceu.api.gui.widget.PatternPreviewWidget.PREVIEW_HOOKS
+                .add(com.af9.core.pattern.DistillationFacilityPipes::previewHook)));
         MinecraftForge.EVENT_BUS.addListener((TickEvent.ClientTickEvent event) -> StructureSkins.onClientTick(event));
         MinecraftForge.EVENT_BUS.addListener(com.af9.core.client.skin.HiddenBlocks::onHighlight);
     }

@@ -34,6 +34,7 @@ GTCEu release), `-Paf9RequireFork` fails the build where the fork is missing.
 * `0019` Fusion reactors: at most two energy hatches in the structure (superseded by `0026`).
 * `0026` Fusion reactors: the parts go on any casing block of the ring (1 fluid input, 1 fluid output, 1 laser hatch, no maintenance hatch); two primary energy hatches at most, any further one only in Auxiliary mode (`FusionReactorMachine.isPowerLayoutValid`).
 * `0027` The Distillation Tower is removed (machine, crafting); AF9's Distillation Facility runs its recipes ([docs/distillation-facility.md](../docs/distillation-facility.md)), the Large Distillery is crafted from an IV Distillery.
+* `0028` Pattern preview: `PatternPreviewWidget.PREVIEW_HOOKS`, hooks that set block entity data (a pipe's connections, its frame) in the preview world before the structure is checked; AF9's Distillation Facility uses it.
 * `0024` Side tabs: the machine screen is at least as tall as its vertical tab strip (8 + 24 px per tab). The strip is only clickable inside the screen height, so on a short page the last tab (Power Management) was drawn but dead.
 * `0012` The HPCA is expandable (3 to 12 slices of 3 component slots) and its Active Coolers cool by coolant: PCB Coolant 2, supercooled hydrogen / argon / xenon / endion 8 / 12 / 16 / 20 ([docs/hpca.md](../docs/hpca.md)).
 * `0011` The multiblock preview zooms out to fit a structure over 40 blocks (the scene clipped the Mk2 tower to a third of itself).

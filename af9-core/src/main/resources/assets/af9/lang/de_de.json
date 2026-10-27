@@ -106,5 +106,6 @@
     "af9.distillation.display.filtered_on": "gefiltert",
     "af9.distillation.display.filtered_rising": "filtert",
     "af9.distillation.display.filtered_off": "kein Flüssigsauerstoff",
-    "af9.distillation.display.oxygen": "Braucht %s mB/s Flüssigsauerstoff oder eine Cleaning Maintenance Hatch"
+    "af9.distillation.display.oxygen": "Braucht %s mB/s Flüssigsauerstoff oder eine Cleaning Maintenance Hatch",
+    "af9.distillation_facility.pipe_frame": "Ein Rohr im Frame braucht eine HSLA-Steel-Frame-Box darauf"
 }
