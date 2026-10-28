@@ -23,7 +23,7 @@ import java.util.List;
  * Chemical Plant has them ({@link ChemicalPlantPipes}): the pattern asks for exactly this pipe block with exactly this
  * {@code connections} mask at each spot, as in Janne's structure file (v3.nbt), and the controller sets the masks itself
  * while the facility is not formed, so an auto-built facility (which places plain pipes) ends up connected the way the file
- * has it. The pipes the file has in a frame (9 of them, HSLA Steel) are asked for with the frame: an auto-build places the pipes and the player puts the frame boxes on.
+ * has it. The pipes the file has in a frame (9 of them, HSLA Steel) are asked for with the frame; the controller puts those frame boxes on the auto-built pipes itself.
  * <p>
  * The masks are written for a controller facing SOUTH (the file as it stands in the world); {@link ChemicalPlantPipes#rotate}
  * turns them for the other facings. The positions are the file's coordinates, the controller stands at {@link #CX},
@@ -142,10 +142,8 @@ public final class DistillationFacilityPipes {
         for (Pipe spot : PIPES) {
             BlockPos pos = worldPos(at, facing, spot);
             if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity<?, ?> pipe)) continue;
-            int want = ChemicalPlantPipes.rotate(spot.mask(), facing);
-            for (Direction side : Direction.values()) {
-                pipe.setConnection(side, (want & (1 << side.ordinal())) != 0, false);
-            }
+            // setConnection does nothing on a client level (the preview world is one), so the mask is set as it is
+            pipe.setConnections(ChemicalPlantPipes.rotate(spot.mask(), facing));
             if (spot.frame()) pipe.setFrameMaterial(GTMaterials.HSLASteel);
         }
     }
@@ -163,6 +161,12 @@ public final class DistillationFacilityPipes {
             if (!pipe.getPersistentData().getBoolean(ChemicalPlantPipes.LOCK_TAG)) {
                 pipe.getPersistentData().putBoolean(ChemicalPlantPipes.LOCK_TAG, true);
                 pipe.setChanged();
+            }
+            // the frame box of the spots that have one (an auto-build places the pipes only, the frames of the file are put on here)
+            if (spot.frame() && pipe.getFrameMaterial() != GTMaterials.HSLASteel) {
+                pipe.setFrameMaterial(GTMaterials.HSLASteel);
+                pipe.setChanged();
+                changed = true;
             }
             found.add(pipe);
             spots.add(spot);
