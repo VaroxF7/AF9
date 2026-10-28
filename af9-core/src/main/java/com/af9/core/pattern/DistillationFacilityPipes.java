@@ -148,6 +148,34 @@ public final class DistillationFacilityPipes {
         }
     }
 
+    /**
+     * What is wrong at the pipe spots of the file (at most {@code limit} lines, as "x y z: what"): a controller shows these while the
+     * facility is not formed, so a pattern that does not form says which pipe it is.
+     */
+    public static List<String> problems(Level level, BlockPos controller, Direction facing, int limit) {
+        List<String> out = new ArrayList<>();
+        for (Pipe spot : PIPES) {
+            if (out.size() >= limit) break;
+            BlockPos pos = worldPos(controller, facing, spot);
+            String where = pos.getX() + " " + pos.getY() + " " + pos.getZ() + ": ";
+            if (!level.isLoaded(pos)) {
+                out.add(where + "not loaded");
+                continue;
+            }
+            Block want = block(spot.block());
+            if (!level.getBlockState(pos).is(want)) {
+                out.add(where + "needs " + spot.block() + ", has " + ForgeRegistries.BLOCKS.getKey(level.getBlockState(pos).getBlock()));
+            } else if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity<?, ?> pipe)) {
+                out.add(where + "no pipe block entity");
+            } else if (pipe.getConnections() != ChemicalPlantPipes.rotate(spot.mask(), facing)) {
+                out.add(where + "connections " + pipe.getConnections() + ", want " + ChemicalPlantPipes.rotate(spot.mask(), facing));
+            } else if (spot.frame() && pipe.getFrameMaterial() != GTMaterials.HSLASteel) {
+                out.add(where + "needs an HSLA Steel frame, has " + pipe.getFrameMaterial().getName());
+            }
+        }
+        return out;
+    }
+
     /** Marks every right pipe that stands where the file has one, then sets their connections; true if anything changed. */
     public static boolean repair(Level level, BlockPos controller, Direction facing) {
         boolean changed = false;

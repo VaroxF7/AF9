@@ -463,7 +463,23 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
                 .addEnergyUsageLine(energyContainer)
                 .addEnergyTierLine(tier)
                 .addWorkingStatusLine();
-        if (!isFormed()) return;
+        if (!isFormed()) {
+            // why it does not form: the pipes' problems, and the pattern's own last error (its place)
+            if (getLevel() != null) {
+                for (String line : DistillationFacilityPipes.problems(getLevel(), getPos(), getFrontFacing(), 4)) {
+                    textList.add(Component.literal(line).withStyle(net.minecraft.ChatFormatting.YELLOW));
+                }
+            }
+            var error = getMultiblockState().error;
+            if (error != null) {
+                try {
+                    textList.add(error.getErrorInfo().copy().withStyle(net.minecraft.ChatFormatting.RED));
+                } catch (RuntimeException ignored) {
+                    // an error that never got its place (nothing to show)
+                }
+            }
+            return;
+        }
         List<DistillationModuleMachine> towers = modules(false);
         int running = 0;
         for (DistillationModuleMachine tower : towers) if (tower.getRecipeLogic().isWorking()) running++;
