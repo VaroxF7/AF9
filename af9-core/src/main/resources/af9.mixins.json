@@ -20,7 +20,8 @@
     "zeta.ForgeZetaEventBusMixin",
     "ae2.FalloutMixin",
     "ae2.FalloutCopyMixin",
-    "ae2.MeteoriteStructureMixin"
+    "ae2.MeteoriteStructureMixin",
+    "naturesaura.AuraChunkMixin"
   ],
   "injectors": {
     "defaultRequire": 1
