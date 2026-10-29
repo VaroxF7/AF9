@@ -4,7 +4,6 @@ import com.gregtechceu.gtceu.api.blockentity.PipeBlockEntity;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiController;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
 import com.gregtechceu.gtceu.api.pattern.error.PatternStringError;
-import com.gregtechceu.gtceu.common.data.GTMaterials;
 
 import com.lowdragmc.lowdraglib.utils.BlockInfo;
 
@@ -23,7 +22,7 @@ import java.util.List;
  * Chemical Plant has them ({@link ChemicalPlantPipes}): the pattern asks for exactly this pipe block with exactly this
  * {@code connections} mask at each spot, as in Janne's structure file (v3.nbt), and the controller sets the masks itself
  * while the facility is not formed, so an auto-built facility (which places plain pipes) ends up connected the way the file
- * has it. The pipes the file has in a frame (9 of them, HSLA Steel) are asked for with the frame; the controller puts those frame boxes on the auto-built pipes itself.
+ * has it. The file's 9 framed pipes are plain pipes here: the frame is not asked for.
  * <p>
  * The masks are written for a controller facing SOUTH (the file as it stands in the world); {@link ChemicalPlantPipes#rotate}
  * turns them for the other facings. The positions are the file's coordinates, the controller stands at {@link #CX},
@@ -35,7 +34,7 @@ public final class DistillationFacilityPipes {
     /** The controller's spot in the file's coordinates (where the green wool stood). */
     public static final int CX = 4, CY = 2, CZ = 13;
 
-    /** {@code frame}: the pipe sits in a HSLA Steel Frame (a frame box on the pipe). */
+    /** {@code frame}: the file has the pipe in a HSLA Steel Frame (not asked for, kept as a note of the file). */
     public record Pipe(int x, int y, int z, String block, int mask, boolean frame) {}
 
     /** Every pipe of the file. */
@@ -112,7 +111,7 @@ public final class DistillationFacilityPipes {
         return pipe(blockId, mask, false);
     }
 
-    /** The same, in a HSLA Steel Frame (a frame box on the pipe) if {@code frame}: the player puts the frame box on the pipe. */
+    /** The same; {@code frame} is the file's note of a framed pipe and is not checked (a framed or a plain pipe both form). */
     public static TraceabilityPredicate pipe(String blockId, int mask, boolean frame) {
         return new TraceabilityPredicate(state -> {
             if (!state.getBlockState().is(block(blockId))) return false;
@@ -123,17 +122,14 @@ public final class DistillationFacilityPipes {
                 state.setError(new PatternStringError("af9.distillation_facility.pipe_connections"));
                 return false;
             }
-            if (frame && pipe.getFrameMaterial() != GTMaterials.HSLASteel) {
-                state.setError(new PatternStringError("af9.distillation_facility.pipe_frame"));
-                return false;
-            }
+            // (a frame box on the pipe is not asked for: the file's 9 framed pipes are plain pipes here)
             return true;
         }, () -> new BlockInfo[] { BlockInfo.fromBlockState(block(blockId).defaultBlockState()) });
     }
 
     /**
      * The structure preview's touch-up ({@code PatternPreviewWidget.PREVIEW_HOOKS}, fork patch 0028): the preview's blocks carry no
-     * block entity data, so the pipes get their connections and frames here, before the preview checks the structure.
+     * block entity data, so the pipes get their connections here, before the preview checks the structure.
      */
     public static void previewHook(IMultiController controller, net.minecraft.world.level.Level level) {
         if (!(controller instanceof com.af9.core.distillation.DistillationFacilityMachine)) return;
@@ -144,7 +140,6 @@ public final class DistillationFacilityPipes {
             if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity<?, ?> pipe)) continue;
             // setConnection does nothing on a client level (the preview world is one), so the mask is set as it is
             pipe.setConnections(ChemicalPlantPipes.rotate(spot.mask(), facing));
-            if (spot.frame()) pipe.setFrameMaterial(GTMaterials.HSLASteel);
         }
     }
 
@@ -169,8 +164,6 @@ public final class DistillationFacilityPipes {
                 out.add(where + "no pipe block entity");
             } else if (pipe.getConnections() != ChemicalPlantPipes.rotate(spot.mask(), facing)) {
                 out.add(where + "connections " + pipe.getConnections() + ", want " + ChemicalPlantPipes.rotate(spot.mask(), facing));
-            } else if (spot.frame() && pipe.getFrameMaterial() != GTMaterials.HSLASteel) {
-                out.add(where + "needs an HSLA Steel frame, has " + pipe.getFrameMaterial().getName());
             }
         }
         return out;
@@ -189,12 +182,6 @@ public final class DistillationFacilityPipes {
             if (!pipe.getPersistentData().getBoolean(ChemicalPlantPipes.LOCK_TAG)) {
                 pipe.getPersistentData().putBoolean(ChemicalPlantPipes.LOCK_TAG, true);
                 pipe.setChanged();
-            }
-            // the frame box of the spots that have one (an auto-build places the pipes only, the frames of the file are put on here)
-            if (spot.frame() && pipe.getFrameMaterial() != GTMaterials.HSLASteel) {
-                pipe.setFrameMaterial(GTMaterials.HSLASteel);
-                pipe.setChanged();
-                changed = true;
             }
             found.add(pipe);
             spots.add(spot);
