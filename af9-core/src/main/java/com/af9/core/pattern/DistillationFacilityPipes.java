@@ -169,22 +169,46 @@ public final class DistillationFacilityPipes {
         return out;
     }
 
-    /** Marks every right pipe that stands where the file has one, then sets their connections; true if anything changed. */
-    public static boolean repair(Level level, BlockPos controller, Direction facing) {
+    /** Lets the pipes at the file's spots behave as normal pipes again (the controller or the structure is gone). */
+    public static void release(Level level, BlockPos controller, Direction facing) {
+        for (Pipe spot : PIPES) {
+            BlockPos pos = worldPos(controller, facing, spot);
+            if (!level.isLoaded(pos)) continue;
+            if (level.getBlockEntity(pos) instanceof PipeBlockEntity<?, ?> pipe &&
+                    pipe.getPersistentData().getBoolean(ChemicalPlantPipes.LOCK_TAG)) {
+                pipe.getPersistentData().remove(ChemicalPlantPipes.LOCK_TAG);
+                pipe.setChanged();
+            }
+        }
+    }
+
+    /**
+     * Marks every right pipe that stands where the file has one, then sets their connections; true if anything changed. Only
+     * while every pipe of the file is there (or the facility is formed): a structure that was taken down, or a few pipes
+     * built by hand, are left alone, and the pipes lose their mark.
+     */
+    public static boolean repair(Level level, BlockPos controller, Direction facing, boolean formed) {
         boolean changed = false;
         // mark them all first, so no neighbour update caused by the first pipe's change trims the next one
         List<PipeBlockEntity<?, ?>> found = new ArrayList<>();
         List<Pipe> spots = new ArrayList<>();
         for (Pipe spot : PIPES) {
             BlockPos pos = worldPos(controller, facing, spot);
-            if (!level.isLoaded(pos) || !level.getBlockState(pos).is(block(spot.block()))) continue;
+            if (!level.isLoaded(pos)) return false; // part of the structure is not loaded: nothing to judge
+            if (!level.getBlockState(pos).is(block(spot.block()))) continue;
             if (!(level.getBlockEntity(pos) instanceof PipeBlockEntity<?, ?> pipe)) continue;
+            found.add(pipe);
+            spots.add(spot);
+        }
+        if (!formed && found.size() < PIPES.size()) {
+            release(level, controller, facing);
+            return false;
+        }
+        for (PipeBlockEntity<?, ?> pipe : found) {
             if (!pipe.getPersistentData().getBoolean(ChemicalPlantPipes.LOCK_TAG)) {
                 pipe.getPersistentData().putBoolean(ChemicalPlantPipes.LOCK_TAG, true);
                 pipe.setChanged();
             }
-            found.add(pipe);
-            spots.add(spot);
         }
         for (int i = 0; i < found.size(); i++) {
             PipeBlockEntity<?, ?> pipe = found.get(i);

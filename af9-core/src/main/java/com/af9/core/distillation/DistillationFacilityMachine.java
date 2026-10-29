@@ -207,7 +207,7 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
     private void repairTick() {
         if (getOffsetTimer() % 20 != 0 || getLevel() == null) return;
         // formed or not: marks the pipes (GT would trim the connections toward casings and air) and sets their connections
-        if (DistillationFacilityPipes.repair(getLevel(), getPos(), getFrontFacing()) && !isFormed()) checkPattern();
+        if (DistillationFacilityPipes.repair(getLevel(), getPos(), getFrontFacing(), isFormed()) && !isFormed()) checkPattern();
         if (!isFormed()) logWhyUnformed();
     }
 
@@ -253,6 +253,13 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
             DistillationModuleMachine module = moduleAt(pos);
             if (module != null && module.getFrontFacing() != towers) module.setFrontFacing(towers);
         }
+    }
+
+    /** The controller was broken: its pipes are plain pipes again. */
+    @Override
+    public void onMachineRemoved() {
+        super.onMachineRemoved();
+        if (getLevel() != null && !isRemote()) DistillationFacilityPipes.release(getLevel(), getPos(), getFrontFacing());
     }
 
     @Override
