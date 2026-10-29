@@ -15,7 +15,7 @@ Distillation Tower: **the Distillation Tower is gone** (gtceu-fork patch `0027` 
   wrench work. This is the Chemical Plant's pipe tech ([chemical-plant.md](chemical-plant.md): `PipeBlockMixin` keeps the connections, the same data tag),
   in `DistillationFacilityPipes`. The 9 pipes the file has in a frame (the middle column of the long runs) are **not** asked for with a frame (a framed or a plain pipe both form; the frame requirement of 0.1.192-0.1.195 was removed because the structure stopped forming). The JEI preview shows the pipes with their connections (fork patch `0028`, a preview hook).
 * **Hatches go only on the Turbine Casing spine**: the 14 Steel Turbine Casings of the file down the middle of the floor. Up to **6 energy hatches**, **1 maintenance
-  hatch**, up to 3 fluid input and 8 fluid output hatches, 2 item input and 2 item output buses. Parts have maximums only (the pack's rule).
+  hatch**, up to 3 fluid input hatches, 2 item input buses and **3 output hatches in all** (fluid hatches and item buses together, Janne: better automation challenges). Parts have maximums only (the pack's rule).
 * **3 muffler hatches** where the file has them (the top of each tower).
 * **3 rotor holders, EV or better**, where the file has them (behind each tower, facing up: the facility turns them to face up). The rotor turns in the open
   air above the holder, so the 3 x 3 above it must stay free.
