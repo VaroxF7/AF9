@@ -10,6 +10,7 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.feature.ICleanroomProvider;
+import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.feature.ITieredMachine;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMaintenanceMachine;
@@ -67,7 +68,8 @@ import java.util.Set;
  * <p>
  * Made in KubeJS ({@code startup_scripts/gtceu/distillation_facility.js}, {@code gtceu:distillation_facility}).
  */
-public class DistillationFacilityMachine extends WorkableElectricMultiblockMachine implements ICleanroomProvider {
+public class DistillationFacilityMachine extends WorkableElectricMultiblockMachine
+        implements ICleanroomProvider, IMachineLife {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(
             DistillationFacilityMachine.class, WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
@@ -258,7 +260,6 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
     /** The controller was broken: its pipes are plain pipes again. */
     @Override
     public void onMachineRemoved() {
-        super.onMachineRemoved();
         if (getLevel() != null && !isRemote()) DistillationFacilityPipes.release(getLevel(), getPos(), getFrontFacing());
     }
 
