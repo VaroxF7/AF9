@@ -110,5 +110,7 @@
     "af9.distillation_facility.pipe_frame": "Ein Rohr im Frame braucht eine HSLA-Steel-Frame-Box darauf",
     "af9.distillation.module.pinned": "Turm auf %s eingestellt",
     "af9.distillation.module.pin_failed": "Dieser Turm führt %s nicht aus",
-  "block.af9.impact_slag": "Einschlagsschlacke"
+  "block.af9.impact_slag": "Einschlagsschlacke",
+    "af9.distillation.buffer": "Ausgabepuffer: %s / %s mB, %s / %s Item-Stacks",
+    "af9.distillation.buffer_full": "Ausgabepuffer voll: die Türme stoppen, bis die Output-Hatches ihn leeren"
 }

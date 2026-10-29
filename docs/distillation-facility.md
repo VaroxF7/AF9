@@ -90,6 +90,10 @@ The fab modes (Distillation, Cryogenic Rectification) are clean-room recipes: th
 * The **Large Fractionating Distillery** now runs only distillery recipes (fork patch 0029); distillation recipes belong to the facility. Facility and modules share the recipe types, so the viewers group them as workstations.
 * **EMI "+" button**: open a module's screen, then press "+" on a recipe in EMI. The recipe is pinned on the module (mode and recipe lock) via `PinTowerRecipePacket` (`DistillationEmiPlugin`).
 
+## Output buffer
+
+The towers do not need room in the output hatches when they start or finish: a finished run's outputs go into the facility's **output buffer** (256,000 mB of fluid in all, 64 different item stacks; `DistillationOutputBuffer`), and the facility moves them into the output hatches a few times a second as they have room. While the buffer has room the towers keep running; **when it is full the towers stop starting runs** (red line on the facility screen) until the hatches have taken enough. The room is a soft limit (a run that started may finish into a full buffer). The buffer is saved with the facility (not kept when the controller is broken). Parallels are limited by the inputs only.
+
 ## Open points
 
 * The file's spine casing is the **Steel Turbine Casing** (`gtceu:steel_turbine_casing`); confirmed by Janne.

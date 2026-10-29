@@ -6,7 +6,9 @@ import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
+import com.gregtechceu.gtceu.api.recipe.ActionResult;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
+import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
@@ -28,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -69,7 +72,8 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         }
         int limit = Math.min(hatch, TOWER_MAX_PARALLEL);
         if (limit <= 1) return ModifierFunction.IDENTITY;
-        int parallels = ParallelLogic.getParallelAmount(machine, recipe, limit);
+        // by the inputs only: the outputs go into the facility's buffer, not into hatches that must have room for them now
+        int parallels = ParallelLogic.getMaxByInput(module, recipe, limit, Collections.emptyList());
         if (parallels == 0) return ModifierFunction.NULL;
         if (parallels == 1) return ModifierFunction.IDENTITY;
         return ModifierFunction.builder().modifyAllContents(ContentModifier.multiplier(parallels))
@@ -277,6 +281,35 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
             if (pin.isEmpty()) return super.searchRecipe();
             return machine.getRecipeType().searchRecipe(machine, recipe -> recipe.id != null &&
                     recipe.id.toString().equals(pin));
+        }
+
+        /** A run starts when the hatches have its inputs and the facility's output buffer has room (not the hatches' room for the outputs). */
+        @Override
+        protected ActionResult matchRecipe(GTRecipe recipe) {
+            DistillationFacilityMachine parent = getMachine() instanceof DistillationModuleMachine module ?
+                    module.parent() : null;
+            if (parent == null) return super.matchRecipe(recipe);
+            if (!machine.hasCapabilityProxies()) return ActionResult.FAIL_NO_CAPABILITIES;
+            if (!parent.bufferHasRoom()) {
+                return ActionResult.fail(Component.translatable("af9.distillation.buffer_full"), null, null);
+            }
+            ActionResult inputs = RecipeHelper.handleRecipe(machine, recipe, IO.IN, recipe.inputs,
+                    Collections.emptyMap(), false, true);
+            if (!inputs.isSuccess()) return inputs;
+            return RecipeHelper.matchTickRecipe(machine, recipe);
+        }
+
+        /** A finished run's outputs go into the facility's buffer, which feeds its output hatches. */
+        @Override
+        protected ActionResult handleRecipeIO(GTRecipe recipe, IO io) {
+            if (io == IO.OUT && getMachine() instanceof DistillationModuleMachine module) {
+                DistillationFacilityMachine parent = module.parent();
+                if (parent != null) {
+                    parent.bufferOutputs(recipe);
+                    return ActionResult.SUCCESS;
+                }
+            }
+            return super.handleRecipeIO(recipe, io);
         }
     }
 

@@ -1641,5 +1641,7 @@
     "af9.distillation.display.oxygen": "Needs %s mB/s Liquid Oxygen, or a Cleaning Maintenance Hatch",
     "af9.distillation_facility.pipe_frame": "A framed pipe needs a HSLA Steel Frame box on it",
     "af9.distillation.module.pinned": "Tower set to %s",
-    "af9.distillation.module.pin_failed": "This tower does not run %s"
+    "af9.distillation.module.pin_failed": "This tower does not run %s",
+    "af9.distillation.buffer": "Output buffer: %s / %s mB, %s / %s item stacks",
+    "af9.distillation.buffer_full": "Output buffer full: the towers stop until the output hatches take it"
 }

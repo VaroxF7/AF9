@@ -39,6 +39,7 @@ import com.lowdragmc.lowdraglib.utils.BlockInfo;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
@@ -48,6 +49,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -128,6 +130,8 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
     private boolean hatchClean;
 
     private TickableSubscription repairSubs;
+    /** What the towers finished and the output hatches have not taken yet (see {@link DistillationOutputBuffer}). */
+    private final DistillationOutputBuffer outputBuffer = new DistillationOutputBuffer();
     /** Where the modules of the structure stand (the pattern's find), empty while unformed. */
     private LongList modulePositions = new LongArrayList();
     private final List<IRotorHolderMachine> holders = new ArrayList<>();
@@ -326,6 +330,10 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
             if (module.getRecipeLogic().isWorking()) any = true;
         }
         if (relink && isFormed()) tickCleanliness();
+        // the buffer feeds the output hatches, a few times a second
+        if (isFormed() && getOffsetTimer() % 10 == 0 && !outputBuffer.isEmpty() && outputBuffer.flush(this::insertOutput)) {
+            markDirty();
+        }
         if (!logic.isSuspend()) logic.setStatus(any ? RecipeLogic.Status.WORKING : RecipeLogic.Status.IDLE);
         // the maintenance hatch counts the facility's working time, once a tick however many towers work (as in any GT multiblock)
         if (any) {
@@ -333,6 +341,36 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
                 if (part instanceof IMaintenanceMachine) part.onWorking(this);
             }
         }
+    }
+
+    /** Whether the output buffer has room for another run: a tower does not start one while it is full. */
+    public boolean bufferHasRoom() {
+        return outputBuffer.hasRoom();
+    }
+
+    /** A tower finished a run: its outputs go into the buffer, which feeds the output hatches. */
+    public void bufferOutputs(GTRecipe recipe) {
+        if (getLevel() == null) return;
+        outputBuffer.addOutputs(recipe, getLevel().random);
+        markDirty();
+    }
+
+    /** Puts a one-output recipe's output into the output hatches; true if it all went in. */
+    private boolean insertOutput(GTRecipe output) {
+        return RecipeHelper.matchRecipe(this, output).isSuccess() &&
+                RecipeHelper.handleRecipeIO(this, output, IO.OUT, recipeLogic.getChanceCaches()).isSuccess();
+    }
+
+    @Override
+    public void saveCustomPersistedData(@NotNull CompoundTag tag, boolean forDrop) {
+        super.saveCustomPersistedData(tag, forDrop);
+        if (!forDrop) tag.put("af9_output_buffer", outputBuffer.save());
+    }
+
+    @Override
+    public void loadCustomPersistedData(@NotNull CompoundTag tag) {
+        super.loadCustomPersistedData(tag);
+        outputBuffer.load(tag.getCompound("af9_output_buffer"));
     }
 
     /** Whether the maintenance hatch has problems: a tower does not start until they are fixed, as in any GT multiblock. */
@@ -515,6 +553,12 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
                 }
             }
             return;
+        }
+        textList.add(Component.translatable("af9.distillation.buffer", String.format(Locale.ROOT, "%,d",
+                outputBuffer.fluidTotal()), String.format(Locale.ROOT, "%,d", DistillationOutputBuffer.FLUID_CAPACITY),
+                outputBuffer.itemStacks(), DistillationOutputBuffer.ITEM_CAPACITY));
+        if (!outputBuffer.hasRoom()) {
+            textList.add(Component.translatable("af9.distillation.buffer_full").withStyle(ChatFormatting.RED));
         }
         List<DistillationModuleMachine> towers = modules(false);
         int running = 0;
