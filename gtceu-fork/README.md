@@ -54,3 +54,4 @@ GTCEu release), `-Paf9RequireFork` fails the build where the fork is missing.
 3. Raise `gtceu_fork_version` in `af9-core/gradle.properties` (`7.5.3-af9.2`): that makes the next build publish it again.
 
 Export the patches of an existing fork checkout with `git format-patch v.7.2.0-1.20.1..HEAD -o gtceu-fork/patches/`.
+* `0032` Cleanroom: a door opening or closing no longer checks the whole structure again (`IMultiController.isStructureAffectedBy`), the pattern is kept until the size or facing changes, and the hazard zone check runs once a second instead of every tick.

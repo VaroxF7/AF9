@@ -1,0 +1,175 @@
+From c63dc71c5c7bc39332f9b7328379691f4f08956a Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Thu, 29 Oct 2026 20:08:42 +0000
+Subject: [PATCH] Cleanroom: doors opening and closing no longer re-check the
+ structure, the pattern is kept between checks, the hazard zone is looked up
+ once a second (7.5.3-af9.32)
+
+---
+ gradle.properties                             |  2 +-
+ .../feature/multiblock/IMultiController.java  |  9 ++++++
+ .../gtceu/api/pattern/MultiblockState.java    |  3 ++
+ .../multiblock/electric/CleanroomMachine.java | 32 +++++++++++++++++--
+ .../common/machine/trait/CleanroomLogic.java  | 12 ++++---
+ 5 files changed, 51 insertions(+), 7 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 56e3674..07cc076 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.31
++mod_version = 7.5.3-af9.32
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/machine/feature/multiblock/IMultiController.java b/src/main/java/com/gregtechceu/gtceu/api/machine/feature/multiblock/IMultiController.java
+index b4a54df..ca6ca33 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/machine/feature/multiblock/IMultiController.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/machine/feature/multiblock/IMultiController.java
+@@ -98,6 +98,15 @@ public interface IMultiController extends IMachineFeature, IInteractedMachine {
+      */
+     boolean isFormed();
+ 
++    /**
++     * AF9: whether a block change at a position of the formed structure makes the structure be checked again.
++     * A controller returns false for a change that cannot break its structure (the Cleanroom's doors opening and
++     * closing), which saves the full check.
++     */
++    default boolean isStructureAffectedBy(BlockPos pos, BlockState newState) {
++        return true;
++    }
++
+     /**
+      * Get MultiblockState. It records all structure-related information.
+      */
+diff --git a/src/main/java/com/gregtechceu/gtceu/api/pattern/MultiblockState.java b/src/main/java/com/gregtechceu/gtceu/api/pattern/MultiblockState.java
+index e310177..637c669 100644
+--- a/src/main/java/com/gregtechceu/gtceu/api/pattern/MultiblockState.java
++++ b/src/main/java/com/gregtechceu/gtceu/api/pattern/MultiblockState.java
+@@ -186,6 +186,9 @@ public class MultiblockState {
+                             return;
+                         }
+                     }
++                    if (controller.isFormed() && !controller.isStructureAffectedBy(pos, state)) {
++                        return;
++                    }
+                     if (controller.checkPatternWithLock()) {
+                         // refresh structure
+                         controller.self().setFlipped(this.neededFlip);
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/CleanroomMachine.java b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/CleanroomMachine.java
+index 51ddb52..78f21bd 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/CleanroomMachine.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/multiblock/electric/CleanroomMachine.java
+@@ -64,6 +64,8 @@ import com.google.common.collect.ImmutableSet;
+ import com.google.common.collect.Sets;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+ import it.unimi.dsi.fastutil.longs.Long2ObjectMaps;
++import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
++import it.unimi.dsi.fastutil.longs.LongSet;
+ import lombok.Getter;
+ import org.jetbrains.annotations.NotNull;
+ import org.jetbrains.annotations.Nullable;
+@@ -95,6 +97,10 @@ public class CleanroomMachine extends WorkableElectricMultiblockMachine
+     private CleanroomType cleanroomType = null;
+     @Persisted
+     private int cleanAmount;
++    // AF9: the pattern of the last dimensions, built again only when the size or the facing changes
++    private long patternKey = -1;
++    @Nullable
++    private BlockPattern cachedPattern;
+     // runtime
+     @Getter
+     @Nullable
+@@ -319,6 +325,10 @@ public class CleanroomMachine extends WorkableElectricMultiblockMachine
+             rDist = tmp;
+         }
+ 
++        long key = ((((((long) lDist * 64 + rDist) * 64 + bDist) * 64 + fDist) * 64 + hDist) * 8) +
++                getFrontFacing().ordinal();
++        if (cachedPattern != null && key == patternKey) return cachedPattern;
++
+         StringBuilder[] floorLayer = new StringBuilder[fDist + bDist + 1];
+         List<StringBuilder[]> wallLayers = new ArrayList<>();
+         StringBuilder[] ceilingLayer = new StringBuilder[fDist + bDist + 1];
+@@ -385,7 +395,7 @@ public class CleanroomMachine extends WorkableElectricMultiblockMachine
+                 // limit pass through hatches to a quarter of the floor area
+                 .or(abilities(PartAbility.PASSTHROUGH_HATCH).setMaxGlobalLimited(area / 4));
+ 
+-        return FactoryBlockPattern.start(LEFT, FRONT, UP)
++        BlockPattern pattern = FactoryBlockPattern.start(LEFT, FRONT, UP)
+                 .aisle(f)
+                 .aisle(m).setRepeatable(wallLayers.size())
+                 .aisle(c)
+@@ -401,6 +411,19 @@ public class CleanroomMachine extends WorkableElectricMultiblockMachine
+                         .or(doorPredicate().setMaxGlobalLimited(8)))
+                 .where('A', wallPredicate.or(basePredicate)) // floor edges
+                 .build();
++        this.cachedPattern = pattern;
++        this.patternKey = key;
++        return pattern;
++    }
++
++    // AF9: an iron door opening or closing (players walk through) cannot break the room: no full check
++    @Override
++    public boolean isStructureAffectedBy(BlockPos pos, BlockState newState) {
++        if (newState.is(CustomTags.CLEANROOM_DOORS)) {
++            LongSet doors = getMultiblockState().getMatchContext().get("cleanroomDoors");
++            return doors == null || !doors.contains(pos.asLong());
++        }
++        return true;
+     }
+ 
+     // protected to allow easy addition of addon "cleanrooms"
+@@ -416,7 +439,12 @@ public class CleanroomMachine extends WorkableElectricMultiblockMachine
+ 
+     @NotNull
+     protected static TraceabilityPredicate doorPredicate() {
+-        return Predicates.custom(blockWorldState -> blockWorldState.getBlockState().is(CustomTags.CLEANROOM_DOORS),
++        return Predicates.custom(blockWorldState -> {
++            if (!blockWorldState.getBlockState().is(CustomTags.CLEANROOM_DOORS)) return false;
++            blockWorldState.getMatchContext().getOrCreate("cleanroomDoors", LongOpenHashSet::new)
++                    .add(blockWorldState.getPos().asLong());
++            return true;
++        },
+                 () -> new BlockInfo[] { new BlockInfo(Blocks.IRON_DOOR.defaultBlockState()), new BlockInfo(
+                         Blocks.IRON_DOOR.defaultBlockState().setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER)) });
+     }
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/machine/trait/CleanroomLogic.java b/src/main/java/com/gregtechceu/gtceu/common/machine/trait/CleanroomLogic.java
+index dd83079..628927f 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/machine/trait/CleanroomLogic.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/machine/trait/CleanroomLogic.java
+@@ -31,6 +31,8 @@ public class CleanroomLogic extends RecipeLogic implements IWorkable {
+     @Setter
+     @Nullable
+     private IEnergyContainer energyContainer;
++    // AF9: the hazard zone of the chunk is looked up once a second, not every tick
++    private boolean inHazardZone;
+     /**
+      * whether the cleanroom was active and needs an update
+      */
+@@ -60,12 +62,14 @@ public class CleanroomLogic extends RecipeLogic implements IWorkable {
+     public void serverTick() {
+         // always run this logic
+         if (duration > 0) {
+-            EnvironmentalHazardSavedData environmentalHazards = EnvironmentalHazardSavedData
+-                    .getOrCreate((ServerLevel) this.getMachine().getLevel());
+-            var zone = environmentalHazards.getZoneByContainedPos(getMachine().getPos());
++            if (machine.self().getOffsetTimer() % 20 == 0) {
++                inHazardZone = EnvironmentalHazardSavedData
++                        .getOrCreate((ServerLevel) this.getMachine().getLevel())
++                        .getZoneByContainedPos(getMachine().getPos()) != null;
++            }
+             // all maintenance problems not being fixed or there are environmental hazards in the area
+             // means the machine does not run
+-            if (maintenanceMachine == null || maintenanceMachine.getNumMaintenanceProblems() < 6 || zone != null) {
++            if (maintenanceMachine == null || maintenanceMachine.getNumMaintenanceProblems() < 6 || inHazardZone) {
+                 // drain the energy
+                 if (!consumeEnergy()) {
+                     if (progress > 0 && machine.regressWhenWaiting()) {
+-- 
+2.43.0
+
