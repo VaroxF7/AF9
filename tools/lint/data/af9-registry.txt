@@ -627,6 +627,7 @@ material gtceu:methanesulfonyl_chloride
 material gtceu:methanesulfonyl_fluoride
 material gtceu:methyl_methacrylate
 material gtceu:molybdenum_trioxide
+material gtceu:tungsten_trioxide
 material gtceu:monel
 material gtceu:moon_sand
 material gtceu:neon_helium_mixture

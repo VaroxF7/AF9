@@ -100,6 +100,7 @@ public final class AF9Materials {
         moonSilicon();
         electronicsMetallurgy();
         fabChemistry();
+        chemicalReduction();
         circuitEtching();
         fusionPlasmas();
         lithoProcess();
@@ -1708,6 +1709,15 @@ public final class AF9Materials {
         liquid("trichlorobenzene", 0xb9c46a, "C6H3Cl3");
         liquid("askarel", 0xc4c850, "(C6H4Cl)2(C6H3Cl3)(H2O)");
         liquid("dry_askarel", 0xd2d65c, "(C6H4Cl)2(C6H3Cl3)");
+    }
+
+    /**
+     * Chemical reduction (TerraFirmaGreg's hydrogen route): tungsten is no longer a one-step electrolysis of tungstic
+     * acid. The acid is calcined to the trioxide, which hydrogen reduces to the metal. Recipes: chemical_reduction.js.
+     * Spec: docs/chemical-reduction.md
+     */
+    private static void chemicalReduction() {
+        dust("tungsten_trioxide", 0xd9cc3c, "WO3");
     }
 
     /**
