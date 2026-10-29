@@ -5,7 +5,7 @@
 	group: "1DA67E79B40AB130"
 	icon: "gtceu:void_miner"
 	id: "68BBA4603FE1EF0C"
-	order_index: 19
+	order_index: 20
 	progression_mode: "flexible"
 	quest_links: [ ]
 	quests: [
@@ -57,52 +57,6 @@
 		}
 		{
 			dependencies: ["7DCAE35A2C3059C3"]
-			description: ["{af9.quest.vm.ore.1}"]
-			icon: "gtceu:raw_magnetite"
-			id: "4013256F055DDE30"
-			rewards: [{
-				id: "0C0523150269222A"
-				type: "xp"
-				xp: 50
-			}]
-			shape: "square"
-			size: 1.5d
-			subtitle: "{af9.quest.vm.ore.subtitle}"
-			tasks: [{
-				count: 64L
-				id: "3CE64C6A0CD2B99D"
-				item: "gtceu:raw_magnetite"
-				type: "item"
-			}]
-			title: "{af9.quest.vm.ore.title}"
-			x: 6.0d
-			y: 0.0d
-		}
-		{
-			dependencies: ["4013256F055DDE30"]
-			description: ["{af9.quest.vm.asteroid.1}"]
-			icon: "gtceu:raw_brannerite"
-			id: "7A951C26AD77ECA2"
-			rewards: [{
-				id: "29F26671DB16042A"
-				type: "xp"
-				xp: 150
-			}]
-			shape: "square"
-			size: 1.5d
-			subtitle: "{af9.quest.vm.asteroid.subtitle}"
-			tasks: [{
-				count: 8L
-				id: "29ADC8FC99787108"
-				item: "gtceu:raw_brannerite"
-				type: "item"
-			}]
-			title: "{af9.quest.vm.asteroid.title}"
-			x: 9.0d
-			y: 0.0d
-		}
-		{
-			dependencies: ["7DCAE35A2C3059C3"]
 			description: ["{af9.quest.vm.mk2.1}"]
 			icon: "gtceu:void_miner_mk2"
 			id: "22D8A2C2A0F18263"
@@ -120,8 +74,8 @@
 				type: "item"
 			}]
 			title: "{af9.quest.vm.mk2.title}"
-			x: 6.0d
-			y: 2.5d
+			x: 6.75d
+			y: 0.0d
 		}
 		{
 			dependencies: ["22D8A2C2A0F18263"]
@@ -142,8 +96,8 @@
 				type: "item"
 			}]
 			title: "{af9.quest.vm.mk3.title}"
-			x: 9.0d
-			y: 2.5d
+			x: 10.5d
+			y: 0.0d
 		}
 		{
 			dependencies: ["7DCAE35A2C3059C3"]
@@ -165,8 +119,8 @@
 				type: "checkmark"
 			}]
 			title: "{af9.quest.dm.intro.title}"
-			x: 0.0d
-			y: 5.0d
+			x: 3.0d
+			y: 1.5d
 		}
 		{
 			dependencies: ["67FCFDFE631E20CF"]
@@ -185,8 +139,8 @@
 				type: "fluid"
 			}]
 			title: "{af9.quest.dm.water.title}"
-			x: 3.0d
-			y: 5.0d
+			x: 2.0d
+			y: 3.0d
 		}
 		{
 			dependencies: ["7A79BBCCD089DCA6"]
@@ -205,8 +159,8 @@
 				type: "fluid"
 			}]
 			title: "{af9.quest.dm.slurry.title}"
-			x: 6.0d
-			y: 5.0d
+			x: 2.0d
+			y: 4.5d
 		}
 		{
 			dependencies: ["67FCFDFE631E20CF"]
@@ -225,8 +179,8 @@
 				type: "fluid"
 			}]
 			title: "{af9.quest.dm.chloroacetic.title}"
-			x: 3.0d
-			y: 7.5d
+			x: 4.0d
+			y: 3.0d
 		}
 		{
 			dependencies: ["67FCFDFE631E20CF"]
@@ -245,8 +199,8 @@
 				type: "fluid"
 			}]
 			title: "{af9.quest.dm.alkali.title}"
-			x: 6.0d
-			y: 7.5d
+			x: 3.0d
+			y: 4.5d
 		}
 		{
 			dependencies: [
@@ -268,8 +222,8 @@
 				type: "fluid"
 			}]
 			title: "{af9.quest.dm.cmc.title}"
-			x: 9.0d
-			y: 7.5d
+			x: 4.0d
+			y: 6.0d
 		}
 		{
 			dependencies: [
@@ -291,8 +245,8 @@
 				type: "fluid"
 			}]
 			title: "{af9.quest.dm.fluid.title}"
-			x: 9.0d
-			y: 5.0d
+			x: 2.0d
+			y: 6.0d
 		}
 	]
 	subtitle: ["{af9.quest.vm.chapter.subtitle}"]

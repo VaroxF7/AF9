@@ -5,7 +5,7 @@
 	group: "1DA67E79B40AB130"
 	icon: "gtceu:advanced_integrated_circuit"
 	id: "37A5A4A81CCB67E5"
-	order_index: 4
+	order_index: 5
 	progression_mode: "flexible"
 	quest_links: [
 		{
@@ -35,7 +35,7 @@
 		{
 			id: "5AAA69A57785E884"
 			linked_quest: "176624F41BEF77C6"
-			x: 11.0d
+			x: 6.0d
 			y: 5.5d
 		}
 		{
@@ -1260,209 +1260,6 @@
 			y: 4.5d
 		}
 		{
-			can_repeat: false
-			description: [
-				"This Quest has been authored by &6AllTheMods Staff&r, or a &2Community contributor&r for use in AllTheMods Modpacks."
-				"As all &6AllTheMods&r packs are licensed under &eAll Rights Reserved&r, this Quest is not allowed to be used in any public packs not released by the &6AllTheMods Team&r, without explicit permission."
-				""
-				""
-				""
-				"This quest is intentionally hidden, if you're seeing this, you're in editing mode."
-			]
-			disable_toast: true
-			hide_details_until_startable: true
-			hide_until_deps_visible: true
-			icon: {
-				Count: 1
-				id: "ftbquests:custom_icon"
-				tag: {
-					Icon: "minecraft:item/barrier"
-				}
-			}
-			id: "237142F17C67D5C4"
-			invisible: true
-			optional: true
-			shape: "octagon"
-			tasks: [
-				{
-					disable_toast: true
-					id: "226FD985DD96A40B"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-				{
-					id: "5852963393AB8B26"
-					title: "Quests By AllTheMods"
-					type: "checkmark"
-				}
-			]
-			x: 1.0d
-			y: 3.5d
-		}
-		{
-			description: ["{af9.quest.hv.metals}"]
-			id: "51D7534BBA00287A"
-			rewards: [{
-				id: "11F4669E16147DBD"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [
-				{
-					id: "456B76B11803F2BD"
-					item: "gtceu:fine_gold_wire"
-					type: "item"
-				}
-				{
-					id: "43564B1757656337"
-					item: "gtceu:stainless_steel_bolt"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.title.hvMetals}"
-			x: 6.5d
-			y: 4.0d
-		}
-		{
-			dependencies: ["51D7534BBA00287A"]
-			description: [
-				"{af9.quest.hv.orb.1}"
-				""
-				"{af9.quest.hv.orb.2}"
-			]
-			id: "03F47F98A3BFB659"
-			rewards: [{
-				id: "778404E251925003"
-				type: "xp"
-				xp: 100
-			}]
-			tasks: [
-				{
-					id: "5A28BF3836EC69EC"
-					item: "af9:energizing_orb_mk2"
-					type: "item"
-				}
-				{
-					id: "792F85045E902DE2"
-					item: "powah:energizing_rod_starter"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.title.hvOrb}"
-			x: 6.5d
-			y: 5.5d
-		}
-		{
-			dependencies: ["03F47F98A3BFB659"]
-			description: [
-				"{af9.quest.hv.motor.1}"
-				""
-				"{af9.quest.hv.motor.2}"
-			]
-			id: "42B1F0202B6063CF"
-			rewards: [{
-				id: "746735B076763F83"
-				type: "xp"
-				xp: 150
-			}]
-			tasks: [
-				{
-					id: "24D7965D74E7B6AD"
-					item: "gtceu:hv_electric_motor"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.title.hvMotor}"
-			x: 8.0d
-			y: 7.0d
-		}
-		{
-			dependencies: ["42B1F0202B6063CF"]
-			description: [
-				"{af9.quest.hv.parts}"
-			]
-			id: "60C785A384308E16"
-			rewards: [{
-				id: "1B37E15D55218578"
-				type: "xp"
-				xp: 150
-			}]
-			tasks: [
-				{
-					id: "7B6C91EF035952A3"
-					item: "gtceu:hv_electric_piston"
-					type: "item"
-				}
-				{
-					id: "6AD1D5B5FBAF5EC2"
-					item: "gtceu:hv_electric_pump"
-					type: "item"
-				}
-				{
-					id: "6E547C86C9E16642"
-					item: "gtceu:hv_conveyor_module"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.title.hvParts}"
-			x: 9.5d
-			y: 7.0d
-		}
-		{
-			dependencies: ["60C785A384308E16"]
-			description: [
-				"{af9.quest.hv.arm}"
-			]
-			id: "7EE239D9DD7BC6C1"
-			rewards: [{
-				id: "180A36828ECD99FB"
-				type: "xp"
-				xp: 150
-			}]
-			tasks: [
-				{
-					id: "32861D621F675FE6"
-					item: "gtceu:hv_robot_arm"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.title.hvArm}"
-			x: 11.0d
-			y: 7.0d
-		}
-		{
-			dependencies: ["42B1F0202B6063CF"]
-			description: [
-				"{af9.quest.hv.sensors}"
-			]
-			id: "05FFB47F233099B3"
-			rewards: [{
-				id: "53CAD298AEDC9520"
-				type: "xp"
-				xp: 150
-			}]
-			tasks: [
-				{
-					id: "54BD4B77665B63FE"
-					item: "gtceu:hv_emitter"
-					type: "item"
-				}
-				{
-					id: "1ECC0FF63C581140"
-					item: "gtceu:hv_sensor"
-					type: "item"
-				}
-				{
-					id: "5AB61460A9D0059E"
-					item: "gtceu:hv_field_generator"
-					type: "item"
-				}
-			]
-			title: "{af9.quest.title.hvSensors}"
-			x: 8.0d
-			y: 8.5d
-		}
-		{
 			dependencies: ["124C2A904BF84254"]
 			description: [
 				"{af9.quest.hv.ceramic.mvBoard.1}"
@@ -1482,8 +1279,8 @@
 				type: "item"
 			}]
 			title: "{af9.quest.hv.ceramic.mvBoard.title}"
-			x: 2.5d
-			y: -8.5d
+			x: 1.5d
+			y: -3.5d
 		}
 		{
 			dependencies: ["28A6632E20C63B50"]
@@ -1505,8 +1302,8 @@
 				type: "item"
 			}]
 			title: "{af9.quest.hv.ceramic.hvBoard.title}"
-			x: 3.5d
-			y: -8.5d
+			x: 2.5d
+			y: -3.5d
 		}
 		{
 			dependencies: ["029289BE94B4F0D8"]
@@ -1528,8 +1325,8 @@
 				type: "item"
 			}]
 			title: "{af9.quest.hv.ceramic.evBoard.title}"
-			x: 4.5d
-			y: -8.5d
+			x: 1.5d
+			y: -2.5d
 		}
 	]
 	title: "{atm9.chapters.29.title}"
