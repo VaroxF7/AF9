@@ -1,6 +1,7 @@
 package com.af9.core.client;
 
 import com.af9.core.AF9Core;
+import com.af9.core.client.render.AgriSimRender;
 import com.af9.core.client.render.BioVatRender;
 import com.af9.core.client.render.HearthTurntableRender;
 import com.af9.core.client.render.FiltrationBasinRender;
@@ -53,6 +54,7 @@ public final class AF9Client {
         WireDrawRender.register();
         FiltrationBasinRender.register();
         BioVatRender.register();
+        AgriSimRender.register();
         ForceFieldRender.register();
         // the placeable buckets tint their content layer with the fluid's colour
         FMLJavaModLoadingContext.get().getModEventBus()

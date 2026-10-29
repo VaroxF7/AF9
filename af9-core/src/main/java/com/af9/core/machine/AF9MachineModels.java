@@ -1,5 +1,6 @@
 package com.af9.core.machine;
 
+import com.af9.core.client.render.AgriSimRender;
 import com.af9.core.client.render.BioVatRender;
 import com.af9.core.client.render.FiltrationBasinRender;
 import com.af9.core.client.render.ForceFieldRender;
@@ -172,6 +173,17 @@ public final class AF9MachineModels {
             ResourceLocation overlay, float up, float back) {
         return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
                 .andThen(model -> model.addDynamicRenderer(() -> BioVatRender.create(up, back)));
+    }
+
+    /**
+     * GT's workable casing model plus the Agriculture Simulation Bed's garden: the seed of the running recipe on every
+     * soil block, in its growth stage ({@link AgriSimRender}). The machine must implement {@link IAgriSimMachine} and
+     * have a block entity renderer ({@code .hasBER(true)}).
+     */
+    public static MachineBuilder.ModelInitializer workableCasingWithAgriSim(ResourceLocation casing,
+                                                                            ResourceLocation overlay) {
+        return GTMachineModels.createWorkableCasingMachineModel(casing, overlay)
+                .andThen(model -> model.addDynamicRenderer(AgriSimRender::create));
     }
 
     /**
