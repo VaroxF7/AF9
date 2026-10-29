@@ -62,7 +62,7 @@ ServerEvents.recipes(event => {
             '#gtceu:circuits/hv')
         .itemOutputs('16x ae2:blank_pattern')
         .duration(20*20)
-        .EUt(GTValues.VHA[GTValues.HV])
+        .EUt(GTValues.VHA[GTValues.MV])
         .cleanroom(CleanroomType.CLEANROOM)
         .circuit(2)
 
@@ -427,7 +427,7 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('2x ae2:logic_processor')
         .duration(20 * 5)
-        .EUt(GTValues.VA[GTValues.HV])
+        .EUt(GTValues.VA[GTValues.MV])
         .cleanroom(CleanroomType.CLEANROOM)
         .circuit(1)
 
@@ -457,7 +457,7 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('2x ae2:calculation_processor')
         .duration(20 * 10)
-        .EUt(GTValues.VA[GTValues.HV])
+        .EUt(GTValues.VA[GTValues.MV])
         .cleanroom(CleanroomType.CLEANROOM)
         .circuit(3)
 
@@ -487,7 +487,7 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:liquid_certus_quartz', 144))
         .itemOutputs('2x ae2:engineering_processor')
         .duration(20 * 10)
-        .EUt(GTValues.VA[GTValues.HV])
+        .EUt(GTValues.VA[GTValues.MV])
         .cleanroom(CleanroomType.CLEANROOM)
         .circuit(5)
 
@@ -1049,7 +1049,7 @@ ServerEvents.recipes(event => {
             ['scannerResearch(java.util.function.UnaryOperator)'](b => b
             .researchStack(Item.of('ae2:pattern_provider'))
             .duration(20*30)
-            .EUt(GTValues.VA[GTValues.HV]))
+            .EUt(GTValues.VA[GTValues.MV]))
             .duration(20*25)
             .EUt(GTValues.VA[GTValues.MV])
             .cleanroom(CleanroomType.CLEANROOM)
