@@ -36,6 +36,7 @@ GTCEu release), `-Paf9RequireFork` fails the build where the fork is missing.
 * `0027` The Distillation Tower is removed (machine, crafting); AF9's Distillation Facility runs its recipes ([docs/distillation-facility.md](../docs/distillation-facility.md)), the Large Distillery is crafted from an IV Distillery.
 * `0028` Pattern preview: `PatternPreviewWidget.PREVIEW_HOOKS`, hooks that set block entity data (a pipe's connections, its frame) in the preview world before the structure is checked; AF9's Distillation Facility uses it.
 * `0030` The Universal Cell holds any fluid (any temperature, gas, acid, cryogenic and plasma proof): the Canner fills it with molten tungsten, molten rhenium-127 and osmium plasma for the Particle Accelerator.
+* `0031` Fusion reactors: up to two fluid input hatches (one required) instead of one; output stays at one.
 * `0029` The Large Fractionating Distillery (GCYM) runs the distillery recipes only; the distillation recipes are the Distillation Facility's.
 * `0024` Side tabs: the machine screen is at least as tall as its vertical tab strip (8 + 24 px per tab). The strip is only clickable inside the screen height, so on a short page the last tab (Power Management) was drawn but dead.
 * `0012` The HPCA is expandable (3 to 12 slices of 3 component slots) and its Active Coolers cool by coolant: PCB Coolant 2, supercooled hydrogen / argon / xenon / endion 8 / 12 / 16 / 20 ([docs/hpca.md](../docs/hpca.md)).

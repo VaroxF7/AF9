@@ -120,7 +120,7 @@ All three reactors (Mk1 to Mk3) use GT's own ring again, 15 x 15 blocks, as in t
 round 19-block ring of `0016` and the 19 / 23 / 27 rings of `0015`). The tiers differ in the field and the voltage, not the size.
 The light ring is GT's. Reactors built as the round ring have to be rebuilt.
 
-**Hatches go on any casing block of the ring** (fork patch `0026`; `0019`'s fixed spots are gone). Limits: 1 fluid input hatch (required;
+**Hatches go on any casing block of the ring** (fork patch `0026`; `0019`'s fixed spots are gone). Limits: 2 fluid input hatches (at least 1 required;
 a multi-tank hatch counts as one), 1 fluid output hatch, 1 laser hatch, no maintenance hatch. Energy hatches are not limited by the
 structure, but only **two may be primary power** (hatches not in Auxiliary mode, wireless receivers included); any further energy hatch
 has to be set to **Auxiliary** with a screwdriver. A reactor over that (more than 2 primary energy hatches) forms but builds no field

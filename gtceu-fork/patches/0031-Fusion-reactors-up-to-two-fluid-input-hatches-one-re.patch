@@ -1,0 +1,45 @@
+From 4598dff941e71223886934a8082f9ceed60abbec Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Thu, 29 Oct 2026 19:37:53 +0000
+Subject: [PATCH] Fusion reactors: up to two fluid input hatches (one
+ required), one fluid output hatch (7.5.3-af9.31)
+
+---
+ gradle.properties                                             | 2 +-
+ .../gtceu/common/data/machines/GTMultiMachines.java           | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 6fc7f43..56e3674 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.30
++mod_version = 7.5.3-af9.31
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+index 7033092..4e9a255 100644
+--- a/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
++++ b/src/main/java/com/gregtechceu/gtceu/common/data/machines/GTMultiMachines.java
+@@ -603,11 +603,11 @@ public class GTMultiMachines {
+                     .appearanceBlock(() -> FusionReactorMachine.getCasingState(tier))
+                     .pattern((definition) -> {
+                         var casing = blocks(FusionReactorMachine.getCasingState(tier));
+-                        // AF9: the parts go on any casing block of the ring, within these limits: one input and one output fluid
++                        // AF9: the parts go on any casing block of the ring, within these limits: up to two input and one output fluid
+                         // hatch, at most one laser hatch, no maintenance hatch; energy hatches are not limited by the structure
+                         // (the machine allows two as primary power, any further one only in Auxiliary mode)
+                         var parts = casing
+-                                .or(abilities(PartAbility.IMPORT_FLUIDS).setMinGlobalLimited(1).setMaxGlobalLimited(1))
++                                .or(abilities(PartAbility.IMPORT_FLUIDS).setMinGlobalLimited(1).setMaxGlobalLimited(2))
+                                 .or(abilities(PartAbility.EXPORT_FLUIDS).setMaxGlobalLimited(1))
+                                 .or(abilities(PartAbility.INPUT_ENERGY))
+                                 .or(abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1));
+-- 
+2.43.0
+
