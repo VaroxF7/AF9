@@ -381,9 +381,6 @@ item af9:plascrete_pipe_casing
 item af9:plasma_cloud
 item af9:processed_pico_circuit_casing
 item af9:qgp_trap
-item af9:tungsten_cell
-item af9:rhenium_127_cell
-item af9:osmium_plasma_cell
 item af9:qlos_chip
 item af9:qlos_reticle
 item af9:qlos_wafer

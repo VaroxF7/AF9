@@ -90,10 +90,10 @@ Minecraft in it, so the previews of the styles are made from the same code the g
   forge warms up, 1 tick of warmth per tick of running time, to 30 minutes; a pause cools it three times as fast. Warmth scales
   the recipe's EU/t by up to **-50 %** and its run time by up to **-25 %**. A broken structure starts cold.
 * **Osmium plasma from the Particle Accelerator** (ion collision mode, UV, `min_field` 3,000, 1,000 mB supercooled argon a run, 20 s): the
-  recipes work on one item each, a Universal Cell of the fluid, since the ring takes fluids only as coolant. An assembler fills a cell
-  with 1,000 mB molten tungsten (`af9:tungsten_cell`; a cell cannot take it by hand, it holds 1,800 K); collision 1 turns it into a
-  `af9:rhenium_127_cell` of molten **Rhenium-127** (`gtceu:rhenium_127`, GT's rhenium icon set tinted blue), collision 2 into an
-  `af9:osmium_plasma_cell`, and an Extractor turns that into 1,000 mB `gtceu:osmium_plasma` (the empty cell comes back). Recipes: `server_scripts/mods/gtceu/particle_accelerator.js`.
+  recipes work on Universal Cells (`gtceu:universal_fluid_cell`) holding the fluid, since the ring takes fluids only as coolant. The
+  Canner fills a cell with 1,000 mB molten tungsten (the fork's Universal Cell holds any fluid, patch 0030); collision 1 (argon) turns it
+  into a cell of molten **Rhenium-127** (`gtceu:rhenium_127`, GT's rhenium icon set tinted blue), collision 2 (xenon) into a cell of
+  1,000 mB `gtceu:osmium_plasma`, and the Canner empties that into the fluid (the empty cell comes back). Recipes: `server_scripts/mods/gtceu/particle_accelerator.js`.
 * There is no Mk2 (the refit controller was removed 2026-10-25); `gtceu:dtpf` is the only controller.
 * **The console** (`PlasmaForgeConsoleWidget`): four gauges (the magnetic field with its two marks, the stabilisers, the osmium
   plasma, the primary power and its inputs), what is being made, the ramp and the run-time bar, with a tooltip on each gauge.

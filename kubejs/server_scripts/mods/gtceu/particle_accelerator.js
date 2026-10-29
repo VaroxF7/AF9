@@ -82,44 +82,47 @@ ServerEvents.recipes(event => {
         .addData('decay_rate', 800)
 
     // ---- Heavy-ion collision: osmium plasma, in two collisions ----
-    // The recipes work on Universal Cells of the fluid, one item each (the ring takes fluids only as coolant): a cell of
-    // molten tungsten collides into a cell of molten rhenium-127, and that into a cell of osmium plasma; an Extractor
-    // empties a cell into its fluid (and gives the empty Universal Cell back). A cell cannot be filled with molten metal by
-    // hand (it holds up to 1,800 K), so the assembler fills the first.
-    event.recipes.gtceu.assembler('af9:tungsten_cell')
-        .itemInputs('gtceu:universal_fluid_cell')
-        .inputFluids(Fluid.of('gtceu:tungsten', 1000))
-        .itemOutputs('af9:tungsten_cell')
-        .duration(40)
-        .EUt(VA[GTValues.LuV])
+    // The recipes work on Universal Cells holding the fluid, one item each (the ring takes fluids only as coolant). The
+    // Canner fills and empties a cell as it does for any fluid (GT's own fill / drain logic; the fork's Universal Cell holds
+    // molten metals and plasmas too, patch 0030); the filling recipes are listed here so they show in JEI. Collision 1: a cell
+    // of molten tungsten (argon coolant) -> a cell of molten rhenium-127; collision 2: that cell (xenon coolant) -> a cell of
+    // osmium plasma. The cell is matched by the fluid it holds (an NBT predicate), and the two collisions differ in their
+    // coolant grade, or GT's recipe lookup would take them for the same recipe (same cell, same fluid input).
+    const $EqualsNbt = Java.loadClass('com.gregtechceu.gtceu.api.recipe.ingredient.nbtpredicate.EqualsNBTPredicate')
+    const $AllNbt = Java.loadClass('com.gregtechceu.gtceu.api.recipe.ingredient.nbtpredicate.AllNBTPredicate')
+    const $StringTag = Java.loadClass('net.minecraft.nbt.StringTag')
+    const $IntTag = Java.loadClass('net.minecraft.nbt.IntTag')
+    const $List = Java.loadClass('java.util.List')
+    const emptyCell = 'gtceu:universal_fluid_cell'
+    const filledCell = (fluid) => Item.of(emptyCell, `{Fluid:{Amount:1000,FluidName:"${fluid}"}}`)
+    const holding = (fluid) => new $AllNbt($List.of(
+        new $EqualsNbt('Fluid.FluidName', $StringTag.valueOf(fluid)),
+        new $EqualsNbt('Fluid.Amount', $IntTag.valueOf(1000))))
+    const fill = (id, fluid) => event.recipes.gtceu.canner(`af9:accelerator_cell/${id}`)
+        .itemInputs(emptyCell)
+        .inputFluids(Fluid.of(fluid, 1000))
+        .itemOutputs(filledCell(fluid))
+        .duration(32)
+        .EUt(VA[GTValues.LV])
+    fill('tungsten', 'gtceu:tungsten')
+    fill('rhenium_127', 'gtceu:rhenium_127')
+    fill('osmium_plasma', 'gtceu:osmium_plasma')
     event.recipes.gtceu.ion_collision('af9:rhenium_127')
-        .itemInputs('af9:tungsten_cell')
+        .inputItemNbtPredicate(Item.of(emptyCell), holding('gtceu:tungsten'))
         .inputFluids('#af9:coolant/argon 1000')
-        .itemOutputs('af9:rhenium_127_cell')
+        .itemOutputs(filledCell('gtceu:rhenium_127'))
         .duration(400)
         .EUt(VA[GTValues.UV], 4)
         .addData('min_field', 3000)
         .addData('decay_rate', 800)
     event.recipes.gtceu.ion_collision('af9:osmium_plasma')
-        .itemInputs('af9:rhenium_127_cell')
-        .inputFluids('#af9:coolant/argon 1000')
-        .itemOutputs('af9:osmium_plasma_cell')
+        .inputItemNbtPredicate(Item.of(emptyCell), holding('gtceu:rhenium_127'))
+        .inputFluids('#af9:coolant/xenon 1000')
+        .itemOutputs(filledCell('gtceu:osmium_plasma'))
         .duration(400)
         .EUt(VA[GTValues.UV], 4)
         .addData('min_field', 3000)
         .addData('decay_rate', 800)
-    event.recipes.gtceu.extractor('af9:osmium_plasma_cell')
-        .itemInputs('af9:osmium_plasma_cell')
-        .itemOutputs('gtceu:universal_fluid_cell')
-        .outputFluids(Fluid.of('gtceu:osmium_plasma', 1000))
-        .duration(40)
-        .EUt(VA[GTValues.LuV])
-    event.recipes.gtceu.extractor('af9:rhenium_127_cell')
-        .itemInputs('af9:rhenium_127_cell')
-        .itemOutputs('gtceu:universal_fluid_cell')
-        .outputFluids(Fluid.of('gtceu:rhenium_127', 1000))
-        .duration(40)
-        .EUt(VA[GTValues.LuV])
 
     // ---- Quark synthesis: strange matter, then chromodynium; the traps come back empty ----
     event.recipes.gtceu.quark_synthesis('af9:strange_matter_dust')
