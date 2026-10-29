@@ -1,5 +1,6 @@
 package com.af9.core.distillation;
 
+import com.af9.core.AF9Core;
 import com.af9.core.pattern.DistillationFacilityPipes;
 
 import com.gregtechceu.gtceu.api.GTValues;
@@ -207,6 +208,33 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
         if (getOffsetTimer() % 20 != 0 || getLevel() == null) return;
         // formed or not: marks the pipes (GT would trim the connections toward casings and air) and sets their connections
         if (DistillationFacilityPipes.repair(getLevel(), getPos(), getFrontFacing()) && !isFormed()) checkPattern();
+        if (!isFormed()) logWhyUnformed();
+    }
+
+    private String lastUnformedReport = "";
+
+    /** Writes why the facility does not form to the log (when it changes), so a report does not need the screen. */
+    private void logWhyUnformed() {
+        StringBuilder report = new StringBuilder();
+        report.append("facing ").append(getFrontFacing()).append(" at ").append(getPos().toShortString());
+        for (String line : DistillationFacilityPipes.problems(getLevel(), getPos(), getFrontFacing(), 6)) {
+            report.append("; ").append(line);
+        }
+        var error = getMultiblockState().error;
+        if (error != null) {
+            try {
+                report.append("; pattern: ").append(error.getErrorInfo().getString());
+            } catch (RuntimeException e) {
+                report.append("; pattern: ").append(error.getClass().getSimpleName());
+            }
+        } else {
+            report.append("; pattern: no error recorded");
+        }
+        String text = report.toString();
+        if (!text.equals(lastUnformedReport)) {
+            lastUnformedReport = text;
+            AF9Core.LOGGER.warn("Distillation Facility not formed: {}", text);
+        }
     }
 
     @Override
