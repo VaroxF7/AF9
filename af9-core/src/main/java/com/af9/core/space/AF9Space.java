@@ -15,6 +15,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.levelgen.feature.Feature;
@@ -58,6 +59,17 @@ public final class AF9Space {
                     .sound(SoundType.SAND)));
     public static final RegistryObject<Item> OIL_REGOLITH_ITEM = ITEMS.register("oil_regolith",
             () -> new BlockItem(OIL_REGOLITH.get(), new Item.Properties()));
+
+    /** Impact Slag: regolith fused by a meteorite strike; the rim and fallout of the Moon's and Mars's craters. */
+    public static final RegistryObject<Block> IMPACT_SLAG = BLOCKS.register("impact_slag",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_GRAY)
+                    .instrument(NoteBlockInstrument.BASEDRUM)
+                    .requiresCorrectToolForDrops()
+                    .strength(2.0f, 6.0f)
+                    .sound(SoundType.BASALT)));
+    public static final RegistryObject<Item> IMPACT_SLAG_ITEM = ITEMS.register("impact_slag",
+            () -> new BlockItem(IMPACT_SLAG.get(), new Item.Properties()));
 
 
     /**
@@ -202,6 +214,7 @@ public final class AF9Space {
     private static void fillCreativeTabs(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey() != CreativeModeTabs.NATURAL_BLOCKS) return;
         event.accept(OIL_REGOLITH_ITEM);
+        event.accept(IMPACT_SLAG_ITEM);
         event.accept(AMBER_CLOUD_ITEM);
         event.accept(RUST_CLOUD_ITEM);
         event.accept(PALE_CLOUD_ITEM);

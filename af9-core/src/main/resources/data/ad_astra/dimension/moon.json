@@ -9,7 +9,7 @@
       "crystal": "af9:certus_crystal",
       "spacing": 3000,
       "jitter": 500,
-      "radius": 45,
+      "radius": 140,
       "chance": 0.6,
       "salt": 2
     }

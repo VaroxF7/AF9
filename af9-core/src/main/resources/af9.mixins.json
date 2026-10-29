@@ -19,7 +19,8 @@
     "gtceu.ParallelHatchPartMixin",
     "zeta.ForgeZetaEventBusMixin",
     "ae2.FalloutMixin",
-    "ae2.FalloutCopyMixin"
+    "ae2.FalloutCopyMixin",
+    "ae2.MeteoriteStructureMixin"
   ],
   "injectors": {
     "defaultRequire": 1

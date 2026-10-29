@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
+    "af9:impact_slag",
     "af9:arf_excimer_laser",
     "af9:black_plutonium_item_pipe_casing",
     "af9:bolted_iridium_casing",

@@ -109,5 +109,6 @@
     "af9.distillation.display.oxygen": "Braucht %s mB/s Flüssigsauerstoff oder eine Cleaning Maintenance Hatch",
     "af9.distillation_facility.pipe_frame": "Ein Rohr im Frame braucht eine HSLA-Steel-Frame-Box darauf",
     "af9.distillation.module.pinned": "Turm auf %s eingestellt",
-    "af9.distillation.module.pin_failed": "Dieser Turm führt %s nicht aus"
+    "af9.distillation.module.pin_failed": "Dieser Turm führt %s nicht aus",
+  "block.af9.impact_slag": "Einschlagsschlacke"
 }

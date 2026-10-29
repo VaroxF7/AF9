@@ -163,14 +163,21 @@ anchor-plus-block mechanic, which a fixed recipe cannot express.
 AE2 meteorites no longer fall on the Overworld: the biome tag override
 (`kubejs/data/ae2/tags/worldgen/biome/has_meteorites.json`, with
 `"replace": true` so the pack's list replaces AE2's instead of merging into it)
-lists only the lunar wastelands and the three martian biomes. Each meteorite's
+lists only the lunar wastelands and the three martian biomes. The structure, the
+compass and the sky stone core are AE2's own. Each meteorite's
 Mysterious Cube drops **one random press** instead of all four (loot override
 `kubejs/data/ae2/loot_tables/blocks/mysterious_cube.json`: silk touch keeps the
-cube, otherwise one of the four presses at equal weight), and the crater fallout
-is moon sand / mars sand — no dirt, stone or grass (AF9 Core `ae2.FalloutMixin`
-for the default mode plus `ae2.FalloutCopyMixin` for AE2's biome-tagged
-sandy/cold modes, everything else runs AE2's code). Bring the meteorite
-compass (and a rocket) and hunt off-world; the AE2 quest texts point there.
+cube, otherwise one of the four presses at equal weight). AF9 Core changes the rest
+(all string-targeted mixins, `mixin/ae2`, no AE2 at compile time, only for `ad_astra:*` biomes):
+
+- `MeteoriteStructureMixin`: the crater is always the plain dry one. AE2 chose lava, obsidian, water, snow or ice
+  craters from the biome's temperature and rain, and filled a crater lake below sea level; none of that exists there.
+- `FalloutMixin` / `FalloutCopyMixin`: the fallout is the planet's sand and stone plus the new **Impact Slag**
+  (`af9:impact_slag`, fused regolith) from `PlanetFallout`. The sand-mode fallout (vanilla glass), dirt, grass, gravel
+  and snow never appear. Everything else runs AE2's code.
+
+Bring the meteorite compass (and a rocket) and hunt off-world; the AE2 quest texts point there.
+Meteorites only generate in newly generated chunks.
 
 ## Intentionally vanilla
 

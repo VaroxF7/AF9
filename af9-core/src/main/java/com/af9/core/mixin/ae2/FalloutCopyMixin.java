@@ -1,13 +1,12 @@
 package com.af9.core.mixin.ae2;
 
+import com.af9.core.space.PlanetFallout;
+
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-
-import net.minecraftforge.registries.ForgeRegistries;
 
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -37,19 +36,17 @@ public abstract class FalloutCopyMixin {
 
     @Inject(method = "getRandomFall", at = @At("HEAD"), cancellable = true, remap = false)
     private void af9$planetFall(LevelAccessor level, BlockPos pos, CallbackInfo ci) {
-        BlockState sand = af9$planetSand(level, pos);
-        if (sand == null) return;
-        random.nextFloat();
-        af9$put(level, pos, sand);
+        PlanetFallout.Planet planet = PlanetFallout.planetAt(level, pos);
+        if (planet == null) return;
+        af9$put(level, pos, PlanetFallout.fall(planet, random));
         ci.cancel();
     }
 
     @Inject(method = "getRandomInset", at = @At("HEAD"), cancellable = true, remap = false)
     private void af9$planetInset(LevelAccessor level, BlockPos pos, CallbackInfo ci) {
-        BlockState sand = af9$planetSand(level, pos);
-        if (sand == null) return;
-        random.nextFloat();
-        af9$put(level, pos, sand);
+        PlanetFallout.Planet planet = PlanetFallout.planetAt(level, pos);
+        if (planet == null) return;
+        af9$put(level, pos, PlanetFallout.inset(planet, random, Blocks.AIR.defaultBlockState()));
         ci.cancel();
     }
 
@@ -59,23 +56,5 @@ public abstract class FalloutCopyMixin {
         var current = level.getBlockState(pos);
         if (current.getBlock() == Blocks.BEDROCK || current == next) return;
         level.setBlock(pos, next, 3);
-    }
-
-    /** Moon sand on lunar biomes, mars sand on martian ones, else null (AE2 runs). */
-    @Unique
-    private static BlockState af9$planetSand(LevelAccessor level, BlockPos pos) {
-        var key = level.getBiome(pos).unwrapKey().orElse(null);
-        if (key == null || !"ad_astra".equals(key.location().getNamespace())) return null;
-        String path = key.location().getPath();
-        String sand;
-        if (path.contains("lunar")) {
-            sand = "moon_sand";
-        } else if (path.contains("martian")) {
-            sand = "mars_sand";
-        } else {
-            return null;
-        }
-        var block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation("ad_astra", sand));
-        return block == null ? null : block.defaultBlockState();
     }
 }
