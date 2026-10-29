@@ -834,6 +834,9 @@ const fluidHatches = m => {
 // a module runs on the hatches of the machine it stands in (its own pattern has none of them): the Distillation Tower Modules
 // take the Distillation Facility's
 const HATCH_HOST = { distillation_module: 'distillation_facility' }
+// machines whose few output hatches are meant to be multi-tank hatches (the Distillation Facility takes 3 outputs in all, so a
+// recipe with more fluids needs a Quadruple / Nonuple Output Hatch: a tank each): the fluid outputs count 9 tanks a hatch
+const MULTI_TANK_OUT = new Set(['distillation_facility', 'distillation_module'])
 state.machines.forEach(m => {
     if (!m.pattern) return
     let pat
@@ -854,6 +857,7 @@ state.machines.forEach(m => {
             if (/PrecisionPortPartMachine\.INPUT$/.test(q.arg)) fluidIn += 9 * max   // AF9's Precision Fabricator Input Port: 9 tanks
         }
     }))
+    if (MULTI_TANK_OUT.has(m.id)) fluidOut *= 9
     ;(m.types || []).forEach(t => {
         state.recipes.filter(r => r.type === String(t)).forEach(r => {
             const di = new Set(r.fluidIn.filter(Boolean)).size, dout = new Set(r.fluidOut.filter(Boolean)).size
