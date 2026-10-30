@@ -21,8 +21,8 @@ Hatches go in any casing (maximums only): 2 energy, 2 item buses in, 2 out, 2 fl
 | `agri_sim_tier5` | tier 5 and Mystical Agradditions' tier 6 |
 | `agri_sim_crops` | every other seed: vanilla, Farmer's Delight, Croptopia, Thermal, and mod seeds whose produce is unknown (those multiply the seed) |
 
-Every recipe is one seed plus water, HV (512 EU/t), 60 s. Essence per run by tier 0-6: 16, 16, 12, 10, 8, 6, 4; water
-250 mB x (tier + 1); the seed comes back with 95, 95, 90, 85, 80, 75, 70 %. Crop mode: 4-24 produce per run, 95 % seed back.
+The seed is never consumed: it goes into the controller's seed slot (screen, bottom right; the recipe names it as a not consumed input and runs only with it there). Every recipe is water only, HV (512 EU/t), 60 s. Essence per run by tier 0-6: 16, 16, 12, 10, 8, 6, 4; water
+250 mB x (tier + 1); Crop mode: 4-24 produce per run, .
 A seed whose mod or crop is not in the pack has no recipe (`Item.exists`).
 
 ## Soil (average over the garden)

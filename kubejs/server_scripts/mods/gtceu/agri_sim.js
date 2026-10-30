@@ -1,6 +1,6 @@
 // AF9 - Agriculture Simulation Bed recipes (startup_scripts/gtceu/agri_sim.js).
-// One recipe per seed, a minute at HV (1200 ticks, 512 EU/t): one seed and water in; the crop's yield and, mostly, the
-// seed back out. The six recipe types are the bed's machine modes:
+// One recipe per seed, a minute at HV (1200 ticks, 512 EU/t): water in, the crop's yield out. The seed is never
+// consumed: it sits in the controller's seed slot (the recipe names it as a not consumed input) and is only grown. The six recipe types are the bed's machine modes:
 //   agri_sim_elemental  Mystical Agriculture elemental (0) and tier 1 essence seeds
 //   agri_sim_tier2 .. 4 their tiers 2, 3 and 4
 //   agri_sim_tier5      tier 5 and Mystical Agradditions' tier 6
@@ -135,12 +135,9 @@ ServerEvents.recipes(event => {
     // one run: the seed and water in, `produce` and the seed (with its chance) out
     const run = (type, id, seed, water, produce, count, seedBack) => {
         const r = event.recipes.gtceu[type]('af9:agri/' + id)
-            .itemInputs(seed)
+            .notConsumable(seed)
             .inputFluids(Fluid.of('minecraft:water', water))
             .itemOutputs(count + 'x ' + produce)
-        if (produce === seed) {}
-        else if (seedBack >= 10000) r.itemOutputs(seed)
-        else r.chancedOutput(seed, seedBack, 0)
         r.addData('seed', seed).duration(AGRI_RUN_TICKS).EUt(HV)
     }
 

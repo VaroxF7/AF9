@@ -1,6 +1,11 @@
 package com.af9.core.machine;
 
+import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.gui.GuiTextures;
+import com.gregtechceu.gtceu.api.gui.widget.SlotWidget;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
+import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.TickableSubscription;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
@@ -11,12 +16,19 @@ import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 
+import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
+import com.lowdragmc.lowdraglib.gui.widget.Widget;
+import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
+import com.lowdragmc.lowdraglib.syncdata.annotation.Persisted;
 import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.BushBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.registries.ForgeRegistries;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +52,7 @@ import java.util.Map;
  * ({@link com.af9.core.client.render.AgriSimRender}).</li>
  * </ul>
  */
-public class AgriSimMachine extends WorkableElectricMultiblockMachine implements IAgriSimMachine {
+public class AgriSimMachine extends WorkableElectricMultiblockMachine implements IAgriSimMachine, IMachineLife {
 
     protected static final ManagedFieldHolder MANAGED_FIELD_HOLDER = new ManagedFieldHolder(AgriSimMachine.class,
             WorkableElectricMultiblockMachine.MANAGED_FIELD_HOLDER);
@@ -86,8 +98,41 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
     private double timeMultiplier = 1.0;
     private TickableSubscription syncSubs;
 
+    /**
+     * The seed slot of the bed's screen: the seed the bed grows, kept (never consumed; the recipes name it as a not
+     * consumed input and run only with it here). No pipe access (capability IO NONE), which also makes the handler
+     * itself refuse inserts: the screen's slot works on its {@code storage}.
+     */
+    @Persisted
+    public final NotifiableItemStackHandler seedSlot;
+
     public AgriSimMachine(IMachineBlockEntity holder) {
         super(holder);
+        seedSlot = new NotifiableItemStackHandler(this, 1, IO.IN, IO.NONE).setFilter(AgriSimMachine::isSeed);
+    }
+
+    /** A seed: the item of a crop (a bush-type block). */
+    public static boolean isSeed(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem() instanceof BlockItem item && item.getBlock() instanceof BushBlock;
+    }
+
+    /** Broken controller: the seed drops. */
+    @Override
+    public void onMachineRemoved() {
+        clearInventory(seedSlot.storage);
+    }
+
+    /** GT's screen with the seed slot in its lower right corner. */
+    @Override
+    public Widget createUIWidget() {
+        Widget screen = super.createUIWidget();
+        if (screen instanceof WidgetGroup group) {
+            group.addWidget(new LabelWidget(group.getSize().width - 40, group.getSize().height - 38, "af9.agri_sim.seed"));
+            group.addWidget(new SlotWidget(seedSlot.storage, 0, group.getSize().width - 31, group.getSize().height - 28,
+                    true, true).setBackgroundTexture(GuiTextures.SLOT)
+                    .setHoverTooltips(Component.translatable("af9.agri_sim.seed_tooltip")));
+        }
+        return screen;
     }
 
     @Override
@@ -200,11 +245,21 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
         if (!(machine instanceof AgriSimMachine bed)) {
             return RecipeModifier.nullWrongType(AgriSimMachine.class, machine);
         }
+        String seed = recipe.data == null ? "" : recipe.data.getString("seed");
+        if (!seed.isEmpty() && !seedInSlot(bed, seed)) {
+            return ModifierFunction.cancel(Component.translatable("af9.agri_sim.seed_missing"));
+        }
         if (bed.outputMultiplier == 1.0 && bed.timeMultiplier == 1.0) return ModifierFunction.IDENTITY;
         return ModifierFunction.builder()
                 .outputModifier(ContentModifier.multiplier(bed.outputMultiplier))
                 .durationMultiplier(bed.timeMultiplier)
                 .build();
+    }
+
+    /** Whether the seed slot holds the given seed. */
+    private static boolean seedInSlot(AgriSimMachine bed, String seed) {
+        ResourceLocation id = ForgeRegistries.ITEMS.getKey(bed.seedSlot.getStackInSlot(0).getItem());
+        return id != null && id.toString().equals(seed);
     }
 
     public static @NotNull ModifierFunction batchModifier(@NotNull MetaMachine machine, @NotNull GTRecipe recipe) {
