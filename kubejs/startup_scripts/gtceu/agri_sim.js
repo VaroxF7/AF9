@@ -49,7 +49,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .recipeModifiers([$AgriSimMachine.SOIL, GTRecipeModifiers.PARALLEL_HATCH, $AgriSimMachine.BATCH,
             GTRecipeModifiers.OC_NON_PERFECT])
         .appearanceBlock(() => Block.getBlock('gtceu:corrosion_proof_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.agri_sim.tooltip', 6))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.agri_sim.tooltip', 5))
         .pattern(definition => FactoryBlockPattern.start()
             .aisle('XXXXX XXXXX', 'XXXXX XXXXX', '           ')
             .aisle('XXXXXXXXXXX', 'XFFFXXXFFFX', ' AAA   AAA ')
