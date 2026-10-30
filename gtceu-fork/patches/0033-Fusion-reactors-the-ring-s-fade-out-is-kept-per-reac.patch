@@ -1,0 +1,114 @@
+From f029227f6eac2a224a907a3b9306c0dff4aa448b Mon Sep 17 00:00:00 2001
+From: AF9 <af9@localhost>
+Date: Fri, 30 Oct 2026 20:33:55 +0000
+Subject: [PATCH] Fusion reactors: the ring's fade-out is kept per reactor, a
+ running reactor no longer lights the rings of idle ones (7.5.3-af9.33)
+
+---
+ gradle.properties                             |  2 +-
+ .../machine/impl/FusionRingRender.java        | 39 ++++++++++++++-----
+ 2 files changed, 30 insertions(+), 11 deletions(-)
+
+diff --git a/gradle.properties b/gradle.properties
+index 07cc076..86b6286 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -6,7 +6,7 @@ org.gradle.caching = true
+ # Mod Info
+ mod_id = gtceu
+ mod_name = GregTech
+-mod_version = 7.5.3-af9.32
++mod_version = 7.5.3-af9.33
+ mod_description = GregTech CE Unofficial, ported from 1.12.2
+ mod_license = LGPL-3.0 license
+ mod_url = https://github.com/GregTechCEu/GregTech-Modern/
+diff --git a/src/main/java/com/gregtechceu/gtceu/client/renderer/machine/impl/FusionRingRender.java b/src/main/java/com/gregtechceu/gtceu/client/renderer/machine/impl/FusionRingRender.java
+index fb5e254..eacba79 100644
+--- a/src/main/java/com/gregtechceu/gtceu/client/renderer/machine/impl/FusionRingRender.java
++++ b/src/main/java/com/gregtechceu/gtceu/client/renderer/machine/impl/FusionRingRender.java
+@@ -23,6 +23,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
+ import com.mojang.blaze3d.vertex.VertexConsumer;
+ import com.mojang.serialization.Codec;
+ 
++import java.util.Map;
++import java.util.WeakHashMap;
++
+ import static net.minecraft.util.FastColor.ARGB32.*;
+ 
+ public class FusionRingRender extends DynamicRender<FusionReactorMachine, FusionRingRender> {
+@@ -34,8 +37,21 @@ public class FusionRingRender extends DynamicRender<FusionReactorMachine, Fusion
+ 
+     public static final float FADEOUT = 60;
+ 
+-    protected float delta = 0;
+-    protected int lastColor = -1;
++    /**
++     * AF9: the fade-out and last colour per machine. They were fields of this render, which every reactor of a tier
++     * shares, so one running reactor lit the rings of all the idle ones.
++     */
++    protected static final class Fade {
++
++        float delta = 0;
++        int lastColor = -1;
++    }
++
++    protected final Map<FusionReactorMachine, Fade> fades = new WeakHashMap<>();
++
++    private Fade fade(FusionReactorMachine machine) {
++        return fades.computeIfAbsent(machine, key -> new Fade());
++    }
+ 
+     public FusionRingRender() {}
+ 
+@@ -46,14 +62,14 @@ public class FusionRingRender extends DynamicRender<FusionReactorMachine, Fusion
+ 
+     @Override
+     public boolean shouldRender(FusionReactorMachine machine, Vec3 cameraPos) {
+-        return machine.recipeLogic.isWorking() || delta > 0;
++        return machine.recipeLogic.isWorking() || fade(machine).delta > 0;
+     }
+ 
+     @Override
+     public void render(FusionReactorMachine machine, float partialTick,
+                        PoseStack poseStack, MultiBufferSource buffer,
+                        int packedLight, int packedOverlay) {
+-        if (!machine.recipeLogic.isWorking() && delta <= 0) {
++        if (!machine.recipeLogic.isWorking() && fade(machine).delta <= 0) {
+             return;
+         }
+         if (GTCEu.Mods.isShimmerLoaded()) {
+@@ -70,14 +86,17 @@ public class FusionRingRender extends DynamicRender<FusionReactorMachine, Fusion
+                                  VertexConsumer buffer) {
+         var color = machine.getColor();
+         var alpha = 1f;
++        Fade fade = fade(machine);
+         if (machine.recipeLogic.isWorking()) {
+-            lastColor = color;
+-            delta = FADEOUT;
++            fade.lastColor = color;
++            fade.delta = FADEOUT;
+         } else {
+-            alpha = delta / FADEOUT;
+-            lastColor = color(Mth.floor(alpha * 255), red(lastColor), green(lastColor), blue(lastColor));
+-            delta -= Minecraft.getInstance().getDeltaFrameTime();
++            alpha = fade.delta / FADEOUT;
++            fade.lastColor = color(Mth.floor(alpha * 255), red(fade.lastColor), green(fade.lastColor),
++                    blue(fade.lastColor));
++            fade.delta -= Minecraft.getInstance().getDeltaFrameTime();
+         }
++        int lastColor = fade.lastColor;
+ 
+         final var lerpFactor = Math.abs((Math.abs(machine.getOffsetTimer() % 50) + partialTicks) - 25) / 25;
+         var front = machine.getFrontFacing();
+@@ -98,7 +117,7 @@ public class FusionRingRender extends DynamicRender<FusionReactorMachine, Fusion
+ 
+     @Override
+     public boolean shouldRenderOffScreen(FusionReactorMachine machine) {
+-        return machine.recipeLogic.isWorking() || delta > 0;
++        return machine.recipeLogic.isWorking() || fade(machine).delta > 0;
+     }
+ 
+     @Override
+-- 
+2.43.0
+
