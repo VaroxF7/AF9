@@ -1,7 +1,6 @@
 package com.af9.core.client.skin;
 
 import com.af9.core.client.render.AF9RenderTypes;
-import com.af9.core.machine.ILightRingMachine;
 import com.af9.core.machine.OrbitalLithographyMachine;
 import com.af9.core.machine.OrbitalLithographyMachine.Band;
 
@@ -31,21 +30,20 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The rings of the Orbital Array Mk2's tower ({@link StructureSkin.Rings}), drawn in place of their blocks while the
- * station is formed, the way GTNH's Godforge turns its rings: each ring is its own blocks, with their own models,
- * turning round the tower ({@link RingBlocks}; its speed and direction are the band's), the middle one against the other two.
- * Plasma beams run from the tower to each ring at the four points of the compass and hold it: they glow in the machine's
- * colour while it works (and pulse towards the ring), a dim blue while it idles.
+ * The wheels of the Orbital Array Mk2's tower ({@link StructureSkin.Rings}), drawn in place of their blocks while the
+ * station is formed, the way GTNH's Godforge turns its rings: each wheel is its own blocks (rim, spokes, and on the big
+ * one the shield that holds the plasma field), with their own models, turning round the tower ({@link RingBlocks}; its
+ * speed and direction are the band's), the middle one against the other two. The light of the tower (power lasers, the
+ * plasma field, the central beam, the wafer loop, the hover lance) is {@link OrbitalFx} / {@link WaferDraw} /
+ * {@link CoreDraw}.
  * <p>
  * Drawn in the pattern's own space (right / up / back from the controller): a ring lies across the back axis, its centre
- * {@code d0 + t/2} blocks back. The rings' blocks are hidden by {@link StructureSkins}; the spokes' too, the beams take
- * their place.
+ * {@code d0 + t/2} blocks back. The wheels' blocks are hidden by {@link StructureSkins}.
  */
 final class RingDraw {
 
     /** The rings' one speed (they spin up to it when the station is powered and never speed up while it works). */
     private static final float RUN_SPEED = 0.5F;
-    private static final int IDLE_COLOR = 0x6FA8FF;
 
     /** Per controller: each ring's angle (radians), the speed factor, the time of the last frame (client thread). */
     private static final Map<Long, State> STATES = new HashMap<>();
@@ -61,6 +59,10 @@ final class RingDraw {
         float last = Float.NaN;
         /** The effects' clock: ticks, run on faster while the machine works. */
         float phase;
+        /** The wafer loop: whether it runs, and the level time (ticks) it started at. */
+        boolean looping;
+        float loopStart;
+        final OrbitalFx.Beat beat = new OrbitalFx.Beat();
         // for carrying the player: the controller block, the directions of the pattern's axes, the rings
         BlockPos origin;
         Direction right, up, back;
@@ -88,7 +90,6 @@ final class RingDraw {
         state.up = RelativeDirection.UP.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), false);
         state.back = RelativeDirection.BACK.getRelative(self.getFrontFacing(), self.getUpwardsFacing(), false);
         state.bands = bands;
-        int color = working && self instanceof ILightRingMachine ring ? ring.getRingColor() : IDLE_COLOR;
         float time = level.getGameTime() + partialTick;
 
         // the rings: their own blocks, drawn with their own models turning about the tower (RingBlocks). Each ring is
@@ -115,7 +116,7 @@ final class RingDraw {
             poseStack.popPose();
         }
         if (uploaded) Lighting.setupLevel(view);
-        // how far the beams are looked at from: the nearest ring's distance, for the level of detail
+        // how far the light is looked at from: the nearest ring's distance, for the level of detail
         Vector3f centre = new Vector3f();
         float near = Float.MAX_VALUE;
         for (Band band : bands) {
@@ -123,17 +124,25 @@ final class RingDraw {
             near = Math.min(near, Math.max(0F, centre.length() - band.radius()));
         }
         int lod = near < 48F ? 0 : near < 110F ? 1 : 2;
-        // the plasma beams, added light, after the solids (a buffer from the source ends when another is asked for)
-        VertexConsumer beams = buffer.getBuffer(AF9RenderTypes.LIGHTNING);
         boolean online = state.factor > 0.04F;
-        for (Band band : online ? bands : List.<Band>of()) {
-            Matrix4f mat = poseStack.last().pose();
-            for (int side = 0; side < 4; side++) {
-                beam(beams, mat, band, rings.towerHalf(), side, color, working, time, lod);
-            }
+        // the wafer loop runs while the machine works (eased, so a recipe change does not restart it), on the level's
+        // clock: it does not speed up with the machine
+        if (!state.looping && state.power > 0.35F) {
+            state.looping = true;
+            state.loopStart = time;
+        } else if (state.looping && state.power < 0.1F) {
+            state.looping = false;
         }
-        // the thruster under the foot (nothing is drawn inside the tower)
-        if (online) CoreDraw.draw(beams, poseStack.last().pose(), state.phase, state.power);
+        float cycle = state.looping ? (time - state.loopStart) % OrbitalFx.LOOP : -1F;
+        // the wafer (an item, drawn with its own render types), then the light, added, after the solids (a buffer from
+        // the source ends when another is asked for)
+        WaferDraw.draw(poseStack, buffer, time, cycle);
+        VertexConsumer fx = buffer.getBuffer(AF9RenderTypes.LIGHTNING);
+        if (online) {
+            Matrix4f mat = poseStack.last().pose();
+            OrbitalFx.draw(fx, mat, state.beat, time, cycle, Math.min(1F, state.factor / RUN_SPEED), state.power, lod);
+            CoreDraw.draw(fx, mat, time, state.power, lod);
+        }
     }
 
     /** The rings' angles now: each keeps turning from where it was, still without power, spinning up when the station is switched on and powered. */
@@ -200,111 +209,5 @@ final class RingDraw {
 
     private static Vec3 vec(Direction d) {
         return new Vec3(d.getStepX(), d.getStepY(), d.getStepZ());
-    }
-
-    //////////////////////////////////////
-    // ******** Plasma beams **********//
-    //////////////////////////////////////
-
-    /**
-     * A plasma beam from the tower's face to the middle of the ring's band (so its end is inside the turning ring's
-     * blocks and never shows), along the right or the up axis in the ring's plane: three ribbons round the beam's axis, each
-     * brightest along its middle and fading to nothing at its edges (a soft, round glow in the colour), a white-hot thread
-     * in it, and packets of light running out along it to the ring.
-     */
-    private static void beam(VertexConsumer c, Matrix4f mat, Band band, int towerHalf, int side, int rgb,
-                             boolean working, float time, int lod) {
-        float cx = 0.5F, cy = 0.5F, cz = band.d0() + band.t() / 2F;
-        float dx = side == 0 ? 1 : side == 1 ? -1 : 0, dy = side == 2 ? 1 : side == 3 ? -1 : 0;
-        float from = towerHalf + 0.3F, to = band.radius() - band.width() / 2F;
-        float r = (rgb >> 16 & 255) / 255F, g = (rgb >> 8 & 255) / 255F, b = (rgb & 255) / 255F;
-        float len = to - from;
-        // across the beam: in the ring's plane, and along the tower's axis
-        float px = -dy, py = dx;
-        float base = working ? 0.55F : 0.35F;
-        int pieces = Math.max(6 >> lod, Math.round(len / (2F * (1 << lod))));
-        for (int i = 0; i < pieces; i++) {
-            float s0 = i / (float) pieces, s1 = (i + 1) / (float) pieces;
-            float t0 = from + len * s0, t1 = from + len * s1;
-            float a0 = alongBeam(s0, len, base, working, time, side), a1 = alongBeam(s1, len, base, working, time, side);
-            // a soft sheath, the colour of the ring, and a white-hot thread in it
-            tube(c, mat, cx, cy, cz, dx, dy, px, py, t0, t1, 0.62F, 8 >> lod, r, g, b, a0 * 0.14F, a1 * 0.14F);
-            if (lod < 2) tube(c, mat, cx, cy, cz, dx, dy, px, py, t0, t1, 0.3F, 6 >> lod, r, g, b, a0 * 0.32F, a1 * 0.32F);
-            tube(c, mat, cx, cy, cz, dx, dy, px, py, t0, t1, 0.09F, 4 >> (lod / 2), 0.92F, 0.97F, 1F, Math.min(1F, a0 * 1.5F),
-                    Math.min(1F, a1 * 1.5F));
-        }
-        // bright packets of energy running out to the ring, a short fat tube each, rising and falling
-        int packets = (working ? 4 : 2) >> (lod / 2);
-        float speed = working ? 0.5F : 0.25F;
-        for (int k = 0; k < packets; k++) {
-            float s = ((time * speed / len + k / (float) packets + side * 0.21F) % 1F);
-            float tc = from + len * s, half = 1.6F;
-            float t0 = Math.max(from, tc - half), t1 = Math.min(to, tc + half);
-            tube(c, mat, cx, cy, cz, dx, dy, px, py, t0, tc, 0.5F, 8 >> lod, r, g, b, 0F, 0.55F);
-            tube(c, mat, cx, cy, cz, dx, dy, px, py, tc, t1, 0.5F, 8 >> lod, r, g, b, 0.55F, 0F);
-            if (lod < 2) {
-                tube(c, mat, cx, cy, cz, dx, dy, px, py, t0, tc, 0.2F, 6 >> lod, 1F, 1F, 1F, 0F, 0.9F);
-                tube(c, mat, cx, cy, cz, dx, dy, px, py, tc, t1, 0.2F, 6 >> lod, 1F, 1F, 1F, 0.9F, 0F);
-            }
-        }
-        // a flare where the beam leaves the tower and where it lands on the ring
-        float pulse = 0.7F + 0.3F * Mth.sin(time * 0.2F + side);
-        flare(c, mat, cx + dx * from, cy + dy * from, cz, px, py, 0.9F * pulse, r, g, b, base);
-        flare(c, mat, cx + dx * to, cy + dy * to, cz, px, py, 1.3F * pulse, r, g, b, base * 1.2F);
-    }
-
-    /** An open prism round the beam's axis between two distances along it, with an alpha at each end. */
-    private static void tube(VertexConsumer c, Matrix4f mat, float cx, float cy, float cz, float dx, float dy,
-                             float px, float py, float t0, float t1, float radius, int sides, float r, float g,
-                             float b, float a0, float a1) {
-        sides = Math.max(4, sides);
-        for (int i = 0; i < sides; i++) {
-            float p0 = Mth.TWO_PI * i / sides, p1 = Mth.TWO_PI * (i + 1) / sides;
-            float c0 = Mth.cos(p0) * radius, s0 = Mth.sin(p0) * radius, c1 = Mth.cos(p1) * radius,
-                    s1 = Mth.sin(p1) * radius;
-            c.vertex(mat, cx + dx * t0 + px * c0, cy + dy * t0 + py * c0, cz + s0).color(r, g, b, a0).endVertex();
-            c.vertex(mat, cx + dx * t0 + px * c1, cy + dy * t0 + py * c1, cz + s1).color(r, g, b, a0).endVertex();
-            c.vertex(mat, cx + dx * t1 + px * c1, cy + dy * t1 + py * c1, cz + s1).color(r, g, b, a1).endVertex();
-            c.vertex(mat, cx + dx * t1 + px * c0, cy + dy * t1 + py * c0, cz + s0).color(r, g, b, a1).endVertex();
-        }
-    }
-
-    /** A glowing disc across the beam (in the plane of the across axes), bright in the middle and fading out. */
-    private static void flare(VertexConsumer c, Matrix4f mat, float x, float y, float z, float px, float py,
-                              float radius, float r, float g, float b, float alpha) {
-        int sides = 10;
-        for (int i = 0; i < sides; i++) {
-            float p0 = Mth.TWO_PI * i / sides, p1 = Mth.TWO_PI * (i + 1) / sides;
-            c.vertex(mat, x, y, z).color(1F, 1F, 1F, Math.min(1F, alpha)).endVertex();
-            c.vertex(mat, x, y, z).color(1F, 1F, 1F, Math.min(1F, alpha)).endVertex();
-            c.vertex(mat, x + px * Mth.cos(p1) * radius, y + py * Mth.cos(p1) * radius, z + Mth.sin(p1) * radius)
-                    .color(r, g, b, 0F).endVertex();
-            c.vertex(mat, x + px * Mth.cos(p0) * radius, y + py * Mth.cos(p0) * radius, z + Mth.sin(p0) * radius)
-                    .color(r, g, b, 0F).endVertex();
-        }
-    }
-
-    private static float alongBeam(float s, float len, float base, boolean working, float time, int side) {
-        float packet = 0.5F + 0.5F * Mth.sin(s * len * 0.55F - time * (working ? 0.45F : 0.25F) + side * 1.7F);
-        packet *= packet * packet;
-        float start = Math.min(1F, s * len / 1.2F);
-        return start * (base + (working ? 0.5F : 0.3F) * packet);
-    }
-
-    /**
-     * A ribbon of light from a to b, {@code w} half wide along the given direction: bright along its middle, fading to
-     * nothing at both edges (two quads meeting on the middle line).
-     */
-    private static void ribbon(VertexConsumer c, Matrix4f mat, float ax, float ay, float az, float bx, float by,
-                               float bz, float wx, float wy, float wz, float r, float g, float b, float alphaA,
-                               float alphaB) {
-        c.vertex(mat, ax + wx, ay + wy, az + wz).color(r, g, b, 0F).endVertex();
-        c.vertex(mat, ax, ay, az).color(r, g, b, alphaA).endVertex();
-        c.vertex(mat, bx, by, bz).color(r, g, b, alphaB).endVertex();
-        c.vertex(mat, bx + wx, by + wy, bz + wz).color(r, g, b, 0F).endVertex();
-        c.vertex(mat, ax, ay, az).color(r, g, b, alphaA).endVertex();
-        c.vertex(mat, ax - wx, ay - wy, az - wz).color(r, g, b, 0F).endVertex();
-        c.vertex(mat, bx - wx, by - wy, bz - wz).color(r, g, b, 0F).endVertex();
-        c.vertex(mat, bx, by, bz).color(r, g, b, alphaB).endVertex();
     }
 }

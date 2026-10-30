@@ -122,7 +122,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         return RING_VIEW_DISTANCE;
     }
 
-    /** The tower's rings are seen from up to 12 chunks off (the tower is 130 blocks tall, the big ring 72 across); the rest from 112. */
+    /** The tower's rings are seen from up to 12 chunks off (the tower is 99 blocks tall and its lance 22 more, the big ring 72 across); the rest from 112. */
     @Override
     public boolean shouldRender(IMultiController machine, Vec3 cameraPos) {
         StructureSkin skin = StructureSkins.skinOf(machine.self().getDefinition());
@@ -151,7 +151,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         if (skin == null) return super.getRenderBoundingBox(machine);
         AABB box = new AABB(pos);
         if (skin.rings() != null) {
-            // the tower: down to the foot and the lance and out to the big ring
+            // the tower: down to the foot and the lance (to 22 blocks under it) and out to the big ring
             int reach = 1;
             int depth = 0;
             for (var band : skin.rings().bands()) {
@@ -159,7 +159,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
                 depth = Math.max(depth, band.d0() + band.t());
             }
             return box.minmax(new AABB(StructureSkins.at(machine.self(), -reach, -reach, 0)))
-                    .minmax(new AABB(StructureSkins.at(machine.self(), reach, reach, Math.max(depth + 2, 165))));
+                    .minmax(new AABB(StructureSkins.at(machine.self(), reach, reach, Math.max(depth + 2, 125))));
         }
         if (skin.cabinet() != null) {
             int length = Math.max(StructureSkins.lengthOf(pos), skin.cabinet().maxLength());
@@ -186,7 +186,18 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
             return;
         }
         // the blocks are hidden when the controller is tracked: draw the model exactly then
-        if (!StructureSkins.isTracked(pos)) return;
+        if (!StructureSkins.isTracked(pos)) {
+            // a formed Mk2 that has no power yet keeps its blocks, and only the wafer floats in its chamber
+            ClientLevel world = Minecraft.getInstance().level;
+            if (world != null && StructureSkins.isIdle(pos)) {
+                RingForce.markDrawn(pos);
+                poseStack.pushPose();
+                applyBasis(self, poseStack);
+                WaferDraw.drawIdle(poseStack, buffer, world.getGameTime() + partialTick);
+                poseStack.popPose();
+            }
+            return;
+        }
         StructureSkin skin = StructureSkins.skinOf(self.getDefinition());
         ClientLevel level = Minecraft.getInstance().level;
         if (skin == null || level == null) return;
@@ -220,23 +231,9 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
             if (!found.contents().name().equals(MissingTextureAtlasSprite.getLocation())) bloom = found;
         }
 
-        Direction front = self.getFrontFacing(), upwards = self.getUpwardsFacing();
-        Direction r = RelativeDirection.RIGHT.getRelative(front, upwards, false);
-        Direction u = RelativeDirection.UP.getRelative(front, upwards, false);
-        Direction b = RelativeDirection.BACK.getRelative(front, upwards, false);
-        Matrix4f basis = new Matrix4f(
-                r.getStepX(), r.getStepY(), r.getStepZ(), 0,
-                u.getStepX(), u.getStepY(), u.getStepZ(), 0,
-                b.getStepX(), b.getStepY(), b.getStepZ(), 0,
-                0, 0, 0, 1);
-
         Matrix4f view = new Matrix4f(poseStack.last().pose());
         poseStack.pushPose();
-        // the model's origin is the controller block's minimum corner; turn about the block's middle
-        poseStack.translate(0.5, 0.5, 0.5);
-        poseStack.last().pose().mul(basis);
-        poseStack.last().normal().mul(new Matrix3f(basis));
-        poseStack.translate(-0.5, -0.5, -0.5);
+        applyBasis(self, poseStack);
 
         if (skin.rings() != null) {
             RingDraw.draw(self, skin.rings(), working, partialTick, poseStack, buffer, packedOverlay, view);
@@ -282,6 +279,27 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
             }
         }
         poseStack.popPose();
+    }
+
+    /**
+     * Puts the pattern's space in place: the model's origin is the controller block's minimum corner, its axes the
+     * controller's right / up / back.
+     */
+    private static void applyBasis(MetaMachine self, PoseStack poseStack) {
+        Direction front = self.getFrontFacing(), upwards = self.getUpwardsFacing();
+        Direction r = RelativeDirection.RIGHT.getRelative(front, upwards, false);
+        Direction u = RelativeDirection.UP.getRelative(front, upwards, false);
+        Direction b = RelativeDirection.BACK.getRelative(front, upwards, false);
+        Matrix4f basis = new Matrix4f(
+                r.getStepX(), r.getStepY(), r.getStepZ(), 0,
+                u.getStepX(), u.getStepY(), u.getStepZ(), 0,
+                b.getStepX(), b.getStepY(), b.getStepZ(), 0,
+                0, 0, 0, 1);
+        // turn about the block's middle
+        poseStack.translate(0.5, 0.5, 0.5);
+        poseStack.last().pose().mul(basis);
+        poseStack.last().normal().mul(new Matrix3f(basis));
+        poseStack.translate(-0.5, -0.5, -0.5);
     }
 
     /** The quads through the pose (the entity shader lights them by their normals, so no shade is baked in). */

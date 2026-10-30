@@ -20,7 +20,7 @@ import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 /**
  * Keeps the Mk2's rings on screen whatever the world renderer decides about the controller's own block: a block entity
  * renderer is only called while the chunk section of its block is visible (in the view and not hidden by the cave
- * culling), so the 130-block tower vanished when the crown was out of sight. The renderer marks the controllers it drew
+ * culling), so the 99-block tower vanished when the crown was out of sight. The renderer marks the controllers it drew
  * this frame; after the block entities, those tracked controllers it did not reach are drawn from here, inside the view
  * frustum and the same view distance.
  */
@@ -50,11 +50,15 @@ public final class RingForce {
         Vec3 camera = event.getCamera().getPosition();
         MultiBufferSource.BufferSource buffer = Minecraft.getInstance().renderBuffers().bufferSource();
         boolean drew = false;
-        for (MultiblockControllerMachine controller : StructureSkins.trackedControllers()) {
+        var drawn = new java.util.ArrayList<MultiblockControllerMachine>(StructureSkins.trackedControllers());
+        drawn.addAll(StructureSkins.idleControllers());
+        for (MultiblockControllerMachine controller : drawn) {
             BlockPos pos = controller.getPos();
             if (DRAWN.getOrDefault(pos.asLong(), -1L) == frame || !controller.isFormed()) continue;
             StructureSkin skin = StructureSkins.skinOf(controller.getDefinition());
-            if (skin == null || skin.rings() == null || !StructureSkins.isTracked(pos)) continue;
+            if (skin == null || skin.rings() == null || !(StructureSkins.isTracked(pos) || StructureSkins.isIdle(pos))) {
+                continue;
+            }
             if (!RENDER.shouldRender(controller, camera)) continue;
             if (event.getFrustum() != null && !event.getFrustum().isVisible(RENDER.getRenderBoundingBox(controller))) {
                 continue;

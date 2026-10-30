@@ -6,116 +6,133 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import org.joml.Matrix4f;
 
 /**
- * The Orbital Array Mk2's thruster: a plasma lance leaving the sealed foot of the tower, a source glow with a turning ring
- * under the foot's plate and a violet beam widening and fading below it, a white-hot thread in it and shock rings running
- * down it. Nothing is drawn inside the tower. In the pattern's own space (right / up / back from the controller, the origin
- * the controller block's corner).
+ * The Orbital Array Mk2's hover lance: the plasma that holds the tower up, leaving the opening in the sealed foot. A
+ * source glow in the opening with a turning ring, a violet plume widening and fading below it with strands of plasma
+ * twisting round it, standing shock diamonds in it like a rocket's exhaust, shock rings running down it and embers
+ * streaming away. In the pattern's own space (right / up / back from the controller, the origin the controller block's
+ * corner). It is a few hundred added-light quads written straight into the buffer; the farther it is looked at from, the
+ * fewer.
  */
 final class CoreDraw {
 
     private static final float CX = 0.5F, CY = 0.5F;
-    /** The lance's span along the back axis: from just under the foot's plate (level 104) to 20 beyond. */
-    private static final float LANCE_Z0 = 105F, LANCE_Z1 = 125F;
+    /** The lance's span along the back axis: from the foot's opening (the foot's underside is at 99) to 22 below it. */
+    private static final float Z0 = 99.3F, Z1 = 121F;
+    /** Violet plasma, and its white-hot core. */
+    private static final float R = 0.6F, G = 0.35F, B = 1F;
 
     private CoreDraw() {}
 
     /**
-     * @param phase the animation clock (ticks, speeding up with the machine), {@code power} 0..1 (idle to working)
+     * @param time  the level's time in ticks, with the partial tick
+     * @param power 0..1, idle to working
+     * @param lod   0 near, 1 and 2 farther
      */
-    static void draw(VertexConsumer c, Matrix4f m, float phase, float power) {
-        lance(c, m, phase, power);
+    static void draw(VertexConsumer c, Matrix4f m, float time, float power, int lod) {
+        float level = 0.5F + 0.5F * power;
+        float flicker = 0.88F + 0.12F * Mth.sin(time * 0.7F) * Mth.sin(time * 0.31F);
+        float k = level * flicker;
+        float len = Z1 - Z0;
+
+        // the source: a glow in the opening and a ring turning under the foot
+        FxGeo.glow(c, m, CX, CY, Z0 + 0.2F, 1.6F, lod == 0 ? 10 : 6, R, G, B, 0.5F * k);
+        float a = time * 0.09F;
+        FxGeo.softRing(c, m, CX, CY, Z0 + 0.5F, Mth.cos(a), Mth.sin(a), 0F, -Mth.sin(a) * 0.5F, Mth.cos(a) * 0.5F,
+                0.866F, 1.55F, 0.22F, lod == 0 ? 28 : 16, R, G, B, 0.6F * k);
+
+        // the plume: three nested cones, each fading with its length
+        int sides = lod == 0 ? 16 : lod == 1 ? 10 : 6, slices = lod == 0 ? 7 : 4;
+        cone(c, m, 1.3F, 3.6F, len, sides, slices, R, G, B, 0.3F * k, 1.6F);
+        cone(c, m, 0.75F, 1.9F, len, sides, slices, R, G, B, 0.34F * k, 1.4F);
+        cone(c, m, 0.28F, 0.6F, len * 0.8F, Math.max(6, sides / 2), slices, 0.92F, 0.9F, 1F, 0.8F * k, 1.2F);
+
+        if (lod < 2) {
+            // strands of plasma twisting down the plume
+            int strands = lod == 0 ? 4 : 2, steps = 14;
+            for (int s = 0; s < strands; s++) {
+                float phase = Mth.TWO_PI * s / strands;
+                float px = 0F, py = 0F, pz = 0F, pa = 0F;
+                for (int i = 0; i <= steps; i++) {
+                    float u = i / (float) steps;
+                    float rad = 0.9F + 1.9F * u;
+                    float ang = phase + time * 0.12F + u * 5.5F;
+                    float x = CX + Mth.cos(ang) * rad, y = CY + Mth.sin(ang) * rad, z = Z0 + len * u;
+                    float al = 0.55F * k * (1F - u) * (1F - u);
+                    if (i > 0) FxGeo.line(c, m, px, py, pz, x, y, z, 0.07F + 0.05F * u, 0.8F, 0.65F, 1F, pa, al);
+                    px = x;
+                    py = y;
+                    pz = z;
+                    pa = al;
+                }
+            }
+            // standing shock diamonds: a bright spindle in the plume every few blocks, throbbing
+            int diamonds = lod == 0 ? 4 : 2;
+            for (int i = 0; i < diamonds; i++) {
+                float u = 0.16F + 0.17F * i;
+                float throb = 0.75F + 0.25F * Mth.sin(time * 0.5F - i * 1.3F);
+                float rad = (0.55F + 1.1F * u) * 0.9F, half = 1.25F - 0.15F * i;
+                float z = Z0 + len * u;
+                float al = 0.65F * k * (1F - u) * throb;
+                spindle(c, m, z, rad, half, 8, 0.85F, 0.8F, 1F, al);
+            }
+            // shock rings running down it, widening and fading
+            int rings = lod == 0 ? 7 : 4;
+            for (int i = 0; i < rings; i++) {
+                float t = (time * 0.014F + i / (float) rings) % 1F;
+                float z = Z0 + len * t;
+                FxGeo.softRing(c, m, CX, CY, z, 1F, 0F, 0F, 0F, 1F, 0F, 1.1F + 2.3F * t, 0.2F, lod == 0 ? 20 : 12, R, G, B,
+                        0.6F * Mth.sin(t * Mth.PI) * k);
+            }
+        }
+        if (lod == 0) {
+            // embers streaming away from the opening
+            for (int i = 0; i < 28; i++) {
+                float t = (time * (0.009F + 0.006F * FxGeo.hash(i, 1)) + FxGeo.hash(i, 2)) % 1F;
+                float ang = Mth.TWO_PI * FxGeo.hash(i, 3) + t * 3F;
+                float rad = (0.4F + 1.8F * FxGeo.hash(i, 4)) * (0.5F + 1.2F * t);
+                FxGeo.mote(c, m, CX + Mth.cos(ang) * rad, CY + Mth.sin(ang) * rad, Z0 + len * t * 1.05F,
+                        0.05F + 0.04F * FxGeo.hash(i, 5), 0.85F, 0.75F, 1F, 0.8F * k * (1F - t));
+            }
+        }
     }
 
     /**
-     * The plasma lance under the tower: a source glow in the hollow of the foot chamber and a beam leaving it through the
-     * opening, a violet sheath widening and fading as it goes, a white-hot thread in it, shock rings running down it.
+     * An open cone from the opening: radius {@code r0} at the top widening to {@code r1} at {@code len} below, its alpha
+     * falling off with the distance (steeper with a bigger {@code falloff}).
      */
-    private static void lance(VertexConsumer c, Matrix4f m, float phase, float power) {
-        float level = 0.45F + 0.55F * power;
-        float flicker = 0.85F + 0.15F * Mth.sin(phase * 0.7F) * Mth.sin(phase * 0.31F);
-        float k = level * flicker;
-        float r = 0.6F, g = 0.35F, b = 1F;
-
-        // the source: a glow and a turning ring under the foot's plate
-        sphere(c, m, CX, CY, LANCE_Z0, 1.1F, 6, 10, r, g, b, 0.3F * k);
-        sphere(c, m, CX, CY, LANCE_Z0, 0.55F, 5, 8, 0.9F, 0.95F, 1F, 0.55F * k);
-        float a = phase * 0.08F;
-        ring(c, m, CX, CY, LANCE_Z0 + 0.3F, Mth.cos(a), Mth.sin(a), 0, -Mth.sin(a) * 0.5F, Mth.cos(a) * 0.5F, 0.866F, 1.3F,
-                0.14F, 28, r, g, b, 0.5F * k);
-
-        // the beam: widening and fading out 20 blocks below the foot
-        fade(c, m, LANCE_Z0, LANCE_Z1, 1.1F, 2.6F, 12, r, g, b, 0.38F * k, 0F);
-        fade(c, m, LANCE_Z0, LANCE_Z1, 0.6F, 1.4F, 10, r, g, b, 0.32F * k, 0F);
-        fade(c, m, LANCE_Z0, LANCE_Z1 - 4F, 0.22F, 0.4F, 8, 1F, 1F, 1F, 0.85F * k, 0F);
-
-        // shock rings running down it, widening and fading
-        for (int i = 0; i < 9; i++) {
-            float t = (phase * 0.012F + i / 9F) % 1F;
-            float z = LANCE_Z0 + (LANCE_Z1 - LANCE_Z0) * t;
-            disc(c, m, CX, CY, z, 1.1F + 1.5F * t, 0.16F, 12, r, g, b, 0.6F * Mth.sin(t * Mth.PI) * k);
-        }
-    }
-
-    private static void fade(VertexConsumer c, Matrix4f m, float z0, float z1, float rad0, float rad1, int sides,
-                             float r, float g, float b, float a0, float a1) {
-        for (int i = 0; i < sides; i++) {
-            float p0 = Mth.TWO_PI * i / sides, p1 = Mth.TWO_PI * (i + 1) / sides;
-            c.vertex(m, CX + Mth.cos(p0) * rad0, CY + Mth.sin(p0) * rad0, z0).color(r, g, b, a0).endVertex();
-            c.vertex(m, CX + Mth.cos(p1) * rad0, CY + Mth.sin(p1) * rad0, z0).color(r, g, b, a0).endVertex();
-            c.vertex(m, CX + Mth.cos(p1) * rad1, CY + Mth.sin(p1) * rad1, z1).color(r, g, b, a1).endVertex();
-            c.vertex(m, CX + Mth.cos(p0) * rad1, CY + Mth.sin(p0) * rad1, z1).color(r, g, b, a1).endVertex();
-        }
-    }
-
-    private static void vertex(VertexConsumer c, Matrix4f m, float x, float y, float z, float r, float g, float b,
-                               float a) {
-        c.vertex(m, x, y, z).color(r, g, b, a).endVertex();
-    }
-
-    private static void quad(VertexConsumer c, Matrix4f m, float[] p, float r, float g, float b, float a) {
-        for (int i = 0; i < 4; i++) vertex(c, m, p[i * 3], p[i * 3 + 1], p[i * 3 + 2], r, g, b, a);
-    }
-
-
-    /** A flat annulus across the axis. */
-    private static void disc(VertexConsumer c, Matrix4f m, float cx, float cy, float z, float radius, float width,
-                             int segs, float r, float g, float b, float a) {
-        ring(c, m, cx, cy, z, 1, 0, 0, 0, 1, 0, radius, width, segs, r, g, b, a);
-    }
-
-    /** An annulus in the plane spanned by the unit vectors u and v, of the given outer radius and width. */
-    private static void ring(VertexConsumer c, Matrix4f m, float cx, float cy, float cz, float ux, float uy, float uz,
-                             float vx, float vy, float vz, float radius, float width, int segs, float r, float g,
-                             float b, float a) {
-        float inner = Math.max(0.01F, radius - width);
-        for (int i = 0; i < segs; i++) {
-            float a0 = Mth.TWO_PI * i / segs, a1 = Mth.TWO_PI * (i + 1) / segs;
-            float c0 = Mth.cos(a0), s0 = Mth.sin(a0), c1 = Mth.cos(a1), s1 = Mth.sin(a1);
-            quad(c, m, new float[] {
-                    cx + (ux * c0 + vx * s0) * inner, cy + (uy * c0 + vy * s0) * inner, cz + (uz * c0 + vz * s0) * inner,
-                    cx + (ux * c0 + vx * s0) * radius, cy + (uy * c0 + vy * s0) * radius, cz + (uz * c0 + vz * s0) * radius,
-                    cx + (ux * c1 + vx * s1) * radius, cy + (uy * c1 + vy * s1) * radius, cz + (uz * c1 + vz * s1) * radius,
-                    cx + (ux * c1 + vx * s1) * inner, cy + (uy * c1 + vy * s1) * inner, cz + (uz * c1 + vz * s1) * inner },
-                    r, g, b, a);
-        }
-    }
-
-
-    /** A low-poly sphere (latitude bands by longitude segments). */
-    private static void sphere(VertexConsumer c, Matrix4f m, float cx, float cy, float cz, float radius, int bands,
-                               int segs, float r, float g, float b, float a) {
-        for (int i = 0; i < bands; i++) {
-            float p0 = Mth.PI * i / bands - Mth.HALF_PI, p1 = Mth.PI * (i + 1) / bands - Mth.HALF_PI;
-            float z0 = Mth.sin(p0) * radius, z1 = Mth.sin(p1) * radius, q0 = Mth.cos(p0) * radius,
-                    q1 = Mth.cos(p1) * radius;
-            for (int j = 0; j < segs; j++) {
-                float a0 = Mth.TWO_PI * j / segs, a1 = Mth.TWO_PI * (j + 1) / segs;
-                quad(c, m, new float[] {
-                        cx + Mth.cos(a0) * q0, cy + Mth.sin(a0) * q0, cz + z0,
-                        cx + Mth.cos(a1) * q0, cy + Mth.sin(a1) * q0, cz + z0,
-                        cx + Mth.cos(a1) * q1, cy + Mth.sin(a1) * q1, cz + z1,
-                        cx + Mth.cos(a0) * q1, cy + Mth.sin(a0) * q1, cz + z1 }, r, g, b, a);
+    private static void cone(VertexConsumer c, Matrix4f m, float r0, float r1, float len, int sides, int slices, float r,
+                             float g, float b, float alpha, float falloff) {
+        for (int sl = 0; sl < slices; sl++) {
+            float u0 = sl / (float) slices, u1 = (sl + 1) / (float) slices;
+            float z0 = Z0 + len * u0, z1 = Z0 + len * u1;
+            float rad0 = r0 + (r1 - r0) * u0, rad1 = r0 + (r1 - r0) * u1;
+            float a0 = alpha * (float) Math.pow(1F - u0, falloff), a1 = alpha * (float) Math.pow(1F - u1, falloff);
+            for (int i = 0; i < sides; i++) {
+                float c0 = FxGeo.cos(i, sides), s0 = FxGeo.sin(i, sides), c1 = FxGeo.cos(i + 1, sides),
+                        s1 = FxGeo.sin(i + 1, sides);
+                FxGeo.vertex(c, m, CX + c0 * rad0, CY + s0 * rad0, z0, r, g, b, a0);
+                FxGeo.vertex(c, m, CX + c1 * rad0, CY + s1 * rad0, z0, r, g, b, a0);
+                FxGeo.vertex(c, m, CX + c1 * rad1, CY + s1 * rad1, z1, r, g, b, a1);
+                FxGeo.vertex(c, m, CX + c0 * rad1, CY + s0 * rad1, z1, r, g, b, a1);
             }
+        }
+    }
+
+    /** Two cones base to base: a diamond of light {@code half} long each way, {@code rad} across at its middle. */
+    private static void spindle(VertexConsumer c, Matrix4f m, float zMid, float rad, float half, int sides, float r,
+                                float g, float b, float alpha) {
+        for (int i = 0; i < sides; i++) {
+            float c0 = FxGeo.cos(i, sides), s0 = FxGeo.sin(i, sides), c1 = FxGeo.cos(i + 1, sides),
+                    s1 = FxGeo.sin(i + 1, sides);
+            // upper half (towards the foot), then lower; the tips are dark, the middle bright
+            FxGeo.vertex(c, m, CX, CY, zMid - half, r, g, b, 0F);
+            FxGeo.vertex(c, m, CX, CY, zMid - half, r, g, b, 0F);
+            FxGeo.vertex(c, m, CX + c1 * rad, CY + s1 * rad, zMid, r, g, b, alpha);
+            FxGeo.vertex(c, m, CX + c0 * rad, CY + s0 * rad, zMid, r, g, b, alpha);
+            FxGeo.vertex(c, m, CX + c0 * rad, CY + s0 * rad, zMid, r, g, b, alpha);
+            FxGeo.vertex(c, m, CX + c1 * rad, CY + s1 * rad, zMid, r, g, b, alpha);
+            FxGeo.vertex(c, m, CX, CY, zMid + half, r, g, b, 0F);
+            FxGeo.vertex(c, m, CX, CY, zMid + half, r, g, b, 0F);
         }
     }
 }

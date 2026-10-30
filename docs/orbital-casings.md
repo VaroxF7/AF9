@@ -2,16 +2,16 @@
 
 The Mk2's pattern no longer uses GTCEu's Stress-Proof, Sturdy HSS-E and Inert PTFE casings (the Mk1 station keeps them). Four AF9 casings
 take their places, each costing a good deal more; all are assembled at UHV, four casings to a run (`kubejs/server_scripts/mods/gtceu/orbital_casings.js`,
-change the numbers there). The pattern keeps Janne's hand edits; only the block each letter stands for changed (`orbitalWheres` in `photolithography.js`).
+change the numbers there). The pattern is Janne's `orbital.nbt` 1:1 (`tools/orbital_mk2_layout.py`, see `orbital-array-mk2-pattern.md`); `orbitalWheres` in `photolithography.js` says what each letter stands for.
 
 | Casing | Replaces | Where (letter, cells) | Run (4 casings) |
 |---|---|---|---|
-| Orbital Combined Structure Casing | Stress-Proof, `L` (5,571) | the tower's walls, fins, the rings' top levels | 4 ceraquadalloy plate, 1 ceraquadalloy frame, 4 tritanium plate |
-| Orbital Truss Casing | Sturdy HSS-E, `D` (1,152) | the inner half of every ring's band | 4 tritanium plate, 2 tritanium frame, 2 naquadah alloy plate |
-| Orbital Girder Casing | Sturdy HSS-E, `E` (1,212) | the outer half of the band, under the non-conducting face | 4 osmiridium plate, 2 tritanium frame, 2 europium plate |
-| Orbital Deck Casing | Inert PTFE, `O` and `Q` (1,039) | the crown and the deck: the casing every hatch goes on, and the casings round a module slot | 2 ceranium plate, 4 PBI foil, 144 mB PBI |
+| Orbital Combined Structure Casing | Stress-Proof, `L` (2,811) | the tower's walls, fins, the rings' top levels | 4 ceraquadalloy plate, 1 ceraquadalloy frame, 4 tritanium plate |
+| Orbital Truss Casing | Sturdy HSS-E, `D` (1,608) | the inner half of every ring's band | 4 tritanium plate, 2 tritanium frame, 2 naquadah alloy plate |
+| Orbital Girder Casing | Sturdy HSS-E, `E` (1,692) | the outer half of the band, under the non-conducting face | 4 osmiridium plate, 2 tritanium frame, 2 europium plate |
+| Orbital Deck Casing | Inert PTFE (Mk1 only) | not in the new Mk2 pattern: the chamber deck is non-conducting casing, hatches and module slots go there. A module's own pattern still accepts the deck casing | 2 ceranium plate, 4 PBI foil, 144 mB PBI |
 
-The non-conducting casing (`C`, 4,172) stays GT's.
+The non-conducting casing (`C`, 3,222; also the hatch cells `O` and the module slots `Y`) stays GT's.
 
 ## Ceraquadalloy
 
@@ -22,8 +22,8 @@ The new alloy of the Combined Structure Casing: Trinaquadalloy hardened with the
 | 1. alloy | Mixer, UHV | 4 trinaquadalloy, 2 ceranium, 1 quantanium, 1 neutronium dust | 8 ceraquadalloy dust |
 | 2. melt | EBF, GT's own recipe (blast 10,800 K, UHV) | ceraquadalloy dust | ceraquadalloy ingot (then plate, frame, rod) |
 
-A Combined Structure Casing is 1.5 ingots of the alloy plus a tritanium plate, so the Mk2's 5,571 of them need about 8,400 ingots: around 4,200
-trinaquadalloy, 2,100 ceranium, 1,050 quantanium and 1,050 neutronium. Material: `AF9Materials.orbitalStructureAlloy()`.
+A Combined Structure Casing is 1.5 ingots of the alloy plus a tritanium plate, so the Mk2's 2,811 of them need about 4,200 ingots: around 2,100
+trinaquadalloy, 1,050 ceranium, 525 quantanium and 525 neutronium. Material: `AF9Materials.orbitalStructureAlloy()`.
 
 ## Textures
 

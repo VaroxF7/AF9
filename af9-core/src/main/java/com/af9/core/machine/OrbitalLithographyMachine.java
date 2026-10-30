@@ -31,6 +31,9 @@ import com.gregtechceu.gtceu.api.machine.fancyconfigurator.CombinedDirectionalFa
 import com.gregtechceu.gtceu.api.machine.feature.IMachineLife;
 import com.gregtechceu.gtceu.api.machine.feature.IAuxiliaryPowerPart;
 import com.gregtechceu.gtceu.api.machine.feature.multiblock.IMultiPart;
+import com.gregtechceu.gtceu.api.machine.feature.multiblock.IRotorHolderMachine;
+import com.gregtechceu.gtceu.api.machine.multiblock.PartAbility;
+import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.machine.trait.NotifiableItemStackHandler;
 import com.gregtechceu.gtceu.api.pattern.BlockPattern;
 import com.gregtechceu.gtceu.api.pattern.MultiblockShapeInfo;
@@ -139,10 +142,16 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * One ring of the Array Mk2's tower (extended pattern): a band of casing {@code t} levels thick whose top level is
      * {@code d0} levels below the controller, {@code radius} out to its outer edge (measured at the centres of the
      * blocks) and {@code width} wide, turning {@code spin} radians a tick (negative: the other way). Once the station
-     * is formed the client hides the band's blocks and draws them turning (client/skin/RingDraw); a light ring glows
-     * just inside it. The pattern in photolithography.js (ORBITAL_RINGS) has the same rings: keep them in step.
+     * is formed the client hides the ring's blocks and draws them turning (client/skin/RingDraw). A ring is a wheel: the
+     * spokes, from {@code hub} blocks out of the axis to the band, turn with it. {@code strip} says which blocks those are:
+     * -1 every block of the band's levels that far out, 0 or more only the middle level's blocks within that many blocks
+     * of the four axes (where the tower's own deck stands close to the ring). Everything else of the tower between levels
+     * {@code shieldFrom} and {@code shieldTo} (both -1 for none) that stands {@code hub} or more out of the axis turns too:
+     * on the big ring the four shield pillars that hold the plasma field together. A light ring glows just
+     * inside the band. The pattern (orbital_mk2_layout.js, tools/orbital_mk2_layout.py) has the same rings: keep them in step.
      */
-    public record Band(int d0, int t, int radius, int width, float spin) {
+    public record Band(int d0, int t, int radius, int width, float spin, float hub, int shieldFrom, int shieldTo,
+                      int strip) {
 
         /** Levels below the controller to the middle of the band. */
         public float lightBack() {
@@ -153,12 +162,16 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         public float lightRadius() {
             return radius - width - 1.5F;
         }
+
+        /** The middle level of the band: the spokes run there. */
+        public int mid() {
+            return d0 + t / 2;
+        }
     }
 
-    /** Half width of the rings' collar plates on the tower (19 wide): the beams out to the rings start outside it. */
-    public static final int TOWER_HALF = 9;
-    public static final List<Band> BANDS_MK2 = List.of(new Band(40, 3, 36, 5, 0.02F), new Band(22, 2, 26, 4, -0.03F),
-            new Band(58, 2, 18, 3, -0.035F));
+    /** The Mk2's three wheels: the big one in the middle (with the shield), the smaller ones above and below. */
+    public static final List<Band> BANDS_MK2 = List.of(new Band(34, 3, 36, 5, 0.02F, 5.5F, 30, 41, -1),
+            new Band(16, 3, 26, 4, -0.03F, 11.5F, -1, -1, -1), new Band(52, 2, 18, 3, -0.035F, 10F, -1, -1, 1));
     /** The light rings of the Mk2's bands (the render reads them through {@link #ringSpecs}). */
     public static final List<RingSpec> RINGS_MK2 = BANDS_MK2.stream()
             .map(band -> new RingSpec(band.lightBack(), band.lightRadius(), band.spin())).toList();
@@ -170,11 +183,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public static final int HALF_WIDTH = 12;
     public static final int DEPTH = 17;
     /**
-     * The Mk2 extended array's extent: 36 to each side (73 wide, the big ring), 129 + 5 behind (130 levels from the
-     * crown with the controller to the foot: startup_scripts/gtceu/photolithography.js ORBITAL_DEPTH).
+     * The Mk2 extended array's extent: 36 to each side (73 wide, the big ring), 98 + 5 behind (99 levels from the
+     * crown with the controller to the foot, and the lance's first blocks: orbital_mk2_layout.js).
      */
     public static final int HALF_WIDTH_MK2 = 36;
-    public static final int DEPTH_MK2 = 129 + 5;
+    public static final int DEPTH_MK2 = 98 + 5;
     /** Recipe data key of the coolant a run uses (the coolant's id). */
     public static final String COOLANT_TAG = "af9_coolant";
 
@@ -596,6 +609,21 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             return true;
         }, OrbitalLithographyMachine::moduleCandidates)
                 .addTooltips(Component.translatable("af9.orbital_lithography_station.pattern.module"));
+    }
+
+    /** The lowest tier of the collision chamber's rotor holders. */
+    public static final int MIN_HOLDER_TIER = GTValues.UV;
+
+    /**
+     * A rotor holder of UV or better, in a spot of the Mk2's collision chamber. The rotors in them are for show: they turn
+     * while the Array works and never wear (the mixin {@code RotorHolderCosmeticMixin} drops the wear), a holder with
+     * no rotor is as good.
+     */
+    public static TraceabilityPredicate rotorHolders() {
+        int[] tiers = new int[GTValues.MAX - MIN_HOLDER_TIER + 1];
+        for (int i = 0; i < tiers.length; i++) tiers[i] = MIN_HOLDER_TIER + i;
+        return Predicates.ability(PartAbility.ROTOR_HOLDER, tiers)
+                .addTooltips(Component.translatable("af9.orbital_lithography_station.pattern.rotor"));
     }
 
     private static OrbitalModuleMachine.Kind moduleKindOf(BlockState state) {
@@ -1099,6 +1127,12 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
                 coil.getTier() : -1;
         linkModules(extended ? getMultiblockState().getMatchContext().get(MODULE_POS_KEY) : null);
         forceAuxiliaryHatches();
+        // the chamber's rotors turn in the open, whatever way the holders were placed
+        for (IMultiPart part : getParts()) {
+            if (part instanceof IRotorHolderMachine && part.self().getFrontFacing() != Direction.UP) {
+                part.self().setFrontFacing(Direction.UP);
+            }
+        }
         markDirty();
     }
 

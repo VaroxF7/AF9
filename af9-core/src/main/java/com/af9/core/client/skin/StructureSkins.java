@@ -59,7 +59,7 @@ public final class StructureSkins {
     public static final List<StructureSkin> SKINS = List.of(
             // the Orbital Array Mk2's tower: its rings turn (only while the Mk2 size is switched on)
             StructureSkin.rings(() -> machine("orbital_lithography_station"),
-                    new StructureSkin.Rings(OrbitalLithographyMachine.BANDS_MK2, OrbitalLithographyMachine.TOWER_HALF)));
+                    new StructureSkin.Rings(OrbitalLithographyMachine.BANDS_MK2)));
 
     /** The blocks a lithography structure is made of (the bottom row of its middle column): the cabinet ends where none is. */
     private static final Set<String> CABINET_BLOCKS = Set.of("gtceu:plascrete", "af9:plascrete_filter_casing",
@@ -78,6 +78,8 @@ public final class StructureSkins {
     private static final Map<Long, long[]> TRACKED = new HashMap<>();
     /** The tracked controllers, for the flames at the window. */
     private static final Map<Long, MultiblockControllerMachine> MACHINES = new HashMap<>();
+    /** The Mk2 controllers that are formed but not powered: no skin yet, only the wafer floats in the chamber. */
+    private static final Map<Long, MultiblockControllerMachine> IDLE = new HashMap<>();
     /** Every hidden position, replaced as a whole when it changes (the chunk builders read it from their threads). */
     private static volatile LongSet hidden = new LongOpenHashSet();
     private static ClientLevel trackedLevel;
@@ -213,8 +215,9 @@ public final class StructureSkins {
     }
 
     /**
-     * The tower's rings: the blocks of every band and of the spokes to it hide (the rings are drawn turning, the beams
-     * take the spokes' place), only on the Mk2 size. The blocks are the pattern's (photolithography.js, orbitalRingCell).
+     * The tower's wheels: the blocks of every band, of its spokes and of the big wheel's shield hide (they are drawn
+     * turning), only on the Mk2 size. Which blocks turn is the band's ({@link OrbitalLithographyMachine.Band}); the
+     * blocks are the pattern's (orbital_mk2_layout.js).
      */
     private static void trackRings(ClientLevel level, MultiblockControllerMachine controller, StructureSkin skin,
                                    BlockPos origin, List<BlockPos> parts, LongArrayList positions) {
@@ -223,15 +226,18 @@ public final class StructureSkins {
             return;
         }
         // the rings stay the real blocks (with their connected textures) until the station has power; then they take
-        // over and spin up (an already spinning skin stays until the station is not formed any more)
+        // over and spin up (an already spinning skin stays until the station is not formed any more). The wafer floats
+        // in the chamber from the start, though: the controller is listed as idle for it
         if (!station.isFieldActive() && station.getStartupPercent() <= 0 && !TRACKED.containsKey(origin.asLong())) {
+            IDLE.put(origin.asLong(), controller);
             return;
         }
-        // the rings' blocks are walked (a few thousand cells) every 3 seconds, not at every scan
+        IDLE.remove(origin.asLong());
+        // the wheels' blocks are walked (a few thousand cells) every 3 seconds, not at every scan
         Long lastScan = RING_SCANS.get(origin.asLong());
         if (lastScan != null && ticks - lastScan < RING_SCAN_TICKS && TRACKED.containsKey(origin.asLong())) return;
         RING_SCANS.put(origin.asLong(), (long) ticks);
-        // the rings are drawn in place of their blocks only once the whole tower stands
+        // the wheels are drawn in place of their blocks only once the whole tower stands
         Boolean built = ringsBuilt(level, controller, skin);
         if (built == null) {
             // a part of it is out of the loaded chunks: leave things as they are
@@ -249,23 +255,31 @@ public final class StructureSkins {
         for (int bandIndex = 0; bandIndex < bands.size(); bandIndex++) {
             OrbitalLithographyMachine.Band band = bands.get(bandIndex);
             List<RingBlocks.Cell> ring = new ArrayList<>();
-            int reach = band.radius() + 1, mid = band.d0() + band.t() / 2;
-            for (int d = band.d0(); d < band.d0() + band.t(); d++) {
+            boolean shield = band.shieldFrom() >= 0;
+            int reach = band.radius() + 1, mid = band.mid();
+            int from = shield ? Math.min(band.d0(), band.shieldFrom()) : band.d0();
+            int to = shield ? Math.max(band.d0() + band.t() - 1, band.shieldTo()) : band.d0() + band.t() - 1;
+            double inner = band.radius() - band.width();
+            for (int d = from; d <= to; d++) {
+                boolean bandLevel = d >= band.d0() && d < band.d0() + band.t();
                 for (int right = -reach; right <= reach; right++) {
                     for (int up = -reach; up <= reach; up++) {
                         double r = Math.sqrt(right * right + up * up);
-                        boolean inBand = r >= band.radius() - band.width() && r <= band.radius() + 0.3;
-                        // the spokes: the beam of shock-proof casing between rails along the axes, on the middle level
-                        boolean spoke = d == mid && Math.max(Math.abs(right), Math.abs(up)) > skin.rings().towerHalf() && r < band.radius() - band.width()
-                                && (right == 0 || up == 0 || Math.abs(right) == 1 || Math.abs(up) == 1);
-                        if (!inBand && !spoke) continue;
+                        boolean rim = bandLevel && r >= inner && r <= band.radius() + 0.3;
+                        boolean spoke = false;
+                        if (r >= band.hub() && r < inner) {
+                            if (shield) spoke = true;
+                            else if (band.strip() < 0) spoke = bandLevel;
+                            else spoke = d == mid && (Math.abs(right) <= band.strip() || Math.abs(up) <= band.strip());
+                        }
+                        if (!rim && !spoke) continue;
                         BlockPos pos = at(controller, right, up, d);
                         if (pos.equals(origin) || parts.contains(pos)) continue;
                         if (level.getBlockState(pos).isAir()) continue;
                         if (MetaMachine.getMachine(level, pos) != null || level.getBlockEntity(pos) != null) continue;
                         positions.add(pos.asLong());
-                        // the band's own blocks are drawn turning with their own models (the spokes' beams are plasma)
-                        if (inBand) ring.add(new RingBlocks.Cell(right, up, d, pos, level.getBlockState(pos)));
+                        // the wheel's own blocks are drawn turning with their own models
+                        ring.add(new RingBlocks.Cell(right, up, d, pos, level.getBlockState(pos)));
                     }
                 }
             }
@@ -281,29 +295,21 @@ public final class StructureSkins {
         dirty(before, now);
     }
 
-    /** Whether the cell is a ring's band (the ring skin draws those, not the tower's shell). */
-    private static boolean inBand(StructureSkin skin, int right, int up, int back) {
-        for (OrbitalLithographyMachine.Band band : skin.rings().bands()) {
-            if (back < band.d0() || back >= band.d0() + band.t()) continue;
-            if (Math.sqrt(right * right + up * up) >= band.radius() - band.width() - 0.5) return true;
-        }
-        return false;
-    }
-
     /**
-     * Whether the tower is standing, by samples: the tower's core column, each ring's beam on the four sides and
-     * the ring's band at the four points of the compass. {@code null} when a sample lies in a chunk that is not loaded.
+     * Whether the tower is standing, by samples: the core column's shell, the four arms of the halo, each wheel's
+     * spokes on the four sides and its rim at the four points of the compass. {@code null} when a sample lies in a chunk
+     * that is not loaded.
      */
     private static Boolean ringsBuilt(ClientLevel level, MultiblockControllerMachine controller, StructureSkin skin) {
         List<BlockPos> samples = new ArrayList<>();
-        int half = skin.rings().towerHalf();
-        // the core tube's superconducting coils, all the way down (its 5 x 5 shell, from level 12 to level 98)
-        for (int back : new int[] { 14, 40, 70, 90 }) samples.add(at(controller, 2, 0, back));
-        for (OrbitalLithographyMachine.Band band : skin.rings().bands()) {
-            int mid = band.d0() + band.t() / 2, mean = band.radius() - band.width() / 2;
-            for (int[] side : new int[][] { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) {
-                // the beam's atomic casing, 3 out of the collar (the collar itself varies with the tower's sections)
-                samples.add(at(controller, side[0] * (half + 3), side[1] * (half + 3), mid));
+        // the core tube's superconducting coils, all the way down (its 5 x 5 shell, to the foot)
+        for (int back : new int[] { 26, 60, 85 }) samples.add(at(controller, 2, 0, back));
+        for (int[] side : new int[][] { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) {
+            // the tips of the halo's arms
+            samples.add(at(controller, side[0] * 14, side[1] * 14, 2));
+            for (OrbitalLithographyMachine.Band band : skin.rings().bands()) {
+                int out = Math.round(band.hub()) + 4, mean = band.radius() - band.width() / 2;
+                samples.add(at(controller, side[0] * out, side[1] * out, band.mid()));
                 samples.add(at(controller, side[0] * mean, side[1] * mean, band.d0()));
             }
         }
@@ -315,6 +321,7 @@ public final class StructureSkins {
     }
 
     private static void untrack(long controller) {
+        IDLE.remove(controller);
         RING_SCANS.remove(controller);
         RingDraw.forget(controller);
         RingBlocks.forget(controller);
@@ -335,6 +342,16 @@ public final class StructureSkins {
     /** The tracked controllers (client thread). */
     static java.util.Collection<MultiblockControllerMachine> trackedControllers() {
         return MACHINES.values();
+    }
+
+    /** The formed Mk2 controllers whose skin is not on yet (client thread): the render draws their wafer. */
+    static java.util.Collection<MultiblockControllerMachine> idleControllers() {
+        return IDLE.values();
+    }
+
+    /** Whether the controller is formed and idle (not tracked yet). */
+    public static boolean isIdle(BlockPos controller) {
+        return IDLE.containsKey(controller.asLong());
     }
 
     private static void publish() {
@@ -365,6 +382,7 @@ public final class StructureSkins {
     }
 
     private static void clear() {
+        IDLE.clear();
         if (TRACKED.isEmpty()) return;
         TRACKED.clear();
         MACHINES.clear();
@@ -486,6 +504,7 @@ public final class StructureSkins {
         for (long controller : new ArrayList<>(TRACKED.keySet())) {
             if (!seen.contains(controller)) untrack(controller);
         }
+        IDLE.keySet().removeIf(controller -> !seen.contains(controller));
     }
 
     //////////////////////////////////////

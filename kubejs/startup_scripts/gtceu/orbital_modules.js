@@ -1,5 +1,5 @@
-// AF9 - The Orbital Lithography Array Mk2's modules: small multiblocks of their own that stand in the module columns on the
-// crown's roof (photolithography.js, orbitalModuleSlots; af9-core OrbitalLithographyMachine.modules()), as the Space Elevator's
+// AF9 - The Orbital Lithography Array Mk2's modules: small multiblocks of their own that stand in the six module slots in the rim
+// of the printing chamber's deck (orbital_mk2_layout.js, 'Y'; af9-core OrbitalLithographyMachine.modules()), as the Space Elevator's
 // Mining Modules stand in the tower's. They run no recipe: the Array finds them when it forms and gives every print the bonus
 // of each module whose own structure stands (af9-core OrbitalModuleMachine.Kind). Modules of one kind stack, up to a maximum.
 //   Parallel Processing Computer      +10 parallels each (as the energy allows)         max 6
@@ -35,7 +35,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
                 $ModuleDirection.BACK)
                 .aisle('M', 'S', 'M')
                 .where('S', Predicates.controller(Predicates.blocks(definition.get())))
-                .where('M', Predicates.blocks('gtceu:inert_machine_casing'))
+                .where('M', Predicates.blocks('gtceu:inert_machine_casing').or(Predicates.blocks('gtceu:nonconducting_casing'))
+                .or(Predicates.blocks('af9:orbital_deck_casing')))
                 .build())
             .workableCasingModel('gtceu:block/casings/solid/machine_casing_inert_ptfe',
                 `gtceu:block/multiblock/orbital_module_${kind}`)

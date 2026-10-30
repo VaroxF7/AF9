@@ -69,7 +69,7 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 })
 
 // Orbital station layouts, precomputed ONCE at module level and reused by .pattern() for both
-// basic and Mk2 (memoized): ORBITAL_BASIC is the 25-wide design, ORBITAL_MK2_SLICES the 73x130x73 Mk2 cell table.
+// basic and Mk2 (memoized): ORBITAL_BASIC is the 25-wide design, ORBITAL_MK2_SLICES the 73 x 99 x 73 Mk2 table (orbital_mk2_layout.js).
 const ORBITAL_BASIC = [
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         '],
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
@@ -97,242 +97,19 @@ const ORBITAL_BASIC = [
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','            C            ','         CCCCCCC         ','      DDDCCCCCCCDDD      ','         CCCCCCC         ','            C            ','                         '],
         ['                         ', '                         ', '                         ', '                         ','                         ', '                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','                         ','        DDDDDDDDD        ','                         ','                         ','                         ']
     ]
-// Array Mk2: a tower. A tall white spire of panels (the hatches in its crown, the controller on top, facing up) with
-// three rings round it, a big one in the middle and a smaller one above and below, joined to it by beams, and a plasma
-// lance (drawn, not built) leaving the open foot; the rings' light rings glow just inside them and turn like the wheels of a station
-// (af9-core RING_MK2 / OrbitalLithographyMachine.ringSpecs, which read the same numbers: keep them in step). The
-// blocks are the basic station's: sturdy and stress-proof casing for the rings and the shell, non-conducting panels, the
-// atomic beams in tungsten carbide frame rails, straight light seams, a tube of superconducting coils for the core. Rows bottom -> top as
-// ORBITAL_BASIC, the controller on the top row. d below counts levels down from the controller.
-const ORBITAL_MK2 = 73          // width of the plane, the tower at its centre (36)
-const ORBITAL_MID = 36
-const ORBITAL_DEPTH = 130       // levels: the crown at the top, the open foot at the bottom (the last 25 are empty)
-const ORBITAL_TOP = 0         // levels above the controller's (none: the module columns stand on the walkway below the crown)
-const ORBITAL_HALF = 9          // half width of the ring collars, the beams start outside it
-const ORBITAL_RINGS = [         // d of the ring's top level, levels thick, outer radius, band width (every ring one band of casing)
-    { d: 22, t: 2, r: 26, w: 4 },
-    { d: 40, t: 3, r: 36, w: 5 },
-    { d: 58, t: 2, r: 18, w: 3 }
-]
-// the ring's middle level: the collar plate of the tower and the beams out to the ring sit here
-const orbitalMid = ring => ring.d + Math.floor(ring.t / 2)
-const orbitalCollar = d => ORBITAL_RINGS.some(ring => Math.abs(d - orbitalMid(ring)) <= 1)
-// the deck round each ring: the levels above and below its collar plate reach out wide along the slab, over the beams
-// (which run at the middle level). The turning ring's light ring (af9-core Band.lightRadius: radius - width - 1.5) and the band
-// sweep a clear annulus, so nothing that stands still may come closer to the axis' far side than orbitalClear: 1.75 blocks
-// inside the light ring (its tube and its burn). The deck is cut to that circle, so no ring ever touches the tower.
-// 28 is the most any tower cell may stand from the axis (the foot's plan is far smaller): af9-core hides and redraws a 35 x 35 box (TOWER_BOX)
-const orbitalClear = ring => ring.r - ring.w - 3.25
-const orbitalDeck = (d, dx, dz) => ORBITAL_RINGS.some(ring => Math.abs(d - orbitalMid(ring)) === 1
-    && Math.hypot(dx, dz) <= orbitalClear(ring) && Math.abs(dx) <= 28 && Math.abs(dz) <= 9 && Math.abs(dx) + Math.abs(dz) * 2 <= 36)
-// the set-backs between the rings: a two-level ledge, wider than the body, where the slab steps in
-const orbitalLedge = d => d === 36 || d === 37 || d === 54 || d === 55 || d === 72 || d === 73
-// the tower's half widths (x, z) d levels down: a crown on a slab-sided upper block, a slimmer waist, the long taper
-const orbitalSection = d => {
-    if (d <= 20) return [8, 5]
-    if (d <= 39) return [9, 5]
-    if (d <= 57) return [8, 4]
-    if (d <= 80) return [6, 3]
-    if (d <= 104) {
-        const step = Math.floor((d - 81) / 6)
-        return [5 - Math.floor(step / 2), Math.max(1, 3 - Math.floor(step / 3))]
-    }
-    return [0, 0]
-}
-// the crown's roof, the same left and right of the controller: a flat dome that is lowest around the controller
-const orbitalRoof = (dx, dz) => Math.floor((Math.pow(Math.abs(dx) / 8.5, 2) + Math.pow(Math.abs(dz) / 5.5, 2)) * 11)
-// what stands out of the tower's walls, '' for nothing: 'F' a fin (a thin plate against the body: one against each
-// side of the crown, 'P' two pylons down the waist), 'R' a rib (the layered vertical
-// panels of the body). None of them reach a ring's middle level (the beams run there).
-const orbitalFin = (d, dx, dz) => {
-    const sec = orbitalSection(d)
-    const ax = Math.abs(dx)
-    const az = Math.abs(dz)
-    // the halo: a ring round the crown, held by four struts (one on each side)
-    if (d <= 21) {
-        const r = Math.sqrt(dx * dx + dz * dz)
-        const ring = d >= 4 && d <= 5 && ((r >= 11.5 && r <= 13.7) || (ax <= 1 && az >= 5 && az <= 12) || (az <= 1 && ax >= 8 && ax <= 12))
-        return ring ? 'F' : ''
-    }
-    if (d >= 62 && d <= 78 && ax === sec[0] + 1 && az <= 1) return 'P'
-    // ribs up the faces of the upper block and of the waist
-    if (d >= 21 && d <= 80 && d !== 22 && sec[0] > 4) {
-        if (az === sec[1] + 1 && ax <= sec[0] - 2 && dx % 4 === 0) return 'R'
-        if (ax === sec[0] + 1 && az <= sec[1] - 2 && dz % 4 === 0) return 'R'
-    }
-    return ''
-}
-// is this cell part of the tower's mass (its walls, hollow inside, are what is built)
-const orbitalSolid = (d, dx, dz) => {
-    if (d < 0) return false
-    const ax = Math.abs(dx)
-    const az = Math.abs(dz)
-    if (orbitalCollar(d) && ax <= ORBITAL_HALF && az <= ORBITAL_HALF && ax + az <= 15) return true
-    if (orbitalDeck(d, dx, dz)) return true
-    const sec = orbitalSection(d)
-    if (sec[0] === 0) return false
-    if (orbitalLedge(d) && ax <= sec[0] + 3 && az <= sec[1] + 3 && ax + az <= sec[0] + sec[1] + 1) return true
-    if (ax <= sec[0] && az <= sec[1] && ax + az <= sec[0] + sec[1] - 2) return d <= 20 ? d >= orbitalRoof(dx, dz) : true
-    return orbitalFin(d, dx, dz) !== ''
-}
-// the crown's walls are this many blocks thick (the rest of the tower's are one)
-var orbitalCrownWall = 2
-const orbitalDeepInside = (d, dx, dz) => {
-    if (d > 24 || orbitalCrownWall <= 1) return true
-    for (let k = 2; k <= orbitalCrownWall; k++) {
-        if (!(orbitalSolid(d, dx + k, dz) && orbitalSolid(d, dx - k, dz) && orbitalSolid(d, dx, dz + k)
-            && orbitalSolid(d, dx, dz - k) && orbitalSolid(d - k, dx, dz) && orbitalSolid(d + k, dx, dz))) return false
-    }
-    return true
-}
-// the plasma-injection coils: the Mk2's heating coils (tier bonus) stand inside the tower, never on its walls: six square collars
-// round the core tube, three behind each row of windows, seen through the open panels
-const orbitalCoilCollar = d => [26, 29, 32, 44, 47, 50].indexOf(d) >= 0
-const orbitalTowerCell = (d, dx, dz) => {
-    if (d === 0 && dx === 0 && dz === 0) return 'K'
-    if (d < 0) return ' '   // above the controller: nothing
-    if (d > 104) return ' '   // the tower ends at its foot; the plasma lance below it is drawn, not built
-    if (Math.abs(dx) > 28 || Math.abs(dz) > 28) return ' '
-    // the foot's chamber: a 3 x 3 hollow closed by the plate of the last level (the thruster's lance is drawn below it)
-    if (d >= 99 && d <= 103 && Math.abs(dx) <= 1 && Math.abs(dz) <= 1) return ' '
-    // the centre column: PTFE through the crown (the hatches go on it); below it the energy core's tube, a 5 x 5 shell of
-    // superconducting coils round a 3 x 3 hollow (the plasma column, the same width as the foot's opening)
-    if (d < 12 && dx === 0 && dz === 0) return 'O'
-    const core = Math.max(Math.abs(dx), Math.abs(dz))
-    if (d >= 12 && d <= 98 && core <= 2) return core === 2 ? 'S' : ' '
-    if (!orbitalSolid(d, dx, dz)) return ' '
-    const east = orbitalSolid(d, dx + 1, dz)
-    const west = orbitalSolid(d, dx - 1, dz)
-    const north = orbitalSolid(d, dx, dz + 1)
-    const south = orbitalSolid(d, dx, dz - 1)
-    const up = orbitalSolid(d - 1, dx, dz)
-    const down = orbitalSolid(d + 1, dx, dz)
-    if (east && west && north && south && up && down && orbitalDeepInside(d, dx, dz)) {
-        // inside the walls: a floor every 12 levels, the coil collars round the core tube
-        if (orbitalCoilCollar(d) && core === 3) return 'B'
-        return d <= 80 && d % 12 === 0 ? 'C' : ' '
-    }
-    const part = orbitalFin(d, dx, dz)
-    // the halo (ring and struts) is stress-proof casing, not hatch deck: only where it stands clear of the crown's body
-    if (part === 'F' && d <= 21) {
-        const crown = orbitalSection(d)
-        if (!(Math.abs(dx) <= crown[0] && Math.abs(dz) <= crown[1] && Math.abs(dx) + Math.abs(dz) <= crown[0] + crown[1] - 2)) return 'L'
-    }
-    // the crown and the roof: plain PTFE casing all round, the hatches go on it
-    if (d <= 10 || (d <= 20 && !up)) return 'O'
-    if (part === 'R') return 'C'
-    // the waist's pylons: atomic casing pillars either side of a narrow frame strip
-    if (part === 'P') return dz === 0 ? 'F' : 'H'
-    if (part === 'F') return 'L'
-    // no frame blocks on the tower's body: corners and rims are casing like the walls
-    // walls: stress-proof casing columns with non-conducting panels between, magnet pillars and one straight light seam
-    // between each pair of them, all running the height of the body
-    const along = Math.abs(!north || !south ? dx : dz)
-    // windows: the wall panels of the upper block and of the middle one are open, so the core tube shows inside
-    if (((d >= 25 && d <= 34) || (d >= 43 && d <= 52)) && (along % 6 === 4 || along % 6 === 5)) return ' '
-    // magnet pillars up the tower (three to a face, the same on all four sides), a straight light seam (light casing)
-    // down the middle of each panel between them
-    if (d >= 24 && d <= 80 && along % 6 === 0) return 'M'
-    if (d >= 24 && d <= 80 && along % 6 === 3) return 'N'
-    return along % 6 < 3 ? 'L' : 'C'
-}
-const orbitalRingCell = (d, dx, dz) => {
-    let found = ' '
-    ORBITAL_RINGS.forEach(ring => {
-        if (found !== ' ' || d < ring.d || d >= ring.d + ring.t) return
-        const r = Math.sqrt(dx * dx + dz * dz)
-        const mid = ring.d + Math.floor(ring.t / 2)
-        // the band: sturdy casing (a truss inside, a girder on its outer half), a stress-proof top and a non-conducting outer face
-        if (r >= ring.r - ring.w && r <= ring.r + 0.3) {
-            found = d === ring.d ? 'L' : r > ring.r - 1 ? 'C' : r > ring.r - 1 - (ring.w - 1) / 2 ? 'E' : 'D'
-            return
-        }
-        // the beams out to it: the atomic beam between tungsten carbide frame rails, one level, along the axes
-        if (d === mid && Math.max(Math.abs(dx), Math.abs(dz)) > ORBITAL_HALF && r < ring.r - ring.w) {
-            if (dx === 0 || dz === 0) found = 'H'
-            else if (Math.abs(dx) === 1 || Math.abs(dz) === 1) found = 'F'
-        }
-    })
-    return found
-}
-// the Array Mk2's module slots: six columns on the walkway at the foot of the crown's wall, three on each long side, standing
-// where the wall's ribs end on the deck (the rib stubs at dx -4, 0, 4, 6 out from the axis). A column is casing ('Q'), the slot
-// ('Y': a module controller, or nothing) and casing again, as the Space Elevator's module slots (a module is a small
-// multiblock of its own, af9-core OrbitalModuleMachine; the module needs the casing above and below it). The Array takes
-// 6 Parallel Processing Computers, 6 Energy Efficiency Modules, 2 Evaporation Stacks and 1 Sequencer at most.
-const ORBITAL_MODULE_D = 38
-const orbitalModuleSlots = (() => {
-    const slots = []
-    ;[-6, 6].forEach(dz => [-4, 0, 4].forEach(dx => slots.push([dx, dz])))
-    return slots
-})()
-const orbitalModuleCell = (d, dx, dz) => {
-    if (Math.abs(d - ORBITAL_MODULE_D) > 1 || !orbitalModuleSlots.some(slot => slot[0] === dx && slot[1] === dz)) return ' '
-    return d === ORBITAL_MODULE_D ? 'Y' : 'Q'
-}
-const orbitalMk2Cell = (d, dx, dz) => {
-    const module = orbitalModuleCell(d, dx, dz)
-    if (module !== ' ') return module
-    const tower = orbitalTowerCell(d, dx, dz)
-    return tower !== ' ' ? tower : orbitalRingCell(d, dx, dz)
-}
-// forEach, not for: KubeJS's engine (Rhino) keeps a const in a loop body at its first pass's value, so loop
-// bodies use callbacks (a const in a callback is new each call; lint rule S3). Array(n).fill(0), not
-// Array.from({ length: n }): Rhino's Array.from leaves n holes, and forEach skips holes.
-// Precomputed once (73 x 130 x 73 Mk2 cell table); .pattern() reuses this const.
+// Array Mk2: Janne's own build (orbital.nbt), 1:1: a slim spire of superconducting coils and magnets standing through three
+// rings (a big one in the middle, a smaller one above and below, each with four spokes), a halo round the crown with
+// four arms that fire their lasers at the computer core under the controller, a collision chamber with a floating wafer
+// and a deck round it, and the plasma lance (drawn, not built) leaving the open foot. The layout is generated
+// from the structure file by tools/orbital_mk2_layout.py into orbital_mk2_layout.js (global.ORBITAL_MK2_AISLES, one string
+// per aisle). 73 aisles, 99 rows, 73 characters; the controller is the last row of the middle aisle's middle column; rows
+// bottom -> top, levels below the controller count d = 98 - row. The rings' numbers are af9-core's
+// (OrbitalLithographyMachine.BANDS_MK2): keep them in step.
 const ORBITAL_MK2_SLICES = (() => {
-    const slices = []
-    Array(ORBITAL_MK2).fill(0).forEach((_, az) => {
-        const aisle = []
-        Array(ORBITAL_DEPTH + ORBITAL_TOP).fill(0).forEach((_, row) => {
-            const d = ORBITAL_DEPTH - 1 - row
-            const cells = []
-            Array(ORBITAL_MK2).fill(0).forEach((_, ax) => {
-                cells.push(orbitalMk2Cell(d, ax - ORBITAL_MID, az - ORBITAL_MID))
-            })
-            aisle.push(cells.join(''))
-        })
-        slices.push(aisle)
-    })
-    return slices
+    const aisles = global.ORBITAL_MK2_AISLES
+    if (!aisles) throw new Error('orbital_mk2_layout.js did not load before photolithography.js (global.ORBITAL_MK2_AISLES)')
+    return aisles.map(aisle => String(aisle).split('\n').map(row => row.split('.').join(' ')))
 })()
-// Hand edits to the generated Mk2 (from Janne's edited full pattern, docs/orbital-array-mk2-pattern.md): [d, aisle, row of the
-// 73 cells at that level (d below the controller; ' ' = anything)], applied over the generator's output, one row per entry.
-const ORBITAL_MK2_EDITS = [
-    [22, 45, '            LLLL  LCCCCLLCCCLLLCCCLLLLLCCCLLLCCCLLCCCCL  LLLL            '],
-    [24, 27, '                      LLNCCCLLMCCCLLMLLCCCMLLCCCNLL                      '],
-    [24, 28, '                     LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL                     '],
-    [24, 29, '                    LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL                    '],
-    [24, 30, '                       MMMMMMMMMCMMMCMMMCMMMMMMMMM                       '],
-    [24, 31, '                 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC                 '],
-    [24, 32, '                    CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC                    '],
-    [24, 33, '                           CCCCCCCCCCCCCCCCCCC                           '],
-    [24, 34, '                   LLLLLLLLCCCCCCCSSSSSCCCCCCCLLLLLLLL                   '],
-    [24, 35, '                 LLLLLLLLLLCCCCCCCS   SCCCCCCCLLLLLLLLLL                 '],
-    [24, 36, '                   MMMMMMMCCCCCCCCS   SCCCCCCCCMMMMMMM                   '],
-    [24, 37, '                 LLLLLLLLLLCCCCCCCS   SCCCCCCCLLLLLLLLLL                 '],
-    [24, 38, '                   LLLLLLLLCCCCCCCSSSSSCCCCCCCLLLLLLLL                   '],
-    [24, 39, '                           CCCCCCCCCCCCCCCCCCC                           '],
-    [24, 40, '                    CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC                    '],
-    [24, 41, '                 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC                 '],
-    [24, 42, '                       MMMMMMMMMCMMMCMMMCMMMMMMMMM                       '],
-    [24, 43, '                    LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL                    '],
-    [24, 44, '                     LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL                     '],
-    [24, 45, '                      LLNCCCLLMCCCLLMLLCCCMLLCCCNLL                      '],
-    [101, 34, '                                  LL LL                                  '],
-    [101, 38, '                                  LL LL                                  '],
-    [102, 34, '                                  LL LL                                  '],
-    [102, 38, '                                  LL LL                                  '],
-    [103, 34, '                                  LL LL                                  '],
-    [103, 38, '                                  LL LL                                  '],
-    [104, 35, '                                  LLLLL                                  '],
-    [104, 36, '                                 LLLLLLL                                 '],
-    [104, 37, '                                  LLLLL                                  '],
-]
-ORBITAL_MK2_EDITS.forEach(edit => {
-    const aisle = ORBITAL_MK2_SLICES[edit[1]]
-    aisle[ORBITAL_DEPTH - 1 - edit[0]] = edit[2]
-})
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
@@ -470,7 +247,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
     // 7 and 1 nm draw computation (computation hatch) and need their research (data hatch). While switched on and
     // powered its magnetic field gives the space around it normal gravity (Ad Astra; af9-core OrbitalField).
     // Array Mk2 (extended, a screwdriver on the controller switches sizes like the Space Elevator's screen
-    // switch): a 73 x 130 x 73 tower with three spinning rings and a thruster lance below (above, af9-core RINGS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
+    // switch): Janne's 73 x 99 x 73 spire with three spinning rings and a thruster lance below (above, af9-core BANDS_MK2). Only the Mk2 runs plasma atomic soldering (gtceu:plasma_soldering):
     // UHV+ circuits deposited ion-by-ion with plasma solder, in orbit.
     // Layouts are module-level (ORBITAL_BASIC / ORBITAL_MK2_SLICES), precomputed once above.
     const orbitalWheres = (definition, mk2) => {
@@ -485,16 +262,16 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         const itemsOut = Predicates.abilities(PartAbility.EXPORT_ITEMS).setPreviewCount(1)
         const maintenance = Predicates.abilities(PartAbility.MAINTENANCE).setMaxGlobalLimited(1, 1)
         // the top deck: PTFE casings and every hatch; hatches go here and nowhere else
-        // (the Mk2's deck is the Orbital Deck Casing, not PTFE: orbital_casings.js)
-        const deck = Predicates.blocks(mk2 ? 'af9:orbital_deck_casing' : 'gtceu:inert_machine_casing').or(energy).or(laser).or(coolant).or(computation)
-            .or(data).or(optical).or(fluids).or(itemsIn).or(itemsOut).or(maintenance)
-                return [
+        // (the Mk2's hatches go on the nonconducting casing of the printing chamber's deck, 'O')
+        const hatches = energy.or(laser).or(coolant).or(computation).or(data).or(optical).or(fluids).or(itemsIn).or(itemsOut)
+            .or(maintenance)
+        const deck = Predicates.blocks(mk2 ? 'gtceu:nonconducting_casing' : 'gtceu:inert_machine_casing').or(hatches)
+        const entries = [
             ['K', Predicates.controller(Predicates.blocks(definition.get()))],
             ['A', Predicates.blocks('gtceu:hsse_frame')],
             ['S', Predicates.blocks('gtceu:superconducting_coil')],
-            // the Mk2's plasma-injection coils (collars round the core tube) are heating coils of any one tier (af9-core OrbitalLithographyMachine.COILS: the
-            // tier is the bonus); the basic station's stay HSS-G
-            ['B', mk2 ? Predicates.heatingCoils() : Predicates.blocks('gtceu:hssg_coil_block')],
+            // the basic station's plasma-injection coils stay HSS-G (the Mk2 has none: its structure is Janne's build)
+            ['B', Predicates.blocks('gtceu:hssg_coil_block')],
             // the Mk2's structure has casings of its own in place of GT's (orbital_casings.js): the Combined Structure Casing
             // for the Stress-Proof, the Truss ('D', inside of the rings' bands) and the Girder ('E', outside) for the Sturdy HSS-E
             ['D', Predicates.blocks(mk2 ? 'af9:orbital_truss_casing' : 'gtceu:sturdy_machine_casing')],
@@ -505,10 +282,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             ['N', Predicates.blocks('af9:orbital_light_casing')],
             ['H', Predicates.blocks(mk2 ? 'gtceu:atomic_casing' : 'gtceu:shock_proof_cutting_casing')],
             ['L', Predicates.blocks(mk2 ? 'af9:orbital_combined_structure_casing' : 'gtceu:stress_proof_casing')],
-            // a module slot of the Array Mk2: a module (any type) or nothing; the station finds them when it forms
-            // the casing above and below a module slot: PTFE, no hatches
-            ['Q', Predicates.blocks(mk2 ? 'af9:orbital_deck_casing' : 'gtceu:inert_machine_casing')],
-            ['Y', mk2 ? $OrbitalLithographyMachine.modules().or(Predicates.air()) : Predicates.air()],
+            // the basic station's module slot: a module (any type) or nothing
+            ['Q', Predicates.blocks('gtceu:inert_machine_casing')],
+            ['Y', Predicates.air()],
             ['C', Predicates.blocks('gtceu:nonconducting_casing')],
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview)): the track
             // chemicals through fluid input hatches, the supercooled coolant through coolant hatches, computation
@@ -517,6 +293,26 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             ['O', deck],
             [' ', Predicates.any()]
         ]
+        // Y is the module slot in the Mk2 (below), so later entries win
+        const chars = {}
+        entries.forEach(entry => { chars[entry[0]] = entry[1] })
+        if (mk2) {
+            // a module slot of the Array Mk2: a module (any type) or its casing; the station finds them when it forms
+            // (the module's own structure is a casing above and below it, nonconducting casing here)
+            chars['Y'] = $OrbitalLithographyMachine.modules().or(Predicates.blocks('gtceu:nonconducting_casing'))
+            chars['G'] = Predicates.blocks('gtceu:fusion_glass')
+            chars['V'] = Predicates.blocks('gtceu:heat_vent')
+            chars['T'] = Predicates.blocks('gtceu:tungstensteel_turbine_casing')
+            chars['P'] = Predicates.blocks('gtceu:computer_casing')
+            chars['g'] = Predicates.blocks('create:metal_girder')
+            chars['n'] = Predicates.blocks('gtceu:magnetic_neodymium_block')
+            chars['s'] = Predicates.blocks('gtceu:magnetic_samarium_block')
+            // the collision chamber's four rotor holders: UV or better, the rotors in them are for show (af9-core)
+            chars['R'] = $OrbitalLithographyMachine.rotorHolders()
+            // the wafer's cell: air, the floating wafer is drawn in it
+            chars['#'] = Predicates.air()
+        }
+        return Object.keys(chars).map(key => [key, chars[key]])
     }
     const orbitalPattern = (definition, slices, mk2) => {
         let pattern = FactoryBlockPattern.start($LithoRelativeDirection.RIGHT, $LithoRelativeDirection.FRONT,
@@ -545,7 +341,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             $OrbitalLithographyMachine.MK2_GATE, $OrbitalLithographyMachine.FOCUS, $OrbitalLithographyMachine.COILS,
             $OrbitalLithographyMachine.MODULES, GTRecipeModifiers.OC_PERFECT, $OrbitalLithographyMachine.BATCH])
         .appearanceBlock(() => Block.getBlock('gtceu:inert_machine_casing'))
-        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 34))
+        ['tooltips(net.minecraft.network.chat.Component[])'](tooltips('af9.orbital_lithography_station.tooltip', 37))
         .pattern(definition => {
             // GT asks for this once: both sizes are built, the extended one is the machine's own to switch to
             $OrbitalLithographyMachine.setExtendedPattern(orbitalPattern(definition, ORBITAL_MK2_SLICES, true))

@@ -41,13 +41,12 @@ public record StructureSkin(Supplier<? extends MachineDefinition> definition, in
     public record Cabinet(int below, int minLength, int maxLength) {}
 
     /**
-     * The rings of the Orbital Array Mk2's tower: their blocks are hidden while it is formed and the rings are drawn
-     * turning instead, held in place by plasma beams from the tower ({@link RingDraw}).
+     * The wheels of the Orbital Array Mk2's tower: their blocks (rings, spokes, the big one's shield) are hidden while it is
+     * formed and the wheels are drawn turning instead ({@link RingDraw}).
      *
-     * @param bands     the rings
-     * @param towerHalf half width of the tower's body (the beams start at its face)
+     * @param bands     the wheels
      */
-    public record Rings(java.util.List<com.af9.core.machine.OrbitalLithographyMachine.Band> bands, int towerHalf) {}
+    public record Rings(java.util.List<com.af9.core.machine.OrbitalLithographyMachine.Band> bands) {}
 
     /** A model skin. */
     public StructureSkin(Supplier<? extends MachineDefinition> definition, int right, int up, int back,
