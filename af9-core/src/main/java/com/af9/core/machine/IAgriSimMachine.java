@@ -22,7 +22,4 @@ public interface IAgriSimMachine extends IMachineFeature {
 
     /** Counts up whenever a run starts: the plants are replaced by the new run's crop. */
     int getAgriRun();
-
-    /** Ticks of one run of the seed (per run when batching). */
-    int getAgriTicks();
 }

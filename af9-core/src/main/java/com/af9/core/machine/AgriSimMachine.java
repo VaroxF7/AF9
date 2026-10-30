@@ -96,8 +96,6 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
     private int agriGrowth;
     @DescSynced
     private int agriRun;
-    @DescSynced
-    private int agriTicks = 1200;
     /** The crop render of the garden, switched by the button of the screen. */
     @DescSynced
     @Persisted
@@ -247,13 +245,12 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
         if (!isFormed() || getOffsetTimer() % 5 != 0) return;
         String seed = "";
         int growth = 0;
-        int single = 0;
         var logic = getRecipeLogic();
         if (logic.isWorking()) {
             GTRecipe recipe = logic.getLastRecipe();
             if (recipe != null && recipe.data != null) {
                 seed = recipe.data.getString("seed");
-                single = Math.max(1, logic.getDuration() / Math.max(1, recipe.batchParallels));
+                int single = Math.max(1, logic.getDuration() / Math.max(1, recipe.batchParallels));
                 growth = (int) Math.min(1000L, (long) (logic.getProgress() % single) * 1000L / single);
             }
         }
@@ -270,7 +267,6 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
         lastGrowth = growth;
         if (!seed.equals(agriSeed)) agriSeed = seed;
         if (growth != agriGrowth) agriGrowth = growth;
-        if (single != agriTicks) agriTicks = single;
     }
 
     // ---- recipe modifiers ----
@@ -356,10 +352,5 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
     @Override
     public int getAgriRun() {
         return agriRun;
-    }
-
-    @Override
-    public int getAgriTicks() {
-        return agriTicks;
     }
 }
