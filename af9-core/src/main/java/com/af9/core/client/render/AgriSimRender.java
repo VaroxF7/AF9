@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -32,10 +33,10 @@ import net.minecraftforge.registries.ForgeRegistries;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.Codec;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Random;
 
 /**
  * The Agriculture Simulation Bed's garden: while a recipe runs, the seed it simulates stands on every soil block of
@@ -56,6 +57,11 @@ public class AgriSimRender extends DynamicRender<IAgriSimMachine, AgriSimRender>
 
     /** The garden's middle, relative to the controller: this many cells behind it. */
     private static final float MIDDLE_BACK = AgriSimMachine.GARDEN_BACK / 2F;
+    /** The window the plants of a new run are replaced in (10 s), at random moments. */
+    private static final int WINDOW_TICKS = 200;
+    /** The garden starts over when it was not drawn for this long (ticks). */
+    private static final int STALE_TICKS = 100;
+    private static final Random RANDOM = new Random();
     /** The soil cells are rescanned this often (ticks). */
     private static final long SCAN_TICKS = 20;
 
@@ -103,7 +109,7 @@ public class AgriSimRender extends DynamicRender<IAgriSimMachine, AgriSimRender>
 
     @Override
     public boolean shouldRender(IAgriSimMachine machine, Vec3 cameraPos) {
-        return machine.isAgriFormed() && !machine.getAgriSeed().isEmpty()
+        return machine.isAgriFormed() && machine.isAgriRenderOn() && !machine.getAgriSeed().isEmpty()
                 && centre(machine.self()).closerThan(cameraPos, getViewDistance());
     }
 
@@ -121,46 +127,67 @@ public class AgriSimRender extends DynamicRender<IAgriSimMachine, AgriSimRender>
     @Override
     public void render(IAgriSimMachine machine, float partialTick, PoseStack poseStack, MultiBufferSource buffer,
                        int packedLight, int packedOverlay) {
-        if (!machine.isAgriFormed() || machine.getAgriSeed().isEmpty()) return;
+        if (!machine.isAgriFormed() || !machine.isAgriRenderOn() || machine.getAgriSeed().isEmpty()) return;
         if (IrisCompat.renderingShadowPass()) return;
         Level level = Minecraft.getInstance().level;
         if (level == null) return;
-        Block crop = cropOf(machine.getAgriSeed());
-        if (crop == null) return;
-        BlockState state = grown(crop, machine.getAgriGrowth());
+        String seed = machine.getAgriSeed();
+        Block seedCrop = cropOf(seed);
 
         MetaMachine self = machine.self();
         BlockPos origin = self.getPos();
+        long gameTime = level.getGameTime();
+        float now = gameTime + partialTick;
         Garden garden = gardens.get(origin);
-        if (garden == null || level.getGameTime() - garden.scanned >= SCAN_TICKS) {
+        if (garden == null || gameTime - garden.scanned >= SCAN_TICKS) {
             if (gardens.size() > 64) gardens.clear();
-            garden = scan(self, level);
+            garden = scan(self, level, garden);
             gardens.put(origin.immutable(), garden);
         }
+        // not drawn for a while (render off, bed idle): the plants start over
+        if (now - garden.lastDraw > STALE_TICKS) {
+            for (Cell cell : garden.cells.values()) cell.clear();
+            garden.run = -1;
+        }
+        garden.lastDraw = now;
+        // a new run (or a new seed): every plant is replaced by the new crop at its own random moment in the window
+        if (garden.run != machine.getAgriRun() || !seed.equals(garden.seed)) {
+            garden.run = machine.getAgriRun();
+            garden.seed = seed;
+            garden.crop = seedCrop;
+            for (Cell cell : garden.cells.values()) cell.schedule(seedCrop, now);
+        }
+        for (Cell cell : garden.cells.values()) {
+            if (cell.pendingAt >= 0 && now >= cell.pendingAt) cell.swap();
+        }
+        // the plants finish growing as the run ends: the replace window plus the grow time make the run
+        float growTicks = Math.max(20, machine.getAgriTicks() - WINDOW_TICKS);
 
         var dispatcher = Minecraft.getInstance().getBlockRenderer();
-        for (BlockPos offset : garden.cells) {
+        for (Cell cell : garden.cells.values()) {
+            if (cell.shown == null) continue;
+            int growth = (int) (Math.min(1F, Math.max(0F, (now - cell.born) / growTicks)) * 1000);
+            BlockState state = grown(cell.shown, growth);
             poseStack.pushPose();
-            poseStack.translate(offset.getX(), offset.getY(), offset.getZ());
-            int light = LevelRenderer.getLightColor(level, origin.offset(offset));
+            poseStack.translate(cell.offset.getX(), cell.offset.getY(), cell.offset.getZ());
+            int light = LevelRenderer.getLightColor(level, origin.offset(cell.offset));
             try {
                 dispatcher.renderSingleBlock(state, poseStack, buffer, light, OverlayTexture.NO_OVERLAY);
             } catch (RuntimeException e) {
                 // a crop whose model or tint will not draw outside the world: leave it out, never crash the frame
-                crops.put(machine.getAgriSeed(), null);
-                poseStack.popPose();
-                return;
+                crops.put(BuiltInRegistries.BLOCK.getKey(cell.shown).toString(), null);
+                cell.clear();
             }
             poseStack.popPose();
         }
     }
 
-    /** The cells above the garden's soil blocks, as offsets from the controller. */
-    private static Garden scan(MetaMachine self, Level level) {
+    /** The cells above the garden's soil blocks, as offsets from the controller; cells that stay keep their plants. */
+    private static Garden scan(MetaMachine self, Level level, Garden old) {
         Direction up = dir(self, RelativeDirection.UP);
         Direction back = dir(self, RelativeDirection.BACK);
         Direction left = dir(self, RelativeDirection.LEFT);
-        List<BlockPos> cells = new ArrayList<>();
+        Garden garden = new Garden(level.getGameTime());
         BlockPos origin = self.getPos();
         for (int depth = 0; depth <= AgriSimMachine.GARDEN_BACK; depth++) {
             for (int side = -AgriSimMachine.GARDEN_SIDE; side <= AgriSimMachine.GARDEN_SIDE; side++) {
@@ -168,10 +195,24 @@ public class AgriSimRender extends DynamicRender<IAgriSimMachine, AgriSimRender>
                 if (AgriSimMachine.soilLevel(level.getBlockState(soil)) < 0) continue;
                 BlockPos crop = soil.relative(up);
                 if (!level.getBlockState(crop).isAir()) continue;
-                cells.add(crop.subtract(origin));
+                BlockPos offset = crop.subtract(origin);
+                Cell cell = old == null ? null : old.cells.get(offset);
+                garden.cells.put(offset, cell != null ? cell : new Cell(offset));
             }
         }
-        return new Garden(level.getGameTime(), cells);
+        if (old != null) {
+            garden.run = old.run;
+            garden.seed = old.seed;
+            garden.lastDraw = old.lastDraw;
+            // a soil block that came new while a run goes on: its plant starts in the window like the rest
+            if (old.run >= 0) {
+                for (Cell cell : garden.cells.values()) {
+                    if (old.cells.get(cell.offset) == null) cell.schedule(old.crop, old.lastDraw);
+                }
+            }
+            garden.crop = old.crop;
+        }
+        return garden;
     }
 
     /** The crop block a seed plants, or null. */
@@ -202,5 +243,45 @@ public class AgriSimRender extends DynamicRender<IAgriSimMachine, AgriSimRender>
         return state;
     }
 
-    private record Garden(long scanned, List<BlockPos> cells) {}
+    /** One plant: the crop on show, when it started to grow, and the crop that replaces it (and when). */
+    private static final class Cell {
+        final BlockPos offset;
+        Block shown;
+        float born;
+        Block pending;
+        float pendingAt = -1;
+
+        Cell(BlockPos offset) {
+            this.offset = offset;
+        }
+
+        void schedule(Block crop, float now) {
+            pending = crop;
+            pendingAt = crop == null ? -1 : now + RANDOM.nextInt(WINDOW_TICKS);
+        }
+
+        void swap() {
+            shown = pending;
+            born = pendingAt;
+            pendingAt = -1;
+        }
+
+        void clear() {
+            shown = null;
+            pendingAt = -1;
+        }
+    }
+
+    private static final class Garden {
+        final long scanned;
+        final Map<BlockPos, Cell> cells = new LinkedHashMap<>();
+        int run = -1;
+        String seed = "";
+        Block crop;
+        float lastDraw;
+
+        Garden(long scanned) {
+            this.scanned = scanned;
+        }
+    }
 }

@@ -16,4 +16,13 @@ public interface IAgriSimMachine extends IMachineFeature {
 
     /** How far the crop in the running recipe has grown, 0-1000 (the recipe's progress; per run when batching). */
     int getAgriGrowth();
+
+    /** Whether the owner left the crop render on (the button in the controller's screen). */
+    boolean isAgriRenderOn();
+
+    /** Counts up whenever a run starts: the plants are replaced by the new run's crop. */
+    int getAgriRun();
+
+    /** Ticks of one run of the seed (per run when batching). */
+    int getAgriTicks();
 }

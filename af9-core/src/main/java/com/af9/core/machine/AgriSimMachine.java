@@ -16,6 +16,7 @@ import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 
+import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
@@ -92,6 +93,16 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
     private String agriSeed = "";
     @DescSynced
     private int agriGrowth;
+    @DescSynced
+    private int agriRun;
+    @DescSynced
+    private int agriTicks = 1200;
+    /** The crop render of the garden, switched by the button of the screen. */
+    @DescSynced
+    @Persisted
+    private boolean agriRenderOn = true;
+    private int lastGrowth;
+    private int idleTicks;
 
     private final int[] soilCounts = new int[3];
     private double outputMultiplier = 1.0;
@@ -131,6 +142,12 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
             group.addWidget(new SlotWidget(seedSlot.storage, 0, group.getSize().width - 31, group.getSize().height - 28,
                     true, true).setBackgroundTexture(GuiTextures.SLOT)
                     .setHoverTooltips(Component.translatable("af9.agri_sim.seed_tooltip")));
+            int bx = group.getSize().width - 100, by = group.getSize().height - 26;
+            group.addWidget(new ButtonWidget(bx, by, 64, 14, GuiTextures.BUTTON, click -> {
+                if (!click.isRemote) agriRenderOn = !agriRenderOn;
+            }).setHoverTooltips(Component.translatable("af9.agri_sim.render_tooltip")));
+            group.addWidget(new LabelWidget(bx + 4, by + 3, () -> Component.translatable(
+                    agriRenderOn ? "af9.agri_sim.render_on" : "af9.agri_sim.render_off").getString()));
         }
         return screen;
     }
@@ -215,6 +232,7 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
         timeMultiplier = 1.0;
         agriSeed = "";
         agriGrowth = 0;
+        lastGrowth = 0;
         if (syncSubs != null) {
             syncSubs.unsubscribe();
             syncSubs = null;
@@ -226,17 +244,30 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
         if (!isFormed() || getOffsetTimer() % 5 != 0) return;
         String seed = "";
         int growth = 0;
+        int single = 0;
         var logic = getRecipeLogic();
         if (logic.isWorking()) {
             GTRecipe recipe = logic.getLastRecipe();
             if (recipe != null && recipe.data != null) {
                 seed = recipe.data.getString("seed");
-                int single = Math.max(1, logic.getDuration() / Math.max(1, recipe.batchParallels));
+                single = Math.max(1, logic.getDuration() / Math.max(1, recipe.batchParallels));
                 growth = (int) Math.min(1000L, (long) (logic.getProgress() % single) * 1000L / single);
             }
         }
+        if (seed.isEmpty()) {
+            // a gap between two runs is not the end: the plants stay for two seconds
+            idleTicks += 5;
+            if (idleTicks < 40) return;
+            if (!agriSeed.isEmpty()) agriSeed = "";
+            lastGrowth = 0;
+            return;
+        }
+        idleTicks = 0;
+        if (!seed.equals(agriSeed) || growth < lastGrowth) agriRun++;
+        lastGrowth = growth;
         if (!seed.equals(agriSeed)) agriSeed = seed;
         if (growth != agriGrowth) agriGrowth = growth;
+        if (single != agriTicks) agriTicks = single;
     }
 
     // ---- recipe modifiers ----
@@ -284,7 +315,10 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
         super.addDisplayText(textList);
         if (!isFormed()) return;
         int total = soilCounts[0] + soilCounts[1] + soilCounts[2];
-        textList.add(Component.translatable("af9.agri_sim.soil", total, soilCounts[2], soilCounts[1], soilCounts[0]));
+        textList.add(Component.translatable("af9.agri_sim.soil", total));
+        if (soilCounts[2] > 0) textList.add(Component.translatable("af9.agri_sim.soil_phyto", soilCounts[2]));
+        if (soilCounts[1] > 0) textList.add(Component.translatable("af9.agri_sim.soil_rich", soilCounts[1]));
+        if (soilCounts[0] > 0) textList.add(Component.translatable("af9.agri_sim.soil_plain", soilCounts[0]));
         if (total > 0) {
             textList.add(Component.translatable("af9.agri_sim.soil_bonus",
                     Math.round((outputMultiplier - 1.0) * 100), Math.round((1.0 - timeMultiplier) * 100)));
@@ -309,5 +343,20 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
     @Override
     public int getAgriGrowth() {
         return agriGrowth;
+    }
+
+    @Override
+    public boolean isAgriRenderOn() {
+        return agriRenderOn;
+    }
+
+    @Override
+    public int getAgriRun() {
+        return agriRun;
+    }
+
+    @Override
+    public int getAgriTicks() {
+        return agriTicks;
     }
 }
