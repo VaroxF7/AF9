@@ -17,6 +17,7 @@ import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
 import com.gregtechceu.gtceu.api.recipe.modifier.RecipeModifier;
 
 import com.lowdragmc.lowdraglib.gui.widget.ButtonWidget;
+import com.lowdragmc.lowdraglib.gui.widget.ImageWidget;
 import com.lowdragmc.lowdraglib.gui.widget.LabelWidget;
 import com.lowdragmc.lowdraglib.gui.widget.Widget;
 import com.lowdragmc.lowdraglib.gui.widget.WidgetGroup;
@@ -133,20 +134,22 @@ public class AgriSimMachine extends WorkableElectricMultiblockMachine implements
         clearInventory(seedSlot.storage);
     }
 
-    /** GT's screen with the seed slot in its lower right corner. */
+    /** GT's screen with a seed and render panel on its right. */
     @Override
     public Widget createUIWidget() {
         Widget screen = super.createUIWidget();
         if (screen instanceof WidgetGroup group) {
-            group.addWidget(new LabelWidget(group.getSize().width - 40, group.getSize().height - 38, "af9.agri_sim.seed"));
-            group.addWidget(new SlotWidget(seedSlot.storage, 0, group.getSize().width - 31, group.getSize().height - 28,
-                    true, true).setBackgroundTexture(GuiTextures.SLOT)
+            // a small panel on the right of the screen, beside the player inventory: nothing of the text display is covered
+            int px = group.getSize().width + 4, py = group.getSize().height - 64;
+            group.addWidget(new ImageWidget(px, py, 72, 62, GuiTextures.BACKGROUND));
+            group.addWidget(new LabelWidget(px + 8, py + 5, "af9.agri_sim.seed"));
+            group.addWidget(new SlotWidget(seedSlot.storage, 0, px + 8, py + 16, true, true)
+                    .setBackgroundTexture(GuiTextures.SLOT)
                     .setHoverTooltips(Component.translatable("af9.agri_sim.seed_tooltip")));
-            int bx = group.getSize().width - 100, by = group.getSize().height - 26;
-            group.addWidget(new ButtonWidget(bx, by, 64, 14, GuiTextures.BUTTON, click -> {
+            group.addWidget(new ButtonWidget(px + 4, py + 42, 64, 14, GuiTextures.BUTTON, click -> {
                 if (!click.isRemote) agriRenderOn = !agriRenderOn;
             }).setHoverTooltips(Component.translatable("af9.agri_sim.render_tooltip")));
-            group.addWidget(new LabelWidget(bx + 4, by + 3, () -> Component.translatable(
+            group.addWidget(new LabelWidget(px + 8, py + 45, () -> Component.translatable(
                     agriRenderOn ? "af9.agri_sim.render_on" : "af9.agri_sim.render_off").getString()));
         }
         return screen;
