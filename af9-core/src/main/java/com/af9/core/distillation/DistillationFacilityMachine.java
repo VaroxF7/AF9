@@ -554,9 +554,11 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
             }
             return;
         }
+        // (short lines: the screen clips at the right edge instead of wrapping)
         textList.add(Component.translatable("af9.distillation.buffer", String.format(Locale.ROOT, "%,d",
-                outputBuffer.fluidTotal()), String.format(Locale.ROOT, "%,d", DistillationOutputBuffer.FLUID_CAPACITY),
-                outputBuffer.itemStacks(), DistillationOutputBuffer.ITEM_CAPACITY));
+                outputBuffer.fluidTotal()), String.format(Locale.ROOT, "%,d", DistillationOutputBuffer.FLUID_CAPACITY)));
+        textList.add(Component.translatable("af9.distillation.buffer_items", outputBuffer.itemStacks(),
+                DistillationOutputBuffer.ITEM_CAPACITY));
         if (!outputBuffer.hasRoom()) {
             textList.add(Component.translatable("af9.distillation.buffer_full").withStyle(ChatFormatting.RED));
         }
@@ -572,6 +574,7 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
                             oxygenFed ? "af9.distillation.display.filtered_rising" : "af9.distillation.display.filtered_off"))
                     .withStyle(filtered ? ChatFormatting.GREEN : ChatFormatting.YELLOW));
             textList.add(Component.translatable("af9.distillation.display.oxygen", OXYGEN_PER_SECOND));
+            textList.add(Component.translatable("af9.distillation.display.oxygen_or"));
         }
         textList.add(Component.translatable("af9.distillation.display.towers", running, towers.size()));
         int number = 0;
@@ -582,10 +585,12 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
                 textList.add(Component.translatable("af9.distillation.display.tower_unformed", number)
                         .withStyle(ChatFormatting.RED));
             } else if (!rotor.ok()) {
-                textList.add(Component.translatable("af9.distillation.display.tower", number, rotor.problem())
+                textList.add(Component.translatable("af9.distillation.display.tower", number)
                         .withStyle(ChatFormatting.RED));
+                textList.add(Component.literal("  ").append(rotor.problem()).withStyle(ChatFormatting.RED));
             } else {
-                textList.add(Component.translatable("af9.distillation.display.tower_rotor", number, rotor.material(),
+                textList.add(Component.translatable("af9.distillation.display.tower_rotor", number, rotor.material()));
+                textList.add(Component.translatable("af9.distillation.display.tower_stats",
                         String.format(Locale.ROOT, "%.0f%%", rotor.spin() * 100),
                         String.format(Locale.ROOT, "+%.0f%%", (rotor.speed() - 1) * 100),
                         String.format(Locale.ROOT, "-%.0f%%", (1 - rotor.energy()) * 100)));
