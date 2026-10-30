@@ -21,14 +21,14 @@ ServerEvents.recipes(event => {
 
     gt.assembler('af9:hostilenetworks/deep_learner')
         .itemInputs('hostilenetworks:blank_data_model', '#gtceu:circuits/hv', 'gtceu:hv_emitter',
-            '4x gtceu:stainless_steel_plate', 'gtceu:lcd_screen')
+            '4x gtceu:stainless_steel_plate', 'gtceu:computer_monitor_cover')
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 144))
         .itemOutputs('hostilenetworks:deep_learner')
         .duration(300)
         .EUt(VA[GTValues.HV])
 
     gt.assembler('af9:hostilenetworks/prediction_matrix')
-        .itemInputs('2x #gtceu:circuits/hv', '2x gtceu:hv_sensor', '4x gtceu:annealed_copper_foil',
+        .itemInputs('2x #gtceu:circuits/hv', '2x gtceu:hv_sensor', '4x gtceu:copper_foil',
             '2x gtceu:aluminium_plate')
         .inputFluids(Fluid.of('gtceu:soldering_alloy', 144))
         .itemOutputs('hostilenetworks:prediction_matrix')
