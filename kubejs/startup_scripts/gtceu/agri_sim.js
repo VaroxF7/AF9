@@ -65,9 +65,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
             .where('A', Predicates.air())
             .where('W', Predicates.blocks('industrialforegoing:water_condensator'))
-            // every soil of the bed, plain to best (AgriSimMachine.SOILS holds the same list and the bonuses)
-            .where('F', Predicates.blocks('mysticalagriculture:inferium_farmland',
-                'mysticalagriculture:prudentium_farmland', 'farmersdelight:rich_soil_farmland',
+            // every soil of the bed (rich soil first: the preview shows the first block) (AgriSimMachine.SOILS holds the same list and the bonuses)
+            .where('F', Predicates.blocks('farmersdelight:rich_soil_farmland',
+                'mysticalagriculture:inferium_farmland', 'mysticalagriculture:prudentium_farmland',
                 'mysticalagriculture:tertium_farmland', 'mysticalagriculture:imperium_farmland',
                 'mysticalagriculture:supremium_farmland', 'thermal:phytosoil_tilled'))
             .where('X', Predicates.blocks('gtceu:corrosion_proof_casing')
