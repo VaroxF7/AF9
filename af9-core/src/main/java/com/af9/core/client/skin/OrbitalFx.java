@@ -64,7 +64,7 @@ final class OrbitalFx {
             if (cycle < 0F) return;
             charge = FxGeo.smooth((cycle - 26F) / 36F) * (1F - FxGeo.smooth((cycle - DRAW_BACK) / 24F));
             expose = FxGeo.smooth((cycle - EXPOSE) / 14F) * (1F - FxGeo.smooth((cycle - ATOMIZE) / 3F));
-            flash = cycle >= ATOMIZE ? Mth.exp(-(cycle - ATOMIZE) / 9F) : 0F;
+            flash = cycle >= ATOMIZE ? (float) Math.exp(-(cycle - ATOMIZE) / 9F) : 0F;
             if (cycle < FIRE || cycle >= BEAM_END) return;
             // the head runs down to the wafer, and on to the deck once the wafer is gone
             float down = FxGeo.smooth((cycle - FIRE) / (ARRIVE - FIRE));
@@ -210,7 +210,7 @@ final class OrbitalFx {
                 float rad = fieldRadius(u) + 0.05F;
                 float x = CX + Mth.cos(psi) * rad, y = CY + Mth.sin(psi) * rad, z = FIELD_Z0 + span * u;
                 float d = (u - packet) * 7F;
-                float a = (0.2F + 0.55F * Mth.exp(-d * d)) * Mth.sqrt(Math.max(0F, Mth.sin(u * Mth.PI))) * burn;
+                float a = (0.2F + 0.55F * (float) Math.exp(-d * d)) * Mth.sqrt(Math.max(0F, Mth.sin(u * Mth.PI))) * burn;
                 if (i > 0) FxGeo.line(c, m, px, py, pz, x, y, z, 0.11F, r, g, b, pa, a);
                 px = x;
                 py = y;
@@ -368,7 +368,7 @@ final class OrbitalFx {
                 if (tau > life) continue;
                 float f = 1F - tau / life;
                 float ang = Mth.TWO_PI * FxGeo.hash(i, 2), speed = 0.05F + 0.13F * FxGeo.hash(i, 3) * FxGeo.hash(i, 3);
-                float raw = speed * (1F - Mth.exp(-0.07F * tau)) / 0.07F;
+                float raw = speed * (1F - (float) Math.exp(-0.07F * tau)) / 0.07F;
                 // the chamber is small: the dust piles up against its walls rather than leaving it
                 float rad = 2F * (float) Math.tanh(raw / 2F) + 1.0F * FxGeo.hash(i, 5) * (1F - f * f);
                 float lift = (FxGeo.hash(i, 4) - 0.5F) * 1.2F * (float) Math.tanh(raw / 1.5F);
