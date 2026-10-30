@@ -136,7 +136,7 @@ public final class StagedRecipeUI {
      * Opens the type's recipe list in the recipe viewer that is there, as the arrow of GT's own pages does. GT's
      * code for it names the viewers' classes; AF9 Core is built without them, so they are reached by name.
      */
-    private static void showRecipes(GTRecipeType type) {
+    public static void showRecipes(GTRecipeType type) {
         try {
             List<GTRecipeCategory> categories = type.getCategories().stream()
                     .filter(GTRecipeCategory::isXEIVisible).toList();

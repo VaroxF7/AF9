@@ -20,6 +20,7 @@ import dev.emi.emi.api.widget.Widget;
 import dev.emi.emi.registry.EmiRecipeFiller;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
@@ -48,13 +49,28 @@ public class DistillationEmiPlugin implements EmiPlugin {
 
         /** The tower whose screen is open, null if the open screen is another. */
         private static DistillationModuleMachine openTower() {
-            if (Minecraft.getInstance().screen instanceof AbstractContainerScreen<?> screen &&
+            if (handledScreen() instanceof AbstractContainerScreen<?> screen &&
                     screen.getMenu() instanceof ModularUIContainer menu &&
                     menu.getModularUI().holder instanceof IMachineBlockEntity holder &&
                     holder.getMetaMachine() instanceof DistillationModuleMachine tower) {
                 return tower;
             }
             return null;
+        }
+
+        /**
+         * The machine screen the viewer was opened from: the current screen, or, while EMI's recipe screen is up, the screen under
+         * it (EMI keeps it as its handled screen). Reached by name, as EMI's own API is not on this build's class path.
+         */
+        private static Screen handledScreen() {
+            Screen current = Minecraft.getInstance().screen;
+            if (current instanceof AbstractContainerScreen<?>) return current;
+            try {
+                Object handled = Class.forName("dev.emi.emi.api.EmiApi").getMethod("getHandledScreen").invoke(null);
+                return handled instanceof Screen screen ? screen : current;
+            } catch (ReflectiveOperationException | RuntimeException | LinkageError e) {
+                return current;
+            }
         }
 
         private static GTRecipe gtRecipe(EmiRecipe recipe) {

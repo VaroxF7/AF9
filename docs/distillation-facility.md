@@ -9,7 +9,7 @@ Distillation Tower: **the Distillation Tower is gone** (gtceu-fork patch `0027` 
 * Controller: where the file's green wool stood, in the arch at the front (controller facing SOUTH, as the file stands in the world; turned for the other
   facings). Machine id `gtceu:distillation_facility`.
 * Casings, as in the file: Inert Machine Casing (the arch, the middle block), Stable Machine Casing (the two turbine houses), Stainless Firebox Casing
-  (the tower feet), Clean Machine Casing (the towers), Kanthal Coil Blocks (the tower coils), HSLA Steel Frames (3, between the pipes).
+  (the tower feet), Clean Machine Casing (the towers), Kanthal Coil Blocks (the tower coils).
 * Pipes: Tungsten and Stainless Steel Small Fluid Pipes, 47 in all, each with the file's exact `connections` mask. The pattern accepts a pipe spot only for
   that exact block **and** that exact mask, and the controller sets the masks itself while the facility is unformed, so an auto-built facility forms without
   wrench work. This is the Chemical Plant's pipe tech ([chemical-plant.md](chemical-plant.md): `PipeBlockMixin` keeps the connections, the same data tag),

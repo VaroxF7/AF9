@@ -1,6 +1,10 @@
 package com.af9.core.distillation;
 
+import com.af9.core.compat.xei.StagedRecipeUI;
+
+import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
+import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
@@ -9,6 +13,7 @@ import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
 import com.gregtechceu.gtceu.api.recipe.ActionResult;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
 import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
+import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
 import com.gregtechceu.gtceu.api.recipe.modifier.ParallelLogic;
@@ -25,6 +30,10 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -205,6 +214,12 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         return pinned;
     }
 
+    /** What the locked recipe is called (the last part of its id, spaced out), empty for none. */
+    public String lockedName() {
+        ResourceLocation id = pinned.isEmpty() ? null : ResourceLocation.tryParse(pinned);
+        return id == null ? pinned : recipeName(id);
+    }
+
     /** Locks the tower to the recipe it runs (or ran last). */
     public void lockRecipe() {
         GTRecipe last = getRecipeLogic().getLastRecipe();
@@ -328,20 +343,79 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         }
         DistillationFacilityMachine.RotorState rotor = parent.rotorOf(this);
         if (rotor.ok()) {
-            textList.add(Component.translatable("af9.distillation.module.rotor", rotor.material(),
-                    percent(rotor.spin())));
-            textList.add(Component.translatable("af9.distillation.module.bonus", percent(rotor.speed() - 1),
-                    percent(1 - rotor.energy())));
+            addWrapped(textList, Component.translatable("af9.distillation.module.rotor", rotor.material(),
+                    percent(rotor.spin())), null);
+            addWrapped(textList, Component.translatable("af9.distillation.module.bonus", percent(rotor.speed() - 1),
+                    percent(1 - rotor.energy())), null);
         } else {
-            textList.add(rotor.problem().copy().withStyle(ChatFormatting.RED));
+            addWrapped(textList, rotor.problem(), ChatFormatting.RED);
         }
         if (pinned.isEmpty()) {
-            textList.add(ComponentPanelWidget.withButton(Component.translatable("af9.distillation.module.lock"), "lock"));
+            textList.add(Component.translatable("af9.distillation.module.awaiting").withStyle(ChatFormatting.YELLOW));
+            textList.add(ComponentPanelWidget.withButton(Component.translatable("af9.distillation.module.choose"),
+                    "choose"));
         } else {
-            textList.add(Component.translatable("af9.distillation.module.locked", pinned));
+            addLockedRecipe(textList);
             textList.add(ComponentPanelWidget.withButton(Component.translatable("af9.distillation.module.unlock"),
                     "unlock"));
         }
+    }
+
+    /** A line broken to what the screen shows (it clips at the right edge instead of wrapping). */
+    private static void addWrapped(List<Component> textList, Component text, ChatFormatting color) {
+        for (String line : DistillationFacilityMachine.wrap(text.getString(), 30)) {
+            MutableComponent component = Component.literal(line);
+            textList.add(color == null ? component : component.withStyle(color));
+        }
+    }
+
+    /** The locked recipe's name and what it makes (short lines: the screen clips at the right edge). */
+    private void addLockedRecipe(List<Component> textList) {
+        textList.add(Component.translatable("af9.distillation.module.recipe").withStyle(ChatFormatting.GREEN));
+        ResourceLocation id = ResourceLocation.tryParse(pinned);
+        GTRecipe recipe = id == null || getLevel() == null ? null :
+                getLevel().getRecipeManager().byKey(id).orElse(null) instanceof GTRecipe gt ? gt : null;
+        if (recipe == null) {
+            for (String line : DistillationFacilityMachine.wrap(pinned, 30)) textList.add(Component.literal(line));
+            return;
+        }
+        for (String line : DistillationFacilityMachine.wrap(recipeName(id), 30)) {
+            textList.add(Component.literal(line));
+        }
+        textList.add(Component.translatable("af9.distillation.module.outputs"));
+        int shown = 0;
+        int more = 0;
+        for (Content content : recipe.outputs.getOrDefault(FluidRecipeCapability.CAP, List.of())) {
+            FluidStack[] stacks = FluidRecipeCapability.CAP.of(content.getContent()).getStacks();
+            if (stacks.length == 0 || stacks[0].isEmpty()) continue;
+            if (shown++ >= MAX_SHOWN_OUTPUTS) { more++; continue; }
+            textList.add(output(String.format(Locale.ROOT, "%,d mB ", stacks[0].getAmount()),
+                    stacks[0].getDisplayName(), content));
+        }
+        for (Content content : recipe.outputs.getOrDefault(ItemRecipeCapability.CAP, List.of())) {
+            ItemStack[] stacks = ItemRecipeCapability.CAP.of(content.getContent()).getItems();
+            if (stacks.length == 0 || stacks[0].isEmpty()) continue;
+            if (shown++ >= MAX_SHOWN_OUTPUTS) { more++; continue; }
+            textList.add(output(stacks[0].getCount() + "x ", stacks[0].getHoverName(), content));
+        }
+        if (more > 0) textList.add(Component.translatable("af9.distillation.module.more", more));
+    }
+
+    /** The most output lines the screen shows (the rest is counted). */
+    private static final int MAX_SHOWN_OUTPUTS = 6;
+
+    private static Component output(String amount, Component name, Content content) {
+        MutableComponent line = Component.literal(" " + amount).append(name);
+        if (content.isChanced() && content.maxChance > 0) {
+            line.append(String.format(Locale.ROOT, " (%.0f%%)", 100.0 * content.chance / content.maxChance));
+        }
+        return line;
+    }
+
+    /** What the recipe is called: the last part of its id, spaced out ("filtered_distillation/x" gives "x"). */
+    private static String recipeName(ResourceLocation id) {
+        String path = id.getPath();
+        return path.substring(path.lastIndexOf('/') + 1).replace('_', ' ');
     }
 
     private static String percent(double fraction) {
@@ -350,8 +424,11 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
 
     @Override
     public void handleDisplayClick(String componentData, ClickData clickData) {
-        if (clickData.isRemote) return;
-        if ("lock".equals(componentData)) lockRecipe();
-        else if ("unlock".equals(componentData)) unlockRecipe();
+        if (clickData.isRemote) {
+            // the client opens the recipe viewer on this tower's recipes; the viewer's "+" locks one (PinTowerRecipePacket)
+            if ("choose".equals(componentData)) StagedRecipeUI.showRecipes(getRecipeType());
+            return;
+        }
+        if ("unlock".equals(componentData)) unlockRecipe();
     }
 }

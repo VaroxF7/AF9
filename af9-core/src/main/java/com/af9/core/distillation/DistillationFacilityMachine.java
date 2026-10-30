@@ -28,6 +28,8 @@ import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.common.data.GTBlocks;
 import com.gregtechceu.gtceu.common.data.GTMaterials;
 import com.gregtechceu.gtceu.common.machine.multiblock.part.CleaningMaintenanceHatchPartMachine;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.MufflerPartMachine;
+import com.gregtechceu.gtceu.common.machine.multiblock.part.ParallelHatchPartMachine;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
 import com.lowdragmc.lowdraglib.syncdata.annotation.DescSynced;
@@ -159,6 +161,11 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
      * casing, every other part (the spine's hatches) the Steel Turbine Casing, as the facility's controller does.
      */
     public static BlockState partAppearance(IMultiPart part) {
+        // by what the part is, not by its controllers: a tower's parallel hatches and its muffler only ever stand in a tower, and
+        // a client that has not yet got a tower's controller (towers 2 and 3 came up with the spine's texture) must not guess
+        if (part instanceof ParallelHatchPartMachine || part instanceof MufflerPartMachine) {
+            return GTBlocks.CASING_STAINLESS_CLEAN.getDefaultState();
+        }
         for (var controller : part.getControllers()) {
             if (controller instanceof DistillationModuleMachine) return GTBlocks.CASING_STAINLESS_CLEAN.getDefaultState();
         }
@@ -530,6 +537,36 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
     // *********** Screen ***********//
     //////////////////////////////////////
 
+    /** What fits on a line of the controller screen (it clips at the right edge instead of wrapping). */
+    private static final int LINE_WIDTH = 30;
+
+    /** Breaks a text into lines of at most {@code width} characters at its spaces (a longer word is cut); later lines start with a space. */
+    static List<String> wrap(String text, int width) {
+        List<String> lines = new java.util.ArrayList<>();
+        StringBuilder line = new StringBuilder();
+        for (String word : text.trim().split("\\s+")) {
+            while (word.length() > width) {
+                if (line.length() > 0) {
+                    lines.add(line.toString());
+                    line.setLength(0);
+                }
+                lines.add(word.substring(0, width));
+                word = word.substring(width);
+            }
+            if (line.length() > 0 && line.length() + 1 + word.length() > width) {
+                lines.add(line.toString());
+                line.setLength(0);
+            }
+            if (!word.isEmpty()) {
+                if (line.length() > 0) line.append(' ');
+                line.append(word);
+            }
+        }
+        if (line.length() > 0) lines.add(line.toString());
+        for (int n = 1; n < lines.size(); n++) lines.set(n, " " + lines.get(n));
+        return lines;
+    }
+
     @Override
     public void addDisplayText(List<Component> textList) {
         MultiblockDisplayText.builder(textList, isFormed())
@@ -540,14 +577,18 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
         if (!isFormed()) {
             // why it does not form: the pipes' problems, and the pattern's own last error (its place)
             if (getLevel() != null) {
-                for (String line : DistillationFacilityPipes.problems(getLevel(), getPos(), getFrontFacing(), 4)) {
-                    textList.add(Component.literal(line).withStyle(net.minecraft.ChatFormatting.YELLOW));
+                for (String problem : DistillationFacilityPipes.problems(getLevel(), getPos(), getFrontFacing(), 4)) {
+                    for (String line : wrap(problem, LINE_WIDTH)) {
+                        textList.add(Component.literal(line).withStyle(net.minecraft.ChatFormatting.YELLOW));
+                    }
                 }
             }
             var error = getMultiblockState().error;
             if (error != null) {
                 try {
-                    textList.add(error.getErrorInfo().copy().withStyle(net.minecraft.ChatFormatting.RED));
+                    for (String line : wrap(error.getErrorInfo().getString(), LINE_WIDTH)) {
+                        textList.add(Component.literal(line).withStyle(net.minecraft.ChatFormatting.RED));
+                    }
                 } catch (RuntimeException ignored) {
                     // an error that never got its place (nothing to show)
                 }
@@ -594,6 +635,16 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
                         String.format(Locale.ROOT, "%.0f%%", rotor.spin() * 100),
                         String.format(Locale.ROOT, "+%.0f%%", (rotor.speed() - 1) * 100),
                         String.format(Locale.ROOT, "-%.0f%%", (1 - rotor.energy()) * 100)));
+            }
+            if (tower.isFormed()) {
+                String locked = tower.lockedName();
+                if (locked.isEmpty()) {
+                    textList.add(Component.translatable("af9.distillation.module.awaiting").withStyle(ChatFormatting.YELLOW));
+                } else {
+                    for (String line : wrap(locked, LINE_WIDTH - 2)) {
+                        textList.add(Component.literal("  " + line.strip()).withStyle(ChatFormatting.GREEN));
+                    }
+                }
             }
         }
     }

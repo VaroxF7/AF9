@@ -20,7 +20,7 @@
 //   S controller (the green wool)         D a Distillation Tower Module           R a rotor holder, EV or better
 //   M Turbine Casing: the hatch spot      U a muffler hatch                       K Kanthal Coil Block
 //   C Clean Casing  c Clean Casing of a tower (one Parallel Hatch a tower may stand here)
-//   I Inert Casing  T Stable Casing  F Stainless Firebox Casing  H HSLA Steel Frame  A air (the tower's shaft)
+//   I Inert Casing  T Stable Casing  F Stainless Firebox Casing  A air (the tower's shaft)
 //   a b d e f g h   the pipes (see the where() lines)
 
 const $DistillationFacility = Java.loadClass('com.af9.core.distillation.DistillationFacilityMachine')
@@ -83,9 +83,9 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .aisle('FCCIMITTTT', 'DKmIIITTRT', 'mKmIIIa   ', 'mAmbjbd   ', 'mAm       ', 'mUm       ', '          ')
             .aisle('FFFIMITTTT', 'mmmIIITTTT', 'mmmIIIe   ', 'mmmfkfg   ', 'mmm       ', 'mmm       ', '          ')
             .aisle('   IMI    ', '   III    ', '   III    ', '          ', '          ', '          ', '          ')
-            .aisle('FFFIMITTTT', 'nnnIIITTTT', 'nnnIIIe   ', 'nnnfkfg   ', 'nnn H     ', 'nnn       ', 'nnn       ')
-            .aisle('FCCIMITTTT', 'DKnIIITTRT', 'nKnIIIa   ', 'nAn H a   ', 'nAnbjbd   ', 'nAn       ', 'nUn       ')
-            .aisle('FFFIMITTTT', 'nnnIIITTTT', 'nnnIIIa   ', 'nnnbjbd   ', 'nnn H     ', 'nnn       ', 'nnn       ')
+            .aisle('FFFIMITTTT', 'nnnIIITTTT', 'nnnIIIe   ', 'nnnfkfg   ', 'nnn       ', 'nnn       ', 'nnn       ')
+            .aisle('FCCIMITTTT', 'DKnIIITTRT', 'nKnIIIa   ', 'nAn   a   ', 'nAnbjbd   ', 'nAn       ', 'nUn       ')
+            .aisle('FFFIMITTTT', 'nnnIIITTTT', 'nnnIIIa   ', 'nnnbjbd   ', 'nnn       ', 'nnn       ', 'nnn       ')
             .aisle('   IMI    ', '   ISI    ', '   III    ', '          ', '          ', '          ', '          ')
             .aisle('   I I    ', '   I I    ', '   III    ', '          ', '          ', '          ', '          ')
             .where('S', Predicates.controller(Predicates.blocks(definition.get())))
@@ -104,7 +104,6 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('n', Predicates.blocks('gtceu:clean_machine_casing')
                 .or(Predicates.abilities(PartAbility.PARALLEL_HATCH).setMaxGlobalLimited(1, 0)))
             .where('K', Predicates.blocks('gtceu:kanthal_coil_block'))
-            .where('H', Predicates.blocks('gtceu:hsla_steel_frame'))
             .where('A', Predicates.air())
             .where('U', Predicates.abilities(PartAbility.MUFFLER).setMaxGlobalLimited(3, 3))
             // the hatch spine: the Turbine Casings of the file
@@ -123,7 +122,7 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
             .where('f', $FacilityPipes.pipe('gtceu:stainless_steel_small_fluid_pipe', 48))
             .where('g', $FacilityPipes.pipe('gtceu:stainless_steel_small_fluid_pipe', 17))
             .where('h', $FacilityPipes.pipe('gtceu:stainless_steel_small_fluid_pipe', 34))
-            // the pipes that sit in a HSLA Steel Frame (a frame box on the pipe)
+            // the 9 pipes the file has in a frame (middle of the long runs); the frame is not asked for
             .where('j', $FacilityPipes.pipe('gtceu:tungsten_small_fluid_pipe', 48, true))
             .where('k', $FacilityPipes.pipe('gtceu:stainless_steel_small_fluid_pipe', 48, true))
             .build())
