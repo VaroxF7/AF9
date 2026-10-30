@@ -28,11 +28,9 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.HV])
 
     gt.assembler('af9:hostilenetworks/prediction_matrix')
-        .itemInputs('2x #gtceu:circuits/hv', '2x gtceu:hv_sensor', '4x gtceu:copper_foil',
-            '2x gtceu:aluminium_plate')
-        .inputFluids(Fluid.of('gtceu:soldering_alloy', 144))
+        .itemInputs('gtceu:copper_foil', '#gtceu:circuits/hv', 'gtceu:aluminium_plate')
         .itemOutputs('hostilenetworks:prediction_matrix')
-        .duration(200)
+        .duration(100)
         .EUt(VA[GTValues.HV])
 
     gt.assembler('af9:hostilenetworks/sim_chamber')
