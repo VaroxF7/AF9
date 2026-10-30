@@ -1628,6 +1628,8 @@
     "af9.distillation.module.unlock": "[Unlock]",
     "af9.distillation.module.awaiting": "Awaiting Recipe Lock",
     "af9.distillation.module.choose": "[Choose recipe]",
+    "af9.distillation.module.not_a_tower": "Open the tower module's screen first",
+    "af9.distillation.module.no_recipe_id": "This page has no recipe to lock",
     "af9.distillation.module.recipe": "Locked recipe:",
     "af9.distillation.module.outputs": "Outputs:",
     "af9.distillation.module.more": "  +%s more",

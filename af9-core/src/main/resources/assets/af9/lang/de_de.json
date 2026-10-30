@@ -96,6 +96,8 @@
     "af9.distillation.module.unlock": "[Entsperren]",
     "af9.distillation.module.awaiting": "Warte auf Rezept-Sperre",
     "af9.distillation.module.choose": "[Rezept wählen]",
+    "af9.distillation.module.not_a_tower": "Erst den Bildschirm des Turm-Moduls öffnen",
+    "af9.distillation.module.no_recipe_id": "Diese Seite hat kein Rezept zum Sperren",
     "af9.distillation.module.recipe": "Gesperrtes Rezept:",
     "af9.distillation.module.outputs": "Ausgaben:",
     "af9.distillation.module.more": "  +%s weitere",
