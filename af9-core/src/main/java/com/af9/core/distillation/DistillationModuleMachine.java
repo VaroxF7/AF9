@@ -1,7 +1,5 @@
 package com.af9.core.distillation;
 
-import com.af9.core.compat.xei.StagedRecipeUI;
-
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
@@ -49,7 +47,7 @@ import java.util.Locale;
  * (a 3 x 3 column with a kanthal coil at its foot, a hollow shaft and a muffler hatch on top, the Distillation Tower's shape).
  * <p>
  * The module is where the recipe is set and where it runs from: its own mode tab (Distillation Tower, Distillation, Cryogenic
- * Rectification) and its own recipe lock ({@link #lockRecipe}), at most one Parallel Hatch in its casings and its muffler hatch. What
+ * Rectification) and its own recipe lock ({@link #stepRecipe}), at most one Parallel Hatch in its casings and its muffler hatch. What
  * it runs on is the facility's: the facility's energy hatches (it overclocks to their voltage, perfectly), its fluid and item
  * hatches for the inputs and the outputs, its rotor in the tower's row ({@link DistillationFacilityMachine#rotorOf}) for speed and
  * energy, and its built-in cleanroom for the clean-room recipes. A module without a formed facility runs nothing.
@@ -214,25 +212,35 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         return pinned;
     }
 
-    /** What the locked recipe is called (the last part of its id, spaced out), empty for none. */
+    /** The locked recipe's ID (its main output and its number, see {@link TowerRecipes}), empty for none. */
     public String lockedName() {
         ResourceLocation id = pinned.isEmpty() ? null : ResourceLocation.tryParse(pinned);
-        return id == null ? pinned : recipeName(id);
-    }
-
-    /** Locks the tower to the recipe it runs (or ran last). */
-    public void lockRecipe() {
-        GTRecipe last = getRecipeLogic().getLastRecipe();
-        if (last == null || last.id == null) return;
-        pinned = last.id.toString();
-        markDirty();
-        getRecipeLogic().updateTickSubscription();
+        if (id == null || getLevel() == null) return pinned;
+        GTRecipe recipe = getLevel().getRecipeManager().byKey(id).orElse(null) instanceof GTRecipe gt ? gt : null;
+        return recipe == null ? pinned : TowerRecipes.idOf(getLevel().getRecipeManager(), recipe.recipeType, id);
     }
 
     /**
-     * Sets the tower to this recipe, from the recipe viewer's "+": its mode becomes the recipe's type and its recipe lock the recipe;
-     * false if the tower does not run that type.
+     * The arrow buttons: sets the tower to the next (or previous) recipe of all the ones it can run, a mode after the other; from
+     * no lock the first (or the last). The mode follows the recipe.
      */
+    public void stepRecipe(int step) {
+        if (getLevel() == null) return;
+        var manager = getLevel().getRecipeManager();
+        List<GTRecipe> all = TowerRecipes.all(manager, getRecipeTypes());
+        if (all.isEmpty()) return;
+        int at = -1;
+        for (int n = 0; n < all.size(); n++) {
+            if (all.get(n).id.toString().equals(pinned)) {
+                at = n;
+                break;
+            }
+        }
+        int next = at < 0 ? (step > 0 ? 0 : all.size() - 1) : Math.floorMod(at + step, all.size());
+        pinTo(all.get(next));
+    }
+
+    /** Sets the tower to this recipe: its mode becomes the recipe's type and its recipe lock the recipe; false if it does not run that type. */
     public boolean pinTo(GTRecipe recipe) {
         if (recipe.id == null) return false;
         int mode = Arrays.asList(getRecipeTypes()).indexOf(recipe.recipeType);
@@ -350,15 +358,36 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         } else {
             addWrapped(textList, rotor.problem(), ChatFormatting.RED);
         }
-        if (pinned.isEmpty()) {
-            textList.add(Component.translatable("af9.distillation.module.awaiting").withStyle(ChatFormatting.YELLOW));
-            textList.add(ComponentPanelWidget.withButton(Component.translatable("af9.distillation.module.choose"),
-                    "choose"));
-        } else {
+        textList.add(selector());
+        if (!pinned.isEmpty()) {
             addLockedRecipe(textList);
             textList.add(ComponentPanelWidget.withButton(Component.translatable("af9.distillation.module.unlock"),
                     "unlock"));
         }
+    }
+
+    /** "[<]  Awaiting Recipe Lock  [>]": the arrows go through the tower's recipes, as the Space Mining Module's mission selector. */
+    private Component selector() {
+        Component label = pinned.isEmpty() ?
+                Component.translatable("af9.distillation.module.awaiting").withStyle(ChatFormatting.YELLOW) :
+                Component.translatable("af9.distillation.module.selected", selectedNumber(), selectableCount())
+                        .withStyle(ChatFormatting.GREEN);
+        return Component.empty()
+                .append(ComponentPanelWidget.withButton(Component.literal("[<]"), "prev"))
+                .append(Component.literal("  ")).append(label).append(Component.literal("  "))
+                .append(ComponentPanelWidget.withButton(Component.literal("[>]"), "next"));
+    }
+
+    private int selectableCount() {
+        return getLevel() == null ? 0 : TowerRecipes.all(getLevel().getRecipeManager(), getRecipeTypes()).size();
+    }
+
+    /** The place of the locked recipe among all the tower's recipes (1 for the first), 0 if it is none of them. */
+    private int selectedNumber() {
+        if (getLevel() == null) return 0;
+        List<GTRecipe> all = TowerRecipes.all(getLevel().getRecipeManager(), getRecipeTypes());
+        for (int n = 0; n < all.size(); n++) if (all.get(n).id.toString().equals(pinned)) return n + 1;
+        return 0;
     }
 
     /** A line broken to what the screen shows (it clips at the right edge instead of wrapping). */
@@ -369,9 +398,8 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         }
     }
 
-    /** The locked recipe's name and what it makes (short lines: the screen clips at the right edge). */
+    /** The locked recipe's ID (what the recipe viewer's page shows too) and what it makes (short lines: the screen clips). */
     private void addLockedRecipe(List<Component> textList) {
-        textList.add(Component.translatable("af9.distillation.module.recipe").withStyle(ChatFormatting.GREEN));
         ResourceLocation id = ResourceLocation.tryParse(pinned);
         GTRecipe recipe = id == null || getLevel() == null ? null :
                 getLevel().getRecipeManager().byKey(id).orElse(null) instanceof GTRecipe gt ? gt : null;
@@ -379,8 +407,10 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
             for (String line : DistillationFacilityMachine.wrap(pinned, 30)) textList.add(Component.literal(line));
             return;
         }
-        for (String line : DistillationFacilityMachine.wrap(recipeName(id), 30)) {
-            textList.add(Component.literal(line));
+        String recipeId = TowerRecipes.idOf(getLevel().getRecipeManager(), recipe.recipeType, id);
+        for (String line : DistillationFacilityMachine.wrap(Component.translatable("af9.distillation.module.recipe_id",
+                recipeId).getString(), 30)) {
+            textList.add(Component.literal(line).withStyle(ChatFormatting.GREEN));
         }
         textList.add(Component.translatable("af9.distillation.module.outputs"));
         int shown = 0;
@@ -412,23 +442,15 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         return line;
     }
 
-    /** What the recipe is called: the last part of its id, spaced out ("filtered_distillation/x" gives "x"). */
-    private static String recipeName(ResourceLocation id) {
-        String path = id.getPath();
-        return path.substring(path.lastIndexOf('/') + 1).replace('_', ' ');
-    }
-
     private static String percent(double fraction) {
         return String.format(Locale.ROOT, "%.0f%%", fraction * 100);
     }
 
     @Override
     public void handleDisplayClick(String componentData, ClickData clickData) {
-        if (clickData.isRemote) {
-            // the client opens the recipe viewer on this tower's recipes; the viewer's "+" locks one (PinTowerRecipePacket)
-            if ("choose".equals(componentData)) StagedRecipeUI.showRecipes(getRecipeType());
-            return;
-        }
-        if ("unlock".equals(componentData)) unlockRecipe();
+        if (clickData.isRemote) return;
+        if ("prev".equals(componentData)) stepRecipe(-1);
+        else if ("next".equals(componentData)) stepRecipe(1);
+        else if ("unlock".equals(componentData)) unlockRecipe();
     }
 }

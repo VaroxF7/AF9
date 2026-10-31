@@ -83,6 +83,7 @@ public final class FabModes {
         }
         // (the Distillation Tower is gone, the Distillation Facility runs the same three modes: it registers them itself)
         facilityIcon();
+        towerIdLine();
 
         // the electrochemistry of the electrolyzer and the large electrolysis chamber
         for (MachineDefinition definition : GTMachines.ELECTROLYZER) {
@@ -98,6 +99,17 @@ public final class FabModes {
             heatOfTier(definition);
         }
         modes(GTMultiMachines.ELECTRIC_BLAST_FURNACE, calcination, cvd, crystalGrowth);
+    }
+
+    /**
+     * The recipe viewer's page of the facility's three types gets a line of room at its foot: the recipe's ID for the Distillation
+     * Tower Module's selector is drawn there (see DistillationJeiPlugin).
+     */
+    private static void towerIdLine() {
+        for (String path : new String[] { "distillation_tower", "fab_distillation", "fab_cryogenic_rectification" }) {
+            GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", path));
+            if (type != null) type.addDataInfo(data -> "");
+        }
     }
 
     /** GT's distillation recipe type took its icon from the Distillation Tower: give it the Distillation Facility's. */

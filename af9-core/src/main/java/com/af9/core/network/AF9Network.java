@@ -34,11 +34,6 @@ public final class AF9Network {
                 .decoder(DropPodReleasePacket::decode)
                 .consumerMainThread(DropPodReleasePacket::handle)
                 .add();
-        CHANNEL.messageBuilder(PinTowerRecipePacket.class, 2, NetworkDirection.PLAY_TO_SERVER)
-                .encoder(PinTowerRecipePacket::encode)
-                .decoder(PinTowerRecipePacket::decode)
-                .consumerMainThread(PinTowerRecipePacket::handle)
-                .add();
     }
 
     /** The player was killed by an orbital station's light ring: show its death screen. */
