@@ -1278,7 +1278,7 @@ public final class AF9Materials {
         // with no loss makes it the UHV superconductor wire.
         add(material("sanguinite")
                 .ingot().liquid(6000)
-                .color(0xb8123e).secondaryColor(0x3a0616)
+                .color(0xe0102c).secondaryColor(0x4a0612)
                 .iconSet(SANGUINITE)
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD,
                         MaterialFlags.GENERATE_FINE_WIRE, MaterialFlags.GENERATE_FOIL)
