@@ -41,14 +41,23 @@ public final class TowerRecipes {
             List<GTRecipe> list = of(manager, type);
             Map<ResourceLocation, String> ids = new java.util.HashMap<>();
             for (int n = 0; n < list.size(); n++) ids.put(list.get(n).id, nameOf(list.get(n)) + " " + (n + 1));
-            for (GTRecipe recipe : list) recipe.data.putString(ID_TAG, ids.get(recipe.id));
+            for (GTRecipe recipe : list) tag(recipe, ids.get(recipe.id));
             for (var category : type.getCategories()) {
                 for (GTRecipe recipe : type.getRecipesInCategory(category)) {
                     String id = recipe.id == null ? null : ids.get(recipe.id);
-                    if (id != null) recipe.data.putString(ID_TAG, id);
+                    if (id != null) tag(recipe, id);
                 }
             }
         }
+    }
+
+    /**
+     * Writes the ID into a data tag of the recipe's own: a recipe without data gets GT's one shared default tag from its codec, so
+     * writing into it gave every recipe the last ID written. Recipe copies made later (viewers) share the recipe's new tag.
+     */
+    private static void tag(GTRecipe recipe, String id) {
+        recipe.data = recipe.data == null ? new net.minecraft.nbt.CompoundTag() : recipe.data.copy();
+        recipe.data.putString(ID_TAG, id);
     }
 
     /** The recipes of the type, by id (those without an id are left out: they cannot be set). */
