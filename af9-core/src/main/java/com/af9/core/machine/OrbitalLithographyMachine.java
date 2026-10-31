@@ -258,10 +258,18 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     @DescSynced
     private int coilTier = -1;
 
-    /** Whether the Array Mk2 (extended) size is switched on: persisted like the Elevator's size switch. */
+    /** Whether the Array Mk2 (extended) size is on: it is, once the controller is upgraded. */
     @Persisted
     @DescSynced
     private boolean extended;
+
+    /**
+     * The controller is an Array Mk2: the Optical Quantum Gravitational Field Generator was put in the upgrade slot and
+     * the upgrade button pressed. The item is locked in (kept, not used up) and given back when the controller is broken.
+     */
+    @Persisted
+    @DescSynced
+    private boolean upgraded;
 
     /**
      * Adds the coolant to a print: the best useful supercooled fluid the coolant hatches hold (the node's best grade
@@ -407,6 +415,14 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     @Persisted
     public final NotifiableItemStackHandler reticleSlot;
 
+    /** The upgrade slot of the controller's upgrade menu: takes the Mk2 upgrade item until the upgrade is pressed. */
+    @Persisted
+    public final NotifiableItemStackHandler upgradeSlot;
+
+    /** The Mk2 upgrade: af9:optical_quantum_gravitational_field_generator. */
+    public static final ResourceLocation UPGRADE_ITEM = new ResourceLocation("af9",
+            "optical_quantum_gravitational_field_generator");
+
     /**
      * The Array Mk2's beam focus, 0 to {@link #FOCUS_MAX} (permille). It is the Mk2's setup and its upkeep:
      * <ul>
@@ -479,6 +495,31 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
                 .setFilter(OrbitalLithographyMachine::isEuvSource);
         reticleSlot = new NotifiableItemStackHandler(this, 1, IO.IN, IO.NONE)
                 .setFilter(OrbitalLithographyMachine::isReticle);
+        upgradeSlot = new NotifiableItemStackHandler(this, 1, IO.IN, IO.NONE)
+                .setFilter(s -> !upgraded && isUpgradeItem(s));
+    }
+
+    public static boolean isUpgradeItem(ItemStack stack) {
+        return !stack.isEmpty() && UPGRADE_ITEM.equals(ForgeRegistries.ITEMS.getKey(stack.getItem()));
+    }
+
+    public boolean isUpgraded() {
+        return upgraded;
+    }
+
+    /**
+     * The upgrade button: the upgrade item in the slot is locked into the controller (the slot empties, the item is
+     * kept as the upgraded state) and the controller becomes the Array Mk2. Between runs only; false when it did not
+     * happen.
+     */
+    public boolean tryUpgrade() {
+        if (isRemote() || upgraded || getRecipeLogic().isWorking()) return false;
+        if (!isUpgradeItem(upgradeSlot.getStackInSlot(0))) return false;
+        upgradeSlot.storage.setStackInSlot(0, ItemStack.EMPTY);
+        upgraded = true;
+        markDirty();
+        setExtended(true);
+        return true;
     }
 
     public static boolean isEuvSource(ItemStack stack) {
@@ -531,6 +572,15 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public void onMachineRemoved() {
         clearInventory(euvSlot.storage);
         clearInventory(reticleSlot.storage);
+        clearInventory(upgradeSlot.storage);
+        // the locked upgrade comes back out with the broken controller
+        if (upgraded && getLevel() != null) {
+            var item = ForgeRegistries.ITEMS.getValue(UPGRADE_ITEM);
+            if (item != null) {
+                net.minecraft.world.Containers.dropItemStack(getLevel(), getPos().getX() + 0.5, getPos().getY() + 0.5,
+                        getPos().getZ() + 0.5, new ItemStack(item));
+            }
+        }
     }
 
     @Override
@@ -786,6 +836,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * the other size, as when its controller is turned; a run that is on is lost.
      */
     public void setExtended(boolean extended) {
+        if (upgraded) extended = true;
         if (this.extended == extended) return;
         this.extended = extended;
         // the basic station does not stay in a mode of the Mk2
@@ -803,7 +854,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         }
     }
 
-    /** A screwdriver on the controller switches between the basic station and the Array Mk2, between runs. */
+    /** A screwdriver on the controller (shift: the focus lock option) says which tier it is. */
     @Override
     protected InteractionResult onScrewdriverClick(Player player, InteractionHand hand, Direction side,
                                                    BlockHitResult hit) {
@@ -820,9 +871,9 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
             player.displayClientMessage(Component.translatable("af9.orbital_array.mk2.busy"), true);
             return InteractionResult.SUCCESS;
         }
-        setExtended(!extended);
-        player.displayClientMessage(Component.translatable(extended ? "af9.orbital_array.mk2.on" :
-                "af9.orbital_array.mk2.off"), true);
+        // the size is the controller's tier: it changes with the upgrade (the upgrade menu), not with a tool
+        player.displayClientMessage(Component.translatable(upgraded ? "af9.orbital_array.mk2.on" :
+                "af9.orbital_array.mk2.locked"), true);
         return InteractionResult.SUCCESS;
     }
 
@@ -1118,6 +1169,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     @Override
     public void onLoad() {
         super.onLoad();
+        if (extended && !upgraded) upgraded = true; // stations built as Mk2 before the upgrade item existed keep their size
         OrbitalField.add(this);
     }
 

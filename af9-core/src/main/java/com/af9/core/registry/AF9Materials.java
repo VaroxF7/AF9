@@ -1428,7 +1428,8 @@ public final class AF9Materials {
                 .ingot().fluid()
                 .color(0x6f8fa6).secondaryColor(0x1f3a4d)
                 .iconSet(MaterialIconSet.METALLIC)
-                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_ROD)
+                .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FRAME, MaterialFlags.GENERATE_ROD,
+                        MaterialFlags.GENERATE_BOLT_SCREW)
                 .blastTemp(10800, GasTier.HIGHEST, GTValues.VA[GTValues.UHV], 2400)
                 .formula("(Tq4Cn2QcNt)"));
     }
@@ -1575,7 +1576,8 @@ public final class AF9Materials {
         ebfAlloy("albeme", 0x9fd0c9, "(Al3Be2)", 1800, GasTier.MID, GTValues.VA[GTValues.EV], 700,
                 MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_FRAME);
         ebfAlloy("cobalt_molybdenum_supersteel", 0x5c6cae, "(Fe8Co2Mo)", 2600, GasTier.MID, GTValues.VA[GTValues.EV],
-                900, MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_GEAR);
+                900, MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD, MaterialFlags.GENERATE_GEAR,
+                MaterialFlags.GENERATE_BOLT_SCREW);
         ebfAlloy("titanium_aluminide", 0xb8c2d0, "(TiAl)", 3200, GasTier.HIGH, GTValues.VA[GTValues.IV], 1100,
                 MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROTOR);
         ebfAlloy("hafnitinol", 0x7ad0c8, "(Ni4Ti4Hf)", 3500, GasTier.HIGH, GTValues.VA[GTValues.IV], 1200,

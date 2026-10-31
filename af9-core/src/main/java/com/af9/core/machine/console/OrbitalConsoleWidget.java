@@ -138,7 +138,123 @@ public class OrbitalConsoleWidget extends ConsoleWidget {
         reset.setHoverTexture(new ColorBorderTexture(1, 0xFFFFFFFF));
         reset.setHoverTooltips(Component.translatable("af9.litho.console.reset_tooltip"));
         page.addWidget(reset);
+        addUpgradeMenu(page, machine);
         return page;
+    }
+
+    /** The Mk2 sub menu: a chip on the field opens an overlay with the upgrade slot and the upgrade button. */
+    private static void addUpgradeMenu(WidgetGroup page, OrbitalLithographyMachine machine) {
+        var menu = new UpgradeMenu(machine);
+        var chip = new ButtonWidget(FIELD_X + FIELD_W - 36, FIELD_Y + 30, 30, 12, IGuiTexture.EMPTY, click -> {
+            if (click.isRemote) menu.open(true);
+        }) {
+            @Override
+            @OnlyIn(Dist.CLIENT)
+            public void drawInBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+                int x = getPosition().x, y = getPosition().y;
+                boolean up = machine.isUpgraded();
+                graphics.fill(x, y, x + 30, y + 12, PANEL);
+                border(graphics, x, y, 30, 12, up ? GOOD : isMouseOverElement(mouseX, mouseY) ? TEXT : EDGE);
+                String label = Component.translatable("af9.orbital.console.upgrade_button").getString();
+                graphics.drawString(font(), label, x + (30 - font().width(label)) / 2, y + 2, up ? GOOD : TEXT, false);
+            }
+        };
+        chip.setHoverTooltips(Component.translatable("af9.orbital.console.upgrade_button_tooltip"));
+        page.addWidget(chip);
+        page.addWidget(menu);
+    }
+
+    /** The overlay over the field. Client only toggles it; the server handles the slot and the upgrade click. */
+    private static final class UpgradeMenu extends WidgetGroup {
+
+        private static final int SLOT_PX = FIELD_W / 2 - 9, SLOT_PY = 52;
+        private final OrbitalLithographyMachine machine;
+        private final SlotWidget slot;
+
+        UpgradeMenu(OrbitalLithographyMachine machine) {
+            super(FIELD_X, FIELD_Y, FIELD_W, FIELD_H);
+            this.machine = machine;
+            slot = new SlotWidget(machine.upgradeSlot.storage, 0, SLOT_PX, SLOT_PY, true, true);
+            slot.setBackgroundTexture(GuiTextures.SLOT);
+            slot.setHoverTooltips(Component.translatable("af9.orbital.console.upgrade_slot_tooltip"));
+            addWidget(slot);
+            var go = new ButtonWidget(FIELD_W / 2 - 40, 100, 80, 14, IGuiTexture.EMPTY, click -> {
+                if (!click.isRemote) machine.tryUpgrade();
+            }) {
+                @Override
+                @OnlyIn(Dist.CLIENT)
+                public void drawInBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+                    int x = getPosition().x, y = getPosition().y;
+                    boolean up = machine.isUpgraded();
+                    boolean ready = !up && OrbitalLithographyMachine.isUpgradeItem(machine.upgradeSlot.getStackInSlot(0));
+                    graphics.fill(x, y, x + 80, y + 14, PANEL);
+                    border(graphics, x, y, 80, 14, ready ? (isMouseOverElement(mouseX, mouseY) ? TEXT : GOOD) : EDGE);
+                    String t = Component.translatable(up ? "af9.orbital.console.upgrade_done" :
+                            "af9.orbital.console.upgrade_go").getString();
+                    graphics.drawString(font(), t, x + (80 - font().width(t)) / 2, y + 3,
+                            up ? GOOD : ready ? TEXT : DIM, false);
+                }
+            };
+            addWidget(go);
+            var back = new ButtonWidget(FIELD_W - 40, FIELD_H - 18, 34, 12, IGuiTexture.EMPTY, click -> {
+                if (click.isRemote) open(false);
+            }) {
+                @Override
+                @OnlyIn(Dist.CLIENT)
+                public void drawInBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+                    int x = getPosition().x, y = getPosition().y;
+                    border(graphics, x, y, 34, 12, isMouseOverElement(mouseX, mouseY) ? TEXT : EDGE);
+                    String t = Component.translatable("af9.orbital.console.upgrade_back").getString();
+                    graphics.drawString(font(), t, x + (34 - font().width(t)) / 2, y + 2, MUTED, false);
+                }
+            };
+            addWidget(back);
+        }
+
+        /** Runs on the client only, once, when the screen opens: the menu starts closed. */
+        @Override
+        public void readInitialData(net.minecraft.network.FriendlyByteBuf buffer) {
+            super.readInitialData(buffer);
+            open(false);
+        }
+
+        /** Client only: show or hide the menu (and its slot, which then takes no clicks). */
+        void open(boolean open) {
+            setVisible(open);
+            setActive(open);
+            slot.setVisible(open && !machine.isUpgraded());
+            slot.setActive(open && !machine.isUpgraded());
+        }
+
+        @Override
+        @OnlyIn(Dist.CLIENT)
+        public void drawInBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
+            if (!isVisible()) return;
+            int x = getPosition().x, y = getPosition().y;
+            boolean up = machine.isUpgraded();
+            if (up == slot.isVisible()) { // the slot goes away once the generator is locked in
+                slot.setVisible(!up);
+                slot.setActive(!up);
+            }
+            graphics.fill(x, y, x + FIELD_W, y + FIELD_H, BG);
+            border(graphics, x, y, FIELD_W, FIELD_H, EDGE);
+            Font font = font();
+            String title = Component.translatable("af9.orbital.console.upgrade_title").getString();
+            graphics.drawString(font, title, x + (FIELD_W - font.width(title)) / 2, y + 8, TEXT, false);
+            String[] hints = {"af9.orbital.console.upgrade_hint0", "af9.orbital.console.upgrade_hint1",
+                    "af9.orbital.console.upgrade_hint2"};
+            for (int i = 0; i < hints.length; i++) {
+                String h = Component.translatable(hints[i]).getString();
+                graphics.drawString(font, h, x + (FIELD_W - font.width(h)) / 2, y + 22 + i * 10, MUTED, false);
+            }
+            if (up) {
+                graphics.renderItem(new ItemStack(ForgeRegistries.ITEMS.getValue(
+                        OrbitalLithographyMachine.UPGRADE_ITEM)), x + SLOT_PX, y + SLOT_PY);
+                String t = Component.translatable("af9.orbital.console.upgrade_locked").getString();
+                graphics.drawString(font, t, x + (FIELD_W - font.width(t)) / 2, y + 80, GOOD, false);
+            }
+            super.drawInBackground(graphics, mouseX, mouseY, partialTicks);
+        }
     }
 
     public static int tileWidth(int count) {

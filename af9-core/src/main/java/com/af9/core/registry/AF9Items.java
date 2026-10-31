@@ -187,6 +187,8 @@ public final class AF9Items {
         item("nano_particles", 64, 1);
         item("fiber_interconnects", 64, 1);
         item("optical_fiber_cable", 64, 1);
+        // The Orbital Array's Mk2 upgrade: locked into the controller's upgrade menu, never used up (orbital_upgrade.js)
+        item("optical_quantum_gravitational_field_generator", 1, 3);
 
         // ---- Tier 2 rocket: the parts of its own, and the insulation chain (recipes: rocket_hull.js; the insulation's
         // own recipes are still to come) ----

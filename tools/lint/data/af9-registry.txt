@@ -352,6 +352,7 @@ item af9:ochre_cloud
 item af9:oil_regolith
 item af9:optical_cpu
 item af9:optical_fiber_cable
+item af9:optical_quantum_gravitational_field_generator
 item af9:optical_ram
 item af9:organized_pico_circuit
 item af9:osmiridium_ray_reflector
