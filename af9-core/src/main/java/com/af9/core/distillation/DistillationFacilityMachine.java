@@ -2,6 +2,7 @@ package com.af9.core.distillation;
 
 import com.af9.core.AF9Core;
 import com.af9.core.pattern.DistillationFacilityPipes;
+import com.af9.core.pattern.PatternProbe;
 
 import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
@@ -225,6 +226,8 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
     }
 
     private String lastUnformedReport = "";
+    /** The first cells that do not match, from a walk of the pattern in place (GT's own error is that of a shifted try). */
+    private List<String> mismatches = List.of();
 
     /** Writes why the facility does not form to the log (when it changes), so a report does not need the screen. */
     private void logWhyUnformed() {
@@ -233,6 +236,9 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
         for (String line : DistillationFacilityPipes.problems(getLevel(), getPos(), getFrontFacing(), 6)) {
             report.append("; ").append(line);
         }
+        mismatches = getLevel() == null ? List.of() : PatternProbe.mismatches(this, getLevel(), 3);
+        for (String line : mismatches) report.append("; first mismatch ").append(line);
+        if (mismatches.isEmpty()) report.append("; probe: every cell matches in place");
         var error = getMultiblockState().error;
         if (error != null) {
             try {
@@ -581,6 +587,11 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
                     for (String line : wrap(problem, LINE_WIDTH)) {
                         textList.add(Component.literal(line).withStyle(net.minecraft.ChatFormatting.YELLOW));
                     }
+                }
+            }
+            for (String miss : mismatches.subList(0, Math.min(2, mismatches.size()))) {
+                for (String line : wrap(miss, LINE_WIDTH)) {
+                    textList.add(Component.literal(line).withStyle(net.minecraft.ChatFormatting.GOLD));
                 }
             }
             var error = getMultiblockState().error;
