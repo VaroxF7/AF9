@@ -60,8 +60,6 @@ public class AgriSimRender extends DynamicRender<IAgriSimMachine, AgriSimRender>
     /** The window the plants of a new run are replaced in (10 s), at random moments. */
     private static final int WINDOW_TICKS = 200;
     /** The garden starts over when it was not drawn for this long (ticks). */
-    /** A plant grows in this long (50 s) whatever the machine's speed: overclocks and batches do not change it. */
-    private static final float GROW_TICKS = 1000;
     private static final int STALE_TICKS = 100;
     private static final Random RANDOM = new Random();
     /** The soil cells are rescanned this often (ticks). */
@@ -166,7 +164,13 @@ public class AgriSimRender extends DynamicRender<IAgriSimMachine, AgriSimRender>
         var dispatcher = Minecraft.getInstance().getBlockRenderer();
         for (Cell cell : garden.cells.values()) {
             if (cell.shown == null) continue;
-            int growth = (int) (Math.min(1F, Math.max(0F, (now - cell.born) / GROW_TICKS)) * 1000);
+            // each plant has its own cycle: it grows to full, stands a moment, then starts over at stage one
+            float age = now - cell.born;
+            if (age >= cell.cycle) {
+                cell.born += cell.cycle * (float) Math.floor(age / cell.cycle);
+                age = now - cell.born;
+            }
+            int growth = (int) (Math.min(1F, Math.max(0F, age / (cell.cycle * 0.9F))) * 1000);
             BlockState state = grown(cell.shown, growth);
             poseStack.pushPose();
             poseStack.translate(cell.offset.getX(), cell.offset.getY(), cell.offset.getZ());
@@ -248,6 +252,8 @@ public class AgriSimRender extends DynamicRender<IAgriSimMachine, AgriSimRender>
         final BlockPos offset;
         Block shown;
         float born;
+        /** This plant's own growth cycle (ticks), 35 to 65 s. */
+        final float cycle = 700 + RANDOM.nextInt(600);
         Block pending;
         float pendingAt = -1;
 
