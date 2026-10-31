@@ -61,16 +61,6 @@ ServerEvents.recipes(event => {
         .duration(400)
         .EUt(VA[GTValues.ZPM])
 
-    // ---- Neutron irradiation: neutron transmutation doping, the 20 nm substrate ----
-    event.recipes.gtceu.neutron_irradiation('af9:transmuted_neutronium_wafer')
-        .itemInputs('4x gtceu:neutronium_wafer', 'af9:beryllium_spallation_target')
-        .inputFluids('#af9:coolant/hydrogen 1000')
-        .itemOutputs('4x af9:transmuted_neutronium_wafer')
-        .duration(1200)
-        .EUt(VA[GTValues.UV], 2)
-        .addData('min_field', 2000)
-        .addData('decay_rate', 500)
-
     // ---- Heavy-ion collision: quark-gluon plasma, caught in a magnetic trap ----
     event.recipes.gtceu.ion_collision('af9:qgp_trap')
         .itemInputs('af9:magnetic_trap', '16x gtceu:cobalt_ingot')
@@ -123,6 +113,32 @@ ServerEvents.recipes(event => {
         .EUt(VA[GTValues.UV], 4)
         .addData('min_field', 3000)
         .addData('decay_rate', 800)
+
+    // ---- Intridium, and the Optically Reflective Wafer ----
+    // Collision: a cell of molten iridium (argon coolant, a magnetic trap that is not consumed: it keeps the lookup apart from
+    // the rhenium-127 collision, which takes the same coolant) -> a cell of molten Intridium.
+    fill('iridium', 'gtceu:iridium')
+    fill('intridium', 'gtceu:intridium')
+    event.recipes.gtceu.ion_collision('af9:intridium')
+        .inputItemNbtPredicate(Item.of(emptyCell), holding('gtceu:iridium'))
+        .notConsumable('af9:magnetic_trap')
+        .inputFluids('#af9:coolant/argon 1000')
+        .itemOutputs(filledCell('gtceu:intridium'))
+        .duration(400)
+        .EUt(VA[GTValues.UV], 4)
+        .addData('min_field', 3000)
+        .addData('decay_rate', 800)
+    // Neutron irradiation: neutronium wafers doped with liquid Intridium (a cell of it, the empty cell comes back) under the
+    // neutron beam give the 20 nm substrate, the Optically Reflective Wafer.
+    event.recipes.gtceu.neutron_irradiation('af9:transmuted_neutronium_wafer')
+        .itemInputs('4x gtceu:neutronium_wafer')
+        .inputItemNbtPredicate(Item.of(emptyCell), holding('gtceu:intridium'))
+        .inputFluids('#af9:coolant/hydrogen 1000')
+        .itemOutputs('4x af9:transmuted_neutronium_wafer', emptyCell)
+        .duration(1200)
+        .EUt(VA[GTValues.UV], 2)
+        .addData('min_field', 2000)
+        .addData('decay_rate', 500)
 
     // ---- Quark synthesis: strange matter, then chromodynium; the traps come back empty ----
     event.recipes.gtceu.quark_synthesis('af9:strange_matter_dust')

@@ -1530,6 +1530,15 @@ public final class AF9Materials {
                 .iconSet(MaterialIconSet.SHINY)
                 .formula("127Re"));
 
+        // Intridium: what the Particle Accelerator's ion collision makes of molten iridium (a cell of it, like the osmium
+        // chain). The Neutron Irradiation recipe dopes neutronium wafers with it into Optically Reflective Wafers.
+        // Recipes: particle_accelerator.js
+        add(material("intridium")
+                .ingot().liquid(2719)
+                .color(0x6fd2e0).secondaryColor(0x1e4a78)
+                .iconSet(MaterialIconSet.SHINY)
+                .formula("Ir*"));
+
         // ---- chronite and chronium: a rare-earth pyrochlore of Ceres, split in a leach and a calcium reduction ----
         add(material("chronite")
                 .dust().ore(2, 1)

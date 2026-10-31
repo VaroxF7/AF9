@@ -28,7 +28,7 @@ SUBSTRATES = [
     ('trinium', 'repo', (70, 166, 204)),
     ('naquadria', 'repo', (104, 164, 236)),
     ('neutronium', 'gt', (164, 126, 224)),
-    ('transmuted_neutronium', 'repo', (196, 108, 232)),
+    ('transmuted_neutronium', 'repo', (120, 150, 230)),
     ('strange_matter', 'repo', (206, 184, 236)),
 ]
 

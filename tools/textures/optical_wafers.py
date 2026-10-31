@@ -176,25 +176,26 @@ def chip(old, cells, wafer=False):
 
 
 def main():
+    """the final look: dark prism glass with the E1 soft-arc edge reflection (optical_edge.py), glyph per chip"""
+    import optical_edge as oe
     if not os.path.isdir(SRC):
         os.makedirs(os.path.join(SRC, 'wafers'))
         os.makedirs(os.path.join(SRC, 'chips'))
         for f in FILES:
             shutil.copy(os.path.join(ITEM, f + '.png'), os.path.join(SRC, f + '.png'))
     old = {f: Image.open(os.path.join(SRC, f + '.png')).convert('RGBA') for f in FILES}
+    mode = 'E1 Soft arc'
     new = {}
-    base = disc(old['wafers/transmuted_neutronium_wafer'])
+    base = oe.draw(mode, 'wafer')
     new['wafers/transmuted_neutronium_wafer'] = base
-    new['wafers/broken_transmuted_neutronium_wafer'] = damage(
-        base, old['wafers/transmuted_neutronium_wafer'], old['wafers/broken_transmuted_neutronium_wafer'])
-    new['wafers/contaminated_transmuted_neutronium_wafer'] = damage(
-        base, old['wafers/transmuted_neutronium_wafer'], old['wafers/contaminated_transmuted_neutronium_wafer'])
-    for name, cells in (('tpu', [AMBER, AMBER, AMBER, AMBER]), ('memristor', [GREEN, AMBER, AMBER, GREEN])):
-        nc = chip(old[f'chips/{name}_chip'], cells)
-        nw = chip(old[f'wafers/{name}_wafer'], cells)
-        new[f'wafers/{name}_wafer'] = nw
-        new[f'chips/{name}_chip'] = nc
-        new[f'chips/contaminated_{name}_chip'] = damage(nc, old[f'chips/{name}_chip'], old[f'chips/contaminated_{name}_chip'])
+    for dmg in ('broken', 'contaminated'):
+        new[f'wafers/{dmg}_transmuted_neutronium_wafer'] = damage(
+            base, old['wafers/transmuted_neutronium_wafer'], old[f'wafers/{dmg}_transmuted_neutronium_wafer'])
+    for name in ('tpu', 'memristor'):
+        chip_im = oe.draw(mode, 'chip', name)
+        new[f'wafers/{name}_wafer'] = oe.draw(mode, 'wafer', name)
+        new[f'chips/{name}_chip'] = chip_im
+        new[f'chips/contaminated_{name}_chip'] = damage(chip_im, old[f'chips/{name}_chip'], old[f'chips/contaminated_{name}_chip'])
     for f, im in new.items():
         im.save(os.path.join(ITEM, f + '.png'))
         print('wrote', f)

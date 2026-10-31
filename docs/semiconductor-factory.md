@@ -1210,7 +1210,8 @@ Screen (the orbital station's layout, `SidePanelsUIWidget` + `AcceleratorConsole
 
 | Mode | Recipe | Coolant | EU/t | Time |
 |---|---|---|---|---|
-| `gtceu:neutron_irradiation` | 4 neutronium wafers + beryllium spallation target → 4 `af9:transmuted_neutronium_wafer` | 1000 supercooled hydrogen | UV × 2 | 1200t |
+| `gtceu:neutron_irradiation` | 4 neutronium wafers + a Universal Cell of molten Intridium → 4 `af9:transmuted_neutronium_wafer` (Optically Reflective Wafer) + the empty cell | 1000 supercooled hydrogen | UV × 2 | 1200t |
+| `gtceu:ion_collision` (Intridium) | a Universal Cell of molten iridium (+ a Magnetic Trap, not consumed) → a cell of molten `gtceu:intridium` | 1000 supercooled argon | UV × 4 | 400t |
 | `gtceu:ion_collision` | magnetic trap + 16 lead ingots → `af9:qgp_trap` | 2000 supercooled argon | UV × 4 | 600t |
 | `gtceu:quark_synthesis` | 4 QGP traps + neutronium dust → `gtceu:strange_matter_dust` + 4 traps | 4000 supercooled xenon | UHV × 2 | 1200t |
 | `gtceu:quark_synthesis` | 8 QGP traps + strange matter dust → `gtceu:chromodynium_dust` + 8 traps | 4000 supercooled endion | UHV × 4 | 2400t |
