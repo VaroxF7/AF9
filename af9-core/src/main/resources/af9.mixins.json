@@ -18,6 +18,7 @@
     "gtceu.FusionReactorMixin",
     "gtceu.PipeBlockMixin",
     "gtceu.ParallelHatchPartMixin",
+    "gtceu.MultiblockPartControllersMixin",
     "gtceu.RotorHolderCosmeticMixin",
     "zeta.ForgeZetaEventBusMixin",
     "ae2.FalloutMixin",
