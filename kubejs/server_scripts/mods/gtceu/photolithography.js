@@ -57,7 +57,7 @@ const AF9_WAFERS = (() => {
     const ORBITAL_CONSUMPTION = { '50nm': 10, '20nm': 12, '7nm': 15, '1nm': 20 }
     // The 1 nm prints roll their chip wafers per blank (GT's ranged outputs, rolled when the run ends): [min, max] by the
     // chip's native substrate. silicon-class 64-86, phosphorus 32-64, neutronium 16-32, everything above neutronium
-    // (transmuted neutronium, strange matter) 1-16; the classes between (naquadah, trinium, naquadria) step down evenly
+    // (intridium doped neutronium, strange matter) 1-16; the classes between (naquadah, trinium, naquadria) step down evenly
     // from phosphorus to neutronium.
     const ORBITAL_YIELD = { 0: [64, 86], 1: [32, 64], 2: [28, 56], 3: [24, 48], 4: [20, 40], 5: [16, 32], 6: [1, 16],
         7: [1, 16] }
@@ -134,7 +134,7 @@ const AF9_WAFERS = (() => {
     const printed = (substrateIndex, c) => substrateIndex < c.native ? null : waferOf(c)
     // Chip wafers per print, like GT's engraving: 1 on the chip's own substrate; above it the substrate's yield,
     // divided by the chip class's divisor (silicon chips 1, phosphorus chips 2, ASoC 8, HASoC 16: GT's numbers;
-    // AF9's trinium, naquadria and transmuted neutronium chips: their substrate's yield)
+    // AF9's trinium, naquadria and intridium doped neutronium chips: their substrate's yield)
     const CLASS_DIVISOR = { 0: 1, 1: 2, 2: 8, 3: 10, 4: 12, 5: 16, 6: 24, 7: 32 }
     const yieldOf = (substrateIndex, c) => {
         if (substrateIndex < c.native) return 0

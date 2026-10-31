@@ -123,7 +123,7 @@ the item tables of `AF9Items` (`af9-core/src/main/java/com/af9/core/registry/AF9
 | trinium | `af9:trinium_wafer` | 80 nm | IV · 30,720 | ArF dry 193 / 0.93 | `arf_photoresist` | 7% | Scanner V1 |
 | naquadria | `af9:naquadria_wafer` | 65 nm | LuV · 122,880 | ArF immersion 193 / 1.20 | `arf_photoresist` | 9% | Scanner V2 |
 | neutronium | `gtceu:neutronium_wafer` | 50 nm | ZPM · 491,520 | ArF immersion 193 / 1.35 | `arf_photoresist` | 12% | Orbital |
-| transmuted neutronium | `af9:transmuted_neutronium_wafer` | 20 nm | UV · 1,966,080 | EUV tin plasma 13.5 / 0.33 | `euv_photoresist` | 18% | Orbital + EUV source |
+| intridium doped neutronium | `af9:transmuted_neutronium_wafer` | 20 nm | UV · 1,966,080 | EUV tin plasma 13.5 / 0.33 | `euv_photoresist` | 18% | Orbital + EUV source |
 | strange matter | `af9:strange_matter_wafer` | 7 nm | UHV · 7,864,320 | high-NA EUV 13.5 / 0.55 | `euv_photoresist` | 25% | Orbital + EUV source |
 | chromodynium | `af9:chromodynium_wafer` | **1 nm** | UHV · 1A = 2,097,152 (500 s) | X-ray FEL 1.0 / 0.50 (orbit only) | `af9:dry_resist_cartridge` | 35% | Orbital, in orbit |
 
@@ -158,7 +158,7 @@ Printed like GT's; their wafers are `af9:<chip>_wafer` → cutter → `af9:<chip
 | `asic` | application-specific IC | phosphorus (200 nm) | 8 |
 | `edram` / `mram` / `feram` | embedded / magneto-resistive / ferro-electric RAM | trinium (80 nm) | 16 each |
 | `vpu` | video processing unit | naquadria (65 nm) | 6 |
-| `tpu` | tensor / AI unit | transmuted neutronium (20 nm) | 4 |
+| `tpu` | tensor / AI unit | intridium doped neutronium (20 nm) | 4 |
 
 Plus six research families (acoustic-wave, photonics, spintronics,
 2D-materials, neuromorphic, quantum-dot) for the pack's UHV wetware mainframe (§18.7 of the fab doc).
@@ -289,7 +289,7 @@ Oil Regolith (asteroid pockets, ~7% of rock, falling sand-like block)
 | MV | quartz → MG-Si → polysilicon → Si boule → 350 nm line V1, CWU Server LV/MV, Coater Track | GT LV–MV chips on Si; computation for research |
 | HV | 200 nm (KrF), fission fuel chain, Oil Regolith → oil, PGM matte (Pt/Pd) | ASIC/MCU/APU; first fission power; benzene/propene |
 | EV | 100 nm (ArF dry), rockets T2 → Ceres/Field, Supercooling Cryostat | Naquadah circuits; brannerite; cold coolants |
-| IV–LuV | Scanner 80/65 nm (ArF + immersion), rockets T3–T4, Particle Accelerator | trinium/naquadria chips; e/m/FE-RAM, VPU; transmuted neutronium (NTD) |
+| IV–LuV | Scanner 80/65 nm (ArF + immersion), rockets T3–T4, Particle Accelerator | trinium/naquadria chips; e/m/FE-RAM, VPU; intridium doped neutronium (NTD) |
 | ZPM | Orbital Station (50 nm), Fusion Reactor Mk1 (Pu-241) | renewable ore; neutronium HASoC; TPU path |
 | UV–UHV | EUV 20/7 nm, high-NA, X-ray FEL 1 nm in orbit, Space Elevator | strange-matter / chromodynium nodes; endgame computation |
 

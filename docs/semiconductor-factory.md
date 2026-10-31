@@ -8,7 +8,7 @@ gtceu: "7.5.3 (GregTech CEu Modern)"
 kubejs: "2001.6.5-build.16"
 af9_core: "0.1.0 (mod_id `af9`)"
 gtceu_config: "enableCleanroom=true, cleanMultiblocks=false, enableMaintenance=true, highTierContent=false, orderedAssemblyLineItems=true"
-status: "Matches main. One lithography mode per wafer substrate (§5.2): Photolithography Line 350 nm Si (MV) → 200 nm P → 100 nm Nq → 80 nm trinium → 65 nm naquadria → 50 nm Nt → 20 nm transmuted neutronium → 7 nm strange matter (UHV), each 4A of its tier + OC_PERFECT and with its real light source and resist (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV); the Orbital Lithography Station prints 1 nm chromodynium wafers in orbit (50A UHV laser). A substrate prints its own chips and every lower substrate's chips as GT's own plain chip wafers (a better substrate gives more of them per blank), no NBT. Vacuum cleanliness 0-100, air cooling and OPC computation decide the break roll (§18, §5.4). Boules are 10x material in the EBF's Boule Melting mode (§12). Superseded: wafer packages, per-mode chips (MUV/HUV/EUV/XUV/LUV), the old CZ boules, Mk I-III modules, high_grade/premium items."
+status: "Matches main. One lithography mode per wafer substrate (§5.2): Photolithography Line 350 nm Si (MV) → 200 nm P → 100 nm Nq → 80 nm trinium → 65 nm naquadria → 50 nm Nt → 20 nm intridium doped neutronium → 7 nm strange matter (UHV), each 4A of its tier + OC_PERFECT and with its real light source and resist (i-line, KrF, ArF, ArF immersion, EUV, high-NA EUV); the Orbital Lithography Station prints 1 nm chromodynium wafers in orbit (50A UHV laser). A substrate prints its own chips and every lower substrate's chips as GT's own plain chip wafers (a better substrate gives more of them per blank), no NBT. Vacuum cleanliness 0-100, air cooling and OPC computation decide the break roll (§18, §5.4). Boules are 10x material in the EBF's Boule Melting mode (§12). Superseded: wafer packages, per-mode chips (MUV/HUV/EUV/XUV/LUV), the old CZ boules, Mk I-III modules, high_grade/premium items."
 agent_hint: "All exact IDs are in backticks. `gtceu:` = base GregTech item/machine/recipe-type (AF9's materials, which AF9 Core registers, and the KubeJS GT machines and recipe types also land in `gtceu:`). `af9:` = AF9 custom item/block (registered by AF9 Core; `kubejs:` until October 2026, old worlds are remapped) and AF9 custom recipe ID (output namespace varies — see §6). No NBT anywhere in the chip chain."
 ---
 
@@ -187,7 +187,7 @@ Minecraft map (AF9, one recipe = one full cycle): `hmds_vapor` prime → resist 
 - Species: p-type **B, BF2, In** (holes), n-type **P, As, Sb** (electrons). Must sit substitutionally → anneal.
 - Implant: mass-separated beam 1keV-3MeV (depth), dose 1e11-1e16 cm⁻² (concentration), 7° tilt anti-channeling, screen oxide. Amorphizes → anneal: furnace 800-1100C (old, too much diffusion), RTP spike 1000-1100C 1-10s (standard), flash/laser ms-µs (ultra-shallow), SPE regrowth, C/N co-implant anti-TED.
 - Diffusion: `POCl3` n / `BBr3/B2O3` p, 850-1150C hours, isotropic, deep junctions — now only power/CCD/photodiode/well drive.
-- Minecraft map: `phosphorus_boule` (P-doped) stands in for n-doping. No implant machine — the substrate stands in for junction scaling; the Particle Accelerator's neutron transmutation doping (§14, real NTD turns Si-30 into P-31) makes transmuted neutronium.
+- Minecraft map: `phosphorus_boule` (P-doped) stands in for n-doping. No implant machine — the substrate stands in for junction scaling; the Particle Accelerator's neutron transmutation doping (§14, real NTD turns Si-30 into P-31) makes intridium doped neutronium.
 
 ## 2.5 Deposition + planarization
 
@@ -366,7 +366,7 @@ Tooltips: `af9.photolithography_line.tooltip.0-16`, `af9.photolithography_scanne
 | 7 | `strange_matter` | `af9:strange_matter_wafer` | 7 nm | UHV | 7864320 | high-NA EUV | 13.5 | 0.55 | 0.29 | `euv_photoresist` | 25 % | orbital station (+ EUV source) |
 | 8 | `chromodynium` | `af9:chromodynium_wafer` | 1 nm | UHV | 1A = 2097152 (500 s) | X-ray FEL (orbit) | 1.0 | 0.50 | 0.50 | `af9:dry_resist_cartridge` | 35 % | orbital station |
 
-Order note: trinium comes before naquadria because GT smelts trinium at LuV and naquadria only at ZPM (trinium dust also comes from AF9's trinium ore). The user-facing "placeholder" wafers are Trinium (4th), Naquadria (5th), Transmuted Neutronium (7th), Strange Matter (8th) and Chromodynium (9th).
+Order note: trinium comes before naquadria because GT smelts trinium at LuV and naquadria only at ZPM (trinium dust also comes from AF9's trinium ore). The user-facing "placeholder" wafers are Trinium (4th), Naquadria (5th), Intridium Doped Neutronium (7th), Strange Matter (8th) and Chromodynium (9th).
 
 Colours on the consoles / tiles: 350 violet, 200 blue, 100 cyan, 80 green, 65 lime, 50 gold, 20 orange, 7 rose, 1 white.
 
@@ -404,7 +404,7 @@ Dies per wafer, cut EU/t and clean room are GT's own cutter recipes, unchanged.
 
 ## 5.3b AF9's own chips
 
-Nine chips beyond GT's (items: `af9-core/src/main/java/com/af9/core/registry/AF9Items.java`, `CHIPS`; recipes: `AF9_WAFERS.chips` `own(...)` in `server_scripts/mods/gtceu/photolithography.js`). Printed like GT's (a substrate prints every chip whose own substrate is the same or lower), but their chip wafers are AF9's: `af9:<chip>_wafer` → Cutter → `af9:<chip>_chip`; `af9:contaminated_<chip>_chip` for the contamination, `af9:<chip>_reticle`. Chip wafers per print: 1 on the chip's own substrate, above it the substrate's yield ÷ the class divisor (`CLASS_DIVISOR`: trinium 10, naquadria 12, transmuted neutronium 24, like GT's 1 / 2 / 8 / 16).
+Nine chips beyond GT's (items: `af9-core/src/main/java/com/af9/core/registry/AF9Items.java`, `CHIPS`; recipes: `AF9_WAFERS.chips` `own(...)` in `server_scripts/mods/gtceu/photolithography.js`). Printed like GT's (a substrate prints every chip whose own substrate is the same or lower), but their chip wafers are AF9's: `af9:<chip>_wafer` → Cutter → `af9:<chip>_chip`; `af9:contaminated_<chip>_chip` for the contamination, `af9:<chip>_reticle`. Chip wafers per print: 1 on the chip's own substrate, above it the substrate's yield ÷ the class divisor (`CLASS_DIVISOR`: trinium 10, naquadria 12, intridium doped neutronium 24, like GT's 1 / 2 / 8 / 16).
 
 | chip | what | own substrate | reticle: lens / mask blank | dies / wafer | cut |
 |---|---|---|---|---|---|
@@ -416,7 +416,7 @@ Nine chips beyond GT's (items: `af9-core/src/main/java/com/af9/core/registry/AF9
 | `mram` | magnetoresistive RAM | trinium | blue / MoSi phase-shift | 16 | IV, clean room |
 | `feram` | ferroelectric RAM | trinium | yellow / MoSi phase-shift | 16 | IV, clean room |
 | `vpu` | video processing unit | naquadria (65 nm) | purple / MoSi phase-shift | 6 | LuV, clean room |
-| `tpu` | tensor processing unit (AI) | transmuted neutronium (20 nm) | orange / EUV multilayer | 4 | UV, clean room |
+| `tpu` | tensor processing unit (AI) | intridium doped neutronium (20 nm) | orange / EUV multilayer | 4 | UV, clean room |
 
 The 16 dye lens colours: GT's 12 chips have 12 of them on the chrome blank; the four left (white, lime, magenta, light gray) go to the four silicon / phosphorus chips. The finer chips' reticles are written on other blanks (`af9:phase_shift_mask_blank`, `af9:euv_mask_blank`), so their lens colours can repeat without two laser-engraver recipes matching the same inputs. Packages: `af9:edram_cpu_package` / `af9:edram_soc_package` (§6.4). Their uses: §8 (`server_scripts/mods/gtceu/chip_uses.js` and the scripts it names). Textures: `af9-core/src/main/resources/assets/af9/textures/item` (`chips/`, `wafers/`, `<chip>_reticle`, the blanks, the packages), made on GT's own templates: GT's blank die recoloured to the substrate's class (grey silicon, GT's SoC copper for phosphorus, the substrate wafer's tones above) with the chip's 6×6 glyph in the die's two darkest tones, lit from the top left like GT's; the chip wafer is the substrate wafer with the glyph; the contaminated chip carries the smudges of GT's contaminated CPU chip; reticles: the chrome reticle frame, lens-coloured corners, the glyph in the blank's absorber (chrome, MoSi, TaBN on the Mo/Si multilayer).
 
@@ -700,7 +700,7 @@ Coating per wafer (§6.5b; resist: i-line `photoresist`, KrF, ArF (100 to 50 nm)
 | trinium (80) | 135 | 338 | 203 | — | 101 |
 | naquadria (65) | 203 | 506 | 304 | 304 | 152 |
 | neutronium (50) | 304 | 759 | 456 | 456 | 228 |
-| transmuted neutronium (20) | 456 | 1139 | — | — | 342 |
+| intridium doped neutronium (20) | 456 | 1139 | — | — | 342 |
 | strange matter (7) | 683 | 1709 | — | — | 513 |
 
 (The numbers of the node quests are checked against the recipes by `tools/lint/facts.py`.)
@@ -765,7 +765,7 @@ Layout, left to right by voltage tier:
   (EV); zircon/hafnium; tin tetrachloride, EUV resist, EUV light source, dry resist cartridge, orbital station parts.
 - **Below: silicon and substrates** — MG-Si, chlorosilanes, Moon Sand polysilicon, Lunar Air, Artemite, EGS, HF, silicon charge/seed/crucible,
   then a "substrate highway" of melt charges (phosphorus ... chromodynium) with their boules; cryostat, coolant hatch,
-  particle accelerator, transmuted neutronium, QGP, strange matter, chromodynium, tritanium crucible, Endion coils.
+  particle accelerator, intridium doped neutronium, QGP, strange matter, chromodynium, tritanium crucible, Endion coils.
 - **Quest links** show the GT quests of the voltage chapters that belong to the flow (MV laser engraver, silicon boule,
   cutter, silicon wafer, MV energy hatch (no chip), HV cleanroom, the printed chip wafers of each node, the
   phosphorus/naquadah/neutronium boules, the derived Nano CPU / Qubit / HPIC / UHPIC wafers). They are the same quests.
@@ -965,7 +965,7 @@ af9:ultrapure_water (purify) NC fluid_filter + 4000 distilled_water → 4000 ult
 ```text
 EGS (+ dopant) → [blending] melt charge, [crystal growth] seed crystal → [EBF Boule Melting: 10 charges + seed + crucible + gas] boule → [CUTTER] blank wafers
   (silicon, phosphorus, naquadah, trinium, naquadria, neutronium, strange matter, chromodynium;
-   4 neutronium wafers + Be target + supercooled H2 → [PARTICLE_ACCELERATOR neutron irradiation] 4 transmuted neutronium wafers)
+   4 neutronium wafers + Be target + supercooled H2 → [PARTICLE_ACCELERATOR neutron irradiation] 4 optically reflective wafers)
   → [PHOTOLITHOGRAPHY_LINE version 1-8, mode = substrate (350 nm Si … 7 nm strange matter), + reticle + track fluids (+ mode's resist, laser gas, UPW, HfCl4, tin + H2)]
   | [ORBITAL_LITHOGRAPHY_STATION in orbit, 1 nm chromodynium, + reticle + dry resist cartridge + supercooled endion]
      → GT's chip wafer(s) (as many as the substrate yields, §5.3)  or  af9:broken_<substrate>_wafer (break roll: vacuum, cooling, OPC)
@@ -1034,7 +1034,7 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 # 9. Extension points (not done yet)
 
 1. Transistor system (B): 3×3 transistor breadboard, printed PCBs, x10 transistor demand — design pending.
-2. Circuits do not ask for a substrate: a UV circuit could be made to need 20 nm chips (e.g. only cut from transmuted neutronium wafers) if the late game should depend on the new substrates beyond die counts.
+2. Circuits do not ask for a substrate: a UV circuit could be made to need 20 nm chips (e.g. only cut from optically reflective wafers) if the late game should depend on the new substrates beyond die counts.
 3. Wet etch (HF/BOE) step, sterile cleanroom wafers, crystal chips (autoclave path) — untouched.
 4. Quests are updated (§6.10); non-English quest languages show the new English text for changed quests until translated.
 5. Hafnium metal: still has no items (only HfCl4: the high-k gate and the hafnium-oxo resist, §18.6); zirconium ingots have no use beyond the zirconium-oxo resist.
@@ -1070,7 +1070,7 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 - [ ] Multiblock parts (all AF9 multiblocks): a maximum only, never a minimum or exact count — `setMaxGlobalLimited(max, preview count)`, no `setMinGlobalLimited` / `setExactLimit` / GT `autoAbilities` (it forces energy and maintenance), no casing minimums (the dry run flags all of these). Every recipe must run on normal 2A hatches within those maximums (≤ 4A on two energy hatches).
 - [ ] Line: up to 2 energy hatches, `LITHO_GATE + STRIP_BROKEN + LITHO_VERSION + OC_PERFECT`; orbital: up to 1 laser + 3 energy hatches, 2 coolant hatches, computation + data hatch, batch mode, `LITHO_GATE + STRIP_BROKEN + COOLANT + OC_PERFECT + BATCH_MODE`, pattern unchanged from the `sol_array` design; no cleanroom for either.
 - [ ] Quests: IDs are 16 hex digits starting with 0-7 (FTB Quests parses them as signed longs), unique across all quest files; new lithography quests go into `photolithography.snbt`, text into `af9.quest.litho.*`.
-- [ ] Realism wording: node names are gameplay labels; chromodynium, strange-matter and transmuted-neutronium wafers are fiction on real physics names.
+- [ ] Realism wording: node names are gameplay labels; chromodynium, strange-matter and intridium-doped-neutronium wafers are fiction on real physics names.
 - [ ] Wafers: every new printable/blank wafer is in `#af9:wafers/<substrate>` (server tags) so contamination knows it; broken and contaminated wafers are not. Every substrate has a broken and a contaminated wafer item + texture.
 - [ ] Boules: every boule recipe is 3 items + 1 fluid (the EBF's slots), has `blastFurnaceTemp`, and its temperature is reachable with the coils the tier has (chromodynium 12000 K = Resonant Endion).
 - [ ] New machines: cryostat recipes `EUt(VA[HV], 4)` (POWER_GATE); coolant hatch filter accepts only `gtceu:supercooled_*`; accelerator and orbital recipes take their fluid through a coolant hatch.
@@ -1313,7 +1313,7 @@ Eight chips beyond §5.3b, one per family the finer substrates open up, printed 
 | `photonic_ic` | silicon photonics | trinium, 80 nm (IV) | cyan / phase-shift | 6 | silicon nitride (+ germanium, InP from GT) |
 | `spin_logic` | spintronics (MTJ logic) | naquadria, 65 nm (LuV) | lime / phase-shift | 8 | CoFeB (+ magnesia from GT) |
 | `tmd_logic` | 2D materials | neutronium, 50 nm (ZPM) | pink / EUV | 6 | tungsten diselenide, hexagonal boron nitride (+ molybdenite, graphene from GT) |
-| `memristor` | neuromorphic (ReRAM, PCM) | transmuted neutronium, 20 nm (UV) | cyan / EUV | 8 | GST alloy (Ge2Sb2Te5) |
+| `memristor` | neuromorphic (ReRAM, PCM) | intridium doped neutronium, 20 nm (UV) | cyan / EUV | 8 | GST alloy (Ge2Sb2Te5) |
 | `quantum_dot_ic` | sub-atomic (quantum dots, SET) | strange matter, 7 nm (UHV) | yellow / EUV | 4 | CdSe quantum-dot colloid |
 | `qram` | quantum aligned memory (QRAM) | strange matter, 7 nm (UHV) | magenta / EUV | 8 | CdSe quantum-dot colloid (shared) |
 | `qlos` | quantum-dot CPU (QLOS) | strange matter, 7 nm (UHV) | lime / EUV | 4 | CdSe quantum-dot colloid (shared) |

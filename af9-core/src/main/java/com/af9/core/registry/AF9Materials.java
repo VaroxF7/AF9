@@ -63,6 +63,7 @@ public final class AF9Materials {
      * dense plate, fine wire, screw, rotor ...) painted in the alloy's own palette and grain. Shapes a set lacks fall
      * back to SHINY.
      */
+    private static final MaterialIconSet SANGUINITE = new MaterialIconSet("sanguinite", MaterialIconSet.SHINY);
     private static final MaterialIconSet KOVAR = new MaterialIconSet("kovar", MaterialIconSet.SHINY);
     private static final MaterialIconSet INCONEL_625 = new MaterialIconSet("inconel_625", MaterialIconSet.SHINY);
     private static final MaterialIconSet INCONEL_718 = new MaterialIconSet("inconel_718", MaterialIconSet.SHINY);
@@ -1236,7 +1237,7 @@ public final class AF9Materials {
     }
 
     /**
-     * Sanguinite: the bright-red UHV superconductor, smelted in the Sanguinite Hearth Furnace
+     * Sanguinite: the oxblood-garnet UHV superconductor, smelted in the Sanguinite Hearth Furnace
      * ({@code gtceu:sanguinite_hearth_furnace}, a standalone Rotary-Hearth copy running only
      * {@code gtceu:sanguinite_hearth}: the EBF cannot smelt it, the auto EBF/hot-ingot recipes are removed).
      * Tin alloy, barium, europium, titanium, electrum and crude sanguinite dusts are smelted at
@@ -1267,7 +1268,7 @@ public final class AF9Materials {
                 .iconSet(MaterialIconSet.ROUGH)
                 .formula("(Nt4Ke10MrsLx)"));
 
-        // Sanguinite: blood-red, lossless at UV 4A. No blast property and no components, so GT adds no
+        // Sanguinite: oxblood-garnet with bright veins (own icon set, tools/textures/superalloys.py), lossless at UV 4A. No blast property and no components, so GT adds no
         // dust-to-hot EBF print, no mixer/centrifuge/electrolyzer shortcut past the hearth: the hearth smelts
         // dusts straight to the molten fluid (uhv_superconductor.js, blastFurnaceTemp 6000 K on the recipe for
         // the coil display), and the vacuum freezer casts it under supercooled hydrogen. The fluid itself is
@@ -1277,8 +1278,8 @@ public final class AF9Materials {
         // with no loss makes it the UHV superconductor wire.
         add(material("sanguinite")
                 .ingot().liquid(6000)
-                .color(0xff1a1a).secondaryColor(0x5c0a0a)
-                .iconSet(MaterialIconSet.SHINY)
+                .color(0xb8123e).secondaryColor(0x3a0616)
+                .iconSet(SANGUINITE)
                 .flags(MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD,
                         MaterialFlags.GENERATE_FINE_WIRE, MaterialFlags.GENERATE_FOIL)
                 .cableProperties(GTValues.VA[GTValues.UV], 4, 0, true)

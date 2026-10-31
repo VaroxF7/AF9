@@ -47,7 +47,7 @@ import javax.annotation.Nullable;
  * Particle Accelerator (structure and recipes in KubeJS): a storage ring built like GTNH's Compact Fusion Computer, 47
  * blocks across and 7 high, an empty beam tube inside a clean-steel shell (the superconducting bending magnets) with
  * four glass gates. Its magnets are cooled from coolant hatches only (supercooled fluids). Modes: neutron irradiation
- * (a spallation neutron beam turns neutronium wafers into transmuted neutronium wafers), heavy-ion collision
+ * (a spallation neutron beam turns neutronium wafers into optically reflective wafers), heavy-ion collision
  * (quark-gluon plasma in magnetic traps) and quark synthesis (strange matter, chromodynium).
  * <ul>
  * <li>While it runs, its beam, a light ring in the mode's colour, runs round the empty tube: the shell hides it, it

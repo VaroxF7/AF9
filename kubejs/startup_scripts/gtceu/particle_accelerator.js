@@ -6,7 +6,7 @@
 // hatches go anywhere on the containment casing (and in the gates' glass spots). The magnets are cooled from
 // Coolant Hatches only (supercooled fluids, cryogenics.js). Three modes:
 //   neutron irradiation   protons on a beryllium spallation target; the neutron flux transmutes neutronium-doped
-//                         wafers into transmuted neutronium wafers (the 20 nm substrate)
+//                         wafers into optically reflective wafers (the 20 nm substrate)
 //   heavy-ion collision   lead ions collide; the quark-gluon plasma is caught in magnetic (Penning) traps
 //   quark synthesis       quark-gluon plasma condenses into strange matter, and with strange matter into chromodynium,
 //                         the quark-level metal of the 1 nm wafers

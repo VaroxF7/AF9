@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The superalloys' icon sets: Kovar, Inconel 625 / 718 / 738, Havar, Hastelloy C-276, Stellite 1 / 12.
+"""The superalloys' icon sets: Kovar, Inconel 625 / 718 / 738, Havar, Hastelloy C-276, Stellite 1 / 12, Sanguinite.
 
 Every alloy gets a palette and a grain of its own, painted over the silhouettes and shading of GT's SHINY set
 (dust, ingot, plate, double plate, dense plate, fine wire, screw, bolt, rod, ring, rotor ...), so the parts keep their
@@ -68,6 +68,9 @@ ALLOYS = {
                        accent=[rgb(0x1c2236), rgb(0x8fc0ff)], salt=7),
     'stellite_12': dict(pal=ramp(0x08163a, 0x143a80, 0x2a68c4, 0x5aa0f0, 0xc0e6ff),
                         accent=[rgb(0x9af4ff), rgb(0xffffff)], salt=8),
+    # sanguinite (UHV superconductor): oxblood to arterial garnet, fine bright veins branching through the metal
+    'sanguinite': dict(pal=ramp(0x16040d, 0x3c0618, 0x78102f, 0xb81f4c, 0xf5668e),
+                       accent=[rgb(0xff5c80), rgb(0x2a0414)], salt=9),
 }
 HOT = ramp(0x4a1c0a, 0x9a3c14, 0xe0701c, 0xffb040, 0xfff0c0)
 
@@ -112,6 +115,11 @@ def grain(name, x, y, light, spec):
             return pal[4]
         if n < 10:
             return a1 if n < 7 else a2
+    elif name == 'sanguinite':
+        if (x * 2 + y) % 9 == 0 or (x - y * 2) % 11 == 0:
+            return a1 if tone(light) >= 2 else pal[min(4, tone(light) + 1)]
+        if n < 5:
+            return a2
     elif name == 'stellite_12':
         if (x - y) % 6 == 0:
             return pal[min(4, tone(light) + 2)]

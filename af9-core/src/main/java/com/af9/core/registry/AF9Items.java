@@ -29,7 +29,7 @@ public final class AF9Items {
     /**
      * The nine wafer substrates, one lithography mode each ({@link com.af9.core.litho.LithoMode}; the server side of
      * the table is AF9_WAFERS in {@code server_scripts/mods/gtceu/photolithography.js}: keep the three in sync):
-     * silicon 350 nm, phosphorus 200, naquadah 100, trinium 80, naquadria 65, neutronium 50, transmuted neutronium 20,
+     * silicon 350 nm, phosphorus 200, naquadah 100, trinium 80, naquadria 65, neutronium 50, intridium doped neutronium 20,
      * strange matter 7, chromodynium 1 nm (the Orbital Lithography Station). Trinium comes before naquadria because GT
      * smelts trinium at LuV and naquadria only at ZPM.
      */
@@ -45,9 +45,9 @@ public final class AF9Items {
     /**
      * AF9's own chips, next to GT's (docs/semiconductor-factory.md): each has a chip wafer, a chip and a contaminated
      * chip. RF Transceiver, APU and MCU are silicon chips (350 nm), the ASIC phosphorus (200 nm), eDRAM, MRAM and
-     * FeRAM trinium (80 nm), the VPU naquadria (65 nm), the TPU transmuted neutronium; then the families the finer
+     * FeRAM trinium (80 nm), the VPU naquadria (65 nm), the TPU intridium doped neutronium; then the families the finer
      * substrates open up: SAW Filter (naquadah), Photonic IC (trinium), Spin Logic (naquadria), TMD Logic (neutronium),
-     * Memristor (transmuted neutronium), Quantum-Dot IC (strange matter), QRAM and QLOS (strange matter).
+     * Memristor (intridium doped neutronium), Quantum-Dot IC (strange matter), QRAM and QLOS (strange matter).
      */
     private static final String[] CHIPS = { "rf_transceiver", "apu", "mcu", "asic", "edram", "mram", "feram", "vpu",
             "tpu", "saw_filter", "photonic_ic", "spin_logic", "tmd_logic", "memristor", "quantum_dot_ic", "qram",
