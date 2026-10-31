@@ -32,7 +32,7 @@ a module to face the right way.
 * **3 towers, 3 parallels.** Every tower runs one recipe at a time. With nothing locked, a tower takes whatever recipe the facility's inputs match, so three towers fed
   one fluid are three parallels of one recipe. With the **[<] [>] recipe selector** on the tower's screen (like the Space Mining Module's mission selector: the arrows go through all the recipes of the tower's three modes, the mode follows the recipe) a tower only
   ever runs the recipe it is set to, so the three can run three different ones. Until then the screen says **Awaiting Recipe Lock**. Below the arrows is the recipe's **ID**, the name of what it mainly makes and a number
-  (`Naphtha 14`: its place among the recipes of its type, by recipe id), and what it makes. JEI shows the same ID at the foot of the recipe's page (`DistillationJeiPlugin`), so a player finds a recipe on the selector by it. **[Unlock]** releases the tower.
+  (`Naphtha 14`: its place among the recipes of its type, by recipe id), and what it makes. JEI and EMI show the same ID as a line of GT's recipe page (`TowerRecipeIdEvents` writes it into the recipes' data on the client, `FabModes.towerIdLine` prints it), so a player finds a recipe on the selector by it. **[Unlock]** releases the tower.
 * **At most 1 parallel hatch per tower**: in any casing of the tower. It gives that tower its hatch's parallels, **capped at 21 a tower** so the three towers together stay within the pack's 64 parallels
   (63 runs at most). A second hatch in the same tower stops that tower from forming.
 * **Perfect overclock, no batch mode.**
@@ -89,7 +89,7 @@ The fab modes (Distillation, Cryogenic Rectification) are clean-room recipes: th
 * Each tower has its own pattern char (`l`, `m`, `n`) with **at most one Parallel Hatch**, so an auto-build puts one in every tower, not all three in the first. A module on its own also allows one.
 * Hatches in a tower wear the Clean Stainless casing; the controller and the hatches on the spine wear the Steel Turbine Casing (`DistillationFacilityMachine.partAppearance`).
 * The **Large Fractionating Distillery** now runs only distillery recipes (fork patch 0029); distillation recipes belong to the facility. Facility and modules share the recipe types, so the viewers group them as workstations.
-* **Recipe ID on the page** (JEI): the facility's three recipe types have a line of room at the foot of their pages for it (`FabModes.towerIdLine`). EMI does not show it yet.
+* **Recipe ID on the page** (JEI and EMI): a data-info line of the facility's three recipe types ("ID: Naphtha 14"), from the recipe's data tag `af9_recipe_id`.
 
 ## Output buffer
 

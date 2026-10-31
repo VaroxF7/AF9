@@ -26,7 +26,30 @@ public final class TowerRecipes {
 
     private static final Map<RecipeManager, Map<GTRecipeType, List<GTRecipe>>> CACHE = new WeakHashMap<>();
 
+    /** The recipe's ID in its data, for the recipe viewers' page (a line of the page's data info, see FabModes.towerIdLine). */
+    public static final String ID_TAG = "af9_recipe_id";
+
     private TowerRecipes() {}
+
+    /**
+     * Writes the ID of every recipe of the types into its data (the recipe viewers' pages read it from there, client side), in the
+     * manager's recipes and in the ones the types list for the viewers.
+     */
+    public static synchronized void tagIds(RecipeManager manager, GTRecipeType[] types) {
+        CACHE.remove(manager);
+        for (GTRecipeType type : types) {
+            List<GTRecipe> list = of(manager, type);
+            Map<ResourceLocation, String> ids = new java.util.HashMap<>();
+            for (int n = 0; n < list.size(); n++) ids.put(list.get(n).id, nameOf(list.get(n)) + " " + (n + 1));
+            for (GTRecipe recipe : list) recipe.data.putString(ID_TAG, ids.get(recipe.id));
+            for (var category : type.getCategories()) {
+                for (GTRecipe recipe : type.getRecipesInCategory(category)) {
+                    String id = recipe.id == null ? null : ids.get(recipe.id);
+                    if (id != null) recipe.data.putString(ID_TAG, id);
+                }
+            }
+        }
+    }
 
     /** The recipes of the type, by id (those without an id are left out: they cannot be set). */
     public static synchronized List<GTRecipe> of(RecipeManager manager, GTRecipeType type) {

@@ -2,6 +2,8 @@ package com.af9.core.fab;
 
 import com.af9.core.AF9Core;
 
+import com.af9.core.distillation.TowerRecipes;
+
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.SimpleTieredMachine;
@@ -13,6 +15,7 @@ import com.gregtechceu.gtceu.common.data.GTMachines;
 import com.gregtechceu.gtceu.common.data.machines.GCYMMachines;
 import com.gregtechceu.gtceu.common.data.machines.GTMultiMachines;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -103,12 +106,16 @@ public final class FabModes {
 
     /**
      * The recipe viewer's page of the facility's three types gets a line of room at its foot: the recipe's ID for the Distillation
-     * Tower Module's selector is drawn there (see DistillationJeiPlugin).
+     * Tower Module's selector is printed there, in JEI and EMI (GT's page is the same; see TowerRecipeIdEvents).
      */
     private static void towerIdLine() {
         for (String path : new String[] { "distillation_tower", "fab_distillation", "fab_cryogenic_rectification" }) {
             GTRecipeType type = GTRegistries.RECIPE_TYPES.get(new ResourceLocation("gtceu", path));
-            if (type != null) type.addDataInfo(data -> "");
+            if (type != null) {
+                type.addDataInfo(data -> data.contains(TowerRecipes.ID_TAG) ?
+                        Component.translatable("af9.distillation.module.recipe_id", data.getString(TowerRecipes.ID_TAG))
+                                .getString() : "");
+            }
         }
     }
 
