@@ -816,7 +816,10 @@ af9:silicon_tetrachloride_hydroconversion: gone (it fed the Siemens loop).
 af9:fumed_silica (synthesis) circuit 2 + 1000 silicon_tetrachloride + 2000 hydrogen + 2000 oxygen → silicon_dioxide_dust + 4000 hydrochloric_acid | 200t MV
 af9:tcs_fumed_silica (synthesis) circuit 3 + 1000 trichlorosilane + 2000 hydrogen + 2000 oxygen → silicon_dioxide_dust + 4000 hydrochloric_acid | 200t MV
 af9:silicon_etchant (blending) 1000 nitric_acid + 1000 hydrofluoric_acid → 2000 silicon_etchant | 100t LV
-af9:electronic_grade_silicon (wet) polysilicon_dust + 100 silicon_etchant → electronic_grade_silicon_dust | 100t MV
+af9:electronic_grade_silicon (EBF, Kanthal coils, 2700 K) polysilicon_dust + 100 silicon_etchant → electronic_grade_silicon_dust | 200t HV
+af9:certus_polysilicon (wet) certus_quartz_dust + 50% borax_dust + 500 oxygen → 8x polysilicon_dust | 200t MV (2x the Moon Sand bath's output for half its oxygen)
+af9:certus_silicon_ingot / certus_liquid_silicon (EBF 1800 K) certus_quartz_dust + coke + 50% borax → 2x silicon ingot / 288 silicon | 400t MV
+EGS replaces polysilicon dust as the feed of the polysilicon melt and the silicon seed crystals (precision_fabricator.js)
 (Moon Sand polysilicon, Lunar Air and Artemite — below; boules: melt charges, seed crystals and Boule Melting — §12)
 ```
 

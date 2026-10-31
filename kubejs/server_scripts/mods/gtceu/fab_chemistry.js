@@ -116,12 +116,16 @@ ServerEvents.recipes(event => {
         .duration(100)
         .EUt(LV)
 
-    gt.fab_wet_processing('af9:electronic_grade_silicon')
+    // Electronic-grade silicon: polysilicon chunks etched in the HNA bath at 2700 K, in an Electric Blast Furnace with
+    // Kanthal coils (or better). Everything that used polysilicon dust as a feed (melt, seed crystals, melt charges)
+    // takes this instead.
+    gt.electric_blast_furnace('af9:electronic_grade_silicon')
         .itemInputs('gtceu:polysilicon_dust')
         .inputFluids(Fluid.of('gtceu:silicon_etchant', 100))
         .itemOutputs('gtceu:electronic_grade_silicon_dust')
-        .duration(100)
-        .EUt(MV)
+        .blastFurnaceTemp(2700)
+        .duration(200)
+        .EUt(HV)
 
     // Czochralski growth: the boules are pulled in the EBF's Boule Melting mode from melt charges (the electronic-grade
     // silicon above with its dopants, blending mode), a seed crystal (crystal growth mode) and a crucible. Artemite = p-type
@@ -162,6 +166,37 @@ ServerEvents.recipes(event => {
         .inputFluids(Fluid.of('gtceu:oxygen', 1000))
         .itemOutputs('4x gtceu:polysilicon_dust')
         .duration(200)
+        .EUt(MV)
+
+    // CERTUS ROUTE (MV): certus quartz is purer silica than sand, and borax fluxes the melt, so no L-01 binding is
+    // needed. Against the Moon Sand bath above (1 Moon Sand + 1000 oxygen -> 4 polysilicon): half the oxygen for
+    // twice the polysilicon. Borax is only a flux and is used up half the time.
+    gt.fab_wet_processing('af9:certus_polysilicon')
+        .itemInputs('gtceu:certus_quartz_dust')
+        .chancedInput('gtceu:borax_dust', 5000, 0)
+        .inputFluids(Fluid.of('gtceu:oxygen', 500))
+        .itemOutputs('8x gtceu:polysilicon_dust')
+        .duration(200)
+        .EUt(MV)
+
+    // Plain silicon from the same flux: certus quartz + coke, borax-fluxed (EBF, 1800 K). Twice GT's quartz yield
+    // (2 silicon per certus quartz) for half the coke; the liquid variant skips the ingot (circuit 2).
+    gt.electric_blast_furnace('af9:certus_silicon_ingot')
+        .itemInputs('gtceu:certus_quartz_dust', 'gtceu:coke_dust')
+        .chancedInput('gtceu:borax_dust', 5000, 0)
+        .itemOutputs('2x gtceu:silicon_ingot')
+        .outputFluids(Fluid.of('gtceu:carbon_monoxide', 1000))
+        .circuit(1)
+        .blastFurnaceTemp(1800)
+        .duration(400)
+        .EUt(MV)
+    gt.electric_blast_furnace('af9:certus_liquid_silicon')
+        .itemInputs('gtceu:certus_quartz_dust', 'gtceu:coke_dust')
+        .chancedInput('gtceu:borax_dust', 5000, 0)
+        .outputFluids(Fluid.of('gtceu:silicon', 288), Fluid.of('gtceu:carbon_monoxide', 1000))
+        .circuit(2)
+        .blastFurnaceTemp(1800)
+        .duration(400)
         .EUt(MV)
 
     // Lunar Air distillation (distillation tower, like liquid Ender Air): argon and radon off the sides,

@@ -61,22 +61,22 @@ ServerEvents.recipes(event => {
         .itemOutputs('gtceu:polysilicon_dust')
         .duration(60)
         .EUt(VA[GTValues.MV])
-    // polysilicon as a melt (1800 K), the boules' feed
+    // the boules' feed: electronic-grade silicon (etched polysilicon, EBF with Kanthal coils) melted at 1800 K
     gt.extractor('af9:polysilicon_melt')
-        .itemInputs('gtceu:polysilicon_dust')
+        .itemInputs('gtceu:electronic_grade_silicon_dust')
         .outputFluids(Fluid.of('gtceu:polysilicon', 144))
         .duration(40)
         .EUt(VA[GTValues.MV])
 
     // ---- Silicon seed crystal ----
     gt.autoclave('af9:silicon_seed_crystal_autoclave')
-        .itemInputs('#forge:dusts/polysilicon')
+        .itemInputs('gtceu:electronic_grade_silicon_dust')
         .inputFluids(Fluid.of('minecraft:water', 250))
         .chancedOutput('af9:silicon_seed_crystal', 7500, 0)
         .duration(600)
         .EUt(24)
     gt.autoclave('af9:silicon_seed_crystal_distilled')
-        .itemInputs('#forge:dusts/polysilicon')
+        .itemInputs('gtceu:electronic_grade_silicon_dust')
         .inputFluids(Fluid.of('gtceu:distilled_water', 50))
         .itemOutputs('af9:silicon_seed_crystal')
         .duration(300)
