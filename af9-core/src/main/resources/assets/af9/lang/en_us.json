@@ -1643,6 +1643,7 @@
     "af9.distillation.module.awaiting": "Awaiting Recipe Lock",
     "af9.distillation.module.selected": "Recipe %s / %s",
     "af9.distillation.module.recipe_id": "ID: %s",
+    "af9.jade.tower_locked": "Recipe locked: %s",
     "af9.distillation.module.recipe": "Locked recipe:",
     "af9.distillation.module.outputs": "Outputs:",
     "af9.distillation.module.more": "  +%s more",

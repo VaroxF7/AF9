@@ -96,6 +96,7 @@
     "af9.distillation.module.awaiting": "Warte auf Rezept-Sperre",
     "af9.distillation.module.selected": "Rezept %s / %s",
     "af9.distillation.module.recipe_id": "ID: %s",
+    "af9.jade.tower_locked": "Rezept gesperrt: %s",
     "af9.distillation.module.recipe": "Gesperrtes Rezept:",
     "af9.distillation.module.outputs": "Ausgaben:",
     "af9.distillation.module.more": "  +%s weitere",

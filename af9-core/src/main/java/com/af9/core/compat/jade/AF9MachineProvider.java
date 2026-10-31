@@ -1,6 +1,7 @@
 package com.af9.core.compat.jade;
 
 import com.af9.core.AF9Core;
+import com.af9.core.distillation.DistillationModuleMachine;
 import com.af9.core.litho.LithoMode;
 import com.af9.core.machine.LithoConsoleWidget;
 import com.af9.core.machine.LithoMachine;
@@ -44,6 +45,7 @@ import java.util.Locale;
  * the break chance and the line version; GT's own run-time bar is left out for them;</li>
  * <li>process machines (cryostat, accelerator): status and mode, what is made, the run-time bar and the machine's own
  * readouts (the same lines as its console);</li>
+ * <li>the Distillation Tower Module: the recipe it is locked to (its ID), or "Awaiting Recipe Lock";</li>
  * <li>the Sanguinite Hearth Furnace: hearth heat bar with its preheat state, then the run-time bar.</li>
  * </ul>
  */
@@ -122,6 +124,9 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             tag.putInt("progress", logic.isWorking() ? logic.getProgress() : 0);
             tag.putInt("duration", logic.isWorking() ? logic.getDuration() : 0);
             DtpfJade.write(tag, forge);
+        } else if (machine instanceof DistillationModuleMachine tower) {
+            tag.putString("kind", "tower");
+            tag.putString("locked", tower.lockedName());
         } else if (machine instanceof ProcessMachine process) {
             var logic = process.getRecipeLogic();
             tag.putString("kind", "process");
@@ -224,6 +229,12 @@ public enum AF9MachineProvider implements IBlockComponentProvider, IServerDataPr
             } else if (!tag.getBoolean("preheated")) {
                 tooltip.add(Component.translatable("af9.jade.preheating").withStyle(ChatFormatting.GRAY));
             }
+        } else if (tag.getString("kind").equals("tower")) {
+            // under GT's own lines: which recipe the Distillation Tower Module is set to
+            String locked = tag.getString("locked");
+            tooltip.add(locked.isEmpty() ?
+                    Component.translatable("af9.distillation.module.awaiting").withStyle(ChatFormatting.YELLOW) :
+                    Component.translatable("af9.jade.tower_locked", locked).withStyle(ChatFormatting.GREEN));
         } else if (tag.getString("kind").equals("dtpf")) {
             tooltip.add(statusLine(status, Component.translatable(tag.getString("modeKey"))
                     .withStyle(ChatFormatting.AQUA)));
