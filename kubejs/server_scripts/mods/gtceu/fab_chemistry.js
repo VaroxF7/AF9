@@ -180,7 +180,7 @@ ServerEvents.recipes(event => {
         .EUt(MV)
 
     // Plain silicon from the same flux: certus quartz + coke, borax-fluxed (EBF, 1800 K). Twice GT's quartz yield
-    // (2 silicon per certus quartz) for half the coke; the liquid variant skips the ingot (circuit 2).
+    // (2 silicon per certus quartz) for half the coke; the liquid variant skips the ingot (circuit 2, no off-gas).
     gt.electric_blast_furnace('af9:certus_silicon_ingot')
         .itemInputs('gtceu:certus_quartz_dust', 'gtceu:coke_dust')
         .chancedInput('gtceu:borax_dust', 5000, 0)
@@ -193,7 +193,7 @@ ServerEvents.recipes(event => {
     gt.electric_blast_furnace('af9:certus_liquid_silicon')
         .itemInputs('gtceu:certus_quartz_dust', 'gtceu:coke_dust')
         .chancedInput('gtceu:borax_dust', 5000, 0)
-        .outputFluids(Fluid.of('gtceu:silicon', 288), Fluid.of('gtceu:carbon_monoxide', 1000))
+        .outputFluids(Fluid.of('gtceu:silicon', 288))
         .circuit(2)
         .blastFurnaceTemp(1800)
         .duration(400)
