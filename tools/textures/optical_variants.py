@@ -165,4 +165,5 @@ def main(out):
     sheet.save(out)
 
 
-main(sys.argv[1])
+if __name__ == '__main__':
+    main(sys.argv[1])
