@@ -1191,6 +1191,17 @@
 			x: -5.5d
 			y: -7.5d
 		}
+		{
+			dependencies: ["05C42E602C69C259"]
+			id: "571AC65DA4A7A550"
+			tasks: [{
+				id: "2BB84EF15F1F6D85"
+				title: "crop"
+				type: "custom"
+			}]
+			x: 4.5d
+			y: 3.0d
+		}
 	]
 	title: "{atm9.chapters.30.title}"
 }
