@@ -8,7 +8,8 @@
     "client.LevelRendererCloudsMixin",
     "client.EmbeddiumOcclusionMixin",
     "client.EmbeddiumFluidMixin",
-    "client.HiddenBlockStateMixin"
+    "client.HiddenBlockStateMixin",
+    "client.CreativeSearchTooltipMixin"
   ],
   "mixins": [
     "powah.OrbRecipeMixin",
