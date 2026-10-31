@@ -22,10 +22,10 @@ const $AccelMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModel
 const $AccelSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
 
 GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // [id, items in, items out, progress bar, sound]; one fluid input each: the coolant. All three sound like the
+    // [id, items in, items out, progress bar, sound]; one fluid input each: the coolant (neutron irradiation gives the empty cell back: 2 out). All three sound like the
     // accelerator: its own hum (af9-core AF9Sounds, the beacon hum pitched up)
     const types = [
-        ['neutron_irradiation', 2, 1, GuiTextures.PROGRESS_BAR_MASS_FAB, $AccelSounds.PARTICLE_ACCELERATOR],
+        ['neutron_irradiation', 2, 2, GuiTextures.PROGRESS_BAR_MASS_FAB, $AccelSounds.PARTICLE_ACCELERATOR],
         ['ion_collision', 2, 1, GuiTextures.PROGRESS_BAR_FUSION, $AccelSounds.PARTICLE_ACCELERATOR],
         ['quark_synthesis', 2, 2, GuiTextures.PROGRESS_BAR_REPLICATOR, $AccelSounds.PARTICLE_ACCELERATOR]
     ]
