@@ -25,7 +25,7 @@ import org.joml.Matrix4f;
 final class WaferDraw {
 
     /** The wafer's diameter in blocks. */
-    private static final float SIZE = 2.3F;
+    private static final float SIZE = 1.15F;
     private static final int FULL_BRIGHT = 0xF000F0;
     private static ItemStack stack;
     private static boolean looked;

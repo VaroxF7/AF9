@@ -82,7 +82,7 @@ final class RingDraw {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) return;
         List<Band> bands = rings.bands();
-        boolean powered = working || !(self instanceof OrbitalLithographyMachine station) || (station.isFieldActive() || station.getStartupPercent() > 0);
+        boolean powered = working || !(self instanceof OrbitalLithographyMachine station) || station.isAuxPowered();
         float[] angle = advance(self, bands, working, powered, level.getGameTime() + partialTick);
         State state = STATES.get(self.getPos().asLong());
         state.origin = self.getPos();
@@ -125,12 +125,12 @@ final class RingDraw {
         }
         int lod = near < 48F ? 0 : near < 110F ? 1 : 2;
         boolean online = state.factor > 0.04F;
-        // the wafer loop runs while the machine works (eased, so a recipe change does not restart it), on the level's
+        // the wafer loop plays while a recipe runs, from its start, on the level's
         // clock: it does not speed up with the machine
-        if (!state.looping && state.power > 0.35F) {
+        if (!state.looping && working) {
             state.looping = true;
             state.loopStart = time;
-        } else if (state.looping && state.power < 0.1F) {
+        } else if (state.looping && !working) {
             state.looping = false;
         }
         float cycle = state.looping ? (time - state.loopStart) % OrbitalFx.LOOP : -1F;

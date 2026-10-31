@@ -228,7 +228,7 @@ public final class StructureSkins {
         // the rings stay the real blocks (with their connected textures) until the station has power; then they take
         // over and spin up (an already spinning skin stays until the station is not formed any more). The wafer floats
         // in the chamber from the start, though: the controller is listed as idle for it
-        if (!station.isFieldActive() && station.getStartupPercent() <= 0 && !TRACKED.containsKey(origin.asLong())) {
+        if (!station.isAuxPowered() && !TRACKED.containsKey(origin.asLong())) {
             IDLE.put(origin.asLong(), controller);
             return;
         }
@@ -269,9 +269,10 @@ public final class StructureSkins {
                         boolean spoke = false;
                         if (r >= band.hub() && r < inner) {
                             if (shield) spoke = true;
-                            else if (band.strip() < 0) spoke = bandLevel;
                             else spoke = d == mid && (Math.abs(right) <= band.strip() || Math.abs(up) <= band.strip());
                         }
+                        // only the spokes' own blocks turn, never the casings that stand near them
+                        if (spoke && !isSpokeBlock(level.getBlockState(at(controller, right, up, d)))) spoke = false;
                         if (!rim && !spoke) continue;
                         BlockPos pos = at(controller, right, up, d);
                         if (pos.equals(origin) || parts.contains(pos)) continue;
@@ -294,6 +295,14 @@ public final class StructureSkins {
         publish();
         dirty(before, now);
     }
+
+    private static boolean isSpokeBlock(net.minecraft.world.level.block.state.BlockState state) {
+        ResourceLocation id = net.minecraftforge.registries.ForgeRegistries.BLOCKS.getKey(state.getBlock());
+        return id != null && SPOKE_BLOCKS.contains(id.toString());
+    }
+
+    /** The blocks a wheel's spokes and shield are made of (the pattern's F and H). */
+    private static final Set<String> SPOKE_BLOCKS = Set.of("gtceu:tungsten_carbide_frame", "gtceu:atomic_casing");
 
     /**
      * Whether the tower is standing, by samples: the core column's shell, the four arms of the halo, each wheel's

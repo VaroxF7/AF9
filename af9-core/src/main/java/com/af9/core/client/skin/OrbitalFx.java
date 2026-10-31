@@ -27,8 +27,8 @@ final class OrbitalFx {
 
     /** The tower's axis. */
     static final float CX = 0.5F, CY = 0.5F;
-    /** The lasers run over the halo's arms at this level (the arms' top face is at 1), from the tips in to the core. */
-    private static final float LASER_Z = 0.5F, ARM_TIP = 14.3F, ARM_IN = 1.7F;
+    /** The lasers skim the halo's arms just above their top face (at 1), from the tips in to the computer core (the P blocks at 0 to 4). */
+    private static final float LASER_Z = 0.85F, ARM_TIP = 14.3F, ARM_IN = 1.4F;
     /** Where the wafer floats (the middle of the red wool's block), and the chamber's deck under it. */
     static final float WAFER_Z = 49.5F, DECK_Z = 52F;
     /** The field's span along the spire, and the radius it starts from (just outside the magnets). */
@@ -306,44 +306,44 @@ final class OrbitalFx {
         // the new wafer: a ring sweeps across it as it is built out of dust
         if (cycle < BUILD_END + 4F) {
             float s = cycle / BUILD_END;
-            float scan = -1.2F + 2.4F * FxGeo.smooth(s);
-            FxGeo.line(c, m, CX - 1.15F, CY + scan, WAFER_Z - 0.16F, CX + 1.15F, CY + scan, WAFER_Z - 0.16F, 0.1F, HR, HG,
+            float scan = -0.6F + 1.2F * FxGeo.smooth(s);
+            FxGeo.line(c, m, CX - 0.58F, CY + scan, WAFER_Z - 0.16F, CX + 0.58F, CY + scan, WAFER_Z - 0.16F, 0.1F, HR, HG,
                     HB, 0.7F * FxGeo.clamp01(1F - s), 0.7F * FxGeo.clamp01(1F - s));
             float ring = FxGeo.smooth(s * 1.4F);
-            FxGeo.softRing(c, m, CX, CY, WAFER_Z, 1F, 0F, 0F, 0F, 1F, 0F, 0.2F + 1.1F * ring, 0.14F, 20, PR, PG, PB,
+            FxGeo.softRing(c, m, CX, CY, WAFER_Z, 1F, 0F, 0F, 0F, 1F, 0F, 0.1F + 0.55F * ring, 0.08F, 20, PR, PG, PB,
                     0.6F * (1F - FxGeo.clamp01(s * 1.1F - 0.1F)));
         }
         // exposure: the light spreads over the wafer and the dies light up in rows
         if (beat.expose > 0.01F) {
             float spread = FxGeo.smooth((cycle - EXPOSE) / 26F);
-            float rad = 1.12F * spread + 0.05F;
+            float rad = 0.56F * spread + 0.03F;
             float flicker = 0.85F + 0.15F * Mth.sin(time * 1.3F);
             FxGeo.disc(c, m, CX, CY, WAFER_Z - 0.16F, 1F, 0F, 0F, 0F, 1F, 0F, rad, 24, 0.85F, 0.93F, 1F,
                     0.75F * beat.expose * k * flicker, 0.12F * beat.expose);
             for (int i = 1; i <= 4; i++) {
                 float rr = rad * i / 4F;
-                FxGeo.softRing(c, m, CX, CY, WAFER_Z - 0.17F, 1F, 0F, 0F, 0F, 1F, 0F, rr, 0.05F, 24, PR, PG, PB,
+                FxGeo.softRing(c, m, CX, CY, WAFER_Z - 0.17F, 1F, 0F, 0F, 0F, 1F, 0F, rr, 0.03F, 24, PR, PG, PB,
                         0.5F * beat.expose * k);
             }
-            FxGeo.glow(c, m, CX, CY, WAFER_Z - 0.3F, 0.9F + 0.6F * spread, 8, PR, PG, PB, 0.45F * beat.expose * k);
+            FxGeo.glow(c, m, CX, CY, WAFER_Z - 0.3F, 0.5F + 0.3F * spread, 8, PR, PG, PB, 0.45F * beat.expose * k);
         }
         // atomized
         if (cycle >= ATOMIZE && cycle < ATOMIZE + 24F) {
             float tau = cycle - ATOMIZE;
             float a = 1F - tau / 24F;
-            FxGeo.glow(c, m, CX, CY, WAFER_Z, 0.6F + 0.45F * tau, 10, HR, HG, HB, 1F * a * a);
+            FxGeo.glow(c, m, CX, CY, WAFER_Z, 0.3F + 0.3F * tau, 10, HR, HG, HB, 1F * a * a);
             for (int i = 0; i < 2; i++) {
                 float t2 = tau - i * 3F;
                 if (t2 < 0F) continue;
                 float fade = 1F - t2 / (20F - i * 3F);
                 if (fade <= 0F) continue;
-                FxGeo.softRing(c, m, CX, CY, WAFER_Z, 1F, 0F, 0F, 0F, 1F, 0F, 0.9F + 0.65F * t2, 0.28F + 0.02F * t2, 28,
+                FxGeo.softRing(c, m, CX, CY, WAFER_Z, 1F, 0F, 0F, 0F, 1F, 0F, 0.45F + 0.5F * t2, 0.18F + 0.015F * t2, 28,
                         i == 0 ? HR : PR, i == 0 ? HG : PG, 1F, 0.9F * fade);
             }
             // the vertical shock, up and down the beam
-            FxGeo.softRing(c, m, CX, CY, WAFER_Z, 1F, 0F, 0F, 0F, 0F, 1F, 0.8F + 0.55F * tau, 0.2F, 20, PR, PG, PB,
+            FxGeo.softRing(c, m, CX, CY, WAFER_Z, 1F, 0F, 0F, 0F, 0F, 1F, 0.4F + 0.5F * tau, 0.14F, 20, PR, PG, PB,
                     0.6F * a);
-            FxGeo.softRing(c, m, CX, CY, WAFER_Z, 0F, 1F, 0F, 0F, 0F, 1F, 0.8F + 0.55F * tau, 0.2F, 20, PR, PG, PB,
+            FxGeo.softRing(c, m, CX, CY, WAFER_Z, 0F, 1F, 0F, 0F, 0F, 1F, 0.4F + 0.5F * tau, 0.14F, 20, PR, PG, PB,
                     0.6F * a);
         }
         // where the beam ends on the deck after the wafer is gone
@@ -370,7 +370,7 @@ final class OrbitalFx {
                 float ang = Mth.TWO_PI * FxGeo.hash(i, 2), speed = 0.05F + 0.13F * FxGeo.hash(i, 3) * FxGeo.hash(i, 3);
                 float raw = speed * (1F - (float) Math.exp(-0.07F * tau)) / 0.07F;
                 // the chamber is small: the dust piles up against its walls rather than leaving it
-                float rad = 2F * (float) Math.tanh(raw / 2F) + 1.0F * FxGeo.hash(i, 5) * (1F - f * f);
+                float rad = 2F * (float) Math.tanh(raw / 2F) + 0.5F * FxGeo.hash(i, 5) * (1F - f * f);
                 float lift = (FxGeo.hash(i, 4) - 0.5F) * 1.2F * (float) Math.tanh(raw / 1.5F);
                 float x = CX + Mth.cos(ang) * rad, y = CY + Mth.sin(ang) * rad;
                 float z = WAFER_Z + lift + 0.0016F * tau * tau;
@@ -389,7 +389,7 @@ final class OrbitalFx {
                 float t = FxGeo.clamp01((s - delay) / (1F - delay));
                 float away = (1F - FxGeo.smooth(t));
                 float ang = Mth.TWO_PI * FxGeo.hash(i, 2) + 2F * away;
-                float rad = (0.15F + 1.0F * FxGeo.hash(i, 3)) * (1F - away) + 2.2F * away;
+                float rad = (0.08F + 0.5F * FxGeo.hash(i, 3)) * (1F - away) + 1.6F * away;
                 float x = CX + Mth.cos(ang) * rad, y = CY + Mth.sin(ang) * rad;
                 float z = WAFER_Z + (FxGeo.hash(i, 4) - 0.5F) * 1.8F * away;
                 FxGeo.mote(c, m, x, y, z, 0.04F + 0.04F * FxGeo.hash(i, 5), PR + 0.4F, PG + 0.3F, 1F,

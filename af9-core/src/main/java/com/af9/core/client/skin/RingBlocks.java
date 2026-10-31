@@ -47,7 +47,8 @@ final class RingBlocks {
     /** A block of a band: its place in the pattern's space (right, up, back from the controller) and in the world. */
     record Cell(int right, int up, int back, BlockPos pos, BlockState state) {}
 
-    private static final int FLOATS = 9;
+    /** Per vertex: position (3), normal (3), uv (2), light (1, int bits), tint colour (1, int bits: 0xRRGGBB). */
+    private static final int FLOATS = 10;
 
     /** The mesh is split by the angle round the ring's axis, so a frame draws only the stretches of the ring in view. */
     private static final int SECTORS = 64;
@@ -221,6 +222,13 @@ final class RingBlocks {
         BlockPos lit = cell.pos().relative(dir);
         int light = faceLight(level, lit);
         float nx = dot(dir, right), ny = dot(dir, up), nz = dot(dir, back);
+        // a tinted face (a frame's material colour, a leaf's biome) is drawn in the colour the world draws it in
+        int tint = 0xFFFFFF;
+        if (quad.isTinted()) {
+            int color = Minecraft.getInstance().getBlockColors().getColor(cell.state(), level, cell.pos(),
+                    quad.getTintIndex());
+            if (color != -1) tint = color & 0xFFFFFF;
+        }
         float[] q = new float[4 * FLOATS];
         for (int i = 0; i < 4; i++) {
             int o = i * 8;
@@ -242,8 +250,21 @@ final class RingBlocks {
             q[k + 6] = Float.intBitsToFloat(v[o + 4]);
             q[k + 7] = Float.intBitsToFloat(v[o + 5]);
             q[k + 8] = Float.intBitsToFloat(light);
+            q[k + 9] = Float.intBitsToFloat(tint);
         }
         mesh.quad(q);
+    }
+
+    private static float red(float bits) {
+        return (Float.floatToRawIntBits(bits) >> 16 & 255) / 255F;
+    }
+
+    private static float green(float bits) {
+        return (Float.floatToRawIntBits(bits) >> 8 & 255) / 255F;
+    }
+
+    private static float blue(float bits) {
+        return (Float.floatToRawIntBits(bits) & 255) / 255F;
     }
 
     private static float dot(Direction world, Direction axis) {
@@ -275,7 +296,7 @@ final class RingBlocks {
                 for (int s = 0; s < SECTORS; s++) {
                     float[] d = mesh.data[s];
                     for (int i = 0; d != null && i < mesh.size[s]; i += FLOATS) {
-                        builder.vertex(d[i], d[i + 1], d[i + 2]).color(1F, 1F, 1F, 1F).uv(d[i + 6], d[i + 7])
+                        builder.vertex(d[i], d[i + 1], d[i + 2]).color(red(d[i + 9]), green(d[i + 9]), blue(d[i + 9]), 1F).uv(d[i + 6], d[i + 7])
                                 .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(Float.floatToRawIntBits(d[i + 8]))
                                 .normal(d[i + 3], d[i + 4], d[i + 5]).endVertex();
                     }
@@ -324,7 +345,7 @@ final class RingBlocks {
                     continue;
                 }
                 for (int i = q; i < q + 4 * FLOATS; i += FLOATS) {
-                    c.vertex(pose.pose(), d[i], d[i + 1], d[i + 2]).color(1F, 1F, 1F, 1F).uv(d[i + 6], d[i + 7])
+                    c.vertex(pose.pose(), d[i], d[i + 1], d[i + 2]).color(red(d[i + 9]), green(d[i + 9]), blue(d[i + 9]), 1F).uv(d[i + 6], d[i + 7])
                             .overlayCoords(OverlayTexture.NO_OVERLAY).uv2(Float.floatToRawIntBits(d[i + 8]))
                             .normal(pose.normal(), d[i + 3], d[i + 4], d[i + 5]).endVertex();
                 }

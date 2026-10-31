@@ -144,8 +144,9 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * blocks) and {@code width} wide, turning {@code spin} radians a tick (negative: the other way). Once the station
      * is formed the client hides the ring's blocks and draws them turning (client/skin/RingDraw). A ring is a wheel: the
      * spokes, from {@code hub} blocks out of the axis to the band, turn with it. {@code strip} says which blocks those are:
-     * -1 every block of the band's levels that far out, 0 or more only the middle level's blocks within that many blocks
-     * of the four axes (where the tower's own deck stands close to the ring). Everything else of the tower between levels
+     * -1 (only for the shield's wheel) everything between its levels, 0 or more only the middle level's blocks within that many
+     * blocks of the four axes. Only the spokes' own blocks turn there (frames and atomic casing): the casings that stand near them
+     * (the spire's sleeve, the chamber's deck, the crown) do not. Everything else of the tower between levels
      * {@code shieldFrom} and {@code shieldTo} (both -1 for none) that stands {@code hub} or more out of the axis turns too:
      * on the big ring the four shield pillars that hold the plasma field together. A light ring glows just
      * inside the band. The pattern (orbital_mk2_layout.js, tools/orbital_mk2_layout.py) has the same rings: keep them in step.
@@ -170,8 +171,8 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     }
 
     /** The Mk2's three wheels: the big one in the middle (with the shield), the smaller ones above and below. */
-    public static final List<Band> BANDS_MK2 = List.of(new Band(34, 3, 36, 5, 0.02F, 5.5F, 30, 41, -1),
-            new Band(16, 3, 26, 4, -0.03F, 11.5F, -1, -1, -1), new Band(52, 2, 18, 3, -0.035F, 10F, -1, -1, 1));
+    public static final List<Band> BANDS_MK2 = List.of(new Band(34, 3, 36, 5, 0.02F, 7.5F, 30, 41, -1),
+            new Band(16, 3, 26, 4, -0.03F, 11.5F, -1, -1, 1), new Band(52, 2, 18, 3, -0.035F, 10F, -1, -1, 1));
     /** The light rings of the Mk2's bands (the render reads them through {@link #ringSpecs}). */
     public static final List<RingSpec> RINGS_MK2 = BANDS_MK2.stream()
             .map(band -> new RingSpec(band.lightBack(), band.lightRadius(), band.spin())).toList();
@@ -437,6 +438,13 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     /** Magnetic field on (formed, switched on, powered); synced for the client's gravity. */
     @DescSynced
     private boolean fieldActive;
+
+    /**
+     * The auxiliary power paid the last interval's start-up draw in full (or a print runs): the Mk2's rings spin up while
+     * this holds. Synced for the client's render.
+     */
+    @DescSynced
+    private boolean auxPowered;
 
     /** Start-up progress, ticks: 0 off, {@link #STARTUP_TICKS} ready. */
     @Persisted
@@ -1184,7 +1192,12 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
         int before = startupTicks;
         boolean on = getRecipeLogic().isWorkingEnabled();
         long drain = pumpDrainPerInterval();
-        if (on && drain > 0 && (getBaseAuxiliaryEUt() > 0 && getRecipeLogic().isWorking() || drawStartupPower(drain))) {
+        boolean paid = on && drain > 0 && (getBaseAuxiliaryEUt() > 0 && getRecipeLogic().isWorking() || drawStartupPower(drain));
+        if (auxPowered != paid) {
+            auxPowered = paid;
+            markDirty();
+        }
+        if (paid) {
             unpoweredTicks = 0;
             startupTicks = Math.min(STARTUP_TICKS, startupTicks + VACUUM_INTERVAL);
         } else {
@@ -1263,6 +1276,11 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
 
     public boolean isFieldActive() {
         return fieldActive && isFormed();
+    }
+
+    /** Whether the auxiliary power is paying the start-up in full right now (the Mk2's rings spin then). */
+    public boolean isAuxPowered() {
+        return auxPowered && isFormed();
     }
 
     /**
