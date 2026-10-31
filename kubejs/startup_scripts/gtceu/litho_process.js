@@ -21,9 +21,10 @@ GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
 })
 
 GTCEuStartupEvents.registry('gtceu:machine', event => {
-    // 3 wide x 3 high x 6 long, plascrete like the other lithography machines: the front with the controller, the
-    // dispense lines over the bowl (plascrete pipe casing), the spin chuck (a gearbox in the floor), the hotplate (heatproof
-    // casing), the chill plate, the back. Aisles front -> back, rows bottom -> top; hatches on any plascrete.
+    // 3 x 3 x 3, plascrete like the other lithography machines: the front with the controller, then the track itself
+    // (the spin chuck, a gearbox on the floor, with the dispense lines over it and windows to the sides, around the one
+    // air block the wafer rides in), then the back with the hotplate. Aisles front -> back, rows bottom -> top; hatches
+    // on any plascrete.
     event.create('wafer_coater', 'multiblock')
         .langValue('Coater Track')
         .machine(holder => new $CoaterMachine(holder))
@@ -36,11 +37,8 @@ GTCEuStartupEvents.registry('gtceu:machine', event => {
         .pattern(definition => FactoryBlockPattern.start($CoaterDirection.LEFT, $CoaterDirection.UP,
             $CoaterDirection.BACK)
             .aisle('CCC', 'CMC', 'CCC') // front with the controller
-            .aisle('CCC', 'W#W', 'CPC') // dispense lines
-            .aisle('CRC', 'W#W', 'CFC') // spin chuck
-            .aisle('CHC', 'W#W', 'CFC') // hotplate
-            .aisle('CCC', 'W#W', 'CFC') // chill plate
-            .aisle('CCC', 'CCC', 'CCC') // back
+            .aisle('FRF', 'W#W', 'CPC') // fan filters + spin chuck, the track, dispense lines
+            .aisle('CCC', 'CHC', 'CCC') // back with the hotplate
             .where('M', Predicates.controller(Predicates.blocks(definition.get())))
             // parts have a maximum only, never a required count (setMaxGlobalLimited(max, preview count))
             .where('C', Predicates.blocks('gtceu:plascrete')
