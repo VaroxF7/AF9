@@ -727,7 +727,7 @@ Files: AF9 Core `registry/AF9Materials` (`electronicsMetallurgy()`, the material
 
 | Alloy `gtceu:` | Tier | Mixer (circuit) → dust, EU/t | EBF | Gas | EBF EU/t, time | Part used | Real-world role |
 |---|---|---|---|---|---|---|---|
-| `aluminium_tranquillite` | MV | 16 aluminium + 1 tranquillite (2) → 17, LV | 1700 K | nitrogen | 120, 400t | `fine_aluminium_tranquillite_wire` | Al-Tq wedge-bonding wire (Moon ore, `vein_moon.js`) |
+| `aluminium_tranquillite` | MV | 16 aluminium + 1 tranquillite (2) → 17, LV | 1700 K | nitrogen | 120, 400t | `fine_aluminium_tranquillite_wire` | Al-Tq wedge-bonding wire (Moon ore, `AF9Veins.java`) |
 | `kovar` | MV | 6 iron + 3 nickel + 2 cobalt (3) → 11, LV | 1720 K | nitrogen | 120, 600t | `kovar_bolt` | glass-to-metal seals, IC package pins |
 | `platinum_iridium` | EV | 9 platinum + 1 iridium (2) → 10, HV | 2100 K (hot ingot) | helium | 1920, 600t | `fine_platinum_iridium_wire` | inert noble-metal wire |
 

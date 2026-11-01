@@ -64,6 +64,11 @@ public class AF9Addon implements IGTAddon {
     }
 
     @Override
+    public void registerFluidVeins() {
+        com.af9.core.worldgen.AF9Veins.fluidVeins();
+    }
+
+    @Override
     public void registerWorldgenLayers() {
         AF9Space.registerWorldgenLayers();
     }

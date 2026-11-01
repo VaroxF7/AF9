@@ -7,7 +7,7 @@ it yet: the UHV hulls and circuits that will need it are a separate change, as
 is the quest that asks for the first raw ore.
 
 Code: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (the material, `quantanium()`),
-`kubejs/server_scripts/mods/gtceu/vein_field.js` (the vein, with the field's
+`af9-core/src/main/java/com/af9/core/worldgen/AF9Veins.java` (the vein, with the field's
 other three).
 
 ## 1. Reachability audit (was it reachable before?)
@@ -45,7 +45,7 @@ is exposed to the void, the default would eat the vein.
 
 The file is named to load after the pack's `mining_dim_ores.js`, which moves
 every GT vein to the Mining Dimension: this vein keeps the field (same reason
-as `kubejs/server_scripts/mods/gtceu/vein_asteroid.js`). No biomes filter.
+as `af9-core/src/main/java/com/af9/core/worldgen/AF9Veins.java`). No biomes filter.
 
 Tuning (verify in game with the prospector): `clusterSize` 16 fits the medium
 rocks and up; `density` 1.0, so hit rock is solid ore; `weight` 30 sets both

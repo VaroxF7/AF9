@@ -125,10 +125,10 @@ dike replaces, so the same vein form works in both palettes.
   exposed to the void, the default would eat the vein), `dimensions` the belt that holds it. GT replaces the asteroid
   stone with its ore block of that stone after the feature places the rock (same decoration step, ore placement at its
   tail).
-- **Ceres, the fission belt** (`vein_ceres.js`, `dimensions` `af9:ceres`): brannerite 80 (~9 % of the rock, the uranium
+- **Ceres, the fission belt** (`AF9Veins.java`, `dimensions` `af9:ceres`): brannerite 80 (~9 % of the rock, the uranium
   ore), pentlandite 45 and magnetite 45 (~4.5 % each), cooperite 25 (~2.5 %). Oil Regolith pockets (richer here) hold
   no ore.
-- **The field, the exotic belt** (`vein_field.js`, `dimensions` `af9:asteroid_field`): naquadah 65, platinum 45,
+- **The field, the exotic belt** (`AF9Veins.java`, `dimensions` `af9:asteroid_field`): naquadah 65, platinum 45,
   quantanium 30 (the UHV ore, `docs/quantanium.md`), iridium 22 (a small treasure). Every dike is a single pure ore, so
   the field's naquadah leaks no plutonium: the reactor chain stays the only way to it (§6). Quantanium missions also
   bring a quarter share (the lean divisor, `docs/space-elevator.md`).
@@ -138,7 +138,7 @@ dike replaces, so the same vein form works in both palettes.
   script's error and that vein stays empty.
 - GT's layer `af9_asteroid` covers both dimensions (lint X4 checks the tag against the feature and both dimensions
   against `data/af9/dimension`).
-- `kubejs/server_scripts/mods/gtceu/vein_asteroid.js` only switches the pitchblende and uraninite veins off (weight 0)
+- `af9-core/src/main/java/com/af9/core/worldgen/AF9Veins.java` only switches the pitchblende and uraninite veins off (weight 0)
   and makes the naquadah vein raw naquadah only.
 - **Brannerite** (`(U,Ca,Ce)(Ti,Fe)2O6`): dust and ore, two crushed ores per ore, by-products thorium, neodymium and iron (no rutile: its titanium stays in the
   residue, titanium is synthetic until Venus's ilmenite), GT's radioactive hazard x0.6. No components, so GT adds no electrolyzer or centrifuge shortcut.
@@ -279,7 +279,7 @@ reflection, so AF9 Core needs nothing of the mod to build. The server script put
 **Closed:** GT's `centrifuge/uranium_238_separation` (tiny plutonium) and `centrifuge/plutonium_239_separation` (Pu-241), the void
 miner's circuit 5 (pitchblende, uraninite) and the raw plutonium in circuit 6, and every ore vein with pitchblende, uraninite
 or naquadah (`modifyAll`: weight 0, wherever the pack put them — GT's **naquadah vein** (`gtceu:naquadah_vein`) held plutonium
-besides the naquadah). The upper field's dike (`vein_field.js`) is the only naquadah left in worldgen, and it is pure
+besides the naquadah). The upper field's dike (`AF9Veins.java`) is the only naquadah left in worldgen, and it is pure
 naquadah, so the reactor chain stays the only way to plutonium. Naquadah stays renewable three ways: the void miner (End
 and Asteroids modes, standing in the dimension), the space elevator (the belt veins are tier 4: the Mk-IV drone), and the
 electric implosion of U-235 (4 dust + 2,000 mB Lunar Acid Vapor -> 1 naquadah dust, EV; `docs/electric-implosion.md`).
@@ -339,15 +339,15 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `af9-core/src/main/java/com/af9/core/recipes/HandRecipes.java` | the Fusion Reactor Mk1 |
 | `af9-core/src/main/java/com/af9/core/recipes/gen/GenMiner.java` | the void miner without uranium and plutonium |
 | `af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`, `AF9Space.java` | the asteroids of both belts and their registration |
-| `kubejs/server_scripts/mods/gtceu/vein_ceres.js` | the brannerite, pentlandite, magnetite and cooperite dike veins of Ceres |
-| `kubejs/server_scripts/mods/gtceu/vein_field.js` | the naquadah, platinum, quantanium and iridium dike veins of the upper field |
+| `af9-core/src/main/java/com/af9/core/worldgen/AF9Veins.java` | the brannerite, pentlandite, magnetite and cooperite dike veins of Ceres |
+| `af9-core/src/main/java/com/af9/core/worldgen/AF9Veins.java` | the naquadah, platinum, quantanium and iridium dike veins of the upper field |
 | `af9-core/src/main/java/com/af9/core/radiation/RadiationWatch.java` | the radiation warning |
 | `af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeReactorsCompat.java` | supercritical steam for Extreme Reactors |
 | `af9-core/src/main/resources/data/af9/` | dimensions, dimension type, biome, features, planets, the station recipe |
 | `af9-core/src/main/resources/assets/af9/textures/item/fx_fuel_pellet.png`, `fx_fuel_rod.png`, `fx_spent_fuel_rod.png` | the uranium items; MOX and thorium have their own, HEU reuses the uranium ones, LEP/HEP the MOX ones |
 | `config/ftbquests/quests/chapters/asteroid_fission.snbt` | the quests |
 
-# 7. The planet metals (`planet_metals.js`, `vein_planets.js`)
+# 7. The planet metals (`planet_metals.js`, `AF9Veins.java`)
 
 Each rocket tier flies on the metal of the world before it, and titanium and tungsten start on the planets that need them:
 
@@ -357,7 +357,7 @@ Each rocket tier flies on the metal of the world before it, and titanium and tun
 | **Titanium** | **Venus ilmenite** (the vein `af9:venus_ilmenite_vein`); before the tier 3 rocket synthetic: lunar regolith (HV) or the red mud of bauxite (EV), docs/titanium-synthetic.md; GT's chain on from rutile (TiCl4, Kroll) | tier 3 rocket, EV machines, the Void Miner MK2 |
 | **Tungsten** | **Venus Sand** only: washing (a chance of scheelite) or the acid leach (2 scheelite per 4 sand); GT's chain on from there (tungstic acid, electrolysis) | tier 4 parts, IV and up |
 
-The zircon vein generates on Mars (`af9_mars` layer, `vein_mars.js`; it used to be in the Mining Dimension); the only ilmenite vein (`af9:venus_ilmenite_vein`, ilmenite 5 + iron 2, y 40-120) is on Venus (`af9_venus` layer, `vein_venus.js`), and Mars has none. Rutile is a by-product of ilmenite alone: bauxite, zircon and every other ore lost it; the synthetic chain makes rutile dust directly (docs/titanium-synthetic.md).
+The zircon vein generates on Mars (`af9_mars` layer, `AF9Veins.java`; it used to be in the Mining Dimension); the only ilmenite vein (`af9:venus_ilmenite_vein`, ilmenite 5 + iron 2, y 40-120) is on Venus (`af9_venus` layer, `AF9Veins.java`), and Mars has none. Rutile is a by-product of ilmenite alone: bauxite, zircon and every other ore lost it; the synthetic chain makes rutile dust directly (docs/titanium-synthetic.md).
 
 Closed on Earth: the GT veins holding ilmenite, rutile, scheelite or tungstate (weight 0, by id or by material, AF9's own veins
 spared), the zircon dike's ilmenite (zircon and monazite only now), the Void Miner's End mode (bauxite without ilmenite, no scheelite

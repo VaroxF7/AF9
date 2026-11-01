@@ -1,6 +1,6 @@
 # Synthetic titanium (HV to the end of EV)
 
-There is no titanium ore until Venus: the only ilmenite is the Venus vein (`af9:venus_ilmenite_vein`, `vein_venus.js`; Mars's
+There is no titanium ore until Venus: the only ilmenite is the Venus vein (`af9:venus_ilmenite_vein`, `AF9Veins.java`; Mars's
 ilmenite vein and its Mars-sand recipes are gone). The tier 3 rocket (which needs titanium) therefore comes from two synthetic
 chains that both end in GT's rutile dust; GT's chlorination and Kroll run unchanged from there. Recipes:
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenTitaniumSynthetic.java`; materials: `AF9Materials.syntheticTitanium()`.

@@ -5,7 +5,7 @@ Moon, as a GT blob vein beside artemite. Nothing takes it yet: the SMD recipes t
 separate change, as is the quest that asks for the first raw ore.
 
 Code: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (the material, `moonSilicon()`),
-`kubejs/server_scripts/mods/gtceu/vein_moon.js` (the vein, with artemite's).
+`af9-core/src/main/java/com/af9/core/worldgen/AF9Veins.java` (the vein, with artemite's).
 
 ## 1. The material
 
@@ -23,7 +23,7 @@ from the colour and the icon set. The name is `material.gtceu.lesolite` in `kube
 `af9:lesolite_vein`: a standard blob in the Moon's own layer (`af9_moon`,
 `af9-core/src/main/java/com/af9/core/space/AF9Space.java`), dimensions `ad_astra:moon`, height 40-120 (the
 terrain band, like artemite). Solid terrain, so a blob like artemite's, not a dike (dikes are for the belts'
-floating rocks: `vein_ceres.js`, `vein_field.js`).
+floating rocks: `AF9Veins.java`, `AF9Veins.java`).
 
 Tuning (verify in game with the prospector): `clusterSize` 24, `density` 0.8, weight 30 (artemite's 45: a
 little rarer, it only feeds the EV substrates). `af9_moon` is tier 1, so every elevator drone draws it

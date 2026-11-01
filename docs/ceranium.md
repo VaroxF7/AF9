@@ -4,7 +4,7 @@ The Pico circuits (`circuits_af9.js` §11) used to start from a wetware board. T
 laid up at **UV**, the first time any UHV+ circuit part is made, from a new alloy and fibre interconnects. The Advanced Circuit
 Manufacturer (UHV) takes the finished board from there (`cleansed_pico_board` and on, unchanged).
 
-Code: `AF9Materials.ceranium()`, `af9-core/src/main/java/com/af9/core/recipes/gen/GenCeranium.java`, `vein_ceres.js`.
+Code: `AF9Materials.ceranium()`, `af9-core/src/main/java/com/af9/core/recipes/gen/GenCeranium.java`, `AF9Veins.java`.
 
 ## Chain
 

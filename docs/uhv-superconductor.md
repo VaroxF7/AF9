@@ -56,7 +56,7 @@ under a coolant loop). What makes it its own machine is heat (`SanguiniteHearthM
 - **Ares gas** (`gtceu:ares_gas`, `Mrs`): the rust-red noble-gas wisp of the
   Martian asteroid field. Bedrock fluid vein `af9:void_ares_gas` in
   `af9:asteroid_field` (weight 8, yield 100–250), drilled with the Fluid Drilling
-  Rig like the other field deposits (`kubejs/server_scripts/mods/gtceu/vein_oil.js`).
+  Rig like the other field deposits (`af9-core/src/main/java/com/af9/core/worldgen/AF9Veins.java`).
 - **LXA-1** (`gtceu:lxa_1`, `Lx`): the far dark's light exotic. Space Elevator
   liquid mission, planet type 9 gas 8 (`af9-core` `PlanetCatalog`), 64 buckets a
   Mk-IV mission — about 16 smelts per flight.
@@ -78,5 +78,5 @@ under a coolant loop). What makes it its own machine is heat (`SanguiniteHearthM
 - Materials: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (`uhvSuperconductor`, no blast/components)
 - Mission: `af9-core/src/main/java/com/af9/core/elevator/PlanetCatalog.java` (planet 9, gas 8)
 - Recipes: `af9-core/src/main/java/com/af9/core/recipes/gen/GenUhvSuperconductor.java`
-- Deposit: `kubejs/server_scripts/mods/gtceu/vein_oil.js` (`af9:void_ares_gas`)
+- Deposit: `af9-core/src/main/java/com/af9/core/worldgen/AF9Veins.java` (`af9:void_ares_gas`)
 - Names: `material.gtceu.{sanguinite,crude_sanguinite,ares_gas,lxa_1}` in `kubejs/assets/gtceu/lang/en_us.json`

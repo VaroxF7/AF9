@@ -91,7 +91,7 @@
     <li>MV's <code>good_integrated_circuit</code> needs <code>ilc_chip</code>, MV's <code>micro_processor</code> needs <code>cpu/ram_chip</code> — <code>circuits_af9.js:138–161</code>.</li>
     <li><code>ilc/ram/cpu</code> print only on <b>silicon</b> wafers (native substrate 0, N350 @ MV) — <code>photolithography.js:60–62</code>.</li>
     <li>Silicon boules need <code>32× electronic-grade Si + tiny artemite dust</code>, and polysilicon comes <b>only from Moon Sand</b> — <code>boule_melting.js:77–80</code>, <code>fab_chemistry.js:90</code>.</li>
-    <li>Artemite generates <b>only on Earth's Moon</b> — <code>vein_moon.js:4–6</code>.</li>
+    <li>Artemite generates <b>only on Earth's Moon</b> — <code>AF9Veins.java</code>.</li>
     <li>The Moon <b>used to</b> need a T1 rocket with HV sensor + <code>af9:mcu_chip</code> in the nose cone — old <code>rockets.js</code>.</li>
     <li><code>mcu_chip</code> is silicon-native (<code>photolithography.js:80</code>), and HV circuits need silicon dies (<code>circuits_af9.js:201–205</code>).</li>
   </ol>
@@ -113,7 +113,7 @@
     <tr><td>HV · Advanced Integrated</td><td><span class="tag t-ok">CLEAR</span></td><td>2× MV + silicon dies (MV-printable) + transistors + Au + stainless bolts — today's inputs, all pre-HV. Milestone: stainless + EBF + silicon dies flowing.</td></tr>
     <tr><td>HV mid · phosphorus</td><td><span class="tag t-ok">CLEAR</span></td><td>Apatite (mining dim, overworld mode) → MV electrolyzer → P dust → HV boule (kanthal EBF, 2484 K) → Line v2 (KrF laser, HV — <code>photolithography.js:201</code>). KrF resist's PGMEA runs the <b>chlorohydrin</b> propylene-oxide route (<code>planet_metals.js</code>: propene + chlorine + water, MV) — no Mars titania anywhere in HV.</td></tr>
     <tr><td>EV · Workstation</td><td><span class="tag t-ok">CLEAR</span></td><td>2× HV + silicon dies + Pt wire + Ti bolts. Pt: End sheldonite (vanilla portal, no circuits). Ti: <b>Mars sand only</b> — EM separator (MV) or acid leach (HV) → ilmenite → rutile → TiCl4 → Kroll + Mg loop (<code>planet_metals.js</code>, GT's chain kept). Order: T2 rocket (desh, HV, ASIC) → Mars → Ti → workstation. Bootstrap variant stays plain-Pt.</td></tr>
-    <tr><td>EV mid · naquadah</td><td><span class="tag t-ok">CLEAR</span></td><td>T2 rocket (desh hull, HV parts, ASIC — <code>rockets.js</code>) → field hand-mining (<code>vein_field.js</code>). Line v3 = ArF laser (EV — <code>photolithography.js:208</code>) → N100 prints (advanced_soc) → cheap HV reprint.</td></tr>
+    <tr><td>EV mid · naquadah</td><td><span class="tag t-ok">CLEAR</span></td><td>T2 rocket (desh hull, HV parts, ASIC — <code>rockets.js</code>) → field hand-mining (<code>AF9Veins.java</code>). Line v3 = ArF laser (EV — <code>photolithography.js:208</code>) → N100 prints (advanced_soc) → cheap HV reprint.</td></tr>
     <tr><td>IV · Mainframe</td><td><span class="tag t-ok">CLEAR</span></td><td>2× EV + phosphorus dies + W wire. W: <b>Venus sand only</b> — macerator wash or acid leach → scheelite → GT chem-bath + electrolysis (<code>planet_metals.js</code>). Order: T3 rocket (titanium, EV) → Venus → W → IV. Scanner v1 crafted at IV (<code>photolithography.js:226</code>) — needs IV circuits, ordered after IV entry. Trinium dust source (mid-IV milestone) unconfirmed — see below.</td></tr>
     <tr><td>LuV · Quantum Computer</td><td><span class="tag t-check">VERIFY</span></td><td>2× IV + P/Tri dies + osmiridium. Ir: field treasure (T2 ✓). Os: confirm source (Pt-group/ore) by LuV. Naquadria (mid-LuV, Scanner v2) source unconfirmed — VPU timing depends on it.</td></tr>
     <tr><td>ZPM · Crystal Computer</td><td><span class="tag t-prop">PROPOSED</span> neutronium-proof order</td><td>Neutronium dust source unconfirmed → ZPM entry specified <b>without</b> HA-SoC (advanced_soc + NbTi instead). Orbital (ZPM, needs ZPM circuits + 8× VPU — stockpiled mid-LuV) prints N50 → TMD → Quantum Mainframe. If neutronium verifies early, HA-SoC goes back into the entry.</td></tr>
@@ -310,7 +310,7 @@
       <ul>
         <li><code>rockets.js</code> — <b>done:</b> T1 stainless/LV/MV-assembler (pre-silicon Moon), T2 desh/HV/ASIC, T3 titanium/EV/EV-circuits, T4 unchanged; nose cone / workbench / pad on LV.</li>
         <li><code>planet_metals.js</code> — <b>done:</b> Mars sand → ilmenite (EM sep / acid leach) into GT's Kroll chain; Venus sand → scheelite into GT's chem-bath chain; Desh material + ore processing; chlorohydrin propylene-oxide (pre-Mars PGMEA); Earth Ti/W bypasses removed (bauxite electrolysis + sludge, end-stone paths).</li>
-        <li><code>vein_planets.js</code> + <code>miner.js</code> + <code>electronics_metallurgy.js</code> + <code>asteroid_fission.js</code> — <b>done:</b> Ti/W veins killed, void-miner MK1 stainless / MK2 titanium, End ilmenite + scheelite modes gone, zircon dike rebalanced, brannerite leach rutile-free.</li>
+        <li><code>AF9Veins.java</code> + <code>miner.js</code> + <code>electronics_metallurgy.js</code> + <code>asteroid_fission.js</code> — <b>done:</b> Ti/W veins killed, void-miner MK1 stainless / MK2 titanium, End ilmenite + scheelite modes gone, zircon dike rebalanced, brannerite leach rutile-free.</li>
         <li><code>circuits_af9.js</code> — LV tubed overrides (basic_integrated, microchip 1×); MV silicon reprints; keep HV→LuV entries as-is; post-LuV multipliers + NEW XPS/NVM §12.</li>
         <li><code>early_circuits.js</code> — extend the Create hand-first pattern to every tier ENTRY (LV done today; MV done; add HV+).</li>
         <li>NEW <code>hyperdrive.js</code> (or extend <code>rockets.js</code>) — the Drive + its core/casing.</li>
@@ -330,7 +330,7 @@
 <footer>
   Evidence: <code>circuits_af9.js</code> (ladder + lean stages) · <code>early_circuits.js</code> (Create hand path) ·
   <code>create_steam_age.js</code> (steam steel) · <code>fab_chemistry.js:36–165</code> (MV silicon, Moon-only polysilicon) ·
-  <code>boule_melting.js:76–80</code> (artemite-doped CZ) · <code>vein_moon.js</code> (Moon-only artemite) ·
+  <code>boule_melting.js:76–80</code> (artemite-doped CZ) · <code>AF9Veins.java</code> (Moon-only artemite) ·
   <code>rockets.js</code> (T1 stainless/LV/MV-assembler, T2 desh/HV/ASIC, T3 titanium/EV) · <code>planet_metals.js</code> (Mars Ti, Venus W, desh, chlorohydrin PO) ·
   <code>photolithography.js:60–96,182–245</code> (chip natives, machine tiers) ·
   <code>LithoMode.java</code> (node→tier) · <code>solders.md</code> · <code>fusion-power.md</code> (drive fuel).

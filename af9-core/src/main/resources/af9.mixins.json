@@ -17,6 +17,7 @@
     "powah.OrbRecipeSerializerMixin",
     "powah.OrbTileMixin",
     "gtceu.FusionReactorMixin",
+    "gtceu.OreLoaderMixin",
     "gtceu.PipeBlockMixin",
     "gtceu.ParallelHatchPartMixin",
     "gtceu.MultiblockPartControllersMixin",

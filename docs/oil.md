@@ -5,7 +5,7 @@ two belts' fluid deposits hold nitrogen, oxygen, heavy water, acids (the upper f
 
 Code: `af9-core` `com.af9.core.space` (`OilRegolithBlock`, `AF9Space`, `AsteroidFieldFeature`),
 `registry/AF9Materials` (the fluids), `af9-core/src/main/java/com/af9/core/recipes/gen/GenOil.java` (the chain),
-`kubejs/server_scripts/mods/gtceu/vein_oil.js` (the world).
+`af9-core/src/main/java/com/af9/core/worldgen/AF9Veins.java` (the world).
 
 ## 1. The chain
 
@@ -70,7 +70,7 @@ new chunks have the new share.
 
 ## 3. The world's oil is off
 
-* GT's four oil deposits (`gtceu:heavy_oil_deposit`, `light_oil_deposit`, `oil_deposit`, `raw_oil_deposit`) are **removed** (`vein_oil.js`,
+* GT's four oil deposits (`gtceu:heavy_oil_deposit`, `light_oil_deposit`, `oil_deposit`, `raw_oil_deposit`) are **removed** (`AF9Veins.java`,
   by id with the event's `remove`, so they are gone from the recipe viewers' bedrock fluid diagrams too; first they only had weight 0 and
   still showed; the natural gas deposit stays; the log says how many it removed). The script used to walk GT's
   registry (`entries().forEach`), which Rhino cannot do: it cannot call methods on the unmodifiable views and immutable lists GT hands out
@@ -123,7 +123,7 @@ right-click switches it to *Fluid* mode, the map then colours every chunk with i
 **Fluid Drilling Rig** (MV and up) standing on the chunk drills it. There is no bedrock in the Asteroid Field and nothing to see in the rock.
 
 **Old worlds.** GT decides a chunk's vein the first time anything asks for it and saves the answer. A chunk of the Asteroid Field that was
-prospected while the dimension had no deposits was saved as "no fluid" and showed nothing even after the deposits were added. `vein_oil.js`
-forgets those empty entries when a world loads (log line `vein_oil.js: N empty fluid veins of af9:asteroid_field forgotten`), so the next look
-rolls a deposit. The server log also says `vein_oil.js: 9 fluid deposits registered for af9:asteroid_field` when the script ran, and names a
+prospected while the dimension had no deposits was saved as "no fluid" and showed nothing even after the deposits were added. `AF9Veins.java`
+forgets those empty entries when a world loads (log line `AF9Veins.java: N empty fluid veins of af9:asteroid_field forgotten`), so the next look
+rolls a deposit. The server log also says `AF9Veins.java: 9 fluid deposits registered for af9:asteroid_field` when the script ran, and names a
 deposit whose fluid does not exist. (The Overworld's chunks that were prospected while oil was on keep their oil: GT saves them too.)
