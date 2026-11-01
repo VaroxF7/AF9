@@ -16,82 +16,126 @@ public final class GenWirelessEnergy {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "assembler", "af9:luv_wireless_energy_receiver")
-                .itemInputs("gtceu:luv_energy_input_hatch_16a", "2x gtceu:luv_sensor", "1x gtceu:luv_field_generator", "2x #gtceu:circuits/luv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
-                .itemOutputs("gtceu:luv_wireless_energy_receiver")
-                .duration(600)
-                .EUt(32768)
-                .save();
-        Dsl.gt(out, "assembler", "af9:luv_wireless_energy_transmitter")
-                .itemInputs("gtceu:luv_energy_output_hatch_16a", "2x gtceu:luv_emitter", "1x gtceu:luv_field_generator", "2x #gtceu:circuits/luv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
-                .itemOutputs("gtceu:luv_wireless_energy_transmitter")
-                .duration(600)
-                .EUt(32768)
-                .save();
-        Dsl.gt(out, "assembler", "af9:zpm_wireless_energy_receiver")
-                .itemInputs("4x gtceu:zpm_energy_input_hatch_16a", "2x gtceu:zpm_sensor", "1x gtceu:zpm_field_generator", "2x #gtceu:circuits/zpm", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
-                .itemOutputs("gtceu:zpm_wireless_energy_receiver")
-                .duration(600)
-                .EUt(131072)
-                .save();
-        Dsl.gt(out, "assembler", "af9:zpm_wireless_energy_transmitter")
-                .itemInputs("4x gtceu:zpm_energy_output_hatch_16a", "2x gtceu:zpm_emitter", "1x gtceu:zpm_field_generator", "2x #gtceu:circuits/zpm", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
-                .itemOutputs("gtceu:zpm_wireless_energy_transmitter")
-                .duration(600)
-                .EUt(131072)
-                .save();
-        Dsl.gt(out, "assembler", "af9:uv_wireless_energy_receiver")
-                .itemInputs("gtceu:uv_256a_laser_target_hatch", "2x gtceu:uv_sensor", "1x gtceu:uv_field_generator", "2x #gtceu:circuits/uv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
-                .itemOutputs("gtceu:uv_wireless_energy_receiver")
-                .duration(600)
-                .EUt(524288)
-                .save();
-        Dsl.gt(out, "assembler", "af9:uv_wireless_energy_transmitter")
-                .itemInputs("gtceu:uv_256a_laser_source_hatch", "2x gtceu:uv_emitter", "1x gtceu:uv_field_generator", "2x #gtceu:circuits/uv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
-                .itemOutputs("gtceu:uv_wireless_energy_transmitter")
-                .duration(600)
-                .EUt(524288)
-                .save();
-        Dsl.gt(out, "assembler", "af9:uhv_wireless_energy_receiver")
-                .itemInputs("gtceu:uhv_1024a_laser_target_hatch", "4x gtceu:uv_sensor", "2x gtceu:uv_field_generator", "2x #gtceu:circuits/uhv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
-                .itemOutputs("gtceu:uhv_wireless_energy_receiver")
-                .duration(600)
-                .EUt(2097152)
-                .save();
-        Dsl.gt(out, "assembler", "af9:uhv_wireless_energy_transmitter")
-                .itemInputs("gtceu:uhv_1024a_laser_source_hatch", "4x gtceu:uv_emitter", "2x gtceu:uv_field_generator", "2x #gtceu:circuits/uhv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
-                .itemOutputs("gtceu:uhv_wireless_energy_transmitter")
-                .duration(600)
-                .EUt(2097152)
-                .save();
-        Dsl.gt(out, "assembler", "af9:uv_wireless_computation_receiver")
-                .itemInputs("gtceu:computation_receiver_hatch", "2x gtceu:uv_sensor", "gtceu:uv_field_generator", "2x #gtceu:circuits/uv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
-                .itemOutputs("gtceu:uv_wireless_computation_receiver")
-                .duration(600)
-                .EUt(524288)
-                .save();
-        Dsl.gt(out, "assembler", "af9:uv_wireless_computation_transmitter")
-                .itemInputs("gtceu:computation_transmitter_hatch", "2x gtceu:uv_emitter", "gtceu:uv_field_generator", "2x #gtceu:circuits/uv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
-                .itemOutputs("gtceu:uv_wireless_computation_transmitter")
-                .duration(600)
-                .EUt(524288)
-                .save();
-        Dsl.gt(out, "assembler", "af9:network_node")
-                .itemInputs("gtceu:data_bank", "gtceu:network_switch", "2x gtceu:uv_field_generator", "4x #gtceu:circuits/uv", "2x gtceu:data_module")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 1152))
-                .itemOutputs("gtceu:network_node")
-                .duration(1200)
-                .EUt(524288)
-                .save();
+        try {
+            Dsl.gt(out, "assembler", "af9:luv_wireless_energy_receiver")
+                    .itemInputs("gtceu:luv_energy_input_hatch_16a", "2x gtceu:luv_sensor", "1x gtceu:luv_field_generator", "2x #gtceu:circuits/luv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
+                    .itemOutputs("gtceu:luv_wireless_energy_receiver")
+                    .duration(600)
+                    .EUt(32768)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:luv_wireless_energy_receiver", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:luv_wireless_energy_transmitter")
+                    .itemInputs("gtceu:luv_energy_output_hatch_16a", "2x gtceu:luv_emitter", "1x gtceu:luv_field_generator", "2x #gtceu:circuits/luv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
+                    .itemOutputs("gtceu:luv_wireless_energy_transmitter")
+                    .duration(600)
+                    .EUt(32768)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:luv_wireless_energy_transmitter", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:zpm_wireless_energy_receiver")
+                    .itemInputs("4x gtceu:zpm_energy_input_hatch_16a", "2x gtceu:zpm_sensor", "1x gtceu:zpm_field_generator", "2x #gtceu:circuits/zpm", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
+                    .itemOutputs("gtceu:zpm_wireless_energy_receiver")
+                    .duration(600)
+                    .EUt(131072)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:zpm_wireless_energy_receiver", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:zpm_wireless_energy_transmitter")
+                    .itemInputs("4x gtceu:zpm_energy_output_hatch_16a", "2x gtceu:zpm_emitter", "1x gtceu:zpm_field_generator", "2x #gtceu:circuits/zpm", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
+                    .itemOutputs("gtceu:zpm_wireless_energy_transmitter")
+                    .duration(600)
+                    .EUt(131072)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:zpm_wireless_energy_transmitter", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:uv_wireless_energy_receiver")
+                    .itemInputs("gtceu:uv_256a_laser_target_hatch", "2x gtceu:uv_sensor", "1x gtceu:uv_field_generator", "2x #gtceu:circuits/uv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
+                    .itemOutputs("gtceu:uv_wireless_energy_receiver")
+                    .duration(600)
+                    .EUt(524288)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:uv_wireless_energy_receiver", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:uv_wireless_energy_transmitter")
+                    .itemInputs("gtceu:uv_256a_laser_source_hatch", "2x gtceu:uv_emitter", "1x gtceu:uv_field_generator", "2x #gtceu:circuits/uv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
+                    .itemOutputs("gtceu:uv_wireless_energy_transmitter")
+                    .duration(600)
+                    .EUt(524288)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:uv_wireless_energy_transmitter", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:uhv_wireless_energy_receiver")
+                    .itemInputs("gtceu:uhv_1024a_laser_target_hatch", "4x gtceu:uv_sensor", "2x gtceu:uv_field_generator", "2x #gtceu:circuits/uhv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
+                    .itemOutputs("gtceu:uhv_wireless_energy_receiver")
+                    .duration(600)
+                    .EUt(2097152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:uhv_wireless_energy_receiver", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:uhv_wireless_energy_transmitter")
+                    .itemInputs("gtceu:uhv_1024a_laser_source_hatch", "4x gtceu:uv_emitter", "2x gtceu:uv_field_generator", "2x #gtceu:circuits/uhv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
+                    .itemOutputs("gtceu:uhv_wireless_energy_transmitter")
+                    .duration(600)
+                    .EUt(2097152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:uhv_wireless_energy_transmitter", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:uv_wireless_computation_receiver")
+                    .itemInputs("gtceu:computation_receiver_hatch", "2x gtceu:uv_sensor", "gtceu:uv_field_generator", "2x #gtceu:circuits/uv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
+                    .itemOutputs("gtceu:uv_wireless_computation_receiver")
+                    .duration(600)
+                    .EUt(524288)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:uv_wireless_computation_receiver", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:uv_wireless_computation_transmitter")
+                    .itemInputs("gtceu:computation_transmitter_hatch", "2x gtceu:uv_emitter", "gtceu:uv_field_generator", "2x #gtceu:circuits/uv", "2x af9:rf_transceiver_chip", "af9:saw_filter_chip", "2x gtceu:aluminium_nitride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
+                    .itemOutputs("gtceu:uv_wireless_computation_transmitter")
+                    .duration(600)
+                    .EUt(524288)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:uv_wireless_computation_transmitter", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:network_node")
+                    .itemInputs("gtceu:data_bank", "gtceu:network_switch", "2x gtceu:uv_field_generator", "4x #gtceu:circuits/uv", "2x gtceu:data_module")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 1152))
+                    .itemOutputs("gtceu:network_node")
+                    .duration(1200)
+                    .EUt(524288)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:network_node", e);
+        }
     }
 }

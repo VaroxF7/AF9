@@ -16,37 +16,57 @@ public final class GenOrbitalCasings {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "mixer", "af9:orbital_casings/ceraquadalloy_dust")
-                .itemInputs("4x gtceu:trinaquadalloy_dust", "2x gtceu:ceranium_dust", "gtceu:quantanium_dust", "gtceu:neutronium_dust")
-                .itemOutputs("8x gtceu:ceraquadalloy_dust")
-                .circuit(7)
-                .duration(600)
-                .EUt(2097152)
-                .save();
-        Dsl.gt(out, "assembler", "af9:orbital_casings/orbital_combined_structure_casing")
-                .itemInputs("4x gtceu:ceraquadalloy_plate", "gtceu:ceraquadalloy_frame", "4x gtceu:tritanium_plate")
-                .itemOutputs("4x af9:orbital_combined_structure_casing")
-                .duration(400)
-                .EUt(2097152)
-                .save();
-        Dsl.gt(out, "assembler", "af9:orbital_casings/orbital_truss_casing")
-                .itemInputs("4x gtceu:tritanium_plate", "2x gtceu:tritanium_frame", "2x gtceu:naquadah_alloy_plate")
-                .itemOutputs("4x af9:orbital_truss_casing")
-                .duration(400)
-                .EUt(2097152)
-                .save();
-        Dsl.gt(out, "assembler", "af9:orbital_casings/orbital_girder_casing")
-                .itemInputs("4x gtceu:osmiridium_plate", "2x gtceu:tritanium_frame", "2x gtceu:europium_plate")
-                .itemOutputs("4x af9:orbital_girder_casing")
-                .duration(400)
-                .EUt(2097152)
-                .save();
-        Dsl.gt(out, "assembler", "af9:orbital_casings/orbital_deck_casing")
-                .itemInputs("2x gtceu:ceranium_plate", "4x gtceu:polybenzimidazole_foil")
-                .itemOutputs("4x af9:orbital_deck_casing")
-                .duration(400)
-                .EUt(2097152)
-                .inputFluids(Dsl.fluid("gtceu:polybenzimidazole", 144))
-                .save();
+        try {
+            Dsl.gt(out, "mixer", "af9:orbital_casings/ceraquadalloy_dust")
+                    .itemInputs("4x gtceu:trinaquadalloy_dust", "2x gtceu:ceranium_dust", "gtceu:quantanium_dust", "gtceu:neutronium_dust")
+                    .itemOutputs("8x gtceu:ceraquadalloy_dust")
+                    .circuit(7)
+                    .duration(600)
+                    .EUt(2097152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:orbital_casings/ceraquadalloy_dust", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:orbital_casings/orbital_combined_structure_casing")
+                    .itemInputs("4x gtceu:ceraquadalloy_plate", "gtceu:ceraquadalloy_frame", "4x gtceu:tritanium_plate")
+                    .itemOutputs("4x af9:orbital_combined_structure_casing")
+                    .duration(400)
+                    .EUt(2097152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:orbital_casings/orbital_combined_structure_casing", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:orbital_casings/orbital_truss_casing")
+                    .itemInputs("4x gtceu:tritanium_plate", "2x gtceu:tritanium_frame", "2x gtceu:naquadah_alloy_plate")
+                    .itemOutputs("4x af9:orbital_truss_casing")
+                    .duration(400)
+                    .EUt(2097152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:orbital_casings/orbital_truss_casing", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:orbital_casings/orbital_girder_casing")
+                    .itemInputs("4x gtceu:osmiridium_plate", "2x gtceu:tritanium_frame", "2x gtceu:europium_plate")
+                    .itemOutputs("4x af9:orbital_girder_casing")
+                    .duration(400)
+                    .EUt(2097152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:orbital_casings/orbital_girder_casing", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:orbital_casings/orbital_deck_casing")
+                    .itemInputs("2x gtceu:ceranium_plate", "4x gtceu:polybenzimidazole_foil")
+                    .itemOutputs("4x af9:orbital_deck_casing")
+                    .duration(400)
+                    .EUt(2097152)
+                    .inputFluids(Dsl.fluid("gtceu:polybenzimidazole", 144))
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:orbital_casings/orbital_deck_casing", e);
+        }
     }
 }

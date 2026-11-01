@@ -16,122 +16,194 @@ public final class GenBiofuels {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "brewery", "af9:mash_wheat")
-                .itemInputs("4x minecraft:wheat")
-                .inputFluids(Dsl.fluid("minecraft:water", 1000))
-                .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
-                .duration(400)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "brewery", "af9:mash_potato")
-                .itemInputs("4x minecraft:potato")
-                .inputFluids(Dsl.fluid("minecraft:water", 1000))
-                .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
-                .duration(400)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "brewery", "af9:mash_carrot")
-                .itemInputs("4x minecraft:carrot")
-                .inputFluids(Dsl.fluid("minecraft:water", 1000))
-                .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
-                .duration(400)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "brewery", "af9:mash_beetroot")
-                .itemInputs("4x minecraft:beetroot")
-                .inputFluids(Dsl.fluid("minecraft:water", 1000))
-                .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
-                .duration(400)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "brewery", "af9:mash_melon_slice")
-                .itemInputs("4x minecraft:melon_slice")
-                .inputFluids(Dsl.fluid("minecraft:water", 1000))
-                .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
-                .duration(400)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "brewery", "af9:mash_apple")
-                .itemInputs("4x minecraft:apple")
-                .inputFluids(Dsl.fluid("minecraft:water", 1000))
-                .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
-                .duration(400)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "brewery", "af9:mash_sugar_cane")
-                .itemInputs("4x minecraft:sugar_cane")
-                .inputFluids(Dsl.fluid("minecraft:water", 1000))
-                .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
-                .duration(400)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "brewery", "af9:mash_sweet_berries")
-                .itemInputs("4x minecraft:sweet_berries")
-                .inputFluids(Dsl.fluid("minecraft:water", 1000))
-                .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
-                .duration(400)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "distillery", "af9:bioethanol_distillation")
-                .inputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
-                .outputFluids(Dsl.fluid("gtceu:bioethanol", 600))
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:bioethanol_drying")
-                .notConsumable("af9:molecular_sieve")
-                .inputFluids(Dsl.fluid("gtceu:bioethanol", 1000))
-                .outputFluids(Dsl.fluid("gtceu:ethanol", 900))
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:bioethanol_dehydration")
-                .circuit(1)
-                .inputFluids(Dsl.fluid("gtceu:bioethanol", 1000))
-                .outputFluids(Dsl.fluid("gtceu:ethylene", 1000), Dsl.fluid("minecraft:water", 500))
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "extractor", "af9:seed_oil_pumpkin_seeds")
-                .itemInputs("4x minecraft:pumpkin_seeds")
-                .outputFluids(Dsl.fluid("gtceu:seed_oil", 200))
-                .duration(100)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "extractor", "af9:seed_oil_melon_seeds")
-                .itemInputs("4x minecraft:melon_seeds")
-                .outputFluids(Dsl.fluid("gtceu:seed_oil", 200))
-                .duration(100)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "extractor", "af9:seed_oil_beetroot_seeds")
-                .itemInputs("4x minecraft:beetroot_seeds")
-                .outputFluids(Dsl.fluid("gtceu:seed_oil", 200))
-                .duration(100)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "extractor", "af9:seed_oil_wheat_seeds")
-                .itemInputs("4x minecraft:wheat_seeds")
-                .outputFluids(Dsl.fluid("gtceu:seed_oil", 200))
-                .duration(100)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:biodiesel_transesterification")
-                .itemInputs("gtceu:sodium_hydroxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:seed_oil", 1000), Dsl.fluid("gtceu:methanol", 100))
-                .outputFluids(Dsl.fluid("gtceu:bio_diesel", 1000), Dsl.fluid("gtceu:glycerol", 100))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "combustion_generator", "af9:biodiesel_combustion")
-                .inputFluids(Dsl.fluid("gtceu:bio_diesel", 1000))
-                .duration(1200)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "gas_turbine", "af9:bioethanol_turbine")
-                .inputFluids(Dsl.fluid("gtceu:bioethanol", 1000))
-                .duration(1000)
-                .EUt(32)
-                .save();
+        try {
+            Dsl.gt(out, "brewery", "af9:mash_wheat")
+                    .itemInputs("4x minecraft:wheat")
+                    .inputFluids(Dsl.fluid("minecraft:water", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
+                    .duration(400)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mash_wheat", e);
+        }
+        try {
+            Dsl.gt(out, "brewery", "af9:mash_potato")
+                    .itemInputs("4x minecraft:potato")
+                    .inputFluids(Dsl.fluid("minecraft:water", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
+                    .duration(400)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mash_potato", e);
+        }
+        try {
+            Dsl.gt(out, "brewery", "af9:mash_carrot")
+                    .itemInputs("4x minecraft:carrot")
+                    .inputFluids(Dsl.fluid("minecraft:water", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
+                    .duration(400)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mash_carrot", e);
+        }
+        try {
+            Dsl.gt(out, "brewery", "af9:mash_beetroot")
+                    .itemInputs("4x minecraft:beetroot")
+                    .inputFluids(Dsl.fluid("minecraft:water", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
+                    .duration(400)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mash_beetroot", e);
+        }
+        try {
+            Dsl.gt(out, "brewery", "af9:mash_melon_slice")
+                    .itemInputs("4x minecraft:melon_slice")
+                    .inputFluids(Dsl.fluid("minecraft:water", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
+                    .duration(400)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mash_melon_slice", e);
+        }
+        try {
+            Dsl.gt(out, "brewery", "af9:mash_apple")
+                    .itemInputs("4x minecraft:apple")
+                    .inputFluids(Dsl.fluid("minecraft:water", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
+                    .duration(400)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mash_apple", e);
+        }
+        try {
+            Dsl.gt(out, "brewery", "af9:mash_sugar_cane")
+                    .itemInputs("4x minecraft:sugar_cane")
+                    .inputFluids(Dsl.fluid("minecraft:water", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
+                    .duration(400)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mash_sugar_cane", e);
+        }
+        try {
+            Dsl.gt(out, "brewery", "af9:mash_sweet_berries")
+                    .itemInputs("4x minecraft:sweet_berries")
+                    .inputFluids(Dsl.fluid("minecraft:water", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
+                    .duration(400)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mash_sweet_berries", e);
+        }
+        try {
+            Dsl.gt(out, "distillery", "af9:bioethanol_distillation")
+                    .inputFluids(Dsl.fluid("gtceu:fermented_biomass", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:bioethanol", 600))
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:bioethanol_distillation", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:bioethanol_drying")
+                    .notConsumable("af9:molecular_sieve")
+                    .inputFluids(Dsl.fluid("gtceu:bioethanol", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:ethanol", 900))
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:bioethanol_drying", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:bioethanol_dehydration")
+                    .circuit(1)
+                    .inputFluids(Dsl.fluid("gtceu:bioethanol", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:ethylene", 1000), Dsl.fluid("minecraft:water", 500))
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:bioethanol_dehydration", e);
+        }
+        try {
+            Dsl.gt(out, "extractor", "af9:seed_oil_pumpkin_seeds")
+                    .itemInputs("4x minecraft:pumpkin_seeds")
+                    .outputFluids(Dsl.fluid("gtceu:seed_oil", 200))
+                    .duration(100)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:seed_oil_pumpkin_seeds", e);
+        }
+        try {
+            Dsl.gt(out, "extractor", "af9:seed_oil_melon_seeds")
+                    .itemInputs("4x minecraft:melon_seeds")
+                    .outputFluids(Dsl.fluid("gtceu:seed_oil", 200))
+                    .duration(100)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:seed_oil_melon_seeds", e);
+        }
+        try {
+            Dsl.gt(out, "extractor", "af9:seed_oil_beetroot_seeds")
+                    .itemInputs("4x minecraft:beetroot_seeds")
+                    .outputFluids(Dsl.fluid("gtceu:seed_oil", 200))
+                    .duration(100)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:seed_oil_beetroot_seeds", e);
+        }
+        try {
+            Dsl.gt(out, "extractor", "af9:seed_oil_wheat_seeds")
+                    .itemInputs("4x minecraft:wheat_seeds")
+                    .outputFluids(Dsl.fluid("gtceu:seed_oil", 200))
+                    .duration(100)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:seed_oil_wheat_seeds", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:biodiesel_transesterification")
+                    .itemInputs("gtceu:sodium_hydroxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:seed_oil", 1000), Dsl.fluid("gtceu:methanol", 100))
+                    .outputFluids(Dsl.fluid("gtceu:bio_diesel", 1000), Dsl.fluid("gtceu:glycerol", 100))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:biodiesel_transesterification", e);
+        }
+        try {
+            Dsl.gt(out, "combustion_generator", "af9:biodiesel_combustion")
+                    .inputFluids(Dsl.fluid("gtceu:bio_diesel", 1000))
+                    .duration(1200)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:biodiesel_combustion", e);
+        }
+        try {
+            Dsl.gt(out, "gas_turbine", "af9:bioethanol_turbine")
+                    .inputFluids(Dsl.fluid("gtceu:bioethanol", 1000))
+                    .duration(1000)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:bioethanol_turbine", e);
+        }
     }
 }

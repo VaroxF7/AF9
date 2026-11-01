@@ -16,134 +16,222 @@ public final class GenFusionPower {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "fusion_reactor", "af9:fusion/deuterium_and_helium_3_to_helium_plasma")
-                .inputFluids(Dsl.fluid("gtceu:deuterium", 125), Dsl.fluid("gtceu:helium_3", 125))
-                .outputFluids(Dsl.fluid("gtceu:helium_plasma", 125))
-                .duration(16)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "fusion_reactor", "af9:fusion/magnesium_and_oxygen_to_calcium_plasma")
-                .inputFluids(Dsl.fluid("gtceu:magnesium", 128), Dsl.fluid("gtceu:oxygen", 128))
-                .outputFluids(Dsl.fluid("gtceu:calcium_plasma", 16))
-                .duration(128)
-                .EUt(8192)
-                .save();
-        Dsl.gt(out, "fusion_reactor", "af9:fusion/aluminium_and_lithium_to_sulfur_plasma")
-                .inputFluids(Dsl.fluid("gtceu:aluminium", 16), Dsl.fluid("gtceu:lithium", 16))
-                .outputFluids(Dsl.fluid("gtceu:sulfur_plasma", 144))
-                .duration(32)
-                .EUt(10240)
-                .save();
-        Dsl.gt(out, "fusion_reactor", "af9:fusion/copper_and_tritium_to_zinc_plasma")
-                .inputFluids(Dsl.fluid("gtceu:copper", 72), Dsl.fluid("gtceu:tritium", 250))
-                .outputFluids(Dsl.fluid("gtceu:zinc_plasma", 72))
-                .duration(16)
-                .EUt(49152)
-                .save();
-        Dsl.gt(out, "fusion_reactor", "af9:fusion/cobalt_and_silicon_to_niobium_plasma")
-                .inputFluids(Dsl.fluid("gtceu:cobalt", 144), Dsl.fluid("gtceu:silicon", 144))
-                .outputFluids(Dsl.fluid("gtceu:niobium_plasma", 144))
-                .duration(16)
-                .EUt(49152)
-                .save();
-        Dsl.gt(out, "fusion_reactor", "af9:fusion/gold_and_arsenic_to_silver_plasma")
-                .inputFluids(Dsl.fluid("gtceu:gold", 144), Dsl.fluid("gtceu:arsenic", 144))
-                .outputFluids(Dsl.fluid("gtceu:silver_plasma", 144))
-                .duration(16)
-                .EUt(49152)
-                .save();
-        Dsl.gt(out, "fusion_reactor", "af9:fusion/tantalum_and_zinc_plasma_to_bismuth_plasma")
-                .inputFluids(Dsl.fluid("gtceu:tantalum", 144), Dsl.fluid("gtceu:zinc_plasma", 72))
-                .outputFluids(Dsl.fluid("gtceu:bismuth_plasma", 144))
-                .duration(16)
-                .EUt(98304)
-                .save();
-        Dsl.gt(out, "fusion_reactor", "af9:fusion/iridium_and_fluorine_to_radon_plasma")
-                .inputFluids(Dsl.fluid("gtceu:iridium", 144), Dsl.fluid("gtceu:fluorine", 500))
-                .outputFluids(Dsl.fluid("gtceu:radon_plasma", 144))
-                .duration(32)
-                .EUt(98304)
-                .save();
-        Dsl.gt(out, "mega_fusion_reactor", "af9:mega_fusion/platinum_and_beryllium_to_lead_plasma")
-                .inputFluids(Dsl.fluid("gtceu:platinum", 576), Dsl.fluid("gtceu:beryllium", 576))
-                .outputFluids(Dsl.fluid("gtceu:lead_plasma", 576))
-                .duration(8)
-                .EUt(2097152)
-                .save();
-        Dsl.gt(out, "mega_fusion_reactor", "af9:mega_fusion/osmium_and_silicon_to_thorium_plasma")
-                .inputFluids(Dsl.fluid("gtceu:osmium", 576), Dsl.fluid("gtceu:silicon", 576))
-                .outputFluids(Dsl.fluid("gtceu:thorium_plasma", 576))
-                .duration(8)
-                .EUt(4194304)
-                .save();
-        Dsl.gt(out, "mega_fusion_reactor", "af9:mega_fusion/lutetium_and_vanadium_to_plutonium_241_plasma")
-                .inputFluids(Dsl.fluid("gtceu:lutetium", 576), Dsl.fluid("gtceu:vanadium", 576))
-                .outputFluids(Dsl.fluid("gtceu:plutonium_241_plasma", 576))
-                .duration(8)
-                .EUt(8388608)
-                .save();
-        Dsl.gt(out, "plasma_generator", "af9:plasma/calcium")
-                .inputFluids(Dsl.fluid("gtceu:calcium_plasma", 1))
-                .duration(92)
-                .EUt(-2048)
-                .save();
-        Dsl.gt(out, "plasma_generator", "af9:plasma/sulfur")
-                .inputFluids(Dsl.fluid("gtceu:sulfur_plasma", 1))
-                .duration(83)
-                .EUt(-2048)
-                .save();
-        Dsl.gt(out, "plasma_generator", "af9:plasma/zinc")
-                .inputFluids(Dsl.fluid("gtceu:zinc_plasma", 1))
-                .duration(110)
-                .EUt(-2048)
-                .outputFluids(Dsl.fluid("gtceu:zinc", 1))
-                .save();
-        Dsl.gt(out, "plasma_generator", "af9:plasma/niobium")
-                .inputFluids(Dsl.fluid("gtceu:niobium_plasma", 1))
-                .duration(132)
-                .EUt(-2048)
-                .outputFluids(Dsl.fluid("gtceu:niobium", 1))
-                .save();
-        Dsl.gt(out, "plasma_generator", "af9:plasma/silver")
-                .inputFluids(Dsl.fluid("gtceu:silver_plasma", 1))
-                .duration(138)
-                .EUt(-2048)
-                .outputFluids(Dsl.fluid("gtceu:silver", 1))
-                .save();
-        Dsl.gt(out, "plasma_generator", "af9:plasma/lead")
-                .inputFluids(Dsl.fluid("gtceu:lead_plasma", 1))
-                .duration(207)
-                .EUt(-2048)
-                .outputFluids(Dsl.fluid("gtceu:lead", 1))
-                .save();
-        Dsl.gt(out, "plasma_generator", "af9:plasma/bismuth")
-                .inputFluids(Dsl.fluid("gtceu:bismuth_plasma", 1))
-                .duration(208)
-                .EUt(-2048)
-                .outputFluids(Dsl.fluid("gtceu:bismuth", 1))
-                .save();
-        Dsl.gt(out, "plasma_generator", "af9:plasma/radon")
-                .inputFluids(Dsl.fluid("gtceu:radon_plasma", 1))
-                .duration(220)
-                .EUt(-2048)
-                .outputFluids(Dsl.fluid("gtceu:radon", 1))
-                .save();
-        Dsl.gt(out, "plasma_generator", "af9:plasma/thorium")
-                .inputFluids(Dsl.fluid("gtceu:thorium_plasma", 1))
-                .duration(230)
-                .EUt(-2048)
-                .outputFluids(Dsl.fluid("gtceu:thorium", 1))
-                .save();
-        Dsl.gt(out, "plasma_generator", "af9:plasma/plutonium_241")
-                .inputFluids(Dsl.fluid("gtceu:plutonium_241_plasma", 1))
-                .duration(243)
-                .EUt(-2048)
-                .outputFluids(Dsl.fluid("gtceu:plutonium_241", 1))
-                .save();
-        Dsl.gt(out, "plasma_generator", "af9:plasma/star_matter")
-                .inputFluids(Dsl.fluid("gtceu:star_matter_plasma", 1))
-                .duration(800)
-                .EUt(-2048)
-                .save();
+        try {
+            Dsl.gt(out, "fusion_reactor", "af9:fusion/deuterium_and_helium_3_to_helium_plasma")
+                    .inputFluids(Dsl.fluid("gtceu:deuterium", 125), Dsl.fluid("gtceu:helium_3", 125))
+                    .outputFluids(Dsl.fluid("gtceu:helium_plasma", 125))
+                    .duration(16)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:fusion/deuterium_and_helium_3_to_helium_plasma", e);
+        }
+        try {
+            Dsl.gt(out, "fusion_reactor", "af9:fusion/magnesium_and_oxygen_to_calcium_plasma")
+                    .inputFluids(Dsl.fluid("gtceu:magnesium", 128), Dsl.fluid("gtceu:oxygen", 128))
+                    .outputFluids(Dsl.fluid("gtceu:calcium_plasma", 16))
+                    .duration(128)
+                    .EUt(8192)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:fusion/magnesium_and_oxygen_to_calcium_plasma", e);
+        }
+        try {
+            Dsl.gt(out, "fusion_reactor", "af9:fusion/aluminium_and_lithium_to_sulfur_plasma")
+                    .inputFluids(Dsl.fluid("gtceu:aluminium", 16), Dsl.fluid("gtceu:lithium", 16))
+                    .outputFluids(Dsl.fluid("gtceu:sulfur_plasma", 144))
+                    .duration(32)
+                    .EUt(10240)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:fusion/aluminium_and_lithium_to_sulfur_plasma", e);
+        }
+        try {
+            Dsl.gt(out, "fusion_reactor", "af9:fusion/copper_and_tritium_to_zinc_plasma")
+                    .inputFluids(Dsl.fluid("gtceu:copper", 72), Dsl.fluid("gtceu:tritium", 250))
+                    .outputFluids(Dsl.fluid("gtceu:zinc_plasma", 72))
+                    .duration(16)
+                    .EUt(49152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:fusion/copper_and_tritium_to_zinc_plasma", e);
+        }
+        try {
+            Dsl.gt(out, "fusion_reactor", "af9:fusion/cobalt_and_silicon_to_niobium_plasma")
+                    .inputFluids(Dsl.fluid("gtceu:cobalt", 144), Dsl.fluid("gtceu:silicon", 144))
+                    .outputFluids(Dsl.fluid("gtceu:niobium_plasma", 144))
+                    .duration(16)
+                    .EUt(49152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:fusion/cobalt_and_silicon_to_niobium_plasma", e);
+        }
+        try {
+            Dsl.gt(out, "fusion_reactor", "af9:fusion/gold_and_arsenic_to_silver_plasma")
+                    .inputFluids(Dsl.fluid("gtceu:gold", 144), Dsl.fluid("gtceu:arsenic", 144))
+                    .outputFluids(Dsl.fluid("gtceu:silver_plasma", 144))
+                    .duration(16)
+                    .EUt(49152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:fusion/gold_and_arsenic_to_silver_plasma", e);
+        }
+        try {
+            Dsl.gt(out, "fusion_reactor", "af9:fusion/tantalum_and_zinc_plasma_to_bismuth_plasma")
+                    .inputFluids(Dsl.fluid("gtceu:tantalum", 144), Dsl.fluid("gtceu:zinc_plasma", 72))
+                    .outputFluids(Dsl.fluid("gtceu:bismuth_plasma", 144))
+                    .duration(16)
+                    .EUt(98304)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:fusion/tantalum_and_zinc_plasma_to_bismuth_plasma", e);
+        }
+        try {
+            Dsl.gt(out, "fusion_reactor", "af9:fusion/iridium_and_fluorine_to_radon_plasma")
+                    .inputFluids(Dsl.fluid("gtceu:iridium", 144), Dsl.fluid("gtceu:fluorine", 500))
+                    .outputFluids(Dsl.fluid("gtceu:radon_plasma", 144))
+                    .duration(32)
+                    .EUt(98304)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:fusion/iridium_and_fluorine_to_radon_plasma", e);
+        }
+        try {
+            Dsl.gt(out, "mega_fusion_reactor", "af9:mega_fusion/platinum_and_beryllium_to_lead_plasma")
+                    .inputFluids(Dsl.fluid("gtceu:platinum", 576), Dsl.fluid("gtceu:beryllium", 576))
+                    .outputFluids(Dsl.fluid("gtceu:lead_plasma", 576))
+                    .duration(8)
+                    .EUt(2097152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mega_fusion/platinum_and_beryllium_to_lead_plasma", e);
+        }
+        try {
+            Dsl.gt(out, "mega_fusion_reactor", "af9:mega_fusion/osmium_and_silicon_to_thorium_plasma")
+                    .inputFluids(Dsl.fluid("gtceu:osmium", 576), Dsl.fluid("gtceu:silicon", 576))
+                    .outputFluids(Dsl.fluid("gtceu:thorium_plasma", 576))
+                    .duration(8)
+                    .EUt(4194304)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mega_fusion/osmium_and_silicon_to_thorium_plasma", e);
+        }
+        try {
+            Dsl.gt(out, "mega_fusion_reactor", "af9:mega_fusion/lutetium_and_vanadium_to_plutonium_241_plasma")
+                    .inputFluids(Dsl.fluid("gtceu:lutetium", 576), Dsl.fluid("gtceu:vanadium", 576))
+                    .outputFluids(Dsl.fluid("gtceu:plutonium_241_plasma", 576))
+                    .duration(8)
+                    .EUt(8388608)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mega_fusion/lutetium_and_vanadium_to_plutonium_241_plasma", e);
+        }
+        try {
+            Dsl.gt(out, "plasma_generator", "af9:plasma/calcium")
+                    .inputFluids(Dsl.fluid("gtceu:calcium_plasma", 1))
+                    .duration(92)
+                    .EUt(-2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:plasma/calcium", e);
+        }
+        try {
+            Dsl.gt(out, "plasma_generator", "af9:plasma/sulfur")
+                    .inputFluids(Dsl.fluid("gtceu:sulfur_plasma", 1))
+                    .duration(83)
+                    .EUt(-2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:plasma/sulfur", e);
+        }
+        try {
+            Dsl.gt(out, "plasma_generator", "af9:plasma/zinc")
+                    .inputFluids(Dsl.fluid("gtceu:zinc_plasma", 1))
+                    .duration(110)
+                    .EUt(-2048)
+                    .outputFluids(Dsl.fluid("gtceu:zinc", 1))
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:plasma/zinc", e);
+        }
+        try {
+            Dsl.gt(out, "plasma_generator", "af9:plasma/niobium")
+                    .inputFluids(Dsl.fluid("gtceu:niobium_plasma", 1))
+                    .duration(132)
+                    .EUt(-2048)
+                    .outputFluids(Dsl.fluid("gtceu:niobium", 1))
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:plasma/niobium", e);
+        }
+        try {
+            Dsl.gt(out, "plasma_generator", "af9:plasma/silver")
+                    .inputFluids(Dsl.fluid("gtceu:silver_plasma", 1))
+                    .duration(138)
+                    .EUt(-2048)
+                    .outputFluids(Dsl.fluid("gtceu:silver", 1))
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:plasma/silver", e);
+        }
+        try {
+            Dsl.gt(out, "plasma_generator", "af9:plasma/lead")
+                    .inputFluids(Dsl.fluid("gtceu:lead_plasma", 1))
+                    .duration(207)
+                    .EUt(-2048)
+                    .outputFluids(Dsl.fluid("gtceu:lead", 1))
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:plasma/lead", e);
+        }
+        try {
+            Dsl.gt(out, "plasma_generator", "af9:plasma/bismuth")
+                    .inputFluids(Dsl.fluid("gtceu:bismuth_plasma", 1))
+                    .duration(208)
+                    .EUt(-2048)
+                    .outputFluids(Dsl.fluid("gtceu:bismuth", 1))
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:plasma/bismuth", e);
+        }
+        try {
+            Dsl.gt(out, "plasma_generator", "af9:plasma/radon")
+                    .inputFluids(Dsl.fluid("gtceu:radon_plasma", 1))
+                    .duration(220)
+                    .EUt(-2048)
+                    .outputFluids(Dsl.fluid("gtceu:radon", 1))
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:plasma/radon", e);
+        }
+        try {
+            Dsl.gt(out, "plasma_generator", "af9:plasma/thorium")
+                    .inputFluids(Dsl.fluid("gtceu:thorium_plasma", 1))
+                    .duration(230)
+                    .EUt(-2048)
+                    .outputFluids(Dsl.fluid("gtceu:thorium", 1))
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:plasma/thorium", e);
+        }
+        try {
+            Dsl.gt(out, "plasma_generator", "af9:plasma/plutonium_241")
+                    .inputFluids(Dsl.fluid("gtceu:plutonium_241_plasma", 1))
+                    .duration(243)
+                    .EUt(-2048)
+                    .outputFluids(Dsl.fluid("gtceu:plutonium_241", 1))
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:plasma/plutonium_241", e);
+        }
+        try {
+            Dsl.gt(out, "plasma_generator", "af9:plasma/star_matter")
+                    .inputFluids(Dsl.fluid("gtceu:star_matter_plasma", 1))
+                    .duration(800)
+                    .EUt(-2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:plasma/star_matter", e);
+        }
     }
 }

@@ -16,58 +16,90 @@ public final class GenAromatics {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "distillation_tower", "af9:wood_tar_topping")
-                .inputFluids(Dsl.fluid("gtceu:wood_tar", 1000))
-                .outputFluids(Dsl.fluid("gtceu:benzene", 400), Dsl.fluid("gtceu:toluene", 200), Dsl.fluid("gtceu:phenol", 100), Dsl.fluid("gtceu:creosote", 300))
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:toluene_dealkylation")
-                .inputFluids(Dsl.fluid("gtceu:toluene", 1000), Dsl.fluid("gtceu:hydrogen", 1000))
-                .outputFluids(Dsl.fluid("gtceu:benzene", 1000), Dsl.fluid("gtceu:methane", 1000))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:chlorobenzene_synthesis")
-                .notConsumableFluid(Dsl.fluid("gtceu:iron_iii_chloride", 100))
-                .circuit(1)
-                .inputFluids(Dsl.fluid("gtceu:benzene", 1000), Dsl.fluid("gtceu:chlorine", 1000))
-                .outputFluids(Dsl.fluid("gtceu:chlorobenzene", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 1000))
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:dichlorobenzene_synthesis")
-                .notConsumableFluid(Dsl.fluid("gtceu:iron_iii_chloride", 100))
-                .circuit(2)
-                .inputFluids(Dsl.fluid("gtceu:benzene", 1000), Dsl.fluid("gtceu:chlorine", 2000))
-                .outputFluids(Dsl.fluid("gtceu:dichlorobenzene", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 2000))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:chlorobenzene_hydrodechlorination")
-                .notConsumable("gtceu:palladium_on_carbon_dust")
-                .inputFluids(Dsl.fluid("gtceu:chlorobenzene", 1000), Dsl.fluid("gtceu:hydrogen", 1000))
-                .outputFluids(Dsl.fluid("gtceu:benzene", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 1000))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:chloromethane_synthesis")
-                .inputFluids(Dsl.fluid("gtceu:methane", 1000), Dsl.fluid("gtceu:chlorine", 1000))
-                .outputFluids(Dsl.fluid("gtceu:chloromethane", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 1000))
-                .duration(160)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:dichloromethane_synthesis")
-                .inputFluids(Dsl.fluid("gtceu:chloromethane", 1000), Dsl.fluid("gtceu:chlorine", 1000))
-                .outputFluids(Dsl.fluid("gtceu:dichloromethane", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 1000))
-                .duration(160)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:chloroform_synthesis")
-                .inputFluids(Dsl.fluid("gtceu:dichloromethane", 1000), Dsl.fluid("gtceu:chlorine", 1000))
-                .outputFluids(Dsl.fluid("gtceu:chloroform", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 1000))
-                .duration(160)
-                .EUt(128)
-                .save();
+        try {
+            Dsl.gt(out, "distillation_tower", "af9:wood_tar_topping")
+                    .inputFluids(Dsl.fluid("gtceu:wood_tar", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:benzene", 400), Dsl.fluid("gtceu:toluene", 200), Dsl.fluid("gtceu:phenol", 100), Dsl.fluid("gtceu:creosote", 300))
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:wood_tar_topping", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:toluene_dealkylation")
+                    .inputFluids(Dsl.fluid("gtceu:toluene", 1000), Dsl.fluid("gtceu:hydrogen", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:benzene", 1000), Dsl.fluid("gtceu:methane", 1000))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:toluene_dealkylation", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:chlorobenzene_synthesis")
+                    .notConsumableFluid(Dsl.fluid("gtceu:iron_iii_chloride", 100))
+                    .circuit(1)
+                    .inputFluids(Dsl.fluid("gtceu:benzene", 1000), Dsl.fluid("gtceu:chlorine", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:chlorobenzene", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 1000))
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:chlorobenzene_synthesis", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:dichlorobenzene_synthesis")
+                    .notConsumableFluid(Dsl.fluid("gtceu:iron_iii_chloride", 100))
+                    .circuit(2)
+                    .inputFluids(Dsl.fluid("gtceu:benzene", 1000), Dsl.fluid("gtceu:chlorine", 2000))
+                    .outputFluids(Dsl.fluid("gtceu:dichlorobenzene", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 2000))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:dichlorobenzene_synthesis", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:chlorobenzene_hydrodechlorination")
+                    .notConsumable("gtceu:palladium_on_carbon_dust")
+                    .inputFluids(Dsl.fluid("gtceu:chlorobenzene", 1000), Dsl.fluid("gtceu:hydrogen", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:benzene", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 1000))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:chlorobenzene_hydrodechlorination", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:chloromethane_synthesis")
+                    .inputFluids(Dsl.fluid("gtceu:methane", 1000), Dsl.fluid("gtceu:chlorine", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:chloromethane", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 1000))
+                    .duration(160)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:chloromethane_synthesis", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:dichloromethane_synthesis")
+                    .inputFluids(Dsl.fluid("gtceu:chloromethane", 1000), Dsl.fluid("gtceu:chlorine", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:dichloromethane", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 1000))
+                    .duration(160)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:dichloromethane_synthesis", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:chloroform_synthesis")
+                    .inputFluids(Dsl.fluid("gtceu:dichloromethane", 1000), Dsl.fluid("gtceu:chlorine", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:chloroform", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 1000))
+                    .duration(160)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:chloroform_synthesis", e);
+        }
     }
 }

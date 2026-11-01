@@ -16,47 +16,71 @@ public final class GenLapisSulfonate {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "chemical_reactor", "af9:lapis_sulfonate/leach")
-                .itemInputs("4x gtceu:lapis_dust")
-                .inputFluids(Dsl.fluid("gtceu:sulfuric_acid", 2000))
-                .circuit(1)
-                .itemOutputs("2x gtceu:silicon_dioxide_dust")
-                .outputFluids(Dsl.fluid("gtceu:lapis_leach_liquor", 2000), Dsl.fluid("gtceu:hydrogen_sulfide", 1000))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "large_chemical_reactor", "af9:lapis_sulfonate/hydrogen_sulfide_combustion")
-                .circuit(2)
-                .inputFluids(Dsl.fluid("gtceu:hydrogen_sulfide", 2000), Dsl.fluid("gtceu:oxygen", 3000))
-                .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 2000), Dsl.fluid("minecraft:water", 2000))
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:lapis_sulfonate/vanadium_pentoxide")
-                .itemInputs("4x gtceu:vanadium_dust")
-                .inputFluids(Dsl.fluid("gtceu:oxygen", 5000))
-                .itemOutputs("2x gtceu:vanadium_pentoxide_dust")
-                .duration(240)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:lapis_sulfonate/contact_sulfur_trioxide")
-                .notConsumable("gtceu:vanadium_pentoxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 2000), Dsl.fluid("gtceu:oxygen", 1000))
-                .outputFluids(Dsl.fluid("gtceu:sulfur_trioxide", 2000))
-                .duration(160)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:lapis_sulfonate/butene_sulfonation")
-                .inputFluids(Dsl.fluid("gtceu:butene", 1000), Dsl.fluid("gtceu:sulfur_trioxide", 1000))
-                .outputFluids(Dsl.fluid("gtceu:butene_sulfonic_acid", 1000))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:lapis_sulfonate/ion_exchange")
-                .inputFluids(Dsl.fluid("gtceu:butene_sulfonic_acid", 2000), Dsl.fluid("gtceu:lapis_leach_liquor", 1000))
-                .outputFluids(Dsl.fluid("gtceu:lapis_butene_ii_sulfonate", 2000), Dsl.fluid("gtceu:sulfuric_acid", 1000))
-                .duration(240)
-                .EUt(512)
-                .save();
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:lapis_sulfonate/leach")
+                    .itemInputs("4x gtceu:lapis_dust")
+                    .inputFluids(Dsl.fluid("gtceu:sulfuric_acid", 2000))
+                    .circuit(1)
+                    .itemOutputs("2x gtceu:silicon_dioxide_dust")
+                    .outputFluids(Dsl.fluid("gtceu:lapis_leach_liquor", 2000), Dsl.fluid("gtceu:hydrogen_sulfide", 1000))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lapis_sulfonate/leach", e);
+        }
+        try {
+            Dsl.gt(out, "large_chemical_reactor", "af9:lapis_sulfonate/hydrogen_sulfide_combustion")
+                    .circuit(2)
+                    .inputFluids(Dsl.fluid("gtceu:hydrogen_sulfide", 2000), Dsl.fluid("gtceu:oxygen", 3000))
+                    .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 2000), Dsl.fluid("minecraft:water", 2000))
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lapis_sulfonate/hydrogen_sulfide_combustion", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:lapis_sulfonate/vanadium_pentoxide")
+                    .itemInputs("4x gtceu:vanadium_dust")
+                    .inputFluids(Dsl.fluid("gtceu:oxygen", 5000))
+                    .itemOutputs("2x gtceu:vanadium_pentoxide_dust")
+                    .duration(240)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lapis_sulfonate/vanadium_pentoxide", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:lapis_sulfonate/contact_sulfur_trioxide")
+                    .notConsumable("gtceu:vanadium_pentoxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 2000), Dsl.fluid("gtceu:oxygen", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:sulfur_trioxide", 2000))
+                    .duration(160)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lapis_sulfonate/contact_sulfur_trioxide", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:lapis_sulfonate/butene_sulfonation")
+                    .inputFluids(Dsl.fluid("gtceu:butene", 1000), Dsl.fluid("gtceu:sulfur_trioxide", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:butene_sulfonic_acid", 1000))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lapis_sulfonate/butene_sulfonation", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:lapis_sulfonate/ion_exchange")
+                    .inputFluids(Dsl.fluid("gtceu:butene_sulfonic_acid", 2000), Dsl.fluid("gtceu:lapis_leach_liquor", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:lapis_butene_ii_sulfonate", 2000), Dsl.fluid("gtceu:sulfuric_acid", 1000))
+                    .duration(240)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lapis_sulfonate/ion_exchange", e);
+        }
     }
 }

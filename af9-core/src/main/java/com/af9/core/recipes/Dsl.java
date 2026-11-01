@@ -39,7 +39,15 @@ public final class Dsl {
     /** A recipe of the GT recipe type {@code type}, id {@code af9:<name>} (or the given namespace). */
     public static B gt(Consumer<FinishedRecipe> out, String type, String id) {
         ResourceLocation rl = new ResourceLocation(id.contains(":") ? id : "af9:" + id);
-        return new B(out, GTRecipeTypes.get(type).recipeBuilder(rl), rl.toString());
+        com.gregtechceu.gtceu.api.recipe.GTRecipeType t = GTRecipeTypes.get(type);
+        if (t == null) throw new IllegalArgumentException("unknown recipe type " + type);
+        return new B(out, t.recipeBuilder(rl), rl.toString());
+    }
+
+    /** A recipe that threw while it was built: logged and skipped, the others still register. */
+    public static void fail(String id, RuntimeException e) {
+        error = null;
+        LOGGER.error("recipe {} skipped: {}", id, e.toString());
     }
 
     public static FluidStack fluid(String id, int amount) {

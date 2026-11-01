@@ -16,41 +16,65 @@ public final class GenDiesel {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "chemical_reactor", "af9:shiny_diesel_hydrotreating")
-                .inputFluids(Dsl.fluid("gtceu:shiny_oil", 1000), Dsl.fluid("gtceu:refinery_gas", 1000))
-                .itemOutputs("gtceu:sulfur_dust")
-                .outputFluids(Dsl.fluid("gtceu:shiny_diesel", 1500))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:chloromethane_diesel_blending")
-                .inputFluids(Dsl.fluid("gtceu:diesel", 2000), Dsl.fluid("gtceu:chloromethane", 500))
-                .outputFluids(Dsl.fluid("gtceu:chloromethane_diesel", 2500))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "large_chemical_reactor", "af9:mana_diesel_infusion")
-                .itemInputs("botania:mana_diamond")
-                .inputFluids(Dsl.fluid("gtceu:shiny_diesel", 1000))
-                .itemOutputs("minecraft:diamond")
-                .outputFluids(Dsl.fluid("gtceu:mana_diesel", 1000))
-                .duration(300)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "combustion_generator", "af9:chloromethane_diesel_combustion")
-                .inputFluids(Dsl.fluid("gtceu:chloromethane_diesel", 1000))
-                .duration(1500)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "combustion_generator", "af9:shiny_diesel_combustion")
-                .inputFluids(Dsl.fluid("gtceu:shiny_diesel", 1000))
-                .duration(2000)
-                .EUt(48)
-                .save();
-        Dsl.gt(out, "combustion_generator", "af9:mana_diesel_combustion")
-                .inputFluids(Dsl.fluid("gtceu:mana_diesel", 1000))
-                .duration(3000)
-                .EUt(64)
-                .save();
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:shiny_diesel_hydrotreating")
+                    .inputFluids(Dsl.fluid("gtceu:shiny_oil", 1000), Dsl.fluid("gtceu:refinery_gas", 1000))
+                    .itemOutputs("gtceu:sulfur_dust")
+                    .outputFluids(Dsl.fluid("gtceu:shiny_diesel", 1500))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:shiny_diesel_hydrotreating", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:chloromethane_diesel_blending")
+                    .inputFluids(Dsl.fluid("gtceu:diesel", 2000), Dsl.fluid("gtceu:chloromethane", 500))
+                    .outputFluids(Dsl.fluid("gtceu:chloromethane_diesel", 2500))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:chloromethane_diesel_blending", e);
+        }
+        try {
+            Dsl.gt(out, "large_chemical_reactor", "af9:mana_diesel_infusion")
+                    .itemInputs("botania:mana_diamond")
+                    .inputFluids(Dsl.fluid("gtceu:shiny_diesel", 1000))
+                    .itemOutputs("minecraft:diamond")
+                    .outputFluids(Dsl.fluid("gtceu:mana_diesel", 1000))
+                    .duration(300)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mana_diesel_infusion", e);
+        }
+        try {
+            Dsl.gt(out, "combustion_generator", "af9:chloromethane_diesel_combustion")
+                    .inputFluids(Dsl.fluid("gtceu:chloromethane_diesel", 1000))
+                    .duration(1500)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:chloromethane_diesel_combustion", e);
+        }
+        try {
+            Dsl.gt(out, "combustion_generator", "af9:shiny_diesel_combustion")
+                    .inputFluids(Dsl.fluid("gtceu:shiny_diesel", 1000))
+                    .duration(2000)
+                    .EUt(48)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:shiny_diesel_combustion", e);
+        }
+        try {
+            Dsl.gt(out, "combustion_generator", "af9:mana_diesel_combustion")
+                    .inputFluids(Dsl.fluid("gtceu:mana_diesel", 1000))
+                    .duration(3000)
+                    .EUt(64)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mana_diesel_combustion", e);
+        }
     }
 }

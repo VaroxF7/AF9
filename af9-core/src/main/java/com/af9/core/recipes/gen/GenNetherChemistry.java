@@ -16,94 +16,142 @@ public final class GenNetherChemistry {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "macerator", "af9:nether_wart_sulfur")
-                .itemInputs("minecraft:nether_wart")
-                .itemOutputs("2x gtceu:sulfur_dust")
-                .chancedOutput("gtceu:sulfur_dust", 2500, 0)
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "macerator", "af9:nether_wart_block_sulfur")
-                .itemInputs("minecraft:nether_wart_block")
-                .itemOutputs("16x gtceu:sulfur_dust")
-                .duration(400)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:sulfur_hydrogenation")
-                .itemInputs("gtceu:sulfur_dust")
-                .inputFluids(Dsl.fluid("gtceu:hydrogen", 1000))
-                .outputFluids(Dsl.fluid("gtceu:hydrogen_sulfide", 1000))
-                .duration(160)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:wet_sulfuric_acid")
-                .inputFluids(Dsl.fluid("gtceu:hydrogen_sulfide", 1000), Dsl.fluid("gtceu:oxygen", 2000))
-                .outputFluids(Dsl.fluid("gtceu:sulfuric_acid", 1000))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "large_chemical_reactor", "af9:contact_sulfuric_acid")
-                .itemInputs("gtceu:sulfur_dust")
-                .inputFluids(Dsl.fluid("minecraft:water", 1000), Dsl.fluid("gtceu:oxygen", 3000))
-                .outputFluids(Dsl.fluid("gtceu:sulfuric_acid", 1000))
-                .duration(100)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "centrifuge", "af9:radon_from_crimson_roots")
-                .itemInputs("16x minecraft:crimson_roots")
-                .itemOutputs("2x gtceu:ash_dust")
-                .chancedOutput("minecraft:glowstone_dust", 1500, 0)
-                .outputFluids(Dsl.fluid("gtceu:radon", 500))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "centrifuge", "af9:radon_from_warped_roots")
-                .itemInputs("16x minecraft:warped_roots")
-                .itemOutputs("2x gtceu:ash_dust")
-                .chancedOutput("minecraft:glowstone_dust", 1500, 0)
-                .outputFluids(Dsl.fluid("gtceu:radon", 500))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "centrifuge", "af9:radon_from_nether_sprouts")
-                .itemInputs("16x minecraft:nether_sprouts")
-                .itemOutputs("2x gtceu:ash_dust")
-                .chancedOutput("minecraft:glowstone_dust", 1500, 0)
-                .outputFluids(Dsl.fluid("gtceu:radon", 500))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "centrifuge", "af9:radon_from_crimson_fungus")
-                .itemInputs("16x minecraft:crimson_fungus")
-                .itemOutputs("2x gtceu:ash_dust")
-                .chancedOutput("minecraft:glowstone_dust", 1500, 0)
-                .outputFluids(Dsl.fluid("gtceu:radon", 500))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "centrifuge", "af9:radon_from_warped_fungus")
-                .itemInputs("16x minecraft:warped_fungus")
-                .itemOutputs("2x gtceu:ash_dust")
-                .chancedOutput("minecraft:glowstone_dust", 1500, 0)
-                .outputFluids(Dsl.fluid("gtceu:radon", 500))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "centrifuge", "af9:radon_from_weeping_vines")
-                .itemInputs("16x minecraft:weeping_vines")
-                .itemOutputs("2x gtceu:ash_dust")
-                .chancedOutput("minecraft:glowstone_dust", 1500, 0)
-                .outputFluids(Dsl.fluid("gtceu:radon", 500))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "centrifuge", "af9:radon_from_twisting_vines")
-                .itemInputs("16x minecraft:twisting_vines")
-                .itemOutputs("2x gtceu:ash_dust")
-                .chancedOutput("minecraft:glowstone_dust", 1500, 0)
-                .outputFluids(Dsl.fluid("gtceu:radon", 500))
-                .duration(300)
-                .EUt(512)
-                .save();
+        try {
+            Dsl.gt(out, "macerator", "af9:nether_wart_sulfur")
+                    .itemInputs("minecraft:nether_wart")
+                    .itemOutputs("2x gtceu:sulfur_dust")
+                    .chancedOutput("gtceu:sulfur_dust", 2500, 0)
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:nether_wart_sulfur", e);
+        }
+        try {
+            Dsl.gt(out, "macerator", "af9:nether_wart_block_sulfur")
+                    .itemInputs("minecraft:nether_wart_block")
+                    .itemOutputs("16x gtceu:sulfur_dust")
+                    .duration(400)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:nether_wart_block_sulfur", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:sulfur_hydrogenation")
+                    .itemInputs("gtceu:sulfur_dust")
+                    .inputFluids(Dsl.fluid("gtceu:hydrogen", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:hydrogen_sulfide", 1000))
+                    .duration(160)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:sulfur_hydrogenation", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:wet_sulfuric_acid")
+                    .inputFluids(Dsl.fluid("gtceu:hydrogen_sulfide", 1000), Dsl.fluid("gtceu:oxygen", 2000))
+                    .outputFluids(Dsl.fluid("gtceu:sulfuric_acid", 1000))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:wet_sulfuric_acid", e);
+        }
+        try {
+            Dsl.gt(out, "large_chemical_reactor", "af9:contact_sulfuric_acid")
+                    .itemInputs("gtceu:sulfur_dust")
+                    .inputFluids(Dsl.fluid("minecraft:water", 1000), Dsl.fluid("gtceu:oxygen", 3000))
+                    .outputFluids(Dsl.fluid("gtceu:sulfuric_acid", 1000))
+                    .duration(100)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:contact_sulfuric_acid", e);
+        }
+        try {
+            Dsl.gt(out, "centrifuge", "af9:radon_from_crimson_roots")
+                    .itemInputs("16x minecraft:crimson_roots")
+                    .itemOutputs("2x gtceu:ash_dust")
+                    .chancedOutput("minecraft:glowstone_dust", 1500, 0)
+                    .outputFluids(Dsl.fluid("gtceu:radon", 500))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:radon_from_crimson_roots", e);
+        }
+        try {
+            Dsl.gt(out, "centrifuge", "af9:radon_from_warped_roots")
+                    .itemInputs("16x minecraft:warped_roots")
+                    .itemOutputs("2x gtceu:ash_dust")
+                    .chancedOutput("minecraft:glowstone_dust", 1500, 0)
+                    .outputFluids(Dsl.fluid("gtceu:radon", 500))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:radon_from_warped_roots", e);
+        }
+        try {
+            Dsl.gt(out, "centrifuge", "af9:radon_from_nether_sprouts")
+                    .itemInputs("16x minecraft:nether_sprouts")
+                    .itemOutputs("2x gtceu:ash_dust")
+                    .chancedOutput("minecraft:glowstone_dust", 1500, 0)
+                    .outputFluids(Dsl.fluid("gtceu:radon", 500))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:radon_from_nether_sprouts", e);
+        }
+        try {
+            Dsl.gt(out, "centrifuge", "af9:radon_from_crimson_fungus")
+                    .itemInputs("16x minecraft:crimson_fungus")
+                    .itemOutputs("2x gtceu:ash_dust")
+                    .chancedOutput("minecraft:glowstone_dust", 1500, 0)
+                    .outputFluids(Dsl.fluid("gtceu:radon", 500))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:radon_from_crimson_fungus", e);
+        }
+        try {
+            Dsl.gt(out, "centrifuge", "af9:radon_from_warped_fungus")
+                    .itemInputs("16x minecraft:warped_fungus")
+                    .itemOutputs("2x gtceu:ash_dust")
+                    .chancedOutput("minecraft:glowstone_dust", 1500, 0)
+                    .outputFluids(Dsl.fluid("gtceu:radon", 500))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:radon_from_warped_fungus", e);
+        }
+        try {
+            Dsl.gt(out, "centrifuge", "af9:radon_from_weeping_vines")
+                    .itemInputs("16x minecraft:weeping_vines")
+                    .itemOutputs("2x gtceu:ash_dust")
+                    .chancedOutput("minecraft:glowstone_dust", 1500, 0)
+                    .outputFluids(Dsl.fluid("gtceu:radon", 500))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:radon_from_weeping_vines", e);
+        }
+        try {
+            Dsl.gt(out, "centrifuge", "af9:radon_from_twisting_vines")
+                    .itemInputs("16x minecraft:twisting_vines")
+                    .itemOutputs("2x gtceu:ash_dust")
+                    .chancedOutput("minecraft:glowstone_dust", 1500, 0)
+                    .outputFluids(Dsl.fluid("gtceu:radon", 500))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:radon_from_twisting_vines", e);
+        }
     }
 }

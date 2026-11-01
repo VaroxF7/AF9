@@ -16,11 +16,15 @@ public final class GenAdvancedCircuitManufacturer {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "assembler", "af9:advanced_circuit_manufacturer")
-                .itemInputs("8x #gtceu:circuits/ev", "8x gtceu:double_titanium_plate", "4x gtceu:platinum_single_cable", "4x gtceu:nichrome_platinum_frame", "gtceu:ev_circuit_assembler")
-                .itemOutputs("gtceu:advanced_circuit_manufacturer")
-                .duration(250)
-                .EUt(2048)
-                .save();
+        try {
+            Dsl.gt(out, "assembler", "af9:advanced_circuit_manufacturer")
+                    .itemInputs("8x #gtceu:circuits/ev", "8x gtceu:double_titanium_plate", "4x gtceu:platinum_single_cable", "4x gtceu:nichrome_platinum_frame", "gtceu:ev_circuit_assembler")
+                    .itemOutputs("gtceu:advanced_circuit_manufacturer")
+                    .duration(250)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:advanced_circuit_manufacturer", e);
+        }
     }
 }

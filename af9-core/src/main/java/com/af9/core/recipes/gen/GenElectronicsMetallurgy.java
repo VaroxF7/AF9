@@ -16,36 +16,52 @@ public final class GenElectronicsMetallurgy {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "electric_blast_furnace", "af9:zircon_dissociation")
-                .itemInputs("6x gtceu:zircon_dust")
-                .inputFluids(Dsl.fluid("gtceu:argon", 100))
-                .itemOutputs("3x gtceu:zirconia_dust", "3x gtceu:silicon_dioxide_dust")
-                .blastFurnaceTemp(2300)
-                .duration(600)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:zirconia_carbochlorination")
-                .itemInputs("3x gtceu:zirconia_dust", "2x gtceu:carbon_dust")
-                .inputFluids(Dsl.fluid("gtceu:chlorine", 4000))
-                .outputFluids(Dsl.fluid("gtceu:crude_zirconium_tetrachloride", 1000))
-                .blastFurnaceTemp(1300)
-                .duration(400)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "fab_distillation", "af9:zirconium_hafnium_separation")
-                .inputFluids(Dsl.fluid("gtceu:crude_zirconium_tetrachloride", 1000))
-                .outputFluids(Dsl.fluid("gtceu:zirconium_tetrachloride", 900), Dsl.fluid("gtceu:hafnium_tetrachloride", 100))
-                .duration(600)
-                .EUt(512)
-                .cleanroom("cleanroom")
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:zirconium_kroll")
-                .itemInputs("2x gtceu:magnesium_dust")
-                .inputFluids(Dsl.fluid("gtceu:zirconium_tetrachloride", 1000))
-                .itemOutputs("gtceu:zirconium_dust", "6x gtceu:magnesium_chloride_dust")
-                .blastFurnaceTemp(1150)
-                .duration(400)
-                .EUt(512)
-                .save();
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:zircon_dissociation")
+                    .itemInputs("6x gtceu:zircon_dust")
+                    .inputFluids(Dsl.fluid("gtceu:argon", 100))
+                    .itemOutputs("3x gtceu:zirconia_dust", "3x gtceu:silicon_dioxide_dust")
+                    .blastFurnaceTemp(2300)
+                    .duration(600)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:zircon_dissociation", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:zirconia_carbochlorination")
+                    .itemInputs("3x gtceu:zirconia_dust", "2x gtceu:carbon_dust")
+                    .inputFluids(Dsl.fluid("gtceu:chlorine", 4000))
+                    .outputFluids(Dsl.fluid("gtceu:crude_zirconium_tetrachloride", 1000))
+                    .blastFurnaceTemp(1300)
+                    .duration(400)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:zirconia_carbochlorination", e);
+        }
+        try {
+            Dsl.gt(out, "fab_distillation", "af9:zirconium_hafnium_separation")
+                    .inputFluids(Dsl.fluid("gtceu:crude_zirconium_tetrachloride", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:zirconium_tetrachloride", 900), Dsl.fluid("gtceu:hafnium_tetrachloride", 100))
+                    .duration(600)
+                    .EUt(512)
+                    .cleanroom("cleanroom")
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:zirconium_hafnium_separation", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:zirconium_kroll")
+                    .itemInputs("2x gtceu:magnesium_dust")
+                    .inputFluids(Dsl.fluid("gtceu:zirconium_tetrachloride", 1000))
+                    .itemOutputs("gtceu:zirconium_dust", "6x gtceu:magnesium_chloride_dust")
+                    .blastFurnaceTemp(1150)
+                    .duration(400)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:zirconium_kroll", e);
+        }
     }
 }

@@ -105,7 +105,7 @@ function toJava(file, ops) {
     const body = chunks.map((chunk, n) => `    private static void part${n}(Consumer<FinishedRecipe> out) {\n` +
         chunk.map(op => {
             const calls = op.calls.map(emit).join('\n                ')
-            return `        Dsl.gt(out, ${lit(op.type)}, ${lit(op.id)})\n                ${calls}\n                .save();`
+            return `        try {\n            Dsl.gt(out, ${lit(op.type)}, ${lit(op.id)})\n                    ${calls.split('\n                ').join('\n                    ')}\n                    .save();\n        } catch (RuntimeException e) {\n            Dsl.fail(${lit(op.id)}, e);\n        }`
         }).join('\n') + '\n    }\n').join('\n')
     return `package com.af9.core.recipes.gen;
 

@@ -16,71 +16,103 @@ public final class GenLithiumBrine {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "water_filtration", "af9:lithium_brine_pumping")
-                .notConsumable("gtceu:fluid_filter")
-                .circuit(5)
-                .inputFluids(Dsl.fluid("gtceu:salt_water", 3000))
-                .outputFluids(Dsl.fluid("gtceu:lithium_brine", 1000))
-                .itemOutputs("2x gtceu:rock_salt_dust", "gtceu:salt_dust")
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "distillery", "af9:brine_evaporation")
-                .circuit(1)
-                .inputFluids(Dsl.fluid("gtceu:lithium_brine", 2000))
-                .outputFluids(Dsl.fluid("gtceu:concentrated_lithium_brine", 1000))
-                .itemOutputs("gtceu:borax_dust")
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:brine_liming")
-                .itemInputs("2x gtceu:calcium_hydroxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:concentrated_lithium_brine", 1000), Dsl.fluid("gtceu:carbon_dioxide", 1000))
-                .itemOutputs("gtceu:lithium_chloride_dust", "gtceu:calcium_carbonate_dust")
-                .outputFluids(Dsl.fluid("gtceu:distilled_water", 1000))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "large_chemical_reactor", "af9:lithium_carbonate_precipitation")
-                .itemInputs("2x gtceu:lithium_chloride_dust", "gtceu:soda_ash_dust")
-                .inputFluids(Dsl.fluid("gtceu:distilled_water", 2000))
-                .itemOutputs("gtceu:lithium_carbonate_dust", "gtceu:salt_dust")
-                .outputFluids(Dsl.fluid("gtceu:distilled_water", 1000))
-                .duration(200)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:lithium_hydroxide_causticization")
-                .itemInputs("gtceu:lithium_carbonate_dust", "gtceu:calcium_hydroxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:distilled_water", 1000))
-                .itemOutputs("2x gtceu:lithium_hydroxide_dust", "gtceu:calcium_carbonate_dust")
-                .outputFluids(Dsl.fluid("minecraft:water", 1000))
-                .duration(200)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "pyrolyse_oven", "af9:lithium_oxide_calcination")
-                .circuit(1)
-                .itemInputs("gtceu:lithium_carbonate_dust")
-                .inputFluids(Dsl.fluid("gtceu:nitrogen", 1000))
-                .itemOutputs("gtceu:lithium_oxide_dust")
-                .outputFluids(Dsl.fluid("gtceu:carbon_dioxide", 1000))
-                .duration(300)
-                .EUt(8192)
-                .save();
-        Dsl.gt(out, "large_chemical_reactor", "af9:lithium_fluoride_fluorination")
-                .itemInputs("gtceu:lithium_hydroxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:hydrofluoric_acid", 1000))
-                .itemOutputs("gtceu:lithium_fluoride_dust")
-                .outputFluids(Dsl.fluid("minecraft:water", 1000))
-                .duration(200)
-                .EUt(8192)
-                .save();
-        Dsl.gt(out, "large_chemical_reactor", "af9:lithium_hexafluorophosphate_synthesis")
-                .itemInputs("2x gtceu:lithium_fluoride_dust", "gtceu:phosphorus_pentoxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:hydrofluoric_acid", 4000))
-                .itemOutputs("2x gtceu:lithium_hexafluorophosphate_dust")
-                .outputFluids(Dsl.fluid("minecraft:water", 2000))
-                .duration(300)
-                .EUt(32768)
-                .save();
+        try {
+            Dsl.gt(out, "water_filtration", "af9:lithium_brine_pumping")
+                    .notConsumable("gtceu:fluid_filter")
+                    .circuit(5)
+                    .inputFluids(Dsl.fluid("gtceu:salt_water", 3000))
+                    .outputFluids(Dsl.fluid("gtceu:lithium_brine", 1000))
+                    .itemOutputs("2x gtceu:rock_salt_dust", "gtceu:salt_dust")
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lithium_brine_pumping", e);
+        }
+        try {
+            Dsl.gt(out, "distillery", "af9:brine_evaporation")
+                    .circuit(1)
+                    .inputFluids(Dsl.fluid("gtceu:lithium_brine", 2000))
+                    .outputFluids(Dsl.fluid("gtceu:concentrated_lithium_brine", 1000))
+                    .itemOutputs("gtceu:borax_dust")
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:brine_evaporation", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:brine_liming")
+                    .itemInputs("2x gtceu:calcium_hydroxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:concentrated_lithium_brine", 1000), Dsl.fluid("gtceu:carbon_dioxide", 1000))
+                    .itemOutputs("gtceu:lithium_chloride_dust", "gtceu:calcium_carbonate_dust")
+                    .outputFluids(Dsl.fluid("gtceu:distilled_water", 1000))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:brine_liming", e);
+        }
+        try {
+            Dsl.gt(out, "large_chemical_reactor", "af9:lithium_carbonate_precipitation")
+                    .itemInputs("2x gtceu:lithium_chloride_dust", "gtceu:soda_ash_dust")
+                    .inputFluids(Dsl.fluid("gtceu:distilled_water", 2000))
+                    .itemOutputs("gtceu:lithium_carbonate_dust", "gtceu:salt_dust")
+                    .outputFluids(Dsl.fluid("gtceu:distilled_water", 1000))
+                    .duration(200)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lithium_carbonate_precipitation", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:lithium_hydroxide_causticization")
+                    .itemInputs("gtceu:lithium_carbonate_dust", "gtceu:calcium_hydroxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:distilled_water", 1000))
+                    .itemOutputs("2x gtceu:lithium_hydroxide_dust", "gtceu:calcium_carbonate_dust")
+                    .outputFluids(Dsl.fluid("minecraft:water", 1000))
+                    .duration(200)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lithium_hydroxide_causticization", e);
+        }
+        try {
+            Dsl.gt(out, "pyrolyse_oven", "af9:lithium_oxide_calcination")
+                    .circuit(1)
+                    .itemInputs("gtceu:lithium_carbonate_dust")
+                    .inputFluids(Dsl.fluid("gtceu:nitrogen", 1000))
+                    .itemOutputs("gtceu:lithium_oxide_dust")
+                    .outputFluids(Dsl.fluid("gtceu:carbon_dioxide", 1000))
+                    .duration(300)
+                    .EUt(8192)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lithium_oxide_calcination", e);
+        }
+        try {
+            Dsl.gt(out, "large_chemical_reactor", "af9:lithium_fluoride_fluorination")
+                    .itemInputs("gtceu:lithium_hydroxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:hydrofluoric_acid", 1000))
+                    .itemOutputs("gtceu:lithium_fluoride_dust")
+                    .outputFluids(Dsl.fluid("minecraft:water", 1000))
+                    .duration(200)
+                    .EUt(8192)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lithium_fluoride_fluorination", e);
+        }
+        try {
+            Dsl.gt(out, "large_chemical_reactor", "af9:lithium_hexafluorophosphate_synthesis")
+                    .itemInputs("2x gtceu:lithium_fluoride_dust", "gtceu:phosphorus_pentoxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:hydrofluoric_acid", 4000))
+                    .itemOutputs("2x gtceu:lithium_hexafluorophosphate_dust")
+                    .outputFluids(Dsl.fluid("minecraft:water", 2000))
+                    .duration(300)
+                    .EUt(32768)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lithium_hexafluorophosphate_synthesis", e);
+        }
     }
 }

@@ -16,28 +16,40 @@ public final class GenCeranium {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "mixer", "af9:ceranium_dust")
-                .itemInputs("4x gtceu:ceresite_dust", "2x gtceu:tritanium_dust", "gtceu:naquadria_dust", "gtceu:trinium_dust")
-                .itemOutputs("8x gtceu:ceranium_dust")
-                .circuit(6)
-                .duration(400)
-                .EUt(524288)
-                .save();
-        Dsl.gt(out, "assembler", "af9:fiber_interconnects")
-                .itemInputs("4x gtceu:fine_ceranium_wire", "2x gtceu:fine_electrum_wire", "2x gtceu:glass_tube", "2x gtceu:polybenzimidazole_foil")
-                .inputFluids(Dsl.fluid("gtceu:polybenzimidazole", 144))
-                .itemOutputs("4x af9:fiber_interconnects")
-                .cleanroom("cleanroom")
-                .duration(300)
-                .EUt(524288)
-                .save();
-        Dsl.gt(out, "assembly_line", "af9:pico_board")
-                .itemInputs("2x gtceu:ceranium_plate", "4x af9:fiber_interconnects", "16x gtceu:fine_ceranium_wire", "4x gtceu:polybenzimidazole_foil", "2x gtceu:tritanium_foil")
-                .inputFluids(Dsl.fluid("gtceu:polybenzimidazole", 576), Dsl.fluid("gtceu:living_solder", 288))
-                .itemOutputs("af9:pico_board")
-                .cleanroom("cleanroom")
-                .duration(600)
-                .EUt(524288)
-                .save();
+        try {
+            Dsl.gt(out, "mixer", "af9:ceranium_dust")
+                    .itemInputs("4x gtceu:ceresite_dust", "2x gtceu:tritanium_dust", "gtceu:naquadria_dust", "gtceu:trinium_dust")
+                    .itemOutputs("8x gtceu:ceranium_dust")
+                    .circuit(6)
+                    .duration(400)
+                    .EUt(524288)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:ceranium_dust", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:fiber_interconnects")
+                    .itemInputs("4x gtceu:fine_ceranium_wire", "2x gtceu:fine_electrum_wire", "2x gtceu:glass_tube", "2x gtceu:polybenzimidazole_foil")
+                    .inputFluids(Dsl.fluid("gtceu:polybenzimidazole", 144))
+                    .itemOutputs("4x af9:fiber_interconnects")
+                    .cleanroom("cleanroom")
+                    .duration(300)
+                    .EUt(524288)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:fiber_interconnects", e);
+        }
+        try {
+            Dsl.gt(out, "assembly_line", "af9:pico_board")
+                    .itemInputs("2x gtceu:ceranium_plate", "4x af9:fiber_interconnects", "16x gtceu:fine_ceranium_wire", "4x gtceu:polybenzimidazole_foil", "2x gtceu:tritanium_foil")
+                    .inputFluids(Dsl.fluid("gtceu:polybenzimidazole", 576), Dsl.fluid("gtceu:living_solder", 288))
+                    .itemOutputs("af9:pico_board")
+                    .cleanroom("cleanroom")
+                    .duration(600)
+                    .EUt(524288)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pico_board", e);
+        }
     }
 }

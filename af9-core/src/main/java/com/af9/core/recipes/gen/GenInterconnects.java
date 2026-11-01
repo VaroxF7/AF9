@@ -16,26 +16,38 @@ public final class GenInterconnects {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "assembler", "af9:interconnect_mv")
-                .itemInputs("2x gtceu:gold_foil", "2x gtceu:fine_electrum_wire")
-                .itemOutputs("4x af9:interconnect")
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "advanced_circuit_manufacturer", "af9:interconnect")
-                .itemInputs("4x gtceu:fine_gold_wire", "2x gtceu:fine_electrum_wire")
-                .inputFluids(Dsl.fluid("gtceu:polybenzimidazole", 144))
-                .itemOutputs("4x af9:interconnect")
-                .CWUt(8)
-                .duration(200)
-                .EUt(2097152)
-                .save();
-        Dsl.gt(out, "advanced_circuit_manufacturer", "af9:interconnect_pallet")
-                .itemInputs("8x af9:interconnect", "4x gtceu:polybenzimidazole_foil")
-                .itemOutputs("af9:interconnect_pallet")
-                .CWUt(16)
-                .duration(300)
-                .EUt(2097152)
-                .save();
+        try {
+            Dsl.gt(out, "assembler", "af9:interconnect_mv")
+                    .itemInputs("2x gtceu:gold_foil", "2x gtceu:fine_electrum_wire")
+                    .itemOutputs("4x af9:interconnect")
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:interconnect_mv", e);
+        }
+        try {
+            Dsl.gt(out, "advanced_circuit_manufacturer", "af9:interconnect")
+                    .itemInputs("4x gtceu:fine_gold_wire", "2x gtceu:fine_electrum_wire")
+                    .inputFluids(Dsl.fluid("gtceu:polybenzimidazole", 144))
+                    .itemOutputs("4x af9:interconnect")
+                    .CWUt(8)
+                    .duration(200)
+                    .EUt(2097152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:interconnect", e);
+        }
+        try {
+            Dsl.gt(out, "advanced_circuit_manufacturer", "af9:interconnect_pallet")
+                    .itemInputs("8x af9:interconnect", "4x gtceu:polybenzimidazole_foil")
+                    .itemOutputs("af9:interconnect_pallet")
+                    .CWUt(16)
+                    .duration(300)
+                    .EUt(2097152)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:interconnect_pallet", e);
+        }
     }
 }

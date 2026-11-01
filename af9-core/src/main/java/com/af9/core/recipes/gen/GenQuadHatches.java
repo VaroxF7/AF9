@@ -16,29 +16,45 @@ public final class GenQuadHatches {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "assembler", "af9:lv_input_hatch_4x")
-                .itemInputs("gtceu:lv_machine_hull", "4x gtceu:lv_input_hatch")
-                .itemOutputs("gtceu:lv_input_hatch_4x")
-                .duration(200)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "assembler", "af9:lv_output_hatch_4x")
-                .itemInputs("gtceu:lv_machine_hull", "4x gtceu:lv_output_hatch")
-                .itemOutputs("gtceu:lv_output_hatch_4x")
-                .duration(200)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "assembler", "af9:mv_input_hatch_4x")
-                .itemInputs("gtceu:mv_machine_hull", "4x gtceu:mv_input_hatch")
-                .itemOutputs("gtceu:mv_input_hatch_4x")
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "assembler", "af9:mv_output_hatch_4x")
-                .itemInputs("gtceu:mv_machine_hull", "4x gtceu:mv_output_hatch")
-                .itemOutputs("gtceu:mv_output_hatch_4x")
-                .duration(200)
-                .EUt(128)
-                .save();
+        try {
+            Dsl.gt(out, "assembler", "af9:lv_input_hatch_4x")
+                    .itemInputs("gtceu:lv_machine_hull", "4x gtceu:lv_input_hatch")
+                    .itemOutputs("gtceu:lv_input_hatch_4x")
+                    .duration(200)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lv_input_hatch_4x", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:lv_output_hatch_4x")
+                    .itemInputs("gtceu:lv_machine_hull", "4x gtceu:lv_output_hatch")
+                    .itemOutputs("gtceu:lv_output_hatch_4x")
+                    .duration(200)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lv_output_hatch_4x", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:mv_input_hatch_4x")
+                    .itemInputs("gtceu:mv_machine_hull", "4x gtceu:mv_input_hatch")
+                    .itemOutputs("gtceu:mv_input_hatch_4x")
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mv_input_hatch_4x", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:mv_output_hatch_4x")
+                    .itemInputs("gtceu:mv_machine_hull", "4x gtceu:mv_output_hatch")
+                    .itemOutputs("gtceu:mv_output_hatch_4x")
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mv_output_hatch_4x", e);
+        }
     }
 }

@@ -16,107 +16,167 @@ public final class GenOil {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "centrifuge", "af9:oil_regolith_to_impure_oil")
-                .itemInputs("2x af9:oil_regolith")
-                .itemOutputs("minecraft:sand")
-                .chancedOutput("gtceu:sulfur_dust", 2500, 0)
-                .outputFluids(Dsl.fluid("gtceu:impure_oil", 1800))
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:impure_oil_wash")
-                .inputFluids(Dsl.fluid("gtceu:impure_oil", 1000))
-                .inputFluids(Dsl.fluid("gtceu:sulfuric_acid", 100))
-                .outputFluids(Dsl.fluid("gtceu:shiny_oil", 950))
-                .outputFluids(Dsl.fluid("gtceu:diluted_sulfuric_acid", 100))
-                .duration(160)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "mixer", "af9:shiny_oil_desalting")
-                .inputFluids(Dsl.fluid("gtceu:shiny_oil", 1000), Dsl.fluid("gtceu:distilled_water", 100))
-                .itemOutputs("gtceu:salt_dust")
-                .outputFluids(Dsl.fluid("gtceu:desalted_oil", 1000))
-                .duration(160)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "distillation_tower", "af9:desalted_oil_distillation")
-                .inputFluids(Dsl.fluid("gtceu:desalted_oil", 1000))
-                .outputFluids(Dsl.fluid("gtceu:refinery_gas", 150), Dsl.fluid("gtceu:naphtha", 250), Dsl.fluid("gtceu:diesel", 200), Dsl.fluid("gtceu:oil", 200), Dsl.fluid("gtceu:oil_heavy", 200))
-                .duration(240)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "distillation_tower", "af9:heavy_oil_vacuum_distillation")
-                .inputFluids(Dsl.fluid("gtceu:oil_heavy", 1000))
-                .itemOutputs("gtceu:asphalt_dust")
-                .outputFluids(Dsl.fluid("gtceu:diesel", 300), Dsl.fluid("gtceu:lubricant", 400))
-                .duration(300)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "cracker", "af9:heavy_oil_hydrocracking")
-                .circuit(1)
-                .inputFluids(Dsl.fluid("gtceu:oil_heavy", 1000), Dsl.fluid("gtceu:hydrogen", 800))
-                .outputFluids(Dsl.fluid("gtceu:diesel", 1000), Dsl.fluid("gtceu:hydrogen_sulfide", 150))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "distillation_tower", "af9:naphtha_splitting")
-                .inputFluids(Dsl.fluid("gtceu:naphtha", 1000))
-                .outputFluids(Dsl.fluid("gtceu:light_naphtha", 600), Dsl.fluid("gtceu:heavy_naphtha", 400))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:heavy_naphtha_reforming")
-                .circuit(2)
-                .inputFluids(Dsl.fluid("gtceu:heavy_naphtha", 1000))
-                .outputFluids(Dsl.fluid("gtceu:reformate", 800), Dsl.fluid("gtceu:hydrogen", 300))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "distillation_tower", "af9:reformate_extraction")
-                .inputFluids(Dsl.fluid("gtceu:reformate", 1000))
-                .outputFluids(Dsl.fluid("gtceu:benzene", 300), Dsl.fluid("gtceu:toluene", 300), Dsl.fluid("gtceu:gasoline", 400))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:butane_isomerization")
-                .inputFluids(Dsl.fluid("gtceu:butane", 1000))
-                .outputFluids(Dsl.fluid("gtceu:isobutane", 800), Dsl.fluid("gtceu:butane", 200))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:alkylation")
-                .inputFluids(Dsl.fluid("gtceu:isobutane", 1000), Dsl.fluid("gtceu:butene", 1000), Dsl.fluid("gtceu:sulfuric_acid", 500))
-                .outputFluids(Dsl.fluid("gtceu:alkylate", 1500), Dsl.fluid("gtceu:diluted_sulfuric_acid", 500))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "mixer", "af9:alkylate_blending")
-                .inputFluids(Dsl.fluid("gtceu:alkylate", 1000), Dsl.fluid("gtceu:gasoline", 1000))
-                .outputFluids(Dsl.fluid("gtceu:high_octane_gasoline", 2000))
-                .duration(100)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:claus_sulfur_recovery")
-                .inputFluids(Dsl.fluid("gtceu:hydrogen_sulfide", 2000), Dsl.fluid("gtceu:oxygen", 1000))
-                .itemOutputs("2x gtceu:sulfur_dust")
-                .outputFluids(Dsl.fluid("minecraft:water", 2000))
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "pyrolyse_oven", "af9:asphalt_coking")
-                .itemInputs("gtceu:asphalt_dust")
-                .inputFluids(Dsl.fluid("gtceu:steam", 1000))
-                .itemOutputs("gtceu:coke_dust")
-                .outputFluids(Dsl.fluid("gtceu:refinery_gas", 400))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "electrolyzer", "af9:heavy_water_electrolysis")
-                .inputFluids(Dsl.fluid("gtceu:heavy_water", 1000))
-                .outputFluids(Dsl.fluid("gtceu:deuterium", 2000))
-                .outputFluids(Dsl.fluid("gtceu:oxygen", 1000))
-                .duration(400)
-                .EUt(128)
-                .save();
+        try {
+            Dsl.gt(out, "centrifuge", "af9:oil_regolith_to_impure_oil")
+                    .itemInputs("2x af9:oil_regolith")
+                    .itemOutputs("minecraft:sand")
+                    .chancedOutput("gtceu:sulfur_dust", 2500, 0)
+                    .outputFluids(Dsl.fluid("gtceu:impure_oil", 1800))
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:oil_regolith_to_impure_oil", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:impure_oil_wash")
+                    .inputFluids(Dsl.fluid("gtceu:impure_oil", 1000))
+                    .inputFluids(Dsl.fluid("gtceu:sulfuric_acid", 100))
+                    .outputFluids(Dsl.fluid("gtceu:shiny_oil", 950))
+                    .outputFluids(Dsl.fluid("gtceu:diluted_sulfuric_acid", 100))
+                    .duration(160)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:impure_oil_wash", e);
+        }
+        try {
+            Dsl.gt(out, "mixer", "af9:shiny_oil_desalting")
+                    .inputFluids(Dsl.fluid("gtceu:shiny_oil", 1000), Dsl.fluid("gtceu:distilled_water", 100))
+                    .itemOutputs("gtceu:salt_dust")
+                    .outputFluids(Dsl.fluid("gtceu:desalted_oil", 1000))
+                    .duration(160)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:shiny_oil_desalting", e);
+        }
+        try {
+            Dsl.gt(out, "distillation_tower", "af9:desalted_oil_distillation")
+                    .inputFluids(Dsl.fluid("gtceu:desalted_oil", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:refinery_gas", 150), Dsl.fluid("gtceu:naphtha", 250), Dsl.fluid("gtceu:diesel", 200), Dsl.fluid("gtceu:oil", 200), Dsl.fluid("gtceu:oil_heavy", 200))
+                    .duration(240)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:desalted_oil_distillation", e);
+        }
+        try {
+            Dsl.gt(out, "distillation_tower", "af9:heavy_oil_vacuum_distillation")
+                    .inputFluids(Dsl.fluid("gtceu:oil_heavy", 1000))
+                    .itemOutputs("gtceu:asphalt_dust")
+                    .outputFluids(Dsl.fluid("gtceu:diesel", 300), Dsl.fluid("gtceu:lubricant", 400))
+                    .duration(300)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:heavy_oil_vacuum_distillation", e);
+        }
+        try {
+            Dsl.gt(out, "cracker", "af9:heavy_oil_hydrocracking")
+                    .circuit(1)
+                    .inputFluids(Dsl.fluid("gtceu:oil_heavy", 1000), Dsl.fluid("gtceu:hydrogen", 800))
+                    .outputFluids(Dsl.fluid("gtceu:diesel", 1000), Dsl.fluid("gtceu:hydrogen_sulfide", 150))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:heavy_oil_hydrocracking", e);
+        }
+        try {
+            Dsl.gt(out, "distillation_tower", "af9:naphtha_splitting")
+                    .inputFluids(Dsl.fluid("gtceu:naphtha", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:light_naphtha", 600), Dsl.fluid("gtceu:heavy_naphtha", 400))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:naphtha_splitting", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:heavy_naphtha_reforming")
+                    .circuit(2)
+                    .inputFluids(Dsl.fluid("gtceu:heavy_naphtha", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:reformate", 800), Dsl.fluid("gtceu:hydrogen", 300))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:heavy_naphtha_reforming", e);
+        }
+        try {
+            Dsl.gt(out, "distillation_tower", "af9:reformate_extraction")
+                    .inputFluids(Dsl.fluid("gtceu:reformate", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:benzene", 300), Dsl.fluid("gtceu:toluene", 300), Dsl.fluid("gtceu:gasoline", 400))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:reformate_extraction", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:butane_isomerization")
+                    .inputFluids(Dsl.fluid("gtceu:butane", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:isobutane", 800), Dsl.fluid("gtceu:butane", 200))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:butane_isomerization", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:alkylation")
+                    .inputFluids(Dsl.fluid("gtceu:isobutane", 1000), Dsl.fluid("gtceu:butene", 1000), Dsl.fluid("gtceu:sulfuric_acid", 500))
+                    .outputFluids(Dsl.fluid("gtceu:alkylate", 1500), Dsl.fluid("gtceu:diluted_sulfuric_acid", 500))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:alkylation", e);
+        }
+        try {
+            Dsl.gt(out, "mixer", "af9:alkylate_blending")
+                    .inputFluids(Dsl.fluid("gtceu:alkylate", 1000), Dsl.fluid("gtceu:gasoline", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:high_octane_gasoline", 2000))
+                    .duration(100)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:alkylate_blending", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:claus_sulfur_recovery")
+                    .inputFluids(Dsl.fluid("gtceu:hydrogen_sulfide", 2000), Dsl.fluid("gtceu:oxygen", 1000))
+                    .itemOutputs("2x gtceu:sulfur_dust")
+                    .outputFluids(Dsl.fluid("minecraft:water", 2000))
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:claus_sulfur_recovery", e);
+        }
+        try {
+            Dsl.gt(out, "pyrolyse_oven", "af9:asphalt_coking")
+                    .itemInputs("gtceu:asphalt_dust")
+                    .inputFluids(Dsl.fluid("gtceu:steam", 1000))
+                    .itemOutputs("gtceu:coke_dust")
+                    .outputFluids(Dsl.fluid("gtceu:refinery_gas", 400))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:asphalt_coking", e);
+        }
+        try {
+            Dsl.gt(out, "electrolyzer", "af9:heavy_water_electrolysis")
+                    .inputFluids(Dsl.fluid("gtceu:heavy_water", 1000))
+                    .outputFluids(Dsl.fluid("gtceu:deuterium", 2000))
+                    .outputFluids(Dsl.fluid("gtceu:oxygen", 1000))
+                    .duration(400)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:heavy_water_electrolysis", e);
+        }
     }
 }

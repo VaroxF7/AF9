@@ -16,13 +16,17 @@ public final class GenAnnealedBronze {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "electric_blast_furnace", "af9:annealed_bronze/anneal")
-                .itemInputs("gtceu:bronze_ingot")
-                .inputFluids(Dsl.fluid("gtceu:nitrogen", 1000))
-                .itemOutputs("gtceu:annealed_bronze_ingot")
-                .blastFurnaceTemp(1000)
-                .duration(400)
-                .EUt(128)
-                .save();
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:annealed_bronze/anneal")
+                    .itemInputs("gtceu:bronze_ingot")
+                    .inputFluids(Dsl.fluid("gtceu:nitrogen", 1000))
+                    .itemOutputs("gtceu:annealed_bronze_ingot")
+                    .blastFurnaceTemp(1000)
+                    .duration(400)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:annealed_bronze/anneal", e);
+        }
     }
 }

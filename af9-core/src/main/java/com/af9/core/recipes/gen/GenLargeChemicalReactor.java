@@ -16,24 +16,36 @@ public final class GenLargeChemicalReactor {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "assembler", "af9:inconel_625_casing")
-                .itemInputs("6x gtceu:inconel_625_plate", "gtceu:steel_frame")
-                .itemOutputs("2x af9:inconel_625_casing")
-                .duration(100)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "assembler", "af9:inconel_718_casing")
-                .itemInputs("6x gtceu:inconel_718_plate", "gtceu:steel_frame")
-                .itemOutputs("2x af9:inconel_718_casing")
-                .duration(100)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "cutter", "af9:inconel_718_slope")
-                .itemInputs("af9:inconel_718_casing")
-                .inputFluids(Dsl.fluid("minecraft:water", 20))
-                .itemOutputs("2x af9:inconel_718_slope")
-                .duration(60)
-                .EUt(128)
-                .save();
+        try {
+            Dsl.gt(out, "assembler", "af9:inconel_625_casing")
+                    .itemInputs("6x gtceu:inconel_625_plate", "gtceu:steel_frame")
+                    .itemOutputs("2x af9:inconel_625_casing")
+                    .duration(100)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:inconel_625_casing", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:inconel_718_casing")
+                    .itemInputs("6x gtceu:inconel_718_plate", "gtceu:steel_frame")
+                    .itemOutputs("2x af9:inconel_718_casing")
+                    .duration(100)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:inconel_718_casing", e);
+        }
+        try {
+            Dsl.gt(out, "cutter", "af9:inconel_718_slope")
+                    .itemInputs("af9:inconel_718_casing")
+                    .inputFluids(Dsl.fluid("minecraft:water", 20))
+                    .itemOutputs("2x af9:inconel_718_slope")
+                    .duration(60)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:inconel_718_slope", e);
+        }
     }
 }

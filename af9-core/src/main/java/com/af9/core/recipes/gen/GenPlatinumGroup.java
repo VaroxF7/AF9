@@ -16,258 +16,386 @@ public final class GenPlatinumGroup {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_cooperite")
-                .itemInputs("2x gtceu:purified_cooperite_ore", "2x gtceu:silicon_dioxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
-                .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
-                .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 2000))
-                .blastFurnaceTemp(1800)
-                .duration(400)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_chalcopyrite")
-                .itemInputs("4x gtceu:purified_chalcopyrite_ore", "2x gtceu:silicon_dioxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
-                .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
-                .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 4000))
-                .blastFurnaceTemp(1800)
-                .duration(400)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_pentlandite")
-                .itemInputs("4x gtceu:purified_pentlandite_ore", "2x gtceu:silicon_dioxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
-                .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
-                .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 4000))
-                .blastFurnaceTemp(1800)
-                .duration(400)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_bornite")
-                .itemInputs("4x gtceu:purified_bornite_ore", "2x gtceu:silicon_dioxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
-                .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
-                .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 4000))
-                .blastFurnaceTemp(1800)
-                .duration(400)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_chalcocite")
-                .itemInputs("4x gtceu:purified_chalcocite_ore", "2x gtceu:silicon_dioxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
-                .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
-                .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 3000))
-                .blastFurnaceTemp(1800)
-                .duration(400)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_tetrahedrite")
-                .itemInputs("4x gtceu:purified_tetrahedrite_ore", "2x gtceu:silicon_dioxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
-                .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
-                .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 3000))
-                .blastFurnaceTemp(1800)
-                .duration(400)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_residue_from_sludge")
-                .itemInputs("3x gtceu:platinum_group_sludge_dust")
-                .inputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 1000))
-                .itemOutputs("gtceu:pgm_leach_residue_dust")
-                .outputFluids(Dsl.fluid("gtceu:diluted_hydrochloric_acid", 1000))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_matte_leach")
-                .itemInputs("4x gtceu:pgm_matte_dust")
-                .inputFluids(Dsl.fluid("gtceu:sulfuric_acid", 4000), Dsl.fluid("gtceu:oxygen", 2000))
-                .itemOutputs("2x gtceu:pgm_leach_residue_dust")
-                .outputFluids(Dsl.fluid("gtceu:sulfuric_nickel_solution", 1000), Dsl.fluid("gtceu:sulfuric_copper_solution", 1000))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "electrolyzer", "af9:pgm_nickel_electrowinning")
-                .inputFluids(Dsl.fluid("gtceu:sulfuric_nickel_solution", 1000))
-                .itemOutputs("2x gtceu:nickel_dust")
-                .outputFluids(Dsl.fluid("gtceu:sulfuric_acid", 1000))
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "electrolyzer", "af9:pgm_copper_electrowinning")
-                .inputFluids(Dsl.fluid("gtceu:sulfuric_copper_solution", 1000))
-                .itemOutputs("2x gtceu:copper_dust")
-                .outputFluids(Dsl.fluid("gtceu:sulfuric_acid", 1000))
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_dissolution")
-                .itemInputs("8x gtceu:pgm_leach_residue_dust")
-                .inputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000), Dsl.fluid("gtceu:chlorine", 2000))
-                .itemOutputs("3x gtceu:pgm_insoluble_residue_dust")
-                .outputFluids(Dsl.fluid("gtceu:platinum_group_chloride_liquor", 6000))
-                .duration(400)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_gold_precipitation")
-                .inputFluids(Dsl.fluid("gtceu:platinum_group_chloride_liquor", 6000), Dsl.fluid("gtceu:sulfur_dioxide", 1500))
-                .itemOutputs("gtceu:gold_dust")
-                .outputFluids(Dsl.fluid("gtceu:gold_free_liquor", 6000))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_platinum_precipitation")
-                .itemInputs("8x gtceu:ammonium_chloride_dust")
-                .inputFluids(Dsl.fluid("gtceu:gold_free_liquor", 6000))
-                .itemOutputs("4x gtceu:ammonium_hexachloroplatinate_dust")
-                .outputFluids(Dsl.fluid("gtceu:palladium_filtrate", 5000))
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_platinum_calcination")
-                .itemInputs("4x gtceu:ammonium_hexachloroplatinate_dust")
-                .itemOutputs("4x gtceu:platinum_dust", "2x gtceu:ammonium_chloride_dust")
-                .outputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000))
-                .blastFurnaceTemp(1200)
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_palladium_ammination")
-                .inputFluids(Dsl.fluid("gtceu:palladium_filtrate", 5000), Dsl.fluid("gtceu:ammonia", 4000))
-                .outputFluids(Dsl.fluid("gtceu:palladium_tetraammine_solution", 8000))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_palladium_salt")
-                .inputFluids(Dsl.fluid("gtceu:palladium_tetraammine_solution", 8000), Dsl.fluid("gtceu:hydrochloric_acid", 4000))
-                .itemOutputs("3x gtceu:palladium_diammine_dichloride_dust")
-                .outputFluids(Dsl.fluid("gtceu:diluted_hydrochloric_acid", 4000))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_palladium_reduction")
-                .itemInputs("3x gtceu:palladium_diammine_dichloride_dust")
-                .inputFluids(Dsl.fluid("gtceu:hydrogen", 2000))
-                .itemOutputs("3x gtceu:palladium_dust", "6x gtceu:ammonium_chloride_dust")
-                .blastFurnaceTemp(900)
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_alkaline_fusion")
-                .itemInputs("3x gtceu:pgm_insoluble_residue_dust", "3x gtceu:sodium_hydroxide_dust", "2x gtceu:saltpeter_dust")
-                .itemOutputs("3x gtceu:pgm_fusion_cake_dust")
-                .outputFluids(Dsl.fluid("gtceu:steam", 1500))
-                .blastFurnaceTemp(1500)
-                .duration(300)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_fusion_cake_leach")
-                .itemInputs("3x gtceu:pgm_fusion_cake_dust")
-                .inputFluids(Dsl.fluid("minecraft:water", 3000))
-                .itemOutputs("2x gtceu:rhodium_iridium_oxide_dust")
-                .outputFluids(Dsl.fluid("gtceu:ruthenate_osmate_liquor", 3000))
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_tetroxide_distillate")
-                .inputFluids(Dsl.fluid("gtceu:ruthenate_osmate_liquor", 3000), Dsl.fluid("gtceu:chlorine", 3000))
-                .itemOutputs("3x gtceu:salt_dust")
-                .outputFluids(Dsl.fluid("gtceu:platinum_group_tetroxide_vapour", 2000))
-                .duration(300)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "distillation_tower", "af9:pgm_tetroxide_separation")
-                .inputFluids(Dsl.fluid("gtceu:platinum_group_tetroxide_vapour", 2000))
-                .outputFluids(Dsl.fluid("gtceu:ruthenium_tetroxide_vapour", 1000), Dsl.fluid("gtceu:osmium_tetroxide_vapour", 1000))
-                .duration(300)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_ruthenium_salt")
-                .itemInputs("2x gtceu:ammonium_chloride_dust")
-                .inputFluids(Dsl.fluid("gtceu:ruthenium_tetroxide_vapour", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 6000))
-                .itemOutputs("gtceu:ammonium_hexachlororuthenate_dust")
-                .outputFluids(Dsl.fluid("gtceu:chlorine", 2000), Dsl.fluid("minecraft:water", 4000))
-                .duration(300)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_ruthenium_reduction")
-                .itemInputs("gtceu:ammonium_hexachlororuthenate_dust")
-                .inputFluids(Dsl.fluid("gtceu:hydrogen", 4000))
-                .itemOutputs("gtceu:ruthenium_dust", "2x gtceu:ammonium_chloride_dust")
-                .outputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000))
-                .blastFurnaceTemp(1200)
-                .duration(300)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_osmium_salt")
-                .itemInputs("2x gtceu:ammonium_chloride_dust")
-                .inputFluids(Dsl.fluid("gtceu:osmium_tetroxide_vapour", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 6000), Dsl.fluid("gtceu:ethanol", 1000))
-                .itemOutputs("gtceu:ammonium_hexachloroosmate_dust")
-                .outputFluids(Dsl.fluid("minecraft:water", 2000))
-                .duration(300)
-                .EUt(8192)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_osmium_reduction")
-                .itemInputs("gtceu:ammonium_hexachloroosmate_dust")
-                .inputFluids(Dsl.fluid("gtceu:hydrogen", 4000))
-                .itemOutputs("gtceu:osmium_dust", "2x gtceu:ammonium_chloride_dust")
-                .outputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000))
-                .blastFurnaceTemp(1300)
-                .duration(300)
-                .EUt(8192)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_rhodium_iridium_chlorination")
-                .itemInputs("2x gtceu:rhodium_iridium_oxide_dust")
-                .inputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000), Dsl.fluid("gtceu:chlorine", 2000))
-                .outputFluids(Dsl.fluid("gtceu:rhodium_iridium_chloride_liquor", 4000))
-                .duration(400)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_iridium_precipitation")
-                .itemInputs("3x gtceu:ammonium_chloride_dust")
-                .inputFluids(Dsl.fluid("gtceu:rhodium_iridium_chloride_liquor", 4000), Dsl.fluid("gtceu:nitric_acid", 500))
-                .itemOutputs("gtceu:ammonium_hexachloroiridate_dust")
-                .outputFluids(Dsl.fluid("gtceu:rhodium_chloride_filtrate", 3000))
-                .duration(300)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "electric_blast_furnace", "af9:pgm_iridium_reduction")
-                .itemInputs("gtceu:ammonium_hexachloroiridate_dust")
-                .inputFluids(Dsl.fluid("gtceu:hydrogen", 4000))
-                .itemOutputs("gtceu:iridium_dust", "2x gtceu:ammonium_chloride_dust")
-                .outputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000))
-                .blastFurnaceTemp(1300)
-                .duration(300)
-                .EUt(8192)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_rhodium_nitrite")
-                .itemInputs("3x gtceu:sodium_nitrite_dust")
-                .inputFluids(Dsl.fluid("gtceu:rhodium_chloride_filtrate", 3000))
-                .itemOutputs("gtceu:sodium_hexanitritorhodate_dust")
-                .outputFluids(Dsl.fluid("gtceu:diluted_hydrochloric_acid", 3000))
-                .duration(300)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_rhodium_chloride")
-                .itemInputs("gtceu:sodium_hexanitritorhodate_dust")
-                .inputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 6000))
-                .itemOutputs("3x gtceu:salt_dust")
-                .outputFluids(Dsl.fluid("gtceu:rhodium_trichloride_solution", 1000), Dsl.fluid("gtceu:nitrogen_dioxide", 3000))
-                .duration(300)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "chemical_reactor", "af9:pgm_rhodium_cementation")
-                .itemInputs("2x gtceu:zinc_dust")
-                .inputFluids(Dsl.fluid("gtceu:rhodium_trichloride_solution", 1000))
-                .itemOutputs("gtceu:rhodium_dust", "2x gtceu:zinc_chloride_dust")
-                .duration(200)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "electrolyzer", "af9:zinc_chloride_electrolysis")
-                .itemInputs("2x gtceu:zinc_chloride_dust")
-                .itemOutputs("2x gtceu:zinc_dust")
-                .outputFluids(Dsl.fluid("gtceu:chlorine", 2000))
-                .duration(200)
-                .EUt(128)
-                .save();
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_cooperite")
+                    .itemInputs("2x gtceu:purified_cooperite_ore", "2x gtceu:silicon_dioxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
+                    .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
+                    .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 2000))
+                    .blastFurnaceTemp(1800)
+                    .duration(400)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_matte_from_cooperite", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_chalcopyrite")
+                    .itemInputs("4x gtceu:purified_chalcopyrite_ore", "2x gtceu:silicon_dioxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
+                    .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
+                    .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 4000))
+                    .blastFurnaceTemp(1800)
+                    .duration(400)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_matte_from_chalcopyrite", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_pentlandite")
+                    .itemInputs("4x gtceu:purified_pentlandite_ore", "2x gtceu:silicon_dioxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
+                    .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
+                    .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 4000))
+                    .blastFurnaceTemp(1800)
+                    .duration(400)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_matte_from_pentlandite", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_bornite")
+                    .itemInputs("4x gtceu:purified_bornite_ore", "2x gtceu:silicon_dioxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
+                    .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
+                    .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 4000))
+                    .blastFurnaceTemp(1800)
+                    .duration(400)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_matte_from_bornite", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_chalcocite")
+                    .itemInputs("4x gtceu:purified_chalcocite_ore", "2x gtceu:silicon_dioxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
+                    .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
+                    .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 3000))
+                    .blastFurnaceTemp(1800)
+                    .duration(400)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_matte_from_chalcocite", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_matte_from_tetrahedrite")
+                    .itemInputs("4x gtceu:purified_tetrahedrite_ore", "2x gtceu:silicon_dioxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:oxygen", 4000))
+                    .itemOutputs("8x gtceu:pgm_matte_dust", "2x gtceu:dark_ash_dust")
+                    .outputFluids(Dsl.fluid("gtceu:sulfur_dioxide", 3000))
+                    .blastFurnaceTemp(1800)
+                    .duration(400)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_matte_from_tetrahedrite", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_residue_from_sludge")
+                    .itemInputs("3x gtceu:platinum_group_sludge_dust")
+                    .inputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 1000))
+                    .itemOutputs("gtceu:pgm_leach_residue_dust")
+                    .outputFluids(Dsl.fluid("gtceu:diluted_hydrochloric_acid", 1000))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_residue_from_sludge", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_matte_leach")
+                    .itemInputs("4x gtceu:pgm_matte_dust")
+                    .inputFluids(Dsl.fluid("gtceu:sulfuric_acid", 4000), Dsl.fluid("gtceu:oxygen", 2000))
+                    .itemOutputs("2x gtceu:pgm_leach_residue_dust")
+                    .outputFluids(Dsl.fluid("gtceu:sulfuric_nickel_solution", 1000), Dsl.fluid("gtceu:sulfuric_copper_solution", 1000))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_matte_leach", e);
+        }
+        try {
+            Dsl.gt(out, "electrolyzer", "af9:pgm_nickel_electrowinning")
+                    .inputFluids(Dsl.fluid("gtceu:sulfuric_nickel_solution", 1000))
+                    .itemOutputs("2x gtceu:nickel_dust")
+                    .outputFluids(Dsl.fluid("gtceu:sulfuric_acid", 1000))
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_nickel_electrowinning", e);
+        }
+        try {
+            Dsl.gt(out, "electrolyzer", "af9:pgm_copper_electrowinning")
+                    .inputFluids(Dsl.fluid("gtceu:sulfuric_copper_solution", 1000))
+                    .itemOutputs("2x gtceu:copper_dust")
+                    .outputFluids(Dsl.fluid("gtceu:sulfuric_acid", 1000))
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_copper_electrowinning", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_dissolution")
+                    .itemInputs("8x gtceu:pgm_leach_residue_dust")
+                    .inputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000), Dsl.fluid("gtceu:chlorine", 2000))
+                    .itemOutputs("3x gtceu:pgm_insoluble_residue_dust")
+                    .outputFluids(Dsl.fluid("gtceu:platinum_group_chloride_liquor", 6000))
+                    .duration(400)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_dissolution", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_gold_precipitation")
+                    .inputFluids(Dsl.fluid("gtceu:platinum_group_chloride_liquor", 6000), Dsl.fluid("gtceu:sulfur_dioxide", 1500))
+                    .itemOutputs("gtceu:gold_dust")
+                    .outputFluids(Dsl.fluid("gtceu:gold_free_liquor", 6000))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_gold_precipitation", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_platinum_precipitation")
+                    .itemInputs("8x gtceu:ammonium_chloride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:gold_free_liquor", 6000))
+                    .itemOutputs("4x gtceu:ammonium_hexachloroplatinate_dust")
+                    .outputFluids(Dsl.fluid("gtceu:palladium_filtrate", 5000))
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_platinum_precipitation", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_platinum_calcination")
+                    .itemInputs("4x gtceu:ammonium_hexachloroplatinate_dust")
+                    .itemOutputs("4x gtceu:platinum_dust", "2x gtceu:ammonium_chloride_dust")
+                    .outputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000))
+                    .blastFurnaceTemp(1200)
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_platinum_calcination", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_palladium_ammination")
+                    .inputFluids(Dsl.fluid("gtceu:palladium_filtrate", 5000), Dsl.fluid("gtceu:ammonia", 4000))
+                    .outputFluids(Dsl.fluid("gtceu:palladium_tetraammine_solution", 8000))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_palladium_ammination", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_palladium_salt")
+                    .inputFluids(Dsl.fluid("gtceu:palladium_tetraammine_solution", 8000), Dsl.fluid("gtceu:hydrochloric_acid", 4000))
+                    .itemOutputs("3x gtceu:palladium_diammine_dichloride_dust")
+                    .outputFluids(Dsl.fluid("gtceu:diluted_hydrochloric_acid", 4000))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_palladium_salt", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_palladium_reduction")
+                    .itemInputs("3x gtceu:palladium_diammine_dichloride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:hydrogen", 2000))
+                    .itemOutputs("3x gtceu:palladium_dust", "6x gtceu:ammonium_chloride_dust")
+                    .blastFurnaceTemp(900)
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_palladium_reduction", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_alkaline_fusion")
+                    .itemInputs("3x gtceu:pgm_insoluble_residue_dust", "3x gtceu:sodium_hydroxide_dust", "2x gtceu:saltpeter_dust")
+                    .itemOutputs("3x gtceu:pgm_fusion_cake_dust")
+                    .outputFluids(Dsl.fluid("gtceu:steam", 1500))
+                    .blastFurnaceTemp(1500)
+                    .duration(300)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_alkaline_fusion", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_fusion_cake_leach")
+                    .itemInputs("3x gtceu:pgm_fusion_cake_dust")
+                    .inputFluids(Dsl.fluid("minecraft:water", 3000))
+                    .itemOutputs("2x gtceu:rhodium_iridium_oxide_dust")
+                    .outputFluids(Dsl.fluid("gtceu:ruthenate_osmate_liquor", 3000))
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_fusion_cake_leach", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_tetroxide_distillate")
+                    .inputFluids(Dsl.fluid("gtceu:ruthenate_osmate_liquor", 3000), Dsl.fluid("gtceu:chlorine", 3000))
+                    .itemOutputs("3x gtceu:salt_dust")
+                    .outputFluids(Dsl.fluid("gtceu:platinum_group_tetroxide_vapour", 2000))
+                    .duration(300)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_tetroxide_distillate", e);
+        }
+        try {
+            Dsl.gt(out, "distillation_tower", "af9:pgm_tetroxide_separation")
+                    .inputFluids(Dsl.fluid("gtceu:platinum_group_tetroxide_vapour", 2000))
+                    .outputFluids(Dsl.fluid("gtceu:ruthenium_tetroxide_vapour", 1000), Dsl.fluid("gtceu:osmium_tetroxide_vapour", 1000))
+                    .duration(300)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_tetroxide_separation", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_ruthenium_salt")
+                    .itemInputs("2x gtceu:ammonium_chloride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:ruthenium_tetroxide_vapour", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 6000))
+                    .itemOutputs("gtceu:ammonium_hexachlororuthenate_dust")
+                    .outputFluids(Dsl.fluid("gtceu:chlorine", 2000), Dsl.fluid("minecraft:water", 4000))
+                    .duration(300)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_ruthenium_salt", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_ruthenium_reduction")
+                    .itemInputs("gtceu:ammonium_hexachlororuthenate_dust")
+                    .inputFluids(Dsl.fluid("gtceu:hydrogen", 4000))
+                    .itemOutputs("gtceu:ruthenium_dust", "2x gtceu:ammonium_chloride_dust")
+                    .outputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000))
+                    .blastFurnaceTemp(1200)
+                    .duration(300)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_ruthenium_reduction", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_osmium_salt")
+                    .itemInputs("2x gtceu:ammonium_chloride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:osmium_tetroxide_vapour", 1000), Dsl.fluid("gtceu:hydrochloric_acid", 6000), Dsl.fluid("gtceu:ethanol", 1000))
+                    .itemOutputs("gtceu:ammonium_hexachloroosmate_dust")
+                    .outputFluids(Dsl.fluid("minecraft:water", 2000))
+                    .duration(300)
+                    .EUt(8192)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_osmium_salt", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_osmium_reduction")
+                    .itemInputs("gtceu:ammonium_hexachloroosmate_dust")
+                    .inputFluids(Dsl.fluid("gtceu:hydrogen", 4000))
+                    .itemOutputs("gtceu:osmium_dust", "2x gtceu:ammonium_chloride_dust")
+                    .outputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000))
+                    .blastFurnaceTemp(1300)
+                    .duration(300)
+                    .EUt(8192)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_osmium_reduction", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_rhodium_iridium_chlorination")
+                    .itemInputs("2x gtceu:rhodium_iridium_oxide_dust")
+                    .inputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000), Dsl.fluid("gtceu:chlorine", 2000))
+                    .outputFluids(Dsl.fluid("gtceu:rhodium_iridium_chloride_liquor", 4000))
+                    .duration(400)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_rhodium_iridium_chlorination", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_iridium_precipitation")
+                    .itemInputs("3x gtceu:ammonium_chloride_dust")
+                    .inputFluids(Dsl.fluid("gtceu:rhodium_iridium_chloride_liquor", 4000), Dsl.fluid("gtceu:nitric_acid", 500))
+                    .itemOutputs("gtceu:ammonium_hexachloroiridate_dust")
+                    .outputFluids(Dsl.fluid("gtceu:rhodium_chloride_filtrate", 3000))
+                    .duration(300)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_iridium_precipitation", e);
+        }
+        try {
+            Dsl.gt(out, "electric_blast_furnace", "af9:pgm_iridium_reduction")
+                    .itemInputs("gtceu:ammonium_hexachloroiridate_dust")
+                    .inputFluids(Dsl.fluid("gtceu:hydrogen", 4000))
+                    .itemOutputs("gtceu:iridium_dust", "2x gtceu:ammonium_chloride_dust")
+                    .outputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 4000))
+                    .blastFurnaceTemp(1300)
+                    .duration(300)
+                    .EUt(8192)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_iridium_reduction", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_rhodium_nitrite")
+                    .itemInputs("3x gtceu:sodium_nitrite_dust")
+                    .inputFluids(Dsl.fluid("gtceu:rhodium_chloride_filtrate", 3000))
+                    .itemOutputs("gtceu:sodium_hexanitritorhodate_dust")
+                    .outputFluids(Dsl.fluid("gtceu:diluted_hydrochloric_acid", 3000))
+                    .duration(300)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_rhodium_nitrite", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_rhodium_chloride")
+                    .itemInputs("gtceu:sodium_hexanitritorhodate_dust")
+                    .inputFluids(Dsl.fluid("gtceu:hydrochloric_acid", 6000))
+                    .itemOutputs("3x gtceu:salt_dust")
+                    .outputFluids(Dsl.fluid("gtceu:rhodium_trichloride_solution", 1000), Dsl.fluid("gtceu:nitrogen_dioxide", 3000))
+                    .duration(300)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_rhodium_chloride", e);
+        }
+        try {
+            Dsl.gt(out, "chemical_reactor", "af9:pgm_rhodium_cementation")
+                    .itemInputs("2x gtceu:zinc_dust")
+                    .inputFluids(Dsl.fluid("gtceu:rhodium_trichloride_solution", 1000))
+                    .itemOutputs("gtceu:rhodium_dust", "2x gtceu:zinc_chloride_dust")
+                    .duration(200)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:pgm_rhodium_cementation", e);
+        }
+        try {
+            Dsl.gt(out, "electrolyzer", "af9:zinc_chloride_electrolysis")
+                    .itemInputs("2x gtceu:zinc_chloride_dust")
+                    .itemOutputs("2x gtceu:zinc_dust")
+                    .outputFluids(Dsl.fluid("gtceu:chlorine", 2000))
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:zinc_chloride_electrolysis", e);
+        }
     }
 }

@@ -16,40 +16,60 @@ public final class GenCwuServer {
     }
 
     private static void part0(Consumer<FinishedRecipe> out) {
-        Dsl.gt(out, "assembler", "af9:lv_cwu_server")
-                .itemInputs("gtceu:lv_machine_hull", "4x #gtceu:circuits/lv", "2x gtceu:tin_single_cable")
-                .inputFluids(Dsl.fluid("gtceu:tin", 144))
-                .itemOutputs("gtceu:lv_cwu_server")
-                .duration(200)
-                .EUt(32)
-                .save();
-        Dsl.gt(out, "assembler", "af9:mv_cwu_server")
-                .itemInputs("gtceu:mv_machine_hull", "2x #gtceu:circuits/mv", "2x af9:apu_chip", "4x gtceu:ram_chip", "2x gtceu:fine_borosilicate_glass_wire")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 144))
-                .itemOutputs("gtceu:mv_cwu_server")
-                .duration(200)
-                .EUt(128)
-                .save();
-        Dsl.gt(out, "assembler", "af9:hv_cwu_server")
-                .itemInputs("gtceu:hv_machine_hull", "2x #gtceu:circuits/hv", "4x af9:apu_chip", "8x gtceu:ram_chip", "2x af9:asic_chip", "2x gtceu:fine_borosilicate_glass_wire")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 288))
-                .itemOutputs("gtceu:hv_cwu_server")
-                .duration(200)
-                .EUt(512)
-                .save();
-        Dsl.gt(out, "assembler", "af9:ev_cwu_server")
-                .itemInputs("gtceu:ev_machine_hull", "2x #gtceu:circuits/ev", "8x af9:apu_chip", "16x gtceu:ram_chip", "4x af9:asic_chip", "4x gtceu:fine_borosilicate_glass_wire")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 432))
-                .itemOutputs("gtceu:ev_cwu_server")
-                .duration(200)
-                .EUt(2048)
-                .save();
-        Dsl.gt(out, "assembler", "af9:iv_cwu_server")
-                .itemInputs("gtceu:iv_machine_hull", "2x #gtceu:circuits/iv", "8x af9:apu_chip", "4x af9:edram_chip", "4x af9:mram_chip", "8x af9:asic_chip", "4x gtceu:fine_borosilicate_glass_wire")
-                .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
-                .itemOutputs("gtceu:iv_cwu_server")
-                .duration(200)
-                .EUt(8192)
-                .save();
+        try {
+            Dsl.gt(out, "assembler", "af9:lv_cwu_server")
+                    .itemInputs("gtceu:lv_machine_hull", "4x #gtceu:circuits/lv", "2x gtceu:tin_single_cable")
+                    .inputFluids(Dsl.fluid("gtceu:tin", 144))
+                    .itemOutputs("gtceu:lv_cwu_server")
+                    .duration(200)
+                    .EUt(32)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:lv_cwu_server", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:mv_cwu_server")
+                    .itemInputs("gtceu:mv_machine_hull", "2x #gtceu:circuits/mv", "2x af9:apu_chip", "4x gtceu:ram_chip", "2x gtceu:fine_borosilicate_glass_wire")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 144))
+                    .itemOutputs("gtceu:mv_cwu_server")
+                    .duration(200)
+                    .EUt(128)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:mv_cwu_server", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:hv_cwu_server")
+                    .itemInputs("gtceu:hv_machine_hull", "2x #gtceu:circuits/hv", "4x af9:apu_chip", "8x gtceu:ram_chip", "2x af9:asic_chip", "2x gtceu:fine_borosilicate_glass_wire")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 288))
+                    .itemOutputs("gtceu:hv_cwu_server")
+                    .duration(200)
+                    .EUt(512)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:hv_cwu_server", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:ev_cwu_server")
+                    .itemInputs("gtceu:ev_machine_hull", "2x #gtceu:circuits/ev", "8x af9:apu_chip", "16x gtceu:ram_chip", "4x af9:asic_chip", "4x gtceu:fine_borosilicate_glass_wire")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 432))
+                    .itemOutputs("gtceu:ev_cwu_server")
+                    .duration(200)
+                    .EUt(2048)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:ev_cwu_server", e);
+        }
+        try {
+            Dsl.gt(out, "assembler", "af9:iv_cwu_server")
+                    .itemInputs("gtceu:iv_machine_hull", "2x #gtceu:circuits/iv", "8x af9:apu_chip", "4x af9:edram_chip", "4x af9:mram_chip", "8x af9:asic_chip", "4x gtceu:fine_borosilicate_glass_wire")
+                    .inputFluids(Dsl.fluid("gtceu:soldering_alloy", 576))
+                    .itemOutputs("gtceu:iv_cwu_server")
+                    .duration(200)
+                    .EUt(8192)
+                    .save();
+        } catch (RuntimeException e) {
+            Dsl.fail("af9:iv_cwu_server", e);
+        }
     }
 }
