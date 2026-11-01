@@ -49,6 +49,9 @@
     "af9:dtpf_module_casing",
     "af9:dtpf_transcendent_casing",
     "af9:dtpf_injection_casing",
-    "af9:dtpf_bridge_casing"
+    "af9:dtpf_bridge_casing",
+    "af9:inconel_625_casing",
+    "af9:inconel_718_casing",
+    "af9:inconel_718_slope"
   ]
 }

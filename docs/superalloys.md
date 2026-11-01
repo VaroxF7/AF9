@@ -56,3 +56,27 @@ brackets, rounded to the 20 parts.
 | Inconel 718 | bronze brown | amber temper speckles |
 | Hastelloy | crimson | silver rivet dots |
 | Inconel 738 | charcoal | orange casting glints, cross-hatch |
+
+## Large Chemical Reactor structure (2026-11-01, af9-core 0.1.243)
+
+Janne's 11 x 3 x 3 barrel (`chemreac.nbt`) replaces GT's 3 x 3 x 3 cross; machine, recipes, fab modes and hatch rules are unchanged
+(`kubejs/startup_scripts/gtceu/large_chemical_reactor.js` swaps the pattern after the registries fill, like the Void Miner MK1).
+Three blocks in the colours of the alloys, all GT's Inert PTFE casing recoloured (`tools/textures/lcr_casings.py`):
+
+| block | where | recipe |
+|---|---|---|
+| `af9:inconel_625_casing` (teal steel) | the end plate | assembler, 6 Inconel 625 plates + steel frame, HV |
+| `af9:inconel_718_casing` (bronze brown) | the barrel's shell | assembler, 6 Inconel 718 plates + steel frame, EV |
+| `af9:inconel_718_slope` | the four long corners of the barrel | cutter, 1 Inconel 718 casing -> 2 slopes |
+
+Structure (aisles back to front, rows bottom to top; R 625 casing, X Inert PTFE casing, B 718 casing, L slope, C coil, P PTFE pipe casing):
+
+```
+RXLLLLLLXXX / RXBBBBBBXXX / RXLLLLLLXXX
+#XBBBBBBXPX / RXCCCCCCX#X / #XBBBBBBXPX
+RXLLLLLLXXX / RXBBBBBBXSX / RXLLLLLLXXX
+```
+
+Hatches go in the Inert PTFE casings (at least 10 of them, as before); the six coils may be any one heating coil type (GT's LCR has
+no coil bonus). The slope is a stair-placed triangle prism (`SlopeBlock`: `facing` = the wall's side, `half` = flat side) and matches in
+any state.

@@ -148,6 +148,12 @@ public final class AF9Blocks {
         // the casing of the hall's six module slots (Inconel 738; textures: tools/textures/dtpf_modules.py)
         block("dtpf_module_casing", SoundType.METAL, 12F, 0, 0);
 
+        // ---- Large Chemical Reactor: the Inert PTFE casing in the colours of Inconel 625 (the end plate) and Inconel 718 (the
+        // barrel), and the 718 slope that rounds the barrel's corners (textures: tools/textures/lcr_casings.py) ----
+        block("inconel_625_casing", SoundType.METAL, 12F, 0, 0);
+        block("inconel_718_casing", SoundType.METAL, 12F, 0, 0);
+        slope("inconel_718_slope", SoundType.METAL, 12F);
+
         for (int tier = 1; tier <= MOTORS; tier++) block(MOTOR + tier, SoundType.METAL, 12F, 0, 2);
         // the Mining Modules are machines now (gtceu:space_mining_module_mk1 to mk3, SpaceModuleMachine)
     }
@@ -165,6 +171,12 @@ public final class AF9Blocks {
         RegistryObject<Block> block = BLOCKS.register(id, () -> new Block(properties(sound, resistance, light)));
         withItem(id, block, tooltipLines);
         return block;
+    }
+
+    /** A slope block ({@link SlopeBlock}) and its item. */
+    private static void slope(String id, SoundType sound, float resistance) {
+        RegistryObject<Block> block = BLOCKS.register(id, () -> new SlopeBlock(properties(sound, resistance, 0)));
+        withItem(id, block, 0);
     }
 
     /** A casing that lights up while its machine runs (GT switches the {@code active} state of every such block in a structure). */
