@@ -44,17 +44,17 @@ const LCR_PREVIEW_AISLES = [
 
 StartupEvents.postInit(event => {
     try {
-        const lcr = $LcrRegistries.MACHINES.get(new $LcrResourceLocation('gtceu', 'large_chemical_reactor'))
-        const slopeState = (half, facing) => Block.getBlock('af9:inconel_718_slope').defaultBlockState()
+        var lcr = $LcrRegistries.MACHINES.get(new $LcrResourceLocation('gtceu', 'large_chemical_reactor'))
+        var slopeState = (half, facing) => Block.getBlock('af9:inconel_718_slope').defaultBlockState()
             .setValue($LcrSlope.HALF, half).setValue($LcrSlope.FACING, facing)
 
         // GT's own parts, as in the original: the casings (at least 10) take the hatches of the recipe types and a maintenance
         // hatch; the coil is any heating coil
-        const casing = () => Predicates.blocks('gtceu:inert_machine_casing').setMinGlobalLimited(10)
-        const abilities = () => Predicates.autoAbilities(lcr.getRecipeTypes())
+        var casing = () => Predicates.blocks('gtceu:inert_machine_casing').setMinGlobalLimited(10)
+        var abilities = () => Predicates.autoAbilities(lcr.getRecipeTypes())
             .or(Predicates.autoAbilities(true, false, false))
-        const pattern = () => {
-            let builder = FactoryBlockPattern.start()
+        var pattern = () => {
+            var builder = FactoryBlockPattern.start()
             LCR_AISLES.forEach(aisle => { builder = builder.aisle(aisle) })
             return builder
                 .where('S', Predicates.controller(Predicates.blocks(lcr.get())))
@@ -67,16 +67,16 @@ StartupEvents.postInit(event => {
                 .where('#', Predicates.air())
                 .build()
         }
-        let cached = null
+        var cached = null
         lcr.setPatternFactory(() => {
             if (cached === null) cached = pattern()
             return cached
         })
 
         lcr.setShapes(() => {
-            let builder = FactoryBlockPattern.start()
+            var builder = FactoryBlockPattern.start()
             LCR_PREVIEW_AISLES.forEach(aisle => { builder = builder.aisle(aisle) })
-            const preview = builder
+            var preview = builder
                 .where('S', Predicates.controller(Predicates.blocks(lcr.get())))
                 .where('X', Predicates.blocks('gtceu:inert_machine_casing'))
                 .where('R', Predicates.blocks('af9:inconel_625_casing'))
