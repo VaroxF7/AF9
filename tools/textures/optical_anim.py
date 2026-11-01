@@ -120,5 +120,50 @@ def preview(out):
     gif[0].save(out, save_all=True, append_images=gif[1:], duration=110, loop=0)
 
 
+
+
+def write(style=3, frametime=4):
+    """the final textures: 16-frame vertical strips + .mcmeta for the wafer family (damage of the old textures copied on)"""
+    import json
+    import os
+    import optical_wafers_paths as paths
+    item, src = paths.ITEM, paths.SRC
+    old = {f: Image.open(os.path.join(src, f + '.png')).convert('RGBA') for f in paths.FILES}
+
+    def damage(base, clean, dmg):
+        out = base.copy()
+        for y in range(16):
+            for x in range(16):
+                if dmg.getpixel((x, y)) != clean.getpixel((x, y)) and dmg.getpixel((x, y))[3]:
+                    out.putpixel((x, y), dmg.getpixel((x, y)))
+        return out
+
+    jobs = {}   # texture -> list of frames
+    for f in range(N):
+        base = frame(style, 'wafer', None, f)
+        jobs.setdefault('wafers/transmuted_neutronium_wafer', []).append(base)
+        for dmg in ('broken', 'contaminated'):
+            jobs.setdefault(f'wafers/{dmg}_transmuted_neutronium_wafer', []).append(damage(
+                base, old['wafers/transmuted_neutronium_wafer'], old[f'wafers/{dmg}_transmuted_neutronium_wafer']))
+        for name in ('tpu', 'memristor'):
+            chip = frame(style, 'chip', name, f)
+            jobs.setdefault(f'wafers/{name}_wafer', []).append(frame(style, 'wafer', name, f))
+            jobs.setdefault(f'chips/{name}_chip', []).append(chip)
+            jobs.setdefault(f'chips/contaminated_{name}_chip', []).append(
+                damage(chip, old[f'chips/{name}_chip'], old[f'chips/contaminated_{name}_chip']))
+    for tex, frames in jobs.items():
+        strip = Image.new('RGBA', (16, 16 * N))
+        for i, fr in enumerate(frames):
+            strip.paste(fr, (0, 16 * i))
+        strip.save(os.path.join(item, tex + '.png'))
+        with open(os.path.join(item, tex + '.png.mcmeta'), 'w', newline='\n') as m:
+            json.dump({'animation': {'frametime': frametime}}, m)
+            m.write('\n')
+        print('wrote', tex)
+
+
 if __name__ == '__main__':
-    preview(sys.argv[1])
+    if sys.argv[1] == '--write':
+        write()
+    else:
+        preview(sys.argv[1])
