@@ -1,13 +1,13 @@
 # The Dimensionally Transcendent Plasma Forge (DTPF)
 
 After GTNH's: a vast hall that forges plasma into matter. The machine is `gtceu:dtpf` (af9-core `PlasmaForgeMachine`; the
-structure and the machine definition in `kubejs/startup_scripts/gtceu/dtpf.js`; the recipes in
+structure and the machine definition in `af9-core/src/main/java/com/af9/core/startup/machines/Dtpf.java`; the recipes in
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenDtpf.java`). The structure is AF9's own design, not a copy of GTNH's.
 
 ## 1. The structure (43 x 13 x 11): a beam hall
 
 Janne's own build, taken 1:1 from the structure he exported from his world (`dtpf.nbt`) and written into
-`kubejs/startup_scripts/gtceu/dtpf.js` as `DTPF_AISLES`: 43 plates, back to front, each a hand-written grid of characters
+`af9-core/src/main/java/com/af9/core/startup/machines/Dtpf.java` as `DTPF_AISLES`: 43 plates, back to front, each a hand-written grid of characters
 (no maths, no loops). 587 blocks, 11 wide, 13 high, 43 long. The first hall (a 21 x 22 x 45 forge line) and the second (a
 37 x 29 x 37 skeleton) are gone. From the front, where the controller is:
 

@@ -54,7 +54,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Dimensionally Transcendent Plasma Forge (structure and recipes in KubeJS: {@code startup_scripts/gtceu/dtpf.js},
+ * The Dimensionally Transcendent Plasma Forge (structure and recipes in KubeJS: {@code af9-core/src/main/java/com/af9/core/startup/machines/Dtpf.java},
  * {@code server_scripts/mods/gtceu/dtpf.js}), after GTNH's: a vast hall that forges plasma into matter. What it keeps
  * from the original is the running-time ramp: the longer it runs without a pause, the cheaper and the faster it forges
  * ({@link #RAMP}: up to {@value #ENERGY_PERCENT} % less EU/t and {@value #TIME_PERCENT} % shorter runs after

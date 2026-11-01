@@ -315,7 +315,7 @@ def main(path):
         lb = dm.end() - 1
         rb = scan_balanced(src, lb, '[', ']')
         raw = src[lb:rb]
-        nested = raw[1:].lstrip().startswith('[')
+        nested = re.sub(r'//[^\n]*', '', raw[1:]).lstrip().startswith('[')
         jv = convert_strings(raw.replace('[', '{').replace(']', '}'))
         fields.append('    private static final String%s %s = %s;' % ('[][]' if nested else '[]', dm.group(1), jv))
         src = src[:dm.start()] + src[rb:]

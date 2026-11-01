@@ -26,7 +26,7 @@ import java.util.List;
  * buffer, as GTNH's modules do. A module the motors do not power (a tier above the motors', or more modules than the motors have
  * slots for) stays dark.
  * <p>
- * Made in KubeJS ({@code startup_scripts/gtceu/space_elevator.js}, {@code gtceu:space_mining_module_mk1} to {@code mk3}); the tier
+ * Made in KubeJS ({@code af9-core/src/main/java/com/af9/core/startup/machines/SpaceElevator.java}, {@code gtceu:space_mining_module_mk1} to {@code mk3}); the tier
  * is the machine's own.
  */
 public class SpaceModuleMachine extends SpaceMissionMachine {

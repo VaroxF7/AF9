@@ -8,7 +8,7 @@ Code: `af9-core` `com.af9.core.elevator` (`SpaceElevatorMachine`: the missions, 
 drone slot, what it lacks; `OreCatalog`: GT's ores and veins; `PlanetCatalog`: the planets' fluids; `ClimberRide`: the climber's rides),
 `com.af9.core.machine.console.SpaceElevatorConsoleWidget`
 (its screen) and `com.af9.core.client.render.SpaceElevatorRender` (the cable and the climber). KubeJS:
-`kubejs/startup_scripts/gtceu/space_elevator.js` (blocks, drones, the two recipe types, the machine and its structure),
+`af9-core/src/main/java/com/af9/core/startup/machines/SpaceElevator.java` (blocks, drones, the two recipe types, the machine and its structure),
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenSpaceElevator.java` (crafting and the expeditions), `af9-core/src/main/java/com/af9/core/recipes/HandRecipes.java` (pumping).
 
 ## 0. The modules are machines of their own (sub-multiblocks)

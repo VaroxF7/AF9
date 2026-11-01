@@ -97,7 +97,7 @@ import java.util.stream.IntStream;
  * powers them from its energy hatches and lets them fly expeditions. The modules have the drone, the hydrogen and coolant
  * hatches and the output of the missions ({@link SpaceMissionMachine}).
  * <p>
- * The structure is GTNH's (the startup script {@code startup_scripts/gtceu/space_elevator.js} holds it): its blocks
+ * The structure is GTNH's (the startup script {@code af9-core/src/main/java/com/af9/core/startup/machines/SpaceElevator.java} holds it): its blocks
  * with rules of their own are checked here. The {@link #motors() motors} round the shaft are all of one tier, the
  * elevator's; the {@link #cable() cable} block on top of the shaft needs open sky above it; the module slots hold
  * {@link #modules() Mining Modules}. It has GTNH's two sizes: the basic tower, and the extended one with a ring round

@@ -522,9 +522,11 @@ function javaStartup() {
                 else if (c === '{') d++; else if (c === '}') d--
             }
             const body = src.slice(hre.lastIndex, k - 1).trim()
-            if (!/^return\s/.test(body) || /;(?=[\s\S])/.test(body.replace(/"(?:\\.|[^"\\])*"/g, '""').replace(/;$/, ''))) continue
+            // a body that is valid JavaScript once Java's `->` and casts are converted (var locals, calls, one return)
             const params = hm[2].split(',').map(x => x.trim().split(/\s+/).pop()).filter(Boolean)
-            helpers[hm[1]] = { params, body: body.replace(/^return\s+/, '').replace(/;$/, '') }
+            const jsBody = javaToJs(body)
+            try { new Function(...params, jsBody) } catch (e) { continue }
+            helpers[hm[1]] = { params, body: jsBody }
         }
         // file-level `static final T[][] NAME = { ... };` data (read as JS arrays) and `static final int/String NAME = x;`
         const consts = {}
@@ -569,7 +571,7 @@ function javaStartup() {
             for (const loopVars of loops) {
             const extra = {
                 ...consts,
-                ...Object.fromEntries(Object.entries(helpers).map(([name, h]) => [name, (...args) => { const sc = new Proxy({ ...Object.fromEntries(h.params.map((p, i) => [p, args[i]])) }, { has: (t, key) => typeof key === 'string' && (key in t || key in extra || !(key in ctx) && !builtin.has(key)), get: (t, key) => key === Symbol.unscopables ? undefined : (key in t ? t[key] : key in extra ? extra[key] : key in ctx ? ctx[key] : named(String(key))) }); ctx.__hscope = sc; return vm.runInContext('(function () { with (__hscope) { return ' + javaToJs(h.body) + ' } })()', vmctx) }])),
+                ...Object.fromEntries(Object.entries(helpers).map(([name, h]) => [name, (...args) => { const sc = new Proxy({ ...Object.fromEntries(h.params.map((p, i) => [p, args[i]])) }, { has: (t, key) => typeof key === 'string' && (key in t || key in extra || !(key in ctx) && !builtin.has(key)), get: (t, key) => key === Symbol.unscopables ? undefined : (key in t ? t[key] : key in extra ? extra[key] : key in ctx ? ctx[key] : named(String(key))) }); ctx.__hscope = sc; return vm.runInContext('(function () { with (__hscope) { ' + h.body + ' } })()', vmctx) }])),
                 ...loopVars,
                 AF9Machines: {
                     type: x => x, blocks: (...ids) => Predicates.blocks(...ids), block: id => id, blockSupplier: id => () => id,
