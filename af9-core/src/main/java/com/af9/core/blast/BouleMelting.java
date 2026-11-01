@@ -21,7 +21,7 @@ import java.util.Arrays;
 
 /**
  * Boule Melting: a second machine mode for GT's Electric Blast Furnace (recipe type gtceu:boule_melting, defined in
- * kubejs/startup_scripts/gtceu/boule_melting.js). The Czochralski pullers that grow the substrate boules: melt
+ * af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java). The Czochralski pullers that grow the substrate boules: melt
  * charges, a seed crystal and a crucible, under a protective gas, at the EBF's coil temperature and overclocks.
  * <p>
  * The Endion coils give this mode a bonus (on top of their temperature): Endion Coil Blocks run it 25 % faster with up

@@ -5,16 +5,6 @@
 
 const $StagedAssemblyMachine = Java.loadClass('com.af9.core.machine.StagedAssemblyMachine')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    event.create('staged_assembly')
-        .category('multiblock')
-        .setEUIO('in')
-        // the merged recipe (all stages) has to fit; one stage never needs more than a bus or two
-        .setMaxIOSize(9, 2, 4, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ASSEMBLER)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []

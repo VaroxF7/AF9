@@ -18,19 +18,6 @@
 const $AgriSimMachine = Java.loadClass('com.af9.core.machine.AgriSimMachine')
 const $AgriSimModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // one seed (not a pack's circuit), water; the crop's yield and the seed back
-    ;['agri_sim_elemental', 'agri_sim_tier2', 'agri_sim_tier3', 'agri_sim_tier4', 'agri_sim_tier5',
-        'agri_sim_crops'].forEach(id => {
-        event.create(id)
-            .category('multiblock')
-            .setEUIO('in')
-            .setMaxIOSize(1, 2, 1, 0)
-            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-            .setSound(GTSoundEntries.CHEMICAL)
-    })
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []

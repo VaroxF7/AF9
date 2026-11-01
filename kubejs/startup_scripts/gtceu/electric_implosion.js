@@ -14,22 +14,6 @@
 const $LargeElectricImplosion = Java.loadClass('com.af9.core.machine.LargeElectricImplosionMachine')
 const $ElectricImplosionTiered = Java.loadClass('com.gregtechceu.gtceu.api.machine.SimpleTieredMachine')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // the charged recipes (no explosive, no vapor; fired from the Large machine's capacitor bank): its second mode
-    event.create('charged_implosion')
-        .setEUIO('in')
-        .setMaxIOSize(2, 2, 0, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_COMPRESS, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ARC)
-
-    // dust and a second item in, the plate (and a little residue) out, the vapor in
-    event.create('electric_implosion_compressor')
-        .setEUIO('in')
-        .setMaxIOSize(2, 2, 1, 1)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_COMPRESS, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ARC)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []

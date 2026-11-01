@@ -18,30 +18,6 @@
 // ---- The fission side machines (the reactor itself is Extreme Reactors') ----
 const $FissionMachine = Java.loadClass('com.gregtechceu.gtceu.api.machine.multiblock.CoilWorkableElectricMultiblockMachine')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // the molten-salt loop's second half: hot FLiBe and water in, steam and cooled FLiBe out (docs/nuclear-rework.md)
-    event.create('heat_exchanger')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(0, 0, 2, 2)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_BOILER_HEAT, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.BOILER)
-    // cooling decladding: spent rods and water in, decladded dusts out
-    event.create('spent_fuel_pool')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(1, 4, 1, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_BATH, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.BATH)
-    // dusts straight to clad rods in one passive step
-    event.create('fuel_fabrication')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(3, 1, 1, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ASSEMBLER)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     // ---- Heat Exchanger: the hot FLiBe of an Extreme Reactors reactor gives its heat to water ----
     // A 3 x 3 x 5 tower of the reactor's own vocabulary: stable titanium vessel, the titanium pipe casing of the

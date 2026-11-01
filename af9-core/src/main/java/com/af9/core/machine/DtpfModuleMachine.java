@@ -25,7 +25,7 @@ import java.util.Locale;
  * hall finds it ({@link PlasmaForgeMachine#modules()}), turns it to face outwards, away from the field, links it and gives its bonus
  * ({@link Kind}) to every run while the slot's casings are all in place. An empty slot is simply gone from the structure.
  * <p>
- * Made in KubeJS ({@code startup_scripts/gtceu/dtpf_modules.js}, {@code gtceu:dtpf_module_<kind>}); its recipes are the
+ * Made in KubeJS ({@code af9-core/src/main/java/com/af9/core/startup/machines/DtpfModules.java}, {@code gtceu:dtpf_module_<kind>}); its recipes are the
  * pack's.
  */
 public class DtpfModuleMachine extends MultiblockControllerMachine implements IDisplayUIMachine {

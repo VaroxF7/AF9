@@ -9,17 +9,6 @@
 
 const $AtmosphereRoomMachine = Java.loadClass('com.af9.core.machine.AtmosphereRoomMachine')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // seven item inputs: the NVM mainframe lean takes processor, rack, dies, both 7 nm
-    // calibration chips and wire (server atmospheric_simulation.js, Stage 5)
-    event.create('atmospheric_simulation')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(7, 1, 2, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ASSEMBLER)
-})
-
 // Atmospheric Simulation Room layout, precomputed ONCE at module level and reused by .pattern() (memoized).
 // SIM_AISLES is the 31x6x31 simCell table. Same cell function, just called once.
 const SIM_W = 31

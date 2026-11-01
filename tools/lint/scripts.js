@@ -35,6 +35,7 @@ const args = process.argv.slice(2)
 const root = path.resolve(args.find(a => !a.startsWith('--')) || '.')
 const asJson = args.includes('--json')
 const dump = args.includes('--dump')   // every recipe as one JSON line (for ad-hoc analysis)
+const dumpStartup = args.includes('--dump-startup')   // every machine and recipe type as one JSON line (the port's regression baseline)
 
 const read = f => fs.readFileSync(f, 'utf8')
 const lines = f => fs.existsSync(f) ? read(f).split('\n').map(s => s.trim()).filter(Boolean) : []
@@ -424,6 +425,9 @@ const creator = (kind, type, file) => ({
         const p = new Proxy({}, {
             get(_, name) {
                 if (name === 'then' || name === Symbol.toPrimitive) return undefined
+                if (name === 'tooltips') {
+                    return (...list) => { info.tooltips.push(...flat(list).map(c => c && c.key).filter(Boolean)); return p }
+                }
                 if (typeof name === 'string' && name.startsWith('tooltips(')) {
                     return list => { info.tooltips.push(...flat([list]).map(c => c && c.key).filter(Boolean)); return p }
                 }
@@ -457,6 +461,103 @@ const creator = (kind, type, file) => ({
 state.startup.forEach(([kind, type, fn, file]) => {
     try { fn(creator(kind, type, file)) } catch (e) { report('ERROR', 'S1', `${type}: ${e.message.split('\n')[0]}`, file) }
 })
+
+// ---- recipe types and machines written in Java --------------------------------------------------------------------------
+// The startup scripts moved to af9-core (com.af9.core.startup): AF9RecipeTypes lists the recipe types one call each
+// (`multi("id", items in, items out, fluids in, fluids out, ...)`), and the machine classes in startup/machines register
+// through AF9Machines.multiblock / AF9Machines.tiered. The machine calls are written in the subset of Java that is also
+// JavaScript once `->` is `=>` and `X::new` is dropped, so they run here against the same stubs the scripts used.
+function javaStartup() {
+    const dir = path.join(root, 'af9-core/src/main/java/com/af9/core/startup')
+    const typesFile = path.join(dir, 'AF9RecipeTypes.java')
+    if (fs.existsSync(typesFile)) {
+        state.currentFile = path.relative(root, typesFile).replace(/\\/g, '/')
+        const text = read(typesFile)
+        const re = /^\s*(multi|fab|litho|type)\(\s*"([^"]+)"\s*,/gm
+        let m
+        while ((m = re.exec(text))) {
+            const kind = m[1], id = m[2]
+            let depth = 1, i = re.lastIndex
+            for (; i < text.length && depth > 0; i++) { if (text[i] === '(') depth++; else if (text[i] === ')') depth-- }
+            const rest = text.slice(re.lastIndex, i - 1).split(/,(?![^(]*\))/).map(x => x.trim())
+            let io
+            if (kind === 'litho') io = [Number(rest[0]), 2, Number(rest[1]), 0]
+            else if (kind === 'type') io = rest.slice(2, 6).map(Number)
+            else io = rest.slice(0, 4).map(Number)
+            if (!io || io.length !== 4 || io.some(Number.isNaN)) { report('ERROR', 'S1', `recipe type ${id}: cannot read its slot counts`, state.currentFile); continue }
+            if (state.recipeTypes.has(id)) report('ERROR', 'S2', `recipe type ${id} is registered twice (also in ${state.recipeTypes.get(id).file})`, state.currentFile)
+            state.recipeTypes.set(id, { id, file: state.currentFile, io, flags: [], forms: new Set() })
+        }
+    }
+    const machDir = path.join(dir, 'machines')
+    if (!fs.existsSync(machDir)) return
+    const javaToJs = text => text
+        .replace(/\b[A-Za-z_]\w*::new\b/g, 'null')
+        .replace(/\(\s*([\w\s,]*?)\s*\)\s*->/g, '($1) =>')
+        .replace(/\b(\w+)\s*->/g, '$1 =>')
+        .replace(/new\s+int\s*\[\s*\]\s*\{([^}]*)\}/g, '[$1]')
+        .replace(/new\s+String\s*\[\s*\]\s*\{([^}]*)\}/g, '[$1]')
+        .replace(/\bString\.valueOf\(/g, 'String(')
+        .replace(/\b(\d+)L\b/g, '$1')
+    const builtin = new Set(['String', 'Number', 'Math', 'Array', 'Object', 'JSON', 'Boolean', 'undefined', 'NaN', 'Infinity', 'Symbol', 'parseInt', 'parseFloat'])
+    for (const f of walkDir(machDir).filter(f => f.endsWith('.java')).sort()) {
+        const src = read(f)
+        const file = path.relative(root, f).replace(/\\/g, '/')
+        state.currentFile = file
+        const head = /AF9Machines\.(multiblock|tiered)\(/g
+        let m
+        while ((m = head.exec(src))) {
+            let depth = 1, i = head.lastIndex, inStr = false, inChar = false
+            for (; i < src.length && depth > 0; i++) {
+                const ch = src[i]
+                if (inStr) { if (ch === '\\') i++; else if (ch === '"') inStr = false; continue }
+                if (inChar) { if (ch === '\\') i++; else if (ch === "'") inChar = false; continue }
+                if (src.startsWith('//', i)) { while (i < src.length && src[i] !== '\n') i++; continue }
+                if (src.startsWith('/*', i)) { i = src.indexOf('*/', i) + 1; continue }
+                if (ch === '"') inStr = true
+                else if (ch === "'") inChar = true
+                else if (ch === '(') depth++
+                else if (ch === ')') depth--
+            }
+            const argText = javaToJs(src.slice(head.lastIndex, i - 1))
+            const kind = m[1]
+            // a call inside a helper that several machines share: `// lint-loop: kind=a|b|c; name=A|B|C` in the comment before
+            // the helper makes the linter read the call once for each value (variables of that name)
+            const loopMatch = src.slice(Math.max(0, m.index - 900), m.index).match(/lint-loop:\s*([^\n]*)(?![\s\S]*lint-loop:)/)
+            const loops = []
+            if (loopMatch) {
+                const vars = loopMatch[1].split(';').map(x => x.trim()).filter(Boolean).map(x => { const [k, v] = x.split('='); return [k.trim(), v.split('|').map(y => y.trim())] })
+                const n = Math.max(...vars.map(([, v]) => v.length))
+                for (let k = 0; k < n; k++) loops.push(Object.fromEntries(vars.map(([name, v]) => [name, v[k]])))
+            } else loops.push({})
+            head.lastIndex = i
+            const make = (id, form) => creator('gtceu', 'gtceu:machine', file).create(id, form)
+            for (const loopVars of loops) {
+            const extra = {
+                ...loopVars,
+                AF9Machines: {
+                    type: x => x, blocks: (...ids) => Predicates.blocks(...ids), block: id => id, blockSupplier: id => () => id,
+                    lines: (key, n) => Array.from({ length: n }, (_, k) => ctx.Component.translatable(`${key}${k}`)), rl: x => x
+                },
+                Component: ctx.Component, GTRecipeTypes: ctx.GTRecipeTypes, Predicates, FactoryBlockPattern, GTValues,
+                __multiblock: (id, ctor, cfg) => { const p = make(id, 'multiblock'); cfg(p); return p },
+                __tiered: (id, tiers, ctor, def) => { const p = make(id, 'custom'); p.tiers(...tiers); p.machine(ctor); p.definition(def); return p }
+            }
+            const scope = new Proxy(extra, {
+                has: (t, k) => typeof k === 'string' && (k in t || (!(k in ctx) && !builtin.has(k))),
+                get: (t, k) => k === Symbol.unscopables ? undefined : (k in t ? t[k] : (k in ctx ? ctx[k] : named(String(k))))
+            })
+            ctx.__scope = scope
+            try {
+                vm.runInContext(`(function () { with (__scope) { return __${kind}(${argText}) } })()`, vmctx, { filename: file })
+            } catch (e) {
+                report('ERROR', 'S1', `machine call near offset ${m.index}: ${String(e.message).split('\n')[0]}`, file)
+            }
+            }
+        }
+    }
+}
+javaStartup()
 
 scriptsOf('server_scripts').forEach(run)
 state.handlers.forEach(([file, fn], i) => {
@@ -973,6 +1074,25 @@ state.machines.forEach(m => {
     // the name of a machine: block.gtceu.<id> (tiered machines: <tier>_<id>) comes from langValue in the script itself
 })
 
+// ---- the startup dump: machines and recipe types as data (diff it before and after a change) ---------------------------------------
+if (dumpStartup) {
+    const predText = p => isPred(p) ? { kind: p.kind, arg: isPred(p.arg) ? predText(p.arg) : p.arg, max: p.max, min: p.min, exact: p.exact, ors: p.ors.map(predText) } : String(p)
+    state.recipeTypes.forEach((t, id) => console.log(JSON.stringify({ recipeType: id, io: t.io ? t.io.map(Number) : null })))
+    state.machines.forEach(m => {
+        let pat = null
+        if (m.pattern) {
+            try {
+                const r = m.pattern({ get: () => 'CONTROLLER', getRecipeTypes: () => [] })
+                pat = { aisles: r.aisles, repeat: r.repeat, where: Object.fromEntries(Object.entries(r.where).sort().map(([k, v]) => [k, predText(v)])) }
+            } catch (e) { pat = { error: e.message } }
+        }
+        console.log(JSON.stringify({ machine: m.id, tiers: m.tiers ? m.tiers.map(String) : null, types: m.types ? m.types.map(String) : null,
+            tooltips: m.tooltips.map(String), langValue: m.langValue ? String(m.langValue) : null, pattern: pat }))
+    })
+    process.exitCode = 0
+    findings.length = 0
+}
+
 // ---- output --------------------------------------------------------------------------------------------------------
 if (dump) {
     state.recipes.forEach(r => console.log(JSON.stringify({ type: r.type, id: r.id, file: r.file, itemIn: r.itemIn, itemOut: r.itemOut,
@@ -983,7 +1103,7 @@ if (dump) {
 }
 const order = { ERROR: 0, WARN: 1, INFO: 2 }
 findings.sort((a, b) => order[a.level] - order[b.level] || a.code.localeCompare(b.code))
-if (dump) {
+if (dump || dumpStartup) {
     // printed above
 } else if (asJson) {
     const registry = {

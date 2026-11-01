@@ -21,24 +21,6 @@ const $AccelModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 const $AccelMachineModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $AccelSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // [id, items in, items out, progress bar, sound]; one fluid input each: the coolant (neutron irradiation gives the empty cell back: 2 out). All three sound like the
-    // accelerator: its own hum (af9-core AF9Sounds, the beacon hum pitched up)
-    const types = [
-        ['neutron_irradiation', 2, 2, GuiTextures.PROGRESS_BAR_MASS_FAB, $AccelSounds.PARTICLE_ACCELERATOR],
-        ['ion_collision', 2, 1, GuiTextures.PROGRESS_BAR_FUSION, $AccelSounds.PARTICLE_ACCELERATOR],
-        ['quark_synthesis', 2, 2, GuiTextures.PROGRESS_BAR_REPLICATOR, $AccelSounds.PARTICLE_ACCELERATOR]
-    ]
-    types.forEach(([id, itemsIn, itemsOut, bar, sound]) => {
-        event.create(id)
-            .category('multiblock')
-            .setEUIO('in')
-            .setMaxIOSize(itemsIn, itemsOut, 1, 0)
-            .setProgressBar(bar, FillDirection.LEFT_TO_RIGHT)
-            .setSound(sound)
-    })
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []

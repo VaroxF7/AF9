@@ -22,18 +22,6 @@ const $SanguiniteHearthMachine = Java.loadClass('com.af9.core.machine.Sanguinite
 const $HearthModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 const $HearthCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // Dusts + circuit 8 in, coolant (fluid_in_0) + optional helium (fluid_in_1) in, 1000 mB molten out.
-    // The temperature rides along as the recipe's blastFurnaceTemp (coil display + CoilWorkable gate);
-    // the hearth's own heat is HEARTH_GATE (6000 K). JEI: SanguiniteHearthRecipeUI (coolant slot + coil).
-    event.create('sanguinite_hearth')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(9, 0, 2, 1)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.FURNACE)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []

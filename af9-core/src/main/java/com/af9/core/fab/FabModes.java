@@ -24,7 +24,7 @@ import java.util.List;
 
 /**
  * AF9's semiconductor chemistry (the fab_* recipe types, defined in
- * kubejs/startup_scripts/gtceu/fab_machines.js) as modes of the normal GT machines. The machines are the ones the
+ * af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java) as modes of the normal GT machines. The machines are the ones the
  * chemistry belongs to, the modes are what the chemistry does:
  *
  * <table>

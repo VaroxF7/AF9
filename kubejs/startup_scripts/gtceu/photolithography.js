@@ -32,41 +32,6 @@ const $LithoSounds = Java.loadClass('com.af9.core.common.AF9Sounds')
 // Coater Track's), + the etch plasma and excimer laser gas from 200 nm, + ultrapure water (immersion) from 65 nm,
 // + hafnium tetrachloride (high-k gate) from 50 nm. EUV (20 and 7 nm) needs no laser gas but molten tin and hydrogen
 // for the plasma source. 7 nm prints strange matter and takes Idontknowium plasma too (server_scripts).
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // [node, fluid inputs, item inputs]: substrate + reticle, + the ArF Excimer Laser for 80 and 65 nm (the scanner's
-    // laser slot) or the EUV Light Source for 20 and 7 nm (both not consumed)
-    // (+3 fluids on every mode: the transistors' polyethylene, silicon and electrum, docs/transistors.md)
-    const lineModes = [['350nm', 6, 2], ['200nm', 8, 2], ['100nm', 8, 2], ['80nm', 8, 3], ['65nm', 9, 3],
-        ['50nm', 10, 2], ['20nm', 10, 3], ['7nm', 11, 3]]
-    // the orbital station's modes sound like it: a deep hum (af9-core AF9Sounds, vanilla sounds pitched down); the Mk1 line
-    // (350 to 100 nm) and the Mk2 scanner (80 and 65 nm) play the Circuit Assembler's sound (GTSoundEntries.ASSEMBLER)
-    const orbitalNodes = ['50nm', '20nm', '7nm']
-    lineModes.forEach(([node, fluids, items]) => {
-        event.create(`lithography_${node}`)
-            .category('multiblock')
-            .setEUIO('in')
-            .setMaxIOSize(items, 2, fluids, 0) // GT's chip wafers + the chanced broken wafer out
-            .setSlotOverlay(false, false, true, GuiTextures.LENS_OVERLAY)
-            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-            .setSound(orbitalNodes.includes(node) ? $LithoSounds.ORBITAL_STATION : GTSoundEntries.ASSEMBLER)
-    })
-    // chromodynium wafer, reticle, dry resist cartridge; the coolant comes from the station (af9-core)
-    event.create('orbital_lithography')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(3, 2, 3, 0) // the 1 nm transistors: polyethylene, silicon, electrum
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound($LithoSounds.ORBITAL_STATION)
-    // plasma atomic soldering (UHV+ circuits, ion-by-ion deposition with plasma solder, no reflow): up to 9 item
-    // inputs (the UHV mainframe's 8), 1 out, plasma solder + PBI in. Runs in the Hyper-Intensity Laser Engraver
-    // (hile.js).
-    event.create('plasma_soldering')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(9, 1, 2, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound($LithoSounds.ORBITAL_STATION)
-})
 
 // Orbital station layouts, precomputed ONCE at module level and reused by .pattern() for both
 // basic and Mk2 (memoized): ORBITAL_BASIC is the 25-wide design, ORBITAL_MK2_SLICES the 73 x 99 x 73 Mk2 table (orbital_mk2_layout.js).

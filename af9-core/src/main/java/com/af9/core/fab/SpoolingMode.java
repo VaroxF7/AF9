@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * The Wiremill's Spooling mode: the {@code gtceu:spooling} recipe type (kubejs/startup_scripts/gtceu/spooling.js) is
+ * The Wiremill's Spooling mode: the {@code gtceu:spooling} recipe type (af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java) is
  * added to every Wiremill as a second mode, so GT's mode tab switches between drawing wire and winding spools.
  */
 @SuppressWarnings("removal") // new ResourceLocation(ns, path) is the only constructor on 1.20.1; GT uses it too

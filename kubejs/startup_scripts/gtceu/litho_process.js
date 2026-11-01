@@ -10,16 +10,6 @@
 const $CoaterMachine = Java.loadClass('com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine')
 const $CoaterDirection = Java.loadClass('com.gregtechceu.gtceu.api.pattern.util.RelativeDirection')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // a blank wafer in, the coated wafer out; the track's chemicals in, the spent solvent out
-    event.create('wafer_coating')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(2, 1, 5, 2)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_MIXER, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.BATH)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     // 3 x 3 x 3, plascrete like the other lithography machines: the front with the controller, then the track itself
     // (the spin chuck, a gearbox on the floor, with the dispense lines over it and windows to the sides, around the one

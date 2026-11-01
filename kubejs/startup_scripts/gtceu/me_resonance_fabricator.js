@@ -14,17 +14,6 @@
 const $MEFabricator = Java.loadClass('com.af9.core.machine.MEResonanceFabricatorMachine')
 const $ResonanceHatch = Java.loadClass('com.af9.core.machine.part.ResonanceHatchPartMachine')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // 9 items in, 1 out, 3 fluids in; the research slot takes a data orb (the Data Access Hatch in the structure)
-    event.create('me_assembler')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(9, 1, 3, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ASSEMBLER, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ASSEMBLER)
-        .setHasResearchSlot(true)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []

@@ -4,7 +4,7 @@ Where AF9's computation (CWU/t) comes from, besides GT's own HPCA: a single-bloc
 expandable **HPCA** (see the end of this file).
 It is a GT computation source (`IOpticalComputationProvider`): GT's Optical Fiber Cable leads it to a reception hatch
 (a Research Station, the Orbital Station, a computation hatch on a Photolithography Line or Scanner). Code: af9-core
-`com.af9.core.machine.CWUServerMachine`; KubeJS `startup_scripts/gtceu/cwu_server.js`,
+`com.af9.core.machine.CWUServerMachine`; KubeJS `af9-core/src/main/java/com/af9/core/startup/machines/CwuServer.java`,
 `server_scripts/mods/gtceu/cwu_server.js`. The glass fibre in their recipes is fine borosilicate glass wire.
 
 *The N1 computation / supercomputer arrays (racks of CPU/GPU/RAM cards) were taken out of the pack. Larger
@@ -18,7 +18,7 @@ and the Crafting CPU Array (an AE2 crafting CPU as a multiblock) were taken out 
 ## 1. CWU Server
 
 `gtceu:<tier>_cwu_server`, LV to IV (`CWUServerMachine`, a GT `TieredEnergyMachine`; definition in
-`startup_scripts/gtceu/cwu_server.js`): a single block that turns EU into computation. It gives what is asked of it
+`af9-core/src/main/java/com/af9/core/startup/machines/CwuServer.java`): a single block that turns EU into computation. It gives what is asked of it
 each tick, up to **LV 1, MV 2, HV 3, EV 4, IV 5 CWU/t** (`cwutFor`: 1 at LV, one more each tier), and pays from its buffer
 (64 A of its voltage) `VA[tier] / max` EU per CWU: one amp of its tier at full output (MV 120 EU/t for 2 CWU/t), less
 when less is drawn; without the energy it gives what the energy covers. Power goes in on any side but the front (one

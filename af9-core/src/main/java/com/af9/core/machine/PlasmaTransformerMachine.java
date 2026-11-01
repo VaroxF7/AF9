@@ -5,7 +5,7 @@ import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMa
 
 /**
  * The Plasma Transformer (structure and recipe type in
- * {@code kubejs/startup_scripts/gtceu/plasma_transformer.js}): condenses superstate plasmas to
+ * {@code af9-core/src/main/java/com/af9/core/startup/machines/PlasmaTransformer.java}): condenses superstate plasmas to
  * solid plates at XPS (Star Matter Plasma Steel for the NVM boards). Plain GT behaviour; the
  * DTPF forges the superstate, this condenses it.
  */

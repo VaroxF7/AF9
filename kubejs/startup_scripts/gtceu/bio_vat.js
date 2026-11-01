@@ -13,15 +13,6 @@
 const $BioVatMachine = Java.loadClass('com.af9.core.machine.BioVatMachine')
 const $BioVatModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    event.create('bio_vat')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(2, 0, 2, 1)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.CHEMICAL)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []

@@ -11,23 +11,6 @@ StartupEvents.registry('block', event => {
         .displayName('Micro Universe Focus Lens')
 })
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    event.create('micro_universe_reactor')
-        .category('gregstar')
-        .setEUIO('out')
-        .setMaxIOSize(12, 0, 6, 0)
-        .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ARC);
-    event.create('micro_universe_collector')
-        .category('gregstar')
-        .setEUIO('in')
-        .setMaxIOSize(12, 12, 6, 6)
-        .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ARC);
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     event.create('micro_universe_orb', 'multiblock')
         .rotationState(RotationState.NON_Y_AXIS)

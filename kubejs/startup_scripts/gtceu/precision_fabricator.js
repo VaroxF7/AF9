@@ -11,16 +11,6 @@ const $PrecisionFab = Java.loadClass('com.af9.core.machine.PrecisionFabricatorMa
 const $PrecisionPort = Java.loadClass('com.af9.core.machine.part.PrecisionPortPartMachine')
 const $PrecisionIO = Java.loadClass('com.gregtechceu.gtceu.api.capability.recipe.IO')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // seed, dopant and the crucible in (the holder rod and the circuit are kept); the polysilicon, a dopant and a gas in
-    event.create('high_temperature_precision_fabricator')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(6, 1, 3, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_CRYSTALLIZATION, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.FURNACE)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     // Precision Fabricator Input Port: input hatch and input bus in one. 9 fluid tanks (3 x 3), 3 item inputs, 1
     // non-consumable slot, a ghost circuit (the circuit button on the screen). Tank: 80,000 mB each.

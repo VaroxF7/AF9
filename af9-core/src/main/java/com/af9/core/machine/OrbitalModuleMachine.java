@@ -25,7 +25,7 @@ import java.util.Locale;
  * ({@link #link}) and gives its bonus ({@link Kind}) to every print while the module's own structure stands. A slot holds
  * any kind; modules of one kind stack.
  * <p>
- * Made in KubeJS ({@code startup_scripts/gtceu/orbital_modules.js}, {@code gtceu:orbital_module_<kind>}).
+ * Made in KubeJS ({@code af9-core/src/main/java/com/af9/core/startup/machines/OrbitalModules.java}, {@code gtceu:orbital_module_<kind>}).
  */
 public class OrbitalModuleMachine extends MultiblockControllerMachine implements IDisplayUIMachine {
 

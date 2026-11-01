@@ -495,7 +495,7 @@ Orbital station (the orbital array), 25 × 25 × 18: the user's `sol_array` patt
 | `B` | `gtceu:hssg_coil_block` | 26 | undulator magnets (the mast's core) |
 | ` ` | anything | | |
 
-`O` parts, maximums only: up to 1 **laser** hatch and 3 energy hatches (the 1 nm prints need plain UHV, 1A) or wireless energy receivers (§17), up to 2 **coolant hatches** (ability `af9_coolant_input`), up to 8 fluid input hatches (the track chemicals), 1 computation hatch, 1 data hatch, item input and output buses, 1 maintenance; the Array Mk2 has no parallel hatch: its 6 module columns on the crown's roof (3 on each side) take Parallel Processing Computers (+10 parallels each, as the energy allows, max 6), Energy Efficiency Modules (-5% recipe EU/t, max 6), Endion Evaporation Annihilation Stacks (-10% run time, max 2) and a Stabilisation Sequencer (half the auxiliary power, max 1); `OrbitalModuleMachine`, `startup_scripts/gtceu/orbital_modules.js`. Modifiers `LITHO_GATE + STRIP_BROKEN + COOLANT + MK2_GATE + FOCUS + COILS + MODULES + OC_PERFECT + BATCH`; the overclock tier is capped at UXV (`OrbitalLithographyMachine.getOverclockTier`), `BATCH` is the station's own batch mode (console switch): a print overclocked below 1 minute runs as a batch about a minute long, up to 64 prints, inputs, outputs and coolant times the batch. Model: inert PTFE casing + GT fusion-reactor overlay. Adapted from the old project: `workableCasingRenderer` → `workableCasingModel`, `ELECTRIC_OVERCLOCK.apply(PERFECT_OVERCLOCK)` → `OC_PERFECT`, the `sol_array` recipe type → `orbital_lithography`, `autoAbilities`/normal fluid hatches → coolant hatches + item output buses, exact 3 energy hatches → up to 3.
+`O` parts, maximums only: up to 1 **laser** hatch and 3 energy hatches (the 1 nm prints need plain UHV, 1A) or wireless energy receivers (§17), up to 2 **coolant hatches** (ability `af9_coolant_input`), up to 8 fluid input hatches (the track chemicals), 1 computation hatch, 1 data hatch, item input and output buses, 1 maintenance; the Array Mk2 has no parallel hatch: its 6 module columns on the crown's roof (3 on each side) take Parallel Processing Computers (+10 parallels each, as the energy allows, max 6), Energy Efficiency Modules (-5% recipe EU/t, max 6), Endion Evaporation Annihilation Stacks (-10% run time, max 2) and a Stabilisation Sequencer (half the auxiliary power, max 1); `OrbitalModuleMachine`, `af9-core/src/main/java/com/af9/core/startup/machines/OrbitalModules.java`. Modifiers `LITHO_GATE + STRIP_BROKEN + COOLANT + MK2_GATE + FOCUS + COILS + MODULES + OC_PERFECT + BATCH`; the overclock tier is capped at UXV (`OrbitalLithographyMachine.getOverclockTier`), `BATCH` is the station's own batch mode (console switch): a print overclocked below 1 minute runs as a batch about a minute long, up to 64 prints, inputs, outputs and coolant times the batch. Model: inert PTFE casing + GT fusion-reactor overlay. Adapted from the old project: `workableCasingRenderer` → `workableCasingModel`, `ELECTRIC_OVERCLOCK.apply(PERFECT_OVERCLOCK)` → `OC_PERFECT`, the `sol_array` recipe type → `orbital_lithography`, `autoAbilities`/normal fluid hatches → coolant hatches + item output buses, exact 3 energy hatches → up to 3.
 
 Orbit: `OrbitalLithographyMachine.isOrbit` = dimension path `orbit` or ending in `_orbit` (Ad Astra 1.15: `ad_astra:earth_orbit`, `moon_orbit`, `mars_orbit`, `venus_orbit`, `mercury_orbit`, `glacio_orbit`). Elsewhere it forms but never prints (console NOT IN ORBIT).
 
@@ -1081,7 +1081,7 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 
 Fab chemistry is no plant of its own. The 133 recipes of §6.5, §6.9 (Zr/Hf split) and §6.12-6.16 (21 of them still cuts) are on twelve `fab_*` recipe types, and those types are **modes** of GT's machines: a mode is a recipe type in the machine's list, GT's mode tab (the side tab of the machine's GUI) switches between them, and the machine runs the recipes of the mode it is in. So the chemistry of a Chemical Reactor is a mode of the Chemical Reactor, and the bulk of it a mode of the Large Chemical Reactor.
 
-Files: `kubejs/startup_scripts/gtceu/fab_machines.js` (the twelve recipe types), AF9 Core `com.af9.core.fab.FabModes` (the modes on the GT machines), `com.af9.core.fab.FabThermal` (the heat of the thermal modes), `com.af9.core.fab.FabRecipeInfo` (the EMI / JEI lines).
+Files: `af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java` (the twelve recipe types), AF9 Core `com.af9.core.fab.FabModes` (the modes on the GT machines), `com.af9.core.fab.FabThermal` (the heat of the thermal modes), `com.af9.core.fab.FabRecipeInfo` (the EMI / JEI lines).
 
 ## 11.1 The modes on the machines
 
@@ -1143,7 +1143,7 @@ Dry run of the startup and server scripts with stubs (slots incl. circuits, temp
 > this file). The melt charges and the seed crystals other than silicon's are removed; the EBF's Boule Melting mode has no recipes.
 > The recipe table below is the old design; the Endion coil numbers and the cutting recipes still apply.
 
-Files: `startup_scripts/gtceu/boule_melting.js` (recipe type), AF9 Core `registry` (`AF9Materials`: Endion, Endionite; `AF9Blocks`: the coils; `AF9Items`: charges, seeds, crucibles, new boules), `server_scripts/mods/gtceu/boule_melting.js` (recipes), AF9 Core `blast/BouleMelting` (adds the mode to GT's EBF at common setup, coil bonus, EMI info).
+Files: `af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java` (recipe type), AF9 Core `registry` (`AF9Materials`: Endion, Endionite; `AF9Blocks`: the coils; `AF9Items`: charges, seeds, crucibles, new boules), `server_scripts/mods/gtceu/boule_melting.js` (recipes), AF9 Core `blast/BouleMelting` (adds the mode to GT's EBF at common setup, coil bonus, EMI info).
 
 **The EBF gets a second machine mode, `gtceu:boule_melting`** (GT's mode tab; `ELECTRIC_BLAST_FURNACE.setRecipeTypes([blast, boule_melting])`, modifier list `COIL_BONUS` + GT's own `ebfOverclock` + batch). The mode keeps GT's EBF rules (coil temperature + 100 K per tier above MV, `ebf_temp` on every recipe). Max IO 3 items in, 1 out, 1 fluid in. Its EMI/JEI icon is the EBF (`setIconSupplier`: GT only sets icons for types a machine builder registers).
 
@@ -1257,7 +1257,7 @@ Assembler at the hull tier: the base hatch + 2 sensors (receiver) or emitters (t
 # 18. The lithography process: cooling, computation, chemistry, new chips
 
 What the process around the print adds to §5 (AF9 Core `LithoMachine`, `AirConditioningHatchPartMachine`;
-AF9 Core `registry/AF9Items` (the chips); KubeJS `startup_scripts/gtceu/air_conditioning.js`, `litho_process.js`; `server_scripts/mods/gtceu/litho_process.js`).
+AF9 Core `registry/AF9Items` (the chips); KubeJS `af9-core/src/main/java/com/af9/core/startup/machines/AirConditioning.java`, `litho_process.js`; `server_scripts/mods/gtceu/litho_process.js`).
 
 ## 18.1 Air cooling: the Air Conditioning Hatch
 
@@ -1402,13 +1402,13 @@ af9-core/src/main/java/com/af9/core/registry/AF9Items.java  # every plain item, 
 af9-core/src/main/java/com/af9/core/registry/AF9Blocks.java # every plain block: the light sources, the plascrete casings, the Endion coils, the Space Elevator's blocks
 af9-core/src/main/java/com/af9/core/registry/AF9Remaps.java # worlds from before October 2026: kubejs:<id> is taken for af9:<id>
 af9-core/src/main/java/com/af9/core/registry/AF9Materials.java # every material (gtceu:<name>), a method a topic: the litho, XCDA and resist chemistry, the 72 of the fab chemistry, tier alloys and zircon, endion, the dense and supercooled fluids, strange matter and chromodynium
-kubejs/startup_scripts/gtceu/air_conditioning.js   # §18.1: the Air Conditioning Hatch MV-IV
+af9-core/src/main/java/com/af9/core/startup/machines/AirConditioning.java   # §18.1: the Air Conditioning Hatch MV-IV
 kubejs/startup_scripts/gtceu/litho_process.js      # §18: coater recipe type + station
 tools/lint/                                        # the linters (README there): scripts, quests, assets, facts, self-test
 tools/textures/                                    # reticles.py, coated_wafers.py, optics.py: draw the textures
 af9-core/src/main/java/com/af9/core/recipes/gen/GenLithoProcess.java  # §18: hatches, chemistry, family chains
 kubejs/startup_scripts/gtceu/photolithography.js   # 9 recipe types, both litho structures, tooltips
-kubejs/startup_scripts/gtceu/boule_melting.js      # recipe type boule_melting
+af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java      # recipe type boule_melting
 kubejs/startup_scripts/gtceu/cryogenics.js         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches HV-UHV
 kubejs/startup_scripts/gtceu/particle_accelerator.js # 3 recipe types, the Particle Accelerator ring
 kubejs/startup_scripts/gtceu/staged_assembly.js # §19: the staged_assembly recipe type + the Staged Assembly structure
@@ -1419,7 +1419,7 @@ af9-core/src/main/java/com/af9/core/recipes/AcceleratorRecipes.java # accelerato
 af9-core/src/main/java/com/af9/core/recipes/gen/GenStagedAssembly.java # §19: the staged recipes (addStaged helper in Dsl), the two demo recipes
 af9-core/src/main/java/com/af9/core/recipes/gen/GenElectronicsMetallurgy.java # zircon chain, zircon sands ore vein
 af9-core/src/main/java/com/af9/core/recipes/gen/GenFabChemistry.java  # lines 1-5 (§6.12-6.16): Moon Sand polysilicon + Lunar Air + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
-kubejs/startup_scripts/gtceu/fab_machines.js       # §11: the 12 fab recipe types (slot layouts); AF9 Core makes them modes of the GT machines
+af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java       # §11: the 12 fab recipe types (slot layouts); AF9 Core makes them modes of the GT machines
 af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java    # all of AF9's circuit crafting: alloy mixers (Al-Tq, Kovar, Pt-Ir), MV circuits without transistors/diodes, HV-LuV circuits (plain chips + tier metals), eDRAM versions
 config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in kubejs/assets/kubejs/lang/en_us.json (af9.quest.*)
 kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type/block names, tooltips, mode descriptions, AF9 material names

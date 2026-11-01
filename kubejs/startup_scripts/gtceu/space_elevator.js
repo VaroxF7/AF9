@@ -33,32 +33,6 @@ const SE_EXPEDITIONS = [1, 1, 1]
 // PlanetCatalog.droneFor)
 const SE_PLANETS = [3, 5, 7, 8]
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // a Mining Drone (not used up), a drill head and a crate (both used up), hydrogen and the coolant in; the ore is made when
-    // a run starts (SpaceElevatorMachine)
-    event.create('space_mining')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(4, 1, 2, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ARC)
-    // the Pumping Module's recipes, one a fluid: a Mining Drone (not used up) and the programmed circuit that picks the
-    // fluid, hydrogen and the coolant in, the fluid out (server_scripts/mods/gtceu/space_elevator.js, PlanetCatalog)
-    event.create('space_pumping')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(2, 0, 2, 1)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ARC)
-    // the modules are controllers of their own, but run no recipes: the elevator flies the missions (SpaceModuleMachine)
-    event.create('space_module')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(1, 1, 1, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ARC)
-})
-
 // ---- The structure -----------------------------------------------------------------------------------------------------
 // GTNH's Space Elevator (gtnhintergalactic's TileEntitySpaceElevator, STRUCTURE_PIECE_MAIN; design: Sampsa, Jimbno, Adam,
 // Baunti), block for block: 35 wide, 43 high, 35 deep. The table holds the slices from the front to the middle one (the

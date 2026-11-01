@@ -14,21 +14,6 @@ const $SupercoolerMachine = Java.loadClass('com.af9.core.machine.SupercoolerMach
 const $CryoCoolantHatch = Java.loadClass('com.af9.core.machine.part.CoolantHatchPartMachine')
 const $CryoModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    event.create('dense_cooling')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(0, 0, 1, 1)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_COMPRESS, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.COOLING)
-    event.create('supercooling')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(0, 0, 1, 1)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.COOLING)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []

@@ -351,9 +351,10 @@ for fn, text in sorted(java_text.items()):
         key = m.group(1)
         if text[m.start():m.start() + 12].startswith('literal'):
             continue
-        if key.endswith('.') or key not in lang:
-            # keys built with a suffix at run time: `"af9.x." + n` ends with a dot, and the lang file has the numbered keys
-            if key.endswith('.') and any(k.startswith(key) for k in lang):
+        if key.endswith('.') or key.endswith('_') or key not in lang:
+            # keys built with a suffix at run time: `"af9.x." + n` ends with a dot (`"af9.x_" + kind` an underscore), and the
+            # lang file has the numbered keys
+            if key.endswith(('.', '_')) and any(k.startswith(key) for k in lang):
                 continue
             report('ERROR', 'A7', f'translation key {key} is in no lang file', rel(fn))
 

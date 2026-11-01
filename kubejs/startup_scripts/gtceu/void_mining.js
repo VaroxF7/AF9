@@ -14,28 +14,6 @@ const $AF9Registries = Java.loadClass('com.gregtechceu.gtceu.api.registry.GTRegi
 const $AF9ResourceLocation = Java.loadClass('net.minecraft.resources.ResourceLocation')
 const $VoidAmperageOverclock = Java.loadClass('com.af9.core.machine.AmperageOverclock')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    const types = [
-        'void_mining_overworld',
-        'void_mining_nether',
-        'void_mining_end',
-        'void_mining_asteroids',
-        'void_mining_moon'
-    ]
-    // MK2 and MK3 run each mode as its own copy of the type, so their recipes can differ in yield and tier
-    // (forEach rather than flatMap: KubeJS runs on Rhino, which may lack the newer array helpers)
-    const variants = []
-    ;['mk2', 'mk3'].forEach(tier => types.forEach(id => variants.push(`${id}_${tier}`)))
-    types.concat(variants).forEach(id => {
-        event.create(id)
-            .category('multiblock')
-            .setEUIO('in')
-            .setMaxIOSize(1, 4, 1, 0)
-            .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-            .setSound(GTSoundEntries.CHEMICAL)
-    })
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     // MK2 and MK3 have the structures of GTNH's Void Miners (GT5-Unofficial, bwcrossmod.galacticgreg.MTEVoidMiners: the
     // ZPM miner's 9 x 13 x 8 tower and the UV miner's 9 x 16 x 9 one), in AF9's blocks: the mining casings and the

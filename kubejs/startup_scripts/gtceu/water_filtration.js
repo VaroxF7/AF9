@@ -10,16 +10,6 @@
 const $FiltrationPlantMachine = Java.loadClass('com.af9.core.machine.FiltrationPlantMachine')
 const $FiltrationModels = Java.loadClass('com.af9.core.machine.AF9MachineModels')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    event.create('water_filtration')
-        .category('multiblock')
-        .setEUIO('in')
-        // filter (not consumed) + circuit in, up to 4 debris out, dirty water + culture in, water + reclaim out
-        .setMaxIOSize(2, 4, 2, 2)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_BATH, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.BATH)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const $Watertight = Java.loadClass('com.gregtechceu.gtceu.common.data.GCYMBlocks')
     const tooltips = (key, count) => {

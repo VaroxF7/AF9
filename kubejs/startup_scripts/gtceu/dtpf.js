@@ -37,16 +37,6 @@ const dtpfModel = () => $DtpfModels.workableCasingWithForceField('af9:block/dtpf
     'gtceu:block/multiblock/dtpf', DTPF_FIELD_STYLE, $PlasmaForgeMachine.FIELD_RADIUS, $PlasmaForgeMachine.FIELD_START,
     $PlasmaForgeMachine.FIELD_END, dtpfInjectors())
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // plasma and matter in, forged matter and fluids out (three of each: the recipe page lays out rows of three)
-    event.create('plasma_forge')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(3, 3, 3, 3)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ARC)
-})
-
 // The DTPF, layer by layer: DTPF_AISLES[z] is the z-th plate, back (0) to front (42, the controller's); a plate's rows are
 // y, bottom (0) to top (12); a row's characters are x, 0 to 10, the beam at x 5, y 6.
 //   S controller, N transcendent casing, W injection casing, H a casing of the back plate (transcendent casing or any

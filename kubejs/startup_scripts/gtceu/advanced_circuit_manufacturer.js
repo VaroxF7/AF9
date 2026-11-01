@@ -8,16 +8,6 @@
 // tungsten carbide frames at both ends running through it, tungstensteel gearboxes beside the hall and two wings of
 // nonconducting casing. Rows bottom -> top, aisles back -> front (the controller's last).
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // up to 16 items and 4 fluids in, one item out; computation through the computation hatch
-    event.create('advanced_circuit_manufacturer')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(16, 1, 4, 0)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_ARROW, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ASSEMBLER)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []

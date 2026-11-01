@@ -8,6 +8,8 @@ import com.af9.core.common.OxygenatedCondition;
 import com.af9.core.compat.adastra.AdAstraCompat;
 import com.af9.core.machine.MEResonanceFabricatorMachine;
 import com.gregtechceu.gtceu.api.GTCEuAPI;
+import com.gregtechceu.gtceu.api.machine.MachineDefinition;
+import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.recipe.condition.RecipeConditionType;
 import com.gregtechceu.gtceu.common.data.GCYMRecipeTypes;
 import com.gregtechceu.gtceu.common.data.GTSoundEntries;
@@ -35,9 +37,13 @@ import com.af9.core.registry.AF9Items;
 import com.af9.core.registry.AF9Materials;
 import com.af9.core.registry.AF9Tabs;
 import com.af9.core.space.AF9Space;
+import com.af9.core.startup.AF9MachineList;
+import com.af9.core.startup.AF9Machines;
+import com.af9.core.startup.AF9RecipeTypes;
 
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
 
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -88,6 +94,14 @@ public class AF9Core {
         // the recipe condition "in oxygenated air" (the ME Resonance Fabricator's recipes), in GregTech's condition registry
         FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(RecipeConditionType.class,
                 (GTCEuAPI.RegisterEvent<String, RecipeConditionType<?>> event) -> OxygenatedCondition.register(event));
+        // AF9's recipe types and machines (they were KubeJS startup scripts), in GregTech's own registry events
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(GTRecipeType.class,
+                (GTCEuAPI.RegisterEvent<ResourceLocation, GTRecipeType> event) -> AF9RecipeTypes.register());
+        FMLJavaModLoadingContext.get().getModEventBus().addGenericListener(MachineDefinition.class,
+                (GTCEuAPI.RegisterEvent<ResourceLocation, MachineDefinition> event) -> AF9MachineList.register());
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            FMLJavaModLoadingContext.get().getModEventBus().addListener(AF9Machines::onDynamicResources);
+        }
         // supercritical steam in Extreme Reactors' turbines (only with Extreme Reactors loaded)
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ExtremeReactorsCompat::enqueue);
         // Powah's Energizing Orb takes counted ingredients (the mixins in com.af9.core.mixin.powah) and has a Mk2 with a screen

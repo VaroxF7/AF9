@@ -36,7 +36,7 @@ recipe type, `<tier>_spooler` machines and a Large Spooler multiblock until they
 | `af9-core/src/main/java/com/af9/core/registry/AF9TagPrefixes.java` | `wireSpool` tag prefix and icon type |
 | `af9-core/src/main/resources/assets/gtceu/models/item/material_sets/*/wire_spool.json` | item models |
 | `af9-core/src/main/resources/assets/gtceu/textures/item/material_sets/dull/wire_spool*.png` | item textures |
-| `kubejs/startup_scripts/gtceu/spooling.js` | the `spooling` recipe type |
+| `af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java` | the `spooling` recipe type |
 | `af9-core/.../fab/SpoolingMode.java` | adds the type to the Wiremills as a mode |
 | `af9-core/src/main/java/com/af9/core/recipes/HandRecipes.java` | winding recipes (Spooling mode) |
 | `kubejs/assets/gtceu/lang/en_us.json` | item name |

@@ -379,16 +379,6 @@ const SATELLITE_SHAPE = [
 
 const $SatelliteModifiers = Java.loadClass('com.af9.core.common.AF9Modifiers')
 
-GTCEuStartupEvents.registry('gtceu:recipe_type', event => {
-    // the rays: a reflector in the dish, liquid neutronium out
-    event.create('neutron_collection')
-        .category('multiblock')
-        .setEUIO('in')
-        .setMaxIOSize(1, 0, 0, 1)
-        .setProgressBar(GuiTextures.PROGRESS_BAR_MASS_FAB, FillDirection.LEFT_TO_RIGHT)
-        .setSound(GTSoundEntries.ARC)
-})
-
 GTCEuStartupEvents.registry('gtceu:machine', event => {
     const tooltips = (key, count) => {
         const lines = []
