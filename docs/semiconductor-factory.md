@@ -1407,7 +1407,7 @@ af9-core/src/main/java/com/af9/core/startup/machines/LithoProcess.java      # §
 tools/lint/                                        # the linters (README there): scripts, quests, assets, facts, self-test
 tools/textures/                                    # reticles.py, coated_wafers.py, optics.py: draw the textures
 af9-core/src/main/java/com/af9/core/recipes/gen/GenLithoProcess.java  # §18: hatches, chemistry, family chains
-kubejs/startup_scripts/gtceu/photolithography.js   # 9 recipe types, both litho structures, tooltips
+af9-core/src/main/java/com/af9/core/startup/machines/Photolithography.java   # 9 recipe types, both litho structures, tooltips
 af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java      # recipe type boule_melting
 af9-core/src/main/java/com/af9/core/startup/machines/Cryogenics.java         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches HV-UHV
 af9-core/src/main/java/com/af9/core/startup/machines/ParticleAccelerator.java # 3 recipe types, the Particle Accelerator ring

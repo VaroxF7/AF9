@@ -217,7 +217,7 @@ public final class StructureSkins {
     /**
      * The tower's wheels: the blocks of every band, of its spokes and of the big wheel's shield hide (they are drawn
      * turning), only on the Mk2 size. Which blocks turn is the band's ({@link OrbitalLithographyMachine.Band}); the
-     * blocks are the pattern's (orbital_mk2_layout.js).
+     * blocks are the pattern's (OrbitalMk2Layout / layouts/orbital_mk2.txt).
      */
     private static void trackRings(ClientLevel level, MultiblockControllerMachine controller, StructureSkin skin,
                                    BlockPos origin, List<BlockPos> parts, LongArrayList positions) {

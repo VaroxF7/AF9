@@ -21,6 +21,7 @@ import com.af9.core.startup.machines.LogisticsHub;
 import com.af9.core.startup.machines.MeResonanceFabricator;
 import com.af9.core.startup.machines.OrbitalModules;
 import com.af9.core.startup.machines.ParticleAccelerator;
+import com.af9.core.startup.machines.Photolithography;
 import com.af9.core.startup.machines.PlanetarySatellite;
 import com.af9.core.startup.machines.PlasmaTransformer;
 import com.af9.core.startup.machines.PrecisionFabricator;
@@ -62,6 +63,7 @@ public final class AF9MachineList {
         MeResonanceFabricator.register();
         OrbitalModules.register();
         ParticleAccelerator.register();
+        Photolithography.register();
         PlanetarySatellite.register();
         PlasmaTransformer.register();
         PrecisionFabricator.register();

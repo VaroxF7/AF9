@@ -2,7 +2,7 @@
 
 The Mk2's pattern no longer uses GTCEu's Stress-Proof, Sturdy HSS-E and Inert PTFE casings (the Mk1 station keeps them). Four AF9 casings
 take their places, each costing a good deal more; all are assembled at UHV, four casings to a run (`af9-core/src/main/java/com/af9/core/recipes/gen/GenOrbitalCasings.java`,
-change the numbers there). The pattern is Janne's `orbital.nbt` 1:1 (`tools/orbital_mk2_layout.py`, see `orbital-array-mk2-pattern.md`); `orbitalWheres` in `photolithography.js` says what each letter stands for.
+change the numbers there). The pattern is Janne's `orbital.nbt` 1:1 (`tools/orbital_mk2_layout.py`, see `orbital-array-mk2-pattern.md`); the `.where(...)` calls in `Photolithography.java` says what each letter stands for.
 
 | Casing | Replaces | Where (letter, cells) | Run (4 casings) |
 |---|---|---|---|

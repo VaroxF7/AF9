@@ -149,7 +149,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
      * (the spire's sleeve, the chamber's deck, the crown) do not. Everything else of the tower between levels
      * {@code shieldFrom} and {@code shieldTo} (both -1 for none) that stands {@code hub} or more out of the axis turns too:
      * on the big ring the four shield pillars that hold the plasma field together. A light ring glows just
-     * inside the band. The pattern (orbital_mk2_layout.js, tools/orbital_mk2_layout.py) has the same rings: keep them in step.
+     * inside the band. The pattern (OrbitalMk2Layout / layouts/orbital_mk2.txt, tools/orbital_mk2_layout.py) has the same rings: keep them in step.
      */
     public record Band(int d0, int t, int radius, int width, float spin, float hub, int shieldFrom, int shieldTo,
                       int strip) {
@@ -185,7 +185,7 @@ public class OrbitalLithographyMachine extends LithoMachine implements ILightRin
     public static final int DEPTH = 17;
     /**
      * The Mk2 extended array's extent: 36 to each side (73 wide, the big ring), 98 + 5 behind (99 levels from the
-     * crown with the controller to the foot, and the lance's first blocks: orbital_mk2_layout.js).
+     * crown with the controller to the foot, and the lance's first blocks: OrbitalMk2Layout / layouts/orbital_mk2.txt).
      */
     public static final int HALF_WIDTH_MK2 = 36;
     public static final int DEPTH_MK2 = 98 + 5;

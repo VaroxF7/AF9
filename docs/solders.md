@@ -6,7 +6,7 @@ stays on the MV bootstrap (the high-grade EBF needs HV), and AF9's own three tak
 Code: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (`solders()`),
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenSolders.java` (bio-chain, plasma condensation),
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java` (who solders what),
-`kubejs/startup_scripts/gtceu/photolithography.js` (`plasma_soldering` type + Array Mk2 pattern),
+`af9-core/src/main/java/com/af9/core/startup/machines/Photolithography.java` (`plasma_soldering` type + Array Mk2 pattern),
 `af9-core/src/main/java/com/af9/core/machine/OrbitalLithographyMachine.java` (Mk2 sizes, `PLASMA_GATE`, ring).
 
 ## 1. High-grade solder (HV-UV, full replacement)

@@ -11,7 +11,7 @@ import java.util.Locale;
 /**
  * The lithography modes, one per wafer substrate. Each is its own GT recipe type (gtceu:lithography_&lt;node&gt; on the
  * lithography machines; the 1 nm X-ray FEL mode is gtceu:orbital_lithography), defined in
- * kubejs/startup_scripts/gtceu/photolithography.js; the numbers here must match AF9_WAFERS in
+ * af9-core/src/main/java/com/af9/core/startup/machines/Photolithography.java; the numbers here must match AF9_WAFERS in
  * kubejs/server_scripts/mods/gtceu/photolithography.js (spec: docs/semiconductor-factory.md).
  * <p>
  * Three machines share the modes ({@link Machine}): the Photolithography Line (Mk1) prints 350-100 nm, the
@@ -20,7 +20,7 @@ import java.util.Locale;
  * A mode prints on its own substrate (the 350 nm mode on silicon wafers, 200 nm on phosphorus wafers, ...) and draws
  * 4A of its voltage tier (1A on the Mk1 line; the station's 50 nm prints LuV for 800 s, 20 nm ZPM for 700 s, 7 nm UHV for 350 s); the orbital 1 nm mode draws 1A of UHV (an ordinary UHV energy hatch, no amperage stacking).
  * A print is always GT's own chip wafer; a higher substrate gives more of them per blank (GT's engraving yields,
- * extended; the 1 nm prints roll a range, see photolithography.js ORBITAL_YIELD).
+ * extended; the 1 nm prints roll a range, see server photolithography ORBITAL_YIELD).
  * <p>
  * Finer nodes break more wafers: every print can come out as the substrate's broken wafer, with the mode's base chance
  * plus up to 50 points from a dirty vacuum (see {@link #breakChance}).

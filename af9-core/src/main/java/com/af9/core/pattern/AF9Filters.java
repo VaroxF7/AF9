@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  * Cleanroom filters of the AF9 machines.
  * <ul>
  * <li>The Plascrete Filter Casing ({@code af9:plascrete_filter_casing}, an MV block from
- * kubejs/startup_scripts/gtceu/photolithography.js) is a GT cleanroom filter like GT's Filter Casing (ISO 5): it
+ * af9-core/src/main/java/com/af9/core/startup/machines/Photolithography.java) is a GT cleanroom filter like GT's Filter Casing (ISO 5): it
  * works in GT's Cleanroom and in every filter roof.</li>
  * <li>{@link #cleanroomFilters()} is GT's filter predicate with a fixed order: the structure preview and the
  * terminal's auto-build take the first candidate, which is the MV Plascrete Filter Casing, then GT's Filter Casing,

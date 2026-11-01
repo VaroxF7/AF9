@@ -6,8 +6,8 @@ a halo of four arms round the crown, a printing chamber with a floating silicon 
 
 ## The pattern
 
-`tools/orbital_mk2_layout.py path/to/orbital.nbt` reads the structure file and writes `kubejs/startup_scripts/gtceu/orbital_mk2_layout.js`
-(`global.ORBITAL_MK2_AISLES`, one string per aisle, a row per line). `photolithography.js` turns it into the GT pattern; `orbitalWheres`
+`tools/orbital_mk2_layout.py path/to/orbital.nbt` reads the structure file and writes `af9-core/src/main/resources/layouts/orbital_mk2.txt` (read by `OrbitalMk2Layout`)
+(one `---`-separated block per aisle, a row per line). `Photolithography.java` turns it into the GT pattern; the `.where(...)` calls
 there says what each letter is. Do not edit the layout by hand: change the file or the tool and generate again.
 
 What the file cannot hold is marked on top of it by the tool:
