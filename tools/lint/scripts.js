@@ -463,6 +463,49 @@ state.handlers.forEach(([file, fn], i) => {
     try { fn(event) } catch (e) { report('ERROR', 'S1', `recipe handler: ${e.message.split('\n')[0]}`, file) }
 })
 
+// ---- recipes written in Java ------------------------------------------------------------------------------------------
+// The scripts' recipes moved to af9-core (recipes/Dsl: `Dsl.gt(out, "type", "id").itemInputs(...)...save();`): the same
+// recorder reads them from the Java source, so every recipe rule below still applies to them. Nothing of Java runs.
+function javaRecipes() {
+    const dir = path.join(root, 'af9-core/src/main/java/com/af9/core/recipes')
+    const files = walkDir(dir).filter(f => f.endsWith('.java') && !f.endsWith('Dsl.java') && !f.endsWith('GenAll.java'))
+    const head = /Dsl\.gt\(\s*out\s*,\s*"([^"]+)"\s*,\s*"([^"]+)"\s*\)/g
+    for (const f of files) {
+        const src = read(f)
+        state.currentFile = path.relative(root, f).replace(/\\/g, '/')
+        let m
+        while ((m = head.exec(src))) {
+            const end = src.indexOf('.save();', head.lastIndex)
+            if (end < 0) { report('ERROR', 'S1', `Dsl recipe ${m[2]} has no save()`, state.currentFile); continue }
+            const chain = src.slice(head.lastIndex, end)
+            const rb = recipeBuilder(m[1], m[2].replace(/^af9:/, 'af9:'))
+            const call = /\.(\w+)\(/g
+            let c
+            while ((c = call.exec(chain))) {
+                let depth = 1, i = call.lastIndex, inStr = false
+                for (; i < chain.length && depth > 0; i++) {
+                    const ch = chain[i]
+                    if (inStr) { if (ch === '\\') i++; else if (ch === '"') inStr = false; continue }
+                    if (ch === '"') inStr = true
+                    else if (ch === '(') depth++
+                    else if (ch === ')') depth--
+                }
+                const argText = chain.slice(call.lastIndex, i - 1)
+                call.lastIndex = i
+                let args
+                try {
+                    args = new Function(`const Dsl = { fluid: (fluid, amount) => ({ fluid, amount }) }; return [${argText.replace(/(\d)L\b/g, '$1')}]`)()
+                } catch (e) { report('ERROR', 'S1', `Dsl recipe ${m[2]}: cannot read ${c[1]}(${argText})`, state.currentFile); continue }
+                const name = c[1] === 'oxygenated' ? 'addCondition' : c[1]
+                if (name === 'addCondition') args = [{ oxygenated: args }]
+                try { rb[name](...args) } catch (e) { report('ERROR', 'S1', `Dsl recipe ${m[2]}: ${e.message}`, state.currentFile) }
+            }
+            head.lastIndex = end
+        }
+    }
+}
+javaRecipes()
+
 // ---- what exists ---------------------------------------------------------------------------------------------------
 const baseOf = id => {
     // strip tier and shape words from a gtceu id to find its material

@@ -130,10 +130,13 @@ ${body}}
 
 fs.mkdirSync(OUT, { recursive: true })
 const done = []
+const dupCheck = new Map()
 for (const arg of process.argv.slice(2)) {
     const file = path.resolve(root, arg)
     try {
         const ops = runScript(file)
+        const seen = new Set()
+        ops.forEach(o => { const k = o.type + '/' + o.id; if (seen.has(k)) no('duplicate recipe id ' + k); seen.add(k) })
         fs.writeFileSync(path.join(OUT, className(file) + '.java'), toJava(file, ops))
         console.log(`ok ${ops.length} recipes: ${arg}`)
         done.push(className(file))
@@ -142,3 +145,22 @@ for (const arg of process.argv.slice(2)) {
         else console.log(`manual (error ${e.message}): ${arg}`)
     }
 }
+
+// GenAll lists every generated class, so a new one needs no hand-wiring
+const names = fs.readdirSync(OUT).filter(f => /^Gen.*\.java$/.test(f) && f !== 'GenAll.java').map(f => f.replace('.java', '')).sort()
+fs.writeFileSync(path.join(OUT, 'GenAll.java'), `package com.af9.core.recipes.gen;
+
+import net.minecraft.data.recipes.FinishedRecipe;
+
+import java.util.function.Consumer;
+
+/** Registers every generated recipe class (written by tools/port/record.js). */
+public final class GenAll {
+
+    private GenAll() {}
+
+    public static void register(Consumer<FinishedRecipe> out) {
+${names.map(n => `        ${n}.register(out);`).join('\n')}
+    }
+}
+`)

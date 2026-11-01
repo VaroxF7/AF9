@@ -1406,7 +1406,7 @@ kubejs/startup_scripts/gtceu/air_conditioning.js   # §18.1: the Air Conditionin
 kubejs/startup_scripts/gtceu/litho_process.js      # §18: coater recipe type + station
 tools/lint/                                        # the linters (README there): scripts, quests, assets, facts, self-test
 tools/textures/                                    # reticles.py, coated_wafers.py, optics.py: draw the textures
-kubejs/server_scripts/mods/gtceu/litho_process.js  # §18: hatches, chemistry, family chains
+af9-core/src/main/java/com/af9/core/recipes/gen/GenLithoProcess.java  # §18: hatches, chemistry, family chains
 kubejs/startup_scripts/gtceu/photolithography.js   # 9 recipe types, both litho structures, tooltips
 kubejs/startup_scripts/gtceu/boule_melting.js      # recipe type boule_melting
 kubejs/startup_scripts/gtceu/cryogenics.js         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches HV-UHV
@@ -1417,8 +1417,8 @@ kubejs/server_scripts/mods/gtceu/boule_melting.js  # Ender Air → endion, endio
 kubejs/server_scripts/mods/gtceu/cryogenics.js     # cryostat + coolant hatch crafting, dense cooling + supercooling
 kubejs/server_scripts/mods/gtceu/particle_accelerator.js # accelerator + consumables crafting, neutron irradiation, ion collision, quark synthesis
 kubejs/server_scripts/mods/gtceu/staged_assembly.js # §19: the staged() authoring helper, the two demo recipes
-kubejs/server_scripts/mods/gtceu/electronics_metallurgy.js # zircon chain, zircon sands ore vein
-kubejs/server_scripts/mods/gtceu/fab_chemistry.js  # lines 1-5 (§6.12-6.16): Moon Sand polysilicon + Lunar Air + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
+af9-core/src/main/java/com/af9/core/recipes/gen/GenElectronicsMetallurgy.java # zircon chain, zircon sands ore vein
+af9-core/src/main/java/com/af9/core/recipes/gen/GenFabChemistry.java  # lines 1-5 (§6.12-6.16): Moon Sand polysilicon + Lunar Air + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
 kubejs/startup_scripts/gtceu/fab_machines.js       # §11: the 12 fab recipe types (slot layouts); AF9 Core makes them modes of the GT machines
 kubejs/server_scripts/mods/gtceu/circuits_af9.js    # all of AF9's circuit crafting: alloy mixers (Al-Tq, Kovar, Pt-Ir), MV circuits without transistors/diodes, HV-LuV circuits (plain chips + tier metals), eDRAM versions
 config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in kubejs/assets/kubejs/lang/en_us.json (af9.quest.*)

@@ -1,16 +1,6 @@
 package com.af9.core.recipes;
 
-import com.gregtechceu.gtceu.api.GTValues;
-import com.gregtechceu.gtceu.api.data.chemical.ChemicalHelper;
-import com.gregtechceu.gtceu.api.data.chemical.material.Material;
-import com.gregtechceu.gtceu.api.data.tag.TagPrefix;
-import com.gregtechceu.gtceu.common.data.GTMaterials;
-import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
-import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
-
 import net.minecraft.data.recipes.FinishedRecipe;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ItemStack;
 
 import java.util.function.Consumer;
 
@@ -25,59 +15,55 @@ public final class AF9Recipes {
 
     public static void register(Consumer<FinishedRecipe> out) {
         Ethylene.register(out);
-        com.af9.core.recipes.gen.GenNetherChemistry.register(out);
-        com.af9.core.recipes.gen.GenBiofuels.register(out);
-        com.af9.core.recipes.gen.GenAromatics.register(out);
-    }
-
-    /** A recipe builder of the given type, with the AF9 recipe id. */
-    static GTRecipeBuilder af9(com.gregtechceu.gtceu.api.recipe.GTRecipeType type, String name) {
-        return type.recipeBuilder(new ResourceLocation("af9", name));
-    }
-
-    static ItemStack dust(Material material) {
-        return ChemicalHelper.get(TagPrefix.dust, material);
+        com.af9.core.recipes.gen.GenAll.register(out);
     }
 
     /** Late-game ethylene (was server_scripts/mods/gtceu/ethylene.js; spec docs/green-chemistry.md section 7). */
     private static final class Ethylene {
 
         static void register(Consumer<FinishedRecipe> out) {
-            long luv = GTValues.VA[GTValues.LuV];
 
-            af9(GTRecipeTypes.LARGE_CHEMICAL_RECIPES, "syngas_gasification")
-                    .inputItems(TagPrefix.dust, GTMaterials.Carbon, 4)
-                    .inputFluids(GTMaterials.Water.getFluid(4000))
-                    .outputFluids(GTMaterials.CarbonMonoxide.getFluid(4000), GTMaterials.Hydrogen.getFluid(4000))
-                    .duration(200).EUt(luv).save(out);
+            Dsl.gt(out, "large_chemical_reactor", "af9:syngas_gasification")
+                    .itemInputs("4x gtceu:carbon_dust")
+                    .inputFluids(Dsl.fluid("minecraft:water", 4000))
+                    .outputFluids(Dsl.fluid("gtceu:carbon_monoxide", 4000), Dsl.fluid("gtceu:hydrogen", 4000))
+                    .duration(200)
+                    .EUt(32768)
+                    .save();
 
-            af9(GTRecipeTypes.LARGE_CHEMICAL_RECIPES, "syngas_gasification_coke")
-                    .inputItems(TagPrefix.dust, GTMaterials.Coke, 4)
-                    .inputFluids(GTMaterials.Water.getFluid(4000))
-                    .outputFluids(GTMaterials.CarbonMonoxide.getFluid(4000), GTMaterials.Hydrogen.getFluid(4000))
-                    .duration(200).EUt(luv).save(out);
+            Dsl.gt(out, "large_chemical_reactor", "af9:syngas_gasification_coke")
+                    .itemInputs("4x gtceu:coke_dust")
+                    .inputFluids(Dsl.fluid("minecraft:water", 4000))
+                    .outputFluids(Dsl.fluid("gtceu:carbon_monoxide", 4000), Dsl.fluid("gtceu:hydrogen", 4000))
+                    .duration(200)
+                    .EUt(32768)
+                    .save();
 
-            af9(GTRecipeTypes.LARGE_CHEMICAL_RECIPES, "methanol_from_syngas")
-                    .inputFluids(GTMaterials.CarbonMonoxide.getFluid(4000), GTMaterials.Hydrogen.getFluid(8000))
-                    .outputFluids(GTMaterials.Methanol.getFluid(4000))
-                    .duration(200).EUt(luv).save(out);
+            Dsl.gt(out, "large_chemical_reactor", "af9:methanol_from_syngas")
+                    .inputFluids(Dsl.fluid("gtceu:carbon_monoxide", 4000), Dsl.fluid("gtceu:hydrogen", 8000))
+                    .outputFluids(Dsl.fluid("gtceu:methanol", 4000))
+                    .duration(200)
+                    .EUt(32768)
+                    .save();
 
-            ItemStack zeolite = dust(GTMaterials.Zeolite);
+            Dsl.gt(out, "large_chemical_reactor", "af9:mto_ethylene")
+                    .circuit(1)
+                    .notConsumable("gtceu:zeolite_dust")
+                    .inputFluids(Dsl.fluid("gtceu:methanol", 8000))
+                    .outputFluids(Dsl.fluid("gtceu:ethylene", 4000), Dsl.fluid("minecraft:water", 8000))
+                    .duration(200)
+                    .EUt(32768)
+                    .save();
 
-            af9(GTRecipeTypes.LARGE_CHEMICAL_RECIPES, "mto_ethylene")
-                    .circuitMeta(1)
-                    .notConsumable(zeolite)
-                    .inputFluids(GTMaterials.Methanol.getFluid(8000))
-                    .outputFluids(GTMaterials.Ethylene.getFluid(4000), GTMaterials.Water.getFluid(8000))
-                    .duration(200).EUt(luv).save(out);
-
-            af9(GTRecipeTypes.LARGE_CHEMICAL_RECIPES, "mto_olefins_mixed")
-                    .circuitMeta(2)
-                    .notConsumable(zeolite)
-                    .inputFluids(GTMaterials.Methanol.getFluid(12000))
-                    .outputFluids(GTMaterials.Ethylene.getFluid(3000), GTMaterials.Propene.getFluid(2000),
-                            GTMaterials.Water.getFluid(12000))
-                    .duration(200).EUt(luv).save(out);
+            Dsl.gt(out, "large_chemical_reactor", "af9:mto_olefins_mixed")
+                    .circuit(2)
+                    .notConsumable("gtceu:zeolite_dust")
+                    .inputFluids(Dsl.fluid("gtceu:methanol", 12000))
+                    .outputFluids(Dsl.fluid("gtceu:ethylene", 3000), Dsl.fluid("gtceu:propene", 2000),
+                            Dsl.fluid("minecraft:water", 12000))
+                    .duration(200)
+                    .EUt(32768)
+                    .save();
         }
     }
 }

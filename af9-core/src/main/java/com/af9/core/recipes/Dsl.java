@@ -30,18 +30,23 @@ public final class Dsl {
 
     private static final Pattern COUNTED = Pattern.compile("^(\\d+)x\\s+(.+)$");
 
+    private static final org.apache.logging.log4j.Logger LOGGER = org.apache.logging.log4j.LogManager.getLogger("AF9/Recipes");
+    /** The first unknown item or fluid of the recipe being built; the recipe is skipped (and logged) instead of aborting every recipe. */
+    private static String error;
+
     private Dsl() {}
 
     /** A recipe of the GT recipe type {@code type}, id {@code af9:<name>} (or the given namespace). */
     public static B gt(Consumer<FinishedRecipe> out, String type, String id) {
         ResourceLocation rl = new ResourceLocation(id.contains(":") ? id : "af9:" + id);
-        return new B(out, GTRecipeTypes.get(type).recipeBuilder(rl));
+        return new B(out, GTRecipeTypes.get(type).recipeBuilder(rl), rl.toString());
     }
 
     public static FluidStack fluid(String id, int amount) {
         Fluid fluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(id));
         if (fluid == null || fluid == net.minecraft.world.level.material.Fluids.EMPTY) {
-            throw new IllegalArgumentException("AF9 recipe: unknown fluid " + id);
+            if (error == null) error = "unknown fluid " + id;
+            return FluidStack.EMPTY;
         }
         return new FluidStack(fluid, amount);
     }
@@ -56,7 +61,8 @@ public final class Dsl {
         }
         Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(id));
         if (item == null || item == net.minecraft.world.item.Items.AIR) {
-            throw new IllegalArgumentException("AF9 recipe: unknown item " + id);
+            if (error == null) error = "unknown item " + id;
+            return ItemStack.EMPTY;
         }
         return new ItemStack(item, count);
     }
@@ -80,53 +86,67 @@ public final class Dsl {
 
         private final Consumer<FinishedRecipe> out;
         private final GTRecipeBuilder b;
+        private final String id;
 
-        B(Consumer<FinishedRecipe> out, GTRecipeBuilder b) {
+        B(Consumer<FinishedRecipe> out, GTRecipeBuilder b, String id) {
             this.out = out;
             this.b = b;
+            this.id = id;
         }
 
         public B itemInputs(String... specs) {
             for (String s : specs) {
-                if (isTag(s)) b.inputItems(tag(s), tagCount(s));
-                else b.inputItems(stack(s));
+                if (isTag(s)) {
+                    b.inputItems(tag(s), tagCount(s));
+                } else {
+                    ItemStack st = stack(s);
+                    if (!st.isEmpty()) b.inputItems(st);
+                }
             }
             return this;
         }
 
         public B notConsumable(String spec) {
             if (isTag(spec)) b.notConsumable(Ingredient.of(tag(spec)));
-            else b.notConsumable(stack(spec));
+            else {
+                ItemStack st = stack(spec);
+                if (!st.isEmpty()) b.notConsumable(st);
+            }
             return this;
         }
 
         public B itemOutputs(String... specs) {
-            for (String s : specs) b.outputItems(stack(s));
+            for (String s : specs) {
+                ItemStack st = stack(s);
+                if (!st.isEmpty()) b.outputItems(st);
+            }
             return this;
         }
 
         public B inputFluids(FluidStack... fluids) {
-            b.inputFluids(fluids);
+            for (FluidStack f : fluids) if (!f.isEmpty()) b.inputFluids(f);
             return this;
         }
 
         public B outputFluids(FluidStack... fluids) {
-            b.outputFluids(fluids);
+            for (FluidStack f : fluids) if (!f.isEmpty()) b.outputFluids(f);
             return this;
         }
 
         public B notConsumableFluid(FluidStack fluid) {
-            b.notConsumableFluid(fluid);
+            if (!fluid.isEmpty()) b.notConsumableFluid(fluid);
             return this;
         }
 
         public B chancedOutput(String spec, int chance, int tierBoost) {
-            b.chancedOutput(stack(spec), chance, tierBoost);
+            ItemStack st = stack(spec);
+            if (!st.isEmpty()) b.chancedOutput(st, chance, tierBoost);
             return this;
         }
 
         public B chancedInput(String spec, int chance, int tierBoost) {
-            b.chancedInput(stack(spec), chance, tierBoost);
+            ItemStack st = stack(spec);
+            if (!st.isEmpty()) b.chancedInput(st, chance, tierBoost);
             return this;
         }
 
@@ -176,6 +196,11 @@ public final class Dsl {
         }
 
         public void save() {
+            if (error != null) {
+                LOGGER.error("recipe {} skipped: {}", id, error);
+                error = null;
+                return;
+            }
             b.save(out);
         }
     }

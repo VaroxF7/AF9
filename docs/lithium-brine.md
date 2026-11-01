@@ -5,7 +5,7 @@ pump the brine, evaporate it in ponds, lime out the magnesium and calcium, cryst
 chloride, then build the battery chemicals off it: carbonate, hydroxide, oxide, fluoride and the
 Li-ion electrolyte salt LiPF6. MV to LuV.
 
-Code: `kubejs/server_scripts/mods/gtceu/lithium_brine.js`.
+Code: `af9-core/src/main/java/com/af9/core/recipes/gen/GenLithiumBrine.java`.
 Materials: AF9 Core `AF9Materials.lithiumBrine()` (the two brines, Li2CO3, LiOH, Li2O, LiF, LiPF6);
 everything else is GT's own (halite, soda ash, slaked lime, borax, HF, P2O5).
 

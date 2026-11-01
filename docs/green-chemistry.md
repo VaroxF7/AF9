@@ -10,7 +10,7 @@ shiny, chloromethane and mana diesel),
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenNetherChemistry.java`,
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenBiofuels.java`,
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenAromatics.java`,
-`kubejs/server_scripts/mods/gtceu/diesel.js`,
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenDiesel.java`,
 `af9-core/src/main/java/com/af9/core/recipes/AF9Recipes.java` (Ethylene) (the LuV mass route, §7).
 Planet type 9 (the far dark) brings these fluids home: `PlanetCatalog`, §5.
 
@@ -105,7 +105,7 @@ looked up by id at runtime; while it does not exist the mission is skipped like 
 
 Three AF9 fuels above GT's diesel (`diesel`, `bio_diesel`, `cetane_boosted_diesel` stay GT's).
 Code: AF9 Core `registry/AF9Materials` (`diesel()`),
-`kubejs/server_scripts/mods/gtceu/diesel.js`.
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenDiesel.java`.
 
 ```
 shiny oil + refinery gas     -chemical reactor, HV-> shiny diesel + sulfur (HOG hydrotreating)

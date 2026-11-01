@@ -3,7 +3,7 @@
 There is no titanium ore until Venus: the only ilmenite is the Venus vein (`af9:venus_ilmenite_vein`, `vein_venus.js`; Mars's
 ilmenite vein and its Mars-sand recipes are gone). The tier 3 rocket (which needs titanium) therefore comes from two synthetic
 chains that both end in GT's rutile dust; GT's chlorination and Kroll run unchanged from there. Recipes:
-`kubejs/server_scripts/mods/gtceu/titanium_synthetic.js`; materials: `AF9Materials.syntheticTitanium()`.
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenTitaniumSynthetic.java`; materials: `AF9Materials.syntheticTitanium()`.
 The Earth-side loopholes stay closed (`planet_metals.js`: bauxite electrolysis and sludge, end stone, brannerite give no rutile).
 
 ## Stage 1, HV: lunar regolith (poor: about 64 moon sand per titanium)

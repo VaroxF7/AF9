@@ -334,7 +334,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `af9-core/src/main/java/com/af9/core/registry/` | the materials (`AF9Materials`, `asteroidFission()`), the fuel pellet and rods (`AF9Items`) |
 | `af9-core/src/main/java/com/af9/core/space/AF9Space.java` | the ore layer `af9_asteroid` and the tag of its stones |
 | `kubejs/server_scripts/mods/gtceu/asteroid_fission.js` | the closed old ways, the uranium chain, the reactor, steam turbine, reprocessing, tags |
-| `kubejs/server_scripts/mods/gtceu/fission_fuels.js` | MOX, thorium and breeder fuels, HEU/LEP/HEP enriched fuels, minor actinides, vitrification |
+| `af9-core/src/main/java/com/af9/core/recipes/gen/GenFissionFuels.java` | MOX, thorium and breeder fuels, HEU/LEP/HEP enriched fuels, minor actinides, vitrification |
 | `kubejs/server_scripts/mods/gtceu/rockets.js` | the gregified rockets, the propellant, the fuel tags |
 | `kubejs/server_scripts/mods/gtceu/fusion_reactor.js` | the Fusion Reactor Mk1 |
 | `kubejs/server_scripts/mods/gtceu/miner.js` | the void miner without uranium and plutonium |

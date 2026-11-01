@@ -5,7 +5,7 @@ refineries do and the way GTNH's platline does. It runs on GT's own machines (El
 Distillation Tower); there is no new machine.
 
 Code: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (the 23 materials, `platinumGroup()`),
-`kubejs/server_scripts/mods/gtceu/platinum_group.js` (the recipes). Quests: `config/ftbquests/quests/chapters/platinum_group.snbt`.
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenPlatinumGroup.java` (the recipes). Quests: `config/ftbquests/quests/chapters/platinum_group.snbt`.
 
 **Nothing existing is changed.** GT's platinum group chain (`platinum_group_sludge`, aqua regia, the centrifuge, `inert_metal_mixture`,
 `rarest_metal_mixture`) and everything that uses these metals work as before. The line gives the same metals by another route, and

@@ -4,7 +4,7 @@ Oil is no longer found in the ground of the Overworld. It comes from **Oil Regol
 two belts' fluid deposits hold nitrogen, oxygen, heavy water, acids (the upper field) and volatile gases (Ceres).
 
 Code: `af9-core` `com.af9.core.space` (`OilRegolithBlock`, `AF9Space`, `AsteroidFieldFeature`),
-`registry/AF9Materials` (the fluids), `kubejs/server_scripts/mods/gtceu/oil.js` (the chain),
+`registry/AF9Materials` (the fluids), `af9-core/src/main/java/com/af9/core/recipes/gen/GenOil.java` (the chain),
 `kubejs/server_scripts/mods/gtceu/vein_oil.js` (the world).
 
 ## 1. The chain
