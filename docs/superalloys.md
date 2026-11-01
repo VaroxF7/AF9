@@ -9,7 +9,7 @@ Code: `AF9Materials.superalloys()` (new alloys, GT's Hastelloy C-276), `AF9Mater
 
 ## What was new and what was reused
 
-* **Kovar** existed (the MV circuit pins, `circuits_af9.js`): same id, mix and blast property, plus the parts and a rotor, and a new look.
+* **Kovar** existed (the MV circuit pins, `GenCircuitsAf9.java`): same id, mix and blast property, plus the parts and a rotor, and a new look.
 * **Hastelloy** is GT's GCYM **Hastelloy C-276** (red, 3,800 K, EV, alloy blast smelter and EBF from GT): its recipes and blast property
   are kept; it gets dense plate, fine wire, screw, rotor and a look. Hastelloy X (GT) is untouched.
 * **Stellite 1** and **Stellite 12** are new next to GT's Stellite 100 (an iron stellite, untouched).
@@ -22,7 +22,7 @@ brackets, rounded to the 20 parts.
 
 | Alloy | Mix (20 parts) | Real alloy | EBF | Coil | Gas |
 |---|---|---|---|---|---|
-| Kovar | 6 Fe, 3 Ni, 2 Co (circuits_af9.js) | Fe 54, Ni 29, Co 17 | 1,720 K, MV | Cupronickel | nitrogen |
+| Kovar | 6 Fe, 3 Ni, 2 Co (GenCircuitsAf9.java) | Fe 54, Ni 29, Co 17 | 1,720 K, MV | Cupronickel | nitrogen |
 | Havar | 8 Co, 4 Cr, 3 Ni, 3 Fe, 2 W | Co 42, Cr 20, Ni 13, Fe 18, W 3, Mo 2 | 2,900 K, HV | Nichrome (above Kanthal's 2,700 K) | argon |
 | Stellite 1 | 10 Co, 6 Cr, 3 W, 1 C | Co 50, Cr 31, W 12.5, C 2.5 | 3,100 K, HV | Nichrome | argon |
 | Inconel 625 | 12 Ni, 4 Cr, 2 Mo, 1 Fe, 1 Nb | Ni 58+, Cr 21, Mo 9, Nb 3.6, Fe 5 | 3,300 K, HV | Nichrome | argon |

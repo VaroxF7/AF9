@@ -29,7 +29,7 @@ agent_hint: "All exact IDs are in backticks. `gtceu:` = base GregTech item/machi
 ## 0.2 Source-of-truth files (main)
 
 See Appendix A for the full map. The numbers live in three places that must agree: `AF9_WAFERS` in
-`kubejs/server_scripts/mods/gtceu/photolithography.js` (recipes), the tables of `AF9Items` in
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java` (recipes), the tables of `AF9Items` in
 `af9-core/src/main/java/com/af9/core/registry/` (item registration) and `LithoMode` in `af9-core/src/main/java/com/af9/core/litho/` (machine behaviour).
 
 > AGENT: if any doc contradicts these files, the files win. Dead designs, no longer registered: the `high_grade` / `premium` / `Mk I-III + KrF + Twin-Stage` design from `9745aca`, and the wafer packages (`kubejs:<chip>_wafer_package`, `{AF9Litho}` NBT, modes MUV/HUV/EUV/XUV/LUV, `gtceu:lithography_muv` …). Do not invent `kubejs:ram_wafer_high_grade`, `kubejs:ram_wafer_package` or `gtceu:lithography_muv`.
@@ -404,7 +404,7 @@ Dies per wafer, cut EU/t and clean room are GT's own cutter recipes, unchanged.
 
 ## 5.3b AF9's own chips
 
-Nine chips beyond GT's (items: `af9-core/src/main/java/com/af9/core/registry/AF9Items.java`, `CHIPS`; recipes: `AF9_WAFERS.chips` `own(...)` in `server_scripts/mods/gtceu/photolithography.js`). Printed like GT's (a substrate prints every chip whose own substrate is the same or lower), but their chip wafers are AF9's: `af9:<chip>_wafer` → Cutter → `af9:<chip>_chip`; `af9:contaminated_<chip>_chip` for the contamination, `af9:<chip>_reticle`. Chip wafers per print: 1 on the chip's own substrate, above it the substrate's yield ÷ the class divisor (`CLASS_DIVISOR`: trinium 10, naquadria 12, intridium doped neutronium 24, like GT's 1 / 2 / 8 / 16).
+Nine chips beyond GT's (items: `af9-core/src/main/java/com/af9/core/registry/AF9Items.java`, `CHIPS`; recipes: `AF9_WAFERS.chips` `own(...)` in `recipes/gen/GenCircuitsAf9.java`). Printed like GT's (a substrate prints every chip whose own substrate is the same or lower), but their chip wafers are AF9's: `af9:<chip>_wafer` → Cutter → `af9:<chip>_chip`; `af9:contaminated_<chip>_chip` for the contamination, `af9:<chip>_reticle`. Chip wafers per print: 1 on the chip's own substrate, above it the substrate's yield ÷ the class divisor (`CLASS_DIVISOR`: trinium 10, naquadria 12, intridium doped neutronium 24, like GT's 1 / 2 / 8 / 16).
 
 | chip | what | own substrate | reticle: lens / mask blank | dies / wafer | cut |
 |---|---|---|---|---|---|
@@ -719,11 +719,11 @@ GT's chip wafers are cut by GT's own cutter recipes (dies per wafer, EU/t, clean
 
 ## 6.8 Step 5 — Circuits
 
-Chips are plain GT chips; a chip is a chip whatever substrate it came from. `circuits_af9.js` (all of AF9's circuit crafting in one file: the circuit metals' alloy mixers, the MV circuits, the HV-LuV circuits, the eDRAM versions) keeps GT's HV-LuV circuit recipes with each tier's own metals (the Circuits quest page): HV gold fine wire + stainless steel bolts, EV platinum-iridium fine wire (bootstrap Workstation: plain platinum) + titanium bolts, IV tungstensteel fine wire and frames + tungsten wire, LuV osmiridium fine wire + niobium-titanium wire + rhodium-plated palladium bolts. `AF9_WAFERS.chipStack(id, count)` gives `"<count>x gtceu:<chip>"`. MV and lower: also `circuits_af9.js` (Al-Tq wire, Kovar), unchanged. The pack's LuV Nano Mainframe (its own Assembly Line recipe) takes 16 plain RAM chips.
+Chips are plain GT chips; a chip is a chip whatever substrate it came from. `GenCircuitsAf9.java` (all of AF9's circuit crafting in one file: the circuit metals' alloy mixers, the MV circuits, the HV-LuV circuits, the eDRAM versions) keeps GT's HV-LuV circuit recipes with each tier's own metals (the Circuits quest page): HV gold fine wire + stainless steel bolts, EV platinum-iridium fine wire (bootstrap Workstation: plain platinum) + titanium bolts, IV tungstensteel fine wire and frames + tungsten wire, LuV osmiridium fine wire + niobium-titanium wire + rhodium-plated palladium bolts. `AF9_WAFERS.chipStack(id, count)` gives `"<count>x gtceu:<chip>"`. MV and lower: also `GenCircuitsAf9.java` (Al-Tq wire, Kovar), unchanged. The pack's LuV Nano Mainframe (its own Assembly Line recipe) takes 16 plain RAM chips.
 
 ## 6.9 Electronics metallurgy (alloys + zircon)
 
-Files: AF9 Core `registry/AF9Materials` (`electronicsMetallurgy()`, the materials), `server_scripts/mods/gtceu/electronics_metallurgy.js` (zircon chain, ore vein; the alloy mixers are in `circuits_af9.js`). GT generates each alloy's EBF recipe from its blast property (circuit 1 without gas, circuit 2 with the gas at 0.67× time; above 1750 K a hot ingot + vacuum freezer), the parts and centrifuge decomposition. Only alloys of a tier metal exist; HV, IV and LuV use GT's own metals.
+Files: AF9 Core `registry/AF9Materials` (`electronicsMetallurgy()`, the materials), `server_scripts/mods/gtceu/electronics_metallurgy.js` (zircon chain, ore vein; the alloy mixers are in `GenCircuitsAf9.java`). GT generates each alloy's EBF recipe from its blast property (circuit 1 without gas, circuit 2 with the gas at 0.67× time; above 1750 K a hot ingot + vacuum freezer), the parts and centrifuge decomposition. Only alloys of a tier metal exist; HV, IV and LuV use GT's own metals.
 
 | Alloy `gtceu:` | Tier | Mixer (circuit) → dust, EU/t | EBF | Gas | EBF EU/t, time | Part used | Real-world role |
 |---|---|---|---|---|---|---|---|
@@ -1022,10 +1022,10 @@ AF9's own chips (§5.3b). "On top": added to the recipe, which keeps everything 
 | Chip | Where | Script |
 |---|---|---|
 | rf_transceiver | wireless energy hatches, EV-UHV: 2 on top of each receiver / transmitter; AE2 Wireless Receiver (so the Wireless Access Point and every wireless terminal): 1, in the shape `F / IQI / IRI` | wireless_energy.js, chip_uses.js |
-| apu | extra MV Microprocessor: 1 APU in place of the CPU chip + RAM, 3 out instead of 2 | circuits_af9.js |
+| apu | extra MV Microprocessor: 1 APU in place of the CPU chip + RAM, 3 out instead of 2 | GenCircuitsAf9.java |
 | mcu | GT Machine Controller, Activity / Item / Fluid Detector covers: 1 on top (they had no circuit); extra LV / MV Robot Arm and Sensor Assembler recipes: 1 MCU in place of the circuit | chip_uses.js |
 | asic | on top: GT Large Miners EV 2 / IV 4 / LuV 8, Fluid Drilling Rigs HV 2 / EV 4 (not MV: before phosphorus), Void Miner 4 | chip_uses.js, miner.js |
-| edram packages | extra, half the time, 1 package in place of 4 RAM: Quantum Computer (and ASMD) 4 CPU packages, Crystal Processor Assembly 6 SoC packages, the pack's Nano Mainframe (Assembly Line, 800 t) 4 CPU packages | circuits_af9.js |
+| edram packages | extra, half the time, 1 package in place of 4 RAM: Quantum Computer (and ASMD) 4 CPU packages, Crystal Processor Assembly 6 SoC packages, the pack's Nano Mainframe (Assembly Line, 800 t) 4 CPU packages | GenCircuitsAf9.java |
 | mram | extra, half GT's time, no research, clean room: Data Orb (Circuit Assembler: epoxy board, CPU chip, 4 MRAM, 16 fine Pt wire), Data Bank (Assembler: computer casing, 16 MRAM, 2 CPU chips, 32 fine NbTi wire, 4 optical pipes), Advanced Data Access Hatch (Assembler: LuV input bus, 8 MRAM, 2 CPU chips, 32 fine NbTi wire) | chip_uses.js |
 | feram | the pack's UV memory (circuits) | chip_uses.js |
 | vpu | GT LuV Sensor (Assembly Line): 2 on top; LuV Scanner: GT's shape with 2 VPUs in place of the bottom two ZPM circuits (`CEC / WHW / VSV`); Orbital Lithography Station: 8 on top | chip_uses.js, photolithography.js |
@@ -1412,7 +1412,7 @@ kubejs/startup_scripts/gtceu/boule_melting.js      # recipe type boule_melting
 kubejs/startup_scripts/gtceu/cryogenics.js         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches HV-UHV
 kubejs/startup_scripts/gtceu/particle_accelerator.js # 3 recipe types, the Particle Accelerator ring
 kubejs/startup_scripts/gtceu/staged_assembly.js # §19: the staged_assembly recipe type + the Staged Assembly structure
-kubejs/server_scripts/mods/gtceu/photolithography.js # AF9_WAFERS table + wafer tags, machine/light-source crafting, XCDA/i-line/EUV chemistry, prints, derived wafers, cutting, reclaim/clean, removals
+af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java # AF9_WAFERS table + wafer tags, machine/light-source crafting, XCDA/i-line/EUV chemistry, prints, derived wafers, cutting, reclaim/clean, removals
 af9-core/src/main/java/com/af9/core/recipes/gen/GenBouleMelting.java  # Ender Air → endion, endionite, coils, crucibles, charges/seeds/boules, new boule cutting, GT boule removals
 af9-core/src/main/java/com/af9/core/recipes/gen/GenCryogenics.java     # cryostat + coolant hatch crafting, dense cooling + supercooling
 af9-core/src/main/java/com/af9/core/recipes/AcceleratorRecipes.java # accelerator + consumables crafting, neutron irradiation, ion collision, quark synthesis
@@ -1420,7 +1420,7 @@ af9-core/src/main/java/com/af9/core/recipes/gen/GenStagedAssembly.java # §19: t
 af9-core/src/main/java/com/af9/core/recipes/gen/GenElectronicsMetallurgy.java # zircon chain, zircon sands ore vein
 af9-core/src/main/java/com/af9/core/recipes/gen/GenFabChemistry.java  # lines 1-5 (§6.12-6.16): Moon Sand polysilicon + Lunar Air + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)
 kubejs/startup_scripts/gtceu/fab_machines.js       # §11: the 12 fab recipe types (slot layouts); AF9 Core makes them modes of the GT machines
-kubejs/server_scripts/mods/gtceu/circuits_af9.js    # all of AF9's circuit crafting: alloy mixers (Al-Tq, Kovar, Pt-Ir), MV circuits without transistors/diodes, HV-LuV circuits (plain chips + tier metals), eDRAM versions
+af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java    # all of AF9's circuit crafting: alloy mixers (Al-Tq, Kovar, Pt-Ir), MV circuits without transistors/diodes, HV-LuV circuits (plain chips + tier metals), eDRAM versions
 config/ftbquests/quests/chapters/*.snbt             # quests (§6.10); text in kubejs/assets/kubejs/lang/en_us.json (af9.quest.*)
 kubejs/assets/gtceu/lang/en_us.json                 # machine/recipe-type/block names, tooltips, mode descriptions, AF9 material names
 af9-core/src/main/resources/assets/af9/lang/en_us.json # consoles, Jade, recipe info, substrate/light names, wafer messages

@@ -1,6 +1,6 @@
 # Ceranium and the Pico board
 
-The Pico circuits (`circuits_af9.js` §11) used to start from a wetware board. That is gone: the **Pico board** (`af9:pico_board`) is
+The Pico circuits (`GenCircuitsAf9.java` §11) used to start from a wetware board. That is gone: the **Pico board** (`af9:pico_board`) is
 laid up at **UV**, the first time any UHV+ circuit part is made, from a new alloy and fibre interconnects. The Advanced Circuit
 Manufacturer (UHV) takes the finished board from there (`cleansed_pico_board` and on, unchanged).
 

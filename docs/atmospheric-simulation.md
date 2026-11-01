@@ -3,7 +3,7 @@
 A 31x6x31 pressure room after GT's Cleanroom (past its 15 max) that holds a **Lunar atmosphere**
 in any dimension.
 The controller in the ceiling centre houses the **Atmospheric Simulator**; XPS and NVM circuits
-(the tiers `circuits_af9.js` had parked) build in its lunar air.
+(the tiers `GenCircuitsAf9.java` had parked) build in its lunar air.
 
 Code: `kubejs/startup_scripts/gtceu/atmospheric_simulation.js` (type `atmospheric_simulation`,
 room pattern), `af9-core/src/main/java/com/af9/core/recipes/gen/GenAtmosphericSimulation.java` (controller craft,

@@ -223,6 +223,13 @@ public final class Dsl {
             return this;
         }
 
+        /** An output item rolled between min and max when the run ends (GT's ranged outputs). */
+        public B itemOutputsRanged(String spec, int min, int max) {
+            ItemStack st = stack(spec);
+            if (!st.isEmpty()) b.outputItemsRanged(st, net.minecraft.util.valueproviders.UniformInt.of(min, max));
+            return this;
+        }
+
         public B inputFluids(Object... fluids) {
             for (Object f : fluids) {
                 if (f instanceof FluidStack s) {

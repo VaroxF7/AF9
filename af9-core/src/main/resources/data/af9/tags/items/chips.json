@@ -1,0 +1,137 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "gtceu:ilc_chip",
+      "required": false
+    },
+    {
+      "id": "gtceu:ram_chip",
+      "required": false
+    },
+    {
+      "id": "gtceu:cpu_chip",
+      "required": false
+    },
+    {
+      "id": "gtceu:ulpic_chip",
+      "required": false
+    },
+    {
+      "id": "gtceu:lpic_chip",
+      "required": false
+    },
+    {
+      "id": "gtceu:simple_soc",
+      "required": false
+    },
+    {
+      "id": "gtceu:nand_memory_chip",
+      "required": false
+    },
+    {
+      "id": "gtceu:nor_memory_chip",
+      "required": false
+    },
+    {
+      "id": "gtceu:mpic_chip",
+      "required": false
+    },
+    {
+      "id": "gtceu:soc",
+      "required": false
+    },
+    {
+      "id": "gtceu:advanced_soc",
+      "required": false
+    },
+    {
+      "id": "gtceu:highly_advanced_soc",
+      "required": false
+    },
+    {
+      "id": "gtceu:nano_cpu_chip",
+      "required": false
+    },
+    {
+      "id": "gtceu:qbit_cpu_chip",
+      "required": false
+    },
+    {
+      "id": "gtceu:hpic_chip",
+      "required": false
+    },
+    {
+      "id": "gtceu:uhpic_chip",
+      "required": false
+    },
+    {
+      "id": "af9:rf_transceiver_chip",
+      "required": false
+    },
+    {
+      "id": "af9:apu_chip",
+      "required": false
+    },
+    {
+      "id": "af9:mcu_chip",
+      "required": false
+    },
+    {
+      "id": "af9:asic_chip",
+      "required": false
+    },
+    {
+      "id": "af9:edram_chip",
+      "required": false
+    },
+    {
+      "id": "af9:mram_chip",
+      "required": false
+    },
+    {
+      "id": "af9:feram_chip",
+      "required": false
+    },
+    {
+      "id": "af9:vpu_chip",
+      "required": false
+    },
+    {
+      "id": "af9:tpu_chip",
+      "required": false
+    },
+    {
+      "id": "af9:saw_filter_chip",
+      "required": false
+    },
+    {
+      "id": "af9:photonic_ic_chip",
+      "required": false
+    },
+    {
+      "id": "af9:spin_logic_chip",
+      "required": false
+    },
+    {
+      "id": "af9:tmd_logic_chip",
+      "required": false
+    },
+    {
+      "id": "af9:memristor_chip",
+      "required": false
+    },
+    {
+      "id": "af9:quantum_dot_ic_chip",
+      "required": false
+    },
+    {
+      "id": "af9:qram_chip",
+      "required": false
+    },
+    {
+      "id": "af9:qlos_chip",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,205 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "gtceu:silicon_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_silicon_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:ilc_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:ram_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:cpu_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:ulpic_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:lpic_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:simple_soc_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:nano_cpu_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:qbit_cpu_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:rf_transceiver_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:apu_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:mcu_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:phosphorus_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_phosphorus_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:nand_memory_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:nor_memory_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:mpic_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:soc_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:hpic_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:uhpic_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:asic_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:naquadah_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_naquadah_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:advanced_soc_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:saw_filter_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:trinium_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_trinium_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:edram_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:mram_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:feram_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:photonic_ic_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:naquadria_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_naquadria_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:vpu_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:spin_logic_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:neutronium_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_neutronium_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:highly_advanced_soc_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:tmd_logic_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:transmuted_neutronium_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_transmuted_neutronium_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:tpu_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:memristor_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:strange_matter_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_strange_matter_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:quantum_dot_ic_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:qram_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:qlos_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:chromodynium_wafer",
+      "required": false
+    }
+  ]
+}

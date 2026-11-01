@@ -16,7 +16,7 @@ const TIERS = ['ULV', 'LV', 'MV', 'HV', 'EV', 'IV', 'LuV', 'ZPM', 'UV', 'UHV', '
 const VOLT = [8, 32, 128, 512, 2048, 8192, 32768, 131072, 524288, 2097152, 8388608, 33554432, 134217728, 536870912, 2147483647]
 const SUPPORTED = new Set(['itemInputs', 'notConsumable', 'itemOutputs', 'inputFluids', 'outputFluids', 'notConsumableFluid',
     'chancedOutput', 'chancedInput', 'circuit', 'duration', 'EUt', 'CWUt', 'cleanroom', 'blastFurnaceTemp', 'addCondition',
-    'addData', 'dimension', 'stationResearch', 'scannerResearch'])
+    'addData', 'dimension', 'stationResearch', 'scannerResearch', 'itemOutputsRanged'])
 
 class Unsupported extends Error {}
 const no = why => { throw new Unsupported(why) }
@@ -68,6 +68,7 @@ function emit(c) {            // one recorded call -> Java call text
     const [name, a] = c
     switch (name) {
         case 'itemInputs': case 'itemOutputs': return `.${name}(${flat(a).map(item).map(lit).join(', ')})`
+        case 'itemOutputsRanged': return `.itemOutputsRanged(${lit(item(a[0]))}, ${num(a[1])}, ${num(a[2])})`
         case 'notConsumable': return flat(a).map(x => `.notConsumable(${lit(item(x))})`).join('')
         case 'inputFluids': case 'outputFluids': return `.${name}(${flat(a).map(fluid).join(', ')})`
         case 'notConsumableFluid': return flat(a).map(x => `.notConsumableFluid(${fluid(x)})`).join('')

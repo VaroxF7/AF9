@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "gtceu:neutronium_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_neutronium_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:highly_advanced_soc_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:tmd_logic_wafer",
+      "required": false
+    }
+  ]
+}

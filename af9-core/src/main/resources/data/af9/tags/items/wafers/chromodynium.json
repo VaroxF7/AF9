@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "af9:chromodynium_wafer",
+      "required": false
+    }
+  ]
+}

@@ -37,6 +37,7 @@ public final class GenAll {
         GenChemicalReduction.register(out);
         GenChipUses.register(out);
         GenCircuitEtching.register(out);
+        GenCircuitsAf9.register(out);
         GenCleanroomHatch.register(out);
         GenCreateSteamAge.register(out);
         GenCryogenics.register(out);

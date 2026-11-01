@@ -112,7 +112,7 @@ chips **and every lower substrate's chips** — as GT's own plain chip wafers, n
 
 ### The nine nodes (load-bearing numbers)
 
-`LithoMode` (Java) = `AF9_WAFERS` (`kubejs/server_scripts/mods/gtceu/photolithography.js`) =
+`LithoMode` (Java) = `AF9_WAFERS` (`af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java`) =
 the item tables of `AF9Items` (`af9-core/src/main/java/com/af9/core/registry/AF9Items.java`). Files win over docs.
 
 | Substrate | Blank wafer | Node | Tier / EU/t | Light λ / NA | Resist | Base break | Prints on |
@@ -304,7 +304,7 @@ Quest chapters track this order: MV → HV → EV → IV → LuV → ZPM → UV 
 |---|---|
 | `af9-core/` | AF9 Core Forge mod — the pack's blocks, items and materials, their textures and models, and the machine logic (see [`af9-core/README.md`](af9-core/README.md)) |
 | `kubejs/startup_scripts/gtceu/` | AF9 machines, parts, recipe types |
-| `kubejs/server_scripts/mods/gtceu/` | AF9 recipes |
+| `af9-core/src/main/java/com/af9/core/recipes/` | AF9 recipes (Java: `gen/`, `HandRecipes`, `Patches`, `Removals`) |
 | `kubejs/assets/` | lang (`gtceu`, `kubejs`), fluid textures |
 | `config/ftbquests/` | quest chapters AF9 adds/extends |
 | `config/` | other configs AF9 changes (`fml.toml`, …) |
@@ -317,7 +317,7 @@ Key scripts: `photolithography.js` + `wafers.js` + `litho_process.js` (nodes mus
 `asteroid_fission.js` + `GenRockets.java` + `fusion_reactor.js`, `computation.js` + `cwu_server.js`,
 `space_elevator.js`, `platinum_group.js`, `oil.js` + `AF9Veins.java` + `AF9Veins.java`, `uhv_superconductor.js`, `miner.js`,
 `rubber.js`, `diesel.js` + `recipes/gen/{GenBiofuels,GenAromatics,GenNetherChemistry}` + `recipes/AF9Recipes` Ethylene (green chemistry, ported to Java),
-`wireless_energy.js`, `chip_uses.js` / `circuits_af9.js`.
+`wireless_energy.js`, `chip_uses.js` / `GenCircuitsAf9.java`.
 
 ---
 

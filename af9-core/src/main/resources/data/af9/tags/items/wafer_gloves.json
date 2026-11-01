@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "gtceu:rubber_gloves",
+      "required": false
+    },
+    {
+      "id": "gtceu:hazmat_chestpiece",
+      "required": false
+    }
+  ]
+}

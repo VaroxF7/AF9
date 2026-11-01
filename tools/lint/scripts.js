@@ -138,6 +138,7 @@ function recipeBuilder(type, id) {
             case 'notConsumable': items.forEach(i => { rec.itemIn.push(ids(i)); rec.notConsumed++; qty(i) }); break
             case 'circuit': rec.itemIn.push('circuit:' + a[0]); rec.circuits++; rec.itemQty.set('circuit:' + a[0], 1); break
             case 'itemOutputs': items.forEach(i => rec.itemOut.push(ids(i))); break
+            case 'itemOutputsRanged': rec.itemOut.push(ids(a[0])); break
             case 'chancedOutput': rec.itemOut.push(ids(a[0])); break
             case 'inputFluids': items.forEach(i => rec.fluidIn.push(ids(i))); break
             case 'notConsumableFluid': items.forEach(i => { rec.fluidIn.push(ids(i)); rec.notConsumed++ }); break

@@ -1,0 +1,41 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "gtceu:phosphorus_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_phosphorus_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:nand_memory_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:nor_memory_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:mpic_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:soc_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:hpic_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:uhpic_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:asic_wafer",
+      "required": false
+    }
+  ]
+}

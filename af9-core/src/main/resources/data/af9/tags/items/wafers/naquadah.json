@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "gtceu:naquadah_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_naquadah_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:advanced_soc_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:saw_filter_wafer",
+      "required": false
+    }
+  ]
+}

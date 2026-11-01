@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "af9:transmuted_neutronium_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_transmuted_neutronium_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:tpu_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:memristor_wafer",
+      "required": false
+    }
+  ]
+}

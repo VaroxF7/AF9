@@ -62,7 +62,7 @@ Create's own electron tube recipe (polished rose quartz + iron sheet) is
 removed; the only tube is vacuum + polished rose quartz (above). The LV/MV
 assembler and crafting-table circuits take electron tubes too.
 
-The parts are the circuit assembler's own (`circuits_af9.js`), so nothing new is asked of the player: only where the work
+The parts are the circuit assembler's own (`GenCircuitsAf9.java`), so nothing new is asked of the player: only where the work
 is done changes.
 
 ## 2. HV components back in the assembler (the orb shapes parts now)

@@ -131,7 +131,7 @@ field generator while its high-tier content is off), 4x AI Acceleration Card, 32
 
 `af9:ai_acceleration_card` (AF9 Core `registry/AF9Items`): TPU and memristor on a wetware board,
 traced in 128 fine sanguinite wire. UHV circuit assembler, plasma solder canonical (tin stays as a dead
-budget option), clean room — `af9:ai_acceleration_card` in `kubejs/server_scripts/mods/gtceu/circuits_af9.js`.
+budget option), clean room — `af9:ai_acceleration_card` in `af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java`.
 The compute card of the new DTPF: its recipes take the card.
 
 ## 5. The recipe page (EMI / JEI)

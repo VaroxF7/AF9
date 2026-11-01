@@ -1,0 +1,57 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "gtceu:silicon_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_silicon_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:ilc_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:ram_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:cpu_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:ulpic_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:lpic_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:simple_soc_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:nano_cpu_wafer",
+      "required": false
+    },
+    {
+      "id": "gtceu:qbit_cpu_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:rf_transceiver_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:apu_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:mcu_wafer",
+      "required": false
+    }
+  ]
+}

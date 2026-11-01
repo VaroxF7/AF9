@@ -1,0 +1,29 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "af9:trinium_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_trinium_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:edram_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:mram_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:feram_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:photonic_ic_wafer",
+      "required": false
+    }
+  ]
+}

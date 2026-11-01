@@ -1,0 +1,13 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "af9:xps_processor",
+      "required": false
+    },
+    {
+      "id": "af9:xps_processor_mainframe",
+      "required": false
+    }
+  ]
+}

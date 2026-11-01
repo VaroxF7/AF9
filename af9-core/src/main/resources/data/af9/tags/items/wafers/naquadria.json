@@ -1,0 +1,21 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "af9:naquadria_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_naquadria_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:vpu_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:spin_logic_wafer",
+      "required": false
+    }
+  ]
+}

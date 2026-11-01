@@ -1,0 +1,25 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "af9:strange_matter_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:coated_strange_matter_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:quantum_dot_ic_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:qram_wafer",
+      "required": false
+    },
+    {
+      "id": "af9:qlos_wafer",
+      "required": false
+    }
+  ]
+}

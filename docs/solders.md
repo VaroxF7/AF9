@@ -5,14 +5,14 @@ stays on the MV bootstrap (the high-grade EBF needs HV), and AF9's own three tak
 
 Code: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (`solders()`),
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenSolders.java` (bio-chain, plasma condensation),
-`kubejs/server_scripts/mods/gtceu/circuits_af9.js` (who solders what),
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java` (who solders what),
 `kubejs/startup_scripts/gtceu/photolithography.js` (`plasma_soldering` type + Array Mk2 pattern),
 `af9-core/src/main/java/com/af9/core/machine/OrbitalLithographyMachine.java` (Mk2 sizes, `PLASMA_GATE`, ring).
 
 ## 1. High-grade solder (HV-UV, full replacement)
 
 `gtceu:high_grade_solder`: SAC-InBi lead-free solder (Sn9BiInAg). Mixed in the MV mixer (one tier below its first
-users, like the MV circuit alloys in `circuits_af9.js`): 9 tin + 1 bismuth + 1 indium + 1 silver dust (circuit 12) →
+users, like the MV circuit alloys in `GenCircuitsAf9.java`): 9 tin + 1 bismuth + 1 indium + 1 silver dust (circuit 12) →
 12 dust, 360 ticks at MV. GT derives the HV EBF recipe from the blast property (1500 K, LOW, HV, 500 ticks).
 Its look is its own icon set (`solder`, parented to SHINY): satin silver with brushed streaks and a whisper of
 bismuth iridescence (`tools/textures/solder.py` → `assets/gtceu/.../material_sets/solder/`), not the plain-white
@@ -107,7 +107,7 @@ focus and "latched" once it holds.
 
 GTNH's Pico components as the XPS tier's own circuit line, made in the **Advanced Circuit Manufacturer**
 (`advanced_circuit_manufacturer` type: up to 16 items and 4 fluids in, computation through its hatch, UHV on
-300 A through its laser hatch; `circuits_af9.js` §11):
+300 A through its laser hatch; `GenCircuitsAf9.java` §11):
 
 | Recipe | Takes | CWU/t | Time |
 |---|---|---|---|
