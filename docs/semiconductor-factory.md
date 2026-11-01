@@ -1415,7 +1415,7 @@ kubejs/startup_scripts/gtceu/staged_assembly.js # §19: the staged_assembly reci
 kubejs/server_scripts/mods/gtceu/photolithography.js # AF9_WAFERS table + wafer tags, machine/light-source crafting, XCDA/i-line/EUV chemistry, prints, derived wafers, cutting, reclaim/clean, removals
 af9-core/src/main/java/com/af9/core/recipes/gen/GenBouleMelting.java  # Ender Air → endion, endionite, coils, crucibles, charges/seeds/boules, new boule cutting, GT boule removals
 af9-core/src/main/java/com/af9/core/recipes/gen/GenCryogenics.java     # cryostat + coolant hatch crafting, dense cooling + supercooling
-kubejs/server_scripts/mods/gtceu/particle_accelerator.js # accelerator + consumables crafting, neutron irradiation, ion collision, quark synthesis
+af9-core/src/main/java/com/af9/core/recipes/AcceleratorRecipes.java # accelerator + consumables crafting, neutron irradiation, ion collision, quark synthesis
 kubejs/server_scripts/mods/gtceu/staged_assembly.js # §19: the staged() authoring helper, the two demo recipes
 af9-core/src/main/java/com/af9/core/recipes/gen/GenElectronicsMetallurgy.java # zircon chain, zircon sands ore vein
 af9-core/src/main/java/com/af9/core/recipes/gen/GenFabChemistry.java  # lines 1-5 (§6.12-6.16): Moon Sand polysilicon + Lunar Air + EGS, fluorochemicals, air gases, KrF / ArF resist, ultrapure water (fab_* types, `column()` makes the still cuts)

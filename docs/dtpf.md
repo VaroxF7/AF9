@@ -93,7 +93,7 @@ Minecraft in it, so the previews of the styles are made from the same code the g
   recipes work on Universal Cells (`gtceu:universal_fluid_cell`) holding the fluid, since the ring takes fluids only as coolant. The
   Canner fills a cell with 1,000 mB molten tungsten (the fork's Universal Cell holds any fluid, patch 0030); collision 1 (argon) turns it
   into a cell of molten **Rhenium-127** (`gtceu:rhenium_127`, GT's rhenium icon set tinted blue), collision 2 (xenon) into a cell of
-  1,000 mB `gtceu:osmium_plasma`, and the Canner empties that into the fluid (the empty cell comes back). Recipes: `server_scripts/mods/gtceu/particle_accelerator.js`.
+  1,000 mB `gtceu:osmium_plasma`, and the Canner empties that into the fluid (the empty cell comes back). Recipes: `af9-core/src/main/java/com/af9/core/recipes/AcceleratorRecipes.java`.
 * There is no Mk2 (the refit controller was removed 2026-10-25); `gtceu:dtpf` is the only controller.
 * **The console** (`PlasmaForgeConsoleWidget`): four gauges (the magnetic field with its two marks, the stabilisers, the osmium
   plasma, the primary power and its inputs), what is being made, the ramp and the run-time bar, with a tooltip on each gauge.

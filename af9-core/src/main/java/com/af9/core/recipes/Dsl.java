@@ -128,12 +128,31 @@ public final class Dsl {
             count = Integer.parseInt(m.group(1));
             id = m.group(2);
         }
+        String nbt = null;
+        int brace = id.indexOf('{');
+        if (brace > 0) {
+            nbt = id.substring(brace);
+            id = id.substring(0, brace);
+        }
         Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(id));
         if (item == null || item == net.minecraft.world.item.Items.AIR) {
             if (error == null) error = "unknown item " + id;
             return ItemStack.EMPTY;
         }
-        return new ItemStack(item, count);
+        ItemStack st = new ItemStack(item, count);
+        if (nbt != null) {
+            try {
+                st.setTag(net.minecraft.nbt.TagParser.parseTag(nbt));
+            } catch (com.mojang.brigadier.exceptions.CommandSyntaxException e) {
+                throw new IllegalArgumentException("bad NBT in " + spec, e);
+            }
+        }
+        return st;
+    }
+
+    /** A Universal Fluid Cell holding 1000 mB of a fluid, as an item spec (NBT in braces). */
+    public static String cell(String fluid) {
+        return "gtceu:universal_fluid_cell{Fluid:{Amount:1000,FluidName:\"" + fluid + "\"}}";
     }
 
     private static boolean isTag(String spec) {
@@ -172,6 +191,18 @@ public final class Dsl {
                     if (!st.isEmpty()) b.inputItems(st);
                 }
             }
+            return this;
+        }
+
+        /** An input item that holds a given fluid: a cell with {@code Fluid.FluidName} and {@code Fluid.Amount} 1000, matched by NBT. */
+        public B inputItemNbtPredicate(String spec, String fluid) {
+            ItemStack st = stack(spec);
+            if (st.isEmpty()) return this;
+            b.inputItemNbtPredicate(st, new com.gregtechceu.gtceu.api.recipe.ingredient.nbtpredicate.AllNBTPredicate(java.util.List.of(
+                    new com.gregtechceu.gtceu.api.recipe.ingredient.nbtpredicate.EqualsNBTPredicate("Fluid.FluidName",
+                            net.minecraft.nbt.StringTag.valueOf(fluid)),
+                    new com.gregtechceu.gtceu.api.recipe.ingredient.nbtpredicate.EqualsNBTPredicate("Fluid.Amount",
+                            net.minecraft.nbt.IntTag.valueOf(1000)))));
             return this;
         }
 
