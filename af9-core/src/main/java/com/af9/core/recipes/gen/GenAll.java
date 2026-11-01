@@ -88,6 +88,7 @@ public final class GenAll {
         GenRubber.register(out);
         GenSolders.register(out);
         GenSpaceElevator.register(out);
+        GenStagedAssembly.register(out);
         GenStainlessFirebox.register(out);
         GenStainlessMolten.register(out);
         GenTitaniumSynthetic.register(out);

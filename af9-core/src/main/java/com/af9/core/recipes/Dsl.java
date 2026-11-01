@@ -343,6 +343,43 @@ public final class Dsl {
             return this;
         }
 
+        /**
+         * The staged-assembly data: the first {@code globalItems} item inputs and {@code globalFluids} fluid inputs belong to every
+         * stage, then each layer takes the next run of items and fluids. {@code layers} is (ticks, items, fluids) per layer.
+         */
+        public B addStaged(int globalItems, int globalFluids, int... layers) {
+            int count = layers.length / 3;
+            if (count < 1 || count > 7 || layers.length % 3 != 0) throw new IllegalArgumentException("staged " + id + ": needs 1-7 layers");
+            net.minecraft.nbt.ListTag layerList = new net.minecraft.nbt.ListTag();
+            int item = globalItems;
+            int fluid = globalFluids;
+            for (int i = 0; i < count; i++) {
+                int ticks = layers[i * 3];
+                int items = layers[i * 3 + 1];
+                int fluids = layers[i * 3 + 2];
+                if (items + fluids < 1 || items + fluids > 5) throw new IllegalArgumentException("staged " + id + ": layer " + (i + 1) + " has " + (items + fluids) + " inputs (needs 1-5)");
+                net.minecraft.nbt.CompoundTag layer = new net.minecraft.nbt.CompoundTag();
+                layer.putInt("duration", ticks);
+                layer.put("items", range(item, items));
+                layer.put("fluids", range(fluid, fluids));
+                layerList.add(layer);
+                item += items;
+                fluid += fluids;
+            }
+            net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+            tag.put("layers", layerList);
+            tag.put("globalItems", range(0, globalItems));
+            tag.put("globalFluids", range(0, globalFluids));
+            b.addData("af9_staged", tag);
+            return this;
+        }
+
+        private static net.minecraft.nbt.ListTag range(int from, int count) {
+            net.minecraft.nbt.ListTag list = new net.minecraft.nbt.ListTag();
+            for (int i = 0; i < count; i++) list.add(net.minecraft.nbt.IntTag.valueOf(from + i));
+            return list;
+        }
+
         public B addData(String key, int value) {
             b.addData(key, value);
             return this;
