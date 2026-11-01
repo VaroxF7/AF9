@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  * The High Temperature Precision Fabricator (TerraFirmaGreg's boule machine): GT's electric multiblock, a steel
  * firebox and gearbox hall with the Precision Fabricator Input and Output Ports as its only hatches. It batches its
  * crafts from the start (batch mode is the only way it runs: no parallel hatch) and overclocks perfectly; both
- * modifiers are set on the definition (startup_scripts/gtceu/precision_fabricator.js).
+ * modifiers are set on the definition (af9-core/src/main/java/com/af9/core/startup/machines/PrecisionFabricator.java).
  */
 public class PrecisionFabricatorMachine extends WorkableElectricMultiblockMachine {
 

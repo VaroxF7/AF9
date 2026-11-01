@@ -3,6 +3,7 @@ package com.af9.core.startup;
 import com.af9.core.AF9Core;
 
 import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
@@ -13,6 +14,7 @@ import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
 import com.gregtechceu.gtceu.api.registry.registrate.MachineBuilder;
 import com.gregtechceu.gtceu.api.registry.registrate.MultiblockMachineBuilder;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
+import com.gregtechceu.gtceu.common.data.machines.GTMachineUtils;
 import com.gregtechceu.gtceu.common.data.models.GTMachineModels;
 import com.gregtechceu.gtceu.common.registry.GTRegistration;
 import com.gregtechceu.gtceu.data.pack.GTDynamicResourcePack;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import com.google.gson.JsonObject;
+import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import com.tterrag.registrate.providers.DataGenContext;
 
 import java.util.ArrayList;
@@ -71,17 +74,40 @@ public final class AF9Machines {
         return definition;
     }
 
+    /** The machine of a tiered block that is told the tank scaling (as GregTech's KubeJS plugin did). */
+    @FunctionalInterface
+    public interface TieredFactory {
+
+        MetaMachine create(IMachineBlockEntity holder, int tier, Int2IntFunction tankScaling);
+    }
+
     /** A tiered single block machine: {@code gtceu:<tier>_<id>} for every tier of the list ({@code GTValues} tier numbers). */
     public static void tiered(String id, int[] tiers, BiFunction<IMachineBlockEntity, Integer, ? extends MetaMachine> machine,
                               BiConsumer<Integer, MachineBuilder<MachineDefinition, ?>> definition) {
+        tiered(id, tiers, false, GTMachineUtils.defaultTankSizeFunction,
+                (holder, tier, scaling) -> machine.apply(holder, tier), definition);
+    }
+
+    /** As above, for a machine that takes the tank scaling, with GregTech's default tooltips (energy, tanks) if asked. */
+    public static void tiered(String id, int[] tiers, TieredFactory machine,
+                              BiConsumer<Integer, MachineBuilder<MachineDefinition, ?>> definition) {
+        tiered(id, tiers, false, GTMachineUtils.defaultTankSizeFunction, machine, definition);
+    }
+
+    public static void tiered(String id, int[] tiers, boolean defaultTooltips, Int2IntFunction tankScaling,
+                              TieredFactory machine, BiConsumer<Integer, MachineBuilder<MachineDefinition, ?>> definition) {
         for (int tier : tiers) {
-            String tierName = com.gregtechceu.gtceu.api.GTValues.VN[tier].toLowerCase(Locale.ROOT);
+            String tierName = GTValues.VN[tier].toLowerCase(Locale.ROOT);
             MachineBuilder<MachineDefinition, ?> builder = GTRegistration.REGISTRATE.machine(tierName + "_" + id,
-                    holder -> machine.apply(holder, tier));
+                    holder -> machine.create(holder, tier, tankScaling));
             // GregTech's defaults for a custom tiered machine of the scripts, overridden by the definition
-            builder.langValue("%s %s %s".formatted(com.gregtechceu.gtceu.api.GTValues.VLVH[tier],
-                    englishName(id), com.gregtechceu.gtceu.api.GTValues.VLVT[tier])).tier(tier);
+            builder.langValue("%s %s %s".formatted(GTValues.VLVH[tier], englishName(id), GTValues.VLVT[tier])).tier(tier);
             definition.accept(tier, builder);
+            if (builder.recipeTypes().length > 0 && tankScaling != null && defaultTooltips) {
+                GTRecipeType recipeType = builder.recipeTypes()[0];
+                builder.tooltips(GTMachineUtils.workableTiered(tier, GTValues.V[tier], GTValues.V[tier] * 64, recipeType,
+                        tankScaling.applyAsInt(tier), true));
+            }
             MachineDefinition def = builder.register();
             BUILDERS.add(builder);
             DEFINITIONS.add(def);
@@ -129,6 +155,13 @@ public final class AF9Machines {
     public static Component[] lines(String key, int count) {
         Component[] out = new Component[count];
         for (int i = 0; i < count; i++) out[i] = Component.translatable(key + i);
+        return out;
+    }
+
+    /** Tooltip lines key + 0 .. count - 1, each with one argument (e.g. the amperage). */
+    public static Component[] linesWith(String key, int count, Object arg) {
+        Component[] out = new Component[count];
+        for (int i = 0; i < count; i++) out[i] = Component.translatable(key + i, "" + arg);
         return out;
     }
 

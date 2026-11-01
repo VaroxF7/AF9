@@ -94,7 +94,7 @@ The Certus Resonating Manufacturer is a copy of TerraFirmaGreg's ME Resonance Fa
 `dd977368`, textures and crafting recipes), LGPL-3.0; licence text in `licenses/TerraFirmaGreg-Core-Modern-LGPL-3.0.txt`.
 The structure and the recipe page are taken over; the Java is ported to AF9 Core (`MEResonanceFabricatorMachine`,
 `ResonanceHatchPartMachine`) and the machine is registered in KubeJS
-(`startup_scripts/gtceu/me_resonance_fabricator.js`). The budding grades, the wear and the redstone port are gone: the
+(`af9-core/src/main/java/com/af9/core/startup/machines/MeResonanceFabricator.java`). The budding grades, the wear and the redstone port are gone: the
 Liquid Resonating Fluix in the Resonating Fluix Hatch stabilises the machine instead. The casings are GTCEu's Stable Titanium Machine Casing (`tools/textures/gt_src/`, LGPL-3.0) recoloured by
 `tools/textures/resonator_casings.py` (cold steel for `ae2_machine_casing`, whose seams glow certus blue while the machine
 works; graphite for `ptfe_black_casing`), joined by CTM. Recipe textures are TFG's.

@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * The Large Electric Implosion Compressor (structure in {@code kubejs/startup_scripts/gtceu/electric_implosion.js}).
+ * The Large Electric Implosion Compressor (structure in {@code af9-core/src/main/java/com/af9/core/startup/machines/ElectricImplosion.java}).
  * It holds a capacitor bank: the energy hatches fill an internal buffer of {@link #CAPACITY} EU while the machine
  * is formed, and a charged implosion recipe (KubeJS data {@code burst_eu}, the explosive route of GT's implosion
  * compressor without its explosive) is fired from that buffer, per parallel, instead of from dynamite.

@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The Logistics Hub (4 x 2 x 2, structure in {@code kubejs/startup_scripts/gtceu/logistics_hub.js}): the brain and
+ * The Logistics Hub (4 x 2 x 2, structure in {@code af9-core/src/main/java/com/af9/core/startup/machines/LogisticsHub.java}): the brain and
  * logistics centre of a machine that is too big to feed from all sides, the Photolithography Scanner Mk2. It stands
  * anywhere and is linked to the machine by a pair of Fiber Link Ports ({@link FiberLinkPortPartMachine}).
  * <p>

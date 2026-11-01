@@ -63,6 +63,40 @@ def jstr(s):
     """a JS string literal body -> Java string literal"""
     return '"' + s.replace('\\\'', "'").replace('"', '\\"') + '"'
 
+def template_to_java(code):
+    """`a${x}b` -> "a" + (x) + "b" (outside of single/double quoted strings)"""
+    out, i, n = '', 0, len(code)
+    while i < n:
+        c = code[i]
+        if code.startswith('//', i):
+            j = code.find('\n', i); j = n if j < 0 else j
+            out += code[i:j]; i = j; continue
+        if c in '\'"':
+            q = c; j = i + 1
+            while j < n and code[j] != q:
+                if code[j] == '\\': j += 1
+                j += 1
+            out += code[i:j + 1]; i = j + 1; continue
+        if c == '`':
+            j = i + 1; parts = []; cur = ''
+            while code[j] != '`':
+                if code.startswith('${', j):
+                    k = scan_balanced(code, j + 1, '{', '}')
+                    if cur: parts.append(('s', cur)); cur = ''
+                    parts.append(('e', code[j + 2:k - 1]))
+                    j = k; continue
+                cur += code[j]; j += 1
+            if cur: parts.append(('s', cur))
+            if not parts or parts[0][0] == 'e': parts.insert(0, ('s', ''))
+            segs = []
+            for kind, text in parts:
+                if kind == 's': segs.append('"' + text.replace('"', '\\"') + '"')
+                else:
+                    segs.append(text if re.fullmatch(r'[\w.\[\]]+', text) else '(' + text + ')')
+            out += ' + '.join(segs); i = j + 1; continue
+        out += c; i += 1
+    return out
+
 def convert_strings(code, keep_char_after_where=True):
     out, i, n = '', 0, len(code)
     while i < n:
@@ -169,56 +203,115 @@ def header_doc(src):
     doc = '\n'.join(' * ' + (t.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;').replace('@', '{@literal @}').replace('*/', '*&#47;')) for t in lines)
     return '/**\n' + doc.replace(' * \n', ' *\n') + '\n */'
 
+def tr_tooltips_arg(a):
+    a = a.strip()
+    if a.startswith('[') and a.endswith(']'): a = a[1:-1]
+    return a
+
+def emit_multiblock(mid, segs):
+    factory = None
+    lines = []
+    for c, name, args in segs:
+        if name == 'machine':
+            factory = tr_expr(args)
+            continue
+        if name == 'tooltips': args = tr_tooltips_arg(args)
+        name, a = tr_segment(name, args)
+        for l in c.split('\n'):
+            if l.strip(): lines.append('                ' + l.strip())
+        a_lines = a.split('\n')
+        a = '\n'.join([a_lines[0]] + [('        ' + l if l.strip() else l) for l in a_lines[1:]])
+        lines.append('                .%s(%s)' % (name, a))
+    if factory is None: factory = 'WorkableElectricMultiblockMachine::new'
+    return 'AF9Machines.multiblock("%s", %s, b -> b\n%s);' % (mid, factory, '\n'.join(lines))
+
+def emit_custom(mid, segs):
+    tiers = None; machine = None; definition = None; scaling = None; default_tt = None
+    for c, name, args in segs:
+        if name == 'tiers': tiers = args
+        elif name == 'machine': machine = args
+        elif name == 'definition': definition = args
+        elif name == 'tankScalingFunction': scaling = args
+        elif name == 'addDefaultTooltips': default_tt = args.strip()
+        elif name == 'addDefaultModel': pass
+        else: return None
+    if not (tiers and machine and definition): return None
+    m = re.match(r'\s*\(\s*tier\s*,\s*builder\s*\)\s*=>\s*\{(.*)\}\s*$', definition, re.S)
+    if not m: return None
+    body = m.group(1).strip()
+    if not body.startswith('builder'): return None
+    chain = body[len('builder'):]
+    # split the chain like a builder chain
+    segs2 = []
+    j = 0
+    while True:
+        k = j
+        while k < len(chain) and chain[k] in ' \t\r\n': k += 1
+        cm = ''
+        while chain.startswith('//', k):
+            e = chain.find('\n', k); e = len(chain) if e < 0 else e
+            cm += chain[k:e] + '\n'; k = e
+            while k < len(chain) and chain[k] in ' \t\r\n': k += 1
+        if k >= len(chain): break
+        if chain.startswith("['", k):
+            e = chain.index("']", k); name = chain[k + 2:e].split('(')[0]; k = e + 2
+            end = scan_balanced(chain, k)
+            segs2.append((cm, name, chain[k + 1:end - 1])); j = end; continue
+        m2 = re.match(r'\.(\w+)\(', chain[k:])
+        if not m2: return None
+        name = m2.group(1); p = k + m2.end() - 1
+        end = scan_balanced(chain, p)
+        segs2.append((cm, name, chain[p + 1:end - 1])); j = end
+    lines = []
+    for c, name, args in segs2:
+        if name == 'tooltips': args = tr_tooltips_arg(args)
+        name, a = tr_segment(name, args)
+        a = a.replace(', null,', ', (String) null,').replace('(null,', '((String) null,') if name.endswith('HullModel') else a
+        for l in c.split('\n'):
+            if l.strip(): lines.append('                        ' + l.strip())
+        a_lines = a.split('\n')
+        a = '\n'.join([a_lines[0]] + [('        ' + l if l.strip() else l) for l in a_lines[1:]])
+        lines.append('                        .%s(%s)' % (name, a))
+    ts = tr_expr(tiers)
+    mach = tr_expr(machine)
+    extra = ''
+    if default_tt == 'true' or scaling:
+        extra = '%s, %s, ' % (default_tt or 'false', tr_expr(scaling) if scaling else 'GTMachineUtils.defaultTankSizeFunction')
+    return 'AF9Machines.tiered("%s", new int[] { %s },\n                %s%s,\n                (tier, builder) -> builder\n%s);' % (mid, ts, extra, mach, '\n'.join(lines))
+
 def main(path):
     src = open(path, encoding='utf-8').read()
     for m in re.finditer(r"const\s+(\$\w+)\s*=\s*Java\.loadClass\('([^']+)'\)", src):
         CLS[m.group(1)] = m.group(2).split('.')[-1]
     imports = {m.group(2) for m in re.finditer(r"const\s+(\$\w+)\s*=\s*Java\.loadClass\('([^']+)'\)", src)}
-    m = re.search(r"GTCEuStartupEvents\.registry\('gtceu:machine', event => \{", src)
-    if not m: sys.exit('no machine registry in ' + path)
-    end = scan_balanced(src, src.index('(', m.start()))
-    body = src[m.end():end - 2 if src[end - 2:end] == ')\n' else end - 1]
-    body = src[m.end():src.rindex('}', 0, end)]
-    cls = class_name(path)
-    # strip the tooltips helper
-    body = re.sub(r"\n\s*const tooltips = \(key, count\) => \{.*?\n    \}\n", '\n', body, flags=re.S)
-    out = []
-    i = 0
-    stmts = []
-    while True:
-        k = body.find('event.create(', i)
-        if k < 0: break
-        # a comment block directly before the statement
-        before = body[i:k]
-        mid, kind, segs, j = parse_chain(body, k)
-        stmts.append((before, mid, kind, segs))
-        i = j
-    uses = set()
+    blocks = list(re.finditer(r"GTCEuStartupEvents\.registry\('gtceu:machine', event => \{", src))
+    if not blocks: sys.exit('no machine registry in ' + path)
     java = []
-    for before, mid, kind, segs in stmts:
-        cm = '\n'.join('        ' + l.strip() for l in before.split('\n') if l.strip().startswith('//'))
-        if cm: java.append(cm)
-        if kind != 'multiblock':
-            java.append('        // TODO port by hand: %s (%s)' % (mid, kind))
-            continue
-        factory = None
-        lines = []
-        for c, name, args in segs:
-            if name == 'machine':
-                factory = tr_expr(args)
+    for m in blocks:
+        end = scan_balanced(src, src.index('(', m.start()))
+        body = src[m.end():src.rindex('}', 0, end)]
+        body = re.sub(r"\[((?:\d+,\s*)*\d+)\]\.map\(i =>\s*Component\.translatable\(`([^`$]*)\$\{i\}`\)\)",
+                      lambda mm: "AF9Machines.lines('%s', %d)" % (mm.group(2), len(mm.group(1).split(','))), body)
+        body = template_to_java(body)
+        body = re.sub(r"\n\s*const tooltips = \(key, count\) => \{.*?\n    \}\n", '\n', body, flags=re.S)
+        i = 0
+        while True:
+            k = body.find('event.create(', i)
+            if k < 0: break
+            before = body[i:k]
+            mid, kind, segs, j = parse_chain(body, k)
+            i = j
+            cm = '\n'.join('        ' + l.strip() for l in before.split('\n') if l.strip().startswith('//'))
+            if cm: java.append(cm)
+            if kind == 'multiblock': text = emit_multiblock(mid, segs)
+            elif kind == 'custom': text = emit_custom(mid, segs)
+            else: text = None
+            if text is None:
+                java.append('        // TODO port by hand: %s (%s)' % (mid, kind))
                 continue
-            name, a = tr_segment(name, args)
-            for l in c.split('\n'):
-                if l.strip(): lines.append('                ' + l.strip())
-            a_lines = a.split('\n')
-            a = '\n'.join([a_lines[0]] + [('        ' + l if l.strip() else l) for l in a_lines[1:]])
-            lines.append('                .%s(%s)' % (name, a))
-        if factory is None: factory = 'WorkableElectricMultiblockMachine::new'
-        text = 'AF9Machines.multiblock("%s", %s, b -> b\n%s);' % (mid, factory, '\n'.join(lines))
-        text = convert_strings(text)
-        java.append('        ' + text)
+            java.append('        ' + convert_strings(text))
+    cls = class_name(path)
     body_java = '\n\n'.join(java)
-    uses_text = body_java
     imp = set(imports)
     if 'WorkableElectricMultiblockMachine' in body_java: imp.add('com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine')
     imp |= {'com.af9.core.startup.AF9Machines'}
@@ -229,7 +322,10 @@ def main(path):
                     ('GTBlocks', 'com.gregtechceu.gtceu.common.data.GTBlocks'),
                     ('GCYMBlocks', 'com.gregtechceu.gtceu.common.data.GCYMBlocks'),
                     ('GTRecipeModifiers', 'com.gregtechceu.gtceu.common.data.GTRecipeModifiers'),
+                    ('GTRecipeTypes', 'com.gregtechceu.gtceu.common.data.GTRecipeTypes'),
+                    ('GTMachineUtils', 'com.gregtechceu.gtceu.common.data.machines.GTMachineUtils'),
                     ('GTValues', 'com.gregtechceu.gtceu.api.GTValues'),
+                    ('GTCEu', 'com.gregtechceu.gtceu.GTCEu'),
                     ('Component', 'net.minecraft.network.chat.Component')]:
         if re.search(r'\b' + sym + r'\b', body_java): imp.add(fq)
     java_imports = sorted(imp, key=lambda x: (not x.startswith('com.af9'), not x.startswith('com.gregtechceu'), x))

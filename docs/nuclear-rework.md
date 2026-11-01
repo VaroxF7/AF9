@@ -5,7 +5,7 @@ half of the story: a reactor run with **FLiBe** as its coolant gives **hot FLiBe
 steam, a **graphite moderator** (as the *Nuclear Graphite Block*) slows the neutrons better than the mod's own graphite, and four
 **burner rods** (neptunium, americium, curium, californium) turn the minor actinides of reprocessing into power instead of vitrified waste.
 
-Code: `af9-core/src/main/java/com/af9/core/recipes/gen/GenNuclearRework.java` (all recipes), `kubejs/startup_scripts/gtceu/asteroid_fission.js` (the
+Code: `af9-core/src/main/java/com/af9/core/recipes/gen/GenNuclearRework.java` (all recipes), `af9-core/src/main/java/com/af9/core/startup/machines/AsteroidFission.java` (the
 Heat Exchanger and its recipe type), `af9-core` `AF9Materials.asteroidFission()` / `actinideDusts()` (FLiBe and the dusts) and
 `AF9Items` (the burner rods and the graphite items). Textures: `tools/textures/nuclear_items.py`.
 

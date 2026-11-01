@@ -498,6 +498,7 @@ function javaStartup() {
         .replace(/new\s+int\s*\[\s*\]\s*\{([^}]*)\}/g, '[$1]')
         .replace(/new\s+String\s*\[\s*\]\s*\{([^}]*)\}/g, '[$1]')
         .replace(/\bString\.valueOf\(/g, 'String(')
+        .replace(/\(\s*(?:String|int|long|float|double)\s*\)\s*(?=[\w("-])/g, '')
         .replace(/\b(\d+)L\b/g, '$1')
         .replace(/\b(\d+(?:\.\d+)?)[fF]\b/g, '$1')
     const builtin = new Set(['String', 'Number', 'Math', 'Array', 'Object', 'JSON', 'Boolean', 'undefined', 'NaN', 'Infinity', 'Symbol', 'parseInt', 'parseFloat'])
@@ -507,6 +508,20 @@ function javaStartup() {
         state.currentFile = file
         const head = /AF9Machines\.(multiblock|tiered)\(/g
         let m
+        // file-level `static final T[][] NAME = { ... };` data (read as JS arrays) and `static final int/String NAME = x;`
+        const consts = {}
+        const cre = /static final [\w\[\]<>]+\s+(\w+)\s*=\s*(?:new\s+[\w\[\]]+\s*)?(\{|[^;{]+;)/g
+        let cm
+        while ((cm = cre.exec(src))) {
+            let text
+            if (cm[2] === '{') {
+                let d = 1, k = cre.lastIndex
+                for (; k < src.length && d > 0; k++) { if (src[k] === '{') d++; else if (src[k] === '}') d-- }
+                text = '[' + src.slice(cre.lastIndex, k - 1).replace(/\{/g, '[').replace(/\}/g, ']') + ']'
+                cre.lastIndex = k
+            } else text = cm[2].replace(/;$/, '')
+            try { consts[cm[1]] = new Function('GTValues', 'return ' + javaToJs(text).replace(/\(\s*(?:String|int)\s*\)\s*/g, ''))(GTValues) } catch (e) { /* not plain data */ }
+        }
         while ((m = head.exec(src))) {
             let depth = 1, i = head.lastIndex, inStr = false, inChar = false
             for (; i < src.length && depth > 0; i++) {
@@ -535,14 +550,16 @@ function javaStartup() {
             const make = (id, form) => creator('gtceu', 'gtceu:machine', file).create(id, form)
             for (const loopVars of loops) {
             const extra = {
+                ...consts,
                 ...loopVars,
                 AF9Machines: {
                     type: x => x, blocks: (...ids) => Predicates.blocks(...ids), block: id => id, blockSupplier: id => () => id,
-                    lines: (key, n) => Array.from({ length: n }, (_, k) => ctx.Component.translatable(`${key}${k}`)), rl: x => x
+                    lines: (key, n) => Array.from({ length: n }, (_, k) => ctx.Component.translatable(`${key}${k}`)), rl: x => x,
+                    linesWith: (key, n, arg) => Array.from({ length: n }, (_, k) => ctx.Component.translatable(`${key}${k}`, `${arg}`))
                 },
                 Component: ctx.Component, GTRecipeTypes: ctx.GTRecipeTypes, Predicates, FactoryBlockPattern, GTValues,
                 __multiblock: (id, ctor, cfg) => { const p = make(id, 'multiblock'); cfg(p); return p },
-                __tiered: (id, tiers, ctor, def) => { const p = make(id, 'custom'); p.tiers(...tiers); p.machine(ctor); p.definition(def); return p }
+                __tiered: (id, tiers, ...rest) => { const def = rest[rest.length - 1], ctor = rest[rest.length - 2]; const p = make(id, 'custom'); p.tiers(...tiers); p.machine(ctor); p.definition(def); return p }
             }
             const scope = new Proxy(extra, {
                 has: (t, k) => typeof k === 'string' && (k in t || (!(k in ctx) && !builtin.has(k))),

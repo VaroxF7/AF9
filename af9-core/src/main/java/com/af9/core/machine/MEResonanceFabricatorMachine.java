@@ -59,7 +59,7 @@ import java.util.List;
  * assembler that runs on Liquid Resonating Fluix. The fluid is the stabiliser: while the Resonating Fluix Hatch has
  * some, the Manufacturer batches its crafts (as many parallel runs as the batch time allows), and every craft cycle
  * drinks a little of it; without it, each recipe runs alone. No overclocks: the fluid alone makes the difference.
- * Structure, hatches and recipes: the KubeJS script {@code startup_scripts/gtceu/me_resonance_fabricator.js}.
+ * Structure, hatches and recipes: the KubeJS script {@code af9-core/src/main/java/com/af9/core/startup/machines/MeResonanceFabricator.java}.
  */
 public class MEResonanceFabricatorMachine extends WorkableElectricMultiblockMachine {
 

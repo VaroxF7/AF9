@@ -1179,7 +1179,7 @@ The coils are `gtceu:coil` blocks (KubeJS), so every GT coil multiblock accepts 
 
 # 13. Cryogenics: Supercooling Cryostat and Coolant Hatch
 
-Files: `startup_scripts/gtceu/cryogenics.js`, `server_scripts/mods/gtceu/cryogenics.js`, AF9 Core `registry/AF9Materials` (the dense and supercooled fluids), `SupercoolerMachine`, `part/CoolantHatchPartMachine`, `common/AF9Modifiers.POWER_GATE`.
+Files: `af9-core/src/main/java/com/af9/core/startup/machines/Cryogenics.java`, `server_scripts/mods/gtceu/cryogenics.js`, AF9 Core `registry/AF9Materials` (the dense and supercooled fluids), `SupercoolerMachine`, `part/CoolantHatchPartMachine`, `common/AF9Modifiers.POWER_GATE`.
 
 `gtceu:supercooling_cryostat` (HV, crafted at HV): modes `gtceu:dense_cooling` and `gtceu:supercooling` (0/0/1/1 IO). Every recipe is `EUt(VA[HV], 4)` = 1920 EU/t; `POWER_GATE` refuses to start below the recipe's full EU/t, so it needs **4A of HV (two normal HV energy hatches)**; `OC_PERFECT` above that.
 
@@ -1237,7 +1237,7 @@ Spectators are exempt; creative players too only when `includeCreative = false` 
 
 # 17. Wireless energy hatches
 
-AF9 Core `wireless/*`, startup `kubejs/startup_scripts/gtceu/wireless_energy.js`, recipes `server_scripts/mods/gtceu/wireless_energy.js`. Point-to-point, GT:NH-style links through a data stick, any distance and any dimension.
+AF9 Core `wireless/*`, startup `af9-core/src/main/java/com/af9/core/startup/machines/WirelessEnergy.java`, recipes `server_scripts/mods/gtceu/wireless_energy.js`. Point-to-point, GT:NH-style links through a data stick, any distance and any dimension.
 
 | Hull tier (look, crafting) | Max amps | Receiver id | Transmitter id | Built on |
 |---|---|---|---|---|
@@ -1403,13 +1403,13 @@ af9-core/src/main/java/com/af9/core/registry/AF9Blocks.java # every plain block:
 af9-core/src/main/java/com/af9/core/registry/AF9Remaps.java # worlds from before October 2026: kubejs:<id> is taken for af9:<id>
 af9-core/src/main/java/com/af9/core/registry/AF9Materials.java # every material (gtceu:<name>), a method a topic: the litho, XCDA and resist chemistry, the 72 of the fab chemistry, tier alloys and zircon, endion, the dense and supercooled fluids, strange matter and chromodynium
 af9-core/src/main/java/com/af9/core/startup/machines/AirConditioning.java   # §18.1: the Air Conditioning Hatch MV-IV
-kubejs/startup_scripts/gtceu/litho_process.js      # §18: coater recipe type + station
+af9-core/src/main/java/com/af9/core/startup/machines/LithoProcess.java      # §18: coater recipe type + station
 tools/lint/                                        # the linters (README there): scripts, quests, assets, facts, self-test
 tools/textures/                                    # reticles.py, coated_wafers.py, optics.py: draw the textures
 af9-core/src/main/java/com/af9/core/recipes/gen/GenLithoProcess.java  # §18: hatches, chemistry, family chains
 kubejs/startup_scripts/gtceu/photolithography.js   # 9 recipe types, both litho structures, tooltips
 af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java      # recipe type boule_melting
-kubejs/startup_scripts/gtceu/cryogenics.js         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches HV-UHV
+af9-core/src/main/java/com/af9/core/startup/machines/Cryogenics.java         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches HV-UHV
 kubejs/startup_scripts/gtceu/particle_accelerator.js # 3 recipe types, the Particle Accelerator ring
 af9-core/src/main/java/com/af9/core/startup/machines/StagedAssembly.java # §19: the staged_assembly recipe type + the Staged Assembly structure
 af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java # AF9_WAFERS table + wafer tags, machine/light-source crafting, XCDA/i-line/EUV chemistry, prints, derived wafers, cutting, reclaim/clean, removals
@@ -1461,7 +1461,7 @@ AF9_WAFERS.wafersOf(5)                          // every neutronium wafer item (
 ## High Temperature Precision Fabricator (TFG's boules, MV)
 
 Janne, 2026-10-22: the first four boules (silicon, phosphorus, naquadah, neutronium) are TerraFirmaGreg's recipes, unchanged, in their own
-multiblock at MV. `startup_scripts/gtceu/precision_fabricator.js` (recipe type `high_temperature_precision_fabricator`, an EBF-sized coil
+multiblock at MV. `af9-core/src/main/java/com/af9/core/startup/machines/PrecisionFabricator.java` (recipe type `high_temperature_precision_fabricator`, an EBF-sized coil
 hall 3 x 4 x 3, heatproof casing, heating coils for the boule's temperature), recipes in `server_scripts/mods/gtceu/precision_fabricator.js`:
 the silane line (silicon dust + HCl + H2 -> chlorosilane + trichlorosilane -> dichlorosilane + silane -> polysilicon dust), liquid polysilicon
 (`gtceu:polysilicon`, 1800 K, an extractor melts the dust), `af9:silicon_seed_crystal` from polysilicon (autoclave), `af9:fused_quartz_crucible`
@@ -1474,7 +1474,7 @@ TFG's pattern with more polysilicon, 4 seeds and the old dopants. The melt charg
 
 ### Precision Fabricator rework (af9-core 0.1.107)
 
-Janne, 2026-10-23: the hall is no coil hall any more. `startup_scripts/gtceu/precision_fabricator.js`, class `PrecisionFabricatorMachine` (batch mode on from the start, `OC_PERFECT` + `BATCH_MODE`, no parallel hatch).
+Janne, 2026-10-23: the hall is no coil hall any more. `af9-core/src/main/java/com/af9/core/startup/machines/PrecisionFabricator.java`, class `PrecisionFabricatorMachine` (batch mode on from the start, `OC_PERFECT` + `BATCH_MODE`, no parallel hatch).
 Structure (3 wide x 2 high x 2 deep, controller front bottom centre): bottom layer = back row three `gtceu:solid_machine_casing` (the only places for hatches), front row `gtceu:steel_firebox_casing` / controller / firebox; top layer = solid casings with a `gtceu:steel_gearbox` in the back middle. Hatches (maximum 1 each): one energy hatch and the two new parts below; no maintenance, muffler, laser, parallel hatch, and no ordinary item or fluid hatches.
 Parts (`PrecisionPortPartMachine`, MV only, ids `gtceu:<tier>_precision_fabricator_input_port` / `_output_port`, assembler: MV hull + bus (+ hatch) + circuit; Janne, 2026-10-23: one tier, the HV-UHV ports are gone, the energy hatch is what sets the voltage): the **Input Port** is an input hatch and an input bus in one: 9 tanks (3 x 3, 80,000 mB each: the biggest boule takes 73,728 mB polysilicon), 3 item inputs, 1 non-consumable slot, a ghost circuit (circuit button of the screen); the **Output Port** has 1 item output slot.
 There are no coils, so `blastFurnaceTemp` is gone from the boule recipes: the voltage tier of the hatch is the gate. To fit the port, a recipe has the crucible (chanced) plus two more item kinds at most; the holder rod is non-consumable now, the gallium arsenide dopant is dropped where the boule's own material doses it (phosphorus, trinium, naquadria), strange matter's neutronium is a melt (576 mB) and chromodynium takes 5 chromodynium dust instead of 4 + 1 strange matter dust.

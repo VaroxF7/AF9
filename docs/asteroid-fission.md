@@ -330,7 +330,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 
 | File | Holds |
 |---|---|
-| `kubejs/startup_scripts/gtceu/asteroid_fission.js` | the recipe types and structures of the Heat Exchanger, Spent Fuel Pool and Fuel Fabrication Bay |
+| `af9-core/src/main/java/com/af9/core/startup/machines/AsteroidFission.java` | the recipe types and structures of the Heat Exchanger, Spent Fuel Pool and Fuel Fabrication Bay |
 | `af9-core/src/main/java/com/af9/core/registry/` | the materials (`AF9Materials`, `asteroidFission()`), the fuel pellet and rods (`AF9Items`) |
 | `af9-core/src/main/java/com/af9/core/space/AF9Space.java` | the ore layer `af9_asteroid` and the tag of its stones |
 | `af9-core/src/main/java/com/af9/core/recipes/gen/GenAsteroidFission.java` | the closed old ways, the uranium chain, the reactor, steam turbine, reprocessing, tags |

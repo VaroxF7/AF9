@@ -175,7 +175,7 @@ def code(rel, pattern, what):
     return m
 
 
-startup = 'kubejs/startup_scripts/gtceu/asteroid_fission.js'
+startup = 'af9-core/src/main/java/com/af9/core/startup/machines/AsteroidFission.java'
 server = 'kubejs/server_scripts/mods/gtceu/asteroid_fission.js'
 feature = 'af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java'
 rock_m = code(feature, r'BlockState rockAt\(.*?\n    }', 'rockAt')
