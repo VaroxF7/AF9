@@ -32,6 +32,7 @@ final class HandRecipes {
         fusionReactor(out);
         wireSpools(out);
         tinkersMolds(out);
+        spacePumping(out);
     }
 
     /** fusion_reactor.js: the Fusion Reactor Mk1 and anti matter plasma. */
@@ -106,5 +107,40 @@ final class HandRecipes {
             }
         }
         LOGGER.info("Tinkers x GT: {} recipes", n);
+    }
+    /**
+     * space_elevator.js: the Pumping Module's recipes, one a fluid of PlanetCatalog. The flight costs of the drone that reaches
+     * the planet (hydrogen, coolant), a UV recipe of 4 amps whatever the drone, and a time that rises along the table from
+     * 1200 s to 3600 s. The recipe names its fluid in the data too (af9_cargo): the module's run reads it from there.
+     */
+    private static void spacePumping(Consumer<FinishedRecipe> out) {
+        // [hydrogen mB, coolant, coolant mB] by drone tier - 1 (the same numbers as the expeditions in GenSpaceElevator)
+        int[] hydrogen = { 64000, 80000, 96000, 100000 };
+        String[] coolant = { "gtceu:supercooled_hydrogen", "gtceu:supercooled_argon", "gtceu:supercooled_xenon", "gtceu:supercooled_endion" };
+        int[] coolantMb = { 50000, 64000, 80000, 100000 };
+        var cargoes = com.af9.core.elevator.PlanetCatalog.all();
+        int[] perDrone = new int[5];
+        for (int i = 0; i < cargoes.size(); i++) {
+            var cargo = cargoes.get(i);
+            String id = "af9:space_pumping_" + cargo.planet() + "_" + cargo.gas();
+            try {
+                int tier = cargo.drone();
+                perDrone[tier]++;
+                int seconds = 1200 + (int) (Math.round(2400.0 * i / Math.max(1, cargoes.size() - 1) / 60) * 60);
+                var fluidId = ForgeRegistries.FLUIDS.getKey(cargo.fluid());
+                Dsl.gt(out, "space_pumping", id)
+                        .notConsumable("af9:space_mining_drone_mk" + tier)
+                        .circuit(perDrone[tier])
+                        .inputFluids(Dsl.fluid("gtceu:hydrogen", hydrogen[tier - 1]))
+                        .inputFluids(Dsl.fluid(coolant[tier - 1], coolantMb[tier - 1]))
+                        .outputFluids(Dsl.fluid(String.valueOf(fluidId), cargo.millibuckets()))
+                        .addData("af9_cargo", cargo.code())
+                        .duration(seconds * 20)
+                        .EUt(524288, 4)
+                        .save();
+            } catch (RuntimeException e) {
+                Dsl.fail(id, e);
+            }
+        }
     }
 }

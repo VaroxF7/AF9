@@ -9,7 +9,7 @@ drone slot, what it lacks; `OreCatalog`: GT's ores and veins; `PlanetCatalog`: t
 `com.af9.core.machine.console.SpaceElevatorConsoleWidget`
 (its screen) and `com.af9.core.client.render.SpaceElevatorRender` (the cable and the climber). KubeJS:
 `kubejs/startup_scripts/gtceu/space_elevator.js` (blocks, drones, the two recipe types, the machine and its structure),
-`kubejs/server_scripts/mods/gtceu/space_elevator.js` (crafting and the expeditions).
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenSpaceElevator.java` (crafting and the expeditions), `af9-core/src/main/java/com/af9/core/recipes/HandRecipes.java` (pumping).
 
 ## 0. The modules are machines of their own (sub-multiblocks)
 
@@ -346,7 +346,7 @@ hand after pictures (section 4).
 
 * **One recipe a programmed circuit.** A module takes the circuit set with the button on the left of its screen: its number
   is the asteroid, the n-th of the veins the drone's tier first reaches (alphabetical; the exotic one last, MK-4). Recipes:
-  `af9:space_mining_mk<tier>_<n>` (`server_scripts/mods/gtceu/space_elevator.js`, `ASTEROIDS` counts them: 24 / 12 / 4 / 8 now).
+  `af9:space_mining_mk<tier>_<n>` (`af9-core/src/main/java/com/af9/core/recipes/gen/GenSpaceElevator.java`, the circuit count per tier: 24 / 12 / 4 / 8 now).
   A run brings a random number of stacks of the vein's ores (the tier's 8-16 / 12-24 / 16-32 / 24-48, half of them the main ore;
   lean ores — quantanium, pitchblende, uraninite — a quarter of their share, so a targeted quantanium run brings 6-12 stacks).
   The recipe pages list the ores of that asteroid with their ranges.

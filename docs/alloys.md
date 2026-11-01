@@ -5,7 +5,7 @@ cinnabar), wolfram invar, rheniloy (rhenium superalloy), albeme (beryllium alumi
 aluminide, hafnitinol, chronium alloy, stellarium, triniar (trinium-stellarite) and pulsium (neutron star alloy).
 
 Code: `AF9Materials.alloys()` (materials), `af9-core/src/main/java/com/af9/core/recipes/gen/GenAlloysAf9.java` (recipes), `AF9Veins.java` (chronite vein),
-`miner.js` (asteroid void miner circuit 8), `space_elevator.js` (one more Mk-IV asteroid).
+`miner.js` (asteroid void miner circuit 8), `GenSpaceElevator.java` (one more Mk-IV asteroid).
 
 | Alloy | Mix | Melt | Blast |
 |---|---|---|---|
