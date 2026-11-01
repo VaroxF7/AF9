@@ -3,7 +3,7 @@
 GT's rubber trees are gone from the pack. All latex now comes from farmable
 plants, and the rest of the rubber chemistry is GT's own (it never needed trees).
 
-Code: `kubejs/server_scripts/mods/gtceu/rubber.js` (the whole AF9 layer).
+Code: `af9-core/src/main/java/com/af9/core/recipes/gen/GenRubber.java` (the whole AF9 layer).
 
 ## 1. Rubber: solid and liquid (steam age on Create, 3 steps)
 

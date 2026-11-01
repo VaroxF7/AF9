@@ -1,7 +1,7 @@
 # Agriculture Simulation Bed
 
 `gtceu:agri_sim`: simulates the pack's seeds, above all Mystical Agriculture's essence seeds. KubeJS multiblock:
-`kubejs/startup_scripts/gtceu/agri_sim.js`, recipes `kubejs/server_scripts/mods/gtceu/agri_sim.js`, logic
+`kubejs/startup_scripts/gtceu/agri_sim.js`, recipes `af9-core/src/main/java/com/af9/core/recipes/gen/GenAgriSim.java`, logic
 `AgriSimMachine`, render `AgriSimRender` (af9-core), face texture `tools/textures/agri_sim.py`.
 
 ## Structure (11 x 3 x 11, Janne's agrisim.nbt)

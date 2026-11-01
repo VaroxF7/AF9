@@ -40,7 +40,7 @@ A trace of radon seeps out of every load of crushed Nether plants (`af9:radon_fr
 centrifuge, HV, 300 ticks): **16 plants** (crimson roots, warped roots, nether sprouts, crimson and
 warped fungi, weeping and twisting vines) give **500 mB radon**, 2 ash and 15 % glowstone dust.
 Thirty-two plants charge the boule furnace's radon blanket once
-(`kubejs/server_scripts/mods/gtceu/boule_melting.js`).
+(`af9-core/src/main/java/com/af9/core/recipes/gen/GenBouleMelting.java`).
 
 ## 3. Biodiesel, bioethanol, ethanol
 

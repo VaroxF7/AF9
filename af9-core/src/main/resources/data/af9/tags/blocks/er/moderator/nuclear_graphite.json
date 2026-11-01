@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "af9:nuclear_graphite_block",
+      "required": false
+    }
+  ]
+}

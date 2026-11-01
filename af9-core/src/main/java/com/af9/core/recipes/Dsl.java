@@ -3,6 +3,7 @@ package com.af9.core.recipes;
 import com.af9.core.common.OxygenatedCondition;
 
 import com.gregtechceu.gtceu.api.machine.multiblock.CleanroomType;
+import com.gregtechceu.gtceu.api.recipe.ingredient.FluidIngredient;
 import com.gregtechceu.gtceu.common.data.GTRecipeTypes;
 import com.gregtechceu.gtceu.data.recipe.builder.GTRecipeBuilder;
 
@@ -41,7 +42,49 @@ public final class Dsl {
         ResourceLocation rl = new ResourceLocation(id.contains(":") ? id : "af9:" + id);
         com.gregtechceu.gtceu.api.recipe.GTRecipeType t = GTRecipeTypes.get(type);
         if (t == null) throw new IllegalArgumentException("unknown recipe type " + type);
+        // GregTech files the recipe under <type>/<path>; that is the id a removal filter would see
+        Removals.protect(rl.withPath(t.registryName.getPath() + "/" + rl.getPath()));
         return new B(out, t.recipeBuilder(rl), rl.toString());
+    }
+
+    /** A recipe given as JSON (crafting table, smelting, other mods' types), fed into the same recipe pack. */
+    public static void json(Consumer<FinishedRecipe> out, String id, String json) {
+        ResourceLocation rl = new ResourceLocation(id);
+        com.google.gson.JsonObject body = com.google.gson.JsonParser.parseString(json).getAsJsonObject();
+        ResourceLocation type = new ResourceLocation(body.get("type").getAsString());
+        net.minecraft.world.item.crafting.RecipeSerializer<?> serializer = ForgeRegistries.RECIPE_SERIALIZERS.getValue(type);
+        if (serializer == null) {
+            LOGGER.error("recipe {} skipped: unknown recipe type {}", id, type);
+            return;
+        }
+        Removals.protect(rl);
+        out.accept(new FinishedRecipe() {
+
+            @Override
+            public void serializeRecipeData(com.google.gson.JsonObject o) {
+                body.entrySet().forEach(e -> o.add(e.getKey(), e.getValue()));
+            }
+
+            @Override
+            public ResourceLocation getId() {
+                return rl;
+            }
+
+            @Override
+            public net.minecraft.world.item.crafting.RecipeSerializer<?> getType() {
+                return serializer;
+            }
+
+            @Override
+            public com.google.gson.JsonObject serializeAdvancement() {
+                return null;
+            }
+
+            @Override
+            public ResourceLocation getAdvancementId() {
+                return null;
+            }
+        });
     }
 
     /** A recipe that threw while it was built: logged and skipped, the others still register. */
@@ -57,6 +100,11 @@ public final class Dsl {
             return FluidStack.EMPTY;
         }
         return new FluidStack(fluid, amount);
+    }
+
+    /** A fluid tag ({@code #ns:path}) and an amount. */
+    public static FluidIngredient fluidTag(String tag, int amount) {
+        return FluidIngredient.of(TagKey.create(Registries.FLUID, new ResourceLocation(tag)), amount);
     }
 
     public static ItemStack stack(String spec) {
@@ -131,18 +179,71 @@ public final class Dsl {
             return this;
         }
 
-        public B inputFluids(FluidStack... fluids) {
-            for (FluidStack f : fluids) if (!f.isEmpty()) b.inputFluids(f);
+        public B inputFluids(Object... fluids) {
+            for (Object f : fluids) {
+                if (f instanceof FluidStack s) {
+                    if (!s.isEmpty()) b.inputFluids(s);
+                } else {
+                    b.inputFluids((FluidIngredient) f);
+                }
+            }
             return this;
         }
 
-        public B outputFluids(FluidStack... fluids) {
-            for (FluidStack f : fluids) if (!f.isEmpty()) b.outputFluids(f);
+        public B outputFluids(Object... fluids) {
+            for (Object f : fluids) {
+                if (f instanceof FluidStack s) {
+                    if (!s.isEmpty()) b.outputFluids(s);
+                } else {
+                    b.outputFluids((FluidIngredient) f);
+                }
+            }
             return this;
         }
 
-        public B notConsumableFluid(FluidStack fluid) {
-            if (!fluid.isEmpty()) b.notConsumableFluid(fluid);
+        public B notConsumableFluid(Object fluid) {
+            if (fluid instanceof FluidStack s) {
+                if (!s.isEmpty()) b.notConsumableFluid(s);
+            } else {
+                b.notConsumableFluid((FluidIngredient) fluid);
+            }
+            return this;
+        }
+
+        public B EUt(long eut, long amperage) {
+            b.EUt(eut, amperage);
+            return this;
+        }
+
+        public B dimension(String dimension) {
+            b.dimension(new ResourceLocation(dimension));
+            return this;
+        }
+
+        /** Research Station research; -1 leaves a value at the builder's default. */
+        public B stationResearch(String stack, String researchId, long eut, long amperage, int cwut, int totalCwu) {
+            b.stationResearch(r -> {
+                r.researchStack(stack(stack));
+                if (researchId != null) r.researchId(researchId);
+                if (eut >= 0) r.EUt(eut, amperage);
+                if (cwut >= 0) {
+                    if (totalCwu >= 0) r.CWUt(cwut, totalCwu);
+                    else r.CWUt(cwut);
+                }
+                return r;
+            });
+            return this;
+        }
+
+        /** Scanner research; -1 leaves a value at the builder's default. */
+        public B scannerResearch(String stack, String researchId, long eut, long amperage, int duration) {
+            b.scannerResearch(r -> {
+                r.researchStack(stack(stack));
+                if (researchId != null) r.researchId(researchId);
+                if (eut >= 0) r.EUt(eut, amperage);
+                if (duration >= 0) r.duration(duration);
+                return r;
+            });
             return this;
         }
 

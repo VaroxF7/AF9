@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "minecraft:chorus_flower",
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "ae2:logic_processor",
+      "required": false
+    },
+    {
+      "id": "ae2:calculation_processor",
+      "required": false
+    },
+    {
+      "id": "ae2:engineering_processor",
+      "required": false
+    }
+  ]
+}

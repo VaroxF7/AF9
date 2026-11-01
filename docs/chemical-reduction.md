@@ -1,7 +1,7 @@
 # Chemical reduction
 
 Hydrogen reduction of GT's roasted oxides in the Chemical Reactor, and tungsten's hydrogen route. The oxide meets hydrogen, the
-metal dust and water come out, and no carbon is burnt. Code: `kubejs/server_scripts/mods/gtceu/chemical_reduction.js`; the one
+metal dust and water come out, and no carbon is burnt. Code: `af9-core/src/main/java/com/af9/core/recipes/gen/GenChemicalReduction.java`; the one
 new material (tungsten trioxide) is in `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (`chemicalReduction()`).
 
 ## Recipes

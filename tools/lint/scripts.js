@@ -494,7 +494,7 @@ function javaRecipes() {
                 call.lastIndex = i
                 let args
                 try {
-                    args = new Function(`const Dsl = { fluid: (fluid, amount) => ({ fluid, amount }) }; return [${argText.replace(/(\d)L\b/g, '$1')}]`)()
+                    args = new Function(`const Dsl = { fluid: (fluid, amount) => ({ fluid, amount }), fluidTag: (tag, amount) => ({ fluid: '#' + tag, amount }) }; return [${argText.replace(/(\d)L\b/g, '$1')}]`)()
                 } catch (e) { report('ERROR', 'S1', `Dsl recipe ${m[2]}: cannot read ${c[1]}(${argText})`, state.currentFile); continue }
                 const name = c[1] === 'oxygenated' ? 'addCondition' : c[1]
                 if (name === 'addCondition') args = [{ oxygenated: args }]
@@ -504,6 +504,25 @@ function javaRecipes() {
         }
     }
 }
+// JSON recipes (crafting table, smelting, other mods): Dsl.json(out, "id", "<json>")
+function javaJsonRecipes() {
+    const dir = path.join(root, 'af9-core/src/main/java/com/af9/core/recipes')
+    for (const f of walkDir(dir).filter(f => f.endsWith('.java') && !f.endsWith('Dsl.java'))) {
+        const src = read(f)
+        state.currentFile = path.relative(root, f).replace(/\\/g, '/')
+        const re = /Dsl\.json\(\s*out\s*,\s*"([^"]+)"\s*,\s*"((?:[^"\\]|\\.)*)"\s*\)/g
+        let m
+        while ((m = re.exec(src))) {
+            let json
+            try { json = JSON.parse(JSON.parse('"' + m[2] + '"')) } catch (e) { report('ERROR', 'S1', `Dsl.json ${m[1]}: bad JSON`, state.currentFile); continue }
+            const ingr = x => x && (x.item || (x.tag ? '#' + x.tag : null))
+            if (json.type === 'minecraft:crafting_shaped') crafting('crafting_shaped', json.result.item, Object.values(json.key).map(ingr)).id(m[1])
+            else if (json.type === 'minecraft:crafting_shapeless') crafting('crafting_shapeless', json.result.item, json.ingredients.map(ingr)).id(m[1])
+            else customRecipe(json).id(m[1])
+        }
+    }
+}
+javaJsonRecipes()
 javaRecipes()
 
 // ---- what exists ---------------------------------------------------------------------------------------------------

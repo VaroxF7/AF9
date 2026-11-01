@@ -1,0 +1,169 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "af9:fx_fuel_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_fuel_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_fuel_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_heu_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_heu_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_heu_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_lep_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_lep_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_lep_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_hep_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_hep_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_hep_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_mox_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_mox_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_mox_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_thorium_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_thorium_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_thorium_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_blanket_assembly",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_blanket",
+      "required": false
+    },
+    {
+      "id": "af9:fx_mox_2_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_mox_2_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_mox_2_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_mox_3_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_mox_3_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_mox_3_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_mox_4_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_mox_4_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_mox_4_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_np_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_np_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_np_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_am_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_am_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_am_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_cm_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_cm_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_cm_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_cf_pellet",
+      "required": false
+    },
+    {
+      "id": "af9:fx_cf_rod",
+      "required": false
+    },
+    {
+      "id": "af9:fx_spent_cf_rod",
+      "required": false
+    }
+  ]
+}

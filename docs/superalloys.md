@@ -5,7 +5,7 @@ plate, double plate, dense plate, fine wire (with foil), screw (with bolt), rod,
 texture set of its own (all parts painted in the alloy's palette and grain).
 
 Code: `AF9Materials.superalloys()` (new alloys, GT's Hastelloy C-276), `AF9Materials.electronicsMetallurgy()` (Kovar),
-`kubejs/server_scripts/mods/gtceu/alloys_af9.js` (mixes), `tools/textures/superalloys.py` (textures).
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenAlloysAf9.java` (mixes), `tools/textures/superalloys.py` (textures).
 
 ## What was new and what was reused
 

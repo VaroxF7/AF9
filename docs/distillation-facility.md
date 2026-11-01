@@ -82,7 +82,7 @@ The fab modes (Distillation, Cryogenic Rectification) are clean-room recipes: th
 
 ## Crafting
 
-`kubejs/server_scripts/mods/gtceu/distillation_facility.js`: the module is the old tower's recipe (HV hull, 4 large stainless pipes, 4 EV circuits, 2 HV pumps); the facility is 3 modules round an IV hull with 2 IV circuits, 2 IV pumps and an IV motor.
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenDistillationFacility.java`: the module is the old tower's recipe (HV hull, 4 large stainless pipes, 4 EV circuits, 2 HV pumps); the facility is 3 modules round an IV hull with 2 IV circuits, 2 IV pumps and an IV motor.
 
 ## Parallel hatches, textures, recipe pinning
 

@@ -2,7 +2,7 @@
 
 After GTNH's: a vast hall that forges plasma into matter. The machine is `gtceu:dtpf` (af9-core `PlasmaForgeMachine`; the
 structure and the machine definition in `kubejs/startup_scripts/gtceu/dtpf.js`; the recipes in
-`kubejs/server_scripts/mods/gtceu/dtpf.js`). The structure is AF9's own design, not a copy of GTNH's.
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenDtpf.java`). The structure is AF9's own design, not a copy of GTNH's.
 
 ## 1. The structure (43 x 13 x 11): a beam hall
 

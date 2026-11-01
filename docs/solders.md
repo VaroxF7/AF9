@@ -4,7 +4,7 @@ Three solders cover the whole circuit chain: GT's `tin` stays the budget option 
 stays on the MV bootstrap (the high-grade EBF needs HV), and AF9's own three take it from there.
 
 Code: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (`solders()`),
-`kubejs/server_scripts/mods/gtceu/solders.js` (bio-chain, plasma condensation),
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenSolders.java` (bio-chain, plasma condensation),
 `kubejs/server_scripts/mods/gtceu/circuits_af9.js` (who solders what),
 `kubejs/startup_scripts/gtceu/photolithography.js` (`plasma_soldering` type + Array Mk2 pattern),
 `af9-core/src/main/java/com/af9/core/machine/OrbitalLithographyMachine.java` (Mk2 sizes, `PLASMA_GATE`, ring).

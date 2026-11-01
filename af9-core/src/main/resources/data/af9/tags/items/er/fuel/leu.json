@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "af9:fx_fuel_rod",
+      "required": false
+    }
+  ]
+}

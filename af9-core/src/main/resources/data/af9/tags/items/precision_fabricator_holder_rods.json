@@ -1,0 +1,53 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "#forge:rods/amethyst",
+      "required": false
+    },
+    {
+      "id": "#forge:rods/opal",
+      "required": false
+    },
+    {
+      "id": "#forge:rods/diamond",
+      "required": false
+    },
+    {
+      "id": "#forge:rods/sapphire",
+      "required": false
+    },
+    {
+      "id": "#forge:rods/green_sapphire",
+      "required": false
+    },
+    {
+      "id": "#forge:rods/ruby",
+      "required": false
+    },
+    {
+      "id": "#forge:rods/red_garnet",
+      "required": false
+    },
+    {
+      "id": "#forge:rods/yellow_garnet",
+      "required": false
+    },
+    {
+      "id": "#forge:rods/lapis",
+      "required": false
+    },
+    {
+      "id": "gtceu:steel_rod",
+      "required": false
+    },
+    {
+      "id": "gtceu:titanium_rod",
+      "required": false
+    },
+    {
+      "id": "gtceu:tungsten_steel_rod",
+      "required": false
+    }
+  ]
+}

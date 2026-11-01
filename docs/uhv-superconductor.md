@@ -77,6 +77,6 @@ under a coolant loop). What makes it its own machine is heat (`SanguiniteHearthM
 - Structure + type: `kubejs/startup_scripts/gtceu/sanguinite_hearth.js` (RHF copy, `sanguinite_hearth` type 9/0/2/1, Coolant Hatches, 9 tooltips)
 - Materials: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (`uhvSuperconductor`, no blast/components)
 - Mission: `af9-core/src/main/java/com/af9/core/elevator/PlanetCatalog.java` (planet 9, gas 8)
-- Recipes: `kubejs/server_scripts/mods/gtceu/uhv_superconductor.js`
+- Recipes: `af9-core/src/main/java/com/af9/core/recipes/gen/GenUhvSuperconductor.java`
 - Deposit: `kubejs/server_scripts/mods/gtceu/vein_oil.js` (`af9:void_ares_gas`)
 - Names: `material.gtceu.{sanguinite,crude_sanguinite,ares_gas,lxa_1}` in `kubejs/assets/gtceu/lang/en_us.json`

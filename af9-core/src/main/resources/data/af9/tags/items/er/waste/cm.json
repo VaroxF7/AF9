@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "af9:fx_spent_cm_rod",
+      "required": false
+    }
+  ]
+}

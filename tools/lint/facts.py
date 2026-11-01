@@ -155,6 +155,14 @@ if turbine:
         report(f'af9.quest.fx.steam: the turbine recipe is worth {per_mb:g} EU per mB, the text does not say so', 'kubejs lang', 'X3')
 
 # ---- X4: names that Java, data and scripts share ----------------------------------------------------------------------------------
+def read_if(rel):
+    # a KubeJS script that moved to AF9 Core's Java (recipes/gen) is no longer there: its text is then ''
+    try:
+        return read(rel)
+    except OSError:
+        return ''
+
+
 def read(rel):
     with open(os.path.join(ROOT, rel), encoding='utf-8') as f:
         return f.read()
@@ -194,7 +202,9 @@ tag = code('af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeRe
 vapor = code('af9-core/src/main/java/com/af9/core/compat/extremereactors/ExtremeReactorsCompat.java', r'VAPOR_LANG_KEY = "([^"]+)"', 'VAPOR_LANG_KEY')
 if tag and vapor:
     checked += 1
-    if f"event.add('{tag.group(1)}'" not in read(server):
+    ns, _, tag_path = tag.group(1).partition(':')
+    tag_file = f'af9-core/src/main/resources/data/{ns}/tags/fluids/{tag_path}.json'
+    if f"event.add('{tag.group(1)}'" not in read_if(server) and not os.path.exists(os.path.join(ROOT, tag_file)):
         report(f'ExtremeReactorsCompat maps the fluid tag {tag.group(1)}, no server script puts supercritical steam in it', code='X4')
     if f'"{vapor.group(1)}"' not in read('af9-core/src/main/resources/assets/af9/lang/en_us.json'):
         report(f'the vapor name {vapor.group(1)} is in no lang file of AF9 Core (Extreme Reactors would show the key)', code='X4')
@@ -211,9 +221,9 @@ for n, planet in planets.items():
     if 'orbit' in planet and planet['orbit'] not in {p['dimension'] for p in planets.values()}:
         report(f'planets/{n}.json: its orbit {planet["orbit"]} is no planet of AF9', code='X4')
 space = {p['dimension'] for p in planets.values() if 'orbit' not in p}
-used_dims = set(re.findall(r"\.dimensions\('([^']+)'\)", read(startup) + read(server)))
+used_dims = set(re.findall(r"\.dimensions\('([^']+)'\)", read(startup) + read_if(server)))
 # veins may name several dimensions in one call: .dimensions('a', 'b')
-for args in re.findall(r"\.dimensions\(([^)]+)\)", read(startup) + read(server)):
+for args in re.findall(r"\.dimensions\(([^)]+)\)", read(startup) + read_if(server)):
     for m in args.split(','):
         m = m.strip().strip("'\"")
         if m:

@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "gtceu:supercritical_steam",
+      "required": false
+    }
+  ]
+}

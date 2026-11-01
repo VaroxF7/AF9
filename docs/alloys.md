@@ -4,7 +4,7 @@ Janne's pick from the 50 proposed (2026-10-16): duralumin, monel, vanadium sprin
 cinnabar), wolfram invar, rheniloy (rhenium superalloy), albeme (beryllium aluminium), cobalt-molybdenum supersteel, titanium
 aluminide, hafnitinol, chronium alloy, stellarium, triniar (trinium-stellarite) and pulsium (neutron star alloy).
 
-Code: `AF9Materials.alloys()` (materials), `kubejs/server_scripts/mods/gtceu/alloys_af9.js` (recipes), `vein_ceres.js` (chronite vein),
+Code: `AF9Materials.alloys()` (materials), `af9-core/src/main/java/com/af9/core/recipes/gen/GenAlloysAf9.java` (recipes), `vein_ceres.js` (chronite vein),
 `miner.js` (asteroid void miner circuit 8), `space_elevator.js` (one more Mk-IV asteroid).
 
 | Alloy | Mix | Melt | Blast |

@@ -198,7 +198,7 @@ version of the chain was three inputs and 1,500 mB of hydrogen more in the ignit
 `tier_1_rover_fuel` hold nothing else (the tag script empties them first: Ad Astra's own `#ad_astra:fuel` also brings in oil fuel,
 diesel and biodiesel).
 
-# 4. The uranium chain (`kubejs/server_scripts/mods/gtceu/asteroid_fission.js`)
+# 4. The uranium chain (`af9-core/src/main/java/com/af9/core/recipes/gen/GenAsteroidFission.java`)
 
 | Step | Machine, tier | Takes | Gives |
 |---|---|---|---|
@@ -333,7 +333,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `kubejs/startup_scripts/gtceu/asteroid_fission.js` | the recipe types and structures of the Heat Exchanger, Spent Fuel Pool and Fuel Fabrication Bay |
 | `af9-core/src/main/java/com/af9/core/registry/` | the materials (`AF9Materials`, `asteroidFission()`), the fuel pellet and rods (`AF9Items`) |
 | `af9-core/src/main/java/com/af9/core/space/AF9Space.java` | the ore layer `af9_asteroid` and the tag of its stones |
-| `kubejs/server_scripts/mods/gtceu/asteroid_fission.js` | the closed old ways, the uranium chain, the reactor, steam turbine, reprocessing, tags |
+| `af9-core/src/main/java/com/af9/core/recipes/gen/GenAsteroidFission.java` | the closed old ways, the uranium chain, the reactor, steam turbine, reprocessing, tags |
 | `af9-core/src/main/java/com/af9/core/recipes/gen/GenFissionFuels.java` | MOX, thorium and breeder fuels, HEU/LEP/HEP enriched fuels, minor actinides, vitrification |
 | `kubejs/server_scripts/mods/gtceu/rockets.js` | the gregified rockets, the propellant, the fuel tags |
 | `kubejs/server_scripts/mods/gtceu/fusion_reactor.js` | the Fusion Reactor Mk1 |

@@ -12,6 +12,7 @@
     "client.CreativeSearchTooltipMixin"
   ],
   "mixins": [
+    "RecipeManagerRemovalMixin",
     "powah.OrbRecipeMixin",
     "powah.OrbRecipeSerializerMixin",
     "powah.OrbTileMixin",

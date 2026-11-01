@@ -5,7 +5,7 @@ GT's plastic circuit board is a fired ceramic tile in AF9, made from MV to EV (i
 working; only the name ("Ceramic Circuit Board") and the texture (`tools/textures/ceramic_boards.py`) changed. GT's four polymer recipes for the blank board
 (polyethylene, PVC, PTFE, PBI) are removed. The etching of the printed board (`circuit_etching.js`) is untouched.
 
-Recipes: `kubejs/server_scripts/mods/gtceu/ceramic_boards.js`. Materials (silicon carbide, alumina, beryllia: dust and plate) in
+Recipes: `af9-core/src/main/java/com/af9/core/recipes/gen/GenCeramicBoards.java`. Materials (silicon carbide, alumina, beryllia: dust and plate) in
 `AF9Materials.ceramicBoards()`, the three substrates in `AF9Items`.
 
 | Tier | Ceramic | Substrate (EBF) | Boards (chemical reactor, substrate + nickel dust + 250 mB sulfuric acid) |

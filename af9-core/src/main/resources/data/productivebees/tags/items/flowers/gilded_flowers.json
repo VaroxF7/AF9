@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    {
+      "id": "minecraft:raw_gold_block",
+      "required": false
+    }
+  ]
+}

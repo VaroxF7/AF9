@@ -6,10 +6,10 @@ hidden from the recipe viewer, uncraftable). The coke oven and the primitive
 blast furnace stay as expensive bulk paths; Create is the main path. Turbines
 (LV+ power) are untouched.
 
-Code: `kubejs/server_scripts/mods/gtceu/create_steam_age.js` (Create steam
+Code: `af9-core/src/main/java/com/af9/core/recipes/gen/GenCreateSteamAge.java` (Create steam
 age, molten glass, coke, steel, bricks, electron tubes, LV circuits),
-`kubejs/server_scripts/mods/gtceu/early_circuits.js` (Create),
-`kubejs/server_scripts/mods/powah/orb_recipes.js`
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenEarlyCircuits.java` (Create),
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenOrbRecipes.java`
 (Powah) and AF9 Core's patch of Powah (`com.af9.core.mixin.powah`, `com.af9.core.compat.powah`).
 Client hiding: `kubejs/client_scripts/steam_hide.js`.
 
@@ -70,7 +70,7 @@ is done changes.
 From HV on, a component is a pile of parts: a motor is nine items. Those used to go through
 Powah's orb one stack a slot; now they go through GT's assembler again, at GT's own cost in
 parts and EU (motors themselves are built in the assembler from housings, rotors and stators,
-`kubejs/server_scripts/mods/gtceu/motors.js`; GT's old motor recipes are gone up to IV).
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenMotors.java`; GT's old motor recipes are gone up to IV).
 Powah's orb takes one item per slot, so AF9 Core patches it and adds a Mk2 with a screen,
 which now shapes GT parts instead of building components:
 
@@ -81,8 +81,8 @@ which now shapes GT parts instead of building components:
   not consumed), the product comes out of its own slot (shift-click; repeated crafts stack there up to 64, and inputs can be loaded while it waits), a bar shows the charge. It is a subclass of Powah's
   orb block and tile, so energizing rods find and charge it and the wrench works on it; its slots are on the item
   handler, so hoppers, pipes and AE2 (interfaces, import and export buses) reach them. Craft: Powah's orb in the
-  middle, 2 MV motors, 2 good electronic circuits, 4 steel plates (`kubejs/server_scripts/mods/powah/orb_recipes.js`);
-- **energizing rods by voltage** (`kubejs/server_scripts/mods/powah/energizing_rods.js`): up to LuV the best rod is the niotic
+  middle, 2 MV motors, 2 good electronic circuits, 4 steel plates (`af9-core/src/main/java/com/af9/core/recipes/gen/GenOrbRecipes.java`);
+- **energizing rods by voltage** (`af9-core/src/main/java/com/af9/core/recipes/gen/GenEnergizingRods.java`): up to LuV the best rod is the niotic
   one; the spirited rod takes a UV electric motor in its recipe (UV) and the nitro rod a UHV machine hull (UHV), the rest as in
   Powah;
 - recipe viewers show the counts: JEI has an own "Energizing Orb Mk2" page (every slot with its count, the molds apart with a red NC,

@@ -2,7 +2,7 @@
 
 AE2's early game (charger, fluix, cables, meteorite hunt for sky stone) is untouched. What changes
 is everything silicon: printed circuits and processors are fab work, and storage scales with
-GT's circuits. No new items. Recipes: `kubejs/server_scripts/mods/ae2/`
+GT's circuits. No new items. Recipes: `af9-core/src/main/java/com/af9/core/recipes/gen/ (the GenAe2* classes)`
 (`ae2_processors.js`, `ae2_components.js`, `ae2_devices.js`, `ae2_addons.js`).
 
 Rule of thumb: **every base AE2 processor and recipe takes MV circuits only; HV and EV circuits are for the high-tier addons (MEGA Cells climb IV → UHV, Infinity Booster at HV).**

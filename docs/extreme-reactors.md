@@ -4,7 +4,7 @@ AF9's reactor side is **Extreme Reactors 2** (`bigreactors`, ATM9's version 2.0.
 fuels, coolants and a moderator on top of it and keeps the GT side (making fuel, reprocessing, steam turbines) where it was.
 
 Files: `config/extremereactors/modpack_api.json` (made by `tools/er/gen_modpack_api.py`, where the fuel table lives),
-`kubejs/server_scripts/mods/extremereactors/er_bridge.js` (the tags the file names, the moderator block recipe),
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenErBridge.java` (the tags the file names, the moderator block recipe),
 `af9-core` `ExtremeReactorsCompat` (supercritical steam as a vapor, unchanged), `AF9Blocks` (`nuclear_graphite_block`).
 Spec of the GT side: `docs/nuclear-rework.md`, `docs/asteroid-fission.md`.
 
