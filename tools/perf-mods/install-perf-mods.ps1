@@ -19,7 +19,6 @@ $mods = [ordered]@{
   'fastnbt'                = 'LGPL-3.0, NBT speed'
   'leanobject'             = 'LGPL-3.0, memory footprint'
   'fastrecipesearch'       = 'LGPL-3.0, vanilla recipe search'
-  'gnetum'                 = 'LGPL-3.0, spreads HUD updates over frames'
   'ImmediatelyFast'        = 'LGPL-3.0, immediate-mode rendering'
   'AsyncParticles'         = 'LGPL-3.0, particles off the render thread'
   'flerovium'              = 'LGPL-3.0, Embeddium add-on'

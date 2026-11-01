@@ -4,7 +4,7 @@ GregTech Odyssey runs fast mostly through a small pack, a perf mod stack and a r
 open-licensed part of that stack to a copy of the ATM9 instance (`ATM9 perf test`).
 
 Mods (copied from the GTO instance by `tools/perf-mods/install-perf-mods.ps1`, not stored in the repo): Radium, Alternate
-Current, FastNBT, LeanObject, FastRecipeSearch, Gnetum, ImmediatelyFast, AsyncParticles, Flerovium, Krypton Reforged,
+Current, FastNBT, LeanObject, FastRecipeSearch, ImmediatelyFast, AsyncParticles, Flerovium, Krypton Reforged,
 fastspawner. Left out: Nolijium (overlaps sodium options mods), DoesPotatoTick, mobtimizations and gpumemleakfix
 (all-rights-reserved).
 
@@ -23,3 +23,8 @@ vs Oculus are the likely conflicts.
 * Unknown: the other ~480 ATM9 mods. Nothing in the logs mentions Java-version warnings, but only a launch proves it. Mods that bundle old ASM or use JDK internals are the usual 21 failures.
 
 How to test: duplicate the ATM9 profile in CurseForge (Profile menu, Duplicate), set Java to 21 for the copy (profile options, Java), run the install script for the perf mods, start it, check `logs/latest.log` for errors and compare with spark. The runtime-only change is reversible by setting Java back to 17.
+
+## Test results
+
+* Radium without GTO's `config/lithium.properties` (alloc.nbt, entity.collisions.movement, inline_block_access off) crashes at mixin apply on the NBT compound. GTO's file is now shipped with the test zip.
+* Gnetum: its JourneyMap compat mixin targets `renderWaypointDecos`, which this JourneyMap version does not have (critical injection failure, FATAL on the render thread), and the game hung at the loading screen (SIDED_SETUP). Removed from the test list.
