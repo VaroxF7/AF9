@@ -60,7 +60,7 @@ brackets, rounded to the 20 parts.
 ## Large Chemical Reactor structure (2026-11-01, af9-core 0.1.243)
 
 Janne's 11 x 3 x 3 barrel (`chemreac.nbt`) replaces GT's 3 x 3 x 3 cross; machine, recipes, fab modes and hatch rules are unchanged
-(`kubejs/startup_scripts/gtceu/large_chemical_reactor.js` swaps the pattern after the registries fill, like the Void Miner MK1).
+(`af9-core/src/main/java/com/af9/core/startup/machines/LargeChemicalReactor.java` swaps the pattern after the registries fill, like the Void Miner MK1).
 Three blocks in the colours of the alloys, all GT's Inert PTFE casing recoloured (`tools/textures/lcr_casings.py`):
 
 | block | where | recipe |

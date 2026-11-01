@@ -49,11 +49,11 @@ import java.util.TreeMap;
  * The Void Miner, rebuilt: GT's controller block and structure stay exactly as they are ({@link #install} only
  * extends the definition), AF9 supplies the behaviour around them. Five areas as machine modes (Overworld, Nether,
  * End, Asteroids, Moon; recipe types {@code void_mining_*}, defined in
- * {@code kubejs/startup_scripts/gtceu/void_mining.js}): a programmed circuit picks the ore in the area, drilling
+ * {@code af9-core/src/main/java/com/af9/core/startup/machines/VoidMining.java}): a programmed circuit picks the ore in the area, drilling
  * fluid goes in, tenfold raw ore comes out for the same time and energy. No data sticks.
  * <p>
  * MK2 and MK3 are separate machine definitions ({@code gtceu:void_miner_mk2}, {@code gtceu:void_miner_mk3}) created
- * by KubeJS ({@code kubejs/startup_scripts/gtceu/void_mining.js}); {@link #install} wires them up here just like the
+ * by KubeJS ({@code af9-core/src/main/java/com/af9/core/startup/machines/VoidMining.java}); {@link #install} wires them up here just like the
  * base miner — machine supplier, tooltip lines, and each with its own recipe-type set
  * ({@link VoidMinerMachineMK2#RECIPE_TYPES}, {@link VoidMinerMachineMK3#RECIPE_TYPES}). Their tier behaviour (MK2:
  * 2x output and power at half the duration, MK3: 3x at a third) is data in the KubeJS recipes

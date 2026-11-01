@@ -113,6 +113,10 @@ public final class AF9RecipeTypes {
         type("micro_universe_collector", "gregstar", IO.IN, 12, 12, 6, 6, GuiTextures.PROGRESS_BAR_ARROW,
                 GTSoundEntries.ARC).setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY);
 
+        // miner (was ATM9's startup script; the Void Miner MK1 is registered with the other miners, VoidMining)
+        type("void_miner", null, IO.IN, 2, 4, 2, 0, GuiTextures.PROGRESS_BAR_ARROW, GTSoundEntries.SCIENCE)
+                .setSlotOverlay(false, false, GuiTextures.SOLIDIFIER_OVERLAY);
+
         // particle_accelerator: one fluid input each, the coolant (neutron irradiation gives the empty cell back)
         multi("neutron_irradiation", 2, 2, 1, 0, GuiTextures.PROGRESS_BAR_MASS_FAB, AF9Sounds.PARTICLE_ACCELERATOR);
         multi("ion_collision", 2, 1, 1, 0, GuiTextures.PROGRESS_BAR_FUSION, AF9Sounds.PARTICLE_ACCELERATOR);

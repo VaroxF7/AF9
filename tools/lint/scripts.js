@@ -963,8 +963,8 @@ state.machines.forEach(m => {
         pat.aisles.forEach((a, i) => a.forEach(r => { for (const ch of r) if (ch === ctrlChars[0]) count += pat.repeat[i] ? 2 : 1 }))
         if (count !== 1) report('ERROR', 'M1', `${m.id}: the controller '${ctrlChars[0]}' appears ${count} times`, where)
     }
-    // limits: maximums only
-    Object.entries(pat.where).forEach(([ch, p]) => allPreds(p).forEach(q => {
+    // limits: maximums only (the Void Miner MK1 keeps ATM9's own structure rules: auto abilities, exactly one maintenance hatch)
+    if (m.id !== 'void_miner') Object.entries(pat.where).forEach(([ch, p]) => allPreds(p).forEach(q => {
         if (q.min != null) report('ERROR', 'M1', `${m.id}: '${ch}' has a minimum (${q.kind} ${q.arg}); AF9 parts have maximums only`, where)
         if (q.exact != null) report('ERROR', 'M1', `${m.id}: '${ch}' has an exact count (${q.kind} ${q.arg}); AF9 parts have maximums only`, where)
         if (q.kind === 'auto') report('ERROR', 'M1', `${m.id}: '${ch}' uses autoAbilities (it forces energy and maintenance hatches)`, where)

@@ -25,6 +25,7 @@ import com.af9.core.startup.machines.PrecisionFabricator;
 import com.af9.core.startup.machines.QuadHatches;
 import com.af9.core.startup.machines.SanguiniteHearth;
 import com.af9.core.startup.machines.StagedAssembly;
+import com.af9.core.startup.machines.VoidMining;
 import com.af9.core.startup.machines.WaterFiltration;
 import com.af9.core.startup.machines.WirelessEnergy;
 
@@ -62,6 +63,7 @@ public final class AF9MachineList {
         QuadHatches.register();
         SanguiniteHearth.register();
         StagedAssembly.register();
+        VoidMining.register();
         WaterFiltration.register();
         WirelessEnergy.register();
     }

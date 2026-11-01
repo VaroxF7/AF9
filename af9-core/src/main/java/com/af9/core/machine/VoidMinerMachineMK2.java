@@ -6,7 +6,7 @@ import com.lowdragmc.lowdraglib.syncdata.field.ManagedFieldHolder;
 
 /**
  * MK2 Void Miner (blue, IV-class): its own machine definition ({@code gtceu:void_miner_mk2}) created by KubeJS
- * ({@code kubejs/startup_scripts/gtceu/void_mining.js}), running its own recipe types ({@link #RECIPE_TYPES}).
+ * ({@code af9-core/src/main/java/com/af9/core/startup/machines/VoidMining.java}), running its own recipe types ({@link #RECIPE_TYPES}).
  * What sets it apart from the base miner — 2x output and power draw at half the duration — is data, not code: the
  * numbers live in the KubeJS recipes ({@code kubejs/server_scripts/mods/gtceu/miner.js}) and are picked up by
  * {@link VoidMinerMachine#install} / {@link VoidMinerMachine#registerRecipeInfo}, which wire the definition's

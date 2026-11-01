@@ -5,6 +5,7 @@ import com.gregtechceu.gtceu.api.GTValues;
 import com.gregtechceu.gtceu.api.GTCEuAPI;
 import com.gregtechceu.gtceu.api.data.chemical.material.Material;
 import com.gregtechceu.gtceu.api.data.chemical.material.event.MaterialEvent;
+import com.gregtechceu.gtceu.api.data.chemical.material.event.PostMaterialEvent;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlag;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialFlags;
 import com.gregtechceu.gtceu.api.data.chemical.material.info.MaterialIconSet;
@@ -83,6 +84,28 @@ public final class AF9Materials {
     /** Every material registered here, in the order of registration. */
     public static List<Material> all() {
         return Collections.unmodifiableList(ALL);
+    }
+
+    /**
+     * GregTech's post material phase (mod bus): materials changed in place (they were the scripts' material_colors.js).
+     * Soldering alloy: lead grey-violet like TerraFirmaGreg's, instead of GT's near-white (it is mostly lead and tin);
+     * dust, ingot, nugget and the molten fluid all follow the material colour. The Dimensionally Transcendent casings'
+     * Assembly Line recipes (recipes/gen/GenDtpf) need forms GT gives these materials only some of, so the missing ones
+     * are added here, before the items register.
+     */
+    public static void modify(PostMaterialEvent event) {
+        GTMaterials.SolderingAlloy.setMaterialARGB(0x8C648C);
+        addMissingFlags(GTMaterials.get("zeron_100"), MaterialFlags.GENERATE_PLATE, MaterialFlags.GENERATE_ROD,
+                MaterialFlags.GENERATE_BOLT_SCREW, MaterialFlags.GENERATE_RING);
+        addMissingFlags(GTMaterials.get("ruthenium_trinium_americium_neutronate"), MaterialFlags.GENERATE_PLATE,
+                MaterialFlags.GENERATE_DENSE);
+        addMissingFlags(GTMaterials.get("yttrium_barium_cuprate"), MaterialFlags.GENERATE_FINE_WIRE);
+    }
+
+    private static void addMissingFlags(Material material, MaterialFlag... flags) {
+        for (MaterialFlag flag : flags) {
+            if (!material.hasFlag(flag)) material.addFlags(flag);
+        }
     }
 
     /**
@@ -1474,7 +1497,7 @@ public final class AF9Materials {
 
     /**
      * The Water Filtration Plant's waste: spent filter cake, the carbonaceous sludge every cleaning
-     * run cakes out (docs/water-filtration.md). It burns like coal (startup_scripts/af9_fuels.js sets
+     * run cakes out (docs/water-filtration.md). It burns like coal (startup/AF9Fuels sets
      * its furnace burn time to 1600), so the cake is fuel or trash, never a dead end.
      */
     private static void waterFiltration() {

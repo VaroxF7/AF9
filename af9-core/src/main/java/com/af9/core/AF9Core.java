@@ -39,6 +39,7 @@ import com.af9.core.registry.AF9Tabs;
 import com.af9.core.space.AF9Space;
 import com.af9.core.startup.AF9MachineList;
 import com.af9.core.startup.AF9Machines;
+import com.af9.core.startup.machines.LargeChemicalReactor;
 import com.af9.core.startup.AF9RecipeTypes;
 
 import com.gregtechceu.gtceu.api.registry.registrate.GTRegistrate;
@@ -50,6 +51,7 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 
@@ -79,6 +81,7 @@ public class AF9Core {
         REGISTRATE.registerRegistrate();
         // the pack's materials, in GregTech's material phase
         FMLJavaModLoadingContext.get().getModEventBus().addListener(AF9Materials::register);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(AF9Materials::modify);
         // the pack's plain blocks and items
         AF9Blocks.register(FMLJavaModLoadingContext.get().getModEventBus());
         AF9Items.register(FMLJavaModLoadingContext.get().getModEventBus());
@@ -102,6 +105,8 @@ public class AF9Core {
         if (FMLEnvironment.dist == Dist.CLIENT) {
             FMLJavaModLoadingContext.get().getModEventBus().addListener(AF9Machines::onDynamicResources);
         }
+        // after every registry is filled (what the scripts did in StartupEvents.postInit): the Large Chemical Reactor's structure
+        FMLJavaModLoadingContext.get().getModEventBus().addListener((FMLLoadCompleteEvent event) -> event.enqueueWork(LargeChemicalReactor::postInit));
         // supercritical steam in Extreme Reactors' turbines (only with Extreme Reactors loaded)
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ExtremeReactorsCompat::enqueue);
         // Powah's Energizing Orb takes counted ingredients (the mixins in com.af9.core.mixin.powah) and has a Mk2 with a screen
