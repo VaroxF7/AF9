@@ -1,5 +1,6 @@
 package com.af9.core.distillation;
 
+import com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.FluidRecipeCapability;
 import com.gregtechceu.gtceu.api.capability.recipe.IO;
 import com.gregtechceu.gtceu.api.capability.recipe.ItemRecipeCapability;
@@ -7,10 +8,9 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
+import com.gregtechceu.gtceu.api.machine.trait.RecipeHandlerList;
 import com.gregtechceu.gtceu.api.machine.trait.RecipeLogic;
-import com.gregtechceu.gtceu.api.recipe.ActionResult;
 import com.gregtechceu.gtceu.api.recipe.GTRecipe;
-import com.gregtechceu.gtceu.api.recipe.RecipeHelper;
 import com.gregtechceu.gtceu.api.recipe.content.Content;
 import com.gregtechceu.gtceu.api.recipe.content.ContentModifier;
 import com.gregtechceu.gtceu.api.recipe.modifier.ModifierFunction;
@@ -38,9 +38,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 /**
  * A Distillation Tower Module: one of the three towers of the {@link DistillationFacilityMachine}, a small multiblock of its own
@@ -64,6 +66,13 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
 
     /** The pack allows 64 parallels at most on a machine: the three towers of a facility share them. */
     public static final int TOWER_MAX_PARALLEL = 64 / 3;
+    /** With the rotors lubed (lubricant in the facility) each tower may run twice as many, never above 64 a run. */
+    public static final int LUBED_MAX_PARALLEL = Math.min(64, 2 * TOWER_MAX_PARALLEL);
+
+    /** The most parallels a tower may run, with or without lubricant. */
+    public static int parallelCap(boolean lubed) {
+        return lubed ? LUBED_MAX_PARALLEL : TOWER_MAX_PARALLEL;
+    }
 
     /**
      * The tower's parallel hatch, capped at {@link #TOWER_MAX_PARALLEL} so the facility's three towers together stay within
@@ -77,10 +86,12 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         for (var part : module.getParts()) {
             if (part instanceof ParallelHatchPartMachine parallel) hatch = Math.max(hatch, parallel.getCurrentParallel());
         }
-        int limit = Math.min(hatch, TOWER_MAX_PARALLEL);
+        // lubed rotors double the hatch's parallels (up to the tower's higher cap)
+        DistillationFacilityMachine facility = module.parent();
+        boolean lubed = facility != null && facility.isLubricated();
+        int limit = Math.min(lubed ? 2 * hatch : hatch, parallelCap(lubed));
         if (limit <= 1) return ModifierFunction.IDENTITY;
-        // by the inputs only: the outputs go into the facility's buffer, not into hatches that must have room for them now
-        int parallels = ParallelLogic.getMaxByInput(module, recipe, limit, Collections.emptyList());
+        int parallels = ParallelLogic.getParallelAmount(module, recipe, limit);
         if (parallels == 0) return ModifierFunction.NULL;
         if (parallels == 1) return ModifierFunction.IDENTITY;
         return ModifierFunction.builder().modifyAllContents(ContentModifier.multiplier(parallels))
@@ -179,10 +190,23 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
         linked = false;
         DistillationFacilityMachine parent = parent();
         if (parent != null) {
+            // the tower's own energy hatch (in its casing) powers the tower alone; a tower without one runs on the spine's hatches,
+            // never on the other towers' hatches; what the tower has of its own is not added twice
+            Set<RecipeHandlerList> own = Collections.newSetFromMap(new IdentityHashMap<>());
+            boolean ownEnergy = false;
+            for (var lists : getCapabilitiesProxy().values()) {
+                for (var list : lists) {
+                    own.add(list);
+                    if (list.hasCapability(EURecipeCapability.CAP)) ownEnergy = true;
+                }
+            }
+            Set<RecipeHandlerList> otherTowers = parent.towerEnergyLists(this);
             for (IO io : new IO[] { IO.IN, IO.OUT, IO.BOTH }) {
                 var lists = parent.getCapabilitiesProxy().get(io);
                 if (lists == null) continue;
                 for (var list : new ArrayList<>(lists)) {
+                    if (own.contains(list)) continue;
+                    if (list.hasCapability(EURecipeCapability.CAP) && (ownEnergy || otherTowers.contains(list))) continue;
                     addHandlerList(list);
                     // a change in the facility's hatch wakes this module's recipe search, as one of its own parts would
                     traitSubscriptions.add(list.subscribe(recipeLogic::updateTickSubscription));
@@ -304,35 +328,6 @@ public class DistillationModuleMachine extends WorkableElectricMultiblockMachine
             if (pin.isEmpty()) return super.searchRecipe();
             return machine.getRecipeType().searchRecipe(machine, recipe -> recipe.id != null &&
                     recipe.id.toString().equals(pin));
-        }
-
-        /** A run starts when the hatches have its inputs and the facility's output buffer has room (not the hatches' room for the outputs). */
-        @Override
-        protected ActionResult matchRecipe(GTRecipe recipe) {
-            DistillationFacilityMachine parent = getMachine() instanceof DistillationModuleMachine module ?
-                    module.parent() : null;
-            if (parent == null) return super.matchRecipe(recipe);
-            if (!machine.hasCapabilityProxies()) return ActionResult.FAIL_NO_CAPABILITIES;
-            if (!parent.bufferHasRoom()) {
-                return ActionResult.fail(Component.translatable("af9.distillation.buffer_full"), null, null);
-            }
-            ActionResult inputs = RecipeHelper.handleRecipe(machine, recipe, IO.IN, recipe.inputs,
-                    Collections.emptyMap(), false, true);
-            if (!inputs.isSuccess()) return inputs;
-            return RecipeHelper.matchTickRecipe(machine, recipe);
-        }
-
-        /** A finished run's outputs go into the facility's buffer, which feeds its output hatches. */
-        @Override
-        protected ActionResult handleRecipeIO(GTRecipe recipe, IO io) {
-            if (io == IO.OUT && getMachine() instanceof DistillationModuleMachine module) {
-                DistillationFacilityMachine parent = module.parent();
-                if (parent != null) {
-                    parent.bufferOutputs(recipe);
-                    return ActionResult.SUCCESS;
-                }
-            }
-            return super.handleRecipeIO(recipe, io);
         }
     }
 

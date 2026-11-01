@@ -116,7 +116,6 @@
     "af9.distillation.display.tower_stats": "  Drehzahl %s, %s Tempo, %s EU",
     "af9.distillation_facility.pipe_frame": "Ein Rohr im Frame braucht eine HSLA-Steel-Frame-Box darauf",
   "block.af9.impact_slag": "Einschlagsschlacke",
-    "af9.distillation.buffer": "Puffer: %s / %s mB",
-    "af9.distillation.buffer_items": "Puffer: %s / %s Item-Stacks",
-    "af9.distillation.buffer_full": "Puffer voll: Türme pausieren"
+    "af9.distillation.lube.on": "Rotoren geschmiert: %s Parallels",
+    "af9.distillation.lube.off": "Kein Schmiermittel: %s Parallels"
 }

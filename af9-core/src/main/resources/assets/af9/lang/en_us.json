@@ -1662,7 +1662,6 @@
     "af9.distillation.display.oxygen_or": "or a Cleaning Maint. Hatch",
     "af9.distillation.display.tower_stats": "  Spin %s, %s speed, %s EU",
     "af9.distillation_facility.pipe_frame": "A framed pipe needs a HSLA Steel Frame box on it",
-    "af9.distillation.buffer": "Buffer: %s / %s mB",
-    "af9.distillation.buffer_items": "Buffer: %s / %s item stacks",
-    "af9.distillation.buffer_full": "Buffer full: towers paused"
+    "af9.distillation.lube.on": "Lubed rotors: %s parallels",
+    "af9.distillation.lube.off": "No lubricant: %s parallels"
 }

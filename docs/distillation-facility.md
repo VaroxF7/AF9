@@ -14,7 +14,7 @@ Distillation Tower: **the Distillation Tower is gone** (gtceu-fork patch `0027` 
   that exact block **and** that exact mask, and the controller sets the masks itself while the facility is unformed, so an auto-built facility forms without
   wrench work. This is the Chemical Plant's pipe tech ([chemical-plant.md](chemical-plant.md): `PipeBlockMixin` keeps the connections, the same data tag),
   in `DistillationFacilityPipes`. The 9 pipes the file has in a frame (the middle column of the long runs) are **not** asked for with a frame (a framed or a plain pipe both form; the frame requirement of 0.1.192-0.1.195 was removed because the structure stopped forming). The JEI preview shows the pipes with their connections (fork patch `0028`, a preview hook).
-* **Hatches go only on the Turbine Casing spine**: the 14 Steel Turbine Casings of the file down the middle of the floor. Up to **6 energy hatches**, **1 maintenance
+* **Hatches go only on the Turbine Casing spine**: the 14 Steel Turbine Casings of the file down the middle of the floor. Up to **6 energy hatches** (optional: each tower has its own, see below), **1 maintenance
   hatch**, up to 3 fluid input hatches, 2 item input buses and **3 output hatches in all** (fluid hatches and item buses together, Janne: better automation challenges). Recipes with more fluids than that (up to 8, e.g. liquid ender air) need Quadruple / Nonuple Output Hatches, one tank a fluid; the lint counts 9 tanks a hatch for the facility (`MULTI_TANK_OUT`). Parts have maximums only (the pack's rule).
 * **3 muffler hatches** where the file has them (the top of each tower).
 * **3 rotor holders, EV or better**, where the file has them (behind each tower, facing up: the facility turns them to face up). The rotor turns in the open
@@ -27,7 +27,7 @@ in the Distillation Tower's shape (a 3 x 3 column: a Kanthal coil at its foot, a
 a module to face the right way.
 
 * **The recipe is set in the module and runs on the facility.** A module has its own mode tab and its own recipe lock; what it runs on is the facility's: the
-  energy hatches (it overclocks to their voltage), the fluid and item hatches for its inputs and outputs, the clean room, the maintenance hatch (problems stop the
+  energy hatch (its own, or the spine's; it overclocks to its voltage), the fluid and item hatches for its inputs and outputs, the clean room, the maintenance hatch (problems stop the
   towers until fixed) and its rotor. A module outside a formed facility runs nothing.
 * **3 towers, 3 parallels.** Every tower runs one recipe at a time. With nothing locked, a tower takes whatever recipe the facility's inputs match, so three towers fed
   one fluid are three parallels of one recipe. With the **[<] [>] recipe selector** on the tower's screen (like the Space Mining Module's mission selector: the arrows go through all the recipes of the tower's three modes, the mode follows the recipe) a tower only
@@ -91,9 +91,17 @@ The fab modes (Distillation, Cryogenic Rectification) are clean-room recipes: th
 * The **Large Fractionating Distillery** now runs only distillery recipes (fork patch 0029); distillation recipes belong to the facility. Facility and modules share the recipe types, so the viewers group them as workstations.
 * **Recipe ID on the page** (JEI and EMI): a data-info line of the facility's three recipe types ("ID: Naphtha 14"), from the recipe's data tag `af9_recipe_id`.
 
-## Output buffer
+## Energy: one hatch for each tower
 
-The towers do not need room in the output hatches when they start or finish: a finished run's outputs go into the facility's **output buffer** (256,000 mB of fluid in all, 64 different item stacks; `DistillationOutputBuffer`), and the facility moves them into the output hatches a few times a second as they have room. While the buffer has room the towers keep running; **when it is full the towers stop starting runs** (red line on the facility screen) until the hatches have taken enough. The room is a soft limit (a run that started may finish into a full buffer). The buffer is saved with the facility (not kept when the controller is broken). Parallels are limited by the inputs only.
+Each tower takes **one energy hatch in its own casing** (in any casing block of the tower, like the parallel hatch; the facility's `l`/`m`/`n` cells and the module's own pattern both allow it). A tower with its own hatch runs **only on that hatch**, so each tower's power is supplied separately (one 1A hatch cannot feed three towers: the first tower drains it and the others stall or stop after one tick). A tower **without** its own hatch runs on the spine's energy hatches (up to 6, kept as a fallback), never on another tower's hatch. Code: `DistillationModuleMachine.collectRecipeHandlers`.
+
+## Lubricant: more parallels
+
+Lubricant (`gtceu:lubricant`) in a **fluid input hatch of the facility** lubes the rotors: while a tower works the facility draws **20 mB a second** (`LUBRICANT_PER_SECOND`); while everything stands still it only checks that lubricant is there, so the first run after a pause is lubed too. Lubed, every tower's parallels go from the hatch's value to **twice the hatch's value, capped at 42** (`LUBED_MAX_PARALLEL`) instead of 21 (`TOWER_MAX_PARALLEL`). A run never has more than 64 parallels. The facility screen shows "Lubed rotors: 42 parallels" or "No lubricant: 21 parallels".
+
+## Outputs
+
+There is no internal buffer: a run starts when the output hatches have room for its outputs (and parallels are limited by that room too), as in any GT multiblock. Three towers share the (at most 3) output hatches.
 
 ## Open points
 

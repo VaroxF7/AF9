@@ -52,7 +52,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import it.unimi.dsi.fastutil.longs.LongArrayList;
 import it.unimi.dsi.fastutil.longs.LongList;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -118,6 +117,13 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
     /** The facility is ready (filtered) at 100 % and stays so until the cleanliness falls below this. */
     public static final double READY_LOST_BELOW = 80;
 
+    /** Lubricant a second that lubes the rotors while a tower works: more parallels for every tower ({@link DistillationModuleMachine#parallelCap}). */
+    public static final int LUBRICANT_PER_SECOND = 20;
+
+    /** The rotors are lubed (the lubricant of the last second came, or is there while the towers stand still). */
+    @DescSynced
+    private boolean lubed;
+
     /** The cleanliness score, 0-100, like the clean room's. */
     @Persisted
     @DescSynced
@@ -133,8 +139,6 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
     private boolean hatchClean;
 
     private TickableSubscription repairSubs;
-    /** What the towers finished and the output hatches have not taken yet (see {@link DistillationOutputBuffer}). */
-    private final DistillationOutputBuffer outputBuffer = new DistillationOutputBuffer();
     /** Where the modules of the structure stand (the pattern's find), empty while unformed. */
     private LongList modulePositions = new LongArrayList();
     private final List<IRotorHolderMachine> holders = new ArrayList<>();
@@ -343,10 +347,7 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
             if (module.getRecipeLogic().isWorking()) any = true;
         }
         if (relink && isFormed()) tickCleanliness();
-        // the buffer feeds the output hatches, a few times a second
-        if (isFormed() && getOffsetTimer() % 10 == 0 && !outputBuffer.isEmpty() && outputBuffer.flush(this::insertOutput)) {
-            markDirty();
-        }
+        if (relink && isFormed()) tickLubricant(any);
         if (!logic.isSuspend()) logic.setStatus(any ? RecipeLogic.Status.WORKING : RecipeLogic.Status.IDLE);
         // the maintenance hatch counts the facility's working time, once a tick however many towers work (as in any GT multiblock)
         if (any) {
@@ -354,36 +355,6 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
                 if (part instanceof IMaintenanceMachine) part.onWorking(this);
             }
         }
-    }
-
-    /** Whether the output buffer has room for another run: a tower does not start one while it is full. */
-    public boolean bufferHasRoom() {
-        return outputBuffer.hasRoom();
-    }
-
-    /** A tower finished a run: its outputs go into the buffer, which feeds the output hatches. */
-    public void bufferOutputs(GTRecipe recipe) {
-        if (getLevel() == null) return;
-        outputBuffer.addOutputs(recipe, getLevel().random);
-        markDirty();
-    }
-
-    /** Puts a one-output recipe's output into the output hatches; true if it all went in. */
-    private boolean insertOutput(GTRecipe output) {
-        return RecipeHelper.matchRecipe(this, output).isSuccess() &&
-                RecipeHelper.handleRecipeIO(this, output, IO.OUT, recipeLogic.getChanceCaches()).isSuccess();
-    }
-
-    @Override
-    public void saveCustomPersistedData(@NotNull CompoundTag tag, boolean forDrop) {
-        super.saveCustomPersistedData(tag, forDrop);
-        if (!forDrop) tag.put("af9_output_buffer", outputBuffer.save());
-    }
-
-    @Override
-    public void loadCustomPersistedData(@NotNull CompoundTag tag) {
-        super.loadCustomPersistedData(tag);
-        outputBuffer.load(tag.getCompound("af9_output_buffer"));
     }
 
     /** Whether the maintenance hatch has problems: a tower does not start until they are fixed, as in any GT multiblock. */
@@ -419,6 +390,45 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
 
         @Override
         public void findAndHandleRecipe() {}
+    }
+
+    //////////////////////////////////////
+    // ******** The lubricant ********//
+    //////////////////////////////////////
+
+    /** Whether the rotors are lubed now: every tower may run more parallels. */
+    public boolean isLubricated() {
+        return isFormed() && lubed;
+    }
+
+    /**
+     * Once a second: while a tower works the rotors use up {@link #LUBRICANT_PER_SECOND} mB of lubricant from the fluid input
+     * hatches (lubed while it comes); while all stand still it is only looked for, so the first run after a pause is lubed too.
+     */
+    private void tickLubricant(boolean working) {
+        GTRecipe lubricant = GTRecipeBuilder.ofRaw().inputFluids(GTMaterials.Lubricant.getFluid(LUBRICANT_PER_SECOND))
+                .buildRawRecipe();
+        boolean now = RecipeHelper.matchRecipe(this, lubricant).isSuccess() &&
+                (!working || RecipeHelper.handleRecipeIO(this, lubricant, IO.IN, recipeLogic.getChanceCaches()).isSuccess());
+        if (now != lubed) {
+            lubed = now;
+            markDirty();
+        }
+    }
+
+    /** The recipe handler lists of the energy hatches in the other towers (not this one's, not the spine's). */
+    java.util.Set<com.gregtechceu.gtceu.api.machine.trait.RecipeHandlerList> towerEnergyLists(DistillationModuleMachine except) {
+        java.util.Set<com.gregtechceu.gtceu.api.machine.trait.RecipeHandlerList> out =
+                java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        for (DistillationModuleMachine module : modules(false)) {
+            if (module == except) continue;
+            for (IMultiPart part : module.getParts()) {
+                for (var list : part.getRecipeHandlers()) {
+                    if (list.hasCapability(com.gregtechceu.gtceu.api.capability.recipe.EURecipeCapability.CAP)) out.add(list);
+                }
+            }
+        }
+        return out;
     }
 
     //////////////////////////////////////
@@ -607,13 +617,8 @@ public class DistillationFacilityMachine extends WorkableElectricMultiblockMachi
             return;
         }
         // (short lines: the screen clips at the right edge instead of wrapping)
-        textList.add(Component.translatable("af9.distillation.buffer", String.format(Locale.ROOT, "%,d",
-                outputBuffer.fluidTotal()), String.format(Locale.ROOT, "%,d", DistillationOutputBuffer.FLUID_CAPACITY)));
-        textList.add(Component.translatable("af9.distillation.buffer_items", outputBuffer.itemStacks(),
-                DistillationOutputBuffer.ITEM_CAPACITY));
-        if (!outputBuffer.hasRoom()) {
-            textList.add(Component.translatable("af9.distillation.buffer_full").withStyle(ChatFormatting.RED));
-        }
+        textList.add(Component.translatable(lubed ? "af9.distillation.lube.on" : "af9.distillation.lube.off",
+                DistillationModuleMachine.parallelCap(lubed)).withStyle(lubed ? ChatFormatting.GREEN : ChatFormatting.GRAY));
         List<DistillationModuleMachine> towers = modules(false);
         int running = 0;
         for (DistillationModuleMachine tower : towers) if (tower.getRecipeLogic().isWorking()) running++;
