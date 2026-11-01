@@ -28,3 +28,4 @@ How to test: duplicate the ATM9 profile in CurseForge (Profile menu, Duplicate),
 
 * Radium without GTO's `config/lithium.properties` (alloc.nbt, entity.collisions.movement, inline_block_access off) crashes at mixin apply on the NBT compound. GTO's file is now shipped with the test zip.
 * Gnetum: its JourneyMap compat mixin targets `renderWaypointDecos`, which this JourneyMap version does not have (critical injection failure, FATAL on the render thread), and the game hung at the loading screen (SIDED_SETUP). Removed from the test list.
+* LeanObject's model feature swaps ModelBakery's maps for its own, which breaks ModernFix's dynamic resources (ATM9 has it on): `ClassCastException O2OOpenCacheHashMap cannot be cast to DynamicBakedModelProvider` while loading models. Fix: `config/leanobject.toml` with `[features.model] enabled = false` (shipped in the test zip).
