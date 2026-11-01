@@ -8,6 +8,7 @@ import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;
 import com.gregtechceu.gtceu.api.machine.multiblock.MultiblockControllerMachine;
+import com.gregtechceu.gtceu.api.pattern.FactoryBlockPattern;
 import com.gregtechceu.gtceu.api.pattern.TraceabilityPredicate;
 import com.gregtechceu.gtceu.api.pattern.Predicates;
 import com.gregtechceu.gtceu.api.recipe.GTRecipeType;
@@ -156,6 +157,21 @@ public final class AF9Machines {
         Component[] out = new Component[count];
         for (int i = 0; i < count; i++) out[i] = Component.translatable(key + i);
         return out;
+    }
+
+    /** One aisle per entry of {@code shape} (each entry the rows of that aisle, bottom to top). */
+    public static FactoryBlockPattern aisles(FactoryBlockPattern pattern, String[][] shape) {
+        for (String[] aisle : shape) pattern = pattern.aisle(aisle);
+        return pattern;
+    }
+
+    /** One aisle per row: layers l0..l3 bottom to top, the layers mirrored at l3 (l0 l1 l2 l3 l2 l1 l0). */
+    public static FactoryBlockPattern mirroredAisles(FactoryBlockPattern pattern, String[] l0, String[] l1, String[] l2,
+                                                     String[] l3) {
+        for (int row = 0; row < l0.length; row++) {
+            pattern = pattern.aisle(l0[row], l1[row], l2[row], l3[row], l2[row], l1[row], l0[row]);
+        }
+        return pattern;
     }
 
     /** Tooltip lines key + 0 .. count - 1, each with one argument (e.g. the amperage). */

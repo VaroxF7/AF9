@@ -1,7 +1,7 @@
 # Distillation Facility
 
 The IV distillation path. A 10 x 7 x 15 walk-through of **real GT fluid pipes** round three **Distillation Tower Modules**, built 1:1 from
-Janne's `v3.nbt` (kubejs/startup_scripts/gtceu/distillation_facility.js, af9-core `com.af9.core.distillation`). It replaces the
+Janne's `v3.nbt` (af9-core/src/main/java/com/af9/core/startup/machines/DistillationFacility.java, af9-core `com.af9.core.distillation`). It replaces the
 Distillation Tower: **the Distillation Tower is gone** (gtceu-fork patch `0027` drops the machine and its crafting; its recipe type stays and is the first mode of every tower; the GCYM Large Distillery is built from an IV Distillery instead).
 
 ## The structure

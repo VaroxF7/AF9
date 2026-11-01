@@ -70,7 +70,7 @@ import java.util.Set;
  * It runs no recipe itself: its recipe logic only shows whether a tower works (so the rotors keep spinning, the muffler smokes
  * and the model is active while any does).
  * <p>
- * Made in KubeJS ({@code startup_scripts/gtceu/distillation_facility.js}, {@code gtceu:distillation_facility}).
+ * Made in KubeJS ({@code af9-core/src/main/java/com/af9/core/startup/machines/DistillationFacility.java}, {@code gtceu:distillation_facility}).
  */
 public class DistillationFacilityMachine extends WorkableElectricMultiblockMachine
         implements ICleanroomProvider, IMachineLife {

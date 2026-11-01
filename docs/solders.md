@@ -44,7 +44,7 @@ plasma solder dust + 8 empty magnetic traps, 2400 ticks at 4A UHV (same pattern 
 chromodynium recipes). GT's own extractor melts the dust to the fluid the soldering type consumes.
 
 `gtceu:plasma_soldering` (new recipe type, 9 items / 1 out / 2 fluids, chain in `solders.js`): runs only in the
-**Hyper-Intensity Laser Engraver** (`gtceu:hyper_intensity_laser_engraver`, `startup_scripts/gtceu/hile.js`: GTNH's
+**Hyper-Intensity Laser Engraver** (`gtceu:hyper_intensity_laser_engraver`, `af9-core/src/main/java/com/af9/core/startup/machines/Hile.java`: GTNH's
 Industrial Laser Engraver, 5x5x5, a laser target hatch on top, a glass shaft and the Laser Resistant Plate under it;
 perfect overclocks, parallel hatch). It left the Orbital Lithography Array Mk2. `af9:wetware_mainframe_uhv_plasma`: the photonic UHV mainframe bill
 (10 UV supercomputers + photonic/spin dies), 720 mB plasma solder, 1000 ticks at UHV — the only way to a

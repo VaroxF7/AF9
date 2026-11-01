@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The real GT pipes of the Distillation Facility (kubejs/startup_scripts/gtceu/distillation_facility.js), the way the
+ * The real GT pipes of the Distillation Facility (af9-core/src/main/java/com/af9/core/startup/machines/DistillationFacility.java), the way the
  * Chemical Plant has them ({@link ChemicalPlantPipes}): the pattern asks for exactly this pipe block with exactly this
  * {@code connections} mask at each spot, as in Janne's structure file (v3.nbt), and the controller sets the masks itself
  * while the facility is not formed, so an auto-built facility (which places plain pipes) ends up connected the way the file

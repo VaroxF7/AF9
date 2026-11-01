@@ -57,7 +57,7 @@ import java.util.Set;
  * With nothing locked a module takes whatever recipe the facility's inputs match (so three towers fed one fluid are three
  * parallels of the same recipe); a locked module only ever runs that recipe, so the three towers can run three different ones.
  * <p>
- * Made in KubeJS ({@code startup_scripts/gtceu/distillation_facility.js}, {@code gtceu:distillation_module}).
+ * Made in KubeJS ({@code af9-core/src/main/java/com/af9/core/startup/machines/DistillationFacility.java}, {@code gtceu:distillation_module}).
  */
 public class DistillationModuleMachine extends WorkableElectricMultiblockMachine {
 

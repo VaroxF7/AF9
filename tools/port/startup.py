@@ -279,11 +279,46 @@ def emit_custom(mid, segs):
         extra = '%s, %s, ' % (default_tt or 'false', tr_expr(scaling) if scaling else 'GTMachineUtils.defaultTankSizeFunction')
     return 'AF9Machines.tiered("%s", new int[] { %s },\n                %s%s,\n                (tier, builder) -> builder\n%s);' % (mid, ts, extra, mach, '\n'.join(lines))
 
+def semi_blocks(text):
+    """`.pattern(definition -> {` statement blocks (JS, no semicolons) -> Java statements."""
+    lines = text.split('\n')
+    out, i = [], 0
+    while i < len(lines):
+        l = lines[i]
+        out.append(l)
+        i += 1
+        if l.rstrip().endswith('definition -> {'):
+            j = i
+            while j < len(lines) and not lines[j].strip().startswith('})'): j += 1
+            blk = lines[i:j]
+            ind = min(len(x) - len(x.lstrip()) for x in blk if x.strip() and not x.strip().startswith('//'))
+            starts = [k for k, x in enumerate(blk) if x.strip() and not x.strip().startswith(('//', '.', ')')) and len(x) - len(x.lstrip()) == ind]
+            res = list(blk)
+            for si, st in enumerate(starts):
+                end = (starts[si + 1] if si + 1 < len(starts) else len(blk)) - 1
+                while end > st and (not res[end].strip() or res[end].strip().startswith('//')): end -= 1
+                if not res[end].rstrip().endswith(';'): res[end] = res[end].rstrip() + ';'
+                res[st] = re.sub(r'^(\s*)(?:const|let)\s+', r'\1var ', res[st])
+            out.extend(res)
+            i = j
+    return '\n'.join(out)
+
 def main(path):
     src = open(path, encoding='utf-8').read()
     for m in re.finditer(r"const\s+(\$\w+)\s*=\s*Java\.loadClass\('([^']+)'\)", src):
         CLS[m.group(1)] = m.group(2).split('.')[-1]
     imports = {m.group(2) for m in re.finditer(r"const\s+(\$\w+)\s*=\s*Java\.loadClass\('([^']+)'\)", src)}
+    fields = []
+    while True:
+        dm = re.search(r"\n[ ]*const ([A-Z][A-Z0-9_]*) = \[", src)
+        if not dm: break
+        lb = dm.end() - 1
+        rb = scan_balanced(src, lb, '[', ']')
+        raw = src[lb:rb]
+        nested = raw[1:].lstrip().startswith('[')
+        jv = convert_strings(raw.replace('[', '{').replace(']', '}'))
+        fields.append('    private static final String%s %s = %s;' % ('[][]' if nested else '[]', dm.group(1), jv))
+        src = src[:dm.start()] + src[rb:]
     blocks = list(re.finditer(r"GTCEuStartupEvents\.registry\('gtceu:machine', event => \{", src))
     if not blocks: sys.exit('no machine registry in ' + path)
     java = []
@@ -292,6 +327,8 @@ def main(path):
         body = src[m.end():src.rindex('}', 0, end)]
         body = re.sub(r"\[((?:\d+,\s*)*\d+)\]\.map\(i =>\s*Component\.translatable\(`([^`$]*)\$\{i\}`\)\)",
                       lambda mm: "AF9Machines.lines('%s', %d)" % (mm.group(2), len(mm.group(1).split(','))), body)
+        body = re.sub(r"let pattern = FactoryBlockPattern\.start\(\)\s*\n\s*(\w+)\.forEach\(aisle => \{ pattern = pattern\.aisle\(aisle\) \}\)",
+                      r"var pattern = AF9Machines.aisles(FactoryBlockPattern.start(), \1)", body)
         body = template_to_java(body)
         body = re.sub(r"\n\s*const tooltips = \(key, count\) => \{.*?\n    \}\n", '\n', body, flags=re.S)
         i = 0
@@ -309,7 +346,7 @@ def main(path):
             if text is None:
                 java.append('        // TODO port by hand: %s (%s)' % (mid, kind))
                 continue
-            java.append('        ' + convert_strings(text))
+            java.append('        ' + semi_blocks(convert_strings(text)))
     cls = class_name(path)
     body_java = '\n\n'.join(java)
     imp = set(imports)
@@ -337,7 +374,7 @@ def main(path):
         imp_text += 'import %s;\n' % x
         prev = grp
     doc = header_doc(src)
-    print('package com.af9.core.startup.machines;\n\n%s\n%s\npublic final class %s {\n\n    private %s() {}\n\n    public static void register() {\n%s\n    }\n}' % (imp_text, doc, cls, cls, body_java))
+    print('package com.af9.core.startup.machines;\n\n%s\n%s\npublic final class %s {\n\n    private %s() {}\n\n%spublic static void register() {\n%s\n    }\n}' % (imp_text, doc, cls, cls, ('\n\n'.join(fields) + '\n\n    ') if fields else '    ', body_java))
 
 if __name__ == '__main__':
     main(sys.argv[1])

@@ -8,7 +8,7 @@ Reflector and gathers neutron rays into **liquid neutronium** (solidify it to in
 GTNH's Planetary Gas Siphon (GT5-Unofficial `MTEPlanetaryGasSiphon`, LGPL-3.0): a 3 x 3 tower with a wide dish on its crown and a
 crossed ring of arms round its middle (13 x 23 x 13 in GTNH). The pattern is Janne's rebuilt version, read from his world: 15 x 24 x 15,
 the arms end in five-block bars, a cross of frames sits on the dish, and an Orbital Magnet Casing and an Orbital Light Casing sit
-in pairs on the front tip. Pattern: `startup_scripts/gtceu/planetary_satellite.js`.
+in pairs on the front tip. Pattern: `af9-core/src/main/java/com/af9/core/startup/machines/PlanetarySatellite.java`.
 
 | char | block |
 |---|---|

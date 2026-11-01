@@ -1198,7 +1198,7 @@ Structure 5×5×5: frostproof shell (maximums only: 2 energy hatches, 2 fluid in
 
 # 14. Particle Accelerator
 
-Files: `startup_scripts/gtceu/particle_accelerator.js`, `server_scripts/mods/gtceu/particle_accelerator.js`, AF9 Core `registry/AF9Materials` (strange matter, chromodynium), `ParticleAcceleratorMachine`, `console/AcceleratorConsoleWidget`, `console/SidePanelsUIWidget`, `client/render/LightRingRender`.
+Files: `af9-core/src/main/java/com/af9/core/startup/machines/ParticleAccelerator.java`, `server_scripts/mods/gtceu/particle_accelerator.js`, AF9 Core `registry/AF9Materials` (strange matter, chromodynium), `ParticleAcceleratorMachine`, `console/AcceleratorConsoleWidget`, `console/SidePanelsUIWidget`, `client/render/LightRingRender`.
 
 `gtceu:particle_accelerator` (crafted at UV from 12 UV Fusion Reactors since 0.1.111): a storage ring **47 × 47, 7 high**, the layout of GTNH's Compact Fusion Computer (GT5-Unofficial `MTELargeFusionComputer`, layers L0 L1 L2 L3 L2 L1 L0 as top views in the startup script). An empty beam tube (`H`, 560 blocks that must be air: GTNH's superconducting coils, left out so the beam can be seen running through it) inside a shell of `af9:collision_containment_casing` (`C`, ~1660, the bending magnets; was clean stainless steel until 0.1.111; a diamond around the tube: 3 wide at y 1 and 5, 5 wide at y 2-4), four gates at the compass points with `gtceu:fusion_glass` (`B`) and `af9:collision_shield_casing` corners (`F`, 128; was naquadah alloy frames). The controller sits in the south gate's outer wall at y 3, facing out (GTNH has it on the inner wall; GTNH's drone-hatch spots are casing here). Parts, maximums only, one set for the whole ring (a shared predicate, so the maximums count across it): anywhere on the containment casing (`C`, and GTNH's energy spots `E`, casing here too) or in the gates' glass spots (`I`): 2 coolant hatches, 2 item inputs, 2 item outputs, 1 maintenance, 1 fluid input hatch (the Xenoxid), **2 energy hatches or 1 laser hatch at most**, no parallel hatch. `POWER_GATE` + `FIELD_GATE` + `AmperageOverclock.PERFECT_OC` (reworked 0.1.81, see below). The linac's blocks (beamline casing, RF cavity, spallation target housing) are gone.
 
@@ -1410,7 +1410,7 @@ af9-core/src/main/java/com/af9/core/recipes/gen/GenLithoProcess.java  # §18: ha
 kubejs/startup_scripts/gtceu/photolithography.js   # 9 recipe types, both litho structures, tooltips
 af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java      # recipe type boule_melting
 af9-core/src/main/java/com/af9/core/startup/machines/Cryogenics.java         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches HV-UHV
-kubejs/startup_scripts/gtceu/particle_accelerator.js # 3 recipe types, the Particle Accelerator ring
+af9-core/src/main/java/com/af9/core/startup/machines/ParticleAccelerator.java # 3 recipe types, the Particle Accelerator ring
 af9-core/src/main/java/com/af9/core/startup/machines/StagedAssembly.java # §19: the staged_assembly recipe type + the Staged Assembly structure
 af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java # AF9_WAFERS table + wafer tags, machine/light-source crafting, XCDA/i-line/EUV chemistry, prints, derived wafers, cutting, reclaim/clean, removals
 af9-core/src/main/java/com/af9/core/recipes/gen/GenBouleMelting.java  # Ender Air → endion, endionite, coils, crucibles, charges/seeds/boules, new boule cutting, GT boule removals

@@ -74,7 +74,7 @@ under a coolant loop). What makes it its own machine is heat (`SanguiniteHearthM
 ## Files
 
 - Hearth: `af9-core/src/main/java/com/af9/core/machine/SanguiniteHearthMachine.java` (heat, preheat, `HEARTH_GATE`, Verteilerhaus bonus), turntables in `client/render/HearthTurntableRender.java`, casings by `tools/textures/hearth.py`, JEI in `machine/SanguiniteHearthRecipeUI.java`, Jade in `compat/jade/AF9MachineProvider`
-- Structure + type: `kubejs/startup_scripts/gtceu/sanguinite_hearth.js` (RHF copy, `sanguinite_hearth` type 9/0/2/1, Coolant Hatches, 9 tooltips)
+- Structure + type: `af9-core/src/main/java/com/af9/core/startup/machines/SanguiniteHearth.java` (RHF copy, `sanguinite_hearth` type 9/0/2/1, Coolant Hatches, 9 tooltips)
 - Materials: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (`uhvSuperconductor`, no blast/components)
 - Mission: `af9-core/src/main/java/com/af9/core/elevator/PlanetCatalog.java` (planet 9, gas 8)
 - Recipes: `af9-core/src/main/java/com/af9/core/recipes/gen/GenUhvSuperconductor.java`

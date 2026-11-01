@@ -20,7 +20,7 @@ import net.minecraftforge.registries.ForgeRegistries;
  * <li>{@link #ORBITAL_PULSE}: a low throb (warden heartbeat) each time its light ring flashes;</li>
  * <li>{@link #ORBITAL_IGNITE}: the end portal opening, an octave down, when the ring lights up.</li>
  * <li>{@link #PARTICLE_ACCELERATOR}: the Particle Accelerator's working sound (all three modes,
- * kubejs/startup_scripts/gtceu/particle_accelerator.js): the beacon hum pitched up, the magnets' electric whine;</li>
+ * af9-core/src/main/java/com/af9/core/startup/machines/ParticleAccelerator.java): the beacon hum pitched up, the magnets' electric whine;</li>
  * <li>{@link #ACCELERATOR_IGNITE}: a respawn anchor charging, pitched down, when its ring lights up;</li>
  * <li>{@link #ACCELERATOR_PASS}: a soft whoosh (a trident's riptide, pitched up) on every white flash of the ring, a
  * bunch of particles going round.</li>

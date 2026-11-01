@@ -4,7 +4,7 @@ import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.multiblock.WorkableElectricMultiblockMachine;
 
 /**
- * The Hyper-Intensity Laser Engraver (structure and recipes in KubeJS: {@code startup_scripts/gtceu/hile.js}): GT's electric
+ * The Hyper-Intensity Laser Engraver (structure and recipes in KubeJS: {@code af9-core/src/main/java/com/af9/core/startup/machines/Hile.java}): GT's electric
  * multiblock that shows its laser, from the hatch on top down the glass shaft onto the plate, while it works.
  */
 public class LaserEngraverMachine extends WorkableElectricMultiblockMachine implements ILaserEngraverMachine {

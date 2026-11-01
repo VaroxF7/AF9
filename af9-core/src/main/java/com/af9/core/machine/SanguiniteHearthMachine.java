@@ -20,7 +20,7 @@ import net.minecraft.core.Direction;
 
 /**
  * Controller logic of the Sanguinite Hearth Furnace (structure and recipe type in
- * {@code kubejs/startup_scripts/gtceu/sanguinite_hearth.js}): a standalone copy of GT's Rotary Hearth Furnace
+ * {@code af9-core/src/main/java/com/af9/core/startup/machines/SanguiniteHearth.java}): a standalone copy of GT's Rotary Hearth Furnace
  * ({@code gtceu:mega_blast_furnace}) that runs only its own recipe type ({@code gtceu:sanguinite_hearth}), never the
  * EBF family. The EBF cannot smelt sanguinite at all: the molten print lives on the hearth's type, and the
  * material's auto EBF/hot-ingot recipes are removed.

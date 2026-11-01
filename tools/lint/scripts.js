@@ -555,6 +555,8 @@ function javaStartup() {
                 AF9Machines: {
                     type: x => x, blocks: (...ids) => Predicates.blocks(...ids), block: id => id, blockSupplier: id => () => id,
                     lines: (key, n) => Array.from({ length: n }, (_, k) => ctx.Component.translatable(`${key}${k}`)), rl: x => x,
+                    aisles: (pattern, shape) => { shape.forEach(a => { pattern = pattern.aisle(...a) }); return pattern },
+                    mirroredAisles: (pattern, a, b, c, d) => { a.forEach((_, r) => { pattern = pattern.aisle(a[r], b[r], c[r], d[r], c[r], b[r], a[r]) }); return pattern },
                     linesWith: (key, n, arg) => Array.from({ length: n }, (_, k) => ctx.Component.translatable(`${key}${k}`, `${arg}`))
                 },
                 Component: ctx.Component, GTRecipeTypes: ctx.GTRecipeTypes, Predicates, FactoryBlockPattern, GTValues,
