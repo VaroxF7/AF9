@@ -16,4 +16,4 @@ Price rises 20% per node (`NODE_PRICE` 1.2, node index 0 = 350 nm ... 8 = 1 nm),
 
 Only the silicon chips (native substrate silicon) cost transistors; the higher wafers are unchanged. GT's component items (SMD transistors on boards) are not the virtual resource and stay.
 
-Code: `AF9_WAFERS.transistorFluids` in `af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java`. JEI page: `kubejs/client_scripts/transistors_info.js`. Quest: Photolithography chapter, "Transistors".
+Code: `AF9_WAFERS.transistorFluids` in `af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java`. JEI page: `af9-core/src/main/java/com/af9/core/compat/jei/AF9JeiPlugin.java`. Quest: Photolithography chapter, "Transistors".

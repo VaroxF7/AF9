@@ -11,7 +11,7 @@ age, molten glass, coke, steel, bricks, electron tubes, LV circuits),
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenEarlyCircuits.java` (Create),
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenOrbRecipes.java`
 (Powah) and AF9 Core's patch of Powah (`com.af9.core.mixin.powah`, `com.af9.core.compat.powah`).
-Client hiding: `kubejs/client_scripts/steam_hide.js`.
+Client hiding: `af9-core/src/main/java/com/af9/core/compat/jei/AF9JeiPlugin.java`.
 
 ## 0. Steam age on Create (no steam machines)
 

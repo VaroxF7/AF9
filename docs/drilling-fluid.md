@@ -2,7 +2,7 @@
 
 Janne's request (2026-10-23). GT's mud was one mixer recipe (stone dust, 20 mB lubricant, water). It is now a water-based
 drilling mud in six steps. Code: `AF9Materials.drillingMud()`, `af9-core/src/main/java/com/af9/core/recipes/gen/GenDrillingFluid.java`,
-quests in the `void_miner` chapter, JEI page `kubejs/client_scripts/mud_coolant_info.js`.
+quests in the `void_miner` chapter, JEI page `af9-core/src/main/java/com/af9/core/compat/jei/AF9JeiPlugin.java`.
 
 | Step | Machine | Takes | Makes |
 |---|---|---|---|

@@ -3,7 +3,7 @@
 Janne's request (2026-10-23). GT: polychlorinated biphenyl (one reactor step from biphenyl) mixed 3:1 with distilled
 water. Now an askarel, the dielectric of old transformers. Code: `AF9Materials.askarel()`,
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenPcbCoolant.java`, quests in the `zero_point_module` chapter (next to GT's biphenyl quests),
-JEI page `kubejs/client_scripts/mud_coolant_info.js`.
+JEI page `af9-core/src/main/java/com/af9/core/compat/jei/AF9JeiPlugin.java`.
 
 | Step | Machine | Takes | Makes |
 |---|---|---|---|
