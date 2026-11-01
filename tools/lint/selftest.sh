@@ -18,6 +18,7 @@ rm -rf "$TMP/tools/lint/selftest"
 
 # --- scripts: fixtures with mistakes ------------------------------------------------------------------------------------
 cp "$HERE/selftest/startup.js" "$TMP/kubejs/startup_scripts/zz_selftest.js"
+mkdir -p "$TMP/kubejs/server_scripts"   # the repo has no server scripts any more (they are Java)
 cp "$HERE/selftest/server.js" "$TMP/kubejs/server_scripts/zz_selftest.js"
 cp "$HERE/selftest/links.js" "$TMP/kubejs/startup_scripts/zz_selftest_links.js"
 # S5: a startup script that loads a GT block-holder class at its top level (crashes the game on startup)
