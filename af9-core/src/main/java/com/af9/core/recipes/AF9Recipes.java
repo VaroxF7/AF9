@@ -25,6 +25,9 @@ public final class AF9Recipes {
 
     public static void register(Consumer<FinishedRecipe> out) {
         Ethylene.register(out);
+        com.af9.core.recipes.gen.GenNetherChemistry.register(out);
+        com.af9.core.recipes.gen.GenBiofuels.register(out);
+        com.af9.core.recipes.gen.GenAromatics.register(out);
     }
 
     /** A recipe builder of the given type, with the AF9 recipe id. */

@@ -7,9 +7,9 @@ and oil chemistry is untouched; these lines run beside it.
 
 Code: `af9-core/src/main/java/com/af9/core/registry/AF9Materials.java` (the materials: bioethanol, dichloromethane,
 shiny, chloromethane and mana diesel),
-`kubejs/server_scripts/mods/gtceu/nether_chemistry.js`,
-`kubejs/server_scripts/mods/gtceu/biofuels.js`,
-`kubejs/server_scripts/mods/gtceu/aromatics.js`,
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenNetherChemistry.java`,
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenBiofuels.java`,
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenAromatics.java`,
 `kubejs/server_scripts/mods/gtceu/diesel.js`,
 `af9-core/src/main/java/com/af9/core/recipes/AF9Recipes.java` (Ethylene) (the LuV mass route, §7).
 Planet type 9 (the far dark) brings these fluids home: `PlanetCatalog`, §5.
