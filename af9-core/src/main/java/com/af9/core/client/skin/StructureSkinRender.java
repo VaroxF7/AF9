@@ -1,6 +1,7 @@
 package com.af9.core.client.skin;
 
 import com.af9.core.AF9Core;
+import com.af9.core.client.render.AF9RenderTypes;
 
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.feature.IRecipeLogicMachine;
@@ -269,7 +270,7 @@ public class StructureSkinRender extends DynamicRender<IMultiController, Structu
         // Pass 2: the coil's bloom over the coil bands, at full brightness
         if (bloom != null) {
             markActive(bloom);
-            VertexConsumer lightsUp = buffer.getBuffer(RenderType.entityTranslucentEmissive(InventoryMenu.BLOCK_ATLAS));
+            VertexConsumer lightsUp = buffer.getBuffer(AF9RenderTypes.COIL_BLOOM);
             for (int half = 0; half < 2; half++) {
                 poseStack.pushPose();
                 poseStack.translate(0, half * 2, 0);

@@ -71,6 +71,22 @@ public final class AF9RenderTypes extends RenderType {
                     .setWriteMaskState(COLOR_WRITE)
                     .createCompositeState(false));
 
+    /**
+     * A coil's bloom layer over the coil band: the bloom textures are opaque (black where nothing glows), so they are
+     * added to the coil, never blended over it (blended, they painted the whole band black while the machine ran).
+     */
+    public static final RenderType COIL_BLOOM = create("af9_coil_bloom", DefaultVertexFormat.NEW_ENTITY,
+            VertexFormat.Mode.QUADS, 256, true, false,
+            CompositeState.builder()
+                    .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
+                    .setTextureState(new TextureStateShard(
+                            net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS, false, false))
+                    .setTransparencyState(LIGHTNING_TRANSPARENCY)
+                    .setCullState(NO_CULL)
+                    .setWriteMaskState(COLOR_WRITE)
+                    .setOverlayState(OVERLAY)
+                    .createCompositeState(true));
+
     private AF9RenderTypes(String name, VertexFormat format, VertexFormat.Mode mode, int bufferSize,
                            boolean affectsCrumbling, boolean sortOnUpload, Runnable setup, Runnable clear) {
         super(name, format, mode, bufferSize, affectsCrumbling, sortOnUpload, setup, clear);
