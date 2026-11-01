@@ -70,4 +70,4 @@ asteroid instead of the lottery. Quantanium is a lean ore
   quest is the brannerite model: one raw ore).
 - Bulk: the Mk-IV share follows the weight; if UHV wants stacks, raise the
   weight (it also raises the worldgen share) or add a void-miner asteroids
-  circuit (`kubejs/server_scripts/mods/gtceu/miner.js`).
+  circuit (`af9-core/src/main/java/com/af9/core/recipes/gen/GenMiner.java`).

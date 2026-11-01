@@ -37,6 +37,13 @@ public final class Removals {
         PROTECTED.add(id);
     }
 
+    /** Edits of the raw recipe JSON map (what KubeJS's forEachRecipe did): run after the removals, in the order registered. */
+    private static final List<java.util.function.Consumer<Map<ResourceLocation, JsonElement>>> TRANSFORMS = new ArrayList<>();
+
+    public static void transform(java.util.function.Consumer<Map<ResourceLocation, JsonElement>> edit) {
+        TRANSFORMS.add(edit);
+    }
+
     public static Filter filter() {
         return new Filter();
     }
@@ -143,6 +150,29 @@ public final class Removals {
 
     /** Removes every matching recipe from the recipe manager's raw map (called from the mixin). */
     public static void apply(Map<ResourceLocation, JsonElement> recipes) {
+        applyFilters(recipes);
+        for (java.util.function.Consumer<Map<ResourceLocation, JsonElement>> t : TRANSFORMS) {
+            try {
+                t.accept(recipes);
+            } catch (RuntimeException e) {
+                LOGGER.error("a recipe transform failed", e);
+            }
+        }
+    }
+
+    /** All recipe ids in the map whose JSON has the given type. */
+    public static List<ResourceLocation> idsOfType(Map<ResourceLocation, JsonElement> recipes, String type) {
+        List<ResourceLocation> ids = new ArrayList<>();
+        for (Map.Entry<ResourceLocation, JsonElement> en : recipes.entrySet()) {
+            JsonElement j = en.getValue();
+            if (j.isJsonObject() && j.getAsJsonObject().has("type") && type.equals(j.getAsJsonObject().get("type").getAsString())) {
+                ids.add(en.getKey());
+            }
+        }
+        return ids;
+    }
+
+    private static void applyFilters(Map<ResourceLocation, JsonElement> recipes) {
         if (FILTERS.isEmpty()) return;
         int removed = 0;
         int[] perFilter = new int[FILTERS.size()];

@@ -337,7 +337,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `af9-core/src/main/java/com/af9/core/recipes/gen/GenFissionFuels.java` | MOX, thorium and breeder fuels, HEU/LEP/HEP enriched fuels, minor actinides, vitrification |
 | `kubejs/server_scripts/mods/gtceu/rockets.js` | the gregified rockets, the propellant, the fuel tags |
 | `kubejs/server_scripts/mods/gtceu/fusion_reactor.js` | the Fusion Reactor Mk1 |
-| `kubejs/server_scripts/mods/gtceu/miner.js` | the void miner without uranium and plutonium |
+| `af9-core/src/main/java/com/af9/core/recipes/gen/GenMiner.java` | the void miner without uranium and plutonium |
 | `af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`, `AF9Space.java` | the asteroids of both belts and their registration |
 | `kubejs/server_scripts/mods/gtceu/vein_ceres.js` | the brannerite, pentlandite, magnetite and cooperite dike veins of Ceres |
 | `kubejs/server_scripts/mods/gtceu/vein_field.js` | the naquadah, platinum, quantanium and iridium dike veins of the upper field |

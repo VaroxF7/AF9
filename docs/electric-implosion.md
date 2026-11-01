@@ -1,7 +1,7 @@
 # Electric Implosion Compressor and the tier 2 rocket's hull
 
 Janne's spec of 2026-10-18. Machines: `kubejs/startup_scripts/gtceu/electric_implosion.js`. Recipes:
-`kubejs/server_scripts/mods/gtceu/electric_implosion.js` (all implosion recipes), `rocket_hull.js` (alloy, cone, fins), `rockets.js` (the tier 2 row), `fab_chemistry.js`
+`af9-core/src/main/java/com/af9/core/recipes/gen/GenElectricImplosion.java` (all implosion recipes), `rocket_hull.js` (alloy, cone, fins), `rockets.js` (the tier 2 row), `fab_chemistry.js`
 (the vapor). Materials and items: `af9-core` (`AF9Materials.rocketInsulation()`, `AF9Items`, `AF9Blocks`). Art:
 `tools/textures/electric_implosion.py` (`--preview <dir>` writes contact sheets and an animated front view).
 

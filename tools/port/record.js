@@ -33,11 +33,14 @@ function fluid(x) {
     if (typeof x === 'string') {
         const m = x.match(/^#(\S+) (\d+)$/)
         if (m) return `Dsl.fluidTag(${lit(m[1])}, ${m[2]})`
+        const f = x.match(/^([a-z0-9_.-]+:[a-z0-9_\/.-]+) (\d+)$/)
+        if (f) return `Dsl.fluid(${lit(f[1])}, ${f[2]})`
     }
     if (x && x.__fluid) return `Dsl.fluid(${lit(x.__fluid)}, ${x.amount})`
     return no('fluid argument ' + JSON.stringify(x))
 }
 const num = x => {
+    if (typeof x === 'string' && /^-?\d+$/.test(x)) x = Number(x)
     if (typeof x !== 'number' || !Number.isFinite(x)) return no('number argument ' + String(x))
     if (!Number.isInteger(x)) return no('non-integer number ' + x)
     return Math.abs(x) > 2147483647 ? x + 'L' : String(x)
@@ -179,6 +182,7 @@ function runScript(file) {
         } })
     })
     ops.tags = tags
+    if (ctx.__out !== undefined) console.log('OUT ' + JSON.stringify(ctx.__out))
     return ops
 }
 

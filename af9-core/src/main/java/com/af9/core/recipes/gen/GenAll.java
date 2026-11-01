@@ -35,6 +35,8 @@ public final class GenAll {
         GenCeramicBoards.register(out);
         GenCeranium.register(out);
         GenChemicalReduction.register(out);
+        GenChipUses.register(out);
+        GenCircuitEtching.register(out);
         GenCleanroomHatch.register(out);
         GenCreateSteamAge.register(out);
         GenCryogenics.register(out);
@@ -44,12 +46,14 @@ public final class GenAll {
         GenDrillingFluid.register(out);
         GenDtpf.register(out);
         GenEarlyCircuits.register(out);
+        GenElectricImplosion.register(out);
         GenElectronicsMetallurgy.register(out);
         GenEnergizingRods.register(out);
         GenErBridge.register(out);
         GenFabChemistry.register(out);
         GenFissionFuels.register(out);
         GenFusionPower.register(out);
+        GenGreenhouseRecipes.register(out);
         GenHile.register(out);
         GenHostileNetworks.register(out);
         GenIndustrialCutter.register(out);
@@ -61,6 +65,7 @@ public final class GenAll {
         GenLithoProcess.register(out);
         GenMeResonanceFabricator.register(out);
         GenMeResonanceFabricatorRecipes.register(out);
+        GenMiner.register(out);
         GenMotors.register(out);
         GenMvEnergyHatch.register(out);
         GenNetherChemistry.register(out);
@@ -73,6 +78,7 @@ public final class GenAll {
         GenParallelCap.register(out);
         GenPcbCoolant.register(out);
         GenPlanetMetals.register(out);
+        GenPlanetarySatellite.register(out);
         GenPlasmaTransformer.register(out);
         GenPlatinumGroup.register(out);
         GenPrecisionFabricator.register(out);

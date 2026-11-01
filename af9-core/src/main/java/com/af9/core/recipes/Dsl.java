@@ -102,6 +102,19 @@ public final class Dsl {
         return new FluidStack(fluid, amount);
     }
 
+    /** The JSON of one item input (as GregTech serializes it), for adding an input to a recipe that already exists. */
+    public static com.google.gson.JsonObject itemInputContent(String spec) {
+        ItemStack st = stack(spec);
+        if (st.isEmpty()) {
+            error = null;
+            return null;
+        }
+        GTRecipeBuilder tmp = GTRecipeTypes.ASSEMBLER_RECIPES.recipeBuilder(new ResourceLocation("af9", "tmp")).inputItems(st);
+        com.google.gson.JsonObject json = new com.google.gson.JsonObject();
+        tmp.build().serializeRecipeData(json);
+        return json.getAsJsonObject("inputs").getAsJsonArray("item").get(0).getAsJsonObject();
+    }
+
     /** A fluid tag ({@code #ns:path}) and an amount. */
     public static FluidIngredient fluidTag(String tag, int amount) {
         return FluidIngredient.of(TagKey.create(Registries.FLUID, new ResourceLocation(tag)), amount);
