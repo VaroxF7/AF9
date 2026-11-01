@@ -1,7 +1,7 @@
 # Large Wiremill
 
 `gtceu:large_wiremill` (GCYM's Large Wire Factory, rebuilt; the GCYM machine is removed in gtceu-fork patch `0022`, the id
-stays, so the quest, recipes and items that name it keep working). KubeJS multiblock: `kubejs/startup_scripts/gtceu/large_wiremill.js`,
+stays, so the quest, recipes and items that name it keep working). KubeJS multiblock: `af9-core/src/main/java/com/af9/core/startup/machines/LargeWiremill.java`,
 logic `LargeWiremillMachine`, render `WireDrawRender` (af9-core), face texture `tools/textures/large_wiremill.py`.
 
 ## Structure (9 x 4 x 3, rows bottom to top, columns left to right seen from the front; the pattern is Janne's)

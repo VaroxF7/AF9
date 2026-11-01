@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The real GT pipes of the Chemical Plant (kubejs/startup_scripts/gtceu/chemical_plant.js): the pattern asks for exactly
+ * The real GT pipes of the Chemical Plant (af9-core/src/main/java/com/af9/core/startup/machines/ChemicalPlant.java): the pattern asks for exactly
  * this pipe block with exactly this {@code connections} mask at each spot, as in Janne's structure file, and a controller
  * that is not formed yet sets the masks itself ({@link #repair}), so an auto-built plant (which places plain pipes)
  * ends up connected the way the file has it.

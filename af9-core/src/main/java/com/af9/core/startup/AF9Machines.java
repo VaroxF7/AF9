@@ -2,7 +2,7 @@ package com.af9.core.startup;
 
 import com.af9.core.AF9Core;
 
-import com.gregtechceu.gtceu.api.blockentity.IMachineBlockEntity;
+import com.gregtechceu.gtceu.api.machine.IMachineBlockEntity;
 import com.gregtechceu.gtceu.api.machine.MachineDefinition;
 import com.gregtechceu.gtceu.api.machine.MetaMachine;
 import com.gregtechceu.gtceu.api.machine.MultiblockMachineDefinition;

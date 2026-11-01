@@ -1,6 +1,6 @@
 # Chemical Plant (test version)
 
-A 6 x 4 x 6 plant of **real GT fluid pipes**, built 1:1 from Janne's `testing.nbt` (kubejs/startup_scripts/gtceu/chemical_plant.js).
+A 6 x 4 x 6 plant of **real GT fluid pipes**, built 1:1 from Janne's `testing.nbt` (af9-core/src/main/java/com/af9/core/startup/machines/ChemicalPlant.java).
 
 * Pipes: Bronze Huge, Stainless Steel Quadruple and Niobium-Titanium Huge, 17 in all, each with the file's exact `connections` mask.
 * The pattern accepts a pipe spot only for that exact block **and** that exact mask (af9-core `ChemicalPlantPipes.pipe`). A wrong pipe or a

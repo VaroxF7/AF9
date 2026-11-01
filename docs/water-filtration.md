@@ -8,7 +8,7 @@ The Water Filter Casing is craftable from the start: 8 stainless steel plates, i
 Inside: animated water in the biome's own colour, murky brown-green at the inlet (the front) and clearing toward the
 back, with flat scum and foam patches (thickest at the inlet, more in the bigger basin) floating on top, and a 3D skimmer arm sweeping front to back at a steady speed while it runs.
 
-Code: `kubejs/startup_scripts/gtceu/water_filtration.js` (structure, `water_filtration` type),
+Code: `af9-core/src/main/java/com/af9/core/startup/machines/WaterFiltration.java` (structure, `water_filtration` type),
 `af9-core/src/main/java/com/af9/core/recipes/gen/GenWaterFiltration.java` (recipes),
 AF9 Core `FiltrationPlantMachine` + `FiltrationBasinRender`.
 

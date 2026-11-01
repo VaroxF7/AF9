@@ -38,7 +38,7 @@ import java.util.Locale;
 
 /**
  * The Staged Assembly: a multiblock that builds its recipes in stages ({@code gtceu:staged_assembly}, defined in
- * {@code kubejs/startup_scripts/gtceu/staged_assembly.js}). One recipe carries every stage's inputs; the machine
+ * {@code af9-core/src/main/java/com/af9/core/startup/machines/StagedAssembly.java}). One recipe carries every stage's inputs; the machine
  * runs the stages one after the other and only accepts exactly the running stage's inputs, so each stage is fed by
  * hand (or by automation watching the step). Behaviour: {@link StagedRecipeLogic}.
  * <p>

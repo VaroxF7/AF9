@@ -499,6 +499,7 @@ function javaStartup() {
         .replace(/new\s+String\s*\[\s*\]\s*\{([^}]*)\}/g, '[$1]')
         .replace(/\bString\.valueOf\(/g, 'String(')
         .replace(/\b(\d+)L\b/g, '$1')
+        .replace(/\b(\d+(?:\.\d+)?)[fF]\b/g, '$1')
     const builtin = new Set(['String', 'Number', 'Math', 'Array', 'Object', 'JSON', 'Boolean', 'undefined', 'NaN', 'Infinity', 'Symbol', 'parseInt', 'parseFloat'])
     for (const f of walkDir(machDir).filter(f => f.endsWith('.java')).sort()) {
         const src = read(f)

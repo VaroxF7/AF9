@@ -35,7 +35,7 @@ import java.util.Map;
 
 /**
  * The Large Wiremill's wire drawing machine, a cabling machine like the real one, in the glass channel of its 9 x 4 x 3
- * structure (kubejs/startup_scripts/gtceu/large_wiremill.js): a 4-long, one-block-wide air channel between the left
+ * structure (af9-core/src/main/java/com/af9/core/startup/machines/LargeWiremill.java): a 4-long, one-block-wide air channel between the left
  * casing wall and the die plate of steel frames. Two solid orange discs on six rods carry six white bobbins; a strand
  * runs from each bobbin to a closing die on the axis, where they come together into one wire that runs on through the
  * die in the plate (the hole in the middle of the frames); behind the discs it goes through to the take-up spool at the

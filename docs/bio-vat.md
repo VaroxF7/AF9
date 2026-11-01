@@ -4,7 +4,7 @@ GTNH's **Bacterial Vat** (BartWorks `MTEBioVat` in GT5-Unofficial, `src/main/jav
 MIT licence of bartimaeusnek; licence text of GT5-Unofficial in `licenses/`) in GTCEu. It **replaces the Bacteria Breeding
 Station** (removed): same job, the cultures of the [Water Filtration Plant](water-filtration.md)'s LuV/ZPM biosorption modes.
 
-Code: `kubejs/startup_scripts/gtceu/bio_vat.js` (structure, recipe type), `af9-core/src/main/java/com/af9/core/recipes/gen/GenBioVat.java` (recipes),
+Code: `af9-core/src/main/java/com/af9/core/startup/machines/BioVat.java` (structure, recipe type), `af9-core/src/main/java/com/af9/core/recipes/gen/GenBioVat.java` (recipes),
 `af9-core/.../machine/BioVatMachine.java` (rules), `.../client/render/BioVatRender.java` (the culture in the tank).
 
 ## Structure (5 x 4 x 5, the original's)

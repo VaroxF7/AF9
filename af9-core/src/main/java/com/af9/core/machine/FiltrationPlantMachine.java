@@ -12,7 +12,7 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * The Water Filtration Plant (structure and recipe type in
- * {@code kubejs/startup_scripts/gtceu/water_filtration.js}): an open stainless basin behind glass that
+ * {@code af9-core/src/main/java/com/af9/core/startup/machines/WaterFiltration.java}): an open stainless basin behind glass that
  * takes dirty water and filters it to distilled water, skimming the floating debris off the top.
  * <p>
  * GT's default multiblock behaviour; the visible basin (water, debris, skimmer arm) is

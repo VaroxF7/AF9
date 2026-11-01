@@ -1411,7 +1411,7 @@ kubejs/startup_scripts/gtceu/photolithography.js   # 9 recipe types, both litho 
 af9-core/src/main/java/com/af9/core/startup/AF9RecipeTypes.java      # recipe type boule_melting
 kubejs/startup_scripts/gtceu/cryogenics.js         # dense_cooling + supercooling, Supercooling Cryostat, coolant hatches HV-UHV
 kubejs/startup_scripts/gtceu/particle_accelerator.js # 3 recipe types, the Particle Accelerator ring
-kubejs/startup_scripts/gtceu/staged_assembly.js # §19: the staged_assembly recipe type + the Staged Assembly structure
+af9-core/src/main/java/com/af9/core/startup/machines/StagedAssembly.java # §19: the staged_assembly recipe type + the Staged Assembly structure
 af9-core/src/main/java/com/af9/core/recipes/gen/GenCircuitsAf9.java # AF9_WAFERS table + wafer tags, machine/light-source crafting, XCDA/i-line/EUV chemistry, prints, derived wafers, cutting, reclaim/clean, removals
 af9-core/src/main/java/com/af9/core/recipes/gen/GenBouleMelting.java  # Ender Air → endion, endionite, coils, crucibles, charges/seeds/boules, new boule cutting, GT boule removals
 af9-core/src/main/java/com/af9/core/recipes/gen/GenCryogenics.java     # cryostat + coolant hatch crafting, dense cooling + supercooling
