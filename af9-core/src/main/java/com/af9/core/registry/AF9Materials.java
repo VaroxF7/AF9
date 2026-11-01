@@ -259,7 +259,7 @@ public final class AF9Materials {
      * Asteroid fission, the new way to uranium and plutonium: brannerite, a uranium-titanium ore, generates only in
      * the Asteroid Field. The ore becomes yellowcake, the yellowcake the fuel rods of the Extreme Reactors reactor, and the reactor
      * turns the rods and distilled water into supercritical steam and spent rods, which are
-     * reprocessed into plutonium. Recipes: asteroid_fission.js, rockets.js. Spec: docs/asteroid-fission.md
+     * reprocessed into plutonium. Recipes: asteroid_fission.js, GenRockets.java. Spec: docs/asteroid-fission.md
      */
     private static void asteroidFission() {
         // ---- The ore and the uranium chain ----
@@ -347,7 +347,7 @@ public final class AF9Materials {
                 .color(0xe6f4ff)
                 .formula("H2O*"));
 
-        // ---- The propellant of the rockets (server_scripts/mods/gtceu/rockets.js) ----
+        // ---- The propellant of the rockets (recipes/gen/GenRockets.java) ----
         // Triethylaluminium, the hypergolic igniter of real rockets (the Merlin's TEA-TEB): aluminium, ethylene and
         // hydrogen in a chemical reactor, MV
         add(material("triethylaluminium")

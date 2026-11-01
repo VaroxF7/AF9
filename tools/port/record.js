@@ -160,7 +160,7 @@ function runScript(file) {
     const ctx = {
         console: { log() {}, warn() {}, error() {} }, GTValues: { VA: VOLT, VHA: VOLT, V: VOLT, VN: TIERS, ...tierConsts }, ...tierConsts,
         Fluid: { of: (f, n) => ({ __fluid: String(f), amount: n }) },
-        Item: { exists: () => true, of: (i, n) => ({ __item: String(i), count: n === undefined ? 1 : n }) },
+        Item: { exists: () => true, of: (i, n) => ({ __item: String(i), count: n === undefined ? 1 : n, isEmpty: () => false }) },
         InputItem: { exists: () => true, of: i => typeof i === 'string' ? i : item(i) }, Ingredient: { of: i => i },
         CleanroomType: { CLEANROOM: 'cleanroom', STERILE_CLEANROOM: 'sterile' },
         Java: { loadClass: n => { const cls = String(n).split('.').pop(); return function (...args) { return { __new: cls.replace(/^\$/, ''), args } } } },
@@ -176,7 +176,7 @@ function runScript(file) {
     const tags = []
     ctx.__tagHandlers.forEach(([kind, fn]) => {
         if (!['item', 'fluid', 'block'].includes(kind)) no('tags of ' + kind)
-        fn({ add(tag, values) {
+        fn({ removeAll(tag) { tags.push([kind, String(tag), null]) }, add(tag, values) {
             if (typeof tag !== 'string') no('tag ' + String(tag))
             tags.push([kind, tag, flat([values]).map(v => { if (typeof v !== 'string') no('tag value ' + String(v)); return v })])
         } })
@@ -238,7 +238,8 @@ function writeTags(tags) {
         const [ns, p] = tag.includes(':') ? tag.split(':') : ['minecraft', tag]
         const f = path.join(RES, 'data', ns, 'tags', kind + 's', p + '.json')
         fs.mkdirSync(path.dirname(f), { recursive: true })
-        const have = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : { replace: false, values: [] }
+        let have = fs.existsSync(f) ? JSON.parse(fs.readFileSync(f, 'utf8')) : { replace: false, values: [] }
+        if (values === null) { fs.writeFileSync(f, JSON.stringify({ replace: true, values: [] }, null, 2) + '\n'); return }   // event.removeAll: the tag starts again from what follows
         const idOf = v => typeof v === 'string' ? v : v.id
         values.forEach(v => { if (!have.values.some(x => idOf(x) === v)) have.values.push({ id: v, required: false }) })
         fs.writeFileSync(f, JSON.stringify(have, null, 2) + '\n')

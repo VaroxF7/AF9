@@ -145,7 +145,7 @@ dike replaces, so the same vein form works in both palettes.
 
 # 3. Rockets and propellant
 
-## 3.1 Gregified rockets (`kubejs/server_scripts/mods/gtceu/rockets.js`)
+## 3.1 Gregified rockets (`af9-core/src/main/java/com/af9/core/recipes/gen/GenRockets.java`)
 
 Ad Astra's crafting recipes for the rocket parts, the NASA Workbench, the Launch Pad, the Rover and the four rockets (the
 workbench's own recipes) are removed. Everything is a GT machine recipe now, **the rockets themselves too**: the item graph is kept
@@ -335,7 +335,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `af9-core/src/main/java/com/af9/core/space/AF9Space.java` | the ore layer `af9_asteroid` and the tag of its stones |
 | `af9-core/src/main/java/com/af9/core/recipes/gen/GenAsteroidFission.java` | the closed old ways, the uranium chain, the reactor, steam turbine, reprocessing, tags |
 | `af9-core/src/main/java/com/af9/core/recipes/gen/GenFissionFuels.java` | MOX, thorium and breeder fuels, HEU/LEP/HEP enriched fuels, minor actinides, vitrification |
-| `kubejs/server_scripts/mods/gtceu/rockets.js` | the gregified rockets, the propellant, the fuel tags |
+| `af9-core/src/main/java/com/af9/core/recipes/gen/GenRockets.java` | the gregified rockets, the propellant, the fuel tags |
 | `af9-core/src/main/java/com/af9/core/recipes/HandRecipes.java` | the Fusion Reactor Mk1 |
 | `af9-core/src/main/java/com/af9/core/recipes/gen/GenMiner.java` | the void miner without uranium and plutonium |
 | `af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`, `AF9Space.java` | the asteroids of both belts and their registration |

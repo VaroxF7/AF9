@@ -20,6 +20,6 @@ The numbers are my pick; Janne decides on them.
 
 # The tier 3 rocket
 
-The tier 3 rocket (`rockets.js`) flies on tungstensteel and Ostrum: hull of 3 tungstensteel blocks and 3 Ostrum blocks (`ad_astra:ostrum_block`), engine
+The tier 3 rocket (`GenRockets.java`) flies on tungstensteel and Ostrum: hull of 3 tungstensteel blocks and 3 Ostrum blocks (`ad_astra:ostrum_block`), engine
 and tank with 4 tungstensteel plates and 4 Ostrum plates each, tungstensteel screws and drum. Titanium is out of it. Open point: tungsten comes only from Venus
 sand (`docs/asteroid-fission.md` section 7), the tier 3 rocket's own destination.

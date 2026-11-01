@@ -84,6 +84,7 @@ public final class GenAll {
         GenPrecisionFabricator.register(out);
         GenQuadHatches.register(out);
         GenRocketHull.register(out);
+        GenRockets.register(out);
         GenRubber.register(out);
         GenSolders.register(out);
         GenSpaceElevator.register(out);

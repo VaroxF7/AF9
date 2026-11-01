@@ -314,7 +314,7 @@ Quest chapters track this order: MV → HV → EV → IV → LuV → ZPM → UV 
 
 Key scripts: `photolithography.js` + `wafers.js` + `litho_process.js` (nodes must agree with
 `LithoMode.java`), `fab_machines.js` / `fab_chemistry.js`, `cryogenics.js`, `particle_accelerator.js`,
-`asteroid_fission.js` + `rockets.js` + `fusion_reactor.js`, `computation.js` + `cwu_server.js`,
+`asteroid_fission.js` + `GenRockets.java` + `fusion_reactor.js`, `computation.js` + `cwu_server.js`,
 `space_elevator.js`, `platinum_group.js`, `oil.js` + `AF9Veins.java` + `AF9Veins.java`, `uhv_superconductor.js`, `miner.js`,
 `rubber.js`, `diesel.js` + `recipes/gen/{GenBiofuels,GenAromatics,GenNetherChemistry}` + `recipes/AF9Recipes` Ethylene (green chemistry, ported to Java),
 `wireless_energy.js`, `chip_uses.js` / `circuits_af9.js`.
