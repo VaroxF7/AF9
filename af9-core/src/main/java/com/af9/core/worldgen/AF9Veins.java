@@ -52,8 +52,10 @@ public final class AF9Veins {
     }
 
     private static com.gregtechceu.gtceu.api.data.worldgen.IWorldGenLayer layer(String name) {
-        // GT's KubeJS wrapper looks a layer up as gtceu:<name>
-        return GTRegistries.WORLD_GEN_LAYERS.get(new ResourceLocation("gtceu", name));
+        // the layers (GT's own and AF9's SimpleWorldGenLayers) are keyed by plain name
+        var layer = com.gregtechceu.gtceu.api.data.worldgen.WorldGeneratorUtils.WORLD_GEN_LAYERS.get(name);
+        if (layer == null) throw new IllegalStateException("unknown world gen layer " + name);
+        return layer;
     }
 
     // ---- ore veins ----
