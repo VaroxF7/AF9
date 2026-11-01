@@ -1,5 +1,6 @@
 package com.af9.core;
 
+import com.af9.core.recipes.AF9Recipes;
 import com.af9.core.registry.AF9DimensionMarkers;
 import com.af9.core.registry.AF9TagPrefixes;
 import com.af9.core.space.AF9Space;
@@ -59,6 +60,7 @@ public class AF9Addon implements IGTAddon {
     @Override
     public void addRecipes(Consumer<FinishedRecipe> provider) {
         AF9TagPrefixes.addRecipes(provider);
+        AF9Recipes.register(provider);
     }
 
     @Override

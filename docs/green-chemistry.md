@@ -11,7 +11,7 @@ shiny, chloromethane and mana diesel),
 `kubejs/server_scripts/mods/gtceu/biofuels.js`,
 `kubejs/server_scripts/mods/gtceu/aromatics.js`,
 `kubejs/server_scripts/mods/gtceu/diesel.js`,
-`kubejs/server_scripts/mods/gtceu/ethylene.js` (the LuV mass route, §7).
+`af9-core/src/main/java/com/af9/core/recipes/AF9Recipes.java` (Ethylene) (the LuV mass route, §7).
 Planet type 9 (the far dark) brings these fluids home: `PlanetCatalog`, §5.
 
 ## 1. Nether wart to sulfuric acid and hydrogen sulfide
