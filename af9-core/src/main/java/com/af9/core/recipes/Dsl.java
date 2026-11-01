@@ -228,6 +228,11 @@ public final class Dsl {
             return this;
         }
 
+        public B fusionStartEU(long eu) {
+            b.fusionStartEU(eu);
+            return this;
+        }
+
         public B dimension(String dimension) {
             b.dimension(new ResourceLocation(dimension));
             return this;

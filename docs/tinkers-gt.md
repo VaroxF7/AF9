@@ -2,7 +2,7 @@
 
 Every GT fluid with a solid form can be melted in the Smeltery / Foundry and cast on the Casting Table / Basin with
 GT's casting molds. Built at recipe load from GT's material registry by
-`af9-core/.../compat/tconstruct/TinkersGtRecipes.java`, registered by `kubejs/server_scripts/mods/tconstruct/gt_molds.js`.
+`af9-core/.../compat/tconstruct/TinkersGtRecipes.java`, registered by `af9-core/src/main/java/com/af9/core/recipes/HandRecipes.java`.
 
 ## Melting
 - Shapes: dust (also small / tiny), ingot, nugget, block, plate (double, dense), gear (small), rod (long), bolt, screw,

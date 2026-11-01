@@ -285,7 +285,7 @@ and Asteroids modes, standing in the dimension), the space elevator (the belt ve
 electric implosion of U-235 (4 dust + 2,000 mB Lunar Acid Vapor -> 1 naquadah dust, EV; `docs/electric-implosion.md`).
 Plutonium that is already in the world from the old vein can no longer be turned into Pu-241.
 
-**Fusion Reactor Mk1** (`kubejs/server_scripts/mods/gtceu/fusion_reactor.js`, `af9:fusion_reactor_mk1`, Assembly Line, LuV): GT's
+**Fusion Reactor Mk1** (`af9-core/src/main/java/com/af9/core/recipes/HandRecipes.java`, `af9:fusion_reactor_mk1`, Assembly Line, LuV): GT's
 recipe is removed by output and replaced: a superconducting coil, 4 ZPM circuits, **3 double plates of plutonium-241** (GT: 1),
 **4 plutonium ingots**, 2 double osmiridium plates (GT: 1), 2 IV field generators, 64 UHPIC, 32 ITBTC wire, **8 VPU, 8 spin logic and
 8 photonic IC chips**, 4 fusion glass; 2,304 mB soldering alloy and 2,304 mB niobium-titanium (GT: 1,152 each). Research: a scan of the
@@ -336,7 +336,7 @@ The Java compiles on CI and the lint suite passes, but none of this has been in 
 | `af9-core/src/main/java/com/af9/core/recipes/gen/GenAsteroidFission.java` | the closed old ways, the uranium chain, the reactor, steam turbine, reprocessing, tags |
 | `af9-core/src/main/java/com/af9/core/recipes/gen/GenFissionFuels.java` | MOX, thorium and breeder fuels, HEU/LEP/HEP enriched fuels, minor actinides, vitrification |
 | `kubejs/server_scripts/mods/gtceu/rockets.js` | the gregified rockets, the propellant, the fuel tags |
-| `kubejs/server_scripts/mods/gtceu/fusion_reactor.js` | the Fusion Reactor Mk1 |
+| `af9-core/src/main/java/com/af9/core/recipes/HandRecipes.java` | the Fusion Reactor Mk1 |
 | `af9-core/src/main/java/com/af9/core/recipes/gen/GenMiner.java` | the void miner without uranium and plutonium |
 | `af9-core/src/main/java/com/af9/core/space/AsteroidFieldFeature.java`, `AF9Space.java` | the asteroids of both belts and their registration |
 | `kubejs/server_scripts/mods/gtceu/vein_ceres.js` | the brannerite, pentlandite, magnetite and cooperite dike veins of Ceres |

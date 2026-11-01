@@ -494,7 +494,7 @@ function javaRecipes() {
                 call.lastIndex = i
                 let args
                 try {
-                    args = new Function(`const Dsl = { fluid: (fluid, amount) => ({ fluid, amount }), fluidTag: (tag, amount) => ({ fluid: '#' + tag, amount }) }; return [${argText.replace(/(\d)L\b/g, '$1')}]`)()
+                    args = new Function('Dsl', 'scope', `with (scope) { return [${argText.replace(/(\d)L\b/g, '$1')}] }`)({ fluid: (fluid, amount) => ({ fluid, amount }), fluidTag: (tag, amount) => ({ fluid: '#' + tag, amount }) }, new Proxy({}, { has: (t, k) => k !== 'Dsl' && typeof k === 'string', get: (t, k) => String(k) }))
                 } catch (e) { report('ERROR', 'S1', `Dsl recipe ${m[2]}: cannot read ${c[1]}(${argText})`, state.currentFile); continue }
                 const name = c[1] === 'oxygenated' ? 'addCondition' : c[1]
                 if (name === 'addCondition') args = [{ oxygenated: args }]

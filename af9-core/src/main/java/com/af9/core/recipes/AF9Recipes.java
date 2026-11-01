@@ -15,6 +15,7 @@ public final class AF9Recipes {
 
     public static void register(Consumer<FinishedRecipe> out) {
         Patches.register();
+        HandRecipes.register(out);
         Ethylene.register(out);
         com.af9.core.recipes.gen.GenAll.register(out);
     }
