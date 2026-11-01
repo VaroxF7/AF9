@@ -18,7 +18,7 @@ import java.util.List;
 
 /**
  * The Atmospheric Simulation Room (structure and recipe type in
- * {@code kubejs/startup_scripts/gtceu/atmospheric_simulation.js}): a pressure room after GT's
+ * {@code af9-core/src/main/java/com/af9/core/startup/machines/AtmosphericSimulation.java}): a pressure room after GT's
  * Cleanroom that holds a Lunar atmosphere anywhere. The controller in the ceiling centre houses the
  * Atmospheric Simulator; XPS and NVM circuits (the tiers circuits_af9.js had parked) build in its
  * lunar air.

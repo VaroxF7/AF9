@@ -5,7 +5,7 @@ in any dimension.
 The controller in the ceiling centre houses the **Atmospheric Simulator**; XPS and NVM circuits
 (the tiers `GenCircuitsAf9.java` had parked) build in its lunar air.
 
-Code: `kubejs/startup_scripts/gtceu/atmospheric_simulation.js` (type `atmospheric_simulation`,
+Code: `af9-core/src/main/java/com/af9/core/startup/machines/AtmosphericSimulation.java` (type `atmospheric_simulation`,
 room pattern), `af9-core/src/main/java/com/af9/core/recipes/gen/GenAtmosphericSimulation.java` (controller craft,
 XPS/NVM recipes), AF9 Core `AtmosphereRoomMachine` (console + suit watch).
 

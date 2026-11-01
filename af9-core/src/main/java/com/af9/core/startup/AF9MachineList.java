@@ -4,6 +4,7 @@ import com.af9.core.startup.machines.AdvancedCircuitManufacturer;
 import com.af9.core.startup.machines.AgriSim;
 import com.af9.core.startup.machines.AirConditioning;
 import com.af9.core.startup.machines.AsteroidFission;
+import com.af9.core.startup.machines.AtmosphericSimulation;
 import com.af9.core.startup.machines.BioVat;
 import com.af9.core.startup.machines.ChemicalPlant;
 import com.af9.core.startup.machines.Cryogenics;
@@ -42,6 +43,7 @@ public final class AF9MachineList {
         AgriSim.register();
         AirConditioning.register();
         AsteroidFission.register();
+        AtmosphericSimulation.register();
         BioVat.register();
         ChemicalPlant.register();
         Cryogenics.register();

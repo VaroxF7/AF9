@@ -228,6 +228,8 @@ function FactoryBlockPatternStart() {
         where: (ch, p) => { pat.where[ch] = p; return b },
         build: () => pat
     }
+    pat.opaque = false
+    b.opaque = () => { pat.opaque = true; return b }
     return b
 }
 const FactoryBlockPattern = { start: () => FactoryBlockPatternStart() }
@@ -508,6 +510,22 @@ function javaStartup() {
         state.currentFile = file
         const head = /AF9Machines\.(multiblock|tiered)\(/g
         let m
+        // private static helpers whose body is one `return expr;` (a pattern, a predicate chain): defined for the scripts' scope
+        const helpers = {}
+        const hre = /(?:private |public )?static\s+[\w<>\[\],.? ]+?\s+(\w+)\(([^)]*)\)\s*\{/g
+        let hm
+        while ((hm = hre.exec(src))) {
+            let d = 1, k = hre.lastIndex, inS = false
+            for (; k < src.length && d > 0; k++) {
+                const c = src[k]
+                if (inS) { if (c === '\\') k++; else if (c === '"') inS = false } else if (c === '"') inS = true
+                else if (c === '{') d++; else if (c === '}') d--
+            }
+            const body = src.slice(hre.lastIndex, k - 1).trim()
+            if (!/^return\s/.test(body) || /;(?=[\s\S])/.test(body.replace(/"(?:\\.|[^"\\])*"/g, '""').replace(/;$/, ''))) continue
+            const params = hm[2].split(',').map(x => x.trim().split(/\s+/).pop()).filter(Boolean)
+            helpers[hm[1]] = { params, body: body.replace(/^return\s+/, '').replace(/;$/, '') }
+        }
         // file-level `static final T[][] NAME = { ... };` data (read as JS arrays) and `static final int/String NAME = x;`
         const consts = {}
         const cre = /static final [\w\[\]<>]+\s+(\w+)\s*=\s*(?:new\s+[\w\[\]]+\s*)?(\{|[^;{]+;)/g
@@ -551,11 +569,12 @@ function javaStartup() {
             for (const loopVars of loops) {
             const extra = {
                 ...consts,
+                ...Object.fromEntries(Object.entries(helpers).map(([name, h]) => [name, (...args) => { const sc = new Proxy({ ...Object.fromEntries(h.params.map((p, i) => [p, args[i]])) }, { has: (t, key) => typeof key === 'string' && (key in t || key in extra || !(key in ctx) && !builtin.has(key)), get: (t, key) => key === Symbol.unscopables ? undefined : (key in t ? t[key] : key in extra ? extra[key] : key in ctx ? ctx[key] : named(String(key))) }); ctx.__hscope = sc; return vm.runInContext('(function () { with (__hscope) { return ' + javaToJs(h.body) + ' } })()', vmctx) }])),
                 ...loopVars,
                 AF9Machines: {
                     type: x => x, blocks: (...ids) => Predicates.blocks(...ids), block: id => id, blockSupplier: id => () => id,
                     lines: (key, n) => Array.from({ length: n }, (_, k) => ctx.Component.translatable(`${key}${k}`)), rl: x => x,
-                    aisles: (pattern, shape) => { shape.forEach(a => { pattern = pattern.aisle(...a) }); return pattern },
+                    aisles: (pattern, shape) => { if (!Array.isArray(shape)) return pattern.opaque(); shape.forEach(a => { pattern = pattern.aisle(...a) }); return pattern },
                     mirroredAisles: (pattern, a, b, c, d) => { a.forEach((_, r) => { pattern = pattern.aisle(a[r], b[r], c[r], d[r], c[r], b[r], a[r]) }); return pattern },
                     linesWith: (key, n, arg) => Array.from({ length: n }, (_, k) => ctx.Component.translatable(`${key}${k}`, `${arg}`))
                 },
@@ -945,7 +964,8 @@ state.machines.forEach(m => {
     let pat
     try { pat = m.pattern({ get: () => 'CONTROLLER', getRecipeTypes: () => [] }) } catch (e) { report('ERROR', 'M1', `${m.id}: the pattern function threw: ${e.message.split('\n')[0]}`, where); return }
     if (!pat || !pat.aisles) { report('ERROR', 'M1', `${m.id}: the pattern has no aisles`, where); return }
-    // sizes
+    // sizes (a pattern whose aisles a Java layout class generates is opaque here: its layout is checked when ported)
+    if (!pat.opaque) {
     const rowCount = new Set(pat.aisles.map(a => a.length))
     if (rowCount.size > 1) report('ERROR', 'M1', `${m.id}: aisles of different height ${[...rowCount].join('/')}`, where)
     const widths = new Set(pat.aisles.flatMap(a => a.map(r => r.length)))
@@ -955,12 +975,13 @@ state.machines.forEach(m => {
     used.delete(' ')
     used.forEach(ch => { if (!(ch in pat.where)) report('ERROR', 'M1', `${m.id}: character '${ch}' is used but has no where()`, where) })
     Object.keys(pat.where).forEach(ch => { if (ch !== ' ' && !used.has(ch)) report('WARN', 'M1', `${m.id}: where('${ch}') is never used`, where) })
+    }
     // controller
     const ctrlChars = Object.keys(pat.where).filter(ch => isPred(pat.where[ch]) && pat.where[ch].kind === 'controller')
     if (ctrlChars.length !== 1) report('ERROR', 'M1', `${m.id}: ${ctrlChars.length} controller characters (needs exactly one)`, where)
     else {
-        let count = 0
-        pat.aisles.forEach((a, i) => a.forEach(r => { for (const ch of r) if (ch === ctrlChars[0]) count += pat.repeat[i] ? 2 : 1 }))
+        let count = pat.opaque ? 1 : 0
+        if (!pat.opaque) pat.aisles.forEach((a, i) => a.forEach(r => { for (const ch of r) if (ch === ctrlChars[0]) count += pat.repeat[i] ? 2 : 1 }))
         if (count !== 1) report('ERROR', 'M1', `${m.id}: the controller '${ctrlChars[0]}' appears ${count} times`, where)
     }
     // limits: maximums only (the Void Miner MK1 keeps ATM9's own structure rules: auto abilities, exactly one maintenance hatch)
@@ -1103,8 +1124,8 @@ if (dumpStartup) {
         if (m.pattern) {
             try {
                 const r = m.pattern({ get: () => 'CONTROLLER', getRecipeTypes: () => [] })
-                pat = { aisles: r.aisles, repeat: r.repeat, where: Object.fromEntries(Object.entries(r.where).sort().map(([k, v]) => [k, predText(v)])) }
-            } catch (e) { pat = { error: e.message } }
+                pat = { aisles: r.aisles, repeat: r.repeat, where: Object.fromEntries(Object.entries(r.where).sort((a, b) => a[0] < b[0] ? -1 : 1).map(([k, v]) => [k, predText(v)])) }
+            } catch (e) { pat = { error: e.message }; if (process.env.DUMP_DEBUG) console.error(m.id, e.stack.split('\n').slice(0, 4).join(' / ')) }
         }
         console.log(JSON.stringify({ machine: m.id, tiers: m.tiers ? m.tiers.map(String) : null, types: m.types ? m.types.map(String) : null,
             tooltips: m.tooltips.map(String), langValue: m.langValue ? String(m.langValue) : null, pattern: pat }))
