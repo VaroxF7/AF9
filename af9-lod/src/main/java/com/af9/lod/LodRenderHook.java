@@ -65,7 +65,12 @@ public final class LodRenderHook {
             float maxBlocks = LodConfig.MAX_DISTANCE_CHUNKS.get() * 16f;
             Matrix4f vp = event.getProjectionMatrix();
             // own projection with the far plane at LOD range; vanilla's is only ~4x render distance
-            Matrix4f proj = new Matrix4f().perspective(2f * (float) Math.atan(1.0 / vp.m11()), vp.m11() / vp.m00(), 0.05f, maxBlocks * 1.3f);
+            // vanilla bakes view bobbing into this projection matrix, so keep it: new = wideProj * (plainVanilla^-1 * vanilla)
+            float vFov = 2f * (float) Math.atan(1.0 / vp.m11()), vAspect = vp.m11() / vp.m00();
+            float vFar = Minecraft.getInstance().gameRenderer.getDepthFar();
+            Matrix4f plain = new Matrix4f().perspective(vFov, vAspect, 0.05f, vFar);
+            Matrix4f bob = new Matrix4f(plain).invert().mul(vp);
+            Matrix4f proj = new Matrix4f().perspective(vFov, vAspect, 0.05f, maxBlocks * 1.3f).mul(bob);
             float[] planes = frustumPlanes(new Matrix4f(proj).mul(view));
             float[] v = new float[16], p = new float[16];
             view.get(v);
