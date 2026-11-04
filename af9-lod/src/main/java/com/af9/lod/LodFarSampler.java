@@ -57,7 +57,7 @@ public final class LodFarSampler {
                 if (done.size() % 200 == 1)
                     LOGGER.info("far sampler: {} chunks sampled, far meshes {}", done.size(), LodWorld.INSTANCE.farMeshes().size());
                 try {
-                    ChunkAccess chunk = level.getChunk(x, z, ChunkStatus.FULL, true);
+                    ChunkAccess chunk = level.getChunk(x, z, LodConfig.FAST_GENERATION.get() ? ChunkStatus.SURFACE : ChunkStatus.FULL, true);
                     if (chunk != null) LodWorld.INSTANCE.sampleFar(chunk);
                 } catch (RuntimeException e) {
                     org.slf4j.LoggerFactory.getLogger("af9_lod").warn("far chunk {} {} failed: {}", x, z, e.toString());

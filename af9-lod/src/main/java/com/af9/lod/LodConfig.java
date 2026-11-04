@@ -11,6 +11,7 @@ public final class LodConfig {
     public static final ForgeConfigSpec.IntValue NEAR_BAND_CHUNKS;
     public static final ForgeConfigSpec.BooleanValue GENERATE_FAR;
     public static final ForgeConfigSpec.IntValue FAR_BUDGET_MS;
+    public static final ForgeConfigSpec.BooleanValue FAST_GENERATION;
 
     static {
         ForgeConfigSpec.Builder b = new ForgeConfigSpec.Builder();
@@ -23,6 +24,8 @@ public final class LodConfig {
         GENERATE_FAR = b.comment("Singleplayer: load or generate chunks beyond the view distance (low priority) to feed the LOD. "
                 + "This writes newly generated chunks into the world save.").define("generateFarChunks", true);
         FAR_BUDGET_MS = b.comment("Max milliseconds per server tick spent loading far chunks").defineInRange("farBudgetMs", 6, 1, 25);
+        FAST_GENERATION = b.comment("Generate far chunks only up to the surface stage (terrain shape, no trees/structures): much "
+                + "faster. Vanilla finishes these chunks later when you get close.").define("fastGeneration", true);
         SPEC = b.build();
     }
 
