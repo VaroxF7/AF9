@@ -18,6 +18,7 @@ public class Horizon {
     public Horizon() {
         // GL calls need the render thread with a context, so the check runs at client setup, not in the constructor.
         MinecraftForge.EVENT_BUS.register(LodWorld.INSTANCE);
+        MinecraftForge.EVENT_BUS.register(new LodRenderHook());
         FMLJavaModLoadingContext.get().getModEventBus().addListener(Horizon::clientSetup);
     }
 

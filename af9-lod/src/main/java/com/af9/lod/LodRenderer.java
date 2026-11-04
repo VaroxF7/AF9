@@ -33,15 +33,19 @@ public final class LodRenderer implements AutoCloseable {
         vao = GL30C.glGenVertexArrays();
     }
 
-    /** cells: CELL_BYTES per cell as in cull.comp (vec4 minPos+size, firstQuad, quadCount, level, pad). */
-    public void upload(ByteBuffer cells, int cellCount, ByteBuffer quads) {
-        this.cellCount = cellCount;
-        GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, cellBuf);
-        GL15C.glBufferData(GL43C.GL_SHADER_STORAGE_BUFFER, cells, GL15C.GL_DYNAMIC_DRAW);
+    /** Quads change rarely: uploaded when the set of sections changes. */
+    public void uploadQuads(ByteBuffer quads, int cellCount) {
         GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, quadBuf);
         GL15C.glBufferData(GL43C.GL_SHADER_STORAGE_BUFFER, quads, GL15C.GL_DYNAMIC_DRAW);
         GL15C.glBindBuffer(GL43C.GL_DRAW_INDIRECT_BUFFER, cmdBuf);
         GL15C.glBufferData(GL43C.GL_DRAW_INDIRECT_BUFFER, (long) cellCount * CMD_BYTES, GL15C.GL_DYNAMIC_DRAW);
+    }
+
+    /** Cells are re-uploaded every frame (camera-relative origins). CELL_BYTES per cell as in cull.comp. */
+    public void updateCells(ByteBuffer cells, int cellCount) {
+        this.cellCount = cellCount;
+        GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, cellBuf);
+        GL15C.glBufferData(GL43C.GL_SHADER_STORAGE_BUFFER, cells, GL15C.GL_STREAM_DRAW);
     }
 
     /** planes: 6 vec4 (camera-relative, inward normals); view/proj: column-major 4x4 float arrays. */

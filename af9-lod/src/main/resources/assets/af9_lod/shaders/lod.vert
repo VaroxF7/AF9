@@ -1,11 +1,11 @@
-#version 430 core
+#version 460 core
 // Unpacks LodMesher quads (2 ints each) on the GPU. 6 vertices per quad, one instance per quad.
 layout(std430, binding = 2) readonly buffer Quads { uvec2 quads[]; };
-layout(std430, binding = 0) readonly buffer CellsV { vec4 cellOrigin[]; };  // xyz camera-relative origin, w = voxel size
+// Cell struct is 32 bytes = two vec4: [2*i] = origin xyz (camera-relative) + edge, [2*i+1] unused here.
+layout(std430, binding = 0) readonly buffer CellsV { vec4 cellData[]; };
 
 uniform mat4 uProj;
 uniform mat4 uView;
-uniform uint uCellOfQuadStride;  // unused placeholder for H4 (per-cell origin lookup via draw id)
 
 out vec3 vNormal;
 flat out uint vId;
@@ -29,7 +29,7 @@ void main() {
     pos[u] += c.x;
     pos[v] += c.y;
 
-    vec3 world = vec3(pos);   // H4 multiplies by voxel size and adds the cell origin
+    vec3 world = cellData[2 * gl_DrawID].xyz + vec3(pos);   // level 0 only: voxel size 1
     vNormal = NORMALS[face];
     vId = q.y;
     gl_Position = uProj * uView * vec4(world, 1.0);

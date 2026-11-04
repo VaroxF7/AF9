@@ -24,6 +24,17 @@ public final class LodWorld {
         return ((long) (sx & 0x3FFFFF) << 42) | ((long) (sz & 0x3FFFFF) << 20) | (sy & 0xFFFFF);
     }
 
+    private volatile int version;
+
+    /** Bumped on every change so the renderer knows when to rebuild its quad buffer. */
+    public int version() {
+        return version;
+    }
+
+    public java.util.Map<Long, LodGrid> grids() {
+        return level0;
+    }
+
     public int size() {
         return level0.size();
     }
@@ -36,6 +47,7 @@ public final class LodWorld {
     public void onChunkLoad(ChunkEvent.Load event) {
         LevelAccessor level = event.getLevel();
         if (!level.isClientSide()) return;
+        version++;
         ChunkAccess chunk = event.getChunk();
         int cx = chunk.getPos().x, cz = chunk.getPos().z;
         LevelChunkSection[] sections = chunk.getSections();
@@ -59,6 +71,7 @@ public final class LodWorld {
     @SubscribeEvent
     public void onChunkUnload(ChunkEvent.Unload event) {
         if (!event.getLevel().isClientSide()) return;
+        version++;
         ChunkAccess chunk = event.getChunk();
         int cx = chunk.getPos().x, cz = chunk.getPos().z;
         for (int i = 0; i < chunk.getSections().length; i++)
