@@ -99,14 +99,18 @@ public final class LodWorld {
         int[] ids = new int[b * b * b];
         LevelChunkSection[] sections = chunk.getSections();
         // keep only a skin below the visible surface: the underground is never seen and cut-outs would expose it
-        final int depth = 14 + 2 * b;
-        int[] colTop = new int[256];
+        final int depth = 6 + b;
+        int[] colTop = new int[256], colDepth = new int[256];
         int minTop = Integer.MAX_VALUE;
         for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++) {
             int h;
             try { h = chunk.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE_WG, x, z); }
             catch (RuntimeException e) { h = Integer.MAX_VALUE / 2; }
+            boolean water = false;
+            try { water = h > chunk.getMinBuildHeight() && chunk.getBlockState(new net.minecraft.core.BlockPos(x, h - 1, z)).getFluidState().is(FluidTags.WATER); }
+            catch (RuntimeException e) { }
             colTop[z * 16 + x] = h;
+            colDepth[z * 16 + x] = water ? b : depth;   // under water keep a single voxel layer
             if (h < minTop) minTop = h;
         }
         for (int i = 0; i < sections.length; i++) {
@@ -121,9 +125,11 @@ public final class LodWorld {
                 int id = 0;
                 if (!empty) {
                     int hMax = Integer.MIN_VALUE;
-                    for (int bz = 0; bz < b; bz++) for (int bx = 0; bx < b; bx++)
-                        hMax = Math.max(hMax, colTop[(vz * b + bz) * 16 + vx * b + bx]);
-                    if (sy * 16 + vy * b + b - 1 < hMax - depth) { g.set(ox + vx, oy + vy, oz + vz, 0); continue; }
+                    for (int bz = 0; bz < b; bz++) for (int bx = 0; bx < b; bx++) {
+                        int ci = (vz * b + bz) * 16 + vx * b + bx;
+                        hMax = Math.max(hMax, colTop[ci] - colDepth[ci]);
+                    }
+                    if (sy * 16 + vy * b + b - 1 < hMax) { g.set(ox + vx, oy + vy, oz + vz, 0); continue; }
                     // topmost solid block of the voxel wins: the thin grass/snow skin must not be outvoted by the stone below it
                     outer:
                     for (int by = b - 1; by >= 0; by--) for (int bz = 0; bz < b; bz++) for (int bx = 0; bx < b; bx++) {
