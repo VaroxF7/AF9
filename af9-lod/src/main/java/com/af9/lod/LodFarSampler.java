@@ -21,10 +21,23 @@ public final class LodFarSampler {
     private ServerLevel lastLevel;
     private int warmupTicks;
 
+    private int heartbeat;
+
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
-        if (event.phase != TickEvent.Phase.END || !LodConfig.ENABLED.get() || !LodConfig.GENERATE_FAR.get()) return;
-        MinecraftServer server = event.getServer();
+        if (event.phase != TickEvent.Phase.END) return;
+        try {
+            tick(event.getServer());
+        } catch (RuntimeException e) {
+            if (heartbeat++ % 200 == 0) LOGGER.warn("far sampler tick failed", e);
+        }
+    }
+
+    private void tick(MinecraftServer server) {
+        if (!LodConfig.ENABLED.get() || !LodConfig.GENERATE_FAR.get()) {
+            if (++heartbeat % 200 == 0) LOGGER.info("far sampler idle: enabled={} generateFar={}", LodConfig.ENABLED.get(), LodConfig.GENERATE_FAR.get());
+            return;
+        }
         if (server.isDedicatedServer() || server.getPlayerList().getPlayers().isEmpty()) return;
         ServerPlayer player = server.getPlayerList().getPlayers().get(0);
         ServerLevel level = player.serverLevel();
@@ -43,6 +56,9 @@ public final class LodFarSampler {
         int view = server.getPlayerList().getViewDistance();
         int max = LodConfig.MAX_DISTANCE_CHUNKS.get();
         long deadline = System.nanoTime() + LodConfig.FAR_BUDGET_MS.get() * 1_000_000L;
+        if (++heartbeat % 200 == 0)
+            LOGGER.info("far sampler: sampled {}, view {} -> max {} chunks, avg tick {} ms, store {} cells", done.size(), view, max,
+                    server.getAverageTickTime(), LodWorld.INSTANCE.farMeshes().size());
         int budgetChunks = 6;   // time budget below is what really limits it; chunks already on disk load in ~1 ms
 
         for (int r = view + 1; r <= max; r++) {

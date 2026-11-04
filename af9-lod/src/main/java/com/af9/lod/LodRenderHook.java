@@ -33,8 +33,11 @@ public final class LodRenderHook {
                 renderer = new LodRenderer();
             }
             if (builtVersion != LodWorld.INSTANCE.version() || builtDebug != LodConfig.debugDraw()) rebuild();
-            if (++frames % 300 == 0)
-                org.slf4j.LoggerFactory.getLogger("af9_lod").info("LOD draw: {} cells, near-band {} chunks", cellCount, LodConfig.NEAR_BAND_CHUNKS.get());
+            if (cellCount != lastLoggedCells && System.nanoTime() - lastLogNanos > 5_000_000_000L) {
+                lastLoggedCells = cellCount;
+                lastLogNanos = System.nanoTime();
+                org.slf4j.LoggerFactory.getLogger("af9_lod").info("LOD draw: {} cells", cellCount);
+            }
             if (cellCount == 0) return;
 
             Vector3f cam = event.getCamera().getPosition().toVector3f();
@@ -75,7 +78,8 @@ public final class LodRenderHook {
     private int[] firstQuad = new int[0], quadCount = new int[0];
 
     private long lastRebuildNanos;
-    private int frames;
+    private int lastLoggedCells = -1;
+    private long lastLogNanos;
 
     private void rebuild() {
         // throttle: copying all meshes into one buffer is cheap, but not worth doing more than twice a second
