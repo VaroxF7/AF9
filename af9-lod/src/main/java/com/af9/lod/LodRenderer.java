@@ -49,7 +49,7 @@ public final class LodRenderer implements AutoCloseable {
         if (cellCount == 0) return;
         GL20C.glUseProgram(cullProgram);
         GL20C.glUniform4fv(GL20C.glGetUniformLocation(cullProgram, "uPlanes"), planes);
-        GL20C.glUniform1ui(GL20C.glGetUniformLocation(cullProgram, "uCellCount"), cellCount);
+        GL30C.glUniform1ui(GL20C.glGetUniformLocation(cullProgram, "uCellCount"), cellCount);
         GL20C.glUniform1f(GL20C.glGetUniformLocation(cullProgram, "uNearBand"), nearBand);
         GL20C.glUniform1f(GL20C.glGetUniformLocation(cullProgram, "uFarBand"), farBand);
         GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 0, cellBuf);
