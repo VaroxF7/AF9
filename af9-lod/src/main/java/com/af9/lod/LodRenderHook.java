@@ -26,7 +26,7 @@ public final class LodRenderHook {
 
     @SubscribeEvent
     public void onStage(RenderLevelStageEvent event) {
-        if (failed || !LodConfig.drawEnabled() || event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
+        if (failed || !LodConfig.drawEnabled() || event.getStage() != RenderLevelStageEvent.Stage.AFTER_SKY) return;
         try {
             if (renderer == null) {
                 if (!GlCaps.query().usable()) { failed = true; return; }
@@ -62,18 +62,25 @@ public final class LodRenderHook {
             renderer.updateCells(cells, cellCount);
 
             Matrix4f view = new Matrix4f(event.getPoseStack().last().pose());
-            Matrix4f proj = new Matrix4f(event.getProjectionMatrix());
+            float maxBlocks = LodConfig.MAX_DISTANCE_CHUNKS.get() * 16f;
+            Matrix4f vp = event.getProjectionMatrix();
+            // own projection with the far plane at LOD range; vanilla's is only ~4x render distance
+            Matrix4f proj = new Matrix4f().perspective(2f * (float) Math.atan(1.0 / vp.m11()), vp.m11() / vp.m00(), 0.05f, maxBlocks * 1.3f);
             float[] planes = frustumPlanes(new Matrix4f(proj).mul(view));
             float[] v = new float[16], p = new float[16];
             view.get(v);
             proj.get(p);
             int viewChunks = net.minecraft.client.Minecraft.getInstance().options.getEffectiveRenderDistance();
-            float near = Math.max(LodConfig.NEAR_BAND_CHUNKS.get(), LodConfig.debugDraw() ? 0 : viewChunks - 1) * 16f;
-            float maxBlocks = LodConfig.MAX_DISTANCE_CHUNKS.get() * 16f;
+            int cfgNear = LodConfig.NEAR_BAND_CHUNKS.get();
+            int nearChunks = cfgNear > 0 ? Math.min(cfgNear, viewChunks - 1) : viewChunks - 1;
+            float near = LodConfig.debugDraw() ? 0f : Math.max(0, nearChunks) * 16f;
             net.minecraft.client.multiplayer.ClientLevel lvl = Minecraft.getInstance().level;
             float light = lvl == null ? 1f : Math.min(1f, Math.max(0f, lvl.getSkyDarken(event.getPartialTick())));
             float[] fog = RenderSystem.getShaderFogColor();
             renderer.render(planes, v, p, near, maxBlocks, light, fog, maxBlocks * 0.55f, maxBlocks);
+            // LOD is a background layer: wipe its depth so vanilla/pack terrain draws on top with its own projection
+            com.mojang.blaze3d.platform.GlStateManager._depthMask(true);
+            com.mojang.blaze3d.platform.GlStateManager._clear(org.lwjgl.opengl.GL11C.GL_DEPTH_BUFFER_BIT, false);
         } catch (RuntimeException e) {
             failed = true;
             org.slf4j.LoggerFactory.getLogger("af9_lod").error("LOD render disabled after error", e);
