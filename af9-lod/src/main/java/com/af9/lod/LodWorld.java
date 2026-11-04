@@ -98,17 +98,32 @@ public final class LodWorld {
         HashSet<Long> touched = new HashSet<>();
         int[] ids = new int[b * b * b];
         LevelChunkSection[] sections = chunk.getSections();
+        // keep only a skin below the visible surface: the underground is never seen and cut-outs would expose it
+        final int depth = 14 + 2 * b;
+        int[] colTop = new int[256];
+        int minTop = Integer.MAX_VALUE;
+        for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++) {
+            int h;
+            try { h = chunk.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE_WG, x, z); }
+            catch (RuntimeException e) { h = Integer.MAX_VALUE / 2; }
+            colTop[z * 16 + x] = h;
+            if (h < minTop) minTop = h;
+        }
         for (int i = 0; i < sections.length; i++) {
             LevelChunkSection sec = sections[i];
             int sy = chunk.getSectionYFromSectionIndex(i);
             int gy = Math.floorDiv(sy, s), oy = Math.floorMod(sy, s) * vpc;
             long k = key(gx, gy, gz);
-            boolean empty = sec == null || sec.hasOnlyAir();
+            boolean empty = sec == null || sec.hasOnlyAir() || sy * 16 + 15 < minTop - depth;
             LodGrid g = empty ? farGrids[level].get(k) : farGrids[level].computeIfAbsent(k, kk -> new LodGrid());
             if (g == null) continue;
             for (int vy = 0; vy < vpc; vy++) for (int vz = 0; vz < vpc; vz++) for (int vx = 0; vx < vpc; vx++) {
                 int id = 0;
                 if (!empty) {
+                    int hMax = Integer.MIN_VALUE;
+                    for (int bz = 0; bz < b; bz++) for (int bx = 0; bx < b; bx++)
+                        hMax = Math.max(hMax, colTop[(vz * b + bz) * 16 + vx * b + bx]);
+                    if (sy * 16 + vy * b + b - 1 < hMax - depth) { g.set(ox + vx, oy + vy, oz + vz, 0); continue; }
                     // topmost solid block of the voxel wins: the thin grass/snow skin must not be outvoted by the stone below it
                     outer:
                     for (int by = b - 1; by >= 0; by--) for (int bz = 0; bz < b; bz++) for (int bx = 0; bx < b; bx++) {
@@ -211,6 +226,17 @@ public final class LodWorld {
     private void sample(ChunkAccess chunk) {
         int cx = chunk.getPos().x, cz = chunk.getPos().z;
         LevelChunkSection[] sections = chunk.getSections();
+        // keep only a skin below the visible surface: the underground is never seen and cut-outs would expose it
+        final int depth = 14 + 2 * b;
+        int[] colTop = new int[256];
+        int minTop = Integer.MAX_VALUE;
+        for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++) {
+            int h;
+            try { h = chunk.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE_WG, x, z); }
+            catch (RuntimeException e) { h = Integer.MAX_VALUE / 2; }
+            colTop[z * 16 + x] = h;
+            if (h < minTop) minTop = h;
+        }
         for (int i = 0; i < sections.length; i++) {
             LevelChunkSection sec = sections[i];
             int sy = chunk.getSectionYFromSectionIndex(i);
