@@ -9,7 +9,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /**
- * Draft render hook: draws every loaded level-0 section through LodRenderer. Off unless the config enables it (or -Daf9lod.debugdraw=true with the master switch on),
+ * Render hook: draws far LOD cells (level 2) through LodRenderer when enabled, and also the loaded level-0 sections when debug draw is on,
  * because it re-draws what vanilla already shows. It proves the GPU pipeline (mesh -> SSBO -> compute cull -> indirect
  * draw); far terrain beyond the server's view distance needs persisted LOD data (next milestone).
  */
@@ -19,6 +19,8 @@ public final class LodRenderHook {
     private int builtVersion = -1;
     private int cellCount;
     private int[] cellSection = new int[0];   // sx, sy, sz per cell (3 ints each)
+    private float[] cellEdge = new float[0];  // 16 for sections, 64 for far cells
+    private boolean builtDebug;
 
     @SubscribeEvent
     public void onStage(RenderLevelStageEvent event) {
@@ -28,7 +30,7 @@ public final class LodRenderHook {
                 if (!GlCaps.query().usable()) { failed = true; return; }
                 renderer = new LodRenderer();
             }
-            if (builtVersion != LodWorld.INSTANCE.version()) rebuild();
+            if (builtVersion != LodWorld.INSTANCE.version() || builtDebug != LodConfig.debugDraw()) rebuild();
             if (cellCount == 0) return;
 
             Vector3f cam = event.getCamera().getPosition().toVector3f();
@@ -36,10 +38,11 @@ public final class LodRenderHook {
             // cell layout (32 bytes): vec4(minPos.xyz camera-relative, edge), firstQuad, quadCount, level, pad
             for (int i = 0; i < cellCount; i++) {
                 int base = i * LodRenderer.CELL_BYTES;
-                cells.putFloat(base, cellSection[3 * i] * 16f - cam.x);
-                cells.putFloat(base + 4, cellSection[3 * i + 1] * 16f - cam.y);
-                cells.putFloat(base + 8, cellSection[3 * i + 2] * 16f - cam.z);
-                cells.putFloat(base + 12, 16f);
+                float edge = cellEdge[i];
+                cells.putFloat(base, cellSection[3 * i] * edge - cam.x);
+                cells.putFloat(base + 4, cellSection[3 * i + 1] * edge - cam.y);
+                cells.putFloat(base + 8, cellSection[3 * i + 2] * edge - cam.z);
+                cells.putFloat(base + 12, edge);
                 cells.putInt(base + 16, firstQuad[i]);
                 cells.putInt(base + 20, quadCount[i]);
                 cells.putInt(base + 24, 0);
@@ -52,7 +55,9 @@ public final class LodRenderHook {
             float[] v = new float[16], p = new float[16];
             view.get(v);
             proj.get(p);
-            renderer.render(planes, v, p, LodConfig.NEAR_BAND_CHUNKS.get() * 16f, LodConfig.MAX_DISTANCE_CHUNKS.get() * 16f);
+            int viewChunks = net.minecraft.client.Minecraft.getInstance().options.getEffectiveRenderDistance();
+            float near = Math.max(LodConfig.NEAR_BAND_CHUNKS.get(), LodConfig.debugDraw() ? 0 : viewChunks - 1) * 16f;
+            renderer.render(planes, v, p, near, LodConfig.MAX_DISTANCE_CHUNKS.get() * 16f);
         } catch (RuntimeException e) {
             failed = true;
             org.slf4j.LoggerFactory.getLogger("af9_lod").error("LOD render disabled after error", e);
@@ -66,31 +71,41 @@ public final class LodRenderHook {
     private void rebuild() {
         // throttle: copying all meshes into one buffer is cheap, but not worth doing more than twice a second
         long now = System.nanoTime();
-        if (builtVersion >= 0 && now - lastRebuildNanos < 500_000_000L) return;
+        boolean debug = LodConfig.debugDraw();
+        if (builtVersion >= 0 && builtDebug == debug && now - lastRebuildNanos < 500_000_000L) return;
         lastRebuildNanos = now;
         builtVersion = LodWorld.INSTANCE.version();
-        Map<Long, int[]> meshes = LodWorld.INSTANCE.meshes();
-        int n = meshes.size();
+        builtDebug = debug;
+        Map<Long, int[]> near = debug ? LodWorld.INSTANCE.meshes() : java.util.Collections.emptyMap();
+        Map<Long, int[]> far = LodWorld.INSTANCE.farMeshes();
+        int n = near.size() + far.size();
         cellSection = new int[3 * n];
+        cellEdge = new float[n];
         firstQuad = new int[n];
         quadCount = new int[n];
         int total = 0;
-        for (int[] m : meshes.values()) total += m.length;
+        for (int[] m : near.values()) total += m.length;
+        for (int[] m : far.values()) total += m.length;
         ByteBuffer quads = ByteBuffer.allocateDirect(Math.max(total, 2) * 4).order(ByteOrder.nativeOrder());
         java.nio.IntBuffer ib = quads.asIntBuffer();
         int i = 0;
-        for (Map.Entry<Long, int[]> e : meshes.entrySet()) {
-            if (i >= n) break;   // map may have grown since size()
-            long k = e.getKey();
-            int[] q = e.getValue();
-            if (ib.remaining() < q.length) break;
-            cellSection[3 * i] = LodWorld.keyX(k);
-            cellSection[3 * i + 1] = LodWorld.keyY(k);
-            cellSection[3 * i + 2] = LodWorld.keyZ(k);
-            firstQuad[i] = ib.position() / 2;
-            quadCount[i] = q.length / 2;
-            ib.put(q);
-            i++;
+        for (int pass = 0; pass < 2; pass++) {
+            Map<Long, int[]> map = pass == 0 ? near : far;
+            float edge = pass == 0 ? 16f : 64f;
+            for (Map.Entry<Long, int[]> e : map.entrySet()) {
+                if (i >= n) break;   // maps may have grown since size()
+                long k = e.getKey();
+                int[] q = e.getValue();
+                if (ib.remaining() < q.length) break;
+                cellSection[3 * i] = LodWorld.keyX(k);
+                cellSection[3 * i + 1] = LodWorld.keyY(k);
+                cellSection[3 * i + 2] = LodWorld.keyZ(k);
+                cellEdge[i] = edge;
+                firstQuad[i] = ib.position() / 2;
+                quadCount[i] = q.length / 2;
+                ib.put(q);
+                i++;
+            }
         }
         cellCount = i;
         renderer.uploadQuads(quads, cellCount);

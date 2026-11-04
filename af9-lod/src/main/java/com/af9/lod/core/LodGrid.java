@@ -50,7 +50,7 @@ public final class LodGrid {
         return out;
     }
 
-    private static int mostCommon(int[] a, int n) {
+    public static int mostCommon(int[] a, int n) {
         int best = a[0], bestCount = 0;
         for (int i = 0; i < n; i++) {
             int c = 0;

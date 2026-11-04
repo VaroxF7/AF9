@@ -33,6 +33,9 @@ public final class LodWorld {
         t.setPriority(Thread.MIN_PRIORITY);
         return t;
     });
+    // far store: level 2 (one voxel = 4x4x4 blocks, one grid = 64 blocks per axis), keyed by 64-block cell coords
+    private final ConcurrentHashMap<Long, LodGrid> farGrids = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Long, int[]> farMeshes = new ConcurrentHashMap<>();
     private volatile int version;
 
     public static long key(int sx, int sy, int sz) {
@@ -50,6 +53,68 @@ public final class LodWorld {
 
     public Map<Long, int[]> meshes() {
         return meshes;
+    }
+
+    public Map<Long, int[]> farMeshes() {
+        return farMeshes;
+    }
+
+    /** Server thread: sample one full chunk into the level-2 far store (4x4x4 blocks per voxel, majority non-air). */
+    public void sampleFar(ChunkAccess chunk) {
+        int cx = chunk.getPos().x, cz = chunk.getPos().z;
+        int x2 = Math.floorDiv(cx, 4), z2 = Math.floorDiv(cz, 4);
+        int ox = Math.floorMod(cx, 4) * 4, oz = Math.floorMod(cz, 4) * 4;
+        java.util.HashSet<Long> touched = new java.util.HashSet<>();
+        int[] ids = new int[64];
+        LevelChunkSection[] sections = chunk.getSections();
+        for (int i = 0; i < sections.length; i++) {
+            LevelChunkSection sec = sections[i];
+            int sy = chunk.getSectionYFromSectionIndex(i);
+            int y2 = Math.floorDiv(sy, 4), oy = Math.floorMod(sy, 4) * 4;
+            long k = key(x2, y2, z2);
+            boolean empty = sec == null || sec.hasOnlyAir();
+            LodGrid g = empty ? farGrids.get(k) : farGrids.computeIfAbsent(k, kk -> new LodGrid());
+            if (g == null) continue;
+            for (int vy = 0; vy < 4; vy++) for (int vz = 0; vz < 4; vz++) for (int vx = 0; vx < 4; vx++) {
+                int id = 0;
+                if (!empty) {
+                    int n = 0;
+                    for (int by = 0; by < 4; by++) for (int bz = 0; bz < 4; bz++) for (int bx = 0; bx < 4; bx++) {
+                        BlockState s = sec.getBlockState(vx * 4 + bx, vy * 4 + by, vz * 4 + bz);
+                        if (!s.isAir()) ids[n++] = Block.getId(s);
+                    }
+                    if (n > 0) id = LodGrid.mostCommon(ids, n);
+                }
+                g.set(ox + vx, oy + vy, oz + vz, id);
+            }
+            touched.add(k);
+        }
+        if (touched.isEmpty()) return;
+        mesher.execute(() -> {
+            for (long k : touched) {
+                int kx = keyX(k), ky = keyY(k), kz = keyZ(k);
+                meshFar(kx, ky, kz);
+                for (int[] d : LodMesher.DIRS) meshFar(kx + d[0], ky + d[1], kz + d[2]);
+            }
+            version++;
+        });
+    }
+
+    private void meshFar(int sx, int sy, int sz) {
+        long k = key(sx, sy, sz);
+        LodGrid g = farGrids.get(k);
+        if (g == null || g.isEmpty()) {
+            farMeshes.remove(k);
+            return;
+        }
+        LodGrid[] nb = new LodGrid[6];
+        for (int f = 0; f < 6; f++) {
+            int[] d = LodMesher.DIRS[f];
+            nb[f] = farGrids.get(key(sx + d[0], sy + d[1], sz + d[2]));
+        }
+        int[] mesh = new LodMesher().mesh(g, nb);
+        if (mesh.length == 0) farMeshes.remove(k);
+        else farMeshes.put(k, mesh);
     }
 
     @SubscribeEvent

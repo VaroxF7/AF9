@@ -29,7 +29,9 @@ void main() {
     pos[u] += c.x;
     pos[v] += c.y;
 
-    vec3 world = cellData[2 * gl_DrawID].xyz + vec3(pos);   // level 0 only: voxel size 1
+    vec4 cell = cellData[2 * gl_DrawID];
+    float voxel = cell.w / 16.0;                  // edge / 16: 1 for sections, 4 for far cells
+    vec3 world = cell.xyz + vec3(pos) * voxel;
     vNormal = NORMALS[face];
     vId = q.y;
     gl_Position = uProj * uView * vec4(world, 1.0);
