@@ -18,6 +18,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public final class LodFarSampler {
     private final LongOpenHashSet done = new LongOpenHashSet();
     private ServerLevel lastLevel;
+    private int warmupTicks;
 
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
@@ -29,11 +30,15 @@ public final class LodFarSampler {
         if (level != lastLevel) {
             lastLevel = level;
             done.clear();
+            warmupTicks = 0;
         }
+        // let the world finish loading first, and back off whenever the server is already struggling
+        if (warmupTicks++ < 200 || server.getAverageTickTime() > 40f) return;
         int pcx = player.chunkPosition().x, pcz = player.chunkPosition().z;
         int view = server.getPlayerList().getViewDistance();
         int max = LodConfig.MAX_DISTANCE_CHUNKS.get();
         long deadline = System.nanoTime() + LodConfig.FAR_BUDGET_MS.get() * 1_000_000L;
+        int budgetChunks = 1;   // a single generated chunk can take tens of ms, so one per tick at most
 
         for (int r = view + 1; r <= max; r++) {
             for (int i = 0; i < 8 * r; i++) {
@@ -41,7 +46,8 @@ public final class LodFarSampler {
                 int x = pcx + d[0], z = pcz + d[1];
                 long k = ChunkPos.asLong(x, z);
                 if (done.contains(k)) continue;
-                if (System.nanoTime() > deadline) return;
+                if (System.nanoTime() > deadline || budgetChunks <= 0) return;
+                budgetChunks--;
                 done.add(k);
                 try {
                     ChunkAccess chunk = level.getChunk(x, z, ChunkStatus.FULL, true);
