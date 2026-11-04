@@ -5,6 +5,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.OptionsScreen;
+import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
@@ -37,7 +38,7 @@ public final class ClientHooks {
     public void onScreenInit(ScreenEvent.Init.Post event) {
         Screen screen = event.getScreen();
         String name = screen.getClass().getName().toLowerCase();
-        boolean fits = screen instanceof OptionsScreen || name.contains("videosettings") || name.contains("embeddium")
+        boolean fits = screen instanceof PauseScreen || screen instanceof OptionsScreen || name.contains("videosettings") || name.contains("embeddium")
                 || name.contains("sodium");
         if (!fits) return;
         event.addListener(Button.builder(Component.literal("AF9 Horizon"),
