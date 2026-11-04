@@ -1,8 +1,10 @@
 package com.af9.lod;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Map;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.joml.Matrix4f;
@@ -59,7 +61,11 @@ public final class LodRenderHook {
             proj.get(p);
             int viewChunks = net.minecraft.client.Minecraft.getInstance().options.getEffectiveRenderDistance();
             float near = Math.max(LodConfig.NEAR_BAND_CHUNKS.get(), LodConfig.debugDraw() ? 0 : viewChunks - 1) * 16f;
-            renderer.render(planes, v, p, near, LodConfig.MAX_DISTANCE_CHUNKS.get() * 16f);
+            float maxBlocks = LodConfig.MAX_DISTANCE_CHUNKS.get() * 16f;
+            net.minecraft.client.multiplayer.ClientLevel lvl = Minecraft.getInstance().level;
+            float light = lvl == null ? 1f : Math.min(1f, Math.max(0f, lvl.getSkyDarken(event.getPartialTick())));
+            float[] fog = RenderSystem.getShaderFogColor();
+            renderer.render(planes, v, p, near, maxBlocks, light, fog, maxBlocks * 0.55f, maxBlocks);
         } catch (RuntimeException e) {
             failed = true;
             org.slf4j.LoggerFactory.getLogger("af9_lod").error("LOD render disabled after error", e);

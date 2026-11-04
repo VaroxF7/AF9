@@ -9,6 +9,7 @@ uniform mat4 uView;
 
 out vec3 vNormal;
 flat out uint vId;
+out float vDist;
 
 const vec3 NORMALS[6] = vec3[](vec3(-1,0,0), vec3(1,0,0), vec3(0,-1,0), vec3(0,1,0), vec3(0,0,-1), vec3(0,0,1));
 // two triangles per face, corner offsets in the face plane
@@ -32,6 +33,8 @@ void main() {
     vec4 cell = cellData[2 * gl_DrawID];
     float vsize = cell.w / 16.0;                  // edge / 16: 1 for sections, 4 for far cells
     vec3 world = cell.xyz + vec3(pos) * vsize;
+    if (vsize > 1.0) world.y -= (vsize - 1.0) * 0.5;   // coarse cells sit slightly low so they never poke through real terrain
+    vDist = length(world);
     vNormal = NORMALS[face];
     vId = q.y;
     gl_Position = uProj * uView * vec4(world, 1.0);

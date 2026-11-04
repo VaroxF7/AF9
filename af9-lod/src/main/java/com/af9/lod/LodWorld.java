@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -40,6 +41,13 @@ public final class LodWorld {
 
     public static long key(int sx, int sy, int sz) {
         return ((long) (sx & 0x3FFFFF) << 42) | ((long) (sz & 0x3FFFFF) << 20) | (sy & 0xFFFFF);
+    }
+
+    /** Voxel value = opaque ARGB (never 0, so never "air"): water gets a water blue, everything else its map colour. */
+    static int colorId(BlockState s) {
+        int rgb = s.getFluidState().is(FluidTags.WATER) ? 0x3F76E4 : s.getBlock().defaultMapColor().col;
+        if (rgb == 0) rgb = 0x707070;
+        return 0xFF000000 | rgb;
     }
 
     public static int keyX(long k) { return (int) (k >> 42); }
@@ -81,7 +89,7 @@ public final class LodWorld {
                     int n = 0;
                     for (int by = 0; by < 4; by++) for (int bz = 0; bz < 4; bz++) for (int bx = 0; bx < 4; bx++) {
                         BlockState s = sec.getBlockState(vx * 4 + bx, vy * 4 + by, vz * 4 + bz);
-                        if (!s.isAir()) ids[n++] = Block.getId(s);
+                        if (!s.isAir()) ids[n++] = colorId(s);
                     }
                     if (n > 0) id = LodGrid.mostCommon(ids, n);
                 }
@@ -144,7 +152,7 @@ public final class LodWorld {
             LodGrid grid = new LodGrid();
             for (int y = 0; y < 16; y++) for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++) {
                 BlockState s = sec.getBlockState(x, y, z);
-                if (!s.isAir()) grid.set(x, y, z, Block.getId(s));
+                if (!s.isAir()) grid.set(x, y, z, colorId(s));
             }
             if (grid.isEmpty()) grids.remove(k);
             else grids.put(k, grid);

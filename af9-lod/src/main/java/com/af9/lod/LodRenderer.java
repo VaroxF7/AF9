@@ -57,7 +57,8 @@ public final class LodRenderer implements AutoCloseable {
     }
 
     /** planes: 6 vec4 (camera-relative, inward normals); view/proj: column-major 4x4 float arrays. */
-    public void render(float[] planes, float[] view, float[] proj, float nearBand, float farBand) {
+    public void render(float[] planes, float[] view, float[] proj, float nearBand, float farBand,
+                       float light, float[] fogColor, float fogStart, float fogEnd) {
         if (cellCount == 0) return;
         GL20C.glUseProgram(cullProgram);
         GL20C.glUniform4fv(GL20C.glGetUniformLocation(cullProgram, "uPlanes"), planes);
@@ -73,6 +74,9 @@ public final class LodRenderer implements AutoCloseable {
         GL20C.glUseProgram(drawProgram);
         GL20C.glUniformMatrix4fv(GL20C.glGetUniformLocation(drawProgram, "uView"), false, view);
         GL20C.glUniformMatrix4fv(GL20C.glGetUniformLocation(drawProgram, "uProj"), false, proj);
+        GL20C.glUniform1f(GL20C.glGetUniformLocation(drawProgram, "uLight"), light);
+        GL20C.glUniform3f(GL20C.glGetUniformLocation(drawProgram, "uFogColor"), fogColor[0], fogColor[1], fogColor[2]);
+        GL20C.glUniform2f(GL20C.glGetUniformLocation(drawProgram, "uFog"), fogStart, fogEnd);
         GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 0, cellBuf);
         GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 2, quadBuf);
         GL30C.glBindVertexArray(vao);
