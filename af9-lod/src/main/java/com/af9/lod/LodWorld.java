@@ -226,17 +226,6 @@ public final class LodWorld {
     private void sample(ChunkAccess chunk) {
         int cx = chunk.getPos().x, cz = chunk.getPos().z;
         LevelChunkSection[] sections = chunk.getSections();
-        // keep only a skin below the visible surface: the underground is never seen and cut-outs would expose it
-        final int depth = 14 + 2 * b;
-        int[] colTop = new int[256];
-        int minTop = Integer.MAX_VALUE;
-        for (int z = 0; z < 16; z++) for (int x = 0; x < 16; x++) {
-            int h;
-            try { h = chunk.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE_WG, x, z); }
-            catch (RuntimeException e) { h = Integer.MAX_VALUE / 2; }
-            colTop[z * 16 + x] = h;
-            if (h < minTop) minTop = h;
-        }
         for (int i = 0; i < sections.length; i++) {
             LevelChunkSection sec = sections[i];
             int sy = chunk.getSectionYFromSectionIndex(i);
