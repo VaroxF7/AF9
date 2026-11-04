@@ -38,6 +38,11 @@ public final class LodRenderHook {
                 lastLogNanos = System.nanoTime();
                 org.slf4j.LoggerFactory.getLogger("af9_lod").info("LOD draw: {} cells", cellCount);
             }
+            boolean pack = IrisCompat.shaderPackInUse();
+            if (pack != lastPack) {
+                lastPack = pack;
+                org.slf4j.LoggerFactory.getLogger("af9_lod").info("shader pack in use: {}", pack);
+            }
             if (cellCount == 0) return;
 
             Vector3f cam = event.getCamera().getPosition().toVector3f();
@@ -78,6 +83,7 @@ public final class LodRenderHook {
     private int[] firstQuad = new int[0], quadCount = new int[0];
 
     private long lastRebuildNanos;
+    private boolean lastPack;
     private int lastLoggedCells = -1;
     private long lastLogNanos;
 
