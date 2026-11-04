@@ -5,20 +5,17 @@ import com.af9.lod.core.LodMesher;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Map;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.RenderLevelStageEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /**
- * Draft render hook: draws every loaded level-0 section through LodRenderer. Off unless -Daf9lod.debugdraw=true,
+ * Draft render hook: draws every loaded level-0 section through LodRenderer. Off unless the config enables it (or -Daf9lod.debugdraw=true with the master switch on),
  * because it re-draws what vanilla already shows. It proves the GPU pipeline (mesh -> SSBO -> compute cull -> indirect
  * draw); far terrain beyond the server's view distance needs persisted LOD data (next milestone).
  */
 public final class LodRenderHook {
-    static final boolean ENABLED = Boolean.getBoolean("af9lod.debugdraw");
-
     private LodRenderer renderer;
     private boolean failed;
     private int builtVersion = -1;
@@ -28,7 +25,7 @@ public final class LodRenderHook {
 
     @SubscribeEvent
     public void onStage(RenderLevelStageEvent event) {
-        if (!ENABLED || failed || event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
+        if (failed || !LodConfig.drawEnabled() || event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES) return;
         try {
             if (renderer == null) {
                 if (!GlCaps.query().usable()) { failed = true; return; }
@@ -58,8 +55,7 @@ public final class LodRenderHook {
             float[] v = new float[16], p = new float[16];
             view.get(v);
             proj.get(p);
-            int renderDistBlocks = Minecraft.getInstance().options.getEffectiveRenderDistance() * 16;
-            renderer.render(planes, v, p, 0f, renderDistBlocks * 4f);
+            renderer.render(planes, v, p, LodConfig.NEAR_BAND_CHUNKS.get() * 16f, LodConfig.MAX_DISTANCE_CHUNKS.get() * 16f);
         } catch (RuntimeException e) {
             failed = true;
             org.slf4j.LoggerFactory.getLogger("af9_lod").error("LOD render disabled after error", e);
