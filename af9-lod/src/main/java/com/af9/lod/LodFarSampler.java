@@ -1,6 +1,6 @@
 package com.af9.lod;
 
-import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
+import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -16,7 +16,8 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  * Time-boxed per tick so the server keeps its tick rate.
  */
 public final class LodFarSampler {
-    private final LongOpenHashSet done = new LongOpenHashSet();
+    /** chunk -> far level it was last sampled at (absent = never). */
+    private final Long2ByteOpenHashMap done = new Long2ByteOpenHashMap();
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("af9_lod");
     private ServerLevel lastLevel;
     private int warmupTicks;
@@ -58,28 +59,41 @@ public final class LodFarSampler {
         long deadline = System.nanoTime() + LodConfig.FAR_BUDGET_MS.get() * 1_000_000L;
         if (++heartbeat % 200 == 0)
             LOGGER.info("far sampler: sampled {}, view {} -> max {} chunks, avg tick {} ms, store {} cells", done.size(), view, max,
-                    server.getAverageTickTime(), LodWorld.INSTANCE.farMeshes().size());
+                    server.getAverageTickTime(), LodWorld.INSTANCE.farMeshCount());
         int budgetChunks = 6;   // time budget below is what really limits it; chunks already on disk load in ~1 ms
 
         for (int r = view + 1; r <= max; r++) {
+            int want = levelFor(r - view);
             for (int i = 0; i < 8 * r; i++) {
                 int[] d = ringOffset(r, i);
                 int x = pcx + d[0], z = pcz + d[1];
                 long k = ChunkPos.asLong(x, z);
-                if (done.contains(k)) continue;
+                int have = done.get(k);          // 0 = never sampled
+                if (have != 0 && have <= want) continue;   // already at this detail or finer
                 if (System.nanoTime() > deadline || budgetChunks <= 0) return;
                 budgetChunks--;
-                done.add(k);
-                if (done.size() % 200 == 1)
-                    LOGGER.info("far sampler: {} chunks sampled, far meshes {}", done.size(), LodWorld.INSTANCE.farMeshes().size());
                 try {
                     ChunkAccess chunk = level.getChunk(x, z, LodConfig.FAST_GENERATION.get() ? ChunkStatus.SURFACE : ChunkStatus.FULL, true);
-                    if (chunk != null) LodWorld.INSTANCE.sampleFar(chunk);
+                    if (chunk != null) {
+                        if (have != 0) LodWorld.INSTANCE.clearFar(chunk, have);   // refining: drop the coarse copy first
+                        LodWorld.INSTANCE.sampleFar(chunk, want);
+                    }
+                    done.put(k, (byte) want);
                 } catch (RuntimeException e) {
-                    org.slf4j.LoggerFactory.getLogger("af9_lod").warn("far chunk {} {} failed: {}", x, z, e.toString());
+                    done.put(k, (byte) want);
+                    LOGGER.warn("far chunk {} {} failed: {}", x, z, e.toString());
                 }
+                if (done.size() % 200 == 1)
+                    LOGGER.info("far sampler: {} chunks sampled, far meshes {}", done.size(), LodWorld.INSTANCE.farMeshCount());
             }
         }
+    }
+
+    /** Detail level for a chunk `ring` chunks beyond the view distance: 2-block voxels, then 4, then 8. */
+    static int levelFor(int ringBeyondView) {
+        if (ringBeyondView <= 16) return 1;
+        if (ringBeyondView <= 48) return 2;
+        return 3;
     }
 
     /** i-th offset (0 .. 8r-1) on the square ring of Chebyshev radius r. */

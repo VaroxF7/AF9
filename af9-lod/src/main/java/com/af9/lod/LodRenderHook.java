@@ -90,21 +90,21 @@ public final class LodRenderHook {
         builtVersion = LodWorld.INSTANCE.version();
         builtDebug = debug;
         Map<Long, int[]> near = debug ? LodWorld.INSTANCE.meshes() : java.util.Collections.emptyMap();
-        Map<Long, int[]> far = LodWorld.INSTANCE.farMeshes();
-        int n = near.size() + far.size();
+        int n = near.size();
+        for (int l = 1; l <= LodWorld.MAX_FAR_LEVEL; l++) n += LodWorld.INSTANCE.farMeshes(l).size();
         cellSection = new int[3 * n];
         cellEdge = new float[n];
         firstQuad = new int[n];
         quadCount = new int[n];
         int total = 0;
         for (int[] m : near.values()) total += m.length;
-        for (int[] m : far.values()) total += m.length;
+        for (int l = 1; l <= LodWorld.MAX_FAR_LEVEL; l++) for (int[] m : LodWorld.INSTANCE.farMeshes(l).values()) total += m.length;
         ByteBuffer quads = ByteBuffer.allocateDirect(Math.max(total, 2) * 4).order(ByteOrder.nativeOrder());
         java.nio.IntBuffer ib = quads.asIntBuffer();
         int i = 0;
-        for (int pass = 0; pass < 2; pass++) {
-            Map<Long, int[]> map = pass == 0 ? near : far;
-            float edge = pass == 0 ? 16f : 64f;
+        for (int pass = 0; pass <= LodWorld.MAX_FAR_LEVEL; pass++) {
+            Map<Long, int[]> map = pass == 0 ? near : LodWorld.INSTANCE.farMeshes(pass);
+            float edge = pass == 0 ? 16f : (16 << pass);
             for (Map.Entry<Long, int[]> e : map.entrySet()) {
                 if (i >= n) break;   // maps may have grown since size()
                 long k = e.getKey();
