@@ -17,6 +17,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  */
 public final class LodFarSampler {
     private final LongOpenHashSet done = new LongOpenHashSet();
+    private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("af9_lod");
     private ServerLevel lastLevel;
     private int warmupTicks;
 
@@ -33,12 +34,16 @@ public final class LodFarSampler {
             warmupTicks = 0;
         }
         // let the world finish loading first, and back off whenever the server is already struggling
-        if (warmupTicks++ < 200 || server.getAverageTickTime() > 40f) return;
+        if (warmupTicks++ < 100) return;
+        if (server.getAverageTickTime() > 45f) {
+            if (warmupTicks % 100 == 0) LOGGER.info("far sampler paused: server average tick {} ms", server.getAverageTickTime());
+            return;
+        }
         int pcx = player.chunkPosition().x, pcz = player.chunkPosition().z;
         int view = server.getPlayerList().getViewDistance();
         int max = LodConfig.MAX_DISTANCE_CHUNKS.get();
         long deadline = System.nanoTime() + LodConfig.FAR_BUDGET_MS.get() * 1_000_000L;
-        int budgetChunks = 1;   // a single generated chunk can take tens of ms, so one per tick at most
+        int budgetChunks = 6;   // time budget below is what really limits it; chunks already on disk load in ~1 ms
 
         for (int r = view + 1; r <= max; r++) {
             for (int i = 0; i < 8 * r; i++) {
@@ -49,6 +54,8 @@ public final class LodFarSampler {
                 if (System.nanoTime() > deadline || budgetChunks <= 0) return;
                 budgetChunks--;
                 done.add(k);
+                if (done.size() % 200 == 1)
+                    LOGGER.info("far sampler: {} chunks sampled, far meshes {}", done.size(), LodWorld.INSTANCE.farMeshes().size());
                 try {
                     ChunkAccess chunk = level.getChunk(x, z, ChunkStatus.FULL, true);
                     if (chunk != null) LodWorld.INSTANCE.sampleFar(chunk);
