@@ -24,6 +24,10 @@ public final class LodFarSampler {
 
     private int heartbeat;
 
+    Long2ByteOpenHashMap doneMap() {
+        return done;
+    }
+
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
@@ -89,11 +93,12 @@ public final class LodFarSampler {
         }
     }
 
-    /** Detail level for a chunk `ring` chunks beyond the view distance: 2-block voxels, then 4, then 8. */
+    /** Detail level for a chunk `ring` chunks beyond the view distance: 2-block voxels, then 4, 8 and 16. */
     static int levelFor(int ringBeyondView) {
         if (ringBeyondView <= 16) return 1;
         if (ringBeyondView <= 48) return 2;
-        return 3;
+        if (ringBeyondView <= 96) return 3;
+        return 4;
     }
 
     /** i-th offset (0 .. 8r-1) on the square ring of Chebyshev radius r. */

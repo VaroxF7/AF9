@@ -18,7 +18,7 @@ public final class LodConfig {
         ENABLED = b.comment("Master switch for the GPU LOD renderer").define("enabled", false);
         DEBUG_DRAW = b.comment("Also draw loaded sections through the LOD path (debug, overdraws vanilla terrain)")
                 .define("debugDraw", false);
-        MAX_DISTANCE_CHUNKS = b.comment("Farthest LOD distance in chunks").defineInRange("maxDistanceChunks", 64, 16, 1024);
+        MAX_DISTANCE_CHUNKS = b.comment("Farthest LOD distance in chunks").defineInRange("maxDistanceChunks", 128, 16, 1024);
         NEAR_BAND_CHUNKS = b.comment("LOD cells closer than this many chunks are left to Embeddium")
                 .defineInRange("nearBandChunks", 0, 0, 256);
         GENERATE_FAR = b.comment("Singleplayer: load or generate chunks beyond the view distance (low priority) to feed the LOD. "

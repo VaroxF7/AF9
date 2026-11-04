@@ -19,13 +19,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 /**
  * Client-side LOD stores.
  *  - level 0: one grid per loaded 16^3 section (only used by the debug draw), filled from client chunk events.
- *  - levels 1..3: far terrain, one voxel = 2 / 4 / 8 blocks, one grid = 32 / 64 / 128 blocks per axis. Filled from the
+ *  - levels 1..4: far terrain, one voxel = 2 / 4 / 8 / 16 blocks, one grid = 32 / 64 / 128 / 256 blocks per axis. Filled from the
  *    integrated server by LodFarSampler.
  * Meshing (with neighbour face culling) runs on one background thread; the render hook only reads finished meshes.
  */
 public final class LodWorld {
     public static final LodWorld INSTANCE = new LodWorld();
-    public static final int MAX_FAR_LEVEL = 3;
+    public static final int MAX_FAR_LEVEL = 4;
     private static final long TICK_BUDGET_NANOS = 2_000_000L;
 
     private final ConcurrentHashMap<Long, LodGrid> grids = new ConcurrentHashMap<>();
@@ -139,6 +139,30 @@ public final class LodWorld {
             touched.add(k);
         }
         scheduleFarMesh(level, touched);
+    }
+
+    // ---- persistence (per world, inside the save folder) ----
+
+    /** Snapshot of the far grids for saving: level -> (key -> grid). */
+    ConcurrentHashMap<Long, LodGrid> farGrids(int level) {
+        return farGrids[level];
+    }
+
+    /** Re-mesh every loaded far grid (after loading the cache). */
+    void remeshAllFar() {
+        mesher.execute(() -> {
+            for (int l = 1; l <= MAX_FAR_LEVEL; l++)
+                for (long k : farGrids[l].keySet()) meshFar(l, keyX(k), keyY(k), keyZ(k));
+            version++;
+        });
+    }
+
+    void clearAllFar() {
+        for (int l = 1; l <= MAX_FAR_LEVEL; l++) {
+            farGrids[l].clear();
+            farMeshes[l].clear();
+        }
+        version++;
     }
 
     private void scheduleFarMesh(int level, HashSet<Long> touched) {

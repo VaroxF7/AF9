@@ -25,7 +25,9 @@ public class Horizon {
                 () -> new ConfigScreenHandler.ConfigScreenFactory((mc, parent) -> new LodConfigScreen(parent)));
         MinecraftForge.EVENT_BUS.register(LodWorld.INSTANCE);
         MinecraftForge.EVENT_BUS.register(new LodRenderHook());
-        MinecraftForge.EVENT_BUS.register(new LodFarSampler());
+        LodFarSampler sampler = new LodFarSampler();
+        MinecraftForge.EVENT_BUS.register(sampler);
+        MinecraftForge.EVENT_BUS.register(new LodStore(sampler));
         MinecraftForge.EVENT_BUS.register(new ClientHooks());
         FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientHooks::registerKeys);
         FMLJavaModLoadingContext.get().getModEventBus().addListener(Horizon::clientSetup);
