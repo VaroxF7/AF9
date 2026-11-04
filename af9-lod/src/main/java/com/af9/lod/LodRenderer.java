@@ -60,6 +60,7 @@ public final class LodRenderer implements AutoCloseable {
         GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 0, cellBuf);
         GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 1, cmdBuf);
         GL43C.glDispatchCompute((cellCount + 63) / 64, 1, 1);
+        logGlError("after compute dispatch");
         GL42C.glMemoryBarrier(GL43C.GL_SHADER_STORAGE_BARRIER_BIT | GL42C.GL_COMMAND_BARRIER_BIT);
 
         GL20C.glUseProgram(drawProgram);
@@ -79,7 +80,19 @@ public final class LodRenderer implements AutoCloseable {
         if (!offsetWas) GL11C.glDisable(GL11C.GL_POLYGON_OFFSET_FILL);
         GL11C.glEnable(GL11C.GL_CULL_FACE);
         GL30C.glBindVertexArray(0);
+        logGlError("after multi draw");
         GL20C.glUseProgram(0);
+    }
+
+    private int errorsLogged;
+
+    /** Logs the first few GL errors with the step that raised them (the vanilla debug message has no detail). */
+    private void logGlError(String where) {
+        int err;
+        while ((err = GL11C.glGetError()) != GL11C.GL_NO_ERROR && errorsLogged < 8) {
+            errorsLogged++;
+            org.slf4j.LoggerFactory.getLogger("af9_lod").warn("GL error 0x{} {}", Integer.toHexString(err), where);
+        }
     }
 
     public static ByteBuffer cellBuffer(int cells) {
