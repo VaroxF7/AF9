@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
+import org.lwjgl.opengl.GL11C;
 import org.lwjgl.opengl.GL15C;
 import org.lwjgl.opengl.GL20C;
 import org.lwjgl.opengl.GL30C;
@@ -68,7 +69,15 @@ public final class LodRenderer implements AutoCloseable {
         GL30C.glBindBufferBase(GL43C.GL_SHADER_STORAGE_BUFFER, 2, quadBuf);
         GL30C.glBindVertexArray(vao);
         GL15C.glBindBuffer(GL43C.GL_DRAW_INDIRECT_BUFFER, cmdBuf);
+        // Push LOD depth behind real chunks so it never z-fights with terrain Embeddium already drew:
+        // LOD only shows where nothing nearer was drawn (that is the far-terrain case).
+        boolean offsetWas = GL11C.glIsEnabled(GL11C.GL_POLYGON_OFFSET_FILL);
+        GL11C.glEnable(GL11C.GL_POLYGON_OFFSET_FILL);
+        GL11C.glPolygonOffset(4f, 8f);
+        GL11C.glDisable(GL11C.GL_CULL_FACE);
         GL43C.glMultiDrawArraysIndirect(GL15C.GL_TRIANGLES, 0L, cellCount, CMD_BYTES);
+        if (!offsetWas) GL11C.glDisable(GL11C.GL_POLYGON_OFFSET_FILL);
+        GL11C.glEnable(GL11C.GL_CULL_FACE);
         GL30C.glBindVertexArray(0);
         GL20C.glUseProgram(0);
     }
