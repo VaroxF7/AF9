@@ -27,7 +27,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
  */
 public final class LodStore {
     private static final org.slf4j.Logger LOGGER = org.slf4j.LoggerFactory.getLogger("af9_lod");
-    private static final int MAGIC = 0xAF9D0001;
+    private static final int MAGIC = 0xAF9D0002;
 
     private final LodFarSampler sampler;
     private int ticks;

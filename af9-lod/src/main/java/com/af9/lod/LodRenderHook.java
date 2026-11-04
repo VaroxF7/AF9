@@ -78,9 +78,6 @@ public final class LodRenderHook {
             float light = lvl == null ? 1f : Math.min(1f, Math.max(0f, lvl.getSkyDarken(event.getPartialTick())));
             float[] fog = RenderSystem.getShaderFogColor();
             renderer.render(planes, v, p, near, maxBlocks, light, fog, maxBlocks * 0.55f, maxBlocks);
-            // LOD is a background layer: wipe its depth so vanilla/pack terrain draws on top with its own projection
-            com.mojang.blaze3d.platform.GlStateManager._depthMask(true);
-            com.mojang.blaze3d.platform.GlStateManager._clear(org.lwjgl.opengl.GL11C.GL_DEPTH_BUFFER_BIT, false);
         } catch (RuntimeException e) {
             failed = true;
             org.slf4j.LoggerFactory.getLogger("af9_lod").error("LOD render disabled after error", e);

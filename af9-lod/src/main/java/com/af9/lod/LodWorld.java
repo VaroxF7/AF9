@@ -58,6 +58,7 @@ public final class LodWorld {
     static int colorId(BlockState s) {
         int rgb = s.getFluidState().is(FluidTags.WATER) ? 0x3F76E4 : s.getBlock().defaultMapColor().col;
         if (rgb == 0) rgb = 0x707070;
+        else if (rgb == 0xA0A0FF) rgb = 0x8DB6E8;   // ICE map colour is lavender; real ice is pale blue
         return 0xFF000000 | rgb;
     }
 
@@ -108,12 +109,12 @@ public final class LodWorld {
             for (int vy = 0; vy < vpc; vy++) for (int vz = 0; vz < vpc; vz++) for (int vx = 0; vx < vpc; vx++) {
                 int id = 0;
                 if (!empty) {
-                    int n = 0;
-                    for (int by = 0; by < b; by++) for (int bz = 0; bz < b; bz++) for (int bx = 0; bx < b; bx++) {
+                    // topmost solid block of the voxel wins: the thin grass/snow skin must not be outvoted by the stone below it
+                    outer:
+                    for (int by = b - 1; by >= 0; by--) for (int bz = 0; bz < b; bz++) for (int bx = 0; bx < b; bx++) {
                         BlockState st = sec.getBlockState(vx * b + bx, vy * b + by, vz * b + bz);
-                        if (!st.isAir()) ids[n++] = colorId(st);
+                        if (!st.isAir()) { id = colorId(st); break outer; }
                     }
-                    if (n > 0) id = LodGrid.mostCommon(ids, n);
                 }
                 g.set(ox + vx, oy + vy, oz + vz, id);
             }
