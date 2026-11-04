@@ -24,6 +24,7 @@ public final class LodRenderer implements AutoCloseable {
 
     private final int cullProgram, drawProgram, cellBuf, cmdBuf, quadBuf, vao;
     private int cellCount;
+    private int cellCapacity;
 
     public LodRenderer() {
         cullProgram = link(compile(GL43C.GL_COMPUTE_SHADER, "cull.comp"));
@@ -46,7 +47,13 @@ public final class LodRenderer implements AutoCloseable {
     public void updateCells(ByteBuffer cells, int cellCount) {
         this.cellCount = cellCount;
         GL15C.glBindBuffer(GL43C.GL_SHADER_STORAGE_BUFFER, cellBuf);
-        GL15C.glBufferData(GL43C.GL_SHADER_STORAGE_BUFFER, cells, GL15C.GL_STREAM_DRAW);
+        int bytes = cells.remaining();
+        if (bytes > cellCapacity) {
+            // grow rarely (x2), then update in place every frame so the driver never reallocates the buffer
+            cellCapacity = Math.max(bytes, cellCapacity * 2);
+            GL15C.glBufferData(GL43C.GL_SHADER_STORAGE_BUFFER, (long) cellCapacity, GL15C.GL_DYNAMIC_DRAW);
+        }
+        GL15C.glBufferSubData(GL43C.GL_SHADER_STORAGE_BUFFER, 0L, cells);
     }
 
     /** planes: 6 vec4 (camera-relative, inward normals); view/proj: column-major 4x4 float arrays. */
