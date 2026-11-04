@@ -1,7 +1,5 @@
 package com.af9.lod;
 
-import com.af9.lod.core.LodGrid;
-import com.af9.lod.core.LodMesher;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Map;
@@ -20,7 +18,6 @@ public final class LodRenderHook {
     private boolean failed;
     private int builtVersion = -1;
     private int cellCount;
-    private long[] cellKeys = new long[0];
     private int[] cellSection = new int[0];   // sx, sy, sz per cell (3 ints each)
 
     @SubscribeEvent
@@ -64,35 +61,38 @@ public final class LodRenderHook {
 
     private int[] firstQuad = new int[0], quadCount = new int[0];
 
+    private long lastRebuildNanos;
+
     private void rebuild() {
+        // throttle: copying all meshes into one buffer is cheap, but not worth doing more than twice a second
+        long now = System.nanoTime();
+        if (builtVersion >= 0 && now - lastRebuildNanos < 500_000_000L) return;
+        lastRebuildNanos = now;
         builtVersion = LodWorld.INSTANCE.version();
-        Map<Long, LodGrid> grids = LodWorld.INSTANCE.grids();
-        int n = grids.size();
-        cellKeys = new long[n];
+        Map<Long, int[]> meshes = LodWorld.INSTANCE.meshes();
+        int n = meshes.size();
         cellSection = new int[3 * n];
         firstQuad = new int[n];
         quadCount = new int[n];
-        int[] all = new int[1024];
-        int len = 0, i = 0;
-        LodMesher mesher = new LodMesher();
-        for (Map.Entry<Long, LodGrid> e : grids.entrySet()) {
+        int total = 0;
+        for (int[] m : meshes.values()) total += m.length;
+        ByteBuffer quads = ByteBuffer.allocateDirect(Math.max(total, 2) * 4).order(ByteOrder.nativeOrder());
+        java.nio.IntBuffer ib = quads.asIntBuffer();
+        int i = 0;
+        for (Map.Entry<Long, int[]> e : meshes.entrySet()) {
+            if (i >= n) break;   // map may have grown since size()
             long k = e.getKey();
-            int sx = (int) (k << 0 >> 42), sz = (int) ((k << 22) >> 42), sy = (int) ((k << 44) >> 44);
-            int[] q = mesher.mesh(e.getValue(), null);
-            if (len + q.length > all.length) all = java.util.Arrays.copyOf(all, Math.max(all.length * 2, len + q.length));
-            System.arraycopy(q, 0, all, len, q.length);
-            cellKeys[i] = k;
-            cellSection[3 * i] = sx;
-            cellSection[3 * i + 1] = sy;
-            cellSection[3 * i + 2] = sz;
-            firstQuad[i] = len / 2;
+            int[] q = e.getValue();
+            if (ib.remaining() < q.length) break;
+            cellSection[3 * i] = LodWorld.keyX(k);
+            cellSection[3 * i + 1] = LodWorld.keyY(k);
+            cellSection[3 * i + 2] = LodWorld.keyZ(k);
+            firstQuad[i] = ib.position() / 2;
             quadCount[i] = q.length / 2;
-            len += q.length;
+            ib.put(q);
             i++;
         }
         cellCount = i;
-        ByteBuffer quads = ByteBuffer.allocateDirect(len * 4).order(ByteOrder.nativeOrder());
-        quads.asIntBuffer().put(all, 0, len);
         renderer.uploadQuads(quads, cellCount);
     }
 
