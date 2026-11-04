@@ -1,0 +1,42 @@
+plugins {
+    id 'net.neoforged.moddev.legacyforge' version '2.0.91'
+}
+
+version = project.findProperty('mod_version')
+group = project.maven_group
+base { archivesName = project.archives_base_name }
+
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+legacyForge {
+    version = project.minecraft_version + '-' + project.forge_version
+    parchment {
+        mappingsVersion = project.mapping_version
+        minecraftVersion = project.minecraft_version
+    }
+    mods {
+        "${mod_id}" { sourceSet sourceSets.main }
+    }
+    runs {
+        client { client() }
+    }
+}
+
+// Pure-Java LOD core (no Minecraft types) is unit-tested without a game.
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+}
+tasks.test { useJUnitPlatform() }
+
+processResources {
+    var props = [mod_id: mod_id, mod_name: mod_name, mod_author: mod_author, mod_license: mod_license,
+                 forge_version: forge_version, minecraft_version: minecraft_version, version: version]
+    inputs.properties props
+    filesMatching('META-INF/mods.toml') { expand props }
+}
