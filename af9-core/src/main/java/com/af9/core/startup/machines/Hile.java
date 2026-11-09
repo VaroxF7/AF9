@@ -59,7 +59,7 @@ public final class Hile {
                         .where('S', Predicates.controller(Predicates.blocks(definition.get())))
                         .where(' ', Predicates.any())
                         .where('C', casing)
-                        .where('F', AF9Machines.blocks("gtceu:tungstensteel_frame"))
+                        .where('F', AF9Machines.blocks("gtceu:tungsten_steel_frame"))
                         .where('G', glass)
                         .where('R', AF9Machines.blocks("af9:laser_resistant_plate"))
                         .where('L', Predicates.abilities(PartAbility.INPUT_LASER).setMaxGlobalLimited(1, 1))
