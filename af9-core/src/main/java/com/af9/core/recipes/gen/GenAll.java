@@ -98,5 +98,6 @@ public final class GenAll {
         GenWaterFiltration.register(out);
         GenWirelessEnergy.register(out);
         GenXpsBoard.register(out);
+        com.af9.core.recipes.Dsl.logSkipped();
     }
 }

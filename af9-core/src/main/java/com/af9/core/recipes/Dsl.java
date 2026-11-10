@@ -35,7 +35,21 @@ public final class Dsl {
     /** The first unknown item or fluid of the recipe being built; the recipe is skipped (and logged) instead of aborting every recipe. */
     private static String error;
 
+    private static final String MISSING = "unknown item ";
+    /** Recipes left out because an item is missing (a removed mod's), by that item. */
+    private static final java.util.Map<String, java.util.List<String>> SKIPPED = new java.util.TreeMap<>();
+
     private Dsl() {}
+
+    /** One summary of the recipes left out for missing items (instead of an error each); the recipe ids at debug level. */
+    public static void logSkipped() {
+        if (SKIPPED.isEmpty()) return;
+        int recipes = SKIPPED.values().stream().mapToInt(java.util.List::size).sum();
+        LOGGER.info("{} recipes left out, their items are not in this pack (a removed mod?): {}", recipes,
+                SKIPPED.entrySet().stream().map(e -> e.getKey() + " (" + e.getValue().size() + ")").collect(java.util.stream.Collectors.joining(", ")));
+        SKIPPED.forEach((item, ids) -> LOGGER.debug("missing {}: {}", item, ids));
+        SKIPPED.clear();
+    }
 
     /** A recipe of the GT recipe type {@code type}, id {@code af9:<name>} (or the given namespace). */
     public static B gt(Consumer<FinishedRecipe> out, String type, String id) {
@@ -136,7 +150,7 @@ public final class Dsl {
         }
         Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(id));
         if (item == null || item == net.minecraft.world.item.Items.AIR) {
-            if (error == null) error = "unknown item " + id;
+            if (error == null) error = MISSING + id;
             return ItemStack.EMPTY;
         }
         ItemStack st = new ItemStack(item, count);
@@ -399,7 +413,12 @@ public final class Dsl {
 
         public void save() {
             if (error != null) {
-                LOGGER.error("recipe {} skipped: {}", id, error);
+                if (error.startsWith(MISSING)) {
+                    // an item of a mod that is not installed (or not in this pack): the recipe is left out, reported once in the summary
+                    SKIPPED.computeIfAbsent(error.substring(MISSING.length()), k -> new java.util.ArrayList<>()).add(id);
+                } else {
+                    LOGGER.error("recipe {} skipped: {}", id, error);
+                }
                 error = null;
                 return;
             }
