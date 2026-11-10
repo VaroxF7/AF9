@@ -219,6 +219,11 @@ public final class AF9Machines {
                 AF9Core.LOGGER.error("AF9 machine {}: runtime model failed", DEFINITIONS.get(i).getId(), e);
             }
         }
+        // GT posts RegisterDynamicResourcesEvent to every mod's own event bus in mod order, GT's bus first: its flush of the queued
+        // blockstates and models (ClientProxy.postRegisterDynamicAssets) has already run when this listener runs, so what the machine
+        // models queued above would never reach the dynamic pack. With ModernFix's dynamic resources (lazy model loading) that left the
+        // machines without blockstate and block model (purple/missing); flush our own queue here.
+        RuntimeBlockstateProvider.INSTANCE.run();
         names.forEach(lang::addProperty);
         GTDynamicResourcePack.addResource(new ResourceLocation("gtceu", "lang/en_us.json"), lang);
     }
