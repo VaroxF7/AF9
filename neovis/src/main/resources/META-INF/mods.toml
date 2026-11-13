@@ -7,11 +7,12 @@ license="LGPL-3.0-only"
 modId="oculus"
 version="${version}"
 displayURL = "https://curseforge.com/minecraft/mc-mods/oculus"
-displayName="Mekalus (Oculus)"
+displayName="Neovis (Oculus)"
 logoFile="oculus-logo.png"
-authors="KostromDan, NanoLive, dima_dencep, coderbot, IMS212, Justsnoopy30, FoundationGames"
+authors="AF9, KostromDan, NanoLive, dima_dencep, coderbot, IMS212, Justsnoopy30, FoundationGames"
 description='''
-Unofficial Fork of "Oculus", made to fix MekaSuit rendering with shaders.
+AF9's shader mod: a fork of Mekalus (Oculus 1.8.0 with the MekaSuit fix) with newer Iris features
+for Voxy-style LOD rendering: colortex0-31 and block tags in block.properties (IRIS_TAG_SUPPORT 2).
 '''
 provides = ["iris"]
 

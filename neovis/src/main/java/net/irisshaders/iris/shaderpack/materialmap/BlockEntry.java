@@ -7,7 +7,65 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public record BlockEntry(NamespacedId id, Map<String, String> propertyPredicates) {
+public record BlockEntry(NamespacedId id, Map<String, String> propertyPredicates) implements Entry {
+
+	/**
+	 * Parses a block.properties entry that may also be a block tag ({@code %namespace:tag[:key=value...]}).
+	 * Ported from Iris 1.10 (where it is {@code BlockEntry.parse}); kept as a separate method in Neovis so the
+	 * existing {@link #parse(String)} signature stays binary compatible.
+	 *
+	 * @param entry The string representation of the entry. Must not be empty.
+	 */
+	@NotNull
+	public static Entry parseEntry(@NotNull String entry) {
+		if (entry.isEmpty()) {
+			throw new IllegalArgumentException("Called BlockEntry::parseEntry with an empty string");
+		}
+
+		if (entry.startsWith("%")) {
+			String tag = entry.replace("%", "");
+			String[] splitStates = tag.split(":");
+
+			if (splitStates.length == 1) {
+				return new TagEntry(new NamespacedId("minecraft", tag), Collections.emptyMap());
+			} else if (splitStates.length == 2 && !splitStates[1].contains("=")) {
+				return new TagEntry(new NamespacedId(splitStates[0], splitStates[1]), Collections.emptyMap());
+			} else {
+				int statesStart;
+				NamespacedId id;
+
+				if (splitStates[1].contains("=")) {
+					// "leaves:persistent=false"
+					statesStart = 1;
+					id = new NamespacedId("minecraft", splitStates[0]);
+				} else {
+					// "minecraft:leaves:persistent=false"
+					statesStart = 2;
+					id = new NamespacedId(splitStates[0], splitStates[1]);
+				}
+
+				Map<String, String> map = new HashMap<>();
+
+				for (int index = statesStart; index < splitStates.length; index++) {
+					String[] propertyParts = splitStates[index].split("=");
+
+					if (propertyParts.length != 2) {
+						Iris.logger.warn("Warning: the block ID map entry \"" + entry + "\" could not be fully parsed:");
+						Iris.logger.warn("- Block state property filters must be of the form \"key=value\", but "
+							+ splitStates[index] + " is not of that form!");
+
+						continue;
+					}
+
+					map.put(propertyParts[0], propertyParts[1]);
+				}
+
+				return new TagEntry(id, map);
+			}
+		}
+
+		return parse(entry);
+	}
 
 	/**
 	 * Parses a block ID entry.

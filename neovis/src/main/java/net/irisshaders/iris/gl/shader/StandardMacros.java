@@ -5,12 +5,14 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.GlUtil;
 import net.irisshaders.iris.Iris;
 import net.irisshaders.iris.compat.dh.DHCompat;
+import net.irisshaders.iris.gl.IrisLimits;
 import net.irisshaders.iris.helpers.StringPair;
 import net.irisshaders.iris.pathways.HandRenderer;
 import net.irisshaders.iris.pipeline.WorldRenderingPhase;
 import net.irisshaders.iris.texture.format.TextureFormat;
 import net.irisshaders.iris.texture.format.TextureFormatLoader;
 import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.loading.LoadingModList;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20C;
@@ -48,8 +50,12 @@ public class StandardMacros {
 		define(standardDefines, getOsString());
 		define(standardDefines, getVendor());
 		define(standardDefines, getRenderer());
+		define(standardDefines, "MC_MIPMAP_LEVEL", String.valueOf(Minecraft.getInstance().options.mipmapLevels().get()));
 		define(standardDefines, "IS_IRIS");
 		define(standardDefines, "IS_OCULUS");
+		// Neovis: same macros as Iris 1.10 for the features Neovis implements
+		define(standardDefines, "MAX_COLOR_BUFFERS", String.valueOf(IrisLimits.MAX_COLOR_BUFFERS));
+		define(standardDefines, "IRIS_TAG_SUPPORT", "2");
 
 
 		if (LoadingModList.get().getModFileById("distanthorizons") != null && DHCompat.hasRenderingEnabled()) {

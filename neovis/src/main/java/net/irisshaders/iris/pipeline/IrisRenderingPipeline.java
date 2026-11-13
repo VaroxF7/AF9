@@ -51,10 +51,12 @@ import net.irisshaders.iris.pipeline.transform.TransformPatcher;
 import net.irisshaders.iris.samplers.IrisImages;
 import net.irisshaders.iris.samplers.IrisSamplers;
 import net.irisshaders.iris.shaderpack.FilledIndirectPointer;
+import net.irisshaders.iris.shaderpack.IdMap;
 import net.irisshaders.iris.shaderpack.ImageInformation;
 import net.irisshaders.iris.shaderpack.ShaderPack;
 import net.irisshaders.iris.shaderpack.loading.ProgramId;
 import net.irisshaders.iris.shaderpack.materialmap.BlockMaterialMapping;
+import net.irisshaders.iris.shaderpack.materialmap.BlockTagState;
 import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
 import net.irisshaders.iris.shaderpack.programs.ComputeSource;
 import net.irisshaders.iris.shaderpack.programs.ProgramFallbackResolver;
@@ -176,6 +178,8 @@ public class IrisRenderingPipeline implements WorldRenderingPipeline, ShaderRend
 	private ImmutableList<ClearPass> shadowClearPassesFull;
 	private boolean destroyed = false;
 	private boolean isRenderingWorld;
+	// Neovis: block tag generation the block ID map was last built with (-1 = not yet refreshed in a frame)
+	private int blockIdTagGeneration = -1;
 	private boolean isMainBound;
 	private boolean shouldBindPBR;
 	private int currentNormalTexture;
@@ -435,8 +439,9 @@ public class IrisRenderingPipeline implements WorldRenderingPipeline, ShaderRend
 			}
 		});
 
+		// Neovis: includes block tag entries (IRIS_TAG_SUPPORT); refreshed in beginLevelRendering once tags are known
 		WorldRenderingSettings.INSTANCE.setBlockStateIds(
-			BlockMaterialMapping.createBlockStateIdMap(programSet.getPack().getIdMap().getBlockProperties()));
+			BlockMaterialMapping.createBlockStateIdMap(programSet.getPack().getIdMap().getBlockProperties(), programSet.getPack().getIdMap().getTagEntries()));
 		WorldRenderingSettings.INSTANCE.setBlockTypeIds(BlockMaterialMapping.createBlockTypeMap(programSet.getPack().getIdMap().getBlockRenderTypeMap()));
 
 		WorldRenderingSettings.INSTANCE.setEntityIds(programSet.getPack().getIdMap().getEntityIdMap());
@@ -844,9 +849,46 @@ public class IrisRenderingPipeline implements WorldRenderingPipeline, ShaderRend
 		}
 	}
 
+	/**
+	 * Neovis: block.properties tag entries can only resolve once the client has the server's block tags, which may
+	 * arrive after this pipeline was created (world join) and change on /reload. Rebuild the block ID map on the first
+	 * frame and after every tag update; when the map really changed, rebuild the chunk meshes once (between frames)
+	 * so the new IDs reach the terrain. Packs without tag entries skip all of this.
+	 */
+	private void refreshBlockIdsForTags() {
+		IdMap idMap = pack.getIdMap();
+
+		if (idMap.getTagEntries().isEmpty()) {
+			return;
+		}
+
+		int generation = BlockTagState.generation();
+
+		if (generation == blockIdTagGeneration) {
+			return;
+		}
+
+		blockIdTagGeneration = generation;
+
+		WorldRenderingSettings.INSTANCE.setBlockStateIds(
+			BlockMaterialMapping.createBlockStateIdMap(idMap.getBlockProperties(), idMap.getTagEntries()));
+
+		if (WorldRenderingSettings.INSTANCE.isReloadRequired()) {
+			WorldRenderingSettings.INSTANCE.clearReloadRequired();
+			Minecraft minecraft = Minecraft.getInstance();
+			minecraft.tell(() -> {
+				if (minecraft.levelRenderer != null) {
+					minecraft.levelRenderer.allChanged();
+				}
+			});
+		}
+	}
+
 	@Override
 	public void beginLevelRendering() {
 		isRenderingWorld = true;
+
+		refreshBlockIdsForTags();
 
 		// Make sure we're using texture unit 0 for this.
 		RenderSystem.activeTexture(GL15C.GL_TEXTURE0);
@@ -1173,7 +1215,10 @@ public class IrisRenderingPipeline implements WorldRenderingPipeline, ShaderRend
 		// issues elsewhere.
 		//
 		// Without this code, there will be weird issues when reloading certain shaderpacks.
-		for (int i = 0; i < 16; i++) {
+		// Neovis: cover every unit a program can use (colortex16-31 and extra samplers can sit on units 16+),
+		// not only the first 16, so no destroyed texture stays bound after a shader reload.
+		int textureUnits = Math.min(SamplerLimits.get().getMaxTextureUnits(), GlStateManagerAccessor.getTEXTURES().length);
+		for (int i = 0; i < textureUnits; i++) {
 			GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0 + i);
 			IrisRenderSystem.unbindAllSamplers();
 			GlStateManager._bindTexture(0);

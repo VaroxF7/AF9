@@ -1,5 +1,6 @@
 package net.irisshaders.iris.shaderpack;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
@@ -13,8 +14,10 @@ import net.irisshaders.iris.helpers.StringPair;
 import net.irisshaders.iris.pipeline.transform.ShaderPrinter;
 import net.irisshaders.iris.shaderpack.materialmap.BlockEntry;
 import net.irisshaders.iris.shaderpack.materialmap.BlockRenderType;
+import net.irisshaders.iris.shaderpack.materialmap.Entry;
 import net.irisshaders.iris.shaderpack.materialmap.LegacyIdMap;
 import net.irisshaders.iris.shaderpack.materialmap.NamespacedId;
+import net.irisshaders.iris.shaderpack.materialmap.TagEntry;
 import net.irisshaders.iris.shaderpack.option.OrderBackedProperties;
 import net.irisshaders.iris.shaderpack.option.ShaderPackOptions;
 import net.irisshaders.iris.shaderpack.preprocessor.PropertiesPreprocessor;
@@ -57,6 +60,12 @@ public class IdMap {
 	private Int2ObjectMap<List<BlockEntry>> blockPropertiesMap;
 
 	/**
+	 * Neovis (from Iris 1.10): maps block tags ({@code %namespace:tag}) to block ids defined in block.properties.
+	 * Kept in file order; tags are applied after all explicit block entries.
+	 */
+	private final Int2ObjectLinkedOpenHashMap<List<TagEntry>> blockTagMap = new Int2ObjectLinkedOpenHashMap<>();
+
+	/**
 	 * A set of render type overrides for specific blocks. Allows shader packs to move blocks to different render types.
 	 */
 	private Map<NamespacedId, BlockRenderType> blockRenderTypeMap;
@@ -69,7 +78,7 @@ public class IdMap {
 			.map(IdMap::parseEntityIdMap).orElse(Object2IntMaps.emptyMap());
 
 		loadProperties(shaderPath, "block.properties", shaderPackOptions, environmentDefines).ifPresent(blockProperties -> {
-			blockPropertiesMap = parseBlockMap(blockProperties, "block.", "block.properties");
+			blockPropertiesMap = parseBlockMap(blockProperties, "block.", "block.properties", blockTagMap);
 			blockRenderTypeMap = parseRenderTypeMap(blockProperties, "layer.", "block.properties");
 		});
 
@@ -191,7 +200,8 @@ public class IdMap {
 		return Object2IntMaps.unmodifiable(idMap);
 	}
 
-	private static Int2ObjectMap<List<BlockEntry>> parseBlockMap(Properties properties, String keyPrefix, String fileName) {
+	private static Int2ObjectMap<List<BlockEntry>> parseBlockMap(Properties properties, String keyPrefix, String fileName,
+																Int2ObjectLinkedOpenHashMap<List<TagEntry>> tagEntriesById) {
 		Int2ObjectMap<List<BlockEntry>> entriesById = new Int2ObjectOpenHashMap<>();
 
 		properties.forEach((keyObject, valueObject) -> {
@@ -214,6 +224,7 @@ public class IdMap {
 			}
 
 			List<BlockEntry> entries = new ArrayList<>();
+			List<TagEntry> tagEntries = new ArrayList<>();
 
 			// Split on whitespace groups, not just single spaces
 			for (String part : value.split("\\s+")) {
@@ -222,13 +233,23 @@ public class IdMap {
 				}
 
 				try {
-					entries.add(BlockEntry.parse(part));
+					Entry entry = BlockEntry.parseEntry(part);
+
+					if (entry instanceof BlockEntry blockEntry) {
+						entries.add(blockEntry);
+					} else if (entry instanceof TagEntry tagEntry) {
+						tagEntries.add(tagEntry);
+					}
 				} catch (Exception e) {
 					Iris.logger.warn("Unexpected error while parsing an entry from " + fileName + " for the key " + key + ":", e);
 				}
 			}
 
 			entriesById.put(intId, Collections.unmodifiableList(entries));
+
+			if (!tagEntries.isEmpty()) {
+				tagEntriesById.put(intId, Collections.unmodifiableList(tagEntries));
+			}
 		});
 
 		return Int2ObjectMaps.unmodifiable(entriesById);
@@ -262,6 +283,12 @@ public class IdMap {
 			}
 
 			for (String part : value.split("\\s+")) {
+				if (part.startsWith("%")) {
+					// Neovis (as Iris 1.10): tags are only supported in block ID entries, not in render type overrides
+					Iris.logger.error("Cannot use a tag in the render type map: " + key + " = " + part);
+					continue;
+				}
+
 				// Note: NamespacedId performs no validation on the content. That will need to be done by whatever is
 				//       converting these things to ResourceLocations.
 				overrides.put(new NamespacedId(part), renderType);
@@ -298,6 +325,13 @@ public class IdMap {
 		return blockPropertiesMap;
 	}
 
+	/**
+	 * Neovis (from Iris 1.10): the block tag entries of block.properties, by block id. Empty when the pack uses none.
+	 */
+	public Int2ObjectMap<List<TagEntry>> getTagEntries() {
+		return blockTagMap;
+	}
+
 	public Object2IntFunction<NamespacedId> getItemIdMap() {
 		return itemIdMap;
 	}
@@ -325,11 +359,12 @@ public class IdMap {
 		return Objects.equals(itemIdMap, idMap.itemIdMap)
 			&& Objects.equals(entityIdMap, idMap.entityIdMap)
 			&& Objects.equals(blockPropertiesMap, idMap.blockPropertiesMap)
+			&& Objects.equals(blockTagMap, idMap.blockTagMap)
 			&& Objects.equals(blockRenderTypeMap, idMap.blockRenderTypeMap);
 	}
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(itemIdMap, entityIdMap, blockPropertiesMap, blockRenderTypeMap);
+		return Objects.hash(itemIdMap, entityIdMap, blockPropertiesMap, blockTagMap, blockRenderTypeMap);
 	}
 }

@@ -19,6 +19,7 @@ import net.irisshaders.iris.pipeline.WorldRenderingPipeline;
 import net.irisshaders.iris.shaderpack.DimensionId;
 import net.irisshaders.iris.shaderpack.ShaderPack;
 import net.irisshaders.iris.shaderpack.discovery.ShaderpackDirectoryManager;
+import net.irisshaders.iris.shaderpack.materialmap.BlockTagState;
 import net.irisshaders.iris.shaderpack.materialmap.NamespacedId;
 import net.irisshaders.iris.shaderpack.option.OptionSet;
 import net.irisshaders.iris.shaderpack.option.Profile;
@@ -113,6 +114,8 @@ public class Iris {
 		try {
 			FMLJavaModLoadingContext.get().getModEventBus().addListener(this::onKeyRegister);
 			MinecraftForge.EVENT_BUS.addListener(this::onKeyInput);
+			// Neovis: rebuild block ID maps that use block tags once the client has the tags (see BlockTagState)
+			MinecraftForge.EVENT_BUS.addListener(BlockTagState::onTagsUpdated);
 
 			IRIS_VERSION = ModList.get().getModContainerById(MODID).get().getModInfo().getVersion().toString();
 

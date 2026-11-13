@@ -2,6 +2,8 @@ package net.irisshaders.iris.pipeline;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import net.irisshaders.iris.Iris;
+import net.irisshaders.iris.gl.sampler.SamplerLimits;
+import net.irisshaders.iris.mixin.GlStateManagerAccessor;
 import net.irisshaders.iris.shaderpack.materialmap.NamespacedId;
 import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
 import net.irisshaders.iris.uniforms.SystemTimeUniforms;
@@ -100,7 +102,9 @@ public class PipelineManager {
 		// issues elsewhere.
 		//
 		// Without this code, there will be weird issues when reloading certain shaderpacks.
-		for (int i = 0; i < 16; i++) {
+		// Neovis: all usable units, not only the first 16 (see IrisRenderingPipeline#destroy)
+		int textureUnits = Math.min(SamplerLimits.get().getMaxTextureUnits(), GlStateManagerAccessor.getTEXTURES().length);
+		for (int i = 0; i < textureUnits; i++) {
 			GlStateManager.glActiveTexture(GL20C.GL_TEXTURE0 + i);
 			GlStateManager._bindTexture(0);
 		}

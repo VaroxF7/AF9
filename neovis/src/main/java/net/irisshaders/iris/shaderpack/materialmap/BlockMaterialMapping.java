@@ -10,12 +10,14 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraftforge.client.ChunkRenderTypeSet;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.HashMap;
@@ -34,6 +36,96 @@ public class BlockMaterialMapping {
 		});
 
 		return blockStateIds;
+	}
+
+	/**
+	 * Neovis: block ID map including block tag entries ({@code %namespace:tag}), like Iris 1.10.
+	 * Explicit block entries are added first and tags after them; with putIfAbsent the first mapping of a state wins,
+	 * so an explicitly listed block always keeps its own ID even when it is also in a tag used by another ID.
+	 * Tags resolve to nothing until the client has received the server's tags (see {@link BlockTagState}).
+	 */
+	public static Object2IntMap<BlockState> createBlockStateIdMap(Int2ObjectMap<List<BlockEntry>> blockPropertiesMap,
+																  Int2ObjectMap<List<TagEntry>> tagPropertiesMap) {
+		Object2IntMap<BlockState> blockStateIds = createBlockStateIdMap(blockPropertiesMap);
+
+		tagPropertiesMap.forEach((intId, entries) -> {
+			for (TagEntry entry : entries) {
+				addTag(entry, blockStateIds, intId);
+			}
+		});
+
+		return blockStateIds;
+	}
+
+	private static void addTag(TagEntry tagEntry, Object2IntMap<BlockState> idMap, int intId) {
+		NamespacedId id = tagEntry.id();
+
+		// Same matching as Iris 1.10: namespace and path compared case-insensitively, exactly one tag must match.
+		List<TagKey<Block>> compatibleTags = BuiltInRegistries.BLOCK.getTagNames()
+			.filter(key -> key.location().getNamespace().equalsIgnoreCase(id.getNamespace())
+				&& key.location().getPath().equalsIgnoreCase(id.getName()))
+			.toList();
+
+		if (compatibleTags.isEmpty()) {
+			if (!FMLEnvironment.production) {
+				Iris.logger.warn("Failed to find the block tag " + id.getNamespace() + ":" + id.getName());
+			}
+
+			return;
+		}
+
+		if (compatibleTags.size() > 1) {
+			Iris.logger.error("More than one block tag matched " + id.getNamespace() + ":" + id.getName() + " (" + compatibleTags + "), ignoring it");
+			return;
+		}
+
+		Map<String, String> propertyPredicates = tagEntry.propertyPredicates();
+		int blocksMissingProperties = 0;
+
+		for (Holder<Block> holder : BuiltInRegistries.BLOCK.getTagOrEmpty(compatibleTags.get(0))) {
+			Block block = holder.value();
+			StateDefinition<Block, BlockState> stateManager = block.getStateDefinition();
+
+			if (propertyPredicates.isEmpty()) {
+				for (BlockState state : stateManager.getPossibleStates()) {
+					// NB: putIfAbsent: the first successful mapping takes precedence (OptiFine parity, Iris #1327)
+					idMap.putIfAbsent(state, intId);
+				}
+
+				continue;
+			}
+
+			Map<Property<?>, String> properties = new HashMap<>();
+			boolean missingProperty = false;
+
+			for (Map.Entry<String, String> predicate : propertyPredicates.entrySet()) {
+				Property<?> property = stateManager.getProperty(predicate.getKey());
+
+				if (property == null) {
+					// Iris 1.10 ignores a predicate the block doesn't have; Neovis does the same but logs one
+					// summary line per tag instead of one warning per block (modded tags can hold hundreds of blocks).
+					missingProperty = true;
+					continue;
+				}
+
+				properties.put(property, predicate.getValue());
+			}
+
+			if (missingProperty) {
+				blocksMissingProperties++;
+			}
+
+			for (BlockState state : stateManager.getPossibleStates()) {
+				if (checkState(state, properties)) {
+					idMap.putIfAbsent(state, intId);
+				}
+			}
+		}
+
+		if (blocksMissingProperties > 0) {
+			Iris.logger.warn("block." + intId + ": " + blocksMissingProperties + " block(s) in tag " + id.getNamespace() + ":" + id.getName()
+				+ " lack some of the properties " + propertyPredicates.keySet() + "; those filters were ignored for them");
+		}
 	}
 
 	public static Map<Holder.Reference<Block>, ChunkRenderTypeSet> createBlockTypeMap(Map<NamespacedId, BlockRenderType> blockPropertiesMap) {
