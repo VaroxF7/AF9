@@ -47,6 +47,28 @@ jobs:
           cp "$(ls build/libs/*.jar | grep -vE -- '-(sources|dev|shadow|dev-shadow)\.jar$' | head -1)" ../neovis-jar/
           ls -l ../neovis-jar
 
+      # Forge 1.20.1 runs with SRG names outside dev, so a Neovis mixin that targets a Minecraft
+      # method only works if the refmap maps it. Fail the build if the invoker added for the
+      # selected-block uniforms is not mapped.
+      - name: Check the mixin refmap
+        run: |
+          python3 - ../neovis-jar/*.jar <<'EOF'
+          import json, re, sys, zipfile
+          jar = zipfile.ZipFile(sys.argv[1])
+          names = [n for n in jar.namelist() if n.endswith("refmap.json")]
+          print("refmaps:", names)
+          found = None
+          for n in names:
+              data = json.loads(jar.read(n))
+              for table in [data.get("mappings", {})] + list(data.get("data", {}).values()):
+                  entry = table.get("net/irisshaders/iris/mixin/GameRendererAccessor", {})
+                  if "shouldRenderBlockOutline" in entry:
+                      found = entry["shouldRenderBlockOutline"]
+          print("GameRendererAccessor.shouldRenderBlockOutline ->", found)
+          if not found or not re.search(r"\bm_\d+_", found):
+              sys.exit("shouldRenderBlockOutline is not mapped to an SRG name in the refmap")
+          EOF
+
       - uses: actions/upload-artifact@v4
         with:
           name: neovis
