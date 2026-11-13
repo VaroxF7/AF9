@@ -23,4 +23,8 @@ public interface GameRendererAccessor {
 
 	@Invoker
 	double invokeGetFov(Camera camera, float tickDelta, boolean b);
+
+	// Neovis: from Iris 1.7 (1.20.1), for currentSelectedBlockId/currentSelectedBlockPos
+	@Invoker("shouldRenderBlockOutline")
+	boolean shouldRenderBlockOutlineA();
 }

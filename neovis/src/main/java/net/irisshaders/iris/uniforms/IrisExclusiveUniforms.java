@@ -3,15 +3,28 @@ package net.irisshaders.iris.uniforms;
 import net.irisshaders.iris.gl.uniform.UniformHolder;
 import net.irisshaders.iris.gl.uniform.UniformUpdateFrequency;
 import net.irisshaders.iris.gui.option.IrisVideoSettings;
+import it.unimi.dsi.fastutil.objects.Object2IntFunction;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.irisshaders.iris.helpers.JomlConversions;
+import net.irisshaders.iris.mixin.GameRendererAccessor;
+import net.irisshaders.iris.shaderpack.materialmap.NamespacedId;
+import net.irisshaders.iris.shaderpack.materialmap.WorldRenderingSettings;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Math;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 import org.joml.Vector4f;
 
 import java.util.Objects;
@@ -37,6 +50,19 @@ public class IrisExclusiveUniforms {
 		uniforms.uniform1f(UniformUpdateFrequency.PER_TICK, "maxPlayerAir", IrisExclusiveUniforms::getMaxAir);
 		uniforms.uniform1b(UniformUpdateFrequency.PER_FRAME, "firstPersonCamera", IrisExclusiveUniforms::isFirstPersonCamera);
 		uniforms.uniform1b(UniformUpdateFrequency.PER_TICK, "isSpectator", IrisExclusiveUniforms::isSpectator);
+		// Neovis: Iris 1.7 (1.20.1) and Iris 1.10 uniforms that Mekalus lacked
+		uniforms.uniform1i(UniformUpdateFrequency.PER_FRAME, "currentSelectedBlockId", IrisExclusiveUniforms::getCurrentSelectedBlockId);
+		uniforms.uniform3f(UniformUpdateFrequency.PER_FRAME, "currentSelectedBlockPos", IrisExclusiveUniforms::getCurrentSelectedBlockPos);
+		uniforms.uniform1i(UniformUpdateFrequency.PER_FRAME, "seaLevel", () -> Minecraft.getInstance().level == null ? 0 : Minecraft.getInstance().level.getSeaLevel());
+		uniforms.uniform1b(UniformUpdateFrequency.PER_TICK, "heavyFog", IrisExclusiveUniforms::isHeavyFog);
+		uniforms.uniform1b(UniformUpdateFrequency.PER_TICK, "feetInWater", IrisExclusiveUniforms::getIsInShallowWater);
+		uniforms.uniform1b(UniformUpdateFrequency.PER_TICK, "inSwimmingAnimation", IrisExclusiveUniforms::getIsSwimming);
+		uniforms.uniform1b(UniformUpdateFrequency.PER_TICK, "isRiding", IrisExclusiveUniforms::getIsPassenger);
+		uniforms.uniform1b(UniformUpdateFrequency.PER_TICK, "isElytraFlying", IrisExclusiveUniforms::isElytraFlying);
+		uniforms.uniform1b(UniformUpdateFrequency.PER_TICK, "vehicleInWater", IrisExclusiveUniforms::getVehicleInShallowWater);
+		uniforms.uniform1i(UniformUpdateFrequency.PER_TICK, "vehicleId", IrisExclusiveUniforms::getVehicleId);
+		uniforms.uniform3d(UniformUpdateFrequency.PER_FRAME, "vehicleLookVector", IrisExclusiveUniforms::getVehicleLookVector);
+		uniforms.uniform3d(UniformUpdateFrequency.PER_FRAME, "relativeVehiclePosition", IrisExclusiveUniforms::getRelativeVehiclePosition);
 		uniforms.uniform3d(UniformUpdateFrequency.PER_FRAME, "eyePosition", IrisExclusiveUniforms::getEyePosition);
 		uniforms.uniform1f(UniformUpdateFrequency.PER_TICK, "cloudTime", CapturedRenderingState.INSTANCE::getCloudTime);
 		uniforms.uniform3d(UniformUpdateFrequency.PER_FRAME, "relativeEyePosition", () -> CameraUniforms.getUnshiftedCameraPosition().sub(getEyePosition()));
@@ -60,6 +86,101 @@ public class IrisExclusiveUniforms {
 				return zero;
 			}
 		});
+	}
+
+	// Neovis: selected block uniforms, as in Iris 1.7 for 1.20.1
+	private static int getCurrentSelectedBlockId() {
+		Minecraft minecraft = Minecraft.getInstance();
+		HitResult hitResult = minecraft.hitResult;
+		if (minecraft.level != null && ((GameRendererAccessor) minecraft.gameRenderer).shouldRenderBlockOutlineA() && hitResult != null && hitResult.getType() == HitResult.Type.BLOCK) {
+			BlockPos blockPos = ((BlockHitResult) hitResult).getBlockPos();
+			BlockState blockState = minecraft.level.getBlockState(blockPos);
+			Object2IntMap<BlockState> blockStateIds = WorldRenderingSettings.INSTANCE.getBlockStateIds();
+			if (blockStateIds != null && !blockState.isAir() && minecraft.level.getWorldBorder().isWithinBounds(blockPos)) {
+				return blockStateIds.getInt(blockState);
+			}
+		}
+
+		return 0;
+	}
+
+	private static Vector3f getCurrentSelectedBlockPos() {
+		Minecraft minecraft = Minecraft.getInstance();
+		HitResult hitResult = minecraft.hitResult;
+		if (minecraft.level != null && ((GameRendererAccessor) minecraft.gameRenderer).shouldRenderBlockOutlineA() && hitResult != null && hitResult.getType() == HitResult.Type.BLOCK) {
+			BlockPos blockPos = ((BlockHitResult) hitResult).getBlockPos();
+			return blockPos.getCenter().subtract(minecraft.gameRenderer.getMainCamera().getPosition()).toVector3f();
+		}
+
+		return new Vector3f(-256.0f);
+	}
+
+	// Neovis: player/vehicle uniforms from Iris 1.10, on the 1.20.1 API.
+	// Mojang's newer Entity.isInShallowWater() is "in water, eyes not under water", written out here.
+	private static boolean isInShallowWater(Entity entity) {
+		return entity.isInWater() && !entity.isUnderWater();
+	}
+
+	private static Entity getPlayerVehicle() {
+		if (Minecraft.getInstance().player == null) return null;
+		return Minecraft.getInstance().player.getVehicle();
+	}
+
+	private static boolean getIsInShallowWater() {
+		if (Minecraft.getInstance().player == null) return false;
+		return isInShallowWater(Minecraft.getInstance().player);
+	}
+
+	private static boolean getIsSwimming() {
+		if (Minecraft.getInstance().player == null) return false;
+		return Minecraft.getInstance().player.isSwimming();
+	}
+
+	private static boolean getIsPassenger() {
+		if (Minecraft.getInstance().player == null) return false;
+		return Minecraft.getInstance().player.isPassenger();
+	}
+
+	private static boolean isElytraFlying() {
+		if (Minecraft.getInstance().player == null) return false;
+		return Minecraft.getInstance().player.isFallFlying();
+	}
+
+	private static boolean getVehicleInShallowWater() {
+		Entity vehicle = getPlayerVehicle();
+		return vehicle != null && isInShallowWater(vehicle);
+	}
+
+	private static int getVehicleId() {
+		Entity vehicle = getPlayerVehicle();
+		if (vehicle == null) return 0;
+
+		Object2IntFunction<NamespacedId> entityIds = WorldRenderingSettings.INSTANCE.getEntityIds();
+		if (entityIds == null) return 0;
+
+		ResourceLocation id = BuiltInRegistries.ENTITY_TYPE.getKey(vehicle.getType());
+		if (id == null) return 0;
+
+		return entityIds.applyAsInt(new NamespacedId(id.getNamespace(), id.getPath()));
+	}
+
+	private static Vector3d getVehicleLookVector() {
+		Entity vehicle = getPlayerVehicle();
+		if (vehicle == null) return ZERO;
+		return JomlConversions.fromVec3(vehicle.getForward());
+	}
+
+	private static Vector3d getRelativeVehiclePosition() {
+		Entity vehicle = getPlayerVehicle();
+		if (vehicle == null) return ZERO;
+
+		Vec3 vehiclePos = vehicle.getPosition(CapturedRenderingState.INSTANCE.getTickDelta());
+		return CameraUniforms.getUnshiftedCameraPosition().sub(vehiclePos.x, vehiclePos.y, vehiclePos.z);
+	}
+
+	private static boolean isHeavyFog() {
+		Minecraft minecraft = Minecraft.getInstance();
+		return minecraft.level != null && minecraft.gui.getBossOverlay().shouldCreateWorldFog();
 	}
 
 	private static float getThunderStrength() {
